@@ -73,3 +73,4 @@ build.xml
 /dist/
 /nbdist/
 /.nb-gradle/
+/astrsomn-ui/package-lock.json
