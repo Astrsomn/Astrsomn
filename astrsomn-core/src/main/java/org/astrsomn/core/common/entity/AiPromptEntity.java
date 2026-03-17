@@ -12,6 +12,8 @@ import org.astrsomn.core.common.base.BaseEntity;
 @EqualsAndHashCode(callSuper = false)
 @TableName("AI_PROMPT")
 public class AiPromptEntity extends BaseEntity<Long> {
+
+
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
@@ -24,25 +26,30 @@ public class AiPromptEntity extends BaseEntity<Long> {
     /**
      * 标题
      */
+    @TableField("PROMPT_TITLE")
     private String promptTitle;
 
     /**
      * 内容
      */
+    @TableField("PROMPT_CONTENT")
     private String promptContent;
 
     /**
      * 场景分类
      */
+    @TableField("SCENE")
     private String scene;
 
     /**
      * 状态  启用enable/禁用disable
      */
-    private String status;
+    @TableField("ENABLE_FLAG")
+    private String enabledFlag;
 
     /**
      * 版本号
      */
+    @TableField("VERSION")
     private Integer version;
 }

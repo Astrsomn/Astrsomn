@@ -6,12 +6,17 @@ import org.astrsomn.core.common.base.BaseEntity;
 
 @Data
 @TableName("SYSTEM_USER")
-public class SystemUser extends BaseEntity<Long> {
+public class SystemUserEntity extends BaseEntity<Long> {
 
-
+    
     private String username;
 
 
     private String password;
 
+
+    private String adminFlag;
+
+
+    private String email;
 }

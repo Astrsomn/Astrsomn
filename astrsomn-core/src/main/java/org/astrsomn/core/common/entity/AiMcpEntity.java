@@ -14,7 +14,7 @@ import org.astrsomn.core.common.base.BaseEntity;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("AI_MCP_CONFIG")
-public class AiMcpConfigEntity extends BaseEntity<Long> {
+public class AiMcpEntity extends BaseEntity<Long> {
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 

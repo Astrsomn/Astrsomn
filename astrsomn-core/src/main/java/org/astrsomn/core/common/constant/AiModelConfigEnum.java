@@ -8,7 +8,7 @@ public interface AiModelConfigEnum {
 
     @Getter
     @AllArgsConstructor
-    enum ModelType implements BaseEnum {
+    enum ModelType  implements BaseEnum {
 
         /**
          * 聊天模型（Chat）
@@ -137,15 +137,7 @@ public interface AiModelConfigEnum {
             return null;
         }
 
-        @Override
-        public String getCode() {
-            return this.code;
-        }
 
-        @Override
-        public String getDesc() {
-            return this.desc;
-        }
     }
 
     @Getter

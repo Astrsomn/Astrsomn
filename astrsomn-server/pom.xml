@@ -21,7 +21,7 @@
         <!-- 核心模块 -->
         <dependency>
             <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-core</artifactId>
+            <artifactId>astrsomn-spring-boot-starter</artifactId>
         </dependency>
 
         <!-- Spring Boot -->

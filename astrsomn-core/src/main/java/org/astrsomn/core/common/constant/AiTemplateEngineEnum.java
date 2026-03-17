@@ -11,9 +11,13 @@ public interface AiTemplateEngineEnum {
     @Getter
     @AllArgsConstructor
     enum CategoryEnum implements BaseEnum {
+
         RAG("RAG", "RAG"),
+
         CODE_REVIEW("CODE_REVIEW", "代码审查"),
+
         SQL("SQL", "SQL"),
+
         OTHER("OTHER", "其他");
 
         private final String code;
@@ -34,16 +38,13 @@ public interface AiTemplateEngineEnum {
     @Getter
     @AllArgsConstructor
     enum EnabledEnum implements BaseEnum {
-        YES(1, "启用"),
-        NO(0, "禁用");
+        ENABLE("ENABLE", "启用"),
+        DISABLE("DISABLE", "禁用");
 
-        private final Integer code;
+        private final String code;
         private final String desc;
 
-        @Override
-        public String getCode() {
-            return String.valueOf(code);
-        }
+
     }
 
     @Getter

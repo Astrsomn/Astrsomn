@@ -2,7 +2,8 @@ package org.astrsomn.core.common.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import opple.data.common.dto.constant.BaseEnum;
+import org.astrsomn.core.common.base.BaseEnum;
+
 
 /**
  * AI 工具配置相关字典枚举

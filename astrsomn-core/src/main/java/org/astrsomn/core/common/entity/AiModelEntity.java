@@ -13,7 +13,7 @@ import org.astrsomn.core.common.base.BaseEntity;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("AI_MODEL_CONFIG")
-public class AiModelConfigEntity extends BaseEntity<Long> {
+public class AiModelEntity extends BaseEntity<Long> {
     /**
      * 模型ID
      */
