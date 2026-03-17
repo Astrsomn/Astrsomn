@@ -1,4 +1,4 @@
-package org.astrsomn.astrsomnspringbootstarter;
+package org.astrsomn.starter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

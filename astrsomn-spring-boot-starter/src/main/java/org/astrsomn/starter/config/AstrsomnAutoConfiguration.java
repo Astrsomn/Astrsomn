@@ -1,4 +1,4 @@
-package org.astrsomn.astrsomnspringbootstarter;
+package org.astrsomn.starter.config;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
