@@ -9,7 +9,6 @@ public class AiChatBuildParam {
     /**
      * 信息
      */
-    @NotBlank(message = "输入消息不能为空")
     private String message;
 
     /**
@@ -110,6 +109,6 @@ public class AiChatBuildParam {
     /**
      * 指定构建类型
      */
-    private Class clazz = ChatAssistant.class;
+    private Class clazz;
 
 }
