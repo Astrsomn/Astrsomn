@@ -1,4 +1,4 @@
-package org.astrsomn.astrsomnspringbootstarter;
+package org.astrsomn.starter.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

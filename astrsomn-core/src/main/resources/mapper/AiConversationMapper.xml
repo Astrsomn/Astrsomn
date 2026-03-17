@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.astrsomn.core.mapper.AiConversationMapper">
+
+
+    <select id="getMaxMessageOrder" resultType="java.lang.Integer">
+        SELECT COALESCE(MAX(message_order), -1) FROM AI_CONVERSATION WHERE deleted = 0 AND memory_id = #{messageId}
+    </select>
+
+
+</mapper>

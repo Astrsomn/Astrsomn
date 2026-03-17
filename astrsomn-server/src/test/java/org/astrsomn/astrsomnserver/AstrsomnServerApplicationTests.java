@@ -1,4 +1,4 @@
-package org.astrsomn.astrsomnserver;
+package org.astrsomn.server;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

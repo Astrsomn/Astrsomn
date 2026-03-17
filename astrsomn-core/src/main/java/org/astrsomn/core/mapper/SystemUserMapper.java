@@ -1,0 +1,9 @@
+package org.astrsomn.core.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+import org.astrsomn.core.common.entity.SystemUserEntity;
+
+@Mapper
+public interface SystemUserMapper extends BaseMapper<SystemUserEntity> {
+}
