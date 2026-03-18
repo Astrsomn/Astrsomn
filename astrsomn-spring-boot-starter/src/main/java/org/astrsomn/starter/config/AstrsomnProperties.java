@@ -1,44 +1,35 @@
 package org.astrsomn.starter.config;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+@Data
 @ConfigurationProperties(prefix = "astrsomn")
 public class AstrsomnProperties {
 
-    private String apiKey;
-    private String model;
-    private String baseUrl;
-    private int timeout = 30000;
 
-    public String getApiKey() {
-        return apiKey;
+    private String envCode;
+
+
+    class DataBase{
+
+
+        private String baseUrl;
+
+
+        private String username;
+
+
+        private String driver;
+
+
+
+
+        private String password;
     }
 
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
 
-    public String getModel() {
-        return model;
-    }
 
-    public void setModel(String model) {
-        this.model = model;
-    }
 
-    public String getBaseUrl() {
-        return baseUrl;
-    }
 
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
-    }
-
-    public int getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
 }

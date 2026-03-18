@@ -1,9 +1,11 @@
-package org.astrsomn.core.common.langchain;
+package org.astrsomn.core.common.langchain.buildParam;
 
 import lombok.Data;
+import org.astrsomn.core.common.langchain.AstrsomnChatAssistant;
 
 import java.util.List;
 @Data
+@Deprecated
 public class AiChatBuildParam {
 
     /**
@@ -31,14 +33,12 @@ public class AiChatBuildParam {
      * 提示词UUID
      */
     private String promptUuid;
+
     /**
      * 系统消息
      */
     private String systemMessage;
-    /**
-     * 文件链接列表
-     */
-    List<String> fileList;
+
 
     /**
      * 最大记忆数
@@ -109,6 +109,6 @@ public class AiChatBuildParam {
     /**
      * 指定构建类型
      */
-    private Class clazz;
+    private Class clazz = AstrsomnChatAssistant.class;
 
 }

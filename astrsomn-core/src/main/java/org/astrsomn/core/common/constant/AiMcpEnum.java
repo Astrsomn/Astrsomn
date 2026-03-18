@@ -5,9 +5,9 @@ import lombok.Getter;
 import org.astrsomn.core.common.base.BaseEnum;
 
 /**
- * AI MCP 配置相关字典枚举
+ * The Enum for AiMcpConfig
  */
-public interface AiMcpConfigEnum {
+public interface AiMcpEnum {
 
     @Getter
     @AllArgsConstructor
@@ -23,15 +23,11 @@ public interface AiMcpConfigEnum {
     @Getter
     @AllArgsConstructor
     enum EnabledEnum implements BaseEnum {
-        YES(1, "是"),
-        NO(0, "否");
+        YES("Y", "YES" ),
+        NO("N", "NO");
 
-        private final Integer code;
+        private final String code;
         private final String desc;
 
-        @Override
-        public String getCode() {
-            return String.valueOf(code);
-        }
     }
 }

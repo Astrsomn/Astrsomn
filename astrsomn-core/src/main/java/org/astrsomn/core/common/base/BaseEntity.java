@@ -1,47 +1,60 @@
 package org.astrsomn.core.common.base;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 基础实体类
- * @param <T> ID类型
+ * Base entity class containing common fields for all entities.
+ *
+ * @param <T> The type of the primary key ID.
  */
 @Data
 public class BaseEntity<T extends Serializable> implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键ID
+     * Primary key ID.
      */
     private T id;
 
     /**
-     * 创建时间
+     * The timestamp when the record was created.
      */
+    @TableField("CREATE_TIME")
     private LocalDateTime createTime;
 
     /**
-     * 更新时间
+     * The timestamp when the record was last updated.
      */
+    @TableField("UPDATE_TIME")
     private LocalDateTime updateTime;
 
     /**
-     * 创建人
+     * The identifier or name of the user who created the record.
      */
+    @TableField("CREATE_USER")
     private String createUser;
 
     /**
-     * 更新人
+     * The identifier or name of the user who last modified the record.
      */
+    @TableField("UPDATE_USER")
     private String updateUser;
 
     /**
-     * 是否删除
+     * Logical deletion flag.
+     * False indicates active, True indicates deleted.
      */
+    @TableField("DELETED")
     private Boolean deleted = false;
-    
 
+    /**
+     * The environment code (e.g., DEV, TEST, PROD).
+     */
+    @TableField("ENV_CODE")
+    private String envCode;
 }

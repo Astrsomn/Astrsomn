@@ -1,6 +1,5 @@
 package org.astrsomn.core.common.base;
 
-import org.astrsomn.common.constant.*;
 import org.astrsomn.core.common.constant.*;
 import org.springframework.stereotype.Component;
 
@@ -24,22 +23,22 @@ public class EnumRegistry {
     public static String BIZ_MYSQL_SLOW_SQL = DATA_AI + "BIZ_MYSQL_SLOW_SQL-";
     // 静态代码块注册所有枚举
     static {
-        register(AI_MODEL_CONFIG + "MODEL_TYPE" , AiModelConfigEnum.ModelType.class);
-        register(AI_MODEL_CONFIG + "PROVIDER", AiModelConfigEnum.ProviderEnum.class);
-        register(AI_MODEL_CONFIG + "STATUS", AiModelConfigEnum.StatusEnum.class);
-        register(AI_MODEL_CONFIG + "CAPABILITIES", AiModelConfigEnum.CapabilitiesEnum.class);
+
+        register(AI_MODEL_CONFIG + "PROVIDER", AiModelEnum.ProviderEnum.class);
+        register(AI_MODEL_CONFIG + "STATUS", AiModelEnum.StatusEnum.class);
+        register(AI_MODEL_CONFIG + "CAPABILITIES", AiModelEnum.CapabilitiesEnum.class);
         register(AI_PROMPT + "STATUS", AiPromptEnum.StatusEnum.class);
         register(AI_PROMPT + "SCENE", AiPromptEnum.SceneEnum.class);
-        register(AI_TEMPLATE_ENGINE + "CATEGORY", AiTemplateEngineEnum.CategoryEnum.class);
-        register(AI_TEMPLATE_ENGINE + "TEMPLATE_TYPE", AiTemplateEngineEnum.TemplateTypeEnum.class);
-        register(AI_TEMPLATE_ENGINE + "ENABLED", AiTemplateEngineEnum.EnabledEnum.class);
-        register(AI_TEMPLATE_ENGINE + "SYSTEM_BUILTIN", AiTemplateEngineEnum.SystemBuiltinEnum.class);
-        register(AI_MCP_CONFIG + "TYPE", AiMcpConfigEnum.TypeEnum.class);
-        register(AI_MCP_CONFIG + "ENABLED", AiMcpConfigEnum.EnabledEnum.class);
-        register(AI_TOOL_CONFIG + "TYPE", AiToolConfigEnum.TypeEnum.class);
-        register(AI_TOOL_CONFIG + "STATUS", AiToolConfigEnum.StatusEnum.class);
-        register(AI_AGENT_CONFIG + "STATUS", AiAgentConfigEnum.StatusEnum.class);
-        register(AI_AGENT_CONFIG + "MEMORY_MODE", AiAgentConfigEnum.MemoryModeEnum.class);
+
+        register(AI_TEMPLATE_ENGINE + "TEMPLATE_TYPE", AiTemplateEnum.TemplateTypeEnum.class);
+        register(AI_TEMPLATE_ENGINE + "ENABLED", AiTemplateEnum.EnabledEnum.class);
+        register(AI_TEMPLATE_ENGINE + "SYSTEM_BUILTIN", AiTemplateEnum.SystemBuiltinEnum.class);
+        register(AI_MCP_CONFIG + "TYPE", AiMcpEnum.TypeEnum.class);
+        register(AI_MCP_CONFIG + "ENABLED", AiMcpEnum.EnabledEnum.class);
+        register(AI_TOOL_CONFIG + "TYPE", AiToolEnum.TypeEnum.class);
+        register(AI_TOOL_CONFIG + "STATUS", AiToolEnum.StatusEnum.class);
+        register(AI_AGENT_CONFIG + "STATUS", AiAgentEnum.StatusEnum.class);
+        register(AI_AGENT_CONFIG + "MEMORY_MODE", AiAgentEnum.MemoryModeEnum.class);
     }
 
     private static void register(String name, Class<? extends Enum<?>> enumClass) {

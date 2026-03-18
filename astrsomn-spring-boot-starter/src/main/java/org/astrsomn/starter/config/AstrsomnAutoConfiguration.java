@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration
 @EnableConfigurationProperties(AstrsomnProperties.class)
-@ConditionalOnClass(name = "org.astrsomn.astrsomncore.service.AiService")
+@ConditionalOnClass(name = "org.astrsomn.core.service.AiService")
 public class AstrsomnAutoConfiguration {
 
     @Bean

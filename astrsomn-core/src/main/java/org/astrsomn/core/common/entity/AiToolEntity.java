@@ -1,6 +1,8 @@
 package org.astrsomn.core.common.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
@@ -10,38 +12,48 @@ import org.astrsomn.core.common.base.BaseEntity;
 public class AiToolEntity extends BaseEntity<Long> {
 
     /**
-     * 工具名称
+     * id
      */
-    @TableField("NAME")
-    private String name;
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private Long id;
 
     /**
-     * 工具描述
+     * Tool name
+     */
+    @TableField("TOOL_NAME")
+    private String toolName;
+
+    /**
+     * Tool Key
+     */
+    @TableField("TOOL_KEY")
+    private String toolKey;
+    /**
+     * Tool description
      */
     @TableField("DESCRIPTION")
     private String description;
 
-
     /**
-     * bean名称
+     * Bean name
      */
     @TableField("BEAN_NAME")
     private String beanName;
 
     /**
-     * 方法名
+     * Method name
      */
     @TableField("METHOD_NAME")
     private String methodName;
 
     /**
-     * 工具类型（html页面，调用方法，api）
+     * Tool type (html page, call method, api)
      */
     @TableField("TYPE")
     private String type;
 
     /**
-     * 状态（启用/禁用）
+     * Status (enabled/disabled)
      */
     @TableField("ENABLE_FLAG")
     private String enableFlag;

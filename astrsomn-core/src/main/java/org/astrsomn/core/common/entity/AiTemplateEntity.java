@@ -8,61 +8,61 @@ import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
 
 /**
- * AI 模板引擎实体（支持 .ftl / .st 两种格式）
+ * AI template engine entity (supports .ftl / .st two formats)
  */
 @Data
 @TableName("AI_TEMPLATE")
 public class AiTemplateEntity extends BaseEntity<Long> {
+
+
+    /**
+     * id
+     */
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
-     * 同一模板多版本共用的 UUID
+     * Key shared by multiple versions of the same template
      */
-    @TableField("template_uuid")
-    private String templateUuid;
-
-    /**
-     * 唯一编码
-     */
-    @TableField("CODE")
-    private String code;
-
-    /**
-     * 名称
-     */
-    @TableField("NAME")
-    private String name;
+    @TableField("TEMPLATE_KEY")
+    private String templateKey;
 
 
     /**
-     * 分类
+     * Name
+     */
+    @TableField("TEMPLATE_TITLE")
+    private String templateTitle;
+
+    /**
+     * Template content
+     */
+    @TableField("CONTENT")
+    private String content;
+
+    /**
+     * Category
      */
     @TableField("CATEGORY")
     private String category;
 
     /**
-     * 模板类型：FREEMARKER(.ftl)、STRING_TEMPLATE(.st)
+     * Template type: FREEMARKER(.ftl), STRING_TEMPLATE(.st)
      */
     @TableField("TEMPLATE_TYPE")
     private String templateType;
 
     /**
-     * 版本号
+     * Version number
      */
     @TableField("VERSION")
     private Integer version;
 
     /**
-     * 是否启用
+     * Enabled flag
      */
-    @TableField("ENABLE_FLAG")
-    private String enabledFlag;
+    @TableField("STATUS")
+    private String status;
 
 
-    /**
-     * 模板内容
-     */
-    @TableField("CONTENT")
-    private String content;
 }

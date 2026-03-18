@@ -3,4 +3,7 @@
 <mapper namespace="org.astrsomn.core.mapper.AiPromptMapper">
 
 
+    <select id="getByUUID" resultType="java.lang.String">
+
+    </select>
 </mapper>

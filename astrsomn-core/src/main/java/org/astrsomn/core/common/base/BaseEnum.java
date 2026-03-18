@@ -10,4 +10,5 @@ public interface BaseEnum {
      * 获取枚举的描述（用于展示）
      */
     String getDesc();
+
 }

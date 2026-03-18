@@ -14,41 +14,44 @@ import org.astrsomn.core.common.base.BaseEntity;
 public class AiPromptEntity extends BaseEntity<Long> {
 
 
+    /**
+     * id
+     */
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
-     * UUID 提示词的多个版本共用一个UUID，确保能复原历史
+     * UUID - multiple versions of the prompt share the same UUID to ensure history can be restored
      */
-    @TableField("prompt_uuid")
-    private String promptUUID;
+    @TableField("PROMPT_KEY")
+    private String promptKey;
 
     /**
-     * 标题
+     * Title
      */
     @TableField("PROMPT_TITLE")
     private String promptTitle;
 
     /**
-     * 内容
+     * Content
      */
     @TableField("PROMPT_CONTENT")
     private String promptContent;
 
     /**
-     * 场景分类
+     * Scene classification
      */
     @TableField("SCENE")
     private String scene;
 
     /**
-     * 状态  启用enable/禁用disable
+     * Status - enable/disable
      */
     @TableField("ENABLE_FLAG")
     private String enabledFlag;
 
     /**
-     * 版本号
+     * Version number
      */
     @TableField("VERSION")
     private Integer version;

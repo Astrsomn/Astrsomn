@@ -6,15 +6,22 @@ import org.astrsomn.core.common.base.BaseEnum;
 
 
 /**
- * AI 智能体配置相关字典枚举
+ * AI Agent
  */
-public interface AiAgentConfigEnum {
+public interface AiAgentEnum {
 
     @Getter
     @AllArgsConstructor
     enum StatusEnum implements BaseEnum {
-        ENABLED("ENABLED", "启用"),
-        DISABLED("DISABLED", "禁用");
+        /**
+         * Enable
+         */
+        ENABLED("enabled", "Enabled"),
+
+        /**
+         * Disable
+         */
+        DISABLED("disabled", "Disable");
 
         private final String code;
         private final String desc;
@@ -23,9 +30,9 @@ public interface AiAgentConfigEnum {
     @Getter
     @AllArgsConstructor
     enum MemoryModeEnum implements BaseEnum {
-        SHORT_TERM("SHORT_TERM", "短期记忆"),
-        LONG_TERM("LONG_TERM", "长期记忆"),
-        HYBRID("HYBRID", "混合记忆");
+        SHORT_TERM("shortTerm", "Short Term"),
+        LONG_TERM("longTerm", "Long Term"),
+        HYBRID("hybrid", "hybrid");
 
         private final String code;
         private final String desc;
