@@ -1,5 +1,8 @@
 package org.astrsomn.core.common.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
@@ -10,99 +13,123 @@ import org.astrsomn.core.common.base.BaseEntity;
 public class AiAgentEntity extends BaseEntity<Long> {
 
     /**
-     * Agent名称
+     * id
      */
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    private Long id;
+
+    /**
+     * The name of the Agent.
+     */
+    @TableField("NAME")
     private String name;
 
     /**
-     * Agent描述
+     * A detailed description of the Agent's purpose and capabilities.
      */
+    @TableField("DESCRIPTION")
     private String description;
 
     /**
-     * 默认模型
+     * The ID of the default model assigned to this Agent.
      */
+    @TableField("MODEL_ID")
     private Long modelId;
 
     /**
-     * 提示词ID
+     * The UUID of the system prompt associated with this Agent.
      */
+    @TableField("PROMPT_UUID")
     private String promptUuid;
 
     /**
-     * 运行参数
-     *  { "temperature": 0.7, "max_tokens": 2048, ... }
+     * Runtime configuration parameters in JSON format.
+     * Example: { "temperature": 0.7, "max_tokens": 2048, ... }
      */
+    @TableField("CONFIG_PARAMS")
     private String configParams;
 
     /**
-     * 状态（启用/禁用）
+     * The status of the Agent (e.g., ENABLED, DISABLED).
      */
+    @TableField("STATUS")
     private String status;
 
-
     /**
-     * 关联知识库列表
+     * A comma-separated list of IDs for associated knowledge bases.
      */
+    @TableField("KNOWLEDGE_BASE_IDS")
     private String knowledgeBaseIds;
 
     /**
-     * 支持工具列表
+     * A comma-separated list of IDs for tools enabled for this Agent.
      */
+    @TableField("TOOL_IDS")
     private String toolIds;
 
     /**
-     * MCP列表
+     * A comma-separated list of IDs for Model Context Protocol (MCP) servers.
      */
+    @TableField("MCP_IDS")
     private String mcpIds;
 
     /**
-     * 记忆模式
+     * The memory mode strategy (e.g., NONE, SLIDING_WINDOW, VECTOR).
      */
+    @TableField("MEMORY_MODE")
     private String memoryMode;
 
     /**
-     * 记忆轮数
+     * The number of recent conversation turns to retain in memory (window size).
      */
+    @TableField("MEMORY_WINDOW_SIZE")
     private String memoryWindowSize;
 
     /**
-     * 最大Token数
+     * The maximum number of tokens allowed in the generated response.
      */
+    @TableField("MAX_TOKEN")
     private Integer maxToken;
 
     /**
-     * 温度值
+     * The temperature value controlling the randomness of the output.
      */
+    @TableField("TEMPERATURE")
     private Double temperature;
 
     /**
-     * 存在惩罚
+     * The presence penalty value to discourage token repetition based on existence.
      */
+    @TableField("PRESENCE_PENALTY")
     private Double presencePenalty;
 
     /**
-     * 频率惩罚
+     * The frequency penalty value to discourage token repetition based on count.
      */
+    @TableField("FREQUENCY_PENALTY")
     private Double frequencyPenalty;
 
     /**
-     * 停止序列
+     * Custom sequences that will trigger the end of text generation.
      */
+    @TableField("STOP_SEQUENCES")
     private String stopSequences;
 
     /**
-     * 随机种子
+     * The random seed for reproducible output generation.
      */
+    @TableField("SEED")
     private Integer seed;
 
     /**
-     * 流式输出
+     * Enables streaming response output if set to true.
      */
+    @TableField("ENABLE_STREAM")
     private boolean enableStream;
 
     /**
-     * 全类名
+     * The fully qualified class name of the interface implementation.
      */
+    @TableField("INTERFACE_CLASS")
     private String interfaceClass;
 }

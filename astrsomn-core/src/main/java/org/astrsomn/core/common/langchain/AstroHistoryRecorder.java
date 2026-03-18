@@ -1,6 +1,7 @@
 package org.astrsomn.core.common.langchain;
 
 import dev.langchain4j.model.output.TokenUsage;
+import org.astrsomn.core.common.langchain.buildParam.AiChatBuildParam;
 
 public interface AstroHistoryRecorder {
     /**

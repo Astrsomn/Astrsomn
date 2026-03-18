@@ -9,50 +9,72 @@ import lombok.EqualsAndHashCode;
 import org.astrsomn.core.common.base.BaseEntity;
 
 /**
- * AI MCP 配置实体（服务名称、类型 SSE/STDIO/STEAMABLE、SSE 地址、请求头等）
+ * AI MCP configuration entity (server name, type SSE/STDIO/STEAMABLE, SSE address, request headers, etc.)
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("AI_MCP_CONFIG")
 public class AiMcpEntity extends BaseEntity<Long> {
+
+    /**
+     * id
+     */
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
-    /** 服务名称 */
-    @TableField("server_name")
+    /**
+     * Server name
+     */
+    @TableField("SERVER_NAME")
     private String serverName;
 
-    /** 描述 */
+    /**
+     * Description
+     */
+    @TableField("DESCRIPTION")
     private String description;
 
-    /** 类型：SSE / STEAMABLE / STDIO */
+    /**
+     * Type: SSE / STEAMABLE / STDIO
+     */
+    @TableField("TYPE")
     private String type;
 
-    /** SSE 地址（类型为 SSE 时必填） */
-    @TableField("sse_address")
+    /**
+     * SSE address (required when type is SSE)
+     */
+    @TableField("SSE_ADDRESS")
     private String sseAddress;
 
-    /** 请求头配置（如 JSON 字符串） */
-    @TableField("request_header_config")
+    /**
+     * Request header configuration (e.g., JSON string)
+     */
+    @TableField("REQUEST_HEADER_CONFIG")
     private String requestHeaderConfig;
 
-    /** 是否启用：1-是 0-否 */
+    /**
+     * Enabled status: 1-yes 0-no
+     */
+    @TableField("ENABLED")
     private Integer enabled;
 
-    /** * 【新增字段】STDIO 运行命令 (例如: "npx", "python", "node")
+    /**
+     * [New field] STDIO run command (e.g., "npx", "python", "node")
      */
-    @TableField("command")
+    @TableField("COMMAND")
     private String command;
 
-    /** * 【新增字段】运行参数 (例如: "-y", "@modelcontextprotocol/server-everything")
-     * 建议存储为 JSON 数组字符串或以空格分隔
+    /**
+     * [New field] Run arguments (e.g., "-y", "@modelcontextprotocol/server-everything")
+     * Recommended to store as JSON array string or space-separated
      */
-    @TableField("args")
+    @TableField("ARGS")
     private String args;
 
-    /** * 【新增字段】环境变量 (例如: {"API_KEY": "xxx"})
-     * 建议存储为 JSON 字符串
+    /**
+     * [New field] Environment variables (e.g., {"API_KEY": "xxx"})
+     * Recommended to store as JSON string
      */
-    @TableField("env_vars")
+    @TableField("ENV_VARS")
     private String envVars;
 }

@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.astrsomn.core.common.base.BaseEnum;
 
-/**
- * AI 提示词相关字典枚举
- */
+
 public interface AiPromptEnum {
 
     @Getter
@@ -14,69 +12,76 @@ public interface AiPromptEnum {
     enum StatusEnum implements BaseEnum {
 
         /**
-         * 启用
+         * Enabled
          */
-        ENABLED("enabled", "启用"),
+        ENABLED("enabled", "Enabled"),
 
         /**
-         * 禁用
+         * Disabled
          */
-        DISABLED("disabled", "禁用");
+        DISABLED("disabled", "Disabled");
 
         private final String code;
         private final String desc;
     }
-
+    /**
+     * Enumerates the supported application scenarios or use cases.
+     */
     @Getter
     @AllArgsConstructor
-    enum SceneEnum implements BaseEnum {
+    public enum SceneEnum implements BaseEnum {
 
         /**
-         * 通用对话
+         * General purpose conversation and chat.
          */
-        CHAT("chat", "通用对话"),
+        CHAT("chat", "General Conversation"),
 
         /**
-         * 摘要
+         * Text summarization and condensation.
          */
-        SUMMARIZE("summarize", "摘要"),
+        SUMMARIZE("summarize", "Text Summarization"),
 
         /**
-         * 翻译
+         * Language translation between different locales.
          */
-        TRANSLATE("translate", "翻译"),
+        TRANSLATE("translate", "Language Translation"),
 
         /**
-         * 问答
+         * Question answering and knowledge retrieval.
          */
-        QA("qa", "问答"),
+        QA("qa", "Question Answering"),
 
         /**
-         * 写作
+         * Creative writing, content generation, and drafting.
          */
-        WRITING("writing", "写作"),
+        WRITING("writing", "Creative Writing & Content Generation"),
 
         /**
-         * 代码
+         * Code generation, completion, debugging, and explanation.
          */
-        CODE("code", "代码"),
+        CODE("code", "Code Generation & Assistance"),
 
         /**
-         * 数据分析
+         * Data analysis, interpretation, and insight extraction.
          */
-        DATA_ANALYSIS("data_analysis", "数据分析"),
+        DATA_ANALYSIS("data_analysis", "Data Analysis & Insights"),
 
         /**
-         * 客服
+         * Customer support, helpdesk, and service automation.
          */
-        CUSTOMER_SERVICE("customer_service", "客服"),
+        CUSTOMER_SERVICE("customer_service", "Customer Support & Service"),
 
         /**
-         * 其他
+         * Other unspecified or custom scenarios.
          */
-        OTHER("other", "其他");
+        OTHER("other", "Other");
 
         private final String code;
         private final String desc;
+
+        @Override
+        public String getCode() {
+            return this.code;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package org.astrsomn.core.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -8,80 +9,97 @@ import lombok.EqualsAndHashCode;
 import org.astrsomn.core.common.base.BaseEntity;
 
 /**
- * AI模型配置实体类
+ * AI model configuration entity
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("AI_MODEL_CONFIG")
 public class AiModelEntity extends BaseEntity<Long> {
     /**
-     * 模型ID
+     * id
      */
     @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
     
     /**
-     * 模型名称
+     * Model name
      */
+    @TableField("MODEL_NAME")
     private String modelName;
-    
+
     /**
-     * 模型类型
+     * Model Key
      */
+    @TableField("MODEL_KEY")
+    private String modelKey;
+    /**
+     * Model type
+     */
+    @TableField("MODEL_TYPE")
     private String modelType;
 
     /**
-     * 供应商
+     * Provider
      */
+    @TableField("PROVIDER")
     private String provider;
     
     /**
      * APIKey
      */
+    @TableField("API_KEY")
     private String apiKey;
 
     /**
-     * API密钥
+     * API secret key
      */
+    @TableField("API_SECRET")
     private String apiSecret;
 
     /**
-     * API地址
+     * API URL
      */
+    @TableField("API_URL")
     private String apiUrl;
     /**
-     * 模型参数
+     * Model parameters
      */
+    @TableField("MODEL_PARAMS")
     private String modelParams;
     
     /**
-     * 状态（启用-禁用）
+     * Status (enabled-disabled)
      */
+    @TableField("STATUS")
     private String status;
 
     /**
-     * 响应限制 0 - 8192
+     * Response limit 0 - 8192
      */
+    @TableField("RESPONSE_LIMIT")
     private Integer responseLimit;
 
     /**
-     * 随机性
+     * Randomness
      */
+    @TableField("RANDOM_INDEX")
     private Integer randomIndex;
 
-
     /**
-     * 顶层概率
+     * Top probability
      */
+    @TableField("TOP_VARIANCE")
     private Integer topVariance;
     
     /**
-     * 是否默认模型
+     * Is default model
      */
+    @TableField("IS_DEFAULT")
     private Integer isDefault;
     
     /**
-     * 能力分类（JSON格式存储）
+     * Capability classification (stored in JSON format)
      */
+    @TableField("CAPABILITIES")
     private String capabilities;
 }

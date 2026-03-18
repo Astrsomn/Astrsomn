@@ -4,7 +4,7 @@ import dev.langchain4j.model.output.TokenUsage;
 import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import org.astrsomn.core.common.entity.AiConversationEntity;
-import org.astrsomn.core.common.langchain.AiChatBuildParam;
+import org.astrsomn.core.common.langchain.buildParam.AiChatBuildParam;
 import org.astrsomn.core.common.langchain.AstroHistoryRecorder;
 import org.astrsomn.core.common.langchain.ChatStreamEnum;
 import org.astrsomn.core.mapper.AiConversationMapper;

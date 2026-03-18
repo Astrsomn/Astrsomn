@@ -7,9 +7,11 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
 
+
+
 @Data
-@TableName("SYSTEM_USER")
-public class SystemUserEntity extends BaseEntity<Long> {
+@TableName("SYSTEM_TENANT")
+public class SystemEnvEntity extends BaseEntity<Long> {
 
     /**
      * id
@@ -18,26 +20,22 @@ public class SystemUserEntity extends BaseEntity<Long> {
     private Long id;
 
     /**
-     * Username
+     * Environment name
      */
-    @TableField("USERNAME")
-    private String username;
+    @TableField(value = "ENV_NAME")
+    private String envName;
 
     /**
-     * Password
+     * Environment code DEV SIT UAT PRO
      */
-    @TableField("PASSWORD")
-    private String password;
+    @TableField(value = "ENV_CODE")
+    private String envCode;
 
     /**
-     * Admin flag
+     * Description
      */
-    @TableField("ADMIN_FLAG")
-    private String adminFlag;
+    @TableField(value = "DESCRIPTION")
+    private String description;
 
-    /**
-     * Email
-     */
-    @TableField("EMAIL")
-    private String email;
+
 }

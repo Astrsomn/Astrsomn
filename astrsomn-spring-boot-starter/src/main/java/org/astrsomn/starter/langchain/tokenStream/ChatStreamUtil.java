@@ -2,15 +2,13 @@ package org.astrsomn.starter.langchain.tokenStream;
 
 
 import com.alibaba.dashscope.utils.JsonUtils;
-import dev.langchain4j.model.openai.internal.ResponseHandle;
 import dev.langchain4j.model.output.TokenUsage;
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.tool.ToolExecution;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.astrsomn.core.common.entity.AiConversationEntity;
-import org.astrsomn.core.common.langchain.AiChatBuildParam;
+import org.astrsomn.core.common.langchain.buildParam.AiChatBuildParam;
 import org.astrsomn.core.common.langchain.ChatStreamEnum;
 import org.astrsomn.core.mapper.AiConversationMapper;
 import org.springframework.stereotype.Component;
@@ -18,15 +16,11 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
-import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static com.alibaba.dashscope.utils.JsonUtils.toJson;
 
 @Slf4j
 @Component

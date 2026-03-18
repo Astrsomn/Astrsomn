@@ -4,17 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.astrsomn.core.common.base.BaseEnum;
 
-
 /**
- * AI 工具配置相关字典枚举
+ * The Enum for AiMcpConfig
  */
-public interface AiToolConfigEnum {
+public interface AiMcpEnum {
 
     @Getter
     @AllArgsConstructor
     enum TypeEnum implements BaseEnum {
-        HTML("HTML", "HTML"),
-        METHOD("METHOD", "方法");
+        STDIO("STDIO", "STDIO"),
+        SSE("SSE", "SSE"),
+        STEAMABLE("STEAMABLE", "STEAMABLE");
 
         private final String code;
         private final String desc;
@@ -22,11 +22,12 @@ public interface AiToolConfigEnum {
 
     @Getter
     @AllArgsConstructor
-    enum StatusEnum implements BaseEnum {
-        ENABLED("ENABLED", "启用"),
-        DISABLED("DISABLED", "禁用");
+    enum EnabledEnum implements BaseEnum {
+        YES("Y", "YES" ),
+        NO("N", "NO");
 
         private final String code;
         private final String desc;
+
     }
 }
