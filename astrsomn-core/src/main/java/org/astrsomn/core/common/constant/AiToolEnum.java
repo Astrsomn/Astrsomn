@@ -22,7 +22,7 @@ public interface AiToolEnum {
 
     @Getter
     @AllArgsConstructor
-    enum StatusEnum implements BaseEnum {
+    enum EnableFlagEnum implements BaseEnum {
         /**
          * Enabled
          */

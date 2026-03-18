@@ -95,6 +95,15 @@ public interface AiModelEnum {
         private final String code;
         private final String desc;
 
+        public static ProviderEnum fromCode(String code) {
+            if (code == null) return null;
+            for (ProviderEnum provider : ProviderEnum.values()) {
+                if (provider.code.equalsIgnoreCase(code)) {
+                    return provider;
+                }
+            }
+            return null;
+        }
     }
 
     @Getter

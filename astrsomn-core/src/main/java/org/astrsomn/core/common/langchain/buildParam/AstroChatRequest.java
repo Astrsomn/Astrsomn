@@ -6,7 +6,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class AstrsomnChatRequest {
+public class AstroChatRequest {
 
     // --- 1. 核心会话上下文 ---
 
@@ -55,6 +55,6 @@ public class AstrsomnChatRequest {
     // --- 3. 技术元数据 (通常不需要前端传，或由框架自动注入) ---
     // 注意：Class clazz 这种运行时类型信息通常不应该出现在 DTO/Param 中，
     // 除非是极其特殊的反射场景。建议移除或通过其他方式传递。
-    private Class<?> assistantClass = AstrsomnChatRequest.class;
+    private Class<?> assistantClass = AstroChatRequest.class;
 
 }

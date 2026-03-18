@@ -1,4 +1,4 @@
-package org.astrsomn.starter.langchain.tokenStream;
+package org.astrsomn.starter.langchain.stream;
 
 import dev.langchain4j.model.output.TokenUsage;
 import jakarta.annotation.Resource;

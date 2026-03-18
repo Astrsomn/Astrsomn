@@ -1,4 +1,4 @@
-package org.astrsomn.starter.langchain.tokenStream;
+package org.astrsomn.starter.langchain.stream;
 
 
 import com.alibaba.dashscope.utils.JsonUtils;
