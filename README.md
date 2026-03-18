@@ -1,26 +1,44 @@
-### **🌌 About Astrsomn**
+# 🌟 Astrsomn 星梦
+## 企业级 LangChain4j 一站式封装框架
+> 封装复杂 AI，释放 Java 创造力
+> 基于 LangChain4j 构建，为 Java 开发者提供生产级 AI 应用开发解决方案
 
-**Astrsomn** is a forward-thinking technology organization dedicated to bridging the gap between experimental AI models and production-ready enterprise applications.
+---
 
-In an era where Large Language Models (LLMs) are evolving rapidly, integrating them into stable, scalable, and secure business systems remains a significant challenge. **Astrsomn** exists to solve this. We build robust middleware, governance platforms, and developer tools that empower organizations to adopt AI with confidence.
+## 📖 项目介绍
+**Astrsomn（星梦）** 是一款面向企业与开发者的轻量化、服务化、可视化的 LangChain4j 增强封装框架。
+致力于解决 Java 生态接入大模型能力时**配置繁琐、工程化不足、难以部署、缺少管控**等问题。
 
-#### **🚀 Our Mission**
+通过 **core + starter + server + ui** 四大模块化设计，让 Java 开发者：
+- 无需深入理解 LangChain4j 底层
+- 无需从零搭建 AI 服务
+- 无需编写大量重复代码
+- 支持 SpringBoot 一键集成
+- 支持独立部署服务化
+- 支持可视化管理与调试
 
-To democratize access to production-grade AI infrastructure. We believe that every developer should be able to integrate powerful LLM capabilities into their applications without worrying about complexity, security risks, or operational overhead.
+真正实现 **开箱即用、低代码接入、生产级可用**。
 
-#### **💡 Core Focus Areas**
+适用场景：RAG 知识库、智能对话、企业 AI 助手、工具调用、Agent 智能体、AI 网关等。
 
-- **AI Operations (LLMOps):** Providing centralized management for models, prompts, API keys, and usage analytics.
-- **Enterprise Security:** Ensuring data privacy, access control, and auditability for all AI interactions.
-- **Developer Experience:** Creating intuitive Spring Boot starters and SDKs that abstract away underlying complexities (like LangChain4j), allowing developers to focus on business logic.
-- **Scalability:** Building high-performance gateways and servers designed to handle mission-critical workloads.
+---
 
-#### **🛠️ Flagship Project: Astro AIOps**
+## ✨ 核心特性
+✅ 深度封装 LangChain4j 全能力（LLM / Embedding / 向量库 / 记忆 / RAG / Tools / Agent）
+✅ SpringBoot Starter 零侵入自动配置
+✅ 独立可部署 Server 服务（HTTP + 接口规范）
+✅ 可视化管理控制台（模型调试 / 知识库 / 对话日志）
+✅ 统一核心包，无冗余依赖
+✅ 支持多模型、多租户、限流、监控、日志等企业级特性
+✅ 生产级高可用、可扩展、易维护
+✅ 完全兼容原生 LangChain4j，无缝扩展
 
-Our cornerstone initiative, **Astro AIOps**, is a comprehensive suite designed as the "Nacos for AI." It offers:
+---
 
-- A unified **Server** for managing AI resources and traffic.
-- A powerful **Console** for visual monitoring and configuration.
-- A seamless **Spring Boot Starter** for instant integration.
-
-**Astrsomn** — *Where Intelligence Meets Infrastructure.*
+## 🧩 模块架构
+```plaintext
+astrsomn
+├── astrsomn-core          # 核心能力封装（基础接口、工具、模型统一层）
+├── astrsomn-starter       # SpringBoot 快速启动器（自动配置、 starter 依赖）
+├── astrsomn-server        # 独立部署 AI 服务（HTTP 接口、服务化运行）
+└── astrsomn-ui            # 可视化控制台（配置、调试、监控）
