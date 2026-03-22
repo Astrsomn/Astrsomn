@@ -11,6 +11,9 @@ import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.AiModelEnum;
+import org.astrsomn.core.common.entity.AiModelEntity;
+import org.astrsomn.core.common.langchain.buildParam.AiChatBuildParam;
+import org.astrsomn.core.mapper.AiModelMapper;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Component;
 
@@ -24,11 +27,11 @@ import static org.astrsomn.core.common.constant.AiModelEnum.ProviderEnum.DEEPSEE
 @Component
 public class AiStreamModelFactory {
     @Resource
-    private AiModelService aiModelService;
+    private AiModelMapper aiModelMapper;
 
 
     public StreamingChatModel getStreamingLanguageModel(AiChatBuildParam buildParam) {
-        AiModelEntity aiModel = aiModelService.getByModelId(buildParam.getModelId());
+        AiModelEntity aiModel = aiModelMapper.selectById(buildParam.getModelId());
         String provider = aiModel.getProvider();
         String modelName = aiModel.getModelName();
         String apiKey = aiModel.getApiKey();

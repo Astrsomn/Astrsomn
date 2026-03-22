@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-// 推荐使用 Jackson 进行 JSON 解析 (Spring Boot 默认集成)
-// 如果没有 Jackson，也可以手动解析字符串，避免引入错误的 JSONArray
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

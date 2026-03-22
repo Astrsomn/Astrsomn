@@ -4,6 +4,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.service.AiServices;
 import jakarta.annotation.Resource;
 import org.astrsomn.core.common.langchain.AstrsomnChatAssistant;
+import org.astrsomn.core.mapper.AiConversationMapper;
 import org.astrsomn.core.mapper.AiMcpMapper;
 import org.astrsomn.core.mapper.AiPromptMapper;
 import org.astrsomn.core.mapper.AiToolMapper;
@@ -18,14 +19,15 @@ import org.astrsomn.core.common.langchain.buildParam.*;
 import java.util.Optional;
 
 public class AstroAssistantFactory {
+
     @Resource
     private AiStreamModelFactory aiStreamModelFactory;
-//
+
     @Resource
     private AiPromptMapper aiPromptMapper;
-//
-//    @Resource
-//    private AiConversationFacade aiConversationFacade;
+
+    @Resource
+    private AiConversationMapper aiConversationMapper;
 
     @Resource
     private McpManager mcpManager;
@@ -38,12 +40,7 @@ public class AstroAssistantFactory {
 
     @Resource
     private ApplicationContext applicationContext;
-//
-//    @Resource
-//    private QdrantUtil qdrantUtil;
 
-    @Resource
-    private EmbeddingModelRegistry modelRegistry;
 
     @Resource
     private AiChatModelFactory aiChatModelFactory;
@@ -62,7 +59,7 @@ public class AstroAssistantFactory {
         // TODO 1. 优雅地配置 Memory
         Optional.ofNullable(buildParam.getMaxMessages())
                 .map(max -> {
-                    DynamicMemoryProvider memory = new DynamicMemoryProvider(aiConversationFacade);
+                    DynamicMemoryProvider memory = new DynamicMemoryProvider(aiConversationMapper);
                     memory.initialize(max);
                     return memory;
                 })

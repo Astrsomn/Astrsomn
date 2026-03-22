@@ -1,27 +1,31 @@
 package org.astrsomn.starter.langchain.memory;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.astrsomn.starter.langchain.memory.DynamicMemoryProvider;
+import org.astrsomn.core.common.entity.AiConversationEntity;
+import org.astrsomn.core.mapper.AiConversationMapper;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
-@Component
 public class DynamicMemoryProvider implements ChatMemoryProvider {
 
-    private final AiConversationFacade aiConversationFacade;
+    private final AiConversationMapper aiConversationMapper;
 
     private Integer maxMessages;
 
-    @Autowired
-    public DynamicMemoryProvider(AiConversationFacade aiConversationFacade) {
-        this.aiConversationFacade = aiConversationFacade;
+
+    public DynamicMemoryProvider(AiConversationMapper aiConversationMapper) {
+        this.aiConversationMapper = aiConversationMapper;
     }
 
     @Override
@@ -38,7 +42,7 @@ public class DynamicMemoryProvider implements ChatMemoryProvider {
                 .build();
 
         try {
-            List<ChatMessage> history = aiConversationFacade.loadFromDatabase(idStr);
+            List<ChatMessage> history = this.loadFromDatabase(idStr);
 
             if (history != null && !history.isEmpty()) {
                 log.debug("成功从数据库恢复 memoryId: {} 的 {} 条历史消息", idStr, history.size());
@@ -49,6 +53,26 @@ public class DynamicMemoryProvider implements ChatMemoryProvider {
         }
 
         return chatMemory;
+    }
+
+    private List<ChatMessage> loadFromDatabase(String idStr) {
+        List<String> ids = Arrays.asList(idStr.split(","));
+        List<AiConversationEntity> list = aiConversationMapper.selectList(new LambdaQueryWrapper<AiConversationEntity>()
+                .in(AiConversationEntity::getId, ids));
+
+      return   list.stream()
+                .map(dto -> {
+                    // 根据 DTO 中的角色字段来判断创建 UserMessage 还是 AiMessage
+                    // 注意：这里需要根据你实际的 DTO 结构调整角色判断逻辑 (例如: "user", "assistant")
+                    if ("user".equalsIgnoreCase(dto.getRole())) {
+                        return new UserMessage(dto.getContent());
+                    } else {
+                        return new AiMessage(dto.getContent());
+                    }
+                })
+                .collect(Collectors.toList());
+
+
     }
 
     public void initialize(Integer maxMessages) {

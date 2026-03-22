@@ -18,35 +18,38 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-# 数据源配置
-spring:
-  datasource:
-    dynamic:
-      primary: master
-      datasources:
-        master:
-          url: jdbc:mysql://localhost:3306/astrsomn?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-          username: root
-          password: root
-          driver-class-name: com.mysql.cj.jdbc.Driver
 
-# Redis配置
-spring:
-  redis:
-    host: localhost
-    port: 6379
-    password:
-    database: 0
 
-# LangChain4j配置
-langchain4j:
-  open-ai:
-    api-key: your-api-key
-  dashscope:
-    api-key: your-api-key
+astrsomn:
+  env-code: pro
+  data-base:
+    database-type: mysql
+    host: 154.201.94.113
+    port: 3306
+    database-name: bid_platform_dev
+    username: bid_platform_dev
+    password: asS7xTnEETkPhLwR
+    driver: com.mysql.cj.jdbc.Driver
+    use-ssl: false
+    charset: utf8
+    timezone: Asia/Shanghai
+    connection-timeout: 30000
+    maximum-pool-size: 10
+    minimum-idle: 5
 
-# Qdrant配置
-qdrant:
-  host: localhost
-  port: 6333
-  api-key:
+# Oracle配置示例
+# astrsomn:
+#   env-code: pro
+#   data-base:
+#     database-type: oracle
+#     host: localhost
+#     port: 1521
+#     database-name: ORCL
+#     schema: astrsomn
+#     username: system
+#     password: oracle
+#     driver: oracle.jdbc.OracleDriver
+#     connection-timeout: 30000
+#     maximum-pool-size: 10
+#     minimum-idle: 5
+

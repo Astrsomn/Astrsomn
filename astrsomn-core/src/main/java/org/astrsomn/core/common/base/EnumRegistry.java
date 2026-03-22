@@ -1,12 +1,10 @@
 package org.astrsomn.core.common.base;
 
 import org.astrsomn.core.common.constant.*;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
 public class EnumRegistry {
 
     private static final Map<String, Class<? extends Enum<?>>> ENUM_MAP = new HashMap<>();
@@ -36,7 +34,7 @@ public class EnumRegistry {
         register(AI_MCP_CONFIG + "TYPE", AiMcpEnum.TypeEnum.class);
         register(AI_MCP_CONFIG + "ENABLED", AiMcpEnum.EnabledEnum.class);
         register(AI_TOOL_CONFIG + "TYPE", AiToolEnum.TypeEnum.class);
-        register(AI_TOOL_CONFIG + "STATUS", AiToolEnum.StatusEnum.class);
+        register(AI_TOOL_CONFIG + "ENABLE_FLAG", AiToolEnum.EnableFlagEnum.class);
         register(AI_AGENT_CONFIG + "STATUS", AiAgentEnum.StatusEnum.class);
         register(AI_AGENT_CONFIG + "MEMORY_MODE", AiAgentEnum.MemoryModeEnum.class);
     }
