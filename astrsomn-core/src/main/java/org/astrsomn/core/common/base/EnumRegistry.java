@@ -1,12 +1,10 @@
 package org.astrsomn.core.common.base;
 
 import org.astrsomn.core.common.constant.*;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
 public class EnumRegistry {
 
     private static final Map<String, Class<? extends Enum<?>>> ENUM_MAP = new HashMap<>();
