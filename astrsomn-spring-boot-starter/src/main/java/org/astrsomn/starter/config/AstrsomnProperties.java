@@ -11,7 +11,10 @@ public class AstrsomnProperties {
     private String envCode;
 
 
-    class DataBase{
+    private DataBase dataBase;
+
+    @Data
+    public static class DataBase{
 
 
         private String baseUrl;

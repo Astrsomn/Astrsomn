@@ -38,15 +38,10 @@ spring:
     password:
     database: 0
 
-# LangChain4j配置
-langchain4j:
-  open-ai:
-    api-key: your-api-key
-  dashscope:
-    api-key: your-api-key
 
-# Qdrant配置
-qdrant:
-  host: localhost
-  port: 6333
-  api-key:
+
+astrsomn:
+  env-code: pro
+  data-base:
+    base-url:
+
