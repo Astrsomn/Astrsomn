@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-@Component
 public class DynamicToolProvider implements ToolProvider {
 
     private final AiToolMapper aiToolMapper;

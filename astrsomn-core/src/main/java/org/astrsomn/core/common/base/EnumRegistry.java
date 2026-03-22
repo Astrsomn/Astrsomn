@@ -36,7 +36,7 @@ public class EnumRegistry {
         register(AI_MCP_CONFIG + "TYPE", AiMcpEnum.TypeEnum.class);
         register(AI_MCP_CONFIG + "ENABLED", AiMcpEnum.EnabledEnum.class);
         register(AI_TOOL_CONFIG + "TYPE", AiToolEnum.TypeEnum.class);
-        register(AI_TOOL_CONFIG + "STATUS", AiToolEnum.StatusEnum.class);
+        register(AI_TOOL_CONFIG + "ENABLE_FLAG", AiToolEnum.EnableFlagEnum.class);
         register(AI_AGENT_CONFIG + "STATUS", AiAgentEnum.StatusEnum.class);
         register(AI_AGENT_CONFIG + "MEMORY_MODE", AiAgentEnum.MemoryModeEnum.class);
     }
