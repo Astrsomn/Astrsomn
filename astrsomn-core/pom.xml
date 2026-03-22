@@ -91,12 +91,7 @@
             <version>1.11.0-beta19</version>
         </dependency>
 
-        <!-- 第三方SDK -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>dashscope-sdk-java</artifactId>
-            <version>2.18.5</version>
-        </dependency>
+
 
         <!-- 工具类 -->
         <dependency>
