@@ -14,9 +14,9 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 
 @Configuration
-@ConditionalOnProperty(prefix = "astrsomn.data-base", name = "database-type", havingValue = "mysql")
+@ConditionalOnProperty(prefix = "astrsomn.data-base", name = "database-type", havingValue = "oracle")
 @MapperScan("org.astrsomn.core.mapper")
-public class MybatisPlusConfig {
+public class MybatisPlusOracleConfig {
 
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
@@ -31,7 +31,7 @@ public class MybatisPlusConfig {
     public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnProperties properties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         
-        DbType dbType = DbType.MYSQL;
+        DbType dbType = DbType.ORACLE;
         if (properties != null && properties.getDataBase() != null) {
             dbType = DataSourceConfig.getDbType(properties.getDataBase().getDatabaseType());
         }
