@@ -5,5 +5,5 @@ import org.apache.ibatis.annotations.Mapper;
 import org.astrsomn.core.common.entity.SystemEnvEntity;
 
 @Mapper
-public interface SystemTenantMapper extends BaseMapper<SystemEnvEntity> {
+public interface SystemEnvMapper extends BaseMapper<SystemEnvEntity> {
 }

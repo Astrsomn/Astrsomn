@@ -14,7 +14,7 @@ public class AstrsomnProperties {
     private DataBase dataBase;
 
     @Data
-    public static class DataBase{
+    public static class DataBase {
 
 
         private String databaseType;

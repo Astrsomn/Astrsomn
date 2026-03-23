@@ -23,6 +23,11 @@ public class AiMcpEntity extends BaseEntity<Long> {
     private Long id;
 
     /**
+     * mcpKey
+     */
+    @TableField("MCP_KEY")
+    private String mcpKey;
+    /**
      * Server name
      */
     @TableField("SERVER_NAME")
