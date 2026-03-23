@@ -1,8 +1,15 @@
 package org.astrsomn.server.interceptor;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.astrsomn.core.common.entity.SystemUserEntity;
+import org.astrsomn.core.mapper.SystemUserMapper;
+import org.astrsomn.server.exception.BusinessException;
+import org.astrsomn.server.util.JwtUtil;
+import org.astrsomn.server.util.UserContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -10,52 +17,81 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private SystemUserMapper systemUserMapper;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // TODO: 实现认证逻辑
+        String token = extractToken(request);
         
-        // 1. 获取Token
-        String token = request.getHeader("Authorization");
         if (token == null || token.isEmpty()) {
-            // 从Cookie中获取
-            // token = getCookieValue(request, "token");
-        }
-        
-        // 2. 验证Token
-        if (token == null || !validateToken(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":401,\"message\":\"未授权访问\"}");
+            response.getWriter().write("{\"code\":401,\"message\":\"未授权访问，请先登录\"}");
             return false;
         }
         
-        // 3. 解析用户信息并存储到上下文
-        // UserContext.setUserId(parseUserId(token));
-        // UserContext.setUsername(parseUsername(token));
+        if (!jwtUtil.validateToken(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":401,\"message\":\"Token无效或已过期\"}");
+            return false;
+        }
         
-        log.info("用户认证成功 - URI: {}, Token: {}", request.getRequestURI(), maskToken(token));
+        Long userId = jwtUtil.getUserIdFromToken(token);
+        String username = jwtUtil.getUsernameFromToken(token);
+        
+        if (userId == null || username == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":401,\"message\":\"Token解析失败\"}");
+            return false;
+        }
+        
+        SystemUserEntity user = systemUserMapper.selectOne(
+                new LambdaQueryWrapper<SystemUserEntity>()
+                        .eq(SystemUserEntity::getId, userId)
+        );
+        
+        if (user == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":401,\"message\":\"用户不存在\"}");
+            return false;
+        }
+        
+        UserContext.setUserId(user.getId());
+        UserContext.setUsername(user.getUsername());
+        UserContext.set("email", user.getEmail());
+        UserContext.set("adminFlag", user.getAdminFlag());
+        UserContext.setToken(token);
+        UserContext.setClientIp(request.getRemoteAddr());
+        
+        log.info("用户认证成功 - URI: {}, Username: {}, UserId: {}", 
+                request.getRequestURI(), username, userId);
+        
         return true;
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        // TODO: 清理用户上下文
-        // UserContext.clear();
+        UserContext.clear();
     }
 
-    private boolean validateToken(String token) {
-        // TODO: 实现Token验证逻辑
-        // 1. 检查Token格式
-        // 2. 验证Token签名
-        // 3. 检查Token是否过期
-        // 4. 检查Token是否在黑名单中
-        return true;
-    }
-
-    private String maskToken(String token) {
-        if (token == null || token.length() < 10) {
-            return "***";
+    private String extractToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
         }
-        return token.substring(0, 6) + "..." + token.substring(token.length() - 4);
+        
+        String token = request.getParameter("token");
+        if (token != null && !token.isEmpty()) {
+            return token;
+        }
+        
+        return null;
     }
 }

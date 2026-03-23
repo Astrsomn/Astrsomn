@@ -39,11 +39,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**")
                 .excludePathPatterns(
                         "/api/auth/login",
-                        "/api/auth/register",
                         "/api/auth/refresh-token",
                         "/swagger-ui/**",
                         "/swagger-resources/**",
-                        "/v3/api-docs/**"
+                        "/v3/api-docs/**",
+                        "/doc.html",
+                        "/webjars/**"
                 )
                 .order(2);
         
