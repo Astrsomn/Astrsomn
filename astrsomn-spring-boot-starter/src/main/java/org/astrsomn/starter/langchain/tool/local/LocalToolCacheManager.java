@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-public class GlobalToolCache {
+public class LocalToolCacheManager {
 
 
     // 缓存已经解析好的工具元数据和执行器

@@ -18,13 +18,15 @@ import org.astrsomn.core.mapper.*;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.langchain.factory.AiChatModelFactory;
 import org.astrsomn.starter.langchain.factory.AiStreamModelFactory;
-import org.astrsomn.starter.langchain.tool.local.GlobalToolCache;
+import org.astrsomn.starter.langchain.memory.ChatMemoryManager;
+import org.astrsomn.starter.langchain.tool.local.LocalToolCacheManager;
 import org.astrsomn.starter.langchain.tool.mcp.DynamicMcpToolProvider;
-import org.astrsomn.starter.langchain.tool.mcp.McpManager;
+import org.astrsomn.starter.langchain.tool.mcp.McpToolCacheManager;
 import org.astrsomn.starter.langchain.memory.DynamicMemoryProvider;
 
 import org.astrsomn.starter.langchain.tool.local.DynamicToolProvider;
 import org.astrsomn.starter.langchain.tool.UnionToolProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.astrsomn.core.common.langchain.buildParam.*;
 import org.springframework.stereotype.Service;
@@ -47,7 +49,7 @@ public class AstroAssistantFactory {
     private AiConversationMapper aiConversationMapper;
 
     @Resource
-    private McpManager mcpManager;
+    private McpToolCacheManager mcpToolManager;
 
     @Resource
     private AiMcpMapper aiMcpMapper;
@@ -63,11 +65,13 @@ public class AstroAssistantFactory {
     private AiChatModelFactory aiChatModelFactory;
 
     @Resource
-    private GlobalToolCache globalToolCache;
+    private LocalToolCacheManager globalToolCache;
 
     @Resource
     private AstrsomnProperties astrsomnProperties;
 
+    @Autowired
+    private ChatMemoryManager chatMemoryManager;
 
     public <T> T createAssistant(AstroChatRequest<T> param) {
 
@@ -123,23 +127,20 @@ public class AstroAssistantFactory {
 
 
     private <T> void configureComponents(AiServices<T> builder, AstroChatRequest<T> param) {
-        // 组装Memory
+
         if (param.getMaxHistoryMessages() > 0) {
-            builder.chatMemoryProvider(memoryId -> {
-                DynamicMemoryProvider memory = new DynamicMemoryProvider(aiConversationMapper);
-                memory.initialize(param.getMaxHistoryMessages());
-                return memory.get(param.getMemoryKey());
-            });
+            // 传入 Manager 和本次请求指定的参数
+            builder.chatMemoryProvider(new DynamicMemoryProvider(chatMemoryManager, param.getMaxHistoryMessages()));
         }
+
+
+
         ToolSetting toolSetting = param.getToolSetting();
-
         List<ToolProvider> providers = new ArrayList<>();
-
-
         if (toolSetting.getMcpKeys() != null && !toolSetting.getMcpKeys().isEmpty()) {
             List<AiMcpEntity> mcpConfigs = aiMcpMapper.selectList(new LambdaQueryWrapper<AiMcpEntity>()
                     .in(AiMcpEntity::getMcpKey, toolSetting.getMcpKeys()));
-            providers.add(new DynamicMcpToolProvider(mcpConfigs, mcpManager));
+            providers.add(new DynamicMcpToolProvider(mcpConfigs, mcpToolManager));
 
         }
         if (toolSetting.getToolKeys() != null && !toolSetting.getToolKeys().isEmpty()) {

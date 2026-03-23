@@ -8,7 +8,6 @@ import dev.langchain4j.mcp.client.transport.http.HttpMcpTransport;
 import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
-import org.astrsomn.core.common.constant.AiMcpEnum;
 import org.astrsomn.core.common.entity.AiMcpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
-public class McpManager {
+public class McpToolCacheManager {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
