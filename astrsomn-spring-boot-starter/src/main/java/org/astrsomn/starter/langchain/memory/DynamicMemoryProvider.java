@@ -9,6 +9,7 @@ import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.entity.AiConversationEntity;
+import org.astrsomn.core.common.langchain.ChatStreamEnum;
 import org.astrsomn.core.mapper.AiConversationMapper;
 
 import java.util.Arrays;
@@ -64,7 +65,7 @@ public class DynamicMemoryProvider implements ChatMemoryProvider {
                 .map(dto -> {
                     // 根据 DTO 中的角色字段来判断创建 UserMessage 还是 AiMessage
                     // 注意：这里需要根据你实际的 DTO 结构调整角色判断逻辑 (例如: "user", "assistant")
-                    if ("user".equalsIgnoreCase(dto.getRole())) {
+                    if (ChatStreamEnum.AstroChatRole.USER.getCode().equalsIgnoreCase(dto.getRole())) {
                         return new UserMessage(dto.getContent());
                     } else {
                         return new AiMessage(dto.getContent());

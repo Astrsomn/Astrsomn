@@ -1,29 +1,32 @@
 package org.astrsomn.core.common.langchain.buildParam;
 
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.astrsomn.core.common.langchain.AstrsomnChatAssistant;
 
 @Data
 @Accessors(chain = true)
-public class AstroChatRequest {
+@Builder
+public class AstroChatRequest<T> {
 
     // --- 1. 核心会话上下文 ---
 
     /**
      * 用户当前输入的消息
      */
-    private String message;
+    private String userMessage;
 
     /**
      * 选用的模型 ID
      */
-    private Long modelId;
+    private Long modelKey;
 
     /**
      * 会话记忆 ID (前端生成或后端分配)
      */
-    private String memoryId;
+    private String memoryKey;
 
     /**
      * 历史消息最大保留数 (属于记忆管理策略，也可单独拆分，这里暂留)
@@ -55,6 +58,22 @@ public class AstroChatRequest {
     // --- 3. 技术元数据 (通常不需要前端传，或由框架自动注入) ---
     // 注意：Class clazz 这种运行时类型信息通常不应该出现在 DTO/Param 中，
     // 除非是极其特殊的反射场景。建议移除或通过其他方式传递。
-    private Class<?> assistantClass = AstroChatRequest.class;
+    private Class<T> clazz;
+
+
+    private final Class<T> serviceClass;
+
+
+
+    public static <T> AstroChatRequest<T> of (Class<T> serviceClass, String agentKey){
+
+
+
+        return AstroChatRequest.<T>builder()
+                .serviceClass(serviceClass)
+                .clazz(serviceClass)
+                .build();
+    }
+
 
 }

@@ -1,7 +1,8 @@
 package org.astrsomn.starter.langchain;
 
-import dev.langchain4j.model.embedding.EmbeddingModel;
+
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.tool.ToolProvider;
 import jakarta.annotation.Resource;
 import org.astrsomn.core.common.langchain.AstrsomnChatAssistant;
 import org.astrsomn.core.mapper.AiConversationMapper;
@@ -13,11 +14,17 @@ import org.astrsomn.starter.langchain.factory.AiStreamModelFactory;
 import org.astrsomn.starter.langchain.mcp.DynamicMcpToolProvider;
 import org.astrsomn.starter.langchain.mcp.McpManager;
 import org.astrsomn.starter.langchain.memory.DynamicMemoryProvider;
+import org.astrsomn.starter.langchain.tool.CompositeToolProvider;
 import org.astrsomn.starter.langchain.tool.DynamicToolProvider;
 import org.springframework.context.ApplicationContext;
 import org.astrsomn.core.common.langchain.buildParam.*;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+@Service
 public class AstroAssistantFactory {
 
     @Resource
@@ -45,56 +52,75 @@ public class AstroAssistantFactory {
     @Resource
     private AiChatModelFactory aiChatModelFactory;
 
-    // TODO 构建AI处理模型
-    public AstrsomnChatAssistant buildChatAssistant(AiChatBuildParam buildParam) {
 
-        AiServices<AstrsomnChatAssistant> builder = AiServices.builder(buildParam.getClazz())
-                .systemMessageProvider(tempMemory -> aiPromptMapper.getByUUID(buildParam.getPromptUuid()));
-        if (buildParam.isEnableStream()) {
-            builder.streamingChatModel(aiStreamModelFactory.getStreamingLanguageModel(buildParam));
-        } else {
-            builder.chatModel(aiChatModelFactory.getLanguageModel(buildParam));
+    @Resource
+    private CompositeToolProvider compositeToolProvider;
+
+
+
+    public <T> T createAssistant(AstroChatRequest<T> param) {
+        // 1.校验参数合法性
+        validateParam(param);
+
+        // 2.确保类型绝对一直
+        AiServices<T> builder = AiServices.builder(param.getServiceClass());
+
+        // 3.组装模型
+        if (param.getFeatures().isEnableStream()) {
+            builder.streamingChatModel(aiStreamModelFactory.getStreamingModel(param));
+        }else{
+            builder.chatModel(aiChatModelFactory.getChatModel(param));
         }
 
-        // TODO 1. 优雅地配置 Memory
-        Optional.ofNullable(buildParam.getMaxMessages())
-                .map(max -> {
-                    DynamicMemoryProvider memory = new DynamicMemoryProvider(aiConversationMapper);
-                    memory.initialize(max);
-                    return memory;
-                })
-                .ifPresent(builder::chatMemoryProvider);
+        //4.组装组件
+        configureComponents(builder, param);
 
-
-        // TODO 2. 优雅地配置 知识库
-//        Optional.ofNullable(buildParam.getRagIdList())
-//                .filter(list -> !list.isEmpty())
-//                .ifPresent(ids -> {
-//                    EmbeddingModel matchedModel = modelRegistry.getModelByDimension(buildParam.getVectorSize());
-//                    DynamicRagProvider provider = new DynamicRagProvider(qdrantUtil, matchedModel);
-//                    provider.initialize(ids);
-//                    builder.contentRetriever(provider);
-//                });
-
-        // TODO 3. 优雅地配置 MCP Tools
-        Optional.ofNullable(buildParam.getMcpIdList())
-                .filter(list -> !list.isEmpty())
-                .ifPresent(ids -> {
-                    DynamicMcpToolProvider provider = new DynamicMcpToolProvider(mcpManager, aiMcpConfigMapper);
-                    provider.initialize(ids);
-                    builder.toolProvider(provider);
-                });
-
-        // TODO 4. 优雅地配置 本地 Tools
-        Optional.ofNullable(buildParam.getToolIdList())
-                .filter(list -> !list.isEmpty())
-                .ifPresent(ids -> {
-                    DynamicToolProvider provider = new DynamicToolProvider(aiToolMapper, applicationContext);
-                    provider.initialize(ids);
-                    builder.toolProvider(provider);
-                });
 
         return builder.build();
     }
+
+    private <T> void configureComponents(AiServices<T> builder, AstroChatRequest<T> param) {
+        // 组装Memory
+        if (param.getMaxHistoryMessages() > 0) {
+            builder.chatMemoryProvider(memoryId-> {
+                DynamicMemoryProvider memory = new DynamicMemoryProvider(aiConversationMapper);
+                memory.initialize(param.getMaxHistoryMessages());
+                return memory.get(param.getMemoryKey());
+            });
+        }
+        ToolStrategy toolStrategy = param.getToolStrategy();
+        // 组装Tool
+        List<ToolProvider> providers = new ArrayList<>();
+
+        if (toolStrategy.getMcpKeys() != null && !toolStrategy.getMcpKeys().isEmpty()) {
+            DynamicMcpToolProvider mcpProvider = new DynamicMcpToolProvider(mcpManager, aiMcpConfigMapper);
+            mcpProvider.initialize(toolStrategy.getMcpKeys());
+            providers.add(mcpProvider);
+        }
+
+        if (toolStrategy.getToolKeys() != null && !toolStrategy.getToolKeys().isEmpty()) {
+            DynamicToolProvider localProvider = new DynamicToolProvider(aiToolMapper, applicationContext);
+            localProvider.initialize(toolStrategy.getToolKeys());
+            providers.add(localProvider);
+        }
+
+        if (!providers.isEmpty()) {
+            if (providers.size() == 1) {
+                builder.toolProvider(providers.get(0));
+            } else {
+                builder.toolProvider(new CompositeToolProvider());
+            }
+        }
+
+    }
+
+    private <T> void validateParam(AstroChatRequest<T> param) {
+
+
+
+
+    }
+
+
 }
 

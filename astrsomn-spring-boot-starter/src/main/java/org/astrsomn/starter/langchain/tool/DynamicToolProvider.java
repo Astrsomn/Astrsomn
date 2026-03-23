@@ -28,15 +28,15 @@ public class DynamicToolProvider implements ToolProvider {
     // 缓存：避免每次对话都进行反射查找，Key 可以是 "beanName:methodName"
     private final Map<String, Method> methodCache = new ConcurrentHashMap<>();
 
-    private List<Long> toolIds = new ArrayList<>();
+    private List<String> toolIds = new ArrayList<>();
 
     public DynamicToolProvider(AiToolMapper aiToolMapper, ApplicationContext applicationContext) {
         this.aiToolMapper = aiToolMapper;
         this.applicationContext = applicationContext;
     }
 
-    public void initialize(List<Long> toolIdList) {
-        this.toolIds = toolIdList;
+    public void initialize(List<String> toolKeys) {
+        this.toolIds = toolKeys;
     }
 
     @Override

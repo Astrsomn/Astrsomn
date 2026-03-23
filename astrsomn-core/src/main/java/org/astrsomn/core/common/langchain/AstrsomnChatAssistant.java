@@ -8,7 +8,7 @@ public interface AstrsomnChatAssistant {
 
 
     /**
-     *
+     * 流式数据返回数据
      * @param message
      * @param memoryId
      * @return
@@ -17,7 +17,7 @@ public interface AstrsomnChatAssistant {
 
 
     /**
-     *
+     * 返回全文数据
      * @param message
      * @param memoryId
      * @return

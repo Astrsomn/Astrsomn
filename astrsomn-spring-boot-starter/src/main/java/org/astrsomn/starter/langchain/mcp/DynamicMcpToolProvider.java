@@ -31,7 +31,7 @@ public class DynamicMcpToolProvider implements ToolProvider {
         this.configMapper = configMapper;
     }
 
-    public void initialize(List<Long> mcpIds) {
+    public void initialize(List<String> mcpIds) {
         this.mcpConfigList = configMapper.selectList(new LambdaQueryWrapper<AiMcpEntity>()
                 .in(AiMcpEntity::getId, mcpIds));
 

@@ -163,6 +163,12 @@ public interface AiModelEnum {
         TOP_P_SETTING("top_p_setting", "Nucleus sampling probability threshold"),
 
         /**
+         *
+         */
+        TOP_K_SETTING("top_k_setting", ""),
+
+
+        /**
          * Configuration to penalize tokens based on whether they appear in the generated text so far.
          * Encourages the model to talk about new topics.
          */
@@ -187,7 +193,10 @@ public interface AiModelEnum {
         /**
          * Configuration to set a seed for reproducible output generation.
          */
-        SEED_SETTING("seed_setting", "Seed for reproducible deterministic output");
+        SEED_SETTING("seed_setting", "Seed for reproducible deterministic output"),
+
+
+        NETWORK_SEARCH("network_search", "network search");
 
         private final String code;
 
