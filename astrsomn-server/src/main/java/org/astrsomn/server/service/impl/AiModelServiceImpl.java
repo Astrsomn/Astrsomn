@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatRequest;
-import org.astrsomn.core.common.langchain.buildParam.ToolStrategy;
+
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.demo.OrderCreateAssistant;
 import org.astrsomn.server.demo.TaskCreateAssistant;
@@ -23,8 +23,10 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
 
     public String createTask(){
         var param = AstroChatRequest.of(TaskCreateAssistant.class, "deepseek-sensor");
-        param.setMaxHistoryMessages(5);
-        param.setToolStrategy(new ToolStrategy());// 设置调用工具
+        param.getInferenceConfig().setMaxTokens(100)
+                .setTopK(20);
+        param.getFeatures().setEnableDeepThinking(true);
+
         // 这里param可以设置更多的参数
 
 

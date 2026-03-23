@@ -1,14 +1,15 @@
 package org.astrsomn.starter.langchain;
 
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.tool.ToolProvider;
 import jakarta.annotation.Resource;
+import opennlp.tools.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.entity.AiAgentEntity;
 import org.astrsomn.core.common.langchain.AstrsomnChatAssistant;
-import org.astrsomn.core.mapper.AiConversationMapper;
-import org.astrsomn.core.mapper.AiMcpMapper;
-import org.astrsomn.core.mapper.AiPromptMapper;
-import org.astrsomn.core.mapper.AiToolMapper;
+import org.astrsomn.core.mapper.*;
 import org.astrsomn.starter.langchain.factory.AiChatModelFactory;
 import org.astrsomn.starter.langchain.factory.AiStreamModelFactory;
 import org.astrsomn.starter.langchain.mcp.DynamicMcpToolProvider;
@@ -33,6 +34,8 @@ public class AstroAssistantFactory {
     @Resource
     private AiPromptMapper aiPromptMapper;
 
+    @Resource
+    private AiAgentMapper aiAgentMapper;
     @Resource
     private AiConversationMapper aiConversationMapper;
 
@@ -59,25 +62,47 @@ public class AstroAssistantFactory {
 
 
     public <T> T createAssistant(AstroChatRequest<T> param) {
-        // 1.校验参数合法性
+        // TODO 一、校验参数
         validateParam(param);
 
-        // 2.确保类型绝对一直
-        AiServices<T> builder = AiServices.builder(param.getServiceClass());
+        // TODO 二、构建完整参数 | 优先级：代码配置 > 管理后台配置  >  默认配置
+        buildParam(param);
 
-        // 3.组装模型
+        // TODO 三、构建业务接口和模型
+        AiServices<T> builder = AiServices.builder(param.getServiceClass());
         if (param.getFeatures().isEnableStream()) {
             builder.streamingChatModel(aiStreamModelFactory.getStreamingModel(param));
         }else{
             builder.chatModel(aiChatModelFactory.getChatModel(param));
         }
 
-        //4.组装组件
+        // TODO 四、组装Tool、Mcp、Rag
         configureComponents(builder, param);
-
 
         return builder.build();
     }
+
+    private <T> void validateParam(AstroChatRequest<T> param) {
+        if (StringUtils.isBlank(param.getAgentKey())) {
+            throw new RuntimeException("智能体Key不能为空");
+        }
+
+
+
+    }
+
+
+
+    private <T> void buildParam(AstroChatRequest<T> param) {
+
+        AiAgentEntity aiAgentEntity = aiAgentMapper.selectOne(new LambdaUpdateWrapper<AiAgentEntity>()
+                .eq(AiAgentEntity::getAgentKey, param.getAgentKey()));
+
+
+
+
+    }
+
 
     private <T> void configureComponents(AiServices<T> builder, AstroChatRequest<T> param) {
         // 组装Memory
@@ -114,12 +139,6 @@ public class AstroAssistantFactory {
 
     }
 
-    private <T> void validateParam(AstroChatRequest<T> param) {
-
-
-
-
-    }
 
 
 }

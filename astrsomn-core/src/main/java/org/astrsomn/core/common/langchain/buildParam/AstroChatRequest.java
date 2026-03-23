@@ -12,6 +12,10 @@ import org.astrsomn.core.common.langchain.AstrsomnChatAssistant;
 public class AstroChatRequest<T> {
 
     // --- 1. 核心会话上下文 ---
+    /**
+     * 智能体Key
+     */
+    private String agentKey;
 
     /**
      * 用户当前输入的消息
@@ -72,6 +76,7 @@ public class AstroChatRequest<T> {
         return AstroChatRequest.<T>builder()
                 .serviceClass(serviceClass)
                 .clazz(serviceClass)
+                .agentKey(agentKey)
                 .build();
     }
 

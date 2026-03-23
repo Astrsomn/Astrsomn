@@ -19,6 +19,11 @@ public class AiAgentEntity extends BaseEntity<Long> {
     private Long id;
 
     /**
+     * The key of Agent
+     */
+    @TableField("AGENT_KEY")
+    private String agentKey;
+    /**
      * The name of the Agent.
      */
     @TableField("NAME")

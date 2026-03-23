@@ -9,20 +9,20 @@ public interface AstrsomnChatAssistant {
 
     /**
      * 流式数据返回数据
-     * @param message
-     * @param memoryId
+     * @param message   用户输入的消息
+     * @param memoryKey 同一组对话的消息唯一值
      * @return
      */
-    TokenStream stream(@UserMessage String message, @MemoryId String memoryId);
+    TokenStream stream(@UserMessage String message, @MemoryId String memoryKey);
 
 
     /**
      * 返回全文数据
-     * @param message
-     * @param memoryId
+     * @param message   用户输入的消息
+     * @param memoryKey 同一组对话的消息唯一值
      * @return
      */
-    String chat(@UserMessage String message, @MemoryId String memoryId);
+    String chat(@UserMessage String message, @MemoryId String memoryKey);
 
 
 
