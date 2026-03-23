@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/config/system-user")
+@RequestMapping("/api/astro/system-user")
 public class SystemUserController extends BaseController {
 }

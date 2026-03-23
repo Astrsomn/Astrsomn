@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/v1/astro/auth")
 public class AuthController extends BaseController {
 
     @Autowired
