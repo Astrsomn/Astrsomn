@@ -1,11 +1,13 @@
-package org.astrsomn.core.common.langchain.buildParam;
+package org.astrsomn.core.common.langchain.buildParam.setting;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
 @Data
-public class ToolStrategy {
+@Accessors(chain = true)
+public class ToolSetting {
     /**
      * 可用工具列表 (Function Calling)
      */

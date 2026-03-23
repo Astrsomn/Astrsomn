@@ -1,29 +1,36 @@
 package org.astrsomn.starter.langchain;
 
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.UUID;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.tool.ToolProvider;
 import jakarta.annotation.Resource;
-import opennlp.tools.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.entity.AiAgentEntity;
-import org.astrsomn.core.common.langchain.AstrsomnChatAssistant;
+import org.astrsomn.core.common.entity.AiMcpEntity;
+import org.astrsomn.core.common.entity.AiToolEntity;
+import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
+import org.astrsomn.core.common.util.JsonUtil;
 import org.astrsomn.core.mapper.*;
+import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.langchain.factory.AiChatModelFactory;
 import org.astrsomn.starter.langchain.factory.AiStreamModelFactory;
-import org.astrsomn.starter.langchain.mcp.DynamicMcpToolProvider;
-import org.astrsomn.starter.langchain.mcp.McpManager;
+import org.astrsomn.starter.langchain.tool.local.GlobalToolCache;
+import org.astrsomn.starter.langchain.tool.mcp.DynamicMcpToolProvider;
+import org.astrsomn.starter.langchain.tool.mcp.McpManager;
 import org.astrsomn.starter.langchain.memory.DynamicMemoryProvider;
-import org.astrsomn.starter.langchain.tool.CompositeToolProvider;
-import org.astrsomn.starter.langchain.tool.DynamicToolProvider;
+
+import org.astrsomn.starter.langchain.tool.local.DynamicToolProvider;
+import org.astrsomn.starter.langchain.tool.UnionToolProvider;
 import org.springframework.context.ApplicationContext;
 import org.astrsomn.core.common.langchain.buildParam.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AstroAssistantFactory {
@@ -43,7 +50,7 @@ public class AstroAssistantFactory {
     private McpManager mcpManager;
 
     @Resource
-    private AiMcpMapper aiMcpConfigMapper;
+    private AiMcpMapper aiMcpMapper;
 
     @Resource
     private AiToolMapper aiToolMapper;
@@ -55,51 +62,62 @@ public class AstroAssistantFactory {
     @Resource
     private AiChatModelFactory aiChatModelFactory;
 
+    @Resource
+    private GlobalToolCache globalToolCache;
 
     @Resource
-    private CompositeToolProvider compositeToolProvider;
-
+    private AstrsomnProperties astrsomnProperties;
 
 
     public <T> T createAssistant(AstroChatRequest<T> param) {
-        // TODO 一、校验参数
-        validateParam(param);
 
-        // TODO 二、构建完整参数 | 优先级：代码配置 > 管理后台配置  >  默认配置
+        // TODO 一、构建完整参数 | 优先级：代码配置 > 管理后台配置  >  默认配置
         buildParam(param);
 
-        // TODO 三、构建业务接口和模型
+        // TODO 二、构建业务接口和模型
         AiServices<T> builder = AiServices.builder(param.getServiceClass());
-        if (param.getFeatures().isEnableStream()) {
+        if (param.getChatSetting().isEnableStream()) {
             builder.streamingChatModel(aiStreamModelFactory.getStreamingModel(param));
-        }else{
+        } else {
             builder.chatModel(aiChatModelFactory.getChatModel(param));
         }
 
-        // TODO 四、组装Tool、Mcp、Rag
+        // TODO 三、组装Tool、Mcp、Rag
         configureComponents(builder, param);
 
         return builder.build();
     }
 
-    private <T> void validateParam(AstroChatRequest<T> param) {
+
+    private <T> void buildParam(AstroChatRequest<T> param) {
+        if (StringUtils.isBlank(param.getUserMessage())) {
+            throw new RuntimeException("用户消息不能为空");
+        }
         if (StringUtils.isBlank(param.getAgentKey())) {
             throw new RuntimeException("智能体Key不能为空");
         }
+        if (StringUtils.isBlank(param.getMemoryKey())) {
+            param.setMemoryKey(UUID.fastUUID().toString());
+        }
 
-
-
-    }
-
-
-
-    private <T> void buildParam(AstroChatRequest<T> param) {
 
         AiAgentEntity aiAgentEntity = aiAgentMapper.selectOne(new LambdaUpdateWrapper<AiAgentEntity>()
-                .eq(AiAgentEntity::getAgentKey, param.getAgentKey()));
+                .eq(AiAgentEntity::getAgentKey, param.getAgentKey())
+                .eq(AiAgentEntity::getEnvCode, astrsomnProperties.getEnvCode()));
+
+        param.getModelSetting()
+                .setSeed(aiAgentEntity.getSeed())
+                .setTopK(aiAgentEntity.getTopK())
+                .setTopP(aiAgentEntity.getTopP())
+                .setFrequencyPenalty(aiAgentEntity.getFrequencyPenalty())
+                .setPresencePenalty(aiAgentEntity.getPresencePenalty())
+                .setMaxTokens(aiAgentEntity.getMaxTokens())
+                .setTemperature(aiAgentEntity.getTemperature());
 
 
-
+        param.getToolSetting()
+                .setToolKeys(JsonUtil.parseArray(aiAgentEntity.getToolKeys(), String.class))
+                .setMcpKeys(JsonUtil.parseArray(aiAgentEntity.getMcpKeys(), String.class));
 
     }
 
@@ -107,38 +125,36 @@ public class AstroAssistantFactory {
     private <T> void configureComponents(AiServices<T> builder, AstroChatRequest<T> param) {
         // 组装Memory
         if (param.getMaxHistoryMessages() > 0) {
-            builder.chatMemoryProvider(memoryId-> {
+            builder.chatMemoryProvider(memoryId -> {
                 DynamicMemoryProvider memory = new DynamicMemoryProvider(aiConversationMapper);
                 memory.initialize(param.getMaxHistoryMessages());
                 return memory.get(param.getMemoryKey());
             });
         }
-        ToolStrategy toolStrategy = param.getToolStrategy();
-        // 组装Tool
+        ToolSetting toolSetting = param.getToolSetting();
+
         List<ToolProvider> providers = new ArrayList<>();
 
-        if (toolStrategy.getMcpKeys() != null && !toolStrategy.getMcpKeys().isEmpty()) {
-            DynamicMcpToolProvider mcpProvider = new DynamicMcpToolProvider(mcpManager, aiMcpConfigMapper);
-            mcpProvider.initialize(toolStrategy.getMcpKeys());
-            providers.add(mcpProvider);
-        }
 
-        if (toolStrategy.getToolKeys() != null && !toolStrategy.getToolKeys().isEmpty()) {
-            DynamicToolProvider localProvider = new DynamicToolProvider(aiToolMapper, applicationContext);
-            localProvider.initialize(toolStrategy.getToolKeys());
+        if (toolSetting.getMcpKeys() != null && !toolSetting.getMcpKeys().isEmpty()) {
+            List<AiMcpEntity> mcpConfigs = aiMcpMapper.selectList(new LambdaQueryWrapper<AiMcpEntity>()
+                    .in(AiMcpEntity::getMcpKey, toolSetting.getMcpKeys()));
+            providers.add(new DynamicMcpToolProvider(mcpConfigs, mcpManager));
+
+        }
+        if (toolSetting.getToolKeys() != null && !toolSetting.getToolKeys().isEmpty()) {
+            List<AiToolEntity> configs = aiToolMapper.selectList(new LambdaQueryWrapper<AiToolEntity>()
+                    .in(AiToolEntity::getToolKey, toolSetting.getToolKeys()));
+            DynamicToolProvider localProvider = new DynamicToolProvider(configs, applicationContext, globalToolCache);
             providers.add(localProvider);
+
         }
 
-        if (!providers.isEmpty()) {
-            if (providers.size() == 1) {
-                builder.toolProvider(providers.get(0));
-            } else {
-                builder.toolProvider(new CompositeToolProvider());
-            }
+        if (CollectionUtil.isNotEmpty(providers)) {
+            builder.toolProvider(new UnionToolProvider(providers));
         }
 
     }
-
 
 
 }

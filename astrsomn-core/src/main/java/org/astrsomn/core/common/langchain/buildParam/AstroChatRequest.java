@@ -4,7 +4,10 @@ package org.astrsomn.core.common.langchain.buildParam;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.astrsomn.core.common.langchain.AstrsomnChatAssistant;
+import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.PromptSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
 
 @Data
 @Accessors(chain = true)
@@ -42,27 +45,22 @@ public class AstroChatRequest<T> {
     /**
      * 模型推理参数配置 (温度、TopP等)
      */
-    private ModelInferenceConfig inferenceConfig;
+    private ModelSetting modelSetting;
 
     /**
      * 功能开关 (联网、流式等)
      */
-    private ChatFeatureFlags features;
+    private ChatSetting chatSetting;
 
     /**
      * 知识与工具挂载策略
      */
-    private ToolStrategy toolStrategy;
+    private ToolSetting toolSetting;
 
     /**
      * 提示词工程策略
      */
-    private PromptStrategy promptStrategy;
-
-    // --- 3. 技术元数据 (通常不需要前端传，或由框架自动注入) ---
-    // 注意：Class clazz 这种运行时类型信息通常不应该出现在 DTO/Param 中，
-    // 除非是极其特殊的反射场景。建议移除或通过其他方式传递。
-    private Class<T> clazz;
+    private PromptSetting promptSetting;
 
 
     private final Class<T> serviceClass;
@@ -70,12 +68,8 @@ public class AstroChatRequest<T> {
 
 
     public static <T> AstroChatRequest<T> of (Class<T> serviceClass, String agentKey){
-
-
-
         return AstroChatRequest.<T>builder()
                 .serviceClass(serviceClass)
-                .clazz(serviceClass)
                 .agentKey(agentKey)
                 .build();
     }

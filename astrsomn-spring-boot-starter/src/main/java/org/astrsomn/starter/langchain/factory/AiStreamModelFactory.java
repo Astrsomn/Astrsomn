@@ -4,31 +4,29 @@ package org.astrsomn.starter.langchain.factory;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import dev.langchain4j.community.model.dashscope.QwenStreamingChatModel;
 import dev.langchain4j.community.model.zhipu.ZhipuAiStreamingChatModel;
-import dev.langchain4j.model.ModelDisabledException;
-import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiStreamingChatModel;
-import dev.langchain4j.model.openai.OpenAiChatModel;
+
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
-import org.astrsomn.core.common.langchain.buildParam.AiChatBuildParam;
+
 import org.astrsomn.core.common.langchain.buildParam.AstroChatRequest;
-import org.astrsomn.core.common.langchain.buildParam.ChatFeatureFlags;
-import org.astrsomn.core.common.langchain.buildParam.ModelInferenceConfig;
+import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
 import org.astrsomn.core.common.util.JsonUtil;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
+
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+
 import java.util.List;
 import java.util.Objects;
 
-import static org.astrsomn.core.common.constant.AiModelEnum.ProviderEnum.DEEPSEEK;
+
 
 
 
@@ -38,12 +36,15 @@ public class AiStreamModelFactory {
     @Resource
     private AiModelMapper aiModelMapper;
 
+
+    @Resource
     private AstrsomnProperties astrsomnProperties;
+
 
     public <T> StreamingChatModel getStreamingModel(AstroChatRequest<T> param) {
 
-        ModelInferenceConfig modelConfig = param.getInferenceConfig();
-        ChatFeatureFlags chatFeatureFlags = param.getFeatures();
+        ModelSetting modelSetting = param.getModelSetting();
+        ChatSetting chatSetting = param.getChatSetting();
         AiModelEntity modelEntity = aiModelMapper.selectOne(new LambdaUpdateWrapper<AiModelEntity>()
                 .eq(AiModelEntity::getModelKey, param.getModelKey())
                 .eq(AiModelEntity::getEnvCode, astrsomnProperties.getEnvCode()));
@@ -57,17 +58,17 @@ public class AiStreamModelFactory {
 
         switch (providerEnum) {
             case ALIBABA:
-                return getQwenStreamingChatModel(modelEntity, modelConfig, chatFeatureFlags);
+                return getQwenStreamingChatModel(modelEntity, modelSetting, chatSetting);
             case OPENAI:
-                return getStreamLanguageModel(modelEntity, modelConfig, chatFeatureFlags);
+                return getStreamLanguageModel(modelEntity, modelSetting, chatSetting);
             case DEEPSEEK:
-                return getStreamLanguageModel(modelEntity, modelConfig, chatFeatureFlags);
+                return getStreamLanguageModel(modelEntity, modelSetting, chatSetting);
             case ZHIPU:
-                return getZhiPuStreamLanguageModel(modelEntity, modelConfig, chatFeatureFlags);
+                return getZhiPuStreamLanguageModel(modelEntity, modelSetting, chatSetting);
             case QIANFAN:
-                return getQianfanStreamLanguageModel(modelEntity, modelConfig, chatFeatureFlags);
+                return getQianfanStreamLanguageModel(modelEntity, modelSetting, chatSetting);
             case GOOGLE:
-                return getGoogleGeminiStreamLanguageModel(modelEntity, modelConfig, chatFeatureFlags);
+                return getGoogleGeminiStreamLanguageModel(modelEntity, modelSetting, chatSetting);
             // 可以继续加其他 case
             default:
                 log.error("====>  Astrsomn  ====> 未处理的 provider 类型: {} <====", providerEnum);
@@ -77,8 +78,8 @@ public class AiStreamModelFactory {
 
 
     private StreamingChatModel getGoogleGeminiStreamLanguageModel(AiModelEntity modelEntity,
-                                                                  ModelInferenceConfig modelConfig,
-                                                                  ChatFeatureFlags chatFeatureFlags) {
+                                                                  ModelSetting modelSetting,
+                                                                  ChatSetting chatSetting) {
         return GoogleAiGeminiStreamingChatModel.builder()
                 .modelName(modelEntity.getModelName())
                 .apiKey(modelEntity.getApiKey())
@@ -86,8 +87,8 @@ public class AiStreamModelFactory {
     }
 
     private StreamingChatModel getQianfanStreamLanguageModel(AiModelEntity modelEntity,
-                                                             ModelInferenceConfig modelConfig,
-                                                             ChatFeatureFlags chatFeatureFlags) {
+                                                             ModelSetting modelSetting,
+                                                             ChatSetting chatSetting) {
 
         return OpenAiStreamingChatModel.builder()
                 .modelName(modelEntity.getModelName())
@@ -97,8 +98,8 @@ public class AiStreamModelFactory {
     }
 
     private StreamingChatModel getZhiPuStreamLanguageModel(AiModelEntity modelEntity,
-                                                           ModelInferenceConfig modelConfig,
-                                                           ChatFeatureFlags chatFeatureFlags) {
+                                                           ModelSetting modelSetting,
+                                                           ChatSetting chatSetting) {
 
         return ZhipuAiStreamingChatModel.builder()
                 .model(modelEntity.getModelName())
@@ -110,8 +111,8 @@ public class AiStreamModelFactory {
 
 
     private OpenAiStreamingChatModel getStreamLanguageModel(AiModelEntity modelEntity,
-                                                            ModelInferenceConfig modelConfig,
-                                                            ChatFeatureFlags chatFeatureFlags) {
+                                                            ModelSetting modelSetting,
+                                                            ChatSetting chatSetting) {
 
 
 
@@ -119,31 +120,31 @@ public class AiStreamModelFactory {
                 .modelName(modelEntity.getModelName())
                 .baseUrl(modelEntity.getApiUrl())
                 .apiKey(modelEntity.getApiKey())
-                .maxTokens(modelConfig.getMaxTokens())
+                .maxTokens(modelSetting.getMaxTokens())
                 .logRequests(true)
                 .logResponses(true);
         List<String> capabilities = JsonUtil.parseArray(modelEntity.getCapabilities(), String.class);
         // 深度思考
-        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.DEEP_REASONING.getCode()) && chatFeatureFlags.isEnableDeepThinking()) {
+        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.DEEP_REASONING.getCode()) && chatSetting.isEnableDeepThinking()) {
 
         }
 
         // temperature
-        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TEMPERATURE_SETTING.getCode()) && Objects.nonNull(modelConfig.getTemperature())) {
-            builder.temperature(modelConfig.getTemperature());
+        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TEMPERATURE_SETTING.getCode()) && Objects.nonNull(modelSetting.getTemperature())) {
+            builder.temperature(modelSetting.getTemperature());
         }
         // topP
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TOP_P_SETTING.getCode())) {
-            builder.topP(modelConfig.getTopP());
+            builder.topP(modelSetting.getTopP());
         }
 
         // seed
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.SEED_SETTING.getCode())) {
-            builder.seed(modelConfig.getSeed());
+            builder.seed(modelSetting.getSeed());
         }
         // maxTokens
-        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.MAX_TOKEN_SETTING.getCode()) && Objects.nonNull(modelConfig.getMaxTokens())) {
-            builder.maxTokens(modelConfig.getMaxTokens());
+        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.MAX_TOKEN_SETTING.getCode()) && Objects.nonNull(modelSetting.getMaxTokens())) {
+            builder.maxTokens(modelSetting.getMaxTokens());
         }
 
         return builder.build();
@@ -152,8 +153,8 @@ public class AiStreamModelFactory {
 
 
     private StreamingChatModel getQwenStreamingChatModel(AiModelEntity modelEntity,
-                                                         ModelInferenceConfig modelConfig,
-                                                         ChatFeatureFlags chatFeatureFlags) {
+                                                         ModelSetting modelSetting,
+                                                         ChatSetting chatSetting) {
 
         QwenStreamingChatModel.QwenStreamingChatModelBuilder builder = QwenStreamingChatModel.builder()
                 .modelName(modelEntity.getModelName())
@@ -161,32 +162,32 @@ public class AiStreamModelFactory {
 
         List<String> capabilities = JsonUtil.parseArray(modelEntity.getCapabilities(), String.class);
         // 深度思考
-        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.DEEP_REASONING.getCode()) && chatFeatureFlags.isEnableDeepThinking()) {
+        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.DEEP_REASONING.getCode()) && chatSetting.isEnableDeepThinking()) {
 
         }
         // 联网查找
-        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.NETWORK_SEARCH.getCode()) && chatFeatureFlags.isEnableNetwork()) {
+        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.NETWORK_SEARCH.getCode()) && chatSetting.isEnableNetwork()) {
             builder.enableSearch(true);
         }
         // temperature
-        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TEMPERATURE_SETTING.getCode()) && Objects.nonNull(modelConfig.getTemperature())) {
-            builder.temperature(modelConfig.getTemperature().floatValue());
+        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TEMPERATURE_SETTING.getCode()) && Objects.nonNull(modelSetting.getTemperature())) {
+            builder.temperature(modelSetting.getTemperature().floatValue());
         }
         // topP
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TOP_P_SETTING.getCode())) {
-            builder.topP(modelConfig.getTopP());
+            builder.topP(modelSetting.getTopP());
         }
         // topK
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TOP_K_SETTING.getCode())) {
-            builder.topK(modelConfig.getTopK());
+            builder.topK(modelSetting.getTopK());
         }
         // seed
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.SEED_SETTING.getCode())) {
-            builder.seed(modelConfig.getSeed());
+            builder.seed(modelSetting.getSeed());
         }
         // maxTokens
-        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.MAX_TOKEN_SETTING.getCode()) && Objects.nonNull(modelConfig.getMaxTokens())) {
-            builder.maxTokens(modelConfig.getMaxTokens());
+        if (capabilities.contains(AiModelEnum.CapabilitiesEnum.MAX_TOKEN_SETTING.getCode()) && Objects.nonNull(modelSetting.getMaxTokens())) {
+            builder.maxTokens(modelSetting.getMaxTokens());
         }
         return builder.build();
     }

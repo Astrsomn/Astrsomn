@@ -23,9 +23,9 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
 
     public String createTask(){
         var param = AstroChatRequest.of(TaskCreateAssistant.class, "deepseek-sensor");
-        param.getInferenceConfig().setMaxTokens(100)
+        param.getModelSetting().setMaxTokens(100)
                 .setTopK(20);
-        param.getFeatures().setEnableDeepThinking(true);
+        param.getChatSetting().setEnableDeepThinking(true);
 
         // 这里param可以设置更多的参数
 

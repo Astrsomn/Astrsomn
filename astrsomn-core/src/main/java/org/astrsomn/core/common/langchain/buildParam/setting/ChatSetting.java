@@ -1,4 +1,4 @@
-package org.astrsomn.core.common.langchain.buildParam;
+package org.astrsomn.core.common.langchain.buildParam.setting;
 
 
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class ChatFeatureFlags {
+public class ChatSetting {
 
     /**
      * 开启联网检索

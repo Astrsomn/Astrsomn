@@ -69,14 +69,14 @@ public class AiAgentEntity extends BaseEntity<Long> {
     /**
      * A comma-separated list of IDs for tools enabled for this Agent.
      */
-    @TableField("TOOL_IDS")
-    private String toolIds;
+    @TableField("TOOL_KEYS")
+    private String toolKeys;
 
     /**
      * A comma-separated list of IDs for Model Context Protocol (MCP) servers.
      */
-    @TableField("MCP_IDS")
-    private String mcpIds;
+    @TableField("MCP_KEYS")
+    private String mcpKeys;
 
     /**
      * The memory mode strategy (e.g., NONE, SLIDING_WINDOW, VECTOR).
@@ -93,8 +93,8 @@ public class AiAgentEntity extends BaseEntity<Long> {
     /**
      * The maximum number of tokens allowed in the generated response.
      */
-    @TableField("MAX_TOKEN")
-    private Integer maxToken;
+    @TableField("MAX_TOKENS")
+    private Integer maxTokens;
 
     /**
      * The temperature value controlling the randomness of the output.
@@ -126,6 +126,11 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("SEED")
     private Integer seed;
 
+    @TableField("TOP_P")
+    private Double topP;
+
+    @TableField("TOP_K")
+    private Integer topK;
     /**
      * Enables streaming response output if set to true.
      */

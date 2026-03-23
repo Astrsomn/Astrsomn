@@ -1,4 +1,4 @@
-package org.astrsomn.core.common.langchain.buildParam;
+package org.astrsomn.core.common.langchain.buildParam.setting;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class ModelInferenceConfig {
+public class ModelSetting {
 
     /**
      * 温度 (0.0 - 2.0)
