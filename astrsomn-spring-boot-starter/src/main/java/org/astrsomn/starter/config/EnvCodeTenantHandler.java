@@ -1,6 +1,7 @@
 package org.astrsomn.starter.config;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
+import lombok.RequiredArgsConstructor;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.StringValue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,11 @@ import java.util.List;
 
 
 @Component
+@RequiredArgsConstructor
 public class EnvCodeTenantHandler implements TenantLineHandler {
 
-    @Autowired
-    private AstrsomnProperties properties;
+
+    private final AstrsomnProperties properties;
 
     // 需要进行环境隔离的私有表白名单
     private static final List<String> PRIVATE_TABLES = Arrays.asList(

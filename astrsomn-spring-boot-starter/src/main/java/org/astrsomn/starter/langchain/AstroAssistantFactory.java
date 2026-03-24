@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.tool.ToolProvider;
 import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.entity.AiAgentEntity;
 import org.astrsomn.core.common.entity.AiMcpEntity;
@@ -37,66 +38,36 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class AstroAssistantFactory {
 
-    @Resource
-    private AiStreamModelFactory aiStreamModelFactory;
+    private final AiStreamModelFactory aiStreamModelFactory;
+    private final AiPromptMapper aiPromptMapper;
+    private final AiAgentMapper aiAgentMapper;
+    private final AiConversationMapper aiConversationMapper;
+    private final McpToolCacheManager mcpToolManager;
+    private final AiMcpMapper aiMcpMapper;
+    private final AiToolMapper aiToolMapper;
+    private final ApplicationContext applicationContext;
+    private final AiChatModelFactory aiChatModelFactory;
+    private final LocalToolCacheManager globalToolCache;
+    private final AstrsomnProperties astrsomnProperties;
+    private final ChatMemoryManager chatMemoryManager;
+    private final AssistantCacheManager cacheManager;
 
-    @Resource
-    private AiPromptMapper aiPromptMapper;
-
-    @Resource
-    private AiAgentMapper aiAgentMapper;
-    @Resource
-    private AiConversationMapper aiConversationMapper;
-
-    @Resource
-    private McpToolCacheManager mcpToolManager;
-
-    @Resource
-    private AiMcpMapper aiMcpMapper;
-
-    @Resource
-    private AiToolMapper aiToolMapper;
-
-    @Resource
-    private ApplicationContext applicationContext;
-
-
-    @Resource
-    private AiChatModelFactory aiChatModelFactory;
-
-    @Resource
-    private LocalToolCacheManager globalToolCache;
-
-    @Resource
-    private AstrsomnProperties astrsomnProperties;
-
-    @Autowired
-    private ChatMemoryManager chatMemoryManager;
-
-    @Resource
-    private AssistantCacheManager cacheManager;
 
     public <T> T createAssistant(AstroChatRequest<T> param) {
 
-        // TODO 一、构建完整参数 | 优先级：代码配置 > 管理后台配置  >  默认配置
         buildParam(param);
 
-        // TODO 二、 调用缓存管理器，传入创建逻辑的 Supplier
         return cacheManager.getOrCreate(param, () -> {
-            // 这里是真正执行构建的逻辑
             AiServices<T> builder = AiServices.builder(param.getServiceClass());
-
             if (param.getChatSetting().isEnableStream()) {
                 builder.streamingChatModel(aiStreamModelFactory.getStreamingModel(param));
             } else {
                 builder.chatModel(aiChatModelFactory.getChatModel(param));
             }
-
-            // 组装组件
             configureComponents(builder, param);
-
             return builder.build();
         });
 
@@ -113,8 +84,6 @@ public class AstroAssistantFactory {
         if (StringUtils.isBlank(param.getMemoryKey())) {
             param.setMemoryKey(UUID.fastUUID().toString());
         }
-
-
         AiAgentEntity aiAgentEntity = aiAgentMapper.selectOne(new LambdaUpdateWrapper<AiAgentEntity>()
                 .eq(AiAgentEntity::getAgentKey, param.getAgentKey())
                 .eq(AiAgentEntity::getEnvCode, astrsomnProperties.getEnvCode()));

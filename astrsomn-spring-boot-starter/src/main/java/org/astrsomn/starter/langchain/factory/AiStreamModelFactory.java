@@ -8,7 +8,8 @@ import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiStreamingChatModel;
 
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-import jakarta.annotation.Resource;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
@@ -31,13 +32,11 @@ import java.util.Objects;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AiStreamModelFactory {
-    @Resource
-    private AiModelMapper aiModelMapper;
 
-
-    @Resource
-    private AstrsomnProperties astrsomnProperties;
+    private final AiModelMapper aiModelMapper;
+    private final AstrsomnProperties astrsomnProperties;
 
 
     public <T> StreamingChatModel getStreamingModel(AstroChatRequest<T> param) {
@@ -120,29 +119,22 @@ public class AiStreamModelFactory {
                 .logRequests(true)
                 .logResponses(true);
         List<String> capabilities = JsonUtil.parseArray(modelEntity.getCapabilities(), String.class);
-        // 深度思考
+
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.DEEP_REASONING.getCode()) && chatSetting.isEnableDeepThinking()) {
 
         }
-
-        // temperature
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TEMPERATURE_SETTING.getCode()) && Objects.nonNull(modelSetting.getTemperature())) {
             builder.temperature(modelSetting.getTemperature());
         }
-        // topP
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TOP_P_SETTING.getCode())) {
             builder.topP(modelSetting.getTopP());
         }
-
-        // seed
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.SEED_SETTING.getCode())) {
             builder.seed(modelSetting.getSeed());
         }
-        // maxTokens
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.MAX_TOKEN_SETTING.getCode()) && Objects.nonNull(modelSetting.getMaxTokens())) {
             builder.maxTokens(modelSetting.getMaxTokens());
         }
-
         return builder.build();
     }
 
@@ -156,31 +148,24 @@ public class AiStreamModelFactory {
                 .apiKey(modelEntity.getApiKey());
 
         List<String> capabilities = JsonUtil.parseArray(modelEntity.getCapabilities(), String.class);
-        // 深度思考
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.DEEP_REASONING.getCode()) && chatSetting.isEnableDeepThinking()) {
 
         }
-        // 联网查找
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.NETWORK_SEARCH.getCode()) && chatSetting.isEnableNetwork()) {
             builder.enableSearch(true);
         }
-        // temperature
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TEMPERATURE_SETTING.getCode()) && Objects.nonNull(modelSetting.getTemperature())) {
             builder.temperature(modelSetting.getTemperature().floatValue());
         }
-        // topP
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TOP_P_SETTING.getCode())) {
             builder.topP(modelSetting.getTopP());
         }
-        // topK
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TOP_K_SETTING.getCode())) {
             builder.topK(modelSetting.getTopK());
         }
-        // seed
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.SEED_SETTING.getCode())) {
             builder.seed(modelSetting.getSeed());
         }
-        // maxTokens
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.MAX_TOKEN_SETTING.getCode()) && Objects.nonNull(modelSetting.getMaxTokens())) {
             builder.maxTokens(modelSetting.getMaxTokens());
         }

@@ -1,10 +1,10 @@
-package org.astrsomn.server.api.controller.config;
+package org.astrsomn.server.api;
 
 import org.astrsomn.core.common.base.BaseController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v1/astro/ai-tool")
-public class AiToolController extends BaseController {
+@RequestMapping("/v1/astro/ai-promopt")
+public class AiPromptController extends BaseController {
 }

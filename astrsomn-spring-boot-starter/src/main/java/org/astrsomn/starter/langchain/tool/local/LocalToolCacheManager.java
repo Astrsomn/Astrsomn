@@ -18,9 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class LocalToolCacheManager {
 
-
-    // 缓存已经解析好的工具元数据和执行器
-    // Key: beanName + ":" + methodName
     private final Map<String, ToolDefinition> cache = new ConcurrentHashMap<>();
 
     @Data
@@ -38,8 +35,6 @@ public class LocalToolCacheManager {
                     .filter(m -> m.getName().equals(methodName))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Method not found: " + methodName));
-
-            // 一次性生成 Specification 和 Executor，这是最耗时的步骤
             ToolSpecification spec = ToolSpecifications.toolSpecificationFrom(method);
             ToolExecutor executor = new DefaultToolExecutor(bean, method);
 

@@ -18,7 +18,6 @@ public class DynamicMemoryProvider implements ChatMemoryProvider {
 
     @Override
     public ChatMemory get(Object memoryId) {
-        // 直接转发给 Manager 处理
         return memoryManager.getOrCreateMemory(memoryId, maxMessages);
     }
 }

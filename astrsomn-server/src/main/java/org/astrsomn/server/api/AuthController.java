@@ -1,4 +1,4 @@
-package org.astrsomn.server.api.controller.config;
+package org.astrsomn.server.api;
 
 
 import lombok.extern.slf4j.Slf4j;

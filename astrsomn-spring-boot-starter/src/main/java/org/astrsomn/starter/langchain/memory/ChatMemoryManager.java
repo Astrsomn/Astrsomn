@@ -23,17 +23,11 @@ import java.util.stream.Collectors;
 public class ChatMemoryManager {
 
     private final AiConversationMapper aiConversationMapper;
-
-    // 内存缓存：Key 是 memoryKey (会话唯一标识)
     private final Map<Object, ChatMemory> memoryCache = new ConcurrentHashMap<>();
-
     public ChatMemoryManager(AiConversationMapper aiConversationMapper) {
         this.aiConversationMapper = aiConversationMapper;
     }
 
-    /**
-     * 获取或创建记忆
-     */
     public ChatMemory getOrCreateMemory(Object memoryId, int maxMessages) {
         return memoryCache.computeIfAbsent(memoryId, id -> {
             log.info("初始化会话记忆缓存: {}", id);
@@ -42,20 +36,13 @@ public class ChatMemoryManager {
                     .id(id)
                     .maxMessages(maxMessages)
                     .build();
-
-            // 1. 从数据库加载历史记录
             List<ChatMessage> history = loadHistoryFromDb(id.toString());
-
-            // 2. 灌入内存实例
             history.forEach(chatMemory::add);
-
             return chatMemory;
         });
     }
 
-    /**
-     * 持久化新消息 (建议在对话完成后异步调用)
-     */
+
     public void saveMessage(String memoryKey, ChatMessage message) {
         AiConversationEntity entity = new AiConversationEntity();
         entity.setMemoryKey(memoryKey);

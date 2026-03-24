@@ -27,9 +27,6 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
                 .setTopK(20);
         param.getChatSetting().setEnableDeepThinking(true);
 
-        // 这里param可以设置更多的参数
-
-
         TaskCreateAssistant assistant = assistantFactory.createAssistant(param);
         String response = assistant.chat("帮我创建一个任务，执行人是刘慧鹏", UUID.fastUUID().toString());
         return response;

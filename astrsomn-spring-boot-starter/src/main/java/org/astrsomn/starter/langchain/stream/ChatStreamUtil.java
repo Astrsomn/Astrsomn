@@ -27,23 +27,18 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiredArgsConstructor
 public class ChatStreamUtil {
 
-    @Resource
     private final AiConversationMapper aiConversationMapper;
-
-    @Resource
     private final Executor taskExecutor;
-
-    private DatabaseHistoryRecorder historyRecorder;
+    private final DatabaseHistoryRecorder historyRecorder;
 
     public Flux<String> convertStreamToFlux(TokenStream inputStream, AiChatBuildParam buildParam) {
         return Flux.create(fluxSink -> {
             AtomicReference<StringBuilder> contentBuilder = new AtomicReference<>(new StringBuilder());
             AtomicReference<TokenUsage> usageRef = new AtomicReference<>();
-            // 【核心】定义一个取消标志位
             AtomicBoolean isCancelled = new AtomicBoolean(false);
              inputStream
                     .onPartialThinking(thinking -> {
-                        // 使用枚举：AstroEventType.THOUGHT
+
                         sendEvent(fluxSink, ChatStreamEnum.AstroEventType.THOUGHT, thinking.text());
                     })
                     .onPartialResponse(partial -> {
@@ -53,16 +48,12 @@ public class ChatStreamUtil {
                         }
                     })
                     .onToolExecuted(toolExecution -> {
-                        // 处理工具逻辑：后期可以扩展为 ToolHandler 策略模式
+
                         handleToolOutput(fluxSink, toolExecution);
                     })
                     .onCompleteResponse(response -> {
                         usageRef.set(response.tokenUsage());
-
-                        // 异步持久化
                         finalizeConversation(buildParam, contentBuilder.get().toString(), usageRef.get());
-
-                        // 发送完成信号（可选，前端根据这个判断结束）
                         sendEvent(fluxSink, ChatStreamEnum.AstroEventType.DONE, "[DONE]");
                         fluxSink.complete();
                     })
@@ -93,14 +84,12 @@ public class ChatStreamUtil {
         sink.next(JsonUtils.toJson(Map.of(
                 "type", type.getCode(),
                 "content", content,
-                "timestamp", System.currentTimeMillis() // 增加时间戳，方便前端排序
+                "timestamp", System.currentTimeMillis()
         )));
     }
 
     private void finalizeConversation(AiChatBuildParam param, String content, TokenUsage usage) {
         if (param == null || param.getMemoryId() == null) return;
-
-        // 异步任务，不阻塞流响应
         CompletableFuture.runAsync(() -> {
             try {
                 historyRecorder.savePair(param, content, usage);
