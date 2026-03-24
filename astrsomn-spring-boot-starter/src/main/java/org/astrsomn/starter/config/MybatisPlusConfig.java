@@ -21,24 +21,42 @@ public class MybatisPlusConfig {
     public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnProperties properties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
-        // 获取数据库类型
         String dbTypeStr = (properties.getDataBase() != null) ? properties.getDataBase().getDatabaseType() : "mysql";
         DbType dbType = DataSourceConfig.getDbType(dbTypeStr);
 
-        // 1. 分页插件 (必须指定 DbType 以优化性能)
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(dbType));
-
-        // 注意：这里不需要手动加 TenantLineInnerInterceptor
-        // 因为我们在之前的 BeanPostProcessor 中已经实现了动态注入
 
         return interceptor;
     }
 
-    /**
-     * 注意：不要手动写 @Bean SqlSessionFactory。
-     * 只需要在 starter 的 resources/META-INF/spring-configuration-metadata.json
-     * 或者让用户在 application.yml 里配置：
-     * mybatis-plus.mapper-locations=classpath:mapper/*.xml
-     * mybatis-plus.type-aliases-package=org.astrsomn.core.common.entity
-     */
+    @Bean
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource, AstrsomnProperties properties) throws Exception {
+        SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
+        factoryBean.setDataSource(dataSource);
+
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        
+        String defaultMapperLocations = "classpath:mapper/*.xml";
+        String defaultTypeAliasesPackage = "org.astrsomn.core.common.entity";
+        
+        String mapperLocations = defaultMapperLocations;
+        String typeAliasesPackage = defaultTypeAliasesPackage;
+        
+        if (properties.getMybatisPlus() != null) {
+            if (properties.getMybatisPlus().getAdditionalMapperLocations() != null 
+                    && !properties.getMybatisPlus().getAdditionalMapperLocations().trim().isEmpty()) {
+                mapperLocations = defaultMapperLocations + "," + properties.getMybatisPlus().getAdditionalMapperLocations();
+            }
+            
+            if (properties.getMybatisPlus().getAdditionalTypeAliasesPackage() != null 
+                    && !properties.getMybatisPlus().getAdditionalTypeAliasesPackage().trim().isEmpty()) {
+                typeAliasesPackage = defaultTypeAliasesPackage + "," + properties.getMybatisPlus().getAdditionalTypeAliasesPackage();
+            }
+        }
+        
+        factoryBean.setMapperLocations(resolver.getResources(mapperLocations));
+        factoryBean.setTypeAliasesPackage(typeAliasesPackage);
+        
+        return factoryBean.getObject();
+    }
 }

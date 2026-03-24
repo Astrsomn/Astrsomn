@@ -2,7 +2,6 @@ package org.astrsomn.starter.langchain.stream;
 
 import dev.langchain4j.model.output.TokenUsage;
 import jakarta.annotation.Resource;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.entity.AiConversationEntity;
 import org.astrsomn.core.common.langchain.buildParam.AiChatBuildParam;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@AllArgsConstructor
 @RequiredArgsConstructor
 public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
 

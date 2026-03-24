@@ -14,9 +14,36 @@ public class AstrsomnProperties {
     private String envCode;
 
     /**
+     * MyBatis-Plus 配置。
+     */
+    private MybatisPlus mybatisPlus = new MybatisPlus();
+
+    /**
      * 数据库连接配置。
      */
     private DataBase dataBase = new DataBase();
+
+    @Data
+    public static class MybatisPlus {
+
+        /**
+         * 额外的Mapper XML文件位置。
+         * 支持多个路径，用逗号分隔。
+         * 会自动与starter默认的mapper路径合并。
+         * 
+         * 示例：classpath:my-mapper/*.xml
+         */
+        private String additionalMapperLocations;
+
+        /**
+         * 额外的Entity类包路径（类型别名包）。
+         * 支持多个包路径，用逗号分隔。
+         * 会自动与starter默认的entity包合并。
+         * 
+         * 示例：com.mycompany.entity
+         */
+        private String additionalTypeAliasesPackage;
+    }
 
     @Data
     public static class DataBase {
