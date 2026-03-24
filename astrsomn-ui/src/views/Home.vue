@@ -1,112 +1,358 @@
 <template>
-  <div class="home-container">
-    <a-layout>
-      <a-layout-header class="header">
-        <div class="header-content">
-          <h1>Astrsomn</h1>
-          <a-dropdown>
-            <a class="ant-dropdown-link" @click.prevent>
-              {{ userInfo?.username || '用户' }}
-              <DownOutlined />
-            </a>
+  <div class="admin-shell">
+    <header class="shell-header">
+      <div class="header-container">
+        <div class="header-left">
+          <transition name="fade-slide" mode="out-in">
+            <div v-if="isHome" class="brand-area" key="logo">
+              <div class="logo-box">A</div>
+              <div class="brand-text">
+                <h1 class="brand-title">Astrsomn</h1>
+                <p class="brand-subtitle">Langchain4j 快速配置框架</p>
+              </div>
+            </div>
+            <div v-else class="page-nav-area" key="back">
+              <button type="button" class="back-btn" @click="goBack" title="返回首页">
+                <arrow-left-outlined />
+              </button>
+              <h1 class="page-title">{{ pageTitle }}</h1>
+            </div>
+          </transition>
+        </div>
+
+        <div class="header-right">
+          <div class="action-items">
+            <a-select
+              :value="currentLang"
+              size="small"
+              class="custom-select"
+              :options="languageOptions"
+              @change="changeLang"
+              :bordered="false"
+            />
+            
+            <div class="divider"></div>
+
+            <div class="theme-toggle">
+              <a-switch
+                :checked="isDark"
+                @change="onThemeChange"
+                class="custom-switch"
+              >
+                <template #checkedChildren><span class="icon-text">🌙</span></template>
+                <template #unCheckedChildren><span class="icon-text">☀️</span></template>
+              </a-switch>
+            </div>
+          </div>
+
+          <a-dropdown :trigger="['click']" placement="bottomRight">
+            <div class="user-profile">
+              <div class="avatar-box">{{ avatarChar }}</div>
+              <div class="user-status-dot"></div>
+            </div>
             <template #overlay>
-              <a-menu>
-                <a-menu-item key="logout" @click="handleLogout">
-                  退出登录
+              <a-menu class="custom-dropdown" @click="handleMenuClick">
+                <a-menu-item key="home">
+                  <home-outlined /> <span>回到首页</span>
+                </a-menu-item>
+                <a-menu-item key="password">
+                  <lock-outlined /> <span>安全设置</span>
+                </a-menu-item>
+                <a-menu-divider />
+                <a-menu-item key="logout" class="logout-item">
+                  <logout-outlined /> <span>退出登录</span>
                 </a-menu-item>
               </a-menu>
             </template>
           </a-dropdown>
         </div>
-      </a-layout-header>
-      <a-layout-content class="content">
-        <div class="welcome-card">
-          <h2>欢迎回来，{{ userInfo?.username }}</h2>
-          <p>您已成功登录系统</p>
-        </div>
-      </a-layout-content>
-    </a-layout>
+      </div>
+    </header>
+
+    <main class="shell-content">
+      <div class="content-wrapper">
+        <router-view v-slot="{ Component }">
+          <transition name="page-fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
+      </div>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
-import { DownOutlined } from '@ant-design/icons-vue'
-import { logout } from '@/api/auth'
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { message } from 'ant-design-vue';
+import { 
+  ArrowLeftOutlined, 
+  HomeOutlined, 
+  LockOutlined, 
+  LogoutOutlined 
+} from '@ant-design/icons-vue';
+import { useTheme } from '@/composables/useTheme';
+import { useLanguage } from '@/composables/useLanguage';
 
-const router = useRouter()
-const userInfo = ref<any>(null)
+const route = useRoute();
+const router = useRouter();
+const { isDark, toggleTheme } = useTheme();
+const { currentLang, changeLang, languageOptions } = useLanguage();
 
-onMounted(() => {
-  const userInfoStr = localStorage.getItem('userInfo')
-  if (userInfoStr) {
-    userInfo.value = JSON.parse(userInfoStr)
-  }
-})
+const isHome = computed(() => route.path === '/admin');
+const pageTitle = computed(() => (route.meta.title as string) || '管理后台');
 
-const handleLogout = async () => {
+const avatarChar = computed(() => {
   try {
-    await logout()
-    localStorage.removeItem('token')
-    localStorage.removeItem('userInfo')
-    message.success('退出登录成功')
-    router.push('/login')
-  } catch (error: any) {
-    message.error(error.message || '退出登录失败')
+    const raw = localStorage.getItem('userInfo');
+    if (raw) {
+      const info = JSON.parse(raw) as { username?: string };
+      if (info.username) return info.username.charAt(0).toUpperCase();
+    }
+  } catch { /* ignore */ }
+  return 'U';
+});
+
+const onThemeChange = (val: boolean) => toggleTheme(val);
+const goBack = () => router.push('/admin');
+
+const handleMenuClick = ({ key }: { key: string }) => {
+  switch (key) {
+    case 'home': router.push('/'); break;
+    case 'password': message.info('安全设置开发中'); break;
+    case 'logout':
+      localStorage.clear();
+      message.success('已安全退出');
+      router.push('/login');
+      break;
   }
-}
+};
 </script>
 
 <style scoped>
-.home-container {
+/* 基础布局 */
+.admin-shell {
   min-height: 100vh;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s ease;
 }
 
-.header {
-  background: #fff;
-  padding: 0 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* 导航栏样式：毛玻璃与层次感 */
+.shell-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 72px;
+  background-color: var(--bg-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
 }
 
-.header-content {
+.header-container {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 64px;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
-.header-content h1 {
+/* 左侧品牌区 */
+.brand-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-box {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-lg);
+  background: var(--logo-gradient);
+  color: #fff;
+  font-weight: 800;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(22, 119, 255, 0.3);
+}
+
+.brand-title {
   margin: 0;
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
-.content {
-  padding: 24px;
-  background: #f0f2f5;
+.brand-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
-.welcome-card {
-  max-width: 1200px;
+/* 返回与标题区 */
+.page-nav-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.back-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateX(-3px);
+}
+
+.page-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+/* 右侧工具栏 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.action-items {
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  padding: 4px 12px;
+  border-radius: 30px;
+  border: 1px solid var(--border-subtle);
+}
+
+.divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-default);
+  margin: 0 12px;
+}
+
+.custom-select {
+  width: 90px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* 用户头像 */
+.user-profile {
+  position: relative;
+  cursor: pointer;
+}
+
+.avatar-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border-default);
+  color: var(--accent-blue);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.user-profile:hover .avatar-box {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-hover);
+}
+
+.user-status-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 10px;
+  height: 10px;
+  background: var(--success);
+  border: 2px solid var(--bg-surface);
+  border-radius: 50%;
+}
+
+/* 主体内容区 */
+.shell-content {
+  flex: 1;
+  padding: 32px 0;
+  overflow-y: auto;
+}
+
+.content-wrapper {
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 40px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0 32px;
 }
 
-.welcome-card h2 {
-  margin-bottom: 16px;
-  color: #333;
+/* 下拉菜单美化 */
+.custom-dropdown {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-default) !important;
+  box-shadow: var(--shadow-card) !important;
+  padding: 8px !important;
+  border-radius: var(--radius-lg) !important;
 }
 
-.welcome-card p {
-  color: #666;
-  font-size: 16px;
+.custom-dropdown :deep(.ant-dropdown-menu-item) {
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  color: var(--text-secondary);
+}
+
+.custom-dropdown :deep(.ant-dropdown-menu-item:hover) {
+  background-color: var(--primary-hover) !important;
+  color: var(--primary);
+}
+
+.logout-item {
+  color: var(--error) !important;
+}
+
+/* 动画效果 */
+.fade-slide-enter-active, .fade-slide-leave-active {
+  transition: all 0.3s ease;
+}
+.fade-slide-enter-from { opacity: 0; transform: translateX(-10px); }
+.fade-slide-leave-to { opacity: 0; transform: translateX(10px); }
+
+.page-fade-enter-active, .page-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.page-fade-enter-from { opacity: 0; transform: translateY(8px); }
+.page-fade-leave-to { opacity: 0; }
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .header-container, .content-wrapper { padding: 0 16px; }
+  .brand-subtitle, .divider, .custom-select { display: none; }
+  .action-items { padding: 4px 8px; }
 }
 </style>

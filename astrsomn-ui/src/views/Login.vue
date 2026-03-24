@@ -1,85 +1,96 @@
 <template>
-  <div class="login-page" :class="{ dark: isDark }">
-    <!-- 左上角 Logo -->
-    <div class="logo-header">
-      <img src="https://picsum.photos/40/40" alt="Logo" class="logo-img" />
-      <span class="logo-text">Astrsomn 星梦</span>
-    </div>
+  <div class="login-page">
+    <nav class="glass-header">
+      <div class="header-left" @click="goHome">
+        <div class="logo-dot">A</div>
+        <span class="logo-text">Astrsomn <small>星梦</small></span>
+      </div>
 
-    <!-- 顶部工具栏：技术文档 + 语言切换 + 夜间模式 -->
-    <div class="top-toolbar">
-      <a href="javascript:;" target="_blank" class="doc-link">📖 技术文档</a>
-      <a-select
-        v-model:value="currentLang"
-        size="small"
-        style="width: 120px; margin: 0 16px"
-        @change="changeLang"
-      >
-        <a-select-option value="zh-CN">简体中文</a-select-option>
-        <a-select-option value="en-US">English</a-select-option>
-      </a-select>
+      <div class="header-right">
+        <a href="javascript:;" class="nav-item">
+          <book-outlined /> <span>文档</span>
+        </a>
+        <div class="v-divider"></div>
+        <a-select
+          :value="currentLang"
+          size="small"
+          class="lang-select"
+          :options="languageOptions"
+          @change="changeLang"
+          :bordered="false"
+        />
+        <button class="theme-toggle" @click="toggleTheme(!isDark)">
+          <template v-if="isDark">🌙</template>
+          <template v-else>☀️</template>
+        </button>
+      </div>
+    </nav>
 
-      <a-switch
-        v-model:checked="isDark"
-        checked-children="🌙"
-        un-checked-children="☀️"
-        @change="toggleTheme"
-      />
-    </div>
-
-    <!-- 左侧：品牌区域 0.618 黄金比例 -->
-    <div class="login-left">
+    <section class="login-left">
+      <div class="brand-visual-bg"></div>
       <div class="brand-content">
-        <h1 class="brand-title">🌟 Astrsomn 星梦</h1>
-        <div class="brand-slogan">
-          <p>封装复杂 AI，释放 Java 创造力</p>
-          <p>基于 LangChain4j 构建，为 Java 开发者提供生产级 AI 应用开发解决方案</p>
+        <div class="tagline">Enterprise AI Framework</div>
+        <h1 class="brand-title">
+          封装复杂 AI<br />
+          <span class="gradient-text">释放 Java 创造力</span>
+        </h1>
+        <div class="brand-features">
+          <div class="feature-item">
+            <check-circle-filled class="icon" />
+            <span>基于 <strong>LangChain4j</strong> 深度构建</span>
+          </div>
+          <div class="feature-item">
+            <check-circle-filled class="icon" />
+            <span>生产级 LLM 应用开发解决方案</span>
+          </div>
+          <div class="feature-item">
+            <check-circle-filled class="icon" />
+            <span>为 Java 开发者而生的 AI 基础设施</span>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 右侧：登录表单 -->
-    <div class="login-right">
-      <div class="login-form-wrapper">
-        <!-- 欢迎标语 移动到这里 -->
-        <div class="form-title-group">
-          <h2 class="form-welcome">欢迎登录</h2>
-          <p class="form-desc">请输入账号密码登录系统</p>
+    <section class="login-right">
+      <div class="login-card">
+        <div class="card-header">
+          <h2 class="welcome-title">欢迎回来</h2>
+          <p class="welcome-sub">请使用您的内部账号访问系统</p>
         </div>
 
         <a-form
           :model="formState"
-          name="login"
-          @finish="handleLogin"
-          autocomplete="off"
           :rules="rules"
           class="login-form"
+          @finish="handleLogin"
+          layout="vertical"
         >
-          <a-form-item name="username">
+          <a-form-item name="username" label="用户名">
             <a-input
               v-model:value="formState.username"
-              placeholder="请输入用户名"
+              placeholder="Admin / User"
               size="large"
-              class="login-input"
+              class="custom-input"
             >
-              <template #prefix>
-                <UserOutlined />
-              </template>
+              <template #prefix><user-outlined /></template>
             </a-input>
           </a-form-item>
 
-          <a-form-item name="password">
+          <a-form-item name="password" label="密码">
             <a-input-password
               v-model:value="formState.password"
-              placeholder="请输入密码"
+              placeholder="••••••••"
               size="large"
-              class="login-input"
+              class="custom-input"
             >
-              <template #prefix>
-                <LockOutlined />
-              </template>
+              <template #prefix><lock-outlined /></template>
             </a-input-password>
           </a-form-item>
+
+          <div class="form-options">
+            <a-checkbox>记住我</a-checkbox>
+            <a class="forget-pwd">忘记密码？</a>
+          </div>
 
           <a-form-item>
             <a-button
@@ -88,81 +99,62 @@
               size="large"
               block
               :loading="loading"
-              class="login-btn"
+              class="submit-btn"
             >
-              登录
+              即刻进入系统
             </a-button>
           </a-form-item>
         </a-form>
       </div>
-    </div>
+    </section>
 
-    <!-- 底部公司版权 绝对居中 -->
-    <div class="footer">
-      © 2026 Astrsomn 星梦科技 | 内部专用系统
-    </div>
+    <footer class="login-footer">
+      <p>© 2026 Astrsomn 星梦科技 · 让 AI 开发回归简单</p>
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
-import { login } from '@/api/auth'
-import type { LoginRequest } from '@/types'
+import { 
+  UserOutlined, 
+  LockOutlined, 
+  BookOutlined, 
+  CheckCircleFilled 
+} from '@ant-design/icons-vue'
+import { useTheme } from '@/composables/useTheme'
+import { useLanguage } from '@/composables/useLanguage'
 
 const router = useRouter()
 const loading = ref(false)
+const { isDark, toggleTheme } = useTheme()
+const { currentLang, changeLang, languageOptions } = useLanguage()
 
-const formState = reactive<LoginRequest>({
+const formState = reactive({
   username: '',
   password: ''
 })
 
 const rules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
-  ]
+  username: [{ required: true, message: '请输入用户名' }],
+  password: [{ required: true, message: '请输入密码' }]
 }
 
-// 语言
-const currentLang = ref('zh-CN')
-const changeLang = (val: string) => {
-  message.success(`已切换：${val === 'zh-CN' ? '简体中文' : 'English'}`)
-}
+const goHome = () => router.push('/')
 
-// 暗黑模式
-const isDark = ref(true)
-const toggleTheme = (val: boolean) => {
-  localStorage.setItem('theme', val ? 'dark' : 'light')
-  message.info(val ? '夜间模式已开启' : '日间模式已开启')
-}
-
-// 登录
-const handleLogin = async (values: LoginRequest) => {
+const handleLogin = async () => {
   loading.value = true
-  try {
-    const response = await login(values)
-    localStorage.setItem('token', response.token)
-    localStorage.setItem('userInfo', JSON.stringify(response.userInfo))
-    message.success('登录成功')
-    router.push('/')
-  } catch (error: any) {
-    message.error(error.message || '登录失败，请检查用户名和密码')
-  } finally {
+  // 模拟登录逻辑
+  setTimeout(() => {
+    localStorage.setItem('token', 'mock_token')
+    localStorage.setItem('userInfo', JSON.stringify({ username: formState.username || 'Admin' }))
+    message.success('验证成功')
+    router.push('/admin')
     loading.value = false
-  }
+  }, 1000)
 }
-
-onMounted(() => {
-  const theme = localStorage.getItem('theme')
-  if (theme) isDark.value = theme === 'dark'
-})
 </script>
 
 <style scoped>
@@ -171,233 +163,233 @@ onMounted(() => {
   display: flex;
   width: 100vw;
   height: 100vh;
-  margin: 0;
-  padding: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
   overflow: hidden;
-  background: #090e15;
-  transition: all 0.3s ease;
 }
 
-/* 日间模式 */
-.login-page:not(.dark) {
-  background: #f5f7fa;
-}
-
-/* Logo 区域 */
-.logo-header {
+/* 顶部玻璃态导航 */
+.glass-header {
   position: absolute;
-  top: 22px;
-  left: 32px;
+  top: 0; left: 0; right: 0;
+  height: 72px;
+  padding: 0 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+}
+
+.header-left {
   display: flex;
   align-items: center;
-  z-index: 999;
+  gap: 12px;
+  cursor: pointer;
 }
-.logo-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
-  margin-right: 10px;
+
+.logo-dot {
+  width: 32px; height: 32px;
+  background: var(--logo-gradient);
+  border-radius: 8px;
+  display: flex;
+  align-items: center; justify-content: center;
+  color: #fff; font-weight: 800;
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
 }
+
 .logo-text {
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
-}
-.login-page:not(.dark) .logo-text {
-  color: #1f2937;
+  font-size: 18px; font-weight: 700;
+  color: var(--text-heading);
 }
 
-/* 顶部工具栏 */
-.top-toolbar {
-  position: absolute;
-  top: 24px;
-  right: 32px;
+.logo-text small {
+  font-weight: 400; font-size: 14px; opacity: 0.6;
+}
+
+.header-right {
   display: flex;
   align-items: center;
-  z-index: 999;
-}
-.doc-link {
-  color: #e1e9f5;
-  text-decoration: none;
-  font-size: 14px;
-}
-.login-page:not(.dark) .doc-link {
-  color: #1f2937;
+  gap: 16px;
+  background: var(--border-subtle);
+  padding: 4px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
 }
 
-/* 左侧 0.618 黄金比例 */
+.nav-item {
+  color: var(--text-secondary);
+  font-size: 13px;
+  display: flex; align-items: center; gap: 4px;
+}
+
+.v-divider {
+  width: 1px; height: 14px; background: var(--border-default);
+}
+
+.lang-select { width: 80px; }
+
+.theme-toggle {
+  background: none; border: none; cursor: pointer; font-size: 16px;
+}
+
+/* 左侧品牌区：光效与文字排版 */
 .login-left {
-  flex: 0 0 61.8%;
-  background: linear-gradient(135deg, #111a2e 0%, #1a2a4a 100%);
+  flex: 1.2;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
+  padding-left: 10%;
+  background: var(--bg-surface);
+  overflow: hidden;
 }
-.login-page:not(.dark) .login-left {
-  background: linear-gradient(135deg, #e6f7ff 0%, #91d5ff 100%);
-}
-.login-left::before {
-  content: '';
+
+.brand-visual-bg {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 2px;
-  height: 100%;
-  background: linear-gradient(to bottom, #00e4ff, #007bff);
-  box-shadow: 0 0 15px #007bff;
+  width: 150%; height: 150%;
+  top: -25%; left: -25%;
+  background: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1), transparent 40%),
+              radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.05), transparent 50%);
+  z-index: 1;
 }
 
 .brand-content {
-  max-width: 600px;
-  padding: 0 40px;
-}
-.brand-title {
-  font-size: 46px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 12px;
-  text-shadow: 0 0 12px rgba(0, 228, 255, 0.4);
-}
-.login-page:not(.dark) .brand-title {
-  color: #005c9c;
-  text-shadow: none;
-}
-.brand-slogan p {
-  font-size: 16px;
-  color: #7b93b6;
-  line-height: 1.8;
-}
-.login-page:not(.dark) .brand-slogan p {
-  color: #417fb3;
+  position: relative;
+  z-index: 2;
+  max-width: 540px;
 }
 
-/* 右侧登录区 */
+.tagline {
+  color: var(--primary);
+  font-weight: 600;
+  letter-spacing: 2px;
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.brand-title {
+  font-size: 52px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: var(--text-heading);
+  margin-bottom: 32px;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--accent-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.feature-item .icon {
+  color: var(--success);
+  font-size: 18px;
+}
+
+/* 右侧表单区：悬浮卡片感 */
 .login-right {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0c1521;
-}
-.login-page:not(.dark) .login-right {
-  background: #fff;
+  background: var(--bg-base);
+  padding: 40px;
 }
 
-/* 登录卡片 */
-.login-form-wrapper {
-  width: 420px;
-  padding: 44px 42px;
-  background: #121e2d;
-  border-radius: 14px;
-  border: 1px solid #1e2f46;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-.login-page:not(.dark) .login-form-wrapper {
-  background: #ffffff;
-  border-color: #e5e6eb;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-}
-
-/* 登录框顶部标题 */
-.form-title-group {
-  text-align: center;
-  margin-bottom: 30px;
-}
-.form-welcome {
-  font-size: 24px;
-  font-weight: 600;
-  color: #ffffff;
-  margin: 0 0 8px;
-}
-.login-page:not(.dark) .form-welcome {
-  color: #1f2937;
-}
-.form-desc {
-  font-size: 14px;
-  color: #7b93b6;
-  margin: 0;
-}
-.login-page:not(.dark) .form-desc {
-  color: #6b7280;
-}
-
-/* 输入框样式 */
-:deep(.login-input .ant-input) {
-  height: 46px;
-  background: #182436;
-  border-color: #273a57;
-  color: #e1e9f5;
-  border-radius: 6px;
-}
-:deep(.login-input .ant-input::placeholder) {
-  color: #5c7394;
-}
-
-/* 日间模式输入框 */
-.login-page:not(.dark) :deep(.login-input .ant-input) {
-  background: #ffffff;
-  border-color: #dcdfe6;
-  color: #333;
-}
-.login-page:not(.dark) :deep(.login-input .ant-input::placeholder) {
-  color: #909399;
-}
-
-/* 密码框 */
-:deep(.login-input .ant-input-password) {
-  height: 46px;
-  background: #182436;
-  border-color: #273a57;
-  color: #e1e9f5;
-  border-radius: 6px;
-}
-.login-page:not(.dark) :deep(.login-input .ant-input-password) {
-  background: #ffffff;
-  border-color: #dcdfe6;
-  color: #333;
-}
-.ant-input-affix-wrapper :deep{
-    background: none;
-}
-
-
-/* 聚焦 */
-:deep(.login-input .ant-input:focus),
-:deep(.login-input .ant-input-password:focus) {
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
-}
-
-:deep(.ant-form-item) {
-  margin-bottom: 24px;
-}
-
-/* 按钮 */
-.login-btn {
-  height: 48px;
-  font-size: 16px;
-  background: linear-gradient(90deg, #007bff, #00a3ff);
-  border: none;
-  border-radius: 6px;
-}
-.login-btn:hover {
-  opacity: 0.9;
-}
-
-/* 底部版权 */
-.footer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 20px;
+.login-card {
   width: 100%;
-  text-align: center;
-  font-size: 13px;
-  color: #5c7394;
-  z-index: 99;
+  max-width: 440px;
+  padding: 48px;
+  background: var(--bg-card);
+  border-radius: 24px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
 }
-.login-page:not(.dark) .footer {
-  color: #666;
+
+.card-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.welcome-title {
+  font-size: 28px; font-weight: 700;
+  color: var(--text-heading);
+  margin-bottom: 8px;
+}
+
+.welcome-sub {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* 输入框定制 */
+:deep(.custom-input) {
+  border-radius: 12px !important;
+  background: var(--bg-input) !important;
+  border-color: var(--border-default) !important;
+  transition: all 0.3s;
+}
+
+:deep(.custom-input:hover), :deep(.custom-input:focus) {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-hover) !important;
+}
+
+:deep(.ant-form-item-label label) {
+  color: var(--text-secondary) !important;
+  font-weight: 500;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  font-size: 13px;
+}
+
+.forget-pwd { color: var(--primary); }
+
+.submit-btn {
+  height: 50px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  background: var(--primary-gradient);
+  border: none;
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.2);
+}
+
+.submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(0, 123, 255, 0.3);
+}
+
+/* 页脚 */
+.login-footer {
+  position: absolute;
+  bottom: 24px; left: 0; right: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .login-left { display: none; }
+  .login-right { flex: 1; width: 100%; }
 }
 </style>

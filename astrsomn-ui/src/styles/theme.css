@@ -1,0 +1,110 @@
+:root {
+  /* ── Background ── */
+  --bg-base: #090e15;
+  --bg-surface: #0c1521;
+  --bg-elevated: #111a2e;
+  --bg-card: #121e2d;
+  --bg-input: #182436;
+
+  /* ── Border ── */
+  --border-default: #1e2f46;
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-input: #273a57;
+
+  /* ── Text ── */
+  --text-primary: #e1e9f5;
+  --text-heading: #ffffff;
+  --text-secondary: #7b93b6;
+  --text-muted: #5c7394;
+  --text-placeholder: #5c7394;
+
+  /* ── Accent / Primary ── */
+  --primary: #007bff;
+  --primary-light: #00a3ff;
+  --primary-hover: rgba(0, 123, 255, 0.15);
+  --primary-gradient: linear-gradient(90deg, #007bff, #00a3ff);
+  --logo-gradient: linear-gradient(135deg, #1677ff, #23c3ff);
+
+  /* ── Semantic ── */
+  --accent-blue: #3b82f6;
+  --accent-cyan: #00e4ff;
+  --section-title: #93c5fd;
+  --success: #10b981;
+  --error: #ef4444;
+
+  /* ── Shadow ── */
+  --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
+
+  /* ── Radius ── */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+}
+
+:root.light {
+  /* ── Background ── */
+  --bg-base: #f5f7fa;
+  --bg-surface: #ffffff;
+  --bg-elevated: #e6f7ff;
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
+
+  /* ── Border ── */
+  --border-default: #e5e6eb;
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-input: #dcdfe6;
+
+  /* ── Text ── */
+  --text-primary: #1f2937;
+  --text-heading: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #909399;
+  --text-placeholder: #909399;
+
+  /* ── Shadow ── */
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+/* --- 全局动效定义 --- */
+:root {
+  --transition-smooth: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-pop: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* {
+  transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* 1. 缓慢浮动效果 */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+/* 2. 渐变文字闪烁 */
+@keyframes shine {
+  to { background-position: 200% center; }
+}
+
+/* 3. 页面滑入 */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 4. 呼吸光圈 */
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+}
+
+/* 路由切换过渡 */
+.page-fade-enter-active {
+  animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.page-fade-leave-active {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
