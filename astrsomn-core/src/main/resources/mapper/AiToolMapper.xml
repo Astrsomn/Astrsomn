@@ -2,5 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.astrsomn.core.mapper.AiToolMapper">
 
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.tool.AiToolResponseDTO">
+        SELECT
+        at.*
+        FROM
+        AI_TOOL at
+        WHERE
+        1=1
+        <if test="req != null and req.toolKey != null and req.toolKey != ''">
+            AND at.tool_key = #{req.toolKey}
+        </if>
+        <if test="req != null and req.toolName != null and req.toolName != ''">
+            AND at.tool_name LIKE CONCAT('%', #{req.toolName}, '%')
+        </if>
+        <if test="req != null and req.type != null and req.type != ''">
+            AND at.type = #{req.type}
+        </if>
+        <if test="req != null and req.enableFlag != null and req.enableFlag != ''">
+            AND at.enable_flag = #{req.enableFlag}
+        </if>
+        ORDER BY
+        at.create_time DESC
+    </select>
 
 </mapper>

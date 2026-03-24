@@ -10,7 +10,7 @@ import org.astrsomn.core.common.base.BaseEntity;
 
 
 @Data
-@TableName("SYSTEM_TENANT")
+@TableName("SYSTEM_ENV")
 public class SystemEnvEntity extends BaseEntity<Long> {
 
     /**
