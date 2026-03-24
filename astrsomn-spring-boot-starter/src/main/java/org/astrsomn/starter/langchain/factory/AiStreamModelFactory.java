@@ -29,7 +29,6 @@ import java.util.Objects;
 
 
 
-
 @Slf4j
 @Component
 public class AiStreamModelFactory {
@@ -108,12 +107,9 @@ public class AiStreamModelFactory {
     }
 
 
-
-
     private OpenAiStreamingChatModel getStreamLanguageModel(AiModelEntity modelEntity,
                                                             ModelSetting modelSetting,
                                                             ChatSetting chatSetting) {
-
 
 
         OpenAiStreamingChatModel.OpenAiStreamingChatModelBuilder builder = OpenAiStreamingChatModel.builder()
@@ -149,7 +145,6 @@ public class AiStreamModelFactory {
 
         return builder.build();
     }
-
 
 
     private StreamingChatModel getQwenStreamingChatModel(AiModelEntity modelEntity,

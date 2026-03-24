@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AstroAssistantFactory {
@@ -129,31 +130,33 @@ public class AstroAssistantFactory {
     private <T> void configureComponents(AiServices<T> builder, AstroChatRequest<T> param) {
 
         if (param.getMaxHistoryMessages() > 0) {
-            // 传入 Manager 和本次请求指定的参数
             builder.chatMemoryProvider(new DynamicMemoryProvider(chatMemoryManager, param.getMaxHistoryMessages()));
         }
 
+        if (Objects.nonNull(param.getToolSetting())) {
+            ToolSetting toolSetting = param.getToolSetting();
+            List<ToolProvider> providers = new ArrayList<>();
+            if (toolSetting.getMcpKeys() != null && !toolSetting.getMcpKeys().isEmpty()) {
+                List<AiMcpEntity> mcpConfigs = aiMcpMapper.selectList(
+                        new LambdaQueryWrapper<AiMcpEntity>()
+                                .in(AiMcpEntity::getMcpKey, toolSetting.getMcpKeys())
+                                .eq(AiMcpEntity::getEnvCode, astrsomnProperties.getEnvCode()));
+                providers.add(new DynamicMcpToolProvider(mcpConfigs, mcpToolManager));
 
+            }
+            if (toolSetting.getToolKeys() != null && !toolSetting.getToolKeys().isEmpty()) {
+                List<AiToolEntity> toolConfigs = aiToolMapper.selectList(
+                        new LambdaQueryWrapper<AiToolEntity>()
+                                .in(AiToolEntity::getToolKey, toolSetting.getToolKeys())
+                                .eq(AiToolEntity::getEnvCode, astrsomnProperties.getEnvCode()));
+                providers.add(new DynamicToolProvider(toolConfigs, applicationContext, globalToolCache));
+            }
 
-        ToolSetting toolSetting = param.getToolSetting();
-        List<ToolProvider> providers = new ArrayList<>();
-        if (toolSetting.getMcpKeys() != null && !toolSetting.getMcpKeys().isEmpty()) {
-            List<AiMcpEntity> mcpConfigs = aiMcpMapper.selectList(new LambdaQueryWrapper<AiMcpEntity>()
-                    .in(AiMcpEntity::getMcpKey, toolSetting.getMcpKeys()));
-            providers.add(new DynamicMcpToolProvider(mcpConfigs, mcpToolManager));
-
+            if (CollectionUtil.isNotEmpty(providers)) {
+                builder.toolProvider(new UnionToolProvider(providers));
+            }
         }
-        if (toolSetting.getToolKeys() != null && !toolSetting.getToolKeys().isEmpty()) {
-            List<AiToolEntity> configs = aiToolMapper.selectList(new LambdaQueryWrapper<AiToolEntity>()
-                    .in(AiToolEntity::getToolKey, toolSetting.getToolKeys()));
-            DynamicToolProvider localProvider = new DynamicToolProvider(configs, applicationContext, globalToolCache);
-            providers.add(localProvider);
 
-        }
-
-        if (CollectionUtil.isNotEmpty(providers)) {
-            builder.toolProvider(new UnionToolProvider(providers));
-        }
 
     }
 

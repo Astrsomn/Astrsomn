@@ -14,29 +14,31 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 
 @Configuration
-@ConditionalOnProperty(prefix = "astrsomn.data-base", name = "database-type", havingValue = "mysql")
 @MapperScan("org.astrsomn.core.mapper")
 public class MybatisPlusConfig {
 
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
-        SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource);
-        sessionFactory.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mapper/*.xml"));
-        sessionFactory.setTypeAliasesPackage("org.astrsomn.core.common.entity");
-        return sessionFactory.getObject();
-    }
-
-    @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnProperties properties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        
-        DbType dbType = DbType.MYSQL;
-        if (properties != null && properties.getDataBase() != null) {
-            dbType = DataSourceConfig.getDbType(properties.getDataBase().getDatabaseType());
-        }
-        
+
+        // 获取数据库类型
+        String dbTypeStr = (properties.getDataBase() != null) ? properties.getDataBase().getDatabaseType() : "mysql";
+        DbType dbType = DataSourceConfig.getDbType(dbTypeStr);
+
+        // 1. 分页插件 (必须指定 DbType 以优化性能)
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(dbType));
+
+        // 注意：这里不需要手动加 TenantLineInnerInterceptor
+        // 因为我们在之前的 BeanPostProcessor 中已经实现了动态注入
+
         return interceptor;
     }
+
+    /**
+     * 注意：不要手动写 @Bean SqlSessionFactory。
+     * 只需要在 starter 的 resources/META-INF/spring-configuration-metadata.json
+     * 或者让用户在 application.yml 里配置：
+     * mybatis-plus.mapper-locations=classpath:mapper/*.xml
+     * mybatis-plus.type-aliases-package=org.astrsomn.core.common.entity
+     */
 }

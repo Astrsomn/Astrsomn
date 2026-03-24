@@ -7,6 +7,8 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 
+import static java.lang.reflect.Proxy.newProxyInstance;
+
 @Component
 public class AstroAnnotationProcessor implements BeanPostProcessor {
 
@@ -39,7 +41,7 @@ public class AstroAnnotationProcessor implements BeanPostProcessor {
     private Object createAstroInstance(Class<?> type, String agentKey, String envCode) {
         // --- 示例逻辑：如果是接口，返回一个动态代理 ---
         if (type.isInterface()) {
-            return java.lang.reflect.Proxy.newProxyInstance(
+            return newProxyInstance(
                     type.getClassLoader(),
                     new Class<?>[]{type},
                     (proxy, method, args) -> {

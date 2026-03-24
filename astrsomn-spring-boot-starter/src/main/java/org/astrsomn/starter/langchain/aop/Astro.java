@@ -8,9 +8,14 @@ import java.lang.annotation.*;
 @Documented
 public @interface Astro {
 
+
     String agentKey() default "";
 
     String envCode() default "";
+
+    String systemPromptKey() default "";
+
+
 
     double temperature() default 0.0;
 }

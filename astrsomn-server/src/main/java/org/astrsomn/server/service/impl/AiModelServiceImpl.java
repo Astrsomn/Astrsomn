@@ -36,7 +36,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     }
 
     // TODO 调用方式二，注解固定配置
-    @Astro(agentKey = "deepseek-chat", envCode = "prod", temperature = 0.3)
+    @Astro(agentKey = "deepseek-chat", envCode = "prod")
     private OrderCreateAssistant orderCreateAssistant;
 
     public String createOrder(){
