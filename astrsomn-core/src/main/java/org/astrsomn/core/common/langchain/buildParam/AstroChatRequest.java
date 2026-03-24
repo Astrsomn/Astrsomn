@@ -63,6 +63,9 @@ public class AstroChatRequest<T> {
     private PromptSetting promptSetting;
 
 
+    /**
+     * 最终执行接口
+     */
     private final Class<T> serviceClass;
 
 

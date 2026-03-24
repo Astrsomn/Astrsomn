@@ -3,4 +3,29 @@
 <mapper namespace="org.astrsomn.core.mapper.AiAgentMapper">
 
 
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.agent.AiAgentResponseDTO">
+        SELECT
+        aa.*,
+        am.model_name AS modelName,
+        (SELECT GROUP_CONCAT(at.name SEPARATOR ', ')
+        FROM AI_TOOL at
+        WHERE FIND_IN_SET(at.id, aa.tool_ids)) AS toolNames,
+        (SELECT GROUP_CONCAT(amc.server_name SEPARATOR ', ')
+        FROM AI_MCP_CONFIG amc
+        WHERE FIND_IN_SET(amc.id, aa.mcp_ids)) AS mcpNames
+        FROM
+        AI_AGENT aa
+        LEFT JOIN
+        AI_MODEL_CONFIG am ON aa.model_id = am.id
+        WHERE
+        1=1
+        <if test="req != null and req.name != null and req.name != ''">
+            AND aa.name LIKE CONCAT('%', #{req.name}, '%')
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND aa.status = #{req.status}
+        </if>
+        ORDER BY
+        aa.create_time DESC
+    </select>
 </mapper>

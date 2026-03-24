@@ -2,7 +2,11 @@ package org.astrsomn.core.common.base;
 
 
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 基础控制器
@@ -60,4 +64,26 @@ public class BaseController {
     protected <T> BaseResponse<T> fail(String message, T data) {
         return BaseResponse.fail(message, data);
     }
+
+
+    public static long[] parseLongIds(String idsStr, String delimiter) {
+        if (StringUtils.isBlank(idsStr)) {
+            return new long[0];
+        }
+
+        // 注意：如果分隔符是正则特殊字符（如 | .），split 需要转义，这里假设传入的是普通字符
+        // 为了安全，可以使用 Pattern.quote 或者直接按字符分割
+        return Arrays.stream(idsStr.split(Pattern.quote(delimiter)))
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .mapToLong(s -> {
+                    try {
+                        return Long.parseLong(s);
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("Invalid ID format: '" + s + "'", e);
+                    }
+                })
+                .toArray();
+    }
+
 }

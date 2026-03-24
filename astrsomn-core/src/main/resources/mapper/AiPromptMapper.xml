@@ -2,6 +2,28 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.astrsomn.core.mapper.AiPromptMapper">
 
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.prompt.AiPromptResponseDTO">
+        SELECT
+        ap.*
+        FROM
+        AI_PROMPT ap
+        WHERE
+        1=1
+        <if test="req != null and req.promptKey != null and req.promptKey != ''">
+            AND ap.prompt_key = #{req.promptKey}
+        </if>
+        <if test="req != null and req.promptTitle != null and req.promptTitle != ''">
+            AND ap.prompt_title LIKE CONCAT('%', #{req.promptTitle}, '%')
+        </if>
+        <if test="req != null and req.scene != null and req.scene != ''">
+            AND ap.scene = #{req.scene}
+        </if>
+        <if test="req != null and req.enabledFlag != null and req.enabledFlag != ''">
+            AND ap.enabled_flag = #{req.enabledFlag}
+        </if>
+        ORDER BY
+        ap.create_time DESC
+    </select>
 
     <select id="getByUUID" resultType="java.lang.String">
 

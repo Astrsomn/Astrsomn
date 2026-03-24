@@ -16,106 +16,57 @@ public class DataSourceConfig {
 
     @Bean
     @Primary
-    @ConditionalOnProperty(prefix = "astrsomn.data-base", name = "database-type", havingValue = "mysql")
-    public DataSource mysqlDataSource(AstrsomnProperties properties) {
+    public DataSource dataSource(AstrsomnProperties properties) {
         AstrsomnProperties.DataBase dataBase = properties.getDataBase();
         HikariDataSource dataSource = new HikariDataSource();
-        
+
+        // 1. 动态构建 URL
         String url = dataBase.getUrl();
+        String dbTypeStr = dataBase.getDatabaseType() != null ? dataBase.getDatabaseType().toLowerCase() : "mysql";
+
         if (url == null || url.isEmpty()) {
-            String host = dataBase.getHost() != null ? dataBase.getHost() : "localhost";
-            Integer port = dataBase.getPort() != null ? dataBase.getPort() : 3306;
-            String databaseName = dataBase.getDatabaseName();
-            String charset = dataBase.getCharset() != null ? dataBase.getCharset() : "utf8";
-            String timezone = dataBase.getTimezone() != null ? dataBase.getTimezone() : "Asia/Shanghai";
-            Boolean useSsl = dataBase.getUseSsl() != null ? dataBase.getUseSsl() : false;
-            
-            url = String.format("jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=%s&serverTimezone=%s&useSSL=%s",
-                    host, port, databaseName, charset, timezone, useSsl);
+            if ("mysql".equals(dbTypeStr)) {
+                url = String.format("jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=%s&serverTimezone=%s&useSSL=%s",
+                        defaultIfNull(dataBase.getHost(), "localhost"),
+                        defaultIfNull(dataBase.getPort(), 3306),
+                        dataBase.getDatabaseName(),
+                        defaultIfNull(dataBase.getCharset(), "utf8"),
+                        defaultIfNull(dataBase.getTimezone(), "Asia/Shanghai"),
+                        defaultIfNull(dataBase.getUseSsl(), false));
+                dataSource.setDriverClassName(defaultIfNull(dataBase.getDriver(), "com.mysql.cj.jdbc.Driver"));
+            } else if ("oracle".equals(dbTypeStr)) {
+                url = dataBase.getSchema() != null
+                        ? String.format("jdbc:oracle:thin:@%s:%d:%s?currentSchema=%s",
+                        defaultIfNull(dataBase.getHost(), "localhost"), defaultIfNull(dataBase.getPort(), 1521), dataBase.getDatabaseName(), dataBase.getSchema())
+                        : String.format("jdbc:oracle:thin:@%s:%d:%s",
+                        defaultIfNull(dataBase.getHost(), "localhost"), defaultIfNull(dataBase.getPort(), 1521), dataBase.getDatabaseName());
+                dataSource.setDriverClassName(defaultIfNull(dataBase.getDriver(), "oracle.jdbc.OracleDriver"));
+            }
+        } else {
+            // 如果用户直接写了 URL，也顺便设一下 Driver
+            dataSource.setDriverClassName(dataBase.getDriver());
         }
-        
+
+        // 2. 公共基础配置
         dataSource.setJdbcUrl(url);
         dataSource.setUsername(dataBase.getUsername());
         dataSource.setPassword(dataBase.getPassword());
-        
-        if (dataBase.getDriver() != null && !dataBase.getDriver().isEmpty()) {
-            dataSource.setDriverClassName(dataBase.getDriver());
-        } else {
-            dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        }
-        
-        if (dataBase.getConnectionTimeout() != null) {
-            dataSource.setConnectionTimeout(dataBase.getConnectionTimeout());
-        }
-        if (dataBase.getMaximumPoolSize() != null) {
-            dataSource.setMaximumPoolSize(dataBase.getMaximumPoolSize());
-        }
-        if (dataBase.getMinimumIdle() != null) {
-            dataSource.setMinimumIdle(dataBase.getMinimumIdle());
-        }
-        
-        log.info("MySQL DataSource initialized with URL: {}", url);
+
+        // 3. 连接池通用参数配置
+        if (dataBase.getConnectionTimeout() != null) dataSource.setConnectionTimeout(dataBase.getConnectionTimeout());
+        if (dataBase.getMaximumPoolSize() != null) dataSource.setMaximumPoolSize(dataBase.getMaximumPoolSize());
+        if (dataBase.getMinimumIdle() != null) dataSource.setMinimumIdle(dataBase.getMinimumIdle());
+
+        log.info(">>> [Astrsomn] {} DataSource initialized", dbTypeStr.toUpperCase());
         return dataSource;
     }
 
-    @Bean
-    @Primary
-    @ConditionalOnProperty(prefix = "astrsomn.data-base", name = "database-type", havingValue = "oracle")
-    public DataSource oracleDataSource(AstrsomnProperties properties) {
-        AstrsomnProperties.DataBase dataBase = properties.getDataBase();
-        HikariDataSource dataSource = new HikariDataSource();
-        
-        String url = dataBase.getUrl();
-        if (url == null || url.isEmpty()) {
-            String host = dataBase.getHost() != null ? dataBase.getHost() : "localhost";
-            Integer port = dataBase.getPort() != null ? dataBase.getPort() : 1521;
-            String databaseName = dataBase.getDatabaseName();
-            String schema = dataBase.getSchema();
-            
-            if (schema != null && !schema.isEmpty()) {
-                url = String.format("jdbc:oracle:thin:@%s:%d:%s?currentSchema=%s", host, port, databaseName, schema);
-            } else {
-                url = String.format("jdbc:oracle:thin:@%s:%d:%s", host, port, databaseName);
-            }
-        }
-        
-        dataSource.setJdbcUrl(url);
-        dataSource.setUsername(dataBase.getUsername());
-        dataSource.setPassword(dataBase.getPassword());
-        
-        if (dataBase.getDriver() != null && !dataBase.getDriver().isEmpty()) {
-            dataSource.setDriverClassName(dataBase.getDriver());
-        } else {
-            dataSource.setDriverClassName("oracle.jdbc.OracleDriver");
-        }
-        
-        if (dataBase.getConnectionTimeout() != null) {
-            dataSource.setConnectionTimeout(dataBase.getConnectionTimeout());
-        }
-        if (dataBase.getMaximumPoolSize() != null) {
-            dataSource.setMaximumPoolSize(dataBase.getMaximumPoolSize());
-        }
-        if (dataBase.getMinimumIdle() != null) {
-            dataSource.setMinimumIdle(dataBase.getMinimumIdle());
-        }
-        
-        log.info("Oracle DataSource initialized with URL: {}", url);
-        return dataSource;
+    private <T> T defaultIfNull(T value, T defaultValue) {
+        return value != null ? value : defaultValue;
     }
 
     public static DbType getDbType(String databaseType) {
-        if (databaseType == null || databaseType.isEmpty()) {
-            return DbType.MYSQL;
-        }
-        
-        switch (databaseType.toLowerCase()) {
-            case "mysql":
-                return DbType.MYSQL;
-            case "oracle":
-                return DbType.ORACLE;
-            default:
-                log.warn("Unsupported database type: {}, defaulting to MYSQL", databaseType);
-                return DbType.MYSQL;
-        }
+        if ("oracle".equalsIgnoreCase(databaseType)) return DbType.ORACLE;
+        return DbType.MYSQL; // 默认 MySQL
     }
 }

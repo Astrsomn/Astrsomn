@@ -28,8 +28,6 @@ public class DynamicMcpToolProvider implements ToolProvider {
         for (AiMcpEntity config : mcpConfigs) {
             McpClient client = mcpToolManager.getOrCreateClient(config);
             List<ToolSpecification> specs = mcpToolManager.getCachedTools(config.getId());
-
-            // 为该 Client 的所有工具复用同一个转发执行器
             ToolExecutor executor = (execReq, memoryId) -> client.executeTool(execReq);
             specs.forEach(spec -> builder.add(spec, executor));
         }

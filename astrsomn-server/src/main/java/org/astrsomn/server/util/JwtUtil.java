@@ -47,11 +47,11 @@ public class JwtUtil {
     public Claims parseToken(String token) {
         // TODO: 解析JWT Token
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+            return Jwts.parser()
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
         } catch (Exception e) {
             log.error("Token解析失败: {}", e.getMessage());
             return null;

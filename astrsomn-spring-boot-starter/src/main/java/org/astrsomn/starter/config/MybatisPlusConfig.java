@@ -14,29 +14,49 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 
 @Configuration
-@ConditionalOnProperty(prefix = "astrsomn.data-base", name = "database-type", havingValue = "mysql")
 @MapperScan("org.astrsomn.core.mapper")
 public class MybatisPlusConfig {
 
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
-        SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource);
-        sessionFactory.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mapper/*.xml"));
-        sessionFactory.setTypeAliasesPackage("org.astrsomn.core.common.entity");
-        return sessionFactory.getObject();
+    public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnProperties properties) {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+
+        String dbTypeStr = (properties.getDataBase() != null) ? properties.getDataBase().getDatabaseType() : "mysql";
+        DbType dbType = DataSourceConfig.getDbType(dbTypeStr);
+
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(dbType));
+
+        return interceptor;
     }
 
     @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnProperties properties) {
-        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource, AstrsomnProperties properties) throws Exception {
+        SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
+        factoryBean.setDataSource(dataSource);
+
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         
-        DbType dbType = DbType.MYSQL;
-        if (properties != null && properties.getDataBase() != null) {
-            dbType = DataSourceConfig.getDbType(properties.getDataBase().getDatabaseType());
+        String defaultMapperLocations = "classpath:mapper/*.xml";
+        String defaultTypeAliasesPackage = "org.astrsomn.core.common.entity";
+        
+        String mapperLocations = defaultMapperLocations;
+        String typeAliasesPackage = defaultTypeAliasesPackage;
+        
+        if (properties.getMybatisPlus() != null) {
+            if (properties.getMybatisPlus().getAdditionalMapperLocations() != null 
+                    && !properties.getMybatisPlus().getAdditionalMapperLocations().trim().isEmpty()) {
+                mapperLocations = defaultMapperLocations + "," + properties.getMybatisPlus().getAdditionalMapperLocations();
+            }
+            
+            if (properties.getMybatisPlus().getAdditionalTypeAliasesPackage() != null 
+                    && !properties.getMybatisPlus().getAdditionalTypeAliasesPackage().trim().isEmpty()) {
+                typeAliasesPackage = defaultTypeAliasesPackage + "," + properties.getMybatisPlus().getAdditionalTypeAliasesPackage();
+            }
         }
         
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(dbType));
-        return interceptor;
+        factoryBean.setMapperLocations(resolver.getResources(mapperLocations));
+        factoryBean.setTypeAliasesPackage(typeAliasesPackage);
+        
+        return factoryBean.getObject();
     }
 }

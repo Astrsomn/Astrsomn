@@ -26,15 +26,11 @@ public class McpToolCacheManager {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // 客户端连接缓存: Key 为数据库 ID
     private final Map<Long, McpClient> clientCache = new ConcurrentHashMap<>();
 
-    // 工具规格缓存: 避免每次对话都通过网络/进程请求工具列表
     private final Map<Long, List<ToolSpecification>> toolCache = new ConcurrentHashMap<>();
 
-    /**
-     * 获取或创建 MCP 客户端
-     */
+
     public McpClient getOrCreateClient(AiMcpEntity config) {
         if (config == null || config.getId() == null) {
             throw new IllegalArgumentException("MCP 配置无效");
@@ -44,8 +40,6 @@ public class McpToolCacheManager {
             try {
                 log.info("正在初始化 MCP 客户端: {} (类型: {})", config.getServerName(), config.getType());
                 McpClient client = createClientInternal(config);
-
-                // 启动后立即异步/同步拉取一次工具列表
                 refreshToolCache(id, client);
 
                 return client;
@@ -56,19 +50,13 @@ public class McpToolCacheManager {
         });
     }
 
-    /**
-     * 获取缓存中的工具列表
-     */
+
     public List<ToolSpecification> getCachedTools(Long mcpId) {
         return toolCache.getOrDefault(mcpId, Collections.emptyList());
     }
 
-    /**
-     * 刷新特定客户端的工具列表
-     */
     public void refreshToolCache(Long mcpId, McpClient client) {
         try {
-            // 注意：listTools() 在某些传输协议下可能是阻塞操作
             List<ToolSpecification> specifications = client.listTools();
             toolCache.put(mcpId, specifications);
             log.info("MCP [ID: {}] 工具列表刷新成功，共 {} 个工具", mcpId, specifications.size());

@@ -40,7 +40,6 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <!-- MyBatis-Plus - 使用provided scope，由使用方提供 -->
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -48,6 +47,7 @@
             <version>3.5.5</version>
             <scope>provided</scope>
         </dependency>
+
 
         <!-- 数据库驱动 - 使用provided scope，由使用方提供 -->
         <dependency>

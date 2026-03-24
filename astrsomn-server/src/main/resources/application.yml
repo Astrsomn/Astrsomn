@@ -12,23 +12,15 @@ spring:
 server:
   port: 8080
 
-mybatis-plus:
-  mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: org.astrsomn.astrsomnserver.entity
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-
-
 astrsomn:
   env-code: pro
   data-base:
     database-type: mysql
     host: 154.201.94.113
     port: 3306
-    database-name: bid_platform_dev
-    username: bid_platform_dev
-    password: asS7xTnEETkPhLwR
+    database-name: astro_ai
+    username: astro_ai
+    password: k7NHzMP7ErRZ4SFC
     driver: com.mysql.cj.jdbc.Driver
     use-ssl: false
     charset: utf8

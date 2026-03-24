@@ -38,14 +38,14 @@ public class AiAgentEntity extends BaseEntity<Long> {
     /**
      * The ID of the default model assigned to this Agent.
      */
-    @TableField("MODEL_ID")
-    private Long modelId;
+    @TableField("MODEL_KEY")
+    private Long modelKey;
 
     /**
      * The UUID of the system prompt associated with this Agent.
      */
-    @TableField("PROMPT_UUID")
-    private String promptUuid;
+    @TableField("PROMPT_KEY")
+    private String promptKey;
 
     /**
      * Runtime configuration parameters in JSON format.
@@ -63,8 +63,8 @@ public class AiAgentEntity extends BaseEntity<Long> {
     /**
      * A comma-separated list of IDs for associated knowledge bases.
      */
-    @TableField("KNOWLEDGE_BASE_IDS")
-    private String knowledgeBaseIds;
+    @TableField("KNOWLEDGE_BASE_KEYS")
+    private String knowledgeBaseKeys;
 
     /**
      * A comma-separated list of IDs for tools enabled for this Agent.
