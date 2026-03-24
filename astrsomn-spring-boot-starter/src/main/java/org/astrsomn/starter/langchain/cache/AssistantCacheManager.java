@@ -7,8 +7,12 @@ import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.stereotype.Component;
 
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -68,19 +72,32 @@ public class AssistantCacheManager {
     private String generateConfigHash(AstroChatRequest<?> param) {
         StringBuilder sb = new StringBuilder();
         sb.append(param.getAgentKey());
+        sb.append(param.getServiceClass().getName()); // 必须包含接口类名，防止 Key 碰撞
 
-        // 建议只放入影响 "Builder" 构建的关键参数
-        if (param.getChatSetting() != null) {
-            sb.append(param.getChatSetting().isEnableStream());
-        }
         if (param.getToolSetting() != null) {
-            // 假设 toolKeys 是 List<String>
-            sb.append(param.getToolSetting().getToolKeys());
-            sb.append(param.getToolSetting().getMcpKeys());
+            // 排序后拼接，确保相同工具集生成相同 Hash
+            List<String> tools = param.getToolSetting().getToolKeys();
+            if (tools != null) {
+                tools.stream().sorted().forEach(sb::append);
+            }
+            List<String> mcps = param.getToolSetting().getMcpKeys();
+            if (mcps != null) {
+                mcps.stream().sorted().forEach(sb::append);
+            }
         }
 
-        // 使用简单的字符串 Hash 或简单的 MD5（JDK 自带 MessageDigest）
-        return String.valueOf(sb.toString().hashCode());
+        // 使用简单的 MD5 防止 Hash 碰撞（可选）
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] hashInBytes = md.digest(sb.toString().getBytes(StandardCharsets.UTF_8));
+            StringBuilder result = new StringBuilder();
+            for (byte b : hashInBytes) {
+                result.append(String.format("%02x", b));
+            }
+            return result.toString();
+        } catch (NoSuchAlgorithmException e) {
+            return String.valueOf(sb.toString().hashCode());
+        }
     }
 
     /**

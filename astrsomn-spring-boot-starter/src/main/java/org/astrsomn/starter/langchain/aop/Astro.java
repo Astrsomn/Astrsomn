@@ -16,6 +16,12 @@ public @interface Astro {
     String systemPromptKey() default "";
 
 
+    boolean enableNetwork() default false;
 
-    double temperature() default 0.0;
+
+    boolean enableDeepThinking() default false;
+
+
+    boolean enableStream() default false;
+
 }

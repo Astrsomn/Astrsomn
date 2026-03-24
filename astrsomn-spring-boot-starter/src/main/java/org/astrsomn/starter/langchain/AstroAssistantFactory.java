@@ -16,6 +16,7 @@ import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
 import org.astrsomn.core.common.util.JsonUtil;
 import org.astrsomn.core.mapper.*;
 import org.astrsomn.starter.config.AstrsomnProperties;
+import org.astrsomn.starter.langchain.cache.AssistantCacheManager;
 import org.astrsomn.starter.langchain.factory.AiChatModelFactory;
 import org.astrsomn.starter.langchain.factory.AiStreamModelFactory;
 import org.astrsomn.starter.langchain.memory.ChatMemoryManager;
@@ -74,23 +75,31 @@ public class AstroAssistantFactory {
     @Autowired
     private ChatMemoryManager chatMemoryManager;
 
+    @Resource
+    private AssistantCacheManager cacheManager;
+
     public <T> T createAssistant(AstroChatRequest<T> param) {
 
         // TODO 一、构建完整参数 | 优先级：代码配置 > 管理后台配置  >  默认配置
         buildParam(param);
 
-        // TODO 二、构建业务接口和模型
-        AiServices<T> builder = AiServices.builder(param.getServiceClass());
-        if (param.getChatSetting().isEnableStream()) {
-            builder.streamingChatModel(aiStreamModelFactory.getStreamingModel(param));
-        } else {
-            builder.chatModel(aiChatModelFactory.getChatModel(param));
-        }
+        // TODO 二、 调用缓存管理器，传入创建逻辑的 Supplier
+        return cacheManager.getOrCreate(param, () -> {
+            // 这里是真正执行构建的逻辑
+            AiServices<T> builder = AiServices.builder(param.getServiceClass());
 
-        // TODO 三、组装Tool、Mcp、Rag
-        configureComponents(builder, param);
+            if (param.getChatSetting().isEnableStream()) {
+                builder.streamingChatModel(aiStreamModelFactory.getStreamingModel(param));
+            } else {
+                builder.chatModel(aiChatModelFactory.getChatModel(param));
+            }
 
-        return builder.build();
+            // 组装组件
+            configureComponents(builder, param);
+
+            return builder.build();
+        });
+
     }
 
 
