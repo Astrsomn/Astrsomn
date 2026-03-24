@@ -1,4 +1,4 @@
-package org.astrsomn.server.dto.request;
+package org.astrsomn.core.common.dto.agent;
 
 
 import lombok.Data;

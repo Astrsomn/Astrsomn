@@ -5,10 +5,10 @@ import org.astrsomn.core.common.base.BaseController;
 import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
-import org.astrsomn.server.dto.request.AiAgentCreateRequestDTO;
-import org.astrsomn.server.dto.request.AiAgentQueryRequestDTO;
-import org.astrsomn.server.dto.request.AiAgentUpdateRequestDTO;
-import org.astrsomn.server.dto.response.AiAgentResponseDTO;
+import org.astrsomn.core.common.dto.agent.AiAgentCreateRequestDTO;
+import org.astrsomn.core.common.dto.agent.AiAgentQueryRequestDTO;
+import org.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
+import org.astrsomn.core.common.dto.agent.AiAgentResponseDTO;
 import org.astrsomn.server.service.AiAgentService;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,11 +29,7 @@ public class AiAgentController extends BaseController {
     @DeleteMapping("/delete/{ids}")
     public BaseResponse<String> deleteAgent(@PathVariable("ids") String ids) {
         try {
-            String[] idStrs = ids.split(",");
-            long[] longIds = new long[idStrs.length];
-            for (int i = 0; i < idStrs.length; i++) {
-                longIds[i] = Long.parseLong(idStrs[i].trim());
-            }
+            long[] longIds = parseLongIds(ids, ",");
             return aiAgentService.delete(longIds);
         } catch (NumberFormatException e) {
             return BaseResponse.fail("ID格式错误", null);
@@ -52,10 +48,9 @@ public class AiAgentController extends BaseController {
     }
 
     @GetMapping("/detail")
-    public BaseResponse<AiAgentResponseDTO> detail(@RequestParam("id") String id) {
+    public BaseResponse<AiAgentResponseDTO> detail(@RequestParam("id") Long id) {
         try {
-            Long longId = Long.parseLong(id);
-            return aiAgentService.detail(longId);
+            return aiAgentService.detail(id);
         } catch (NumberFormatException e) {
             return BaseResponse.fail("ID格式错误", null);
         }
