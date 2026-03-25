@@ -28,8 +28,8 @@ public class SystemEnvEntity extends BaseEntity<Long> {
     /**
      * Environment code DEV SIT UAT PRO
      */
-    @TableField(value = "ENV_CODE")
-    private String envCode;
+    @TableField(value = "ENV_KEY")
+    private String envKey;
 
     /**
      * Description
