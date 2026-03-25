@@ -13,18 +13,28 @@ import org.astrsomn.core.common.dto.agent.AiAgentQueryRequestDTO;
 import org.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
 import org.astrsomn.core.common.dto.agent.AiAgentResponseDTO;
 import org.astrsomn.server.service.AiAgentService;
+import org.astrsomn.server.service.OrderAssistant;
+import org.astrsomn.starter.langchain.aop.Astro;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 @Service
 public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity> implements AiAgentService {
+
+    @Astro(agentKey = "deepseek")
+    private OrderAssistant orderAssistant;
+
     @Override
     public BaseResponse<String> create(AiAgentCreateRequestDTO request) {
         AiAgentEntity aiAgent = new AiAgentEntity();
         BeanUtils.copyProperties(request, aiAgent);
         boolean result = save(aiAgent);
+
+        String response = orderAssistant.chat("帮我买一下苹果", UUID.randomUUID().toString());
+
         return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
     }
 
