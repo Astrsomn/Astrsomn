@@ -9,22 +9,7 @@
       </div>
 
       <div class="header-right">
-        <a href="javascript:;" class="nav-item">
-          <book-outlined /> <span>文档</span>
-        </a>
-        <div class="v-divider"></div>
-        <a-select
-          :value="currentLang"
-          size="small"
-          class="lang-select"
-          :options="languageOptions"
-          @change="changeLang"
-          :bordered="false"
-        />
-        <button class="theme-toggle" @click="toggleTheme(!isDark)">
-          <template v-if="isDark">🌙</template>
-          <template v-else>☀️</template>
-        </button>
+        <DocLangTheme :showDoc="true"/>
       </div>
     </nav>
 
@@ -124,17 +109,13 @@ import { login } from '@/api/auth'
 import { 
   UserOutlined, 
   LockOutlined, 
-  BookOutlined, 
   CheckCircleFilled 
 } from '@ant-design/icons-vue'
-import { useTheme } from '@/composables/useTheme'
-import { useLanguage } from '@/composables/useLanguage'
 import logoUrl from '@/assets/Astrsomn-logo.png'
+import DocLangTheme from '@/components/DocLangTheme.vue'
 
 const router = useRouter()
 const loading = ref(false)
-const { isDark, toggleTheme } = useTheme()
-const { currentLang, changeLang, languageOptions } = useLanguage()
 
 const formState = reactive({
   username: '',

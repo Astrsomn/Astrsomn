@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-home" :class="{ 'is-dark': isDark }">
+  <div class="chat-home">
     <header class="top-bar">
       <div class="brand">
         <div class="logo-dot">
@@ -12,19 +12,7 @@
       </div>
       
       <div class="top-actions">
-        <a-select
-          :value="currentLang"
-          size="small"
-          class="glass-select lang-select"
-          :options="languageOptions"
-          @change="changeLang"
-          :bordered="false"
-        />
-        <div class="v-divider"></div>
-        <button class="theme-btn" @click="toggleTheme(!isDark)">
-          <template v-if="isDark">☀️</template>
-          <template v-else>🌙</template>
-        </button>
+        <DocLangTheme />
         <a-button type="primary" shape="round" class="login-btn" @click="goLogin">
           登录 / 注册
         </a-button>
@@ -152,9 +140,8 @@ import {
   GlobalOutlined, 
   ArrowUpOutlined 
 } from '@ant-design/icons-vue'
-import { useTheme } from '@/composables/useTheme'
-import { useLanguage } from '@/composables/useLanguage'
 import logoUrl from '@/assets/Astrsomn-logo.png'
+import DocLangTheme from '@/components/DocLangTheme.vue'
 
 const router = useRouter()
 const userInput = ref('')
@@ -165,9 +152,6 @@ const selectedModel = ref('gpt-4o')
 const selectedAgent = ref('general')
 const isDeepThinking = ref(false)
 const isWebSearch = ref(false)
-
-const { isDark, toggleTheme } = useTheme()
-const { currentLang, changeLang, languageOptions } = useLanguage()
 
 const goLogin = () => {
   localStorage.removeItem('token')

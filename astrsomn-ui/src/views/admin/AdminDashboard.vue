@@ -28,8 +28,10 @@
       <section class="panel panel-full">
         <header class="panel-header">
           <div class="panel-title-area">
-            <span class="panel-title">管理中心</span>
-            <span class="panel-subtitle">AI 配置 · AI 知识库 · 系统管理</span>
+            <div class="title-main">
+              <span class="panel-title">管理中心</span>
+              <span class="panel-subtitle">AI 配置 · AI 知识库 · 系统管理</span>
+            </div>
           </div>
         </header>
         <div class="panel-body">
@@ -41,11 +43,14 @@
               class="entry-card"
               @click="navigateTo(item.route)"
             >
-              <component :is="item.icon" class="entry-icon" />
+              <div class="icon-wrapper">
+                <component :is="item.icon" class="entry-icon" />
+              </div>
               <div class="entry-content">
                 <div class="entry-title">{{ item.label }}</div>
                 <div class="entry-desc">{{ item.description }}</div>
               </div>
+              <div class="arrow-hint">→</div>
             </button>
           </div>
         </div>
@@ -90,29 +95,29 @@ const navigateTo = (path: string) => {
 </script>
 
 <style scoped>
+/* 基础布局 */
+.dashboard {
+  padding: 24px;
+  background-color: var(--bg-base);
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-.chart-badge {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--accent-blue);
-  background: var(--primary-hover);
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-
+/* 面板样式 */
 .panel {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
-  min-height: 260px;
+  transition: all 0.3s ease;
 }
 
 .panel-full {
@@ -120,94 +125,142 @@ const navigateTo = (path: string) => {
 }
 
 .panel-header {
-  padding: 14px 18px 8px;
+  padding: 24px 24px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-}
-
-.panel-title-area {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
 }
 
 .panel-title {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-heading);
+  letter-spacing: -0.02em;
 }
 
 .panel-subtitle {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
-  white-space: nowrap;
+  margin-top: 4px;
+  display: block;
+}
+
+.chart-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-blue);
+  background: var(--primary-hover);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-left: 12px;
 }
 
 .panel-body {
-  flex: 1;
-  min-height: 0;
-  padding: 0 18px 16px;
-  overflow: auto;
+  padding: 0 24px 24px;
 }
 
+/* 子卡片网格 - 重点修改 */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
+  /* 增加最小宽度，使卡片看起来更大气 */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
 }
 
 .entry-card {
+  position: relative;
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  padding: 20px 18px;
+  border-radius: 14px;
+  background: var(--bg-card);
+  padding: 24px;
   display: flex;
-  gap: 14px;
-  align-items: flex-start;
+  gap: 18px;
+  align-items: center;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* 悬浮效果：ToC 常用的轻微放大和投影 */
 .entry-card:hover {
-  border-color: var(--accent-blue);
+  border-color: var(--primary);
+  background: var(--bg-card);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -8px rgba(59, 130, 246, 0.15);
+}
+
+/* 图标容器装饰 */
+.icon-wrapper {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-input);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.entry-card:hover .icon-wrapper {
   background: var(--primary-hover);
-  transform: translateY(-2px);
 }
 
 .entry-icon {
-  font-size: 24px;
+  font-size: 26px;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.entry-card:hover .entry-icon {
   color: var(--accent-blue);
-  margin-top: 2px;
 }
 
 .entry-content {
+  flex: 1;
   min-width: 0;
 }
 
 .entry-title {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   color: var(--text-heading);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .entry-desc {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.5;
 }
 
+/* 装饰性箭头 */
+.arrow-hint {
+  font-size: 18px;
+  color: var(--text-muted);
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+}
+
+.entry-card:hover .arrow-hint {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--accent-blue);
+}
+
+/* 响应式调整 */
 @media (max-width: 1024px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
   .panel-full {
     grid-column: auto;
+  }
+  .card-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

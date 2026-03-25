@@ -24,27 +24,7 @@
 
         <div class="header-right">
           <div class="action-items">
-            <a-select
-              :value="currentLang"
-              size="small"
-              class="custom-select"
-              :options="languageOptions"
-              @change="changeLang"
-              :bordered="false"
-            />
-            
-            <div class="divider"></div>
-
-            <div class="theme-toggle">
-              <a-switch
-                :checked="isDark"
-                @change="onThemeChange"
-                class="custom-switch"
-              >
-                <template #checkedChildren><span class="icon-text">🌙</span></template>
-                <template #unCheckedChildren><span class="icon-text">☀️</span></template>
-              </a-switch>
-            </div>
+            <DocLangTheme :showDoc="true"/>
           </div>
 
           <a-dropdown :trigger="['click']" placement="bottomRight">
@@ -93,14 +73,11 @@ import {
   LockOutlined, 
   LogoutOutlined 
 } from '@ant-design/icons-vue';
-import { useTheme } from '@/composables/useTheme';
-import { useLanguage } from '@/composables/useLanguage';
 import logoUrl from '@/assets/Astrsomn-logo.png';
+import DocLangTheme from '@/components/DocLangTheme.vue';
 
 const route = useRoute();
 const router = useRouter();
-const { isDark, toggleTheme } = useTheme();
-const { currentLang, changeLang, languageOptions } = useLanguage();
 
 const isHome = computed(() => route.path === '/admin');
 const pageTitle = computed(() => (route.meta.title as string) || '管理后台');
@@ -115,8 +92,6 @@ const avatarChar = computed(() => {
   } catch { /* ignore */ }
   return 'U';
 });
-
-const onThemeChange = (val: boolean) => toggleTheme(val);
 const goBack = () => router.push('/admin');
 
 const handleMenuClick = ({ key }: { key: string }) => {
