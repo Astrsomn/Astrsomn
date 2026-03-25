@@ -5,7 +5,9 @@
         <div class="header-left">
           <transition name="fade-slide" mode="out-in">
             <div v-if="isHome" class="brand-area" key="logo">
-              <div class="logo-box">A</div>
+              <div class="logo-box">
+                <img :src="logoUrl" class="logo-img" alt="Astrsomn" />
+              </div>
               <div class="brand-text">
                 <h1 class="brand-title">Astrsomn</h1>
                 <p class="brand-subtitle">Langchain4j 快速配置框架</p>
@@ -93,6 +95,7 @@ import {
 } from '@ant-design/icons-vue';
 import { useTheme } from '@/composables/useTheme';
 import { useLanguage } from '@/composables/useLanguage';
+import logoUrl from '@/assets/Astrsomn-logo.png';
 
 const route = useRoute();
 const router = useRouter();
@@ -175,14 +178,19 @@ const handleMenuClick = ({ key }: { key: string }) => {
   width: 42px;
   height: 42px;
   border-radius: var(--radius-lg);
-  background: var(--logo-gradient);
-  color: #fff;
-  font-weight: 800;
-  font-size: 22px;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(22, 119, 255, 0.3);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.logo-img {
+  width: 76px;
+  height: 76px;
+  object-fit: cover;
+  object-position: 50% 0%;
 }
 
 .brand-title {

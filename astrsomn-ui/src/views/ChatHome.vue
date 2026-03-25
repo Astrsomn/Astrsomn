@@ -2,7 +2,9 @@
   <div class="chat-home" :class="{ 'is-dark': isDark }">
     <header class="top-bar">
       <div class="brand">
-        <div class="logo-dot">A</div>
+        <div class="logo-dot">
+          <img :src="logoUrl" class="logo-img" alt="Astrsomn" />
+        </div>
         <div class="brand-info">
           <span class="brand-name">Astrsomn</span>
           <span class="brand-status">AI Assistant</span>
@@ -152,6 +154,7 @@ import {
 } from '@ant-design/icons-vue'
 import { useTheme } from '@/composables/useTheme'
 import { useLanguage } from '@/composables/useLanguage'
+import logoUrl from '@/assets/Astrsomn-logo.png'
 
 const router = useRouter()
 const userInput = ref('')
@@ -231,14 +234,20 @@ const submitQuestion = () => {
 .logo-dot {
   width: 32px;
   height: 32px;
-  background: var(--logo-gradient);
+  background: transparent;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-weight: 800;
-  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.2);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.logo-img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  object-position: 50% 0%;
 }
 
 .brand-name {

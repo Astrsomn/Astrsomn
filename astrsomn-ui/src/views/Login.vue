@@ -2,7 +2,9 @@
   <div class="login-page">
     <nav class="glass-header">
       <div class="header-left" @click="goHome">
-        <div class="logo-dot">A</div>
+        <div class="logo-dot">
+          <img :src="logoUrl" class="logo-img" alt="Astrsomn" />
+        </div>
         <span class="logo-text">Astrsomn <small>星梦</small></span>
       </div>
 
@@ -127,6 +129,7 @@ import {
 } from '@ant-design/icons-vue'
 import { useTheme } from '@/composables/useTheme'
 import { useLanguage } from '@/composables/useLanguage'
+import logoUrl from '@/assets/Astrsomn-logo.png'
 
 const router = useRouter()
 const loading = ref(false)
@@ -198,12 +201,19 @@ const handleLogin = async () => {
 
 .logo-dot {
   width: 32px; height: 32px;
-  background: var(--logo-gradient);
+  background: transparent;
   border-radius: 8px;
   display: flex;
   align-items: center; justify-content: center;
-  color: #fff; font-weight: 800;
-  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.logo-img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  object-position: 50% 0%;
 }
 
 .logo-text {
