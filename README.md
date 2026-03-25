@@ -37,8 +37,9 @@
 
 ## 🧩 模块架构
 ```plaintext
-astrsomn
-├── astrsomn-core          # 核心能力封装（基础接口、工具、模型统一层）
-├── astrsomn-starter       # SpringBoot 快速启动器（自动配置、 starter 依赖）
-├── astrsomn-server        # 独立部署 AI 服务（HTTP 接口、服务化运行）
-└── astrsomn-ui            # 可视化控制台（配置、调试、监控）
+astrsomn-parent
+├── astrsomn-core (通用 Entity, DTO, Utils)
+├── astrsomn-spring-boot-starter (核心工厂, 负责 Agent 生产：创建、缓存、销毁)
+├── astrsomn-workflow-core (编排引擎抽象、DAG 定义、状态机逻辑)
+├── astrsomn-workflow-spring-boot-starter (编排器的 Spring 自动化配置)
+└── astrsomn-ui / server (提供 REST 接口供前端调用，持久化工作流定义)

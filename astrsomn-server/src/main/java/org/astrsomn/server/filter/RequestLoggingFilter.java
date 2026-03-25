@@ -48,8 +48,24 @@ public class RequestLoggingFilter implements Filter {
     }
 
     private String getClientIp(HttpServletRequest request) {
-        // TODO: 实现获取真实客户端IP的逻辑
         // 考虑代理服务器的情况，从 X-Forwarded-For 等头获取
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isBlank()) {
+            // X-Forwarded-For 可能是 "client, proxy1, proxy2"
+            String[] parts = xForwardedFor.split(",");
+            for (String part : parts) {
+                String ip = part.trim();
+                if (!ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+                    return ip;
+                }
+            }
+        }
+
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isBlank() && !"unknown".equalsIgnoreCase(xRealIp.trim())) {
+            return xRealIp.trim();
+        }
+
         return request.getRemoteAddr();
     }
 }

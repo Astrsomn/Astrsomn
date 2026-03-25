@@ -74,3 +74,4 @@ build.xml
 /nbdist/
 /.nb-gradle/
 /astrsomn-ui/package-lock.json
+/astrsomn-spring-boot-starter/src/main/java/org/astrsomn/starter/langchain/orchestration.zip

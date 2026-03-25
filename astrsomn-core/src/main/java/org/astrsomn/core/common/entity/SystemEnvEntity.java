@@ -16,7 +16,7 @@ public class SystemEnvEntity extends BaseEntity<Long> {
     /**
      * id
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @TableId(value = "ID", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -28,8 +28,8 @@ public class SystemEnvEntity extends BaseEntity<Long> {
     /**
      * Environment code DEV SIT UAT PRO
      */
-    @TableField(value = "ENV_CODE")
-    private String envCode;
+    @TableField(value = "ENV_KEY")
+    private String envKey;
 
     /**
      * Description

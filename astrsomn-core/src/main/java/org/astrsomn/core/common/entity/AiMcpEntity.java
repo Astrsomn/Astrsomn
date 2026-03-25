@@ -13,13 +13,13 @@ import org.astrsomn.core.common.base.BaseEntity;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("AI_MCP_CONFIG")
+@TableName("AI_MCP")
 public class AiMcpEntity extends BaseEntity<Long> {
 
     /**
      * id
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @TableId(value = "ID", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**

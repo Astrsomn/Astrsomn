@@ -3,50 +3,64 @@ package org.astrsomn.server.interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
 public class RateLimitingInterceptor implements HandlerInterceptor {
 
+    @Value("${rate.limit.maxRequests:120}")
+    private int maxRequests;
+
+    @Value("${rate.limit.windowMillis:60000}")
+    private long windowMillis;
+
+    private final Map<String, RateCounter> counters = new ConcurrentHashMap<>();
+
+    private static class RateCounter {
+        private final AtomicInteger count;
+        private volatile long windowStartMillis;
+
+        private RateCounter(long nowMillis) {
+            this.count = new AtomicInteger(0);
+            this.windowStartMillis = nowMillis;
+        }
+    }
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // TODO: 实现限流逻辑
-        
-        // 1. 获取客户端标识（IP或用户ID）
         String clientId = getClientId(request);
-        
-        // 2. 获取请求URI
         String uri = request.getRequestURI();
-        
-        // 3. 检查限流规则
-        // if (isRateLimited(clientId, uri)) {
-        //     response.setStatus(HttpServletResponse.SC_TOO_MANY_REQUESTS);
-        //     response.setContentType("application/json;charset=UTF-8");
-        //     response.getWriter().write("{\"code\":429,\"message\":\"请求过于频繁\"}");
-        //     return false;
-        // }
-        
-        log.info("限流检查通过 - ClientId: {}, URI: {}", clientId, uri);
+
+        String key = clientId + "|" + uri;
+        long now = System.currentTimeMillis();
+        RateCounter counter = counters.computeIfAbsent(key, k -> new RateCounter(now));
+
+        // 同一个 key 的窗口重置/计数需要原子性
+        synchronized (counter) {
+            if (now - counter.windowStartMillis >= windowMillis) {
+                counter.windowStartMillis = now;
+                counter.count.set(0);
+            }
+            int current = counter.count.incrementAndGet();
+            if (current > maxRequests) {
+                response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"code\":429,\"message\":\"请求过于频繁\"}");
+                return false;
+            }
+        }
+
         return true;
     }
 
     private String getClientId(HttpServletRequest request) {
-        // TODO: 获取客户端标识
-        // 优先使用用户ID，其次使用IP地址
-        // Long userId = UserContext.getUserId();
-        // if (userId != null) {
-        //     return "user:" + userId;
-        // }
         return "ip:" + request.getRemoteAddr();
-    }
-
-    private boolean isRateLimited(String clientId, String uri) {
-        // TODO: 实现限流算法（如令牌桶、滑动窗口等）
-        // 1. 从Redis获取当前计数
-        // 2. 检查是否超过限制
-        // 3. 更新计数
-        return false;
     }
 }

@@ -12,7 +12,6 @@ public class LoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // TODO: 记录请求开始信息
         log.info("拦截器 - 请求开始 - URI: {}, Method: {}, Handler: {}",
                 request.getRequestURI(),
                 request.getMethod(),
@@ -26,8 +25,8 @@ public class LoggingInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        // TODO: 记录请求完成信息
-        long startTime = (Long) request.getAttribute("startTime");
+        Object startTimeObj = request.getAttribute("startTime");
+        long startTime = startTimeObj instanceof Long ? (Long) startTimeObj : System.currentTimeMillis();
         long duration = System.currentTimeMillis() - startTime;
         
         log.info("拦截器 - 请求完成 - URI: {}, 状态码: {}, 耗时: {}ms, 异常: {}",

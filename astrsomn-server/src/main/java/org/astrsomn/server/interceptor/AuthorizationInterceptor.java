@@ -3,6 +3,9 @@ package org.astrsomn.server.interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.astrsomn.core.common.constant.SystemUserEnum;
+import org.astrsomn.core.common.constant.SystemUserEnum.AdminEnum;
+import org.astrsomn.server.util.UserContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -10,38 +13,62 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class AuthorizationInterceptor implements HandlerInterceptor {
 
+    private static final String ADMIN_FLAG_KEY = "adminFlag";
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // TODO: 实现权限校验逻辑
-        
-        // 1. 获取当前用户信息
-        // Long userId = UserContext.getUserId();
-        // if (userId == null) {
-        //     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        //     return false;
-        // }
-        
-        // 2. 获取请求的权限标识
         String uri = request.getRequestURI();
         String method = request.getMethod();
-        
-        // 3. 检查用户是否有权限访问该接口
-        // if (!hasPermission(userId, uri, method)) {
-        //     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        //     response.setContentType("application/json;charset=UTF-8");
-        //     response.getWriter().write("{\"code\":403,\"message\":\"无权访问\"}");
-        //     return false;
-        // }
-        
-        log.info("权限校验通过 - URI: {}, Method: {}", uri, method);
+
+        Long userId = UserContext.getUserId();
+        if (userId == null) {
+            writeJsonError(response, HttpServletResponse.SC_UNAUTHORIZED, 401, "未授权访问，请先登录");
+            return false;
+        }
+
+        Object adminFlagObj = UserContext.get(ADMIN_FLAG_KEY);
+        String adminFlag = adminFlagObj != null ? String.valueOf(adminFlagObj) : null;
+        if (!isAdmin(adminFlag)) {
+            writeJsonError(response, HttpServletResponse.SC_FORBIDDEN, 403, "无权访问");
+            return false;
+        }
+
+        log.info("权限校验通过 - URI: {}, Method: {}, UserId: {}", uri, method, userId);
         return true;
     }
 
-    private boolean hasPermission(Long userId, String uri, String method) {
-        // TODO: 实现权限校验逻辑
-        // 1. 从数据库或缓存中获取用户权限列表
-        // 2. 检查当前URI和方法是否在权限列表中
-        // 3. 支持通配符匹配（如 /api/agent/**）
-        return true;
+    private boolean isAdmin(String adminFlag) {
+        if (adminFlag == null) {
+            return false;
+        }
+        AdminEnum adminEnum = parseAdminEnum(adminFlag);
+        return AdminEnum.YES.equals(adminEnum);
+    }
+
+    private AdminEnum parseAdminEnum(String adminFlag) {
+        for (AdminEnum e : AdminEnum.values()) {
+            if (e.getCode().equalsIgnoreCase(adminFlag)) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    private void writeJsonError(HttpServletResponse response, int httpStatus, int code, String message) {
+        response.setStatus(httpStatus);
+        response.setContentType("application/json;charset=UTF-8");
+        try {
+            response.getWriter().write("{\"code\":" + code + ",\"message\":\"" + escapeJson(message) + "\"}");
+        } catch (Exception e) {
+            log.error("写入权限错误响应失败: {}", e.getMessage(), e);
+        }
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
     }
 }

@@ -44,12 +44,12 @@ public class AuthServiceImpl implements AuthService {
 
         if (user == null) {
             log.warn("用户不存在 - Username: {}", username);
-            throw new BusinessException("用户名或密码错误");
+            throw new BusinessException(401, "用户名或密码错误");
         }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             log.warn("密码错误 - Username: {}", username);
-            throw new BusinessException("用户名或密码错误");
+            throw new BusinessException(401, "用户名或密码错误");
         }
 
         String token = jwtUtil.generateToken(user.getId(), user.getUsername());
@@ -74,14 +74,14 @@ public class AuthServiceImpl implements AuthService {
         log.info("刷新Token");
 
         if (!jwtUtil.validateToken(oldToken)) {
-            throw new BusinessException("Token无效或已过期");
+            throw new BusinessException(401, "Token无效或已过期");
         }
 
         Long userId = jwtUtil.getUserIdFromToken(oldToken);
         String username = jwtUtil.getUsernameFromToken(oldToken);
 
         if (userId == null || username == null) {
-            throw new BusinessException("Token解析失败");
+            throw new BusinessException(401, "Token解析失败");
         }
 
         String newToken = jwtUtil.refreshToken(oldToken);

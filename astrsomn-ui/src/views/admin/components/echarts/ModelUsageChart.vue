@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import * as echarts from 'echarts'
-import { useTheme } from '@/composables/useTheme'
+import { useTheme } from '@/composables/useTheme.ts'
 
 const chartRef = ref<HTMLElement>()
 let chart: echarts.ECharts | null = null

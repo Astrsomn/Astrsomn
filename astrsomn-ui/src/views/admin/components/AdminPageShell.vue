@@ -1,16 +1,5 @@
 <template>
   <div class="admin-page">
-    <div class="page-header">
-      <div class="page-title-wrap">
-        <h2 class="page-title">{{ title }}</h2>
-        <p class="page-description">{{ description }}</p>
-      </div>
-      <div class="page-actions">
-        <a-button type="primary">新增</a-button>
-        <a-button>刷新</a-button>
-      </div>
-    </div>
-
     <div class="page-content">
       <slot>
         <a-empty :description="emptyText" />

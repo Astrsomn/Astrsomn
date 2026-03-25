@@ -27,8 +27,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         
-        // TODO: 配置拦截器链和拦截路径
-        
         // 1. 日志拦截器 - 拦截所有请求
         registry.addInterceptor(loggingInterceptor)
                 .addPathPatterns("/**")
@@ -36,10 +34,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
         
         // 2. 认证拦截器 - 排除登录接口和静态资源
         registry.addInterceptor(authenticationInterceptor)
-                .addPathPatterns("/api/**")
+                .addPathPatterns("/api/**", "/v1/astro/**")
                 .excludePathPatterns(
                         "/api/auth/login",
                         "/api/auth/refresh-token",
+                        "/v1/astro/auth/login",
+                        "/v1/astro/auth/refresh-token",
                         "/swagger-ui/**",
                         "/swagger-resources/**",
                         "/v3/api-docs/**",
@@ -50,13 +50,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
         
         // 3. 权限拦截器 - 拦截需要权限的接口
         registry.addInterceptor(authorizationInterceptor)
-                .addPathPatterns("/api/agent/**", "/api/model/**", "/api/tool/**")
-                .excludePathPatterns("/api/agent/list", "/api/model/list")
+                .addPathPatterns(
+                        "/v1/astro/ai-agent/**",
+                        "/v1/astro/ai-model/**",
+                        "/v1/astro/ai-tool/**",
+                        "/v1/astro/ai-mcp/**",
+                        "/v1/astro/ai-conversation/**"
+                )
                 .order(3);
         
         // 4. 限流拦截器 - 拦截所有API请求
         registry.addInterceptor(rateLimitingInterceptor)
-                .addPathPatterns("/api/**")
+                .addPathPatterns("/api/**", "/v1/astro/**")
                 .order(4);
     }
 }

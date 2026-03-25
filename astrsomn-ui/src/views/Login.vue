@@ -2,27 +2,14 @@
   <div class="login-page">
     <nav class="glass-header">
       <div class="header-left" @click="goHome">
-        <div class="logo-dot">A</div>
+        <div class="logo-dot">
+          <img :src="logoUrl" class="logo-img" alt="Astrsomn" />
+        </div>
         <span class="logo-text">Astrsomn <small>星梦</small></span>
       </div>
 
       <div class="header-right">
-        <a href="javascript:;" class="nav-item">
-          <book-outlined /> <span>文档</span>
-        </a>
-        <div class="v-divider"></div>
-        <a-select
-          :value="currentLang"
-          size="small"
-          class="lang-select"
-          :options="languageOptions"
-          @change="changeLang"
-          :bordered="false"
-        />
-        <button class="theme-toggle" @click="toggleTheme(!isDark)">
-          <template v-if="isDark">🌙</template>
-          <template v-else>☀️</template>
-        </button>
+        <DocLangTheme :showDoc="true"/>
       </div>
     </nav>
 
@@ -118,19 +105,17 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { login } from '@/api/auth'
 import { 
   UserOutlined, 
   LockOutlined, 
-  BookOutlined, 
   CheckCircleFilled 
 } from '@ant-design/icons-vue'
-import { useTheme } from '@/composables/useTheme'
-import { useLanguage } from '@/composables/useLanguage'
+import logoUrl from '@/assets/Astrsomn-logo.png'
+import DocLangTheme from '@/views/admin/components/DocLangTheme.vue'
 
 const router = useRouter()
 const loading = ref(false)
-const { isDark, toggleTheme } = useTheme()
-const { currentLang, changeLang, languageOptions } = useLanguage()
 
 const formState = reactive({
   username: '',
@@ -146,14 +131,22 @@ const goHome = () => router.push('/')
 
 const handleLogin = async () => {
   loading.value = true
-  // 模拟登录逻辑
-  setTimeout(() => {
-    localStorage.setItem('token', 'mock_token')
-    localStorage.setItem('userInfo', JSON.stringify({ username: formState.username || 'Admin' }))
+  try {
+    const res = await login({
+      username: formState.username,
+      password: formState.password
+    })
+
+    localStorage.setItem('token', res.token)
+    localStorage.setItem('userInfo', JSON.stringify(res.userInfo))
+
     message.success('验证成功')
     router.push('/admin')
+  } catch (e: any) {
+    message.error(e?.message || '登录失败')
+  } finally {
     loading.value = false
-  }, 1000)
+  }
 }
 </script>
 
@@ -189,12 +182,19 @@ const handleLogin = async () => {
 
 .logo-dot {
   width: 32px; height: 32px;
-  background: var(--logo-gradient);
+  background: transparent;
   border-radius: 8px;
   display: flex;
   align-items: center; justify-content: center;
-  color: #fff; font-weight: 800;
-  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.logo-img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  object-position: 50% 0%;
 }
 
 .logo-text {
