@@ -2,9 +2,9 @@ package org.astrsomn.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-@SpringBootApplication(exclude = {MybatisPlusAutoConfiguration.class})
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class AstrsomnServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(AstrsomnServerApplication.class, args);

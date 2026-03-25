@@ -25,12 +25,10 @@ public class JwtUtil {
     private Long expiration;
 
     private SecretKey getSigningKey() {
-        // TODO: 生成签名密钥
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(Long userId, String username) {
-        // TODO: 生成JWT Token
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
@@ -45,7 +43,6 @@ public class JwtUtil {
     }
 
     public Claims parseToken(String token) {
-        // TODO: 解析JWT Token
         try {
             return Jwts.parser()
                     .verifyWith(getSigningKey())
@@ -59,7 +56,6 @@ public class JwtUtil {
     }
 
     public Long getUserIdFromToken(String token) {
-        // TODO: 从Token中获取用户ID
         Claims claims = parseToken(token);
         if (claims != null) {
             return claims.get("userId", Long.class);
@@ -68,7 +64,6 @@ public class JwtUtil {
     }
 
     public String getUsernameFromToken(String token) {
-        // TODO: 从Token中获取用户名
         Claims claims = parseToken(token);
         if (claims != null) {
             return claims.getSubject();
@@ -77,7 +72,6 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token) {
-        // TODO: 验证Token是否有效
         try {
             Claims claims = parseToken(token);
             return claims != null && !isTokenExpired(claims);
@@ -87,13 +81,11 @@ public class JwtUtil {
     }
 
     private boolean isTokenExpired(Claims claims) {
-        // TODO: 检查Token是否过期
         Date expiration = claims.getExpiration();
         return expiration.before(new Date());
     }
 
     public String refreshToken(String token) {
-        // TODO: 刷新Token
         Claims claims = parseToken(token);
         if (claims != null) {
             Long userId = claims.get("userId", Long.class);

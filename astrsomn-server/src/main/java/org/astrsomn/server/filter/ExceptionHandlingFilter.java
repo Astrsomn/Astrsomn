@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.astrsomn.server.exception.BusinessException;
 
 import java.io.IOException;
 
@@ -33,11 +34,38 @@ public class ExceptionHandlingFilter implements Filter {
         } catch (Exception e) {
             log.error("请求处理异常 - URI: {}, 异常: {}", httpRequest.getRequestURI(), e.getMessage(), e);
             
-            // TODO: 根据异常类型返回不同的错误响应
-            httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            if (httpResponse.isCommitted()) {
+                return;
+            }
+
+            int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            int code = 500;
+            String message = "系统内部错误";
+
+            if (e instanceof BusinessException be) {
+                if (be.getCode() != null) {
+                    code = be.getCode();
+                    status = be.getCode();
+                }
+                message = be.getMessage();
+            } else if (e instanceof IllegalArgumentException iae) {
+                status = HttpServletResponse.SC_BAD_REQUEST;
+                code = 400;
+                message = iae.getMessage() != null ? iae.getMessage() : "参数错误";
+            }
+
+            httpResponse.setStatus(status);
             httpResponse.setContentType("application/json;charset=UTF-8");
-            httpResponse.getWriter().write("{\"code\":500,\"message\":\"系统内部错误\"}");
+            httpResponse.getWriter().write("{\"code\":" + code + ",\"message\":\"" + escapeJson(message) + "\"}");
         }
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
     }
 
     @Override

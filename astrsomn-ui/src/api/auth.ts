@@ -1,24 +1,44 @@
 import request from '@/utils/request'
 import type { LoginRequest, LoginResponse } from '@/types'
 
+type BackendLoginResponse = {
+  userId: number | string
+  username: string
+  email?: string
+  adminFlag?: string
+  token: string
+  expiresIn?: number
+}
+
+const toUiLoginResponse = (backend: BackendLoginResponse): LoginResponse => {
+  return {
+    token: backend.token,
+    userInfo: {
+      id: String(backend.userId),
+      username: backend.username,
+      email: backend.email
+    }
+  }
+}
+
 export const login = (data: LoginRequest): Promise<LoginResponse> => {
   return request({
-    url: '/auth/login',
+    url: '/v1/astro/auth/login',
     method: 'post',
     data
-  })
+  }).then((backend: BackendLoginResponse) => toUiLoginResponse(backend))
 }
 
 export const logout = (): Promise<void> => {
   return request({
-    url: '/auth/logout',
+    url: '/v1/astro/auth/logout',
     method: 'post'
-  })
+  }).then(() => {})
 }
 
 export const getUserInfo = (): Promise<any> => {
   return request({
-    url: '/auth/user-info',
+    url: '/v1/astro/auth/current-user',
     method: 'get'
-  })
+  }).then((backend: BackendLoginResponse) => toUiLoginResponse(backend).userInfo)
 }

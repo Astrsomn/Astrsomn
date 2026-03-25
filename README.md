@@ -39,7 +39,7 @@
 ```plaintext
 astrsomn-parent
 ├── astrsomn-core (通用 Entity, DTO, Utils)
-├── astrsomn-spring-boot-starter (核心工厂, 即你现在的代码 - 负责 Agent 生产)
+├── astrsomn-spring-boot-starter (核心工厂, 负责 Agent 生产：创建、缓存、销毁)
 ├── astrsomn-workflow-core (编排引擎抽象、DAG 定义、状态机逻辑)
 ├── astrsomn-workflow-spring-boot-starter (编排器的 Spring 自动化配置)
-└── astrsomn-admin / server (提供 REST 接口供前端调用，持久化工作流定义)
+└── astrsomn-ui / server (提供 REST 接口供前端调用，持久化工作流定义)

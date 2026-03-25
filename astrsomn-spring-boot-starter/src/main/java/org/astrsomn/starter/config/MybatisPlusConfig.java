@@ -1,6 +1,11 @@
 package org.astrsomn.starter.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.core.config.GlobalConfig;
+import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
+import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
+import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -30,7 +35,7 @@ public class MybatisPlusConfig {
     }
 
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource, AstrsomnProperties properties) throws Exception {
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource, AstrsomnProperties properties, MybatisPlusInterceptor mybatisPlusInterceptor) throws Exception {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource);
 
@@ -56,7 +61,19 @@ public class MybatisPlusConfig {
         
         factoryBean.setMapperLocations(resolver.getResources(mapperLocations));
         factoryBean.setTypeAliasesPackage(typeAliasesPackage);
+        factoryBean.setPlugins(mybatisPlusInterceptor);
         
+        // 关键：显式设置 MyBatis-Plus SqlInjector，确保 BaseMapper 默认方法
+        // （如 selectList/selectById/insert 等）能够被注入到 mapped statements 中
+        MybatisConfiguration mybatisConfiguration = new MybatisConfiguration();
+        GlobalConfig globalConfig = GlobalConfigUtils.defaults()
+                .setSqlInjector(new DefaultSqlInjector());
+        if (globalConfig.getIdentifierGenerator() == null) {
+            globalConfig.setIdentifierGenerator(new DefaultIdentifierGenerator());
+        }
+        GlobalConfigUtils.setGlobalConfig(mybatisConfiguration, globalConfig);
+        factoryBean.setConfiguration(mybatisConfiguration);
+
         return factoryBean.getObject();
     }
 }

@@ -15,7 +15,6 @@ public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
 
     public CachedBodyHttpServletRequest(HttpServletRequest request) throws IOException {
         super(request);
-        // TODO: 缓存请求体，支持多次读取
         this.cachedBody = StreamUtils.copyToByteArray(request.getInputStream());
     }
 

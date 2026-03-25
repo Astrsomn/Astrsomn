@@ -118,6 +118,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { login } from '@/api/auth'
 import { 
   UserOutlined, 
   LockOutlined, 
@@ -146,14 +147,22 @@ const goHome = () => router.push('/')
 
 const handleLogin = async () => {
   loading.value = true
-  // 模拟登录逻辑
-  setTimeout(() => {
-    localStorage.setItem('token', 'mock_token')
-    localStorage.setItem('userInfo', JSON.stringify({ username: formState.username || 'Admin' }))
+  try {
+    const res = await login({
+      username: formState.username,
+      password: formState.password
+    })
+
+    localStorage.setItem('token', res.token)
+    localStorage.setItem('userInfo', JSON.stringify(res.userInfo))
+
     message.success('验证成功')
     router.push('/admin')
+  } catch (e: any) {
+    message.error(e?.message || '登录失败')
+  } finally {
     loading.value = false
-  }, 1000)
+  }
 }
 </script>
 
