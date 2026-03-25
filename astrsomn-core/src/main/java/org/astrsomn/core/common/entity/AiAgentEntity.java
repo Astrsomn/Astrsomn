@@ -26,8 +26,8 @@ public class AiAgentEntity extends BaseEntity<Long> {
     /**
      * The name of the Agent.
      */
-    @TableField("NAME")
-    private String name;
+    @TableField("AGENT_NAME")
+    private String agentName;
 
     /**
      * A detailed description of the Agent's purpose and capabilities.
@@ -126,9 +126,15 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("SEED")
     private Integer seed;
 
+    /**
+     *
+     */
     @TableField("TOP_P")
     private Double topP;
 
+    /**
+     *
+     */
     @TableField("TOP_K")
     private Integer topK;
     /**

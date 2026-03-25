@@ -30,6 +30,9 @@ public class AiConversationEntity extends BaseEntity<Long> {
     @TableField("MEMORY_ID")
     private String memoryId;
 
+    /**
+     *
+     */
     @TableField("MEMORY_KEY")
     private String memoryKey;
     /**
