@@ -74,7 +74,7 @@ import {
   LogoutOutlined 
 } from '@ant-design/icons-vue';
 import logoUrl from '@/assets/Astrsomn-logo.png';
-import DocLangTheme from '@/components/DocLangTheme.vue';
+import DocLangTheme from '@/views/admin/components/DocLangTheme.vue';
 
 const route = useRoute();
 const router = useRouter();

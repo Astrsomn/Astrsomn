@@ -188,7 +188,7 @@
 import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
-import { aiModelApi, type AiModel, type PageResponse } from '@/api/aiModel'
+import { aiModelApi, type AiModel, type PageResponse } from '@/api/aiModel.ts'
 
 import type { FormInstance } from 'ant-design-vue'
 

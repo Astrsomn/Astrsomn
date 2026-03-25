@@ -28,8 +28,8 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { BookOutlined } from '@ant-design/icons-vue'
-import { useTheme } from '@/composables/useTheme'
-import { useLanguage } from '@/composables/useLanguage'
+import { useTheme } from '@/composables/useTheme.ts'
+import { useLanguage } from '@/composables/useLanguage.ts'
 
 const props = defineProps<{
   showDoc?: boolean
@@ -73,7 +73,8 @@ const goDoc = () => {
 }
 
 .lang-select {
-  width: 90px;
+  width: 100px;
+  color: var(--text-secondary);
 }
 
 .theme-toggle {

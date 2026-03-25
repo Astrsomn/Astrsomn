@@ -150,7 +150,7 @@ import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
 import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
-import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent'
+import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
 
 type QueryState = {
   agentName?: string

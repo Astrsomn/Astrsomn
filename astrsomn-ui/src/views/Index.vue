@@ -141,7 +141,7 @@ import {
   ArrowUpOutlined 
 } from '@ant-design/icons-vue'
 import logoUrl from '@/assets/Astrsomn-logo.png'
-import DocLangTheme from '@/components/DocLangTheme.vue'
+import DocLangTheme from '@/views/admin/components/DocLangTheme.vue'
 
 const router = useRouter()
 const userInput = ref('')

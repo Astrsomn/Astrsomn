@@ -72,8 +72,8 @@ import {
   UserOutlined,
   CloudServerOutlined
 } from '@ant-design/icons-vue'
-import TrafficStats from './components/TrafficStats.vue'
-import ModelUsageChart from './components/ModelUsageChart.vue'
+import TrafficStats from './echarts/TrafficStats.vue'
+import ModelUsageChart from './echarts/ModelUsageChart.vue'
 
 const router = useRouter()
 
@@ -85,6 +85,10 @@ const managementItems = [
   { key: 'prompts', label: '提示词管理', description: '维护提示词模板与版本', icon: SafetyCertificateOutlined, route: '/admin/prompts' },
   { key: 'kb-mgr', label: '知识库管理', description: '管理知识库空间与索引配置', icon: BookOutlined, route: '/admin/knowledge-bases' },
   { key: 'doc-mgr', label: '文档管理', description: '管理文档处理与入库任务', icon: FileTextOutlined, route: '/admin/documents' },
+  { key: 'doc-mgr', label: '安全治理', description: '配置大模型敏感词', icon: FileTextOutlined, route: '/admin/documents' },
+  { key: 'doc-mgr', label: '链路追踪', description: '监控大模型调用链路和日志输出', icon: FileTextOutlined, route: '/admin/documents' },
+  { key: 'doc-mgr', label: '工作流', description: '管理文档处理与入库任务', icon: FileTextOutlined, route: '/admin/documents' },
+  { key: 'doc-mgr', label: '模板配置', description: '管理文档处理与入库任务', icon: FileTextOutlined, route: '/admin/documents' },
   { key: 'users', label: '用户管理', description: '管理系统用户、角色与权限分配', icon: UserOutlined, route: '/admin/users' },
   { key: 'env', label: '环境管理', description: '管理运行环境、服务实例与部署配置', icon: CloudServerOutlined, route: '/admin/env' }
 ]
