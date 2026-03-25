@@ -1,129 +1,123 @@
 <template>
   <div class="chat-home">
-    <header class="top-bar">
-      <div class="brand">
-        <div class="logo-dot">
-          <img :src="logoUrl" class="logo-img" alt="Astrsomn" />
-        </div>
-        <div class="brand-info">
-          <span class="brand-name">Astrsomn</span>
-          <span class="brand-status">AI Assistant</span>
-        </div>
-      </div>
-      
-      <div class="top-actions">
-        <DocLangTheme />
-        <a-button type="primary" shape="round" class="login-btn" @click="goLogin">
-          登录 / 注册
-        </a-button>
-      </div>
-    </header>
+    <AppHeader 
+      :showBrand="true" 
+      :showBack="false"
+      brandStatus="AI Assistant"
+      :showDoc="true"
+      :showSwitch="true"
+      switchTarget="admin"
+    />
 
     <main class="chat-main">
       <div class="chat-messages-container">
         <div class="message-scroll-area">
-          <div class="message ai">
-            <div class="avatar-mini">A</div>
-            <div class="content">
-              你好，我是 Astrsomn AI 助手。今天有什么我可以帮你的？
+          <transition-group name="message-fade">
+            <div class="message ai" key="welcome">
+              <div class="avatar-mini">A</div>
+              <div class="content">
+                你好，我是 Astrsomn AI 助手。今天有什么我可以帮你的？
+              </div>
             </div>
-          </div>
-          
-          <div v-if="userInputDisplay" class="message user">
-            <div class="content">{{ userInputDisplay }}</div>
-          </div>
+            
+            <div v-if="userInputDisplay" class="message user" key="user">
+              <div class="content">{{ userInputDisplay }}</div>
+            </div>
 
-          <div v-if="userInputDisplay" class="message ai">
-            <div class="avatar-mini">A</div>
-            <div class="content">
-              <div class="typing-placeholder">这是预览模式下的回复。我已经准备好为您提供 Langchain4j 的深度支持。</div>
+            <div v-if="userInputDisplay" class="message ai" key="response">
+              <div class="avatar-mini">A</div>
+              <div class="content">
+                <div class="typing-placeholder">这是预览模式下的回复。我已经准备好为您提供 Langchain4j 的深度支持。</div>
+              </div>
             </div>
-          </div>
+          </transition-group>
         </div>
       </div>
 
       <div class="chat-input-section">
-        <div class="input-panel">
-          <div class="input-toolbar">
-            <div class="toolbar-left">
-              <a-select
-                v-model:value="selectedModel"
-                class="panel-select"
-                placeholder="选择模型"
-                :bordered="false"
-                dropdown-class-name="custom-dropdown"
-              >
-                <a-select-option value="gpt-4o">GPT-4o (Premium)</a-select-option>
-                <a-select-option value="claude-3-5">Claude 3.5 Sonnet</a-select-option>
-                <a-select-option value="deepseek-r1">DeepSeek R1</a-select-option>
-              </a-select>
-              
-              <div class="v-divider"></div>
-              
-              <a-select
-                v-model:value="selectedAgent"
-                class="panel-select"
-                placeholder="选择 Agent"
-                :bordered="false"
-              >
-                <a-select-option value="general">通用助手</a-select-option>
-                <a-select-option value="coder">专家级编程</a-select-option>
-                <a-select-option value="writer">创意写作</a-select-option>
-              </a-select>
-            </div>
-          </div>
-
-          <div class="input-body">
-            <a-textarea
-              v-model:value="userInput"
-              :auto-size="{ minRows: 1, maxRows: 6 }"
-              placeholder="问点什么吧..."
-              class="main-textarea"
-              @pressEnter="handleEnter"
-            />
-          </div>
-
-          <div class="input-footer">
-            <div class="footer-left">
-              <a-upload :show-upload-list="false" class="upload-trigger">
-                <button class="icon-btn" title="上传文件">
-                  <paper-clip-outlined />
-                </button>
-              </a-upload>
-              
-              <div class="feature-switches">
-                <div 
-                  class="feature-tag" 
-                  :class="{ active: isDeepThinking }"
-                  @click="isDeepThinking = !isDeepThinking"
+        <transition name="input-slide" appear>
+          <div class="input-panel">
+            <div class="input-toolbar">
+              <div class="toolbar-left">
+                <a-select
+                  v-model:value="selectedModel"
+                  class="panel-select"
+                  placeholder="选择模型"
+                  :bordered="false"
+                  dropdown-class-name="custom-dropdown"
                 >
-                  <bulb-outlined /> 深度思考
-                </div>
-                <div 
-                  class="feature-tag" 
-                  :class="{ active: isWebSearch }"
-                  @click="isWebSearch = !isWebSearch"
+                  <a-select-option value="gpt-4o">GPT-4o (Premium)</a-select-option>
+                  <a-select-option value="claude-3-5">Claude 3.5 Sonnet</a-select-option>
+                  <a-select-option value="deepseek-r1">DeepSeek R1</a-select-option>
+                </a-select>
+                
+                <div class="v-divider"></div>
+                
+                <a-select
+                  v-model:value="selectedAgent"
+                  class="panel-select"
+                  placeholder="选择 Agent"
+                  :bordered="false"
                 >
-                  <global-outlined /> 联网搜索
-                </div>
+                  <a-select-option value="general">通用助手</a-select-option>
+                  <a-select-option value="coder">专家级编程</a-select-option>
+                  <a-select-option value="writer">创意写作</a-select-option>
+                </a-select>
               </div>
             </div>
-            
-            <div class="footer-right">
-              <div class="char-count" v-if="userInput.length > 0">
-                {{ userInput.length }}
+
+            <div class="input-body">
+              <a-textarea
+                v-model:value="userInput"
+                :auto-size="{ minRows: 1, maxRows: 6 }"
+                placeholder="问点什么吧..."
+                class="main-textarea"
+                @pressEnter="handleEnter"
+              />
+            </div>
+
+            <div class="input-footer">
+              <div class="footer-left">
+                <a-upload :show-upload-list="false" class="upload-trigger">
+                  <button class="icon-btn" title="上传文件">
+                    <paper-clip-outlined />
+                  </button>
+                </a-upload>
+                
+                <div class="feature-switches">
+                  <div 
+                    class="feature-tag" 
+                    :class="{ active: isDeepThinking }"
+                    @click="isDeepThinking = !isDeepThinking"
+                  >
+                    <bulb-outlined /> 深度思考
+                  </div>
+                  <div 
+                    class="feature-tag" 
+                    :class="{ active: isWebSearch }"
+                    @click="isWebSearch = !isWebSearch"
+                  >
+                    <global-outlined /> 联网搜索
+                  </div>
+                </div>
               </div>
-              <a-button 
-                type="primary" 
-                class="send-btn" 
-                :disabled="!userInput.trim()"
-                @click="submitQuestion"
-              >
-                <template #icon><arrow-up-outlined /></template>
-              </a-button>
+              
+              <div class="footer-right">
+                <div class="char-count" v-if="userInput.length > 0">
+                  {{ userInput.length }}
+                </div>
+                <a-button 
+                  type="primary" 
+                  class="send-btn" 
+                  :disabled="!userInput.trim()"
+                  @click="submitQuestion"
+                >
+                  <template #icon><arrow-up-outlined /></template>
+                </a-button>
+              </div>
             </div>
           </div>
-        </div>
+        </transition>
         <p class="input-hint">Astrsomn 可能产生错误信息，请核查重要内容。</p>
       </div>
     </main>
@@ -132,7 +126,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { 
   PaperClipOutlined, 
@@ -140,10 +133,8 @@ import {
   GlobalOutlined, 
   ArrowUpOutlined 
 } from '@ant-design/icons-vue'
-import logoUrl from '@/assets/Astrsomn-logo.png'
-import DocLangTheme from '@/views/admin/components/DocLangTheme.vue'
+import AppHeader from '@/components/AppHeader.vue'
 
-const router = useRouter()
 const userInput = ref('')
 const userInputDisplay = ref('')
 
@@ -152,11 +143,6 @@ const selectedModel = ref('gpt-4o')
 const selectedAgent = ref('general')
 const isDeepThinking = ref(false)
 const isWebSearch = ref(false)
-
-const goLogin = () => {
-  localStorage.removeItem('token')
-  router.push('/login')
-}
 
 const handleEnter = (e: KeyboardEvent) => {
   if (!e.shiftKey) {
@@ -194,83 +180,6 @@ const submitQuestion = () => {
     radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.05), transparent 40%);
   color: var(--text-primary);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 顶部导航美化 */
-.top-bar {
-  height: 64px;
-  padding: 0 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(var(--bg-surface), 0.7);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border-subtle);
-  z-index: 100;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo-dot {
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: none;
-  overflow: hidden;
-}
-
-.logo-img {
-  width: 64px;
-  height: 64px;
-  object-fit: cover;
-  object-position: 50% 0%;
-}
-
-.brand-name {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
-
-.brand-status {
-  display: block;
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: -2px;
-}
-
-.top-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.v-divider {
-  width: 1px;
-  height: 16px;
-  background: var(--border-default);
-}
-
-.theme-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  padding: 4px;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
-
-.theme-btn:hover {
-  background: var(--border-subtle);
 }
 
 /* 聊天主体 */
@@ -489,6 +398,37 @@ const submitQuestion = () => {
   font-size: 12px;
   color: var(--text-muted);
   margin-top: 12px;
+}
+
+.input-slide-enter-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.input-slide-enter-from {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.message-fade-enter-active {
+  transition: all 0.3s ease;
+}
+
+.message-fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.message-fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.message-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.message-fade-move {
+  transition: transform 0.3s ease;
 }
 
 /* 响应式调整 */

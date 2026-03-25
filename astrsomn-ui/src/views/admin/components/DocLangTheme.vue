@@ -63,6 +63,11 @@ const goDoc = () => {
   gap: 4px;
   text-decoration: none;
   cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.doc-link:hover {
+  color: var(--text-primary);
 }
 
 .th-divider {
@@ -77,6 +82,10 @@ const goDoc = () => {
   color: var(--text-secondary);
 }
 
+.lang-select :deep(.ant-select-selection-item) {
+  color: var(--text-primary) !important;
+}
+
 .theme-toggle {
   background: none;
   border: none;
@@ -84,6 +93,11 @@ const goDoc = () => {
   font-size: 16px;
   padding: 0;
   color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--text-primary);
 }
 </style>
 
