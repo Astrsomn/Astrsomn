@@ -28,6 +28,8 @@
         <module>astrsomn-core</module>
         <module>astrsomn-server</module>
         <module>astrsomn-spring-boot-starter</module>
+        <module>astrsomn-workflow-spring-boot-starter</module>
+        <module>astrsomn-workflow-core</module>
     </modules>
 
     <dependencyManagement>
