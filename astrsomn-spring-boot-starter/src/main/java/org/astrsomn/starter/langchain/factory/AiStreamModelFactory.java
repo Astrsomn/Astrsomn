@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
 
-import org.astrsomn.core.common.langchain.buildParam.AstroChatRequest;
+import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
 import org.astrsomn.core.common.util.JsonUtil;
@@ -39,7 +39,7 @@ public class AiStreamModelFactory {
     private final AstrsomnProperties astrsomnProperties;
 
 
-    public <T> StreamingChatModel getStreamingModel(AstroChatRequest<T> param) {
+    public <T> StreamingChatModel getStreamingModel(AstroChatParam<T> param) {
 
         ModelSetting modelSetting = param.getModelSetting();
         ChatSetting chatSetting = param.getChatSetting();

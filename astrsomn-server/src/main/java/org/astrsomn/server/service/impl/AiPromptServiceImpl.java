@@ -12,17 +12,25 @@ import org.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
 import org.astrsomn.core.common.entity.AiPromptEntity;
 import org.astrsomn.core.mapper.AiPromptMapper;
 import org.astrsomn.server.service.AiPromptService;
+import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEntity> implements AiPromptService {
+
+    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
     @Override
     public BaseResponse<String> create(AiPromptCreateRequestDTO request) {
         AiPromptEntity entity = new AiPromptEntity();
         BeanUtils.copyProperties(request, entity);
+        bizResourceKeyAssignHelper.assignPromptKeyIfBlank(entity);
         boolean result = save(entity);
         return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
     }

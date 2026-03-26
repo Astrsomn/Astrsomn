@@ -12,17 +12,25 @@ import org.astrsomn.core.common.dto.tool.AiToolResponseDTO;
 import org.astrsomn.core.common.entity.AiToolEntity;
 import org.astrsomn.core.mapper.AiToolMapper;
 import org.astrsomn.server.service.AiToolService;
+import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> implements AiToolService {
+
+    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
     @Override
     public BaseResponse<String> create(AiToolCreateRequestDTO request) {
         AiToolEntity entity = new AiToolEntity();
         BeanUtils.copyProperties(request, entity);
+        bizResourceKeyAssignHelper.assignToolKeyIfBlank(entity);
         boolean result = save(entity);
         return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
     }

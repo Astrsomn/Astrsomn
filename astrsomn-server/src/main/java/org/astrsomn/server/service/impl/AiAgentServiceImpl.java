@@ -13,23 +13,24 @@ import org.astrsomn.core.common.dto.agent.AiAgentQueryRequestDTO;
 import org.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
 import org.astrsomn.core.common.dto.agent.AiAgentResponseDTO;
 import org.astrsomn.server.service.AiAgentService;
-
-
+import lombok.RequiredArgsConstructor;
+import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity> implements AiAgentService {
 
-
+    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
 
     @Override
     public BaseResponse<String> create(AiAgentCreateRequestDTO request) {
         AiAgentEntity aiAgent = new AiAgentEntity();
         BeanUtils.copyProperties(request, aiAgent);
+        bizResourceKeyAssignHelper.assignAgentKeyIfBlank(aiAgent);
         boolean result = save(aiAgent);
 
         return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);

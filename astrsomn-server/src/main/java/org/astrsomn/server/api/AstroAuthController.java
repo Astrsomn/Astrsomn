@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/astro/auth")
-public class AuthController extends BaseController {
+public class AstroAuthController extends BaseController {
 
     @Autowired
     private AuthService authService;

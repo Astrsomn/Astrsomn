@@ -1,3 +1,8 @@
+logging:
+  level:
+    # MyBatis Mapper：DEBUG 时会在控制台打印 SQL 与参数（本地开发常用；生产可改为 info 或关闭）
+    org.astrsomn.core.mapper: debug
+
 spring:
   application:
     name: astrsomn-server
@@ -14,6 +19,13 @@ server:
 
 astrsomn:
   env-code: pro
+  # 业务 key 占位（dev/uat/pro 各配一套，Java 只读配置；@Astro 可省略 agentKey）
+  # refs:
+  #   default-agent-key: agt_support_bot_u10001
+  #   default-model-key: openai_gpt_4o_mini_u10001
+  #   default-prompt-key: prm_system_u10001
+  #   default-tool-key: tol_search_u10001
+  #   default-mcp-key: mcp_filesystem_u10001
   data-base:
     database-type: mysql
     host: 154.201.94.113
