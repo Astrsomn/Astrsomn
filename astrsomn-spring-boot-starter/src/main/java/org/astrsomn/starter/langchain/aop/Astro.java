@@ -9,6 +9,9 @@ import java.lang.annotation.*;
 public @interface Astro {
 
 
+    /**
+     * 业务 Agent key；可留空，此时使用配置 {@code astrsomn.refs.default-agent-key}（各环境 yml 填实际 key，避免改代码）。
+     */
     String agentKey() default "";
 
     String envCode() default "";

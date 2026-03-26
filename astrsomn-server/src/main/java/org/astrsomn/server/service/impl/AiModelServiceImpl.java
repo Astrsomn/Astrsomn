@@ -16,6 +16,8 @@ import org.astrsomn.core.common.entity.AiModelEntity;
 import org.springframework.beans.BeanUtils;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiModelService;
+import org.astrsomn.server.service.support.AiModelKeyGenerator;
+import org.astrsomn.starter.config.AstrsomnProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,6 +26,16 @@ import java.util.List;
 
 @Service
 public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity> implements AiModelService {
+
+    private final AiModelKeyGenerator aiModelKeyGenerator;
+    private final AstrsomnProperties astrsomnProperties;
+
+    public AiModelServiceImpl(AiModelMapper baseMapper, AiModelKeyGenerator aiModelKeyGenerator,
+                              AstrsomnProperties astrsomnProperties) {
+        this.baseMapper = baseMapper;
+        this.aiModelKeyGenerator = aiModelKeyGenerator;
+        this.astrsomnProperties = astrsomnProperties;
+    }
 
     @Override
     public BaseResponse<String> delete(long[] longIds) {
@@ -105,6 +117,10 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     public BaseResponse<String> updateModel(AiModelUpdateRequestDTO request) {
         AiModelEntity entity = new AiModelEntity();
         BeanUtils.copyProperties(request, entity);
+        if (StringUtils.isBlank(entity.getEnvCode())) {
+            entity.setEnvCode(astrsomnProperties.getEnvCode());
+        }
+        aiModelKeyGenerator.assignIfBlank(entity);
         boolean result = updateById(entity);
         return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
     }
@@ -113,6 +129,10 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     public BaseResponse<String> create(AiModelCreateRequestDTO request) {
         AiModelEntity entity = new AiModelEntity();
         BeanUtils.copyProperties(request, entity);
+        if (StringUtils.isBlank(entity.getEnvCode())) {
+            entity.setEnvCode(astrsomnProperties.getEnvCode());
+        }
+        aiModelKeyGenerator.assignIfBlank(entity);
         boolean result = save(entity);
         return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
     }

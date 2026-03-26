@@ -12,17 +12,25 @@ import org.astrsomn.core.common.dto.mcp.AiMcpResponseDTO;
 import org.astrsomn.core.common.entity.AiMcpEntity;
 import org.astrsomn.core.mapper.AiMcpMapper;
 import org.astrsomn.server.service.AiMcpService;
+import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> implements AiMcpService {
+
+    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
     @Override
     public BaseResponse<String> create(AiMcpCreateRequestDTO request) {
         AiMcpEntity entity = new AiMcpEntity();
         BeanUtils.copyProperties(request, entity);
+        bizResourceKeyAssignHelper.assignMcpKeyIfBlank(entity);
         boolean result = save(entity);
         return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
     }

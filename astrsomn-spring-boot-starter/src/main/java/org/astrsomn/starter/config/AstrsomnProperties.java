@@ -14,6 +14,20 @@ public class AstrsomnProperties {
     private String envCode;
 
     /**
+     * 逻辑引用：各环境在 application-*.yml 中配置「实际业务 key」，Java 只通过占位读取，
+     * 避免 dev 配好的 key 在 uat 发布时还要改代码。
+     * <p>
+     * 示例：
+     * <pre>
+     * astrsomn:
+     *   refs:
+     *     default-agent-key: agt_support_bot_u10001
+     *     default-model-key: mdl_openai_gpt_4o_u10001
+     * </pre>
+     */
+    private Refs refs = new Refs();
+
+    /**
      * MyBatis-Plus 配置。
      */
     private MybatisPlus mybatisPlus = new MybatisPlus();
@@ -122,5 +136,25 @@ public class AstrsomnProperties {
          * 连接池最小空闲连接数，默认 5。
          */
         private Integer minimumIdle = 5;
+    }
+
+    @Data
+    public static class Refs {
+
+        /**
+         * {@code @Astro} 未写 agentKey 时使用；值在各环境配置中维护。
+         */
+        private String defaultAgentKey;
+
+        /**
+         * 代码中需要「默认模型 key」占位时（如路由、测试）使用，勿在业务里写死具体 key 字面量。
+         */
+        private String defaultModelKey;
+
+        private String defaultPromptKey;
+
+        private String defaultToolKey;
+
+        private String defaultMcpKey;
     }
 }
