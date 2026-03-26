@@ -1,35 +1,41 @@
 <template>
   <AdminPageShell
-    title="AI Tools"
-    description="管理本地工具与调用配置（AI_TOOL），对接 AiToolController。"
-    empty-text="暂无可用工具。"
+    title="FTL 模板管理"
+    description="维护 Freemarker / StringTemplate 模板（AI_TEMPLATE），与 AiTemplateController 对应。"
+    empty-text="暂无模板，请先创建。"
   >
-    <div class="tool-page">
+    <div class="template-page">
       <div class="toolbar">
         <div class="toolbar-left">
           <a-input
-            v-model:value="query.toolName"
-            placeholder="工具名称（模糊）"
+            v-model:value="query.templateTitle"
+            placeholder="标题（模糊）"
             class="toolbar-input"
             allow-clear
           />
           <a-input
-            v-model:value="query.toolKey"
-            placeholder="Tool Key（精确）"
+            v-model:value="query.templateKey"
+            placeholder="Template Key（精确）"
             class="toolbar-input"
             allow-clear
           />
+          <a-input
+            v-model:value="query.category"
+            placeholder="分类"
+            class="toolbar-input narrow"
+            allow-clear
+          />
           <a-select
-            v-model:value="query.type"
-            :options="typeFilterOptions"
-            placeholder="类型"
+            v-model:value="query.templateType"
+            :options="templateTypeFilterOptions"
+            placeholder="模板类型"
             class="toolbar-select"
             allow-clear
           />
           <a-select
-            v-model:value="query.enableFlag"
-            :options="enableFilterOptions"
-            placeholder="启用状态"
+            v-model:value="query.status"
+            :options="statusOptions"
+            placeholder="状态"
             class="toolbar-select"
             allow-clear
           />
@@ -40,7 +46,7 @@
 
           <a-popconfirm
             v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的工具吗？"
+            title="确定批量删除选中的模板吗？"
             ok-text="确认"
             cancel-text="取消"
             @confirm="handleBatchDelete"
@@ -56,14 +62,17 @@
         :pagination="false"
         row-key="id"
         :row-selection="rowSelection"
-        :scroll="{ x: 1180 }"
+        :scroll="{ x: 1100 }"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'enableFlag'">
-            <span>{{ renderEnable(String(record.enableFlag || '')) }}</span>
+          <template v-if="column.key === 'templateType'">
+            <span>{{ renderTemplateType(String(record.templateType || '')) }}</span>
           </template>
-          <template v-else-if="column.key === 'description'">
-            <span class="desc-preview">{{ preview(record.description) }}</span>
+          <template v-else-if="column.key === 'status'">
+            <span>{{ renderStatus(String(record.status || '')) }}</span>
+          </template>
+          <template v-else-if="column.key === 'content'">
+            <span class="content-preview">{{ previewContent(record.content) }}</span>
           </template>
           <template v-else-if="column.key === 'actions'">
             <a-button type="link" @click="openEdit(record)">编辑</a-button>
@@ -90,7 +99,7 @@
         />
       </div>
 
-      <ToolFormModal
+      <TemplateFormModal
         v-model:open="modal.open"
         :mode="modal.mode"
         :confirm-loading="modal.submitting"
@@ -105,47 +114,54 @@
 import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
-import ToolFormModal from './ToolFormModal.vue'
-import { aiToolApi, type AiTool, type PageResponse } from '@/api/aiTool.ts'
+import TemplateFormModal from './TemplateFormModal.vue'
+import { aiTemplateApi, type AiTemplate, type PageResponse } from '@/api/aiTemplate.ts'
 
 type QueryState = {
-  toolName?: string
-  toolKey?: string
-  type?: string
-  enableFlag?: string
+  templateTitle?: string
+  templateKey?: string
+  category?: string
+  templateType?: string
+  status?: string
 }
 
-const typeFilterOptions = [
-  { label: 'HTML', value: 'html' },
-  { label: 'Method', value: 'method' }
+const statusOptions = [
+  { label: 'Enabled', value: 'enabled' },
+  { label: 'Disabled', value: 'disabled' }
 ]
 
-const enableFilterOptions = [
-  { label: '启用', value: 'enabled' },
-  { label: '停用', value: 'disabled' }
+const templateTypeFilterOptions = [
+  { label: 'Freemarker', value: 'FREEMARKER' },
+  { label: 'StringTemplate', value: 'STRING_TEMPLATE' }
 ]
 
-const renderEnable = (f: string) => enableFilterOptions.find((x) => x.value === f)?.label ?? f
+const renderStatus = (status: string) => {
+  return statusOptions.find((x) => x.value === status)?.label ?? status
+}
 
-const preview = (raw: string | undefined) => {
+const renderTemplateType = (t: string) => {
+  return templateTypeFilterOptions.find((x) => x.value === t)?.label ?? t
+}
+
+const previewContent = (raw: string | undefined) => {
   if (!raw) return '—'
-  const t = raw.replace(/\s+/g, ' ').trim()
-  return t.length > 48 ? `${t.slice(0, 48)}…` : t
+  const one = raw.replace(/\s+/g, ' ').trim()
+  return one.length > 80 ? `${one.slice(0, 80)}…` : one
 }
 
 const columns = [
-  { title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 180, ellipsis: true },
-  { title: '名称', dataIndex: 'toolName', key: 'toolName', width: 140, ellipsis: true },
-  { title: '类型', dataIndex: 'type', key: 'type', width: 90 },
-  { title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 140, ellipsis: true },
-  { title: '方法', dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true },
-  { title: '描述', key: 'description', width: 200, ellipsis: true },
-  { title: '状态', key: 'enableFlag', width: 80 },
+  { title: 'Template Key', dataIndex: 'templateKey', key: 'templateKey', width: 160, ellipsis: true },
+  { title: '标题', dataIndex: 'templateTitle', key: 'templateTitle', width: 180, ellipsis: true },
+  { title: '分类', dataIndex: 'category', key: 'category', width: 100, ellipsis: true },
+  { title: '类型', key: 'templateType', width: 130 },
+  { title: '版本', dataIndex: 'version', key: 'version', width: 72 },
+  { title: '内容预览', key: 'content', width: 260, ellipsis: true },
+  { title: '状态', key: 'status', width: 90 },
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
 
 const query = reactive<QueryState>({})
-const list = ref<AiTool[]>([])
+const list = ref<AiTemplate[]>([])
 
 const page = reactive({
   pageNum: 1,
@@ -168,21 +184,22 @@ const modal = reactive({
   submitting: false
 })
 
-const modalInitial = ref<AiTool | null>(null)
+const modalInitial = ref<AiTemplate | null>(null)
 
 const fetchList = async () => {
   const payload = {
     pageNo: page.pageNum,
     pageSize: page.pageSize,
     param: {
-      toolName: query.toolName || undefined,
-      toolKey: query.toolKey || undefined,
-      type: query.type || undefined,
-      enableFlag: query.enableFlag || undefined
+      templateTitle: query.templateTitle || undefined,
+      templateKey: query.templateKey || undefined,
+      category: query.category || undefined,
+      templateType: query.templateType || undefined,
+      status: query.status || undefined
     }
   }
 
-  const resp: PageResponse<AiTool> = await aiToolApi.queryPage(payload)
+  const resp: PageResponse<AiTemplate> = await aiTemplateApi.queryPage(payload)
   list.value = resp.list || []
   page.total = resp.total || 0
 }
@@ -198,19 +215,19 @@ const openCreate = () => {
   modal.open = true
 }
 
-const openEdit = async (record: AiTool) => {
+const openEdit = async (record: AiTemplate) => {
   modal.mode = 'edit'
   const id = record.id
   if (id == null) return
 
-  const detail = await aiToolApi.detail(id)
+  const detail = await aiTemplateApi.detail(id)
   modalInitial.value = detail
   modal.open = true
 }
 
 const handleDeleteOne = async (id: number | string) => {
   if (id == null) return
-  const msg = await aiToolApi.delete([id])
+  const msg = await aiTemplateApi.delete([id])
   message.success(msg)
   selectedRowKeys.value = []
   void fetchList()
@@ -219,23 +236,28 @@ const handleDeleteOne = async (id: number | string) => {
 const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
-  const msg = await aiToolApi.delete(ids)
+  const msg = await aiTemplateApi.delete(ids)
   message.success(msg)
   selectedRowKeys.value = []
   void fetchList()
 }
 
-const handleFormSubmit = async (form: AiTool) => {
+const handleFormSubmit = async (form: AiTemplate) => {
   modal.submitting = true
   try {
-    const payload: AiTool = { ...form }
+    const payload: AiTemplate = { ...form }
+    const v = payload.version
+    if (v !== undefined && v !== null && v !== '') {
+      const n = Number(v)
+      payload.version = Number.isFinite(n) ? n : undefined
+    }
 
     let msg: string
     if (modal.mode === 'create') {
       delete (payload as { id?: unknown }).id
-      msg = await aiToolApi.create(payload)
+      msg = await aiTemplateApi.create(payload)
     } else {
-      msg = await aiToolApi.update(payload)
+      msg = await aiTemplateApi.update(payload)
     }
 
     message.success(msg)
@@ -253,7 +275,7 @@ void fetchList()
 </script>
 
 <style scoped>
-.tool-page {
+.template-page {
   padding: 0 4px;
 }
 
@@ -283,6 +305,10 @@ void fetchList()
   width: 200px;
 }
 
+.toolbar-input.narrow {
+  width: 140px;
+}
+
 .toolbar-select {
   width: 160px;
 }
@@ -293,7 +319,7 @@ void fetchList()
   margin-top: 16px;
 }
 
-.desc-preview {
+.content-preview {
   color: rgba(0, 0, 0, 0.45);
   font-size: 12px;
 }

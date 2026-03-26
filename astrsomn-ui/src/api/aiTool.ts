@@ -7,7 +7,9 @@ export type AiTool = {
   description?: string
   beanName?: string
   methodName?: string
+  /** html | method（与 AiToolEnum.TypeEnum 一致） */
   type?: string
+  /** enabled | disabled */
   enableFlag?: string
 }
 
@@ -21,7 +23,7 @@ export type PageResponse<T> = {
 }
 
 export const aiToolApi = {
-  queryPage: (payload: any): Promise<PageResponse<AiTool>> => {
+  queryPage: (payload: unknown): Promise<PageResponse<AiTool>> => {
     return request({
       url: '/v1/astro/ai-tool/queryPage',
       method: 'post',
@@ -33,6 +35,30 @@ export const aiToolApi = {
     return request({
       url: `/v1/astro/ai-tool/detail?id=${encodeURIComponent(String(id))}`,
       method: 'get'
+    })
+  },
+
+  create: (payload: AiTool): Promise<string> => {
+    return request({
+      url: '/v1/astro/ai-tool/create',
+      method: 'post',
+      data: payload
+    })
+  },
+
+  update: (payload: AiTool): Promise<string> => {
+    return request({
+      url: '/v1/astro/ai-tool/update',
+      method: 'post',
+      data: payload
+    })
+  },
+
+  delete: (ids: Array<number | string>): Promise<string> => {
+    const joined = ids.map((x) => String(x)).join(',')
+    return request({
+      url: `/v1/astro/ai-tool/delete/${joined}`,
+      method: 'delete'
     })
   }
 }

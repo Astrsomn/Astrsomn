@@ -70,7 +70,8 @@ import {
   BookOutlined,
   FileTextOutlined,
   UserOutlined,
-  CloudServerOutlined
+  CloudServerOutlined,
+  CodeOutlined
 } from '@ant-design/icons-vue'
 import TrafficStats from './echarts/TrafficStats.vue'
 import ModelUsageChart from './echarts/ModelUsageChart.vue'
@@ -82,7 +83,8 @@ const managementItems = [
   { key: 'mcp', label: 'AI MCP', description: '管理 MCP 服务连接与健康状态', icon: ContainerOutlined, route: '/admin/mcp' },
   { key: 'tools', label: 'AI Tools', description: '维护工具定义与调用权限', icon: ToolOutlined, route: '/admin/tools' },
   { key: 'models', label: '模型配置', description: '管理模型供应商与路由策略', icon: SettingOutlined, route: '/admin/models' },
-  { key: 'prompts', label: '提示词管理', description: '维护提示词模板与版本', icon: SafetyCertificateOutlined, route: '/admin/prompts' },
+  { key: 'prompts', label: '提示词管理', description: '维护 AI_PROMPT 系统提示词与版本', icon: SafetyCertificateOutlined, route: '/admin/prompts' },
+  { key: 'templates', label: 'FTL 模板', description: 'Freemarker / StringTemplate 模板（AI_TEMPLATE）', icon: CodeOutlined, route: '/admin/templates' },
   { key: 'kb-mgr', label: '知识库管理', description: '管理知识库空间与索引配置', icon: BookOutlined, route: '/admin/knowledge-bases' },
   { key: 'doc-mgr', label: '文档管理', description: '管理文档处理与入库任务', icon: FileTextOutlined, route: '/admin/documents' },
   { key: 'doc-mgr', label: '安全治理', description: '配置大模型敏感词', icon: FileTextOutlined, route: '/admin/documents' },

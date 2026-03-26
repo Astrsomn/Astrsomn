@@ -20,7 +20,7 @@ export type PageResponse<T> = {
 }
 
 export const aiPromptApi = {
-  queryPage: (payload: any): Promise<PageResponse<AiPrompt>> => {
+  queryPage: (payload: unknown): Promise<PageResponse<AiPrompt>> => {
     return request({
       url: '/v1/astro/ai-promopt/queryPage',
       method: 'post',
@@ -32,6 +32,30 @@ export const aiPromptApi = {
     return request({
       url: `/v1/astro/ai-promopt/detail?id=${encodeURIComponent(String(id))}`,
       method: 'get'
+    })
+  },
+
+  create: (payload: AiPrompt): Promise<string> => {
+    return request({
+      url: '/v1/astro/ai-promopt/create',
+      method: 'post',
+      data: payload
+    })
+  },
+
+  update: (payload: AiPrompt): Promise<string> => {
+    return request({
+      url: '/v1/astro/ai-promopt/update',
+      method: 'post',
+      data: payload
+    })
+  },
+
+  delete: (ids: Array<number | string>): Promise<string> => {
+    const joined = ids.map((x) => String(x)).join(',')
+    return request({
+      url: `/v1/astro/ai-promopt/delete/${joined}`,
+      method: 'delete'
     })
   }
 }
