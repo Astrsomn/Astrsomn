@@ -12,7 +12,7 @@ import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
 @Data
 @Accessors(chain = true)
 @Builder
-public class AstroChatRequest<T> {
+public class AstroChatParam<T> {
 
     // --- 1. 核心会话上下文 ---
     /**
@@ -28,7 +28,7 @@ public class AstroChatRequest<T> {
     /**
      * 选用的模型 ID
      */
-    private Long modelKey;
+    private String modelKey;
 
     /**
      * 会话记忆 ID (前端生成或后端分配)
@@ -70,8 +70,8 @@ public class AstroChatRequest<T> {
 
 
 
-    public static <T> AstroChatRequest<T> of (Class<T> serviceClass, String agentKey){
-        return AstroChatRequest.<T>builder()
+    public static <T> AstroChatParam<T> of (Class<T> serviceClass, String agentKey){
+        return AstroChatParam.<T>builder()
                 .serviceClass(serviceClass)
                 .agentKey(agentKey)
                 .build();

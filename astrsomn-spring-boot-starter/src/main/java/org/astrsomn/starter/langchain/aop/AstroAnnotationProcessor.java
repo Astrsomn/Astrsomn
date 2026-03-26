@@ -3,7 +3,7 @@ package org.astrsomn.starter.langchain.aop;
 import cn.hutool.core.bean.BeanException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.astrsomn.core.common.langchain.buildParam.AstroChatRequest;
+import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.langchain.AstroAssistantFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -25,7 +25,7 @@ public class AstroAnnotationProcessor implements BeanPostProcessor {
                 ReflectionUtils.makeAccessible(field);
                 Astro astro = field.getAnnotation(Astro.class);
                 String agentKey = resolveAgentKey(astro);
-                AstroChatRequest<?> request = AstroChatRequest.of(field.getType(), agentKey);
+                AstroChatParam<?> request = AstroChatParam.of(field.getType(), agentKey);
                 Object assistant = assistantFactory.createAssistant(request);
                 try {
                     field.set(bean, assistant);

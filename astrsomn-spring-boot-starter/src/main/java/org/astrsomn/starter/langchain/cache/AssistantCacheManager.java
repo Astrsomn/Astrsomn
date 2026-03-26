@@ -1,9 +1,7 @@
 package org.astrsomn.starter.langchain.cache;
 
-import com.google.common.cache.Cache;
 import lombok.extern.slf4j.Slf4j;
-import org.astrsomn.core.common.langchain.buildParam.AstroChatRequest;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
+import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.springframework.stereotype.Component;
 
 
@@ -14,7 +12,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -35,7 +32,7 @@ public class AssistantCacheManager {
 
 
     @SuppressWarnings("unchecked")
-    public <T> T getOrCreate(AstroChatRequest<T> param, Supplier<T> creator) {
+    public <T> T getOrCreate(AstroChatParam<T> param, Supplier<T> creator) {
         String configHash = generateConfigHash(param);
         String cacheKey = param.getMemoryKey() + ":" + configHash;
         T instance = (T) assistantCache.get(cacheKey);
@@ -52,7 +49,7 @@ public class AssistantCacheManager {
         return instance;
     }
 
-    private String generateConfigHash(AstroChatRequest<?> param) {
+    private String generateConfigHash(AstroChatParam<?> param) {
         StringBuilder sb = new StringBuilder();
         sb.append(param.getAgentKey());
         sb.append(param.getServiceClass().getName());

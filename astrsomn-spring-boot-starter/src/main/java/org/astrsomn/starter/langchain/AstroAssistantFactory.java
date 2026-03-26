@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.tool.ToolProvider;
-import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.entity.AiAgentEntity;
@@ -28,7 +27,6 @@ import org.astrsomn.starter.langchain.memory.DynamicMemoryProvider;
 
 import org.astrsomn.starter.langchain.tool.local.DynamicToolProvider;
 import org.astrsomn.starter.langchain.tool.UnionToolProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.astrsomn.core.common.langchain.buildParam.*;
 import org.springframework.stereotype.Service;
@@ -56,7 +54,7 @@ public class AstroAssistantFactory {
     private final AssistantCacheManager cacheManager;
 
 
-    public <T> T createAssistant(AstroChatRequest<T> param) {
+    public <T> T createAssistant(AstroChatParam<T> param) {
 
         buildParam(param);
 
@@ -74,7 +72,7 @@ public class AstroAssistantFactory {
     }
 
 
-    private <T> void buildParam(AstroChatRequest<T> param) {
+    private <T> void buildParam(AstroChatParam<T> param) {
         if (StringUtils.isBlank(param.getUserMessage())) {
             throw new RuntimeException("用户消息不能为空");
         }
@@ -105,7 +103,7 @@ public class AstroAssistantFactory {
     }
 
 
-    private <T> void configureComponents(AiServices<T> builder, AstroChatRequest<T> param) {
+    private <T> void configureComponents(AiServices<T> builder, AstroChatParam<T> param) {
 
         if (param.getMaxHistoryMessages() > 0) {
             builder.chatMemoryProvider(new DynamicMemoryProvider(chatMemoryManager, param.getMaxHistoryMessages()));
