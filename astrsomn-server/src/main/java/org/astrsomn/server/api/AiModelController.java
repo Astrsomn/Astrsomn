@@ -1,6 +1,7 @@
 package org.astrsomn.server.api;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.base.BaseController;
 import org.astrsomn.core.common.dto.model.AiModelCreateRequestDTO;
 import org.astrsomn.core.common.dto.model.AiModelQueryRequestDTO;
@@ -12,6 +13,7 @@ import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 
+@Slf4j
 @RestController
 @RequestMapping("/v1/astro/ai-model")
 @RequiredArgsConstructor
@@ -22,12 +24,12 @@ public class AiModelController extends BaseController {
 
     @DeleteMapping("/delete/{ids}")
     public BaseResponse<String> delete(@PathVariable("ids") String ids) {
-        System.out.println("接收删除ID参数: " + ids);
+        log.debug("delete ai-model ids={}", ids);
         try {
             long[] longIds = parseLongIds(ids, ",");
             return aiModelService.delete(longIds);
         } catch (NumberFormatException e) {
-            System.out.println("ID转换失败: " + e.getMessage());
+            log.warn("delete ai-model: invalid id format, ids={}", ids, e);
             return BaseResponse.fail("ID格式错误", null);
         }
     }
@@ -41,13 +43,12 @@ public class AiModelController extends BaseController {
 
     @GetMapping("/detail")
     public BaseResponse<AiModelResponseDTO> detail(@RequestParam("id") String id) {
-        System.out.println("接收详情ID参数: " + id);
+        log.debug("detail ai-model id={}", id);
         try {
             Long longId = Long.parseLong(id);
-            System.out.println("转换后Long ID: " + longId);
             return aiModelService.detail(longId);
         } catch (NumberFormatException e) {
-            System.out.println("ID转换失败: " + e.getMessage());
+            log.warn("detail ai-model: invalid id, id={}", id, e);
             return BaseResponse.fail("ID格式错误", null);
         }
     }

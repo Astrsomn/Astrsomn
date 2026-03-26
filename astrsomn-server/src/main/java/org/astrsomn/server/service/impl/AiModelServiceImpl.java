@@ -3,6 +3,7 @@ package org.astrsomn.server.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
@@ -25,17 +26,12 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity> implements AiModelService {
 
     private final AiModelKeyGenerator aiModelKeyGenerator;
     private final AstrsomnProperties astrsomnProperties;
 
-    public AiModelServiceImpl(AiModelMapper baseMapper, AiModelKeyGenerator aiModelKeyGenerator,
-                              AstrsomnProperties astrsomnProperties) {
-        this.baseMapper = baseMapper;
-        this.aiModelKeyGenerator = aiModelKeyGenerator;
-        this.astrsomnProperties = astrsomnProperties;
-    }
 
     @Override
     public BaseResponse<String> delete(long[] longIds) {
