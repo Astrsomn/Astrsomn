@@ -24,7 +24,10 @@ export type AiAgent = {
   topK?: number
   enableStream?: boolean
   interfaceClass?: string
-  // queryPage xml has extra aliases (modelName/toolNames/mcpNames) but we don't rely on them here
+  /** queryPage 联表/子查询别名 */
+  modelName?: string
+  toolNames?: string
+  mcpNames?: string
 }
 
 export type PageResponse<T> = {

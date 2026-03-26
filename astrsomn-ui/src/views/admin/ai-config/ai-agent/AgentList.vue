@@ -43,6 +43,7 @@
         :pagination="false"
         row-key="id"
         :row-selection="rowSelection"
+        :scroll="{ x: 1200 }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'status'">
@@ -76,71 +77,13 @@
         />
       </div>
 
-      <a-modal
+      <AgentFormModal
         v-model:open="modal.open"
-        :title="modal.mode === 'create' ? '新增 Agent' : '编辑 Agent'"
-        width="860px"
-        @ok="handleSubmit"
-        @cancel="closeModal"
+        :mode="modal.mode"
         :confirm-loading="modal.submitting"
-      >
-        <a-form
-          ref="formRef"
-          :model="form"
-          :rules="rules"
-          layout="vertical"
-        >
-          <div class="form-grid">
-            <a-form-item label="Agent 名称" name="agentName">
-              <a-input v-model:value="form.agentName" placeholder="例如：General Assistant" />
-            </a-form-item>
-
-            <a-form-item label="Agent Key" name="agentKey">
-              <a-input v-model:value="form.agentKey" placeholder="例如：general" />
-            </a-form-item>
-
-            <a-form-item label="默认模型 Key" name="modelKey">
-              <a-input v-model:value="form.modelKey" placeholder="例如：1" />
-            </a-form-item>
-
-            <a-form-item label="Prompt Key" name="promptKey">
-              <a-input v-model:value="form.promptKey" placeholder="例如：prompt-uuid" />
-            </a-form-item>
-
-            <a-form-item label="状态" name="status">
-              <a-select v-model:value="form.status" :options="statusOptions" />
-            </a-form-item>
-
-            <a-form-item label="记忆模式" name="memoryMode">
-              <a-select v-model:value="form.memoryMode" :options="memoryModeOptions" />
-            </a-form-item>
-
-            <a-form-item label="记忆窗口大小" name="memoryWindowSize">
-              <a-input v-model:value="form.memoryWindowSize" placeholder="例如：10" />
-            </a-form-item>
-
-            <a-form-item label="是否启用流式输出" name="enableStream">
-              <a-switch :checked="form.enableStream" @change="(v) => (form.enableStream = v)" />
-            </a-form-item>
-
-            <a-form-item label="描述" name="description" class="span-2">
-              <a-textarea
-                v-model:value="form.description"
-                :auto-size="{ minRows: 2, maxRows: 5 }"
-                placeholder="简要描述 Agent 的用途与能力"
-              />
-            </a-form-item>
-
-            <a-form-item label="Config Params（JSON 字符串）" name="configParams" class="span-2">
-              <a-textarea
-                v-model:value="form.configParams"
-                :auto-size="{ minRows: 3, maxRows: 7 }"
-                placeholder='例如：{"temperature":0.7,"max_tokens":2048}'
-              />
-            </a-form-item>
-          </div>
-        </a-form>
-      </a-modal>
+        :initial="modalInitial"
+        @submit="handleFormSubmit"
+      />
     </div>
   </AdminPageShell>
 </template>
@@ -148,8 +91,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import type { FormInstance } from 'ant-design-vue'
 import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
+import AgentFormModal from './AgentFormModal.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
 
 type QueryState = {
@@ -162,25 +105,22 @@ const statusOptions = [
   { label: 'Disabled', value: 'disabled' }
 ]
 
-const memoryModeOptions = [
-  { label: 'Short Term', value: 'shortTerm' },
-  { label: 'Long Term', value: 'longTerm' },
-  { label: 'Hybrid', value: 'hybrid' }
-]
-
 const renderStatus = (status: string) => {
   return statusOptions.find((x) => x.value === status)?.label ?? status
 }
 
 const columns = [
-  { title: 'Agent 名称', dataIndex: 'agentName', key: 'agentName' },
-  { title: 'Agent Key', dataIndex: 'agentKey', key: 'agentKey' },
-  { title: '默认模型 Key', dataIndex: 'modelKey', key: 'modelKey' },
-  { title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey' },
-  { title: '记忆模式', dataIndex: 'memoryMode', key: 'memoryMode' },
-  { title: '状态', key: 'status' },
-  { title: '流式输出', key: 'enableStream' },
-  { title: '操作', key: 'actions' }
+  { title: 'Agent 名称', dataIndex: 'agentName', key: 'agentName', width: 160, ellipsis: true },
+  { title: 'Agent Key', dataIndex: 'agentKey', key: 'agentKey', width: 140, ellipsis: true },
+  { title: '模型', dataIndex: 'modelName', key: 'modelName', width: 160, ellipsis: true },
+  { title: '模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 80 },
+  { title: 'Temperature', dataIndex: 'temperature', key: 'temperature', width: 100 },
+  { title: 'Max Tokens', dataIndex: 'maxTokens', key: 'maxTokens', width: 100 },
+  { title: '记忆模式', dataIndex: 'memoryMode', key: 'memoryMode', width: 120, ellipsis: true },
+  { title: '工具 Keys', dataIndex: 'toolKeys', key: 'toolKeys', width: 140, ellipsis: true },
+  { title: '状态', key: 'status', width: 90 },
+  { title: '流式', key: 'enableStream', width: 72 },
+  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
 
 const query = reactive<QueryState>({})
@@ -207,51 +147,13 @@ const modal = reactive({
   submitting: false
 })
 
-const formRef = ref<FormInstance | null>(null)
-
-const form = reactive<AiAgent>({
-  agentName: '',
-  agentKey: '',
-  description: '',
-  modelKey: undefined,
-  promptKey: '',
-  configParams: '',
-  status: 'enabled',
-  memoryMode: 'hybrid',
-  memoryWindowSize: '',
-  enableStream: false
-})
-
-const resetForm = () => {
-  Object.assign(form, {
-    id: undefined,
-    agentName: '',
-    agentKey: '',
-    description: '',
-    modelKey: undefined,
-    promptKey: '',
-    configParams: '',
-    status: 'enabled',
-    memoryMode: 'hybrid',
-    memoryWindowSize: '',
-    enableStream: false
-  })
-}
-
-const rules = {
-  agentName: [{ required: true, message: '请输入 Agent 名称' }],
-  agentKey: [{ required: true, message: '请输入 Agent Key' }],
-  modelKey: [{ required: true, message: '请输入默认模型 Key' }],
-  promptKey: [{ required: true, message: '请输入 Prompt Key' }],
-  status: [{ required: true, message: '请选择状态' }]
-}
+const modalInitial = ref<AiAgent | null>(null)
 
 const fetchList = async () => {
   const payload = {
     pageNo: page.pageNum,
     pageSize: page.pageSize,
     param: {
-      // AiAgentMapper.xml 里用的是 req.name / req.status
       name: query.agentName || undefined,
       status: query.status || undefined
     }
@@ -269,23 +171,18 @@ const onPageChange = (p: number) => {
 
 const openCreate = () => {
   modal.mode = 'create'
-  resetForm()
+  modalInitial.value = null
   modal.open = true
 }
 
 const openEdit = async (record: AiAgent) => {
   modal.mode = 'edit'
-  resetForm()
   const id = record.id
   if (id == null) return
 
   const detail = await aiAgentApi.detail(id)
-  Object.assign(form, detail)
+  modalInitial.value = detail
   modal.open = true
-}
-
-const closeModal = () => {
-  modal.open = false
 }
 
 const handleDeleteOne = async (id: number | string) => {
@@ -305,13 +202,10 @@ const handleBatchDelete = async () => {
   void fetchList()
 }
 
-const handleSubmit = async () => {
-  if (!formRef.value) return
-  await formRef.value.validate()
-
+const handleFormSubmit = async (form: AiAgent) => {
   modal.submitting = true
   try {
-    const toNumberOrUndefined = (v: any) => {
+    const toNumberOrUndefined = (v: unknown) => {
       if (v === '' || v === undefined || v === null) return undefined
       const n = Number(v)
       return Number.isFinite(n) ? n : undefined
@@ -330,8 +224,9 @@ const handleSubmit = async () => {
     message.success(msg)
     modal.open = false
     void fetchList()
-  } catch (e: any) {
-    message.error(e?.message || '保存失败')
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '保存失败')
   } finally {
     modal.submitting = false
   }
@@ -379,24 +274,5 @@ void fetchList()
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 16px;
-}
-
-.span-2 {
-  grid-column: span 2;
-}
-
-@media (max-width: 1024px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  .span-2 {
-    grid-column: auto;
-  }
 }
 </style>
