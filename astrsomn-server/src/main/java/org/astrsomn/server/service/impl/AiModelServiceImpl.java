@@ -19,6 +19,7 @@ import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiModelService;
 import org.astrsomn.server.service.support.AiModelKeyGenerator;
 import org.astrsomn.starter.config.AstrsomnProperties;
+import org.astrsomn.starter.context.EnvRuntime;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         AiModelEntity entity = new AiModelEntity();
         BeanUtils.copyProperties(request, entity);
         if (StringUtils.isBlank(entity.getEnvCode())) {
-            entity.setEnvCode(astrsomnProperties.getEnvCode());
+            entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
         aiModelKeyGenerator.assignIfBlank(entity);
         boolean result = updateById(entity);
@@ -126,7 +127,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         AiModelEntity entity = new AiModelEntity();
         BeanUtils.copyProperties(request, entity);
         if (StringUtils.isBlank(entity.getEnvCode())) {
-            entity.setEnvCode(astrsomnProperties.getEnvCode());
+            entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
         aiModelKeyGenerator.assignIfBlank(entity);
         boolean result = save(entity);

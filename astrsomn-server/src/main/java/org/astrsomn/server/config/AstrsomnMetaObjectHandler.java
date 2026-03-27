@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.reflection.MetaObject;
 import org.astrsomn.server.util.UserContext;
 import org.astrsomn.starter.config.AstrsomnProperties;
+import org.astrsomn.starter.context.EnvRuntime;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -57,7 +58,6 @@ public class AstrsomnMetaObjectHandler implements MetaObjectHandler {
     }
 
     private String resolveEnv() {
-        String env = StringUtils.trimToNull(astrsomnProperties.getEnvCode());
-        return env != null ? env : "default";
+        return EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties);
     }
 }

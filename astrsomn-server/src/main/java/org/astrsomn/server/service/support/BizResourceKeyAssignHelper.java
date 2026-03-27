@@ -13,6 +13,7 @@ import org.astrsomn.core.mapper.AiMcpMapper;
 import org.astrsomn.core.mapper.AiPromptMapper;
 import org.astrsomn.core.mapper.AiToolMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
+import org.astrsomn.starter.context.EnvRuntime;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,7 +37,7 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), astrsomnProperties.getEnvCode());
+        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
         String name = StringUtils.defaultIfBlank(entity.getAgentName(), "agent");
         entity.setAgentKey(
@@ -59,7 +60,7 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), astrsomnProperties.getEnvCode());
+        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
         String name = StringUtils.defaultIfBlank(entity.getPromptTitle(), "prompt");
         entity.setPromptKey(
@@ -82,7 +83,7 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), astrsomnProperties.getEnvCode());
+        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
         String name = StringUtils.defaultIfBlank(entity.getToolName(), "tool");
         entity.setToolKey(
@@ -105,7 +106,7 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), astrsomnProperties.getEnvCode());
+        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
         String name = StringUtils.defaultIfBlank(entity.getServerName(), "mcp");
         entity.setMcpKey(
@@ -123,7 +124,7 @@ public class BizResourceKeyAssignHelper {
 
     private void fillEnv(BaseEntity<?> entity) {
         if (StringUtils.isBlank(entity.getEnvCode())) {
-            entity.setEnvCode(astrsomnProperties.getEnvCode());
+            entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
     }
 }

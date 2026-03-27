@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
+import org.astrsomn.starter.context.EnvRuntime;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,7 +29,7 @@ public class AiModelKeyGenerator {
             entity.setModelKey(trimmed);
             return;
         }
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), astrsomnProperties.getEnvCode());
+        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
         entity.setModelKey(
                 bizResourceKeyGenerator.generateUniqueModelKey(

@@ -45,7 +45,7 @@ const visible = defineModel<boolean>('open', { required: true })
 
 const props = defineProps<{
   kind: PickKind
-  /** 单选：模型为行 id；提示词为 promptKey */
+  /** 单选：模型为 modelKey（业务键，与 AI_MODEL.MODEL_KEY 一致）；提示词为 promptKey */
   initialSingle?: number | string | null
   /** 多选：已选 toolKey / mcpKey */
   initialKeys?: string[]
@@ -54,7 +54,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   confirm: [
     payload:
-      | { kind: 'model'; id: number; modelName?: string; modelKey?: string }
+      | { kind: 'model'; modelName?: string; modelKey?: string }
       | { kind: 'prompt'; promptKey: string; promptTitle?: string }
       | { kind: 'tool'; keys: string[] }
       | { kind: 'mcp'; keys: string[] }
@@ -171,6 +171,7 @@ async function fetchList() {
       const resp = await aiModelApi.queryPage(base)
       list.value = resp.list || []
       page.total = resp.total || 0
+      syncModelSelectionFromInitial()
     } else if (props.kind === 'prompt') {
       base.param = { promptTitle: kw || undefined }
       const resp = await aiPromptApi.queryPage(base)
@@ -202,10 +203,24 @@ function reload() {
   void fetchList()
 }
 
+/** 模型表格 row-key 为 id，初始值 initialSingle 为已保存的 modelKey（或兼容旧数据 id） */
+function syncModelSelectionFromInitial() {
+  if (props.kind !== 'model') return
+  const init = props.initialSingle
+  if (init == null || init === '') {
+    selectedRowKeys.value = []
+    return
+  }
+  const s = String(init)
+  const row =
+    list.value.find((r) => r.modelKey != null && String(r.modelKey) === s) ||
+    list.value.find((r) => String(r.id) === s)
+  selectedRowKeys.value = row?.id != null ? [row.id] : []
+}
+
 function syncSelectionFromInitial() {
   if (props.kind === 'model') {
-    const id = props.initialSingle
-    selectedRowKeys.value = id != null && id !== '' ? [id as number | string] : []
+    syncModelSelectionFromInitial()
   } else if (props.kind === 'prompt') {
     const pk = props.initialSingle
     selectedRowKeys.value = pk != null && pk !== '' ? [String(pk)] : []
@@ -233,11 +248,14 @@ function handleConfirm() {
       return
     }
     const row = list.value.find((r) => String(r.id) === String(id)) as AiModel | undefined
+    if (!row?.modelKey || String(row.modelKey).trim() === '') {
+      message.warning('所选模型缺少 Model Key，请先在模型管理中配置')
+      return
+    }
     emit('confirm', {
       kind: 'model',
-      id: Number(id),
-      modelName: row?.modelName,
-      modelKey: row?.modelKey != null ? String(row.modelKey) : undefined
+      modelName: row.modelName,
+      modelKey: String(row.modelKey).trim()
     })
     visible.value = false
     return

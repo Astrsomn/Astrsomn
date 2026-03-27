@@ -6,6 +6,7 @@
       :pageTitle="pageTitle"
       :showDoc="true"
       :showSwitch="true"
+      :show-workspace-env="true"
       switchTarget="chat"
     />
 

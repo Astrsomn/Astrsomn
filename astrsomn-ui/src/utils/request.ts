@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosResponse } from 'axios'
+import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
 
 const instance: AxiosInstance = axios.create({
   // 后端接口是完整前缀，如 /v1/astro/auth/...
@@ -15,6 +16,10 @@ instance.interceptors.request.use(
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+      const ws = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY)
+      if (ws != null && String(ws).trim() !== '') {
+        config.headers[WORKSPACE_ENV_HEADER] = String(ws).trim()
+      }
     }
     return config
   },

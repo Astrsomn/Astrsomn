@@ -24,8 +24,10 @@ export type AiAgent = {
   topK?: number
   enableStream?: boolean
   interfaceClass?: string
-  /** queryPage 联表/子查询别名 */
+  /** queryPage 联表：AI_MODEL */
   modelName?: string
+  /** queryPage 联表：AI_PROMPT 当前版本标题 */
+  promptTitle?: string
   toolNames?: string
   mcpNames?: string
 }

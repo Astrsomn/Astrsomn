@@ -53,9 +53,13 @@
             </a-form-item>
 
             <a-form-item label="模型类型" name="modelType">
-              <a-radio-group v-model:value="form.modelType" button-style="solid" class="full-width-radio">
-                <a-radio-button value="chat">对话 (Chat)</a-radio-button>
-                <a-radio-button value="embedding">向量 (Embedding)</a-radio-button>
+              <a-radio-group 
+                v-model:value="form.modelType" 
+                button-style="solid" 
+                class="model-type-radio-group"
+              >
+                <a-radio-button value="chat">对话</a-radio-button>
+                <a-radio-button value="embedding">向量</a-radio-button>
               </a-radio-group>
             </a-form-item>
 

@@ -39,11 +39,15 @@
         <a-select v-model:value="form.userRole" :options="roleOptions" />
       </a-form-item>
 
-      <a-form-item label="归属环境编码" name="envCode">
-        <a-input
+      <a-form-item label="归属环境" name="envCode">
+        <a-select
           v-model:value="form.envCode"
-          placeholder="与 astrsomn.env-code 一致，如 pro；超级管理员可留空或填默认"
+          :options="envOptions"
+          :loading="envLoading"
+          placeholder="请选择环境（与 SYSTEM_ENV 一致）"
           allow-clear
+          show-search
+          :filter-option="filterEnvOption"
         />
       </a-form-item>
 
@@ -61,6 +65,7 @@
 import { reactive, ref, watch } from 'vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { SystemUser } from '@/api/systemUser.ts'
+import { systemEnvApi, type SystemEnv } from '@/api/systemEnv.ts'
 
 const props = defineProps<{
   mode: 'create' | 'edit'
@@ -81,6 +86,40 @@ const roleOptions = [
   { label: '环境管理员', value: 'ENV_ADMIN' },
   { label: '普通用户', value: 'USER' }
 ]
+
+const envLoading = ref(false)
+const envOptions = ref<Array<{ label: string; value: string }>>([])
+
+function filterEnvOption(input: string, option: { label?: string; value?: string }) {
+  const q = String(input || '').toLowerCase()
+  const label = String(option?.label || '').toLowerCase()
+  const value = String(option?.value || '').toLowerCase()
+  return label.includes(q) || value.includes(q)
+}
+
+async function loadEnvOptions() {
+  envLoading.value = true
+  try {
+    const resp = await systemEnvApi.queryPage({
+      pageNo: 1,
+      pageSize: 500,
+      param: {}
+    })
+    const list: SystemEnv[] = resp.list || []
+    envOptions.value = list
+      .filter((row) => row.envKey != null && String(row.envKey).trim() !== '')
+      .map((row) => ({
+        value: String(row.envKey).trim(),
+        label: row.envName
+          ? `${row.envName}（${row.envKey}）`
+          : String(row.envKey)
+      }))
+  } catch {
+    envOptions.value = []
+  } finally {
+    envLoading.value = false
+  }
+}
 
 function emptyForm(): SystemUser {
   return {
@@ -122,6 +161,7 @@ watch(
   () => [open.value, props.initial] as const,
   ([isOpen, initial]) => {
     if (!isOpen) return
+    void loadEnvOptions()
     if (initial && Object.keys(initial).length > 0) {
       assignFromInitial(initial)
     } else {

@@ -54,9 +54,6 @@
             <a-form-item label="运行状态" name="status">
               <a-segmented v-model:value="form.status" :options="statusOptions" block size="large" />
             </a-form-item>
-            <a-form-item label="LangChain 接口类 (可选)" name="interfaceClass">
-              <a-input v-model:value="form.interfaceClass" placeholder="com.astro.InternalAgent" />
-            </a-form-item>
             <a-form-item label="职能描述" name="description" class="span-2">
               <a-textarea v-model:value="form.description" :auto-size="{ minRows: 3, maxRows: 5 }" placeholder="详述该 Agent 的应用场景和核心能力..." />
             </a-form-item>
@@ -247,7 +244,11 @@ function parseJsonKeys(raw: any) {
   try { return typeof raw === 'string' ? JSON.parse(raw) : raw } catch { return String(raw).split(',').filter(Boolean) }
 }
 
-const modelDisplayText = computed(() => form.modelName ? `${form.modelName}` : (form.modelKey ? `ID: ${form.modelKey}` : ''))
+const modelDisplayText = computed(() => {
+  if (form.modelName) return form.modelName
+  if (form.modelKey != null && form.modelKey !== '') return String(form.modelKey)
+  return ''
+})
 const promptDisplayText = computed(() => promptTitleCache.value || form.promptKey)
 
 const goToStep = (i: number) => { if (i < currentStep.value || form.agentName) currentStep.value = i }
@@ -262,7 +263,11 @@ function removeKey(which: 'tool' | 'mcp', key: string) {
 }
 
 function onResourceConfirm(payload: any) {
-  if (payload.kind === 'model') { form.modelKey = payload.id; form.modelName = payload.modelName }
+  if (payload.kind === 'model') {
+    const mk = payload.modelKey != null && String(payload.modelKey).trim() !== '' ? String(payload.modelKey).trim() : undefined
+    form.modelKey = mk
+    form.modelName = payload.modelName
+  }
   if (payload.kind === 'prompt') { form.promptKey = payload.promptKey; promptTitleCache.value = payload.promptTitle }
   if (payload.kind === 'tool') form.toolKeys = JSON.stringify(payload.keys)
   if (payload.kind === 'mcp') form.mcpKeys = JSON.stringify(payload.keys)

@@ -7,10 +7,16 @@ import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.server.dto.request.LoginRequest;
 import org.astrsomn.server.dto.request.RefreshTokenRequest;
 import org.astrsomn.server.dto.response.LoginResponse;
+import org.astrsomn.core.common.constant.SystemUserEnum.UserRoleEnum;
 import org.astrsomn.server.service.AuthService;
 import org.astrsomn.server.util.UserContext;
+import org.astrsomn.starter.config.AstrsomnProperties;
+import org.astrsomn.starter.context.EnvRuntime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Slf4j
 
@@ -20,6 +26,9 @@ public class AstroAuthController extends BaseController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private AstrsomnProperties astrsomnProperties;
 
 
     @PostMapping("/login")
@@ -70,5 +79,19 @@ public class AstroAuthController extends BaseController {
         }
 
         return success(response);
+    }
+
+    /**
+     * 当前请求生效的数据环境（与租户/写入填充一致）。超级管理员可通过请求头切换工作空间。
+     */
+    @GetMapping("/workspace-env")
+    public BaseResponse<Map<String, Object>> workspaceEnv() {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("effectiveEnvCode", EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
+        String role = UserContext.getUserRole();
+        m.put("canSwitchWorkspace", UserRoleEnum.canManagePlatformUsers(role));
+        Object ue = UserContext.get("envCode");
+        m.put("userEnvCode", ue != null ? String.valueOf(ue) : null);
+        return success(m);
     }
 }

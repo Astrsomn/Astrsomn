@@ -23,6 +23,43 @@
       </div>
 
       <div class="header-right">
+        <div
+          v-if="showWorkspaceEnv && isLoggedIn"
+          class="workspace-env-wrap"
+        >
+          <div class="workspace-env-inner">
+            <cloud-server-outlined class="env-icon" title="数据环境" />
+            <a-spin v-if="workspaceLoading" size="small" />
+            <template v-else-if="workspaceContext">
+              <a-dropdown
+                v-if="workspaceContext.canSwitchWorkspace && envPickOptions.length > 0"
+                :trigger="['click']"
+                placement="bottomRight"
+                :get-popup-container="popupToBody"
+              >
+                <button type="button" class="env-dropdown-trigger">
+                  <span class="env-dropdown-label">{{ currentEnvDisplay }}</span>
+                  <down-outlined class="env-dropdown-caret" />
+                </button>
+                <template #overlay>
+                  <a-menu
+                    class="env-menu"
+                    :selected-keys="[workspaceContext.effectiveEnvCode]"
+                    @click="onEnvMenuPick"
+                  >
+                    <a-menu-item v-for="o in envPickOptions" :key="o.value">
+                      {{ o.label }}
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+              </a-dropdown>
+              <span v-else class="workspace-env-readonly" :title="workspaceContext.effectiveEnvCode">
+                {{ workspaceContext.effectiveEnvCode }}
+              </span>
+            </template>
+          </div>
+        </div>
+
         <button 
           v-if="showSwitch" 
           class="toc-switch-btn" 
@@ -50,12 +87,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router';
-import { ArrowLeftOutlined, SwapOutlined } from '@ant-design/icons-vue';
+import { ArrowLeftOutlined, CloudServerOutlined, DownOutlined, SwapOutlined } from '@ant-design/icons-vue';
 import logoUrl from '@/assets/Astrsomn-logo.png';
 import DocLangTheme from '@/views/admin/components/DocLangTheme.vue';
 import UserProfile from '@/views/admin/components/UserProfile.vue';
+import { getWorkspaceEnv, type WorkspaceEnvContext } from '@/api/auth';
+import { systemEnvApi } from '@/api/systemEnv';
+import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv';
 
 interface Props {
   showBrand?: boolean;
@@ -65,6 +105,8 @@ interface Props {
   showDoc?: boolean;
   showSwitch?: boolean;
   switchTarget?: 'chat' | 'admin';
+  /** 管理后台：展示当前数据环境 / 超级管理员可切换 */
+  showWorkspaceEnv?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -75,6 +117,7 @@ const props = withDefaults(defineProps<Props>(), {
   showDoc: false,
   showSwitch: false,
   switchTarget: 'chat',
+  showWorkspaceEnv: false,
 });
 
 const router = useRouter();
@@ -83,6 +126,83 @@ const isClicking = ref(false);
 
 const isLoggedIn = computed(() => !!localStorage.getItem('token'));
 const switchText = computed(() => props.switchTarget === 'chat' ? '去聊天' : '去后台');
+
+const workspaceLoading = ref(false);
+const workspaceContext = ref<WorkspaceEnvContext | null>(null);
+const envPickOptions = ref<Array<{ label: string; value: string }>>([]);
+
+/** 挂到 body，避免顶栏 overflow 裁切下拉层 */
+function popupToBody() {
+  return document.body;
+}
+
+const currentEnvDisplay = computed(() => {
+  const ctx = workspaceContext.value;
+  if (!ctx) return '';
+  const code = ctx.effectiveEnvCode;
+  const opt = envPickOptions.value.find((o) => o.value === code);
+  return opt?.label ?? code;
+});
+
+async function loadWorkspaceContext() {
+  if (!props.showWorkspaceEnv || !localStorage.getItem('token')) {
+    workspaceContext.value = null;
+    envPickOptions.value = [];
+    return;
+  }
+  workspaceLoading.value = true;
+  try {
+    const w = await getWorkspaceEnv();
+    workspaceContext.value = w;
+
+    if (w.canSwitchWorkspace) {
+      try {
+        const resp = await systemEnvApi.queryPage({
+          pageNo: 1,
+          pageSize: 200,
+          param: {}
+        });
+        envPickOptions.value = (resp.list || [])
+          .filter((row) => row.envKey != null && String(row.envKey).trim() !== '')
+          .map((row) => {
+            const key = String(row.envKey).trim();
+            return {
+              value: key,
+              label: row.envName ? `${row.envName}（${key}）` : key
+            };
+          });
+      } catch {
+        envPickOptions.value = [];
+      }
+    } else {
+      envPickOptions.value = [];
+    }
+  } catch {
+    workspaceContext.value = null;
+    envPickOptions.value = [];
+  } finally {
+    workspaceLoading.value = false;
+  }
+}
+
+function onEnvMenuPick(info: { key: string | number }) {
+  const key = String(info.key).trim();
+  if (!key || !workspaceContext.value?.canSwitchWorkspace) return;
+  if (key === workspaceContext.value.effectiveEnvCode) return;
+  localStorage.setItem(WORKSPACE_ENV_STORAGE_KEY, key);
+  window.location.reload();
+}
+
+onMounted(() => {
+  void loadWorkspaceContext();
+});
+
+watch(
+  () => [props.showWorkspaceEnv, isLoggedIn.value] as const,
+  () => {
+    void loadWorkspaceContext();
+  }
+);
 
 const handleSwitch = () => {
   isClicking.value = true;
@@ -213,6 +333,71 @@ const handleLogin = () => {
   display: flex;
   align-items: center;
   gap: 20px;
+}
+
+.workspace-env-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.workspace-env-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(0, 97, 255, 0.08) 0%, rgba(124, 58, 237, 0.06) 100%);
+  border: 1px solid var(--border-subtle);
+  min-height: 36px;
+}
+
+.workspace-env-inner .env-icon {
+  font-size: 16px;
+  color: var(--primary, #0061ff);
+  flex-shrink: 0;
+}
+
+.env-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 240px;
+  padding: 2px 4px 2px 2px;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-heading);
+  font: inherit;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.env-dropdown-trigger:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.env-dropdown-label {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.env-dropdown-caret {
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.workspace-env-readonly {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--text-heading);
+  padding: 0 4px;
 }
 
 .toc-switch-btn {

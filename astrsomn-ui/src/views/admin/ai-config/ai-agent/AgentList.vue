@@ -9,7 +9,7 @@
         <div class="toolbar-left">
           <a-input
             v-model:value="query.agentName"
-            placeholder="Agent 名称（可选）"
+            placeholder="名称（可选）"
             class="toolbar-input"
             allow-clear
           />
@@ -43,10 +43,22 @@
         :pagination="false"
         row-key="id"
         :row-selection="rowSelection"
-        :scroll="{ x: 1200 }"
+        :scroll="{ x: 980 }"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'status'">
+          <template v-if="column.key === 'modelCell'">
+            <div class="cell-stack">
+              <div class="line-main">{{ displayLine(record.modelName) }}</div>
+              <div class="line-sub">{{ displayLine(record.modelKey) }}</div>
+            </div>
+          </template>
+          <template v-else-if="column.key === 'promptCell'">
+            <div class="cell-stack">
+              <div class="line-main">{{ displayLine(record.promptTitle) }}</div>
+              <div class="line-sub">{{ displayLine(record.promptKey) }}</div>
+            </div>
+          </template>
+          <template v-else-if="column.key === 'status'">
             <span>{{ renderStatus(String(record.status || '')) }}</span>
           </template>
           <template v-else-if="column.key === 'enableStream'">
@@ -101,26 +113,29 @@ type QueryState = {
 }
 
 const statusOptions = [
-  { label: 'Enabled', value: 'enabled' },
-  { label: 'Disabled', value: 'disabled' }
+  { label: '启用', value: 'enabled' },
+  { label: '停用', value: 'disabled' }
 ]
 
 const renderStatus = (status: string) => {
   return statusOptions.find((x) => x.value === status)?.label ?? status
 }
 
+/** 列表展示：空值统一为 em dash */
+function displayLine(v: unknown) {
+  if (v == null) return '—'
+  const t = String(v).trim()
+  return t ? t : '—'
+}
+
 const columns = [
-  { title: 'Agent 名称', dataIndex: 'agentName', key: 'agentName', width: 160, ellipsis: true },
-  { title: 'Agent Key', dataIndex: 'agentKey', key: 'agentKey', width: 140, ellipsis: true },
-  { title: '模型', dataIndex: 'modelName', key: 'modelName', width: 160, ellipsis: true },
-  { title: '模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 80 },
-  { title: 'Temperature', dataIndex: 'temperature', key: 'temperature', width: 100 },
-  { title: 'Max Tokens', dataIndex: 'maxTokens', key: 'maxTokens', width: 100 },
-  { title: '记忆模式', dataIndex: 'memoryMode', key: 'memoryMode', width: 120, ellipsis: true },
-  { title: '工具 Keys', dataIndex: 'toolKeys', key: 'toolKeys', width: 140, ellipsis: true },
-  { title: '状态', key: 'status', width: 90 },
-  { title: '流式', key: 'enableStream', width: 72 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  { title: '名称', dataIndex: 'agentName', key: 'agentName', width: 168, ellipsis: true },
+  { title: '标识', dataIndex: 'agentKey', key: 'agentKey', width: 140, ellipsis: true },
+  { title: '模型', key: 'modelCell', width: 200, ellipsis: true },
+  { title: '提示词', key: 'promptCell', width: 220, ellipsis: true },
+  { title: '状态', key: 'status', width: 72 },
+  { title: '流式', key: 'enableStream', width: 56 },
+  { title: '操作', key: 'actions', width: 148, fixed: 'right' as const }
 ]
 
 const query = reactive<QueryState>({})
@@ -205,14 +220,11 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: AiAgent) => {
   modal.submitting = true
   try {
-    const toNumberOrUndefined = (v: unknown) => {
-      if (v === '' || v === undefined || v === null) return undefined
-      const n = Number(v)
-      return Number.isFinite(n) ? n : undefined
-    }
-
     const payload: AiAgent = { ...form }
-    payload.modelKey = toNumberOrUndefined(payload.modelKey)
+    // modelKey 为业务字符串（AI_MODEL.MODEL_KEY），不可做 Number()，否则如 qwen-max 会丢失
+    const mk = payload.modelKey
+    payload.modelKey =
+      mk != null && String(mk).trim() !== '' ? String(mk).trim() : undefined
 
     let msg: string
     if (modal.mode === 'create') {
@@ -274,5 +286,19 @@ void fetchList()
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+.cell-stack {
+  line-height: 1.35;
+}
+.cell-stack .line-main {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.88);
+}
+.cell-stack .line-sub {
+  font-size: 12px;
+  color: #8c8c8c;
+  margin-top: 2px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 </style>
