@@ -522,6 +522,7 @@ const submitQuestion = async (promptArg?: string) => {
   if (!prompt || !selectedModel.value || !selectedAgent.value || isStreaming.value) {
     return
   }
+  userInput.value = ''
 
   const userMessageId = `user-${Date.now()}`
   const assistantMessageId = `ai-${Date.now()}`

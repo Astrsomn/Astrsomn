@@ -41,6 +41,11 @@
   --radius-lg: 12px;
   --radius-xl: 14px;
 
+  /* ── Chat input panel (placeholder / send) ── */
+  --chat-input-placeholder: #c8d8ec;
+  --chat-send-btn-bg: linear-gradient(135deg, #1677ff, #00b4ff);
+  --chat-send-btn-shadow: 0 2px 12px rgba(0, 180, 255, 0.4);
+
   /* ── Chat message (ChatMessageItem) ── */
   --chat-ai-card-bg: var(--bg-card);
   --chat-ai-card-border: var(--border-default);
@@ -94,6 +99,10 @@
 
   /* ── Shadow ── */
   --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+  --chat-input-placeholder: var(--text-placeholder);
+  --chat-send-btn-bg: var(--primary);
+  --chat-send-btn-shadow: 0 2px 10px rgba(0, 123, 255, 0.22);
 
   /* ── Chat message (light) ── */
   --chat-ai-card-bg: #ffffff;

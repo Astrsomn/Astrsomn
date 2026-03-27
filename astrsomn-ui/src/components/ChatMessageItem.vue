@@ -657,7 +657,7 @@ const handleCodeCopy = (e: MouseEvent) => {
 .user-bubble {
   max-width: min(100%, 640px);
   padding: 12px 16px;
-  border-radius: 16px 16px 4px 16px;
+  border-radius: 16px 4px 16px 16px;
   background: var(--primary-gradient);
   color: #fff;
   box-shadow: 0 4px 14px rgba(0, 123, 255, 0.28);

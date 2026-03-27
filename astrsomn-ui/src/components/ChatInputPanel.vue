@@ -45,12 +45,12 @@
 
         <div class="input-body">
           <a-textarea
-            :value="userInput"
+            :value="draft"
             :auto-size="{ minRows: 1, maxRows: 6 }"
             placeholder="问点什么吧..."
             class="main-textarea"
             :disabled="isStreaming"
-            @update:value="emit('update:userInput', $event)"
+            @update:value="onDraftInput"
             @pressEnter="handleEnter"
           />
         </div>
@@ -82,8 +82,8 @@
           </div>
 
           <div class="footer-right">
-            <div v-if="userInput.length > 0" class="char-count">
-              {{ userInput.length }}
+            <div v-if="draft.length > 0" class="char-count">
+              {{ draft.length }}
             </div>
             <div v-else-if="isStreaming" class="stream-status">流式回复中</div>
             <a-button
@@ -115,6 +115,7 @@ import {
 } from '@ant-design/icons-vue'
 import type { AiAgent } from '@/api/aiAgent'
 import type { AiModel } from '@/api/aiModel'
+import { ref, watch } from 'vue'
 
 const props = defineProps<{
   selectedAgent?: string
@@ -139,12 +140,33 @@ const emit = defineEmits<{
   stop: []
 }>()
 
+/** 本地草稿：与父级 userInput 同步，但发送时先在此清空，避免仅依赖 v-model 时 a-textarea 不刷新 */
+const draft = ref('')
+
+watch(
+  () => props.userInput,
+  (v) => {
+    const next = v ?? ''
+    if (next !== draft.value) {
+      draft.value = next
+    }
+  },
+  { immediate: true }
+)
+
+const onDraftInput = (v: string) => {
+  const next = v ?? ''
+  draft.value = next
+  emit('update:userInput', next)
+}
+
 const handleSend = () => {
   if (props.sendDisabled) return
-  const text = props.userInput.trim()
+  const text = draft.value.trim()
   if (!text) return
-  emit('submit', text)
+  draft.value = ''
   emit('update:userInput', '')
+  emit('submit', text)
 }
 
 const handleEnter = (e: KeyboardEvent) => {
@@ -183,6 +205,14 @@ const handleEnter = (e: KeyboardEvent) => {
 .input-panel:focus-within {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px var(--primary-hover);
+}
+
+/* 覆盖 Ant Design 注入的 placeholder（含 webkit/moz），否则深色下对比度不足 */
+.input-panel :deep(textarea)::-webkit-input-placeholder,
+.input-panel :deep(textarea)::-moz-placeholder,
+.input-panel :deep(textarea)::placeholder {
+  color: var(--chat-input-placeholder) !important;
+  opacity: 1 !important;
 }
 
 .input-toolbar {
@@ -313,6 +343,25 @@ const handleEnter = (e: KeyboardEvent) => {
   align-items: center;
   justify-content: center;
   padding: 0;
+}
+
+.send-btn.ant-btn-primary {
+  background: var(--chat-send-btn-bg) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  box-shadow: var(--chat-send-btn-shadow);
+}
+
+.send-btn.ant-btn-primary :deep(.anticon) {
+  color: #fff !important;
+}
+
+.send-btn.ant-btn-primary:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.send-btn.ant-btn-primary.ant-btn-disabled {
+  opacity: 0.5;
 }
 
 .input-hint {
