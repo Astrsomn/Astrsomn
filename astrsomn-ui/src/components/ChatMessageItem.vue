@@ -1,353 +1,696 @@
 <template>
-  <div class="message" :class="[role, { error }]">
-    <div v-if="role === 'ai'" class="avatar-mini">A</div>
-    <div class="content">
-      <button
-        v-if="role === 'ai' && content"
-        type="button"
-        class="copy-full-btn"
-        @click="copyText(content, '已复制全文')"
-      >
-        复制
-      </button>
-      <div
-        v-if="content"
-        ref="messageTextRef"
-        class="message-text"
-        v-html="role === 'ai' ? renderedMarkdown : escapedPlainText"
-        @click="handleMessageClick"
-      ></div>
-      <div v-else-if="streaming" class="typing-placeholder">正在思考中...</div>
+  <div class="message-row" :class="[role, { 'is-streaming': streaming }]">
+    <div class="avatar-box">
+      <div v-if="role === 'ai'" class="avatar ai-avatar" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22">
+          <path fill="currentColor" d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z" />
+        </svg>
+      </div>
+      <div v-else class="avatar user-avatar">
+        <span>ME</span>
+      </div>
+    </div>
+
+    <div class="message-body">
+      <!-- AI：思考 + 正文同一卡片 -->
+      <div v-if="role === 'ai'" class="ai-card">
+        <section v-if="thoughtText" class="thought-section" :class="{ 'is-collapsed': !isThoughtExpanded }">
+          <button
+            type="button"
+            class="thought-head"
+            :class="{ 'is-interactive': shouldShowThoughtToggle }"
+            @click="toggleThought"
+          >
+            <span class="thought-head-left">
+              <span v-if="streaming" class="thought-pulse" aria-hidden="true" />
+              <span class="thought-title">{{ streaming ? '正在深度思考…' : '思考过程' }}</span>
+            </span>
+            <span v-if="shouldShowThoughtToggle" class="thought-toggle">
+              {{ isThoughtExpanded ? '收起' : '展开' }}
+            </span>
+          </button>
+          <div ref="thoughtRef" class="thought-scroll">
+            <div class="thought-inner">{{ thoughtText }}</div>
+          </div>
+        </section>
+
+        <section class="answer-section">
+          <div v-if="!answerText && streaming" class="streaming-placeholder">
+            <div class="typing-loader" aria-hidden="true">
+              <span /><span /><span />
+            </div>
+            <span>正在为您准备回答…</span>
+          </div>
+
+          <div
+            v-else-if="content || answerText"
+            class="markdown-renderer"
+            @click="handleCodeCopy"
+            v-html="renderedHtml"
+          />
+
+          <div v-if="!streaming && answerText" class="answer-actions">
+            <button type="button" class="text-action" @click="copyFullContent">
+              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+                />
+              </svg>
+              复制全文
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- 用户消息 -->
+      <div v-else class="user-card">
+        <div class="user-bubble">
+          <div v-html="props.content" class="user-html" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { message as antMessage } from 'ant-design-vue'
-import hljs from 'highlight.js'
+import { ref, computed, watch, nextTick } from 'vue'
+import { message } from 'ant-design-vue'
 import MarkdownIt from 'markdown-it'
+import hljs from 'highlight.js'
+import 'highlight.js/styles/atom-one-dark.min.css'
+import { normalizeAiMarkdown } from '@/utils/aiMarkdownNormalize'
+
+/** 与 demo/ChatArea.vue 一致：短语言名 → hljs 注册名 */
+const langAlias: Record<string, string> = {
+  js: 'javascript',
+  ts: 'typescript',
+  py: 'python',
+  sh: 'bash',
+  zsh: 'bash',
+  vue: 'html',
+  md: 'markdown'
+}
 
 const props = defineProps<{
   role: 'user' | 'ai'
   content: string
+  segments?: any[]
   streaming?: boolean
   error?: boolean
 }>()
 
-const messageTextRef = ref<HTMLElement | null>(null)
+const THOUGHT_AUTO_COLLAPSE_CHARS = 180
+const isThoughtExpanded = ref(true)
+const hasManualThoughtToggle = ref(false)
+const thoughtRef = ref<HTMLElement | null>(null)
 
-const escapeHtml = (value: string) =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
+/** 围栏语言：修复流式/换行异常导致的「javaimport」等粘连，并匹配 hljs 语言 key */
+function resolveFenceLang(raw: string): { label: string; hljsKey: string | null } {
+  const s = (raw || '').trim()
+  if (!s) return { label: 'text', hljsKey: null }
 
-const encodeCodePayload = (value: string) => {
-  const bytes = new TextEncoder().encode(value)
-  let binary = ''
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte)
+  if (hljs.getLanguage(s)) return { label: s, hljsKey: s }
+
+  const token = s.split(/[/\s]/)[0]?.trim() || 'text'
+  if (hljs.getLanguage(token)) return { label: token, hljsKey: token }
+
+  const gluedSuffixes = [
+    'import',
+    'package',
+    'class',
+    'public',
+    'private',
+    'protected',
+    'interface',
+    'enum',
+    'abstract',
+    'extends',
+    'implements',
+    'static',
+    'void',
+    'return',
+    'def',
+    'async',
+    'fn',
+    'const',
+    'let',
+    'var',
+    'type',
+    'namespace',
+    'module',
+    'from',
+    'include',
+    'using',
+    'struct',
+    'trait',
+    'impl',
+    'function',
+    'new'
+  ]
+  for (const suf of gluedSuffixes) {
+    if (s.length > suf.length && s.endsWith(suf)) {
+      const cand = s.slice(0, -suf.length)
+      if (hljs.getLanguage(cand)) return { label: cand, hljsKey: cand }
+    }
   }
-  return btoa(binary)
+
+  for (let len = Math.min(s.length, 28); len >= 2; len--) {
+    const pref = s.slice(0, len)
+    if (hljs.getLanguage(pref)) return { label: pref, hljsKey: pref }
+  }
+
+  const short = token.length > 24 ? token.slice(0, 21) + '…' : token
+  return { label: short, hljsKey: null }
 }
 
-const decodeCodePayload = (value: string) => {
-  const binary = atob(value)
-  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
-  return new TextDecoder().decode(bytes)
+/** 模型偶发把标题/重复 ``` 行吃进围栏，复制与高亮前尽量剥掉 */
+function unwrapMalformedFenceContent(raw: string, outerLang: string): { code: string; lang: string } {
+  let code = raw
+  let lang = outerLang || ''
+  const lines = code.split('\n')
+
+  // 首行是 ### 标题、下一行是 ```lang
+  if (
+    lines.length >= 3 &&
+    /^#{1,6}\s/.test(lines[0].trim()) &&
+    /^\s*```[\w+-]*\s*$/.test(lines[1])
+  ) {
+    const inner = lines[1].replace(/^\s*```/, '').trim()
+    if (inner && hljs.getLanguage(inner)) lang = inner
+    code = lines.slice(2).join('\n')
+  } else if (
+    lines.length >= 2 &&
+    /^#{1,6}\s/.test(lines[0].trim()) &&
+    /^(import|package|#include|from\s|def\s|async\s|module\s|export\s|public\s|private\s|class\s|interface\s|enum\s|@\w|\/\/|\/\*)/.test(
+      lines[1].trim()
+    )
+  ) {
+    code = lines.slice(1).join('\n')
+  }
+
+  return { code, lang }
 }
 
-const renderCodeBlock = (code: string, lang?: string) => {
-  const highlighted = lang && hljs.getLanguage(lang)
-    ? hljs.highlight(code, { language: lang, ignoreIllegals: true }).value
-    : hljs.highlightAuto(code).value
-  const encoded = encodeCodePayload(code)
-  const languageLabel = escapeHtml(lang || 'code')
-  return `
-    <div class="md-code-wrapper">
-      <div class="md-code-header">
-        <span class="md-code-lang">${languageLabel}</span>
-        <button type="button" class="md-copy-btn" data-copy-code="${encoded}">复制代码</button>
-      </div>
-      <pre class="md-code-block"><code>${highlighted}</code></pre>
-    </div>
-  `
-}
-
-const markdown = new MarkdownIt({
+// html: false — 避免 <dependency> 等被当作 HTML 块吞掉（常见于 Maven/XML 与围栏错位时）
+const md = new MarkdownIt({
   html: false,
   linkify: true,
-  breaks: true,
-  highlight(code, lang) {
-    return renderCodeBlock(code, lang)
-  }
+  breaks: true
 })
 
-markdown.renderer.rules.code_block = (tokens, idx) => renderCodeBlock(tokens[idx].content)
-markdown.renderer.rules.table_open = () => '<div class="md-table-wrap"><table>'
-markdown.renderer.rules.table_close = () => '</table></div>'
+/** 与 demo/ChatArea.vue：自定义 fence，结构为 code-block-wrapper + vscode-code-block + 复制按钮 */
+md.renderer.rules.fence = (tokens, idx) => {
+  const token = tokens[idx]
+  if (!token) return ''
+  const rawLang = (token.info && token.info.trim()) || ''
+  const content = token.content
+  const unwrapped = unwrapMalformedFenceContent(content, rawLang)
+  const mapped = langAlias[rawLang.toLowerCase()] || rawLang
+  const { hljsKey } = resolveFenceLang(unwrapped.lang || mapped || '')
+  const plain = unwrapped.code
 
-const renderedMarkdown = computed(() => markdown.render(props.content))
-
-const escapedPlainText = computed(() =>
-  props.content
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-    .replace(/\n/g, '<br />')
-)
-
-const copyText = async (value: string, successMessage: string) => {
+  let codeHtml = md.utils.escapeHtml(plain)
   try {
-    await navigator.clipboard.writeText(value)
-    antMessage.success(successMessage)
+    if (hljsKey) {
+      codeHtml = hljs.highlight(plain, { language: hljsKey, ignoreIllegals: true }).value
+    } else if (plain.trim()) {
+      codeHtml = hljs.highlightAuto(plain).value
+    }
   } catch {
-    antMessage.error('复制失败')
+    /* 保持转义后的纯文本 */
   }
+
+  const langClass = hljsKey ? ` language-${hljsKey}` : ''
+  return `<div class="code-block-wrapper"><pre class="vscode-code-block hljs${langClass}"><code class="hljs">${codeHtml}</code></pre><button type="button" class="code-copy-btn">复制</button></div>`
 }
 
-const handleMessageClick = async (event: MouseEvent) => {
-  const target = event.target as HTMLElement | null
-  const button = target?.closest('.md-copy-btn') as HTMLElement | null
-  const encoded = button?.getAttribute('data-copy-code')
-  if (!encoded) {
+const thoughtText = computed(() => props.segments?.find((s) => s.type === 'thought')?.content || '')
+const shouldShowThoughtToggle = computed(() => thoughtText.value.length > THOUGHT_AUTO_COLLAPSE_CHARS)
+const answerText = computed(() => {
+  if (props.segments) {
+    return props.segments.filter((s) => s.type !== 'thought').map((s) => s.content).join('')
+  }
+  return props.content
+})
+
+const renderedHtml = computed(() => {
+  if (props.role === 'user') return props.content
+  const src = normalizeAiMarkdown(answerText.value || '')
+  return md.render(src)
+})
+
+watch(
+  () => thoughtText.value,
+  () => {
+    if (!thoughtText.value) {
+      isThoughtExpanded.value = true
+      hasManualThoughtToggle.value = false
+      return
+    }
+    if (shouldShowThoughtToggle.value && !hasManualThoughtToggle.value) {
+      isThoughtExpanded.value = false
+    }
+    if (props.streaming && isThoughtExpanded.value) {
+      nextTick(() => {
+        const el = thoughtRef.value
+        if (el) el.scrollTop = el.scrollHeight
+      })
+    }
+  }
+)
+
+const toggleThought = () => {
+  if (!shouldShowThoughtToggle.value) return
+  hasManualThoughtToggle.value = true
+  isThoughtExpanded.value = !isThoughtExpanded.value
+}
+
+const copyFullContent = () => {
+  navigator.clipboard.writeText(answerText.value)
+  message.success('已复制到剪贴板')
+}
+
+const handleCodeCopy = (e: MouseEvent) => {
+  const btn = (e.target as HTMLElement).closest('.code-copy-btn')
+  if (!btn) return
+  const wrapper = btn.closest('.code-block-wrapper')
+  const text = wrapper?.querySelector('pre code')?.textContent ?? ''
+  if (!text) {
+    message.warning('无法复制，请重试')
     return
   }
-  event.preventDefault()
-  await copyText(decodeCodePayload(encoded), '已复制代码')
+  navigator.clipboard.writeText(text)
+  message.success('代码已复制')
 }
 </script>
 
 <style scoped>
-.message {
+.message-row {
   display: flex;
-  gap: 16px;
-  max-width: 85%;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 20px 0;
+  max-width: 100%;
 }
 
-.message.ai {
-  align-self: flex-start;
-}
-
-.message.user {
-  align-self: flex-end;
+.message-row.user {
   flex-direction: row-reverse;
 }
 
-.avatar-mini {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
+.avatar-box {
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
 
-.message .content {
-  position: relative;
-  padding: 12px 18px;
-  border-radius: 18px;
-  line-height: 1.6;
-  font-size: 15px;
+.ai-avatar {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: #2563eb;
 }
 
-.message.ai .content {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  border-top-left-radius: 4px;
+.user-avatar {
+  background: linear-gradient(145deg, #eff6ff, #fff);
+  border: 1px solid #bfdbfe;
+  color: #2563eb;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
-.message.user .content {
-  background: var(--primary);
-  color: white;
-  border-top-right-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+.message-body {
+  flex: 1;
+  min-width: 0;
+  max-width: calc(100% - 48px);
 }
 
-.message.error .content {
-  border-color: rgba(255, 77, 79, 0.35);
-  color: #ff7875;
-}
-
-.message-text {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.message-text :deep(p) {
-  margin: 0;
-}
-
-.message-text :deep(p + p) {
-  margin-top: 12px;
-}
-
-.message-text :deep(ul),
-.message-text :deep(ol) {
-  margin: 8px 0 8px 20px;
-  padding: 0;
-}
-
-.message-text :deep(li + li) {
-  margin-top: 4px;
-}
-
-.message-text :deep(blockquote) {
-  margin: 12px 0;
-  padding-left: 12px;
-  border-left: 3px solid var(--border-default);
-  color: var(--text-secondary);
-}
-
-.message-text :deep(a) {
-  color: var(--primary);
-  text-decoration: none;
-}
-
-.message-text :deep(a:hover) {
-  text-decoration: underline;
-}
-
-.message-text :deep(code) {
-  font-family: Consolas, Monaco, monospace;
-  font-size: 0.92em;
-}
-
-.message-text :deep(:not(pre) > code) {
-  padding: 2px 6px;
-  border-radius: 6px;
-  background: rgba(127, 127, 127, 0.12);
-}
-
-.message-text :deep(pre) {
-  margin: 0;
-  overflow-x: auto;
-}
-
-.message-text :deep(.md-code-wrapper) {
-  margin: 12px 0;
-  border-radius: 12px;
+/* —— AI 统一卡片 —— */
+.ai-card {
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   overflow: hidden;
-  background: #0f172a;
-  color: #e2e8f0;
 }
 
-.message-text :deep(.md-code-header) {
+.thought-section {
+  --thought-bg: #f8fafc;
+  background: var(--thought-bg);
+  border-bottom: 1px solid #e8eef4;
+}
+
+.thought-head {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 10px 14px;
-  background: rgba(148, 163, 184, 0.14);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-}
-
-.message-text :deep(.md-code-lang) {
-  font-size: 12px;
-  text-transform: lowercase;
-  color: #cbd5e1;
-}
-
-.message-text :deep(.md-copy-btn) {
+  margin: 0;
   border: none;
   background: transparent;
-  color: #93c5fd;
-  cursor: pointer;
-  font-size: 12px;
-  padding: 0;
-}
-
-.message-text :deep(.md-copy-btn:hover) {
-  color: #bfdbfe;
-}
-
-.message-text :deep(.md-code-block) {
-  padding: 14px 16px;
-  border-radius: 0;
-  background: #0f172a;
-  color: #e2e8f0;
-}
-
-.message-text :deep(.md-code-block code) {
-  background: transparent;
-  padding: 0;
-}
-
-.message-text :deep(h1),
-.message-text :deep(h2),
-.message-text :deep(h3),
-.message-text :deep(h4),
-.message-text :deep(h5),
-.message-text :deep(h6) {
-  margin: 16px 0 8px;
-  line-height: 1.35;
-}
-
-.message-text :deep(hr) {
-  margin: 16px 0;
-  border: none;
-  border-top: 1px solid var(--border-default);
-}
-
-.message-text :deep(.md-table-wrap) {
-  margin: 12px 0;
-  overflow-x: auto;
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-}
-
-.message-text :deep(table) {
-  width: 100%;
-  min-width: 420px;
-  border-collapse: collapse;
-  background: transparent;
-}
-
-.message-text :deep(th),
-.message-text :deep(td) {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border-default);
+  font: inherit;
+  color: #64748b;
   text-align: left;
-  vertical-align: top;
 }
 
-.message-text :deep(th) {
-  font-weight: 600;
-  background: rgba(127, 127, 127, 0.08);
-}
-
-.message-text :deep(tr:last-child td) {
-  border-bottom: none;
-}
-
-.copy-full-btn {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
+.thought-head.is-interactive {
   cursor: pointer;
+}
+
+.thought-head.is-interactive:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.thought-head-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.thought-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.thought-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  flex-shrink: 0;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.thought-toggle {
+  flex-shrink: 0;
   font-size: 12px;
-  padding: 0;
+  font-weight: 500;
+  color: #3b82f6;
 }
 
-.copy-full-btn:hover {
-  color: var(--primary);
+.thought-scroll {
+  padding: 0 14px 12px;
+  max-height: none;
+  overflow: visible;
 }
 
-.typing-placeholder {
-  color: var(--text-secondary);
+.thought-inner {
+  font-size: 13px;
+  line-height: 1.65;
+  color: #64748b;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 收起：限制高度、底部渐变，不出现顶部裁剪与内部滚动条 */
+.thought-section.is-collapsed .thought-scroll {
+  max-height: 5.25rem;
+  overflow: hidden;
+  position: relative;
+  padding-bottom: 14px;
+}
+
+.thought-section.is-collapsed .thought-scroll::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2rem;
+  background: linear-gradient(to bottom, transparent, var(--thought-bg));
+  pointer-events: none;
+}
+
+/* 展开且内容长时由整块区域滚动（可选上限，避免占满屏） */
+.thought-section:not(.is-collapsed) .thought-scroll {
+  max-height: min(40vh, 200px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.answer-section {
+  background: #fff;
+}
+
+.streaming-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 18px 20px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.typing-loader {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing-loader span {
+  width: 5px;
+  height: 5px;
+  background: #3b82f6;
+  border-radius: 50%;
+  animation: typing 0.9s ease-in-out infinite;
+}
+
+.typing-loader span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing-loader span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.markdown-renderer {
+  padding: 16px 18px 12px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #1e293b;
+}
+
+.markdown-renderer :deep(p) {
+  margin: 0.65em 0;
+}
+
+.markdown-renderer :deep(p:first-child) {
+  margin-top: 0;
+}
+
+.markdown-renderer :deep(p:last-child) {
+  margin-bottom: 0;
+}
+
+.markdown-renderer :deep(h1),
+.markdown-renderer :deep(h2),
+.markdown-renderer :deep(h3),
+.markdown-renderer :deep(h4) {
+  margin: 1.15em 0 0.5em;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #0f172a;
+}
+
+.markdown-renderer :deep(h1) {
+  font-size: 1.35em;
+}
+.markdown-renderer :deep(h2) {
+  font-size: 1.2em;
+}
+.markdown-renderer :deep(h3) {
+  font-size: 1.08em;
+}
+.markdown-renderer :deep(h4) {
+  font-size: 1em;
+}
+
+.markdown-renderer :deep(ul),
+.markdown-renderer :deep(ol) {
+  margin: 0.5em 0;
+  padding-left: 1.35em;
+}
+
+.markdown-renderer :deep(li) {
+  margin: 0.25em 0;
+}
+
+.markdown-renderer :deep(blockquote) {
+  margin: 0.75em 0;
+  padding: 0.4em 0 0.4em 0.9em;
+  border-left: 3px solid #cbd5e1;
+  color: #475569;
+  background: #f8fafc;
+  border-radius: 0 6px 6px 0;
+}
+
+.markdown-renderer :deep(a) {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-renderer :deep(hr) {
+  margin: 1.25em 0;
+  border: none;
+  border-top: 1px solid #e2e8f0;
+}
+
+.markdown-renderer :deep(code:not(pre code)) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.88em;
+  background: #f1f5f9;
+  color: #0f172a;
+  padding: 0.15em 0.4em;
+  border-radius: 6px;
+}
+
+/* 代码块：对齐 demo/ChatArea.vue（Atom One Dark + VS Code 式布局） */
+.markdown-renderer :deep(.code-block-wrapper) {
+  position: relative;
+  margin: 12px 0;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #282c34;
+  border: 1px solid #1e2127;
+}
+
+.markdown-renderer :deep(.code-block-wrapper .code-copy-btn) {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  z-index: 1;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #abb2bf;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.markdown-renderer :deep(.code-block-wrapper .code-copy-btn:hover) {
+  background: rgba(255, 255, 255, 0.14);
+  color: #e6e6e6;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.markdown-renderer :deep(.code-block-wrapper pre.vscode-code-block) {
+  margin: 0;
+  padding: 32px 14px 14px;
+  background: transparent;
+  border-radius: 0;
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(171, 178, 191, 0.35) transparent;
+}
+
+.markdown-renderer :deep(.code-block-wrapper pre.vscode-code-block::-webkit-scrollbar) {
+  height: 6px;
+}
+
+.markdown-renderer :deep(.code-block-wrapper pre.vscode-code-block::-webkit-scrollbar-thumb) {
+  background: rgba(171, 178, 191, 0.35);
+  border-radius: 999px;
+}
+
+.markdown-renderer :deep(.code-block-wrapper pre.vscode-code-block code.hljs) {
+  display: block;
+  margin: 0;
+  padding: 0 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  tab-size: 4;
+  white-space: pre;
+  background: transparent !important;
+}
+
+.answer-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 12px 12px;
+}
+
+.text-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.text-action:hover {
+  color: #3b82f6;
+  background: #f8fafc;
+}
+
+/* 用户气泡 */
+.user-card {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.user-bubble {
+  max-width: min(100%, 640px);
+  padding: 12px 16px;
+  border-radius: 16px 16px 4px 16px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+}
+
+.user-html {
+  font-size: 15px;
+  line-height: 1.65;
+  word-break: break-word;
+}
+
+.user-html :deep(a) {
+  color: #dbeafe;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes typing {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 </style>

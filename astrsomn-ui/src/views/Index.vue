@@ -18,6 +18,7 @@
               :key="item.id"
               :role="item.role"
               :content="item.content"
+              :segments="item.segments"
               :streaming="item.streaming"
               :error="item.error"
             />
@@ -58,8 +59,16 @@ type ChatMessage = {
   id: string
   role: 'user' | 'ai'
   content: string
+  segments?: ChatSegment[]
   streaming?: boolean
   error?: boolean
+}
+
+type ChatSegmentType = 'text' | 'thought' | 'html'
+
+type ChatSegment = {
+  type: ChatSegmentType
+  content: string
 }
 
 type StreamEventType = 'text' | 'thought' | 'html' | 'error' | 'done'
@@ -140,7 +149,16 @@ const scrollToBottom = async () => {
   }
 }
 
-const appendAssistantContent = async (messageId: string, chunk: string) => {
+const mergeMessageContent = (segments: ChatSegment[]) =>
+  segments
+    .map((segment) => (segment.type === 'thought' ? `[思考]\n${segment.content}` : segment.content))
+    .join('\n')
+
+const appendAssistantContent = async (
+  messageId: string,
+  chunk: string,
+  type: ChatSegmentType = 'text'
+) => {
   if (!chunk) {
     return
   }
@@ -148,7 +166,21 @@ const appendAssistantContent = async (messageId: string, chunk: string) => {
   if (!target) {
     return
   }
-  target.content += chunk
+  if (target.role !== 'ai') {
+    target.content += chunk
+    await scrollToBottom()
+    return
+  }
+  if (!target.segments) {
+    target.segments = []
+  }
+  const lastSegment = target.segments[target.segments.length - 1]
+  if (lastSegment && lastSegment.type === type) {
+    lastSegment.content += chunk
+  } else {
+    target.segments.push({ type, content: chunk })
+  }
+  target.content = mergeMessageContent(target.segments)
   await scrollToBottom()
 }
 
@@ -337,14 +369,17 @@ const applyStreamEvent = async (messageId: string, event: StreamEvent) => {
 
   switch (event.type) {
     case 'text':
+      await appendAssistantContent(messageId, event.content, 'text')
+      return true
     case 'html':
-      await appendAssistantContent(messageId, event.content)
+      await appendAssistantContent(messageId, event.content, 'html')
       return true
     case 'error':
       target.error = true
       await appendAssistantContent(messageId, event.content || '流式响应异常')
       return false
     case 'thought':
+      await appendAssistantContent(messageId, event.content, 'thought')
       return true
     case 'done':
       return false
@@ -491,7 +526,13 @@ const submitQuestion = async () => {
   const userMessageId = `user-${Date.now()}`
   const assistantMessageId = `ai-${Date.now()}`
   messages.value.push({ id: userMessageId, role: 'user', content: prompt })
-  messages.value.push({ id: assistantMessageId, role: 'ai', content: '', streaming: true })
+  messages.value.push({
+    id: assistantMessageId,
+    role: 'ai',
+    content: '',
+    segments: [],
+    streaming: true
+  })
   userInput.value = ''
   isStreaming.value = true
   await scrollToBottom()
@@ -514,6 +555,7 @@ const submitQuestion = async () => {
         modelKey: selectedModel.value,
         memoryKey: getMemoryKey(),
         userMessage: prompt,
+        enableDeepThinking: isDeepThinking.value,
         enableNetwork: isWebSearch.value,
         enableStream: true,
         fileUrlList: []

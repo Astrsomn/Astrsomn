@@ -28,7 +28,8 @@ public class AstroChatServiceImpl implements AstroChatService {
         param.setUserMessage(request.getUserMessage());
         param.setChatSetting(new ChatSetting()
                 .setEnableNetwork(request.isEnableNetwork())
-                .setEnableStream(request.isEnableStream()));
+                .setEnableStream(true)
+                .setEnableDeepThinking(request.isEnableDeepThinking()));
         AstroChatAssistant chatAssistant = assistantFactory.createAssistant(param);
         return chatStreamUtil.convertStreamToFlux(chatAssistant.stream(request.getUserMessage(), request.getMemoryKey()), null);
     }

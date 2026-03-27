@@ -21,6 +21,10 @@ public class AstroChatRequest {
     /**
      *
      */
+    private boolean enableDeepThinking;
+    /**
+     *
+     */
     private String memoryKey;
 
     /**

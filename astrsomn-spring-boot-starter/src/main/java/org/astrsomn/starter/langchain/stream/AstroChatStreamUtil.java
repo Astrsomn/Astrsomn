@@ -35,6 +35,7 @@ public class AstroChatStreamUtil {
         return Flux.create(fluxSink -> {
 
             inputStream.onPartialThinking(thinking -> {
+                        log.warn("====>  思考过程:{}", thinking);
                         this.sendEvent(fluxSink, ChatStreamEnum.AstroEventType.THOUGHT, thinking.text());
                     })
                     .onPartialResponse(partial -> {
