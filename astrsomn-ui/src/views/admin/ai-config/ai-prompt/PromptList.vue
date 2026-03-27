@@ -1,7 +1,7 @@
 <template>
   <AdminPageShell
     title="提示词管理"
-    description="维护 AI_PROMPT 系统提示词与版本，对接 AiPromptController（/v1/astro/ai-promopt）。"
+    description="同一 Prompt Key 共用一个逻辑提示词；每次保存生成新版本，列表按 Key 聚合展示当前最新版本。"
     empty-text="暂无提示词，请先创建。"
   >
     <div class="prompt-page">
@@ -25,6 +25,18 @@
             class="toolbar-input narrow"
             allow-clear
           />
+          <a-input
+            v-model:value="query.envCode"
+            placeholder="环境编码（ENV_CODE）"
+            class="toolbar-input narrow"
+            allow-clear
+          />
+          <a-input
+            v-model:value="query.createUser"
+            placeholder="创建人（用户名）"
+            class="toolbar-input"
+            allow-clear
+          />
           <a-select
             v-model:value="query.enabledFlag"
             :options="enabledFilterOptions"
@@ -39,7 +51,7 @@
 
           <a-popconfirm
             v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的提示词吗？"
+            title="将删除选中项对应的 Prompt Key 下全部历史版本，确定吗？"
             ok-text="确认"
             cancel-text="取消"
             @confirm="handleBatchDelete"
@@ -55,7 +67,7 @@
         :pagination="false"
         row-key="id"
         :row-selection="rowSelection"
-        :scroll="{ x: 1080 }"
+        :scroll="{ x: 1280 }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'enabledFlag'">
@@ -65,10 +77,12 @@
             <span class="content-preview">{{ previewContent(record.promptContent) }}</span>
           </template>
           <template v-else-if="column.key === 'actions'">
+            <a-button type="link" @click="openHistory(record)">历史版本</a-button>
+            <a-divider type="vertical" />
             <a-button type="link" @click="openEdit(record)">编辑</a-button>
             <a-divider type="vertical" />
             <a-popconfirm
-              title="确定删除吗？"
+              title="将删除该 Prompt Key 下全部历史版本，确定吗？"
               ok-text="确认"
               cancel-text="取消"
               @confirm="() => handleDeleteOne(record.id)"
@@ -96,6 +110,12 @@
         :initial="modalInitial"
         @submit="handleFormSubmit"
       />
+
+      <PromptHistoryModal
+        v-model:open="historyModal.open"
+        :prompt-key="historyModal.promptKey"
+        :env-code="historyModal.envCode"
+      />
     </div>
   </AdminPageShell>
 </template>
@@ -105,12 +125,15 @@ import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
 import PromptFormModal from './PromptFormModal.vue'
+import PromptHistoryModal from './PromptHistoryModal.vue'
 import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt.ts'
 
 type QueryState = {
   promptTitle?: string
   promptKey?: string
   scene?: string
+  envCode?: string
+  createUser?: string
   enabledFlag?: string
 }
 
@@ -131,12 +154,14 @@ const previewContent = (raw: string | undefined) => {
 
 const columns = [
   { title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 200, ellipsis: true },
+  { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 88, ellipsis: true },
+  { title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 120, ellipsis: true },
   { title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', width: 180, ellipsis: true },
   { title: '场景', dataIndex: 'scene', key: 'scene', width: 120, ellipsis: true },
   { title: '版本', dataIndex: 'version', key: 'version', width: 72 },
   { title: '内容预览', key: 'promptContent', width: 260, ellipsis: true },
   { title: '状态', key: 'enabledFlag', width: 90 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  { title: '操作', key: 'actions', width: 260, fixed: 'right' as const }
 ]
 
 const query = reactive<QueryState>({})
@@ -165,6 +190,18 @@ const modal = reactive({
 
 const modalInitial = ref<AiPrompt | null>(null)
 
+const historyModal = reactive({
+  open: false,
+  promptKey: undefined as string | undefined,
+  envCode: undefined as string | undefined
+})
+
+const openHistory = (record: AiPrompt) => {
+  historyModal.promptKey = record.promptKey
+  historyModal.envCode = record.envCode
+  historyModal.open = true
+}
+
 const fetchList = async () => {
   const payload = {
     pageNo: page.pageNum,
@@ -173,6 +210,8 @@ const fetchList = async () => {
       promptTitle: query.promptTitle || undefined,
       promptKey: query.promptKey || undefined,
       scene: query.scene || undefined,
+      envCode: query.envCode || undefined,
+      createUser: query.createUser || undefined,
       enabledFlag: query.enabledFlag || undefined
     }
   }
@@ -224,11 +263,7 @@ const handleFormSubmit = async (form: AiPrompt) => {
   modal.submitting = true
   try {
     const payload: AiPrompt = { ...form }
-    const v = payload.version
-    if (v !== undefined && v !== null && v !== '') {
-      const n = Number(v)
-      payload.version = Number.isFinite(n) ? n : undefined
-    }
+    delete payload.version
 
     let msg: string
     if (modal.mode === 'create') {

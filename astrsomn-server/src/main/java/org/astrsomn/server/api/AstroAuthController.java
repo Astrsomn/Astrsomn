@@ -52,12 +52,22 @@ public class AstroAuthController extends BaseController {
     public BaseResponse<LoginResponse> getCurrentUser() {
         Long userId = UserContext.getUserId();
         String username = UserContext.getUsername();
-
+        Object email = UserContext.get("email");
+        Object adminFlag = UserContext.get("adminFlag");
+        Object userRole = UserContext.get("userRole");
 
         LoginResponse response = new LoginResponse();
         response.setUserId(userId);
         response.setUsername(username);
-
+        if (email != null) {
+            response.setEmail(String.valueOf(email));
+        }
+        if (adminFlag != null) {
+            response.setAdminFlag(String.valueOf(adminFlag));
+        }
+        if (userRole != null) {
+            response.setUserRole(String.valueOf(userRole));
+        }
 
         return success(response);
     }

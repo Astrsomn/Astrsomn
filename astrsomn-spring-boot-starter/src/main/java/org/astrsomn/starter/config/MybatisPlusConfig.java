@@ -7,10 +7,12 @@ import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +37,11 @@ public class MybatisPlusConfig {
     }
 
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource, AstrsomnProperties properties, MybatisPlusInterceptor mybatisPlusInterceptor) throws Exception {
+    public SqlSessionFactory sqlSessionFactory(
+            DataSource dataSource,
+            AstrsomnProperties properties,
+            MybatisPlusInterceptor mybatisPlusInterceptor,
+            ObjectProvider<MetaObjectHandler> metaObjectHandlerProvider) throws Exception {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource);
 
@@ -71,6 +77,7 @@ public class MybatisPlusConfig {
         if (globalConfig.getIdentifierGenerator() == null) {
             globalConfig.setIdentifierGenerator(new DefaultIdentifierGenerator());
         }
+        metaObjectHandlerProvider.ifAvailable(handler -> globalConfig.setMetaObjectHandler(handler));
         GlobalConfigUtils.setGlobalConfig(mybatisConfiguration, globalConfig);
         factoryBean.setConfiguration(mybatisConfiguration);
 

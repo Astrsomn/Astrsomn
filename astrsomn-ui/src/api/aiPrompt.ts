@@ -2,12 +2,15 @@ import request from '@/utils/request'
 
 export type AiPrompt = {
   id?: number | string
+  envCode?: string
+  createUser?: string
   promptKey?: string
   promptTitle?: string
   promptContent?: string
   scene?: string
   enabledFlag?: string
   version?: number
+  createTime?: string
 }
 
 export type PageResponse<T> = {
@@ -56,6 +59,19 @@ export const aiPromptApi = {
     return request({
       url: `/v1/astro/ai-promopt/delete/${joined}`,
       method: 'delete'
+    })
+  },
+
+  /** 同一 promptKey 下全部历史版本（版本号倒序） */
+  history: (promptKey: string, envCode?: string): Promise<AiPrompt[]> => {
+    const q = new URLSearchParams()
+    q.set('promptKey', promptKey)
+    if (envCode) {
+      q.set('envCode', envCode)
+    }
+    return request({
+      url: `/v1/astro/ai-promopt/history?${q.toString()}`,
+      method: 'get'
     })
   }
 }

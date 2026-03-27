@@ -12,6 +12,8 @@ import org.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
 import org.astrsomn.server.service.AiPromptService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/astro/ai-promopt")
 @RequiredArgsConstructor
@@ -51,5 +53,15 @@ public class AiPromptController extends BaseController {
         } catch (NumberFormatException e) {
             return BaseResponse.fail("ID格式错误", null);
         }
+    }
+
+    /**
+     * 同一 promptKey 下全部历史版本（按版本倒序）。
+     */
+    @GetMapping("/history")
+    public BaseResponse<List<AiPromptResponseDTO>> history(
+            @RequestParam("promptKey") String promptKey,
+            @RequestParam(value = "envCode", required = false) String envCode) {
+        return aiPromptService.history(promptKey, envCode);
     }
 }

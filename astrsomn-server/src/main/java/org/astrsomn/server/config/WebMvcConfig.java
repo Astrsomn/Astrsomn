@@ -55,7 +55,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/v1/astro/ai-model/**",
                         "/v1/astro/ai-tool/**",
                         "/v1/astro/ai-mcp/**",
-                        "/v1/astro/ai-conversation/**"
+                        "/v1/astro/ai-conversation/**",
+                        "/v1/astro/ai-promopt/**",
+                        "/v1/astro/ai-template/**",
+                        "/v1/astro/system-user/**",
+                        "/v1/astro/system-env/**"
                 )
                 .order(3);
         

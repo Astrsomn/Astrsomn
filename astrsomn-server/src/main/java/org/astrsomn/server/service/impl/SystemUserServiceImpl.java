@@ -8,21 +8,31 @@ import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.user.SystemUserCreateRequestDTO;
 import org.astrsomn.core.common.dto.user.SystemUserQueryRequestDTO;
 import org.astrsomn.core.common.dto.user.SystemUserUpdateRequestDTO;
+import org.astrsomn.core.common.constant.SystemUserEnum.AdminEnum;
+import org.astrsomn.core.common.constant.SystemUserEnum.UserRoleEnum;
 import org.astrsomn.core.common.dto.user.SystemUserResponseDTO;
 import org.astrsomn.core.common.entity.SystemUserEntity;
 import org.astrsomn.core.mapper.SystemUserMapper;
 import org.astrsomn.server.service.SystemUserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
 @Service
 public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemUserEntity> implements SystemUserService {
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Override
     public BaseResponse<String> create(SystemUserCreateRequestDTO request) {
         SystemUserEntity entity = new SystemUserEntity();
         BeanUtils.copyProperties(request, entity);
+        applyUserRole(entity);
+        if (StringUtils.isNotBlank(entity.getPassword())) {
+            entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+        }
         boolean result = save(entity);
         return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
     }
@@ -48,8 +58,30 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     public BaseResponse<String> update(SystemUserUpdateRequestDTO request) {
         SystemUserEntity entity = new SystemUserEntity();
         BeanUtils.copyProperties(request, entity);
+        applyUserRole(entity);
+        SystemUserEntity existing = getById(request.getId());
+        if (existing == null) {
+            return BaseResponse.fail("记录不存在", null);
+        }
+        if (StringUtils.isBlank(entity.getPassword())) {
+            entity.setPassword(existing.getPassword());
+        } else {
+            String p = entity.getPassword();
+            if (!p.startsWith("$2a$") && !p.startsWith("$2b$") && !p.startsWith("$2y$")) {
+                entity.setPassword(passwordEncoder.encode(p));
+            }
+        }
         boolean result = updateById(entity);
         return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
+    }
+
+    /**
+     * 统一角色与 ADMIN_FLAG：管理员类（超管、环境管理员）为 Y，普通用户为 N。
+     */
+    private static void applyUserRole(SystemUserEntity entity) {
+        UserRoleEnum role = UserRoleEnum.fromCode(entity.getUserRole());
+        entity.setUserRole(role.getCode());
+        entity.setAdminFlag(role == UserRoleEnum.USER ? AdminEnum.NO.getCode() : AdminEnum.YES.getCode());
     }
 
     @Override

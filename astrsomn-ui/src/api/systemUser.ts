@@ -4,8 +4,11 @@ export type SystemUser = {
   id?: number | string
   username?: string
   password?: string
-  /** Y / N */
+  /** Y / N，与 userRole 联动由后端维护 */
   adminFlag?: string
+  /** SUPER_ADMIN | ENV_ADMIN | USER */
+  userRole?: string
+  envCode?: string
   email?: string
   createTime?: string
   updateTime?: string
@@ -20,11 +23,11 @@ export type PageResponse<T> = {
   list: T[]
 }
 
-/** 对应 SystemUserController：`/api/astro/system-user` */
+/** 对应 SystemUserController：`/v1/astro/system-user`（与 AiToolController 等同前缀风格） */
 export const systemUserApi = {
   queryPage: (payload: unknown): Promise<PageResponse<SystemUser>> => {
     return request({
-      url: '/api/astro/system-user/queryPage',
+      url: '/v1/astro/system-user/queryPage',
       method: 'post',
       data: payload
     })
@@ -32,14 +35,14 @@ export const systemUserApi = {
 
   detail: (id: number | string): Promise<SystemUser> => {
     return request({
-      url: `/api/astro/system-user/detail?id=${encodeURIComponent(String(id))}`,
+      url: `/v1/astro/system-user/detail?id=${encodeURIComponent(String(id))}`,
       method: 'get'
     })
   },
 
   create: (payload: SystemUser): Promise<string> => {
     return request({
-      url: '/api/astro/system-user/create',
+      url: '/v1/astro/system-user/create',
       method: 'post',
       data: payload
     })
@@ -47,7 +50,7 @@ export const systemUserApi = {
 
   update: (payload: SystemUser): Promise<string> => {
     return request({
-      url: '/api/astro/system-user/update',
+      url: '/v1/astro/system-user/update',
       method: 'post',
       data: payload
     })
@@ -56,7 +59,7 @@ export const systemUserApi = {
   delete: (ids: Array<number | string>): Promise<string> => {
     const joined = ids.map((x) => String(x)).join(',')
     return request({
-      url: `/api/astro/system-user/delete/${joined}`,
+      url: `/v1/astro/system-user/delete/${joined}`,
       method: 'delete'
     })
   }

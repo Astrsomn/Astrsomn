@@ -60,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   TeamOutlined,
@@ -78,7 +79,17 @@ import ModelUsageChart from './echarts/ModelUsageChart.vue'
 
 const router = useRouter()
 
-const managementItems = [
+function currentUserRole(): string | undefined {
+  try {
+    const raw = localStorage.getItem('userInfo')
+    if (!raw) return undefined
+    return (JSON.parse(raw) as { userRole?: string }).userRole
+  } catch {
+    return undefined
+  }
+}
+
+const managementItemsAll = [
   { key: 'agents', label: '智能体管理', description: '配置智能体策略与执行参数', icon: TeamOutlined, route: '/admin/agents' },
   { key: 'mcp', label: 'AI MCP', description: '管理 MCP 服务连接与健康状态', icon: ContainerOutlined, route: '/admin/mcp' },
   { key: 'tools', label: 'AI Tools', description: '维护工具定义与调用权限', icon: ToolOutlined, route: '/admin/tools' },
@@ -94,6 +105,14 @@ const managementItems = [
   { key: 'users', label: '用户管理', description: '管理系统用户、角色与权限分配', icon: UserOutlined, route: '/admin/users' },
   { key: 'env', label: '环境管理', description: '管理运行环境、服务实例与部署配置', icon: CloudServerOutlined, route: '/admin/env' }
 ]
+
+/** 用户 / 环境管理仅超级管理员入口可见；其余 AI 配置超级管理员与环境管理员均可（后端再校验） */
+const managementItems = computed(() => {
+  if (currentUserRole() === 'SUPER_ADMIN') {
+    return managementItemsAll
+  }
+  return managementItemsAll.filter((i) => i.route !== '/admin/users' && i.route !== '/admin/env')
+})
 
 const navigateTo = (path: string) => {
   void router.push(path)

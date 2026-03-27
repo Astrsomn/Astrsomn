@@ -19,7 +19,14 @@
         v-if="mode === 'create'"
         type="info"
         show-icon
-        message="Prompt Key 可留空，后端将按环境与标题自动生成唯一 Key。"
+        message="Prompt Key 可留空，后端将按环境与标题自动生成唯一 Key；首次创建为版本 1。"
+        class="form-alert"
+      />
+      <a-alert
+        v-else
+        type="info"
+        show-icon
+        message="保存后将写入新版本（同一 Prompt Key 下版本号递增），可在列表中查看历史版本。"
         class="form-alert"
       />
       <div class="form-grid">
@@ -40,14 +47,8 @@
           <a-input v-model:value="form.scene" placeholder="可选，场景分类" allow-clear />
         </a-form-item>
 
-        <a-form-item label="版本号" name="version">
-          <a-input-number
-            v-model:value="form.version"
-            :min="1"
-            :precision="0"
-            class="w-full"
-            placeholder="默认 1"
-          />
+        <a-form-item v-if="mode === 'edit'" label="当前版本（只读）">
+          <a-input :value="String(form.version ?? '—')" disabled />
         </a-form-item>
 
         <a-form-item label="启用状态" name="enabledFlag">
@@ -97,7 +98,6 @@ function emptyForm(): AiPrompt {
     promptTitle: '',
     promptContent: '',
     scene: '',
-    version: 1,
     enabledFlag: 'enabled'
   }
 }
@@ -112,13 +112,6 @@ const rules = {
 
 function assignFromInitial(src: AiPrompt) {
   Object.assign(form, emptyForm(), src)
-  const v = form.version
-  if (v != null && v !== '') {
-    const n = Number(v)
-    form.version = Number.isFinite(n) ? n : 1
-  } else {
-    form.version = 1
-  }
 }
 
 watch(

@@ -13,7 +13,7 @@ import org.astrsomn.server.service.SystemEnvService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/astro/system-env")
+@RequestMapping("/v1/astro/system-env")
 @RequiredArgsConstructor
 public class SystemEnvController extends BaseController {
 

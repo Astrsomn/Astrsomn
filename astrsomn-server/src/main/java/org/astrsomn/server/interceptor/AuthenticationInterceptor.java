@@ -67,6 +67,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         UserContext.setUsername(user.getUsername());
         UserContext.set("email", user.getEmail());
         UserContext.set("adminFlag", user.getAdminFlag());
+        UserContext.set("userRole", user.getUserRole());
         UserContext.setToken(token);
         UserContext.setClientIp(request.getRemoteAddr());
         

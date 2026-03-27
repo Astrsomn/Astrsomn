@@ -6,6 +6,7 @@ type BackendLoginResponse = {
   username: string
   email?: string
   adminFlag?: string
+  userRole?: string
   token: string
   expiresIn?: number
 }
@@ -16,7 +17,8 @@ const toUiLoginResponse = (backend: BackendLoginResponse): LoginResponse => {
     userInfo: {
       id: String(backend.userId),
       username: backend.username,
-      email: backend.email
+      email: backend.email,
+      userRole: backend.userRole
     }
   }
 }

@@ -18,11 +18,11 @@ export type PageResponse<T> = {
   list: T[]
 }
 
-/** 对应 SystemEnvController：`/api/astro/system-env` */
+/** 对应 SystemEnvController：`/v1/astro/system-env`（与 AiToolController 等同前缀风格） */
 export const systemEnvApi = {
   queryPage: (payload: unknown): Promise<PageResponse<SystemEnv>> => {
     return request({
-      url: '/api/astro/system-env/queryPage',
+      url: '/v1/astro/system-env/queryPage',
       method: 'post',
       data: payload
     })
@@ -30,14 +30,14 @@ export const systemEnvApi = {
 
   detail: (id: number | string): Promise<SystemEnv> => {
     return request({
-      url: `/api/astro/system-env/detail?id=${encodeURIComponent(String(id))}`,
+      url: `/v1/astro/system-env/detail?id=${encodeURIComponent(String(id))}`,
       method: 'get'
     })
   },
 
   create: (payload: SystemEnv): Promise<string> => {
     return request({
-      url: '/api/astro/system-env/create',
+      url: '/v1/astro/system-env/create',
       method: 'post',
       data: payload
     })
@@ -45,7 +45,7 @@ export const systemEnvApi = {
 
   update: (payload: SystemEnv): Promise<string> => {
     return request({
-      url: '/api/astro/system-env/update',
+      url: '/v1/astro/system-env/update',
       method: 'post',
       data: payload
     })
@@ -54,7 +54,7 @@ export const systemEnvApi = {
   delete: (ids: Array<number | string>): Promise<string> => {
     const joined = ids.map((x) => String(x)).join(',')
     return request({
-      url: `/api/astro/system-env/delete/${joined}`,
+      url: `/v1/astro/system-env/delete/${joined}`,
       method: 'delete'
     })
   }

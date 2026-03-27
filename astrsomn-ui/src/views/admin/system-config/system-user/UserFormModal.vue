@@ -35,14 +35,22 @@
         <a-input v-model:value="form.email" placeholder="可选" allow-clear />
       </a-form-item>
 
-      <a-form-item label="管理员" name="adminFlag">
-        <a-select v-model:value="form.adminFlag" :options="adminOptions" />
+      <a-form-item label="角色" name="userRole">
+        <a-select v-model:value="form.userRole" :options="roleOptions" />
+      </a-form-item>
+
+      <a-form-item label="归属环境编码" name="envCode">
+        <a-input
+          v-model:value="form.envCode"
+          placeholder="与 astrsomn.env-code 一致，如 pro；超级管理员可留空或填默认"
+          allow-clear
+        />
       </a-form-item>
 
       <a-alert
         type="warning"
         show-icon
-        message="登录校验使用 BCrypt。若新建用户无法登录，请在库中确认密码为 BCrypt 或在后端接入加密。"
+        message="登录校验使用 BCrypt。角色：超级管理员可管用户/环境与全部配置；环境管理员仅能管本环境相关 AI 配置；普通用户不能进后台配置。"
         class="form-tip"
       />
     </a-form>
@@ -68,9 +76,10 @@ const open = defineModel<boolean>('open', { required: true })
 
 const formRef = ref<FormInstance | null>(null)
 
-const adminOptions = [
-  { label: '是 (Y)', value: 'Y' },
-  { label: '否 (N)', value: 'N' }
+const roleOptions = [
+  { label: '超级管理员', value: 'SUPER_ADMIN' },
+  { label: '环境管理员', value: 'ENV_ADMIN' },
+  { label: '普通用户', value: 'USER' }
 ]
 
 function emptyForm(): SystemUser {
@@ -78,7 +87,8 @@ function emptyForm(): SystemUser {
     username: '',
     password: '',
     email: '',
-    adminFlag: 'N'
+    userRole: 'USER',
+    envCode: ''
   }
 }
 
@@ -97,12 +107,15 @@ const rules = {
       trigger: 'blur'
     }
   ],
-  adminFlag: [{ required: true, message: '请选择是否管理员' }]
+  userRole: [{ required: true, message: '请选择角色' }]
 }
 
 function assignFromInitial(src: SystemUser) {
   Object.assign(form, emptyForm(), src)
   form.password = ''
+  if (!form.userRole) {
+    form.userRole = 'USER'
+  }
 }
 
 watch(
@@ -128,7 +141,8 @@ async function handleOk() {
     id: form.id,
     username: form.username,
     email: form.email,
-    adminFlag: form.adminFlag
+    userRole: form.userRole,
+    envCode: form.envCode || undefined
   }
   if (props.mode === 'create') {
     payload.password = form.password

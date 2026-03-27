@@ -1,7 +1,7 @@
 <template>
   <AdminPageShell
     title="用户管理"
-    description="管理系统用户（SYSTEM_USER），对接 SystemUserController。"
+    description="SYSTEM_USER：角色分超级管理员 / 环境管理员 / 普通用户（USER_ROLE）。"
     empty-text="暂无用户数据。"
   >
     <div class="user-page">
@@ -20,9 +20,9 @@
             allow-clear
           />
           <a-select
-            v-model:value="query.adminFlag"
-            :options="adminFilterOptions"
-            placeholder="管理员"
+            v-model:value="query.userRole"
+            :options="roleFilterOptions"
+            placeholder="角色"
             class="toolbar-select"
             allow-clear
           />
@@ -49,11 +49,14 @@
         :pagination="false"
         row-key="id"
         :row-selection="rowSelection"
-        :scroll="{ x: 900 }"
+        :scroll="{ x: 1020 }"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'adminFlag'">
-            <span>{{ record.adminFlag === 'Y' ? '是' : '否' }}</span>
+          <template v-if="column.key === 'userRole'">
+            <span>{{ roleLabel(record.userRole) }}</span>
+          </template>
+          <template v-else-if="column.key === 'envCode'">
+            <span>{{ record.envCode || '—' }}</span>
           </template>
           <template v-else-if="column.key === 'actions'">
             <a-button type="link" @click="openEdit(record)">编辑</a-button>
@@ -101,18 +104,30 @@ import { systemUserApi, type SystemUser, type PageResponse } from '@/api/systemU
 type QueryState = {
   username?: string
   email?: string
-  adminFlag?: string
+  userRole?: string
 }
 
-const adminFilterOptions = [
-  { label: '管理员', value: 'Y' },
-  { label: '普通', value: 'N' }
+const roleFilterOptions = [
+  { label: '超级管理员', value: 'SUPER_ADMIN' },
+  { label: '环境管理员', value: 'ENV_ADMIN' },
+  { label: '普通用户', value: 'USER' }
 ]
+
+function roleLabel(code: string | undefined) {
+  if (!code) return '—'
+  const m: Record<string, string> = {
+    SUPER_ADMIN: '超级管理员',
+    ENV_ADMIN: '环境管理员',
+    USER: '普通用户'
+  }
+  return m[code] || code
+}
 
 const columns = [
   { title: '用户名', dataIndex: 'username', key: 'username', width: 160, ellipsis: true },
-  { title: '邮箱', dataIndex: 'email', key: 'email', width: 220, ellipsis: true },
-  { title: '管理员', key: 'adminFlag', width: 90 },
+  { title: '角色', key: 'userRole', width: 120 },
+  { title: '环境', key: 'envCode', width: 88, ellipsis: true },
+  { title: '邮箱', dataIndex: 'email', key: 'email', width: 200, ellipsis: true },
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
 
@@ -149,7 +164,7 @@ const fetchList = async () => {
     param: {
       username: query.username || undefined,
       email: query.email || undefined,
-      adminFlag: query.adminFlag || undefined
+      userRole: query.userRole || undefined
     }
   }
 

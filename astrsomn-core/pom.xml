@@ -100,6 +100,13 @@
         </dependency>
 
 
+        <!-- Jackson：实体上 @JsonSerialize；provided，运行时由 Spring Boot 提供 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- MyBatis-Plus - 使用provided scope，由使用方提供 -->
         <dependency>
             <groupId>com.baomidou</groupId>
