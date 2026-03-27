@@ -80,6 +80,24 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '文档管理', requiresAuth: true }
       },
       {
+        path: 'security',
+        name: 'AdminSecurity',
+        component: () => import('@/views/admin/ai-modules/ai-security/SecurityList.vue'),
+        meta: { title: '安全治理', requiresAuth: true }
+      },
+      {
+        path: 'tracing',
+        name: 'AdminTracing',
+        component: () => import('@/views/admin/ai-modules/ai-trace/TraceList.vue'),
+        meta: { title: '链路追踪', requiresAuth: true }
+      },
+      {
+        path: 'workflows',
+        name: 'AdminWorkflows',
+        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowList.vue'),
+        meta: { title: '工作流', requiresAuth: true }
+      },
+      {
         path: 'users',
         name: 'AdminUsers',
         component: () => import('@/views/admin/system-config/system-user/UserList.vue'),
