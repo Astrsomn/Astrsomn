@@ -26,6 +26,7 @@
               </div>
             </div>
           </transition-group>
+          <div ref="messagesBottomRef" class="messages-bottom-spacer"></div>
         </div>
       </div>
 
@@ -34,6 +35,24 @@
           <div class="input-panel">
             <div class="input-toolbar">
               <div class="toolbar-left">
+                <a-select
+                  v-model:value="selectedAgent"
+                  class="panel-select"
+                  placeholder="选择 Agent"
+                  :bordered="false"
+                  :loading="optionsLoading"
+                >
+                  <a-select-option
+                    v-for="agent in agentOptions"
+                    :key="agent.agentKey"
+                    :value="agent.agentKey"
+                  >
+                    {{ agent.agentName || agent.agentKey }}
+                  </a-select-option>
+                </a-select>
+
+                <div class="v-divider"></div>
+
                 <a-select
                   v-model:value="selectedModel"
                   class="panel-select"
@@ -48,24 +67,6 @@
                     :value="model.modelKey"
                   >
                     {{ model.modelName || model.modelKey }}
-                  </a-select-option>
-                </a-select>
-                
-                <div class="v-divider"></div>
-                
-                <a-select
-                  v-model:value="selectedAgent"
-                  class="panel-select"
-                  placeholder="选择 Agent"
-                  :bordered="false"
-                  :loading="optionsLoading"
-                >
-                  <a-select-option
-                    v-for="agent in agentOptions"
-                    :key="agent.agentKey"
-                    :value="agent.agentKey"
-                  >
-                    {{ agent.agentName || agent.agentKey }}
                   </a-select-option>
                 </a-select>
               </div>
@@ -135,7 +136,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import {
   PaperClipOutlined,
@@ -176,6 +177,7 @@ const optionsLoading = ref(false)
 const modelOptions = ref<AiModel[]>([])
 const agentOptions = ref<AiAgent[]>([])
 const messagesContainerRef = ref<HTMLElement | null>(null)
+const messagesBottomRef = ref<HTMLElement | null>(null)
 const messages = ref<ChatMessage[]>([
   {
     id: 'welcome',
@@ -192,6 +194,25 @@ const sendDisabled = computed(() => {
   }
   return !userInput.value.trim() || !selectedModel.value || !selectedAgent.value
 })
+
+const getAgentPreferredModelKey = (agentKey?: string) => {
+  if (!agentKey) {
+    return undefined
+  }
+  const agent = agentOptions.value.find((item) => item.agentKey === agentKey)
+  const modelKey = agent?.modelKey == null ? undefined : String(agent.modelKey)
+  if (!modelKey) {
+    return undefined
+  }
+  return modelOptions.value.some((item) => item.modelKey === modelKey) ? modelKey : undefined
+}
+
+const syncModelWithAgent = (agentKey?: string) => {
+  const preferredModelKey = getAgentPreferredModelKey(agentKey)
+  if (preferredModelKey) {
+    selectedModel.value = preferredModelKey
+  }
+}
 
 const handleEnter = (e: KeyboardEvent) => {
   if (!e.shiftKey) {
@@ -213,6 +234,11 @@ const getMemoryKey = () => {
 
 const scrollToBottom = async () => {
   await nextTick()
+  const bottom = messagesBottomRef.value
+  if (bottom) {
+    bottom.scrollIntoView({ block: 'end' })
+    return
+  }
   const container = messagesContainerRef.value
   if (container) {
     container.scrollTop = container.scrollHeight
@@ -538,14 +564,15 @@ const loadOptions = async () => {
     modelOptions.value = modelResp.list || []
     agentOptions.value = agentResp.list || []
 
+    if (!selectedAgent.value) {
+      selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
+    }
+    syncModelWithAgent(selectedAgent.value)
     if (!selectedModel.value) {
       selectedModel.value =
         modelOptions.value.find((item) => item.isDefault === 1)?.modelKey ||
         modelOptions.value[0]?.modelKey ||
         undefined
-    }
-    if (!selectedAgent.value) {
-      selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
     }
   } catch (error: any) {
     message.error(error?.message || '加载聊天配置失败')
@@ -553,6 +580,12 @@ const loadOptions = async () => {
     optionsLoading.value = false
   }
 }
+
+watch(selectedAgent, (agentKey, previousAgentKey) => {
+  if (agentKey && agentKey !== previousAgentKey) {
+    syncModelWithAgent(agentKey)
+  }
+})
 
 const submitQuestion = async () => {
   const prompt = userInput.value.trim()
@@ -671,7 +704,13 @@ onBeforeUnmount(() => {
 .chat-messages-container {
   flex: 1;
   overflow-y: auto;
-  padding: 40px 20px;
+  padding: 40px 20px 176px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.chat-messages-container::-webkit-scrollbar {
+  display: none;
 }
 
 .message-scroll-area {
@@ -680,6 +719,11 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 32px;
+}
+
+.messages-bottom-spacer {
+  height: 176px;
+  flex-shrink: 0;
 }
 
 .message {
@@ -748,13 +792,20 @@ onBeforeUnmount(() => {
 
 /* 高级输入框面板 */
 .chat-input-section {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  pointer-events: none;
   padding: 20px 20px 30px;
-  background: linear-gradient(to top, var(--bg-base) 60%, transparent);
+  background: transparent;
 }
 
 .input-panel {
   max-width: 840px;
   margin: 0 auto;
+  pointer-events: auto;
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
   border-radius: 24px;
@@ -902,6 +953,7 @@ onBeforeUnmount(() => {
 }
 
 .input-hint {
+  pointer-events: auto;
   text-align: center;
   font-size: 12px;
   color: var(--text-muted);

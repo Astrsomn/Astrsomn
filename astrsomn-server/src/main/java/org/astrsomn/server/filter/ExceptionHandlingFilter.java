@@ -5,9 +5,11 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.astrsomn.server.exception.BusinessException;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.astrsomn.server.exception.BusinessException;
+
+import java.time.Instant;
 
 import java.io.IOException;
 
@@ -31,7 +33,7 @@ public class ExceptionHandlingFilter implements Filter {
         
         try {
             chain.doFilter(request, response);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("请求处理异常 - URI: {}, 异常: {}", httpRequest.getRequestURI(), e.getMessage(), e);
             
             if (httpResponse.isCommitted()) {
@@ -48,6 +50,10 @@ public class ExceptionHandlingFilter implements Filter {
                     status = be.getCode();
                 }
                 message = be.getMessage();
+            } else if (e instanceof org.astrsomn.core.exception.BusinessException be) {
+                code = be.getCode();
+                status = be.getCode();
+                message = be.getMessage();
             } else if (e instanceof IllegalArgumentException iae) {
                 status = HttpServletResponse.SC_BAD_REQUEST;
                 code = 400;
@@ -56,8 +62,18 @@ public class ExceptionHandlingFilter implements Filter {
 
             httpResponse.setStatus(status);
             httpResponse.setContentType("application/json;charset=UTF-8");
-            httpResponse.getWriter().write("{\"code\":" + code + ",\"message\":\"" + escapeJson(message) + "\"}");
+            httpResponse.getWriter().write(buildJsonBody(code, message, e, httpRequest));
         }
+    }
+
+    private String buildJsonBody(int code, String message, Throwable ex, HttpServletRequest request) {
+        return "{\"code\":" + code +
+                ",\"message\":\"" + escapeJson(message) + "\"" +
+                ",\"success\":false" +
+                ",\"path\":\"" + escapeJson(request.getRequestURI()) + "\"" +
+                ",\"exception\":\"" + escapeJson(ex.getClass().getName()) + "\"" +
+                ",\"timestamp\":\"" + Instant.now() + "\"" +
+                ",\"rootCause\":\"" + escapeJson(resolveRootCause(ex)) + "\"}";
     }
 
     private String escapeJson(String s) {
@@ -66,6 +82,14 @@ public class ExceptionHandlingFilter implements Filter {
                 .replace("\"", "\\\"")
                 .replace("\n", "\\n")
                 .replace("\r", "\\r");
+    }
+
+    private String resolveRootCause(Throwable ex) {
+        Throwable current = ex;
+        while (current.getCause() != null && current.getCause() != current) {
+            current = current.getCause();
+        }
+        return current.getMessage();
     }
 
     @Override
