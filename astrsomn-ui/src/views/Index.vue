@@ -13,124 +13,33 @@
       <div ref="messagesContainerRef" class="chat-messages-container">
         <div class="message-scroll-area">
           <transition-group name="message-fade">
-            <div
+            <ChatMessageItem
               v-for="item in messages"
               :key="item.id"
-              class="message"
-              :class="[item.role, { error: item.error }]"
-            >
-              <div v-if="item.role === 'ai'" class="avatar-mini">A</div>
-              <div class="content">
-                <div v-if="item.content" class="message-text">{{ item.content }}</div>
-                <div v-else-if="item.streaming" class="typing-placeholder">正在思考中...</div>
-              </div>
-            </div>
+              :role="item.role"
+              :content="item.content"
+              :streaming="item.streaming"
+              :error="item.error"
+            />
           </transition-group>
           <div ref="messagesBottomRef" class="messages-bottom-spacer"></div>
         </div>
       </div>
 
-      <div class="chat-input-section">
-        <transition name="input-slide" appear>
-          <div class="input-panel">
-            <div class="input-toolbar">
-              <div class="toolbar-left">
-                <a-select
-                  v-model:value="selectedAgent"
-                  class="panel-select"
-                  placeholder="选择 Agent"
-                  :bordered="false"
-                  :loading="optionsLoading"
-                >
-                  <a-select-option
-                    v-for="agent in agentOptions"
-                    :key="agent.agentKey"
-                    :value="agent.agentKey"
-                  >
-                    {{ agent.agentName || agent.agentKey }}
-                  </a-select-option>
-                </a-select>
-
-                <div class="v-divider"></div>
-
-                <a-select
-                  v-model:value="selectedModel"
-                  class="panel-select"
-                  placeholder="选择模型"
-                  :bordered="false"
-                  dropdown-class-name="custom-dropdown"
-                  :loading="optionsLoading"
-                >
-                  <a-select-option
-                    v-for="model in modelOptions"
-                    :key="model.modelKey"
-                    :value="model.modelKey"
-                  >
-                    {{ model.modelName || model.modelKey }}
-                  </a-select-option>
-                </a-select>
-              </div>
-            </div>
-
-            <div class="input-body">
-              <a-textarea
-                v-model:value="userInput"
-                :auto-size="{ minRows: 1, maxRows: 6 }"
-                placeholder="问点什么吧..."
-                class="main-textarea"
-                @pressEnter="handleEnter"
-                :disabled="isStreaming"
-              />
-            </div>
-
-            <div class="input-footer">
-              <div class="footer-left">
-                <a-upload :show-upload-list="false" class="upload-trigger">
-                  <button class="icon-btn" title="上传文件">
-                    <paper-clip-outlined />
-                  </button>
-                </a-upload>
-                
-                <div class="feature-switches">
-                  <div 
-                    class="feature-tag" 
-                    :class="{ active: isDeepThinking }"
-                    @click="isDeepThinking = !isDeepThinking"
-                  >
-                    <bulb-outlined /> 深度思考
-                  </div>
-                  <div 
-                    class="feature-tag" 
-                    :class="{ active: isWebSearch }"
-                    @click="isWebSearch = !isWebSearch"
-                  >
-                    <global-outlined /> 联网搜索
-                  </div>
-                </div>
-              </div>
-              
-              <div class="footer-right">
-                <div class="char-count" v-if="userInput.length > 0">
-                  {{ userInput.length }}
-                </div>
-                <div v-else-if="isStreaming" class="stream-status">流式回复中</div>
-                <a-button 
-                  type="primary" 
-                  class="send-btn" 
-                  :disabled="sendDisabled"
-                  @click="isStreaming ? stopStreaming() : submitQuestion()"
-                >
-                  <template #icon>
-                    <stop-outlined v-if="isStreaming" />
-                    <arrow-up-outlined v-else />
-                  </template>
-                </a-button>
-              </div>
-            </div>
-          </div>
-        </transition>
-        <p class="input-hint">Astrsomn 可能产生错误信息，请核查重要内容。</p>
-      </div>
+      <ChatInputPanel
+        v-model:selected-agent="selectedAgent"
+        v-model:selected-model="selectedModel"
+        v-model:user-input="userInput"
+        v-model:is-deep-thinking="isDeepThinking"
+        v-model:is-web-search="isWebSearch"
+        :is-streaming="isStreaming"
+        :options-loading="optionsLoading"
+        :send-disabled="sendDisabled"
+        :agent-options="agentOptions"
+        :model-options="modelOptions"
+        @submit="submitQuestion"
+        @stop="stopStreaming"
+      />
     </main>
   </div>
 </template>
@@ -138,14 +47,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import {
-  PaperClipOutlined,
-  BulbOutlined,
-  GlobalOutlined,
-  ArrowUpOutlined,
-  StopOutlined
-} from '@ant-design/icons-vue'
 import AppHeader from '@/components/AppHeader.vue'
+import ChatInputPanel from '@/components/ChatInputPanel.vue'
+import ChatMessageItem from '@/components/ChatMessageItem.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent'
 import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
@@ -211,15 +115,6 @@ const syncModelWithAgent = (agentKey?: string) => {
   const preferredModelKey = getAgentPreferredModelKey(agentKey)
   if (preferredModelKey) {
     selectedModel.value = preferredModelKey
-  }
-}
-
-const handleEnter = (e: KeyboardEvent) => {
-  if (!e.shiftKey) {
-    e.preventDefault()
-    if (!isStreaming.value) {
-      submitQuestion()
-    }
   }
 }
 
@@ -726,249 +621,6 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
 }
 
-.message {
-  display: flex;
-  gap: 16px;
-  max-width: 85%;
-}
-
-.message.ai {
-  align-self: flex-start;
-}
-
-.message.user {
-  align-self: flex-end;
-  flex-direction: row-reverse;
-}
-
-.avatar-mini {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-  flex-shrink: 0;
-}
-
-.message .content {
-  padding: 12px 18px;
-  border-radius: 18px;
-  line-height: 1.6;
-  font-size: 15px;
-}
-
-.message.ai .content {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  border-top-left-radius: 4px;
-}
-
-.message.user .content {
-  background: var(--primary);
-  color: white;
-  border-top-right-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
-}
-
-.message.error .content {
-  border-color: rgba(255, 77, 79, 0.35);
-  color: #ff7875;
-}
-
-.message-text {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.typing-placeholder {
-  color: var(--text-secondary);
-}
-
-/* 高级输入框面板 */
-.chat-input-section {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
-  pointer-events: none;
-  padding: 20px 20px 30px;
-  background: transparent;
-}
-
-.input-panel {
-  max-width: 840px;
-  margin: 0 auto;
-  pointer-events: auto;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: 24px;
-  box-shadow: var(--shadow-card);
-  transition: border-color 0.3s, box-shadow 0.3s;
-  overflow: hidden;
-}
-
-.input-panel:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-hover);
-}
-
-/* 输入框内部工具栏 */
-.input-toolbar {
-  padding: 12px 16px 4px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.toolbar-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.v-divider {
-  width: 1px;
-  height: 18px;
-  background: var(--border-default);
-}
-
-.panel-select {
-  min-width: 100px;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.panel-select :deep(.ant-select-selection-item) {
-  color: var(--text-secondary) !important;
-}
-
-/* 输入主体 */
-.input-body {
-  padding: 4px 16px;
-}
-
-.main-textarea {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  font-size: 16px;
-  color: var(--text-primary);
-  padding: 8px 0;
-  resize: none;
-}
-
-/* 输入框底部 */
-.input-footer {
-  padding: 8px 16px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.footer-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.icon-btn {
-  background: var(--bg-input);
-  border: 1px solid var(--border-default);
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: all 0.2s;
-}
-
-.icon-btn:hover {
-  background: var(--border-subtle);
-  color: var(--primary);
-}
-
-.feature-switches {
-  display: flex;
-  gap: 8px;
-}
-
-.feature-tag {
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-default);
-  color: var(--text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s;
-  user-select: none;
-}
-
-.feature-tag:hover {
-  border-color: var(--text-muted);
-}
-
-.feature-tag.active {
-  background: var(--primary-hover);
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.char-count {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.stream-status {
-  font-size: 12px;
-  color: var(--primary);
-}
-
-.send-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.input-hint {
-  pointer-events: auto;
-  text-align: center;
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 12px;
-}
-
-.input-slide-enter-active {
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.input-slide-enter-from {
-  opacity: 0;
-  transform: translateY(100%);
-}
-
 .message-fade-enter-active {
   transition: all 0.3s ease;
 }
@@ -993,7 +645,6 @@ onBeforeUnmount(() => {
 
 /* 响应式调整 */
 @media (max-width: 640px) {
-  .feature-tag span { display: none; }
   .top-bar { padding: 0 16px; }
   .brand-name { display: none; }
 }
