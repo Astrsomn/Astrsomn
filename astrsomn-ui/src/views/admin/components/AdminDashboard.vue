@@ -30,28 +30,42 @@
           <div class="panel-title-area">
             <div class="title-main">
               <span class="panel-title">管理中心</span>
-              <span class="panel-subtitle">AI 配置 · AI 知识库 · 系统管理</span>
+              <span class="panel-subtitle">按分类浏览，快速进入对应模块</span>
             </div>
           </div>
         </header>
         <div class="panel-body">
-          <div class="card-grid">
-            <button
-              v-for="item in managementItems"
-              :key="item.key"
-              type="button"
-              class="entry-card"
-              @click="navigateTo(item.route)"
+          <div class="mgmt-sections">
+            <section
+              v-for="group in managementGroups"
+              :key="group.id"
+              class="mgmt-section"
             >
-              <div class="icon-wrapper">
-                <component :is="item.icon" class="entry-icon" />
+              <header class="mgmt-section-head">
+                <h3 class="mgmt-section-title">{{ group.title }}</h3>
+                <p v-if="group.subtitle" class="mgmt-section-sub">{{ group.subtitle }}</p>
+              </header>
+              <div class="card-grid">
+                <button
+                  v-for="item in group.items"
+                  :key="item.key"
+                  type="button"
+                  class="entry-card"
+                  :class="{ 'entry-card--highlight': item.highlight }"
+                  :data-accent="item.accent"
+                  @click="navigateTo(item.route)"
+                >
+                  <div class="icon-wrapper">
+                    <component :is="item.icon" class="entry-icon" />
+                  </div>
+                  <div class="entry-content">
+                    <div class="entry-title">{{ item.label }}</div>
+                    <div class="entry-desc">{{ item.description }}</div>
+                  </div>
+                  <div class="arrow-hint">→</div>
+                </button>
               </div>
-              <div class="entry-content">
-                <div class="entry-title">{{ item.label }}</div>
-                <div class="entry-desc">{{ item.description }}</div>
-              </div>
-              <div class="arrow-hint">→</div>
-            </button>
+            </section>
           </div>
         </div>
       </section>
@@ -60,6 +74,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import type { Component } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   TeamOutlined,
@@ -70,28 +86,213 @@ import {
   BookOutlined,
   FileTextOutlined,
   UserOutlined,
-  CloudServerOutlined
+  CloudServerOutlined,
+  CodeOutlined,
+  SecurityScanOutlined,
+  LineChartOutlined,
+  NodeIndexOutlined,
 } from '@ant-design/icons-vue'
 import TrafficStats from './echarts/TrafficStats.vue'
 import ModelUsageChart from './echarts/ModelUsageChart.vue'
 
 const router = useRouter()
 
-const managementItems = [
-  { key: 'agents', label: '智能体管理', description: '配置智能体策略与执行参数', icon: TeamOutlined, route: '/admin/agents' },
-  { key: 'mcp', label: 'AI MCP', description: '管理 MCP 服务连接与健康状态', icon: ContainerOutlined, route: '/admin/mcp' },
-  { key: 'tools', label: 'AI Tools', description: '维护工具定义与调用权限', icon: ToolOutlined, route: '/admin/tools' },
-  { key: 'models', label: '模型配置', description: '管理模型供应商与路由策略', icon: SettingOutlined, route: '/admin/models' },
-  { key: 'prompts', label: '提示词管理', description: '维护提示词模板与版本', icon: SafetyCertificateOutlined, route: '/admin/prompts' },
-  { key: 'kb-mgr', label: '知识库管理', description: '管理知识库空间与索引配置', icon: BookOutlined, route: '/admin/knowledge-bases' },
-  { key: 'doc-mgr', label: '文档管理', description: '管理文档处理与入库任务', icon: FileTextOutlined, route: '/admin/documents' },
-  { key: 'doc-mgr', label: '安全治理', description: '配置大模型敏感词', icon: FileTextOutlined, route: '/admin/documents' },
-  { key: 'doc-mgr', label: '链路追踪', description: '监控大模型调用链路和日志输出', icon: FileTextOutlined, route: '/admin/documents' },
-  { key: 'doc-mgr', label: '工作流', description: '管理文档处理与入库任务', icon: FileTextOutlined, route: '/admin/documents' },
-  { key: 'doc-mgr', label: '模板配置', description: '管理文档处理与入库任务', icon: FileTextOutlined, route: '/admin/documents' },
-  { key: 'users', label: '用户管理', description: '管理系统用户、角色与权限分配', icon: UserOutlined, route: '/admin/users' },
-  { key: 'env', label: '环境管理', description: '管理运行环境、服务实例与部署配置', icon: CloudServerOutlined, route: '/admin/env' }
+function currentUserRole(): string | undefined {
+  try {
+    const raw = localStorage.getItem('userInfo')
+    if (!raw) return undefined
+    return (JSON.parse(raw) as { userRole?: string }).userRole
+  } catch {
+    return undefined
+  }
+}
+
+/** 主题内 accent：仅用于标题字色、边框与图标；highlight 为重要入口加浅底色 */
+type EntryAccent =
+  | 'primary'
+  | 'cyan'
+  | 'blue'
+  | 'sky'
+  | 'mint'
+  | 'coral'
+  | 'primary-light'
+  | 'indigo'
+  | 'ocean'
+  | 'violet'
+  | 'teal'
+  | 'frost'
+  | 'brand'
+
+type ManagementEntry = {
+  key: string
+  label: string
+  description: string
+  icon: Component
+  route: string
+  accent: EntryAccent
+  highlight?: boolean
+}
+
+type ManagementGroup = {
+  id: string
+  title: string
+  subtitle?: string
+  items: ManagementEntry[]
+}
+
+const managementGroupsAll: ManagementGroup[] = [
+  {
+    id: 'ai-core',
+    title: 'AI 模型与编排',
+    subtitle: '智能体、MCP、工具、模型与提示词——搭建推理与执行链路',
+    items: [
+      {
+        key: 'agents',
+        label: '智能体管理',
+        description: '配置智能体策略与执行参数',
+        icon: TeamOutlined,
+        route: '/admin/agents',
+        accent: 'primary',
+        highlight: true,
+      },
+      {
+        key: 'mcp',
+        label: 'AI MCP',
+        description: '管理 MCP 服务连接与健康状态',
+        icon: ContainerOutlined,
+        route: '/admin/mcp',
+        accent: 'ocean',
+      },
+      {
+        key: 'tools',
+        label: 'AI Tools',
+        description: '维护工具定义与调用权限',
+        icon: ToolOutlined,
+        route: '/admin/tools',
+        accent: 'blue',
+      },
+      {
+        key: 'models',
+        label: '模型配置',
+        description: '管理模型供应商与路由策略',
+        icon: SettingOutlined,
+        route: '/admin/models',
+        accent: 'sky',
+        highlight: true,
+      },
+      {
+        key: 'prompts',
+        label: '提示词管理',
+        description: '维护 AI_PROMPT 系统提示词与版本',
+        icon: SafetyCertificateOutlined,
+        route: '/admin/prompts',
+        accent: 'mint',
+      },
+    ],
+  },
+  {
+    id: 'content',
+    title: '模板与知识',
+    subtitle: '内容模板、知识库与文档入库',
+    items: [
+      {
+        key: 'templates',
+        label: 'FTL 模板',
+        description: 'Freemarker / StringTemplate 模板（AI_TEMPLATE）',
+        icon: CodeOutlined,
+        route: '/admin/templates',
+        accent: 'primary-light',
+      },
+      {
+        key: 'kb-mgr',
+        label: '知识库管理',
+        description: '管理知识库空间与索引配置',
+        icon: BookOutlined,
+        route: '/admin/knowledge-bases',
+        accent: 'teal',
+      },
+      {
+        key: 'doc-mgr',
+        label: '文档管理',
+        description: '管理文档处理与入库任务',
+        icon: FileTextOutlined,
+        route: '/admin/documents',
+        accent: 'cyan',
+      },
+    ],
+  },
+  {
+    id: 'ops',
+    title: '安全与流程',
+    subtitle: '风控、可观测与自动化编排',
+    items: [
+      {
+        key: 'security',
+        label: '安全治理',
+        description: '配置敏感词、注入检测与风控策略',
+        icon: SecurityScanOutlined,
+        route: '/admin/security',
+        accent: 'coral',
+      },
+      {
+        key: 'tracing',
+        label: '链路追踪',
+        description: '监控大模型调用链路与日志输出',
+        icon: LineChartOutlined,
+        route: '/admin/tracing',
+        accent: 'violet',
+      },
+      {
+        key: 'workflows',
+        label: '工作流',
+        description: '配置 DAG 节点流程、触发条件与执行链路',
+        icon: NodeIndexOutlined,
+        route: '/admin/workflows',
+        accent: 'indigo',
+      },
+    ],
+  },
+  {
+    id: 'system',
+    title: '系统管理',
+    subtitle: '账号、角色与运行环境（仅超级管理员）',
+    items: [
+      {
+        key: 'users',
+        label: '用户管理',
+        description: '管理系统用户、角色与权限分配',
+        icon: UserOutlined,
+        route: '/admin/users',
+        accent: 'brand',
+        highlight: true,
+      },
+      {
+        key: 'env',
+        label: '环境管理',
+        description: '管理运行环境、服务实例与部署配置',
+        icon: CloudServerOutlined,
+        route: '/admin/env',
+        accent: 'frost',
+      },
+    ],
+  },
 ]
+
+function entryVisibleForRole(entry: ManagementEntry, isSuper: boolean): boolean {
+  if (isSuper) return true
+  return entry.route !== '/admin/users' && entry.route !== '/admin/env'
+}
+
+/** 按角色过滤条目；空分类不展示 */
+const managementGroups = computed(() =>
+  managementGroupsAll
+    .map((g) => {
+      const isSuper = currentUserRole() === 'SUPER_ADMIN'
+      const items = g.items.filter((i) => entryVisibleForRole(i, isSuper))
+      return { ...g, items }
+    })
+    .filter((g) => g.items.length > 0),
+)
 
 const navigateTo = (path: string) => {
   void router.push(path)
@@ -163,6 +364,39 @@ const navigateTo = (path: string) => {
   padding: 0 24px 24px;
 }
 
+/* 管理入口分区 */
+.mgmt-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.mgmt-section {
+  margin: 0;
+}
+
+.mgmt-section-head {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.mgmt-section-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--section-title);
+}
+
+.mgmt-section-sub {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-muted);
+  max-width: 720px;
+}
+
 /* 子卡片网格 - 重点修改 */
 .card-grid {
   display: grid;
@@ -172,8 +406,10 @@ const navigateTo = (path: string) => {
 }
 
 .entry-card {
+  --entry-color: var(--accent-blue);
+
   position: relative;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid color-mix(in srgb, var(--entry-color) 30%, var(--border-default));
   border-radius: 14px;
   background: var(--bg-card);
   padding: 24px;
@@ -186,15 +422,59 @@ const navigateTo = (path: string) => {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 悬浮效果：ToC 常用的轻微放大和投影 */
-.entry-card:hover {
-  border-color: var(--primary);
-  background: var(--bg-card);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 20px -8px rgba(59, 130, 246, 0.15);
+.entry-card[data-accent='primary'] {
+  --entry-color: var(--primary);
+}
+.entry-card[data-accent='cyan'] {
+  --entry-color: var(--accent-cyan);
+}
+.entry-card[data-accent='blue'] {
+  --entry-color: var(--accent-blue);
+}
+.entry-card[data-accent='sky'] {
+  --entry-color: var(--section-title);
+}
+.entry-card[data-accent='mint'] {
+  --entry-color: var(--success);
+}
+.entry-card[data-accent='coral'] {
+  --entry-color: var(--error);
+}
+.entry-card[data-accent='primary-light'] {
+  --entry-color: var(--primary-light);
+}
+.entry-card[data-accent='indigo'] {
+  --entry-color: color-mix(in srgb, var(--primary) 45%, var(--accent-blue) 55%);
+}
+.entry-card[data-accent='ocean'] {
+  --entry-color: color-mix(in srgb, var(--primary) 35%, var(--accent-cyan) 65%);
+}
+.entry-card[data-accent='violet'] {
+  --entry-color: color-mix(in srgb, var(--section-title) 88%, var(--accent-blue) 12%);
+}
+.entry-card[data-accent='teal'] {
+  --entry-color: color-mix(in srgb, var(--success) 48%, var(--accent-cyan) 52%);
+}
+.entry-card[data-accent='frost'] {
+  --entry-color: color-mix(in srgb, var(--section-title) 52%, var(--accent-cyan) 48%);
+}
+.entry-card[data-accent='brand'] {
+  --entry-color: color-mix(in srgb, var(--primary) 52%, var(--accent-blue) 48%);
 }
 
-/* 图标容器装饰 */
+.entry-card--highlight {
+  background: color-mix(in srgb, var(--entry-color) 9%, var(--bg-card));
+}
+
+.entry-card:hover {
+  border-color: color-mix(in srgb, var(--entry-color) 58%, var(--border-default));
+  transform: translateY(-4px);
+  box-shadow:
+    0 12px 24px -10px color-mix(in srgb, var(--entry-color) 22%, transparent),
+    0 4px 12px -4px color-mix(in srgb, var(--entry-color) 12%, transparent);
+}
+
+/* 图标区：仅边框 + 字色随条目；重要入口略加深底色 */
 .icon-wrapper {
   flex-shrink: 0;
   width: 52px;
@@ -202,23 +482,25 @@ const navigateTo = (path: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-input);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--entry-color) 38%, var(--border-subtle));
   border-radius: 12px;
   transition: all 0.3s ease;
 }
 
+.entry-card--highlight .icon-wrapper {
+  background: color-mix(in srgb, var(--entry-color) 11%, var(--bg-card));
+}
+
 .entry-card:hover .icon-wrapper {
-  background: var(--primary-hover);
+  border-color: color-mix(in srgb, var(--entry-color) 52%, var(--border-default));
+  background: color-mix(in srgb, var(--entry-color) 14%, var(--bg-card));
 }
 
 .entry-icon {
   font-size: 26px;
-  color: var(--text-secondary);
+  color: var(--entry-color);
   transition: color 0.3s ease;
-}
-
-.entry-card:hover .entry-icon {
-  color: var(--accent-blue);
 }
 
 .entry-content {
@@ -229,7 +511,7 @@ const navigateTo = (path: string) => {
 .entry-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--text-heading);
+  color: var(--entry-color);
   margin-bottom: 4px;
 }
 
@@ -251,7 +533,7 @@ const navigateTo = (path: string) => {
 .entry-card:hover .arrow-hint {
   opacity: 1;
   transform: translateX(0);
-  color: var(--accent-blue);
+  color: var(--entry-color);
 }
 
 /* 响应式调整 */

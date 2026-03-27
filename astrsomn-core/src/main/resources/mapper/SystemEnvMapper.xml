@@ -13,7 +13,7 @@
             AND se.env_name LIKE CONCAT('%', #{req.envName}, '%')
         </if>
         <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND se.env_code = #{req.envCode}
+            AND se.env_key = #{req.envCode}
         </if>
         ORDER BY
         se.create_time DESC

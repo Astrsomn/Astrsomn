@@ -35,10 +35,12 @@ public class AstroChatStreamUtil {
         return Flux.create(fluxSink -> {
 
             inputStream.onPartialThinking(thinking -> {
+                        log.warn("====>  思考过程:{}", thinking);
                         this.sendEvent(fluxSink, ChatStreamEnum.AstroEventType.THOUGHT, thinking.text());
                     })
                     .onPartialResponse(partial -> {
                         if (StringUtils.isNotBlank(partial)) {
+                            contentBuilder.get().append(partial);
                             this.sendEvent(fluxSink, ChatStreamEnum.AstroEventType.TEXT, partial);
                         }
                     })
@@ -64,6 +66,7 @@ public class AstroChatStreamUtil {
     // SSE推送
     public void sendEvent(FluxSink<String> sink, ChatStreamEnum.AstroEventType eventType, String content) {
         if (content == null) return;
+        log.info("Astro stream event: type={}, content={}", eventType.getCode(), content);
         sink.next(JsonUtils.toJson(Map.of(
                 "type", eventType.getCode(),
                 "content", content,
@@ -81,13 +84,11 @@ public class AstroChatStreamUtil {
     // 保存历史对话
     private void finalizeConversation(AstroChatParam param, String content, TokenUsage usage) {
         if (param == null || param.getMemoryKey() == null) return;
-        CompletableFuture.runAsync(() -> {
-            try {
-                historyRecorder.savePair(param, content, usage);
-            } catch (Exception e) {
-                log.error("Astro history save failed: {}", e.getMessage());
-            }
-        }, taskExecutor);
+        try {
+            historyRecorder.savePair(param, content, usage);
+        } catch (Exception e) {
+            log.error("Astro history save failed: {}", e.getMessage());
+        }
     }
 
 }

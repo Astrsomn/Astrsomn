@@ -13,5 +13,5 @@ public interface AiConversationMapper extends BaseMapper<AiConversationEntity> {
 
     IPage<AiConversationResponseDTO> queryPage(IPage<AiConversationResponseDTO> page, @Param("req") AiConversationQueryRequestDTO param);
 
-    int getMaxMessageOrder(@Param("messageId") String messageId);
+    int getMaxMessageOrder(@Param("messageKey") String messageKey);
 }

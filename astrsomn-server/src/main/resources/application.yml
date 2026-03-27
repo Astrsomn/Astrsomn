@@ -19,6 +19,10 @@ server:
 
 astrsomn:
   env-code: pro
+  # 首次启动写入 SYSTEM_ENV（env_key = env-code）；默认管理员同此环境
+  # default-env:
+  #   name: 生产环境
+  #   description: 可选说明
   # 业务 key 占位（dev/uat/pro 各配一套，Java 只读配置；@Astro 可省略 agentKey）
   # refs:
   #   default-agent-key: agt_support_bot_u10001

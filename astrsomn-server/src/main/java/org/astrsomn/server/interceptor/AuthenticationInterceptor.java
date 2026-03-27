@@ -3,76 +3,63 @@ package org.astrsomn.server.interceptor;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.entity.SystemUserEntity;
 import org.astrsomn.core.mapper.SystemUserMapper;
-import org.astrsomn.server.exception.BusinessException;
 import org.astrsomn.server.util.JwtUtil;
 import org.astrsomn.server.util.UserContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Slf4j
 @Component
-public class AuthenticationInterceptor implements HandlerInterceptor {
+@RequiredArgsConstructor
+public class AuthenticationInterceptor extends AbstractSecurityInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private SystemUserMapper systemUserMapper;
+    private final JwtUtil jwtUtil;
+    private final SystemUserMapper systemUserMapper;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = extractToken(request);
-        
+
         if (token == null || token.isEmpty()) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":401,\"message\":\"未授权访问，请先登录\"}");
-            return false;
+            return writeUnauthorized(response, "未授权访问，请先登录");
         }
-        
+
         if (!jwtUtil.validateToken(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":401,\"message\":\"Token无效或已过期\"}");
-            return false;
+            return writeUnauthorized(response, "Token无效或已过期");
         }
-        
+
         Long userId = jwtUtil.getUserIdFromToken(token);
         String username = jwtUtil.getUsernameFromToken(token);
-        
+
         if (userId == null || username == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":401,\"message\":\"Token解析失败\"}");
-            return false;
+            return writeUnauthorized(response, "Token解析失败");
         }
-        
+
         SystemUserEntity user = systemUserMapper.selectOne(
                 new LambdaQueryWrapper<SystemUserEntity>()
                         .eq(SystemUserEntity::getId, userId)
         );
-        
+
         if (user == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":401,\"message\":\"用户不存在\"}");
-            return false;
+            return writeUnauthorized(response, "用户不存在");
         }
-        
+
         UserContext.setUserId(user.getId());
         UserContext.setUsername(user.getUsername());
         UserContext.set("email", user.getEmail());
         UserContext.set("adminFlag", user.getAdminFlag());
+        UserContext.set("userRole", user.getUserRole());
+        UserContext.set("envCode", user.getEnvCode());
         UserContext.setToken(token);
         UserContext.setClientIp(request.getRemoteAddr());
-        
-        log.info("用户认证成功 - URI: {}, Username: {}, UserId: {}", 
+
+        log.info("用户认证成功 - URI: {}, Username: {}, UserId: {}",
                 request.getRequestURI(), username, userId);
-        
+
         return true;
     }
 
@@ -86,12 +73,12 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        
+
         String token = request.getParameter("token");
         if (token != null && !token.isEmpty()) {
             return token;
         }
-        
+
         return null;
     }
 }

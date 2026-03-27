@@ -48,33 +48,17 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
             int consumeTokens) {
         AiConversationEntity entity = new AiConversationEntity();
         String memoryKey = param.getMemoryKey();
-        entity.setMemoryId(memoryKey);
+
         entity.setMemoryKey(memoryKey);
         entity.setRole(role.getCode());
         entity.setContent(message);
         entity.setMessageOrder(messageOrder);
         entity.setConsumeTokens(Math.max(0, consumeTokens));
-
+        entity.setAgentKey(param.getAgentKey());
+        entity.setModelKey(param.getModelKey());
+        entity.setPromptKey(param.getPromptSetting().getPromptKey());
         if (StringUtils.isNotBlank(astrsomnProperties.getEnvCode())) {
             entity.setEnvCode(astrsomnProperties.getEnvCode());
-        }
-        if (StringUtils.isNotBlank(param.getAgentKey())) {
-            AiAgentEntity agent = aiAgentMapper.selectOne(
-                    new LambdaQueryWrapper<AiAgentEntity>()
-                            .eq(AiAgentEntity::getAgentKey, param.getAgentKey())
-                            .eq(AiAgentEntity::getEnvCode, astrsomnProperties.getEnvCode()));
-            if (agent != null) {
-                entity.setAgentId(agent.getId());
-            }
-        }
-        if (StringUtils.isNotBlank(param.getModelKey())) {
-            AiModelEntity model = aiModelMapper.selectOne(
-                    new LambdaQueryWrapper<AiModelEntity>()
-                            .eq(AiModelEntity::getModelKey, param.getModelKey())
-                            .eq(AiModelEntity::getEnvCode, astrsomnProperties.getEnvCode()));
-            if (model != null) {
-                entity.setModelId(model.getId());
-            }
         }
         return entity;
     }

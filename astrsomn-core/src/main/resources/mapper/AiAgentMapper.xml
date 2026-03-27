@@ -7,20 +7,28 @@
         SELECT
         aa.*,
         am.model_name AS modelName,
-        (SELECT GROUP_CONCAT(at.name SEPARATOR ', ')
-        FROM AI_TOOL at
-        WHERE FIND_IN_SET(at.id, aa.tool_ids)) AS toolNames,
-        (SELECT GROUP_CONCAT(amc.server_name SEPARATOR ', ')
-        FROM AI_MCP_CONFIG amc
-        WHERE FIND_IN_SET(amc.id, aa.mcp_ids)) AS mcpNames
+        ap.prompt_title AS promptTitle
         FROM
         AI_AGENT aa
-        LEFT JOIN
-        AI_MODEL_CONFIG am ON aa.model_id = am.id
+        LEFT JOIN AI_MODEL am
+            ON am.model_key = aa.model_key
+            AND am.env_code = aa.env_code
+            AND (am.deleted = 0 OR am.deleted IS NULL)
+        LEFT JOIN (
+            SELECT env_code, prompt_key, MAX(version) AS max_version
+            FROM AI_PROMPT
+            WHERE deleted = 0
+            GROUP BY env_code, prompt_key
+        ) latest_p ON latest_p.env_code = aa.env_code AND latest_p.prompt_key = aa.prompt_key
+        LEFT JOIN AI_PROMPT ap
+            ON ap.prompt_key = aa.prompt_key
+            AND ap.env_code = aa.env_code
+            AND ap.version = latest_p.max_version
+            AND (ap.deleted = 0 OR ap.deleted IS NULL)
         WHERE
-        1=1
+            (aa.deleted = 0 OR aa.deleted IS NULL)
         <if test="req != null and req.name != null and req.name != ''">
-            AND aa.name LIKE CONCAT('%', #{req.name}, '%')
+            AND aa.agent_name LIKE CONCAT('%', #{req.name}, '%')
         </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND aa.status = #{req.status}

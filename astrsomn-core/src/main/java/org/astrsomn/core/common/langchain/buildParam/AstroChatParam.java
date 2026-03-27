@@ -38,6 +38,7 @@ public class AstroChatParam<T> {
     /**
      * 历史消息最大保留数 (属于记忆管理策略，也可单独拆分，这里暂留)
      */
+    @Builder.Default
     private Integer maxHistoryMessages = 10;
 
     // --- 2. 组合策略对象 (核心改动) ---
@@ -45,22 +46,26 @@ public class AstroChatParam<T> {
     /**
      * 模型推理参数配置 (温度、TopP等)
      */
-    private ModelSetting modelSetting;
+    @Builder.Default
+    private ModelSetting modelSetting = new ModelSetting();
 
     /**
      * 功能开关 (联网、流式等)
      */
-    private ChatSetting chatSetting;
+    @Builder.Default
+    private ChatSetting chatSetting = new ChatSetting();
 
     /**
      * 知识与工具挂载策略
      */
-    private ToolSetting toolSetting;
+    @Builder.Default
+    private ToolSetting toolSetting = new ToolSetting();
 
     /**
      * 提示词工程策略
      */
-    private PromptSetting promptSetting;
+    @Builder.Default
+    private PromptSetting promptSetting = new PromptSetting();
 
 
     /**

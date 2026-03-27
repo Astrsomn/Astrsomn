@@ -121,7 +121,8 @@ public class AiStreamModelFactory {
         List<String> capabilities = JsonUtil.parseArray(modelEntity.getCapabilities(), String.class);
 
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.DEEP_REASONING.getCode()) && chatSetting.isEnableDeepThinking()) {
-
+            builder.returnThinking(true);
+            builder.sendThinking(true);
         }
         if (capabilities.contains(AiModelEnum.CapabilitiesEnum.TEMPERATURE_SETTING.getCode()) && Objects.nonNull(modelSetting.getTemperature())) {
             builder.temperature(modelSetting.getTemperature());

@@ -28,11 +28,12 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(Long userId, String username) {
+    public String generateToken(Long userId, String username, String userRole) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
-        
+        claims.put("userRole", userRole != null ? userRole : "");
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
@@ -85,12 +86,17 @@ public class JwtUtil {
         return expiration.before(new Date());
     }
 
+    /**
+     * @deprecated 请使用 {@link org.astrsomn.server.service.impl.AuthServiceImpl#refreshToken} 内基于库表重新签发
+     */
+    @Deprecated
     public String refreshToken(String token) {
         Claims claims = parseToken(token);
         if (claims != null) {
             Long userId = claims.get("userId", Long.class);
             String username = claims.getSubject();
-            return generateToken(userId, username);
+            String userRole = claims.get("userRole", String.class);
+            return generateToken(userId, username, userRole);
         }
         return null;
     }

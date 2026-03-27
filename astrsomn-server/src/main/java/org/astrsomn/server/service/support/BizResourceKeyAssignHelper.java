@@ -13,6 +13,7 @@ import org.astrsomn.core.mapper.AiMcpMapper;
 import org.astrsomn.core.mapper.AiPromptMapper;
 import org.astrsomn.core.mapper.AiToolMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
+import org.astrsomn.starter.context.EnvRuntime;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,7 +37,6 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), astrsomnProperties.getEnvCode());
         String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
         String name = StringUtils.defaultIfBlank(entity.getAgentName(), "agent");
         entity.setAgentKey(
@@ -47,7 +47,6 @@ public class BizResourceKeyAssignHelper {
                         candidate ->
                                 aiAgentMapper.selectCount(
                                         new LambdaQueryWrapper<AiAgentEntity>()
-                                                .eq(AiAgentEntity::getEnvCode, env)
                                                 .eq(AiAgentEntity::getCreateUser, user)
                                                 .eq(AiAgentEntity::getAgentKey, candidate))));
     }
@@ -59,7 +58,6 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), astrsomnProperties.getEnvCode());
         String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
         String name = StringUtils.defaultIfBlank(entity.getPromptTitle(), "prompt");
         entity.setPromptKey(
@@ -70,7 +68,6 @@ public class BizResourceKeyAssignHelper {
                         candidate ->
                                 aiPromptMapper.selectCount(
                                         new LambdaQueryWrapper<AiPromptEntity>()
-                                                .eq(AiPromptEntity::getEnvCode, env)
                                                 .eq(AiPromptEntity::getCreateUser, user)
                                                 .eq(AiPromptEntity::getPromptKey, candidate))));
     }
@@ -82,7 +79,6 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), astrsomnProperties.getEnvCode());
         String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
         String name = StringUtils.defaultIfBlank(entity.getToolName(), "tool");
         entity.setToolKey(
@@ -93,7 +89,6 @@ public class BizResourceKeyAssignHelper {
                         candidate ->
                                 aiToolMapper.selectCount(
                                         new LambdaQueryWrapper<AiToolEntity>()
-                                                .eq(AiToolEntity::getEnvCode, env)
                                                 .eq(AiToolEntity::getCreateUser, user)
                                                 .eq(AiToolEntity::getToolKey, candidate))));
     }
@@ -105,7 +100,6 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), astrsomnProperties.getEnvCode());
         String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
         String name = StringUtils.defaultIfBlank(entity.getServerName(), "mcp");
         entity.setMcpKey(
@@ -116,14 +110,13 @@ public class BizResourceKeyAssignHelper {
                         candidate ->
                                 aiMcpMapper.selectCount(
                                         new LambdaQueryWrapper<AiMcpEntity>()
-                                                .eq(AiMcpEntity::getEnvCode, env)
                                                 .eq(AiMcpEntity::getCreateUser, user)
                                                 .eq(AiMcpEntity::getMcpKey, candidate))));
     }
 
     private void fillEnv(BaseEntity<?> entity) {
         if (StringUtils.isBlank(entity.getEnvCode())) {
-            entity.setEnvCode(astrsomnProperties.getEnvCode());
+            entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
     }
 }

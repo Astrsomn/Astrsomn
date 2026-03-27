@@ -1,5 +1,6 @@
 package org.astrsomn.core.common.base;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
@@ -24,25 +25,25 @@ public class BaseEntity<T extends Serializable> implements Serializable {
     /**
      * The timestamp when the record was created.
      */
-    @TableField("CREATE_TIME")
+    @TableField(value = "CREATE_TIME", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * The timestamp when the record was last updated.
      */
-    @TableField("UPDATE_TIME")
+    @TableField(value = "UPDATE_TIME", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /**
      * The identifier or name of the user who created the record.
      */
-    @TableField("CREATE_USER")
+    @TableField(value = "CREATE_USER", fill = FieldFill.INSERT)
     private String createUser;
 
     /**
      * The identifier or name of the user who last modified the record.
      */
-    @TableField("UPDATE_USER")
+    @TableField(value = "UPDATE_USER", fill = FieldFill.INSERT_UPDATE)
     private String updateUser;
 
     /**
@@ -55,6 +56,6 @@ public class BaseEntity<T extends Serializable> implements Serializable {
     /**
      * The environment code (e.g., DEV, TEST, PROD).
      */
-    @TableField("ENV_CODE")
+    @TableField(value = "ENV_CODE", fill = FieldFill.INSERT)
     private String envCode;
 }

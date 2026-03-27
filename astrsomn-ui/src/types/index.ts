@@ -9,6 +9,8 @@ export interface LoginResponse {
     id: string
     username: string
     email?: string
+    /** SUPER_ADMIN | ENV_ADMIN | USER */
+    userRole?: string
   }
 }
 

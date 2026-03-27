@@ -5,7 +5,7 @@ import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.StringValue;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.astrsomn.starter.context.EnvRuntime;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -20,21 +20,25 @@ public class EnvCodeTenantHandler implements TenantLineHandler {
     @Resource
     private  AstrsomnProperties properties;
 
-    // 需要进行环境隔离的私有表白名单
+    /**
+     * 需拼接 ENV_CODE 条件的表（小写，与 MP 传入表名归一后一致）。
+     * <p>未在此列出的表将<b>不</b>做租户过滤（历史原因曾漏配会导致切换环境仍查到其它环境数据）。
+     */
     private static final List<String> PRIVATE_TABLES = Arrays.asList(
+            "ai_agent",
             "ai_model",
+            "ai_prompt",
             "ai_prompt_config",
+            "ai_tool",
+            "ai_mcp",
+            "ai_template",
+            "ai_conversation",
             "astrsomn_job_log"
     );
 
     @Override
     public Expression getTenantId() {
-        // 从配置中获取当前环境的 Code (如: dev, prod)
-        String code = properties.getEnvCode();
-        if (code == null) {
-            // 注意：如果返回 null，MP 在某些版本可能会抛错，建议配置默认值或校验
-            return new StringValue("default");
-        }
+        String code = EnvRuntime.resolveEffectiveEnvCode(properties);
         return new StringValue(code);
     }
 

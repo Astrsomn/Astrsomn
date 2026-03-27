@@ -13,7 +13,7 @@ import org.astrsomn.server.service.SystemUserService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/astro/system-user")
+@RequestMapping("/v1/astro/system-user")
 @RequiredArgsConstructor
 public class SystemUserController extends BaseController {
 

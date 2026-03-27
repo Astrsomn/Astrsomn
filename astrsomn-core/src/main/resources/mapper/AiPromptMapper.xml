@@ -2,13 +2,35 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.astrsomn.core.mapper.AiPromptMapper">
 
+    <!-- 列表：每个 promptKey（按环境）只展示当前最大版本的一条 -->
     <select id="queryPage" resultType="org.astrsomn.core.common.dto.prompt.AiPromptResponseDTO">
         SELECT
         ap.*
         FROM
         AI_PROMPT ap
+        INNER JOIN (
+            SELECT
+                env_code,
+                prompt_key,
+                MAX(version) AS max_version
+            FROM
+                AI_PROMPT
+            WHERE
+                deleted = 0
+            GROUP BY
+                env_code,
+                prompt_key
+        ) latest ON ap.env_code = latest.env_code
+            AND ap.prompt_key = latest.prompt_key
+            AND ap.version = latest.max_version
         WHERE
-        1=1
+        ap.deleted = 0
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND ap.env_code = #{req.envCode}
+        </if>
+        <if test="req != null and req.createUser != null and req.createUser != ''">
+            AND ap.create_user = #{req.createUser}
+        </if>
         <if test="req != null and req.promptKey != null and req.promptKey != ''">
             AND ap.prompt_key = #{req.promptKey}
         </if>
@@ -23,6 +45,20 @@
         </if>
         ORDER BY
         ap.create_time DESC
+    </select>
+
+    <select id="listHistoryByPromptKey" resultType="org.astrsomn.core.common.dto.prompt.AiPromptResponseDTO">
+        SELECT
+        ap.*
+        FROM
+        AI_PROMPT ap
+        WHERE
+        ap.deleted = 0
+        AND ap.prompt_key = #{promptKey}
+        AND ap.env_code = #{envCode}
+        ORDER BY
+        ap.version DESC,
+        ap.id DESC
     </select>
 
     <select id="getByUUID" resultType="java.lang.String">

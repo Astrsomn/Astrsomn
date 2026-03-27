@@ -62,6 +62,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '提示词管理', requiresAuth: true }
       },
       {
+        path: 'templates',
+        name: 'AdminTemplates',
+        component: () => import('@/views/admin/ai-config/ai-template/TemplateList.vue'),
+        meta: { title: 'FTL 模板管理', requiresAuth: true }
+      },
+      {
         path: 'knowledge-bases',
         name: 'AdminKnowledgeBases',
         component: () => import('@/views/admin/ai-modules/ai-rag/KnowledgeBaseList.vue'),
@@ -72,6 +78,24 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminDocuments',
         component: () => import('@/views/admin/ai-modules/ai-docs/DocumentList.vue'),
         meta: { title: '文档管理', requiresAuth: true }
+      },
+      {
+        path: 'security',
+        name: 'AdminSecurity',
+        component: () => import('@/views/admin/ai-modules/ai-security/SecurityList.vue'),
+        meta: { title: '安全治理', requiresAuth: true }
+      },
+      {
+        path: 'tracing',
+        name: 'AdminTracing',
+        component: () => import('@/views/admin/ai-modules/ai-trace/TraceList.vue'),
+        meta: { title: '链路追踪', requiresAuth: true }
+      },
+      {
+        path: 'workflows',
+        name: 'AdminWorkflows',
+        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowList.vue'),
+        meta: { title: '工作流', requiresAuth: true }
       },
       {
         path: 'users',

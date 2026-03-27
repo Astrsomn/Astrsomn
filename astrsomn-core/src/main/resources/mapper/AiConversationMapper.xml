@@ -29,7 +29,7 @@
     </select>
 
     <select id="getMaxMessageOrder" resultType="java.lang.Integer">
-        SELECT COALESCE(MAX(message_order), -1) FROM AI_CONVERSATION WHERE deleted = 0 AND memory_id = #{messageId}
+        SELECT COALESCE(MAX(message_order), -1) FROM AI_CONVERSATION WHERE deleted = 0 AND memory_key = #{messageKey}
     </select>
 
 </mapper>

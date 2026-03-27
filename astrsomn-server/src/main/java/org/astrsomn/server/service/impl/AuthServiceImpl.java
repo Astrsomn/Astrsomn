@@ -52,13 +52,14 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(401, "用户名或密码错误");
         }
 
-        String token = jwtUtil.generateToken(user.getId(), user.getUsername());
+        String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getUserRole());
 
         LoginResponse response = new LoginResponse();
         response.setUserId(user.getId());
         response.setUsername(user.getUsername());
         response.setEmail(user.getEmail());
         response.setAdminFlag(user.getAdminFlag());
+        response.setUserRole(user.getUserRole());
         response.setToken(token);
         response.setExpiresIn(expiration);
 
@@ -84,7 +85,12 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(401, "Token解析失败");
         }
 
-        String newToken = jwtUtil.refreshToken(oldToken);
+        SystemUserEntity user = systemUserMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(401, "用户不存在");
+        }
+
+        String newToken = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getUserRole());
 
         log.info("Token刷新成功 - Username: {}", username);
 
