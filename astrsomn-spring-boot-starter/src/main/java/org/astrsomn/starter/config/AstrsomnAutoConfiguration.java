@@ -3,9 +3,11 @@ package org.astrsomn.starter.config;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
 @AutoConfiguration
+@ComponentScan(basePackages = "org.astrsomn.starter")
 @EnableConfigurationProperties(AstrsomnProperties.class)
 // 只要配置了 astrsomn.data-base 相关的属性就开启
 @ConditionalOnProperty(prefix = "astrsomn.data-base", name = "database-type")

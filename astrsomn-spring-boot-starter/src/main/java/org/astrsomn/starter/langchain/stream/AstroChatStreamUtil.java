@@ -64,6 +64,7 @@ public class AstroChatStreamUtil {
     // SSE推送
     public void sendEvent(FluxSink<String> sink, ChatStreamEnum.AstroEventType eventType, String content) {
         if (content == null) return;
+        log.info("Astro stream event: type={}, content={}", eventType.getCode(), content);
         sink.next(JsonUtils.toJson(Map.of(
                 "type", eventType.getCode(),
                 "content", content,

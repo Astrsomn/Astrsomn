@@ -17,7 +17,7 @@ import org.astrsomn.core.common.entity.AiModelEntity;
 import org.springframework.beans.BeanUtils;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiModelService;
-import org.astrsomn.server.service.support.AiModelKeyGenerator;
+import org.astrsomn.server.service.support.BizResourceKeyGenerator;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.context.EnvRuntime;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity> implements AiModelService {
 
-    private final AiModelKeyGenerator aiModelKeyGenerator;
+    private final BizResourceKeyGenerator bizResourceKeyGenerator;
     private final AstrsomnProperties astrsomnProperties;
 
 
@@ -117,7 +117,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         if (StringUtils.isBlank(entity.getEnvCode())) {
             entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
-        aiModelKeyGenerator.assignIfBlank(entity);
+        assignModelKeyIfBlank(entity);
         boolean result = updateById(entity);
         return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
     }
@@ -129,8 +129,25 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         if (StringUtils.isBlank(entity.getEnvCode())) {
             entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
-        aiModelKeyGenerator.assignIfBlank(entity);
+        assignModelKeyIfBlank(entity);
         boolean result = save(entity);
         return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
+    }
+
+    private void assignModelKeyIfBlank(AiModelEntity entity) {
+        String trimmed = StringUtils.trimToNull(entity.getModelKey());
+        if (trimmed != null) {
+            entity.setModelKey(trimmed);
+            return;
+        }
+        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
+        entity.setModelKey(
+                bizResourceKeyGenerator.generateUniqueModelKey(
+                        entity,
+                        candidate ->
+                                baseMapper.selectCount(
+                                        new LambdaQueryWrapper<AiModelEntity>()
+                                                .eq(AiModelEntity::getCreateUser, user)
+                                                .eq(AiModelEntity::getModelKey, candidate))));
     }
 }

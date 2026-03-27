@@ -10,24 +10,19 @@
     />
 
     <main class="chat-main">
-      <div class="chat-messages-container">
+      <div ref="messagesContainerRef" class="chat-messages-container">
         <div class="message-scroll-area">
           <transition-group name="message-fade">
-            <div class="message ai" key="welcome">
-              <div class="avatar-mini">A</div>
+            <div
+              v-for="item in messages"
+              :key="item.id"
+              class="message"
+              :class="[item.role, { error: item.error }]"
+            >
+              <div v-if="item.role === 'ai'" class="avatar-mini">A</div>
               <div class="content">
-                你好，我是 Astrsomn AI 助手。今天有什么我可以帮你的？
-              </div>
-            </div>
-            
-            <div v-if="userInputDisplay" class="message user" key="user">
-              <div class="content">{{ userInputDisplay }}</div>
-            </div>
-
-            <div v-if="userInputDisplay" class="message ai" key="response">
-              <div class="avatar-mini">A</div>
-              <div class="content">
-                <div class="typing-placeholder">这是预览模式下的回复。我已经准备好为您提供 Langchain4j 的深度支持。</div>
+                <div v-if="item.content" class="message-text">{{ item.content }}</div>
+                <div v-else-if="item.streaming" class="typing-placeholder">正在思考中...</div>
               </div>
             </div>
           </transition-group>
@@ -45,10 +40,15 @@
                   placeholder="选择模型"
                   :bordered="false"
                   dropdown-class-name="custom-dropdown"
+                  :loading="optionsLoading"
                 >
-                  <a-select-option value="gpt-4o">GPT-4o (Premium)</a-select-option>
-                  <a-select-option value="claude-3-5">Claude 3.5 Sonnet</a-select-option>
-                  <a-select-option value="deepseek-r1">DeepSeek R1</a-select-option>
+                  <a-select-option
+                    v-for="model in modelOptions"
+                    :key="model.modelKey"
+                    :value="model.modelKey"
+                  >
+                    {{ model.modelName || model.modelKey }}
+                  </a-select-option>
                 </a-select>
                 
                 <div class="v-divider"></div>
@@ -58,10 +58,15 @@
                   class="panel-select"
                   placeholder="选择 Agent"
                   :bordered="false"
+                  :loading="optionsLoading"
                 >
-                  <a-select-option value="general">通用助手</a-select-option>
-                  <a-select-option value="coder">专家级编程</a-select-option>
-                  <a-select-option value="writer">创意写作</a-select-option>
+                  <a-select-option
+                    v-for="agent in agentOptions"
+                    :key="agent.agentKey"
+                    :value="agent.agentKey"
+                  >
+                    {{ agent.agentName || agent.agentKey }}
+                  </a-select-option>
                 </a-select>
               </div>
             </div>
@@ -73,6 +78,7 @@
                 placeholder="问点什么吧..."
                 class="main-textarea"
                 @pressEnter="handleEnter"
+                :disabled="isStreaming"
               />
             </div>
 
@@ -106,13 +112,17 @@
                 <div class="char-count" v-if="userInput.length > 0">
                   {{ userInput.length }}
                 </div>
+                <div v-else-if="isStreaming" class="stream-status">流式回复中</div>
                 <a-button 
                   type="primary" 
                   class="send-btn" 
-                  :disabled="!userInput.trim()"
-                  @click="submitQuestion"
+                  :disabled="sendDisabled"
+                  @click="isStreaming ? stopStreaming() : submitQuestion()"
                 >
-                  <template #icon><arrow-up-outlined /></template>
+                  <template #icon>
+                    <stop-outlined v-if="isStreaming" />
+                    <arrow-up-outlined v-else />
+                  </template>
                 </a-button>
               </div>
             </div>
@@ -125,47 +135,514 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { 
-  PaperClipOutlined, 
-  BulbOutlined, 
-  GlobalOutlined, 
-  ArrowUpOutlined 
+import {
+  PaperClipOutlined,
+  BulbOutlined,
+  GlobalOutlined,
+  ArrowUpOutlined,
+  StopOutlined
 } from '@ant-design/icons-vue'
 import AppHeader from '@/components/AppHeader.vue'
+import { aiModelApi, type AiModel } from '@/api/aiModel'
+import { aiAgentApi, type AiAgent } from '@/api/aiAgent'
+import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
+
+type ChatMessage = {
+  id: string
+  role: 'user' | 'ai'
+  content: string
+  streaming?: boolean
+  error?: boolean
+}
+
+type StreamEventType = 'text' | 'thought' | 'html' | 'error' | 'done'
+
+type StreamEvent = {
+  type: StreamEventType
+  content: string
+}
+
+const CHAT_MEMORY_KEY = 'astrsomn-chat-memory-key'
 
 const userInput = ref('')
-const userInputDisplay = ref('')
-
-// 新增功能状态
-const selectedModel = ref('gpt-4o')
-const selectedAgent = ref('general')
+const selectedModel = ref<string>()
+const selectedAgent = ref<string>()
 const isDeepThinking = ref(false)
 const isWebSearch = ref(false)
+const isStreaming = ref(false)
+const optionsLoading = ref(false)
+const modelOptions = ref<AiModel[]>([])
+const agentOptions = ref<AiAgent[]>([])
+const messagesContainerRef = ref<HTMLElement | null>(null)
+const messages = ref<ChatMessage[]>([
+  {
+    id: 'welcome',
+    role: 'ai',
+    content: '你好，我是 Astrsomn AI 助手。今天有什么我可以帮你的？'
+  }
+])
+
+let abortController: AbortController | null = null
+
+const sendDisabled = computed(() => {
+  if (isStreaming.value) {
+    return false
+  }
+  return !userInput.value.trim() || !selectedModel.value || !selectedAgent.value
+})
 
 const handleEnter = (e: KeyboardEvent) => {
   if (!e.shiftKey) {
     e.preventDefault()
-    submitQuestion()
+    if (!isStreaming.value) {
+      submitQuestion()
+    }
   }
 }
 
-const submitQuestion = () => {
-  if (!userInput.value.trim()) return
-  
-  userInputDisplay.value = userInput.value
-  userInput.value = ''
-  
-  const features = []
-  if (isDeepThinking.value) features.push('深度思考')
-  if (isWebSearch.value) features.push('联网搜索')
-  
-  message.loading({ 
-    content: `正在通过 ${selectedModel.value} ${features.length ? `(${features.join('+')})` : ''} 处理...`, 
-    duration: 1 
-  })
+const getMemoryKey = () => {
+  let memoryKey = sessionStorage.getItem(CHAT_MEMORY_KEY)
+  if (!memoryKey) {
+    memoryKey = `web:${Date.now()}`
+    sessionStorage.setItem(CHAT_MEMORY_KEY, memoryKey)
+  }
+  return memoryKey
 }
+
+const scrollToBottom = async () => {
+  await nextTick()
+  const container = messagesContainerRef.value
+  if (container) {
+    container.scrollTop = container.scrollHeight
+  }
+}
+
+const appendAssistantContent = async (messageId: string, chunk: string) => {
+  if (!chunk) {
+    return
+  }
+  const target = messages.value.find((item) => item.id === messageId)
+  if (!target) {
+    return
+  }
+  target.content += chunk
+  await scrollToBottom()
+}
+
+const parseSseEvent = (eventBlock: string) => {
+  return eventBlock
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith('data:'))
+    .map((line) => line.slice(5).trimStart())
+    .join('\n')
+}
+
+const splitJsonObjects = (input: string) => {
+  const blocks: string[] = []
+  const fragments: string[] = []
+  let depth = 0
+  let start = -1
+  let cursor = 0
+  let inString = false
+  let escaped = false
+
+  for (let i = 0; i < input.length; i++) {
+    const char = input[i]
+    if (inString) {
+      if (escaped) {
+        escaped = false
+      } else if (char === '\\') {
+        escaped = true
+      } else if (char === '"') {
+        inString = false
+      }
+      continue
+    }
+
+    if (char === '"') {
+      inString = true
+      continue
+    }
+
+    if (char === '{') {
+      if (depth === 0) {
+        const fragment = input.slice(cursor, i).trim()
+        if (fragment) {
+          fragments.push(fragment)
+        }
+        start = i
+      }
+      depth++
+      continue
+    }
+
+    if (char === '}') {
+      depth--
+      if (depth === 0 && start >= 0) {
+        blocks.push(input.slice(start, i + 1))
+        cursor = i + 1
+        start = -1
+      }
+    }
+  }
+
+  if (depth === 0 && cursor < input.length) {
+    const fragment = input.slice(cursor).trim()
+    if (fragment) {
+      fragments.push(fragment)
+    }
+  }
+
+  return {
+    blocks,
+    trailing: fragments.join('\n'),
+    hasIncompleteBlock: depth > 0 || start >= 0
+  }
+}
+
+const toStreamEvent = (payload: unknown): StreamEvent | null => {
+  if (typeof payload === 'string') {
+    if (payload === '[DONE]') {
+      return { type: 'done', content: payload }
+    }
+    return { type: 'text', content: payload }
+  }
+
+  if (!payload || typeof payload !== 'object') {
+    return null
+  }
+
+  const record = payload as Record<string, unknown>
+  const rawType = typeof record.type === 'string' ? record.type.trim().toLowerCase() : 'text'
+  const type: StreamEventType =
+    rawType === 'thought' || rawType === 'html' || rawType === 'error' || rawType === 'done'
+      ? rawType
+      : 'text'
+  const content = typeof record.content === 'string' ? record.content : ''
+  if (type === 'done' || content || type === 'error') {
+    return { type, content }
+  }
+  return null
+}
+
+const normalizeStreamPayload = (raw: string): StreamEvent[] => {
+  const payload = raw.trim()
+  if (!payload) {
+    return []
+  }
+
+  if (payload === '[DONE]') {
+    return [{ type: 'done', content: payload }]
+  }
+
+  try {
+    const parsed = JSON.parse(payload)
+    const event = toStreamEvent(parsed)
+    return event ? [event] : []
+  } catch {
+    // ignore and try other stream formats
+  }
+
+  const { blocks, trailing } = splitJsonObjects(payload)
+  if (blocks.length > 0) {
+    const events = blocks
+      .map((block) => {
+        try {
+          return toStreamEvent(JSON.parse(block))
+        } catch {
+          return null
+        }
+      })
+      .filter((item): item is StreamEvent => item != null)
+
+    if (trailing) {
+      events.push({ type: 'text', content: trailing })
+    }
+    return events
+  }
+
+  return [{ type: 'text', content: raw }]
+}
+
+const extractJsonPayloads = (buffer: string) => {
+  const payload = buffer.trim()
+  if (!payload) {
+    return { events: [] as StreamEvent[], remaining: '' }
+  }
+
+  if (payload === '[DONE]') {
+    return {
+      events: [{ type: 'done', content: '[DONE]' } as StreamEvent],
+      remaining: ''
+    }
+  }
+
+  const { blocks, trailing, hasIncompleteBlock } = splitJsonObjects(buffer)
+  const events = blocks
+    .map((block) => {
+      try {
+        return toStreamEvent(JSON.parse(block))
+      } catch {
+        return null
+      }
+    })
+    .filter((item): item is StreamEvent => item != null)
+
+  if (!blocks.length) {
+    return {
+      events: [],
+      remaining: buffer
+    }
+  }
+
+  if (!hasIncompleteBlock && trailing) {
+    events.push(...normalizeStreamPayload(trailing))
+    return { events, remaining: '' }
+  }
+
+  return {
+    events,
+    remaining: hasIncompleteBlock ? buffer.slice(buffer.lastIndexOf('{')) : ''
+  }
+}
+
+const applyStreamEvent = async (messageId: string, event: StreamEvent) => {
+  const target = messages.value.find((item) => item.id === messageId)
+  if (!target) {
+    return true
+  }
+
+  switch (event.type) {
+    case 'text':
+    case 'html':
+      await appendAssistantContent(messageId, event.content)
+      return true
+    case 'error':
+      target.error = true
+      await appendAssistantContent(messageId, event.content || '流式响应异常')
+      return false
+    case 'thought':
+      return true
+    case 'done':
+      return false
+    default:
+      return true
+  }
+}
+
+const readStreamText = async (response: Response, messageId: string) => {
+  const reader = response.body?.getReader()
+  if (!reader) {
+    throw new Error('未获取到流式响应体')
+  }
+
+  const decoder = new TextDecoder('utf-8')
+  const contentType = response.headers.get('content-type') || ''
+  const isSse = contentType.includes('text/event-stream')
+  let sseBuffer = ''
+  let rawBuffer = ''
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) {
+      break
+    }
+
+    const chunk = decoder.decode(value, { stream: true })
+    if (!chunk) {
+      continue
+    }
+
+    if (!isSse) {
+      rawBuffer += chunk
+      const { events, remaining } = extractJsonPayloads(rawBuffer)
+      rawBuffer = remaining
+      for (const event of events) {
+        const shouldContinue = await applyStreamEvent(messageId, event)
+        if (!shouldContinue) {
+          await reader.cancel()
+          return
+        }
+      }
+      continue
+    }
+
+    sseBuffer += chunk
+    const blocks = sseBuffer.split(/\r?\n\r?\n/)
+    sseBuffer = blocks.pop() || ''
+    for (const block of blocks) {
+      const data = parseSseEvent(block)
+      for (const event of normalizeStreamPayload(data)) {
+        const shouldContinue = await applyStreamEvent(messageId, event)
+        if (!shouldContinue) {
+          await reader.cancel()
+          return
+        }
+      }
+    }
+  }
+
+  if (!isSse && rawBuffer.trim()) {
+    for (const event of normalizeStreamPayload(rawBuffer)) {
+      const shouldContinue = await applyStreamEvent(messageId, event)
+      if (!shouldContinue) {
+        await reader.cancel()
+        return
+      }
+    }
+  }
+
+  if (isSse && sseBuffer.trim()) {
+    const data = parseSseEvent(sseBuffer)
+    for (const event of normalizeStreamPayload(data)) {
+      const shouldContinue = await applyStreamEvent(messageId, event)
+      if (!shouldContinue) {
+        await reader.cancel()
+        return
+      }
+    }
+  }
+}
+
+const buildStreamError = async (response: Response) => {
+  const raw = await response.text()
+  if (!raw) {
+    return `请求失败 (${response.status})`
+  }
+  try {
+    const parsed = JSON.parse(raw)
+    return parsed.message || raw
+  } catch {
+    return raw
+  }
+}
+
+const loadOptions = async () => {
+  optionsLoading.value = true
+  try {
+    const [modelResp, agentResp] = await Promise.all([
+      aiModelApi.queryPage({
+        pageNo: 1,
+        pageSize: 100,
+        param: { status: 'enabled' }
+      }),
+      aiAgentApi.queryPage({
+        pageNo: 1,
+        pageSize: 100,
+        param: { status: 'enabled' }
+      })
+    ])
+
+    modelOptions.value = modelResp.list || []
+    agentOptions.value = agentResp.list || []
+
+    if (!selectedModel.value) {
+      selectedModel.value =
+        modelOptions.value.find((item) => item.isDefault === 1)?.modelKey ||
+        modelOptions.value[0]?.modelKey ||
+        undefined
+    }
+    if (!selectedAgent.value) {
+      selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
+    }
+  } catch (error: any) {
+    message.error(error?.message || '加载聊天配置失败')
+  } finally {
+    optionsLoading.value = false
+  }
+}
+
+const submitQuestion = async () => {
+  const prompt = userInput.value.trim()
+  if (!prompt || !selectedModel.value || !selectedAgent.value || isStreaming.value) {
+    return
+  }
+
+  const userMessageId = `user-${Date.now()}`
+  const assistantMessageId = `ai-${Date.now()}`
+  messages.value.push({ id: userMessageId, role: 'user', content: prompt })
+  messages.value.push({ id: assistantMessageId, role: 'ai', content: '', streaming: true })
+  userInput.value = ''
+  isStreaming.value = true
+  await scrollToBottom()
+
+  const token = localStorage.getItem('token')
+  const workspaceEnv = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY)
+  abortController = new AbortController()
+
+  try {
+    const response = await fetch('/v1/astro/chat/stream', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(workspaceEnv ? { [WORKSPACE_ENV_HEADER]: workspaceEnv.trim() } : {})
+      },
+      body: JSON.stringify({
+        agentKey: selectedAgent.value,
+        modelKey: selectedModel.value,
+        memoryKey: getMemoryKey(),
+        userMessage: prompt,
+        enableNetwork: isWebSearch.value,
+        enableStream: true,
+        fileUrlList: []
+      }),
+      signal: abortController.signal
+    })
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('token')
+        window.location.href = '/login'
+        return
+      }
+      throw new Error(await buildStreamError(response))
+    }
+
+    await readStreamText(response, assistantMessageId)
+    const target = messages.value.find((item) => item.id === assistantMessageId)
+    if (target && !target.content) {
+      target.content = '本次没有返回内容。'
+    }
+  } catch (error: any) {
+    const target = messages.value.find((item) => item.id === assistantMessageId)
+    if (target) {
+      if (error?.name === 'AbortError') {
+        target.content = target.content || '已停止生成'
+      } else {
+        target.content = error?.message || '请求失败，请稍后重试'
+        target.error = true
+      }
+    }
+    if (error?.name !== 'AbortError') {
+      message.error(error?.message || '聊天请求失败')
+    }
+  } finally {
+    const target = messages.value.find((item) => item.id === assistantMessageId)
+    if (target) {
+      target.streaming = false
+    }
+    isStreaming.value = false
+    abortController = null
+    await scrollToBottom()
+  }
+}
+
+const stopStreaming = () => {
+  abortController?.abort()
+}
+
+onMounted(async () => {
+  await loadOptions()
+  await scrollToBottom()
+})
+
+onBeforeUnmount(() => {
+  abortController?.abort()
+})
 </script>
 
 <style scoped>
@@ -255,6 +732,20 @@ const submitQuestion = () => {
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
 
+.message.error .content {
+  border-color: rgba(255, 77, 79, 0.35);
+  color: #ff7875;
+}
+
+.message-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.typing-placeholder {
+  color: var(--text-secondary);
+}
+
 /* 高级输入框面板 */
 .chat-input-section {
   padding: 20px 20px 30px;
@@ -282,6 +773,18 @@ const submitQuestion = () => {
   padding: 12px 16px 4px;
   display: flex;
   justify-content: space-between;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.v-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-default);
 }
 
 .panel-select {
@@ -381,6 +884,11 @@ const submitQuestion = () => {
 .char-count {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.stream-status {
+  font-size: 12px;
+  color: var(--primary);
 }
 
 .send-btn {

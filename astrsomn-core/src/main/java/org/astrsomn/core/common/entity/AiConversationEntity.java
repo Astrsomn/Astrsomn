@@ -65,7 +65,7 @@ public class AiConversationEntity extends BaseEntity<Long> {
     /**
      * The ID of the Agent associated with this conversation.
      */
-    @TableField("AGENT_ID")
+    @TableField("AGENT_KEY")
     private String agentKey;
 
     /**

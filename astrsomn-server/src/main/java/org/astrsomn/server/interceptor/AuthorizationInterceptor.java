@@ -18,7 +18,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
  */
 @Slf4j
 @Component
-public class AuthorizationInterceptor implements HandlerInterceptor {
+public class AuthorizationInterceptor extends AbstractSecurityInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -27,8 +27,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 
         Long userId = UserContext.getUserId();
         if (userId == null) {
-            writeJsonError(response, HttpServletResponse.SC_UNAUTHORIZED, 401, "未授权访问，请先登录");
-            return false;
+            return writeUnauthorized(response, "未授权访问，请先登录");
         }
 
         Object roleObj = UserContext.get("userRole");
@@ -37,8 +36,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 
         if (isPlatformAdminPath(path)) {
             if (!UserRoleEnum.canManagePlatformUsers(role.getCode())) {
-                writeJsonError(response, HttpServletResponse.SC_FORBIDDEN, 403, "需要超级管理员权限");
-                return false;
+                return writeForbidden(response, "需要超级管理员权限");
             }
             log.info("权限校验通过(平台管理) - URI: {}, UserId: {}", path, userId);
             return true;
@@ -46,8 +44,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
 
         if (isAiConfigPath(path)) {
             if (!UserRoleEnum.canManageAiConfig(role.getCode())) {
-                writeJsonError(response, HttpServletResponse.SC_FORBIDDEN, 403, "需要管理员或环境管理员权限");
-                return false;
+                return writeForbidden(response, "需要管理员或环境管理员权限");
             }
             log.info("权限校验通过(AI配置) - URI: {}, UserId: {}, role={}", path, userId, role.getCode());
             return true;
@@ -72,23 +69,4 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
                 || path.startsWith("/v1/astro/ai-template");
     }
 
-    private void writeJsonError(HttpServletResponse response, int httpStatus, int code, String message) {
-        response.setStatus(httpStatus);
-        response.setContentType("application/json;charset=UTF-8");
-        try {
-            response.getWriter().write("{\"code\":" + code + ",\"message\":\"" + escapeJson(message) + "\"}");
-        } catch (Exception e) {
-            log.error("写入权限错误响应失败: {}", e.getMessage(), e);
-        }
-    }
-
-    private String escapeJson(String s) {
-        if (s == null) {
-            return "";
-        }
-        return s.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r");
-    }
 }

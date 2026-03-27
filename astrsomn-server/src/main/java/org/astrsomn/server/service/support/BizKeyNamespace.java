@@ -9,10 +9,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum BizKeyNamespace {
-    AGENT("agt"),
-    PROMPT("prm"),
-    TOOL("tol"),
-    MCP("mcp");
+    MODEL("MODEL"),
+    AGENT("AGENT"),
+    PROMPT("PROMPT"),
+    TOOL("TOOL"),
+    MCP("MCP");
 
     private final String prefix;
 }
