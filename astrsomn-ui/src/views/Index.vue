@@ -517,8 +517,8 @@ watch(selectedAgent, (agentKey, previousAgentKey) => {
   }
 })
 
-const submitQuestion = async () => {
-  const prompt = userInput.value.trim()
+const submitQuestion = async (promptArg?: string) => {
+  const prompt = (typeof promptArg === 'string' ? promptArg : userInput.value).trim()
   if (!prompt || !selectedModel.value || !selectedAgent.value || isStreaming.value) {
     return
   }
@@ -533,7 +533,6 @@ const submitQuestion = async () => {
     segments: [],
     streaming: true
   })
-  userInput.value = ''
   isStreaming.value = true
   await scrollToBottom()
 

@@ -306,23 +306,24 @@ const handleCodeCopy = (e: MouseEvent) => {
 .avatar {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 50%;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--chat-avatar-shadow);
 }
 
 .ai-avatar {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  color: #2563eb;
+  background: var(--chat-ai-avatar-bg);
+  border: 1px solid var(--chat-ai-avatar-border);
+  color: var(--chat-ai-avatar-icon);
 }
 
 .user-avatar {
-  background: linear-gradient(145deg, #eff6ff, #fff);
-  border: 1px solid #bfdbfe;
-  color: #2563eb;
+  background: var(--chat-user-avatar-bg);
+  border: 1px solid var(--chat-user-avatar-border);
+  color: var(--chat-user-avatar-text);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.02em;
@@ -337,16 +338,16 @@ const handleCodeCopy = (e: MouseEvent) => {
 /* —— AI 统一卡片 —— */
 .ai-card {
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--chat-ai-card-border);
+  background: var(--chat-ai-card-bg);
+  box-shadow: var(--chat-ai-card-shadow);
   overflow: hidden;
 }
 
 .thought-section {
-  --thought-bg: #f8fafc;
+  --thought-bg: var(--chat-thought-bg);
   background: var(--thought-bg);
-  border-bottom: 1px solid #e8eef4;
+  border-bottom: 1px solid var(--chat-thought-border);
 }
 
 .thought-head {
@@ -360,7 +361,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   border: none;
   background: transparent;
   font: inherit;
-  color: #64748b;
+  color: var(--chat-thought-body);
   text-align: left;
 }
 
@@ -369,7 +370,7 @@ const handleCodeCopy = (e: MouseEvent) => {
 }
 
 .thought-head.is-interactive:hover {
-  background: rgba(255, 255, 255, 0.55);
+  background: var(--chat-thought-head-hover);
 }
 
 .thought-head-left {
@@ -382,14 +383,14 @@ const handleCodeCopy = (e: MouseEvent) => {
 .thought-title {
   font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: var(--chat-thought-title);
 }
 
 .thought-pulse {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: var(--accent-blue);
   flex-shrink: 0;
   animation: pulse 1.4s ease-in-out infinite;
 }
@@ -398,7 +399,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   flex-shrink: 0;
   font-size: 12px;
   font-weight: 500;
-  color: #3b82f6;
+  color: var(--chat-link);
 }
 
 .thought-scroll {
@@ -410,7 +411,7 @@ const handleCodeCopy = (e: MouseEvent) => {
 .thought-inner {
   font-size: 13px;
   line-height: 1.65;
-  color: #64748b;
+  color: var(--chat-thought-body);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -442,7 +443,7 @@ const handleCodeCopy = (e: MouseEvent) => {
 }
 
 .answer-section {
-  background: #fff;
+  background: var(--chat-answer-bg);
 }
 
 .streaming-placeholder {
@@ -450,7 +451,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   align-items: center;
   gap: 10px;
   padding: 18px 18px 20px;
-  color: #94a3b8;
+  color: var(--chat-stream-placeholder);
   font-size: 14px;
 }
 
@@ -463,7 +464,7 @@ const handleCodeCopy = (e: MouseEvent) => {
 .typing-loader span {
   width: 5px;
   height: 5px;
-  background: #3b82f6;
+  background: var(--accent-blue);
   border-radius: 50%;
   animation: typing 0.9s ease-in-out infinite;
 }
@@ -479,7 +480,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   padding: 16px 18px 12px;
   font-size: 15px;
   line-height: 1.75;
-  color: #1e293b;
+  color: var(--chat-markdown-text);
 }
 
 .markdown-renderer :deep(p) {
@@ -501,7 +502,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   margin: 1.15em 0 0.5em;
   font-weight: 700;
   line-height: 1.35;
-  color: #0f172a;
+  color: var(--chat-markdown-heading);
 }
 
 .markdown-renderer :deep(h1) {
@@ -530,14 +531,14 @@ const handleCodeCopy = (e: MouseEvent) => {
 .markdown-renderer :deep(blockquote) {
   margin: 0.75em 0;
   padding: 0.4em 0 0.4em 0.9em;
-  border-left: 3px solid #cbd5e1;
-  color: #475569;
-  background: #f8fafc;
+  border-left: 3px solid var(--chat-blockquote-border);
+  color: var(--chat-markdown-muted);
+  background: var(--chat-blockquote-bg);
   border-radius: 0 6px 6px 0;
 }
 
 .markdown-renderer :deep(a) {
-  color: #2563eb;
+  color: var(--chat-link);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -545,14 +546,14 @@ const handleCodeCopy = (e: MouseEvent) => {
 .markdown-renderer :deep(hr) {
   margin: 1.25em 0;
   border: none;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--chat-hr);
 }
 
 .markdown-renderer :deep(code:not(pre code)) {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.88em;
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--chat-inline-code-bg);
+  color: var(--chat-inline-code-text);
   padding: 0.15em 0.4em;
   border-radius: 6px;
 }
@@ -636,15 +637,15 @@ const handleCodeCopy = (e: MouseEvent) => {
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: #94a3b8;
+  color: var(--chat-action-text);
   font-size: 12px;
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
 }
 
 .text-action:hover {
-  color: #3b82f6;
-  background: #f8fafc;
+  color: var(--chat-link);
+  background: var(--chat-action-hover-bg);
 }
 
 /* 用户气泡 */
@@ -657,9 +658,9 @@ const handleCodeCopy = (e: MouseEvent) => {
   max-width: min(100%, 640px);
   padding: 12px 16px;
   border-radius: 16px 16px 4px 16px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: var(--primary-gradient);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 123, 255, 0.28);
 }
 
 .user-html {

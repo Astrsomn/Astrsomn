@@ -40,6 +40,7 @@ public class AstroChatStreamUtil {
                     })
                     .onPartialResponse(partial -> {
                         if (StringUtils.isNotBlank(partial)) {
+                            contentBuilder.get().append(partial);
                             this.sendEvent(fluxSink, ChatStreamEnum.AstroEventType.TEXT, partial);
                         }
                     })
@@ -83,13 +84,11 @@ public class AstroChatStreamUtil {
     // 保存历史对话
     private void finalizeConversation(AstroChatParam param, String content, TokenUsage usage) {
         if (param == null || param.getMemoryKey() == null) return;
-        CompletableFuture.runAsync(() -> {
-            try {
-                historyRecorder.savePair(param, content, usage);
-            } catch (Exception e) {
-                log.error("Astro history save failed: {}", e.getMessage());
-            }
-        }, taskExecutor);
+        try {
+            historyRecorder.savePair(param, content, usage);
+        } catch (Exception e) {
+            log.error("Astro history save failed: {}", e.getMessage());
+        }
     }
 
 }

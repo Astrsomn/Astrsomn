@@ -90,7 +90,7 @@
               type="primary"
               class="send-btn"
               :disabled="sendDisabled"
-              @click="isStreaming ? emit('stop') : emit('submit')"
+              @click="isStreaming ? emit('stop') : handleSend()"
             >
               <template #icon>
                 <StopOutlined v-if="isStreaming" />
@@ -116,7 +116,7 @@ import {
 import type { AiAgent } from '@/api/aiAgent'
 import type { AiModel } from '@/api/aiModel'
 
-defineProps<{
+const props = defineProps<{
   selectedAgent?: string
   selectedModel?: string
   userInput: string
@@ -135,14 +135,23 @@ const emit = defineEmits<{
   'update:userInput': [value: string]
   'update:isDeepThinking': [value: boolean]
   'update:isWebSearch': [value: boolean]
-  submit: []
+  submit: [text: string]
   stop: []
 }>()
+
+const handleSend = () => {
+  if (props.sendDisabled) return
+  const text = props.userInput.trim()
+  if (!text) return
+  emit('submit', text)
+  emit('update:userInput', '')
+}
 
 const handleEnter = (e: KeyboardEvent) => {
   if (!e.shiftKey) {
     e.preventDefault()
-    emit('submit')
+    if (props.isStreaming) return
+    handleSend()
   }
 }
 </script>

@@ -31,6 +31,6 @@ public class AstroChatServiceImpl implements AstroChatService {
                 .setEnableStream(true)
                 .setEnableDeepThinking(request.isEnableDeepThinking()));
         AstroChatAssistant chatAssistant = assistantFactory.createAssistant(param);
-        return chatStreamUtil.convertStreamToFlux(chatAssistant.stream(request.getUserMessage(), request.getMemoryKey()), null);
+        return chatStreamUtil.convertStreamToFlux(chatAssistant.stream(request.getUserMessage(), request.getMemoryKey()), param);
     }
 }
