@@ -65,7 +65,7 @@
               </a-form-item>
 
               <a-form-item label="MCP Key (识别码)" name="mcpKey" class="span-2">
-                <a-input v-model:value="form.mcpKey" :disabled="mode === 'edit'" placeholder="留空则服务端自动生成" size="large" />
+                <a-input v-model:value="form.mcpKey" placeholder="留空则服务端自动生成" size="large" />
               </a-form-item>
 
               <a-form-item label="服务状态" class="span-2">

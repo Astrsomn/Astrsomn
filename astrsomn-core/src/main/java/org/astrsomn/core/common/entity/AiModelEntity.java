@@ -64,12 +64,7 @@ public class AiModelEntity extends BaseEntity<Long> {
      */
     @TableField("API_URL")
     private String apiUrl;
-    /**
-     * Model parameters
-     */
-    @TableField("MODEL_PARAMS")
-    private String modelParams;
-    
+
     /**
      * Status (enabled-disabled)
      */
@@ -83,18 +78,6 @@ public class AiModelEntity extends BaseEntity<Long> {
     private Integer responseLimit;
 
     /**
-     * Randomness
-     */
-    @TableField("RANDOM_INDEX")
-    private Integer randomIndex;
-
-    /**
-     * Top probability
-     */
-    @TableField("TOP_VARIANCE")
-    private Integer topVariance;
-    
-    /**
      * Is default model
      */
     @TableField("IS_DEFAULT")
@@ -106,6 +89,11 @@ public class AiModelEntity extends BaseEntity<Long> {
     @TableField("CAPABILITIES")
     private String capabilities;
 
-
+    /**
+     * 最大token限制
+     */
+    @TableField("MAX_QUOTA_TOKENS")
     private Long maxQuotaTokens;
+
+
 }

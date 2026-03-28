@@ -1,7 +1,7 @@
 <template>
   <AdminPageShell
     title="AI MCP"
-    description="管理 MCP 服务接入（SSE / STDIO 等），对接 AiMcpController。"
+    description="管理 MCP 服务接入（SSE / STDIO / STEAMABLE），对接 AiMcpController。"
     empty-text="暂无 MCP 服务。"
   >
     <div class="mcp-page">
@@ -87,17 +87,59 @@
         :pagination="false"
         row-key="id"
         :row-selection="rowSelection"
-        :scroll="{ x: 1100 }"
+        :scroll="{ x: 1280 }"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'enabled'">
-            <span>{{ record.enabled === 1 ? '启用' : '停用' }}</span>
+          <template v-if="column.key === 'server'">
+            <div class="cell-stack">
+              <span class="cell-title">{{ record.serverName || '未命名服务' }}</span>
+              <span class="cell-subtitle multiline-2">{{ record.description || '暂无服务描述' }}</span>
+            </div>
           </template>
-          <template v-else-if="column.key === 'sseAddress'">
-            <span class="ellipsis">{{ record.sseAddress || '—' }}</span>
+          <template v-else-if="column.key === 'mcpKey'">
+            <div class="copyable-key">
+              <span class="mono-chip">{{ record.mcpKey || '—' }}</span>
+              <a-tooltip title="复制 MCP Key">
+                <a-button
+                  type="text"
+                  class="copy-btn"
+                  :disabled="!record.mcpKey"
+                  @click="copyMcpKey(record.mcpKey)"
+                >
+                  <template #icon><copy-outlined /></template>
+                </a-button>
+              </a-tooltip>
+            </div>
+          </template>
+          <template v-else-if="column.key === 'type'">
+            <span class="type-pill" :class="`type-pill-${String(record.type || '').toLowerCase()}`">
+              {{ getTypeLabel(record.type) }}
+            </span>
+          </template>
+          <template v-else-if="column.key === 'connection'">
+            <div class="cell-stack">
+              <span class="cell-title mono-text-inline multiline-2">{{ getConnectionPrimary(record) }}</span>
+              <div class="detail-pills">
+                <span
+                  v-for="item in getConnectionDetails(record)"
+                  :key="item"
+                  class="detail-pill"
+                >
+                  {{ item }}
+                </span>
+              </div>
+            </div>
+          </template>
+          <template v-else-if="column.key === 'enabled'">
+            <span class="status-pill" :class="{ off: record.enabled !== 1 }">
+              {{ record.enabled === 1 ? '启用' : '停用' }}
+            </span>
           </template>
           <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="openEdit(record)">编辑</a-button>
+            <a-button type="link" class="action-link" @click="openEdit(record)">
+              <template #icon><edit-outlined /></template>
+              编辑
+            </a-button>
             <a-divider type="vertical" />
             <a-popconfirm
               title="确定删除吗？"
@@ -105,7 +147,10 @@
               cancel-text="取消"
               @confirm="() => handleDeleteOne(record.id)"
             >
-              <a-button type="link" danger>删除</a-button>
+              <a-button type="link" danger class="action-link">
+                <template #icon><delete-outlined /></template>
+                删除
+              </a-button>
             </a-popconfirm>
           </template>
         </template>
@@ -137,7 +182,9 @@ import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
+  CopyOutlined,
   DeleteOutlined,
+  EditOutlined,
   PlusOutlined,
   SearchOutlined,
   StopOutlined
@@ -146,7 +193,7 @@ import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import McpFormModal from './McpFormModal.vue'
-import { aiMcpApi, type AiMcp, type PageResponse } from '@/api/aiMcp.ts'
+import { aiMcpApi, type AiMcp, type PageResponse } from '@/api/aiMcp'
 
 type QueryState = {
   mcpKey?: string
@@ -161,13 +208,89 @@ const typeFilterOptions = [
 ]
 
 const columns = [
-  { title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 180, ellipsis: true },
-  { title: '服务名', dataIndex: 'serverName', key: 'serverName', width: 160, ellipsis: true },
-  { title: '类型', dataIndex: 'type', key: 'type', width: 100 },
-  { title: 'SSE 地址', key: 'sseAddress', width: 220, ellipsis: true },
-  { title: '启用', key: 'enabled', width: 80 },
+  { title: '服务名称', key: 'server', width: 240 },
+  { title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 220, ellipsis: true },
+  { title: '类型', dataIndex: 'type', key: 'type', width: 120 },
+  { title: '连接配置', key: 'connection', width: 380 },
+  { title: '启用', key: 'enabled', width: 90 },
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
+
+const typeLabelMap: Record<string, string> = {
+  SSE: 'SSE',
+  STDIO: 'STDIO',
+  STEAMABLE: 'STEAMABLE'
+}
+
+const normalizeText = (value?: string, fallback = '—') => {
+  const text = String(value || '').trim()
+  return text || fallback
+}
+
+const getTypeLabel = (type?: string) => typeLabelMap[String(type || '').toUpperCase()] || normalizeText(type)
+
+const getJsonEntryCountLabel = (raw?: string, label = '项') => {
+  const text = String(raw || '').trim()
+  if (!text) return `${label}: 0`
+
+  try {
+    const parsed = JSON.parse(text)
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return `${label}: ${Object.keys(parsed).length}`
+    }
+  } catch (error) {}
+
+  return `${label}: 已配置`
+}
+
+const getArgsLabel = (args?: string) => {
+  const text = String(args || '').trim()
+  if (!text) return '参数: 0'
+
+  try {
+    const parsed = JSON.parse(text)
+    if (Array.isArray(parsed)) {
+      return `参数: ${parsed.length}`
+    }
+  } catch (error) {}
+
+  const segmentCount = text.split(/\s+/).filter(Boolean).length
+  return `参数: ${segmentCount || 1}`
+}
+
+const getConnectionPrimary = (record: AiMcp) => {
+  if (record.type === 'SSE') {
+    return normalizeText(record.sseAddress, '未配置 SSE 地址')
+  }
+
+  return normalizeText(record.command, '未配置执行命令')
+}
+
+const getConnectionDetails = (record: AiMcp) => {
+  if (record.type === 'SSE') {
+    return [getJsonEntryCountLabel(record.requestHeaderConfig, '请求头')]
+  }
+
+  return [
+    getArgsLabel(record.args),
+    getJsonEntryCountLabel(record.envVars, '环境变量')
+  ]
+}
+
+const copyMcpKey = async (value?: string) => {
+  const text = String(value || '').trim()
+  if (!text) {
+    message.warning('当前没有可复制的 MCP Key')
+    return
+  }
+
+  try {
+    await navigator.clipboard.writeText(text)
+    message.success('MCP Key 已复制')
+  } catch (error) {
+    message.error('复制失败，请手动复制')
+  }
+}
 
 const query = reactive<QueryState>({})
 const list = ref<AiMcp[]>([])
@@ -421,6 +544,124 @@ void fetchList()
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: bottom;
+}
+
+.cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cell-title {
+  color: var(--text-primary, #111827);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.cell-subtitle {
+  color: var(--text-secondary, #6b7280);
+  line-height: 1.5;
+}
+
+.multiline-2 {
+  display: -webkit-box;
+  overflow: hidden;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.mono-chip,
+.mono-text-inline {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+.mono-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-surface) 80%, white);
+  color: var(--text-primary, #111827);
+}
+
+.copyable-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary, #6b7280);
+}
+
+.copy-btn:hover,
+.copy-btn:focus {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, white) !important;
+}
+
+.type-pill,
+.status-pill,
+.detail-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.type-pill {
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+.type-pill-stdio {
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.type-pill-steamable {
+  color: #0f766e;
+  background: #ecfdf5;
+}
+
+.status-pill {
+  color: #166534;
+  background: #f0fdf4;
+}
+
+.status-pill.off {
+  color: #9a3412;
+  background: #fff7ed;
+}
+
+.detail-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.detail-pill {
+  justify-content: flex-start;
+  color: var(--text-secondary, #6b7280);
+  background: color-mix(in srgb, var(--bg-surface) 85%, white);
+}
+
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-inline: 4px;
 }
 
 @media (max-width: 720px) {

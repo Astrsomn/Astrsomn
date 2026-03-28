@@ -58,7 +58,7 @@ public class AiToolEntity extends BaseEntity<Long> {
     /**
      * Status (enabled/disabled)
      */
-    @TableField("ENABLE_FLAG")
-    private String enableFlag;
+    @TableField("STATUS")
+    private String status;
 
 }
