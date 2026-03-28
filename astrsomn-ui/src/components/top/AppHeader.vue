@@ -5,7 +5,7 @@
         <transition name="fade-slide" mode="out-in">
           <div v-if="showBrand" class="brand-area" key="logo">
             <div class="logo-box">
-              <img :src="logoUrl" class="logo-img" alt="Astrsomn" />
+              <img src="../../assets/Astrsomn-logo.png" class="logo-img" alt="Astrsomn" />
             </div>
             
             <button 
@@ -43,30 +43,7 @@
       </div>
 
       <div class="header-right">
-        <div v-if="showWorkspaceEnv && isLoggedIn" class="env-capsule-minimal">
-          <div class="env-content">
-            <a-spin v-if="workspaceLoading" size="small" />
-            <template v-else-if="workspaceContext">
-              <a-dropdown
-                v-if="workspaceContext.canSwitchWorkspace && envPickOptions.length > 0"
-                :trigger="['click']"
-                placement="bottomRight"
-              >
-                <div class="env-trigger-btn">
-                  <cloud-server-outlined class="env-icon-small" />
-                  <span class="env-label-text">{{ currentEnvDisplay }}</span>
-                  <down-outlined class="env-caret-small" />
-                </div>
-                <template #overlay>
-                  <a-menu class="env-menu-pop" :selected-keys="[workspaceContext.effectiveEnvCode]" @click="onEnvMenuPick">
-                    <a-menu-item v-for="o in envPickOptions" :key="o.value">{{ o.label }}</a-menu-item>
-                  </a-menu>
-                </template>
-              </a-dropdown>
-              <div v-else class="env-readonly-text">{{ workspaceContext.effectiveEnvCode }}</div>
-            </template>
-          </div>
-        </div>
+        <WorkspaceEnvSwitcher :visible="showWorkspaceEnv" />
 
         <div class="v-line-divider"></div>
 
@@ -83,21 +60,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router';
 import { 
   ArrowLeftOutlined, 
-  CloudServerOutlined, 
-  DownOutlined, 
   SwapOutlined,
   AppstoreOutlined 
 } from '@ant-design/icons-vue';
-import logoUrl from '@/assets/Astrsomn-logo.png';
-import DocLangTheme from '@/components/top/DocLangTheme.vue';
-import UserProfile from '@/components/top/UserProfile.vue';
-import { getWorkspaceEnv, type WorkspaceEnvContext } from '@/api/auth.ts';
-import { systemEnvApi } from '@/api/systemEnv.ts';
-import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts';
+// Vetur occasionally misses Vue SFC default exports in script setup files.
+// @ts-ignore
+import DocLangTheme from './DocLangTheme.vue';
+// @ts-ignore
+import UserProfile from './UserProfile.vue';
+// @ts-ignore
+import WorkspaceEnvSwitcher from './WorkspaceEnvSwitcher.vue';
 
 interface Props {
   showBrand?: boolean; showBack?: boolean; brandStatus?: string;
@@ -120,42 +96,6 @@ const isLoggedIn = computed(() => !!localStorage.getItem('token'));
 const switchActionText = computed(() => props.switchTarget === 'chat' ? '立即聊天' : '管理后台');
 const switchIcon = computed(() => props.switchTarget === 'chat' ? SwapOutlined : AppstoreOutlined);
 
-const workspaceLoading = ref(false);
-const workspaceContext = ref<WorkspaceEnvContext | null>(null);
-const envPickOptions = ref<Array<{ label: string; value: string }>>([]);
-
-function popupToBody() { return document.body; }
-const currentEnvDisplay = computed(() => {
-  const ctx = workspaceContext.value;
-  if (!ctx) return '';
-  const opt = envPickOptions.value.find((o) => o.value === ctx.effectiveEnvCode);
-  return opt?.label ?? ctx.effectiveEnvCode;
-});
-
-async function loadWorkspaceContext() {
-  if (!props.showWorkspaceEnv || !localStorage.getItem('token')) return;
-  workspaceLoading.value = true;
-  try {
-    const w = await getWorkspaceEnv();
-    workspaceContext.value = w;
-    if (w.canSwitchWorkspace) {
-      const resp = await systemEnvApi.queryPage({ pageNo: 1, pageSize: 200, param: {} });
-      envPickOptions.value = (resp.list || []).map(row => ({
-        value: String(row.envKey),
-        label: row.envName ? `${row.envName}` : String(row.envKey)
-      }));
-    }
-  } catch (e) { console.error(e); } finally { workspaceLoading.value = false; }
-}
-
-function onEnvMenuPick(info: any) {
-  const key = String(info.key);
-  if (key === workspaceContext.value?.effectiveEnvCode) return;
-  localStorage.setItem(WORKSPACE_ENV_STORAGE_KEY, key);
-  window.location.reload();
-}
-
-onMounted(loadWorkspaceContext);
 const handleSwitch = () => {
   isClicking.value = true;
   setTimeout(() => {
@@ -242,23 +182,6 @@ const handleLogin = () => { localStorage.removeItem('token'); router.push('/logi
 /* --- 右侧区域 --- */
 .header-right { display: flex; align-items: center; gap: 16px; }
 
-.env-capsule-minimal {
-  border-radius: 8px; height: 32px; display: flex; align-items: center;
-  transition: all 0.2s;
-}
-
-.env-capsule-minimal:hover {
-  //background: var(--bg-elevated); border-color: var(--primary);
-}
-
-.env-trigger-btn {
-  display: flex; align-items: center; gap: 6px; padding: 0 10px; cursor: pointer;
-}
-
-.env-icon-small { font-size: 13px; color: var(--primary); }
-.env-label-text { font-size: 12px; font-weight: 600; color: var(--text-heading); }
-.env-caret-small { font-size: 10px; color: var(--text-muted); }
-
 .v-line-divider {
   width: 1px; height: 18px; background: var(--border-subtle);
 }
@@ -282,6 +205,6 @@ const handleLogin = () => { localStorage.removeItem('token'); router.push('/logi
 .actions-group { display: flex; align-items: center; gap: 12px; }
 
 @media (max-width: 768px) {
-  .brand-status, .env-label-text { display: none; }
+  .brand-status { display: none; }
 }
 </style>

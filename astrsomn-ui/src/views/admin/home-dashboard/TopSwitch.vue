@@ -62,17 +62,15 @@ const updateMode = (value: DashboardMode) => {
 
 <style scoped>
 .mode-switch-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+  position: relative;
   margin-bottom: 24px;
   padding: 6px 20px;
-
 }
 
 .mode-copy {
+  grid-column: 1;
   min-width: 0;
+  padding-right: 400px;
 }
 
 .mode-title {
@@ -89,7 +87,10 @@ const updateMode = (value: DashboardMode) => {
 }
 
 .mode-switch {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 900px;
+  transform: translateY(-50%);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
@@ -200,7 +201,7 @@ const updateMode = (value: DashboardMode) => {
 
 .mode-option--active .mode-option__icon {
   transform: scale(1.04);
-  /* background: color-mix(in srgb, var(--primary) 12%, var(--bg-card)); */
+  background: color-mix(in srgb, var(--primary) 12%, var(--bg-card));
   color: color-mix(in srgb, var(--primary) 68%, var(--text-heading));
 }
 
@@ -211,12 +212,18 @@ const updateMode = (value: DashboardMode) => {
 
 @media (max-width: 900px) {
   .mode-switch-card {
-    flex-direction: column;
-    align-items: stretch;
+    padding: 6px 20px;
   }
 
   .mode-switch {
+    position: static;
+    transform: none;
     min-width: 100%;
+    margin-top: 16px;
+  }
+
+  .mode-copy {
+    padding-right: 0;
   }
 }
 

@@ -31,11 +31,16 @@ export default {
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ManagementEntry, ManagementGroup } from '../backend/management.ts'
+import type { ManagementEntry, ManagementGroup } from '../backend/management'
+// Vetur occasionally misses Vue SFC default exports in script setup files.
+// @ts-ignore
 import DashboardPanel from './DashboardPanel.vue'
+// @ts-ignore
 import AdminEntryCard from '../backend/AdminEntryCard.vue'
-import TrafficStats from '@/views/admin/home-dashboard/screen/TrafficStats.vue'
-import ModelUsageChart from '@/views/admin/home-dashboard/screen/ModelUsageChart.vue'
+// @ts-ignore
+import TrafficStats from './TrafficStats.vue'
+// @ts-ignore
+import ModelUsageChart from './ModelUsageChart.vue'
 
 const props = defineProps<{
   groups: ManagementGroup[]
@@ -46,35 +51,16 @@ const emit = defineEmits<{
   navigate: [route: string]
 }>()
 
-const allEntries = computed(() => props.groups.flatMap((group) => group.items))
+const allEntries = computed(() => props.groups.reduce<ManagementEntry[]>((entries, group) => {
+  entries.push(...group.items)
+  return entries
+}, []))
 
 const quickEntries = computed<ManagementEntry[]>(() => {
   const highlighted = allEntries.value.filter((item) => item.highlight)
   return (highlighted.length > 0 ? highlighted : allEntries.value).slice(0, 4)
 })
 
-const metrics = computed(() => [
-  {
-    label: '可用智能体',
-    value: String(allEntries.value.length),
-    description: '当前账号可直接访问的后台能力',
-  },
-  {
-    label: '分类分区',
-    value: String(props.groups.length),
-    description: '按业务域拆分，定位更直接',
-  },
-  {
-    label: '常用入口',
-    value: String(quickEntries.value.length),
-    description: '首页优先展示的高频操作',
-  },
-  {
-    label: '当前角色',
-    value: props.roleLabel,
-    description: '入口会根据账号权限自动过滤',
-  },
-])
 </script>
 
 <style scoped>
@@ -84,8 +70,7 @@ const metrics = computed(() => [
   gap: 24px;
 }
 
-.screen-grid > :first-child,
-.screen-grid > :last-child {
+.screen-grid > :first-child {
   grid-column: span 2;
 }
 
@@ -140,8 +125,7 @@ const metrics = computed(() => [
     gap: 16px;
   }
 
-  .screen-grid > :first-child,
-  .screen-grid > :last-child {
+  .screen-grid > :first-child {
     grid-column: auto;
   }
 }

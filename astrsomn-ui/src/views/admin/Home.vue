@@ -50,6 +50,25 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
   flex: 1;
   padding: 6px 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-muted) 24%, transparent) transparent;
+}
+
+.shell-content::-webkit-scrollbar {
+  width: 7px;
+}
+
+.shell-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.shell-content::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 18%, transparent);
+}
+
+.shell-content::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--text-muted) 28%, transparent);
 }
 
 .content-wrapper {

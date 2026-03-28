@@ -21,6 +21,12 @@
   </a-dropdown>
 </template>
 
+<script lang="ts">
+export default {
+  name: 'UserProfile',
+}
+</script>
+
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';

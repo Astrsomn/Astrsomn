@@ -3,18 +3,22 @@
     <div class="dashboard-container">
       <TopSwitch v-model="viewMode" />
 
-      <AdminDataScreen
-        v-if="viewMode === 'screen'"
-        :groups="managementGroups"
-        :role-label="roleLabel"
-        @navigate="navigateTo"
-      />
+      <transition name="dashboard-mode" mode="out-in">
+        <AdminDataScreen
+          v-if="viewMode === 'screen'"
+          key="screen"
+          :groups="managementGroups"
+          :role-label="roleLabel"
+          @navigate="navigateTo"
+        />
 
-      <AdminManagementView
-        v-else
-        :groups="managementGroups"
-        @navigate="navigateTo"
-      />
+        <AdminManagementView
+          v-else
+          key="management"
+          :groups="managementGroups"
+          @navigate="navigateTo"
+        />
+      </transition>
     </div>
   </div>
 </template>
@@ -25,7 +29,7 @@ import { useRouter } from 'vue-router'
 import TopSwitch from './TopSwitch.vue'
 import AdminDataScreen from './screen/AdminDataScreen.vue'
 import AdminManagementView from '../home-dashboard/backend/AdminManagementView.vue'
-import { getCurrentUserRole, resolveManagementGroups } from '../home-dashboard/backend/management.ts'
+import { getCurrentUserRole, resolveManagementGroups } from '../home-dashboard/backend/management'
 
 type DashboardMode = 'screen' | 'management'
 
@@ -65,6 +69,19 @@ const navigateTo = (path: string) => {
 .dashboard-container {
   max-width: 1600px;
   margin: 0 auto;
+}
+
+.dashboard-mode-enter-active,
+.dashboard-mode-leave-active {
+  transition:
+    opacity 0.24s ease,
+    transform 0.24s ease;
+}
+
+.dashboard-mode-enter-from,
+.dashboard-mode-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 
 @media (max-width: 1024px) {

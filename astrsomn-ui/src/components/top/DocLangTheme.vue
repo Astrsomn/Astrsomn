@@ -25,11 +25,17 @@
   </div>
 </template>
 
+<script lang="ts">
+export default {
+  name: 'DocLangTheme',
+}
+</script>
+
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { BookOutlined } from '@ant-design/icons-vue'
-import { useTheme } from '@/composables/useTheme.ts'
-import { useLanguage } from '@/composables/useLanguage.ts'
+import { useTheme } from '../../composables/useTheme'
+import { useLanguage } from '../../composables/useLanguage'
 
 const props = defineProps<{
   showDoc?: boolean
