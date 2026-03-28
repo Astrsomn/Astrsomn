@@ -2,6 +2,9 @@ import request from '@/utils/request'
 
 export type AiAgent = {
   id?: number | string
+  envCode?: string
+  createUser?: string
+  createTime?: string
   agentKey?: string
   agentName?: string
   description?: string

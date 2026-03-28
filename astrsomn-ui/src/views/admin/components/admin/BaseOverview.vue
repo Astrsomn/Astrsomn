@@ -5,9 +5,8 @@
         <appstore-outlined />
       </div>
       <div>
-
         <div class="overview-desc">
-          当前页 {{ listLength }} 条，已选 {{ selectedCount }} 条
+          {{ summaryText || `当前页 ${listLength} 条，已选 ${selectedCount} 条` }}
         </div>
       </div>
     </div>
@@ -33,6 +32,7 @@ const props = defineProps<{
   allCurrentSelected: boolean
   partCurrentSelected: boolean
   showActions: boolean
+  summaryText?: string
 }>()
 
 const emit = defineEmits<{
