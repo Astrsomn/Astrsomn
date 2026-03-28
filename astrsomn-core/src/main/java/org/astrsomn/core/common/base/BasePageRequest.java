@@ -3,14 +3,14 @@ package org.astrsomn.core.common.base;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;
-
-import java.io.Serializable;
+import lombok.EqualsAndHashCode;
 
 /**
  * 基础分页请求DTO
  */
 @Data
-public class BasePageRequest<T> extends BaseRequest implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+public class BasePageRequest<T> extends BaseRequest {
 
 
     private static final long serialVersionUID = 1L;
@@ -39,7 +39,7 @@ public class BasePageRequest<T> extends BaseRequest implements Serializable {
     }
 
 
-    public IPage buildPage() {
+    public <E> IPage<E> buildPage() {
 
         long current = (pageNo == null || pageNo < 1) ? 1L : pageNo.longValue();
         long size = (pageSize == null || pageSize < 1) ? 10L : pageSize.longValue();

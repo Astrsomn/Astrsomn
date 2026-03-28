@@ -24,4 +24,8 @@ public class ChatSetting {
     private boolean enableStream = false;
 
 
+    /**
+     * 开启图像生成
+     */
+    public boolean enableImageGenerate = false;
 }

@@ -1,58 +1,47 @@
 <template>
-  <div class="agent-card">
-    <div class="card-accent" aria-hidden="true" />
+  <div class="agent-card" :class="{ selected, 'is-disabled': record.status !== 'enabled' }">
+    <div class="card-checkbox">
+      <a-checkbox :checked="selected" @change="onCheckedChange" />
+    </div>
 
-    <div class="section-avatar">
+    <div class="card-header">
       <div class="avatar-box">
         <span class="avatar-letter">{{ initialLetter }}</span>
+        <div class="status-indicator" :class="record.status" />
       </div>
-      <span
-        class="avatar-status-ring"
-        :class="record.status"
-        :title="statusTitle"
-        aria-hidden="true"
-      />
-    </div>
-
-    <div class="section-body">
-      <div class="title-row">
-        <h3 class="agent-name" :title="record.agentName">{{ record.agentName }}</h3>
-        <span class="status-pill" :class="record.status">{{ statusLabel }}</span>
-      </div>
-
-      <div v-if="record.agentKey" class="key-row">
-        <code class="agent-key" :title="record.agentKey">{{ record.agentKey }}</code>
-      </div>
-
-      <p v-if="record.description" class="agent-desc" :title="record.description">
-        {{ record.description }}
-      </p>
-
-      <div class="meta-row">
-        <div class="meta-chip" title="关联模型">
-          <api-outlined class="meta-icon" />
-          <span class="meta-value">{{ record.modelName || '未关联' }}</span>
+      
+      <div class="header-main">
+        <div class="title-row">
+          <h3 class="agent-name">{{ record.agentName }}</h3>
+          <span class="model-tag">{{ record.modelName || '未关联模型' }}</span>
         </div>
-        <div class="meta-chip" title="执行策略">
-          <file-text-outlined class="meta-icon" />
-          <span class="meta-value">{{ record.promptTitle || '默认' }}</span>
+        <div class="key-row" @click="copyAgentKey">
+          <key-outlined class="icon-small" />
+          <code>{{ record.agentKey || 'NO_KEY' }}</code>
+          <copy-outlined v-if="record.agentKey" class="copy-icon" />
         </div>
       </div>
     </div>
 
-    <div class="section-actions">
-      <button type="button" class="action-btn" title="配置" @click="emit('edit', record)">
-        <edit-outlined />
-      </button>
-      <a-popconfirm
-        title="确定要删除该智能体吗？"
-        ok-text="确定"
-        cancel-text="取消"
-        @confirm="onConfirmDelete"
-      >
-        <button type="button" class="action-btn danger" title="删除">
-          <delete-outlined />
-        </button>
+    <div class="card-body">
+      <p class="description">{{ record.description || '暂无详细描述信息...' }}</p>
+      
+      <div class="meta-info">
+        <div class="meta-item"><file-text-outlined /> {{ record.promptTitle || '默认策略' }}</div>
+        <div class="meta-item"><cloud-outlined /> {{ record.envCode || '默认环境' }}</div>
+        <div class="meta-item"><calendar-outlined /> {{ formatTime(record.createTime) }}</div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="footer-action" @click="emit('edit', record)">
+        <edit-outlined /> 编辑配置
+      </div>
+      <div class="footer-divider" />
+      <a-popconfirm title="确定删除该智能体吗？" @confirm="onConfirmDelete">
+        <div class="footer-action danger">
+          <delete-outlined /> 删除
+        </div>
       </a-popconfirm>
     </div>
   </div>
@@ -60,307 +49,258 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { message } from 'ant-design-vue'
 import {
-  ApiOutlined,
+  CalendarOutlined,
+  CloudOutlined,
+  CopyOutlined,
   EditOutlined,
   DeleteOutlined,
   FileTextOutlined,
+  KeyOutlined,
 } from '@ant-design/icons-vue'
-import type { AiAgent } from '@/api/aiAgent'
 
-const props = defineProps<{ record: AiAgent }>()
+const props = defineProps<{ record: any; selected: boolean }>()
+const emit = defineEmits(['edit', 'delete', 'select-change'])
 
-const emit = defineEmits<{
-  edit: [record: AiAgent]
-  delete: [id: number | string]
-}>()
+const initialLetter = computed(() => props.record.agentName?.charAt(0).toUpperCase() || '?')
+const formatTime = (raw?: string) => raw ? raw.replace('T', ' ').slice(5, 16) : '--'
+const onCheckedChange = (e: any) => emit('select-change', !!e.target.checked)
+const onConfirmDelete = () => props.record.id && emit('delete', props.record.id)
 
-const initialLetter = computed(
-  () => props.record.agentName?.charAt(0).toUpperCase() || '?',
-)
-
-const statusLabel = computed(() =>
-  props.record.status === 'enabled' ? '启用' : '停用',
-)
-
-const statusTitle = computed(() =>
-  props.record.status === 'enabled' ? '运行中' : '已停用',
-)
-
-function onConfirmDelete() {
-  if (props.record.id != null) {
-    emit('delete', props.record.id)
+const copyAgentKey = async () => {
+  if (!props.record.agentKey) return
+  try {
+    await navigator.clipboard.writeText(props.record.agentKey)
+    message.success('Key 已复制')
+  } catch {
+    message.error('复制失败，请手动复制')
   }
 }
 </script>
 
 <style scoped>
 .agent-card {
+  --primary-color: #4f46e5;
+  --model-color: #0891b2;
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, #ffffff 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
   display: flex;
-  align-items: stretch;
-  gap: 16px;
-  width: 100%;
-  min-height: 112px;
-  padding: 16px 18px;
+  flex-direction: column;
   position: relative;
-  border-radius: var(--radius-xl, 14px);
-  border: 1px solid var(--border-default);
-  background: var(--bg-card);
+  transition: all 0.3s ease;
+  min-height: 200px;
   overflow: hidden;
-  transition:
-    border-color 0.22s ease,
-    box-shadow 0.22s ease,
-    transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 10px 28px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
 .agent-card:hover {
-  border-color: color-mix(in srgb, var(--primary) 35%, var(--border-default));
+  border-color: var(--primary-color);
   box-shadow:
-    var(--shadow-card, 0 10px 30px rgba(0, 0, 0, 0.08)),
-    0 0 0 1px color-mix(in srgb, var(--primary) 12%, transparent);
+    0 16px 36px rgba(79, 70, 229, 0.08),
+    0 0 0 1px rgba(79, 70, 229, 0.08);
   transform: translateY(-1px);
 }
 
-/* 左侧细条：主题蓝渐变 */
-.card-accent {
+.card-checkbox {
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--primary-gradient);
-  opacity: 0.9;
-  border-radius: var(--radius-xl, 14px) 0 0 var(--radius-xl, 14px);
-  transition: opacity 0.2s;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
 }
 
-.agent-card:hover .card-accent {
-  opacity: 1;
-}
-
-/* --- 头像 --- */
-.section-avatar {
-  position: relative;
-  flex-shrink: 0;
+.card-header {
   display: flex;
-  align-items: center;
+  padding: 20px 20px 12px;
+  gap: 16px;
 }
 
 .avatar-box {
+  flex-shrink: 0;
   width: 52px;
   height: 52px;
-  border-radius: var(--radius-xl, 14px);
+  background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--logo-gradient);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 4px 14px color-mix(in srgb, var(--primary) 35%, transparent);
+  position: relative;
+  border: 1px solid #e2e8f0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 .avatar-letter {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.02em;
-  user-select: none;
+  color: #4338ca;
 }
 
-.avatar-status-ring {
+.status-indicator {
   position: absolute;
-  right: -3px;
-  bottom: -3px;
+  bottom: -2px;
+  right: -2px;
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 2.5px solid var(--bg-card);
-  background: var(--text-muted);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  border: 2px solid #fff;
+  background: #cbd5e1;
 }
+.status-indicator.enabled { background: #10b981; }
 
-.avatar-status-ring.enabled {
-  background: var(--success);
-}
-
-/* --- 正文 --- */
-.section-body {
+.header-main {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-  padding-top: 1px;
 }
 
 .title-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
 }
 
 .agent-name {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-heading);
-  letter-spacing: -0.02em;
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-  flex: 1;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
 }
 
-.status-pill {
-  flex-shrink: 0;
-  font-size: 11px;
+.model-tag {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  font-size: 12px;
+  color: var(--model-color);
   font-weight: 600;
-  letter-spacing: 0.02em;
   padding: 2px 8px;
   border-radius: 999px;
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-  color: var(--text-secondary);
-}
-
-.status-pill.enabled {
-  border-color: color-mix(in srgb, var(--success) 45%, var(--border-default));
-  background: color-mix(in srgb, var(--success) 12%, var(--bg-surface));
-  color: var(--success);
+  background: rgba(8, 145, 178, 0.08);
 }
 
 .key-row {
-  min-width: 0;
-}
-
-.agent-key {
-  display: inline-block;
-  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
-  font-family: ui-monospace, 'JetBrains Mono', 'SF Mono', monospace;
-  color: var(--text-secondary);
-  background: var(--bg-input);
-  padding: 2px 8px;
-  border-radius: var(--radius-sm, 6px);
-  border: 1px solid var(--border-default);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: var(--text-sub);
+  cursor: pointer;
+  background: #f8fafc;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  width: fit-content;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
-.agent-desc {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--text-secondary);
+.key-row:hover {
+  color: var(--primary-color);
+  border-color: rgba(79, 70, 229, 0.3);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+.key-row code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.icon-small,
+.copy-icon {
+  flex-shrink: 0;
+}
+
+.card-body {
+  flex: 1;
+  padding: 0 20px 16px;
+}
+
+.description {
+  font-size: 13px;
+  color: var(--text-sub);
+  line-height: 1.6;
+  margin-bottom: 16px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.meta-row {
+.meta-info {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 2px;
+  gap: 12px;
+  font-size: 11px;
+  color: #94a3b8;
 }
 
-.meta-chip {
-  display: inline-flex;
+.meta-item {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  max-width: 100%;
-  padding: 5px 10px;
-  border-radius: var(--radius-md, 8px);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  font-size: 12px;
-  color: var(--text-primary);
+  gap: 4px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
 }
 
-.meta-icon {
-  flex-shrink: 0;
+.card-footer {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border-top: 1px solid #f1f5f9;
+  height: 44px;
+}
+
+.footer-action {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 13px;
-  color: var(--accent-blue);
-}
-
-.meta-value {
-  font-weight: 500;
-  color: var(--text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-/* --- 操作 --- */
-.section-actions {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-  padding-left: 4px;
-  border-left: 1px solid var(--border-subtle);
-  margin-left: 2px;
-}
-
-.action-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-muted);
+  color: #64748b;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  transition:
-    color 0.18s,
-    background 0.18s,
-    border-color 0.18s;
+  transition: all 0.2s;
+  gap: 6px;
 }
 
-.action-btn:hover {
-  background: var(--primary-hover);
-  color: var(--primary);
-  border-color: color-mix(in srgb, var(--primary) 28%, transparent);
+.footer-action:hover {
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--primary-color);
 }
 
-.action-btn.danger:hover {
-  background: color-mix(in srgb, var(--error) 12%, var(--bg-card));
-  color: var(--error);
-  border-color: color-mix(in srgb, var(--error) 35%, transparent);
+.footer-action.danger:hover {
+  color: #ef4444;
+  background: rgba(254, 242, 242, 0.95);
 }
 
-@media (max-width: 480px) {
-  .agent-card {
-    flex-wrap: wrap;
-    min-height: auto;
-    padding: 14px;
-  }
+.footer-divider {
+  width: 1px;
+  height: 16px;
+  background: #e2e8f0;
+}
 
-  .section-actions {
-    flex-direction: row;
-    width: 100%;
-    justify-content: flex-end;
-    border-left: none;
-    padding-left: 0;
-    margin-left: 0;
-    padding-top: 8px;
-    border-top: 1px solid var(--border-subtle);
-  }
+.agent-card.selected {
+  border-color: var(--primary-color);
+  background: linear-gradient(180deg, #f7f7ff 0%, #f5f7ff 100%);
+  box-shadow:
+    0 16px 36px rgba(79, 70, 229, 0.08),
+    0 0 0 1px rgba(79, 70, 229, 0.08);
+}
 
-  .meta-row {
-    flex-direction: column;
-  }
+.is-disabled {
+  opacity: 0.8;
 }
 </style>

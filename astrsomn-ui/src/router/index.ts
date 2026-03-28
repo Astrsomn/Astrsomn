@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'ChatHome',
-    component: () => import('@/views/Index.vue'),
+    component: () => import('@/views/admin/chat-index/Index.vue'),
     meta: {
       title: '大模型聊天',
       requiresAuth: false
@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'Admin',
-        component: () => import('@/views/admin/components/AdminDashboard.vue'),
+        component: () => import('@/views/admin/home-dashboard/Index.vue'),
         meta: { title: '管理后台', requiresAuth: true }
       },
       {
@@ -82,7 +82,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'security',
         name: 'AdminSecurity',
-        component: () => import('@/views/admin/ai-modules/ai-security/SecurityList.vue'),
+        component: () => import('@/views/admin/ai-modules/ai-sensitiveWord/SensitiveWordList.vue'),
         meta: { title: '安全治理', requiresAuth: true }
       },
       {
@@ -98,6 +98,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '工作流', requiresAuth: true }
       },
       {
+        path: 'workflows/edit/:id',
+        name: 'AdminWorkflowEdit',
+        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowEditor.vue'),
+        meta: { title: '工作流编排', requiresAuth: true }
+      },
+      {
+        path: 'workflows/simple',
+        name: 'AdminWorkflowSimple',
+        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowSimpleTest.vue'),
+        meta: { title: '工作流编排测试', requiresAuth: true }
+      },
+      {
         path: 'users',
         name: 'AdminUsers',
         component: () => import('@/views/admin/system-config/system-user/UserList.vue'),
@@ -108,6 +120,12 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminEnv',
         component: () => import('@/views/admin/system-config/system-env/EnvList.vue'),
         meta: { title: '环境管理', requiresAuth: true }
+      },
+      {
+        path: 'system-config',
+        name: 'AdminSystemConfig',
+        component: () => import('@/views/admin/system-config/system-config/SystemConfigList.vue'),
+        meta: { title: '系统配置', requiresAuth: true }
       }
     ]
   },

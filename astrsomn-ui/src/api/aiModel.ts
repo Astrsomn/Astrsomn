@@ -6,9 +6,9 @@ export type AiModel = {
   modelKey?: string
   modelType?: string
   provider?: string
+  apiUrl?: string
   apiKey?: string
   apiSecret?: string
-  apiUrl?: string
   modelParams?: string
   status?: string
   responseLimit?: number
@@ -16,6 +16,10 @@ export type AiModel = {
   topVariance?: number
   isDefault?: number
   capabilities?: string
+  createUser?: string
+  createTime?: string
+  updateUser?: string
+  updateTime?: string
 }
 
 export type PageResponse<T> = {

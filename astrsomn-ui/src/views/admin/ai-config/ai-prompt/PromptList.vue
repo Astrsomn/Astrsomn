@@ -4,51 +4,60 @@
     description="同一 Prompt Key 共用一个逻辑提示词；每次保存生成新版本，列表按 Key 聚合展示当前最新版本。"
     empty-text="暂无提示词，请先创建。"
   >
-    <div class="prompt-page">
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <a-input
-            v-model:value="query.promptTitle"
-            placeholder="标题（模糊）"
-            class="toolbar-input"
-            allow-clear
-          />
-          <a-input
-            v-model:value="query.promptKey"
-            placeholder="Prompt Key（精确）"
-            class="toolbar-input"
-            allow-clear
-          />
-          <a-input
-            v-model:value="query.scene"
-            placeholder="场景"
-            class="toolbar-input narrow"
-            allow-clear
-          />
-          <a-input
-            v-model:value="query.envCode"
-            placeholder="环境编码（ENV_CODE）"
-            class="toolbar-input narrow"
-            allow-clear
-          />
-          <a-input
-            v-model:value="query.createUser"
-            placeholder="创建人（用户名）"
-            class="toolbar-input"
-            allow-clear
-          />
-          <a-select
-            v-model:value="query.enabledFlag"
-            :options="enabledFilterOptions"
-            placeholder="启用状态"
-            class="toolbar-select"
-            allow-clear
-          />
-        </div>
-        <div class="toolbar-right">
-          <a-button type="primary" @click="fetchList">查询</a-button>
-          <a-button @click="openCreate">新增</a-button>
+    <div ref="pageRef" class="prompt-page">
+      <AdminListToolbar>
+        <template #left>
+          <div class="search-cluster">
+            <a-input
+              v-model:value="query.promptTitle"
+              placeholder="搜索标题"
+              class="toolbar-input search-main-input"
+              allow-clear
+              @pressEnter="fetchList"
+            >
+              <template #prefix><search-outlined /></template>
+            </a-input>
+            <a-input
+              v-model:value="query.promptKey"
+              placeholder="Prompt Key"
+              class="toolbar-input search-sub-input"
+              allow-clear
+              @pressEnter="fetchList"
+            >
+              <template #prefix><key-outlined /></template>
+            </a-input>
+          </div>
 
+          <div class="status-switch" role="group" aria-label="状态筛选">
+            <a-button
+              class="status-btn"
+              :class="{ active: query.enabledFlag === 'enabled' }"
+              @click="toggleEnabledFilter('enabled')"
+            >
+              <template #icon><check-circle-outlined /></template>
+              启用
+            </a-button>
+            <a-button
+              class="status-btn"
+              :class="{ active: query.enabledFlag === 'disabled' }"
+              @click="toggleEnabledFilter('disabled')"
+            >
+              <template #icon><stop-outlined /></template>
+              禁用
+            </a-button>
+          </div>
+
+          <a-button class="filter-toggle-btn" @click="showAdvanced = !showAdvanced">
+            <template #icon><filter-outlined /></template>
+            {{ showAdvanced ? '收起筛选' : '更多筛选' }}
+          </a-button>
+        </template>
+
+        <template #right>
+          <a-button type="primary" class="primary-btn" @click="fetchList">
+            <template #icon><search-outlined /></template>
+            查询
+          </a-button>
           <a-popconfirm
             v-if="selectedRowKeys.length > 0"
             title="将删除选中项对应的 Prompt Key 下全部历史版本，确定吗？"
@@ -56,44 +65,83 @@
             cancel-text="取消"
             @confirm="handleBatchDelete"
           >
-            <a-button danger>批量删除</a-button>
+            <a-button danger class="ghost-btn danger-btn">
+              <template #icon><delete-outlined /></template>
+              批量删除
+            </a-button>
           </a-popconfirm>
-        </div>
-      </div>
-
-      <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1280 }"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'enabledFlag'">
-            <span>{{ renderEnabled(String(record.enabledFlag || '')) }}</span>
-          </template>
-          <template v-else-if="column.key === 'promptContent'">
-            <span class="content-preview">{{ previewContent(record.promptContent) }}</span>
-          </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="openHistory(record)">历史版本</a-button>
-            <a-divider type="vertical" />
-            <a-button type="link" @click="openEdit(record)">编辑</a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="将删除该 Prompt Key 下全部历史版本，确定吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger>删除</a-button>
-            </a-popconfirm>
-          </template>
+          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
+          <a-button class="ghost-btn" @click="openCreate">
+            <template #icon><plus-outlined /></template>
+            新增
+          </a-button>
         </template>
-      </a-table>
+
+        <template v-if="showAdvanced" #extra>
+          <a-input
+            v-model:value="query.scene"
+            placeholder="场景"
+            class="toolbar-input narrow"
+            allow-clear
+            @pressEnter="fetchList"
+          >
+            <template #prefix><tags-outlined /></template>
+          </a-input>
+          <a-input
+            v-model:value="query.envCode"
+            placeholder="环境编码"
+            class="toolbar-input narrow"
+            allow-clear
+            @pressEnter="fetchList"
+          >
+            <template #prefix><cloud-outlined /></template>
+          </a-input>
+          <a-input
+            v-model:value="query.createUser"
+            placeholder="创建人"
+            class="toolbar-input narrow"
+            allow-clear
+            @pressEnter="fetchList"
+          >
+            <template #prefix><user-outlined /></template>
+          </a-input>
+        </template>
+      </AdminListToolbar>
+
+      <BaseOverview
+        :list-length="list.length"
+        :selected-count="selectedRowKeys.length"
+        :all-current-selected="allCurrentSelected"
+        :part-current-selected="partCurrentSelected"
+        :show-actions="list.length > 0"
+        @toggle-select-all="toggleSelectAllCurrentPage"
+      />
+
+      <a-spin :spinning="loading">
+        <div v-if="list.length > 0" class="prompt-grid">
+          <div
+            v-for="item in list"
+            :key="item.id ?? `${item.promptKey ?? 'prompt'}-${item.version ?? 0}`"
+            class="prompt-grid-item"
+          >
+            <PromptCard
+              :record="item"
+              :selected="isSelected(item.id)"
+              @select-change="(checked) => toggleSelect(item.id, checked)"
+              @history="openHistory"
+              @edit="openEdit"
+              @delete="handleDeleteOne"
+            />
+          </div>
+        </div>
+
+        <div v-else class="empty-wrap">
+          <a-empty description="暂无匹配的提示词卡片" />
+        </div>
+      </a-spin>
 
       <div class="pagination-wrap">
+        <span class="pagination-total">共 {{ page.total }} 条</span>
         <a-pagination
           :current="page.pageNum"
           :page-size="page.pageSize"
@@ -121,11 +169,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
+import {
+  CheckCircleOutlined,
+  CloudOutlined,
+  DeleteOutlined,
+  FilterOutlined,
+  KeyOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  StopOutlined,
+  TagsOutlined,
+  UserOutlined
+} from '@ant-design/icons-vue'
+import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import PromptCard from './PromptCard.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
+import BaseOverview from '../../../../components/home/BaseOverview.vue'
 import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt.ts'
 
 type QueryState = {
@@ -137,50 +200,106 @@ type QueryState = {
   enabledFlag?: string
 }
 
-const enabledFilterOptions = [
-  { label: '启用', value: 'enabled' },
-  { label: '停用', value: 'disabled' }
-]
+const PROMPT_CARD_MIN_WIDTH_PX = 280
+const PROMPT_GRID_GAP_PX = 12
+const promptCardMinWidth = `${PROMPT_CARD_MIN_WIDTH_PX}px`
+const promptGridGap = `${PROMPT_GRID_GAP_PX}px`
 
-const renderEnabled = (f: string) => {
-  return enabledFilterOptions.find((x) => x.value === f)?.label ?? f
+const resolveGridColumns = () => {
+  if (typeof window === 'undefined') return 4
+  const width = pageRef.value?.clientWidth ?? window.innerWidth
+  const columns = Math.floor((width + PROMPT_GRID_GAP_PX) / (PROMPT_CARD_MIN_WIDTH_PX + PROMPT_GRID_GAP_PX))
+  return Math.max(1, Math.min(4, columns))
 }
 
-const previewContent = (raw: string | undefined) => {
-  if (!raw) return '—'
-  const one = raw.replace(/\s+/g, ' ').trim()
-  return one.length > 80 ? `${one.slice(0, 80)}…` : one
+const resolvePageSize = (columns: number) => {
+  if (columns >= 4) return 12
+  if (columns === 3) return 9
+  if (columns === 2) return 8
+  return 6
 }
-
-const columns = [
-  { title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 200, ellipsis: true },
-  { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 88, ellipsis: true },
-  { title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 120, ellipsis: true },
-  { title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', width: 180, ellipsis: true },
-  { title: '场景', dataIndex: 'scene', key: 'scene', width: 120, ellipsis: true },
-  { title: '版本', dataIndex: 'version', key: 'version', width: 72 },
-  { title: '内容预览', key: 'promptContent', width: 260, ellipsis: true },
-  { title: '状态', key: 'enabledFlag', width: 90 },
-  { title: '操作', key: 'actions', width: 260, fixed: 'right' as const }
-]
 
 const query = reactive<QueryState>({})
+const showAdvanced = ref(false)
+const loading = ref(false)
 const list = ref<AiPrompt[]>([])
+const pageRef = ref<HTMLElement | null>(null)
+const currentGridColumns = ref(resolveGridColumns())
+const promptGridTemplateColumns = computed(() => `repeat(${currentGridColumns.value}, minmax(0, 1fr))`)
 
 const page = reactive({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: resolvePageSize(currentGridColumns.value),
   total: 0
 })
 
 const selectedRowKeys = ref<Array<number | string>>([])
 
-const rowSelection = computed(() => ({
-  selectedRowKeys: selectedRowKeys.value,
-  onChange: (keys: Array<number | string>) => {
-    selectedRowKeys.value = keys
+const currentPageIds = computed(() =>
+  list.value
+    .map((item) => item.id)
+    .filter((id): id is number | string => id !== undefined && id !== null)
+)
+
+const allCurrentSelected = computed(() => {
+  return currentPageIds.value.length > 0 && currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
+})
+
+const partCurrentSelected = computed(() => {
+  if (currentPageIds.value.length === 0) return false
+  const count = currentPageIds.value.filter((id) => selectedRowKeys.value.includes(id)).length
+  return count > 0 && count < currentPageIds.value.length
+})
+
+const isSelected = (id: number | string | undefined) => {
+  if (id == null) return false
+  return selectedRowKeys.value.includes(id)
+}
+
+const toggleSelect = (id: number | string | undefined, checked: boolean) => {
+  if (id == null) return
+  if (checked) {
+    if (!selectedRowKeys.value.includes(id)) {
+      selectedRowKeys.value = [...selectedRowKeys.value, id]
+    }
+    return
   }
-}))
+  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== id)
+}
+
+const toggleSelectAllCurrentPage = (checked: boolean) => {
+  if (checked) {
+    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...currentPageIds.value]))
+    return
+  }
+  selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
+}
+
+const toggleEnabledFilter = (value: 'enabled' | 'disabled') => {
+  query.enabledFlag = query.enabledFlag === value ? undefined : value
+}
+
+const syncPageSizeWithGrid = async () => {
+  const nextColumns = resolveGridColumns()
+  currentGridColumns.value = nextColumns
+  const nextPageSize = resolvePageSize(nextColumns)
+  if (page.pageSize === nextPageSize) return
+  page.pageSize = nextPageSize
+  page.pageNum = 1
+  await fetchList()
+}
+
+const resetFilters = () => {
+  query.promptTitle = undefined
+  query.promptKey = undefined
+  query.scene = undefined
+  query.envCode = undefined
+  query.createUser = undefined
+  query.enabledFlag = undefined
+  showAdvanced.value = false
+  page.pageNum = 1
+  void fetchList()
+}
 
 const modal = reactive({
   open: false,
@@ -203,22 +322,27 @@ const openHistory = (record: AiPrompt) => {
 }
 
 const fetchList = async () => {
-  const payload = {
-    pageNo: page.pageNum,
-    pageSize: page.pageSize,
-    param: {
-      promptTitle: query.promptTitle || undefined,
-      promptKey: query.promptKey || undefined,
-      scene: query.scene || undefined,
-      envCode: query.envCode || undefined,
-      createUser: query.createUser || undefined,
-      enabledFlag: query.enabledFlag || undefined
+  loading.value = true
+  try {
+    const payload = {
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: {
+        promptTitle: query.promptTitle || undefined,
+        promptKey: query.promptKey || undefined,
+        scene: query.scene || undefined,
+        envCode: query.envCode || undefined,
+        createUser: query.createUser || undefined,
+        enabledFlag: query.enabledFlag || undefined
+      }
     }
-  }
 
-  const resp: PageResponse<AiPrompt> = await aiPromptApi.queryPage(payload)
-  list.value = resp.list || []
-  page.total = resp.total || 0
+    const resp: PageResponse<AiPrompt> = await aiPromptApi.queryPage(payload)
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
+  }
 }
 
 const onPageChange = (p: number) => {
@@ -284,56 +408,204 @@ const handleFormSubmit = async (form: AiPrompt) => {
   }
 }
 
+let resizeObserver: ResizeObserver | null = null
+
+const voidSyncPageSizeWithGrid = () => {
+  void syncPageSizeWithGrid()
+}
+
+onMounted(() => {
+  voidSyncPageSizeWithGrid()
+  if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
+    resizeObserver = new ResizeObserver(() => {
+      voidSyncPageSizeWithGrid()
+    })
+    resizeObserver.observe(pageRef.value)
+    return
+  }
+  window.addEventListener('resize', voidSyncPageSizeWithGrid)
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  window.removeEventListener('resize', voidSyncPageSizeWithGrid)
+})
+
 void fetchList()
 </script>
 
 <style scoped>
 .prompt-page {
-  padding: 0 4px;
+  padding: 0 2px 0;
+  margin-top: -8px;
 }
 
-.toolbar {
+.search-cluster {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.toolbar-left {
-  display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  box-shadow: none;
 }
 
-.toolbar-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
+.search-cluster :deep(.ant-input-affix-wrapper) {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.search-cluster :deep(.ant-input-affix-wrapper:hover),
+.search-cluster :deep(.ant-input-affix-wrapper-focused) {
+  border: none;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface));
+}
+
+.search-cluster :deep(.ant-input) {
+  font-size: 14px;
 }
 
 .toolbar-input {
   width: 200px;
 }
 
-.toolbar-input.narrow {
-  width: 140px;
+.search-main-input {
+  width: 360px;
 }
 
-.toolbar-select {
+.search-sub-input {
+  width: 240px;
+}
+
+.toolbar-input.narrow {
   width: 160px;
+}
+
+.primary-btn,
+.ghost-btn {
+  height: 40px;
+  border-radius: 12px;
+}
+
+.danger-btn {
+  color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
+  background: color-mix(in srgb, var(--error) 7%, var(--bg-card));
+}
+
+.danger-btn:hover,
+.danger-btn:focus {
+  color: var(--error) !important;
+  border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
+  background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
+}
+
+.status-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+}
+
+.status-btn {
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  background: transparent;
+  box-shadow: none;
+}
+
+.status-btn.active {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
+}
+
+.filter-toggle-btn {
+  height: 40px;
+  border-radius: 12px;
+  color: var(--text-secondary);
+}
+
+.prompt-grid {
+  display: grid;
+  grid-template-columns: v-bind(promptGridTemplateColumns);
+  gap: v-bind(promptGridGap);
+}
+
+.prompt-grid-item {
+  min-width: v-bind(promptCardMinWidth);
+}
+
+.empty-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0 12px;
 }
 
 .pagination-wrap {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
-.content-preview {
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 12px;
+.pagination-total {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 720px) {
+  .toolbar-input,
+  .toolbar-input.narrow,
+  .search-main-input,
+  .search-sub-input {
+    width: 100%;
+  }
+
+  .search-cluster,
+  .status-switch {
+    width: 100%;
+  }
+
+  .search-cluster {
+    padding: 8px;
+  }
+
+  .status-switch {
+    justify-content: space-between;
+  }
+
+  .status-btn {
+    flex: 1;
+  }
+
+  .prompt-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prompt-grid-item {
+    min-width: 0;
+  }
+
+  .pagination-wrap {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .pagination-total {
+    width: 100%;
+    text-align: center;
+  }
 }
 </style>

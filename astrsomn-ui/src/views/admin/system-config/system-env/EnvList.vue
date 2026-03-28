@@ -5,25 +5,35 @@
     empty-text="暂无环境配置。"
   >
     <div class="env-page">
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <a-input
-            v-model:value="query.envName"
-            placeholder="环境名称（模糊）"
-            class="toolbar-input"
-            allow-clear
-          />
-          <a-input
-            v-model:value="query.envCode"
-            placeholder="环境 Key（精确）"
-            class="toolbar-input"
-            allow-clear
-          />
-        </div>
-        <div class="toolbar-right">
-          <a-button type="primary" @click="fetchList">查询</a-button>
-          <a-button @click="openCreate">新增</a-button>
+      <AdminListToolbar>
+        <template #left>
+          <div class="search-cluster">
+            <a-input
+              v-model:value="query.envName"
+              placeholder="搜索环境名称"
+              class="toolbar-input search-main-input"
+              allow-clear
+              @pressEnter="fetchList"
+            >
+              <template #prefix><search-outlined /></template>
+            </a-input>
+            <a-input
+              v-model:value="query.envCode"
+              placeholder="环境 Key"
+              class="toolbar-input search-sub-input"
+              allow-clear
+              @pressEnter="fetchList"
+            >
+              <template #prefix><key-outlined /></template>
+            </a-input>
+          </div>
+        </template>
 
+        <template #right>
+          <a-button type="primary" class="primary-btn" @click="fetchList">
+            <template #icon><search-outlined /></template>
+            查询
+          </a-button>
           <a-popconfirm
             v-if="selectedRowKeys.length > 0"
             title="确定批量删除选中的环境吗？"
@@ -31,10 +41,28 @@
             cancel-text="取消"
             @confirm="handleBatchDelete"
           >
-            <a-button danger>批量删除</a-button>
+            <a-button danger class="ghost-btn danger-btn">
+              <template #icon><delete-outlined /></template>
+              批量删除
+            </a-button>
           </a-popconfirm>
-        </div>
-      </div>
+          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
+          <a-button class="ghost-btn" @click="openCreate">
+            <template #icon><plus-outlined /></template>
+            新增
+          </a-button>
+        </template>
+      </AdminListToolbar>
+
+      <BaseOverview
+        :list-length="list.length"
+        :selected-count="selectedRowKeys.length"
+        :all-current-selected="allCurrentSelected"
+        :part-current-selected="partCurrentSelected"
+        :show-actions="list.length > 0"
+        :summary-text="`当前页 ${list.length} 条环境记录，已选 ${selectedRowKeys.length} 条。`"
+        @toggle-select-all="toggleSelectAllCurrentPage"
+      />
 
       <a-table
         :columns="columns"
@@ -87,7 +115,15 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
+import {
+  DeleteOutlined,
+  KeyOutlined,
+  PlusOutlined,
+  SearchOutlined
+} from '@ant-design/icons-vue'
+import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import BaseOverview from '@/components/home/BaseOverview.vue'
 import EnvFormModal from './EnvFormModal.vue'
 import { systemEnvApi, type SystemEnv, type PageResponse } from '@/api/systemEnv.ts'
 
@@ -121,12 +157,44 @@ const page = reactive({
 
 const selectedRowKeys = ref<Array<number | string>>([])
 
+const currentPageIds = computed(() =>
+  list.value
+    .map((item) => item.id)
+    .filter((id): id is number | string => id !== undefined && id !== null)
+)
+
+const allCurrentSelected = computed(() => {
+  return currentPageIds.value.length > 0 && currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
+})
+
+const partCurrentSelected = computed(() => {
+  if (currentPageIds.value.length === 0) return false
+  const count = currentPageIds.value.filter((id) => selectedRowKeys.value.includes(id)).length
+  return count > 0 && count < currentPageIds.value.length
+})
+
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
   onChange: (keys: Array<number | string>) => {
     selectedRowKeys.value = keys
   }
 }))
+
+const toggleSelectAllCurrentPage = (checked: boolean) => {
+  if (checked) {
+    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...currentPageIds.value]))
+    return
+  }
+  selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
+}
+
+const resetFilters = () => {
+  query.envName = undefined
+  query.envCode = undefined
+  page.pageNum = 1
+  selectedRowKeys.value = []
+  void fetchList()
+}
 
 const modal = reactive({
   open: false,
@@ -221,40 +289,89 @@ void fetchList()
   padding: 0 4px;
 }
 
-.toolbar {
+.search-cluster {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.toolbar-left {
-  display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
 }
 
-.toolbar-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
+.search-cluster :deep(.ant-input-affix-wrapper) {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.search-cluster :deep(.ant-input-affix-wrapper:hover),
+.search-cluster :deep(.ant-input-affix-wrapper-focused) {
+  border: none;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface));
 }
 
 .toolbar-input {
   width: 240px;
 }
 
+.search-main-input {
+  width: 280px;
+}
+
+.search-sub-input {
+  width: 220px;
+}
+
+.primary-btn,
+.ghost-btn {
+  height: 40px;
+  border-radius: 12px;
+}
+
+.danger-btn {
+  color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
+  background: color-mix(in srgb, var(--error) 7%, var(--bg-card));
+}
+
+.danger-btn:hover,
+.danger-btn:focus {
+  color: var(--error) !important;
+  border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
+  background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
+}
+
 .pagination-wrap {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
 .desc-preview {
   color: rgba(0, 0, 0, 0.45);
   font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .toolbar-input,
+  .search-main-input,
+  .search-sub-input {
+    width: 100%;
+  }
+
+  .search-cluster {
+    width: 100%;
+    padding: 8px;
+  }
+
+  .pagination-wrap {
+    justify-content: center;
+  }
 }
 </style>

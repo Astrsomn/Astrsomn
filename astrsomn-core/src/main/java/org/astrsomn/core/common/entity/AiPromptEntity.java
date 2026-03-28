@@ -50,8 +50,8 @@ public class AiPromptEntity extends BaseEntity<Long> {
     /**
      * Status - enable/disable
      */
-    @TableField("ENABLE_FLAG")
-    private String enabledFlag;
+    @TableField("STATUS")
+    private String status;
 
     /**
      * Version number

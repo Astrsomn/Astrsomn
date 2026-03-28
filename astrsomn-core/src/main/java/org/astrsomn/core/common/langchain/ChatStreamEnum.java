@@ -25,14 +25,17 @@ public interface ChatStreamEnum {
     @AllArgsConstructor
     enum AstroEventType implements BaseEnum {
 
-        TEXT("text", "文本"),
-        THOUGHT("thought", "思考"),
-        HTML("html", "html代码"),
-        ERROR("error", "错误"),
-        DONE("done", "完成");
+        TEXT("text", "文本", ""),
+        THOUGHT("thought", "思考", ""),
+        HTML("html", "html代码", ""),
+        ERROR("error", "错误", ""),
+        IMAGE("image", "图像", ""),
+        DONE("done", "完成", "");
         private String code;
 
         private String desc;
+
+        private String prefix;
     }
 
 }

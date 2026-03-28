@@ -11,6 +11,7 @@ import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
 
@@ -21,9 +22,12 @@ import org.astrsomn.core.common.util.JsonUtil;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 
+import org.astrsomn.starter.langchain.quota.AstroModelListener;
+import org.astrsomn.starter.langchain.quota.ModelQuotaManager;
 import org.springframework.stereotype.Component;
 
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,6 +41,8 @@ public class AiStreamModelFactory {
 
     private final AiModelMapper aiModelMapper;
     private final AstrsomnProperties astrsomnProperties;
+    private final ModelQuotaManager quotaManager;
+    private final AstroModelListener astroModelListener;
 
 
     public <T> StreamingChatModel getStreamingModel(AstroChatParam<T> param) {
@@ -46,6 +52,15 @@ public class AiStreamModelFactory {
         AiModelEntity modelEntity = aiModelMapper.selectOne(new LambdaUpdateWrapper<AiModelEntity>()
                 .eq(AiModelEntity::getModelKey, param.getModelKey())
                 .eq(AiModelEntity::getEnvCode, astrsomnProperties.getEnvCode()));
+        if (modelEntity.getMaxQuotaTokens() != null &&
+                quotaManager.isExceeded(modelEntity.getModelKey(), modelEntity.getMaxQuotaTokens())) {
+            log.warn("====> [Astrsomn] 模型 {} 流量超限，准备切换到备选模型，服务降级", modelEntity.getModelKey());
+            String fallbackKey = astrsomnProperties.getRefs().getDefaultModelKey();
+            modelEntity = aiModelMapper.selectOne(new LambdaUpdateWrapper<AiModelEntity>()
+                    .eq(AiModelEntity::getModelKey, fallbackKey)
+                    .eq(AiModelEntity::getEnvCode, astrsomnProperties.getEnvCode()));
+            param.setModelKey(modelEntity.getModelKey());
+        }
         AiModelEnum.ProviderEnum providerEnum =
                 AiModelEnum.ProviderEnum.fromCode(modelEntity.getProvider());
 
@@ -58,9 +73,9 @@ public class AiStreamModelFactory {
             case ALIBABA:
                 return getQwenStreamingChatModel(modelEntity, modelSetting, chatSetting);
             case OPENAI:
-                return getStreamLanguageModel(modelEntity, modelSetting, chatSetting);
+                return getStreamLanguageModel(modelEntity, modelSetting, chatSetting, param);
             case DEEPSEEK:
-                return getStreamLanguageModel(modelEntity, modelSetting, chatSetting);
+                return getStreamLanguageModel(modelEntity, modelSetting, chatSetting, param);
             case ZHIPU:
                 return getZhiPuStreamLanguageModel(modelEntity, modelSetting, chatSetting);
             case QIANFAN:
@@ -108,7 +123,8 @@ public class AiStreamModelFactory {
 
     private OpenAiStreamingChatModel getStreamLanguageModel(AiModelEntity modelEntity,
                                                             ModelSetting modelSetting,
-                                                            ChatSetting chatSetting) {
+                                                            ChatSetting chatSetting,
+                                                            AstroChatParam param) {
 
 
         OpenAiStreamingChatModel.OpenAiStreamingChatModelBuilder builder = OpenAiStreamingChatModel.builder()
@@ -116,6 +132,7 @@ public class AiStreamModelFactory {
                 .baseUrl(modelEntity.getApiUrl())
                 .apiKey(modelEntity.getApiKey())
                 .maxTokens(modelSetting.getMaxTokens())
+                .listeners(Collections.singletonList(astroModelListener.createBindingListener(param)))
                 .logRequests(true)
                 .logResponses(true);
         List<String> capabilities = JsonUtil.parseArray(modelEntity.getCapabilities(), String.class);

@@ -112,7 +112,7 @@ import {
   CheckCircleFilled 
 } from '@ant-design/icons-vue'
 import logoUrl from '@/assets/Astrsomn-logo.png'
-import DocLangTheme from '@/views/admin/components/DocLangTheme.vue'
+import DocLangTheme from '@/components/top/DocLangTheme.vue'
 
 const router = useRouter()
 const loading = ref(false)

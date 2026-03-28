@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import AppHeader from '@/components/AppHeader.vue';
+import AppHeader from '@/components/top/AppHeader.vue';
 
 const route = useRoute();
 
@@ -48,8 +48,27 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
 /* 主体内容区 */
 .shell-content {
   flex: 1;
-  padding: 32px 0;
+  padding: 6px 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-muted) 24%, transparent) transparent;
+}
+
+.shell-content::-webkit-scrollbar {
+  width: 7px;
+}
+
+.shell-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.shell-content::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-muted) 18%, transparent);
+}
+
+.shell-content::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--text-muted) 28%, transparent);
 }
 
 .content-wrapper {
@@ -58,12 +77,7 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
   padding: 0 32px;
 }
 
-/* 动画效果 */
-.page-fade-enter-active, .page-fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.page-fade-enter-from { opacity: 0; transform: translateY(8px); }
-.page-fade-leave-to { opacity: 0; }
+
 
 /* 响应式适配 */
 @media (max-width: 768px) {

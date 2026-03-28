@@ -1,10 +1,11 @@
 package org.astrsomn.starter.config;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * 绑定前缀 {@code astrsomn}，由 {@link AstrsomnPropertiesAutoConfiguration#astrsomnProperties()} 注册为 Bean。
+ */
 @Data
-@ConfigurationProperties(prefix = "astrsomn")
 public class AstrsomnProperties {
 
     /**

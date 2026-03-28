@@ -26,6 +26,14 @@ public class AiAgentEntity extends BaseEntity<Long> {
      */
     @TableField("AGENT_KEY")
     private String agentKey;
+
+    /**
+     * Optional workflow key: when set, application layer may route chat through workflow orchestration
+     * instead of a single-turn assistant call.
+     */
+    @TableField("WORKFLOW_KEY")
+    private String workflowKey;
+
     /**
      * The name of the Agent.
      */

@@ -1,6 +1,10 @@
 package org.astrsomn.server.service.impl;
 
+import dev.langchain4j.data.message.ImageContent;
+import dev.langchain4j.data.message.TextContent;
+import dev.langchain4j.data.message.UserMessage;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.astrsomn.core.common.dto.chat.AstroChatRequest;
 import org.astrsomn.core.common.langchain.AstroChatAssistant;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
