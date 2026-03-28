@@ -99,11 +99,23 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         next.setId(null);
         next.setCreateTime(null);
         next.setUpdateTime(null);
-        next.setPromptKey(current.getPromptKey());
-        next.setEnvCode(current.getEnvCode());
+        String env = StringUtils.defaultIfBlank(current.getEnvCode(), astrsomnProperties.getEnvCode());
+        next.setEnvCode(env);
+        String requestedPromptKey = StringUtils.trimToNull(request.getPromptKey());
+        String nextPromptKey = StringUtils.defaultIfBlank(requestedPromptKey, current.getPromptKey());
+        next.setPromptKey(nextPromptKey);
+        if (!StringUtils.equals(nextPromptKey, current.getPromptKey())) {
+            long exists = lambdaQuery()
+                    .eq(AiPromptEntity::getPromptKey, nextPromptKey)
+                    .eq(AiPromptEntity::getEnvCode, env)
+                    .count();
+            if (exists > 0) {
+                return BaseResponse.fail("该 Prompt Key 已存在，请使用其他 Prompt Key", null);
+            }
+        }
         AiPromptEntity top = lambdaQuery()
-                .eq(AiPromptEntity::getPromptKey, current.getPromptKey())
-                .eq(AiPromptEntity::getEnvCode, current.getEnvCode())
+                .eq(AiPromptEntity::getPromptKey, nextPromptKey)
+                .eq(AiPromptEntity::getEnvCode, env)
                 .orderByDesc(AiPromptEntity::getVersion)
                 .last("LIMIT 1")
                 .one();

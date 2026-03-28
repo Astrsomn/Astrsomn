@@ -21,7 +21,7 @@
       >
         <template #message>
           <span v-if="mode === 'create'">Prompt Key 可留空，后端自动生成；首次创建为版本 1。</span>
-          <span v-else>保存后将自动递增版本号，历史版本可在列表查看。</span>
+          <span v-else>可修改 Prompt Key；若留空则沿用当前值，保存后自动递增版本号。</span>
         </template>
       </a-alert>
 
@@ -35,7 +35,6 @@
             <a-input
               v-model:value="form.promptKey"
               placeholder="唯一标识（选填）"
-              :disabled="mode === 'edit'"
               allow-clear
             />
           </a-form-item>
@@ -118,9 +117,11 @@ watch([() => open.value, () => props.initial], ([isOpen, initial]) => {
 async function handleOk() {
   try {
     await formRef.value?.validate()
-    const payload = { ...form }
-    if (props.mode === 'create' && !payload.promptKey?.trim()) {
+    const payload: Record<string, any> = { ...form }
+    if (!payload.promptKey?.trim()) {
       delete payload.promptKey
+    } else {
+      payload.promptKey = payload.promptKey.trim()
     }
     emit('submit', payload)
   } catch (err) {}

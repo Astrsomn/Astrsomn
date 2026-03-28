@@ -68,7 +68,7 @@ public class BizResourceKeyAssignHelper {
                         candidate ->
                                 aiPromptMapper.selectCount(
                                         new LambdaQueryWrapper<AiPromptEntity>()
-                                                .eq(AiPromptEntity::getCreateUser, user)
+                                                .eq(AiPromptEntity::getEnvCode, entity.getEnvCode())
                                                 .eq(AiPromptEntity::getPromptKey, candidate))));
     }
 
