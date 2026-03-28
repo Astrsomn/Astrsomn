@@ -5,8 +5,8 @@
     empty-text="暂无提示词，请先创建。"
   >
     <div ref="pageRef" class="prompt-page">
-      <div class="toolbar">
-        <div class="toolbar-left">
+      <AdminListToolbar>
+        <template #left>
           <div class="search-cluster">
             <a-input
               v-model:value="query.promptTitle"
@@ -51,9 +51,9 @@
             <template #icon><filter-outlined /></template>
             {{ showAdvanced ? '收起筛选' : '更多筛选' }}
           </a-button>
-        </div>
+        </template>
 
-        <div class="toolbar-right">
+        <template #right>
           <a-button type="primary" class="primary-btn" @click="fetchList">
             <template #icon><search-outlined /></template>
             查询
@@ -75,9 +75,9 @@
             <template #icon><plus-outlined /></template>
             新增
           </a-button>
-        </div>
+        </template>
 
-        <div v-if="showAdvanced" class="toolbar-advanced">
+        <template v-if="showAdvanced" #extra>
           <a-input
             v-model:value="query.scene"
             placeholder="场景"
@@ -105,8 +105,8 @@
           >
             <template #prefix><user-outlined /></template>
           </a-input>
-        </div>
-      </div>
+        </template>
+      </AdminListToolbar>
 
       <BaseOverview
         :list-length="list.length"
@@ -184,6 +184,7 @@ import {
   UserOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
+import AdminListToolbar from '@/views/admin/components/admin/AdminListToolbar.vue'
 import PromptCard from './PromptCard.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
@@ -439,35 +440,6 @@ void fetchList()
   margin-top: -8px;
 }
 
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 6px;
-  flex-wrap: wrap;
-  padding: 16px;
-  border-radius: 20px;
-  //border: 1px solid var(--border-default);
-  background: var(--bg-card);
-  //box-shadow: 0 16px 32px rgba(15, 23, 42, 0.04);
-}
-
-.toolbar-left {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-  flex: 1;
-}
-
-.toolbar-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
 .search-cluster {
   display: flex;
   gap: 8px;
@@ -562,14 +534,6 @@ void fetchList()
   color: var(--text-secondary);
 }
 
-.toolbar-advanced {
-  width: 100%;
-  display: flex;
-  gap: 12px;
-  padding-top: 4px;
-  flex-wrap: wrap;
-}
-
 .prompt-grid {
   display: grid;
   grid-template-columns: v-bind(promptGridTemplateColumns);
@@ -601,10 +565,6 @@ void fetchList()
 }
 
 @media (max-width: 720px) {
-  .toolbar {
-    padding: 14px;
-  }
-
   .toolbar-input,
   .toolbar-input.narrow,
   .search-main-input,
@@ -612,10 +572,8 @@ void fetchList()
     width: 100%;
   }
 
-  .toolbar-left,
-  .toolbar-right,
   .search-cluster,
-  .toolbar-advanced {
+  .status-switch {
     width: 100%;
   }
 
@@ -624,7 +582,6 @@ void fetchList()
   }
 
   .status-switch {
-    width: 100%;
     justify-content: space-between;
   }
 

@@ -5,40 +5,99 @@
     empty-text="暂无工作流。"
   >
     <div class="wf-page">
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <a-input
-            v-model:value="query.workflowKey"
-            placeholder="Workflow Key"
-            class="toolbar-input"
-            allow-clear
-          />
-          <a-input
-            v-model:value="query.workflowName"
-            placeholder="名称（模糊）"
-            class="toolbar-input"
-            allow-clear
-          />
-          <a-select
-            v-model:value="query.status"
-            :options="statusOptions"
-            placeholder="状态"
-            class="toolbar-select"
-            allow-clear
-          />
-        </div>
-        <div class="toolbar-right">
-          <a-button type="primary" @click="fetchList">查询</a-button>
-          <a-button @click="openCreate">新增</a-button>
-          <a-button @click="goSimpleTest">编排测试</a-button>
-        </div>
-      </div>
+      <AdminListToolbar>
+        <template #left>
+          <div class="search-cluster">
+            <a-input
+              v-model:value="query.workflowName"
+              placeholder="搜索工作流名称"
+              class="toolbar-input search-main-input"
+              allow-clear
+              @pressEnter="fetchList"
+            >
+              <template #prefix><search-outlined /></template>
+            </a-input>
+            <a-input
+              v-model:value="query.workflowKey"
+              placeholder="Workflow Key"
+              class="toolbar-input search-sub-input"
+              allow-clear
+              @pressEnter="fetchList"
+            >
+              <template #prefix><key-outlined /></template>
+            </a-input>
+          </div>
+
+          <div class="status-switch" role="group" aria-label="状态筛选">
+            <a-button
+              class="status-btn"
+              :class="{ active: query.status === 'PUBLISHED' }"
+              @click="toggleStatusFilter('PUBLISHED')"
+            >
+              <template #icon><check-circle-outlined /></template>
+              已发布
+            </a-button>
+            <a-button
+              class="status-btn"
+              :class="{ active: query.status === 'DRAFT' }"
+              @click="toggleStatusFilter('DRAFT')"
+            >
+              <template #icon><edit-outlined /></template>
+              草稿
+            </a-button>
+            <a-button
+              class="status-btn"
+              :class="{ active: query.status === 'DISABLED' }"
+              @click="toggleStatusFilter('DISABLED')"
+            >
+              <template #icon><stop-outlined /></template>
+              停用
+            </a-button>
+          </div>
+        </template>
+
+        <template #right>
+          <a-button type="primary" class="primary-btn" @click="fetchList">
+            <template #icon><search-outlined /></template>
+            查询
+          </a-button>
+          <a-popconfirm
+            v-if="selectedRowKeys.length > 0"
+            title="确定批量删除选中的工作流吗？"
+            ok-text="确认"
+            cancel-text="取消"
+            @confirm="handleBatchDelete"
+          >
+            <a-button danger class="ghost-btn danger-btn">
+              <template #icon><delete-outlined /></template>
+              批量删除
+            </a-button>
+          </a-popconfirm>
+          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
+          <a-button class="ghost-btn" @click="openCreate">
+            <template #icon><plus-outlined /></template>
+            新增
+          </a-button>
+          <a-button class="ghost-btn" @click="goSimpleTest">编排测试</a-button>
+        </template>
+      </AdminListToolbar>
+
+      <BaseOverview
+        :list-length="list.length"
+        :selected-count="selectedRowKeys.length"
+        :all-current-selected="allCurrentSelected"
+        :part-current-selected="partCurrentSelected"
+        :show-actions="list.length > 0"
+        :summary-text="`当前页 ${list.length} 条工作流，已选 ${selectedRowKeys.length} 条。`"
+        @toggle-select-all="toggleSelectAllCurrentPage"
+      />
 
       <a-table
         :columns="columns"
         :data-source="list"
         :pagination="false"
         row-key="id"
+        :row-selection="rowSelection"
         :scroll="{ x: 1100 }"
       >
         <template #bodyCell="{ column, record }">
@@ -102,19 +161,24 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import {
+  CheckCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  KeyOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  StopOutlined
+} from '@ant-design/icons-vue'
 import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
+import AdminListToolbar from '@/views/admin/components/admin/AdminListToolbar.vue'
+import BaseOverview from '@/views/admin/components/admin/BaseOverview.vue'
 import { aiWorkflowApi, type AiWorkflow } from '@/api/aiWorkflow'
 
 const router = useRouter()
-
-const statusOptions = [
-  { label: '草稿', value: 'DRAFT' },
-  { label: '已发布', value: 'PUBLISHED' },
-  { label: '停用', value: 'DISABLED' }
-]
 
 const columns = [
   { title: 'Workflow Key', dataIndex: 'workflowKey', key: 'workflowKey', width: 180, ellipsis: true },
@@ -127,11 +191,56 @@ const columns = [
 
 const query = reactive<{ workflowKey?: string; workflowName?: string; status?: string }>({})
 const list = ref<AiWorkflow[]>([])
+const selectedRowKeys = ref<Array<number | string>>([])
 const page = reactive({
   pageNum: 1,
   pageSize: 10,
   total: 0
 })
+
+const currentPageIds = computed(() =>
+  list.value
+    .map((item) => item.id)
+    .filter((id): id is number | string => id !== undefined && id !== null)
+)
+
+const allCurrentSelected = computed(() => {
+  return currentPageIds.value.length > 0 && currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
+})
+
+const partCurrentSelected = computed(() => {
+  if (currentPageIds.value.length === 0) return false
+  const count = currentPageIds.value.filter((id) => selectedRowKeys.value.includes(id)).length
+  return count > 0 && count < currentPageIds.value.length
+})
+
+const rowSelection = computed(() => ({
+  selectedRowKeys: selectedRowKeys.value,
+  onChange: (keys: Array<number | string>) => {
+    selectedRowKeys.value = keys
+  }
+}))
+
+const toggleSelectAllCurrentPage = (checked: boolean) => {
+  if (checked) {
+    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...currentPageIds.value]))
+    return
+  }
+  selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
+}
+
+const toggleStatusFilter = (value: 'DRAFT' | 'PUBLISHED' | 'DISABLED') => {
+  query.status = query.status === value ? undefined : value
+}
+
+const resetFilters = () => {
+  query.workflowKey = undefined
+  query.workflowName = undefined
+  query.status = undefined
+  page.pageNum = 1
+  selectedRowKeys.value = []
+  void fetchList()
+}
 
 const fetchList = async () => {
   try {
@@ -177,6 +286,20 @@ const handleDeleteOne = async (id: string | number | undefined) => {
   try {
     await aiWorkflowApi.delete([id])
     message.success('已删除')
+    selectedRowKeys.value = []
+    void fetchList()
+  } catch (e: unknown) {
+    message.error(e instanceof Error ? e.message : '删除失败')
+  }
+}
+
+const handleBatchDelete = async () => {
+  const ids = [...selectedRowKeys.value]
+  if (ids.length === 0) return
+  try {
+    await aiWorkflowApi.delete(ids)
+    message.success('已删除')
+    selectedRowKeys.value = []
     void fetchList()
   } catch (e: unknown) {
     message.error(e instanceof Error ? e.message : '删除失败')
@@ -236,28 +359,120 @@ const submitCreate = async () => {
   flex-direction: column;
   gap: 16px;
 }
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: space-between;
-  align-items: center;
-}
-.toolbar-left,
-.toolbar-right {
+
+.search-cluster {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
 }
+
+.search-cluster :deep(.ant-input-affix-wrapper) {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.search-cluster :deep(.ant-input-affix-wrapper:hover),
+.search-cluster :deep(.ant-input-affix-wrapper-focused) {
+  border: none;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface));
+}
+
 .toolbar-input {
   width: 200px;
 }
-.toolbar-select {
-  width: 140px;
+
+.search-main-input {
+  width: 320px;
 }
+
+.search-sub-input {
+  width: 220px;
+}
+
+.primary-btn,
+.ghost-btn {
+  height: 40px;
+  border-radius: 12px;
+}
+
+.danger-btn {
+  color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
+  background: color-mix(in srgb, var(--error) 7%, var(--bg-card));
+}
+
+.danger-btn:hover,
+.danger-btn:focus {
+  color: var(--error) !important;
+  border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
+  background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
+}
+
+.status-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+}
+
+.status-btn {
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  background: transparent;
+  box-shadow: none;
+}
+
+.status-btn.active {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
+}
+
 .pagination-wrap {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+  .toolbar-input,
+  .search-main-input,
+  .search-sub-input {
+    width: 100%;
+  }
+
+  .search-cluster,
+  .status-switch {
+    width: 100%;
+  }
+
+  .search-cluster {
+    padding: 8px;
+  }
+
+  .status-switch {
+    justify-content: space-between;
+  }
+
+  .status-btn {
+    flex: 1;
+  }
+
+  .pagination-wrap {
+    justify-content: center;
+  }
 }
 </style>

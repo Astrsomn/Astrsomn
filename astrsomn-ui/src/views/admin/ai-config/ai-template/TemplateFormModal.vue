@@ -55,12 +55,24 @@
         </a-form-item>
 
         <a-form-item label="模板内容" name="content" class="span-2">
-          <a-textarea
-            v-model:value="form.content"
-            :auto-size="{ minRows: 12, maxRows: 28 }"
-            placeholder="Freemarker / StringTemplate 正文"
-            class="content-area"
-          />
+          <div class="editor-shell">
+            <div class="editor-toolbar">
+              <span class="editor-title">
+                {{ form.templateType === 'FREEMARKER' ? 'FTL Code Editor' : 'Template Code Editor' }}
+              </span>
+              <span class="editor-hint">
+                {{ form.templateType === 'FREEMARKER' ? '使用专用代码编辑框编辑 .ftl 模板' : '编辑 StringTemplate 正文' }}
+              </span>
+            </div>
+            <Codemirror
+              v-model="form.content"
+              :extensions="editorExtensions"
+              :autofocus="mode === 'create'"
+              :indent-with-tab="true"
+              :tab-size="2"
+              class="content-editor"
+            />
+          </div>
         </a-form-item>
       </div>
     </a-form>
@@ -68,8 +80,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import type { FormInstance } from 'ant-design-vue'
+import { Codemirror } from 'vue-codemirror'
+import { html } from '@codemirror/lang-html'
+import { oneDark } from '@codemirror/theme-one-dark'
 import type { AiTemplate } from '@/api/aiTemplate.ts'
 
 const props = defineProps<{
@@ -117,6 +132,13 @@ const rules = {
   templateType: [{ required: true, message: '请选择模板类型' }],
   status: [{ required: true, message: '请选择状态' }]
 }
+
+const editorExtensions = computed(() => {
+  if (form.templateType === 'FREEMARKER') {
+    return [html(), oneDark]
+  }
+  return [oneDark]
+})
 
 function assignFromInitial(src: AiTemplate) {
   Object.assign(form, emptyForm(), src)
@@ -175,9 +197,44 @@ function onCancel() {
   width: 100%;
 }
 
-.content-area {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.editor-shell {
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.editor-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #111827;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.editor-title {
+  color: #f9fafb;
   font-size: 13px;
+  font-weight: 600;
+}
+
+.editor-hint {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.content-editor {
+  font-size: 13px;
+}
+
+:deep(.content-editor .cm-editor) {
+  min-height: 320px;
+}
+
+:deep(.content-editor .cm-scroller) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 @media (max-width: 1024px) {

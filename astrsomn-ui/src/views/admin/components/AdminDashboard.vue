@@ -153,7 +153,6 @@ const managementGroupsAll: ManagementGroup[] = [
         icon: TeamOutlined,
         route: '/admin/agents',
         accent: 'primary',
-        highlight: true,
       },
       {
         key: 'mcp',
@@ -177,8 +176,7 @@ const managementGroupsAll: ManagementGroup[] = [
         description: '管理模型供应商与路由策略',
         icon: SettingOutlined,
         route: '/admin/models',
-        accent: 'sky',
-        highlight: true,
+        accent: 'blue',
       },
       {
         key: 'prompts',
@@ -256,7 +254,7 @@ const managementGroupsAll: ManagementGroup[] = [
         description: '按 Workflow Key 快速调用后端测试运行（已发布版本）',
         icon: NodeIndexOutlined,
         route: '/admin/workflows/simple',
-        accent: 'sky',
+        accent: 'blue',
       },
     ],
   },
@@ -271,8 +269,7 @@ const managementGroupsAll: ManagementGroup[] = [
         description: '管理系统用户、角色与权限分配',
         icon: UserOutlined,
         route: '/admin/users',
-        accent: 'brand',
-        highlight: true,
+        accent: 'blue',
       },
       {
         key: 'env',

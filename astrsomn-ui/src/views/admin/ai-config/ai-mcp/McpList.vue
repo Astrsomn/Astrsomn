@@ -5,33 +5,52 @@
     empty-text="暂无 MCP 服务。"
   >
     <div class="mcp-page">
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <a-input
-            v-model:value="query.mcpKey"
-            placeholder="MCP Key（精确）"
-            class="toolbar-input"
-            allow-clear
-          />
-          <a-select
-            v-model:value="query.type"
-            :options="typeFilterOptions"
-            placeholder="类型"
-            class="toolbar-select"
-            allow-clear
-          />
-          <a-select
-            v-model:value="query.enabled"
-            :options="enabledFilterOptions"
-            placeholder="启用状态"
-            class="toolbar-select"
-            allow-clear
-          />
-        </div>
-        <div class="toolbar-right">
-          <a-button type="primary" @click="fetchList">查询</a-button>
-          <a-button @click="openCreate">新增</a-button>
+      <AdminListToolbar>
+        <template #left>
+          <div class="search-cluster">
+            <a-input
+              v-model:value="query.mcpKey"
+              placeholder="搜索 MCP Key"
+              class="toolbar-input search-main-input"
+              allow-clear
+              @pressEnter="fetchList"
+            >
+              <template #prefix><search-outlined /></template>
+            </a-input>
+            <a-select
+              v-model:value="query.type"
+              :options="typeFilterOptions"
+              placeholder="所有类型"
+              class="toolbar-select type-select"
+              allow-clear
+            />
+          </div>
 
+          <div class="status-switch" role="group" aria-label="状态筛选">
+            <a-button
+              class="status-btn"
+              :class="{ active: query.enabled === 1 }"
+              @click="toggleEnabledFilter(1)"
+            >
+              <template #icon><check-circle-outlined /></template>
+              启用
+            </a-button>
+            <a-button
+              class="status-btn"
+              :class="{ active: query.enabled === 0 }"
+              @click="toggleEnabledFilter(0)"
+            >
+              <template #icon><stop-outlined /></template>
+              禁用
+            </a-button>
+          </div>
+        </template>
+
+        <template #right>
+          <a-button type="primary" class="primary-btn" @click="fetchList">
+            <template #icon><search-outlined /></template>
+            查询
+          </a-button>
           <a-popconfirm
             v-if="selectedRowKeys.length > 0"
             title="确定批量删除选中的 MCP 吗？"
@@ -39,10 +58,28 @@
             cancel-text="取消"
             @confirm="handleBatchDelete"
           >
-            <a-button danger>批量删除</a-button>
+            <a-button danger class="ghost-btn danger-btn">
+              <template #icon><delete-outlined /></template>
+              批量删除
+            </a-button>
           </a-popconfirm>
-        </div>
-      </div>
+          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
+          <a-button class="ghost-btn" @click="openCreate">
+            <template #icon><plus-outlined /></template>
+            新增
+          </a-button>
+        </template>
+      </AdminListToolbar>
+
+      <BaseOverview
+        :list-length="list.length"
+        :selected-count="selectedRowKeys.length"
+        :all-current-selected="allCurrentSelected"
+        :part-current-selected="partCurrentSelected"
+        :show-actions="list.length > 0"
+        :summary-text="`当前页 ${list.length} 条 MCP 服务，已选 ${selectedRowKeys.length} 条。`"
+        @toggle-select-all="toggleSelectAllCurrentPage"
+      />
 
       <a-table
         :columns="columns"
@@ -98,7 +135,16 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
+import {
+  CheckCircleOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  StopOutlined
+} from '@ant-design/icons-vue'
 import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
+import AdminListToolbar from '@/views/admin/components/admin/AdminListToolbar.vue'
+import BaseOverview from '@/views/admin/components/admin/BaseOverview.vue'
 import McpFormModal from './McpFormModal.vue'
 import { aiMcpApi, type AiMcp, type PageResponse } from '@/api/aiMcp.ts'
 
@@ -112,11 +158,6 @@ const typeFilterOptions = [
   { label: 'SSE', value: 'SSE' },
   { label: 'STDIO', value: 'STDIO' },
   { label: 'STEAMABLE', value: 'STEAMABLE' }
-]
-
-const enabledFilterOptions = [
-  { label: '启用', value: 1 },
-  { label: '停用', value: 0 }
 ]
 
 const columns = [
@@ -139,12 +180,49 @@ const page = reactive({
 
 const selectedRowKeys = ref<Array<number | string>>([])
 
+const currentPageIds = computed(() =>
+  list.value
+    .map((item) => item.id)
+    .filter((id): id is number | string => id !== undefined && id !== null)
+)
+
+const allCurrentSelected = computed(() => {
+  return currentPageIds.value.length > 0 && currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
+})
+
+const partCurrentSelected = computed(() => {
+  if (currentPageIds.value.length === 0) return false
+  const count = currentPageIds.value.filter((id) => selectedRowKeys.value.includes(id)).length
+  return count > 0 && count < currentPageIds.value.length
+})
+
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
   onChange: (keys: Array<number | string>) => {
     selectedRowKeys.value = keys
   }
 }))
+
+const toggleSelectAllCurrentPage = (checked: boolean) => {
+  if (checked) {
+    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...currentPageIds.value]))
+    return
+  }
+  selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
+}
+
+const toggleEnabledFilter = (value: 0 | 1) => {
+  query.enabled = query.enabled === value ? undefined : value
+}
+
+const resetFilters = () => {
+  query.mcpKey = undefined
+  query.type = undefined
+  query.enabled = undefined
+  page.pageNum = 1
+  selectedRowKeys.value = []
+  void fetchList()
+}
 
 const modal = reactive({
   open: false,
@@ -243,40 +321,97 @@ void fetchList()
   padding: 0 4px;
 }
 
-.toolbar {
+.search-cluster {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.toolbar-left {
-  display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
 }
 
-.toolbar-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
+.search-cluster :deep(.ant-input-affix-wrapper),
+.search-cluster :deep(.ant-select-selector) {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.search-cluster :deep(.ant-input-affix-wrapper:hover),
+.search-cluster :deep(.ant-input-affix-wrapper-focused),
+.search-cluster :deep(.ant-select-focused .ant-select-selector),
+.search-cluster :deep(.ant-select-selector:hover) {
+  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface)) !important;
 }
 
 .toolbar-input {
-  width: 220px;
+  width: 200px;
+}
+
+.search-main-input {
+  width: 360px;
 }
 
 .toolbar-select {
-  width: 160px;
+  width: 180px;
+}
+
+.type-select {
+  min-width: 180px;
+}
+
+.primary-btn,
+.ghost-btn {
+  height: 40px;
+  border-radius: 12px;
+}
+
+.danger-btn {
+  color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
+  background: color-mix(in srgb, var(--error) 7%, var(--bg-card));
+}
+
+.danger-btn:hover,
+.danger-btn:focus {
+  color: var(--error) !important;
+  border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
+  background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
+}
+
+.status-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+}
+
+.status-btn {
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  background: transparent;
+  box-shadow: none;
+}
+
+.status-btn.active {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
 }
 
 .pagination-wrap {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
 .ellipsis {
@@ -286,5 +421,35 @@ void fetchList()
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: bottom;
+}
+
+@media (max-width: 720px) {
+  .toolbar-input,
+  .search-main-input,
+  .toolbar-select,
+  .type-select {
+    width: 100%;
+  }
+
+  .search-cluster,
+  .status-switch {
+    width: 100%;
+  }
+
+  .search-cluster {
+    padding: 8px;
+  }
+
+  .status-switch {
+    justify-content: space-between;
+  }
+
+  .status-btn {
+    flex: 1;
+  }
+
+  .pagination-wrap {
+    justify-content: center;
+  }
 }
 </style>
