@@ -19,6 +19,11 @@ public interface AiConversationMapper extends BaseMapper<AiConversationEntity> {
 
     int getMaxMessageOrder(@Param("messageKey") String messageKey);
 
-    @Select("SELECT MODEL_KEY, SUM(CONSUME_TOKENS) FROM AI_CONVERSATION WHERE CREATE_TIME >= TODAY GROUP BY MODEL_KEY")
-    List<Map<String, Object>> selectTodayUsage();
+    @Select("SELECT MODEL_KEY AS MODEL_KEY, SUM(CONSUME_TOKENS) AS TOTAL " +
+            "FROM AI_CONVERSATION " +
+            "WHERE CREATE_TIME >= CURDATE() " +
+            "AND DELETED = 0 " +
+            "AND ENV_CODE = #{envCode} " +
+            "GROUP BY MODEL_KEY")
+    List<Map<String, Object>> selectTodayUsage(@Param("envCode") String envCode);
 }
