@@ -279,6 +279,14 @@ const managementGroupsAll: ManagementGroup[] = [
         route: '/admin/env',
         accent: 'frost',
       },
+      {
+        key: 'system-config',
+        label: '系统配置',
+        description: '管理系统配置、参数与日志',
+        icon: SettingOutlined,
+        route: '/admin/system-config',
+        accent: 'blue',
+      }
     ],
   },
 ]

@@ -1,16 +1,16 @@
 <template>
   <AdminPageShell
-    title="安全治理"
-    description="配置敏感词、注入检测与风控策略。"
-    empty-text="暂无安全策略。"
+    title="系统配置"
+    description="管理系统配置项（SYSTEM_CONFIG），支持按分组维护运行时参数。"
+    empty-text="暂无系统配置。"
   >
-    <div class="sensitive-page">
+    <div class="config-page">
       <AdminListToolbar>
         <template #left>
           <div class="search-cluster">
             <a-input
-              v-model:value="query.word"
-              placeholder="搜索敏感词"
+              v-model:value="query.configKey"
+              placeholder="搜索配置 Key"
               class="toolbar-input search-main-input"
               allow-clear
               @pressEnter="fetchList"
@@ -18,8 +18,8 @@
               <template #prefix><search-outlined /></template>
             </a-input>
             <a-input
-              v-model:value="query.scopeKey"
-              placeholder="作用范围"
+              v-model:value="query.configGroup"
+              placeholder="配置分组"
               class="toolbar-input search-sub-input"
               allow-clear
               @pressEnter="fetchList"
@@ -46,11 +46,6 @@
               禁用
             </a-button>
           </div>
-
-          <a-button class="filter-toggle-btn" @click="showAdvanced = !showAdvanced">
-            <template #icon><filter-outlined /></template>
-            {{ showAdvanced ? '收起筛选' : '更多筛选' }}
-          </a-button>
         </template>
 
         <template #right>
@@ -60,7 +55,7 @@
           </a-button>
           <a-popconfirm
             v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的敏感词规则吗？"
+            title="确定批量删除选中的配置项吗？"
             ok-text="确认"
             cancel-text="取消"
             @confirm="handleBatchDelete"
@@ -76,32 +71,6 @@
             新增
           </a-button>
         </template>
-
-        <template v-if="showAdvanced" #extra>
-          <a-select
-            v-model:value="query.matchType"
-            :options="matchTypeOptions"
-            placeholder="匹配类型"
-            class="toolbar-select"
-            allow-clear
-          />
-          <a-select
-            v-model:value="query.action"
-            :options="actionOptions"
-            placeholder="处置动作"
-            class="toolbar-select"
-            allow-clear
-          />
-          <a-input
-            v-model:value="query.category"
-            placeholder="分类"
-            class="toolbar-input narrow"
-            allow-clear
-            @pressEnter="fetchList"
-          >
-            <template #prefix><tags-outlined /></template>
-          </a-input>
-        </template>
       </AdminListToolbar>
 
       <BaseOverview
@@ -110,7 +79,7 @@
         :all-current-selected="allCurrentSelected"
         :part-current-selected="partCurrentSelected"
         :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条敏感词规则，已选 ${selectedRowKeys.length} 条。`"
+        :summary-text="`当前页 ${list.length} 条系统配置，已选 ${selectedRowKeys.length} 条。`"
         @toggle-select-all="toggleSelectAllCurrentPage"
       />
 
@@ -120,29 +89,24 @@
         :pagination="false"
         row-key="id"
         :row-selection="rowSelection"
-        :scroll="{ x: 1320 }"
+        :scroll="{ x: 1360 }"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'word'">
-            <code class="word-text">{{ record.word }}</code>
+          <template v-if="column.key === 'configKey'">
+            <code class="config-key">{{ record.configKey }}</code>
           </template>
-          <template v-else-if="column.key === 'matchType'">
-            <a-tag :color="matchTypeColorMap[record.matchType || ''] || 'default'">
-              {{ matchTypeLabel(record.matchType) }}
-            </a-tag>
-          </template>
-          <template v-else-if="column.key === 'action'">
-            <a-tag :color="actionColorMap[record.action || ''] || 'default'">
-              {{ actionLabel(record.action) }}
-            </a-tag>
+          <template v-else-if="column.key === 'configValue'">
+            <span class="config-value">{{ preview(record.configValue) }}</span>
           </template>
           <template v-else-if="column.key === 'status'">
             <a-tag :color="record.status === 'ENABLED' ? 'green' : 'default'">
               {{ statusLabel(record.status) }}
             </a-tag>
           </template>
-          <template v-else-if="column.key === 'replacement'">
-            <span>{{ record.replacement || '—' }}</span>
+          <template v-else-if="column.key === 'isSystem'">
+            <a-tag :color="record.isSystem ? 'blue' : 'default'">
+              {{ record.isSystem ? '系统内置' : '自定义' }}
+            </a-tag>
           </template>
           <template v-else-if="column.key === 'actions'">
             <a-button type="link" @click="openEdit(record)">编辑</a-button>
@@ -169,7 +133,7 @@
         />
       </div>
 
-      <SensitiveWordFormModal
+      <ConfigFormModal
         v-model:open="modal.open"
         :mode="modal.mode"
         :confirm-loading="modal.submitting"
@@ -187,65 +151,34 @@ import {
   AppstoreOutlined,
   CheckCircleOutlined,
   DeleteOutlined,
-  FilterOutlined,
   PlusOutlined,
   SearchOutlined,
-  StopOutlined,
-  TagsOutlined
+  StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
 import AdminListToolbar from '@/views/admin/components/admin/AdminListToolbar.vue'
 import BaseOverview from '@/views/admin/components/admin/BaseOverview.vue'
-import SensitiveWordFormModal from './SensitiveWordFormModal.vue'
-import { aiSensitiveWordApi, type AiSensitiveWord, type PageResponse } from '@/api/aiSensitiveWord.ts'
+import ConfigFormModal from './ConfigFormModal.vue'
+import { systemConfigApi, type PageResponse, type SystemConfig } from '@/api/systemConfig.ts'
 
 type QueryState = {
-  word?: string
-  matchType?: string
-  scopeKey?: string
-  action?: string
+  configKey?: string
+  configGroup?: string
   status?: string
-  category?: string
 }
 
-const matchTypeOptions = [
-  { label: '精确匹配', value: 'EXACT' },
-  { label: '模糊匹配', value: 'FUZZY' },
-  { label: '正则匹配', value: 'REGEX' }
-]
-
-const actionOptions = [
-  { label: '直接拦截', value: 'BLOCK' },
-  { label: '替换文本', value: 'REPLACE' },
-  { label: '仅告警', value: 'WARN' }
-]
-
 const columns = [
-  { title: '敏感词', key: 'word', width: 220, ellipsis: true },
-  { title: '匹配类型', key: 'matchType', width: 120 },
-  { title: '作用范围', dataIndex: 'scopeKey', key: 'scopeKey', width: 160, ellipsis: true },
-  { title: '分类', dataIndex: 'category', key: 'category', width: 120, ellipsis: true },
-  { title: '处置动作', key: 'action', width: 120 },
-  { title: '替换文本', key: 'replacement', width: 160, ellipsis: true },
+  { title: '配置 Key', key: 'configKey', width: 260, ellipsis: true },
+  { title: '配置分组', dataIndex: 'configGroup', key: 'configGroup', width: 160, ellipsis: true },
+  { title: '配置值', key: 'configValue', width: 320, ellipsis: true },
   { title: '状态', key: 'status', width: 100 },
+  { title: '属性', key: 'isSystem', width: 110 },
+  { title: '描述', dataIndex: 'description', key: 'description', width: 220, ellipsis: true },
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
 
-const matchTypeColorMap: Record<string, string> = {
-  EXACT: 'blue',
-  FUZZY: 'purple',
-  REGEX: 'orange'
-}
-
-const actionColorMap: Record<string, string> = {
-  BLOCK: 'red',
-  REPLACE: 'gold',
-  WARN: 'cyan'
-}
-
 const query = reactive<QueryState>({})
-const showAdvanced = ref(false)
-const list = ref<AiSensitiveWord[]>([])
+const list = ref<SystemConfig[]>([])
 
 const page = reactive({
   pageNum: 1,
@@ -291,13 +224,9 @@ const toggleStatusFilter = (value: 'ENABLED' | 'DISABLED') => {
 }
 
 const resetFilters = () => {
-  query.word = undefined
-  query.matchType = undefined
-  query.scopeKey = undefined
-  query.action = undefined
+  query.configKey = undefined
+  query.configGroup = undefined
   query.status = undefined
-  query.category = undefined
-  showAdvanced.value = false
   page.pageNum = 1
   selectedRowKeys.value = []
   void fetchList()
@@ -309,14 +238,12 @@ const modal = reactive({
   submitting: false
 })
 
-const modalInitial = ref<AiSensitiveWord | null>(null)
+const modalInitial = ref<SystemConfig | null>(null)
 
-const matchTypeLabel = (value: string | undefined) => {
-  return matchTypeOptions.find((item) => item.value === value)?.label ?? value ?? '—'
-}
-
-const actionLabel = (value: string | undefined) => {
-  return actionOptions.find((item) => item.value === value)?.label ?? value ?? '—'
+const preview = (raw: string | undefined) => {
+  if (!raw) return '—'
+  const text = raw.replace(/\s+/g, ' ').trim()
+  return text.length > 84 ? `${text.slice(0, 84)}…` : text
 }
 
 const statusLabel = (value: string | undefined) => {
@@ -330,16 +257,13 @@ const fetchList = async () => {
     pageNo: page.pageNum,
     pageSize: page.pageSize,
     param: {
-      word: query.word || undefined,
-      matchType: query.matchType || undefined,
-      scopeKey: query.scopeKey || undefined,
-      action: query.action || undefined,
-      status: query.status || undefined,
-      category: query.category || undefined
+      configKey: query.configKey || undefined,
+      configGroup: query.configGroup || undefined,
+      status: query.status || undefined
     }
   }
 
-  const resp: PageResponse<AiSensitiveWord> = await aiSensitiveWordApi.queryPage(payload)
+  const resp: PageResponse<SystemConfig> = await systemConfigApi.queryPage(payload)
   list.value = resp.list || []
   page.total = resp.total || 0
 }
@@ -355,19 +279,19 @@ const openCreate = () => {
   modal.open = true
 }
 
-const openEdit = async (record: AiSensitiveWord) => {
+const openEdit = async (record: SystemConfig) => {
   modal.mode = 'edit'
   const id = record.id
   if (id == null) return
 
-  const detail = await aiSensitiveWordApi.detail(id)
+  const detail = await systemConfigApi.detail(id)
   modalInitial.value = detail
   modal.open = true
 }
 
 const handleDeleteOne = async (id: number | string | undefined) => {
   if (id == null) return
-  const msg = await aiSensitiveWordApi.delete([id])
+  const msg = await systemConfigApi.delete([id])
   message.success(msg)
   selectedRowKeys.value = []
   void fetchList()
@@ -376,22 +300,22 @@ const handleDeleteOne = async (id: number | string | undefined) => {
 const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
-  const msg = await aiSensitiveWordApi.delete(ids)
+  const msg = await systemConfigApi.delete(ids)
   message.success(msg)
   selectedRowKeys.value = []
   void fetchList()
 }
 
-const handleFormSubmit = async (form: AiSensitiveWord) => {
+const handleFormSubmit = async (form: SystemConfig) => {
   modal.submitting = true
   try {
-    const payload: AiSensitiveWord = { ...form }
+    const payload: SystemConfig = { ...form }
     let msg: string
     if (modal.mode === 'create') {
       delete (payload as { id?: unknown }).id
-      msg = await aiSensitiveWordApi.create(payload)
+      msg = await systemConfigApi.create(payload)
     } else {
-      msg = await aiSensitiveWordApi.update(payload)
+      msg = await systemConfigApi.update(payload)
     }
 
     message.success(msg)
@@ -409,7 +333,7 @@ void fetchList()
 </script>
 
 <style scoped>
-.sensitive-page {
+.config-page {
   padding: 0 4px;
 }
 
@@ -424,18 +348,17 @@ void fetchList()
   background: var(--bg-surface);
 }
 
-.search-cluster :deep(.ant-input-affix-wrapper),
-.search-cluster :deep(.ant-select-selector) {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
+.search-cluster :deep(.ant-input-affix-wrapper) {
+  border: none;
+  box-shadow: none;
+  background: transparent;
 }
 
 .search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused),
-.search-cluster :deep(.ant-select-focused .ant-select-selector),
-.search-cluster :deep(.ant-select-selector:hover) {
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface)) !important;
+.search-cluster :deep(.ant-input-affix-wrapper-focused) {
+  border: none;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface));
 }
 
 .toolbar-input {
@@ -448,11 +371,6 @@ void fetchList()
 
 .search-sub-input {
   width: 220px;
-}
-
-.toolbar-input.narrow,
-.toolbar-select {
-  width: 180px;
 }
 
 .primary-btn,
@@ -498,12 +416,6 @@ void fetchList()
   background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
 }
 
-.filter-toggle-btn {
-  height: 40px;
-  border-radius: 12px;
-  color: var(--text-secondary);
-}
-
 .pagination-wrap {
   display: flex;
   justify-content: space-between;
@@ -513,16 +425,18 @@ void fetchList()
   flex-wrap: wrap;
 }
 
-.word-text {
+.config-key {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.config-value {
+  color: rgba(0, 0, 0, 0.65);
 }
 
 @media (max-width: 720px) {
   .toolbar-input,
-  .toolbar-input.narrow,
   .search-main-input,
-  .search-sub-input,
-  .toolbar-select {
+  .search-sub-input {
     width: 100%;
   }
 

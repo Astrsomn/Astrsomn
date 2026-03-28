@@ -120,6 +120,12 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminEnv',
         component: () => import('@/views/admin/system-config/system-env/EnvList.vue'),
         meta: { title: '环境管理', requiresAuth: true }
+      },
+      {
+        path: 'system-config',
+        name: 'AdminSystemConfig',
+        component: () => import('@/views/admin/system-config/system-config/SystemConfigList.vue'),
+        meta: { title: '系统配置', requiresAuth: true }
       }
     ]
   },
