@@ -17,7 +17,7 @@
               <div class="flip-content">
                 <div class="flip-layer layer-front">
                   <span class="brand-name">Astrsomn</span>
-                  <span class="brand-status">{{ brandStatus }}</span>
+
                 </div>
                 
                 <div class="flip-layer layer-back">
@@ -93,11 +93,11 @@ import {
   AppstoreOutlined 
 } from '@ant-design/icons-vue';
 import logoUrl from '@/assets/Astrsomn-logo.png';
-import DocLangTheme from '@/views/admin/components/DocLangTheme.vue';
-import UserProfile from '@/views/admin/components/UserProfile.vue';
-import { getWorkspaceEnv, type WorkspaceEnvContext } from '@/api/auth';
-import { systemEnvApi } from '@/api/systemEnv';
-import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv';
+import DocLangTheme from '@/components/top/DocLangTheme.vue';
+import UserProfile from '@/components/top/UserProfile.vue';
+import { getWorkspaceEnv, type WorkspaceEnvContext } from '@/api/auth.ts';
+import { systemEnvApi } from '@/api/systemEnv.ts';
+import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts';
 
 interface Props {
   showBrand?: boolean; showBack?: boolean; brandStatus?: string;
@@ -216,6 +216,7 @@ const handleLogin = () => { localStorage.removeItem('token'); router.push('/logi
 .layer-front .brand-name {
   font-size: 18px; font-weight: 800; color: var(--text-heading);
   letter-spacing: -0.5px; line-height: 1.2;
+  font-style: italic;
 }
 .layer-front .brand-status {
   font-size: 11px; color: var(--text-muted); line-height: 1.2;
@@ -242,14 +243,12 @@ const handleLogin = () => { localStorage.removeItem('token'); router.push('/logi
 .header-right { display: flex; align-items: center; gap: 16px; }
 
 .env-capsule-minimal {
-  background: var(--bg-fill-subtle, rgba(0, 0, 0, 0.03));
-  border: 1px solid var(--border-subtle);
   border-radius: 8px; height: 32px; display: flex; align-items: center;
   transition: all 0.2s;
 }
 
 .env-capsule-minimal:hover {
-  background: var(--bg-elevated); border-color: var(--primary);
+  //background: var(--bg-elevated); border-color: var(--primary);
 }
 
 .env-trigger-btn {

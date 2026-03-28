@@ -127,8 +127,8 @@ import {
   SearchOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
-import BaseOverview from '@/views/admin/components/admin/BaseOverview.vue'
+import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import BaseOverview from '@/components/home/BaseOverview.vue'
 import AgentFormModal from './AgentFormModal.vue'
 import AgentCard from './AgentCard.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'

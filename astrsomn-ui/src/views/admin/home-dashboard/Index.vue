@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard">
     <div class="dashboard-container">
-      <DashboardModeSwitch v-model="viewMode" />
+      <TopSwitch v-model="viewMode" />
 
       <AdminDataScreen
         v-if="viewMode === 'screen'"
@@ -22,10 +22,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import DashboardModeSwitch from './dashboard/DashboardModeSwitch.vue'
-import AdminDataScreen from './dashboard/AdminDataScreen.vue'
-import AdminManagementView from './dashboard/AdminManagementView.vue'
-import { getCurrentUserRole, resolveManagementGroups } from './dashboard/management'
+import TopSwitch from './TopSwitch.vue'
+import AdminDataScreen from './screen/AdminDataScreen.vue'
+import AdminManagementView from '../home-dashboard/backend/AdminManagementView.vue'
+import { getCurrentUserRole, resolveManagementGroups } from '../home-dashboard/backend/management.ts'
 
 type DashboardMode = 'screen' | 'management'
 

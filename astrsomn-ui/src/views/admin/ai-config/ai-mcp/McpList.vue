@@ -142,9 +142,9 @@ import {
   SearchOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
-import AdminListToolbar from '@/views/admin/components/admin/AdminListToolbar.vue'
-import BaseOverview from '@/views/admin/components/admin/BaseOverview.vue'
+import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import BaseOverview from '@/components/home/BaseOverview.vue'
 import McpFormModal from './McpFormModal.vue'
 import { aiMcpApi, type AiMcp, type PageResponse } from '@/api/aiMcp.ts'
 

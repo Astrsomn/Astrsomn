@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ManagementGroup } from './management'
+import type { ManagementGroup } from './management.ts'
 import AdminEntryCard from './AdminEntryCard.vue'
 
 defineProps<{
@@ -45,7 +45,7 @@ const emit = defineEmits<{
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: var(--section-title);
+
 }
 
 .mgmt-section-sub {

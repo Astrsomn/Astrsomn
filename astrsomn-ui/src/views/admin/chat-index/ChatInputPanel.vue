@@ -113,8 +113,8 @@ import {
   PaperClipOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import type { AiAgent } from '@/api/aiAgent'
-import type { AiModel } from '@/api/aiModel'
+import type { AiAgent } from '@/api/aiAgent.ts'
+import type { AiModel } from '@/api/aiModel.ts'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{

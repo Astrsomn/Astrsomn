@@ -193,9 +193,9 @@ import {
   StopOutlined,
   TagsOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
-import AdminListToolbar from '@/views/admin/components/admin/AdminListToolbar.vue'
-import BaseOverview from '@/views/admin/components/admin/BaseOverview.vue'
+import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import BaseOverview from '@/components/home/BaseOverview.vue'
 import SensitiveWordFormModal from './SensitiveWordFormModal.vue'
 import { aiSensitiveWordApi, type AiSensitiveWord, type PageResponse } from '@/api/aiSensitiveWord.ts'
 

@@ -1,12 +1,13 @@
 <template>
   <div class="screen-grid">
-    <DashboardPanel title="总览" subtitle="先看关键指标，再进入具体配置模块。">
-      <div class="metric-grid">
-        <div v-for="metric in metrics" :key="metric.label" class="metric-card">
-          <div class="metric-label">{{ metric.label }}</div>
-          <div class="metric-value">{{ metric.value }}</div>
-          <div class="metric-desc">{{ metric.description }}</div>
-        </div>
+    <DashboardPanel title="常用入口" subtitle="优先展示高频后台功能，减少层层查找。">
+      <div class="quick-grid">
+        <AdminEntryCard
+            v-for="item in quickEntries"
+            :key="item.key"
+            :item="item"
+            @navigate="emit('navigate', $event)"
+        />
       </div>
     </DashboardPanel>
 
@@ -18,16 +19,7 @@
       <ModelUsageChart />
     </DashboardPanel>
 
-    <DashboardPanel title="常用入口" subtitle="优先展示高频后台功能，减少层层查找。">
-      <div class="quick-grid">
-        <AdminEntryCard
-          v-for="item in quickEntries"
-          :key="item.key"
-          :item="item"
-          @navigate="emit('navigate', $event)"
-        />
-      </div>
-    </DashboardPanel>
+
   </div>
 </template>
 
@@ -39,11 +31,11 @@ export default {
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { ManagementEntry, ManagementGroup } from './management'
+import type { ManagementEntry, ManagementGroup } from '../backend/management.ts'
 import DashboardPanel from './DashboardPanel.vue'
-import AdminEntryCard from './AdminEntryCard.vue'
-import TrafficStats from '../echarts/TrafficStats.vue'
-import ModelUsageChart from '../echarts/ModelUsageChart.vue'
+import AdminEntryCard from '../backend/AdminEntryCard.vue'
+import TrafficStats from '@/views/admin/home-dashboard/screen/TrafficStats.vue'
+import ModelUsageChart from '@/views/admin/home-dashboard/screen/ModelUsageChart.vue'
 
 const props = defineProps<{
   groups: ManagementGroup[]
@@ -63,7 +55,7 @@ const quickEntries = computed<ManagementEntry[]>(() => {
 
 const metrics = computed(() => [
   {
-    label: '可用模块',
+    label: '可用智能体',
     value: String(allEntries.value.length),
     description: '当前账号可直接访问的后台能力',
   },

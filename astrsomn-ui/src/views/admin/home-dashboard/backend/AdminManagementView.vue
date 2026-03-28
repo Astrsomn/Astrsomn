@@ -1,8 +1,5 @@
 <template>
-  <DashboardPanel
-    title="管理后台"
-    subtitle="按分类浏览后台模块，直接进入对应配置页。"
-  >
+
     <div class="mgmt-sections">
       <AdminManagementSection
         v-for="group in groups"
@@ -11,7 +8,7 @@
         @navigate="emit('navigate', $event)"
       />
     </div>
-  </DashboardPanel>
+
 </template>
 
 <script lang="ts">
@@ -21,8 +18,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import type { ManagementGroup } from './management'
-import DashboardPanel from './DashboardPanel.vue'
+import type { ManagementGroup } from './management.ts'
 import AdminManagementSection from './AdminManagementSection.vue'
 
 defineProps<{

@@ -227,8 +227,8 @@ import {
   ThunderboltOutlined,
   UserOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
-import BaseOverview from '@/views/admin/components/admin/BaseOverview.vue'
+import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import BaseOverview from '@/components/home/BaseOverview.vue'
 import ModelFormModal from './ModelFormModal.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
 import { useDictionary } from '@/locales/dictionary'

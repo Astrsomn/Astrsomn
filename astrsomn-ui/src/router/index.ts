@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'ChatHome',
-    component: () => import('@/views/Index.vue'),
+    component: () => import('@/views/admin/chat-index/Index.vue'),
     meta: {
       title: '大模型聊天',
       requiresAuth: false
@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'Admin',
-        component: () => import('@/views/admin/components/AdminDashboard.vue'),
+        component: () => import('@/views/admin/home-dashboard/Index.vue'),
         meta: { title: '管理后台', requiresAuth: true }
       },
       {

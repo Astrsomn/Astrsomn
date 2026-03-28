@@ -48,12 +48,12 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import AppHeader from '@/components/AppHeader.vue'
-import ChatInputPanel from '@/components/ChatInputPanel.vue'
-import ChatMessageItem from '@/components/ChatMessageItem.vue'
-import { aiModelApi, type AiModel } from '@/api/aiModel'
-import { aiAgentApi, type AiAgent } from '@/api/aiAgent'
-import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
+import AppHeader from '@/components/top/AppHeader.vue'
+import ChatInputPanel from '@/views/admin/chat-index/ChatInputPanel.vue'
+import ChatMessageItem from '@/views/admin/chat-index/ChatMessageItem.vue'
+import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
+import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
+import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
 
 type ChatMessage = {
   id: string

@@ -152,9 +152,9 @@ import {
   SearchOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
-import AdminListToolbar from '@/views/admin/components/admin/AdminListToolbar.vue'
-import BaseOverview from '@/views/admin/components/admin/BaseOverview.vue'
+import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import BaseOverview from '@/components/home/BaseOverview.vue'
 import ToolFormModal from './ToolFormModal.vue'
 import { aiToolApi, type AiTool, type PageResponse } from '@/api/aiTool.ts'
 

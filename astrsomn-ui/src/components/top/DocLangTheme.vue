@@ -67,7 +67,8 @@ const goDoc = () => {
 }
 
 .doc-link:hover {
-  color: var(--text-primary);
+  font-weight: bolder;
+  color: var(--text-hover);
 }
 
 .th-divider {
@@ -79,11 +80,11 @@ const goDoc = () => {
 
 .lang-select {
   width: 100px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .lang-select :deep(.ant-select-selection-item) {
-  color: var(--text-primary) !important;
+  color: var(--text-secondary) !important;
 }
 
 .theme-toggle {
@@ -97,7 +98,7 @@ const goDoc = () => {
 }
 
 .theme-toggle:hover {
-  color: var(--text-primary);
+  color: var(--text-hover);
 }
 </style>
 

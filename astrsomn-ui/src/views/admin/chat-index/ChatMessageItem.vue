@@ -79,7 +79,7 @@ import { message } from 'ant-design-vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.min.css'
-import { normalizeAiMarkdown } from '@/utils/aiMarkdownNormalize'
+import { normalizeAiMarkdown } from '@/utils/aiMarkdownNormalize.ts'
 
 /** 与 demo/ChatArea.vue 一致：短语言名 → hljs 注册名 */
 const langAlias: Record<string, string> = {

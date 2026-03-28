@@ -1,179 +1,202 @@
 :root {
-  /* ── Background ── */
-  --bg-base: #090e15;
-  --bg-surface: #0c1521;
-  --bg-elevated: #111a2e;
-  --bg-card: #121e2d;
-  --bg-input: #182436;
+    /* ── Background ── */
+    --bg-base: #090e15;
+    --bg-surface: #0c1521;
+    --bg-elevated: #111a2e;
+    --bg-card: #121e2d;
+    --bg-input: #182436;
 
-  /* ── Border ── */
-  --border-default: #1e2f46;
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-input: #273a57;
+    /* ── Border ── */
+    --border-default: #1e2f46;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-input: #273a57;
 
-  /* ── Text ── */
-  --text-primary: #e1e9f5;
-  --text-heading: #ffffff;
-  --text-secondary: #7b93b6;
-  --text-muted: #5c7394;
-  --text-placeholder: #5c7394;
+    /* ── Text ── */
+    --text-primary: #e1e9f5;
+    --text-heading: #ffffff;
+    --text-secondary: #7b93b6;
+    --text-muted: #5c7394;
+    --text-placeholder: #5c7394;
+    --text-hover: #0e6ce7;
 
-  /* ── Accent / Primary ── */
-  --primary: #007bff;
-  --primary-light: #00a3ff;
-  --primary-hover: rgba(0, 123, 255, 0.15);
-  --primary-gradient: linear-gradient(90deg, #007bff, #00a3ff);
-  --logo-gradient: linear-gradient(135deg, #1677ff, #23c3ff);
+    /* ── Accent / Primary ── */
+    --primary: #007bff;
+    --primary-light: #00a3ff;
+    --primary-hover: rgba(0, 123, 255, 0.15);
+    --primary-gradient: linear-gradient(90deg, #007bff, #00a3ff);
+    --logo-gradient: linear-gradient(135deg, #1677ff, #23c3ff);
 
-  /* ── Semantic ── */
-  --accent-blue: #3b82f6;
-  --accent-cyan: #00e4ff;
-  --section-title: #93c5fd;
-  --success: #10b981;
-  --error: #ef4444;
+    /* ── Semantic ── */
+    --accent-blue: #3b82f6;
+    --accent-cyan: #00e4ff;
+    --section-title: #93c5fd;
+    --success: #10b981;
+    --error: #ef4444;
 
-  /* ── Shadow ── */
-  --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
+    /* ── Shadow ── */
+    --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
 
-  /* ── Radius ── */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 14px;
+    /* ── Radius ── */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 14px;
 
-  /* ── Chat input panel (placeholder / send) ── */
-  --chat-input-placeholder: #c8d8ec;
-  --chat-send-btn-bg: linear-gradient(135deg, #1677ff, #00b4ff);
-  --chat-send-btn-shadow: 0 2px 12px rgba(0, 180, 255, 0.4);
+    /* ── Chat input panel (placeholder / send) ── */
+    --chat-input-placeholder: #c8d8ec;
+    --chat-send-btn-bg: linear-gradient(135deg, #1677ff, #00b4ff);
+    --chat-send-btn-shadow: 0 2px 12px rgba(0, 180, 255, 0.4);
 
-  /* ── Chat message (ChatMessageItem) ── */
-  --chat-ai-card-bg: var(--bg-card);
-  --chat-ai-card-border: var(--border-default);
-  --chat-ai-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  --chat-answer-bg: var(--bg-card);
-  --chat-thought-bg: rgba(255, 255, 255, 0.04);
-  --chat-thought-border: var(--border-subtle);
-  --chat-thought-head-hover: rgba(255, 255, 255, 0.06);
-  --chat-thought-title: var(--text-secondary);
-  --chat-thought-body: var(--text-muted);
-  --chat-markdown-text: var(--text-primary);
-  --chat-markdown-heading: var(--text-heading);
-  --chat-markdown-muted: var(--text-secondary);
-  --chat-blockquote-bg: var(--bg-elevated);
-  --chat-blockquote-border: var(--border-default);
-  --chat-inline-code-bg: var(--bg-input);
-  --chat-inline-code-text: var(--text-primary);
-  --chat-hr: var(--border-default);
-  --chat-link: var(--accent-blue);
-  --chat-stream-placeholder: var(--text-muted);
-  --chat-action-text: var(--text-muted);
-  --chat-action-hover-bg: rgba(255, 255, 255, 0.06);
-  --chat-avatar-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-  --chat-ai-avatar-bg: var(--bg-card);
-  --chat-ai-avatar-border: var(--border-default);
-  --chat-ai-avatar-icon: var(--accent-blue);
-  --chat-user-avatar-bg: linear-gradient(145deg, rgba(30, 64, 175, 0.45), var(--bg-elevated));
-  --chat-user-avatar-border: var(--border-input);
-  --chat-user-avatar-text: var(--section-title);
+    /* ── Chat message (ChatMessageItem) ── */
+    --chat-ai-card-bg: var(--bg-card);
+    --chat-ai-card-border: var(--border-default);
+    --chat-ai-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    --chat-answer-bg: var(--bg-card);
+    --chat-thought-bg: rgba(255, 255, 255, 0.04);
+    --chat-thought-border: var(--border-subtle);
+    --chat-thought-head-hover: rgba(255, 255, 255, 0.06);
+    --chat-thought-title: var(--text-secondary);
+    --chat-thought-body: var(--text-muted);
+    --chat-markdown-text: var(--text-primary);
+    --chat-markdown-heading: var(--text-heading);
+    --chat-markdown-muted: var(--text-secondary);
+    --chat-blockquote-bg: var(--bg-elevated);
+    --chat-blockquote-border: var(--border-default);
+    --chat-inline-code-bg: var(--bg-input);
+    --chat-inline-code-text: var(--text-primary);
+    --chat-hr: var(--border-default);
+    --chat-link: var(--accent-blue);
+    --chat-stream-placeholder: var(--text-muted);
+    --chat-action-text: var(--text-muted);
+    --chat-action-hover-bg: rgba(255, 255, 255, 0.06);
+    --chat-avatar-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    --chat-ai-avatar-bg: var(--bg-card);
+    --chat-ai-avatar-border: var(--border-default);
+    --chat-ai-avatar-icon: var(--accent-blue);
+    --chat-user-avatar-bg: linear-gradient(145deg, rgba(30, 64, 175, 0.45), var(--bg-elevated));
+    --chat-user-avatar-border: var(--border-input);
+    --chat-user-avatar-text: var(--section-title);
 }
 
 :root.light {
-  /* ── Background ── */
-  --bg-base: #f5f7fa;
-  --bg-surface: #ffffff;
-  --bg-elevated: #e6f7ff;
-  --bg-card: #ffffff;
-  --bg-input: #ffffff;
+    /* ── Background ── */
+    --bg-base: #f5f7fa;
+    --bg-surface: #ffffff;
+    --bg-elevated: #e6f7ff;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
 
-  /* ── Border ── */
-  --border-default: #e5e6eb;
-  --border-subtle: rgba(0, 0, 0, 0.06);
-  --border-input: #dcdfe6;
+    /* ── Border ── */
+    --border-default: #e5e6eb;
+    --border-subtle: rgba(0, 0, 0, 0.06);
+    --border-input: #dcdfe6;
 
-  /* ── Text ── */
-  --text-primary: #1f2937;
-  --text-heading: #1f2937;
-  --text-secondary: #6b7280;
-  --text-muted: #909399;
-  --text-placeholder: #909399;
+    /* ── Text ── */
+    --text-primary: #1f2937;
+    --text-heading: #1f2937;
+    --text-secondary: #6b7280;
+    --text-muted: #909399;
+    --text-placeholder: #909399;
 
-  /* ── Shadow ── */
-  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
+    /* ── Shadow ── */
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
 
-  --chat-input-placeholder: var(--text-placeholder);
-  --chat-send-btn-bg: var(--primary);
-  --chat-send-btn-shadow: 0 2px 10px rgba(0, 123, 255, 0.22);
+    --chat-input-placeholder: var(--text-placeholder);
+    --chat-send-btn-bg: var(--primary);
+    --chat-send-btn-shadow: 0 2px 10px rgba(0, 123, 255, 0.22);
 
-  /* ── Chat message (light) ── */
-  --chat-ai-card-bg: #ffffff;
-  --chat-ai-card-border: #e2e8f0;
-  --chat-ai-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --chat-answer-bg: #ffffff;
-  --chat-thought-bg: #f8fafc;
-  --chat-thought-border: #e8eef4;
-  --chat-thought-head-hover: rgba(255, 255, 255, 0.55);
-  --chat-thought-title: #475569;
-  --chat-thought-body: #64748b;
-  --chat-markdown-text: #1e293b;
-  --chat-markdown-heading: #0f172a;
-  --chat-markdown-muted: #475569;
-  --chat-blockquote-bg: #f8fafc;
-  --chat-blockquote-border: #cbd5e1;
-  --chat-inline-code-bg: #f1f5f9;
-  --chat-inline-code-text: #0f172a;
-  --chat-hr: #e2e8f0;
-  --chat-link: #2563eb;
-  --chat-stream-placeholder: #94a3b8;
-  --chat-action-text: #94a3b8;
-  --chat-action-hover-bg: #f8fafc;
-  --chat-avatar-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-  --chat-ai-avatar-bg: #ffffff;
-  --chat-ai-avatar-border: #e2e8f0;
-  --chat-ai-avatar-icon: #2563eb;
-  --chat-user-avatar-bg: linear-gradient(145deg, #eff6ff, #ffffff);
-  --chat-user-avatar-border: #bfdbfe;
-  --chat-user-avatar-text: #2563eb;
+    /* ── Chat message (light) ── */
+    --chat-ai-card-bg: #ffffff;
+    --chat-ai-card-border: #e2e8f0;
+    --chat-ai-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --chat-answer-bg: #ffffff;
+    --chat-thought-bg: #f8fafc;
+    --chat-thought-border: #e8eef4;
+    --chat-thought-head-hover: rgba(255, 255, 255, 0.55);
+    --chat-thought-title: #475569;
+    --chat-thought-body: #64748b;
+    --chat-markdown-text: #1e293b;
+    --chat-markdown-heading: #0f172a;
+    --chat-markdown-muted: #475569;
+    --chat-blockquote-bg: #f8fafc;
+    --chat-blockquote-border: #cbd5e1;
+    --chat-inline-code-bg: #f1f5f9;
+    --chat-inline-code-text: #0f172a;
+    --chat-hr: #e2e8f0;
+    --chat-link: #2563eb;
+    --chat-stream-placeholder: #94a3b8;
+    --chat-action-text: #94a3b8;
+    --chat-action-hover-bg: #f8fafc;
+    --chat-avatar-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --chat-ai-avatar-bg: #ffffff;
+    --chat-ai-avatar-border: #e2e8f0;
+    --chat-ai-avatar-icon: #2563eb;
+    --chat-user-avatar-bg: linear-gradient(145deg, #eff6ff, #ffffff);
+    --chat-user-avatar-border: #bfdbfe;
+    --chat-user-avatar-text: #2563eb;
 }
+
 /* --- 全局动效定义 --- */
 :root {
-  --transition-smooth: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-pop: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    --transition-smooth: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-pop: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 * {
-  transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+    transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
 /* 1. 缓慢浮动效果 */
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0px); }
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
 }
 
 /* 2. 渐变文字闪烁 */
 @keyframes shine {
-  to { background-position: 200% center; }
+    to {
+        background-position: 200% center;
+    }
 }
 
 /* 3. 页面滑入 */
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* 4. 呼吸光圈 */
 @keyframes pulse-glow {
-  0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    }
 }
 
 /* 路由切换过渡 */
 .page-fade-enter-active {
-  animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
 .page-fade-leave-active {
-  opacity: 0;
-  transition: opacity 0.3s ease;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }

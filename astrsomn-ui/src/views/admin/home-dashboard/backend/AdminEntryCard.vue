@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ManagementEntry } from './management'
+import type { ManagementEntry } from './management.ts'
 
 defineProps<{
   item: ManagementEntry

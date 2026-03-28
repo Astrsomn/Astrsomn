@@ -183,12 +183,12 @@ import {
   TagsOutlined,
   UserOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
-import AdminListToolbar from '@/views/admin/components/admin/AdminListToolbar.vue'
+import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import PromptCard from './PromptCard.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
-import BaseOverview from '../../components/admin/BaseOverview.vue'
+import BaseOverview from '../../../../components/home/BaseOverview.vue'
 import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt.ts'
 
 type QueryState = {
