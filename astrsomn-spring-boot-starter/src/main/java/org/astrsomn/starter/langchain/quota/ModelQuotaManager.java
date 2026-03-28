@@ -4,6 +4,7 @@ package org.astrsomn.starter.langchain.quota;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.mapper.AiConversationMapper;
+import org.astrsomn.starter.config.AstrsomnProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @RequiredArgsConstructor
 public class ModelQuotaManager {
+    private final AstrsomnProperties astrsomnProperties;
 
     private final AiConversationMapper conversationMapper;
     // 本地缓存：ModelKey -> 今日消耗总量
@@ -28,7 +30,8 @@ public class ModelQuotaManager {
     @Scheduled(fixedRate = 60000)
     public void refreshUsage() {
         // SQL: SELECT MODEL_KEY, SUM(CONSUME_TOKENS) FROM AI_CONVERSATION WHERE CREATE_TIME >= TODAY GROUP BY MODEL_KEY
-        List<Map<String, Object>> stats = conversationMapper.selectTodayUsage();
+        String env = astrsomnProperties.getEnvCode();
+        List<Map<String, Object>> stats = conversationMapper.selectTodayUsage(env);
         stats.forEach(map -> {
             dailyUsageCache.put((String) map.get("MODEL_KEY"), ((Number) map.get("TOTAL")).longValue());
         });
