@@ -87,7 +87,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
+import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
 import EnvFormModal from './EnvFormModal.vue'
 import { systemEnvApi, type SystemEnv, type PageResponse } from '@/api/systemEnv.ts'
 

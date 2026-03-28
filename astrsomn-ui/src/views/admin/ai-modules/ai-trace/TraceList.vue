@@ -7,5 +7,5 @@
 </template>
 
 <script setup lang="ts">
-import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
+import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
 </script>

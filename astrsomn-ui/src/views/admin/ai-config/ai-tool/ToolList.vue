@@ -104,7 +104,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
+import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
 import ToolFormModal from './ToolFormModal.vue'
 import { aiToolApi, type AiTool, type PageResponse } from '@/api/aiTool.ts'
 

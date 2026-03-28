@@ -147,7 +147,7 @@ import {
   SearchOutlined, PlusOutlined, FilterOutlined, 
   EditOutlined, DeleteOutlined 
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
+import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
 import ModelFormModal from './ModelFormModal.vue'
 import { aiModelApi, type AiModel, type PageResponse } from '@/api/aiModel.ts'
 import { useDictionary } from '@/locales/dictionary'

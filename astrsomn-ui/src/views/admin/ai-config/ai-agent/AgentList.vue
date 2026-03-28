@@ -76,7 +76,7 @@
 import { reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
-import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
+import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
 import AgentFormModal from './AgentFormModal.vue'
 import AgentCard from './AgentCard.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'

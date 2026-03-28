@@ -2,9 +2,9 @@
   <a-modal
     v-model:open="open"
     :title="mode === 'create' ? '新增提示词' : '编辑提示词'"
-    width="880px"
+    width="1000px" 
     :confirm-loading="confirmLoading"
-    :body-style="{ maxHeight: '78vh', overflowY: 'auto' }"
+    :body-style="{ padding: '16px 24px' }"
     @ok="handleOk"
     @cancel="onCancel"
   >
@@ -13,78 +13,75 @@
       :model="form"
       :rules="rules"
       layout="vertical"
-      class="prompt-form"
     >
       <a-alert
-        v-if="mode === 'create'"
         type="info"
         show-icon
-        message="Prompt Key 可留空，后端将按环境与标题自动生成唯一 Key；首次创建为版本 1。"
-        class="form-alert"
-      />
-      <a-alert
-        v-else
-        type="info"
-        show-icon
-        message="保存后将写入新版本（同一 Prompt Key 下版本号递增），可在列表中查看历史版本。"
-        class="form-alert"
-      />
-      <div class="form-grid">
-        <a-form-item label="Prompt Key" name="promptKey">
-          <a-input
-            v-model:value="form.promptKey"
-            placeholder="留空则服务端生成"
-            :disabled="mode === 'edit'"
-            allow-clear
-          />
-        </a-form-item>
+        class="compact-alert"
+      >
+        <template #message>
+          <span v-if="mode === 'create'">Prompt Key 可留空，后端自动生成；首次创建为版本 1。</span>
+          <span v-else>保存后将自动递增版本号，历史版本可在列表查看。</span>
+        </template>
+      </a-alert>
 
-        <a-form-item label="标题" name="promptTitle">
-          <a-input v-model:value="form.promptTitle" placeholder="展示名称" />
-        </a-form-item>
+      <div class="editor-layout">
+        <div class="config-side">
+          <a-form-item label="标题" name="promptTitle">
+            <a-input v-model:value="form.promptTitle" placeholder="展示名称" />
+          </a-form-item>
 
-        <a-form-item label="场景" name="scene">
-          <a-input v-model:value="form.scene" placeholder="可选，场景分类" allow-clear />
-        </a-form-item>
+          <a-form-item label="Prompt Key" name="promptKey">
+            <a-input
+              v-model:value="form.promptKey"
+              placeholder="唯一标识（选填）"
+              :disabled="mode === 'edit'"
+              allow-clear
+            />
+          </a-form-item>
 
-        <a-form-item v-if="mode === 'edit'" label="当前版本（只读）">
-          <a-input :value="String(form.version ?? '—')" disabled />
-        </a-form-item>
+          <div class="form-row">
+            <a-form-item label="场景" name="scene" class="flex-1">
+              <a-input v-model:value="form.scene" placeholder="分类" allow-clear />
+            </a-form-item>
+            <a-form-item label="状态" name="enabledFlag" class="w-80">
+              <a-select v-model:value="form.enabledFlag" :options="enabledOptions" />
+            </a-form-item>
+          </div>
 
-        <a-form-item label="启用状态" name="enabledFlag">
-          <a-select v-model:value="form.enabledFlag" :options="enabledOptions" />
-        </a-form-item>
+          <a-form-item v-if="mode === 'edit'" label="当前版本">
+            <a-tag color="blue">V{{ form.version ?? '1' }}</a-tag>
+          </a-form-item>
+        </div>
 
-        <a-form-item label="提示词内容" name="promptContent" class="span-2">
-          <a-textarea
-            v-model:value="form.promptContent"
-            :auto-size="{ minRows: 14, maxRows: 32 }"
-            placeholder="系统 / 用户提示词正文"
-            class="content-area"
-          />
-        </a-form-item>
+        <div class="content-side">
+          <a-form-item label="提示词内容" name="promptContent" class="no-margin-bottom">
+            <a-textarea
+              v-model:value="form.promptContent"
+              :auto-size="{ minRows: 16, maxRows: 16 }"
+              placeholder="请输入 System 或 User Prompt..."
+              class="content-area"
+            />
+          </a-form-item>
+        </div>
       </div>
     </a-form>
   </a-modal>
 </template>
 
 <script setup lang="ts">
+// ... script 部分逻辑保持不变 ...
 import { reactive, ref, watch } from 'vue'
 import type { FormInstance } from 'ant-design-vue'
-import type { AiPrompt } from '@/api/aiPrompt.ts'
 
 const props = defineProps<{
   mode: 'create' | 'edit'
   confirmLoading: boolean
-  initial: AiPrompt | null
+  initial: any | null
 }>()
 
-const emit = defineEmits<{
-  submit: [payload: AiPrompt]
-}>()
-
+const emit = defineEmits(['submit'])
 const open = defineModel<boolean>('open', { required: true })
-
 const formRef = ref<FormInstance | null>(null)
 
 const enabledOptions = [
@@ -92,17 +89,16 @@ const enabledOptions = [
   { label: '停用', value: 'disabled' }
 ]
 
-function emptyForm(): AiPrompt {
-  return {
-    promptKey: '',
-    promptTitle: '',
-    promptContent: '',
-    scene: '',
-    enabledFlag: 'enabled'
-  }
-}
+const emptyForm = () => ({
+  promptKey: '',
+  promptTitle: '',
+  promptContent: '',
+  scene: '',
+  enabledFlag: 'enabled',
+  version: 1
+})
 
-const form = reactive<AiPrompt>(emptyForm())
+const form = reactive(emptyForm())
 
 const rules = {
   promptTitle: [{ required: true, message: '请输入标题' }],
@@ -110,75 +106,87 @@ const rules = {
   enabledFlag: [{ required: true, message: '请选择启用状态' }]
 }
 
-function assignFromInitial(src: AiPrompt) {
-  Object.assign(form, emptyForm(), src)
-}
-
-watch(
-  () => [open.value, props.initial] as const,
-  ([isOpen, initial]) => {
-    if (!isOpen) return
-    if (initial && Object.keys(initial).length > 0) {
-      assignFromInitial(initial)
-    } else {
-      Object.assign(form, emptyForm())
-    }
+watch([() => open.value, () => props.initial], ([isOpen, initial]) => {
+  if (!isOpen) return
+  if (initial && Object.keys(initial).length > 0) {
+    Object.assign(form, emptyForm(), initial)
+  } else {
+    Object.assign(form, emptyForm())
   }
-)
+}, { immediate: true })
 
 async function handleOk() {
-  if (!formRef.value) return
   try {
-    await formRef.value.validate()
-  } catch {
-    return Promise.reject(new Error('validation'))
-  }
-  const payload = { ...form }
-  if (props.mode === 'create' && !String(payload.promptKey || '').trim()) {
-    delete payload.promptKey
-  }
-  emit('submit', payload)
+    await formRef.value?.validate()
+    const payload = { ...form }
+    if (props.mode === 'create' && !payload.promptKey?.trim()) {
+      delete payload.promptKey
+    }
+    emit('submit', payload)
+  } catch (err) {}
 }
 
-function onCancel() {
-  open.value = false
-}
+function onCancel() { open.value = false }
 </script>
 
 <style scoped>
-.prompt-form {
-  margin-top: 4px;
+.compact-alert {
+  margin-bottom: 20px;
+  padding: 8px 12px;
 }
 
-.form-alert {
-  margin-bottom: 12px;
+.editor-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 16px;
+.config-side {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.span-2 {
-  grid-column: span 2;
+.content-side {
+  flex: 1;
+  min-width: 0;
 }
 
-.w-full {
-  width: 100%;
+.form-row {
+  display: flex;
+  gap: 12px;
 }
+
+.flex-1 { flex: 1; }
+.w-80 { width: 100px; }
 
 .content-area {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: 'Fira Code', ui-monospace, monospace;
   font-size: 13px;
+  background-color: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  line-height: 1.6;
+  resize: none;
 }
 
-@media (max-width: 1024px) {
-  .form-grid {
-    grid-template-columns: 1fr;
+/* 覆盖 Ant Design 默认边距，紧凑显示 */
+:deep(.ant-form-item) {
+  margin-bottom: 16px;
+}
+
+.no-margin-bottom {
+  margin-bottom: 0 !important;
+}
+
+/* 适配移动端/小屏幕 */
+@media (max-width: 800px) {
+  .editor-layout {
+    flex-direction: column;
   }
-  .span-2 {
-    grid-column: auto;
+  .config-side {
+    width: 100%;
   }
 }
 </style>

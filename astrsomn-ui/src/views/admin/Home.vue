@@ -48,7 +48,7 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
 /* 主体内容区 */
 .shell-content {
   flex: 1;
-  padding: 32px 0;
+  padding: 6px 0;
   overflow-y: auto;
 }
 
@@ -58,12 +58,7 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
   padding: 0 32px;
 }
 
-/* 动画效果 */
-.page-fade-enter-active, .page-fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.page-fade-enter-from { opacity: 0; transform: translateY(8px); }
-.page-fade-leave-to { opacity: 0; }
+
 
 /* 响应式适配 */
 @media (max-width: 768px) {

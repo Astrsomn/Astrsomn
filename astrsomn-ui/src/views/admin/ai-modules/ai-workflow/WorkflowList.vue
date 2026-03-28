@@ -105,7 +105,7 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import AdminPageShell from '@/views/admin/components/AdminPageShell.vue'
+import AdminPageShell from '@/views/admin/components/admin/AdminPageShell.vue'
 import { aiWorkflowApi, type AiWorkflow } from '@/api/aiWorkflow'
 
 const router = useRouter()
