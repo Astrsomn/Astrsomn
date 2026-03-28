@@ -105,4 +105,7 @@ public class AiModelEntity extends BaseEntity<Long> {
      */
     @TableField("CAPABILITIES")
     private String capabilities;
+
+
+    private Long maxQuotaTokens;
 }

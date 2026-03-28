@@ -2,6 +2,7 @@ package org.astrsomn.starter.langchain.runtime;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import dev.langchain4j.model.image.ImageModel;
 import dev.langchain4j.service.tool.ToolProvider;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.entity.AiMcpEntity;
@@ -12,6 +13,8 @@ import org.astrsomn.core.mapper.AiMcpMapper;
 import org.astrsomn.core.mapper.AiToolMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.langchain.tool.UnionToolProvider;
+import org.astrsomn.starter.langchain.tool.image.AiImageModelFactory;
+import org.astrsomn.starter.langchain.tool.image.ImageToolProvider;
 import org.astrsomn.starter.langchain.tool.local.DynamicToolProvider;
 import org.astrsomn.starter.langchain.tool.local.LocalToolCacheManager;
 import org.astrsomn.starter.langchain.tool.mcp.DynamicMcpToolProvider;
@@ -36,6 +39,7 @@ public class ToolProviderAssembler {
     private final ApplicationContext applicationContext;
     private final LocalToolCacheManager globalToolCache;
     private final AstrsomnProperties astrsomnProperties;
+    private final AiImageModelFactory  aiImageModelFactory;
 
     public Optional<ToolProvider> assemble(AstroChatParam<?> param) {
         ToolSetting toolSetting = param.getToolSetting();
@@ -59,6 +63,10 @@ public class ToolProviderAssembler {
                             .in(AiToolEntity::getToolKey, toolSetting.getToolKeys())
                             .eq(AiToolEntity::getEnvCode, env));
             providers.add(new DynamicToolProvider(toolConfigs, applicationContext, globalToolCache));
+        }
+        if (param.getChatSetting().isEnableImageGenerate()) {
+            ImageModel imageModel = aiImageModelFactory.getImageModel(param);
+            providers.add(new ImageToolProvider(imageModel));
         }
 
         if (CollectionUtil.isEmpty(providers)) {
