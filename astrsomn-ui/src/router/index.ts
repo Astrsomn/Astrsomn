@@ -82,7 +82,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'security',
         name: 'AdminSecurity',
-        component: () => import('@/views/admin/ai-modules/ai-security/SecurityList.vue'),
+        component: () => import('@/views/admin/ai-modules/ai-sensitiveWord/SensitiveWordList.vue'),
         meta: { title: '安全治理', requiresAuth: true }
       },
       {
