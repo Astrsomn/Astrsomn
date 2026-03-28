@@ -98,6 +98,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '工作流', requiresAuth: true }
       },
       {
+        path: 'workflows/edit/:id',
+        name: 'AdminWorkflowEdit',
+        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowEditor.vue'),
+        meta: { title: '工作流编排', requiresAuth: true }
+      },
+      {
+        path: 'workflows/simple',
+        name: 'AdminWorkflowSimple',
+        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowSimpleTest.vue'),
+        meta: { title: '工作流编排测试', requiresAuth: true }
+      },
+      {
         path: 'users',
         name: 'AdminUsers',
         component: () => import('@/views/admin/system-config/system-user/UserList.vue'),

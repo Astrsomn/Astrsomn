@@ -11,6 +11,7 @@ export default defineConfig({
     server: {
         port: 3000,
         proxy: {
+            // 开发代理：浏览器请求 /api/xxx → 转发为后端 /xxx（后端业务路径不带 /api 前缀）
             '/api': {
                 target: 'http://localhost:8080',
                 changeOrigin: true,

@@ -250,6 +250,14 @@ const managementGroupsAll: ManagementGroup[] = [
         route: '/admin/workflows',
         accent: 'indigo',
       },
+      {
+        key: 'workflow-simple',
+        label: '工作流编排测试',
+        description: '按 Workflow Key 快速调用后端测试运行（已发布版本）',
+        icon: NodeIndexOutlined,
+        route: '/admin/workflows/simple',
+        accent: 'sky',
+      },
     ],
   },
   {
