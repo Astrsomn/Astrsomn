@@ -3,6 +3,7 @@ package org.astrsomn.starter.langchain.tool.image;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import dev.langchain4j.model.image.ImageModel;
+import dev.langchain4j.model.openai.OpenAiImageModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.AiModelEnum;
@@ -14,6 +15,7 @@ import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Objects;
 
 @Slf4j
@@ -43,16 +45,13 @@ public class AiImageModelFactory {
             case ALIBABA:
                 return getQwenImageModel(modelEntity, modelSetting, chatSetting);
             case OPENAI:
-                return getImageModel(modelEntity, modelSetting, chatSetting);
-            case DEEPSEEK:
-                return getImageModel(modelEntity, modelSetting, chatSetting);
+                return getOpenAiImageModel(modelEntity, modelSetting, chatSetting);
             case ZHIPU:
                 return getZhiPuImageModel(modelEntity, modelSetting, chatSetting);
             case QIANFAN:
                 return getQianfanImageModel(modelEntity, modelSetting, chatSetting);
             case GOOGLE:
                 return getGoogleGeminiImageModel(modelEntity, modelSetting, chatSetting);
-            // 可以继续加其他 case
             default:
                 log.error("====>  Astrsomn  ====> 未处理的 provider 类型: {} <====", providerEnum);
                 throw new RuntimeException("未知的大模型参数");
@@ -71,8 +70,13 @@ public class AiImageModelFactory {
         return null;
     }
 
-    private ImageModel getImageModel(AiModelEntity modelEntity, ModelSetting modelSetting, ChatSetting chatSetting) {
-        return null;
+    private ImageModel getOpenAiImageModel(AiModelEntity modelEntity, ModelSetting modelSetting, ChatSetting chatSetting) {
+        ImageModel imageModel = OpenAiImageModel.builder()
+                .apiKey("your-openai-api-key")
+                .modelName("dall-e-3")
+                .timeout(Duration.ofSeconds(120))
+                .build();
+        return imageModel;
     }
 
     private ImageModel getQwenImageModel(AiModelEntity modelEntity, ModelSetting modelSetting, ChatSetting chatSetting) {

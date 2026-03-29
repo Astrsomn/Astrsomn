@@ -208,4 +208,30 @@ public interface AiModelEnum {
         }
     }
 
+
+    @Getter
+    @AllArgsConstructor
+    enum ModelTypeEnum implements BaseEnum {
+        /**
+         *
+         */
+        CHAT_MODEL("chatModel", "聊天模型"),
+
+        /**
+         *
+         */
+        EMBEDDING_MODEL("embeddingModel", "向量模型"),
+
+        /**
+         *
+         */
+        IMAGE_MODEL("imageModel", "图像模型");
+
+
+
+        private String code;
+
+
+        private String desc;
+    }
 }

@@ -58,12 +58,7 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("PROMPT_KEY")
     private String promptKey;
 
-    /**
-     * Runtime configuration parameters in JSON format.
-     * Example: { "temperature": 0.7, "max_tokens": 2048, ... }
-     */
-    @TableField("CONFIG_PARAMS")
-    private String configParams;
+
 
     /**
      * The status of the Agent (e.g., ENABLED, DISABLED).
@@ -101,58 +96,39 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("MEMORY_WINDOW_SIZE")
     private String memoryWindowSize;
 
-    /**
-     * The maximum number of tokens allowed in the generated response.
-     */
-    @TableField("MAX_TOKENS")
-    private Integer maxTokens;
 
-    /**
-     * The temperature value controlling the randomness of the output.
-     */
-    @TableField("TEMPERATURE")
-    private Double temperature;
-
-    /**
-     * The presence penalty value to discourage token repetition based on existence.
-     */
-    @TableField("PRESENCE_PENALTY")
-    private Double presencePenalty;
-
-    /**
-     * The frequency penalty value to discourage token repetition based on count.
-     */
-    @TableField("FREQUENCY_PENALTY")
-    private Double frequencyPenalty;
-
-    /**
-     * Custom sequences that will trigger the end of text generation.
-     */
-    @TableField("STOP_SEQUENCES")
-    private String stopSequences;
-
-    /**
-     * The random seed for reproducible output generation.
-     */
-    @TableField("SEED")
-    private Integer seed;
-
-    /**
-     *
-     */
-    @TableField("TOP_P")
-    private Double topP;
-
-    /**
-     *
-     */
-    @TableField("TOP_K")
-    private Integer topK;
     /**
      * Enables streaming response output if set to true.
      */
     @TableField("ENABLE_STREAM")
     private boolean enableStream;
 
+    /**
+     *
+     */
+    @TableField("STYLE")
+    private String style;
 
+    /**
+     *
+     */
+    @TableField("SIZE")
+    private String size;
+
+    /**
+     *
+     */
+    @TableField("DIMENSIONS")
+    private Integer dimensions;
+    /**
+     *
+     */
+    @TableField("EMBEDDING_MODEL_KEY")
+    private String embeddingModelKey;
+
+    /**
+     *
+     */
+    @TableField("IMAGE_MODEL_KEY")
+    private String imageModelKey;
 }

@@ -4,10 +4,7 @@ package org.astrsomn.core.common.langchain.buildParam;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
-import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
-import org.astrsomn.core.common.langchain.buildParam.setting.PromptSetting;
-import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.*;
 
 @Data
 @Accessors(chain = true)
@@ -67,7 +64,11 @@ public class AstroChatParam<T> {
     @Builder.Default
     private PromptSetting promptSetting = new PromptSetting();
 
-
+    /**
+     * RAG
+     */
+    @Builder.Default
+    private RagSetting ragSetting = new RagSetting();
     /**
      * 最终执行接口
      */

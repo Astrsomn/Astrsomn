@@ -36,7 +36,7 @@ public class AiModelEntity extends BaseEntity<Long> {
     @TableField("MODEL_KEY")
     private String modelKey;
     /**
-     * Model type
+     * Model type (ChatModel ImageModel EmbeddingModel)
      */
     @TableField("MODEL_TYPE")
     private String modelType;
@@ -71,11 +71,7 @@ public class AiModelEntity extends BaseEntity<Long> {
     @TableField("STATUS")
     private String status;
 
-    /**
-     * Response limit 0 - 8192
-     */
-    @TableField("RESPONSE_LIMIT")
-    private Integer responseLimit;
+
 
     /**
      * Is default model
