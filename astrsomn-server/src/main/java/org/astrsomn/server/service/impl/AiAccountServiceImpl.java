@@ -55,6 +55,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
     public BaseResponse<String> update(AiAccountUpdateRequestDTO request) {
         AiAccountEntity entity = new AiAccountEntity();
         BeanUtils.copyProperties(request, entity);
+        bizResourceKeyAssignHelper.assignAccountKeyIfBlank(entity, entity.getId());
         boolean result = updateById(entity);
         return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
     }

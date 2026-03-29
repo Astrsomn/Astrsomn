@@ -18,6 +18,9 @@
         <if test="req != null and req.envCode != null and req.envCode != ''">
             AND aa.env_code = #{req.envCode}
         </if>
+        <if test="req != null and req.createUser != null and req.createUser != ''">
+            AND aa.create_user = #{req.createUser}
+        </if>
         ORDER BY
         aa.create_time DESC
     </select>

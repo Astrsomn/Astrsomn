@@ -56,6 +56,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '模型配置', requiresAuth: true }
       },
       {
+        path: 'ai-instance',
+        name: 'AdminAiInstance',
+        component: () => import('@/views/admin/ai-config/ai-instance/InstanceList.vue'),
+        meta: { title: '推理实例', requiresAuth: true }
+      },
+      {
+        path: 'ai-account',
+        name: 'AdminAiAccount',
+        component: () => import('@/views/admin/ai-config/ai-account/AccountList.vue'),
+        meta: { title: 'AI 账号', requiresAuth: true }
+      },
+      {
         path: 'prompts',
         name: 'AdminPrompts',
         component: () => import('@/views/admin/ai-config/ai-prompt/PromptList.vue'),

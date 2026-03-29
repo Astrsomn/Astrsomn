@@ -6,16 +6,15 @@ export type AiModel = {
   modelKey?: string
   modelType?: string
   provider?: string
+  accountKey?: string
   apiUrl?: string
-  apiKey?: string
-  apiSecret?: string
-  modelParams?: string
   status?: string
   responseLimit?: number
   randomIndex?: number
   topVariance?: number
   isDefault?: number
   capabilities?: string
+  maxQuotaTokens?: number
   createUser?: string
   createTime?: string
   updateUser?: string

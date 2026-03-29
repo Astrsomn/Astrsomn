@@ -120,25 +120,71 @@ public class BizResourceKeyAssignHelper {
                                                 .eq(AiInstanceEntity::getInstanceKey, candidate))));
     }
 
+    /**
+     * 创建账号时：accountKey 为空则生成；同一 {@code env_code} 下 {@code account_key} 唯一。
+     */
     public void assignAccountKeyIfBlank(AiAccountEntity entity) {
+        assignAccountKeyIfBlank(entity, null);
+    }
+
+    /**
+     * @param excludeIdForRegen 更新场景下重新生成 key 时需排除当前行，避免误把自己算作已占用
+     */
+    public void assignAccountKeyIfBlank(AiAccountEntity entity, Long excludeIdForRegen) {
         String trimmed = StringUtils.trimToNull(entity.getAccountKey());
         if (trimmed != null) {
             entity.setAccountKey(trimmed);
+            fillEnv(entity);
+            assertAccountKeyUniqueInEnv(entity, excludeIdForRegen);
             return;
         }
         fillEnv(entity);
         String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
-        String name = StringUtils.defaultIfBlank(entity.getAccountName(), "account");
+        String rawName = StringUtils.defaultIfBlank(entity.getAccountName(), "account");
+        // slug 对纯中文等会落成 "x"，多账号会撞同一前缀；用名称 hash 做区分段
+        String nameSeg = BizResourceKeyGenerator.slug(rawName);
+        if ("x".equals(nameSeg)) {
+            nameSeg = "a" + Integer.toHexString(rawName.hashCode());
+        }
+        final Long excludeId = excludeIdForRegen;
+        final String envCode = entity.getEnvCode();
         entity.setAccountKey(
                 bizResourceKeyGenerator.generateUniqueBizKey(
                         BizKeyNamespace.ACCOUNT,
                         user,
-                        name,
-                        candidate ->
-                                aiAccountMapper.selectCount(
-                                        new LambdaQueryWrapper<AiAccountEntity>()
-                                                .eq(AiAccountEntity::getCreateUser, user)
-                                                .eq(AiAccountEntity::getAccountKey, candidate))));
+                        nameSeg,
+                        candidate -> {
+                            LambdaQueryWrapper<AiAccountEntity> w =
+                                    new LambdaQueryWrapper<AiAccountEntity>()
+                                            .eq(AiAccountEntity::getEnvCode, envCode)
+                                            .eq(AiAccountEntity::getAccountKey, candidate);
+                            if (excludeId != null) {
+                                w.ne(AiAccountEntity::getId, excludeId);
+                            }
+                            return aiAccountMapper.selectCount(w);
+                        }));
+    }
+
+    private void assertAccountKeyUniqueInEnv(AiAccountEntity entity, Long excludeId) {
+        String env = StringUtils.trimToNull(entity.getEnvCode());
+        if (env == null) {
+            fillEnv(entity);
+            env = entity.getEnvCode();
+        }
+        String key = StringUtils.trimToNull(entity.getAccountKey());
+        if (key == null || env == null) {
+            return;
+        }
+        LambdaQueryWrapper<AiAccountEntity> w =
+                new LambdaQueryWrapper<AiAccountEntity>()
+                        .eq(AiAccountEntity::getEnvCode, env)
+                        .eq(AiAccountEntity::getAccountKey, key);
+        if (excludeId != null) {
+            w.ne(AiAccountEntity::getId, excludeId);
+        }
+        if (aiAccountMapper.selectCount(w) > 0) {
+            throw new IllegalArgumentException("该环境下 Account Key 已存在，请更换后重试");
+        }
     }
 
     public void assignMcpKeyIfBlank(AiMcpEntity entity) {

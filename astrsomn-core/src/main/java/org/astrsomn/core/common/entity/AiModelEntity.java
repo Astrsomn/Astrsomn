@@ -52,6 +52,7 @@ public class AiModelEntity extends BaseEntity<Long> {
      */
     @TableField("ACCOUNT_KEY")
     private String accountKey;
+
     /**
      * API URL
      */
@@ -78,7 +79,7 @@ public class AiModelEntity extends BaseEntity<Long> {
     private String capabilities;
 
     /**
-     * 最大token限制
+     * token使用总量限制
      */
     @TableField("MAX_QUOTA_TOKENS")
     private Long maxQuotaTokens;

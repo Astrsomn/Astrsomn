@@ -13,7 +13,8 @@
         <div class="title-area">
           <div class="icon-box" :class="form.modelType">
             <template v-if="form.modelType === 'chat'"><MessageOutlined /></template>
-            <template v-else><PartitionOutlined /></template>
+            <template v-else-if="form.modelType === 'embedding'"><PartitionOutlined /></template>
+            <template v-else><PictureOutlined /></template>
           </div>
           <div class="text-group">
             <h2>{{ mode === 'create' ? '注册新 AI 模型' : '编辑模型配置' }}</h2>
@@ -22,7 +23,7 @@
         </div>
         <div class="steps-nav">
           <div
-              v-for="(s, index) in ['基础', '连接', '能力']"
+              v-for="(s, index) in ['基础', '能力']"
               :key="index"
               :class="['step-item', { active: currentStep === index, done: currentStep > index }]"
           >
@@ -50,7 +51,7 @@
               </a-form-item>
 
               <a-form-item label="模型类型" name="modelType">
-                <a-segmented v-model:value="form.modelType" :options="[{label:'对话模型', value:'chat'}, {label:'向量模型', value:'embedding'}]" block size="large" />
+                <a-segmented v-model:value="form.modelType" :options="[{label:'对话模型', value:'chat'}, {label:'向量模型', value:'embedding'}, {label:'图像模型', value:'image'}]" block size="large" />
               </a-form-item>
 
               <a-form-item label="模型显示名称" name="modelName" class="span-2">
@@ -67,6 +68,26 @@
                 </a-input>
               </a-form-item>
 
+              <a-form-item label="账号 Key" name="accountKey" class="span-2">
+                <a-select
+                  v-model:value="form.accountKey"
+                  :options="accountSelectOptions"
+                  :loading="accountOptionsLoading"
+                  allow-clear
+                  show-search
+                  :filter-option="filterAccountOption"
+                  placeholder="选择当前用户在当前环境下的 AI 账号"
+                  size="large"
+                  option-filter-prop="label"
+                />
+              </a-form-item>
+
+              <a-form-item label="API URL" name="apiUrl" class="span-2">
+                <a-input v-model:value="form.apiUrl" placeholder="https://api.openai.com/v1" size="large">
+                  <template #prefix><GlobalOutlined style="color: #bfbfbf" /></template>
+                </a-input>
+              </a-form-item>
+
               <a-form-item label="服务实例状态" class="span-2">
                 <div class="status-toggle-card">
                   <div class="info">
@@ -75,7 +96,7 @@
                   </div>
                   <a-switch
                       :checked="form.status === 'enabled'"
-                      @change="(val) => form.status = val ? 'enabled' : 'disabled'"
+                      @change="onStatusSwitch"
                       checked-children="已启用"
                       un-checked-children="已禁用"
                   />
@@ -87,56 +108,145 @@
 
         <div v-show="currentStep === 1" class="step-container animate-fade">
           <div class="form-section">
-            <h3 class="section-headline"><CloudServerOutlined /> 2. 接口通讯链路</h3>
+            <h3 class="section-headline"><ThunderboltOutlined /> 2. 能力矩阵与推理预设</h3>
 
-            <div class="security-info-bar">
-              <SafetyCertificateFilled class="icon" />
-              <span>凭据将进行 AES-256 位加密存储，仅在请求时调用。</span>
-            </div>
-
-            <a-form-item label="API Endpoint (接口地址)" name="apiUrl" class="mt-16">
-              <a-input v-model:value="form.apiUrl" placeholder="https://api.openai.com/v1" size="large">
-                <template #prefix><GlobalOutlined style="color: #bfbfbf" /></template>
-              </a-input>
-            </a-form-item>
-
-            <div class="form-grid">
-              <a-form-item label="API Key" name="apiKey">
-                <a-input-password v-model:value="form.apiKey" placeholder="sk-..." size="large" />
-              </a-form-item>
-              <a-form-item label="API Secret (可选)" name="apiSecret">
-                <a-input-password v-model:value="form.apiSecret" placeholder="特定通道需要" size="large" />
-              </a-form-item>
-            </div>
-
-            <div class="setting-card-item">
-              <div class="text">
-                <div class="label">设为系统默认模型</div>
-                <div class="desc">若 Agent 未指定模型，将自动降级使用此默认选项</div>
-              </div>
-              <a-checkbox :checked="form.isDefault === 1" @change="e => form.isDefault = e.target.checked ? 1 : 0" />
-            </div>
-          </div>
-        </div>
-
-        <div v-show="currentStep === 2" class="step-container animate-fade">
-          <div class="form-section">
-            <h3 class="section-headline"><ThunderboltOutlined /> 3. 能力矩阵与推理预设</h3>
-
-            <div class="capability-wrapper">
+            <div v-if="form.modelType === 'chat'" class="capability-wrapper">
               <div class="cap-header">
-                <span>支持的功能特性 (Capabilities)</span>
-                <span class="badge">{{ capabilitiesSelected.length }}</span>
+                <span>对话模型 · 与后端 AiModelEnum 对齐</span>
+                <span class="badge">{{ chatCapabilityTotal }}</span>
               </div>
+
+              <div class="cap-subhead">能力标签（ChatCapabilitiesEnum）</div>
               <div class="cap-tag-grid">
                 <div
-                    v-for="opt in capabilityOptions"
+                    v-for="opt in chatFeatureOptions"
                     :key="opt.value"
-                    :class="['custom-cap-tag', { active: capabilitiesSelected.includes(opt.value) }]"
-                    @click="toggleCapability(opt.value)"
+                    :class="['custom-cap-tag', { active: chatFeatureCapabilities.includes(opt.value) }]"
+                    @click="toggleChatFeature(opt.value)"
                 >
-                  <CheckCircleFilled v-if="capabilitiesSelected.includes(opt.value)" />
+                  <CheckCircleFilled v-if="chatFeatureCapabilities.includes(opt.value)" />
                   {{ opt.label }}
+                </div>
+              </div>
+
+              <div class="cap-subhead">推理超参（InferenceParamEnum，含旧版 *_setting 别名）</div>
+              <div class="cap-tag-grid">
+                <div
+                    v-for="opt in chatInferenceOptions"
+                    :key="opt.value"
+                    :class="['custom-cap-tag', { active: chatInferenceCapabilities.includes(opt.value) }]"
+                    @click="toggleChatInference(opt.value)"
+                >
+                  <CheckCircleFilled v-if="chatInferenceCapabilities.includes(opt.value)" />
+                  {{ opt.label }}
+                </div>
+              </div>
+
+              <div v-if="chatOrphanCapabilities.length" class="orphan-block">
+                <div class="cap-subhead muted">未匹配的 code（将原样保存，可点击移除）</div>
+                <div class="cap-tag-grid">
+                  <div
+                      v-for="c in chatOrphanCapabilities"
+                      :key="c"
+                      class="custom-cap-tag orphan"
+                      @click="removeChatOrphan(c)"
+                  >
+                    {{ c }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="form.modelType === 'embedding'" class="capability-wrapper">
+              <div class="cap-header">
+                <span>向量模型 · EmbeddingCapabilities + EmbeddingInferenceParam</span>
+                <span class="badge">{{ embeddingCapabilityTotal }}</span>
+              </div>
+
+              <div class="cap-subhead">能力（EmbeddingCapabilitiesEnum）</div>
+              <div class="cap-tag-grid">
+                <div
+                    v-for="opt in embeddingFeatureOptions"
+                    :key="opt.value"
+                    :class="['custom-cap-tag', { active: embeddingFeatureCapabilities.includes(opt.value) }]"
+                    @click="toggleEmbeddingFeature(opt.value)"
+                >
+                  <CheckCircleFilled v-if="embeddingFeatureCapabilities.includes(opt.value)" />
+                  {{ opt.label }}
+                </div>
+              </div>
+
+              <div class="cap-subhead">嵌入调用参数（EmbeddingInferenceParamEnum）</div>
+              <div class="cap-tag-grid">
+                <div
+                    v-for="opt in embeddingInferenceOptions"
+                    :key="opt.value"
+                    :class="['custom-cap-tag', { active: embeddingInferenceCapabilities.includes(opt.value) }]"
+                    @click="toggleEmbeddingInference(opt.value)"
+                >
+                  <CheckCircleFilled v-if="embeddingInferenceCapabilities.includes(opt.value)" />
+                  {{ opt.label }}
+                </div>
+              </div>
+
+              <div v-if="embeddingOrphanCapabilities.length" class="orphan-block">
+                <div class="cap-subhead muted">未匹配的 code（将原样保存，可点击移除）</div>
+                <div class="cap-tag-grid">
+                  <div
+                      v-for="c in embeddingOrphanCapabilities"
+                      :key="c"
+                      class="custom-cap-tag orphan"
+                      @click="removeEmbeddingOrphan(c)"
+                  >
+                    {{ c }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="form.modelType === 'image'" class="capability-wrapper">
+              <div class="cap-header">
+                <span>图像模型 · ImageCapabilities + ImageGenParam</span>
+                <span class="badge">{{ imageCapabilityTotal }}</span>
+              </div>
+
+              <div class="cap-subhead">能力（ImageCapabilitiesEnum）</div>
+              <div class="cap-tag-grid">
+                <div
+                    v-for="opt in imageFeatureOptions"
+                    :key="opt.value"
+                    :class="['custom-cap-tag', { active: imageFeatureCapabilities.includes(opt.value) }]"
+                    @click="toggleImageFeature(opt.value)"
+                >
+                  <CheckCircleFilled v-if="imageFeatureCapabilities.includes(opt.value)" />
+                  {{ opt.label }}
+                </div>
+              </div>
+
+              <div class="cap-subhead">文生图参数（ImageGenParamEnum，含 size_setting / style_setting 别名）</div>
+              <div class="cap-tag-grid">
+                <div
+                    v-for="opt in imageGenOptions"
+                    :key="opt.value"
+                    :class="['custom-cap-tag', { active: imageGenCapabilities.includes(opt.value) }]"
+                    @click="toggleImageGen(opt.value)"
+                >
+                  <CheckCircleFilled v-if="imageGenCapabilities.includes(opt.value)" />
+                  {{ opt.label }}
+                </div>
+              </div>
+
+              <div v-if="imageOrphanCapabilities.length" class="orphan-block">
+                <div class="cap-subhead muted">未匹配的 code（将原样保存，可点击移除）</div>
+                <div class="cap-tag-grid">
+                  <div
+                      v-for="c in imageOrphanCapabilities"
+                      :key="c"
+                      class="custom-cap-tag orphan"
+                      @click="removeImageOrphan(c)"
+                  >
+                    {{ c }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -149,12 +259,8 @@
                   <a-input-number v-model:value="form.responseLimit" :min="0" placeholder="4096" block />
                 </div>
                 <div class="param-item">
-                  <span class="pl">调度优先级 (Weight)</span>
-                  <a-input-number v-model:value="form.randomIndex" placeholder="0" block />
-                </div>
-                <div class="param-item">
-                  <span class="pl">Top Variance</span>
-                  <a-input-number v-model:value="form.topVariance" :step="0.01" placeholder="0.00" block />
+                  <span class="pl">最大配额 Tokens</span>
+                  <a-input-number v-model:value="form.maxQuotaTokens" :min="0" placeholder="0" block />
                 </div>
               </div>
             </div>
@@ -169,7 +275,14 @@
       </div>
       <div class="footer-right">
         <a-button v-if="currentStep > 0" class="btn-flat" @click="currentStep--">返回上一步</a-button>
-        <a-button v-if="currentStep < 2" type="primary" class="btn-next" @click="nextStep">下一步</a-button>
+        <a-button
+            v-if="currentStep < 1"
+            type="primary"
+            class="btn-next"
+            @click="nextStep"
+        >
+          下一步
+        </a-button>
         <a-button
             v-else
             type="primary"
@@ -186,14 +299,34 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
+import { message } from 'ant-design-vue'
 import {
-  IdcardOutlined, CloudServerOutlined, ReloadOutlined, MessageOutlined,
-  PartitionOutlined, SafetyCertificateFilled, GlobalOutlined,
-  LockOutlined, ThunderboltOutlined, CheckCircleFilled, ControlOutlined
+  IdcardOutlined, ReloadOutlined, MessageOutlined,
+  PartitionOutlined, LockOutlined, ThunderboltOutlined,
+  CheckCircleFilled, ControlOutlined, PictureOutlined, GlobalOutlined
 } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
-import type { AiModel } from '@/api/aiModel.ts'
-import { useDictionary } from '@/locales/dictionary'
+import type { AiModel } from '@/api/aiModel'
+import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
+import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
+import { aiModelCapabilitiesDictionary } from '@/locales/zh-CN/dictionary/ai-model'
+import {
+  CHAT_ALL_KNOWN_SET,
+  CHAT_FEATURE_CODES,
+  CHAT_FEATURE_SET,
+  CHAT_INFERENCE_CODES,
+  CHAT_INFERENCE_SET,
+  EMBEDDING_ALL_KNOWN_SET,
+  EMBEDDING_FEATURE_CODES,
+  EMBEDDING_FEATURE_SET,
+  EMBEDDING_INFERENCE_CODES,
+  EMBEDDING_INFERENCE_SET,
+  IMAGE_ALL_KNOWN_SET,
+  IMAGE_FEATURE_CODES,
+  IMAGE_FEATURE_SET,
+  IMAGE_GEN_CODES,
+  IMAGE_GEN_SET
+} from '@/constants/aiModelCapabilityCodes'
 
 const props = withDefaults(
     defineProps<{
@@ -212,58 +345,264 @@ const emit = defineEmits(['update:open'])
 
 const currentStep = ref(0)
 const formRef = ref<FormInstance | null>(null)
-const capabilitiesDict = useDictionary('ai-model.capabilities')
-const capabilityOptions = computed(() => capabilitiesDict.value.options())
-const capabilitiesSelected = ref<string[]>([])
+
+const accountList = ref<AiAccount[]>([])
+const accountOptionsLoading = ref(false)
+
+function resolveQueryCreateUser(): string | undefined {
+  try {
+    const raw = localStorage.getItem('userInfo')
+    if (!raw) return undefined
+    const u = JSON.parse(raw) as { username?: string; id?: string }
+    const name = u.username?.trim()
+    if (name) return name
+    if (u.id) return String(u.id)
+  } catch {
+    /* ignore */
+  }
+  return undefined
+}
+
+function resolveQueryEnvCode(): string | undefined {
+  const v = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY)
+  return v?.trim() || undefined
+}
+
+async function fetchAccountOptions() {
+  const createUser = resolveQueryCreateUser()
+  if (!createUser) {
+    accountList.value = []
+    message.warning('未获取到登录用户，无法加载账号列表')
+    return
+  }
+  accountOptionsLoading.value = true
+  try {
+    const resp = await aiAccountApi.queryPage({
+      pageNo: 1,
+      pageSize: 500,
+      param: {
+        createUser,
+        envCode: resolveQueryEnvCode()
+      }
+    })
+    accountList.value = resp.list || []
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '加载 AI 账号失败')
+    accountList.value = []
+  } finally {
+    accountOptionsLoading.value = false
+  }
+}
+
+const accountSelectOptions = computed(() => {
+  const opts = accountList.value
+    .filter((a) => a.accountKey)
+    .map((a) => ({
+      value: a.accountKey as string,
+      label: `${a.accountName || a.accountKey} (${a.accountKey})`
+    }))
+  const key = form.accountKey?.trim()
+  if (key && !opts.some((o) => o.value === key)) {
+    opts.unshift({ value: key, label: `${key}（当前值，不在可选列表）` })
+  }
+  return opts
+})
+
+const filterAccountOption = (input: string, option: { label?: string }) => {
+  const q = input.trim().toLowerCase()
+  if (!q) return true
+  return String(option?.label ?? '').toLowerCase().includes(q)
+}
+
+function capLabel(code: string): string {
+  return aiModelCapabilitiesDictionary.getLabel(code) ?? code
+}
+
+function capOptions(codes: readonly string[]) {
+  return codes.map((value) => ({ value, label: capLabel(value) }))
+}
+
+const chatFeatureOptions = computed(() => capOptions(CHAT_FEATURE_CODES))
+const chatInferenceOptions = computed(() => capOptions(CHAT_INFERENCE_CODES))
+const embeddingFeatureOptions = computed(() => capOptions(EMBEDDING_FEATURE_CODES))
+const embeddingInferenceOptions = computed(() => capOptions(EMBEDDING_INFERENCE_CODES))
+const imageFeatureOptions = computed(() => capOptions(IMAGE_FEATURE_CODES))
+const imageGenOptions = computed(() => capOptions(IMAGE_GEN_CODES))
+
+const chatFeatureCapabilities = ref<string[]>([])
+const chatInferenceCapabilities = ref<string[]>([])
+const chatOrphanCapabilities = ref<string[]>([])
+
+const embeddingFeatureCapabilities = ref<string[]>([])
+const embeddingInferenceCapabilities = ref<string[]>([])
+const embeddingOrphanCapabilities = ref<string[]>([])
+
+const imageFeatureCapabilities = ref<string[]>([])
+const imageGenCapabilities = ref<string[]>([])
+const imageOrphanCapabilities = ref<string[]>([])
+
+const chatCapabilityTotal = computed(
+    () =>
+        chatFeatureCapabilities.value.length +
+        chatInferenceCapabilities.value.length +
+        chatOrphanCapabilities.value.length
+)
+const embeddingCapabilityTotal = computed(
+    () =>
+        embeddingFeatureCapabilities.value.length +
+        embeddingInferenceCapabilities.value.length +
+        embeddingOrphanCapabilities.value.length
+)
+const imageCapabilityTotal = computed(
+    () =>
+        imageFeatureCapabilities.value.length +
+        imageGenCapabilities.value.length +
+        imageOrphanCapabilities.value.length
+)
 
 const form = reactive<AiModel>({
   modelName: '', modelKey: '', modelType: 'chat', provider: '',
-  apiUrl: '', status: 'enabled', isDefault: 0, responseLimit: 4096,
-  apiKey: '', apiSecret: '', modelParams: '', capabilities: '',
-  randomIndex: 0, topVariance: 0
+  accountKey: '', apiUrl: '', status: 'enabled', isDefault: 0, responseLimit: 4096,
+  capabilities: '', randomIndex: 0, topVariance: 0, maxQuotaTokens: 0
 })
 
 const rules = {
   modelName: [{ required: true, message: '请输入模型名称' }],
   provider: [{ required: true, message: '请选择供应商' }],
-  apiUrl: [{ required: true, message: '接口地址必填' }],
+  apiUrl: [{ required: true, message: '请输入 API URL' }],
 }
 
-const toggleCapability = (val: string) => {
-  const index = capabilitiesSelected.value.indexOf(val)
-  if (index > -1) capabilitiesSelected.value.splice(index, 1)
-  else capabilitiesSelected.value.push(val)
+function toggleInList(list: string[], val: string) {
+  const i = list.indexOf(val)
+  if (i > -1) list.splice(i, 1)
+  else list.push(val)
+}
+
+const toggleChatFeature = (val: string) => toggleInList(chatFeatureCapabilities.value, val)
+const toggleChatInference = (val: string) => toggleInList(chatInferenceCapabilities.value, val)
+const removeChatOrphan = (val: string) => {
+  chatOrphanCapabilities.value = chatOrphanCapabilities.value.filter((c) => c !== val)
+}
+
+const toggleEmbeddingFeature = (val: string) => toggleInList(embeddingFeatureCapabilities.value, val)
+const toggleEmbeddingInference = (val: string) => toggleInList(embeddingInferenceCapabilities.value, val)
+const removeEmbeddingOrphan = (val: string) => {
+  embeddingOrphanCapabilities.value = embeddingOrphanCapabilities.value.filter((c) => c !== val)
+}
+
+const toggleImageFeature = (val: string) => toggleInList(imageFeatureCapabilities.value, val)
+const toggleImageGen = (val: string) => toggleInList(imageGenCapabilities.value, val)
+const removeImageOrphan = (val: string) => {
+  imageOrphanCapabilities.value = imageOrphanCapabilities.value.filter((c) => c !== val)
+}
+
+const onStatusSwitch = (checked: boolean) => {
+  form.status = checked ? 'enabled' : 'disabled'
 }
 
 const nextStep = async () => {
   try {
     if (currentStep.value === 0) await formRef.value?.validateFields(['provider', 'modelName'])
-    if (currentStep.value === 1) await formRef.value?.validateFields(['apiUrl'])
     currentStep.value++
   } catch (e) {}
+}
+
+function partitionCapabilities(caps: string[], modelType: string) {
+  chatFeatureCapabilities.value = []
+  chatInferenceCapabilities.value = []
+  chatOrphanCapabilities.value = []
+  embeddingFeatureCapabilities.value = []
+  embeddingInferenceCapabilities.value = []
+  embeddingOrphanCapabilities.value = []
+  imageFeatureCapabilities.value = []
+  imageGenCapabilities.value = []
+  imageOrphanCapabilities.value = []
+
+  if (modelType === 'chat') {
+    chatFeatureCapabilities.value = caps.filter((c) => CHAT_FEATURE_SET.has(c))
+    chatInferenceCapabilities.value = caps.filter((c) => CHAT_INFERENCE_SET.has(c))
+    chatOrphanCapabilities.value = caps.filter((c) => !CHAT_ALL_KNOWN_SET.has(c))
+  } else if (modelType === 'embedding') {
+    embeddingFeatureCapabilities.value = caps.filter((c) => EMBEDDING_FEATURE_SET.has(c))
+    embeddingInferenceCapabilities.value = caps.filter((c) => EMBEDDING_INFERENCE_SET.has(c))
+    embeddingOrphanCapabilities.value = caps.filter((c) => !EMBEDDING_ALL_KNOWN_SET.has(c))
+  } else if (modelType === 'image') {
+    imageFeatureCapabilities.value = caps.filter((c) => IMAGE_FEATURE_SET.has(c))
+    imageGenCapabilities.value = caps.filter((c) => IMAGE_GEN_SET.has(c))
+    imageOrphanCapabilities.value = caps.filter((c) => !IMAGE_ALL_KNOWN_SET.has(c))
+  }
 }
 
 const syncForm = () => {
   currentStep.value = 0
   if (props.mode === 'create' || !props.initialData) {
-    Object.assign(form, { modelName: '', modelKey: '', modelType: 'chat', provider: '', apiUrl: '', status: 'enabled', isDefault: 0, apiKey: '', apiSecret: '', modelParams: '', capabilities: '', randomIndex: 0, topVariance: 0 })
-    capabilitiesSelected.value = []
+    Object.assign(form, {
+      modelName: '',
+      modelKey: '',
+      modelType: 'chat',
+      provider: '',
+      accountKey: '',
+      apiUrl: '',
+      status: 'enabled',
+      isDefault: 0,
+      capabilities: '',
+      randomIndex: 0,
+      topVariance: 0,
+      maxQuotaTokens: 0
+    })
+    partitionCapabilities([], String(form.modelType ?? 'chat'))
   } else {
     Object.assign(form, props.initialData)
     try {
       const parsed = JSON.parse(form.capabilities || '[]')
-      capabilitiesSelected.value = Array.isArray(parsed) ? parsed : []
-    } catch { capabilitiesSelected.value = [] }
+      const caps = Array.isArray(parsed) ? parsed.map(String) : []
+      partitionCapabilities(caps, String(form.modelType || 'chat'))
+    } catch {
+      partitionCapabilities([], String(form.modelType || 'chat'))
+    }
   }
 }
 
-watch(() => props.open, (v) => v && syncForm())
+watch(
+  () => props.open,
+  (v) => {
+    if (!v) return
+    syncForm()
+    void fetchAccountOptions()
+  }
+)
+
+watch(() => form.modelType, () => {
+  partitionCapabilities([], String(form.modelType || 'chat'))
+})
 
 const handleSubmit = async () => {
   await formRef.value?.validate()
   const payload = { ...form }
-  const merged = capabilitiesDict.value.sortKeys([...capabilitiesSelected.value])
-  payload.capabilities = merged.length > 0 ? JSON.stringify(merged) : ''
+  
+  let allCapabilities: string[] = []
+  if (form.modelType === 'chat') {
+    allCapabilities = [
+      ...chatFeatureCapabilities.value,
+      ...chatInferenceCapabilities.value,
+      ...chatOrphanCapabilities.value
+    ]
+  } else if (form.modelType === 'embedding') {
+    allCapabilities = [
+      ...embeddingFeatureCapabilities.value,
+      ...embeddingInferenceCapabilities.value,
+      ...embeddingOrphanCapabilities.value
+    ]
+  } else if (form.modelType === 'image') {
+    allCapabilities = [
+      ...imageFeatureCapabilities.value,
+      ...imageGenCapabilities.value,
+      ...imageOrphanCapabilities.value
+    ]
+  }
+  
+  payload.capabilities = allCapabilities.length > 0 ? JSON.stringify(allCapabilities) : ''
   await props.submitHandler(payload)
 }
 
@@ -287,6 +626,7 @@ const onCancel = () => emit('update:open', false)
 }
 .icon-box.chat { background: linear-gradient(135deg, #0061ff, #60efff); }
 .icon-box.embedding { background: linear-gradient(135deg, #7c4dff, #f94dff); }
+.icon-box.image { background: linear-gradient(135deg, #ff6b6b, #ffd93d); }
 .text-group h2 { margin: 0; font-size: 20px; font-weight: 700; color: #111; }
 .text-group p { margin: 4px 0 0; color: #999; font-size: 13px; }
 
@@ -319,24 +659,19 @@ const onCancel = () => emit('update:open', false)
 .status-toggle-card .t { display: block; font-size: 13px; font-weight: 600; }
 .status-toggle-card .d { font-size: 12px; color: #999; }
 
-/* 安全条 */
-.security-info-bar {
-  background: #f6ffed; border: 1px solid #b7eb8f; padding: 10px 16px;
-  border-radius: 8px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: #389e0d;
-}
-
-/* 默认勾选卡片 */
-.setting-card-item {
-  margin-top: 16px; display: flex; justify-content: space-between; align-items: center;
-  padding: 16px; background: #fff; border: 1px solid #eee; border-radius: 12px;
-}
-.setting-card-item .label { font-weight: 600; font-size: 13px; }
-.setting-card-item .desc { font-size: 12px; color: #999; }
-
 /* 能力矩阵布局 */
 .capability-wrapper { background: #fafafa; border-radius: 16px; padding: 20px; border: 1px solid #f0f0f0; }
 .cap-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
 .cap-header .badge { background: #0061ff; color: #fff; padding: 0 8px; border-radius: 10px; font-size: 11px; }
+.cap-subhead {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin: 16px 0 10px;
+}
+.cap-subhead:first-of-type { margin-top: 0; }
+.cap-subhead.muted { color: #888; font-weight: 500; }
+.orphan-block { margin-top: 14px; padding-top: 12px; border-top: 1px dashed #e8e8e8; }
 .cap-tag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
 .custom-cap-tag {
   padding: 8px 12px; background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
@@ -346,11 +681,18 @@ const onCancel = () => emit('update:open', false)
 .custom-cap-tag.active {
   background: #e6f0ff; border-color: #0061ff; color: #0061ff; font-weight: 600;
 }
+.custom-cap-tag.orphan {
+  background: #fafafa;
+  border-style: dashed;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+}
+.custom-cap-tag.orphan:hover { border-color: #ff4d4f; color: #ff4d4f; }
 
 /* 运行参数卡片 */
 .runtime-params-box { margin-top: 24px; background: #fff; border: 1px solid #eee; border-radius: 16px; padding: 16px; }
 .box-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: #111; display: flex; align-items: center; gap: 6px; }
-.param-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .param-item { display: flex; flex-direction: column; gap: 6px; }
 .pl { font-size: 11px; color: #999; }
 

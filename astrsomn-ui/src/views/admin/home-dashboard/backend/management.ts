@@ -14,6 +14,8 @@ import {
   SecurityScanOutlined,
   LineChartOutlined,
   NodeIndexOutlined,
+  ApiOutlined,
+  KeyOutlined,
 } from '@ant-design/icons-vue'
 
 export type EntryAccent =
@@ -101,6 +103,22 @@ const managementGroupsAll: ManagementGroup[] = [
         icon: markRaw(SettingOutlined),
         route: '/admin/models',
         accent: 'blue',
+      },
+      {
+        key: 'ai-instance',
+        label: '推理实例',
+        description: '配置实例参数（温度、Token、Stop 等，AI_INSTANCE）',
+        icon: markRaw(ApiOutlined),
+        route: '/admin/ai-instance',
+        accent: 'sky',
+      },
+      {
+        key: 'ai-account',
+        label: 'AI 账号',
+        description: '维护供应商账号、API 凭证与额度（AI_ACCOUNT）',
+        icon: markRaw(KeyOutlined),
+        route: '/admin/ai-account',
+        accent: 'violet',
       },
       {
         key: 'prompts',

@@ -78,6 +78,13 @@ public class AstroChatParam<T> {
      */
     @Builder.Default
     private ImageSetting imageSetting = new ImageSetting();
+
+    /**
+     * 嵌入模型（向量）调用参数
+     */
+    @Builder.Default
+    private EmbeddingSetting embeddingSetting = new EmbeddingSetting();
+
     /**
      * 最终执行接口
      */
