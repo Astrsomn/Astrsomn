@@ -4,10 +4,7 @@ package org.astrsomn.core.common.langchain.buildParam;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
-import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
-import org.astrsomn.core.common.langchain.buildParam.setting.PromptSetting;
-import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.*;
 
 @Data
 @Accessors(chain = true)
@@ -15,20 +12,23 @@ import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
 public class AstroChatParam<T> {
 
     // --- 1. 核心会话上下文 ---
+
+    /**
+     * 用户当前输入的消息
+     */
+    private String userMessage;
     /**
      * 智能体Key
      */
     private String agentKey;
 
     /**
-     * 用户当前输入的消息
-     */
-    private String userMessage;
-
-    /**
      * 选用的模型 ID
      */
     private String modelKey;
+
+
+    private String instanceKey;
 
     /**
      * 会话记忆 ID (前端生成或后端分配)
@@ -67,6 +67,23 @@ public class AstroChatParam<T> {
     @Builder.Default
     private PromptSetting promptSetting = new PromptSetting();
 
+    /**
+     * RAG
+     */
+    @Builder.Default
+    private RagSetting ragSetting = new RagSetting();
+
+    /**
+     * Image
+     */
+    @Builder.Default
+    private ImageSetting imageSetting = new ImageSetting();
+
+    /**
+     * 嵌入模型（向量）调用参数
+     */
+    @Builder.Default
+    private EmbeddingSetting embeddingSetting = new EmbeddingSetting();
 
     /**
      * 最终执行接口
@@ -74,8 +91,7 @@ public class AstroChatParam<T> {
     private final Class<T> serviceClass;
 
 
-
-    public static <T> AstroChatParam<T> of (Class<T> serviceClass, String agentKey){
+    public static <T> AstroChatParam<T> of(Class<T> serviceClass, String agentKey) {
         return AstroChatParam.<T>builder()
                 .serviceClass(serviceClass)
                 .agentKey(agentKey)

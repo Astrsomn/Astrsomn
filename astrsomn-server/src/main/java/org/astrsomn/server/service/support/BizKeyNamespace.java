@@ -13,7 +13,9 @@ public enum BizKeyNamespace {
     AGENT("AGENT"),
     PROMPT("PROMPT"),
     TOOL("TOOL"),
-    MCP("MCP");
+    MCP("MCP"),
+    INSTANCE("INSTANCE"),
+    ACCOUNT("ACCOUNT");
 
     private final String prefix;
 }

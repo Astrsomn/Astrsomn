@@ -9,6 +9,9 @@
         AI_TEMPLATE at
         WHERE
         1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND at.env_code = #{req.envCode}
+        </if>
         <if test="req != null and req.templateKey != null and req.templateKey != ''">
             AND at.template_key = #{req.templateKey}
         </if>

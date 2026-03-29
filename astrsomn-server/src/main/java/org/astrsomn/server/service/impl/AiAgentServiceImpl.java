@@ -15,6 +15,7 @@ import org.astrsomn.core.common.dto.agent.AiAgentResponseDTO;
 import org.astrsomn.server.service.AiAgentService;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ import java.util.Arrays;
 public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity> implements AiAgentService {
 
     private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiAgentCreateRequestDTO request) {
@@ -64,7 +66,12 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
     @Override
     public PageResponse<AiAgentResponseDTO> queryPage(BasePageRequest<AiAgentQueryRequestDTO> request) {
         IPage<AiAgentResponseDTO> page = request.buildPage();
-        IPage<AiAgentResponseDTO> result = baseMapper.queryPage(page, request.getParam());
+        AiAgentQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new AiAgentQueryRequestDTO();
+        }
+        queryEnvParamHelper.stampEffectiveEnv(param);
+        IPage<AiAgentResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
     }
 }

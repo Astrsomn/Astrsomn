@@ -38,6 +38,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '智能体管理', requiresAuth: true }
       },
       {
+        path: 'agents/model-assembly',
+        name: 'AdminModelAssembly',
+        component: () => import('@/views/admin/ai-config/ai-agent/ModelAssemblyPage.vue'),
+        meta: { title: 'Agent组装', requiresAuth: true }
+      },
+      {
         path: 'mcp',
         name: 'AdminMcp',
         component: () => import('@/views/admin/ai-config/ai-mcp/McpList.vue'),
@@ -53,7 +59,19 @@ const routes: RouteRecordRaw[] = [
         path: 'models',
         name: 'AdminModels',
         component: () => import('@/views/admin/ai-config/ai-model/ModelList.vue'),
-        meta: { title: '模型配置', requiresAuth: true }
+        meta: { title: '模型接入', requiresAuth: true }
+      },
+      {
+        path: 'ai-instance',
+        name: 'AdminAiInstance',
+        component: () => import('@/views/admin/ai-config/ai-instance/InstanceList.vue'),
+        meta: { title: '推理配置', requiresAuth: true }
+      },
+      {
+        path: 'ai-account',
+        name: 'AdminAiAccount',
+        component: () => import('@/views/admin/ai-config/ai-account/AccountList.vue'),
+        meta: { title: 'AI 账号', requiresAuth: true }
       },
       {
         path: 'prompts',

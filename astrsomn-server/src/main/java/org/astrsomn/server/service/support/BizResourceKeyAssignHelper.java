@@ -4,11 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.base.BaseEntity;
+import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiAgentEntity;
+import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiMcpEntity;
 import org.astrsomn.core.common.entity.AiPromptEntity;
 import org.astrsomn.core.common.entity.AiToolEntity;
+import org.astrsomn.core.mapper.AiAccountMapper;
 import org.astrsomn.core.mapper.AiAgentMapper;
+import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiMcpMapper;
 import org.astrsomn.core.mapper.AiPromptMapper;
 import org.astrsomn.core.mapper.AiToolMapper;
@@ -29,6 +33,8 @@ public class BizResourceKeyAssignHelper {
     private final AiPromptMapper aiPromptMapper;
     private final AiToolMapper aiToolMapper;
     private final AiMcpMapper aiMcpMapper;
+    private final AiInstanceMapper aiInstanceMapper;
+    private final AiAccountMapper aiAccountMapper;
 
     public void assignAgentKeyIfBlank(AiAgentEntity entity) {
         String trimmed = StringUtils.trimToNull(entity.getAgentKey());
@@ -91,6 +97,94 @@ public class BizResourceKeyAssignHelper {
                                         new LambdaQueryWrapper<AiToolEntity>()
                                                 .eq(AiToolEntity::getCreateUser, user)
                                                 .eq(AiToolEntity::getToolKey, candidate))));
+    }
+
+    public void assignInstanceKeyIfBlank(AiInstanceEntity entity) {
+        String trimmed = StringUtils.trimToNull(entity.getInstanceKey());
+        if (trimmed != null) {
+            entity.setInstanceKey(trimmed);
+            return;
+        }
+        fillEnv(entity);
+        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
+        String name = "instance";
+        entity.setInstanceKey(
+                bizResourceKeyGenerator.generateUniqueBizKey(
+                        BizKeyNamespace.INSTANCE,
+                        user,
+                        name,
+                        candidate ->
+                                aiInstanceMapper.selectCount(
+                                        new LambdaQueryWrapper<AiInstanceEntity>()
+                                                .eq(AiInstanceEntity::getCreateUser, user)
+                                                .eq(AiInstanceEntity::getInstanceKey, candidate))));
+    }
+
+    /**
+     * 创建账号时：accountKey 为空则生成；同一 {@code env_code} 下 {@code account_key} 唯一。
+     */
+    public void assignAccountKeyIfBlank(AiAccountEntity entity) {
+        assignAccountKeyIfBlank(entity, null);
+    }
+
+    /**
+     * @param excludeIdForRegen 更新场景下重新生成 key 时需排除当前行，避免误把自己算作已占用
+     */
+    public void assignAccountKeyIfBlank(AiAccountEntity entity, Long excludeIdForRegen) {
+        String trimmed = StringUtils.trimToNull(entity.getAccountKey());
+        if (trimmed != null) {
+            entity.setAccountKey(trimmed);
+            fillEnv(entity);
+            assertAccountKeyUniqueInEnv(entity, excludeIdForRegen);
+            return;
+        }
+        fillEnv(entity);
+        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
+        String rawName = StringUtils.defaultIfBlank(entity.getAccountName(), "account");
+        // slug 对纯中文等会落成 "x"，多账号会撞同一前缀；用名称 hash 做区分段
+        String nameSeg = BizResourceKeyGenerator.slug(rawName);
+        if ("x".equals(nameSeg)) {
+            nameSeg = "a" + Integer.toHexString(rawName.hashCode());
+        }
+        final Long excludeId = excludeIdForRegen;
+        final String envCode = entity.getEnvCode();
+        entity.setAccountKey(
+                bizResourceKeyGenerator.generateUniqueBizKey(
+                        BizKeyNamespace.ACCOUNT,
+                        user,
+                        nameSeg,
+                        candidate -> {
+                            LambdaQueryWrapper<AiAccountEntity> w =
+                                    new LambdaQueryWrapper<AiAccountEntity>()
+                                            .eq(AiAccountEntity::getEnvCode, envCode)
+                                            .eq(AiAccountEntity::getAccountKey, candidate);
+                            if (excludeId != null) {
+                                w.ne(AiAccountEntity::getId, excludeId);
+                            }
+                            return aiAccountMapper.selectCount(w);
+                        }));
+    }
+
+    private void assertAccountKeyUniqueInEnv(AiAccountEntity entity, Long excludeId) {
+        String env = StringUtils.trimToNull(entity.getEnvCode());
+        if (env == null) {
+            fillEnv(entity);
+            env = entity.getEnvCode();
+        }
+        String key = StringUtils.trimToNull(entity.getAccountKey());
+        if (key == null || env == null) {
+            return;
+        }
+        LambdaQueryWrapper<AiAccountEntity> w =
+                new LambdaQueryWrapper<AiAccountEntity>()
+                        .eq(AiAccountEntity::getEnvCode, env)
+                        .eq(AiAccountEntity::getAccountKey, key);
+        if (excludeId != null) {
+            w.ne(AiAccountEntity::getId, excludeId);
+        }
+        if (aiAccountMapper.selectCount(w) > 0) {
+            throw new IllegalArgumentException("该环境下 Account Key 已存在，请更换后重试");
+        }
     }
 
     public void assignMcpKeyIfBlank(AiMcpEntity entity) {

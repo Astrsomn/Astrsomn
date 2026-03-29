@@ -4,18 +4,19 @@ export type AiModel = {
   id?: number | string
   modelName?: string
   modelKey?: string
+  /** 详情返回：有推理实例引用该 modelKey 时为 true，前端应禁止改 modelKey */
+  modelKeyImmutable?: boolean
   modelType?: string
   provider?: string
+  accountKey?: string
   apiUrl?: string
-  apiKey?: string
-  apiSecret?: string
-  modelParams?: string
   status?: string
   responseLimit?: number
   randomIndex?: number
   topVariance?: number
   isDefault?: number
   capabilities?: string
+  maxQuotaTokens?: number
   createUser?: string
   createTime?: string
   updateUser?: string

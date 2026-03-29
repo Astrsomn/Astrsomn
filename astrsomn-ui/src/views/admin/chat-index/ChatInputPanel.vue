@@ -24,20 +24,20 @@
             <div class="v-divider"></div>
 
             <a-select
-              :value="selectedModel"
+              :value="selectedChatInstanceKey"
               class="panel-select"
-              placeholder="选择模型"
+              placeholder="选择对话实例"
               :bordered="false"
               dropdown-class-name="custom-dropdown"
               :loading="optionsLoading"
-              @update:value="emit('update:selectedModel', $event)"
+              @update:value="emit('update:selectedChatInstanceKey', $event)"
             >
               <a-select-option
-                v-for="model in modelOptions"
-                :key="model.modelKey"
-                :value="model.modelKey"
+                v-for="inst in chatInstanceOptions"
+                :key="inst.instanceKey"
+                :value="inst.instanceKey"
               >
-                {{ model.modelName || model.modelKey }}
+                {{ inst.instanceName || inst.instanceKey }}
               </a-select-option>
             </a-select>
           </div>
@@ -114,12 +114,12 @@ import {
   StopOutlined
 } from '@ant-design/icons-vue'
 import type { AiAgent } from '@/api/aiAgent.ts'
-import type { AiModel } from '@/api/aiModel.ts'
+import type { AiInstance } from '@/api/aiInstance.ts'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{
   selectedAgent?: string
-  selectedModel?: string
+  selectedChatInstanceKey?: string
   userInput: string
   isDeepThinking: boolean
   isWebSearch: boolean
@@ -127,12 +127,12 @@ const props = defineProps<{
   optionsLoading: boolean
   sendDisabled: boolean
   agentOptions: AiAgent[]
-  modelOptions: AiModel[]
+  chatInstanceOptions: AiInstance[]
 }>()
 
 const emit = defineEmits<{
   'update:selectedAgent': [value?: string]
-  'update:selectedModel': [value?: string]
+  'update:selectedChatInstanceKey': [value?: string]
   'update:userInput': [value: string]
   'update:isDeepThinking': [value: boolean]
   'update:isWebSearch': [value: boolean]

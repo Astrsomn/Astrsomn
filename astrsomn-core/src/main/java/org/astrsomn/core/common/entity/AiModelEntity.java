@@ -23,7 +23,12 @@ public class AiModelEntity extends BaseEntity<Long> {
     @TableId(value = "ID", type = IdType.ASSIGN_ID)
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
-    
+    /**
+     * Model Key
+     */
+    @TableField("MODEL_KEY")
+    private String modelKey;
+
     /**
      * Model name
      */
@@ -31,12 +36,7 @@ public class AiModelEntity extends BaseEntity<Long> {
     private String modelName;
 
     /**
-     * Model Key
-     */
-    @TableField("MODEL_KEY")
-    private String modelKey;
-    /**
-     * Model type
+     * Model type (ChatModel ImageModel EmbeddingModel)
      */
     @TableField("MODEL_TYPE")
     private String modelType;
@@ -46,18 +46,12 @@ public class AiModelEntity extends BaseEntity<Long> {
      */
     @TableField("PROVIDER")
     private String provider;
-    
-    /**
-     * APIKey
-     */
-    @TableField("API_KEY")
-    private String apiKey;
 
     /**
-     * API secret key
+     * AccountKey
      */
-    @TableField("API_SECRET")
-    private String apiSecret;
+    @TableField("ACCOUNT_KEY")
+    private String accountKey;
 
     /**
      * API URL
@@ -71,11 +65,6 @@ public class AiModelEntity extends BaseEntity<Long> {
     @TableField("STATUS")
     private String status;
 
-    /**
-     * Response limit 0 - 8192
-     */
-    @TableField("RESPONSE_LIMIT")
-    private Integer responseLimit;
 
     /**
      * Is default model
@@ -90,7 +79,7 @@ public class AiModelEntity extends BaseEntity<Long> {
     private String capabilities;
 
     /**
-     * 最大token限制
+     * token使用总量限制
      */
     @TableField("MAX_QUOTA_TOKENS")
     private Long maxQuotaTokens;

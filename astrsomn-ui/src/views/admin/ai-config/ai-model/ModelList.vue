@@ -1,45 +1,45 @@
 <template>
   <AdminPageShell
-    title="模型配置"
-    description="统一管理 AI 模型供应商、版本及路由策略，支持快捷开关状态。"
+      title="接入端点管理"
+      description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
   >
     <div class="model-page-container">
       <div class="toolbar">
         <div class="toolbar-left">
           <div class="search-cluster">
             <a-input
-              v-model:value="query.modelName"
-              placeholder="搜索模型名称"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
+                v-model:value="query.modelName"
+                placeholder="搜索端点名称"
+                class="toolbar-input search-main-input"
+                allow-clear
+                @pressEnter="fetchList"
             >
               <template #prefix><search-outlined /></template>
             </a-input>
 
             <a-select
-              v-model:value="query.provider"
-              :options="providerOptions"
-              placeholder="所有供应商"
-              class="toolbar-select provider-select"
-              allow-clear
+                v-model:value="query.provider"
+                :options="providerOptions"
+                placeholder="筛选供应商"
+                class="toolbar-select provider-select"
+                allow-clear
             />
           </div>
 
           <div class="status-switch" role="group" aria-label="状态筛选">
             <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'enabled' }"
-              @click="toggleStatusFilter('enabled')"
+                class="status-btn"
+                :class="{ active: query.status === 'enabled' }"
+                @click="toggleStatusFilter('enabled')"
             >
-              启用
+              已上线
             </a-button>
             <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'disabled' }"
-              @click="toggleStatusFilter('disabled')"
+                class="status-btn"
+                :class="{ active: query.status === 'disabled' }"
+                @click="toggleStatusFilter('disabled')"
             >
-              禁用
+              已下线
             </a-button>
           </div>
         </div>
@@ -47,68 +47,77 @@
         <div class="toolbar-right">
           <a-button type="primary" class="primary-btn" @click="fetchList">
             <template #icon><search-outlined /></template>
-            查询
+            同步
           </a-button>
           <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            :title="`确定删除选中的 ${selectedRowKeys.length} 个模型吗？`"
-            @confirm="handleBatchDelete"
+              v-if="selectedRowKeys.length > 0"
+              :title="`确定删除选中的 ${selectedRowKeys.length} 个接入端点吗？`"
+              @confirm="handleBatchDelete"
           >
             <a-button danger class="ghost-btn danger-btn">
               <template #icon><delete-outlined /></template>
-              批量删除
+              批量移除
             </a-button>
           </a-popconfirm>
           <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
           <a-button type="primary" class="ghost-btn add-btn" @click="openCreate">
             <template #icon><plus-outlined /></template>
-            新增模型
+            接入端点
           </a-button>
         </div>
       </div>
 
       <BaseOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条模型记录，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
+          :list-length="list.length"
+          :selected-count="selectedRowKeys.length"
+          :all-current-selected="allCurrentSelected"
+          :part-current-selected="partCurrentSelected"
+          :show-actions="list.length > 0"
+          :summary-text="`当前共有 ${list.length} 条端点记录，已选 ${selectedRowKeys.length} 条。`"
+          @toggle-select-all="toggleSelectAllCurrentPage"
       />
 
       <div class="table-card">
         <a-table
-          :columns="columns"
-          :data-source="list"
-          :pagination="false"
-          row-key="id"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1680 }"
+            :columns="columns"
+            :data-source="list"
+            :pagination="false"
+            row-key="id"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1680 }"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'modelName'">
-              <div class="model-info">
-                <span class="model-title">{{ record.modelName }}</span>
-                <span class="model-type-tag">{{ getModelTypeLabel(record.modelType) }}</span>
+            <template v-if="column.key === 'modelType'">
+              <div class="model-icon" :class="record.modelType">
+                <template v-if="record.modelType === 'chat'"><MessageOutlined /></template>
+                <template v-else-if="record.modelType === 'embedding'"><PartitionOutlined /></template>
+                <template v-else-if="record.modelType === 'image'"><PictureOutlined /></template>
               </div>
             </template>
 
-            <template v-else-if="column.key === 'provider'">
-              <a-tag :color="getProviderColor(record.provider)">
-                {{ providerDict.getLabel(String(record.provider || '')) ?? record.provider }}
-              </a-tag>
+            <template v-else-if="column.key === 'modelName'">
+              <div class="model-info">
+                <div class="model-header">
+                  <span class="model-title">{{ record.modelName }}</span>
+                </div>
+                <div class="model-meta">
+                  <a-tag v-if="record.provider" :color="getProviderColor(record.provider)" class="provider-tag">
+                    {{ providerDict.getLabel(String(record.provider || '')) ?? record.provider }}
+                  </a-tag>
+                </div>
+              </div>
             </template>
 
             <template v-else-if="column.key === 'status'">
-              <a-badge 
-                :status="record.status === 'enabled' ? 'success' : 'default'" 
-                :text="statusDict.getLabel(String(record.status || ''))" 
+              <a-switch
+                  :checked="record.status === 'enabled'"
+                  @change="(checked) => handleStatusChange(record.id, checked)"
+                  size="small"
               />
             </template>
 
             <template v-else-if="column.key === 'isDefault'">
-              <a-tag v-if="record.isDefault === 1" color="blue">默认模型</a-tag>
+              <a-tag v-if="record.isDefault === 1" color="blue">默认端点</a-tag>
               <span v-else class="text-secondary">-</span>
             </template>
 
@@ -126,33 +135,31 @@
             </template>
 
             <template v-else-if="column.key === 'capabilities'">
-              <div class="capability-list">
-                <a-tag
-                  v-for="capability in parseCapabilities(record.capabilities).slice(0, 3)"
-                  :key="capability"
-                  class="capability-tag"
-                  color="processing"
-                >
-                  {{ formatCapabilityLabel(String(capability)) }}
-                </a-tag>
-                <span v-if="parseCapabilities(record.capabilities).length === 0" class="text-secondary">-</span>
-                <span
-                  v-else-if="parseCapabilities(record.capabilities).length > 3"
-                  class="capability-more"
-                >
-                  +{{ parseCapabilities(record.capabilities).length - 3 }}
-                </span>
-              </div>
+              <a-button
+                  v-if="parseCapabilities(record.capabilities).length > 0"
+                  type="link"
+                  size="small"
+                  @click="openCapabilitiesDialog(record)"
+              >
+                <template #icon><EyeOutlined /></template>
+                能力清单
+              </a-button>
+              <span v-else class="text-secondary">-</span>
+            </template>
+
+            <template v-else-if="column.key === 'envCode'">
+              <a-tag v-if="record.envCode" color="blue">{{ record.envCode }}</a-tag>
+              <span v-else class="text-secondary">-</span>
             </template>
 
             <template v-else-if="column.key === 'runtime'">
               <div class="runtime-meta">
                 <span class="runtime-chip">
                   <thunderbolt-outlined class="cell-icon" />
-                  {{ record.responseLimit ?? 0 }} tokens
+                  限额 {{ record.maxQuotaTokens ?? 0 }}
                 </span>
                 <span class="runtime-chip">权重 {{ record.randomIndex ?? 0 }}</span>
-                <span class="runtime-chip">Top {{ record.topVariance ?? 0 }}</span>
+                <span class="runtime-chip">离散度 {{ record.topVariance ?? 0 }}</span>
               </div>
             </template>
 
@@ -171,15 +178,19 @@
 
             <template v-else-if="column.key === 'actions'">
               <div class="table-actions">
-                <a-button type="link" size="small" @click="openEdit(record)">
-                  <template #icon><edit-outlined /></template>
-                  编辑
+                <a-button type="link" size="small" @click="openView(record)">
+                  <template #icon><eye-outlined /></template>
+                  详情
                 </a-button>
                 <a-divider type="vertical" />
-                <a-popconfirm title="删除后不可恢复，确定吗？" @confirm="() => handleDeleteOne(record.id)">
+                <a-button type="link" size="small" @click="openEdit(record)">
+                  <template #icon><edit-outlined /></template>
+                  配置
+                </a-button>
+                <a-divider type="vertical" />
+                <a-popconfirm title="移除端点将影响下游关联实例，确定吗？" @confirm="() => handleDeleteOne(record.id)">
                   <a-button type="link" size="small" danger>
                     <template #icon><delete-outlined /></template>
-                    删除
                   </a-button>
                 </a-popconfirm>
               </div>
@@ -188,50 +199,82 @@
         </a-table>
 
         <div class="pagination-container">
-          <span class="total-text">共 {{ page.total }} 条记录</span>
+          <span class="total-text">共 {{ page.total }} 个端点节点</span>
           <a-pagination
-            v-model:current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            size="small"
-            show-less-items
-            @change="onPageChange"
+              v-model:current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              size="small"
+              show-less-items
+              @change="onPageChange"
           />
         </div>
       </div>
 
       <ModelFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial-data="modalInitialData"
-        :provider-options="providerOptions"
-        :status-options="statusOptions"
-        :is-default-options="isDefaultOptions"
-        :submit-handler="handleFormSubmit"
+          v-model:open="modal.open"
+          :mode="modal.mode"
+          :confirm-loading="modal.submitting"
+          :initial-data="modalInitialData"
+          :provider-options="providerOptions"
+          :status-options="statusOptions"
+          :is-default-options="isDefaultOptions"
+          :submit-handler="handleFormSubmit"
       />
+
+      <a-modal
+          v-model:open="showCapabilitiesModal"
+          :title="currentModel ? `${currentModel.modelName} - 支持能力集` : '能力清单'"
+          width="600px"
+          :footer="null"
+      >
+        <div class="capabilities-modal-content" v-if="currentModel">
+          <div class="cap-tag-grid">
+            <a-tag
+                v-for="capability in parseCapabilities(currentModel.capabilities)"
+                :key="capability"
+                class="capability-tag"
+                color="processing"
+            >
+              {{ formatCapabilityLabel(String(capability)) }}
+            </a-tag>
+          </div>
+          <div v-if="parseCapabilities(currentModel.capabilities).length === 0" class="no-capabilities">
+            该端点未配置额外能力标签
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <a-button type="primary" @click="closeCapabilitiesDialog">关闭</a-button>
+        </div>
+      </a-modal>
     </div>
   </AdminPageShell>
 </template>
-
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { 
   CalendarOutlined,
   DeleteOutlined,
   EditOutlined,
+  EyeOutlined,
   GlobalOutlined,
+  MessageOutlined,
+  PartitionOutlined,
+  PictureOutlined,
   PlusOutlined,
   SearchOutlined,
   ThunderboltOutlined,
   UserOutlined
 } from '@ant-design/icons-vue'
+import { Modal } from 'ant-design-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import ModelFormModal from './ModelFormModal.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
 import { useDictionary } from '@/locales/dictionary'
+import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
 
 // ... (逻辑部分基本保持与原代码一致，新增工具函数)
 
@@ -244,14 +287,13 @@ const statusOptions = computed(() => statusDict.value.options())
 const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }]
 
 const columns = [
-  { title: '模型信息', key: 'modelName', fixed: 'left', width: 240 },
+  { title: '类型', key: 'modelType',  width: 60 },
+  { title: '模型信息', key: 'modelName',  width: 220 },
   { title: '标识 Key', key: 'modelKey', width: 190 },
-  { title: '供应商', key: 'provider', width: 120 },
   { title: '状态', key: 'status', width: 100 },
-  { title: '属性', key: 'isDefault', width: 100 },
   { title: '接口地址', key: 'apiUrl', width: 240 },
-  { title: '能力标签', key: 'capabilities', width: 220 },
-  { title: '运行参数', key: 'runtime', width: 220 },
+  { title: '能力标签', key: 'capabilities', width: 100 },
+  { title: "环境", key: "envCode", width: 120},
   { title: '创建信息', key: 'createdMeta', width: 190 },
   { title: '操作', key: 'actions', fixed: 'right', width: 170 }
 ]
@@ -305,6 +347,22 @@ const rowSelection = computed(() => ({
 const modal = reactive({ open: false, mode: 'create' as any, submitting: false })
 const modalInitialData = ref<AiModel | null>(null)
 
+// 能力标签查看对话框
+const showCapabilitiesModal = ref(false)
+const currentModel = ref<AiModel | null>(null)
+
+// 打开能力标签查看对话框
+const openCapabilitiesDialog = (record: AiModel) => {
+  currentModel.value = record
+  showCapabilitiesModal.value = true
+}
+
+// 关闭能力标签查看对话框
+const closeCapabilitiesDialog = () => {
+  showCapabilitiesModal.value = false
+  currentModel.value = null
+}
+
 const currentPageIds = computed(() =>
   list.value
     .map((item) => item.id)
@@ -322,6 +380,7 @@ const partCurrentSelected = computed(() => {
 })
 
 const fetchList = async () => {
+  await ensureWorkspaceEnvInStorage()
   const payload = {
     pageNo: page.pageNum,
     pageSize: page.pageSize,
@@ -367,6 +426,15 @@ const openCreate = () => {
   modal.open = true
 }
 
+const openView = async (record: AiModel) => {
+  modal.mode = 'view'
+  if (record.id) {
+    const detail = await aiModelApi.detail(record.id)
+    modalInitialData.value = detail
+    modal.open = true
+  }
+}
+
 const openEdit = async (record: AiModel) => {
   modal.mode = 'edit'
   if (record.id) {
@@ -390,6 +458,16 @@ const handleBatchDelete = async () => {
   fetchList()
 }
 
+const handleStatusChange = async (id: number | string, checked: boolean) => {
+  try {
+    await aiModelApi.update({ id, status: checked ? 'enabled' : 'disabled' })
+    message.success('状态更新成功')
+    fetchList()
+  } catch (e) {
+    message.error('状态更新失败')
+  }
+}
+
 const handleFormSubmit = async (payload: AiModel) => {
   modal.submitting = true
   try {
@@ -402,7 +480,9 @@ const handleFormSubmit = async (payload: AiModel) => {
   }
 }
 
-fetchList()
+onMounted(() => {
+  void fetchList()
+})
 </script>
 
 <style scoped>
@@ -419,8 +499,8 @@ fetchList()
   gap: 16px;
   margin-bottom: 6px;
   flex-wrap: wrap;
-  padding: 16px;
-  border-radius: 20px;
+  padding: 16px 0;
+  border-radius: var(--radius-sm);
   background: var(--bg-card);
 }
 
@@ -445,7 +525,7 @@ fetchList()
   align-items: center;
   flex-wrap: wrap;
   padding: 6px;
-  border-radius: 16px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border-default);
   background: var(--bg-surface);
 }
@@ -483,7 +563,7 @@ fetchList()
 .primary-btn,
 .ghost-btn {
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 
 .danger-btn {
@@ -504,7 +584,7 @@ fetchList()
   align-items: center;
   gap: 8px;
   padding: 4px;
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
 }
@@ -512,7 +592,7 @@ fetchList()
 .status-btn {
   height: 36px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
   background: transparent;
   box-shadow: none;
@@ -526,7 +606,7 @@ fetchList()
 .table-card {
   margin-top: 12px;
   background: var(--bg-card);
-  border-radius: 20px;
+  border-radius: var(--radius-sm);
   padding: 10px;
   border: 1px solid var(--border-default);
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.04);
@@ -535,31 +615,74 @@ fetchList()
 .model-info {
   display: flex;
   flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.model-header {
+  display: flex;
+  align-items: center;
   gap: 6px;
   min-width: 0;
 }
 
-.model-title {
+.model-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
-  font-weight: 600;
-  color: var(--text-heading);
+  color: white;
+  flex-shrink: 0;
+  margin: 0 auto;
 }
 
-.model-type-tag {
+.model-icon.chat {
+  background: linear-gradient(135deg, #0061ff, #60efff);
+}
+
+.model-icon.embedding {
+  background: linear-gradient(135deg, #7c4dff, #f94dff);
+}
+
+.model-icon.image {
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+}
+
+.model-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+
+
+.provider-tag {
   font-size: 11px;
-  color: var(--text-secondary);
-  background: var(--bg-surface);
-  padding: 2px 8px;
-  width: fit-content;
-  border-radius: 999px;
-  border: 1px solid var(--border-default);
+  height: 20px;
+  line-height: 20px;
+  margin: 0;
 }
 
 .code-text {
   font-family: monospace;
   background: color-mix(in srgb, var(--primary) 6%, var(--bg-card));
   padding: 4px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   color: var(--primary);
   font-size: 13px;
 }
@@ -568,7 +691,7 @@ fetchList()
 .created-meta {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -580,23 +703,13 @@ fetchList()
   color: var(--text-secondary);
 }
 
-.capability-list,
-.runtime-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
+
 
 .capability-tag {
   margin-inline-end: 0;
   border-radius: 999px;
 }
 
-.capability-more {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
 
 .runtime-chip {
   display: inline-flex;
@@ -640,7 +753,17 @@ fetchList()
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 8px 8px;
+  padding: 12px 8px 8px;
+}
+
+/* 压缩表格行高 */
+:deep(.ant-table-tbody > tr > td) {
+  padding: 8px 12px;
+}
+
+:deep(.ant-table-thead > tr > th) {
+  padding: 10px 12px;
+  font-size: 12px;
 }
 
 .total-text {
@@ -649,6 +772,37 @@ fetchList()
 }
 
 .text-secondary { color: #bfbfbf; }
+
+/* 能力标签查看对话框样式 */
+.capabilities-modal-content {
+  padding: 16px 0;
+}
+
+.cap-tag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.capability-tag {
+  margin-bottom: 6px;
+  font-size: 12px;
+  height: 24px;
+}
+
+.no-capabilities {
+  text-align: center;
+  padding: 24px 0;
+  color: #999;
+  font-size: 14px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 0 0;
+  border-top: 1px solid #f0f0f0;
+}
 
 :deep(.ant-table-thead > tr > th) {
   background: color-mix(in srgb, var(--bg-surface) 82%, white);

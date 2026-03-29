@@ -9,6 +9,9 @@
         SYSTEM_CONFIG sc
         WHERE
         1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND sc.env_code = #{req.envCode}
+        </if>
         <if test="req != null and req.configKey != null and req.configKey != ''">
             AND sc.config_key LIKE CONCAT('%', #{req.configKey}, '%')
         </if>

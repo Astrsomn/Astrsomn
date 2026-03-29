@@ -26,7 +26,7 @@ withDefaults(
   min-height: 360px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   padding: 24px;
 
 }

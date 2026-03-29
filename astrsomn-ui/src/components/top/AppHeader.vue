@@ -5,24 +5,24 @@
         <transition name="fade-slide" mode="out-in">
           <div v-if="showBrand" class="brand-area" key="logo">
             <div class="logo-box">
-              <img src="../../assets/Astrsomn-logo.png" class="logo-img" alt="Astrsomn" />
+              <img src="../../assets/Astrsomn-logo.png" class="logo-img" alt="Astrsomn"/>
             </div>
-            
-            <button 
-              type="button" 
-              class="brand-interactive-wrapper" 
-              @click="handleSwitch"
-              v-if="showSwitch"
+
+            <button
+                type="button"
+                class="brand-interactive-wrapper"
+                @click="handleSwitch"
+                v-if="showSwitch"
             >
               <div class="flip-content">
                 <div class="flip-layer layer-front">
                   <span class="brand-name">Astrsomn</span>
 
                 </div>
-                
+
                 <div class="flip-layer layer-back">
                   <span class="action-text">{{ switchActionText }}</span>
-                  <component :is="switchIcon" class="action-icon" />
+                  <component :is="switchIcon" class="action-icon"/>
                 </div>
               </div>
             </button>
@@ -35,7 +35,7 @@
 
           <div v-else-if="showBack" class="page-nav-area" key="back">
             <button type="button" class="back-icon-btn" @click="handleBack">
-              <arrow-left-outlined />
+              <arrow-left-outlined/>
             </button>
             <h1 class="page-title">{{ pageTitle }}</h1>
           </div>
@@ -43,14 +43,14 @@
       </div>
 
       <div class="header-right">
-        <WorkspaceEnvSwitcher :visible="showWorkspaceEnv" />
+        <WorkspaceEnvSwitcher :visible="showWorkspaceEnv"/>
 
         <div class="v-line-divider"></div>
 
         <div class="actions-group">
           <slot name="actions">
-            <DocLangTheme :showDoc="showDoc" />
-            <UserProfile v-if="isLoggedIn" />
+            <DocLangTheme :showDoc="showDoc"/>
+            <UserProfile v-if="isLoggedIn"/>
             <a-button v-else type="primary" size="small" shape="round" @click="handleLogin">登录</a-button>
           </slot>
         </div>
@@ -60,12 +60,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router';
-import { 
-  ArrowLeftOutlined, 
+import {computed, ref} from 'vue'
+import {useRouter, useRoute} from 'vue-router';
+import {
+  ArrowLeftOutlined,
   SwapOutlined,
-  AppstoreOutlined 
+  AppstoreOutlined
 } from '@ant-design/icons-vue';
 // Vetur occasionally misses Vue SFC default exports in script setup files.
 // @ts-ignore
@@ -76,9 +76,14 @@ import UserProfile from './UserProfile.vue';
 import WorkspaceEnvSwitcher from './WorkspaceEnvSwitcher.vue';
 
 interface Props {
-  showBrand?: boolean; showBack?: boolean; brandStatus?: string;
-  pageTitle?: string; showDoc?: boolean; showSwitch?: boolean;
-  switchTarget?: 'chat' | 'admin'; showWorkspaceEnv?: boolean;
+  showBrand?: boolean;
+  showBack?: boolean;
+  brandStatus?: string;
+  pageTitle?: string;
+  showDoc?: boolean;
+  showSwitch?: boolean;
+  switchTarget?: 'chat' | 'admin';
+  showWorkspaceEnv?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -106,39 +111,79 @@ const handleSwitch = () => {
   }, 200);
 };
 const handleBack = () => router.push('/admin');
-const handleLogin = () => { localStorage.removeItem('token'); router.push('/login'); };
+const handleLogin = () => {
+  localStorage.removeItem('token');
+  router.push('/login');
+};
 </script>
 
 <style scoped>
 .app-header {
   --primary-glow: rgba(0, 97, 255, 0.15);
-  position: sticky; top: 0; z-index: 1000; height: 64px; width: 100%;
-  background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  display: flex; align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 64px;
+  width: 100%;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
 }
 
 .header-container {
-  display: flex; align-items: center; justify-content: space-between;
-  width: 100%; max-width: 1600px; margin: 0 auto; padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
 /* --- 左侧区域 --- */
-.header-left { display: flex; align-items: center; min-width: 240px; }
-.brand-area { display: flex; align-items: center; gap: 12px; }
-.logo-box { width: 32px; height: 32px; flex-shrink: 0; }
-.logo-img { width: 100%; height: 100%; object-fit: contain; }
+.header-left {
+  display: flex;
+  align-items: center;
+  min-width: 240px;
+}
+
+.brand-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-box {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 
 /* 💡 翻转交互设计 */
 .brand-interactive-wrapper {
-  background: transparent; border: none; padding: 0;
-  cursor: pointer; outline: none; height: 40px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  height: 40px;
   perspective: 1000px; /* 3D 视距 */
   overflow: hidden;
 }
 
 .flip-content {
-  position: relative; width: 100%; height: 100%;
+  position: relative;
+  width: 100%;
+  height: 100%;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
 }
@@ -148,24 +193,36 @@ const handleLogin = () => { localStorage.removeItem('token'); router.push('/logi
 }
 
 .flip-layer {
-  height: 40px; display: flex; flex-direction: column;
-  justify-content: center; backface-visibility: hidden;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  backface-visibility: hidden;
 }
 
 /* 正面：Logo 文字 */
 .layer-front .brand-name {
-  font-size: 18px; font-weight: 800; color: var(--text-heading);
-  letter-spacing: -0.5px; line-height: 1.2;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-heading);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
   font-style: italic;
 }
+
 .layer-front .brand-status {
-  font-size: 11px; color: var(--text-muted); line-height: 1.2;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.2;
 }
 
 /* 反面：功能文字 */
 .layer-back {
-  flex-direction: row !important; align-items: center;
-  gap: 8px; opacity: 0; transition: opacity 0.3s;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .brand-interactive-wrapper:hover .layer-back {
@@ -173,38 +230,89 @@ const handleLogin = () => { localStorage.removeItem('token'); router.push('/logi
 }
 
 .action-text {
-  font-size: 14px; font-weight: 700; color: var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
   letter-spacing: 1px; /* 加宽间距更显高级 */
   text-shadow: 0 0 12px var(--primary-glow);
 }
-.action-icon { font-size: 12px; color: var(--primary); }
+
+.action-icon {
+  font-size: 12px;
+  color: var(--primary);
+}
 
 /* --- 右侧区域 --- */
-.header-right { display: flex; align-items: center; gap: 16px; }
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 
 .v-line-divider {
-  width: 1px; height: 18px; background: var(--border-subtle);
+  width: 1px;
+  height: 18px;
+  background: var(--border-subtle);
 }
 
 /* --- 返回导航 (修复对齐和动画) --- */
-.page-nav-area { display: flex; align-items: center; gap: 12px; }
-.back-icon-btn {
-  width: 32px; height: 32px; border: 1px solid var(--border-default);
-  background: var(--bg-elevated); color: var(--text-primary);
-  border-radius: 8px; cursor: pointer; display: flex;
-  align-items: center; justify-content: center; transition: all 0.2s;
+.page-nav-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.back-icon-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateX(-2px); }
-.page-title { margin: 0; font-size: 17px; font-weight: 700; color: var(--text-heading); }
+
+.back-icon-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.back-icon-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateX(-2px);
+}
+
+.page-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-heading);
+}
 
 /* --- 核心动画 --- */
-.fade-slide-enter-active, .fade-slide-leave-active { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.fade-slide-enter-from { opacity: 0; transform: translateX(-15px); }
-.fade-slide-leave-to { opacity: 0; transform: translateX(15px); }
+.fade-slide-enter-active, .fade-slide-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-.actions-group { display: flex; align-items: center; gap: 12px; }
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateX(-15px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(15px);
+}
+
+.actions-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
 @media (max-width: 768px) {
-  .brand-status { display: none; }
+  .brand-status {
+    display: none;
+  }
 }
 </style>

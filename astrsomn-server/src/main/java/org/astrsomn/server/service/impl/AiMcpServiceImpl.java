@@ -13,6 +13,7 @@ import org.astrsomn.core.common.entity.AiMcpEntity;
 import org.astrsomn.core.mapper.AiMcpMapper;
 import org.astrsomn.server.service.AiMcpService;
 import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> implements AiMcpService {
 
     private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiMcpCreateRequestDTO request) {
@@ -63,7 +65,12 @@ public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> impl
     @Override
     public PageResponse<AiMcpResponseDTO> queryPage(BasePageRequest<AiMcpQueryRequestDTO> request) {
         IPage<AiMcpResponseDTO> page = request.buildPage();
-        IPage<AiMcpResponseDTO> result = baseMapper.queryPage(page, request.getParam());
+        AiMcpQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new AiMcpQueryRequestDTO();
+        }
+        queryEnvParamHelper.stampEffectiveEnv(param);
+        IPage<AiMcpResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
     }
 }

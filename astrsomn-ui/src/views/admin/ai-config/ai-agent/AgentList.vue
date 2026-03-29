@@ -39,6 +39,12 @@
         </div>
 
         <div class="toolbar-right">
+          <router-link v-slot="{ navigate }" to="/admin/agents/model-assembly" custom>
+            <a-button class="ghost-btn" @click="navigate">
+              <template #icon><apartment-outlined /></template>
+              模型组装
+            </a-button>
+          </router-link>
           <a-button type="primary" class="primary-btn" @click="fetchList">
             <template #icon><search-outlined /></template>
             查询
@@ -121,6 +127,7 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import {
+  ApartmentOutlined,
   CheckCircleOutlined,
   DeleteOutlined,
   PlusOutlined,
@@ -270,7 +277,8 @@ const openEdit = async (record: AiAgent) => {
   const id = record.id
   if (id == null) return
   const detail = await aiAgentApi.detail(id)
-  modalInitial.value = detail
+  // 详情接口不含联表展示字段，保留列表行上的实例名 / 提示词标题等便于弹窗展示
+  modalInitial.value = { ...record, ...detail }
   modal.open = true
 }
 
@@ -347,8 +355,8 @@ void fetchList()
   gap: 16px;
   margin-bottom: 6px;
   flex-wrap: wrap;
-  padding: 16px;
-  border-radius: 20px;
+  padding: 16px 0;
+  border-radius: var(--radius-sm);
   background: var(--bg-card);
 }
 
@@ -373,7 +381,7 @@ void fetchList()
   align-items: center;
   flex-wrap: wrap;
   padding: 6px;
-  border-radius: 16px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border-default);
   background: var(--bg-surface);
   box-shadow: none;
@@ -407,7 +415,7 @@ void fetchList()
 .primary-btn,
 .ghost-btn {
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 
 .danger-btn {
@@ -428,7 +436,7 @@ void fetchList()
   align-items: center;
   gap: 8px;
   padding: 4px;
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
 }
@@ -436,7 +444,7 @@ void fetchList()
 .status-btn {
   height: 36px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
   background: transparent;
   box-shadow: none;

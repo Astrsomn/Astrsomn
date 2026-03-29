@@ -9,6 +9,9 @@
         AI_SENSITIVE_WORD asw
         WHERE
         1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND asw.env_code = #{req.envCode}
+        </if>
         <if test="req != null and req.word != null and req.word != ''">
             AND asw.word LIKE CONCAT('%', #{req.word}, '%')
         </if>

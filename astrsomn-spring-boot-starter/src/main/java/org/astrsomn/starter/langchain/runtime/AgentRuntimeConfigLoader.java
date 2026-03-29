@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.entity.AiAgentEntity;
+import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
 import org.astrsomn.core.common.util.JsonUtil;
 import org.astrsomn.core.mapper.AiAgentMapper;
+import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,7 @@ public class AgentRuntimeConfigLoader {
 
     private final AiAgentMapper aiAgentMapper;
     private final AstrsomnProperties astrsomnProperties;
+    private final AiInstanceMapper aiInstanceMapper;
 
     public <T> void validateAndApplyAgent(AstroChatParam<T> param) {
         if (StringUtils.isBlank(param.getUserMessage())) {
@@ -43,7 +46,22 @@ public class AgentRuntimeConfigLoader {
                     + ", envCode=" + astrsomnProperties.getEnvCode());
         }
 
-        mergeModelFromAgent(ensureModelSetting(param), agent);
+        String instanceKey = StringUtils.firstNonBlank(param.getInstanceKey(), agent.getChatInstanceKey());
+        param.setInstanceKey(instanceKey);
+        AiInstanceEntity aiInstance = null;
+        if (StringUtils.isNotBlank(instanceKey)) {
+            aiInstance = aiInstanceMapper.selectOne(new LambdaQueryWrapper<AiInstanceEntity>()
+                    .eq(AiInstanceEntity::getInstanceKey, instanceKey)
+                    .eq(AiInstanceEntity::getEnvCode, agent.getEnvCode()));
+        }
+        if (aiInstance != null && StringUtils.isNotBlank(aiInstance.getModelKey())) {
+            param.setModelKey(aiInstance.getModelKey());
+        }
+        if (StringUtils.isBlank(param.getModelKey())) {
+            throw new RuntimeException("智能体未配置对话实例 (chatInstanceKey) 或实例未关联模型");
+        }
+
+        mergeModelFromInstance(ensureModelSetting(param), aiInstance);
         mergeToolSettingsFromAgent(ensureToolSetting(param), agent);
     }
 
@@ -62,29 +80,32 @@ public class AgentRuntimeConfigLoader {
     }
 
     /**
-     * 仅填充用户未在 {@link ModelSetting} 中赋值的字段（null 视为未指定，由库表补齐）。
+     * 仅填充用户未在 {@link ModelSetting} 中赋值的字段（null 视为未指定，由实例表补齐）。
      */
-    private void mergeModelFromAgent(ModelSetting target, AiAgentEntity agent) {
+    private void mergeModelFromInstance(ModelSetting target, AiInstanceEntity instance) {
+        if (instance == null) {
+            return;
+        }
         if (target.getTemperature() == null) {
-            target.setTemperature(agent.getTemperature());
+            target.setTemperature(instance.getTemperature());
         }
         if (target.getTopP() == null) {
-            target.setTopP(agent.getTopP());
+            target.setTopP(instance.getTopP());
         }
         if (target.getTopK() == null) {
-            target.setTopK(agent.getTopK());
+            target.setTopK(instance.getTopK());
         }
         if (target.getMaxTokens() == null) {
-            target.setMaxTokens(agent.getMaxTokens());
+            target.setMaxTokens(instance.getMaxTokens());
         }
         if (target.getSeed() == null) {
-            target.setSeed(agent.getSeed());
+            target.setSeed(instance.getSeed());
         }
         if (target.getPresencePenalty() == null) {
-            target.setPresencePenalty(agent.getPresencePenalty());
+            target.setPresencePenalty(instance.getPresencePenalty());
         }
         if (target.getFrequencyPenalty() == null) {
-            target.setFrequencyPenalty(agent.getFrequencyPenalty());
+            target.setFrequencyPenalty(instance.getFrequencyPenalty());
         }
     }
 

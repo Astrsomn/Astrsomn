@@ -43,8 +43,8 @@
             <a-form-item label="场景" name="scene" class="flex-1">
               <a-input v-model:value="form.scene" placeholder="分类" allow-clear />
             </a-form-item>
-            <a-form-item label="状态" name="enabledFlag" class="w-80">
-              <a-select v-model:value="form.enabledFlag" :options="enabledOptions" />
+            <a-form-item label="状态" name="status" class="w-80">
+              <a-select v-model:value="form.status" :options="enabledOptions" />
             </a-form-item>
           </div>
 
@@ -93,7 +93,7 @@ const emptyForm = () => ({
   promptTitle: '',
   promptContent: '',
   scene: '',
-  enabledFlag: 'enabled',
+  status: 'enabled',
   version: 1
 })
 
@@ -102,7 +102,7 @@ const form = reactive(emptyForm())
 const rules = {
   promptTitle: [{ required: true, message: '请输入标题' }],
   promptContent: [{ required: true, message: '请输入提示词内容' }],
-  enabledFlag: [{ required: true, message: '请选择启用状态' }]
+  status: [{ required: true, message: '请选择启用状态' }]
 }
 
 watch([() => open.value, () => props.initial], ([isOpen, initial]) => {

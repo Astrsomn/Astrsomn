@@ -12,13 +12,19 @@ import org.astrsomn.core.common.dto.template.AiTemplateResponseDTO;
 import org.astrsomn.core.common.entity.AiTemplateEntity;
 import org.astrsomn.core.mapper.AiTemplateMapper;
 import org.astrsomn.server.service.AiTemplateService;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTemplateEntity> implements AiTemplateService {
+
+    private final QueryEnvParamHelper queryEnvParamHelper;
     @Override
     public BaseResponse<String> create(AiTemplateCreateRequestDTO request) {
         AiTemplateEntity entity = new AiTemplateEntity();
@@ -55,7 +61,12 @@ public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTempl
     @Override
     public PageResponse<AiTemplateResponseDTO> queryPage(BasePageRequest<AiTemplateQueryRequestDTO> request) {
         IPage<AiTemplateResponseDTO> page = request.buildPage();
-        IPage<AiTemplateResponseDTO> result = baseMapper.queryPage(page, request.getParam());
+        AiTemplateQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new AiTemplateQueryRequestDTO();
+        }
+        queryEnvParamHelper.stampEffectiveEnv(param);
+        IPage<AiTemplateResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
     }
 }

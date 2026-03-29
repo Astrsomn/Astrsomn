@@ -8,26 +8,26 @@ export type AiAgent = {
   agentKey?: string
   agentName?: string
   description?: string
-  modelKey?: number | string
+  workflowKey?: string
+  /** 对话模型实例（推理层） */
+  chatInstanceKey?: string
+  /** 前端展示用（列表联表或本地缓存，不必提交） */
+  chatInstanceName?: string
+  /** 向量 / 嵌入实例 */
+  embeddingInstanceKey?: string
+  embeddingInstanceName?: string
+  /** 图像模型实例 */
+  imageInstanceKey?: string
+  imageInstanceName?: string
   promptKey?: string
-  configParams?: string
   status?: string
   knowledgeBaseKeys?: string
   toolKeys?: string
   mcpKeys?: string
   memoryMode?: string
   memoryWindowSize?: string
-  maxTokens?: number
-  temperature?: number
-  presencePenalty?: number
-  frequencyPenalty?: number
-  stopSequences?: string
-  seed?: number
-  topP?: number
-  topK?: number
   enableStream?: boolean
-  interfaceClass?: string
-  /** queryPage 联表：AI_MODEL */
+  /** queryPage 联表：对话实例背后的 AI_MODEL.MODEL_NAME */
   modelName?: string
   /** queryPage 联表：AI_PROMPT 当前版本标题 */
   promptTitle?: string

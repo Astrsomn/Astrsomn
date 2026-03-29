@@ -31,7 +31,7 @@
           <div class="status-switch" role="group" aria-label="状态筛选">
             <a-button
               class="status-btn"
-              :class="{ active: query.enabledFlag === 'enabled' }"
+              :class="{ active: query.status === 'enabled' }"
               @click="toggleEnabledFilter('enabled')"
             >
               <template #icon><check-circle-outlined /></template>
@@ -39,7 +39,7 @@
             </a-button>
             <a-button
               class="status-btn"
-              :class="{ active: query.enabledFlag === 'disabled' }"
+              :class="{ active: query.status === 'disabled' }"
               @click="toggleEnabledFilter('disabled')"
             >
               <template #icon><stop-outlined /></template>
@@ -197,7 +197,7 @@ type QueryState = {
   scene?: string
   envCode?: string
   createUser?: string
-  enabledFlag?: string
+  status?: string
 }
 
 const PROMPT_CARD_MIN_WIDTH_PX = 280
@@ -276,7 +276,7 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
 }
 
 const toggleEnabledFilter = (value: 'enabled' | 'disabled') => {
-  query.enabledFlag = query.enabledFlag === value ? undefined : value
+  query.status = query.status === value ? undefined : value
 }
 
 const syncPageSizeWithGrid = async () => {
@@ -295,7 +295,7 @@ const resetFilters = () => {
   query.scene = undefined
   query.envCode = undefined
   query.createUser = undefined
-  query.enabledFlag = undefined
+  query.status = undefined
   showAdvanced.value = false
   page.pageNum = 1
   void fetchList()
@@ -333,7 +333,7 @@ const fetchList = async () => {
         scene: query.scene || undefined,
         envCode: query.envCode || undefined,
         createUser: query.createUser || undefined,
-        enabledFlag: query.enabledFlag || undefined
+        status: query.status || undefined
       }
     }
 
@@ -446,7 +446,7 @@ void fetchList()
   align-items: center;
   flex-wrap: wrap;
   padding: 6px;
-  border-radius: 16px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border-default);
   background: var(--bg-surface);
   box-shadow: none;
@@ -488,7 +488,7 @@ void fetchList()
 .primary-btn,
 .ghost-btn {
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 
 .danger-btn {
@@ -509,7 +509,7 @@ void fetchList()
   align-items: center;
   gap: 8px;
   padding: 4px;
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
 }
@@ -517,7 +517,7 @@ void fetchList()
 .status-btn {
   height: 36px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
   background: transparent;
   box-shadow: none;
@@ -530,7 +530,7 @@ void fetchList()
 
 .filter-toggle-btn {
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
 }
 

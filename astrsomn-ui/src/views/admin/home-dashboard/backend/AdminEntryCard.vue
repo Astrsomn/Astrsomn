@@ -35,7 +35,7 @@ const emit = defineEmits<{
 
   position: relative;
   border: 1px solid color-mix(in srgb, var(--entry-color) 30%, var(--border-default));
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   background: var(--bg-card);
   padding: 24px;
   display: flex;
@@ -120,7 +120,7 @@ const emit = defineEmits<{
   justify-content: center;
   background: transparent;
   border: 1px solid color-mix(in srgb, var(--entry-color) 38%, var(--border-subtle));
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   transition: all 0.3s ease;
 }
 

@@ -1,11 +1,7 @@
 package org.astrsomn.server.service.impl;
 
-import dev.langchain4j.data.message.ImageContent;
-import dev.langchain4j.data.message.TextContent;
-import dev.langchain4j.data.message.UserMessage;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
-import org.astrsomn.core.common.dto.chat.AstroChatRequest;
+import org.astrsomn.core.common.langchain.AstroChatRequest;
 import org.astrsomn.core.common.langchain.AstroChatAssistant;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
@@ -27,7 +23,7 @@ public class AstroChatServiceImpl implements AstroChatService {
     @Override
     public Flux<String> stream(AstroChatRequest request) {
         AstroChatParam<AstroChatAssistant> param = AstroChatParam.of(AstroChatAssistant.class, request.getAgentKey());
-        param.setModelKey(request.getModelKey());
+        param.setInstanceKey(request.getInstanceKey());
         param.setMemoryKey(request.getMemoryKey());
         param.setUserMessage(request.getUserMessage());
         param.setChatSetting(new ChatSetting()

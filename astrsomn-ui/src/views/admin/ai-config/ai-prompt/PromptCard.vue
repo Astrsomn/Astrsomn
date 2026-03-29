@@ -3,7 +3,7 @@
     class="prompt-card"
     :class="{
       selected,
-      disabled: String(record.enabledFlag || '') !== 'enabled'
+      disabled: String(record.status || '') !== 'enabled'
     }"
   >
     <div class="card-checkbox-corner">
@@ -20,8 +20,8 @@
         </h3>
       </div>
       <div class="status-tag">
-        <a-tag :color="String(record.enabledFlag || '') === 'enabled' ? 'success' : 'error'" class="compact-tag">
-          {{ renderEnabled(String(record.enabledFlag || 'disabled')) }}
+        <a-tag :color="String(record.status || '') === 'enabled' ? 'success' : 'error'" class="compact-tag">
+          {{ renderEnabled(String(record.status || 'disabled')) }}
         </a-tag>
       </div>
     </div>
@@ -89,7 +89,7 @@ type PromptCardRecord = {
   promptTitle?: string
   promptContent?: string
   scene?: string
-  enabledFlag?: string
+  status?: string
   version?: number
   createTime?: string
 }
@@ -129,7 +129,7 @@ const copyPromptKey = async (key?: string) => {
   --primary-color: #4f46e5;
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
@@ -184,7 +184,7 @@ const copyPromptKey = async (key?: string) => {
   height: 24px;
   background: linear-gradient(135deg, #279ea9, #3b64b2);
   color: white;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,7 +207,7 @@ const copyPromptKey = async (key?: string) => {
   padding: 0 4px;
   font-size: 10px;
   line-height: 16px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 /* 信息网格 */
@@ -240,7 +240,7 @@ const copyPromptKey = async (key?: string) => {
   cursor: pointer;
   border: 1px solid #e5e7eb;
   background: #f9fafb;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 2px 6px;
   font-size: 10px;
   font-family: monospace;

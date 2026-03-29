@@ -76,6 +76,91 @@
     --chat-user-avatar-bg: linear-gradient(145deg, rgba(30, 64, 175, 0.45), var(--bg-elevated));
     --chat-user-avatar-border: var(--border-input);
     --chat-user-avatar-text: var(--section-title);
+
+    /* ── Model assembly (ModelAssemblyPage, assembly/) ── */
+    --assembly-palette-bg: var(--bg-card);
+    --assembly-palette-border: var(--border-default);
+    --assembly-pane-divider: var(--border-default);
+    --assembly-label-chat: var(--accent-blue);
+    --assembly-label-emb: #a78bfa;
+    --assembly-label-img: #fb923c;
+    --assembly-label-tool: #4ade80;
+    --assembly-label-mcp: #c084fc;
+    --assembly-search-icon: var(--text-muted);
+    --assembly-empty-text: var(--text-muted);
+    --assembly-btn-emb-bg: #7c3aed;
+    --assembly-btn-emb-border: #7c3aed;
+    --assembly-btn-img-bg: #ea580c;
+    --assembly-btn-img-border: #ea580c;
+    --assembly-btn-tool-bg: #16a34a;
+    --assembly-btn-tool-border: #16a34a;
+    --assembly-btn-mcp-bg: #9333ea;
+    --assembly-btn-mcp-border: #9333ea;
+
+    --assembly-chip-bg: var(--bg-elevated);
+    --assembly-chip-border: var(--border-subtle);
+    --assembly-chip-hover-border: var(--accent-blue);
+    --assembly-chip-hover-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    --assembly-chip-badge-bg: rgba(59, 130, 246, 0.18);
+    --assembly-chip-badge-text: var(--section-title);
+    --assembly-chip-title: var(--text-primary);
+    --assembly-chip-sub: var(--text-secondary);
+
+    --assembly-canvas-bg: var(--bg-base);
+    --assembly-canvas-border: var(--border-default);
+    --assembly-canvas-header-bg: var(--bg-card);
+    --assembly-canvas-header-border: var(--border-default);
+    --assembly-canvas-header-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    --assembly-form-label: var(--text-muted);
+    --assembly-btn-ghost-border: var(--border-input);
+    --assembly-btn-ghost-text: var(--text-secondary);
+    --assembly-btn-primary-shadow: 0 4px 10px rgba(59, 130, 246, 0.35);
+    --assembly-drop-zone-inner-bg: rgba(255, 255, 255, 0.05);
+    --assembly-placed-card-bg: var(--bg-elevated);
+    --assembly-placed-title: var(--text-heading);
+    --assembly-placed-sub: var(--text-secondary);
+    --assembly-placeholder: var(--text-muted);
+    --assembly-knowledge-section-bg: var(--bg-card);
+    --assembly-canvas-accent: var(--accent-blue);
+
+    --assembly-dz-border: var(--border-default);
+    --assembly-dz-bg: var(--bg-input);
+    --assembly-dz-eligible-border: rgba(59, 130, 246, 0.55);
+    --assembly-dz-eligible-bg: rgba(59, 130, 246, 0.1);
+    --assembly-dz-eligible-inset: rgba(59, 130, 246, 0.22);
+    --assembly-dz-chat-eligible-border: #3b82f6;
+    --assembly-dz-chat-eligible-bg: rgba(59, 130, 246, 0.14);
+    --assembly-dz-chat-eligible-inset: rgba(59, 130, 246, 0.28);
+    --assembly-dz-emb-eligible-border: #a78bfa;
+    --assembly-dz-emb-eligible-bg: rgba(139, 92, 246, 0.14);
+    --assembly-dz-emb-eligible-inset: rgba(139, 92, 246, 0.28);
+    --assembly-dz-img-eligible-border: #fb923c;
+    --assembly-dz-img-eligible-bg: rgba(251, 146, 60, 0.12);
+    --assembly-dz-img-eligible-inset: rgba(251, 146, 60, 0.28);
+    --assembly-dz-tool-eligible-border: #4ade80;
+    --assembly-dz-tool-eligible-bg: rgba(74, 222, 128, 0.1);
+    --assembly-dz-tool-eligible-inset: rgba(74, 222, 128, 0.25);
+    --assembly-dz-kb-eligible-border: #2dd4bf;
+    --assembly-dz-kb-eligible-bg: rgba(45, 212, 191, 0.12);
+    --assembly-dz-kb-eligible-inset: rgba(45, 212, 191, 0.28);
+    --assembly-dz-chat-over-border: var(--accent-blue);
+    --assembly-dz-chat-over-bg: rgba(59, 130, 246, 0.2);
+    --assembly-dz-chat-over-inset: rgba(59, 130, 246, 0.42);
+    --assembly-dz-emb-over-border: #8b5cf6;
+    --assembly-dz-emb-over-bg: rgba(139, 92, 246, 0.2);
+    --assembly-dz-emb-over-inset: rgba(139, 92, 246, 0.42);
+    --assembly-dz-img-over-border: #f97316;
+    --assembly-dz-img-over-bg: rgba(251, 146, 60, 0.18);
+    --assembly-dz-img-over-inset: rgba(251, 146, 60, 0.42);
+    --assembly-dz-tool-over-border: #22c55e;
+    --assembly-dz-tool-over-bg: rgba(74, 222, 128, 0.16);
+    --assembly-dz-tool-over-inset: rgba(74, 222, 128, 0.42);
+    --assembly-dz-kb-over-border: #14b8a6;
+    --assembly-dz-kb-over-bg: rgba(45, 212, 191, 0.18);
+    --assembly-dz-kb-over-inset: rgba(45, 212, 191, 0.45);
+    --assembly-dz-hint-text: var(--accent-blue);
+    --assembly-dz-hint-bg: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.14), transparent);
+    --assembly-dz-hint-dot: var(--accent-blue);
 }
 
 :root.light {
@@ -134,6 +219,91 @@
     --chat-user-avatar-bg: linear-gradient(145deg, #eff6ff, #ffffff);
     --chat-user-avatar-border: #bfdbfe;
     --chat-user-avatar-text: #2563eb;
+
+    /* ── Model assembly (light) ── */
+    --assembly-palette-bg: #ffffff;
+    --assembly-palette-border: #f0f0f0;
+    --assembly-pane-divider: #f0f0f0;
+    --assembly-label-chat: #1890ff;
+    --assembly-label-emb: #722ed1;
+    --assembly-label-img: #fa8c16;
+    --assembly-label-tool: #52c41a;
+    --assembly-label-mcp: #9254de;
+    --assembly-search-icon: #bfbfbf;
+    --assembly-empty-text: #bfbfbf;
+    --assembly-btn-emb-bg: #722ed1;
+    --assembly-btn-emb-border: #722ed1;
+    --assembly-btn-img-bg: #fa8c16;
+    --assembly-btn-img-border: #fa8c16;
+    --assembly-btn-tool-bg: #52c41a;
+    --assembly-btn-tool-border: #52c41a;
+    --assembly-btn-mcp-bg: #9254de;
+    --assembly-btn-mcp-border: #9254de;
+
+    --assembly-chip-bg: #ffffff;
+    --assembly-chip-border: #eef0f4;
+    --assembly-chip-hover-border: #0061ff;
+    --assembly-chip-hover-shadow: 0 2px 8px rgba(0, 97, 255, 0.08);
+    --assembly-chip-badge-bg: #f0f5ff;
+    --assembly-chip-badge-text: #0061ff;
+    --assembly-chip-title: #262626;
+    --assembly-chip-sub: #8c8c8c;
+
+    --assembly-canvas-bg: #f5f7fa;
+    --assembly-canvas-border: #e1e6eb;
+    --assembly-canvas-header-bg: #ffffff;
+    --assembly-canvas-header-border: #e1e6eb;
+    --assembly-canvas-header-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    --assembly-form-label: #8c8c8c;
+    --assembly-btn-ghost-border: #dcdfe6;
+    --assembly-btn-ghost-text: #606266;
+    --assembly-btn-primary-shadow: 0 4px 10px rgba(22, 119, 255, 0.25);
+    --assembly-drop-zone-inner-bg: rgba(255, 255, 255, 0.4);
+    --assembly-placed-card-bg: #ffffff;
+    --assembly-placed-title: #1a1a1a;
+    --assembly-placed-sub: #909399;
+    --assembly-placeholder: #abb2bb;
+    --assembly-knowledge-section-bg: #ffffff;
+    --assembly-canvas-accent: #1677ff;
+
+    --assembly-dz-border: #d9d9d9;
+    --assembly-dz-bg: rgba(255, 255, 255, 0.92);
+    --assembly-dz-eligible-border: #91caff;
+    --assembly-dz-eligible-bg: #fafafa;
+    --assembly-dz-eligible-inset: rgba(24, 144, 255, 0.12);
+    --assembly-dz-chat-eligible-border: #69b1ff;
+    --assembly-dz-chat-eligible-bg: #f0f9ff;
+    --assembly-dz-chat-eligible-inset: rgba(24, 144, 255, 0.2);
+    --assembly-dz-emb-eligible-border: #b37feb;
+    --assembly-dz-emb-eligible-bg: #faf5ff;
+    --assembly-dz-emb-eligible-inset: rgba(114, 46, 209, 0.18);
+    --assembly-dz-img-eligible-border: #ffc069;
+    --assembly-dz-img-eligible-bg: #fffbf0;
+    --assembly-dz-img-eligible-inset: rgba(250, 140, 22, 0.2);
+    --assembly-dz-tool-eligible-border: #95de64;
+    --assembly-dz-tool-eligible-bg: #f6ffed;
+    --assembly-dz-tool-eligible-inset: rgba(82, 196, 26, 0.18);
+    --assembly-dz-kb-eligible-border: #87e8de;
+    --assembly-dz-kb-eligible-bg: #e6fffb;
+    --assembly-dz-kb-eligible-inset: rgba(19, 194, 194, 0.22);
+    --assembly-dz-chat-over-border: #1890ff;
+    --assembly-dz-chat-over-bg: #e6f7ff;
+    --assembly-dz-chat-over-inset: rgba(24, 144, 255, 0.35);
+    --assembly-dz-emb-over-border: #722ed1;
+    --assembly-dz-emb-over-bg: #f9f0ff;
+    --assembly-dz-emb-over-inset: rgba(114, 46, 209, 0.35);
+    --assembly-dz-img-over-border: #fa8c16;
+    --assembly-dz-img-over-bg: #fff7e6;
+    --assembly-dz-img-over-inset: rgba(250, 140, 22, 0.35);
+    --assembly-dz-tool-over-border: #52c41a;
+    --assembly-dz-tool-over-bg: #f6ffed;
+    --assembly-dz-tool-over-inset: rgba(82, 196, 26, 0.35);
+    --assembly-dz-kb-over-border: #13c2c2;
+    --assembly-dz-kb-over-bg: #e6fffb;
+    --assembly-dz-kb-over-inset: rgba(19, 194, 194, 0.4);
+    --assembly-dz-hint-text: #0061ff;
+    --assembly-dz-hint-bg: linear-gradient(90deg, transparent, rgba(0, 97, 255, 0.08), transparent);
+    --assembly-dz-hint-dot: #0061ff;
 }
 
 /* --- 全局动效定义 --- */
