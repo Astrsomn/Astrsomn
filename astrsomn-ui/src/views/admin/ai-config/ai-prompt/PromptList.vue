@@ -31,7 +31,7 @@
           <div class="status-switch" role="group" aria-label="状态筛选">
             <a-button
               class="status-btn"
-              :class="{ active: query.enabledFlag === 'enabled' }"
+              :class="{ active: query.status === 'enabled' }"
               @click="toggleEnabledFilter('enabled')"
             >
               <template #icon><check-circle-outlined /></template>
@@ -39,7 +39,7 @@
             </a-button>
             <a-button
               class="status-btn"
-              :class="{ active: query.enabledFlag === 'disabled' }"
+              :class="{ active: query.status === 'disabled' }"
               @click="toggleEnabledFilter('disabled')"
             >
               <template #icon><stop-outlined /></template>
@@ -197,7 +197,7 @@ type QueryState = {
   scene?: string
   envCode?: string
   createUser?: string
-  enabledFlag?: string
+  status?: string
 }
 
 const PROMPT_CARD_MIN_WIDTH_PX = 280
@@ -276,7 +276,7 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
 }
 
 const toggleEnabledFilter = (value: 'enabled' | 'disabled') => {
-  query.enabledFlag = query.enabledFlag === value ? undefined : value
+  query.status = query.status === value ? undefined : value
 }
 
 const syncPageSizeWithGrid = async () => {
@@ -295,7 +295,7 @@ const resetFilters = () => {
   query.scene = undefined
   query.envCode = undefined
   query.createUser = undefined
-  query.enabledFlag = undefined
+  query.status = undefined
   showAdvanced.value = false
   page.pageNum = 1
   void fetchList()
@@ -333,7 +333,7 @@ const fetchList = async () => {
         scene: query.scene || undefined,
         envCode: query.envCode || undefined,
         createUser: query.createUser || undefined,
-        enabledFlag: query.enabledFlag || undefined
+        status: query.status || undefined
       }
     }
 

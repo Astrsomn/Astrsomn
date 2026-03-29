@@ -6,14 +6,29 @@
     <select id="queryPage" resultType="org.astrsomn.core.common.dto.agent.AiAgentResponseDTO">
         SELECT
         aa.*,
-        am.model_name AS modelName,
+        am_chat.model_name AS modelName,
+        ci_chat.instance_name AS chatInstanceName,
+        ci_embed.instance_name AS embeddingInstanceName,
+        ci_image.instance_name AS imageInstanceName,
         ap.prompt_title AS promptTitle
         FROM
         AI_AGENT aa
-        LEFT JOIN AI_MODEL am
-            ON am.model_key = aa.model_key
-            AND am.env_code = aa.env_code
-            AND (am.deleted = 0 OR am.deleted IS NULL)
+        LEFT JOIN AI_INSTANCE ci_chat
+            ON ci_chat.instance_key = aa.chat_instance_key
+            AND ci_chat.env_code = aa.env_code
+            AND (ci_chat.deleted = 0 OR ci_chat.deleted IS NULL)
+        LEFT JOIN AI_MODEL am_chat
+            ON am_chat.model_key = ci_chat.model_key
+            AND am_chat.env_code = aa.env_code
+            AND (am_chat.deleted = 0 OR am_chat.deleted IS NULL)
+        LEFT JOIN AI_INSTANCE ci_embed
+            ON ci_embed.instance_key = aa.embedding_instance_key
+            AND ci_embed.env_code = aa.env_code
+            AND (ci_embed.deleted = 0 OR ci_embed.deleted IS NULL)
+        LEFT JOIN AI_INSTANCE ci_image
+            ON ci_image.instance_key = aa.image_instance_key
+            AND ci_image.env_code = aa.env_code
+            AND (ci_image.deleted = 0 OR ci_image.deleted IS NULL)
         LEFT JOIN (
             SELECT env_code, prompt_key, MAX(version) AS max_version
             FROM AI_PROMPT

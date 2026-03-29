@@ -29,7 +29,7 @@
 
       <ChatInputPanel
         v-model:selected-agent="selectedAgent"
-        v-model:selected-model="selectedModel"
+        v-model:selected-chat-instance-key="selectedChatInstanceKey"
         v-model:user-input="userInput"
         v-model:is-deep-thinking="isDeepThinking"
         v-model:is-web-search="isWebSearch"
@@ -37,7 +37,7 @@
         :options-loading="optionsLoading"
         :send-disabled="sendDisabled"
         :agent-options="agentOptions"
-        :model-options="modelOptions"
+        :chat-instance-options="chatInstanceOptions"
         @submit="submitQuestion"
         @stop="stopStreaming"
       />
@@ -51,7 +51,7 @@ import { message } from 'ant-design-vue'
 import AppHeader from '@/components/top/AppHeader.vue'
 import ChatInputPanel from '@/views/admin/chat-index/ChatInputPanel.vue'
 import ChatMessageItem from '@/views/admin/chat-index/ChatMessageItem.vue'
-import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
+import { aiInstanceApi, type AiInstance } from '@/api/aiInstance.ts'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
 import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
 
@@ -81,13 +81,13 @@ type StreamEvent = {
 const CHAT_MEMORY_KEY = 'astrsomn-chat-memory-key'
 
 const userInput = ref('')
-const selectedModel = ref<string>()
+const selectedChatInstanceKey = ref<string>()
 const selectedAgent = ref<string>()
 const isDeepThinking = ref(false)
 const isWebSearch = ref(false)
 const isStreaming = ref(false)
 const optionsLoading = ref(false)
-const modelOptions = ref<AiModel[]>([])
+const chatInstanceOptions = ref<AiInstance[]>([])
 const agentOptions = ref<AiAgent[]>([])
 const messagesContainerRef = ref<HTMLElement | null>(null)
 const messagesBottomRef = ref<HTMLElement | null>(null)
@@ -105,25 +105,25 @@ const sendDisabled = computed(() => {
   if (isStreaming.value) {
     return false
   }
-  return !userInput.value.trim() || !selectedModel.value || !selectedAgent.value
+  return !userInput.value.trim() || !selectedChatInstanceKey.value || !selectedAgent.value
 })
 
-const getAgentPreferredModelKey = (agentKey?: string) => {
+const getAgentPreferredChatInstanceKey = (agentKey?: string) => {
   if (!agentKey) {
     return undefined
   }
   const agent = agentOptions.value.find((item) => item.agentKey === agentKey)
-  const modelKey = agent?.modelKey == null ? undefined : String(agent.modelKey)
-  if (!modelKey) {
+  const ik = agent?.chatInstanceKey == null ? undefined : String(agent.chatInstanceKey)
+  if (!ik) {
     return undefined
   }
-  return modelOptions.value.some((item) => item.modelKey === modelKey) ? modelKey : undefined
+  return chatInstanceOptions.value.some((item) => item.instanceKey === ik) ? ik : undefined
 }
 
-const syncModelWithAgent = (agentKey?: string) => {
-  const preferredModelKey = getAgentPreferredModelKey(agentKey)
-  if (preferredModelKey) {
-    selectedModel.value = preferredModelKey
+const syncChatInstanceWithAgent = (agentKey?: string) => {
+  const preferred = getAgentPreferredChatInstanceKey(agentKey)
+  if (preferred) {
+    selectedChatInstanceKey.value = preferred
   }
 }
 
@@ -478,11 +478,11 @@ const buildStreamError = async (response: Response) => {
 const loadOptions = async () => {
   optionsLoading.value = true
   try {
-    const [modelResp, agentResp] = await Promise.all([
-      aiModelApi.queryPage({
+    const [instanceResp, agentResp] = await Promise.all([
+      aiInstanceApi.queryPage({
         pageNo: 1,
-        pageSize: 100,
-        param: { status: 'enabled' }
+        pageSize: 200,
+        param: { status: 'enabled', modelType: 'chat' }
       }),
       aiAgentApi.queryPage({
         pageNo: 1,
@@ -491,17 +491,17 @@ const loadOptions = async () => {
       })
     ])
 
-    modelOptions.value = modelResp.list || []
+    chatInstanceOptions.value = instanceResp.list || []
     agentOptions.value = agentResp.list || []
 
     if (!selectedAgent.value) {
       selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
     }
-    syncModelWithAgent(selectedAgent.value)
-    if (!selectedModel.value) {
-      selectedModel.value =
-        modelOptions.value.find((item) => item.isDefault === 1)?.modelKey ||
-        modelOptions.value[0]?.modelKey ||
+    syncChatInstanceWithAgent(selectedAgent.value)
+    if (!selectedChatInstanceKey.value) {
+      selectedChatInstanceKey.value =
+        chatInstanceOptions.value.find((item) => item.isDefault === 1)?.instanceKey ||
+        chatInstanceOptions.value[0]?.instanceKey ||
         undefined
     }
   } catch (error: any) {
@@ -513,13 +513,13 @@ const loadOptions = async () => {
 
 watch(selectedAgent, (agentKey, previousAgentKey) => {
   if (agentKey && agentKey !== previousAgentKey) {
-    syncModelWithAgent(agentKey)
+    syncChatInstanceWithAgent(agentKey)
   }
 })
 
 const submitQuestion = async (promptArg?: string) => {
   const prompt = (typeof promptArg === 'string' ? promptArg : userInput.value).trim()
-  if (!prompt || !selectedModel.value || !selectedAgent.value || isStreaming.value) {
+  if (!prompt || !selectedChatInstanceKey.value || !selectedAgent.value || isStreaming.value) {
     return
   }
   userInput.value = ''
@@ -552,7 +552,7 @@ const submitQuestion = async (promptArg?: string) => {
       },
       body: JSON.stringify({
         agentKey: selectedAgent.value,
-        modelKey: selectedModel.value,
+        instanceKey: selectedChatInstanceKey.value,
         memoryKey: getMemoryKey(),
         userMessage: prompt,
         enableDeepThinking: isDeepThinking.value,

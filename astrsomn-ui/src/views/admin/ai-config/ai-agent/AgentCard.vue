@@ -13,7 +13,7 @@
       <div class="header-main">
         <div class="title-row">
           <h3 class="agent-name">{{ record.agentName }}</h3>
-          <span class="model-tag">{{ record.modelName || '未关联模型' }}</span>
+          <span class="model-tag">{{ record.chatInstanceName || record.modelName || '未配置对话实例' }}</span>
         </div>
         <div class="key-row" @click="copyAgentKey">
           <key-outlined class="icon-small" />

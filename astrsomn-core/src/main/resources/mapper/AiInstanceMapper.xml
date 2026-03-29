@@ -24,6 +24,15 @@
         <if test="req != null and req.envCode != null and req.envCode != ''">
             AND ai.env_code = #{req.envCode}
         </if>
+        <if test="req != null and req.modelType != null and req.modelType != ''">
+            AND EXISTS (
+                SELECT 1 FROM AI_MODEL m
+                WHERE m.model_key = ai.model_key
+                  AND m.env_code = ai.env_code
+                  AND m.model_type = #{req.modelType}
+                  AND (m.deleted = 0 OR m.deleted IS NULL)
+            )
+        </if>
         ORDER BY
         ai.create_time DESC
     </select>

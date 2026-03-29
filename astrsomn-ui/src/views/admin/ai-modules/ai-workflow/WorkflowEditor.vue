@@ -68,7 +68,9 @@
                 <div class="res-card__row">
                   <code class="mono">{{ a.agentKey }}</code>
                 </div>
-                <div v-if="a.modelName" class="res-card__sub">模型：{{ a.modelName }}</div>
+                <div v-if="a.chatInstanceName || a.modelName" class="res-card__sub">
+                  对话实例：{{ a.chatInstanceName || a.modelName }}
+                </div>
                 <a-button type="primary" size="small" ghost block class="bind-btn" @click="applyAgentFromLibrary(a)">
                   绑定到当前任务节点
                 </a-button>
@@ -336,7 +338,9 @@ const agentSelectOptions = computed(() =>
     .filter((a) => a.agentKey)
     .map((a) => ({
       value: String(a.agentKey),
-      label: `${a.agentName || a.agentKey} (${a.agentKey})${a.modelName ? ` · ${a.modelName}` : ''}`
+      label: `${a.agentName || a.agentKey} (${a.agentKey})${
+        a.chatInstanceName || a.modelName ? ` · ${a.chatInstanceName || a.modelName}` : ''
+      }`
     }))
 )
 
@@ -404,7 +408,8 @@ const applyAgentFromLibrary = (a: AiAgent) => {
   const d = ensureData(n)
   d.agentKey = String(a.agentKey)
   if (a.agentName) d.agentName = String(a.agentName)
-  if (a.modelName) d.modelName = String(a.modelName)
+  const sub = a.chatInstanceName || a.modelName
+  if (sub) d.modelName = String(sub)
   message.success('已绑定智能体')
 }
 
@@ -419,7 +424,8 @@ const onAgentSelectChange = (val: string | undefined) => {
   const found = agents.value.find((x) => String(x.agentKey) === val)
   if (found) {
     if (found.agentName) d.agentName = String(found.agentName)
-    if (found.modelName) d.modelName = String(found.modelName)
+    const sub = found.chatInstanceName || found.modelName
+    if (sub) d.modelName = String(sub)
   }
 }
 

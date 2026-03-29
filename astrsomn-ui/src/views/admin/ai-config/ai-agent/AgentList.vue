@@ -270,7 +270,8 @@ const openEdit = async (record: AiAgent) => {
   const id = record.id
   if (id == null) return
   const detail = await aiAgentApi.detail(id)
-  modalInitial.value = detail
+  // 详情接口不含联表展示字段，保留列表行上的实例名 / 提示词标题等便于弹窗展示
+  modalInitial.value = { ...record, ...detail }
   modal.open = true
 }
 

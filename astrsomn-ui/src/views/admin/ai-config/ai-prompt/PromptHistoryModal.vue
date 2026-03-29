@@ -18,8 +18,8 @@
       :scroll="{ x: 820 }"
     >
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'enabledFlag'">
-          <span>{{ renderEnabled(String(record.enabledFlag || '')) }}</span>
+        <template v-if="column.key === 'status'">
+          <span>{{ renderEnabled(String(record.status || '')) }}</span>
         </template>
         <template v-else-if="column.key === 'createTime'">
           <span>{{ formatTime(record.createTime) }}</span>
@@ -40,7 +40,7 @@
       <a-descriptions bordered size="small" :column="1" class="mb-3">
         <a-descriptions-item label="标题">{{ detailRow?.promptTitle || '—' }}</a-descriptions-item>
         <a-descriptions-item label="场景">{{ detailRow?.scene || '—' }}</a-descriptions-item>
-        <a-descriptions-item label="状态">{{ renderEnabled(String(detailRow?.enabledFlag || '')) }}</a-descriptions-item>
+        <a-descriptions-item label="状态">{{ renderEnabled(String(detailRow?.status || '')) }}</a-descriptions-item>
       </a-descriptions>
       <a-textarea
         :value="detailRow?.promptContent || ''"
@@ -88,7 +88,7 @@ const columns = [
   { title: '版本', dataIndex: 'version', key: 'version', width: 72 },
   { title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true },
   { title: '场景', dataIndex: 'scene', key: 'scene', width: 120, ellipsis: true },
-  { title: '状态', key: 'enabledFlag', width: 90 },
+  { title: '状态', key: 'status', width: 90 },
   { title: '创建时间', key: 'createTime', width: 180 },
   { title: '操作', key: 'actions', width: 100, fixed: 'right' as const }
 ]

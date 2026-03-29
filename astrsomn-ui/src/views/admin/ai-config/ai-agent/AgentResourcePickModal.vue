@@ -35,17 +35,22 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
+import { aiInstanceApi, type AiInstance } from '@/api/aiInstance.ts'
 import { aiPromptApi, type AiPrompt } from '@/api/aiPrompt.ts'
 import { aiToolApi } from '@/api/aiTool.ts'
 import { aiMcpApi } from '@/api/aiMcp.ts'
 
-export type PickKind = 'model' | 'prompt' | 'tool' | 'mcp'
+export type PickKind = 'model' | 'instance' | 'prompt' | 'tool' | 'mcp'
+
+export type InstanceModelType = 'chat' | 'embedding' | 'image'
 
 const visible = defineModel<boolean>('open', { required: true })
 
 const props = defineProps<{
   kind: PickKind
-  /** 单选：模型为 modelKey（业务键，与 AI_MODEL.MODEL_KEY 一致）；提示词为 promptKey */
+  /** kind=instance 时必填：chat / embedding / image，与后端 AI_MODEL.model_type 一致 */
+  instanceModelType?: InstanceModelType
+  /** 单选：模型为 id 或 modelKey；实例为 instanceKey；提示词为 promptKey */
   initialSingle?: number | string | null
   /** 多选：已选 toolKey / mcpKey */
   initialKeys?: string[]
@@ -55,6 +60,12 @@ const emit = defineEmits<{
   confirm: [
     payload:
       | { kind: 'model'; modelName?: string; modelKey?: string }
+      | {
+          kind: 'instance'
+          instanceModelType: InstanceModelType
+          instanceKey: string
+          instanceName?: string
+        }
       | { kind: 'prompt'; promptKey: string; promptTitle?: string }
       | { kind: 'tool'; keys: string[] }
       | { kind: 'mcp'; keys: string[] }
@@ -73,18 +84,27 @@ const page = reactive({
 })
 
 const title = computed(() => {
-  const m: Record<PickKind, string> = {
+  if (props.kind === 'instance') {
+    const sub: Record<InstanceModelType, string> = {
+      chat: '选择对话实例 (Chat)',
+      embedding: '选择向量实例 (Embedding)',
+      image: '选择图像实例 (Image)'
+    }
+    return sub[props.instanceModelType || 'chat'] || '选择实例'
+  }
+  const m: Record<Exclude<PickKind, 'instance'>, string> = {
     model: '选择模型',
     prompt: '选择提示词',
     tool: '选择工具',
     mcp: '选择 MCP'
   }
-  return m[props.kind]
+  return m[props.kind as Exclude<PickKind, 'instance'>]
 })
 
 const keywordPlaceholder = computed(() => {
   const m: Record<PickKind, string> = {
     model: '模型名称',
+    instance: '实例名称 / Key',
     prompt: '标题 / Key',
     tool: '工具名称 / Key',
     mcp: '服务名 / Key'
@@ -94,6 +114,7 @@ const keywordPlaceholder = computed(() => {
 
 const rowKeyField = computed(() => {
   if (props.kind === 'model') return 'id'
+  if (props.kind === 'instance') return 'instanceKey'
   if (props.kind === 'prompt') return 'promptKey'
   if (props.kind === 'tool') return 'toolKey'
   return 'mcpKey'
@@ -105,6 +126,14 @@ const columns = computed(() => {
       { title: '模型名称', dataIndex: 'modelName', key: 'modelName', ellipsis: true },
       { title: 'Model Key', dataIndex: 'modelKey', key: 'modelKey', width: 140, ellipsis: true },
       { title: '供应商', dataIndex: 'provider', key: 'provider', width: 100 },
+      { title: '状态', dataIndex: 'status', key: 'status', width: 90 }
+    ]
+  }
+  if (props.kind === 'instance') {
+    return [
+      { title: '实例名称', dataIndex: 'instanceName', key: 'instanceName', ellipsis: true },
+      { title: 'Instance Key', dataIndex: 'instanceKey', key: 'instanceKey', width: 160, ellipsis: true },
+      { title: 'Model Key', dataIndex: 'modelKey', key: 'modelKey', width: 140, ellipsis: true },
       { title: '状态', dataIndex: 'status', key: 'status', width: 90 }
     ]
   }
@@ -172,6 +201,22 @@ async function fetchList() {
       list.value = resp.list || []
       page.total = resp.total || 0
       syncModelSelectionFromInitial()
+    } else if (props.kind === 'instance') {
+      if (!props.instanceModelType) {
+        message.error('实例选择器缺少 modelType')
+        list.value = []
+        page.total = 0
+        return
+      }
+      base.param = {
+        instanceName: kw || undefined,
+        modelType: props.instanceModelType,
+        status: 'enabled'
+      }
+      const resp = await aiInstanceApi.queryPage(base)
+      list.value = resp.list || []
+      page.total = resp.total || 0
+      syncInstanceSelectionFromInitial()
     } else if (props.kind === 'prompt') {
       base.param = { promptTitle: kw || undefined }
       const resp = await aiPromptApi.queryPage(base)
@@ -218,9 +263,24 @@ function syncModelSelectionFromInitial() {
   selectedRowKeys.value = row?.id != null ? [row.id] : []
 }
 
+/** 实例表格 row-key 为 instanceKey */
+function syncInstanceSelectionFromInitial() {
+  if (props.kind !== 'instance') return
+  const init = props.initialSingle
+  if (init == null || init === '') {
+    selectedRowKeys.value = []
+    return
+  }
+  const s = String(init)
+  const row = list.value.find((r) => r.instanceKey != null && String(r.instanceKey) === s)
+  selectedRowKeys.value = row?.instanceKey != null ? [String(row.instanceKey)] : []
+}
+
 function syncSelectionFromInitial() {
   if (props.kind === 'model') {
     syncModelSelectionFromInitial()
+  } else if (props.kind === 'instance') {
+    syncInstanceSelectionFromInitial()
   } else if (props.kind === 'prompt') {
     const pk = props.initialSingle
     selectedRowKeys.value = pk != null && pk !== '' ? [String(pk)] : []
@@ -256,6 +316,31 @@ function handleConfirm() {
       kind: 'model',
       modelName: row.modelName,
       modelKey: String(row.modelKey).trim()
+    })
+    visible.value = false
+    return
+  }
+  if (props.kind === 'instance') {
+    const mt = props.instanceModelType
+    if (!mt) {
+      message.error('实例类型未配置')
+      return
+    }
+    const ik = selectedRowKeys.value[0]
+    if (ik == null || ik === '') {
+      message.warning('请选择一个实例')
+      return
+    }
+    const row = list.value.find((r) => String(r.instanceKey) === String(ik)) as AiInstance | undefined
+    if (!row?.instanceKey || String(row.instanceKey).trim() === '') {
+      message.warning('所选实例缺少 Instance Key')
+      return
+    }
+    emit('confirm', {
+      kind: 'instance',
+      instanceModelType: mt,
+      instanceKey: String(row.instanceKey).trim(),
+      instanceName: row.instanceName
     })
     visible.value = false
     return

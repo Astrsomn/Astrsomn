@@ -41,14 +41,27 @@ public class AgentRuntimeConfigLoader {
         AiAgentEntity agent = aiAgentMapper.selectOne(new LambdaQueryWrapper<AiAgentEntity>()
                 .eq(AiAgentEntity::getAgentKey, param.getAgentKey())
                 .eq(AiAgentEntity::getEnvCode, astrsomnProperties.getEnvCode()));
-        AiInstanceEntity aiInstance = aiInstanceMapper.selectOne(new LambdaQueryWrapper<AiInstanceEntity>()
-                .eq(AiInstanceEntity::getInstanceKey, param.getInstanceKey()));
         if (agent == null) {
             throw new RuntimeException("未找到智能体: agentKey=" + param.getAgentKey()
                     + ", envCode=" + astrsomnProperties.getEnvCode());
         }
 
-        mergeModelFromAgent(ensureModelSetting(param), aiInstance);
+        String instanceKey = StringUtils.firstNonBlank(param.getInstanceKey(), agent.getChatInstanceKey());
+        param.setInstanceKey(instanceKey);
+        AiInstanceEntity aiInstance = null;
+        if (StringUtils.isNotBlank(instanceKey)) {
+            aiInstance = aiInstanceMapper.selectOne(new LambdaQueryWrapper<AiInstanceEntity>()
+                    .eq(AiInstanceEntity::getInstanceKey, instanceKey)
+                    .eq(AiInstanceEntity::getEnvCode, agent.getEnvCode()));
+        }
+        if (aiInstance != null && StringUtils.isNotBlank(aiInstance.getModelKey())) {
+            param.setModelKey(aiInstance.getModelKey());
+        }
+        if (StringUtils.isBlank(param.getModelKey())) {
+            throw new RuntimeException("智能体未配置对话实例 (chatInstanceKey) 或实例未关联模型");
+        }
+
+        mergeModelFromInstance(ensureModelSetting(param), aiInstance);
         mergeToolSettingsFromAgent(ensureToolSetting(param), agent);
     }
 
@@ -67,29 +80,32 @@ public class AgentRuntimeConfigLoader {
     }
 
     /**
-     * 仅填充用户未在 {@link ModelSetting} 中赋值的字段（null 视为未指定，由库表补齐）。
+     * 仅填充用户未在 {@link ModelSetting} 中赋值的字段（null 视为未指定，由实例表补齐）。
      */
-    private void mergeModelFromAgent(ModelSetting target, AiInstanceEntity agent) {
+    private void mergeModelFromInstance(ModelSetting target, AiInstanceEntity instance) {
+        if (instance == null) {
+            return;
+        }
         if (target.getTemperature() == null) {
-            target.setTemperature(agent.getTemperature());
+            target.setTemperature(instance.getTemperature());
         }
         if (target.getTopP() == null) {
-            target.setTopP(agent.getTopP());
+            target.setTopP(instance.getTopP());
         }
         if (target.getTopK() == null) {
-            target.setTopK(agent.getTopK());
+            target.setTopK(instance.getTopK());
         }
         if (target.getMaxTokens() == null) {
-            target.setMaxTokens(agent.getMaxTokens());
+            target.setMaxTokens(instance.getMaxTokens());
         }
         if (target.getSeed() == null) {
-            target.setSeed(agent.getSeed());
+            target.setSeed(instance.getSeed());
         }
         if (target.getPresencePenalty() == null) {
-            target.setPresencePenalty(agent.getPresencePenalty());
+            target.setPresencePenalty(instance.getPresencePenalty());
         }
         if (target.getFrequencyPenalty() == null) {
-            target.setFrequencyPenalty(agent.getFrequencyPenalty());
+            target.setFrequencyPenalty(instance.getFrequencyPenalty());
         }
     }
 

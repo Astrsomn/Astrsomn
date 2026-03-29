@@ -3,7 +3,7 @@
     class="prompt-card"
     :class="{
       selected,
-      disabled: String(record.enabledFlag || '') !== 'enabled'
+      disabled: String(record.status || '') !== 'enabled'
     }"
   >
     <div class="card-checkbox-corner">
@@ -20,8 +20,8 @@
         </h3>
       </div>
       <div class="status-tag">
-        <a-tag :color="String(record.enabledFlag || '') === 'enabled' ? 'success' : 'error'" class="compact-tag">
-          {{ renderEnabled(String(record.enabledFlag || 'disabled')) }}
+        <a-tag :color="String(record.status || '') === 'enabled' ? 'success' : 'error'" class="compact-tag">
+          {{ renderEnabled(String(record.status || 'disabled')) }}
         </a-tag>
       </div>
     </div>
@@ -89,7 +89,7 @@ type PromptCardRecord = {
   promptTitle?: string
   promptContent?: string
   scene?: string
-  enabledFlag?: string
+  status?: string
   version?: number
   createTime?: string
 }
