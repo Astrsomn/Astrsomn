@@ -18,6 +18,9 @@
         AI_PROMPT ap ON ac.prompt_id = ap.id
         WHERE
         1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND ac.env_code = #{req.envCode}
+        </if>
         <if test="req != null and req.memoryId != null and req.memoryId != ''">
             AND ac.memory_id = #{req.memoryId}
         </if>

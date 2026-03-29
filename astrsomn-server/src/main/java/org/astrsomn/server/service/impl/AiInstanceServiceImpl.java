@@ -3,6 +3,7 @@ package org.astrsomn.server.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
@@ -14,6 +15,7 @@ import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.server.service.AiInstanceService;
 import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +26,13 @@ import java.util.Arrays;
 public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInstanceEntity> implements AiInstanceService {
 
     private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiInstanceCreateRequestDTO request) {
+        if (StringUtils.isBlank(request.getModelKey())) {
+            return BaseResponse.fail("请选择关联模型（modelKey）", null);
+        }
         AiInstanceEntity entity = new AiInstanceEntity();
         BeanUtils.copyProperties(request, entity);
         bizResourceKeyAssignHelper.assignInstanceKeyIfBlank(entity);
@@ -53,8 +59,16 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
 
     @Override
     public BaseResponse<String> update(AiInstanceUpdateRequestDTO request) {
+        if (request.getId() == null) {
+            return BaseResponse.fail("ID不能为空", null);
+        }
+        AiInstanceEntity existing = getById(request.getId());
+        if (existing == null) {
+            return BaseResponse.fail("记录不存在", null);
+        }
         AiInstanceEntity entity = new AiInstanceEntity();
         BeanUtils.copyProperties(request, entity);
+        entity.setModelKey(existing.getModelKey());
         boolean result = updateById(entity);
         return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
     }
@@ -62,7 +76,12 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
     @Override
     public PageResponse<AiInstanceResponseDTO> queryPage(BasePageRequest<AiInstanceQueryRequestDTO> request) {
         IPage<AiInstanceResponseDTO> page = request.buildPage();
-        IPage<AiInstanceResponseDTO> result = baseMapper.queryPage(page, request.getParam());
+        AiInstanceQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new AiInstanceQueryRequestDTO();
+        }
+        queryEnvParamHelper.stampEffectiveEnv(param);
+        IPage<AiInstanceResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
     }
 }

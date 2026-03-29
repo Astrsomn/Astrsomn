@@ -12,14 +12,20 @@ import org.astrsomn.core.common.dto.config.SystemConfigUpdateRequestDTO;
 import org.astrsomn.core.common.entity.SystemConfigEntity;
 import org.astrsomn.core.mapper.SystemConfigMapper;
 import org.astrsomn.server.service.SystemConfigService;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, SystemConfigEntity>
         implements SystemConfigService {
+
+    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(SystemConfigCreateRequestDTO request) {
@@ -57,7 +63,12 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     @Override
     public PageResponse<SystemConfigResponseDTO> queryPage(BasePageRequest<SystemConfigQueryRequestDTO> request) {
         IPage<SystemConfigResponseDTO> page = request.buildPage();
-        IPage<SystemConfigResponseDTO> result = baseMapper.queryPage(page, request.getParam());
+        SystemConfigQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new SystemConfigQueryRequestDTO();
+        }
+        queryEnvParamHelper.stampEffectiveEnv(param);
+        IPage<SystemConfigResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
     }
 }

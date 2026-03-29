@@ -64,6 +64,10 @@ async function loadWorkspaceContext() {
     const workspace = await getWorkspaceEnv()
     workspaceContext.value = workspace
 
+    if (!localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY)?.trim() && workspace.effectiveEnvCode) {
+      localStorage.setItem(WORKSPACE_ENV_STORAGE_KEY, String(workspace.effectiveEnvCode).trim())
+    }
+
     if (workspace.canSwitchWorkspace) {
       const response = await systemEnvApi.queryPage({ pageNo: 1, pageSize: 200, param: {} })
       envPickOptions.value = (response.list || []).map((row) => ({

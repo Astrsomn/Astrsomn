@@ -9,6 +9,9 @@
         AI_MCP amc
         WHERE
         1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND amc.env_code = #{req.envCode}
+        </if>
         <if test="req != null and req.mcpKey != null and req.mcpKey != ''">
             AND amc.mcp_key = #{req.mcpKey}
         </if>

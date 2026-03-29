@@ -10,8 +10,26 @@
           <div class="search-cluster">
             <a-input
               v-model:value="query.instanceKey"
-              placeholder="搜索 Instance Key"
+              placeholder="Instance Key"
               class="toolbar-input search-main-input"
+              allow-clear
+              @pressEnter="fetchList"
+            >
+              <template #prefix><search-outlined /></template>
+            </a-input>
+            <a-input
+              v-model:value="query.instanceName"
+              placeholder="实例名称"
+              class="toolbar-input search-sub-input"
+              allow-clear
+              @pressEnter="fetchList"
+            >
+              <template #prefix><search-outlined /></template>
+            </a-input>
+            <a-input
+              v-model:value="query.modelKey"
+              placeholder="Model Key"
+              class="toolbar-input search-sub-input"
               allow-clear
               @pressEnter="fetchList"
             >
@@ -78,11 +96,17 @@
         :pagination="false"
         row-key="id"
         :row-selection="rowSelection"
-        :scroll="{ x: 1280 }"
+        :scroll="{ x: 1560 }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'instanceKey'">
             <code class="code-text">{{ record.instanceKey || '—' }}</code>
+          </template>
+          <template v-else-if="column.key === 'instanceName'">
+            <span>{{ record.instanceName || '—' }}</span>
+          </template>
+          <template v-else-if="column.key === 'modelKey'">
+            <code class="code-text">{{ record.modelKey || '—' }}</code>
           </template>
           <template v-else-if="column.key === 'params'">
             <span class="param-summary">
@@ -147,12 +171,16 @@ const currentRecord = ref<AiInstance | undefined>(undefined)
 
 type QueryState = {
   instanceKey?: string
+  instanceName?: string
+  modelKey?: string
   status?: string
 }
 
 const columns = [
-  { title: 'Instance Key', key: 'instanceKey', width: 220, ellipsis: true },
-  { title: '核心参数', key: 'params', width: 280, ellipsis: true },
+  { title: 'Instance Key', key: 'instanceKey', width: 200, ellipsis: true },
+  { title: '实例名称', key: 'instanceName', width: 140, ellipsis: true },
+  { title: 'Model Key', key: 'modelKey', width: 200, ellipsis: true },
+  { title: '核心参数', key: 'params', width: 260, ellipsis: true },
   { title: '状态', key: 'status', width: 100 },
   { title: '环境', key: 'envCode', width: 100 },
   { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180, ellipsis: true },
@@ -208,6 +236,8 @@ const toggleStatusFilter = (value: string) => {
 
 const resetFilters = () => {
   query.instanceKey = undefined
+  query.instanceName = undefined
+  query.modelKey = undefined
   query.status = undefined
   page.pageNum = 1
   selectedRowKeys.value = []
@@ -220,6 +250,8 @@ const fetchList = async () => {
     pageSize: page.pageSize,
     param: {
       instanceKey: query.instanceKey || undefined,
+      instanceName: query.instanceName || undefined,
+      modelKey: query.modelKey || undefined,
       status: query.status || undefined
     }
   }
@@ -299,7 +331,11 @@ void fetchList()
 }
 
 .search-main-input {
-  width: 320px;
+  width: 200px;
+}
+
+.search-sub-input {
+  width: 160px;
 }
 
 .primary-btn,
@@ -366,7 +402,8 @@ void fetchList()
 
 @media (max-width: 720px) {
   .toolbar-input,
-  .search-main-input {
+  .search-main-input,
+  .search-sub-input {
     width: 100%;
   }
 

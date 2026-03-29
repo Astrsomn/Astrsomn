@@ -18,12 +18,12 @@
           </div>
           <div class="text-group">
             <h2>{{ mode === 'create' ? '注册新 AI 模型' : '编辑模型配置' }}</h2>
-            <p>配置模型供应源、API 端点及核心推理能力</p>
+            <p>配置供应源、端点及 LangChain4j 可用的推理超参</p>
           </div>
         </div>
         <div class="steps-nav">
           <div
-              v-for="(s, index) in ['基础', '能力']"
+              v-for="(s, index) in ['基础', '推理']"
               :key="index"
               :class="['step-item', { active: currentStep === index, done: currentStep > index }]"
           >
@@ -59,7 +59,18 @@
               </a-form-item>
 
               <a-form-item label="模型 Key (内部识别码)" name="modelKey" class="span-2">
-                <a-input v-model:value="form.modelKey" placeholder="建议留空，系统将根据名称自动生成" size="large">
+                <a-tooltip
+                  v-if="modelKeyImmutable"
+                  title="已有推理实例在同环境下引用该模型 Key，不可修改"
+                >
+                  <a-input v-model:value="form.modelKey" placeholder="建议留空，系统将根据名称自动生成" size="large" disabled />
+                </a-tooltip>
+                <a-input
+                  v-else
+                  v-model:value="form.modelKey"
+                  placeholder="建议留空，系统将根据名称自动生成"
+                  size="large"
+                >
                   <template #suffix>
                     <a-tooltip title="重置识别码">
                       <ReloadOutlined v-if="form.modelKey" @click="form.modelKey = ''" class="input-action-icon" />
@@ -108,28 +119,15 @@
 
         <div v-show="currentStep === 1" class="step-container animate-fade">
           <div class="form-section">
-            <h3 class="section-headline"><ThunderboltOutlined /> 2. 能力矩阵与推理预设</h3>
+            <h3 class="section-headline"><ThunderboltOutlined /> 2. 推理超参（写入 capabilities，供 LangChain4j 解析）</h3>
 
             <div v-if="form.modelType === 'chat'" class="capability-wrapper">
               <div class="cap-header">
-                <span>对话模型 · 与后端 AiModelEnum 对齐</span>
-                <span class="badge">{{ chatCapabilityTotal }}</span>
+                <span>对话模型 · InferenceParamEnum</span>
+                <span class="badge">{{ chatInferenceTotal }}</span>
               </div>
 
-              <div class="cap-subhead">能力标签（ChatCapabilitiesEnum）</div>
-              <div class="cap-tag-grid">
-                <div
-                    v-for="opt in chatFeatureOptions"
-                    :key="opt.value"
-                    :class="['custom-cap-tag', { active: chatFeatureCapabilities.includes(opt.value) }]"
-                    @click="toggleChatFeature(opt.value)"
-                >
-                  <CheckCircleFilled v-if="chatFeatureCapabilities.includes(opt.value)" />
-                  {{ opt.label }}
-                </div>
-              </div>
-
-              <div class="cap-subhead">推理超参（InferenceParamEnum，含旧版 *_setting 别名）</div>
+              <div class="cap-subhead">推理超参（含旧版 *_setting 别名）</div>
               <div class="cap-tag-grid">
                 <div
                     v-for="opt in chatInferenceOptions"
@@ -143,7 +141,7 @@
               </div>
 
               <div v-if="chatOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">未匹配的 code（将原样保存，可点击移除）</div>
+                <div class="cap-subhead muted">非推理枚举的 code（多为历史能力标签，可点击移除）</div>
                 <div class="cap-tag-grid">
                   <div
                       v-for="c in chatOrphanCapabilities"
@@ -159,24 +157,11 @@
 
             <div v-if="form.modelType === 'embedding'" class="capability-wrapper">
               <div class="cap-header">
-                <span>向量模型 · EmbeddingCapabilities + EmbeddingInferenceParam</span>
-                <span class="badge">{{ embeddingCapabilityTotal }}</span>
+                <span>向量模型 · EmbeddingInferenceParamEnum</span>
+                <span class="badge">{{ embeddingInferenceTotal }}</span>
               </div>
 
-              <div class="cap-subhead">能力（EmbeddingCapabilitiesEnum）</div>
-              <div class="cap-tag-grid">
-                <div
-                    v-for="opt in embeddingFeatureOptions"
-                    :key="opt.value"
-                    :class="['custom-cap-tag', { active: embeddingFeatureCapabilities.includes(opt.value) }]"
-                    @click="toggleEmbeddingFeature(opt.value)"
-                >
-                  <CheckCircleFilled v-if="embeddingFeatureCapabilities.includes(opt.value)" />
-                  {{ opt.label }}
-                </div>
-              </div>
-
-              <div class="cap-subhead">嵌入调用参数（EmbeddingInferenceParamEnum）</div>
+              <div class="cap-subhead">嵌入推理超参</div>
               <div class="cap-tag-grid">
                 <div
                     v-for="opt in embeddingInferenceOptions"
@@ -190,7 +175,7 @@
               </div>
 
               <div v-if="embeddingOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">未匹配的 code（将原样保存，可点击移除）</div>
+                <div class="cap-subhead muted">非推理枚举的 code（可点击移除）</div>
                 <div class="cap-tag-grid">
                   <div
                       v-for="c in embeddingOrphanCapabilities"
@@ -206,24 +191,11 @@
 
             <div v-if="form.modelType === 'image'" class="capability-wrapper">
               <div class="cap-header">
-                <span>图像模型 · ImageCapabilities + ImageGenParam</span>
-                <span class="badge">{{ imageCapabilityTotal }}</span>
+                <span>图像模型 · ImageGenParamEnum</span>
+                <span class="badge">{{ imageGenTotal }}</span>
               </div>
 
-              <div class="cap-subhead">能力（ImageCapabilitiesEnum）</div>
-              <div class="cap-tag-grid">
-                <div
-                    v-for="opt in imageFeatureOptions"
-                    :key="opt.value"
-                    :class="['custom-cap-tag', { active: imageFeatureCapabilities.includes(opt.value) }]"
-                    @click="toggleImageFeature(opt.value)"
-                >
-                  <CheckCircleFilled v-if="imageFeatureCapabilities.includes(opt.value)" />
-                  {{ opt.label }}
-                </div>
-              </div>
-
-              <div class="cap-subhead">文生图参数（ImageGenParamEnum，含 size_setting / style_setting 别名）</div>
+              <div class="cap-subhead">图像生成推理超参（含 size_setting / style_setting 别名）</div>
               <div class="cap-tag-grid">
                 <div
                     v-for="opt in imageGenOptions"
@@ -237,7 +209,7 @@
               </div>
 
               <div v-if="imageOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">未匹配的 code（将原样保存，可点击移除）</div>
+                <div class="cap-subhead muted">非推理枚举的 code（可点击移除）</div>
                 <div class="cap-tag-grid">
                   <div
                       v-for="c in imageOrphanCapabilities"
@@ -311,19 +283,10 @@ import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
 import { aiModelCapabilitiesDictionary } from '@/locales/zh-CN/dictionary/ai-model'
 import {
-  CHAT_ALL_KNOWN_SET,
-  CHAT_FEATURE_CODES,
-  CHAT_FEATURE_SET,
   CHAT_INFERENCE_CODES,
   CHAT_INFERENCE_SET,
-  EMBEDDING_ALL_KNOWN_SET,
-  EMBEDDING_FEATURE_CODES,
-  EMBEDDING_FEATURE_SET,
   EMBEDDING_INFERENCE_CODES,
   EMBEDDING_INFERENCE_SET,
-  IMAGE_ALL_KNOWN_SET,
-  IMAGE_FEATURE_CODES,
-  IMAGE_FEATURE_SET,
   IMAGE_GEN_CODES,
   IMAGE_GEN_SET
 } from '@/constants/aiModelCapabilityCodes'
@@ -348,6 +311,8 @@ const formRef = ref<FormInstance | null>(null)
 
 const accountList = ref<AiAccount[]>([])
 const accountOptionsLoading = ref(false)
+/** 编辑时由详情接口返回：被推理实例引用则不可改 modelKey */
+const modelKeyImmutable = ref(false)
 
 function resolveQueryCreateUser(): string | undefined {
   try {
@@ -423,42 +388,27 @@ function capOptions(codes: readonly string[]) {
   return codes.map((value) => ({ value, label: capLabel(value) }))
 }
 
-const chatFeatureOptions = computed(() => capOptions(CHAT_FEATURE_CODES))
 const chatInferenceOptions = computed(() => capOptions(CHAT_INFERENCE_CODES))
-const embeddingFeatureOptions = computed(() => capOptions(EMBEDDING_FEATURE_CODES))
 const embeddingInferenceOptions = computed(() => capOptions(EMBEDDING_INFERENCE_CODES))
-const imageFeatureOptions = computed(() => capOptions(IMAGE_FEATURE_CODES))
 const imageGenOptions = computed(() => capOptions(IMAGE_GEN_CODES))
 
-const chatFeatureCapabilities = ref<string[]>([])
 const chatInferenceCapabilities = ref<string[]>([])
 const chatOrphanCapabilities = ref<string[]>([])
 
-const embeddingFeatureCapabilities = ref<string[]>([])
 const embeddingInferenceCapabilities = ref<string[]>([])
 const embeddingOrphanCapabilities = ref<string[]>([])
 
-const imageFeatureCapabilities = ref<string[]>([])
 const imageGenCapabilities = ref<string[]>([])
 const imageOrphanCapabilities = ref<string[]>([])
 
-const chatCapabilityTotal = computed(
-    () =>
-        chatFeatureCapabilities.value.length +
-        chatInferenceCapabilities.value.length +
-        chatOrphanCapabilities.value.length
+const chatInferenceTotal = computed(
+    () => chatInferenceCapabilities.value.length + chatOrphanCapabilities.value.length
 )
-const embeddingCapabilityTotal = computed(
-    () =>
-        embeddingFeatureCapabilities.value.length +
-        embeddingInferenceCapabilities.value.length +
-        embeddingOrphanCapabilities.value.length
+const embeddingInferenceTotal = computed(
+    () => embeddingInferenceCapabilities.value.length + embeddingOrphanCapabilities.value.length
 )
-const imageCapabilityTotal = computed(
-    () =>
-        imageFeatureCapabilities.value.length +
-        imageGenCapabilities.value.length +
-        imageOrphanCapabilities.value.length
+const imageGenTotal = computed(
+    () => imageGenCapabilities.value.length + imageOrphanCapabilities.value.length
 )
 
 const form = reactive<AiModel>({
@@ -479,19 +429,16 @@ function toggleInList(list: string[], val: string) {
   else list.push(val)
 }
 
-const toggleChatFeature = (val: string) => toggleInList(chatFeatureCapabilities.value, val)
 const toggleChatInference = (val: string) => toggleInList(chatInferenceCapabilities.value, val)
 const removeChatOrphan = (val: string) => {
   chatOrphanCapabilities.value = chatOrphanCapabilities.value.filter((c) => c !== val)
 }
 
-const toggleEmbeddingFeature = (val: string) => toggleInList(embeddingFeatureCapabilities.value, val)
 const toggleEmbeddingInference = (val: string) => toggleInList(embeddingInferenceCapabilities.value, val)
 const removeEmbeddingOrphan = (val: string) => {
   embeddingOrphanCapabilities.value = embeddingOrphanCapabilities.value.filter((c) => c !== val)
 }
 
-const toggleImageFeature = (val: string) => toggleInList(imageFeatureCapabilities.value, val)
 const toggleImageGen = (val: string) => toggleInList(imageGenCapabilities.value, val)
 const removeImageOrphan = (val: string) => {
   imageOrphanCapabilities.value = imageOrphanCapabilities.value.filter((c) => c !== val)
@@ -509,34 +456,29 @@ const nextStep = async () => {
 }
 
 function partitionCapabilities(caps: string[], modelType: string) {
-  chatFeatureCapabilities.value = []
   chatInferenceCapabilities.value = []
   chatOrphanCapabilities.value = []
-  embeddingFeatureCapabilities.value = []
   embeddingInferenceCapabilities.value = []
   embeddingOrphanCapabilities.value = []
-  imageFeatureCapabilities.value = []
   imageGenCapabilities.value = []
   imageOrphanCapabilities.value = []
 
   if (modelType === 'chat') {
-    chatFeatureCapabilities.value = caps.filter((c) => CHAT_FEATURE_SET.has(c))
     chatInferenceCapabilities.value = caps.filter((c) => CHAT_INFERENCE_SET.has(c))
-    chatOrphanCapabilities.value = caps.filter((c) => !CHAT_ALL_KNOWN_SET.has(c))
+    chatOrphanCapabilities.value = caps.filter((c) => !CHAT_INFERENCE_SET.has(c))
   } else if (modelType === 'embedding') {
-    embeddingFeatureCapabilities.value = caps.filter((c) => EMBEDDING_FEATURE_SET.has(c))
     embeddingInferenceCapabilities.value = caps.filter((c) => EMBEDDING_INFERENCE_SET.has(c))
-    embeddingOrphanCapabilities.value = caps.filter((c) => !EMBEDDING_ALL_KNOWN_SET.has(c))
+    embeddingOrphanCapabilities.value = caps.filter((c) => !EMBEDDING_INFERENCE_SET.has(c))
   } else if (modelType === 'image') {
-    imageFeatureCapabilities.value = caps.filter((c) => IMAGE_FEATURE_SET.has(c))
     imageGenCapabilities.value = caps.filter((c) => IMAGE_GEN_SET.has(c))
-    imageOrphanCapabilities.value = caps.filter((c) => !IMAGE_ALL_KNOWN_SET.has(c))
+    imageOrphanCapabilities.value = caps.filter((c) => !IMAGE_GEN_SET.has(c))
   }
 }
 
 const syncForm = () => {
   currentStep.value = 0
   if (props.mode === 'create' || !props.initialData) {
+    modelKeyImmutable.value = false
     Object.assign(form, {
       modelName: '',
       modelKey: '',
@@ -554,6 +496,8 @@ const syncForm = () => {
     partitionCapabilities([], String(form.modelType ?? 'chat'))
   } else {
     Object.assign(form, props.initialData)
+    modelKeyImmutable.value = props.initialData.modelKeyImmutable === true
+    delete (form as Record<string, unknown>).modelKeyImmutable
     try {
       const parsed = JSON.parse(form.capabilities || '[]')
       const caps = Array.isArray(parsed) ? parsed.map(String) : []
@@ -583,26 +527,15 @@ const handleSubmit = async () => {
   
   let allCapabilities: string[] = []
   if (form.modelType === 'chat') {
-    allCapabilities = [
-      ...chatFeatureCapabilities.value,
-      ...chatInferenceCapabilities.value,
-      ...chatOrphanCapabilities.value
-    ]
+    allCapabilities = [...chatInferenceCapabilities.value, ...chatOrphanCapabilities.value]
   } else if (form.modelType === 'embedding') {
-    allCapabilities = [
-      ...embeddingFeatureCapabilities.value,
-      ...embeddingInferenceCapabilities.value,
-      ...embeddingOrphanCapabilities.value
-    ]
+    allCapabilities = [...embeddingInferenceCapabilities.value, ...embeddingOrphanCapabilities.value]
   } else if (form.modelType === 'image') {
-    allCapabilities = [
-      ...imageFeatureCapabilities.value,
-      ...imageGenCapabilities.value,
-      ...imageOrphanCapabilities.value
-    ]
+    allCapabilities = [...imageGenCapabilities.value, ...imageOrphanCapabilities.value]
   }
   
   payload.capabilities = allCapabilities.length > 0 ? JSON.stringify(allCapabilities) : ''
+  delete (payload as { modelKeyImmutable?: unknown }).modelKeyImmutable
   await props.submitHandler(payload)
 }
 

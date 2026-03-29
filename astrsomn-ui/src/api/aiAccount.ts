@@ -3,6 +3,8 @@ import request from '@/utils/request'
 export type AiAccount = {
   id?: number | string
   accountKey?: string
+  /** 详情接口返回：有模型引用该 Key 时为 true，前端应禁止改 accountKey */
+  accountKeyImmutable?: boolean
   accountName?: string
   apiKey?: string
   apiSecret?: string

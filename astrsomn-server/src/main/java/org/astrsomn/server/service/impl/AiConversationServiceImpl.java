@@ -12,13 +12,19 @@ import org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO;
 import org.astrsomn.core.common.entity.AiConversationEntity;
 import org.astrsomn.core.mapper.AiConversationMapper;
 import org.astrsomn.server.service.AiConversationService;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class AiConversationServiceImpl extends ServiceImpl<AiConversationMapper, AiConversationEntity> implements AiConversationService {
+
+    private final QueryEnvParamHelper queryEnvParamHelper;
     @Override
     public BaseResponse<String> create(AiConversationCreateRequestDTO request) {
         AiConversationEntity entity = new AiConversationEntity();
@@ -55,7 +61,12 @@ public class AiConversationServiceImpl extends ServiceImpl<AiConversationMapper,
     @Override
     public PageResponse<AiConversationResponseDTO> queryPage(BasePageRequest<AiConversationQueryRequestDTO> request) {
         IPage<AiConversationResponseDTO> page = request.buildPage();
-        IPage<AiConversationResponseDTO> result = baseMapper.queryPage(page, request.getParam());
+        AiConversationQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new AiConversationQueryRequestDTO();
+        }
+        queryEnvParamHelper.stampEffectiveEnv(param);
+        IPage<AiConversationResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
     }
 }

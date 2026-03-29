@@ -12,7 +12,18 @@
         <a-row :gutter="16">
           <a-col :xs="24" :md="12">
             <a-form-item label="Account Key" name="accountKey">
+              <a-tooltip
+                v-if="accountKeyImmutable"
+                title="已有 AI 模型在同环境下引用该 Key，不可修改"
+              >
+                <a-input
+                  v-model:value="form.accountKey"
+                  placeholder="可选，留空则自动生成"
+                  disabled
+                />
+              </a-tooltip>
               <a-input
+                v-else
                 v-model:value="form.accountKey"
                 placeholder="可选，留空则自动生成"
                 allow-clear
@@ -73,6 +84,8 @@ const emit = defineEmits<{
 
 const loading = ref(false)
 const submitting = ref(false)
+/** 来自详情接口：被模型引用后不可改 Key */
+const accountKeyImmutable = ref(false)
 
 const isEdit = computed(() => props.record?.id !== undefined && props.record?.id !== null)
 
@@ -88,6 +101,7 @@ const loadDetail = async (id: string | number) => {
     const detail = await aiAccountApi.detail(id)
     Object.keys(form).forEach((k) => delete (form as Record<string, unknown>)[k])
     Object.assign(form, detail)
+    accountKeyImmutable.value = detail.accountKeyImmutable === true
   } catch (e: unknown) {
     const err = e as { message?: string }
     message.error(err?.message || '加载失败')
@@ -131,6 +145,7 @@ watch(
         void loadDetail(props.record.id)
       } else {
         Object.keys(form).forEach((k) => delete (form as Record<string, unknown>)[k])
+        accountKeyImmutable.value = false
       }
     }
   }

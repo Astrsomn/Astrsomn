@@ -12,9 +12,11 @@ import org.astrsomn.core.common.dto.model.AiModelCreateRequestDTO;
 import org.astrsomn.core.common.dto.model.AiModelQueryRequestDTO;
 import org.astrsomn.core.common.dto.model.AiModelResponseDTO;
 import org.astrsomn.core.common.dto.model.AiModelUpdateRequestDTO;
+import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 
 import org.springframework.beans.BeanUtils;
+import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiModelService;
 import org.astrsomn.server.service.support.BizResourceKeyGenerator;
@@ -32,6 +34,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
 
     private final BizResourceKeyGenerator bizResourceKeyGenerator;
     private final AstrsomnProperties astrsomnProperties;
+    private final AiInstanceMapper aiInstanceMapper;
 
 
     @Override
@@ -45,6 +48,15 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         IPage<AiModelEntity> page = request.buildPage();
 
         LambdaQueryWrapper<AiModelEntity> wrapper = new LambdaQueryWrapper<>();
+        /*
+         * 当前请求生效环境（X-Astrsomn-Env-Code + 角色策略 → EnvScope，见 EnvCodeRequestInterceptor）。
+         * 与 {@link org.astrsomn.starter.config.EnvCodeTenantHandler} 对 AI_MODEL 的租户条件一致；
+         * 此处显式写出便于代码审查与排查，避免误以为未按环境过滤。
+         */
+        String effectiveEnv = StringUtils.trimToNull(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
+        if (effectiveEnv != null) {
+            wrapper.eq(AiModelEntity::getEnvCode, effectiveEnv);
+        }
         AiModelQueryRequestDTO param = request.getParam();
         if (param != null) {
             // AiModelQueryRequestDTO 里有 supplier 字段，但表字段在 AiModelEntity 里对应 provider
@@ -107,17 +119,29 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
 
         AiModelResponseDTO responseDTO = new AiModelResponseDTO();
         BeanUtils.copyProperties(entity, responseDTO);
+        responseDTO.setModelKeyImmutable(isModelKeyReferencedByInstance(entity.getModelKey(), entity.getEnvCode()));
         return BaseResponse.success(responseDTO);
     }
 
     @Override
     public BaseResponse<String> updateModel(AiModelUpdateRequestDTO request) {
+        if (request.getId() == null) {
+            return BaseResponse.fail("ID不能为空", null);
+        }
+        AiModelEntity existing = getById(request.getId());
+        if (existing == null) {
+            return BaseResponse.fail("记录不存在", null);
+        }
         AiModelEntity entity = new AiModelEntity();
         BeanUtils.copyProperties(request, entity);
         if (StringUtils.isBlank(entity.getEnvCode())) {
             entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
-        assignModelKeyIfBlank(entity);
+        if (isModelKeyReferencedByInstance(existing.getModelKey(), existing.getEnvCode())) {
+            entity.setModelKey(existing.getModelKey());
+        } else {
+            assignModelKeyIfBlank(entity);
+        }
         boolean result = updateById(entity);
         return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
     }
@@ -149,5 +173,16 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
                                         new LambdaQueryWrapper<AiModelEntity>()
                                                 .eq(AiModelEntity::getCreateUser, user)
                                                 .eq(AiModelEntity::getModelKey, candidate))));
+    }
+
+    private boolean isModelKeyReferencedByInstance(String modelKey, String envCode) {
+        if (StringUtils.isBlank(modelKey) || StringUtils.isBlank(envCode)) {
+            return false;
+        }
+        return aiInstanceMapper.selectCount(
+                        new LambdaQueryWrapper<AiInstanceEntity>()
+                                .eq(AiInstanceEntity::getModelKey, modelKey.trim())
+                                .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
+                > 0;
     }
 }

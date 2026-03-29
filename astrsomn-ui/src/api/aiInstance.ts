@@ -3,6 +3,8 @@ import request from '@/utils/request'
 export type AiInstance = {
   id?: number | string
   instanceKey?: string
+  instanceName?: string
+  modelKey?: string
   maxTokens?: number
   temperature?: number
   presencePenalty?: number
@@ -15,6 +17,10 @@ export type AiInstance = {
   size?: string
   dimensions?: number
   status?: string
+  accountKey?: string
+  apiUrl?: string
+  isDefault?: number
+  maxQuotaTokens?: number
   envCode?: string
   createUser?: string
   createTime?: string

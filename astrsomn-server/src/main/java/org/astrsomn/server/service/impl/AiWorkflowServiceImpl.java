@@ -14,7 +14,7 @@ import org.astrsomn.core.common.dto.workflow.*;
 import org.astrsomn.core.common.entity.AiWorkflowEntity;
 import org.astrsomn.core.mapper.AiWorkflowMapper;
 import org.astrsomn.server.service.AiWorkflowService;
-import org.astrsomn.starter.config.AstrsomnProperties;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.workflow.core.context.WorkflowContext;
 import org.astrsomn.workflow.core.context.WorkflowExecutionResult;
 import org.astrsomn.workflow.core.engine.WorkflowEngine;
@@ -36,7 +36,7 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
               {"id":"n2","type":"output","position":{"x":420,"y":120},"data":{"label":"结束","kind":"output"}}
             ],"edges":[{"id":"e1","source":"n1","target":"n2"}]}""";
 
-    private final AstrsomnProperties astrsomnProperties;
+    private final QueryEnvParamHelper queryEnvParamHelper;
     private final WorkflowEngine workflowEngine;
     private final ObjectMapper objectMapper;
 
@@ -45,7 +45,7 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
         AiWorkflowEntity entity = new AiWorkflowEntity();
         BeanUtils.copyProperties(request, entity);
         if (StringUtils.isBlank(entity.getEnvCode())) {
-            entity.setEnvCode(astrsomnProperties.getEnvCode());
+            entity.setEnvCode(queryEnvParamHelper.effectiveEnvCode());
         }
         if (StringUtils.isBlank(entity.getGraphJson())) {
             entity.setGraphJson(DEFAULT_GRAPH_JSON);
@@ -86,7 +86,7 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
     public BaseResponse<AiWorkflowResponseDTO> detail(Long id) {
         AiWorkflowEntity entity = getOne(new LambdaQueryWrapper<AiWorkflowEntity>()
                 .eq(AiWorkflowEntity::getId, id)
-                .eq(AiWorkflowEntity::getEnvCode, astrsomnProperties.getEnvCode())
+                .eq(AiWorkflowEntity::getEnvCode, queryEnvParamHelper.effectiveEnvCode())
                 .eq(AiWorkflowEntity::getDeleted, false));
         if (entity == null) {
             return BaseResponse.fail("记录不存在", null);
@@ -100,7 +100,7 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
     public PageResponse<AiWorkflowResponseDTO> queryPage(BasePageRequest<AiWorkflowQueryRequestDTO> request) {
         AiWorkflowQueryRequestDTO q = request.getParam();
         LambdaQueryWrapper<AiWorkflowEntity> w = new LambdaQueryWrapper<AiWorkflowEntity>()
-                .eq(AiWorkflowEntity::getEnvCode, astrsomnProperties.getEnvCode())
+                .eq(AiWorkflowEntity::getEnvCode, queryEnvParamHelper.effectiveEnvCode())
                 .eq(AiWorkflowEntity::getDeleted, false);
         if (q != null) {
             if (StringUtils.isNotBlank(q.getWorkflowKey())) {
@@ -143,11 +143,11 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
         if (request.getId() != null) {
             entity = getOne(new LambdaQueryWrapper<AiWorkflowEntity>()
                     .eq(AiWorkflowEntity::getId, request.getId())
-                    .eq(AiWorkflowEntity::getEnvCode, astrsomnProperties.getEnvCode())
+                    .eq(AiWorkflowEntity::getEnvCode, queryEnvParamHelper.effectiveEnvCode())
                     .eq(AiWorkflowEntity::getDeleted, false));
         } else if (StringUtils.isNotBlank(request.getWorkflowKey())) {
             String key = request.getWorkflowKey().trim();
-            String env = astrsomnProperties.getEnvCode();
+            String env = queryEnvParamHelper.effectiveEnvCode();
             // 先取已发布最新版；若无则回退为同 Key+环境下最新一条（含草稿），便于编排页未发布时也能测
             Page<AiWorkflowEntity> pg = page(new Page<>(1, 1), new LambdaQueryWrapper<AiWorkflowEntity>()
                     .eq(AiWorkflowEntity::getWorkflowKey, key)
@@ -169,7 +169,7 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
             }
         }
         if (entity == null) {
-            String env = astrsomnProperties.getEnvCode();
+            String env = queryEnvParamHelper.effectiveEnvCode();
             return BaseResponse.fail(
                     "未找到工作流：请确认 workflowKey 已在当前环境 ENV_CODE=" + env + " 下创建，"
                             + "且前端工作空间环境与后端一致；若仅本地新建，请先在列表保存并核对 Key。",

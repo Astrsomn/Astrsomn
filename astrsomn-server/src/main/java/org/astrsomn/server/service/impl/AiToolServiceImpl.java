@@ -13,6 +13,7 @@ import org.astrsomn.core.common.entity.AiToolEntity;
 import org.astrsomn.core.mapper.AiToolMapper;
 import org.astrsomn.server.service.AiToolService;
 import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> implements AiToolService {
 
     private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiToolCreateRequestDTO request) {
@@ -63,7 +65,12 @@ public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> i
     @Override
     public PageResponse<AiToolResponseDTO> queryPage(BasePageRequest<AiToolQueryRequestDTO> request) {
         IPage<AiToolResponseDTO> page = request.buildPage();
-        IPage<AiToolResponseDTO> result = baseMapper.queryPage(page, request.getParam());
+        AiToolQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new AiToolQueryRequestDTO();
+        }
+        queryEnvParamHelper.stampEffectiveEnv(param);
+        IPage<AiToolResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
     }
 }

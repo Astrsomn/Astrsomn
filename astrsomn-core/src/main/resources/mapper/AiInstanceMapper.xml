@@ -12,6 +12,12 @@
         <if test="req != null and req.instanceKey != null and req.instanceKey != ''">
             AND ai.instance_key LIKE CONCAT('%', #{req.instanceKey}, '%')
         </if>
+        <if test="req != null and req.instanceName != null and req.instanceName != ''">
+            AND ai.instance_name LIKE CONCAT('%', #{req.instanceName}, '%')
+        </if>
+        <if test="req != null and req.modelKey != null and req.modelKey != ''">
+            AND ai.model_key LIKE CONCAT('%', #{req.modelKey}, '%')
+        </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND ai.status = #{req.status}
         </if>

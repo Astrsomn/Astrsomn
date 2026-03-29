@@ -215,7 +215,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { 
   CalendarOutlined,
@@ -232,6 +232,7 @@ import BaseOverview from '@/components/home/BaseOverview.vue'
 import ModelFormModal from './ModelFormModal.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
 import { useDictionary } from '@/locales/dictionary'
+import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
 
 // ... (逻辑部分基本保持与原代码一致，新增工具函数)
 
@@ -248,10 +249,9 @@ const columns = [
   { title: '标识 Key', key: 'modelKey', width: 190 },
   { title: '供应商', key: 'provider', width: 120 },
   { title: '状态', key: 'status', width: 100 },
-  { title: '属性', key: 'isDefault', width: 100 },
   { title: '接口地址', key: 'apiUrl', width: 240 },
   { title: '能力标签', key: 'capabilities', width: 220 },
-  { title: '运行参数', key: 'runtime', width: 220 },
+  { title: "环境", key: "envCode", with: 220},
   { title: '创建信息', key: 'createdMeta', width: 190 },
   { title: '操作', key: 'actions', fixed: 'right', width: 170 }
 ]
@@ -322,6 +322,7 @@ const partCurrentSelected = computed(() => {
 })
 
 const fetchList = async () => {
+  await ensureWorkspaceEnvInStorage()
   const payload = {
     pageNo: page.pageNum,
     pageSize: page.pageSize,
@@ -402,7 +403,9 @@ const handleFormSubmit = async (payload: AiModel) => {
   }
 }
 
-fetchList()
+onMounted(() => {
+  void fetchList()
+})
 </script>
 
 <style scoped>

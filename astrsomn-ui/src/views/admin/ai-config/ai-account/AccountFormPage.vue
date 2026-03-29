@@ -17,7 +17,18 @@
           <a-row :gutter="16">
             <a-col :xs="24" :md="12">
               <a-form-item label="Account Key" name="accountKey">
+                <a-tooltip
+                  v-if="accountKeyImmutable"
+                  title="已有 AI 模型在同环境下引用该 Key，不可修改"
+                >
+                  <a-input
+                    v-model:value="form.accountKey"
+                    placeholder="可选，留空则自动生成"
+                    disabled
+                  />
+                </a-tooltip>
                 <a-input
+                  v-else
                   v-model:value="form.accountKey"
                   placeholder="可选，留空则自动生成"
                   allow-clear
@@ -80,6 +91,7 @@ const router = useRouter()
 
 const loading = ref(false)
 const submitting = ref(false)
+const accountKeyImmutable = ref(false)
 
 const isEdit = computed(() => route.name === 'AdminAiAccountEdit')
 
@@ -95,6 +107,7 @@ const loadDetail = async (id: string) => {
     const detail = await aiAccountApi.detail(id)
     Object.keys(form).forEach((k) => delete (form as Record<string, unknown>)[k])
     Object.assign(form, detail)
+    accountKeyImmutable.value = detail.accountKeyImmutable === true
   } catch (e: unknown) {
     const err = e as { message?: string }
     message.error(err?.message || '加载失败')
@@ -130,6 +143,7 @@ watch(
   ([name, id]) => {
     if (name === 'AdminAiAccountNew') {
       Object.keys(form).forEach((k) => delete (form as Record<string, unknown>)[k])
+      accountKeyImmutable.value = false
       return
     }
     if (name === 'AdminAiAccountEdit' && id != null && String(id)) {

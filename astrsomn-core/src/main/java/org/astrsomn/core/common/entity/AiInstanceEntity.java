@@ -21,6 +21,12 @@ public class AiInstanceEntity extends BaseEntity<Long> {
 
     @TableField("INSTANCE_KEY")
     private String instanceKey;
+
+    @TableField("INSTANCE_NAME")
+    private String instanceName;
+
+    @TableField("MODEL_KEY")
+    private String modelKey;
     /**
      * The maximum number of tokens allowed in the generated response.
      */

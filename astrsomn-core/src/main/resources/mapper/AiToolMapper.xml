@@ -9,6 +9,9 @@
         AI_TOOL at
         WHERE
         1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND at.env_code = #{req.envCode}
+        </if>
         <if test="req != null and req.toolKey != null and req.toolKey != ''">
             AND at.tool_key = #{req.toolKey}
         </if>

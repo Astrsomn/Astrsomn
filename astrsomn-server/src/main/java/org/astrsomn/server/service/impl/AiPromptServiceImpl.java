@@ -15,7 +15,7 @@ import org.astrsomn.core.common.entity.AiPromptEntity;
 import org.astrsomn.core.mapper.AiPromptMapper;
 import org.astrsomn.server.service.AiPromptService;
 import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
-import org.astrsomn.starter.config.AstrsomnProperties;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -30,14 +30,14 @@ import lombok.RequiredArgsConstructor;
 public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEntity> implements AiPromptService {
 
     private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
-    private final AstrsomnProperties astrsomnProperties;
+    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiPromptCreateRequestDTO request) {
         AiPromptEntity entity = new AiPromptEntity();
         BeanUtils.copyProperties(request, entity);
         bizResourceKeyAssignHelper.assignPromptKeyIfBlank(entity);
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), astrsomnProperties.getEnvCode());
+        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), queryEnvParamHelper.effectiveEnvCode());
         entity.setEnvCode(env);
         if (entity.getVersion() == null) {
             entity.setVersion(1);
@@ -99,7 +99,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         next.setId(null);
         next.setCreateTime(null);
         next.setUpdateTime(null);
-        String env = StringUtils.defaultIfBlank(current.getEnvCode(), astrsomnProperties.getEnvCode());
+        String env = StringUtils.defaultIfBlank(current.getEnvCode(), queryEnvParamHelper.effectiveEnvCode());
         next.setEnvCode(env);
         String requestedPromptKey = StringUtils.trimToNull(request.getPromptKey());
         String nextPromptKey = StringUtils.defaultIfBlank(requestedPromptKey, current.getPromptKey());
@@ -131,7 +131,12 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     @Override
     public PageResponse<AiPromptResponseDTO> queryPage(BasePageRequest<AiPromptQueryRequestDTO> request) {
         IPage<AiPromptResponseDTO> page = request.buildPage();
-        IPage<AiPromptResponseDTO> result = baseMapper.queryPage(page, request.getParam());
+        AiPromptQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new AiPromptQueryRequestDTO();
+        }
+        queryEnvParamHelper.stampEffectiveEnv(param);
+        IPage<AiPromptResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
     }
 
@@ -141,7 +146,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
             return BaseResponse.fail("缺少 promptKey", null);
         }
         if (StringUtils.isBlank(envCode)) {
-            envCode = astrsomnProperties.getEnvCode();
+            envCode = queryEnvParamHelper.effectiveEnvCode();
         }
         List<AiPromptResponseDTO> list = baseMapper.listHistoryByPromptKey(promptKey.trim(), envCode);
         return BaseResponse.success(list);

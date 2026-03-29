@@ -14,6 +14,7 @@ import org.astrsomn.core.common.dto.user.SystemUserResponseDTO;
 import org.astrsomn.core.common.entity.SystemUserEntity;
 import org.astrsomn.core.mapper.SystemUserMapper;
 import org.astrsomn.server.service.SystemUserService;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,17 +22,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemUserEntity> implements SystemUserService {
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final QueryEnvParamHelper queryEnvParamHelper;
+    private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
     @Override
     public BaseResponse<String> create(SystemUserCreateRequestDTO request) {
         SystemUserEntity entity = new SystemUserEntity();
         BeanUtils.copyProperties(request, entity);
         applyUserRole(entity);
         if (StringUtils.isNotBlank(entity.getPassword())) {
-            entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+            entity.setPassword(PASSWORD_ENCODER.encode(entity.getPassword()));
         }
         boolean result = save(entity);
         return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
@@ -68,7 +73,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
         } else {
             String p = entity.getPassword();
             if (!p.startsWith("$2a$") && !p.startsWith("$2b$") && !p.startsWith("$2y$")) {
-                entity.setPassword(passwordEncoder.encode(p));
+                entity.setPassword(PASSWORD_ENCODER.encode(p));
             }
         }
         boolean result = updateById(entity);
@@ -87,7 +92,12 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     @Override
     public PageResponse<SystemUserResponseDTO> queryPage(BasePageRequest<SystemUserQueryRequestDTO> request) {
         IPage<SystemUserResponseDTO> page = request.buildPage();
-        IPage<SystemUserResponseDTO> result = baseMapper.queryPage(page, request.getParam());
+        SystemUserQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new SystemUserQueryRequestDTO();
+        }
+        queryEnvParamHelper.stampEffectiveEnv(param);
+        IPage<SystemUserResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
     }
 }
