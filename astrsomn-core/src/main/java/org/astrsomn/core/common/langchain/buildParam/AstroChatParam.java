@@ -12,20 +12,23 @@ import org.astrsomn.core.common.langchain.buildParam.setting.*;
 public class AstroChatParam<T> {
 
     // --- 1. 核心会话上下文 ---
+
+    /**
+     * 用户当前输入的消息
+     */
+    private String userMessage;
     /**
      * 智能体Key
      */
     private String agentKey;
 
     /**
-     * 用户当前输入的消息
-     */
-    private String userMessage;
-
-    /**
      * 选用的模型 ID
      */
     private String modelKey;
+
+
+    private String instanceKey;
 
     /**
      * 会话记忆 ID (前端生成或后端分配)
@@ -69,14 +72,19 @@ public class AstroChatParam<T> {
      */
     @Builder.Default
     private RagSetting ragSetting = new RagSetting();
+
+    /**
+     * Image
+     */
+    @Builder.Default
+    private ImageSetting imageSetting = new ImageSetting();
     /**
      * 最终执行接口
      */
     private final Class<T> serviceClass;
 
 
-
-    public static <T> AstroChatParam<T> of (Class<T> serviceClass, String agentKey){
+    public static <T> AstroChatParam<T> of(Class<T> serviceClass, String agentKey) {
         return AstroChatParam.<T>builder()
                 .serviceClass(serviceClass)
                 .agentKey(agentKey)

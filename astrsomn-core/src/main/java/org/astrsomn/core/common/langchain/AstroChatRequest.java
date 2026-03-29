@@ -1,4 +1,4 @@
-package org.astrsomn.core.common.dto.chat;
+package org.astrsomn.core.common.langchain;
 
 
 import lombok.Data;
@@ -33,10 +33,9 @@ public class AstroChatRequest {
     private String agentKey;
 
     /**
-     *
+     * 实例Key
      */
-    private String modelKey;
-
+    private String instanceKey;
     /**
      * 图片链接列表
      */

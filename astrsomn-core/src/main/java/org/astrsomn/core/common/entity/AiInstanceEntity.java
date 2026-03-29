@@ -2,12 +2,14 @@ package org.astrsomn.core.common.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
-
+@Data
 @TableName("AI_INSTANCE")
 public class AiInstanceEntity extends BaseEntity<Long> {
 
-
+    @TableField("INSTANCE_KEY")
+    private String instanceKey;
     /**
      * The maximum number of tokens allowed in the generated response.
      */
@@ -56,4 +58,27 @@ public class AiInstanceEntity extends BaseEntity<Long> {
     @TableField("TOP_K")
     private Integer topK;
 
+    /**
+     *
+     */
+    @TableField("STYLE")
+    private String style;
+
+    /**
+     *
+     */
+    @TableField("SIZE")
+    private String size;
+
+    /**
+     *
+     */
+    @TableField("DIMENSIONS")
+    private Integer dimensions;
+
+    /**
+     *
+     */
+    @TableField("STATUS")
+    private String status;
 }

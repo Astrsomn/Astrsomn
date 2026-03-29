@@ -29,7 +29,7 @@ public interface AiTemplateEnum {
 
     @Getter
     @AllArgsConstructor
-    enum EnabledEnum implements BaseEnum {
+    enum StatusEnum implements BaseEnum {
         /**
          * Enabled
          */

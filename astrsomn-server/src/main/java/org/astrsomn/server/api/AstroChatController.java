@@ -2,7 +2,7 @@ package org.astrsomn.server.api;
 
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.base.BaseController;
-import org.astrsomn.core.common.dto.chat.AstroChatRequest;
+import org.astrsomn.core.common.langchain.AstroChatRequest;
 import org.astrsomn.server.service.AstroChatService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;

@@ -23,18 +23,18 @@ public class AiModelEntity extends BaseEntity<Long> {
     @TableId(value = "ID", type = IdType.ASSIGN_ID)
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
-    
+    /**
+     * Model Key
+     */
+    @TableField("MODEL_KEY")
+    private String modelKey;
+
     /**
      * Model name
      */
     @TableField("MODEL_NAME")
     private String modelName;
 
-    /**
-     * Model Key
-     */
-    @TableField("MODEL_KEY")
-    private String modelKey;
     /**
      * Model type (ChatModel ImageModel EmbeddingModel)
      */
@@ -46,19 +46,12 @@ public class AiModelEntity extends BaseEntity<Long> {
      */
     @TableField("PROVIDER")
     private String provider;
-    
-    /**
-     * APIKey
-     */
-    @TableField("API_KEY")
-    private String apiKey;
 
     /**
-     * API secret key
+     * AccountKey
      */
-    @TableField("API_SECRET")
-    private String apiSecret;
-
+    @TableField("ACCOUNT_KEY")
+    private String accountKey;
     /**
      * API URL
      */
@@ -70,7 +63,6 @@ public class AiModelEntity extends BaseEntity<Long> {
      */
     @TableField("STATUS")
     private String status;
-
 
 
     /**

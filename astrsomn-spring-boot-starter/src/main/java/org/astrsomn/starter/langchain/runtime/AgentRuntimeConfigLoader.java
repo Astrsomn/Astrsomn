@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.entity.AiAgentEntity;
+import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
 import org.astrsomn.core.common.util.JsonUtil;
 import org.astrsomn.core.mapper.AiAgentMapper;
+import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,7 @@ public class AgentRuntimeConfigLoader {
 
     private final AiAgentMapper aiAgentMapper;
     private final AstrsomnProperties astrsomnProperties;
+    private final AiInstanceMapper aiInstanceMapper;
 
     public <T> void validateAndApplyAgent(AstroChatParam<T> param) {
         if (StringUtils.isBlank(param.getUserMessage())) {
@@ -38,12 +41,14 @@ public class AgentRuntimeConfigLoader {
         AiAgentEntity agent = aiAgentMapper.selectOne(new LambdaQueryWrapper<AiAgentEntity>()
                 .eq(AiAgentEntity::getAgentKey, param.getAgentKey())
                 .eq(AiAgentEntity::getEnvCode, astrsomnProperties.getEnvCode()));
+        AiInstanceEntity aiInstance = aiInstanceMapper.selectOne(new LambdaQueryWrapper<AiInstanceEntity>()
+                .eq(AiInstanceEntity::getInstanceKey, param.getInstanceKey()));
         if (agent == null) {
             throw new RuntimeException("未找到智能体: agentKey=" + param.getAgentKey()
                     + ", envCode=" + astrsomnProperties.getEnvCode());
         }
 
-        mergeModelFromAgent(ensureModelSetting(param), agent);
+        mergeModelFromAgent(ensureModelSetting(param), aiInstance);
         mergeToolSettingsFromAgent(ensureToolSetting(param), agent);
     }
 
@@ -64,7 +69,7 @@ public class AgentRuntimeConfigLoader {
     /**
      * 仅填充用户未在 {@link ModelSetting} 中赋值的字段（null 视为未指定，由库表补齐）。
      */
-    private void mergeModelFromAgent(ModelSetting target, AiAgentEntity agent) {
+    private void mergeModelFromAgent(ModelSetting target, AiInstanceEntity agent) {
         if (target.getTemperature() == null) {
             target.setTemperature(agent.getTemperature());
         }
