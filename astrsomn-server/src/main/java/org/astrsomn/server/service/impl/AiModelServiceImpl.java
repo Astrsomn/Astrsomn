@@ -75,6 +75,8 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
                 wrapper.eq(AiModelEntity::getStatus, param.getStatus());
             }
         }
+        wrapper.orderByDesc(AiModelEntity::getProvider);
+        wrapper.orderByDesc(AiModelEntity::getModelType);
 
         IPage<AiModelEntity> result = page(page, wrapper);
 

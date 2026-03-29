@@ -99,27 +99,7 @@ public class AiInstanceEntity extends BaseEntity<Long> {
     @TableField("STATUS")
     private String status;
 
-    /**
-     * Account Key
-     */
-    @TableField("ACCOUNT_KEY")
-    private String accountKey;
 
-    /**
-     * API URL
-     */
-    @TableField("API_URL")
-    private String apiUrl;
 
-    /**
-     * Is default
-     */
-    @TableField("IS_DEFAULT")
-    private Integer isDefault;
 
-    /**
-     * Max quota tokens
-     */
-    @TableField("MAX_QUOTA_TOKENS")
-    private Long maxQuotaTokens;
 }

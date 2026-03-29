@@ -52,7 +52,7 @@ const onToggleSelectAll = (e: { target?: { checked?: boolean } }) => {
   gap: 12px;
   margin-bottom: 12px;
   padding: 10px 14px;
-  border-radius: 16px;
+  border-radius: 3px;
   background: var(--bg-card);
   border: 1px solid var(--border-default);
 }
@@ -67,7 +67,7 @@ const onToggleSelectAll = (e: { target?: { checked?: boolean } }) => {
 .overview-icon {
   width: 32px;
   height: 32px;
-  border-radius: 10px;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;

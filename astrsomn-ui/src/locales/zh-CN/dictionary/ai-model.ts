@@ -15,23 +15,22 @@ export type {
 } from '@/locales/dictionary/ai-model-orders'
 
 const providerLabels = {
-  openai: 'OpenAI（GPT）',
-  xai: 'xAI（Grok）',
-  anthropic: 'Anthropic（Claude）',
-  google: 'Google（Gemini）',
-  alibaba: '阿里巴巴（通义千问）',
-  zhipu: '智谱 AI（GLM）',
-  moonshot: 'Moonshot（月之暗面）',
-  baidu: '百度文心',
-  baichuan: '百川智能',
-  minimax: 'MiniMax',
-  yi: '零一万物（Yi）',
-  siliconflow: '硅基流动（SiliconFlow）',
-  tencent: '腾讯混元',
-  deepseek: 'DeepSeek',
-  ollama: 'Ollama（本地）',
-  qianfan: '百度千帆'
-} as const
+    openai:      'OpenAI',
+    xai:         'xAI',
+    anthropic:   'Anthropic',
+    google:      'Google',
+    alibaba:     '通义千问',
+    zhipu:       '智谱 AI',
+    moonshot:    '月之暗面',
+    baichuan:    '百川智能',
+    minimax:     'MiniMax',
+    yi:          '零一万物',
+    siliconflow: '硅基流动',
+    tencent:     '腾讯混元',
+    deepseek:    'DeepSeek',
+    ollama:      'Ollama',
+    qianfan:     '百度千帆'
+} as const;
 
 export const aiModelProviderDictionary = createEnumDictionary({
   id: 'ai-model.provider',

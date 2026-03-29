@@ -74,38 +74,6 @@ const quickEntries = computed<ManagementEntry[]>(() => {
   grid-column: span 2;
 }
 
-.metric-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.metric-card {
-  padding: 18px;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--primary) 5%, var(--bg-card));
-  border: 1px solid color-mix(in srgb, var(--primary) 12%, var(--border-subtle));
-}
-
-.metric-label {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.metric-value {
-  margin-top: 10px;
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.1;
-  color: var(--text-heading);
-}
-
-.metric-desc {
-  margin-top: 8px;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--text-secondary);
-}
 
 .quick-grid {
   display: grid;

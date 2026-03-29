@@ -97,7 +97,7 @@ const updateMode = (value: DashboardMode) => {
   gap: 8px;
   min-width: 360px;
   padding: 6px;
-  border-radius: 24px;
+  border-radius: var(--radius-sm);
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -118,7 +118,7 @@ const updateMode = (value: DashboardMode) => {
   left: 6px;
   width: calc(50% - 10px);
   height: calc(100% - 12px);
-  border-radius: 18px;
+  border-radius: var(--radius-sm);
   /* background: */
     /* linear-gradient(135deg, color-mix(in srgb, white 92%, var(--bg-card)), color-mix(in srgb, var(--primary) 4%, white)); */
   border: 1px solid color-mix(in srgb, var(--primary) 8%, var(--border-subtle));
@@ -144,7 +144,7 @@ const updateMode = (value: DashboardMode) => {
   padding: 12px 16px;
   border: 0;
   background: transparent;
-  border-radius: 18px;
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
   cursor: pointer;
   transition:

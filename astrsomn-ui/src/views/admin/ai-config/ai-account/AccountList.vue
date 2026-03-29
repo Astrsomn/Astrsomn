@@ -64,44 +64,15 @@
         @toggle-select-all="toggleSelectAllCurrentPage"
       />
 
-      <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1100 }"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'accountKey'">
-            <code class="code-text">{{ record.accountKey || '—' }}</code>
-          </template>
-          <template v-else-if="column.key === 'accountName'">
-            <span>{{ record.accountName || '—' }}</span>
-          </template>
-          <template v-else-if="column.key === 'apiKey'">
-            <span class="secret-mask">{{ maskSecret(record.apiKey) }}</span>
-          </template>
-          <template v-else-if="column.key === 'accountTokens'">
-            <span>{{ record.accountTokens != null ? record.accountTokens : '—' }}</span>
-          </template>
-          <template v-else-if="column.key === 'envCode'">
-            <span>{{ record.envCode || '—' }}</span>
-          </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="goEdit(record)">编辑</a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger>删除</a-button>
-            </a-popconfirm>
-          </template>
-        </template>
-      </a-table>
+      <div class="account-grid">
+        <AccountCard
+          v-for="account in list"
+          :key="account.id"
+          :account="account"
+          @edit="goEdit"
+          @delete="handleDeleteOne"
+        />
+      </div>
 
       <div class="pagination-wrap">
         <a-pagination
@@ -135,6 +106,7 @@ import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import AccountForm from './AccountForm.vue'
+import AccountCard from './AccountCard.vue'
 import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount'
 
 const formVisible = ref(false)
@@ -145,15 +117,7 @@ type QueryState = {
   accountName?: string
 }
 
-const columns = [
-  { title: 'Account Key', key: 'accountKey', width: 200, ellipsis: true },
-  { title: '账号名称', key: 'accountName', width: 160, ellipsis: true },
-  { title: 'API Key', key: 'apiKey', width: 200, ellipsis: true },
-  { title: '额度', key: 'accountTokens', width: 120 },
-  { title: '环境', key: 'envCode', width: 100 },
-  { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180, ellipsis: true },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
-]
+// 卡片布局不需要表格列定义
 
 const query = reactive<QueryState>({})
 const list = ref<AiAccount[]>([])
@@ -164,11 +128,7 @@ const page = reactive({
 })
 const selectedRowKeys = ref<Array<number | string>>([])
 
-const maskSecret = (value: string | undefined) => {
-  if (value == null || value === '') return '—'
-  if (value.length <= 8) return '••••••••'
-  return `${value.slice(0, 4)}…${value.slice(-4)}`
-}
+// maskSecret 函数已在 AccountCard 组件中实现
 
 const currentPageIds = computed(() =>
   list.value
@@ -276,7 +236,7 @@ void fetchList()
   align-items: center;
   flex-wrap: wrap;
   padding: 6px;
-  border-radius: 16px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border-default);
   background: var(--bg-surface);
 }
@@ -307,7 +267,7 @@ void fetchList()
 .primary-btn,
 .ghost-btn {
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 
 .danger-btn {
@@ -323,6 +283,13 @@ void fetchList()
   background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
 }
 
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
 .pagination-wrap {
   display: flex;
   justify-content: space-between;
@@ -330,6 +297,24 @@ void fetchList()
   gap: 12px;
   margin-top: 20px;
   flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .account-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .account-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+@media (min-width: 1201px) {
+  .account-grid {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
 }
 
 .code-text {

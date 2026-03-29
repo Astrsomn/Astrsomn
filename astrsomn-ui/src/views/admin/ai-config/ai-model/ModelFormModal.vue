@@ -47,21 +47,21 @@
             <h3 class="section-headline"><IdcardOutlined /> 1. 模型身份识别</h3>
             <div class="form-grid">
               <a-form-item label="供应商 (Provider)" name="provider">
-                <a-select v-model:value="form.provider" :options="providerOptions" placeholder="请选择服务商" size="large" />
+                <a-select v-model:value="form.provider" :options="providerOptions" placeholder="请选择服务商" size="large" :disabled="props.mode === 'view'" />
               </a-form-item>
 
               <a-form-item label="模型类型" name="modelType">
-                <a-segmented v-model:value="form.modelType" :options="[{label:'对话模型', value:'chat'}, {label:'向量模型', value:'embedding'}, {label:'图像模型', value:'image'}]" block size="large" />
+                <a-segmented v-model:value="form.modelType" :options="[{label:'对话模型', value:'chat'}, {label:'向量模型', value:'embedding'}, {label:'图像模型', value:'image'}]" block size="large" :disabled="props.mode === 'view'" />
               </a-form-item>
 
-              <a-form-item label="模型显示名称" name="modelName" class="span-2">
-                <a-input v-model:value="form.modelName" placeholder="例如：GPT-4o 或 Claude 3.5 Sonnet" size="large" />
+              <a-form-item label="模型显示名称" name="modelName">
+                <a-input v-model:value="form.modelName" placeholder="例如：GPT-4o 或 Claude 3.5 Sonnet" size="large" :disabled="props.mode === 'view'" />
               </a-form-item>
 
-              <a-form-item label="模型 Key (内部识别码)" name="modelKey" class="span-2">
+              <a-form-item label="模型 Key (内部识别码)" name="modelKey">
                 <a-tooltip
-                  v-if="modelKeyImmutable"
-                  title="已有推理实例在同环境下引用该模型 Key，不可修改"
+                  v-if="modelKeyImmutable || props.mode === 'view'"
+                  :title="modelKeyImmutable ? '已有推理实例在同环境下引用该模型 Key，不可修改' : '查看模式下不可修改'"
                 >
                   <a-input v-model:value="form.modelKey" placeholder="建议留空，系统将根据名称自动生成" size="large" disabled />
                 </a-tooltip>
@@ -79,7 +79,7 @@
                 </a-input>
               </a-form-item>
 
-              <a-form-item label="账号 Key" name="accountKey" class="span-2">
+              <a-form-item label="模型账号" name="accountKey">
                 <a-select
                   v-model:value="form.accountKey"
                   :options="accountSelectOptions"
@@ -90,28 +90,27 @@
                   placeholder="选择当前用户在当前环境下的 AI 账号"
                   size="large"
                   option-filter-prop="label"
+                  :disabled="props.mode === 'view'"
                 />
               </a-form-item>
 
-              <a-form-item label="API URL" name="apiUrl" class="span-2">
-                <a-input v-model:value="form.apiUrl" placeholder="https://api.openai.com/v1" size="large">
-                  <template #prefix><GlobalOutlined style="color: #bfbfbf" /></template>
-                </a-input>
-              </a-form-item>
-
-              <a-form-item label="服务实例状态" class="span-2">
+              <a-form-item label="服务实例状态">
                 <div class="status-toggle-card">
-                  <div class="info">
-                    <span class="t">启用此模型</span>
-                    <span class="d">控制该实例是否进入系统的调度资源池</span>
-                  </div>
                   <a-switch
                       :checked="form.status === 'enabled'"
                       @change="onStatusSwitch"
-                      checked-children="已启用"
-                      un-checked-children="已禁用"
+                      checked-children="启用"
+                      un-checked-children="禁用"
+                      :un-checked-color="'#ff4d4f'"
+                      :disabled="props.mode === 'view'"
                   />
                 </div>
+              </a-form-item>
+
+              <a-form-item label="API URL" name="apiUrl" class="span-2">
+                <a-input v-model:value="form.apiUrl" placeholder="https://api.openai.com/v1" size="large" :disabled="props.mode === 'view'">
+                  <template #prefix><GlobalOutlined style="color: #bfbfbf" /></template>
+                </a-input>
               </a-form-item>
             </div>
           </div>
@@ -121,19 +120,46 @@
           <div class="form-section">
             <h3 class="section-headline"><ThunderboltOutlined /> 2. 推理超参（写入 capabilities，供 LangChain4j 解析）</h3>
 
-            <div v-if="form.modelType === 'chat'" class="capability-wrapper">
-              <div class="cap-header">
-                <span>对话模型 · InferenceParamEnum</span>
-                <span class="badge">{{ chatInferenceTotal }}</span>
-              </div>
+            <div class="capability-quick-view">
+              <a-button type="primary" ghost @click="openCapabilitiesModal">
+                <template #icon><EyeOutlined /></template>
+                查看能力标签
+              </a-button>
+            </div>
 
-              <div class="cap-subhead">推理超参（含旧版 *_setting 别名）</div>
+            <div class="runtime-params-box">
+              <div class="box-title"><ControlOutlined /> 运行约束预设</div>
+              <div class="param-grid">
+                <div class="param-item">
+                  <span class="pl">响应 Token 限制</span>
+                  <a-input-number v-model:value="form.responseLimit" :min="0" placeholder="4096" block :disabled="props.mode === 'view'" />
+                </div>
+                <div class="param-item">
+                  <span class="pl">最大配额 Tokens</span>
+                  <a-input-number v-model:value="form.maxQuotaTokens" :min="0" placeholder="0" block :disabled="props.mode === 'view'" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 能力标签查看对话框 -->
+        <a-modal
+          v-model:open="showCapabilitiesModal"
+          :title="capabilitiesModalTitle"
+          width="600px"
+          :footer="null"
+        >
+          <div class="capabilities-modal-content">
+            <div v-if="form.modelType === 'chat'" class="capability-modal-section">
+              <h4>对话模型 · InferenceParamEnum</h4>
               <div class="cap-tag-grid">
                 <div
                     v-for="opt in chatInferenceOptions"
                     :key="opt.value"
                     :class="['custom-cap-tag', { active: chatInferenceCapabilities.includes(opt.value) }]"
-                    @click="toggleChatInference(opt.value)"
+                    @click="props.mode !== 'view' && toggleChatInference(opt.value)"
+                    :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
                 >
                   <CheckCircleFilled v-if="chatInferenceCapabilities.includes(opt.value)" />
                   {{ opt.label }}
@@ -147,7 +173,8 @@
                       v-for="c in chatOrphanCapabilities"
                       :key="c"
                       class="custom-cap-tag orphan"
-                      @click="removeChatOrphan(c)"
+                      @click="props.mode !== 'view' && removeChatOrphan(c)"
+                      :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
                   >
                     {{ c }}
                   </div>
@@ -155,19 +182,15 @@
               </div>
             </div>
 
-            <div v-if="form.modelType === 'embedding'" class="capability-wrapper">
-              <div class="cap-header">
-                <span>向量模型 · EmbeddingInferenceParamEnum</span>
-                <span class="badge">{{ embeddingInferenceTotal }}</span>
-              </div>
-
-              <div class="cap-subhead">嵌入推理超参</div>
+            <div v-if="form.modelType === 'embedding'" class="capability-modal-section">
+              <h4>向量模型 · EmbeddingInferenceParamEnum</h4>
               <div class="cap-tag-grid">
                 <div
                     v-for="opt in embeddingInferenceOptions"
                     :key="opt.value"
                     :class="['custom-cap-tag', { active: embeddingInferenceCapabilities.includes(opt.value) }]"
-                    @click="toggleEmbeddingInference(opt.value)"
+                    @click="props.mode !== 'view' && toggleEmbeddingInference(opt.value)"
+                    :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
                 >
                   <CheckCircleFilled v-if="embeddingInferenceCapabilities.includes(opt.value)" />
                   {{ opt.label }}
@@ -181,7 +204,8 @@
                       v-for="c in embeddingOrphanCapabilities"
                       :key="c"
                       class="custom-cap-tag orphan"
-                      @click="removeEmbeddingOrphan(c)"
+                      @click="props.mode !== 'view' && removeEmbeddingOrphan(c)"
+                      :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
                   >
                     {{ c }}
                   </div>
@@ -189,19 +213,15 @@
               </div>
             </div>
 
-            <div v-if="form.modelType === 'image'" class="capability-wrapper">
-              <div class="cap-header">
-                <span>图像模型 · ImageGenParamEnum</span>
-                <span class="badge">{{ imageGenTotal }}</span>
-              </div>
-
-              <div class="cap-subhead">图像生成推理超参（含 size_setting / style_setting 别名）</div>
+            <div v-if="form.modelType === 'image'" class="capability-modal-section">
+              <h4>图像模型 · ImageGenParamEnum</h4>
               <div class="cap-tag-grid">
                 <div
                     v-for="opt in imageGenOptions"
                     :key="opt.value"
                     :class="['custom-cap-tag', { active: imageGenCapabilities.includes(opt.value) }]"
-                    @click="toggleImageGen(opt.value)"
+                    @click="props.mode !== 'view' && toggleImageGen(opt.value)"
+                    :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
                 >
                   <CheckCircleFilled v-if="imageGenCapabilities.includes(opt.value)" />
                   {{ opt.label }}
@@ -215,33 +235,24 @@
                       v-for="c in imageOrphanCapabilities"
                       :key="c"
                       class="custom-cap-tag orphan"
-                      @click="removeImageOrphan(c)"
+                      @click="props.mode !== 'view' && removeImageOrphan(c)"
+                      :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
                   >
                     {{ c }}
                   </div>
                 </div>
               </div>
             </div>
-
-            <div class="runtime-params-box">
-              <div class="box-title"><ControlOutlined /> 运行约束预设</div>
-              <div class="param-grid">
-                <div class="param-item">
-                  <span class="pl">响应 Token 限制</span>
-                  <a-input-number v-model:value="form.responseLimit" :min="0" placeholder="4096" block />
-                </div>
-                <div class="param-item">
-                  <span class="pl">最大配额 Tokens</span>
-                  <a-input-number v-model:value="form.maxQuotaTokens" :min="0" placeholder="0" block />
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
+
+          <div class="modal-footer">
+            <a-button type="primary" @click="closeCapabilitiesModal">关闭</a-button>
+          </div>
+        </a-modal>
       </div>
     </a-form>
 
-    <div class="modal-footer-action">
+    <div class="modal-footer-action" v-if="props.mode !== 'view'">
       <div class="footer-left">
         <LockOutlined /> 加密传输环境
       </div>
@@ -266,16 +277,22 @@
         </a-button>
       </div>
     </div>
+    <div class="modal-footer-action" v-else>
+      <div class="footer-right">
+        <a-button type="primary" @click="emit('update:open', false)">关闭</a-button>
+      </div>
+    </div>
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import {
   IdcardOutlined, ReloadOutlined, MessageOutlined,
   PartitionOutlined, LockOutlined, ThunderboltOutlined,
-  CheckCircleFilled, ControlOutlined, PictureOutlined, GlobalOutlined
+  CheckCircleFilled, ControlOutlined, PictureOutlined, GlobalOutlined,
+  EyeOutlined
 } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiModel } from '@/api/aiModel'
@@ -294,7 +311,7 @@ import {
 const props = withDefaults(
     defineProps<{
       open: boolean
-      mode: 'create' | 'edit'
+      mode: 'create' | 'edit' | 'view'
       confirmLoading?: boolean
       initialData?: AiModel | null
       providerOptions: { label: string; value: string }[]
@@ -313,6 +330,22 @@ const accountList = ref<AiAccount[]>([])
 const accountOptionsLoading = ref(false)
 /** 编辑时由详情接口返回：被推理实例引用则不可改 modelKey */
 const modelKeyImmutable = ref(false)
+
+// 能力标签查看对话框
+const showCapabilitiesModal = ref(false)
+const capabilitiesModalTitle = computed(() => {
+  return `${form.modelName} - 能力标签`
+})
+
+// 打开能力标签查看对话框
+const openCapabilitiesModal = () => {
+  showCapabilitiesModal.value = true
+}
+
+// 关闭能力标签查看对话框
+const closeCapabilitiesModal = () => {
+  showCapabilitiesModal.value = false
+}
 
 function resolveQueryCreateUser(): string | undefined {
   try {
@@ -381,11 +414,42 @@ const filterAccountOption = (input: string, option: { label?: string }) => {
 }
 
 function capLabel(code: string): string {
+  // 对于推理参数，只返回英文参数名，保持学术简洁性
+  const inferenceParams = new Set([
+    'temperature', 'top_p', 'top_k', 'presence_penalty', 'frequency_penalty',
+    'max_tokens', 'seed', 'image_size', 'image_quality', 'image_style',
+    'image_user', 'image_response_format', 'image_max_retries', 'image_timeout_seconds',
+    'embedding_dimensions', 'embedding_user', 'embedding_max_retries',
+    'embedding_max_segments_per_batch', 'embedding_encoding_format', 'embedding_timeout_seconds'
+  ])
+  
+  if (inferenceParams.has(code)) {
+    return code
+  }
+  
+  // 对于其他能力标签，保持原有标签
   return aiModelCapabilitiesDictionary.getLabel(code) ?? code
 }
 
 function capOptions(codes: readonly string[]) {
-  return codes.map((value) => ({ value, label: capLabel(value) }))
+  // 定义别名参数列表
+  const aliasParams = new Set([
+    'temperature_setting',
+    'top_p_setting',
+    'top_k_setting',
+    'presence_penalty_setting',
+    'frequency_penalty_setting',
+    'max_token_setting',
+    'stop_sequences_setting',
+    'seed_setting',
+    'size_setting',
+    'style_setting'
+  ])
+  
+  // 过滤掉别名参数，只保留主参数
+  return codes
+    .filter(value => !aliasParams.has(value))
+    .map(value => ({ value, label: capLabel(value) }))
 }
 
 const chatInferenceOptions = computed(() => capOptions(CHAT_INFERENCE_CODES))
@@ -420,7 +484,7 @@ const form = reactive<AiModel>({
 const rules = {
   modelName: [{ required: true, message: '请输入模型名称' }],
   provider: [{ required: true, message: '请选择供应商' }],
-  apiUrl: [{ required: true, message: '请输入 API URL' }],
+  apiUrl: [],
 }
 
 function toggleInList(list: string[], val: string) {
@@ -479,7 +543,9 @@ const syncForm = () => {
   currentStep.value = 0
   if (props.mode === 'create' || !props.initialData) {
     modelKeyImmutable.value = false
+    // 完全重置 form 对象，确保所有字段都被清空
     Object.assign(form, {
+      id: '',
       modelName: '',
       modelKey: '',
       modelType: 'chat',
@@ -514,6 +580,16 @@ watch(
     if (!v) return
     syncForm()
     void fetchAccountOptions()
+  }
+)
+
+// 监听模式变化，确保从编辑切换到创建时表单数据会重置
+watch(
+  () => props.mode,
+  () => {
+    if (props.open) {
+      syncForm()
+    }
   }
 )
 
@@ -586,11 +662,20 @@ const onCancel = () => emit('update:open', false)
 
 /* 开关卡片 */
 .status-toggle-card {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; justify-content: center; align-items: center;
   background: #f8f9fb; padding: 12px 16px; border-radius: 12px; border: 1px solid #eef1f6;
 }
-.status-toggle-card .t { display: block; font-size: 13px; font-weight: 600; }
-.status-toggle-card .d { font-size: 12px; color: #999; }
+
+/* 模型类型选中高亮蓝色 */
+:deep(.ant-segmented-item-selected) {
+  background-color: #1890ff !important;
+  color: white !important;
+}
+
+:deep(.ant-segmented-item-selected:hover) {
+  background-color: #40a9ff !important;
+  color: white !important;
+}
 
 /* 能力矩阵布局 */
 .capability-wrapper { background: #fafafa; border-radius: 16px; padding: 20px; border: 1px solid #f0f0f0; }

@@ -9,7 +9,6 @@ export const AI_MODEL_PROVIDER_ORDER = [
   'alibaba',
   'zhipu',
   'moonshot',
-  'baidu',
   'baichuan',
   'minimax',
   'yi',

@@ -20,8 +20,8 @@
   flex-direction: column;
   gap: 4px;
   margin-bottom: 6px;
-  padding: 16px;
-  border-radius: 20px;
+  padding: 16px 0;
+  border-radius: var(--radius-sm);
   background: var(--bg-card);
 }
 
@@ -63,3 +63,5 @@
   }
 }
 </style>
+<script setup lang="ts">
+</script>

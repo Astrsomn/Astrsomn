@@ -27,7 +27,7 @@ defineProps<{
 .dashboard-panel {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;

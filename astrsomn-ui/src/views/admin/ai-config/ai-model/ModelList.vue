@@ -87,23 +87,32 @@
           :scroll="{ x: 1680 }"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'modelName'">
-              <div class="model-info">
-                <span class="model-title">{{ record.modelName }}</span>
-                <span class="model-type-tag">{{ getModelTypeLabel(record.modelType) }}</span>
+            <template v-if="column.key === 'modelType'">
+              <div class="model-icon" :class="record.modelType">
+                <template v-if="record.modelType === 'chat'"><MessageOutlined /></template>
+                <template v-else-if="record.modelType === 'embedding'"><PartitionOutlined /></template>
+                <template v-else-if="record.modelType === 'image'"><PictureOutlined /></template>
               </div>
             </template>
 
-            <template v-else-if="column.key === 'provider'">
-              <a-tag :color="getProviderColor(record.provider)">
-                {{ providerDict.getLabel(String(record.provider || '')) ?? record.provider }}
-              </a-tag>
+            <template v-else-if="column.key === 'modelName'">
+              <div class="model-info">
+                <div class="model-header">
+                  <span class="model-title">{{ record.modelName }}</span>
+                </div>
+                <div class="model-meta">
+                  <a-tag v-if="record.provider" :color="getProviderColor(record.provider)" class="provider-tag">
+                    {{ providerDict.getLabel(String(record.provider || '')) ?? record.provider }}
+                  </a-tag>
+                </div>
+              </div>
             </template>
 
             <template v-else-if="column.key === 'status'">
-              <a-badge 
-                :status="record.status === 'enabled' ? 'success' : 'default'" 
-                :text="statusDict.getLabel(String(record.status || ''))" 
+              <a-switch
+                :checked="record.status === 'enabled'"
+                @change="(checked) => handleStatusChange(record.id, checked)"
+                size="small"
               />
             </template>
 
@@ -126,23 +135,21 @@
             </template>
 
             <template v-else-if="column.key === 'capabilities'">
-              <div class="capability-list">
-                <a-tag
-                  v-for="capability in parseCapabilities(record.capabilities).slice(0, 3)"
-                  :key="capability"
-                  class="capability-tag"
-                  color="processing"
-                >
-                  {{ formatCapabilityLabel(String(capability)) }}
-                </a-tag>
-                <span v-if="parseCapabilities(record.capabilities).length === 0" class="text-secondary">-</span>
-                <span
-                  v-else-if="parseCapabilities(record.capabilities).length > 3"
-                  class="capability-more"
-                >
-                  +{{ parseCapabilities(record.capabilities).length - 3 }}
-                </span>
-              </div>
+              <a-button
+                v-if="parseCapabilities(record.capabilities).length > 0"
+                type="link"
+                size="small"
+                @click="openCapabilitiesDialog(record)"
+              >
+                <template #icon><EyeOutlined /></template>
+                查看
+              </a-button>
+              <span v-else class="text-secondary">-</span>
+            </template>
+
+            <template v-else-if="column.key === 'envCode'">
+              <a-tag v-if="record.envCode" color="blue">{{ record.envCode }}</a-tag>
+              <span v-else class="text-secondary">-</span>
             </template>
 
             <template v-else-if="column.key === 'runtime'">
@@ -171,6 +178,11 @@
 
             <template v-else-if="column.key === 'actions'">
               <div class="table-actions">
+                <a-button type="link" size="small" @click="openView(record)">
+                  <template #icon><eye-outlined /></template>
+                  查看
+                </a-button>
+                <a-divider type="vertical" />
                 <a-button type="link" size="small" @click="openEdit(record)">
                   <template #icon><edit-outlined /></template>
                   编辑
@@ -179,7 +191,6 @@
                 <a-popconfirm title="删除后不可恢复，确定吗？" @confirm="() => handleDeleteOne(record.id)">
                   <a-button type="link" size="small" danger>
                     <template #icon><delete-outlined /></template>
-                    删除
                   </a-button>
                 </a-popconfirm>
               </div>
@@ -210,6 +221,34 @@
         :is-default-options="isDefaultOptions"
         :submit-handler="handleFormSubmit"
       />
+
+      <!-- 能力标签查看对话框 -->
+      <a-modal
+        v-model:open="showCapabilitiesModal"
+        :title="currentModel ? `${currentModel.modelName} - 能力标签` : '能力标签'"
+        width="600px"
+        :footer="null"
+      >
+        <div class="capabilities-modal-content" v-if="currentModel">
+          <div class="cap-tag-grid">
+            <a-tag
+              v-for="capability in parseCapabilities(currentModel.capabilities)"
+              :key="capability"
+              class="capability-tag"
+              color="processing"
+            >
+              {{ formatCapabilityLabel(String(capability)) }}
+            </a-tag>
+          </div>
+          <div v-if="parseCapabilities(currentModel.capabilities).length === 0" class="no-capabilities">
+            暂无能力标签
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <a-button type="primary" @click="closeCapabilitiesDialog">关闭</a-button>
+        </div>
+      </a-modal>
     </div>
   </AdminPageShell>
 </template>
@@ -221,12 +260,17 @@ import {
   CalendarOutlined,
   DeleteOutlined,
   EditOutlined,
+  EyeOutlined,
   GlobalOutlined,
+  MessageOutlined,
+  PartitionOutlined,
+  PictureOutlined,
   PlusOutlined,
   SearchOutlined,
   ThunderboltOutlined,
   UserOutlined
 } from '@ant-design/icons-vue'
+import { Modal } from 'ant-design-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import ModelFormModal from './ModelFormModal.vue'
@@ -245,13 +289,13 @@ const statusOptions = computed(() => statusDict.value.options())
 const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }]
 
 const columns = [
-  { title: '模型信息', key: 'modelName', fixed: 'left', width: 240 },
+  { title: '类型', key: 'modelType',  width: 60 },
+  { title: '模型信息', key: 'modelName',  width: 220 },
   { title: '标识 Key', key: 'modelKey', width: 190 },
-  { title: '供应商', key: 'provider', width: 120 },
   { title: '状态', key: 'status', width: 100 },
   { title: '接口地址', key: 'apiUrl', width: 240 },
-  { title: '能力标签', key: 'capabilities', width: 220 },
-  { title: "环境", key: "envCode", with: 220},
+  { title: '能力标签', key: 'capabilities', width: 100 },
+  { title: "环境", key: "envCode", width: 120},
   { title: '创建信息', key: 'createdMeta', width: 190 },
   { title: '操作', key: 'actions', fixed: 'right', width: 170 }
 ]
@@ -304,6 +348,22 @@ const rowSelection = computed(() => ({
 }))
 const modal = reactive({ open: false, mode: 'create' as any, submitting: false })
 const modalInitialData = ref<AiModel | null>(null)
+
+// 能力标签查看对话框
+const showCapabilitiesModal = ref(false)
+const currentModel = ref<AiModel | null>(null)
+
+// 打开能力标签查看对话框
+const openCapabilitiesDialog = (record: AiModel) => {
+  currentModel.value = record
+  showCapabilitiesModal.value = true
+}
+
+// 关闭能力标签查看对话框
+const closeCapabilitiesDialog = () => {
+  showCapabilitiesModal.value = false
+  currentModel.value = null
+}
 
 const currentPageIds = computed(() =>
   list.value
@@ -368,6 +428,15 @@ const openCreate = () => {
   modal.open = true
 }
 
+const openView = async (record: AiModel) => {
+  modal.mode = 'view'
+  if (record.id) {
+    const detail = await aiModelApi.detail(record.id)
+    modalInitialData.value = detail
+    modal.open = true
+  }
+}
+
 const openEdit = async (record: AiModel) => {
   modal.mode = 'edit'
   if (record.id) {
@@ -389,6 +458,16 @@ const handleBatchDelete = async () => {
   message.success('删除成功')
   selectedRowKeys.value = []
   fetchList()
+}
+
+const handleStatusChange = async (id: number | string, checked: boolean) => {
+  try {
+    await aiModelApi.update({ id, status: checked ? 'enabled' : 'disabled' })
+    message.success('状态更新成功')
+    fetchList()
+  } catch (e) {
+    message.error('状态更新失败')
+  }
 }
 
 const handleFormSubmit = async (payload: AiModel) => {
@@ -538,14 +617,58 @@ onMounted(() => {
 .model-info {
   display: flex;
   flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.model-header {
+  display: flex;
+  align-items: center;
   gap: 6px;
   min-width: 0;
 }
 
-.model-title {
+.model-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
+  color: white;
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+
+.model-icon.chat {
+  background: linear-gradient(135deg, #0061ff, #60efff);
+}
+
+.model-icon.embedding {
+  background: linear-gradient(135deg, #7c4dff, #f94dff);
+}
+
+.model-icon.image {
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+}
+
+.model-title {
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-heading);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 .model-type-tag {
@@ -553,9 +676,15 @@ onMounted(() => {
   color: var(--text-secondary);
   background: var(--bg-surface);
   padding: 2px 8px;
-  width: fit-content;
   border-radius: 999px;
   border: 1px solid var(--border-default);
+}
+
+.provider-tag {
+  font-size: 11px;
+  height: 20px;
+  line-height: 20px;
+  margin: 0;
 }
 
 .code-text {
@@ -571,7 +700,7 @@ onMounted(() => {
 .created-meta {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -587,7 +716,7 @@ onMounted(() => {
 .runtime-meta {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
@@ -599,6 +728,18 @@ onMounted(() => {
 .capability-more {
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+.capability-popover {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 400px;
+  padding: 6px;
+}
+
+.popover-tag {
+  margin: 0;
 }
 
 .runtime-chip {
@@ -643,7 +784,17 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 8px 8px;
+  padding: 12px 8px 8px;
+}
+
+/* 压缩表格行高 */
+:deep(.ant-table-tbody > tr > td) {
+  padding: 8px 12px;
+}
+
+:deep(.ant-table-thead > tr > th) {
+  padding: 10px 12px;
+  font-size: 12px;
 }
 
 .total-text {
@@ -652,6 +803,37 @@ onMounted(() => {
 }
 
 .text-secondary { color: #bfbfbf; }
+
+/* 能力标签查看对话框样式 */
+.capabilities-modal-content {
+  padding: 16px 0;
+}
+
+.cap-tag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.capability-tag {
+  margin-bottom: 6px;
+  font-size: 12px;
+  height: 24px;
+}
+
+.no-capabilities {
+  text-align: center;
+  padding: 24px 0;
+  color: #999;
+  font-size: 14px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 0 0;
+  border-top: 1px solid #f0f0f0;
+}
 
 :deep(.ant-table-thead > tr > th) {
   background: color-mix(in srgb, var(--bg-surface) 82%, white);
