@@ -1,0 +1,68 @@
+package org.astrsomn.server.service.impl;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
+import org.astrsomn.core.common.base.BasePageRequest;
+import org.astrsomn.core.common.base.BaseResponse;
+import org.astrsomn.core.common.base.PageResponse;
+import org.astrsomn.core.common.dto.instance.AiInstanceCreateRequestDTO;
+import org.astrsomn.core.common.dto.instance.AiInstanceQueryRequestDTO;
+import org.astrsomn.core.common.dto.instance.AiInstanceResponseDTO;
+import org.astrsomn.core.common.dto.instance.AiInstanceUpdateRequestDTO;
+import org.astrsomn.core.common.entity.AiInstanceEntity;
+import org.astrsomn.core.mapper.AiInstanceMapper;
+import org.astrsomn.server.service.AiInstanceService;
+import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+
+@Service
+@RequiredArgsConstructor
+public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInstanceEntity> implements AiInstanceService {
+
+    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
+    @Override
+    public BaseResponse<String> create(AiInstanceCreateRequestDTO request) {
+        AiInstanceEntity entity = new AiInstanceEntity();
+        BeanUtils.copyProperties(request, entity);
+        bizResourceKeyAssignHelper.assignInstanceKeyIfBlank(entity);
+        boolean result = save(entity);
+        return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
+    }
+
+    @Override
+    public BaseResponse<String> delete(long[] ids) {
+        boolean result = removeByIds(Arrays.asList(Arrays.stream(ids).boxed().toArray(Long[]::new)));
+        return result ? BaseResponse.success("删除成功") : BaseResponse.fail("删除失败", null);
+    }
+
+    @Override
+    public BaseResponse<AiInstanceResponseDTO> detail(Long id) {
+        AiInstanceEntity entity = getById(id);
+        if (entity == null) {
+            return BaseResponse.fail("记录不存在", null);
+        }
+        AiInstanceResponseDTO dto = new AiInstanceResponseDTO();
+        BeanUtils.copyProperties(entity, dto);
+        return BaseResponse.success(dto);
+    }
+
+    @Override
+    public BaseResponse<String> update(AiInstanceUpdateRequestDTO request) {
+        AiInstanceEntity entity = new AiInstanceEntity();
+        BeanUtils.copyProperties(request, entity);
+        boolean result = updateById(entity);
+        return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
+    }
+
+    @Override
+    public PageResponse<AiInstanceResponseDTO> queryPage(BasePageRequest<AiInstanceQueryRequestDTO> request) {
+        IPage<AiInstanceResponseDTO> page = request.buildPage();
+        IPage<AiInstanceResponseDTO> result = baseMapper.queryPage(page, request.getParam());
+        return PageResponse.buildResponse(result);
+    }
+}

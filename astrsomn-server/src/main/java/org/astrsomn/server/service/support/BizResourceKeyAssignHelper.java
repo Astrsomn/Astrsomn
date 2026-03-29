@@ -4,11 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.base.BaseEntity;
+import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiAgentEntity;
+import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiMcpEntity;
 import org.astrsomn.core.common.entity.AiPromptEntity;
 import org.astrsomn.core.common.entity.AiToolEntity;
+import org.astrsomn.core.mapper.AiAccountMapper;
 import org.astrsomn.core.mapper.AiAgentMapper;
+import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiMcpMapper;
 import org.astrsomn.core.mapper.AiPromptMapper;
 import org.astrsomn.core.mapper.AiToolMapper;
@@ -29,6 +33,8 @@ public class BizResourceKeyAssignHelper {
     private final AiPromptMapper aiPromptMapper;
     private final AiToolMapper aiToolMapper;
     private final AiMcpMapper aiMcpMapper;
+    private final AiInstanceMapper aiInstanceMapper;
+    private final AiAccountMapper aiAccountMapper;
 
     public void assignAgentKeyIfBlank(AiAgentEntity entity) {
         String trimmed = StringUtils.trimToNull(entity.getAgentKey());
@@ -91,6 +97,48 @@ public class BizResourceKeyAssignHelper {
                                         new LambdaQueryWrapper<AiToolEntity>()
                                                 .eq(AiToolEntity::getCreateUser, user)
                                                 .eq(AiToolEntity::getToolKey, candidate))));
+    }
+
+    public void assignInstanceKeyIfBlank(AiInstanceEntity entity) {
+        String trimmed = StringUtils.trimToNull(entity.getInstanceKey());
+        if (trimmed != null) {
+            entity.setInstanceKey(trimmed);
+            return;
+        }
+        fillEnv(entity);
+        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
+        String name = "instance";
+        entity.setInstanceKey(
+                bizResourceKeyGenerator.generateUniqueBizKey(
+                        BizKeyNamespace.INSTANCE,
+                        user,
+                        name,
+                        candidate ->
+                                aiInstanceMapper.selectCount(
+                                        new LambdaQueryWrapper<AiInstanceEntity>()
+                                                .eq(AiInstanceEntity::getCreateUser, user)
+                                                .eq(AiInstanceEntity::getInstanceKey, candidate))));
+    }
+
+    public void assignAccountKeyIfBlank(AiAccountEntity entity) {
+        String trimmed = StringUtils.trimToNull(entity.getAccountKey());
+        if (trimmed != null) {
+            entity.setAccountKey(trimmed);
+            return;
+        }
+        fillEnv(entity);
+        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
+        String name = StringUtils.defaultIfBlank(entity.getAccountName(), "account");
+        entity.setAccountKey(
+                bizResourceKeyGenerator.generateUniqueBizKey(
+                        BizKeyNamespace.ACCOUNT,
+                        user,
+                        name,
+                        candidate ->
+                                aiAccountMapper.selectCount(
+                                        new LambdaQueryWrapper<AiAccountEntity>()
+                                                .eq(AiAccountEntity::getCreateUser, user)
+                                                .eq(AiAccountEntity::getAccountKey, candidate))));
     }
 
     public void assignMcpKeyIfBlank(AiMcpEntity entity) {

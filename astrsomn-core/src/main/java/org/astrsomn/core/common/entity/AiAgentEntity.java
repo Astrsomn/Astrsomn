@@ -21,14 +21,15 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("AGENT_KEY")
     private String agentKey;
 
-    @TableField("WORKFLOW_KEY")
-    private String workflowKey;
-
     @TableField("AGENT_NAME")
     private String agentName;
 
     @TableField("DESCRIPTION")
     private String description;
+
+    @TableField("WORKFLOW_KEY")
+    private String workflowKey;
+
 
     @TableField("CHAT_INSTANCE_KEY")
     private String chatInstanceKey;
