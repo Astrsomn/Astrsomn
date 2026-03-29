@@ -17,13 +17,13 @@
             <template v-else><PictureOutlined /></template>
           </div>
           <div class="text-group">
-            <h2>{{ mode === 'create' ? '注册新 AI 模型' : '编辑模型配置' }}</h2>
-            <p>配置供应源、端点及 LangChain4j 可用的推理超参</p>
+            <h2>{{ mode === 'create' ? '注册接入端点' : '编辑端点配置' }}</h2>
+            <p>配置物理供应源、API 地址及该端点支持的协议能力</p>
           </div>
         </div>
         <div class="steps-nav">
           <div
-              v-for="(s, index) in ['基础', '推理']"
+              v-for="(s, index) in ['接入识别', '能力定义']"
               :key="index"
               :class="['step-item', { active: currentStep === index, done: currentStep > index }]"
           >
@@ -44,32 +44,32 @@
       <div class="form-body-container">
         <div v-show="currentStep === 0" class="step-container animate-fade">
           <div class="form-section">
-            <h3 class="section-headline"><IdcardOutlined /> 1. 模型身份识别</h3>
+            <h3 class="section-headline"><IdcardOutlined /> 1. 端点身份识别</h3>
             <div class="form-grid">
-              <a-form-item label="供应商 (Provider)" name="provider">
-                <a-select v-model:value="form.provider" :options="providerOptions" placeholder="请选择服务商" size="large" :disabled="props.mode === 'view'" />
+              <a-form-item label="服务供应商 (Provider)" name="provider">
+                <a-select v-model:value="form.provider" :options="providerOptions" placeholder="请选择端点所属服务商" size="large" :disabled="props.mode === 'view'" />
               </a-form-item>
 
-              <a-form-item label="模型类型" name="modelType">
-                <a-segmented v-model:value="form.modelType" :options="[{label:'对话模型', value:'chat'}, {label:'向量模型', value:'embedding'}, {label:'图像模型', value:'image'}]" block size="large" :disabled="props.mode === 'view'" />
+              <a-form-item label="端点服务类型" name="modelType">
+                <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}]" block size="large" :disabled="props.mode === 'view'" />
               </a-form-item>
 
-              <a-form-item label="模型显示名称" name="modelName">
-                <a-input v-model:value="form.modelName" placeholder="例如：GPT-4o 或 Claude 3.5 Sonnet" size="large" :disabled="props.mode === 'view'" />
+              <a-form-item label="端点展示名称" name="modelName">
+                <a-input v-model:value="form.modelName" placeholder="例如：OpenAI 官方端点 或 私有部署 Llama3" size="large" :disabled="props.mode === 'view'" />
               </a-form-item>
 
-              <a-form-item label="模型 Key (内部识别码)" name="modelKey">
+              <a-form-item label="端点识别码 (Model Key)" name="modelKey">
                 <a-tooltip
-                  v-if="modelKeyImmutable || props.mode === 'view'"
-                  :title="modelKeyImmutable ? '已有推理实例在同环境下引用该模型 Key，不可修改' : '查看模式下不可修改'"
+                    v-if="modelKeyImmutable || props.mode === 'view'"
+                    :title="modelKeyImmutable ? '已有推理实例在同环境下引用该端点 Key，不可修改' : '查看模式下不可修改'"
                 >
-                  <a-input v-model:value="form.modelKey" placeholder="建议留空，系统将根据名称自动生成" size="large" disabled />
+                  <a-input v-model:value="form.modelKey" placeholder="建议留空，系统将自动生成唯一索引" size="large" disabled />
                 </a-tooltip>
                 <a-input
-                  v-else
-                  v-model:value="form.modelKey"
-                  placeholder="建议留空，系统将根据名称自动生成"
-                  size="large"
+                    v-else
+                    v-model:value="form.modelKey"
+                    placeholder="建议留空，系统将自动生成唯一索引"
+                    size="large"
                 >
                   <template #suffix>
                     <a-tooltip title="重置识别码">
@@ -79,36 +79,36 @@
                 </a-input>
               </a-form-item>
 
-              <a-form-item label="模型账号" name="accountKey">
+              <a-form-item label="关联凭证账号" name="accountKey">
                 <a-select
-                  v-model:value="form.accountKey"
-                  :options="accountSelectOptions"
-                  :loading="accountOptionsLoading"
-                  allow-clear
-                  show-search
-                  :filter-option="filterAccountOption"
-                  placeholder="选择当前用户在当前环境下的 AI 账号"
-                  size="large"
-                  option-filter-prop="label"
-                  :disabled="props.mode === 'view'"
+                    v-model:value="form.accountKey"
+                    :options="accountSelectOptions"
+                    :loading="accountOptionsLoading"
+                    allow-clear
+                    show-search
+                    :filter-option="filterAccountOption"
+                    placeholder="请关联对应的 API 凭证资产"
+                    size="large"
+                    option-filter-prop="label"
+                    :disabled="props.mode === 'view'"
                 />
               </a-form-item>
 
-              <a-form-item label="服务实例状态">
+              <a-form-item label="端点激活状态">
                 <div class="status-toggle-card">
                   <a-switch
                       :checked="form.status === 'enabled'"
                       @change="onStatusSwitch"
-                      checked-children="启用"
-                      un-checked-children="禁用"
+                      checked-children="已上线"
+                      un-checked-children="已下线"
                       :un-checked-color="'#ff4d4f'"
                       :disabled="props.mode === 'view'"
                   />
                 </div>
               </a-form-item>
 
-              <a-form-item label="API URL" name="apiUrl" class="span-2">
-                <a-input v-model:value="form.apiUrl" placeholder="https://api.openai.com/v1" size="large" :disabled="props.mode === 'view'">
+              <a-form-item label="接入地址 (API URL)" name="apiUrl" class="span-2">
+                <a-input v-model:value="form.apiUrl" placeholder="供应商 Base URL，如 https://api.openai.com/v1" size="large" :disabled="props.mode === 'view'">
                   <template #prefix><GlobalOutlined style="color: #bfbfbf" /></template>
                 </a-input>
               </a-form-item>
@@ -118,41 +118,40 @@
 
         <div v-show="currentStep === 1" class="step-container animate-fade">
           <div class="form-section">
-            <h3 class="section-headline"><ThunderboltOutlined /> 2. 推理超参（写入 capabilities，供 LangChain4j 解析）</h3>
+            <h3 class="section-headline"><ThunderboltOutlined /> 2. 端点能力定义（写入 Capabilities 供解析）</h3>
 
             <div class="capability-quick-view">
               <a-button type="primary" ghost @click="openCapabilitiesModal">
                 <template #icon><EyeOutlined /></template>
-                查看能力标签
+                配置支持能力集
               </a-button>
             </div>
 
             <div class="runtime-params-box">
-              <div class="box-title"><ControlOutlined /> 运行约束预设</div>
+              <div class="box-title"><ControlOutlined /> 端点资源约束</div>
               <div class="param-grid">
                 <div class="param-item">
-                  <span class="pl">响应 Token 限制</span>
-                  <a-input-number v-model:value="form.responseLimit" :min="0" placeholder="4096" block :disabled="props.mode === 'view'" />
+                  <span class="pl">单次响应上限 (Tokens)</span>
+                  <a-input-number v-model:value="form.responseLimit" :min="0" placeholder="默认 4096" block :disabled="props.mode === 'view'" />
                 </div>
                 <div class="param-item">
-                  <span class="pl">最大配额 Tokens</span>
-                  <a-input-number v-model:value="form.maxQuotaTokens" :min="0" placeholder="0" block :disabled="props.mode === 'view'" />
+                  <span class="pl">累计消耗配额 (Tokens)</span>
+                  <a-input-number v-model:value="form.maxQuotaTokens" :min="0" placeholder="0 表示无限制" block :disabled="props.mode === 'view'" />
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 能力标签查看对话框 -->
         <a-modal
-          v-model:open="showCapabilitiesModal"
-          :title="capabilitiesModalTitle"
-          width="600px"
-          :footer="null"
+            v-model:open="showCapabilitiesModal"
+            :title="capabilitiesModalTitle"
+            width="600px"
+            :footer="null"
         >
           <div class="capabilities-modal-content">
             <div v-if="form.modelType === 'chat'" class="capability-modal-section">
-              <h4>对话模型 · InferenceParamEnum</h4>
+              <h4>对话端点能力 · InferenceParamEnum</h4>
               <div class="cap-tag-grid">
                 <div
                     v-for="opt in chatInferenceOptions"
@@ -167,7 +166,7 @@
               </div>
 
               <div v-if="chatOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">非推理枚举的 code（多为历史能力标签，可点击移除）</div>
+                <div class="cap-subhead muted">非推理枚举 code（可能是历史标签，点击可移除）</div>
                 <div class="cap-tag-grid">
                   <div
                       v-for="c in chatOrphanCapabilities"
@@ -183,7 +182,7 @@
             </div>
 
             <div v-if="form.modelType === 'embedding'" class="capability-modal-section">
-              <h4>向量模型 · EmbeddingInferenceParamEnum</h4>
+              <h4>向量端点能力 · EmbeddingInferenceParamEnum</h4>
               <div class="cap-tag-grid">
                 <div
                     v-for="opt in embeddingInferenceOptions"
@@ -198,7 +197,7 @@
               </div>
 
               <div v-if="embeddingOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">非推理枚举的 code（可点击移除）</div>
+                <div class="cap-subhead muted">自定义能力 code</div>
                 <div class="cap-tag-grid">
                   <div
                       v-for="c in embeddingOrphanCapabilities"
@@ -214,7 +213,7 @@
             </div>
 
             <div v-if="form.modelType === 'image'" class="capability-modal-section">
-              <h4>图像模型 · ImageGenParamEnum</h4>
+              <h4>图像端点能力 · ImageGenParamEnum</h4>
               <div class="cap-tag-grid">
                 <div
                     v-for="opt in imageGenOptions"
@@ -229,7 +228,7 @@
               </div>
 
               <div v-if="imageOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">非推理枚举的 code（可点击移除）</div>
+                <div class="cap-subhead muted">自定义能力 code</div>
                 <div class="cap-tag-grid">
                   <div
                       v-for="c in imageOrphanCapabilities"
@@ -254,17 +253,17 @@
 
     <div class="modal-footer-action" v-if="props.mode !== 'view'">
       <div class="footer-left">
-        <LockOutlined /> 加密传输环境
+        <LockOutlined /> 端点变更将影响下游所有推理实例
       </div>
       <div class="footer-right">
-        <a-button v-if="currentStep > 0" class="btn-flat" @click="currentStep--">返回上一步</a-button>
+        <a-button v-if="currentStep > 0" class="btn-flat" @click="currentStep--">返回接入识别</a-button>
         <a-button
             v-if="currentStep < 1"
             type="primary"
             class="btn-next"
             @click="nextStep"
         >
-          下一步
+          配置能力集
         </a-button>
         <a-button
             v-else
@@ -273,7 +272,7 @@
             :loading="confirmLoading"
             @click="handleSubmit"
         >
-          确认并保存模型
+          确认并保存端点
         </a-button>
       </div>
     </div>

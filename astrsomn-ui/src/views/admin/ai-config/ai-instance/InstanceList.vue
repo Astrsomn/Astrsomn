@@ -1,37 +1,37 @@
 <template>
   <AdminPageShell
-    title="推理实例"
-    description="维护 AI_INSTANCE：实例键、采样与长度等推理参数，供智能体等引用。"
-    empty-text="暂无推理实例。"
+      title="推理参数配置"
+      description="管理 AI 运行预设：定义采样温度、长度限制及生成策略，供智能体（Agents）直接引用。"
+      empty-text="暂无推理预设实例。"
   >
     <div class="config-page">
       <AdminListToolbar>
         <template #left>
           <div class="search-cluster">
             <a-input
-              v-model:value="query.instanceKey"
-              placeholder="Instance Key"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
+                v-model:value="query.instanceKey"
+                placeholder="配置唯一标识 (Key)"
+                class="toolbar-input search-main-input"
+                allow-clear
+                @pressEnter="fetchList"
             >
               <template #prefix><search-outlined /></template>
             </a-input>
             <a-input
-              v-model:value="query.instanceName"
-              placeholder="实例名称"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
+                v-model:value="query.instanceName"
+                placeholder="预设名称"
+                class="toolbar-input search-sub-input"
+                allow-clear
+                @pressEnter="fetchList"
             >
               <template #prefix><search-outlined /></template>
             </a-input>
             <a-input
-              v-model:value="query.modelKey"
-              placeholder="Model Key"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
+                v-model:value="query.modelKey"
+                placeholder="关联端点 Key"
+                class="toolbar-input search-sub-input"
+                allow-clear
+                @pressEnter="fetchList"
             >
               <template #prefix><search-outlined /></template>
             </a-input>
@@ -39,16 +39,16 @@
 
           <div class="status-switch" role="group" aria-label="状态筛选">
             <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'enabled' }"
-              @click="toggleStatusFilter('enabled')"
+                class="status-btn"
+                :class="{ active: query.status === 'enabled' }"
+                @click="toggleStatusFilter('enabled')"
             >
               启用
             </a-button>
             <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'disabled' }"
-              @click="toggleStatusFilter('disabled')"
+                class="status-btn"
+                :class="{ active: query.status === 'disabled' }"
+                @click="toggleStatusFilter('disabled')"
             >
               禁用
             </a-button>
@@ -61,11 +61,11 @@
             查询
           </a-button>
           <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的实例吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
+              v-if="selectedRowKeys.length > 0"
+              title="确定批量移除选中的推理配置吗？"
+              ok-text="确认"
+              cancel-text="取消"
+              @confirm="handleBatchDelete"
           >
             <a-button danger class="ghost-btn danger-btn">
               <template #icon><delete-outlined /></template>
@@ -75,28 +75,28 @@
           <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
           <a-button class="ghost-btn add-btn" @click="goCreate">
             <template #icon><plus-outlined /></template>
-            新增
+            新增配置
           </a-button>
         </template>
       </AdminListToolbar>
 
       <BaseOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条实例，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
+          :list-length="list.length"
+          :selected-count="selectedRowKeys.length"
+          :all-current-selected="allCurrentSelected"
+          :part-current-selected="partCurrentSelected"
+          :show-actions="list.length > 0"
+          :summary-text="`当前共有 ${list.length} 条推理预设，已选 ${selectedRowKeys.length} 条。`"
+          @toggle-select-all="toggleSelectAllCurrentPage"
       />
 
       <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1560 }"
+          :columns="columns"
+          :data-source="list"
+          :pagination="false"
+          row-key="id"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1560 }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'instanceKey'">
@@ -106,30 +106,32 @@
             <span>{{ record.instanceName || '—' }}</span>
           </template>
           <template v-else-if="column.key === 'modelKey'">
-            <code class="code-text">{{ record.modelKey || '—' }}</code>
+            <a-tooltip title="关联的接入端点标识">
+              <code class="code-text">{{ record.modelKey || '—' }}</code>
+            </a-tooltip>
           </template>
-          <template v-else-if="column.key === 'params'">
+          <template v-if="column.key === 'params'">
             <span class="param-summary">
-              temp {{ record.temperature ?? '—' }} · maxTok {{ record.maxTokens ?? '—' }} · topP
+              温度 {{ record.temperature ?? '—' }} · 长度限制 {{ record.maxTokens ?? '—' }} · 核采样
               {{ record.topP ?? '—' }}
             </span>
           </template>
           <template v-else-if="column.key === 'status'">
             <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
-              {{ record.status || '—' }}
+              {{ record.status === 'enabled' ? '已激活' : '已停用' }}
             </a-tag>
           </template>
           <template v-else-if="column.key === 'envCode'">
-            <span>{{ record.envCode || '—' }}</span>
+            <a-tag color="blue">{{ record.envCode || 'DEFAULT' }}</a-tag>
           </template>
           <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="goEdit(record)">编辑</a-button>
+            <a-button type="link" @click="goEdit(record)">编辑参数</a-button>
             <a-divider type="vertical" />
             <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
+                title="确定删除此配置吗？关联的智能体可能受影响。"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="() => handleDeleteOne(record.id)"
             >
               <a-button type="link" danger>删除</a-button>
             </a-popconfirm>
@@ -139,18 +141,18 @@
 
       <div class="pagination-wrap">
         <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :total="page.total"
+            :show-size-changer="false"
+            @change="onPageChange"
         />
       </div>
 
       <InstanceForm
-        v-model:visible="formVisible"
-        :record="currentRecord"
-        @success="handleFormSuccess"
+          v-model:visible="formVisible"
+          :record="currentRecord"
+          @success="handleFormSuccess"
       />
     </div>
   </AdminPageShell>

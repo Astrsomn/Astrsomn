@@ -53,13 +53,13 @@ const routes: RouteRecordRaw[] = [
         path: 'models',
         name: 'AdminModels',
         component: () => import('@/views/admin/ai-config/ai-model/ModelList.vue'),
-        meta: { title: '模型配置', requiresAuth: true }
+        meta: { title: '模型接入', requiresAuth: true }
       },
       {
         path: 'ai-instance',
         name: 'AdminAiInstance',
         component: () => import('@/views/admin/ai-config/ai-instance/InstanceList.vue'),
-        meta: { title: '推理实例', requiresAuth: true }
+        meta: { title: '推理配置', requiresAuth: true }
       },
       {
         path: 'ai-account',

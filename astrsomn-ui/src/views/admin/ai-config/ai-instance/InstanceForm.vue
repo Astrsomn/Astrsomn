@@ -1,122 +1,123 @@
 <template>
   <a-modal
-    :open="visible"
-    :title="isEdit ? '编辑推理实例' : '新建推理实例'"
-    :width="820"
-    :confirm-loading="submitting"
-    @ok="onSubmit"
-    @cancel="handleCancel"
+      :open="visible"
+      :title="isEdit ? '编辑推理预设' : '新建推理预设'"
+      :width="820"
+      :confirm-loading="submitting"
+      @ok="onSubmit"
+      @cancel="handleCancel"
   >
     <a-spin :spinning="loading">
       <a-form ref="formRef" layout="vertical" :model="form">
         <a-row :gutter="16">
           <a-col :xs="24" :md="12">
-            <a-form-item label="实例名称" name="instanceName">
-              <a-input v-model:value="form.instanceName" placeholder="展示用名称" allow-clear />
+            <a-form-item label="预设名称" name="instanceName">
+              <a-input v-model:value="form.instanceName" placeholder="例如：创造力模式 / 严格助手" allow-clear />
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="12">
-            <a-form-item label="状态" name="status">
+            <a-form-item label="配置状态" name="status">
               <a-select
-                v-model:value="form.status"
-                :options="statusOptions"
-                placeholder="请选择"
-                allow-clear
+                  v-model:value="form.status"
+                  :options="statusOptions"
+                  placeholder="请选择"
+                  allow-clear
               />
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="12">
-            <a-form-item label="关联模型" name="modelKey" :rules="modelKeyFieldRules">
+            <a-form-item label="关联接入端点 (Endpoint)" name="modelKey" :rules="modelKeyFieldRules">
               <a-select
-                v-model:value="form.modelKey"
-                :options="modelSelectOptions"
-                :loading="modelsLoading"
-                :disabled="isEdit"
-                show-search
-                :filter-option="filterModelOption"
-                placeholder="选择模型（创建后不可修改）"
-                allow-clear
-                option-filter-prop="label"
+                  v-model:value="form.modelKey"
+                  :options="modelSelectOptions"
+                  :loading="modelsLoading"
+                  :disabled="isEdit"
+                  show-search
+                  :filter-option="filterModelOption"
+                  placeholder="选择此配置绑定的物理端点"
+                  allow-clear
+                  option-filter-prop="label"
               />
             </a-form-item>
           </a-col>
           <a-col :xs="24" :md="12">
-            <a-form-item label="Instance Key" name="instanceKey">
+            <a-form-item label="配置识别码 (Instance Key)" name="instanceKey">
               <a-input
-                v-model:value="form.instanceKey"
-                placeholder="可选，留空则自动生成"
-                allow-clear
+                  v-model:value="form.instanceKey"
+                  placeholder="代码引用标识，留空则自动生成"
+                  allow-clear
               />
             </a-form-item>
           </a-col>
         </a-row>
 
         <a-alert
-          v-if="orphanModelKey"
-          type="warning"
-          show-icon
-          class="mb-12"
-          message="未在模型列表中匹配到该 modelKey，下方暂按「对话模型」展示全部推理参数；可检查模型是否已删除或刷新后重开。"
+            v-if="orphanModelKey"
+            type="warning"
+            show-icon
+            class="mb-12"
+            message="未匹配到目标接入端点，当前按「通用对话」模式展示全部参数；请核实端点是否已移除。"
         />
         <a-alert
-          v-else-if="!form.modelKey"
-          type="info"
-          show-icon
-          class="mb-12"
-          message="请先选择关联模型，下方将按模型类型与已配置能力显示可填参数。"
+            v-else-if="!form.modelKey"
+            type="info"
+            show-icon
+            class="mb-12"
+            message="请先选择接入端点，系统将根据端点支持的能力集（Capabilities）动态加载可调参数。"
         />
 
         <template v-if="showChatParamSection">
-          <div class="param-section-title">对话模型 · 推理参数</div>
+          <div class="param-section-title">对话模型 · 运行采样参数</div>
           <a-row :gutter="16">
             <a-col v-show="chatFieldVisibilityEffective.maxTokens" :xs="24" :md="8">
-              <a-form-item label="Max tokens" name="maxTokens">
+              <a-form-item label="单次响应上限 (Max Tokens)" name="maxTokens">
                 <a-input-number v-model:value="form.maxTokens" class="w-full" :min="0" placeholder="最大生成长度" />
               </a-form-item>
             </a-col>
             <a-col v-show="chatFieldVisibilityEffective.temperature" :xs="24" :md="8">
-              <a-form-item label="Temperature" name="temperature">
+              <a-form-item label="采样温度 (Temperature)" name="temperature">
                 <a-input-number
-                  v-model:value="form.temperature"
-                  class="w-full"
-                  :min="0"
-                  :max="2"
-                  :step="0.1"
+                    v-model:value="form.temperature"
+                    class="w-full"
+                    :min="0"
+                    :max="2"
+                    :step="0.1"
+                    placeholder="0.7"
                 />
               </a-form-item>
             </a-col>
             <a-col v-show="chatFieldVisibilityEffective.topP" :xs="24" :md="8">
-              <a-form-item label="Top P" name="topP">
-                <a-input-number v-model:value="form.topP" class="w-full" :min="0" :max="1" :step="0.05" />
+              <a-form-item label="核采样阈值 (Top P)" name="topP">
+                <a-input-number v-model:value="form.topP" class="w-full" :min="0" :max="1" :step="0.05" placeholder="1.0" />
               </a-form-item>
             </a-col>
             <a-col v-show="chatFieldVisibilityEffective.topK" :xs="24" :md="8">
-              <a-form-item label="Top K" name="topK">
+              <a-form-item label="候选集大小 (Top K)" name="topK">
                 <a-input-number v-model:value="form.topK" class="w-full" :min="0" placeholder="整数" />
               </a-form-item>
             </a-col>
             <a-col v-show="chatFieldVisibilityEffective.presencePenalty" :xs="24" :md="8">
-              <a-form-item label="Presence penalty" name="presencePenalty">
-                <a-input-number v-model:value="form.presencePenalty" class="w-full" :step="0.1" />
+              <a-form-item label="话题新鲜度 (Presence Penalty)" name="presencePenalty">
+                <a-input-number v-model:value="form.presencePenalty" class="w-full" :step="0.1" placeholder="0.0" />
               </a-form-item>
             </a-col>
             <a-col v-show="chatFieldVisibilityEffective.frequencyPenalty" :xs="24" :md="8">
-              <a-form-item label="Frequency penalty" name="frequencyPenalty">
-                <a-input-number v-model:value="form.frequencyPenalty" class="w-full" :step="0.1" />
+              <a-form-item label="重复惩罚 (Frequency Penalty)" name="frequencyPenalty">
+                <a-input-number v-model:value="form.frequencyPenalty" class="w-full" :step="0.1" placeholder="0.0" />
               </a-form-item>
             </a-col>
             <a-col v-show="chatFieldVisibilityEffective.seed" :xs="24" :md="8">
-              <a-form-item label="Seed" name="seed">
-                <a-input-number v-model:value="form.seed" class="w-full" placeholder="可选，整数种子" />
+              <a-form-item label="随机种子 (Seed)" name="seed">
+                <a-input-number v-model:value="form.seed" class="w-full" placeholder="用于结果复现" />
               </a-form-item>
             </a-col>
             <a-col v-show="chatFieldVisibilityEffective.stopSequences" :span="24">
-              <a-form-item label="Stop sequences" name="stopSequences">
+              <a-form-item label="停止符序列 (Stop Sequences)" name="stopSequences">
                 <a-textarea
-                  v-model:value="form.stopSequences"
-                  :rows="3"
-                  placeholder="多段结束符，可按后端约定使用 JSON 或分隔符"
-                  allow-clear
+                    v-model:value="form.stopSequences"
+                    :rows="3"
+                    placeholder="多段结束符，匹配到这些字符时将停止输出"
+                    allow-clear
                 />
               </a-form-item>
             </a-col>
@@ -124,10 +125,10 @@
         </template>
 
         <template v-else-if="resolvedModel && resolvedModel.modelType === 'embedding'">
-          <div class="param-section-title">向量模型 · 嵌入参数</div>
+          <div class="param-section-title">向量模型 · 维度配置</div>
           <a-row :gutter="16">
             <a-col v-show="showEmbeddingDimensions" :xs="24" :md="8">
-              <a-form-item label="Dimensions" name="dimensions">
+              <a-form-item label="输出维度 (Dimensions)" name="dimensions">
                 <a-input-number v-model:value="form.dimensions" class="w-full" :min="0" />
               </a-form-item>
             </a-col>
@@ -135,20 +136,20 @@
         </template>
 
         <template v-else-if="resolvedModel && resolvedModel.modelType === 'image'">
-          <div class="param-section-title">图像模型 · 生成参数</div>
+          <div class="param-section-title">图像模型 · 渲染参数</div>
           <a-row :gutter="16">
             <a-col v-show="showImageSize" :xs="24" :md="8">
-              <a-form-item label="Size" name="size">
+              <a-form-item label="画布尺寸 (Size)" name="size">
                 <a-input v-model:value="form.size" allow-clear placeholder="如 1024x1024" />
               </a-form-item>
             </a-col>
             <a-col v-show="showImageStyle" :xs="24" :md="8">
-              <a-form-item label="Style" name="style">
-                <a-input v-model:value="form.style" allow-clear />
+              <a-form-item label="生成风格 (Style)" name="style">
+                <a-input v-model:value="form.style" allow-clear placeholder="如 vivid 或 natural" />
               </a-form-item>
             </a-col>
             <a-col v-show="showImageDimensions" :xs="24" :md="8">
-              <a-form-item label="Dimensions" name="dimensions">
+              <a-form-item label="渲染维度" name="dimensions">
                 <a-input-number v-model:value="form.dimensions" class="w-full" :min="0" />
               </a-form-item>
             </a-col>
@@ -158,7 +159,6 @@
     </a-spin>
   </a-modal>
 </template>
-
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'

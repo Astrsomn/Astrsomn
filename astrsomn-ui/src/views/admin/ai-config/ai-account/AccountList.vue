@@ -1,6 +1,6 @@
 <template>
   <AdminPageShell
-    title="AI 账号"
+    title="凭证管理"
     description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
     empty-text="暂无账号。"
   >

@@ -89,7 +89,7 @@ const copyAgentKey = async () => {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, #ffffff 100%);
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: var(--radius-sm);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -127,7 +127,7 @@ const copyAgentKey = async () => {
   width: 52px;
   height: 52px;
   background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,7 +182,7 @@ const copyAgentKey = async () => {
   color: var(--model-color);
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: rgba(8, 145, 178, 0.08);
 }
 
@@ -195,7 +195,7 @@ const copyAgentKey = async () => {
   cursor: pointer;
   background: #f8fafc;
   padding: 4px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid #e2e8f0;
   width: fit-content;
   transition:
@@ -250,7 +250,7 @@ const copyAgentKey = async () => {
   align-items: center;
   gap: 4px;
   padding: 5px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: #f8fafc;
   border: 1px solid #eef2f7;
 }

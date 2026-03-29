@@ -1,200 +1,199 @@
 <template>
   <div class="agent-form-modal-root">
-  <a-modal
-    v-model:open="open"
-    :title="null"
-    width="960px"
-    :footer="null"
-    :destroy-on-close="true"
-    @cancel="onCancel"
-    class="premium-agent-modal"
-  >
-    <div class="modal-header-gradient">
-      <div class="header-content">
-        <div class="title-area">
-          <div class="icon-box">
-            <template v-if="mode === 'create'"><PlusOutlined /></template>
-            <template v-else><EditOutlined /></template>
-          </div>
-          <div class="text-group">
-            <h2>{{ mode === 'create' ? '构建新智能体' : '配置智能体' }}</h2>
-            <p>定义 Agent 的身份、实例化模型分层（对话 / 向量 / 图像）与专业能力范围</p>
-          </div>
-        </div>
-        <div class="steps-nav">
-          <div
-            v-for="(s, index) in stepLabels"
-            :key="index"
-            :class="['step-item', { active: currentStep === index, done: currentStep > index }]"
-            @click="goToStep(index)"
-          >
-            <span class="step-num">{{ index + 1 }}</span>
-            <span class="step-text">{{ s }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <a-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      layout="vertical"
-      class="professional-form"
+    <a-modal
+        v-model:open="open"
+        :title="null"
+        width="960px"
+        :footer="null"
+        :destroy-on-close="true"
+        @cancel="onCancel"
+        class="premium-agent-modal"
     >
-      <div class="form-scroll-container">
-        <div v-show="currentStep === 0" class="step-container">
-          <div class="form-section">
-            <h3 class="section-headline"><IdcardOutlined /> 1. 身份定义与基础表现</h3>
-            <div class="form-grid">
-              <a-form-item label="智能体名称" name="agentName">
-                <a-input v-model:value="form.agentName" placeholder="例如：高级文案专家" size="large" />
-              </a-form-item>
-              <a-form-item label="唯一识别码 (Agent Key)" name="agentKey">
-                <a-input v-model:value="form.agentKey" :disabled="mode === 'edit'" placeholder="agent_unique_id" size="large" />
-              </a-form-item>
-              <a-form-item label="运行状态" name="status">
-                <a-segmented v-model:value="form.status" :options="statusOptions" block size="large" />
-              </a-form-item>
-              <a-form-item label="流式响应 (Stream)" name="enableStream">
-                <div class="compact-switch-card">
-                  <span class="hint">启用实时打字机效果</span>
-                  <a-switch v-model:checked="form.enableStream" />
-                </div>
-              </a-form-item>
-              <a-form-item label="职能描述" name="description" class="span-2">
-                <a-textarea v-model:value="form.description" :auto-size="{ minRows: 2, maxRows: 2 }" placeholder="简述该 Agent 的核心能力..." />
-              </a-form-item>
+      <div class="modal-header-gradient">
+        <div class="header-content">
+          <div class="title-area">
+            <div class="icon-box">
+              <template v-if="mode === 'create'"><PlusOutlined /></template>
+              <template v-else><EditOutlined /></template>
+            </div>
+            <div class="text-group">
+              <h2>{{ mode === 'create' ? '构建新智能体 (Agent)' : '智能体编排配置' }}</h2>
+              <p>定义 Agent 身份标识、挂载多模态推理预设并编排提示词指令</p>
+            </div>
+          </div>
+          <div class="steps-nav">
+            <div
+                v-for="(s, index) in stepLabels"
+                :key="index"
+                :class="['step-item', { active: currentStep === index, done: currentStep > index }]"
+                @click="goToStep(index)"
+            >
+              <span class="step-num">{{ index + 1 }}</span>
+              <span class="step-text">{{ s === '基础' ? '核心身份' : s === '推理' ? '能力挂载' : '扩展增强' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <div class="memory-setting-row span-2">
-                <a-form-item label="记忆模式">
-                  <a-select v-model:value="form.memoryMode" :options="memoryModeOptions" />
+      <a-form
+          ref="formRef"
+          :model="form"
+          :rules="rules"
+          layout="vertical"
+          class="professional-form"
+      >
+        <div class="form-scroll-container">
+          <div v-show="currentStep === 0" class="step-container">
+            <div class="form-section">
+              <h3 class="section-headline"><IdcardOutlined /> 1. 身份定义与基础表现</h3>
+              <div class="form-grid">
+                <a-form-item label="智能体名称" name="agentName">
+                  <a-input v-model:value="form.agentName" placeholder="例如：高级文案专家" size="large" />
                 </a-form-item>
-                <a-form-item label="窗口大小">
-                  <a-input-number v-model:value="form.memoryWindowSize" style="width: 100%" placeholder="10" />
+                <a-form-item label="唯一识别码 (Agent Key)" name="agentKey">
+                  <a-input v-model:value="form.agentKey" :disabled="mode === 'edit'" placeholder="用于 API 引用的唯一 ID" size="large" />
                 </a-form-item>
+                <a-form-item label="服务状态" name="status">
+                  <a-segmented v-model:value="form.status" :options="statusOptions" block size="large" />
+                </a-form-item>
+                <a-form-item label="流式传输 (Stream)" name="enableStream">
+                  <div class="compact-switch-card">
+                    <span class="hint">开启实时文本流输出</span>
+                    <a-switch v-model:checked="form.enableStream" />
+                  </div>
+                </a-form-item>
+                <a-form-item label="职能描述" name="description" class="span-2">
+                  <a-textarea v-model:value="form.description" :auto-size="{ minRows: 2, maxRows: 2 }" placeholder="简述该智能体在业务场景中的定位..." />
+                </a-form-item>
+
+                <div class="memory-setting-row span-2">
+                  <a-form-item label="上下文记忆模式">
+                    <a-select v-model:value="form.memoryMode" :options="memoryModeOptions" />
+                  </a-form-item>
+                  <a-form-item label="历史窗口大小">
+                    <a-input-number v-model:value="form.memoryWindowSize" style="width: 100%" placeholder="10" />
+                  </a-form-item>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div v-show="currentStep === 1" class="step-container">
-          <div class="form-section">
-            <h3 class="section-headline"><DotChartOutlined /> 2. 模型实例与提示词</h3>
-            <p class="step-hint">对话 / 向量 / 图像能力分别绑定「推理实例」(Instance)；采样参数在实例管理中配置，不再在 Agent 上重复维护。</p>
+          <div v-show="currentStep === 1" class="step-container">
+            <div class="form-section">
+              <h3 class="section-headline"><DotChartOutlined /> 2. 推理预设与指令编排</h3>
+              <p class="step-hint">在此挂载「推理预设」(Instances)；参数（温度、Token 限制）由预设统一管理，实现多智能体共享配置。</p>
 
-            <div class="resource-selection-group instance-trio">
-              <div class="picker-card" @click="openPicker('chatInstance')">
-                <div class="card-icon model-icon"><DeploymentUnitOutlined /></div>
-                <div class="card-info">
-                  <span class="label">对话实例 (Chat)</span>
-                  <span class="val">{{ chatInstanceDisplay || '点击选择' }}</span>
+              <div class="resource-selection-group instance-trio">
+                <div class="picker-card" @click="openPicker('chatInstance')">
+                  <div class="card-icon model-icon"><DeploymentUnitOutlined /></div>
+                  <div class="card-info">
+                    <span class="label">对话推理预设 (Chat)</span>
+                    <span class="val">{{ chatInstanceDisplay || '点击挂载对话能力' }}</span>
+                  </div>
+                  <RightOutlined class="arrow" />
                 </div>
-                <RightOutlined class="arrow" />
-              </div>
-              <div class="picker-card" @click="openPicker('embeddingInstance')">
-                <div class="card-icon embed-icon"><ClusterOutlined /></div>
-                <div class="card-info">
-                  <span class="label">向量实例 (Embedding)</span>
-                  <span class="val">{{ embeddingInstanceDisplay || '可选' }}</span>
+                <div class="picker-card" @click="openPicker('embeddingInstance')">
+                  <div class="card-icon embed-icon"><ClusterOutlined /></div>
+                  <div class="card-info">
+                    <span class="label">向量推理预设 (Embedding)</span>
+                    <span class="val">{{ embeddingInstanceDisplay || '可选：用于知识检索' }}</span>
+                  </div>
+                  <RightOutlined class="arrow" />
                 </div>
-                <RightOutlined class="arrow" />
+                <div class="picker-card" @click="openPicker('imageInstance')">
+                  <div class="card-icon image-icon"><PictureOutlined /></div>
+                  <div class="card-info">
+                    <span class="label">图像推理预设 (Image)</span>
+                    <span class="val">{{ imageInstanceDisplay || '可选：用于生图能力' }}</span>
+                  </div>
+                  <RightOutlined class="arrow" />
+                </div>
               </div>
-              <div class="picker-card" @click="openPicker('imageInstance')">
-                <div class="card-icon image-icon"><PictureOutlined /></div>
+
+              <a-form-item name="chatInstanceKey" :rules="rules.chatInstanceKey" class="hidden-chat-instance-field">
+                <a-input v-model:value="form.chatInstanceKey" tabindex="-1" class="visually-hidden-input" read-only />
+              </a-form-item>
+
+              <div class="picker-card prompt-single-row" @click="openPicker('prompt')">
+                <div class="card-icon prompt-icon"><MessageOutlined /></div>
                 <div class="card-info">
-                  <span class="label">图像实例 (Image)</span>
-                  <span class="val">{{ imageInstanceDisplay || '可选' }}</span>
+                  <span class="label">系统级提示词 (System Prompt)</span>
+                  <span class="val">{{ promptDisplayText || '点击关联指令模板' }}</span>
                 </div>
                 <RightOutlined class="arrow" />
               </div>
             </div>
+          </div>
 
-            <a-form-item name="chatInstanceKey" :rules="rules.chatInstanceKey" class="hidden-chat-instance-field">
-              <a-input v-model:value="form.chatInstanceKey" tabindex="-1" class="visually-hidden-input" read-only />
-            </a-form-item>
+          <div v-show="currentStep === 2" class="step-container">
+            <div class="form-section">
+              <h3 class="section-headline"><ThunderboltOutlined /> 3. 技能扩展与知识增强</h3>
 
-            <div class="picker-card prompt-single-row" @click="openPicker('prompt')">
-              <div class="card-icon prompt-icon"><MessageOutlined /></div>
-              <div class="card-info">
-                <span class="label">系统提示词 (System Prompt)</span>
-                <span class="val">{{ promptDisplayText || '点击配置指令' }}</span>
+              <div class="capability-card">
+                <div class="cap-header">
+                  <span class="title">工具集与 MCP 协议服务</span>
+                  <a-space>
+                    <a-button type="link" size="small" @click="openPicker('tool')">挂载外部工具</a-button>
+                    <a-button type="link" size="small" @click="openPicker('mcp')">连接 MCP 服务</a-button>
+                  </a-space>
+                </div>
+                <div class="tag-render-area">
+                  <template v-for="t in toolKeyTags" :key="'t' + t">
+                    <a-tag closable color="blue" @close="removeKey('tool', t)">{{ t }}</a-tag>
+                  </template>
+                  <template v-for="m in mcpKeyTags" :key="'m' + m">
+                    <a-tag closable color="purple" @close="removeKey('mcp', m)">{{ m }}</a-tag>
+                  </template>
+                  <div v-if="!toolKeyTags.length && !mcpKeyTags.length" class="empty-placeholder">未挂载任何外部执行能力</div>
+                </div>
               </div>
-              <RightOutlined class="arrow" />
+
+              <a-form-item label="关联知识库 (Knowledge Base Keys)" class="mt-16">
+                <a-textarea v-model:value="form.knowledgeBaseKeys" :auto-size="{ minRows: 2, maxRows: 2 }" placeholder="输入知识库索引 ID，多个请用逗号分隔..." />
+              </a-form-item>
             </div>
           </div>
         </div>
+      </a-form>
 
-        <div v-show="currentStep === 2" class="step-container">
-          <div class="form-section">
-            <h3 class="section-headline"><ThunderboltOutlined /> 3. 技能扩展与知识增强</h3>
-
-            <div class="capability-card">
-              <div class="cap-header">
-                <span class="title">工具与 MCP 服务</span>
-                <a-space>
-                  <a-button type="link" size="small" @click="openPicker('tool')">添加工具</a-button>
-                  <a-button type="link" size="small" @click="openPicker('mcp')">添加 MCP</a-button>
-                </a-space>
-              </div>
-              <div class="tag-render-area">
-                <template v-for="t in toolKeyTags" :key="'t' + t">
-                  <a-tag closable color="blue" @close="removeKey('tool', t)">{{ t }}</a-tag>
-                </template>
-                <template v-for="m in mcpKeyTags" :key="'m' + m">
-                  <a-tag closable color="purple" @close="removeKey('mcp', m)">{{ m }}</a-tag>
-                </template>
-                <div v-if="!toolKeyTags.length && !mcpKeyTags.length" class="empty-placeholder">未绑定外部能力</div>
-              </div>
-            </div>
-
-            <a-form-item label="关联知识库 (Knowledge Base Keys)" class="mt-16">
-              <a-textarea v-model:value="form.knowledgeBaseKeys" :auto-size="{ minRows: 2, maxRows: 2 }" placeholder="输入知识库唯一标识，多个请用逗号分隔..." />
-            </a-form-item>
-          </div>
+      <div class="modal-footer-action">
+        <div class="footer-left">
+          <span class="status-indicator"></span> 编排变更将立即应用于全量推理链路
+        </div>
+        <div class="footer-right">
+          <a-button v-if="currentStep > 0" class="btn-flat" @click="currentStep--">回退</a-button>
+          <a-button v-if="currentStep < 2" type="primary" class="btn-next" @click="currentStep++">继续：{{ stepLabels[currentStep + 1] === '推理' ? '能力配置' : '扩展配置' }}</a-button>
+          <a-button v-else type="primary" class="btn-submit" :loading="confirmLoading" @click="handleOk"> 保存并发布智能体 </a-button>
         </div>
       </div>
-    </a-form>
+    </a-modal>
 
-    <div class="modal-footer-action">
-      <div class="footer-left">
-        <span class="status-indicator"></span> 配置将实时校验并同步
-      </div>
-      <div class="footer-right">
-        <a-button v-if="currentStep > 0" class="btn-flat" @click="currentStep--">上一步</a-button>
-        <a-button v-if="currentStep < 2" type="primary" class="btn-next" @click="currentStep++">下一步：{{ stepLabels[currentStep + 1] }}</a-button>
-        <a-button v-else type="primary" class="btn-submit" :loading="confirmLoading" @click="handleOk"> 保存并发布智能体 </a-button>
-      </div>
-    </div>
-  </a-modal>
-
-  <AgentResourcePickModal
-    v-model:open="picker.chatInstance"
-    kind="instance"
-    instance-model-type="chat"
-    :initial-single="form.chatInstanceKey ?? null"
-    @confirm="onResourceConfirm"
-  />
-  <AgentResourcePickModal
-    v-model:open="picker.embeddingInstance"
-    kind="instance"
-    instance-model-type="embedding"
-    :initial-single="form.embeddingInstanceKey ?? null"
-    @confirm="onResourceConfirm"
-  />
-  <AgentResourcePickModal
-    v-model:open="picker.imageInstance"
-    kind="instance"
-    instance-model-type="image"
-    :initial-single="form.imageInstanceKey ?? null"
-    @confirm="onResourceConfirm"
-  />
-  <AgentResourcePickModal v-model:open="picker.prompt" kind="prompt" :initial-single="form.promptKey || null" @confirm="onResourceConfirm" />
-  <AgentResourcePickModal v-model:open="picker.tool" kind="tool" :initial-keys="parsedToolKeys" @confirm="onResourceConfirm" />
-  <AgentResourcePickModal v-model:open="picker.mcp" kind="mcp" :initial-keys="parsedMcpKeys" @confirm="onResourceConfirm" />
+    <AgentResourcePickModal
+        v-model:open="picker.chatInstance"
+        kind="instance"
+        instance-model-type="chat"
+        :initial-single="form.chatInstanceKey ?? null"
+        @confirm="onResourceConfirm"
+    />
+    <AgentResourcePickModal
+        v-model:open="picker.embeddingInstance"
+        kind="instance"
+        instance-model-type="embedding"
+        :initial-single="form.embeddingInstanceKey ?? null"
+        @confirm="onResourceConfirm"
+    />
+    <AgentResourcePickModal
+        v-model:open="picker.imageInstance"
+        kind="instance"
+        instance-model-type="image"
+        :initial-single="form.imageInstanceKey ?? null"
+        @confirm="onResourceConfirm"
+    />
+    <AgentResourcePickModal v-model:open="picker.prompt" kind="prompt" :initial-single="form.promptKey || null" @confirm="onResourceConfirm" />
+    <AgentResourcePickModal v-model:open="picker.tool" kind="tool" :initial-keys="parsedToolKeys" @confirm="onResourceConfirm" />
+    <AgentResourcePickModal v-model:open="picker.mcp" kind="mcp" :initial-keys="parsedMcpKeys" @confirm="onResourceConfirm" />
   </div>
 </template>
-
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import {
@@ -388,7 +387,7 @@ const onCancel = () => {
 }
 .modal-header-gradient {
   background: #fff;
-  padding: 24px 40px;
+  padding: 10px 0;
   border-bottom: 1px solid #f0f0f0;
 }
 .header-content {

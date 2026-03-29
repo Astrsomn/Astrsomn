@@ -348,8 +348,8 @@ void fetchList()
   gap: 16px;
   margin-bottom: 6px;
   flex-wrap: wrap;
-  padding: 16px;
-  border-radius: 20px;
+  padding: 16px 0;
+  border-radius: var(--radius-sm);
   background: var(--bg-card);
 }
 
@@ -374,7 +374,7 @@ void fetchList()
   align-items: center;
   flex-wrap: wrap;
   padding: 6px;
-  border-radius: 16px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border-default);
   background: var(--bg-surface);
   box-shadow: none;
@@ -408,7 +408,7 @@ void fetchList()
 .primary-btn,
 .ghost-btn {
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
 }
 
 .danger-btn {
@@ -429,7 +429,7 @@ void fetchList()
   align-items: center;
   gap: 8px;
   padding: 4px;
-  border-radius: 14px;
+  border-radius: var(--radius-sm);
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
 }
@@ -437,7 +437,7 @@ void fetchList()
 .status-btn {
   height: 36px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
   background: transparent;
   box-shadow: none;
