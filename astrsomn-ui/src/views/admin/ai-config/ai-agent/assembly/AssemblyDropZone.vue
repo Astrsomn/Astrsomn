@@ -107,12 +107,12 @@ function onDrop(ev: DragEvent) {
 .slot-title {
   font-size: 12px;
   font-weight: 600;
-  color: #434343;
+  color: var(--text-primary);
 }
 .slot-hint {
   margin: 0 0 4px;
   font-size: 12px;
-  color: #8c8c8c;
+  color: var(--text-muted);
   line-height: 1.4;
 }
 
@@ -122,8 +122,8 @@ function onDrop(ev: DragEvent) {
   max-width: 100%;
   min-height: 88px;
   border-radius: 12px;
-  border: 2px dashed #d9d9d9;
-  background: rgba(255, 255, 255, 0.92);
+  border: 2px dashed var(--assembly-dz-border);
+  background: var(--assembly-dz-bg);
   padding: 8px;
   overflow: hidden;
   transition:
@@ -133,40 +133,40 @@ function onDrop(ev: DragEvent) {
 }
 
 .assembly-drop-zone.is-eligible {
-  border-color: #91caff;
-  background: #fafafa;
-  box-shadow: inset 0 0 0 1px rgba(24, 144, 255, 0.12);
+  border-color: var(--assembly-dz-eligible-border);
+  background: var(--assembly-dz-eligible-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-eligible-inset);
 }
 
 .assembly-drop-zone.chat.is-eligible {
-  border-color: #69b1ff;
-  background: #f0f9ff;
-  box-shadow: inset 0 0 0 1px rgba(24, 144, 255, 0.2);
+  border-color: var(--assembly-dz-chat-eligible-border);
+  background: var(--assembly-dz-chat-eligible-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-chat-eligible-inset);
 }
 
 .assembly-drop-zone.emb.is-eligible {
-  border-color: #b37feb;
-  background: #faf5ff;
-  box-shadow: inset 0 0 0 1px rgba(114, 46, 209, 0.18);
+  border-color: var(--assembly-dz-emb-eligible-border);
+  background: var(--assembly-dz-emb-eligible-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-emb-eligible-inset);
 }
 
 .assembly-drop-zone.img.is-eligible {
-  border-color: #ffc069;
-  background: #fffbf0;
-  box-shadow: inset 0 0 0 1px rgba(250, 140, 22, 0.2);
+  border-color: var(--assembly-dz-img-eligible-border);
+  background: var(--assembly-dz-img-eligible-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-img-eligible-inset);
 }
 
 .assembly-drop-zone.tool.is-eligible,
 .assembly-drop-zone.mcp.is-eligible {
-  border-color: #95de64;
-  background: #f6ffed;
-  box-shadow: inset 0 0 0 1px rgba(82, 196, 26, 0.18);
+  border-color: var(--assembly-dz-tool-eligible-border);
+  background: var(--assembly-dz-tool-eligible-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-tool-eligible-inset);
 }
 
 .assembly-drop-zone.kb.is-eligible {
-  border-color: #87e8de;
-  background: #e6fffb;
-  box-shadow: inset 0 0 0 1px rgba(19, 194, 194, 0.22);
+  border-color: var(--assembly-dz-kb-eligible-border);
+  background: var(--assembly-dz-kb-eligible-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-kb-eligible-inset);
 }
 
 .assembly-drop-zone.is-over {
@@ -175,34 +175,34 @@ function onDrop(ev: DragEvent) {
 
 /* 悬停高亮：避免 transform 与过大外扩 shadow 导致横向撑出滚动条 */
 .assembly-drop-zone.chat.is-over {
-  border-color: #1890ff;
-  background: #e6f7ff;
-  box-shadow: inset 0 0 0 1px rgba(24, 144, 255, 0.35);
+  border-color: var(--assembly-dz-chat-over-border);
+  background: var(--assembly-dz-chat-over-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-chat-over-inset);
 }
 
 .assembly-drop-zone.emb.is-over {
-  border-color: #722ed1;
-  background: #f9f0ff;
-  box-shadow: inset 0 0 0 1px rgba(114, 46, 209, 0.35);
+  border-color: var(--assembly-dz-emb-over-border);
+  background: var(--assembly-dz-emb-over-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-emb-over-inset);
 }
 
 .assembly-drop-zone.img.is-over {
-  border-color: #fa8c16;
-  background: #fff7e6;
-  box-shadow: inset 0 0 0 1px rgba(250, 140, 22, 0.35);
+  border-color: var(--assembly-dz-img-over-border);
+  background: var(--assembly-dz-img-over-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-img-over-inset);
 }
 
 .assembly-drop-zone.tool.is-over,
 .assembly-drop-zone.mcp.is-over {
-  border-color: #52c41a;
-  background: #f6ffed;
-  box-shadow: inset 0 0 0 1px rgba(82, 196, 26, 0.35);
+  border-color: var(--assembly-dz-tool-over-border);
+  background: var(--assembly-dz-tool-over-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-tool-over-inset);
 }
 
 .assembly-drop-zone.kb.is-over {
-  border-color: #13c2c2;
-  background: #e6fffb;
-  box-shadow: inset 0 0 0 1px rgba(19, 194, 194, 0.4);
+  border-color: var(--assembly-dz-kb-over-border);
+  background: var(--assembly-dz-kb-over-bg);
+  box-shadow: inset 0 0 0 1px var(--assembly-dz-kb-over-inset);
 }
 
 .assembly-drop-zone.has-content {
@@ -221,8 +221,8 @@ function onDrop(ev: DragEvent) {
   padding: 4px 8px;
   font-size: 12px;
   font-weight: 600;
-  color: #0061ff;
-  background: linear-gradient(90deg, transparent, rgba(0, 97, 255, 0.08), transparent);
+  color: var(--assembly-dz-hint-text);
+  background: var(--assembly-dz-hint-bg);
   border-radius: 10px 10px 0 0;
   pointer-events: none;
 }
@@ -231,7 +231,7 @@ function onDrop(ev: DragEvent) {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #0061ff;
+  background: var(--assembly-dz-hint-dot);
   animation: pulse 1s ease-in-out infinite;
 }
 

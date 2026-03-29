@@ -242,13 +242,9 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 
 <style scoped>
 .assembly-canvas {
-  --canvas-bg: #f5f7fa;
-  --header-bg: #ffffff;
-  --accent-blue: #1677ff;
-  
   position: relative;
-  background: var(--canvas-bg);
-  border: 1px solid #e1e6eb;
+  background: var(--assembly-canvas-bg);
+  border: 1px solid var(--assembly-canvas-border);
   border-radius: 12px;
   padding: 0; /* 取消外层大内边距，让内部结构更紧凑 */
   height: 100%;
@@ -259,10 +255,10 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 
 /* 顶部配置面板 */
 .canvas-header {
-  background: var(--header-bg);
+  background: var(--assembly-canvas-header-bg);
   padding: 24px 30px;
-  border-bottom: 1px solid #e1e6eb;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid var(--assembly-canvas-header-border);
+  box-shadow: var(--assembly-canvas-header-shadow);
   z-index: 10;
 }
 
@@ -285,7 +281,7 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 :deep(.ant-form-item) { margin-bottom: 0 !important; }
 :deep(.ant-form-item-label > label) {
   font-size: 12px;
-  color: #8c8c8c;
+  color: var(--assembly-form-label);
   font-weight: 600;
 }
 
@@ -302,8 +298,8 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
   border-radius: 8px;
   font-weight: 500;
 }
-.btn-ghost { border: 1px solid #dcdfe6; color: #606266; }
-.btn-primary { padding: 0 24px; box-shadow: 0 4px 10px rgba(22, 119, 255, 0.25); }
+.btn-ghost { border: 1px solid var(--assembly-btn-ghost-border); color: var(--assembly-btn-ghost-text); }
+.btn-primary { padding: 0 24px; box-shadow: var(--assembly-btn-primary-shadow); }
 
 /* 拖拽区域堆叠 */
 .drop-stack {
@@ -325,7 +321,7 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 :deep(.assembly-drop-zone) {
   padding: 0 !important; /* 强制覆盖，让子元素卡片占满 */
   border-radius: 10px !important;
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--assembly-drop-zone-inner-bg);
   overflow: hidden;
 }
 
@@ -335,7 +331,7 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
   display: flex;
   align-items: center;
   padding: 16px 20px;
-  background: #ffffff; /* 拖入后背景变为纯白 */
+  background: var(--assembly-placed-card-bg);
   transition: all 0.2s ease;
   animation: slideIn 0.3s ease-out;
 }
@@ -347,7 +343,7 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 
 .card-icon {
   font-size: 24px;
-  color: var(--accent-blue);
+  color: var(--assembly-canvas-accent);
   margin-right: 16px;
   opacity: 0.8;
 }
@@ -362,13 +358,13 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 .p-title {
   font-size: 15px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--assembly-placed-title);
   line-height: 1.4;
 }
 
 .p-sub {
   font-size: 12px;
-  color: #909399;
+  color: var(--assembly-placed-sub);
   font-family: ui-monospace, 'Cascadia Code', monospace;
   margin-top: 2px;
 }
@@ -381,7 +377,7 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 .placeholder-minimal {
   padding: 20px;
   text-align: center;
-  color: #abb2bb;
+  color: var(--assembly-placeholder);
   font-size: 13px;
   letter-spacing: 0.5px;
 }
@@ -389,8 +385,8 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 /* 底部区域 */
 .knowledge-section {
   padding: 16px 30px 24px;
-  background: var(--header-bg);
-  border-top: 1px solid #e1e6eb;
+  background: var(--assembly-knowledge-section-bg);
+  border-top: 1px solid var(--assembly-canvas-header-border);
 }
 
 @media (max-width: 1024px) {

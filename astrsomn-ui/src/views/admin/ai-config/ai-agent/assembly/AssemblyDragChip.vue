@@ -52,8 +52,8 @@ function onEnd() {
   gap: 4px;
   padding: 10px 12px;
   border-radius: 14px;
-  border: 1px solid #eef0f4;
-  background: #fff;
+  border: 1px solid var(--assembly-chip-border);
+  background: var(--assembly-chip-bg);
   cursor: grab;
   user-select: none;
   transition:
@@ -62,8 +62,8 @@ function onEnd() {
     transform 0.15s;
 }
 .assembly-drag-chip:hover {
-  border-color: #0061ff;
-  box-shadow: 0 2px 8px rgba(0, 97, 255, 0.08);
+  border-color: var(--assembly-chip-hover-border);
+  box-shadow: var(--assembly-chip-hover-shadow);
 }
 .assembly-drag-chip:active {
   cursor: grabbing;
@@ -73,18 +73,18 @@ function onEnd() {
   font-weight: 600;
   padding: 2px 10px;
   border-radius: 8px;
-  background: #f0f5ff;
-  color: #0061ff;
+  background: var(--assembly-chip-badge-bg);
+  color: var(--assembly-chip-badge-text);
 }
 .chip-title {
   font-size: 13px;
   font-weight: 600;
-  color: #262626;
+  color: var(--assembly-chip-title);
   word-break: break-all;
 }
 .chip-sub {
   font-size: 11px;
-  color: #8c8c8c;
+  color: var(--assembly-chip-sub);
   font-family: ui-monospace, monospace;
   word-break: break-all;
 }

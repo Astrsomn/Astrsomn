@@ -184,8 +184,8 @@ defineExpose({ getKeywords })
 <style scoped>
 .assembly-palette {
   border-radius: 16px;
-  border: 1px solid #f0f0f0;
-  background: var(--component-background, #fff);
+  border: 1px solid var(--assembly-palette-border);
+  background: var(--assembly-palette-bg);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -203,7 +203,7 @@ defineExpose({ getKeywords })
   flex: 1;
   padding: 10px 12px 12px;
   margin: 0 10px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--assembly-pane-divider);
   background: transparent;
 }
 
@@ -222,7 +222,7 @@ defineExpose({ getKeywords })
 }
 
 .pane-label-chat {
-  color: #1890ff;
+  color: var(--assembly-label-chat);
 }
 
 .search-row {
@@ -238,7 +238,7 @@ defineExpose({ getKeywords })
 }
 
 .search-ico {
-  color: #bfbfbf;
+  color: var(--assembly-search-icon);
 }
 
 .search-row :deep(.ant-input-affix-wrapper) {
@@ -260,13 +260,13 @@ defineExpose({ getKeywords })
 }
 
 .search-btn-emb {
-  background: #722ed1 !important;
-  border-color: #722ed1 !important;
+  background: var(--assembly-btn-emb-bg) !important;
+  border-color: var(--assembly-btn-emb-border) !important;
 }
 
 .search-btn-img {
-  background: #fa8c16 !important;
-  border-color: #fa8c16 !important;
+  background: var(--assembly-btn-img-bg) !important;
+  border-color: var(--assembly-btn-img-border) !important;
 }
 
 .chip-scroll {
@@ -306,7 +306,7 @@ defineExpose({ getKeywords })
 
 .palette-empty {
   font-size: 12px;
-  color: #bfbfbf;
+  color: var(--assembly-empty-text);
   padding: 16px 4px;
   text-align: center;
 }
