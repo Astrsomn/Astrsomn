@@ -39,6 +39,12 @@
         </div>
 
         <div class="toolbar-right">
+          <router-link v-slot="{ navigate }" to="/admin/agents/model-assembly" custom>
+            <a-button class="ghost-btn" @click="navigate">
+              <template #icon><apartment-outlined /></template>
+              模型组装
+            </a-button>
+          </router-link>
           <a-button type="primary" class="primary-btn" @click="fetchList">
             <template #icon><search-outlined /></template>
             查询
@@ -121,6 +127,7 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import {
+  ApartmentOutlined,
   CheckCircleOutlined,
   DeleteOutlined,
   PlusOutlined,

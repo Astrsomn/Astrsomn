@@ -38,6 +38,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '智能体管理', requiresAuth: true }
       },
       {
+        path: 'agents/model-assembly',
+        name: 'AdminModelAssembly',
+        component: () => import('@/views/admin/ai-config/ai-agent/ModelAssemblyPage.vue'),
+        meta: { title: 'Agent组装', requiresAuth: true }
+      },
+      {
         path: 'mcp',
         name: 'AdminMcp',
         component: () => import('@/views/admin/ai-config/ai-mcp/McpList.vue'),

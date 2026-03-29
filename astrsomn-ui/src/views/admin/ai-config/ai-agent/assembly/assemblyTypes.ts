@@ -1,0 +1,40 @@
+import type { AiInstance } from '@/api/aiInstance'
+import type { AiTool } from '@/api/aiTool'
+import type { AiMcp } from '@/api/aiMcp'
+
+export const ASSEMBLY_DRAG_MIME = 'application/x-astrsomn-assembly'
+
+/** 与 AgentResourcePickModal 中 instanceModelType 一致 */
+export type InstanceModelType = 'chat' | 'embedding' | 'image'
+
+export type AssemblyDragPayload =
+  | { kind: 'instance'; instanceModelType: InstanceModelType; data: AiInstance }
+  | { kind: 'tool'; data: AiTool }
+  | { kind: 'mcp'; data: AiMcp }
+
+export type AssemblySlotKey = 'chatInstance' | 'embeddingInstance' | 'imageInstance' | 'tools' | 'mcps'
+
+export function parseDragPayload(raw: string): AssemblyDragPayload | null {
+  if (!raw) return null
+  try {
+    return JSON.parse(raw) as AssemblyDragPayload
+  } catch {
+    return null
+  }
+}
+
+export function payloadAcceptsSlot(payload: AssemblyDragPayload | null, slot: AssemblySlotKey): boolean {
+  if (!payload) return false
+  if (slot === 'chatInstance') {
+    return payload.kind === 'instance' && payload.instanceModelType === 'chat'
+  }
+  if (slot === 'embeddingInstance') {
+    return payload.kind === 'instance' && payload.instanceModelType === 'embedding'
+  }
+  if (slot === 'imageInstance') {
+    return payload.kind === 'instance' && payload.instanceModelType === 'image'
+  }
+  if (slot === 'tools') return payload.kind === 'tool'
+  if (slot === 'mcps') return payload.kind === 'mcp'
+  return false
+}
