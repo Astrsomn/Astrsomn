@@ -1,30 +1,41 @@
 <template>
   <main class="assembly-canvas">
     <div class="canvas-top">
-      <div class="preview-section">
-        <div v-if="hasPreview" class="preview-flow">
-          <template v-if="chatInstance"><span class="pill pill-chat">对话</span></template>
-          <span v-if="chatInstance && (embeddingInstance || imageInstance)" class="arrow">→</span>
-          <template v-if="embeddingInstance"><span class="pill pill-emb">向量</span></template>
-          <span v-if="embeddingInstance && imageInstance" class="arrow">→</span>
-          <template v-if="imageInstance"><span class="pill pill-img">图像</span></template>
-          <span v-if="tools.length" class="pill pill-tool">工具 ×{{ tools.length }}</span>
-          <span v-if="mcps.length" class="pill pill-mcp">MCP ×{{ mcps.length }}</span>
+      <a-form layout="vertical" :colon="false" class="agent-assembly-form">
+        <div class="form-row form-row-main">
+          <a-form-item label="名称" class="fi-name">
+            <a-input v-model:value="agentForm.agentName" allow-clear />
+          </a-form-item>
+          <a-form-item label="流式" class="fi-stream">
+            <a-switch v-model:checked="agentForm.enableStream" />
+          </a-form-item>
+          <a-form-item label="记忆" class="fi-mem">
+            <a-select
+              v-model:value="agentForm.memoryMode"
+              :options="memoryModeOptions"
+              class="select-mem"
+            />
+          </a-form-item>
+          <a-form-item label="窗口" class="fi-win">
+            <a-input-number v-model:value="memoryWindowNum" :min="0" class="input-win" />
+          </a-form-item>
+          <div class="canvas-actions">
+            <a-button type="primary" shape="circle" class="canvas-action-btn" @click="emit('reset')">
+              <template #icon><UndoOutlined /></template>
+            </a-button>
+            <a-button type="primary" shape="circle" class="canvas-action-btn" @click="emit('submit')">
+              <template #icon><SendOutlined /></template>
+            </a-button>
+          </div>
         </div>
-        <div v-else class="preview-empty">拖拽两侧资源到下方槽位，链路预览将显示在此处</div>
-      </div>
-      <div class="canvas-actions">
-        <a-tooltip title="重置">
-          <a-button type="primary" shape="circle" class="canvas-action-btn" @click="emit('reset')">
-            <template #icon><UndoOutlined /></template>
-          </a-button>
-        </a-tooltip>
-        <a-tooltip title="提交">
-          <a-button type="primary" shape="circle" class="canvas-action-btn" @click="emit('submit')">
-            <template #icon><SendOutlined /></template>
-          </a-button>
-        </a-tooltip>
-      </div>
+        <a-form-item label="描述" class="fi-desc">
+          <a-textarea
+            v-model:value="agentForm.description"
+            :auto-size="{ minRows: 2, maxRows: 3 }"
+            allow-clear
+          />
+        </a-form-item>
+      </a-form>
     </div>
 
     <div class="drop-stack">
@@ -159,6 +170,33 @@
         </div>
       </div>
     </div>
+
+    <div class="knowledge-block">
+      <AssemblyDropZone
+        slot-key="knowledgeBase"
+        title="关联知识库"
+        variant="kb"
+        :icon="BookOutlined"
+        :dragging-payload="draggingPayload"
+        :active-drop-key="activeDropKey"
+        :has-content="knowledgeKeys.length > 0"
+        @hover="$emit('hover', $event)"
+        @drop="$emit('drop', $event)"
+      >
+        <div v-if="knowledgeKeys.length" class="tag-area">
+          <a-tag
+            v-for="k in knowledgeKeys"
+            :key="k"
+            closable
+            color="cyan"
+            @close="emit('removeKnowledgeKey', k)"
+          >
+            {{ k }}
+          </a-tag>
+        </div>
+        <div v-else class="placeholder">拖入知识库</div>
+      </AssemblyDropZone>
+    </div>
   </main>
 </template>
 
@@ -166,6 +204,7 @@
 import { computed } from 'vue'
 import {
   ApiOutlined,
+  BookOutlined,
   MessageOutlined,
   PartitionOutlined,
   PictureOutlined,
@@ -176,10 +215,18 @@ import {
 import type { AiInstance } from '@/api/aiInstance'
 import type { AiTool } from '@/api/aiTool'
 import type { AiMcp } from '@/api/aiMcp'
-import type { AssemblyDragPayload, AssemblySlotKey } from './assemblyTypes'
+import type { AssemblyAgentForm, AssemblyDragPayload, AssemblySlotKey } from './assemblyTypes'
 import AssemblyDropZone from './AssemblyDropZone.vue'
 
-const props = defineProps<{
+/** 与 AgentFormModal 中 memoryModeOptions 一致 */
+const memoryModeOptions = [
+  { label: '不开启记忆', value: 'NONE' },
+  { label: '滑动窗口', value: 'SLIDING_WINDOW' },
+  { label: '向量长期记忆', value: 'VECTOR' },
+  { label: '混合模式', value: 'hybrid' }
+]
+
+defineProps<{
   draggingPayload: AssemblyDragPayload | null
   activeDropKey: AssemblySlotKey | null
   chatInstance: AiInstance | null
@@ -187,7 +234,22 @@ const props = defineProps<{
   imageInstance: AiInstance | null
   tools: AiTool[]
   mcps: AiMcp[]
+  knowledgeKeys: string[]
 }>()
+
+const agentForm = defineModel<AssemblyAgentForm>('agentForm', { required: true })
+
+const memoryWindowNum = computed({
+  get(): number | undefined {
+    const raw = agentForm.value.memoryWindowSize
+    if (raw === '' || raw === undefined || raw === null) return undefined
+    const n = Number(raw)
+    return Number.isFinite(n) ? n : undefined
+  },
+  set(v: number | null | undefined) {
+    agentForm.value.memoryWindowSize = v == null || v === undefined ? '' : String(v)
+  }
+})
 
 const emit = defineEmits<{
   hover: [key: AssemblySlotKey | null]
@@ -195,6 +257,7 @@ const emit = defineEmits<{
   clear: [key: 'chatInstance' | 'embeddingInstance' | 'imageInstance']
   removeTool: [toolKey: string]
   removeMcp: [mcpKey: string]
+  removeKnowledgeKey: [key: string]
   reset: []
   submit: []
 }>()
@@ -206,23 +269,14 @@ function removeToolTag(key?: string) {
 function removeMcpTag(key?: string) {
   if (key) emit('removeMcp', key)
 }
-
-const hasPreview = computed(
-  () =>
-    !!props.chatInstance ||
-    !!props.embeddingInstance ||
-    !!props.imageInstance ||
-    props.tools.length > 0 ||
-    props.mcps.length > 0
-)
 </script>
 
 <style scoped>
 .assembly-canvas {
   position: relative;
   border: 1px dashed #d9d9d9;
-  border-radius: 16px;
-  padding: 12px 12px 14px;
+  border-radius: 12px;
+  padding: 8px 10px 10px;
   background: linear-gradient(145deg, #fbfcff 0%, #f7f9fc 100%);
   min-height: calc(100vh - 100px);
   height: 100%;
@@ -233,19 +287,67 @@ const hasPreview = computed(
 }
 
 .canvas-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
   flex-shrink: 0;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
   border-bottom: 1px solid #e8e8e8;
 }
 
-.preview-section {
-  flex: 1;
+.agent-assembly-form {
+  width: 100%;
   min-width: 0;
+}
+
+.agent-assembly-form :deep(.ant-form-item) {
+  margin-bottom: 8px;
+}
+
+.agent-assembly-form :deep(.ant-form-item-label) {
+  padding-bottom: 0;
+}
+
+.agent-assembly-form :deep(.ant-form-item-label > label) {
+  font-size: 12px;
+  color: #595959;
+  height: auto;
+}
+
+.form-row-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+}
+
+.form-row-main .fi-name {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.form-row-main .fi-stream {
+  flex: 0 0 auto;
+}
+
+.form-row-main .fi-mem {
+  flex: 0 1 160px;
+  min-width: 120px;
+}
+
+.form-row-main .fi-win {
+  flex: 0 0 104px;
+}
+
+.fi-desc :deep(.ant-form-item-label) {
+  padding-bottom: 2px;
+}
+
+.select-mem {
+  width: 100%;
+  min-width: 120px;
+}
+
+.input-win {
+  width: 100%;
 }
 
 .canvas-actions {
@@ -253,7 +355,16 @@ const hasPreview = computed(
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  padding-top: 2px;
+  margin-left: auto;
+  padding-bottom: 2px;
+}
+
+@media (max-width: 640px) {
+  .form-row-main .canvas-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
 .canvas-action-btn {
@@ -272,31 +383,31 @@ const hasPreview = computed(
   border-color: #4096ff !important;
 }
 
-.preview-flow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.preview-empty {
-  font-size: 12px;
-  color: #bfbfbf;
-  text-align: center;
-  padding: 6px 8px;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.02);
-}
-
 .drop-stack {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   flex: 1;
   min-height: 0;
   min-width: 0;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+.knowledge-block {
+  flex-shrink: 0;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid #e8e8e8;
+  min-width: 0;
+}
+
+.knowledge-block :deep(.slot-wrap) {
+  margin-bottom: 0;
+}
+
+.knowledge-block :deep(.assembly-drop-zone) {
+  min-height: 76px;
 }
 
 .drop-row-full {
@@ -311,7 +422,7 @@ const hasPreview = computed(
 .drop-row-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 6px;
   align-items: stretch;
   min-width: 0;
 }
@@ -330,16 +441,11 @@ const hasPreview = computed(
   margin-bottom: 0;
 }
 
-.drop-cell :deep(.assembly-drop-zone) {
-  min-height: 120px;
-  border-radius: 14px;
-}
-
 .placeholder {
   font-size: 12px;
   color: #bfbfbf;
   text-align: center;
-  padding: 6px;
+  padding: 2px 4px;
 }
 
 .placed-card {
@@ -372,37 +478,8 @@ const hasPreview = computed(
 .tag-area {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
   max-width: 100%;
-}
-
-.pill {
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.pill-chat {
-  background: #1890ff;
-}
-.pill-emb {
-  background: #722ed1;
-}
-.pill-img {
-  background: #fa8c16;
-}
-.pill-tool {
-  background: #52c41a;
-}
-.pill-mcp {
-  background: #9254de;
-}
-
-.arrow {
-  color: #bfbfbf;
-  font-size: 12px;
 }
 </style>

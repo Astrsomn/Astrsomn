@@ -11,8 +11,24 @@ export type AssemblyDragPayload =
   | { kind: 'instance'; instanceModelType: InstanceModelType; data: AiInstance }
   | { kind: 'tool'; data: AiTool }
   | { kind: 'mcp'; data: AiMcp }
+  | { kind: 'knowledgeBase'; data: { kbKey: string; title?: string } }
 
-export type AssemblySlotKey = 'chatInstance' | 'embeddingInstance' | 'imageInstance' | 'tools' | 'mcps'
+export type AssemblySlotKey =
+  | 'chatInstance'
+  | 'embeddingInstance'
+  | 'imageInstance'
+  | 'tools'
+  | 'mcps'
+  | 'knowledgeBase'
+
+/** 与 AgentFormModal 第一步字段对齐（组装页预览） */
+export type AssemblyAgentForm = {
+  agentName: string
+  enableStream: boolean
+  description: string
+  memoryMode: string
+  memoryWindowSize: string | number | undefined
+}
 
 export function parseDragPayload(raw: string): AssemblyDragPayload | null {
   if (!raw) return null
@@ -36,5 +52,6 @@ export function payloadAcceptsSlot(payload: AssemblyDragPayload | null, slot: As
   }
   if (slot === 'tools') return payload.kind === 'tool'
   if (slot === 'mcps') return payload.kind === 'mcp'
+  if (slot === 'knowledgeBase') return payload.kind === 'knowledgeBase'
   return false
 }

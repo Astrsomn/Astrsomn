@@ -21,6 +21,7 @@
           />
 
           <AssemblyCanvas
+            v-model:agent-form="agentForm"
             :dragging-payload="dragPayload"
             :active-drop-key="activeDropKey"
             :chat-instance="chatInstance"
@@ -28,11 +29,13 @@
             :image-instance="imageInstance"
             :tools="placedTools"
             :mcps="placedMcps"
+            :knowledge-keys="knowledgeKeys"
             @hover="activeDropKey = $event"
             @drop="onCanvasDrop"
             @clear="onClearInstance"
             @remove-tool="removeTool"
             @remove-mcp="removeMcp"
+            @remove-knowledge-key="removeKnowledgeKey"
             @reset="handleReset"
             @submit="handleSubmit"
           />
@@ -72,7 +75,12 @@ import {
   fetchMcpsPaged,
   fetchToolsPaged
 } from './assembly/assemblyFetch'
-import type { AssemblyDragPayload, AssemblySlotKey, InstanceModelType } from './assembly/assemblyTypes'
+import type {
+  AssemblyAgentForm,
+  AssemblyDragPayload,
+  AssemblySlotKey,
+  InstanceModelType
+} from './assembly/assemblyTypes'
 
 const pageSize = 8
 
@@ -99,6 +107,15 @@ const embeddingInstance = ref<AiInstance | null>(null)
 const imageInstance = ref<AiInstance | null>(null)
 const placedTools = ref<AiTool[]>([])
 const placedMcps = ref<AiMcp[]>([])
+const knowledgeKeys = ref<string[]>([])
+
+const agentForm = ref<AssemblyAgentForm>({
+  agentName: '',
+  enableStream: true,
+  description: '',
+  memoryMode: 'SLIDING_WINDOW',
+  memoryWindowSize: '10'
+})
 
 const dragPayload = ref<AssemblyDragPayload | null>(null)
 const activeDropKey = ref<AssemblySlotKey | null>(null)
@@ -229,7 +246,7 @@ async function loadMcpsWithLoading() {
   }
 }
 
-async function onLeftSearch(modelType: InstanceModelType, keyword: string) {
+async function onLeftSearch(modelType: InstanceModelType, _keyword: string) {
   if (modelType === 'chat') pagination.chat.current = 1
   else if (modelType === 'embedding') pagination.embedding.current = 1
   else pagination.image.current = 1
@@ -296,14 +313,31 @@ function onCanvasDrop(p: AssemblyDragPayload) {
     message.success('已添加工具')
     return
   }
-  const mkey = p.data.mcpKey
-  if (!mkey) return
-  if (placedMcps.value.some((x) => x.mcpKey === mkey)) {
-    message.info('该 MCP 已在列表中')
+  if (p.kind === 'mcp') {
+    const mkey = p.data.mcpKey
+    if (!mkey) return
+    if (placedMcps.value.some((x) => x.mcpKey === mkey)) {
+      message.info('该 MCP 已在列表中')
+      return
+    }
+    placedMcps.value = [...placedMcps.value, { ...p.data }]
+    message.success('已添加 MCP')
     return
   }
-  placedMcps.value = [...placedMcps.value, { ...p.data }]
-  message.success('已添加 MCP')
+  if (p.kind === 'knowledgeBase') {
+    const kb = p.data.kbKey?.trim()
+    if (!kb) return
+    if (knowledgeKeys.value.includes(kb)) {
+      message.info('该知识库索引已存在')
+      return
+    }
+    knowledgeKeys.value = [...knowledgeKeys.value, kb]
+    message.success('已添加知识库索引')
+  }
+}
+
+function removeKnowledgeKey(key: string) {
+  knowledgeKeys.value = knowledgeKeys.value.filter((k) => k !== key)
 }
 
 function onClearInstance(which: 'chatInstance' | 'embeddingInstance' | 'imageInstance') {
@@ -334,13 +368,28 @@ function handleReset() {
   imageInstance.value = null
   placedTools.value = []
   placedMcps.value = []
+  knowledgeKeys.value = []
+  agentForm.value = {
+    agentName: '',
+    enableStream: true,
+    description: '',
+    memoryMode: 'SLIDING_WINDOW',
+    memoryWindowSize: '10'
+  }
   resetPagination()
   message.info('已重置组装区与列表页码')
   void loadAll()
 }
 
 function buildSubmitPayload() {
+  const f = agentForm.value
   return {
+    agentName: f.agentName,
+    enableStream: f.enableStream,
+    description: f.description,
+    memoryMode: f.memoryMode,
+    memoryWindowSize: String(f.memoryWindowSize ?? ''),
+    knowledgeBaseKeys: knowledgeKeys.value.join(','),
     chatInstanceKey: chatInstance.value?.instanceKey,
     embeddingInstanceKey: embeddingInstance.value?.instanceKey,
     imageInstanceKey: imageInstance.value?.instanceKey,
@@ -369,7 +418,7 @@ onMounted(() => {
 
 <style scoped>
 .assembly-page {
-  max-height: calc(100vh - 130px);
+  /* max-height: calc(100vh - 130px); */
   /* min-height: 620px; */
   display: flex;
   flex-direction: column;

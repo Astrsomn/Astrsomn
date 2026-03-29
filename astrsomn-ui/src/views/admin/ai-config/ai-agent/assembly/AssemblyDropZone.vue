@@ -40,7 +40,7 @@ const props = defineProps<{
   slotKey: AssemblySlotKey
   title: string
   hint?: string
-  variant: 'chat' | 'emb' | 'img' | 'tool' | 'mcp'
+  variant: 'chat' | 'emb' | 'img' | 'tool' | 'mcp' | 'kb'
   icon: Component
   draggingPayload: AssemblyDragPayload | null
   /** 当前指针悬停的投放区（由父级在 dragover 时更新） */
@@ -90,27 +90,27 @@ function onDrop(ev: DragEvent) {
 
 <style scoped>
 .slot-wrap {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   min-width: 0;
   max-width: 100%;
 }
 .slot-label-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 6px;
+  margin-bottom: 2px;
 }
 .slot-icon {
-  font-size: 16px;
+  font-size: 14px;
   opacity: 0.88;
 }
 .slot-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #434343;
 }
 .slot-hint {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   font-size: 12px;
   color: #8c8c8c;
   line-height: 1.4;
@@ -120,11 +120,11 @@ function onDrop(ev: DragEvent) {
   box-sizing: border-box;
   position: relative;
   max-width: 100%;
-  min-height: 120px;
-  border-radius: 14px;
+  min-height: 88px;
+  border-radius: 12px;
   border: 2px dashed #d9d9d9;
   background: rgba(255, 255, 255, 0.92);
-  padding: 12px;
+  padding: 8px;
   overflow: hidden;
   transition:
     border-color 0.18s ease,
@@ -163,6 +163,12 @@ function onDrop(ev: DragEvent) {
   box-shadow: inset 0 0 0 1px rgba(82, 196, 26, 0.18);
 }
 
+.assembly-drop-zone.kb.is-eligible {
+  border-color: #87e8de;
+  background: #e6fffb;
+  box-shadow: inset 0 0 0 1px rgba(19, 194, 194, 0.22);
+}
+
 .assembly-drop-zone.is-over {
   border-style: solid;
 }
@@ -191,6 +197,12 @@ function onDrop(ev: DragEvent) {
   border-color: #52c41a;
   background: #f6ffed;
   box-shadow: inset 0 0 0 1px rgba(82, 196, 26, 0.35);
+}
+
+.assembly-drop-zone.kb.is-over {
+  border-color: #13c2c2;
+  background: #e6fffb;
+  box-shadow: inset 0 0 0 1px rgba(19, 194, 194, 0.4);
 }
 
 .assembly-drop-zone.has-content {
@@ -236,7 +248,7 @@ function onDrop(ev: DragEvent) {
 }
 
 .zone-inner {
-  min-height: 88px;
+  min-height: 56px;
   display: flex;
   flex-direction: column;
   justify-content: center;
