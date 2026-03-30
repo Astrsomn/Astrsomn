@@ -1,4 +1,4 @@
-package org.astrsomn.starter.langchain.factory.core;
+package org.astrsomn.core.common.langchain.handler;
 
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiAccountEntity;
@@ -27,4 +27,10 @@ public interface ModelProviderHandler {
                       AiModelEntity modelEntity,
                       AiAccountEntity accountEntity,
                       AstroChatParam<?> param);
+
+
+
+    // 新增元数据，用于应用商店展示
+    default String getVersion() { return "1.0.0"; }
+    default String getAuthor() { return "Unknown"; }
 }

@@ -1,0 +1,19 @@
+package org.astrsomn.deepseek;
+
+import org.astrsomn.core.common.constant.AiModelEnum;
+import org.astrsomn.core.common.entity.AiAccountEntity;
+import org.astrsomn.core.common.entity.AiModelEntity;
+import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
+import org.astrsomn.core.common.langchain.handler.AbstractModelProviderHandler;
+
+public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
+    @Override
+    public AiModelEnum.ProviderEnum getProvider() {
+        return null;
+    }
+
+    @Override
+    public <T> T createModel(Class<T> modelClass, AiModelEntity modelEntity, AiAccountEntity accountEntity, AstroChatParam<?> param) {
+        return null;
+    }
+}

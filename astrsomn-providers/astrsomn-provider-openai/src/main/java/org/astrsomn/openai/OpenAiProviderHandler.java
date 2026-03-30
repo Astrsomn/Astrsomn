@@ -1,4 +1,4 @@
-package org.astrsomn.starter.langchain.factory.impl;
+package org.astrsomn.openai;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
@@ -12,15 +12,14 @@ import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ImageSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
-import org.astrsomn.starter.langchain.factory.core.AbstractModelProviderHandler;
+import org.astrsomn.core.common.langchain.handler.AbstractModelProviderHandler;
 
-import org.springframework.stereotype.Component;
+
 
 import java.util.List;
 
 import static org.astrsomn.core.common.constant.AiModelEnum.InferenceParamEnum.*;
 
-@Component
 public class OpenAiProviderHandler extends AbstractModelProviderHandler {
 
     @Override

@@ -1,12 +1,14 @@
-package org.astrsomn.starter.langchain.factory.impl;
+package org.astrsomn.qwen;
 
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import org.astrsomn.starter.langchain.factory.core.ModelProviderHandler;
+import org.astrsomn.core.common.langchain.handler.AbstractModelProviderHandler;
 
-public class QwenAiProviderHandler implements ModelProviderHandler {
+
+public class QwenAiProviderHandler extends AbstractModelProviderHandler {
+
     @Override
     public AiModelEnum.ProviderEnum getProvider() {
         return null;

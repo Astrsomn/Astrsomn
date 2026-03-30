@@ -1,4 +1,4 @@
-package org.astrsomn.starter.langchain.factory.core;
+package org.astrsomn.core.common.langchain.handler;
 
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
@@ -7,7 +7,7 @@ import org.astrsomn.core.common.util.JsonUtil;
 import java.util.*;
 import java.util.function.Consumer;
 
-public abstract class AbstractModelProviderHandler implements ModelProviderHandler{
+public abstract class AbstractModelProviderHandler implements ModelProviderHandler {
 
     /**
      * 安全应用参数：当值不为空且模型具备该能力时，执行赋值操作
