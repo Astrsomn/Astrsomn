@@ -26,6 +26,18 @@
 
         <dependency>
             <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-providers</artifactId>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-vector</artifactId>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-workflow-spring-boot-starter</artifactId>
         </dependency>
 
