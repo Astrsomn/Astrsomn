@@ -1,13 +1,13 @@
-package org.astrsomn.astrsomnvectorstoreredis;
+package org.astrsomn.vector;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AstrsomnVectorstoreRedisApplication {
+public class AstrsomnVectorChromaApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AstrsomnVectorstoreRedisApplication.class, args);
+        SpringApplication.run(AstrsomnVectorChromaApplication.class, args);
     }
 
 }

@@ -1,13 +1,13 @@
-package org.astrsomn.astrsomnvectorstoresmilvus;
+package org.astrsomn.astrsomnvectorstoreqdrant;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AstrsomnVectorstoresMilvusApplication {
+public class AstrsomnVectorQdrantApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AstrsomnVectorstoresMilvusApplication.class, args);
+        SpringApplication.run(AstrsomnVectorQdrantApplication.class, args);
     }
 
 }
