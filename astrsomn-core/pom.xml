@@ -91,12 +91,6 @@
             <version>1.11.0-beta19</version>
         </dependency>
 
-        <!-- 第三方SDK -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>dashscope-sdk-java</artifactId>
-            <version>2.18.5</version>
-        </dependency>
 
         <!-- 工具类 -->
         <dependency>
@@ -105,16 +99,20 @@
             <version>2.3.33</version>
         </dependency>
 
-        <!-- JSON处理 -->
+
+        <!-- Jackson：实体上 @JsonSerialize；provided，运行时由 Spring Boot 提供 -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <scope>provided</scope>
         </dependency>
 
-        <!-- 日志 -->
+        <!-- MyBatis-Plus - 使用provided scope，由使用方提供 -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>3.5.5</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- 工具类 -->
@@ -136,11 +134,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-            <version>3.5.5</version>
-        </dependency>
+
 
         <!-- Lombok -->
         <dependency>
@@ -149,16 +143,12 @@
             <scope>provided</scope>
         </dependency>
 
+
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
         </dependency>
 
-        <!-- Spring Web -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
     </dependencies>
 
     <repositories>

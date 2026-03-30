@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.astrsomn.core.mapper.SystemConfigMapper">
+
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.config.SystemConfigResponseDTO">
+        SELECT
+        sc.*
+        FROM
+        SYSTEM_CONFIG sc
+        WHERE
+        1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND sc.env_code = #{req.envCode}
+        </if>
+        <if test="req != null and req.configKey != null and req.configKey != ''">
+            AND sc.config_key LIKE CONCAT('%', #{req.configKey}, '%')
+        </if>
+        <if test="req != null and req.configGroup != null and req.configGroup != ''">
+            AND sc.config_group = #{req.configGroup}
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND sc.status = #{req.status}
+        </if>
+        ORDER BY
+        sc.create_time DESC
+    </select>
+
+</mapper>

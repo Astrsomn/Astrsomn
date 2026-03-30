@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.astrsomn.core.common.base.BaseEntity;
@@ -13,14 +15,20 @@ import org.astrsomn.core.common.base.BaseEntity;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("AI_MODEL_CONFIG")
+@TableName("AI_MODEL")
 public class AiModelEntity extends BaseEntity<Long> {
     /**
      * id
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @TableId(value = "ID", type = IdType.ASSIGN_ID)
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
-    
+    /**
+     * Model Key
+     */
+    @TableField("MODEL_KEY")
+    private String modelKey;
+
     /**
      * Model name
      */
@@ -28,12 +36,7 @@ public class AiModelEntity extends BaseEntity<Long> {
     private String modelName;
 
     /**
-     * Model Key
-     */
-    @TableField("MODEL_KEY")
-    private String modelKey;
-    /**
-     * Model type
+     * Model type (ChatModel ImageModel EmbeddingModel)
      */
     @TableField("MODEL_TYPE")
     private String modelType;
@@ -43,54 +46,26 @@ public class AiModelEntity extends BaseEntity<Long> {
      */
     @TableField("PROVIDER")
     private String provider;
-    
-    /**
-     * APIKey
-     */
-    @TableField("API_KEY")
-    private String apiKey;
 
     /**
-     * API secret key
+     * AccountKey
      */
-    @TableField("API_SECRET")
-    private String apiSecret;
+    @TableField("ACCOUNT_KEY")
+    private String accountKey;
 
     /**
      * API URL
      */
     @TableField("API_URL")
     private String apiUrl;
-    /**
-     * Model parameters
-     */
-    @TableField("MODEL_PARAMS")
-    private String modelParams;
-    
+
     /**
      * Status (enabled-disabled)
      */
     @TableField("STATUS")
     private String status;
 
-    /**
-     * Response limit 0 - 8192
-     */
-    @TableField("RESPONSE_LIMIT")
-    private Integer responseLimit;
 
-    /**
-     * Randomness
-     */
-    @TableField("RANDOM_INDEX")
-    private Integer randomIndex;
-
-    /**
-     * Top probability
-     */
-    @TableField("TOP_VARIANCE")
-    private Integer topVariance;
-    
     /**
      * Is default model
      */
@@ -102,4 +77,12 @@ public class AiModelEntity extends BaseEntity<Long> {
      */
     @TableField("CAPABILITIES")
     private String capabilities;
+
+    /**
+     * token使用总量限制
+     */
+    @TableField("MAX_QUOTA_TOKENS")
+    private Long maxQuotaTokens;
+
+
 }

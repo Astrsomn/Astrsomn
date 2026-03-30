@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
 
@@ -12,124 +14,54 @@ import org.astrsomn.core.common.base.BaseEntity;
 @TableName("AI_AGENT")
 public class AiAgentEntity extends BaseEntity<Long> {
 
-    /**
-     * id
-     */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @TableId(value = "ID", type = IdType.ASSIGN_ID)
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
-    /**
-     * The name of the Agent.
-     */
-    @TableField("NAME")
-    private String name;
+    @TableField("AGENT_KEY")
+    private String agentKey;
 
-    /**
-     * A detailed description of the Agent's purpose and capabilities.
-     */
+    @TableField("AGENT_NAME")
+    private String agentName;
+
     @TableField("DESCRIPTION")
     private String description;
 
-    /**
-     * The ID of the default model assigned to this Agent.
-     */
-    @TableField("MODEL_ID")
-    private Long modelId;
+    @TableField("WORKFLOW_KEY")
+    private String workflowKey;
 
-    /**
-     * The UUID of the system prompt associated with this Agent.
-     */
-    @TableField("PROMPT_UUID")
-    private String promptUuid;
 
-    /**
-     * Runtime configuration parameters in JSON format.
-     * Example: { "temperature": 0.7, "max_tokens": 2048, ... }
-     */
-    @TableField("CONFIG_PARAMS")
-    private String configParams;
+    @TableField("CHAT_INSTANCE_KEY")
+    private String chatInstanceKey;
 
-    /**
-     * The status of the Agent (e.g., ENABLED, DISABLED).
-     */
+    @TableField("EMBEDDING_INSTANCE_KEY")
+    private String embeddingInstanceKey;
+
+    @TableField("IMAGE_INSTANCE_KEY")
+    private String imageInstanceKey;
+
+    @TableField("PROMPT_KEY")
+    private String promptKey;
+
+    @TableField("KNOWLEDGE_BASE_KEYS")
+    private String knowledgeBaseKeys;
+
+    @TableField("TOOL_KEYS")
+    private String toolKeys;
+
+    @TableField("MCP_KEYS")
+    private String mcpKeys;
+
     @TableField("STATUS")
     private String status;
 
-    /**
-     * A comma-separated list of IDs for associated knowledge bases.
-     */
-    @TableField("KNOWLEDGE_BASE_IDS")
-    private String knowledgeBaseIds;
-
-    /**
-     * A comma-separated list of IDs for tools enabled for this Agent.
-     */
-    @TableField("TOOL_IDS")
-    private String toolIds;
-
-    /**
-     * A comma-separated list of IDs for Model Context Protocol (MCP) servers.
-     */
-    @TableField("MCP_IDS")
-    private String mcpIds;
-
-    /**
-     * The memory mode strategy (e.g., NONE, SLIDING_WINDOW, VECTOR).
-     */
     @TableField("MEMORY_MODE")
     private String memoryMode;
 
-    /**
-     * The number of recent conversation turns to retain in memory (window size).
-     */
     @TableField("MEMORY_WINDOW_SIZE")
     private String memoryWindowSize;
 
-    /**
-     * The maximum number of tokens allowed in the generated response.
-     */
-    @TableField("MAX_TOKEN")
-    private Integer maxToken;
-
-    /**
-     * The temperature value controlling the randomness of the output.
-     */
-    @TableField("TEMPERATURE")
-    private Double temperature;
-
-    /**
-     * The presence penalty value to discourage token repetition based on existence.
-     */
-    @TableField("PRESENCE_PENALTY")
-    private Double presencePenalty;
-
-    /**
-     * The frequency penalty value to discourage token repetition based on count.
-     */
-    @TableField("FREQUENCY_PENALTY")
-    private Double frequencyPenalty;
-
-    /**
-     * Custom sequences that will trigger the end of text generation.
-     */
-    @TableField("STOP_SEQUENCES")
-    private String stopSequences;
-
-    /**
-     * The random seed for reproducible output generation.
-     */
-    @TableField("SEED")
-    private Integer seed;
-
-    /**
-     * Enables streaming response output if set to true.
-     */
     @TableField("ENABLE_STREAM")
     private boolean enableStream;
 
-    /**
-     * The fully qualified class name of the interface implementation.
-     */
-    @TableField("INTERFACE_CLASS")
-    private String interfaceClass;
 }

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
 
@@ -14,7 +16,8 @@ public class SystemUserEntity extends BaseEntity<Long> {
     /**
      * id
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
+    @TableId(value = "ID", type = IdType.ASSIGN_ID)
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
@@ -30,10 +33,16 @@ public class SystemUserEntity extends BaseEntity<Long> {
     private String password;
 
     /**
-     * Admin flag
+     * Admin flag（兼容旧数据；与 {@link #userRole} 同步：管理员类为 Y）
      */
     @TableField("ADMIN_FLAG")
     private String adminFlag;
+
+    /**
+     * 角色：SUPER_ADMIN / ENV_ADMIN / USER
+     */
+    @TableField("USER_ROLE")
+    private String userRole;
 
     /**
      * Email

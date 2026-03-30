@@ -2,10 +2,37 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.astrsomn.core.mapper.AiConversationMapper">
 
-
-    <select id="getMaxMessageOrder" resultType="java.lang.Integer">
-        SELECT COALESCE(MAX(message_order), -1) FROM AI_CONVERSATION WHERE deleted = 0 AND memory_id = #{messageId}
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO">
+        SELECT
+        ac.*,
+        am.model_name AS modelName,
+        aa.name AS agentName,
+        ap.prompt_title AS promptTitle
+        FROM
+        AI_CONVERSATION ac
+        LEFT JOIN
+        AI_MODEL_CONFIG am ON ac.model_id = am.id
+        LEFT JOIN
+        AI_AGENT aa ON ac.agent_id = aa.id
+        LEFT JOIN
+        AI_PROMPT ap ON ac.prompt_id = ap.id
+        WHERE
+        1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND ac.env_code = #{req.envCode}
+        </if>
+        <if test="req != null and req.memoryId != null and req.memoryId != ''">
+            AND ac.memory_id = #{req.memoryId}
+        </if>
+        <if test="req != null and req.role != null and req.role != ''">
+            AND ac.role = #{req.role}
+        </if>
+        ORDER BY
+        ac.create_time DESC
     </select>
 
+    <select id="getMaxMessageOrder" resultType="java.lang.Integer">
+        SELECT COALESCE(MAX(message_order), -1) FROM AI_CONVERSATION WHERE deleted = 0 AND memory_key = #{messageKey}
+    </select>
 
 </mapper>

@@ -2,5 +2,31 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.astrsomn.core.mapper.AiModelMapper">
 
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.model.AiModelResponseDTO">
+        SELECT
+        am.*
+        FROM
+        AI_MODEL am
+        WHERE
+        1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND am.env_code = #{req.envCode}
+        </if>
+        <if test="req != null and req.supplier != null and req.supplier != ''">
+            AND am.provider = #{req.supplier}
+        </if>
+        <if test="req != null and req.modelName != null and req.modelName != ''">
+            AND am.model_name LIKE CONCAT('%', #{req.modelName}, '%')
+        </if>
+        <if test="req != null and req.modelKey != null and req.modelKey != ''">
+            AND am.model_key = #{req.modelKey}
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND am.status = #{req.status}
+        </if>
+        ORDER BY
+        am.provider DESC,
+        am.model_type DESC
+    </select>
 
 </mapper>

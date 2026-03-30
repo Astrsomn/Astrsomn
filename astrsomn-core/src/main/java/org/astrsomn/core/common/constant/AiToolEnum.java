@@ -23,17 +23,20 @@ public interface AiToolEnum {
     @Getter
     @AllArgsConstructor
     enum StatusEnum implements BaseEnum {
+
         /**
-         * Enabled
+         * Enable
          */
         ENABLED("enabled", "Enabled"),
 
         /**
-         * Disabled
+         * Disable
          */
-        DISABLED("disabled", "Disabled");
+        DISABLED("disabled", "Disable");
 
-        private final String code;
-        private final String desc;
+        private String code;
+
+        private String desc;
+
     }
 }

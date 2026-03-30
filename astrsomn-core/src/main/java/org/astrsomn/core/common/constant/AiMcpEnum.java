@@ -22,12 +22,21 @@ public interface AiMcpEnum {
 
     @Getter
     @AllArgsConstructor
-    enum EnabledEnum implements BaseEnum {
-        YES("Y", "YES" ),
-        NO("N", "NO");
+    enum StatusEnum implements BaseEnum {
 
-        private final String code;
-        private final String desc;
+        /**
+         * Enable
+         */
+        ENABLED("enabled", "Enabled"),
+
+        /**
+         * Disable
+         */
+        DISABLED("disabled", "Disable");
+
+        private String code;
+
+        private String desc;
 
     }
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.astrsomn.core.mapper.AiSensitiveWordMapper">
+
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.sensitiveword.AiSensitiveWordResponseDTO">
+        SELECT
+        asw.*
+        FROM
+        AI_SENSITIVE_WORD asw
+        WHERE
+        1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND asw.env_code = #{req.envCode}
+        </if>
+        <if test="req != null and req.word != null and req.word != ''">
+            AND asw.word LIKE CONCAT('%', #{req.word}, '%')
+        </if>
+        <if test="req != null and req.matchType != null and req.matchType != ''">
+            AND asw.match_type = #{req.matchType}
+        </if>
+        <if test="req != null and req.scopeKey != null and req.scopeKey != ''">
+            AND asw.scope_key = #{req.scopeKey}
+        </if>
+        <if test="req != null and req.action != null and req.action != ''">
+            AND asw.action = #{req.action}
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND asw.status = #{req.status}
+        </if>
+        <if test="req != null and req.category != null and req.category != ''">
+            AND asw.category = #{req.category}
+        </if>
+        ORDER BY
+        asw.create_time DESC
+    </select>
+
+</mapper>

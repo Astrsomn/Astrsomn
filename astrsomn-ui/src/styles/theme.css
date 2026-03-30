@@ -1,0 +1,372 @@
+:root {
+    /* ── Background ── */
+    --bg-base: #090e15;
+    --bg-surface: #0c1521;
+    --bg-elevated: #111a2e;
+    --bg-card: #121e2d;
+    --bg-input: #182436;
+
+    /* ── Border ── */
+    --border-default: #1e2f46;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-input: #273a57;
+
+    /* ── Text ── */
+    --text-primary: #e1e9f5;
+    --text-heading: #ffffff;
+    --text-secondary: #7b93b6;
+    --text-muted: #5c7394;
+    --text-placeholder: #5c7394;
+    --text-hover: #0e6ce7;
+
+    /* ── Accent / Primary ── */
+    --primary: #007bff;
+    --primary-light: #00a3ff;
+    --primary-hover: rgba(0, 123, 255, 0.15);
+    --primary-gradient: linear-gradient(90deg, #007bff, #00a3ff);
+    --logo-gradient: linear-gradient(135deg, #1677ff, #23c3ff);
+
+    /* ── Semantic ── */
+    --accent-blue: #3b82f6;
+    --accent-cyan: #00e4ff;
+    --section-title: #93c5fd;
+    --success: #10b981;
+    --error: #ef4444;
+
+    /* ── Shadow ── */
+    --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
+
+    /* ── Radius ── */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 14px;
+
+    /* ── Chat input panel (placeholder / send) ── */
+    --chat-input-placeholder: #c8d8ec;
+    --chat-send-btn-bg: linear-gradient(135deg, #1677ff, #00b4ff);
+    --chat-send-btn-shadow: 0 2px 12px rgba(0, 180, 255, 0.4);
+
+    /* ── Chat message (ChatMessageItem) ── */
+    --chat-ai-card-bg: var(--bg-card);
+    --chat-ai-card-border: var(--border-default);
+    --chat-ai-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    --chat-answer-bg: var(--bg-card);
+    --chat-thought-bg: rgba(255, 255, 255, 0.04);
+    --chat-thought-border: var(--border-subtle);
+    --chat-thought-head-hover: rgba(255, 255, 255, 0.06);
+    --chat-thought-title: var(--text-secondary);
+    --chat-thought-body: var(--text-muted);
+    --chat-markdown-text: var(--text-primary);
+    --chat-markdown-heading: var(--text-heading);
+    --chat-markdown-muted: var(--text-secondary);
+    --chat-blockquote-bg: var(--bg-elevated);
+    --chat-blockquote-border: var(--border-default);
+    --chat-inline-code-bg: var(--bg-input);
+    --chat-inline-code-text: var(--text-primary);
+    --chat-hr: var(--border-default);
+    --chat-link: var(--accent-blue);
+    --chat-stream-placeholder: var(--text-muted);
+    --chat-action-text: var(--text-muted);
+    --chat-action-hover-bg: rgba(255, 255, 255, 0.06);
+    --chat-avatar-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    --chat-ai-avatar-bg: var(--bg-card);
+    --chat-ai-avatar-border: var(--border-default);
+    --chat-ai-avatar-icon: var(--accent-blue);
+    --chat-user-avatar-bg: linear-gradient(145deg, rgba(30, 64, 175, 0.45), var(--bg-elevated));
+    --chat-user-avatar-border: var(--border-input);
+    --chat-user-avatar-text: var(--section-title);
+
+    /* ── Model assembly (ModelAssemblyPage, assembly/) ── */
+    --assembly-palette-bg: var(--bg-card);
+    --assembly-palette-border: var(--border-default);
+    --assembly-pane-divider: var(--border-default);
+    --assembly-label-chat: var(--accent-blue);
+    --assembly-label-emb: #a78bfa;
+    --assembly-label-img: #fb923c;
+    --assembly-label-tool: #4ade80;
+    --assembly-label-mcp: #c084fc;
+    --assembly-search-icon: var(--text-muted);
+    --assembly-empty-text: var(--text-muted);
+    --assembly-btn-emb-bg: #7c3aed;
+    --assembly-btn-emb-border: #7c3aed;
+    --assembly-btn-img-bg: #ea580c;
+    --assembly-btn-img-border: #ea580c;
+    --assembly-btn-tool-bg: #16a34a;
+    --assembly-btn-tool-border: #16a34a;
+    --assembly-btn-mcp-bg: #9333ea;
+    --assembly-btn-mcp-border: #9333ea;
+
+    --assembly-chip-bg: var(--bg-elevated);
+    --assembly-chip-border: var(--border-subtle);
+    --assembly-chip-hover-border: var(--accent-blue);
+    --assembly-chip-hover-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    --assembly-chip-badge-bg: rgba(59, 130, 246, 0.18);
+    --assembly-chip-badge-text: var(--section-title);
+    --assembly-chip-title: var(--text-primary);
+    --assembly-chip-sub: var(--text-secondary);
+
+    --assembly-canvas-bg: var(--bg-base);
+    --assembly-canvas-border: var(--border-default);
+    --assembly-canvas-header-bg: var(--bg-card);
+    --assembly-canvas-header-border: var(--border-default);
+    --assembly-canvas-header-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    --assembly-form-label: var(--text-muted);
+    --assembly-btn-ghost-border: var(--border-input);
+    --assembly-btn-ghost-text: var(--text-secondary);
+    --assembly-btn-primary-shadow: 0 4px 10px rgba(59, 130, 246, 0.35);
+    --assembly-drop-zone-inner-bg: rgba(255, 255, 255, 0.05);
+    --assembly-placed-card-bg: var(--bg-elevated);
+    --assembly-placed-title: var(--text-heading);
+    --assembly-placed-sub: var(--text-secondary);
+    --assembly-placeholder: var(--text-muted);
+    --assembly-knowledge-section-bg: var(--bg-card);
+    --assembly-canvas-accent: var(--accent-blue);
+
+    --assembly-dz-border: var(--border-default);
+    --assembly-dz-bg: var(--bg-input);
+    --assembly-dz-eligible-border: rgba(59, 130, 246, 0.55);
+    --assembly-dz-eligible-bg: rgba(59, 130, 246, 0.1);
+    --assembly-dz-eligible-inset: rgba(59, 130, 246, 0.22);
+    --assembly-dz-chat-eligible-border: #3b82f6;
+    --assembly-dz-chat-eligible-bg: rgba(59, 130, 246, 0.14);
+    --assembly-dz-chat-eligible-inset: rgba(59, 130, 246, 0.28);
+    --assembly-dz-emb-eligible-border: #a78bfa;
+    --assembly-dz-emb-eligible-bg: rgba(139, 92, 246, 0.14);
+    --assembly-dz-emb-eligible-inset: rgba(139, 92, 246, 0.28);
+    --assembly-dz-img-eligible-border: #fb923c;
+    --assembly-dz-img-eligible-bg: rgba(251, 146, 60, 0.12);
+    --assembly-dz-img-eligible-inset: rgba(251, 146, 60, 0.28);
+    --assembly-dz-tool-eligible-border: #4ade80;
+    --assembly-dz-tool-eligible-bg: rgba(74, 222, 128, 0.1);
+    --assembly-dz-tool-eligible-inset: rgba(74, 222, 128, 0.25);
+    --assembly-dz-kb-eligible-border: #2dd4bf;
+    --assembly-dz-kb-eligible-bg: rgba(45, 212, 191, 0.12);
+    --assembly-dz-kb-eligible-inset: rgba(45, 212, 191, 0.28);
+    --assembly-dz-chat-over-border: var(--accent-blue);
+    --assembly-dz-chat-over-bg: rgba(59, 130, 246, 0.2);
+    --assembly-dz-chat-over-inset: rgba(59, 130, 246, 0.42);
+    --assembly-dz-emb-over-border: #8b5cf6;
+    --assembly-dz-emb-over-bg: rgba(139, 92, 246, 0.2);
+    --assembly-dz-emb-over-inset: rgba(139, 92, 246, 0.42);
+    --assembly-dz-img-over-border: #f97316;
+    --assembly-dz-img-over-bg: rgba(251, 146, 60, 0.18);
+    --assembly-dz-img-over-inset: rgba(251, 146, 60, 0.42);
+    --assembly-dz-tool-over-border: #22c55e;
+    --assembly-dz-tool-over-bg: rgba(74, 222, 128, 0.16);
+    --assembly-dz-tool-over-inset: rgba(74, 222, 128, 0.42);
+    --assembly-dz-kb-over-border: #14b8a6;
+    --assembly-dz-kb-over-bg: rgba(45, 212, 191, 0.18);
+    --assembly-dz-kb-over-inset: rgba(45, 212, 191, 0.45);
+    --assembly-dz-hint-text: var(--accent-blue);
+    --assembly-dz-hint-bg: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.14), transparent);
+    --assembly-dz-hint-dot: var(--accent-blue);
+}
+
+:root.light {
+    /* ── Background ── */
+    --bg-base: #f5f7fa;
+    --bg-surface: #ffffff;
+    --bg-elevated: #e6f7ff;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+
+    /* ── Border ── */
+    --border-default: #e5e6eb;
+    --border-subtle: rgba(0, 0, 0, 0.06);
+    --border-input: #dcdfe6;
+
+    /* ── Text ── */
+    --text-primary: #1f2937;
+    --text-heading: #1f2937;
+    --text-secondary: #6b7280;
+    --text-muted: #909399;
+    --text-placeholder: #909399;
+
+    /* ── Shadow ── */
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+    --chat-input-placeholder: var(--text-placeholder);
+    --chat-send-btn-bg: var(--primary);
+    --chat-send-btn-shadow: 0 2px 10px rgba(0, 123, 255, 0.22);
+
+    /* ── Chat message (light) ── */
+    --chat-ai-card-bg: #ffffff;
+    --chat-ai-card-border: #e2e8f0;
+    --chat-ai-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --chat-answer-bg: #ffffff;
+    --chat-thought-bg: #f8fafc;
+    --chat-thought-border: #e8eef4;
+    --chat-thought-head-hover: rgba(255, 255, 255, 0.55);
+    --chat-thought-title: #475569;
+    --chat-thought-body: #64748b;
+    --chat-markdown-text: #1e293b;
+    --chat-markdown-heading: #0f172a;
+    --chat-markdown-muted: #475569;
+    --chat-blockquote-bg: #f8fafc;
+    --chat-blockquote-border: #cbd5e1;
+    --chat-inline-code-bg: #f1f5f9;
+    --chat-inline-code-text: #0f172a;
+    --chat-hr: #e2e8f0;
+    --chat-link: #2563eb;
+    --chat-stream-placeholder: #94a3b8;
+    --chat-action-text: #94a3b8;
+    --chat-action-hover-bg: #f8fafc;
+    --chat-avatar-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --chat-ai-avatar-bg: #ffffff;
+    --chat-ai-avatar-border: #e2e8f0;
+    --chat-ai-avatar-icon: #2563eb;
+    --chat-user-avatar-bg: linear-gradient(145deg, #eff6ff, #ffffff);
+    --chat-user-avatar-border: #bfdbfe;
+    --chat-user-avatar-text: #2563eb;
+
+    /* ── Model assembly (light) ── */
+    --assembly-palette-bg: #ffffff;
+    --assembly-palette-border: #f0f0f0;
+    --assembly-pane-divider: #f0f0f0;
+    --assembly-label-chat: #1890ff;
+    --assembly-label-emb: #722ed1;
+    --assembly-label-img: #fa8c16;
+    --assembly-label-tool: #52c41a;
+    --assembly-label-mcp: #9254de;
+    --assembly-search-icon: #bfbfbf;
+    --assembly-empty-text: #bfbfbf;
+    --assembly-btn-emb-bg: #722ed1;
+    --assembly-btn-emb-border: #722ed1;
+    --assembly-btn-img-bg: #fa8c16;
+    --assembly-btn-img-border: #fa8c16;
+    --assembly-btn-tool-bg: #52c41a;
+    --assembly-btn-tool-border: #52c41a;
+    --assembly-btn-mcp-bg: #9254de;
+    --assembly-btn-mcp-border: #9254de;
+
+    --assembly-chip-bg: #ffffff;
+    --assembly-chip-border: #eef0f4;
+    --assembly-chip-hover-border: #0061ff;
+    --assembly-chip-hover-shadow: 0 2px 8px rgba(0, 97, 255, 0.08);
+    --assembly-chip-badge-bg: #f0f5ff;
+    --assembly-chip-badge-text: #0061ff;
+    --assembly-chip-title: #262626;
+    --assembly-chip-sub: #8c8c8c;
+
+    --assembly-canvas-bg: #f5f7fa;
+    --assembly-canvas-border: #e1e6eb;
+    --assembly-canvas-header-bg: #ffffff;
+    --assembly-canvas-header-border: #e1e6eb;
+    --assembly-canvas-header-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    --assembly-form-label: #8c8c8c;
+    --assembly-btn-ghost-border: #dcdfe6;
+    --assembly-btn-ghost-text: #606266;
+    --assembly-btn-primary-shadow: 0 4px 10px rgba(22, 119, 255, 0.25);
+    --assembly-drop-zone-inner-bg: rgba(255, 255, 255, 0.4);
+    --assembly-placed-card-bg: #ffffff;
+    --assembly-placed-title: #1a1a1a;
+    --assembly-placed-sub: #909399;
+    --assembly-placeholder: #abb2bb;
+    --assembly-knowledge-section-bg: #ffffff;
+    --assembly-canvas-accent: #1677ff;
+
+    --assembly-dz-border: #d9d9d9;
+    --assembly-dz-bg: rgba(255, 255, 255, 0.92);
+    --assembly-dz-eligible-border: #91caff;
+    --assembly-dz-eligible-bg: #fafafa;
+    --assembly-dz-eligible-inset: rgba(24, 144, 255, 0.12);
+    --assembly-dz-chat-eligible-border: #69b1ff;
+    --assembly-dz-chat-eligible-bg: #f0f9ff;
+    --assembly-dz-chat-eligible-inset: rgba(24, 144, 255, 0.2);
+    --assembly-dz-emb-eligible-border: #b37feb;
+    --assembly-dz-emb-eligible-bg: #faf5ff;
+    --assembly-dz-emb-eligible-inset: rgba(114, 46, 209, 0.18);
+    --assembly-dz-img-eligible-border: #ffc069;
+    --assembly-dz-img-eligible-bg: #fffbf0;
+    --assembly-dz-img-eligible-inset: rgba(250, 140, 22, 0.2);
+    --assembly-dz-tool-eligible-border: #95de64;
+    --assembly-dz-tool-eligible-bg: #f6ffed;
+    --assembly-dz-tool-eligible-inset: rgba(82, 196, 26, 0.18);
+    --assembly-dz-kb-eligible-border: #87e8de;
+    --assembly-dz-kb-eligible-bg: #e6fffb;
+    --assembly-dz-kb-eligible-inset: rgba(19, 194, 194, 0.22);
+    --assembly-dz-chat-over-border: #1890ff;
+    --assembly-dz-chat-over-bg: #e6f7ff;
+    --assembly-dz-chat-over-inset: rgba(24, 144, 255, 0.35);
+    --assembly-dz-emb-over-border: #722ed1;
+    --assembly-dz-emb-over-bg: #f9f0ff;
+    --assembly-dz-emb-over-inset: rgba(114, 46, 209, 0.35);
+    --assembly-dz-img-over-border: #fa8c16;
+    --assembly-dz-img-over-bg: #fff7e6;
+    --assembly-dz-img-over-inset: rgba(250, 140, 22, 0.35);
+    --assembly-dz-tool-over-border: #52c41a;
+    --assembly-dz-tool-over-bg: #f6ffed;
+    --assembly-dz-tool-over-inset: rgba(82, 196, 26, 0.35);
+    --assembly-dz-kb-over-border: #13c2c2;
+    --assembly-dz-kb-over-bg: #e6fffb;
+    --assembly-dz-kb-over-inset: rgba(19, 194, 194, 0.4);
+    --assembly-dz-hint-text: #0061ff;
+    --assembly-dz-hint-bg: linear-gradient(90deg, transparent, rgba(0, 97, 255, 0.08), transparent);
+    --assembly-dz-hint-dot: #0061ff;
+}
+
+/* --- 全局动效定义 --- */
+:root {
+    --transition-smooth: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-pop: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* {
+    transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* 1. 缓慢浮动效果 */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* 2. 渐变文字闪烁 */
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+/* 3. 页面滑入 */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 4. 呼吸光圈 */
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    }
+}
+
+/* 路由切换过渡 */
+.page-fade-enter-active {
+    animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.page-fade-leave-active {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}

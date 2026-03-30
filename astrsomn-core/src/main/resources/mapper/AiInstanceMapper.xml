@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.astrsomn.core.mapper.AiInstanceMapper">
+
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.instance.AiInstanceResponseDTO">
+        SELECT
+        ai.*
+        FROM
+        AI_INSTANCE ai
+        WHERE
+        (ai.deleted = 0 OR ai.deleted IS NULL)
+        <if test="req != null and req.instanceKey != null and req.instanceKey != ''">
+            AND ai.instance_key LIKE CONCAT('%', #{req.instanceKey}, '%')
+        </if>
+        <if test="req != null and req.instanceName != null and req.instanceName != ''">
+            AND ai.instance_name LIKE CONCAT('%', #{req.instanceName}, '%')
+        </if>
+        <if test="req != null and req.modelKey != null and req.modelKey != ''">
+            AND ai.model_key LIKE CONCAT('%', #{req.modelKey}, '%')
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND ai.status = #{req.status}
+        </if>
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND ai.env_code = #{req.envCode}
+        </if>
+        <if test="req != null and req.modelType != null and req.modelType != ''">
+            AND EXISTS (
+                SELECT 1 FROM AI_MODEL m
+                WHERE m.model_key = ai.model_key
+                  AND m.env_code = ai.env_code
+                  AND m.model_type = #{req.modelType}
+                  AND (m.deleted = 0 OR m.deleted IS NULL)
+            )
+        </if>
+        ORDER BY
+        ai.create_time DESC
+    </select>
+</mapper>

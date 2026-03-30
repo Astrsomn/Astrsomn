@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.astrsomn.core.mapper.AiAccountMapper">
+
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.account.AiAccountResponseDTO">
+        SELECT
+        aa.*
+        FROM
+        AI_ACCOUNT aa
+        WHERE
+        (aa.deleted = 0 OR aa.deleted IS NULL)
+        <if test="req != null and req.accountKey != null and req.accountKey != ''">
+            AND aa.account_key LIKE CONCAT('%', #{req.accountKey}, '%')
+        </if>
+        <if test="req != null and req.accountName != null and req.accountName != ''">
+            AND aa.account_name LIKE CONCAT('%', #{req.accountName}, '%')
+        </if>
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND aa.env_code = #{req.envCode}
+        </if>
+        <if test="req != null and req.createUser != null and req.createUser != ''">
+            AND aa.create_user = #{req.createUser}
+        </if>
+        ORDER BY
+        aa.create_time DESC
+    </select>
+</mapper>
