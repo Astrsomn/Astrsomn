@@ -47,8 +47,8 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
 
 /* 主体内容区 */
 .shell-content {
+  //border: 1px solid red;
   flex: 1;
-  padding: 6px 0;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--text-muted) 24%, transparent) transparent;
@@ -74,7 +74,7 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
 .content-wrapper {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 0 32px;
+  //padding: 0 32px;
 }
 
 

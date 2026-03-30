@@ -23,7 +23,7 @@ withDefaults(
 
 
 .page-content {
-  min-height: 360px;
+  min-height: calc(100vh - 70px);
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
