@@ -5,7 +5,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
@@ -70,7 +69,8 @@ public class SystemExtensionRegistry {
         entity.setVersion(StringUtils.trimToNull(descriptor.getVersion()));
         entity.setAuthor(StringUtils.trimToNull(descriptor.getAuthor()));
         entity.setDescription(StringUtils.trimToNull(descriptor.getDescription()));
-        entity.setStatus(AiModelEnum.StatusEnum.ENABLED.getCode());
+        entity.setApplied("Y");
+        entity.setStatus("APPLIED");
         return entity;
     }
 }

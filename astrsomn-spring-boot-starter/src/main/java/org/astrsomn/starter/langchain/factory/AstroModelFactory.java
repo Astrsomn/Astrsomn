@@ -14,6 +14,7 @@ import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.langchain.quota.ModelQuotaManager;
 import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,17 +46,22 @@ public class AstroModelFactory {
         }
     }
 
+    @PostConstruct
+    public void initHandlers() {
+        handlers.forEach(this::registerHandler);
+        CACHED_HANDLERS.forEach(this::registerHandler);
+    }
 
     public <T> T createModel(AstroChatParam<?> param, Class<T> modelClass) {
         AiModelEntity modelEntity = resolveModelEntity(param);
         AiAccountEntity accountEntity = resolveAccountEntity(modelEntity);
         AiModelEnum.ProviderEnum provider = AiModelEnum.ProviderEnum.fromCode(modelEntity.getProvider());
 
-        return handlers.stream()
-                .filter(h -> h.getProvider() == provider)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("不支持的厂商: " + modelEntity.getProvider()))
-                .createModel(modelClass, param);
+        ModelProviderHandler handler = handlerMap.get(provider);
+        if (handler == null) {
+            throw new RuntimeException("不支持的厂商: " + modelEntity.getProvider());
+        }
+        return handler.createModel(modelClass, param);
     }
 
     private AiAccountEntity resolveAccountEntity(AiModelEntity modelEntity) {
@@ -76,6 +82,11 @@ public class AstroModelFactory {
         handlerMap.put(handler.getProvider(), handler);
     }
 
+    public void unregisterHandler(AiModelEnum.ProviderEnum provider) {
+        if (provider != null) {
+            handlerMap.remove(provider);
+        }
+    }
 
 
 }

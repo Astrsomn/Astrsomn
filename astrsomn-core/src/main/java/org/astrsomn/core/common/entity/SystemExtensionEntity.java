@@ -30,6 +30,12 @@ public class SystemExtensionEntity extends BaseEntity<Long> {
     @TableField("DESCRIPTION")
     private String description;
 
+    @TableField("JAR_NAME")
+    private String jarName;
+
+    @TableField("APPLIED")
+    private String applied;
+
     @TableField("STATUS")
     private String status;
 
