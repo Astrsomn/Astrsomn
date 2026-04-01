@@ -12,7 +12,7 @@ import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ImageSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
-import org.astrsomn.core.common.langchain.handler.AbstractModelProviderHandler;
+import org.astrsomn.core.common.langchain.extension.AbstractModelProviderHandler;
 
 
 
@@ -90,4 +90,10 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
                 .quality(s.getQuality())
                 .build();
     }
+
+
+    public String getVersion() {
+        return "";
+    }
+
 }

@@ -4,7 +4,7 @@ import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import org.astrsomn.core.common.langchain.handler.AbstractModelProviderHandler;
+import org.astrsomn.core.common.langchain.extension.AbstractModelProviderHandler;
 
 
 public class QwenAiProviderHandler extends AbstractModelProviderHandler {

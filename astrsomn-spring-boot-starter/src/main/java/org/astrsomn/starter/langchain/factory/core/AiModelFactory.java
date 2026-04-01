@@ -7,7 +7,7 @@ import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import org.astrsomn.core.common.langchain.handler.ModelProviderHandler;
+import org.astrsomn.core.common.langchain.extension.ModelProviderHandler;
 import org.astrsomn.core.mapper.AiAccountMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;

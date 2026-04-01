@@ -1,4 +1,4 @@
-package org.astrsomn.core.common.langchain.handler;
+package org.astrsomn.core.common.langchain.extension;
 
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
