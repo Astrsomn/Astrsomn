@@ -55,7 +55,7 @@ public class AstroModelFactory {
                 .filter(h -> h.getProvider() == provider)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("不支持的厂商: " + modelEntity.getProvider()))
-                .createModel(modelClass, modelEntity, accountEntity, param);
+                .createModel(modelClass, param);
     }
 
     private AiAccountEntity resolveAccountEntity(AiModelEntity modelEntity) {
@@ -65,10 +65,10 @@ public class AstroModelFactory {
     }
 
     private AiModelEntity resolveModelEntity(AstroChatParam<?> param) {
-        AiModelEntity aiModelEntity =
-
-
-        return null;
+        AiModelEntity aiModelEntity = aiModelMapper.selectOne(new LambdaQueryWrapper<AiModelEntity>()
+                .eq(AiModelEntity::getEnvCode, astrsomnProperties.getEnvCode())
+                .eq(AiModelEntity::getModelKey, param.getModelKey()));
+        return aiModelEntity;
     }
 
     // 动态注册：供 PluginManager 调用

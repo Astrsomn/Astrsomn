@@ -66,7 +66,7 @@ public class AstrsomnPluginManager {
         boolean found = false;
         for (ModelProviderHandler handler : serviceLoader) {
             log.info("🚀 成功从外部加载插件: [{}] 厂商: {}, 版本: {}",
-                    jar.getName(), handler.getProvider(), handler.getVersion());
+                    jar.getName(), handler.getProvider().getCode(), handler.getVersion());
 
             // 注册到工厂
             astroModelFactory.registerHandler(handler);
