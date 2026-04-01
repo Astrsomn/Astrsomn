@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.langchain.AstroChatRequest;
 import org.astrsomn.core.common.langchain.AstroChatAssistant;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.ConversationSetting;
 import org.astrsomn.server.service.AstroChatService;
 import org.astrsomn.starter.langchain.factory.AstroAssistantFactory;
 import org.astrsomn.starter.langchain.stream.AstroChatStreamUtil;
@@ -26,7 +26,7 @@ public class AstroChatServiceImpl implements AstroChatService {
         param.setInstanceKey(request.getInstanceKey());
         param.setMemoryKey(request.getMemoryKey());
         param.setUserMessage(request.getUserMessage());
-        param.setChatSetting(new ChatSetting()
+        param.setConversationSetting(new ConversationSetting()
                 .setEnableNetwork(request.isEnableNetwork())
                 .setEnableStream(true)
                 .setEnableDeepThinking(request.isEnableDeepThinking()));

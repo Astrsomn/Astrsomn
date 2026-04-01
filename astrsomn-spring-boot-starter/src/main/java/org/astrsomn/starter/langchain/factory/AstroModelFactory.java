@@ -1,6 +1,7 @@
 package org.astrsomn.starter.langchain.factory;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.AiModelEnum;
@@ -58,10 +59,15 @@ public class AstroModelFactory {
     }
 
     private AiAccountEntity resolveAccountEntity(AiModelEntity modelEntity) {
-        return null;
+        return aiAccountMapper.selectOne(new LambdaQueryWrapper<AiAccountEntity>()
+                .eq(AiAccountEntity::getEnvCode, modelEntity.getEnvCode())
+                .eq(AiAccountEntity::getAccountKey, modelEntity.getAccountKey()));
     }
 
     private AiModelEntity resolveModelEntity(AstroChatParam<?> param) {
+        AiModelEntity aiModelEntity =
+
+
         return null;
     }
 

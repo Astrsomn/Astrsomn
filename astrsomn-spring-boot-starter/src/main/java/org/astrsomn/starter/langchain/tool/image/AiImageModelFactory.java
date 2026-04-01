@@ -11,9 +11,9 @@ import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.ConversationSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.ImageSetting;
-import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 import org.astrsomn.core.common.util.JsonUtil;
 import org.astrsomn.core.mapper.AiAccountMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
@@ -35,8 +35,8 @@ public class AiImageModelFactory {
     private final AstrsomnProperties astrsomnProperties;
 
     public <T> ImageModel getImageModel(AstroChatParam<T> param) {
-        ModelSetting modelSetting = param.getModelSetting();
         ChatSetting chatSetting = param.getChatSetting();
+        ConversationSetting conversationSetting = param.getConversationSetting();
         ImageSetting imageSetting = param.getImageSetting() != null ? param.getImageSetting() : new ImageSetting();
 
         AiModelEntity modelEntity = aiModelMapper.selectOne(new LambdaUpdateWrapper<AiModelEntity>()
@@ -53,11 +53,11 @@ public class AiImageModelFactory {
         }
 
         return switch (providerEnum) {
-            case ALIBABA -> getQwenImageModel(modelEntity, modelSetting, chatSetting, imageSetting);
-            case OPENAI -> getOpenAiImageModel(modelEntity, modelSetting, chatSetting, imageSetting);
-            case ZHIPU -> getZhiPuImageModel(modelEntity, modelSetting, chatSetting, imageSetting);
-            case QIANFAN -> getQianfanImageModel(modelEntity, modelSetting, chatSetting, imageSetting);
-            case GOOGLE -> getGoogleGeminiImageModel(modelEntity, modelSetting, chatSetting, imageSetting);
+            case ALIBABA -> getQwenImageModel(modelEntity, chatSetting, conversationSetting, imageSetting);
+            case OPENAI -> getOpenAiImageModel(modelEntity, chatSetting, conversationSetting, imageSetting);
+            case ZHIPU -> getZhiPuImageModel(modelEntity, chatSetting, conversationSetting, imageSetting);
+            case QIANFAN -> getQianfanImageModel(modelEntity, chatSetting, conversationSetting, imageSetting);
+            case GOOGLE -> getGoogleGeminiImageModel(modelEntity, chatSetting, conversationSetting, imageSetting);
             default -> {
                 log.error("====>  Astrsomn  ====> 未处理的 provider 类型: {} <====", providerEnum);
                 throw new IllegalStateException("未知的大模型参数");
@@ -83,22 +83,22 @@ public class AiImageModelFactory {
     }
 
     private ImageModel getGoogleGeminiImageModel(
-            AiModelEntity modelEntity, ModelSetting modelSetting, ChatSetting chatSetting, ImageSetting imageSetting) {
+            AiModelEntity modelEntity, ChatSetting chatSetting, ConversationSetting conversationSetting, ImageSetting imageSetting) {
         return null;
     }
 
     private ImageModel getQianfanImageModel(
-            AiModelEntity modelEntity, ModelSetting modelSetting, ChatSetting chatSetting, ImageSetting imageSetting) {
+            AiModelEntity modelEntity, ChatSetting chatSetting, ConversationSetting conversationSetting, ImageSetting imageSetting) {
         return null;
     }
 
     private ImageModel getZhiPuImageModel(
-            AiModelEntity modelEntity, ModelSetting modelSetting, ChatSetting chatSetting, ImageSetting imageSetting) {
+            AiModelEntity modelEntity, ChatSetting chatSetting, ConversationSetting conversationSetting, ImageSetting imageSetting) {
         return null;
     }
 
     private ImageModel getOpenAiImageModel(
-            AiModelEntity modelEntity, ModelSetting modelSetting, ChatSetting chatSetting, ImageSetting imageSetting) {
+            AiModelEntity modelEntity, ChatSetting chatSetting, ConversationSetting conversationSetting, ImageSetting imageSetting) {
         AiAccountEntity account = resolveAccount(modelEntity);
         List<String> caps = parseCapabilities(modelEntity);
 
@@ -149,7 +149,7 @@ public class AiImageModelFactory {
     }
 
     private ImageModel getQwenImageModel(
-            AiModelEntity modelEntity, ModelSetting modelSetting, ChatSetting chatSetting, ImageSetting imageSetting) {
+            AiModelEntity modelEntity, ChatSetting chatSetting, ConversationSetting conversationSetting, ImageSetting imageSetting) {
         return null;
     }
 }

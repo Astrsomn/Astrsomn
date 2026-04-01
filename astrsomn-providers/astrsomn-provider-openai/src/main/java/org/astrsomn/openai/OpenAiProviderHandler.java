@@ -11,7 +11,7 @@ import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ImageSetting;
-import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 import org.astrsomn.core.common.langchain.extension.AbstractModelProviderHandler;
 
 
@@ -62,7 +62,7 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
                 .baseUrl(entity.getApiUrl());
 
         // 获取参数和能力集
-        ModelSetting s = param.getModelSetting();
+        ChatSetting s = param.getChatSetting();
         List<String> caps = parseCapabilities(entity);
 
         // --- 声明式参数填充 (告别 if-else) ---
@@ -74,7 +74,7 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
         apply(caps, FREQUENCY_PENALTY, s.getFrequencyPenalty(), builder::frequencyPenalty);
 
         // 特殊逻辑：深度思考
-        if (param.getChatSetting().isEnableDeepThinking() && caps.contains("DEEP_REASONING")) {
+        if (param.getConversationSetting().isEnableDeepThinking() && caps.contains("DEEP_REASONING")) {
             builder.returnThinking(true).sendThinking(true);
         }
 

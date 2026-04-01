@@ -11,9 +11,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>astrsomn-provider-qwen</artifactId>
-    <name>astrsomn-provider-qwen</name>
-    <description>astrsomn-provider-qwen</description>
+    <artifactId>astrsomn-provider-zhipu</artifactId>
+    <name>astrsomn-provider-zhipu</name>
+    <description>astrsomn-provider-zhipu</description>
 
     <dependencies>
         <dependency>
@@ -23,13 +23,7 @@
 
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-community-dashscope</artifactId>
-            <version>1.11.0-beta19</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-community-dashscope-spring-boot-starter</artifactId>
+            <artifactId>langchain4j-community-zhipu-ai</artifactId>
             <version>1.11.0-beta19</version>
         </dependency>
     </dependencies>

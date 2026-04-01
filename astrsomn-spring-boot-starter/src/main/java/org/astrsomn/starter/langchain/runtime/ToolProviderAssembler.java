@@ -64,7 +64,7 @@ public class ToolProviderAssembler {
                             .eq(AiToolEntity::getEnvCode, env));
             providers.add(new DynamicToolProvider(toolConfigs, applicationContext, globalToolCache));
         }
-        if (param.getChatSetting().isEnableImageGenerate()) {
+        if (param.getConversationSetting().isEnableImageGenerate()) {
             ImageModel imageModel = aiImageModelFactory.getImageModel(param);
             providers.add(new ImageToolProvider(imageModel));
         }

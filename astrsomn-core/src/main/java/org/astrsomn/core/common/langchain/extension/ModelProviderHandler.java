@@ -5,6 +5,8 @@ import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 
+import java.util.List;
+
 public interface ModelProviderHandler {
 
     /**
@@ -17,17 +19,18 @@ public interface ModelProviderHandler {
     /**
      * 创建具体的模型实例
      * @param modelClass
-     * @param modelEntity
-     * @param accountEntity
      * @param param
      * @return
      * @param <T>
      */
-    <T> T createModel(Class<T> modelClass,
-                      AiModelEntity modelEntity,
-                      AiAccountEntity accountEntity,
-                      AstroChatParam<?> param);
+    <T> T createModel(Class<T> modelClass, AstroChatParam<?> param);
 
+
+    /**
+     * 获取可用模型
+     * @return
+     */
+    List<AiModelEntity> getAvailableModels();
 
     /**
      * 默认版本

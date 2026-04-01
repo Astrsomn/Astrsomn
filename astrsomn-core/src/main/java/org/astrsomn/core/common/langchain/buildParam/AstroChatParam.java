@@ -23,11 +23,13 @@ public class AstroChatParam<T> {
     private String agentKey;
 
     /**
-     * 选用的模型 ID
+     * 选用的模型 Key
      */
     private String modelKey;
 
-
+    /**
+     * 推理模型 Key
+     */
     private String instanceKey;
 
     /**
@@ -47,13 +49,13 @@ public class AstroChatParam<T> {
      * 模型推理参数配置 (温度、TopP等)
      */
     @Builder.Default
-    private ModelSetting modelSetting = new ModelSetting();
+    private ChatSetting chatSetting = new ChatSetting();
 
     /**
      * 功能开关 (联网、流式等)
      */
     @Builder.Default
-    private ChatSetting chatSetting = new ChatSetting();
+    private ConversationSetting conversationSetting = new ConversationSetting();
 
     /**
      * 知识与工具挂载策略
@@ -86,9 +88,15 @@ public class AstroChatParam<T> {
     private EmbeddingSetting embeddingSetting = new EmbeddingSetting();
 
     /**
+     * 模型链接参数
+     */
+    @Builder.Default
+    private ModelSetting modelSetting = new ModelSetting();
+    /**
      * 最终执行接口
      */
     private final Class<T> serviceClass;
+
 
 
     public static <T> AstroChatParam<T> of(Class<T> serviceClass, String agentKey) {
