@@ -1,4 +1,4 @@
-package org.astrsomn.starter.langchain.factory.core;
+package org.astrsomn.starter.langchain.factory;
 
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AiModelFactory {
+public class AstroModelFactory {
 
     private final AiModelMapper aiModelMapper;
     private final AiAccountMapper aiAccountMapper;
@@ -45,7 +45,7 @@ public class AiModelFactory {
     }
 
 
-    public <T> T getModel(AstroChatParam<?> param, Class<T> modelClass) {
+    public <T> T createModel(AstroChatParam<?> param, Class<T> modelClass) {
         AiModelEntity modelEntity = resolveModelEntity(param);
         AiAccountEntity accountEntity = resolveAccountEntity(modelEntity);
         AiModelEnum.ProviderEnum provider = AiModelEnum.ProviderEnum.fromCode(modelEntity.getProvider());

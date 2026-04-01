@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.langchain.AstroChatAssistant;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import org.astrsomn.starter.langchain.AstroAssistantFactory;
+import org.astrsomn.starter.langchain.factory.AstroAssistantFactory;
 import org.astrsomn.starter.langchain.runtime.AgentRuntimeConfigLoader;
 import org.astrsomn.workflow.core.context.WorkflowContext;
 import org.astrsomn.workflow.core.model.FlowNode;

@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.langchain.extension.ModelProviderHandler;
-import org.astrsomn.starter.langchain.factory.core.AiModelFactory;
+import org.astrsomn.starter.langchain.factory.AstroModelFactory;
 import org.springframework.stereotype.Component;
 
 
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class AstrsomnPluginManager {
 
-    private final AiModelFactory aiModelFactory;
+    private final AstroModelFactory astroModelFactory;
     private final String pluginPath = "./plugins";
 
     // 用于记录已加载的插件及其加载器，方便后续做卸载或热更新
@@ -69,7 +69,7 @@ public class AstrsomnPluginManager {
                     jar.getName(), handler.getProvider(), handler.getVersion());
 
             // 注册到工厂
-            aiModelFactory.registerHandler(handler);
+            astroModelFactory.registerHandler(handler);
             found = true;
         }
 

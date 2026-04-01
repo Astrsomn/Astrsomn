@@ -6,7 +6,7 @@ import org.astrsomn.core.common.langchain.AstroChatAssistant;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 import org.astrsomn.server.service.AstroChatService;
-import org.astrsomn.starter.langchain.AstroAssistantFactory;
+import org.astrsomn.starter.langchain.factory.AstroAssistantFactory;
 import org.astrsomn.starter.langchain.stream.AstroChatStreamUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
