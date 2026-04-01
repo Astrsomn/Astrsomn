@@ -4,7 +4,6 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.qdrant.QdrantEmbeddingStore;
 import org.astrsomn.core.common.constant.VectorStoreType;
-import org.astrsomn.core.common.entity.RagKnowledgeEntity;
 import org.astrsomn.core.common.langchain.buildParam.setting.RagSetting;
 import org.springframework.stereotype.Component;
 

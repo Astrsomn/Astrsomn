@@ -24,7 +24,7 @@
             <artifactId>astrsomn-core</artifactId>
         </dependency>
 
-        <!-- 工作流引擎：TASK 节点回调 {@link org.astrsomn.starter.langchain.AstroAssistantFactory} -->
+        <!-- 工作流引擎：TASK 节点回调 {@link org.astrsomn.starter.langchain.factory.AstroAssistantFactory} -->
         <dependency>
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-workflow-core</artifactId>

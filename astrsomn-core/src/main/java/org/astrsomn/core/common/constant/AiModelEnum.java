@@ -3,6 +3,7 @@ package org.astrsomn.core.common.constant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.astrsomn.core.common.base.BaseEnum;
+import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 
 import java.util.List;
 
@@ -179,7 +180,7 @@ public interface AiModelEnum {
 
     /**
      * 与 LangChain4j 流式 Chat 模型 Builder 可对齐的推理超参；code 建议写入 {@code AI_MODEL.capabilities} JSON 数组。
-     * 工厂仅在 capabilities 包含对应 code 且 {@link org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting} 中值非空时调用 SDK。
+     * 工厂仅在 capabilities 包含对应 code 且 {@link ChatSetting} 中值非空时调用 SDK。
      * <p>
      * code 命名对齐常见 Chat Completions 字段（snake_case），便于与 OpenAI 兼容实现及文档对照。
      */

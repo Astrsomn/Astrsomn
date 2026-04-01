@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.entity.AiAgentEntity;
 import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
 import org.astrsomn.core.common.util.JsonUtil;
 import org.astrsomn.core.mapper.AiAgentMapper;
@@ -65,11 +65,11 @@ public class AgentRuntimeConfigLoader {
         mergeToolSettingsFromAgent(ensureToolSetting(param), agent);
     }
 
-    private static <T> ModelSetting ensureModelSetting(AstroChatParam<T> param) {
-        if (param.getModelSetting() == null) {
-            param.setModelSetting(new ModelSetting());
+    private static <T> ChatSetting ensureModelSetting(AstroChatParam<T> param) {
+        if (param.getChatSetting() == null) {
+            param.setChatSetting(new ChatSetting());
         }
-        return param.getModelSetting();
+        return param.getChatSetting();
     }
 
     private static <T> ToolSetting ensureToolSetting(AstroChatParam<T> param) {
@@ -80,9 +80,9 @@ public class AgentRuntimeConfigLoader {
     }
 
     /**
-     * 仅填充用户未在 {@link ModelSetting} 中赋值的字段（null 视为未指定，由实例表补齐）。
+     * 仅填充用户未在 {@link ChatSetting} 中赋值的字段（null 视为未指定，由实例表补齐）。
      */
-    private void mergeModelFromInstance(ModelSetting target, AiInstanceEntity instance) {
+    private void mergeModelFromInstance(ChatSetting target, AiInstanceEntity instance) {
         if (instance == null) {
             return;
         }
