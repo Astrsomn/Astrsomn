@@ -27,6 +27,19 @@ public abstract class AstroExtensionDescriptor {
         return DEFAULT_VERSION;
     }
 
+    /**
+     * 扩展作者，默认返回 Astrsomn。
+     */
+    public String getAuthor() {
+        return "Astrsomn";
+    }
+
+    /**
+     * 扩展描述，默认空字符串。
+     */
+    public String getDescription() {
+        return "";
+    }
 
     public abstract List<AiModelEntity> getSupportedModels();
 
