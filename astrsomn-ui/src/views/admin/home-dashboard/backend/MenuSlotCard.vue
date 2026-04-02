@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import type { EntryAccent, ManagementEntry } from '../backend/management'
+import type { EntryAccent, ManagementEntry } from './management.ts'
 
 const props = withDefaults(
   defineProps<{

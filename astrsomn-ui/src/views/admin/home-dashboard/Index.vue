@@ -125,7 +125,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import MenuSlotCard from './demo/MenuSlotCard.vue'
+import MenuSlotCard from './backend/MenuSlotCard.vue'
 import type { EntryAccent, ManagementEntry } from './backend/management'
 import { getCurrentUserRole, resolveManagementGroups } from './backend/management'
 
