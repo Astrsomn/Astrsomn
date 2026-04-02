@@ -1,447 +1,353 @@
 <template>
   <a-modal
-      :open="visible"
-      :title="isEdit ? '编辑推理预设' : '新建推理预设'"
-      :width="820"
-      :confirm-loading="submitting"
-      @ok="onSubmit"
-      @cancel="handleCancel"
+    :open="visible"
+    width="100%"
+    :footer="null"
+    :closable="false"
+    wrap-class-name="astrsomn-full-modal"
+    destroy-on-close
+    @cancel="handleCancel"
   >
-    <a-spin :spinning="loading">
-      <a-form ref="formRef" layout="vertical" :model="form">
-        <a-row :gutter="16">
-          <a-col :xs="24" :md="12">
-            <a-form-item label="预设名称" name="instanceName">
-              <a-input v-model:value="form.instanceName" placeholder="例如：创造力模式 / 严格助手" allow-clear />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :md="12">
-            <a-form-item label="配置状态" name="status">
-              <a-select
-                  v-model:value="form.status"
-                  :options="statusOptions"
-                  placeholder="请选择"
-                  allow-clear
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :md="12">
-            <a-form-item label="关联接入端点 (Endpoint)" name="modelKey" :rules="modelKeyFieldRules">
-              <a-select
-                  v-model:value="form.modelKey"
-                  :options="modelSelectOptions"
-                  :loading="modelsLoading"
-                  :disabled="isEdit"
-                  show-search
-                  :filter-option="filterModelOption"
-                  placeholder="选择此配置绑定的物理端点"
-                  allow-clear
-                  option-filter-prop="label"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :md="12">
-            <a-form-item label="配置识别码 (Instance Key)" name="instanceKey">
-              <a-input
-                  v-model:value="form.instanceKey"
-                  placeholder="代码引用标识，留空则自动生成"
-                  allow-clear
-              />
-            </a-form-item>
-          </a-col>
-        </a-row>
+    <div class="fullscreen-wrapper">
+      <header class="modal-header">
+        <div class="header-left">
+          <div class="logo-box"><ThunderboltFilled /></div>
+          <div class="title-group">
+            <span class="main-title">{{ isEdit ? '编辑推理预设' : '新建推理预设' }}</span>
+            <span class="sub-title">配置 Astrsomn 核心引擎的运行策略与端点映射</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <a-button class="action-btn" @click="handleCancel">取消</a-button>
+          <a-button 
+            type="primary" 
+            class="action-btn gradient-btn" 
+            :loading="submitting" 
+            @click="onSubmit"
+          >
+            保存预设
+          </a-button>
+        </div>
+      </header>
 
-        <a-alert
-            v-if="orphanModelKey"
-            type="warning"
-            show-icon
-            class="mb-12"
-            message="未匹配到目标接入端点，当前按「通用对话」模式展示全部参数；请核实端点是否已移除。"
-        />
-        <a-alert
-            v-else-if="!form.modelKey"
-            type="info"
-            show-icon
-            class="mb-12"
-            message="请先选择接入端点，系统将根据端点支持的能力集（Capabilities）动态加载可调参数。"
-        />
-
-        <template v-if="showChatParamSection">
-          <div class="param-section-title">对话模型 · 运行采样参数</div>
-          <a-row :gutter="16">
-            <a-col v-show="chatFieldVisibilityEffective.maxTokens" :xs="24" :md="8">
-              <a-form-item label="单次响应上限 (Max Tokens)" name="maxTokens">
-                <a-input-number v-model:value="form.maxTokens" class="w-full" :min="0" placeholder="最大生成长度" />
-              </a-form-item>
-            </a-col>
-            <a-col v-show="chatFieldVisibilityEffective.temperature" :xs="24" :md="8">
-              <a-form-item label="采样温度 (Temperature)" name="temperature">
-                <a-input-number
-                    v-model:value="form.temperature"
-                    class="w-full"
-                    :min="0"
-                    :max="2"
-                    :step="0.1"
-                    placeholder="0.7"
+      <div class="main-content">
+        <section class="selection-pane">
+          <div class="pane-card glass-card">
+            <div class="pane-header">
+              <div class="search-row">
+                <a-input-search
+                  v-model:value="searchQuery"
+                  placeholder="搜索名称、Provider 或 Model Key..."
+                  allow-clear
+                  size="large"
+                  class="custom-search"
                 />
-              </a-form-item>
-            </a-col>
-            <a-col v-show="chatFieldVisibilityEffective.topP" :xs="24" :md="8">
-              <a-form-item label="核采样阈值 (Top P)" name="topP">
-                <a-input-number v-model:value="form.topP" class="w-full" :min="0" :max="1" :step="0.05" placeholder="1.0" />
-              </a-form-item>
-            </a-col>
-            <a-col v-show="chatFieldVisibilityEffective.topK" :xs="24" :md="8">
-              <a-form-item label="候选集大小 (Top K)" name="topK">
-                <a-input-number v-model:value="form.topK" class="w-full" :min="0" placeholder="整数" />
-              </a-form-item>
-            </a-col>
-            <a-col v-show="chatFieldVisibilityEffective.presencePenalty" :xs="24" :md="8">
-              <a-form-item label="话题新鲜度 (Presence Penalty)" name="presencePenalty">
-                <a-input-number v-model:value="form.presencePenalty" class="w-full" :step="0.1" placeholder="0.0" />
-              </a-form-item>
-            </a-col>
-            <a-col v-show="chatFieldVisibilityEffective.frequencyPenalty" :xs="24" :md="8">
-              <a-form-item label="重复惩罚 (Frequency Penalty)" name="frequencyPenalty">
-                <a-input-number v-model:value="form.frequencyPenalty" class="w-full" :step="0.1" placeholder="0.0" />
-              </a-form-item>
-            </a-col>
-            <a-col v-show="chatFieldVisibilityEffective.seed" :xs="24" :md="8">
-              <a-form-item label="随机种子 (Seed)" name="seed">
-                <a-input-number v-model:value="form.seed" class="w-full" placeholder="用于结果复现" />
-              </a-form-item>
-            </a-col>
-            <a-col v-show="chatFieldVisibilityEffective.stopSequences" :span="24">
-              <a-form-item label="停止符序列 (Stop Sequences)" name="stopSequences">
-                <a-textarea
-                    v-model:value="form.stopSequences"
-                    :rows="3"
-                    placeholder="多段结束符，匹配到这些字符时将停止输出"
-                    allow-clear
-                />
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </template>
+              </div>
+              <div class="filter-row">
+                <a-radio-group v-model:value="typeFilter" button-style="solid">
+                  <a-radio-button value="all">全部类型</a-radio-button>
+                  <a-radio-button value="chat">对话</a-radio-button>
+                  <a-radio-button value="embedding">向量</a-radio-button>
+                  <a-radio-button value="image">图像</a-radio-button>
+                </a-radio-group>
+              </div>
+            </div>
 
-        <template v-else-if="resolvedModel && resolvedModel.modelType === 'embedding'">
-          <div class="param-section-title">向量模型 · 维度配置</div>
-          <a-row :gutter="16">
-            <a-col v-show="showEmbeddingDimensions" :xs="24" :md="8">
-              <a-form-item label="输出维度 (Dimensions)" name="dimensions">
-                <a-input-number v-model:value="form.dimensions" class="w-full" :min="0" />
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </template>
+            <div class="table-container">
+              <a-table
+                :columns="columns"
+                :data-source="filteredModels"
+                :loading="modelsLoading"
+                :pagination="{ pageSize: 12, showTotal: t => `共 ${t} 个可用端点` }"
+                :row-selection="{ selectedRowKeys: selectedKeys, onChange: onRowSelectChange, type: 'radio' }"
+                :custom-row="customRow"
+                row-key="modelKey"
+                size="middle"
+              >
+                <template #bodyCell="{ column, record }">
+                  <template v-if="column.key === 'provider'">
+                    <span class="provider-tag" :data-type="record.provider">{{ record.provider || 'Local' }}</span>
+                  </template>
+                </template>
+              </a-table>
+            </div>
+          </div>
+        </section>
 
-        <template v-else-if="resolvedModel && resolvedModel.modelType === 'image'">
-          <div class="param-section-title">图像模型 · 渲染参数</div>
-          <a-row :gutter="16">
-            <a-col v-show="showImageSize" :xs="24" :md="8">
-              <a-form-item label="画布尺寸 (Size)" name="size">
-                <a-input v-model:value="form.size" allow-clear placeholder="如 1024x1024" />
-              </a-form-item>
-            </a-col>
-            <a-col v-show="showImageStyle" :xs="24" :md="8">
-              <a-form-item label="生成风格 (Style)" name="style">
-                <a-input v-model:value="form.style" allow-clear placeholder="如 vivid 或 natural" />
-              </a-form-item>
-            </a-col>
-            <a-col v-show="showImageDimensions" :xs="24" :md="8">
-              <a-form-item label="渲染维度" name="dimensions">
-                <a-input-number v-model:value="form.dimensions" class="w-full" :min="0" />
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </template>
-      </a-form>
-    </a-spin>
+        <aside class="config-pane">
+          <div class="pane-card glass-card scroll-y">
+            <a-form ref="formRef" layout="vertical" :model="form">
+              
+              <div class="config-section">
+                <h3 class="section-title"><InfoCircleOutlined /> 基础定义</h3>
+                <a-form-item label="预设名称" name="instanceName" :rules="[{ required: true, message: '请输入名称' }]">
+                  <a-input v-model:value="form.instanceName" placeholder="例如：通用对话-生产环境" size="large" />
+                </a-form-item>
+                
+                <a-form-item label="运行状态">
+                  <a-segmented v-model:value="form.status" :options="statusOptions" block size="large" />
+                </a-form-item>
+              </div>
+
+              <a-divider />
+
+              <div class="config-section">
+                <div class="section-header-flex">
+                  <h3 class="section-title"><ControlOutlined /> 推理参数</h3>
+                  <a-tag v-if="form.modelKey" color="purple" class="model-key-tag">{{ form.modelKey }}</a-tag>
+                </div>
+
+                <div v-if="!form.modelKey" class="empty-state">
+                  <div class="empty-icon"><SelectOutlined /></div>
+                  <p>请在左侧表格中选中一个接入端点</p>
+                </div>
+
+                <div v-else class="params-list">
+                  
+                  <div class="param-group-card">
+                    <div class="p-header">
+                      <a-tooltip placement="left">
+                        <template #title>
+                          控制生成内容的随机性。较低值使输出更聚焦严谨，较高值使输出更具创意和不可预测。
+                        </template>
+                        <span class="p-label">采样温度 (Temperature) <QuestionCircleOutlined /></span>
+                      </a-tooltip>
+                      <a-input-number v-model:value="form.temperature" :min="0" :max="2" :step="0.1" size="small" />
+                    </div>
+                    <div class="slider-box">
+                      <a-slider 
+                        v-model:value="form.temperature" 
+                        :min="0" :max="2" :step="0.1" 
+                        :marks="{ 0: '严谨', 0.7: '平衡', 1.5: '创意', 2: '随机' }" 
+                      />
+                    </div>
+                    <div class="p-desc-bar" :class="getTempInfo(form.temperature).color">
+                      {{ getTempInfo(form.temperature).text }}
+                    </div>
+                  </div>
+
+                  <div class="param-group-card">
+                    <div class="p-header">
+                      <a-tooltip placement="left">
+                        <template #title>设置生成内容的最大长度限制。1000 tokens 约为 750 个英文单词。</template>
+                        <span class="p-label">响应上限 (Max Tokens) <QuestionCircleOutlined /></span>
+                      </a-tooltip>
+                      <a-input-number v-model:value="form.maxTokens" :min="1" :max="128000" size="small" />
+                    </div>
+                    <div class="slider-box">
+                      <a-slider 
+                        v-model:value="form.maxTokens" 
+                        :min="0" :max="8192" :step="256"
+                        :marks="{ 0: '短', 2048: '中等', 4096: '长', 8192: '超长' }"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="param-group-card">
+                    <div class="p-header">
+                      <a-tooltip placement="left" title="核心采样。模型仅考虑概率累积达到此比例的候选词。建议不与 Temperature 同时大幅调整。">
+                        <span class="p-label">核采样 (Top P) <QuestionCircleOutlined /></span>
+                      </a-tooltip>
+                      <a-input-number v-model:value="form.topP" :min="0" :max="1" :step="0.01" size="small" />
+                    </div>
+                    <div class="slider-box">
+                      <a-slider v-model:value="form.topP" :min="0" :max="1" :step="0.05" :marks="{ 0: '极窄', 0.5: '标准', 1: '完整' }" />
+                    </div>
+                  </div>
+
+                  <div class="penalty-row">
+                    <div class="mini-param-card">
+                      <span class="mini-label">重复惩罚 (Frequency)</span>
+                      <a-slider v-model:value="form.frequencyPenalty" :min="-2" :max="2" :step="0.1" />
+                    </div>
+                    <div class="mini-param-card">
+                      <span class="mini-label">新鲜度 (Presence)</span>
+                      <a-slider v-model:value="form.presencePenalty" :min="-2" :max="2" :step="0.1" />
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </a-form>
+          </div>
+        </aside>
+      </div>
+    </div>
   </a-modal>
 </template>
+
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import { message } from 'ant-design-vue'
-import type { FormInstance } from 'ant-design-vue'
-import { aiInstanceApi, type AiInstance } from '@/api/aiInstance'
-import { aiModelApi, type AiModel } from '@/api/aiModel'
+import { ref, reactive, computed, watch } from 'vue';
+import { message } from 'ant-design-vue';
+import {
+  ThunderboltFilled, InfoCircleOutlined, QuestionCircleOutlined, 
+  ControlOutlined, SelectOutlined
+} from '@ant-design/icons-vue';
+import { aiModelApi, type AiModel } from '@/api/aiModel';
+import { aiInstanceApi, type AiInstance } from '@/api/aiInstance';
 
-interface Props {
-  visible: boolean
-  record?: AiInstance
-}
+interface Props { visible: boolean; recordId?: string | number }
+const props = defineProps<Props>();
+const emit = defineEmits(['update:visible', 'success']);
 
-const props = defineProps<Props>()
+const formRef = ref();
+const submitting = ref(false);
+const modelsLoading = ref(false);
+const modelList = ref<AiModel[]>([]);
+const selectedKeys = ref<string[]>([]);
+const searchQuery = ref('');
+const typeFilter = ref('all');
 
-const emit = defineEmits<{
-  'update:visible': [value: boolean]
-  success: []
-}>()
+const form = reactive<AiInstance>({ 
+  status: 'enabled', 
+  temperature: 0.7, 
+  maxTokens: 2048,
+  topP: 1.0,
+  frequencyPenalty: 0,
+  presencePenalty: 0
+});
 
-const CHAT_FIELD_CAPS = {
-  maxTokens: ['max_tokens', 'max_token_setting'],
-  temperature: ['temperature', 'temperature_setting'],
-  topP: ['top_p', 'top_p_setting'],
-  topK: ['top_k', 'top_k_setting'],
-  presencePenalty: ['presence_penalty', 'presence_penalty_setting'],
-  frequencyPenalty: ['frequency_penalty', 'frequency_penalty_setting'],
-  seed: ['seed', 'seed_setting'],
-  stopSequences: ['stop_sequences_setting']
-} as const
+const isEdit = computed(() => !!props.recordId);
+const statusOptions = [{ label: '立即激活', value: 'enabled' }, { label: '暂存停用', value: 'disabled' }];
 
-const formRef = ref<FormInstance | null>(null)
-const loading = ref(false)
-const submitting = ref(false)
-const modelsLoading = ref(false)
-const modelList = ref<AiModel[]>([])
+const columns = [
+  { title: '端点名称', dataIndex: 'modelName', key: 'modelName', width: 220 },
+  { title: 'Model Key', dataIndex: 'modelKey', key: 'modelKey' },
+  { title: '云供应商', dataIndex: 'provider', key: 'provider', width: 120 },
+];
 
-const isEdit = computed(() => props.record?.id !== undefined && props.record?.id !== null)
+const filteredModels = computed(() => {
+  return modelList.value.filter(m => {
+    const matchType = typeFilter.value === 'all' || m.modelType === typeFilter.value;
+    const matchSearch = !searchQuery.value || 
+      m.modelName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      m.modelKey?.toLowerCase().includes(searchQuery.value.toLowerCase());
+    return matchType && matchSearch;
+  });
+});
 
-const statusOptions = [
-  { label: '启用', value: 'enabled' },
-  { label: '禁用', value: 'disabled' }
-]
+const getTempInfo = (v: number) => {
+  if (v <= 0.3) return { text: '🎯 适合：代码编写、数学逻辑、事实问答', color: 'c-blue' };
+  if (v <= 0.8) return { text: '⚖️ 适合：通用对话、周报草拟、翻译', color: 'c-purple' };
+  if (v <= 1.4) return { text: '🎨 适合：创意写作、角色扮演、头脑风暴', color: 'c-orange' };
+  return { text: '🎲 适合：极高随机性的发散性内容', color: 'c-red' };
+};
 
-const modelKeyFieldRules = computed(() =>
-  isEdit.value ? [] : [{ required: true, message: '请选择关联模型' }]
-)
-
-const form = reactive<AiInstance>({})
-
-const resolvedModel = computed(() => {
-  const key = form.modelKey?.trim()
-  if (!key) return null
-  return modelList.value.find((m) => m.modelKey === key) ?? null
-})
-
-/** 有 modelKey 但当前模型列表里找不到（如模型已删） */
-const orphanModelKey = computed(() => {
-  const k = form.modelKey?.trim()
-  return !!k && !resolvedModel.value
-})
-
-const showChatParamSection = computed(
-  () => orphanModelKey.value || resolvedModel.value?.modelType === 'chat'
-)
-
-const modelCapabilitySet = computed(() => {
-  const raw = resolvedModel.value?.capabilities
-  if (!raw || typeof raw !== 'string') return new Set<string>()
+const fetchModels = async () => {
+  modelsLoading.value = true;
   try {
-    const arr = JSON.parse(raw)
-    if (!Array.isArray(arr)) return new Set<string>()
-    return new Set(arr.map(String))
-  } catch {
-    return new Set<string>()
-  }
-})
+    const res = await aiModelApi.queryPage({ pageNo: 1, pageSize: 1000, param: {} });
+    modelList.value = res.list || [];
+  } finally { modelsLoading.value = false; }
+};
 
-const chatFieldVisibility = computed(() => {
-  const vis: Record<string, boolean> = {
-    maxTokens: false,
-    temperature: false,
-    topP: false,
-    topK: false,
-    presencePenalty: false,
-    frequencyPenalty: false,
-    seed: false,
-    stopSequences: false
-  }
-  const m = resolvedModel.value
-  if (!m || m.modelType !== 'chat') return vis
-  const caps = modelCapabilitySet.value
-  const allAliases: string[] = []
-  ;(Object.values(CHAT_FIELD_CAPS) as ReadonlyArray<readonly string[]>).forEach((arr) => {
-    allAliases.push(...arr)
-  })
-  const treatAsFull = caps.size === 0 || !allAliases.some((a) => caps.has(a))
-  ;(Object.keys(CHAT_FIELD_CAPS) as Array<keyof typeof CHAT_FIELD_CAPS>).forEach((field) => {
-    const aliases = CHAT_FIELD_CAPS[field] as readonly string[]
-    vis[field] = treatAsFull || aliases.some((a) => caps.has(a))
-  })
-  return vis
-})
+const customRow = (record: AiModel) => ({
+  onClick: () => {
+    selectedKeys.value = [record.modelKey!];
+    form.modelKey = record.modelKey;
+  },
+  class: selectedKeys.value.includes(record.modelKey!) ? 'selected-row' : ''
+});
 
-const chatFieldVisibilityEffective = computed(() => {
-  if (orphanModelKey.value) {
-    return {
-      maxTokens: true,
-      temperature: true,
-      topP: true,
-      topK: true,
-      presencePenalty: true,
-      frequencyPenalty: true,
-      seed: true,
-      stopSequences: true
-    }
-  }
-  return chatFieldVisibility.value
-})
+const onRowSelectChange = (keys: any[]) => {
+  selectedKeys.value = keys;
+  form.modelKey = keys[0];
+};
 
-const showEmbeddingDimensions = computed(() => {
-  const m = resolvedModel.value
-  if (!m || m.modelType !== 'embedding') return false
-  const caps = modelCapabilitySet.value
-  if (caps.size === 0) return true
-  return caps.has('embedding_dimensions')
-})
-
-const showImageSize = computed(() => {
-  const m = resolvedModel.value
-  if (!m || m.modelType !== 'image') return false
-  const caps = modelCapabilitySet.value
-  if (caps.size === 0) return true
-  return caps.has('image_size') || caps.has('size_setting')
-})
-
-const showImageStyle = computed(() => {
-  const m = resolvedModel.value
-  if (!m || m.modelType !== 'image') return false
-  const caps = modelCapabilitySet.value
-  if (caps.size === 0) return true
-  return caps.has('image_style') || caps.has('style_setting')
-})
-
-const showImageDimensions = computed(() => {
-  const m = resolvedModel.value
-  if (!m || m.modelType !== 'image') return false
-  const caps = modelCapabilitySet.value
-  if (caps.size === 0) return false
-  return caps.has('embedding_dimensions')
-})
-
-function modelTypeLabel(t?: string) {
-  if (t === 'embedding') return '向量'
-  if (t === 'image') return '图像'
-  return '对话'
-}
-
-const modelSelectOptions = computed(() =>
-  modelList.value
-    .filter((m) => m.modelKey)
-    .map((m) => ({
-      value: m.modelKey as string,
-      label: `${m.modelName || m.modelKey} (${m.modelKey}) · ${modelTypeLabel(m.modelType)}`
-    }))
-)
-
-const filterModelOption = (input: string, option: { label?: string }) => {
-  const q = input.trim().toLowerCase()
-  if (!q) return true
-  return String(option?.label ?? '').toLowerCase().includes(q)
-}
-
-async function fetchModels() {
-  modelsLoading.value = true
-  try {
-    const resp = await aiModelApi.queryPage({
-      pageNo: 1,
-      pageSize: 500,
-      param: {}
-    })
-    modelList.value = resp.list || []
-  } catch (e: unknown) {
-    const err = e as { message?: string }
-    message.error(err?.message || '加载模型列表失败')
-    modelList.value = []
-  } finally {
-    modelsLoading.value = false
-  }
-}
-
-async function ensureModelInListForEdit(modelKey: string) {
-  if (modelList.value.some((m) => m.modelKey === modelKey)) return
-  try {
-    const resp = await aiModelApi.queryPage({
-      pageNo: 1,
-      pageSize: 1,
-      param: { modelKey }
-    })
-    const hit = resp.list?.[0]
-    if (hit) modelList.value = [...modelList.value, hit]
-  } catch {
-    /* ignore */
-  }
-}
-
-const handleCancel = () => {
-  emit('update:visible', false)
-}
-
-const loadDetail = async (id: string | number) => {
-  loading.value = true
-  try {
-    const detail = await aiInstanceApi.detail(id)
-    Object.keys(form).forEach((k) => delete (form as Record<string, unknown>)[k])
-    Object.assign(form, detail)
-    if (detail.modelKey) await ensureModelInListForEdit(String(detail.modelKey))
-  } catch (e: unknown) {
-    const err = e as { message?: string }
-    message.error(err?.message || '加载失败')
-  } finally {
-    loading.value = false
-  }
-}
+const handleCancel = () => emit('update:visible', false);
 
 const onSubmit = async () => {
+  if (!form.modelKey) return message.warning('请先选择一个模型端点');
+  submitting.value = true;
   try {
-    if (!isEdit.value) {
-      await formRef.value?.validateFields(['modelKey'])
-    }
-  } catch {
-    return
-  }
-  submitting.value = true
-  try {
-    const payload: AiInstance = { ...form }
-    let msg: string
-    if (isEdit.value) {
-      msg = await aiInstanceApi.update(payload)
-    } else {
-      delete (payload as { id?: unknown }).id
-      msg = await aiInstanceApi.create(payload)
-    }
-    message.success(msg)
-    emit('update:visible', false)
-    emit('success')
-  } catch (e: unknown) {
-    const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
-  } finally {
-    submitting.value = false
-  }
-}
+    const api = isEdit.value ? aiInstanceApi.update : aiInstanceApi.create;
+    await api(form);
+    message.success('预设配置已同步至 Astrsomn 引擎');
+    emit('success');
+    handleCancel();
+  } finally { submitting.value = false; }
+};
 
-watch(
-  () => props.visible,
-  async (val) => {
-    if (!val) return
-    await fetchModels()
-    if (props.record?.id) {
-      await loadDetail(props.record.id)
-    } else {
-      Object.keys(form).forEach((k) => delete (form as Record<string, unknown>)[k])
-      form.status = 'enabled'
-    }
+watch(() => props.visible, async (val) => {
+  if (!val) return;
+  await fetchModels();
+  if (props.recordId) {
+    const detail = await aiInstanceApi.detail(props.recordId);
+    Object.assign(form, detail);
+    if (detail.modelKey) selectedKeys.value = [detail.modelKey];
   }
-)
+});
 </script>
 
 <style scoped>
-.w-full {
-  width: 100%;
+/* 全屏容器 */
+:global(.astrsomn-full-modal .ant-modal) { max-width: 100vw; top: 0; padding: 0; margin: 0; }
+:global(.astrsomn-full-modal .ant-modal-content) { height: 100vh; border-radius: 0; padding: 0; background: #f8fafc; }
+
+.fullscreen-wrapper { display: flex; flex-direction: column; height: 100vh; }
+
+/* Header */
+.modal-header {
+  height: 72px; background: #fff; padding: 0 32px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid #e2e8f0; flex-shrink: 0;
+}
+.header-left { display: flex; align-items: center; gap: 16px; }
+.logo-box {
+  width: 42px; height: 42px; border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px;
+}
+.main-title { display: block; font-size: 18px; font-weight: 800; color: #0f172a; }
+.sub-title { font-size: 12px; color: #94a3b8; }
+.gradient-btn {
+  background: linear-gradient(90deg, #6366f1, #a855f7); border: none;
+  height: 40px; padding: 0 24px; border-radius: 8px; font-weight: 600;
 }
 
-.mb-12 {
-  margin-bottom: 12px;
-}
+/* 布局主体 */
+.main-content { flex: 1; display: flex; padding: 20px; gap: 20px; overflow: hidden; }
 
-.param-section-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary, #666);
-  margin: 8px 0 12px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border-default, #f0f0f0);
+/* 通用卡片样式 */
+.glass-card { background: #fff; border-radius: 20px; border: 1px solid #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+.pane-card { height: 100%; display: flex; flex-direction: column; padding: 20px; }
+
+/* 左侧 */
+.selection-pane { flex: 1; min-width: 0; }
+.pane-header { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+.table-container { flex: 1; overflow: hidden; }
+:deep(.selected-row td) { background-color: #f5f3ff !important; color: #6366f1 !important; font-weight: 600; }
+
+/* 右侧 */
+.config-pane { width: 440px; flex-shrink: 0; }
+.scroll-y { overflow-y: auto; }
+.section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.section-title .anticon { color: #6366f1; }
+
+/* 参数卡片 */
+.param-group-card {
+  background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 16px;
+  padding: 16px; margin-bottom: 16px; transition: all 0.3s;
 }
+.param-group-card:hover { background: #fff; border-color: #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+
+.p-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.p-label { font-size: 13px; font-weight: 700; color: #475569; cursor: help; display: flex; align-items: center; gap: 4px; }
+.slider-box { padding: 0 8px 16px 8px; }
+
+/* 状态描述条 */
+.p-desc-bar { margin-top: 8px; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; border-left: 4px solid transparent; }
+.c-blue { background: #eff6ff; color: #1d4ed8; border-left-color: #3b82f6; }
+.c-purple { background: #faf5ff; color: #7e22ce; border-left-color: #a855f7; }
+.c-orange { background: #fff7ed; color: #c2410c; border-left-color: #f97316; }
+.c-red { background: #fef2f2; color: #b91c1c; border-left-color: #ef4444; }
+
+/* 其他 */
+.penalty-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mini-param-card { background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9; }
+.mini-label { font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 8px; display: block; }
+.empty-state { text-align: center; padding: 100px 0; color: #cbd5e1; }
+
+:deep(.ant-slider-mark-text) { font-size: 10px; color: #94a3b8; }
+:deep(.ant-slider-mark-text-active) { color: #6366f1; font-weight: 700; }
 </style>
