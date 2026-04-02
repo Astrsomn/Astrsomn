@@ -19,6 +19,17 @@
             <template #icon><SearchOutlined /></template>
           </a-button>
         </div>
+        <a-pagination
+          v-if="promptPage.total > 0"
+          class="pane-pager-top"
+          size="small"
+          :current="promptPage.current"
+          :total="promptPage.total"
+          :page-size="pageSize"
+          :show-size-changer="false"
+          :hide-on-single-page="true"
+          @change="(p: number) => $emit('prompt-page', p)"
+        />
         <div class="chip-scroll">
           <template v-if="prompts.length">
             <AssemblyDragChip
@@ -34,17 +45,6 @@
           </template>
           <div v-else class="palette-empty">暂无数据</div>
         </div>
-        <a-pagination
-          v-if="promptPage.total > 0"
-          class="pane-pager"
-          size="small"
-          :current="promptPage.current"
-          :total="promptPage.total"
-          :page-size="pageSize"
-          :show-size-changer="false"
-          :hide-on-single-page="true"
-          @change="(p: number) => $emit('prompt-page', p)"
-        />
       </a-tab-pane>
       
       <!-- 工具Tab -->
@@ -64,6 +64,17 @@
             <template #icon><SearchOutlined /></template>
           </a-button>
         </div>
+        <a-pagination
+          v-if="toolPage.total > 0"
+          class="pane-pager-top"
+          size="small"
+          :current="toolPage.current"
+          :total="toolPage.total"
+          :page-size="pageSize"
+          :show-size-changer="false"
+          :hide-on-single-page="true"
+          @change="(p: number) => $emit('tool-page', p)"
+        />
         <div class="chip-scroll">
           <template v-if="tools.length">
             <AssemblyDragChip
@@ -79,17 +90,6 @@
           </template>
           <div v-else class="palette-empty">暂无数据</div>
         </div>
-        <a-pagination
-          v-if="toolPage.total > 0"
-          class="pane-pager"
-          size="small"
-          :current="toolPage.current"
-          :total="toolPage.total"
-          :page-size="pageSize"
-          :show-size-changer="false"
-          :hide-on-single-page="true"
-          @change="(p: number) => $emit('tool-page', p)"
-        />
       </a-tab-pane>
       
       <!-- MCP Tab -->
@@ -109,6 +109,17 @@
             <template #icon><SearchOutlined /></template>
           </a-button>
         </div>
+        <a-pagination
+          v-if="mcpPage.total > 0"
+          class="pane-pager-top"
+          size="small"
+          :current="mcpPage.current"
+          :total="mcpPage.total"
+          :page-size="pageSize"
+          :show-size-changer="false"
+          :hide-on-single-page="true"
+          @change="(p: number) => $emit('mcp-page', p)"
+        />
         <div class="chip-scroll">
           <template v-if="mcps.length">
             <AssemblyDragChip
@@ -124,17 +135,6 @@
           </template>
           <div v-else class="palette-empty">暂无数据</div>
         </div>
-        <a-pagination
-          v-if="mcpPage.total > 0"
-          class="pane-pager"
-          size="small"
-          :current="mcpPage.current"
-          :total="mcpPage.total"
-          :page-size="pageSize"
-          :show-size-changer="false"
-          :hide-on-single-page="true"
-          @change="(p: number) => $emit('mcp-page', p)"
-        />
       </a-tab-pane>
     </a-tabs>
   </aside>
@@ -198,46 +198,12 @@ defineExpose({ getKeywords })
   overflow: hidden;
 }
 
-.palette-pane {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.palette-pane-top {
-  flex: 1;
-  padding: 10px 12px 12px;
-  margin: 0 10px;
-  border-bottom: 1px solid var(--assembly-pane-divider);
-  background: transparent;
-}
-
-.palette-pane-bottom {
-  flex: 1;
-  padding: 10px 12px 12px;
-  margin: 0 10px 10px;
-  background: transparent;
-}
-
-.pane-label {
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.pane-tool .pane-label {
-  color: var(--assembly-label-tool);
-}
-
-.pane-mcp .pane-label {
-  color: var(--assembly-label-mcp);
-}
-
 .search-row {
   display: flex;
   align-items: stretch;
   gap: 8px;
   margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .search-input {
@@ -292,13 +258,20 @@ defineExpose({ getKeywords })
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 10px 12px 12px;
+  overflow: hidden;
 }
 
 .palette-tabs :deep(.ant-tabs-tabpane) {
-  flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.pane-pager-top {
+  margin-bottom: 8px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .chip-scroll {
@@ -307,12 +280,8 @@ defineExpose({ getKeywords })
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 100px;
-}
-
-.pane-pager {
-  margin-top: 8px;
-  text-align: center;
+  min-height: 0;
+  padding: 0 12px 12px;
 }
 
 .palette-empty {
