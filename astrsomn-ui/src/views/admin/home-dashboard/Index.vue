@@ -46,6 +46,23 @@
       </section>
 
       <aside class="demo-right">
+        <section class="side-card side-card--resource-entry">
+          <div class="side-card-head">
+            <h3 class="side-card-title">资源库</h3>
+            <span class="side-resource-toc">TOC</span>
+          </div>
+
+          <div class="side-resource-desc">浏览全部入口与分类，快速定位你需要的功能。</div>
+
+          <button
+            type="button"
+            class="side-resource-btn"
+            @click="navigateTo('/admin/resource-library')"
+          >
+            浏览全部入口
+          </button>
+        </section>
+
         <section class="side-card">
           <div class="side-card-head">
             <h3 class="side-card-title">系统负载</h3>
@@ -523,6 +540,55 @@ const navigateTo = (path: string) => {
 
 .side-news-btn:disabled {
   opacity: 0.85;
+}
+
+.side-card--resource-entry {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 14%, var(--bg-card)),
+    color-mix(in srgb, var(--accent-blue) 6%, var(--bg-card))
+  );
+}
+
+.side-resource-toc {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--primary) 65%, var(--text-heading));
+  background: color-mix(in srgb, var(--primary) 12%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border-subtle));
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.side-resource-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.side-resource-btn {
+  width: 100%;
+  border-radius: var(--radius-xl);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border-subtle));
+  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
+  padding: 10px 12px;
+  color: var(--text-heading);
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.side-resource-btn:hover {
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--border-subtle));
+  background: color-mix(in srgb, var(--primary) 18%, var(--bg-card));
+  transform: translateY(-1px);
 }
 
 @media (max-width: 1024px) {

@@ -3,6 +3,7 @@
     <button
       type="button"
       class="slot-card"
+      :class="{ 'slot-card--compact': variant === 'compact' }"
       :data-accent="accent"
       :disabled="!entry"
       @click="handleClick"
@@ -27,9 +28,11 @@ const props = withDefaults(
     title: string
     description?: string
     accent?: EntryAccent
+    variant?: 'default' | 'compact'
   }>(),
   {
     accent: 'primary',
+    variant: 'default',
   },
 )
 
@@ -41,6 +44,7 @@ const accent = props.accent
 const description = props.description
 const title = props.title
 const entry = props.entry
+const variant = props.variant
 
 const handleClick = () => {
   if (!entry) return
@@ -73,6 +77,28 @@ const handleClick = () => {
     transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
     background 0.2s ease;
+}
+
+.slot-card--compact {
+  padding: 16px;
+  gap: 8px;
+  border-radius: 20px;
+}
+
+.slot-card--compact .slot-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  font-size: 20px;
+}
+
+.slot-card--compact .slot-icon-actual {
+  width: 20px;
+  height: 20px;
+}
+
+.slot-card--compact .slot-desc {
+  -webkit-line-clamp: 1;
 }
 
 .slot-card:disabled {

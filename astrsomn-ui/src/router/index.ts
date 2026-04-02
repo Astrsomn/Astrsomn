@@ -128,6 +128,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '工作流编排测试', requiresAuth: true }
       },
       {
+        path: 'resource-library',
+        name: 'AdminResourceLibrary',
+        component: () => import('@/views/admin/home-dashboard/resource-library/Index.vue'),
+        meta: { title: '资源库', requiresAuth: true }
+      },
+      {
         path: 'users',
         name: 'AdminUsers',
         component: () => import('@/views/admin/system-config/system-user/UserList.vue'),
