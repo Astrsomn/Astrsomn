@@ -4,9 +4,11 @@
 import { aiInstanceApi } from '@/api/aiInstance.ts'
 import { aiToolApi } from '@/api/aiTool.ts'
 import { aiMcpApi } from '@/api/aiMcp.ts'
+import { aiPromptApi } from '@/api/aiPrompt.ts'
 import type { AiInstance } from '@/api/aiInstance'
 import type { AiTool } from '@/api/aiTool'
 import type { AiMcp } from '@/api/aiMcp'
+import type { AiPrompt } from '@/api/aiPrompt'
 import type { InstanceModelType } from './assemblyTypes'
 
 export type PagedResult<T> = { list: T[]; total: number }
@@ -55,6 +57,20 @@ export async function fetchMcpsPaged(
   const resp = await aiMcpApi.queryPage(
     buildPayload(pageNo, pageSize, {
       mcpKey: keyword?.trim() || undefined
+    })
+  )
+  return { list: resp.list || [], total: Number(resp.total) || 0 }
+}
+
+/** Prompt 分页 */
+export async function fetchPromptsPaged(
+  keyword: string | undefined,
+  pageNo: number,
+  pageSize: number
+): Promise<PagedResult<AiPrompt>> {
+  const resp = await aiPromptApi.queryPage(
+    buildPayload(pageNo, pageSize, {
+      promptTitle: keyword?.trim() || undefined
     })
   )
   return { list: resp.list || [], total: Number(resp.total) || 0 }

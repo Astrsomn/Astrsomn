@@ -27,6 +27,7 @@
             :chat-instance="chatInstance"
             :embedding-instance="embeddingInstance"
             :image-instance="imageInstance"
+            :prompt-instance="promptInstance"
             :tools="placedTools"
             :mcps="placedMcps"
             :knowledge-keys="knowledgeKeys"
@@ -45,12 +46,16 @@
             :page-size="pageSize"
             :tools="toolItems"
             :mcps="mcpItems"
+            :prompts="promptItems"
             :tool-page="pagination.tool"
             :mcp-page="pagination.mcp"
+            :prompt-page="pagination.prompt"
             @search-tool="onSearchTool"
             @search-mcp="onSearchMcp"
+            @search-prompt="onSearchPrompt"
             @tool-page="onToolPage"
             @mcp-page="onMcpPage"
+            @prompt-page="onPromptPage"
             @drag-start="onDragStart"
             @drag-end="onDragEnd"
           />
@@ -67,14 +72,17 @@ import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import type { AiInstance } from '@/api/aiInstance'
 import type { AiTool } from '@/api/aiTool'
 import type { AiMcp } from '@/api/aiMcp'
+import type { AiPrompt } from '@/api/aiPrompt'
 import AssemblyLeftPalette from './assembly/AssemblyLeftPalette.vue'
 import AssemblyRightPalette from './assembly/AssemblyRightPalette.vue'
 import AssemblyCanvas from './assembly/AssemblyCanvas.vue'
 import {
   fetchInstancesPaged,
   fetchMcpsPaged,
-  fetchToolsPaged
+  fetchToolsPaged,
+  fetchPromptsPaged
 } from './assembly/assemblyFetch'
+import { aiAgentApi } from '@/api/aiAgent'
 import type {
   AssemblyAgentForm,
   AssemblyDragPayload,
@@ -93,18 +101,21 @@ const embeddingItems = ref<AiInstance[]>([])
 const imageItems = ref<AiInstance[]>([])
 const toolItems = ref<AiTool[]>([])
 const mcpItems = ref<AiMcp[]>([])
+const promptItems = ref<AiPrompt[]>([])
 
 const pagination = reactive({
   chat: { current: 1, total: 0 },
   embedding: { current: 1, total: 0 },
   image: { current: 1, total: 0 },
   tool: { current: 1, total: 0 },
-  mcp: { current: 1, total: 0 }
+  mcp: { current: 1, total: 0 },
+  prompt: { current: 1, total: 0 }
 })
 
 const chatInstance = ref<AiInstance | null>(null)
 const embeddingInstance = ref<AiInstance | null>(null)
 const imageInstance = ref<AiInstance | null>(null)
+const promptInstance = ref<AiPrompt | null>(null)
 const placedTools = ref<AiTool[]>([])
 const placedMcps = ref<AiMcp[]>([])
 const knowledgeKeys = ref<string[]>([])
@@ -165,10 +176,17 @@ async function loadMcps() {
   pagination.mcp.total = total
 }
 
+async function loadPrompts() {
+  const kw = rightPaletteRef.value?.getKeywords?.().prompt ?? ''
+  const { list, total } = await fetchPromptsPaged(kw, pagination.prompt.current, pageSize)
+  promptItems.value = list
+  pagination.prompt.total = total
+}
+
 async function loadAll() {
   loading.value = true
   try {
-    await Promise.all([loadChat(), loadEmbedding(), loadImage(), loadTools(), loadMcps()])
+    await Promise.all([loadChat(), loadEmbedding(), loadImage(), loadTools(), loadMcps(), loadPrompts()])
   } catch {
     message.error('加载资源失败')
   } finally {
@@ -199,6 +217,11 @@ function onToolPage(page: number) {
 function onMcpPage(page: number) {
   pagination.mcp.current = page
   void loadMcpsWithLoading()
+}
+
+function onPromptPage(page: number) {
+  pagination.prompt.current = page
+  void loadPromptsWithLoading()
 }
 
 async function loadChatWithLoading() {
@@ -246,6 +269,15 @@ async function loadMcpsWithLoading() {
   }
 }
 
+async function loadPromptsWithLoading() {
+  loading.value = true
+  try {
+    await loadPrompts()
+  } finally {
+    loading.value = false
+  }
+}
+
 async function onLeftSearch(modelType: InstanceModelType, _keyword: string) {
   if (modelType === 'chat') pagination.chat.current = 1
   else if (modelType === 'embedding') pagination.embedding.current = 1
@@ -282,6 +314,18 @@ async function onSearchMcp() {
     await loadMcps()
   } catch {
     message.error('查询 MCP 失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function onSearchPrompt() {
+  pagination.prompt.current = 1
+  loading.value = true
+  try {
+    await loadPrompts()
+  } catch {
+    message.error('查询 Prompt 失败')
   } finally {
     loading.value = false
   }
@@ -333,6 +377,11 @@ function onCanvasDrop(p: AssemblyDragPayload) {
     }
     knowledgeKeys.value = [...knowledgeKeys.value, kb]
     message.success('已添加知识库索引')
+    return
+  }
+  if (p.kind === 'prompt') {
+    promptInstance.value = { ...p.data }
+    message.success('已添加提示词')
   }
 }
 
@@ -340,10 +389,11 @@ function removeKnowledgeKey(key: string) {
   knowledgeKeys.value = knowledgeKeys.value.filter((k) => k !== key)
 }
 
-function onClearInstance(which: 'chatInstance' | 'embeddingInstance' | 'imageInstance') {
+function onClearInstance(which: 'chatInstance' | 'embeddingInstance' | 'imageInstance' | 'promptInstance') {
   if (which === 'chatInstance') chatInstance.value = null
   else if (which === 'embeddingInstance') embeddingInstance.value = null
-  else imageInstance.value = null
+  else if (which === 'imageInstance') imageInstance.value = null
+  else if (which === 'promptInstance') promptInstance.value = null
 }
 
 function removeTool(toolKey: string) {
@@ -360,12 +410,14 @@ function resetPagination() {
   pagination.image.current = 1
   pagination.tool.current = 1
   pagination.mcp.current = 1
+  pagination.prompt.current = 1
 }
 
 function handleReset() {
   chatInstance.value = null
   embeddingInstance.value = null
   imageInstance.value = null
+  promptInstance.value = null
   placedTools.value = []
   placedMcps.value = []
   knowledgeKeys.value = []
@@ -393,21 +445,24 @@ function buildSubmitPayload() {
     chatInstanceKey: chatInstance.value?.instanceKey,
     embeddingInstanceKey: embeddingInstance.value?.instanceKey,
     imageInstanceKey: imageInstance.value?.instanceKey,
-    toolKeys: placedTools.value.map((t) => t.toolKey).filter(Boolean),
-    mcpKeys: placedMcps.value.map((m) => m.mcpKey).filter(Boolean)
+    promptKey: promptInstance.value?.promptKey,
+    toolKeys: placedTools.value.map((t) => t.toolKey).filter(Boolean).join(','),
+    mcpKeys: placedMcps.value.map((m) => m.mcpKey).filter(Boolean).join(',')
   }
 }
 
-function handleSubmit() {
-  const payload = buildSubmitPayload()
-  const text = JSON.stringify(payload, null, 2)
-  if (navigator.clipboard?.writeText) {
-    void navigator.clipboard.writeText(text).then(
-      () => message.success('已提交并复制组装 JSON 到剪贴板'),
-      () => message.success('已提交（预览）')
-    )
-  } else {
-    message.success('已提交（预览）')
+async function handleSubmit() {
+  loading.value = true
+  try {
+    const payload = buildSubmitPayload()
+    await aiAgentApi.create(payload)
+    message.success('发布成功')
+    // 发布成功后重置表单
+    handleReset()
+  } catch (e: any) {
+    message.error(e.message || '发布失败')
+  } finally {
+    loading.value = false
   }
 }
 

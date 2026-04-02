@@ -189,7 +189,7 @@ defineExpose({ getKeywords })
   display: flex;
   flex-direction: column;
   min-height: 0;
-  height: 100%;
+  height: calc(100vh - 100px);
   overflow: hidden;
 }
 

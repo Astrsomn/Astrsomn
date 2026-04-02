@@ -45,7 +45,7 @@
     </div>
 
     <div class="drop-stack">
-      <div class="drop-row">
+      <div class="drop-grid drop-grid-main">
         <AssemblyDropZone
           slot-key="chatInstance"
           title="对话核心 (Chat)"
@@ -54,7 +54,7 @@
           :dragging-payload="draggingPayload"
           :active-drop-key="activeDropKey"
           :has-content="!!chatInstance"
-          class="canvas-slot"
+          class="canvas-slot slot-chat"
           @hover="$emit('hover', $event)"
           @drop="$emit('drop', $event)"
         >
@@ -70,9 +70,34 @@
           </template>
           <div v-else class="placeholder-minimal">请拖入对话模型</div>
         </AssemblyDropZone>
+        
+        <AssemblyDropZone
+          slot-key="promptInstance"
+          title="系统提示词 (Prompt)"
+          variant="prompt"
+          :icon="FileTextOutlined"
+          :dragging-payload="draggingPayload"
+          :active-drop-key="activeDropKey"
+          :has-content="!!promptInstance"
+          class="canvas-slot slot-prompt"
+          @hover="$emit('hover', $event)"
+          @drop="$emit('drop', $event)"
+        >
+          <template v-if="promptInstance">
+            <div class="placed-card-fill">
+              <div class="card-icon"><FileTextOutlined /></div>
+              <div class="card-content">
+                <div class="p-title">{{ promptInstance.promptTitle || promptInstance.promptKey }}</div>
+                <div class="p-sub">{{ promptInstance.promptKey }}</div>
+              </div>
+              <a-button type="link" size="small" danger @click="$emit('clear', 'promptInstance')">移除</a-button>
+            </div>
+          </template>
+          <div v-else class="placeholder-minimal">请拖入提示词</div>
+        </AssemblyDropZone>
       </div>
 
-      <div class="drop-grid">
+      <div class="drop-grid drop-grid-secondary">
         <AssemblyDropZone
           slot-key="embeddingInstance"
           title="向量检索"
@@ -186,12 +211,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import {
-  ApiOutlined, BookOutlined, MessageOutlined, PartitionOutlined, 
+  ApiOutlined, BookOutlined, FileTextOutlined, MessageOutlined, PartitionOutlined, 
   PictureOutlined, SendOutlined, ToolOutlined, UndoOutlined
 } from '@ant-design/icons-vue'
 import type { AiInstance } from '@/api/aiInstance'
 import type { AiTool } from '@/api/aiTool'
 import type { AiMcp } from '@/api/aiMcp'
+import type { AiPrompt } from '@/api/aiPrompt'
 import type { AssemblyAgentForm, AssemblyDragPayload, AssemblySlotKey } from './assemblyTypes'
 import AssemblyDropZone from './AssemblyDropZone.vue'
 
@@ -208,6 +234,7 @@ const props = defineProps<{
   chatInstance: AiInstance | null
   embeddingInstance: AiInstance | null
   imageInstance: AiInstance | null
+  promptInstance: AiPrompt | null
   tools: AiTool[]
   mcps: AiMcp[]
   knowledgeKeys: string[]
@@ -228,7 +255,7 @@ const memoryWindowNum = computed({
 const emit = defineEmits<{
   hover: [key: AssemblySlotKey | null]
   drop: [payload: AssemblyDragPayload]
-  clear: [key: 'chatInstance' | 'embeddingInstance' | 'imageInstance']
+  clear: [key: 'chatInstance' | 'embeddingInstance' | 'imageInstance' | 'promptInstance']
   removeTool: [toolKey: string]
   removeMcp: [mcpKey: string]
   removeKnowledgeKey: [key: string]
@@ -247,7 +274,7 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
   border: 1px solid var(--assembly-canvas-border);
   border-radius: 12px;
   padding: 0; /* 取消外层大内边距，让内部结构更紧凑 */
-  height: 100%;
+  height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -311,10 +338,31 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
   overflow-y: auto;
 }
 
-.drop-grid {
+/* 主网格：对话核心占两列，系统提示词占一列 */
+.drop-grid-main {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+/* 次要网格：四列布局 */
+.drop-grid-secondary {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+}
+
+/* 响应式调整 */
+@media (max-width: 1024px) {
+  .drop-grid-main {
+    grid-template-columns: 1fr;
+  }
+  .drop-grid-secondary {
+    grid-template-columns: 1fr;
+  }
+  .form-group-main {
+    flex-wrap: wrap;
+  }
 }
 
 /* 深度定制 DropZone 内容填充 */
