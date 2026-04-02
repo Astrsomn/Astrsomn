@@ -10,7 +10,7 @@ import org.astrsomn.starter.langchain.cache.AssistantCacheManager;
 import org.astrsomn.starter.langchain.memory.ChatMemoryManager;
 import org.astrsomn.starter.langchain.memory.DynamicMemoryProvider;
 import org.astrsomn.starter.langchain.runtime.AgentRuntimeConfigLoader;
-import org.astrsomn.starter.langchain.runtime.ToolProviderAssembler;
+import org.astrsomn.starter.langchain.tool.ToolProviderAssembler;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.starter.langchain.tool.rag.RagComponentAssembler;
 import org.springframework.stereotype.Service;

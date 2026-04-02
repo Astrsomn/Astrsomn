@@ -3,7 +3,7 @@ package org.astrsomn.starter.langchain.aop;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.entity.AiSensitiveWordEntity;
 import org.astrsomn.core.mapper.AiSensitiveWordMapper;
 import org.astrsomn.starter.langchain.quota.SensitiveWordProvider;

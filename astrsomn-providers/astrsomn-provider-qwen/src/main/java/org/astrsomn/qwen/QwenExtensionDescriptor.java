@@ -1,13 +1,11 @@
 package org.astrsomn.qwen;
 
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
-import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
-import org.springframework.stereotype.Component;
 
-import java.util.List;
-
-@Component
+/**
+ * 扩展元数据：通过 Java SPI(ServiceLoader) 被系统注册。
+ */
 public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
@@ -38,12 +36,5 @@ public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public String getDescription() {
         return "Qwen provider extension for chat and embedding models.";
-    }
-
-    @Override
-    public List<AiModelEntity> getSupportedModels() {
-        return List.of(QwenModelEnum.values()).stream()
-                .map(model -> model.toEntity("ALIBABA"))
-                .toList();
     }
 }

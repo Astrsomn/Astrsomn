@@ -110,7 +110,7 @@ const handleSwitch = () => {
     isClicking.value = false;
   }, 200);
 };
-const handleBack = () => router.push('/admin');
+const handleBack = () => router.back();
 const handleLogin = () => {
   localStorage.removeItem('token');
   router.push('/login');
@@ -266,9 +266,9 @@ const handleLogin = () => {
   width: 32px;
   height: 32px;
   border: 1px solid var(--border-default);
-  background: var(--bg-base);
+
   color: var(--text-primary);
-  border-radius: 8px;
+  border-radius: var(--radius-max);
   cursor: pointer;
   display: flex;
   align-items: center;

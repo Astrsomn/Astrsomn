@@ -64,4 +64,7 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("ENABLE_STREAM")
     private boolean enableStream;
 
+    @TableField("IS_DEFAULT")
+    private String isDefault;
+
 }

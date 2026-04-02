@@ -49,18 +49,7 @@
             <template #icon><search-outlined /></template>
             查询
           </a-button>
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定删除选中的智能体吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量删除
-            </a-button>
-          </a-popconfirm>
+
           <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
           <a-button class="ghost-btn" @click="openCreate">
             <template #icon><plus-outlined /></template>
@@ -71,12 +60,11 @@
 
       <BaseOverview
         :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
+        :selected-count="selectedCount"
         :all-current-selected="allCurrentSelected"
         :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="overviewSummary"
-        @toggle-select-all="toggleSelectAllCurrentPage"
+        :show-actions="true"
+        @toggle-select-all="onToggleSelectAll"
       />
 
       <a-spin :spinning="loading">
@@ -88,10 +76,10 @@
           >
             <AgentCard
               :record="item"
-              :selected="isSelected(item.id)"
-              @select-change="(checked) => toggleSelect(item.id, checked)"
+              :selected="selectedKeys.has(item.id!)"
               @edit="openEdit"
               @delete="handleDeleteOne"
+              @toggle="onToggleSelect"
             />
           </div>
         </div>
@@ -111,14 +99,6 @@
           @change="onPageChange"
         />
       </div>
-
-      <AgentFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
-      />
     </div>
   </AdminPageShell>
 </template>
@@ -126,6 +106,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
+import { useRouter } from 'vue-router'
 import {
   ApartmentOutlined,
   CheckCircleOutlined,
@@ -136,7 +117,6 @@ import {
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
-import AgentFormModal from './AgentFormModal.vue'
 import AgentCard from './AgentCard.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
 
@@ -158,69 +138,24 @@ const resolvePageSize = (columns: number) => {
   return 6
 }
 
+const router = useRouter()
 const pageRef = ref<HTMLElement | null>(null)
 const loading = ref(false)
 const query = reactive<{ agentName?: string; status?: string }>({})
 const list = ref<AiAgent[]>([])
-const selectedRowKeys = ref<Array<number | string>>([])
+const selectedKeys = ref<Set<string | number>>(new Set())
 const currentGridColumns = ref(resolveGridColumns())
 const agentGridTemplateColumns = computed(() => `repeat(${currentGridColumns.value}, minmax(0, 1fr))`)
-const overviewSummary = computed(
-  () => `当前页 ${list.value.length} 条智能体卡片，已选 ${selectedRowKeys.value.length} 条。`
-)
+
+const selectedCount = computed(() => selectedKeys.value.size)
+const allCurrentSelected = computed(() => list.value.length > 0 && selectedKeys.value.size === list.value.length)
+const partCurrentSelected = computed(() => selectedKeys.value.size > 0 && selectedKeys.value.size < list.value.length)
 
 const page = reactive({
   pageNum: 1,
   pageSize: resolvePageSize(currentGridColumns.value),
   total: 0
 })
-
-const modal = reactive({
-  open: false,
-  mode: 'create' as 'create' | 'edit',
-  submitting: false
-})
-const modalInitial = ref<AiAgent | null>(null)
-
-const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
-)
-
-const allCurrentSelected = computed(() => {
-  return currentPageIds.value.length > 0 && currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
-})
-
-const partCurrentSelected = computed(() => {
-  if (currentPageIds.value.length === 0) return false
-  const count = currentPageIds.value.filter((id) => selectedRowKeys.value.includes(id)).length
-  return count > 0 && count < currentPageIds.value.length
-})
-
-const isSelected = (id: number | string | undefined) => {
-  if (id == null) return false
-  return selectedRowKeys.value.includes(id)
-}
-
-const toggleSelect = (id: number | string | undefined, checked: boolean) => {
-  if (id == null) return
-  if (checked) {
-    if (!selectedRowKeys.value.includes(id)) {
-      selectedRowKeys.value = [...selectedRowKeys.value, id]
-    }
-    return
-  }
-  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== id)
-}
-
-const toggleSelectAllCurrentPage = (checked: boolean) => {
-  if (checked) {
-    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...currentPageIds.value]))
-    return
-  }
-  selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
-}
 
 const fetchList = async () => {
   loading.value = true
@@ -235,6 +170,7 @@ const fetchList = async () => {
     })
     list.value = resp.list || []
     page.total = resp.total || 0
+    selectedKeys.value.clear()
   } finally {
     loading.value = false
   }
@@ -267,52 +203,45 @@ const onPageChange = (p: number) => {
 }
 
 const openCreate = () => {
-  modal.mode = 'create'
-  modalInitial.value = null
-  modal.open = true
+  router.push('/admin/agents/model-assembly')
 }
 
 const openEdit = async (record: AiAgent) => {
-  modal.mode = 'edit'
   const id = record.id
   if (id == null) return
-  const detail = await aiAgentApi.detail(id)
-  // 详情接口不含联表展示字段，保留列表行上的实例名 / 提示词标题等便于弹窗展示
-  modalInitial.value = { ...record, ...detail }
-  modal.open = true
+  router.push(`/admin/agents/model-assembly?id=${id}`)
 }
 
 const handleDeleteOne = async (id: number | string) => {
   await aiAgentApi.delete([id])
   message.success('已删除')
-  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== id)
   void fetchList()
 }
 
-const handleBatchDelete = async () => {
-  const ids = [...selectedRowKeys.value]
+const handleBatchDelete = async (ids: Array<number | string>) => {
   if (ids.length === 0) return
   await aiAgentApi.delete(ids)
   message.success('已删除')
-  selectedRowKeys.value = []
   void fetchList()
 }
 
-const handleFormSubmit = async (form: AiAgent) => {
-  modal.submitting = true
-  try {
-    if (modal.mode === 'create') {
-      await aiAgentApi.create(form)
-    } else {
-      await aiAgentApi.update(form)
-    }
-    message.success('保存成功')
-    modal.open = false
-    void fetchList()
-  } catch (e: any) {
-    message.error(e.message)
-  } finally {
-    modal.submitting = false
+const onToggleSelectAll = (checked: boolean) => {
+  if (checked) {
+    list.value.forEach(item => {
+      if (item.id) {
+        selectedKeys.value.add(item.id)
+      }
+    })
+  } else {
+    selectedKeys.value.clear()
+  }
+}
+
+const onToggleSelect = (id: number | string, checked: boolean) => {
+  if (checked) {
+    selectedKeys.value.add(id)
+  } else {
+    selectedKeys.value.delete(id)
   }
 }
 
@@ -356,8 +285,8 @@ void fetchList()
   margin-bottom: 6px;
   flex-wrap: wrap;
   padding: 16px 0;
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+
 }
 
 .toolbar-left {

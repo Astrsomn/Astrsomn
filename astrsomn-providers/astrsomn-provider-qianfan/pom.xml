@@ -26,9 +26,11 @@
             <artifactId>langchain4j-community-qianfan</artifactId>
             <version>1.11.0-beta19</version>
         </dependency>
+
         <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-core</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

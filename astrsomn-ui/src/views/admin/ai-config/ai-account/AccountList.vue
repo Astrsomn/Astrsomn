@@ -4,7 +4,7 @@
     description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
     empty-text="暂无账号。"
   >
-    <div class="config-page">
+    <div class="account-page">
       <AdminListToolbar>
         <template #left>
           <div class="search-cluster">
@@ -71,6 +71,7 @@
           :account="account"
           @edit="goEdit"
           @delete="handleDeleteOne"
+          @show-models="openModelsDrawer"
         />
       </div>
 
@@ -90,6 +91,12 @@
         @success="handleFormSuccess"
       />
     </div>
+    <AccountModelsDrawer
+      v-model:open="modelsDrawer.open"
+      :account="modelsDrawer.account"
+      :loading="modelsDrawer.loading"
+      :models="modelsDrawer.models"
+    />
   </AdminPageShell>
 </template>
 
@@ -107,7 +114,9 @@ import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import AccountForm from './AccountForm.vue'
 import AccountCard from './AccountCard.vue'
+import AccountModelsDrawer from './AccountModelsDrawer.vue'
 import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount'
+import type { AiModel } from '@/api/aiModel'
 
 const formVisible = ref(false)
 const currentRecord = ref<AiAccount | undefined>(undefined)
@@ -223,10 +232,44 @@ const handleBatchDelete = async () => {
 }
 
 void fetchList()
+
+const modelsDrawer = reactive({
+  open: false,
+  loading: false,
+  account: undefined as AiAccount | undefined,
+  models: [] as AiModel[]
+})
+
+const openModelsDrawer = async (account: AiAccount) => {
+  if (!account.accountKey) {
+    message.error('accountKey 不能为空，无法加载关联模型')
+    return
+  }
+  modelsDrawer.account = account
+  modelsDrawer.open = true
+  modelsDrawer.loading = true
+  modelsDrawer.models = []
+  try {
+    const payload = {
+      pageNo: 1,
+      pageSize: 50,
+      param: {
+        accountKey: account.accountKey || undefined,
+        envCode: account.envCode || undefined
+      }
+    }
+    const resp: PageResponse<AiModel> = await aiAccountApi.queryModelsByAccountKey(payload)
+    modelsDrawer.models = resp.list || []
+  } catch {
+    message.error('加载关联模型失败')
+  } finally {
+    modelsDrawer.loading = false
+  }
+}
 </script>
 
 <style scoped>
-.config-page {
+.account-page {
   padding: 0 4px;
 }
 
@@ -267,7 +310,7 @@ void fetchList()
 .primary-btn,
 .ghost-btn {
   height: 40px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-max);
 }
 
 .danger-btn {
@@ -343,4 +386,6 @@ void fetchList()
     justify-content: center;
   }
 }
+
+/* drawer styles moved to AccountModelsDrawer.vue */
 </style>

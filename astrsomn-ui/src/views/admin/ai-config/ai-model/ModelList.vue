@@ -500,8 +500,7 @@ onMounted(() => {
   margin-bottom: 6px;
   flex-wrap: wrap;
   padding: 16px 0;
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
+
 }
 
 .toolbar-left {
@@ -525,7 +524,7 @@ onMounted(() => {
   align-items: center;
   flex-wrap: wrap;
   padding: 6px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-max);
   border: 1px solid var(--border-default);
   background: var(--bg-surface);
 }
@@ -563,7 +562,7 @@ onMounted(() => {
 .primary-btn,
 .ghost-btn {
   height: 40px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-max);
 }
 
 .danger-btn {
@@ -584,7 +583,7 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 4px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-max);
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
 }
@@ -592,7 +591,7 @@ onMounted(() => {
 .status-btn {
   height: 36px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-max);
   color: var(--text-secondary);
   background: transparent;
   box-shadow: none;
@@ -606,7 +605,7 @@ onMounted(() => {
 .table-card {
   margin-top: 12px;
   background: var(--bg-card);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xl);
   padding: 10px;
   border: 1px solid var(--border-default);
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.04);
@@ -629,7 +628,7 @@ onMounted(() => {
 .model-icon {
   width: 24px;
   height: 24px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-max);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -682,7 +681,7 @@ onMounted(() => {
   font-family: monospace;
   background: color-mix(in srgb, var(--primary) 6%, var(--bg-card));
   padding: 4px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-max);
   color: var(--primary);
   font-size: 13px;
 }

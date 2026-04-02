@@ -9,13 +9,14 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum BizKeyNamespace {
-    MODEL("MODEL"),
-    AGENT("AGENT"),
-    PROMPT("PROMPT"),
-    TOOL("TOOL"),
-    MCP("MCP"),
-    INSTANCE("INSTANCE"),
-    ACCOUNT("ACCOUNT");
+    MODEL("MODEL", "MD"),
+    AGENT("AGENT", "AG"),
+    PROMPT("PROMPT", "PT"),
+    TOOL("TOOL", "TL"),
+    MCP("MCP", "MC"),
+    INSTANCE("INSTANCE", "IN"),
+    ACCOUNT("ACCOUNT", "AC");
 
     private final String prefix;
+    private final String shortCode;
 }

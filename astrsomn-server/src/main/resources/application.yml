@@ -23,13 +23,7 @@ astrsomn:
   # default-env:
   #   name: 生产环境
   #   description: 可选说明
-  # 业务 key 占位（dev/uat/pro 各配一套，Java 只读配置；@Astro 可省略 agentKey）
-  # refs:
-  #   default-agent-key: agt_support_bot_u10001
-  #   default-model-key: openai_gpt_4o_mini_u10001
-  #   default-prompt-key: prm_system_u10001
-  #   default-tool-key: tol_search_u10001
-  #   default-mcp-key: mcp_filesystem_u10001
+  # 默认智能体/模型：在库中为当前 env-code 各维护一条 AI_AGENT.IS_DEFAULT=1、AI_MODEL(IS_DEFAULT=1 AND MODEL_TYPE=chat)，无需 refs
   data-base:
     database-type: mysql
     host: 154.201.94.113

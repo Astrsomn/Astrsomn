@@ -30,4 +30,8 @@ public class ModelSetting {
      */
     private String apiSecret;
 
+    /**
+     *
+     */
+    private String provider;
 }

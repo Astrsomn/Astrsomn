@@ -21,6 +21,9 @@
         <if test="req != null and req.modelKey != null and req.modelKey != ''">
             AND am.model_key = #{req.modelKey}
         </if>
+        <if test="req != null and req.accountKey != null and req.accountKey != ''">
+            AND am.account_key = #{req.accountKey}
+        </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND am.status = #{req.status}
         </if>

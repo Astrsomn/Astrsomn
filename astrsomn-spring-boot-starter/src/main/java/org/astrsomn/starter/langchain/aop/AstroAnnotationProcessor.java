@@ -2,10 +2,12 @@ package org.astrsomn.starter.langchain.aop;
 
 import cn.hutool.core.bean.BeanException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.starter.config.AstrsomnProperties;
+import org.astrsomn.starter.context.EnvRuntime;
 import org.astrsomn.starter.langchain.factory.AstroAssistantFactory;
+import org.astrsomn.starter.langchain.runtime.AiRuntimeDefaultsResolver;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
@@ -17,6 +19,7 @@ import org.springframework.util.ReflectionUtils;
 public class AstroAnnotationProcessor implements BeanPostProcessor {
     private final AstroAssistantFactory assistantFactory;
     private final AstrsomnProperties astrsomnProperties;
+    private final AiRuntimeDefaultsResolver aiRuntimeDefaultsResolver;
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeanException {
@@ -38,17 +41,20 @@ public class AstroAnnotationProcessor implements BeanPostProcessor {
     }
 
     /**
-     * 注解优先；未配置时使用 {@link AstrsomnProperties#getRefs()} {@link AstrsomnProperties.Refs#getDefaultAgentKey()}。
+     * 注解优先；未指定时使用当前环境下 {@code AI_AGENT.IS_DEFAULT = 1} 的 {@code AGENT_KEY}。
      */
     private String resolveAgentKey(Astro astro) {
         if (StringUtils.isNotBlank(astro.agentKey())) {
             return astro.agentKey().trim();
         }
-        AstrsomnProperties.Refs refs = astrsomnProperties.getRefs();
-        if (refs != null && StringUtils.isNotBlank(refs.getDefaultAgentKey())) {
-            return refs.getDefaultAgentKey().trim();
-        }
-        throw new IllegalStateException(
-                "@Astro 未指定 agentKey，且未配置 astrsomn.refs.default-agent-key（请在 yml 中按环境填写）");
+        String envCode = EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties);
+        return aiRuntimeDefaultsResolver
+                .resolveDefaultAgentKey(envCode)
+                .orElseThrow(
+                        () ->
+                                new IllegalStateException(
+                                        "@Astro 未指定 agentKey，且库中不存在当前环境(envCode="
+                                                + envCode
+                                                + ")下 IS_DEFAULT=1 的 AI_AGENT 记录"));
     }
 }

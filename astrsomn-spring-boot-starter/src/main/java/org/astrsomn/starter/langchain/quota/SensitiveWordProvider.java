@@ -1,7 +1,7 @@
 package org.astrsomn.starter.langchain.quota;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

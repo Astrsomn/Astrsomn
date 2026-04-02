@@ -3,7 +3,7 @@ package org.astrsomn.starter.langchain.stream;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import dev.langchain4j.model.output.TokenUsage;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.entity.AiAgentEntity;
 import org.astrsomn.core.common.entity.AiConversationEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;

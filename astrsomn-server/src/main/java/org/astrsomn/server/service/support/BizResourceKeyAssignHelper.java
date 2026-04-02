@@ -2,7 +2,7 @@ package org.astrsomn.server.service.support;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.base.BaseEntity;
 import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiAgentEntity;
@@ -43,17 +43,14 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
-        String name = StringUtils.defaultIfBlank(entity.getAgentName(), "agent");
+        final String envCode = entity.getEnvCode();
         entity.setAgentKey(
-                bizResourceKeyGenerator.generateUniqueBizKey(
+                bizResourceKeyGenerator.generateDateBasedBizKey(
                         BizKeyNamespace.AGENT,
-                        user,
-                        name,
                         candidate ->
                                 aiAgentMapper.selectCount(
                                         new LambdaQueryWrapper<AiAgentEntity>()
-                                                .eq(AiAgentEntity::getCreateUser, user)
+                                                .eq(AiAgentEntity::getEnvCode, envCode)
                                                 .eq(AiAgentEntity::getAgentKey, candidate))));
     }
 
@@ -64,17 +61,14 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
-        String name = StringUtils.defaultIfBlank(entity.getPromptTitle(), "prompt");
+        final String envCode = entity.getEnvCode();
         entity.setPromptKey(
-                bizResourceKeyGenerator.generateUniqueBizKey(
+                bizResourceKeyGenerator.generateDateBasedBizKey(
                         BizKeyNamespace.PROMPT,
-                        user,
-                        name,
                         candidate ->
                                 aiPromptMapper.selectCount(
                                         new LambdaQueryWrapper<AiPromptEntity>()
-                                                .eq(AiPromptEntity::getEnvCode, entity.getEnvCode())
+                                                .eq(AiPromptEntity::getEnvCode, envCode)
                                                 .eq(AiPromptEntity::getPromptKey, candidate))));
     }
 
@@ -85,17 +79,14 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
-        String name = StringUtils.defaultIfBlank(entity.getToolName(), "tool");
+        final String envCode = entity.getEnvCode();
         entity.setToolKey(
-                bizResourceKeyGenerator.generateUniqueBizKey(
+                bizResourceKeyGenerator.generateDateBasedBizKey(
                         BizKeyNamespace.TOOL,
-                        user,
-                        name,
                         candidate ->
                                 aiToolMapper.selectCount(
                                         new LambdaQueryWrapper<AiToolEntity>()
-                                                .eq(AiToolEntity::getCreateUser, user)
+                                                .eq(AiToolEntity::getEnvCode, envCode)
                                                 .eq(AiToolEntity::getToolKey, candidate))));
     }
 
@@ -106,17 +97,14 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
-        String name = "instance";
+        final String envCode = entity.getEnvCode();
         entity.setInstanceKey(
-                bizResourceKeyGenerator.generateUniqueBizKey(
+                bizResourceKeyGenerator.generateDateBasedBizKey(
                         BizKeyNamespace.INSTANCE,
-                        user,
-                        name,
                         candidate ->
                                 aiInstanceMapper.selectCount(
                                         new LambdaQueryWrapper<AiInstanceEntity>()
-                                                .eq(AiInstanceEntity::getCreateUser, user)
+                                                .eq(AiInstanceEntity::getEnvCode, envCode)
                                                 .eq(AiInstanceEntity::getInstanceKey, candidate))));
     }
 
@@ -139,20 +127,11 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
-        String rawName = StringUtils.defaultIfBlank(entity.getAccountName(), "account");
-        // slug 对纯中文等会落成 "x"，多账号会撞同一前缀；用名称 hash 做区分段
-        String nameSeg = BizResourceKeyGenerator.slug(rawName);
-        if ("x".equals(nameSeg)) {
-            nameSeg = "a" + Integer.toHexString(rawName.hashCode());
-        }
         final Long excludeId = excludeIdForRegen;
         final String envCode = entity.getEnvCode();
         entity.setAccountKey(
-                bizResourceKeyGenerator.generateUniqueBizKey(
+                bizResourceKeyGenerator.generateDateBasedBizKey(
                         BizKeyNamespace.ACCOUNT,
-                        user,
-                        nameSeg,
                         candidate -> {
                             LambdaQueryWrapper<AiAccountEntity> w =
                                     new LambdaQueryWrapper<AiAccountEntity>()
@@ -194,17 +173,14 @@ public class BizResourceKeyAssignHelper {
             return;
         }
         fillEnv(entity);
-        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
-        String name = StringUtils.defaultIfBlank(entity.getServerName(), "mcp");
+        final String envCode = entity.getEnvCode();
         entity.setMcpKey(
-                bizResourceKeyGenerator.generateUniqueBizKey(
+                bizResourceKeyGenerator.generateDateBasedBizKey(
                         BizKeyNamespace.MCP,
-                        user,
-                        name,
                         candidate ->
                                 aiMcpMapper.selectCount(
                                         new LambdaQueryWrapper<AiMcpEntity>()
-                                                .eq(AiMcpEntity::getCreateUser, user)
+                                                .eq(AiMcpEntity::getEnvCode, envCode)
                                                 .eq(AiMcpEntity::getMcpKey, candidate))));
     }
 
