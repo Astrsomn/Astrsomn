@@ -46,22 +46,7 @@
       </section>
 
       <aside class="demo-right">
-        <section class="side-card side-card--resource-entry">
-          <div class="side-card-head">
-            <h3 class="side-card-title">资源库</h3>
-            <span class="side-resource-toc">TOC</span>
-          </div>
-
-          <div class="side-resource-desc">浏览全部入口与分类，快速定位你需要的功能。</div>
-
-          <button
-            type="button"
-            class="side-resource-btn"
-            @click="navigateTo('/admin/resource-library')"
-          >
-            浏览全部入口
-          </button>
-        </section>
+      
 
         <section class="side-card">
           <div class="side-card-head">
@@ -99,14 +84,14 @@
 
         <section class="side-card side-card--tools">
           <h3 class="side-tools-title">快捷提效</h3>
+                <button
+            type="button"
+            class="side-resource-btn"
+            @click="navigateTo('/admin/resource-library')"
+          >
+            浏览全部入口
+          </button>
           <div class="side-tools-list">
-            <button class="side-tool-btn" type="button" disabled>
-              <span class="side-tool-icon">T</span>
-              <span class="side-tool-text">
-                <span class="side-tool-name">获取临时 Token</span>
-                <span class="side-tool-desc">有效期 2 小时</span>
-              </span>
-            </button>
             <button class="side-tool-btn" type="button" disabled>
               <span class="side-tool-icon">C</span>
               <span class="side-tool-text">
@@ -234,7 +219,8 @@ const navigateTo = (path: string) => {
 <style scoped>
 .demo-dashboard {
   position: relative;
-  padding: 32px;
+  box-sizing: border-box;
+  padding: 10px 15px;
   background: var(--bg-base);
   overflow: hidden;
 }
@@ -572,23 +558,112 @@ const navigateTo = (path: string) => {
 .side-resource-btn {
   width: 100%;
   border-radius: var(--radius-xl);
-  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border-subtle));
-  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
-  padding: 10px 12px;
-  color: var(--text-heading);
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, var(--border-subtle));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 55%, #2563eb),
+    color-mix(in srgb, var(--primary) 35%, #7c3aed)
+  );
+  padding: 10px 42px 10px 14px; /* 为右侧箭头预留空间 */
+  color: #ffffff;
   font-size: 11px;
   font-weight: 900;
   cursor: pointer;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow:
+    0 10px 24px -18px color-mix(in srgb, var(--primary) 45%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.side-resource-btn::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(var(--radius-xl) + 2px);
+  background:
+    radial-gradient(circle at 20% 20%, color-mix(in srgb, #2563eb 75%, transparent), transparent 60%),
+    radial-gradient(circle at 80% 40%, color-mix(in srgb, #7c3aed 62%, transparent), transparent 58%),
+    radial-gradient(circle at 50% 90%, color-mix(in srgb, #2563eb 55%, transparent), transparent 60%);
+  opacity: 0.35;
+  z-index: -1;
+  animation: sideResourcePulse 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.side-resource-btn::after {
+  content: '→';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%) translateX(0);
+  font-size: 14px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.95);
+  opacity: 0.95;
+  transition: transform 0.22s ease, opacity 0.22s ease, color 0.22s ease;
+  pointer-events: none;
 }
 
 .side-resource-btn:hover {
   border-color: color-mix(in srgb, var(--primary) 55%, var(--border-subtle));
-  background: color-mix(in srgb, var(--primary) 18%, var(--bg-card));
-  transform: translateY(-1px);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 60%, #2563eb),
+    color-mix(in srgb, var(--primary) 42%, #7c3aed)
+  );
+  transform: translateY(-1px) scale(1.01);
+  box-shadow:
+    0 18px 34px -24px color-mix(in srgb, var(--primary) 60%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+.side-resource-btn:hover::after {
+  transform: translateY(-50%) translateX(3px);
+  color: rgba(255, 255, 255, 1);
+}
+
+/* 键盘可访问性：聚焦时给更清晰的外圈 */
+.side-resource-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 18px 34px -24px color-mix(in srgb, var(--primary) 60%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+@keyframes sideResourcePulse {
+  0% {
+    opacity: 0.22;
+    transform: scale(1);
+    filter: blur(0px);
+  }
+  50% {
+    opacity: 0.42;
+    transform: scale(1.02);
+    filter: blur(0.2px);
+  }
+  100% {
+    opacity: 0.22;
+    transform: scale(1);
+    filter: blur(0px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side-resource-btn::before {
+    animation: none;
+  }
+  .side-resource-btn:hover::after {
+    transform: translateY(-50%) translateX(0);
+  }
 }
 
 @media (max-width: 1024px) {

@@ -64,7 +64,7 @@ const handleClick = () => {
   border: 1px solid color-mix(in srgb, var(--entry-color) 20%, var(--border-subtle));
   border-radius: 24px;
   background: color-mix(in srgb, var(--bg-card) 92%, rgba(255, 255, 255, 0.02));
-  padding: 24px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
