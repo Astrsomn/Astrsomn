@@ -110,7 +110,7 @@ const handleSwitch = () => {
     isClicking.value = false;
   }, 200);
 };
-const handleBack = () => router.push('/admin');
+const handleBack = () => router.back();
 const handleLogin = () => {
   localStorage.removeItem('token');
   router.push('/login');
