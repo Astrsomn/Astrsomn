@@ -144,6 +144,12 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminSystemConfig',
         component: () => import('@/views/admin/system-config/system-config/SystemConfigList.vue'),
         meta: { title: '系统配置', requiresAuth: true }
+      },
+      {
+        path: 'system-config/system-extension',
+        name: 'AdminSystemExtension',
+        component: () => import('@/views/admin/system-config/system-extension/ExtensionList.vue'),
+        meta: { title: '系统扩展', requiresAuth: true }
       }
     ]
   },

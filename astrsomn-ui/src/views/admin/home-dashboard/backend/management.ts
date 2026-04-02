@@ -227,6 +227,14 @@ const managementGroupsAll: ManagementGroup[] = [
                 route: '/admin/system-config',
                 accent: 'blue',
             },
+            {
+                key: 'system-extension',
+                label: '系统扩展',
+                description: '管理系统插件扩展包（jarName）及应用/卸载状态',
+                icon: markRaw(BuildOutlined),
+                route: '/admin/system-config/system-extension',
+                accent: 'ocean',
+            },
         ],
     },
 ]
