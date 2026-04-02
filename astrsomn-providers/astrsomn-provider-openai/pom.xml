@@ -12,8 +12,8 @@
     </parent>
 
     <artifactId>astrsomn-provider-openai</artifactId>
-    <name>astrsomon-provider-openai</name>
-    <description>astrsomon-provider-openai</description>
+    <name>astrsomn-provider-openai</name>
+    <description>astrsomn-provider-openai</description>
 
     <dependencies>
         <dependency>
@@ -25,6 +25,18 @@
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-open-ai</artifactId>
             <version>${langchain4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

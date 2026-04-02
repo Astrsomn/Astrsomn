@@ -59,44 +59,32 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
     }
 
     private ChatModel getChatModel(AstroChatParam<?> param) {
-
-        OpenAiChatModel.OpenAiChatModelBuilder builder = OpenAiChatModel.builder()
+        var builder = OpenAiChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
-
-        // 如果设置了 API URL，则使用自定义 URL
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
         }
-
         return builder.build();
     }
 
     private StreamingChatModel getStreamModel(AstroChatParam<?> param) {
-
-        OpenAiStreamingChatModel.OpenAiStreamingChatModelBuilder builder = OpenAiStreamingChatModel.builder()
+        var builder = OpenAiStreamingChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
-
-        // 如果设置了 API URL，则使用自定义 URL
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
         }
-
         return builder.build();
     }
 
     private EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
-
-        OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder builder = OpenAiEmbeddingModel.builder()
+        var builder = OpenAiEmbeddingModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
-
-        // 如果设置了 API URL，则使用自定义 URL
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
         }
-
         return builder.build();
     }
 

@@ -1,16 +1,13 @@
-package org.astrsomn.qwen;
+package org.astrsomn.zhipu;
 
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
-/**
- * 扩展元数据；由 {@link org.astrsomn.qwen.autoconfigure.QwenProviderAutoConfiguration} 注册为 Spring Bean。
- */
-public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
+public class ZhipuExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getExtensionKey() {
-        return "qwen";
+        return "zhipu";
     }
 
     @Override
@@ -20,21 +17,16 @@ public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getName() {
-        return "Qwen Model Provider";
-    }
-
-    @Override
-    public String getVersion() {
-        return "1.0.0";
+        return "Zhipu GLM Model Provider";
     }
 
     @Override
     public String getAuthor() {
-        return "Alibaba Cloud";
+        return "Zhipu AI";
     }
 
     @Override
     public String getDescription() {
-        return "Qwen provider extension for chat and embedding models.";
+        return "智谱 GLM 对话与向量模型；参数与模型列表可按业务扩展。";
     }
 }

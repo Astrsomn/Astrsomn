@@ -1,99 +1,91 @@
-//package org.astrsomn.openai;
-//
-//import dev.langchain4j.model.chat.ChatModel;
-//import dev.langchain4j.model.chat.StreamingChatModel;
-//import dev.langchain4j.model.embedding.EmbeddingModel;
-//import dev.langchain4j.model.image.ImageModel;
-//import dev.langchain4j.model.openai.OpenAiImageModel;
-//import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-//import org.astrsomn.core.common.constant.AiModelEnum;
-//import org.astrsomn.core.common.entity.AiAccountEntity;
-//import org.astrsomn.core.common.entity.AiModelEntity;
-//import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-//import org.astrsomn.core.common.langchain.buildParam.setting.ImageSetting;
-//import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
-//import org.astrsomn.core.common.langchain.extension.AbstractModelProviderHandler;
-//
-//
-//
-//import java.util.List;
-//
-//import static org.astrsomn.core.common.constant.AiModelEnum.InferenceParamEnum.*;
-//
-//public class OpenAiProviderHandler extends AbstractModelProviderHandler {
-//
-//    @Override
-//    public AiModelEnum.ProviderEnum getProvider() {
-//        return AiModelEnum.ProviderEnum.OPENAI;
-//    }
-//
-//    @Override
-//    @SuppressWarnings("unchecked")
-//    public <T> T createModel(Class<T> modelClass, AiModelEntity modelEntity, AiAccountEntity accountEntity, AstroChatParam<?> param) {
-//
-//        if (modelClass.isAssignableFrom(StreamingChatModel.class)) {
-//            return (T) buildStreamingChatModel(modelEntity, accountEntity, param);
-//        } else if (modelClass.isAssignableFrom(ChatModel.class)) {
-//            return (T) buildChatModel(modelEntity, accountEntity, param);
-//        } else if (modelClass.isAssignableFrom(ImageModel.class)) {
-//            return (T) buildImageModel(modelEntity, accountEntity, param);
-//        } else if (modelClass.isAssignableFrom(EmbeddingModel.class)) {
-//            return (T) buildEmbeddingModel(modelEntity, accountEntity, param);
-//        }
-//
-//        throw new IllegalArgumentException("OpenAI 暂不支持模型类型: " + modelClass.getName());
-//    }
-//
-//    private EmbeddingModel buildEmbeddingModel(AiModelEntity modelEntity, AiAccountEntity accountEntity, AstroChatParam<?> param) {
-//        return null;
-//    }
-//
-//    private ChatModel buildChatModel(AiModelEntity modelEntity, AiAccountEntity accountEntity, AstroChatParam<?> param) {
-//        return null;
-//    }
-//
-//    private StreamingChatModel buildStreamingChatModel(AiModelEntity entity,
-//                                                       AiAccountEntity account,
-//                                                       AstroChatParam<?> param) {
-//
-//        var builder = OpenAiStreamingChatModel.builder()
-//                .modelName(entity.getModelName())
-//                .apiKey(account.getApiKey())
-//                .baseUrl(entity.getApiUrl());
-//
-//        // 获取参数和能力集
-//        ChatSetting s = param.getChatSetting();
-//        List<String> caps = parseCapabilities(entity);
-//
-//        // --- 声明式参数填充 (告别 if-else) ---
-//        apply(caps, TEMPERATURE, s.getTemperature(), builder::temperature);
-//        apply(caps, TOP_P, s.getTopP(), builder::topP);
-//        apply(caps, MAX_TOKENS, s.getMaxTokens(), builder::maxTokens);
-//        apply(caps, SEED, s.getSeed(), builder::seed);
-//        apply(caps, PRESENCE_PENALTY, s.getPresencePenalty(), builder::presencePenalty);
-//        apply(caps, FREQUENCY_PENALTY, s.getFrequencyPenalty(), builder::frequencyPenalty);
-//
-//        // 特殊逻辑：深度思考
-//        if (param.getConversationSetting().isEnableDeepThinking() && caps.contains("DEEP_REASONING")) {
-//            builder.returnThinking(true).sendThinking(true);
-//        }
-//
-//        return builder.build();
-//    }
-//
-//    private ImageModel buildImageModel(AiModelEntity entity, AiAccountEntity account, AstroChatParam<?> param) {
-//        ImageSetting s = param.getImageSetting();
-//        return OpenAiImageModel.builder()
-//                .apiKey(account.getApiKey())
-//                .modelName(entity.getModelName())
-//                .size(s.getSize())
-//                .quality(s.getQuality())
-//                .build();
-//    }
-//
-//
-//    public String getVersion() {
-//        return "";
-//    }
-//
-//}
+package org.astrsomn.openai;
+
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import org.astrsomn.core.common.constant.AiModelEnum;
+import org.astrsomn.core.common.entity.AiModelEntity;
+import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
+import org.astrsomn.core.common.langchain.extension.AbstractModelProviderHandler;
+import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.exception.UnknowModelException;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * OpenAI 官方 API（及兼容端点）；可通过 {@code baseUrl} 指向代理或第三方兼容服务。
+ */
+public class OpenAiProviderHandler extends AbstractModelProviderHandler {
+
+    @Override
+    public AiModelEnum.ProviderEnum getProvider() {
+        return AiModelEnum.ProviderEnum.OPENAI;
+    }
+
+    @Override
+    public <T> T createModel(Class<T> modelClass, AstroChatParam<?> param) {
+        if (modelClass == null || param == null || param.getModelSetting() == null) {
+            throw new IllegalArgumentException("Model class and parameters must not be null");
+        }
+
+        Object model;
+        if (StreamingChatModel.class.isAssignableFrom(modelClass)) {
+            model = getStreamModel(param);
+        } else if (ChatModel.class.isAssignableFrom(modelClass)) {
+            model = getChatModel(param);
+        } else if (EmbeddingModel.class.isAssignableFrom(modelClass)) {
+            model = getEmbeddingModel(param);
+        } else {
+            throw new UnknowModelException(
+                    "Failed to initialize: " + modelClass.getName() + " is not supported by OpenAI provider.");
+        }
+
+        try {
+            return modelClass.cast(model);
+        } catch (ClassCastException e) {
+            throw new UnknowModelException(
+                    "Model instance created but is not compatible with " + modelClass.getName());
+        }
+    }
+
+    @Override
+    public List<AiModelEntity> getAvailableModels() {
+        return Arrays.stream(OpenAiModelEnum.values())
+                .map(m -> m.toEntity(AiModelEnum.ProviderEnum.OPENAI.getCode()))
+                .toList();
+    }
+
+    private ChatModel getChatModel(AstroChatParam<?> param) {
+        var builder = OpenAiChatModel.builder()
+                .modelName(param.getModelSetting().getModelName())
+                .apiKey(param.getModelSetting().getApiKey());
+        if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
+            builder.baseUrl(param.getModelSetting().getApiUrl());
+        }
+        return builder.build();
+    }
+
+    private StreamingChatModel getStreamModel(AstroChatParam<?> param) {
+        var builder = OpenAiStreamingChatModel.builder()
+                .modelName(param.getModelSetting().getModelName())
+                .apiKey(param.getModelSetting().getApiKey());
+        if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
+            builder.baseUrl(param.getModelSetting().getApiUrl());
+        }
+        return builder.build();
+    }
+
+    private EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
+        var builder = OpenAiEmbeddingModel.builder()
+                .modelName(param.getModelSetting().getModelName())
+                .apiKey(param.getModelSetting().getApiKey());
+        if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
+            builder.baseUrl(param.getModelSetting().getApiUrl());
+        }
+        return builder.build();
+    }
+}

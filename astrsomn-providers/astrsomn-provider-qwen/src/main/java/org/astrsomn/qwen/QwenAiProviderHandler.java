@@ -9,7 +9,6 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
-import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.extension.AbstractModelProviderHandler;
 import org.astrsomn.core.exception.UnknowModelException;
@@ -61,44 +60,32 @@ public class QwenAiProviderHandler extends AbstractModelProviderHandler {
     }
 
     private ChatModel getChatModel(AstroChatParam<?> param) {
-
-        QwenChatModel.QwenChatModelBuilder builder = QwenChatModel.builder()
+        var builder = QwenChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
-
-        // 如果设置了 API URL，则使用自定义 URL
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
         }
-
         return builder.build();
     }
 
     private StreamingChatModel getStreamModel(AstroChatParam<?> param) {
-
-        QwenStreamingChatModel.QwenStreamingChatModelBuilder builder = QwenStreamingChatModel.builder()
+        var builder = QwenStreamingChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
-
-        // 如果设置了 API URL，则使用自定义 URL
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
         }
-
         return builder.build();
     }
 
     private EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
-
-        QwenEmbeddingModel.QwenEmbeddingModelBuilder builder = QwenEmbeddingModel.builder()
+        var builder = QwenEmbeddingModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
-
-        // 如果设置了 API URL，则使用自定义 URL
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
         }
-
         return builder.build();
     }
 
