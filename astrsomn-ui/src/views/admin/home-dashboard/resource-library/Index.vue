@@ -8,7 +8,6 @@
           <section class="panel-card filter-card">
             <header class="panel-head">
               <h2 class="panel-title">筛选导航</h2>
-              <p class="panel-subtitle">支持按分组和关键词快速收敛入口范围。</p>
             </header>
 
             <div class="search-box">
@@ -49,9 +48,7 @@
           <section class="panel-card content-card">
             <header class="content-head">
               <div class="content-title-wrap">
-                <div class="content-kicker">当前分组</div>
                 <h2 class="content-title">{{ activeGroupTitle }}</h2>
-                <p class="content-subtitle">{{ activeGroupSubtitle }}</p>
               </div>
 
               <div class="content-tools">
@@ -71,11 +68,6 @@
                 </div>
               </div>
             </header>
-
-            <div class="content-toolbar">
-              <span class="toolbar-chip">{{ keyword ? `关键词：${keyword}` : '未启用关键词筛选' }}</span>
-              <span class="toolbar-chip">{{ totalPages > 1 ? `当前第 ${currentPage} / ${totalPages} 页` : '当前为单页展示' }}</span>
-            </div>
 
             <section class="content-body" ref="gridContainerRef">
               <div v-if="paginatedEntries.length === 0" class="empty-holder">
@@ -97,8 +89,7 @@
             </section>
 
             <footer class="content-footer">
-              <span>共筛选到 {{ filteredEntries.length }} 个入口</span>
-              <span>{{ keyword ? `当前关键词：${keyword}` : '可通过左侧分组或搜索框快速定位资源' }}</span>
+              <span>已显示 {{ paginatedEntries.length }} / {{ filteredEntries.length }} 个入口</span>
             </footer>
           </section>
         </main>
@@ -151,16 +142,6 @@ const activeGroup = computed(() =>
 const activeGroupTitle = computed(() =>
   activeGroupId.value === 'all' ? '全部入口' : activeGroup.value?.title ?? '全部入口',
 )
-
-const activeGroupSubtitle = computed(() => {
-  if (activeGroupId.value === 'all') {
-    return keyword.value
-      ? `已根据关键词筛选出 ${filteredTotalCount.value} 个可用入口`
-      : '汇总展示当前角色可访问的全部后台能力入口'
-  }
-
-  return activeGroup.value?.subtitle ?? '按分组浏览当前角色可访问的后台入口'
-})
 
 const filteredEntries = computed(() => {
   if (activeGroupId.value === 'all') {
@@ -221,6 +202,7 @@ const navigateTo = (path: string) => {
   background-size: 24px 24px;
   opacity: 0.2;
   pointer-events: none;
+  animation: gridDrift 18s linear infinite;
 }
 
 .resource-shell {
@@ -234,12 +216,35 @@ const navigateTo = (path: string) => {
 }
 
 .panel-card {
+  position: relative;
   border: 1px solid var(--border-subtle);
   border-radius: 28px;
   background: color-mix(in srgb, var(--bg-card) 96%, transparent);
   box-shadow:
     0 16px 40px -32px rgba(15, 23, 42, 0.6),
     0 4px 16px -12px rgba(15, 23, 42, 0.3);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+  animation: panelLift 0.45s ease both;
+}
+
+.panel-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 5%, transparent), transparent 28%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.panel-card:hover {
+  border-color: color-mix(in srgb, var(--primary) 18%, var(--border-subtle));
+  box-shadow:
+    0 20px 44px -34px rgba(15, 23, 42, 0.65),
+    0 10px 24px -18px rgba(15, 23, 42, 0.28);
 }
 
 .page-hero {
@@ -346,10 +351,14 @@ const navigateTo = (path: string) => {
   gap: 18px;
 }
 
+.content-card {
+  animation-delay: 0.08s;
+}
+
 .panel-head {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
 }
 
 .panel-title {
@@ -359,15 +368,8 @@ const navigateTo = (path: string) => {
   color: var(--text-heading);
 }
 
-.panel-subtitle {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--text-muted);
-}
-
 .search-box {
-  padding-bottom: 8px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border-subtle);
 }
 
@@ -379,6 +381,8 @@ const navigateTo = (path: string) => {
 
 .nav-item {
   all: unset;
+  position: relative;
+  overflow: hidden;
   box-sizing: border-box;
   width: 100%;
   display: flex;
@@ -397,17 +401,40 @@ const navigateTo = (path: string) => {
     transform 0.2s ease;
 }
 
+.nav-item::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 82%, white);
+  opacity: 0;
+  transform: scaleY(0.35);
+  transform-origin: center;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
 .nav-item:hover {
   background: color-mix(in srgb, var(--primary) 8%, var(--bg-card));
   border-color: color-mix(in srgb, var(--primary) 18%, var(--border-subtle));
   color: var(--text-heading);
+  transform: translateX(2px);
 }
 
 .nav-item.active {
   background: color-mix(in srgb, var(--primary) 14%, var(--bg-card));
   border-color: color-mix(in srgb, var(--primary) 32%, var(--border-subtle));
   color: var(--text-heading);
-  transform: translateY(-1px);
+  transform: translateX(4px);
+}
+
+.nav-item.active::before {
+  opacity: 1;
+  transform: scaleY(1);
 }
 
 .label {
@@ -441,7 +468,7 @@ const navigateTo = (path: string) => {
 
 .content-head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
   padding-bottom: 18px;
@@ -452,27 +479,12 @@ const navigateTo = (path: string) => {
   min-width: 0;
 }
 
-.content-kicker {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--primary);
-}
-
 .content-title {
-  margin: 8px 0 0;
+  margin: 0;
   font-size: 24px;
   line-height: 1.2;
   font-weight: 800;
   color: var(--text-heading);
-}
-
-.content-subtitle {
-  margin: 8px 0 0;
-  max-width: 760px;
-  font-size: 13px;
-  line-height: 1.65;
-  color: var(--text-muted);
 }
 
 .content-tools {
@@ -484,18 +496,16 @@ const navigateTo = (path: string) => {
 }
 
 .summary-chip,
-.toolbar-chip,
 .pagination-wrapper {
   border: 1px solid var(--border-subtle);
   background: color-mix(in srgb, var(--bg-base) 58%, transparent);
 }
 
-.summary-chip,
-.toolbar-chip {
+.summary-chip {
   display: inline-flex;
   align-items: center;
-  min-height: 36px;
-  padding: 0 14px;
+  min-height: 38px;
+  padding: 0 16px;
   border-radius: 999px;
   font-size: 12px;
   color: var(--text-muted);
@@ -541,12 +551,6 @@ const navigateTo = (path: string) => {
   color: var(--text-muted);
 }
 
-.content-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
 .content-body {
   flex: 1;
   min-height: 320px;
@@ -563,6 +567,30 @@ const navigateTo = (path: string) => {
   height: 100%;
 }
 
+.resource-grid :deep(.slot-wrapper) {
+  animation: itemFadeIn 0.45s ease both;
+}
+
+.resource-grid :deep(.slot-wrapper:nth-child(2)) {
+  animation-delay: 0.04s;
+}
+
+.resource-grid :deep(.slot-wrapper:nth-child(3)) {
+  animation-delay: 0.08s;
+}
+
+.resource-grid :deep(.slot-wrapper:nth-child(4)) {
+  animation-delay: 0.12s;
+}
+
+.resource-grid :deep(.slot-wrapper:nth-child(5)) {
+  animation-delay: 0.16s;
+}
+
+.resource-grid :deep(.slot-wrapper:nth-child(6)) {
+  animation-delay: 0.2s;
+}
+
 .empty-holder {
   min-height: 320px;
   display: flex;
@@ -576,7 +604,7 @@ const navigateTo = (path: string) => {
 .content-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   padding-top: 6px;
   border-top: 1px solid var(--border-subtle);
@@ -585,25 +613,71 @@ const navigateTo = (path: string) => {
 }
 
 .resource-search :deep(.ant-input-affix-wrapper) {
-  min-height: 44px;
-  border-radius: 14px;
+  min-height: 52px;
+  padding-inline: 16px;
+  border-radius: 18px;
   border-color: var(--border-subtle);
   background: color-mix(in srgb, var(--bg-base) 55%, transparent);
   box-shadow: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .resource-search :deep(.ant-input-affix-wrapper:hover),
 .resource-search :deep(.ant-input-affix-wrapper-focused) {
   border-color: color-mix(in srgb, var(--primary) 32%, var(--border-subtle));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 10%, transparent);
+  transform: translateY(-1px);
 }
 
 .resource-search :deep(.ant-input) {
   background: transparent;
+  font-size: 14px;
   color: var(--text-heading);
 }
 
 .resource-search :deep(.ant-input-prefix) {
   color: var(--text-muted);
+}
+
+@keyframes panelLift {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes itemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gridDrift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 @media (max-width: 1280px) {
@@ -633,6 +707,20 @@ const navigateTo = (path: string) => {
 
   .content-card {
     min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resource-page::before,
+  .panel-card,
+  .resource-grid :deep(.slot-wrapper) {
+    animation: none;
+  }
+
+  .panel-card,
+  .nav-item,
+  .resource-search :deep(.ant-input-affix-wrapper) {
+    transition: none;
   }
 }
 
