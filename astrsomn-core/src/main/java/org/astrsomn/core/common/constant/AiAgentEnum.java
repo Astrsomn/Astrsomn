@@ -37,4 +37,16 @@ public interface AiAgentEnum {
         private final String code;
         private final String desc;
     }
+
+
+
+    @Getter
+    @AllArgsConstructor
+    enum IsDefaultEnum  {
+        YES(1, "Yes"),
+        NO(0, "No");
+
+        private final Integer code;
+        private final String desc;
+    }
 }
