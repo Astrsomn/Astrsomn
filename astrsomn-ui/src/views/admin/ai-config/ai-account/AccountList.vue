@@ -91,52 +91,12 @@
         @success="handleFormSuccess"
       />
     </div>
-
-    <a-drawer
-      :open="modelsDrawer.open"
-      placement="right"
-      :width="520"
-      :maskClosable="false"
-      @close="modelsDrawer.open = false"
-      class="models-drawer"
-    >
-      <template #title>
-        <div class="drawer-title">
-          <div class="drawer-title-main">
-            <span class="drawer-title-h">{{ modelsDrawer.account?.accountName || '关联模型' }}</span>
-            <span class="drawer-title-sub">{{ modelsDrawer.account?.accountKey || '' }}</span>
-          </div>
-          <a-tag v-if="modelsDrawer.account?.envCode" color="blue" class="drawer-env-tag">
-            {{ modelsDrawer.account.envCode }}
-          </a-tag>
-        </div>
-      </template>
-
-      <a-spin :spinning="modelsDrawer.loading">
-        <a-table
-          :columns="modelsDrawer.columns"
-          :data-source="modelsDrawer.models"
-          :pagination="false"
-          row-key="id"
-          :scroll="{ x: 640 }"
-        >
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'modelKey'">
-              <code class="code-text">{{ record.modelKey }}</code>
-            </template>
-            <template v-else-if="column.key === 'status'">
-              <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
-                {{ record.status }}
-              </a-tag>
-            </template>
-          </template>
-        </a-table>
-
-        <div v-if="!modelsDrawer.loading && modelsDrawer.models.length === 0" class="drawer-empty">
-          暂无关联模型
-        </div>
-      </a-spin>
-    </a-drawer>
+    <AccountModelsDrawer
+      v-model:open="modelsDrawer.open"
+      :account="modelsDrawer.account"
+      :loading="modelsDrawer.loading"
+      :models="modelsDrawer.models"
+    />
   </AdminPageShell>
 </template>
 
@@ -154,6 +114,7 @@ import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import AccountForm from './AccountForm.vue'
 import AccountCard from './AccountCard.vue'
+import AccountModelsDrawer from './AccountModelsDrawer.vue'
 import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount'
 import type { AiModel } from '@/api/aiModel'
 
@@ -276,14 +237,7 @@ const modelsDrawer = reactive({
   open: false,
   loading: false,
   account: undefined as AiAccount | undefined,
-  models: [] as AiModel[],
-  columns: [
-    { title: '模型名称', dataIndex: 'modelName', key: 'modelName', width: 220, ellipsis: true },
-    { title: '模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 190, ellipsis: true },
-    { title: '类型', dataIndex: 'modelType', key: 'modelType', width: 90 },
-    { title: '供应商', dataIndex: 'provider', key: 'provider', width: 140, ellipsis: true },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 110 }
-  ]
+  models: [] as AiModel[]
 })
 
 const openModelsDrawer = async (account: AiAccount) => {
@@ -433,43 +387,5 @@ const openModelsDrawer = async (account: AiAccount) => {
   }
 }
 
-.models-drawer {
-  :deep(.ant-drawer-body) {
-    padding: 12px 16px;
-  }
-}
-
-.drawer-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.drawer-title-main {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.drawer-title-h {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-heading);
-}
-
-.drawer-title-sub {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.drawer-env-tag {
-  flex-shrink: 0;
-}
-
-.drawer-empty {
-  padding: 28px 0 12px;
-  text-align: center;
-  color: var(--text-secondary);
-}
+/* drawer styles moved to AccountModelsDrawer.vue */
 </style>
