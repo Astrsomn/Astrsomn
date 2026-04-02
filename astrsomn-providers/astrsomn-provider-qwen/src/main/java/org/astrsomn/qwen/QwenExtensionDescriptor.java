@@ -4,7 +4,7 @@ import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
 /**
- * 扩展元数据；由 {@link org.astrsomn.qwen.autoconfigure.QwenProviderAutoConfiguration} 注册为 Spring Bean。
+ * 扩展元数据：通过 Java SPI(ServiceLoader) 被系统注册。
  */
 public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
 

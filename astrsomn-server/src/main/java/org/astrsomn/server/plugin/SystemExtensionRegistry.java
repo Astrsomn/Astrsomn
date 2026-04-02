@@ -11,7 +11,9 @@ import org.astrsomn.core.mapper.SystemExtensionMapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 @Slf4j
 @Component
@@ -23,13 +25,38 @@ public class SystemExtensionRegistry {
 
     @PostConstruct
     public void registerExtensions() {
-        Map<String, AstroExtensionDescriptor> descriptors =
+        // 1) 先从 Spring 容器拿到（兼容历史实现）
+        // 2) 再从 Java SPI（ServiceLoader）加载（让插件扩展元数据摆脱 Spring 注册）
+        Map<String, AstroExtensionDescriptor> mergedByKey = new HashMap<>();
+
+        Map<String, AstroExtensionDescriptor> springDescriptors =
                 applicationContext.getBeansOfType(AstroExtensionDescriptor.class);
-        if (descriptors.isEmpty()) {
-            log.info("No AstroExtensionDescriptor beans found, skip system extension registration.");
+        springDescriptors.forEach((beanName, descriptor) -> {
+            String extensionKey = StringUtils.trimToNull(descriptor.getExtensionKey());
+            if (extensionKey != null) {
+                mergedByKey.putIfAbsent(extensionKey, descriptor);
+            }
+        });
+
+        ServiceLoader<AstroExtensionDescriptor> serviceLoader =
+                ServiceLoader.load(AstroExtensionDescriptor.class);
+        for (AstroExtensionDescriptor descriptor : serviceLoader) {
+            if (descriptor == null) {
+                continue;
+            }
+            String extensionKey = StringUtils.trimToNull(descriptor.getExtensionKey());
+            if (extensionKey == null) {
+                continue;
+            }
+            mergedByKey.putIfAbsent(extensionKey, descriptor);
+        }
+
+        if (mergedByKey.isEmpty()) {
+            log.info("No AstroExtensionDescriptor found via Spring or SPI, skip system extension registration.");
             return;
         }
-        descriptors.forEach((beanName, descriptor) -> registerDescriptor(beanName, descriptor));
+
+        mergedByKey.forEach((extensionKey, descriptor) -> registerDescriptor(extensionKey, descriptor));
     }
 
     private void registerDescriptor(String beanName, AstroExtensionDescriptor descriptor) {
