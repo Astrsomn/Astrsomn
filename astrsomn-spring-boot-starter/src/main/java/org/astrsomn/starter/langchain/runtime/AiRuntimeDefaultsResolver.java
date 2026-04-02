@@ -22,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AiRuntimeDefaultsResolver {
 
-    private static final int DEFAULT_FLAG = 1;
+    private static final String DEFAULT_FLAG = "Y";
 
     private final AiAgentMapper aiAgentMapper;
     private final AiModelMapper aiModelMapper;

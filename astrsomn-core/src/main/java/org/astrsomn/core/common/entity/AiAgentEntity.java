@@ -64,10 +64,7 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("ENABLE_STREAM")
     private boolean enableStream;
 
-    /**
-     * 当前环境下是否作为默认智能体（1=是）。同一 {@code ENV_CODE} 建议仅一条，供未传 agentKey 时走通一条链路。
-     */
     @TableField("IS_DEFAULT")
-    private Integer isDefault;
+    private String isDefault;
 
 }

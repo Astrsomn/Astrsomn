@@ -42,11 +42,11 @@ public interface AiAgentEnum {
 
     @Getter
     @AllArgsConstructor
-    enum IsDefaultEnum  {
-        YES(1, "Yes"),
-        NO(0, "No");
+    enum IsDefaultEnum implements BaseEnum {
+        YES("Y", "Yes"),
+        NO("N", "No");
 
-        private final Integer code;
+        private final String code;
         private final String desc;
     }
 }

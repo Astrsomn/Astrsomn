@@ -69,7 +69,7 @@ public class SystemExtensionRegistry {
         SystemExtensionEntity existing = systemExtensionMapper.selectOne(
                 new LambdaQueryWrapper<SystemExtensionEntity>()
                         .eq(SystemExtensionEntity::getExtensionKey, extensionKey)
-                        .last("FETCH FIRST 1 ROWS ONLY"));
+                        .last("LIMIT 1"));
 
         SystemExtensionEntity entity = buildEntity(descriptor, extensionKey);
         boolean created;
