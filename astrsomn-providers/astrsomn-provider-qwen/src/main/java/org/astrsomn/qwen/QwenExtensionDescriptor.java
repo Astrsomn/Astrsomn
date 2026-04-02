@@ -40,10 +40,5 @@ public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
         return "Qwen provider extension for chat and embedding models.";
     }
 
-    @Override
-    public List<AiModelEntity> getSupportedModels() {
-        return List.of(QwenModelEnum.values()).stream()
-                .map(model -> model.toEntity("ALIBABA"))
-                .toList();
-    }
+
 }

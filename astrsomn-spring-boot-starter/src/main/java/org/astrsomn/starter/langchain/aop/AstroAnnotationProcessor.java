@@ -2,7 +2,7 @@ package org.astrsomn.starter.langchain.aop;
 
 import cn.hutool.core.bean.BeanException;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.langchain.factory.AstroAssistantFactory;

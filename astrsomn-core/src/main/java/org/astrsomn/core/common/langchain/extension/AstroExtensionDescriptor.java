@@ -41,6 +41,6 @@ public abstract class AstroExtensionDescriptor {
         return "";
     }
 
-    public abstract List<AiModelEntity> getSupportedModels();
+
 
 }

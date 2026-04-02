@@ -24,69 +24,54 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class AstroModelFactory {
 
-    private final AiModelMapper aiModelMapper;
-    private final AiAccountMapper aiAccountMapper;
-    private final ModelQuotaManager quotaManager;
-    private final AstrsomnProperties astrsomnProperties;
-    private final Map<AiModelEnum.ProviderEnum, ModelProviderHandler> handlerMap = new ConcurrentHashMap<>();
-    // Spring 会自动注入所有实现 ModelProviderHandler 接口的 Bean
-    private final List<ModelProviderHandler> handlers;
+    // 存储 Provider 编码与处理器的映射
+    private final Map<String, ModelProviderHandler> handlerMap = new ConcurrentHashMap<>();
 
-    private static final List<ModelProviderHandler> CACHED_HANDLERS = new ArrayList<>();
+    public AstroModelFactory() {
+        initSpiHandlers();
+    }
 
-    static {
-        // 利用 Java SPI 加载所有 classpath 下的实现
+    /**
+     * 完全通过 Java SPI 加载处理器
+     */
+    private void initSpiHandlers() {
+        log.info("[Astro] Initializing handlers via SPI...");
         ServiceLoader<ModelProviderHandler> loader = ServiceLoader.load(ModelProviderHandler.class);
+
         for (ModelProviderHandler handler : loader) {
-            log.info("====>  [Astrsomn] Loaded AI Provider: {}", handler.getProvider());
-            CACHED_HANDLERS.add(handler);
+            String providerCode = handler.getProvider().getCode();
+            if (handlerMap.containsKey(providerCode)) {
+                log.warn("[Astro] Duplicate provider detected and skipped: {}", providerCode);
+                continue;
+            }
+            handlerMap.put(providerCode, handler);
+            log.info("[Astro] Loaded SPI Provider: {}", providerCode);
         }
     }
 
-    @PostConstruct
-    public void initHandlers() {
-        handlers.forEach(this::registerHandler);
-        CACHED_HANDLERS.forEach(this::registerHandler);
-    }
-
     public <T> T createModel(AstroChatParam<?> param, Class<T> modelClass) {
-        AiModelEntity modelEntity = resolveModelEntity(param);
-        AiAccountEntity accountEntity = resolveAccountEntity(modelEntity);
-        AiModelEnum.ProviderEnum provider = AiModelEnum.ProviderEnum.fromCode(modelEntity.getProvider());
-
-        ModelProviderHandler handler = handlerMap.get(provider);
+        String modelProvider = param.getModelSetting().getProvider();
+        ModelProviderHandler handler = handlerMap.get(modelProvider);
         if (handler == null) {
-            throw new RuntimeException("不支持的厂商: " + modelEntity.getProvider());
+            throw new RuntimeException("Unsupported provider: " + modelProvider);
         }
         return handler.createModel(modelClass, param);
     }
 
-    private AiAccountEntity resolveAccountEntity(AiModelEntity modelEntity) {
-        return aiAccountMapper.selectOne(new LambdaQueryWrapper<AiAccountEntity>()
-                .eq(AiAccountEntity::getEnvCode, modelEntity.getEnvCode())
-                .eq(AiAccountEntity::getAccountKey, modelEntity.getAccountKey()));
-    }
-
-    private AiModelEntity resolveModelEntity(AstroChatParam<?> param) {
-        AiModelEntity aiModelEntity = aiModelMapper.selectOne(new LambdaQueryWrapper<AiModelEntity>()
-                .eq(AiModelEntity::getEnvCode, astrsomnProperties.getEnvCode())
-                .eq(AiModelEntity::getModelKey, param.getModelKey()));
-        return aiModelEntity;
-    }
-
-    // 动态注册：供 PluginManager 调用
+    /**
+     * 仍然保留动态注册接口，方便 PluginManager 在运行时手动注入
+     */
     public void registerHandler(ModelProviderHandler handler) {
-        handlerMap.put(handler.getProvider(), handler);
+        if (handler != null && handler.getProvider() != null) {
+            handlerMap.put(handler.getProvider().getCode(), handler);
+        }
     }
 
     public void unregisterHandler(AiModelEnum.ProviderEnum provider) {
         if (provider != null) {
-            handlerMap.remove(provider);
+            handlerMap.remove(provider.getCode());
         }
     }
-
-
 }

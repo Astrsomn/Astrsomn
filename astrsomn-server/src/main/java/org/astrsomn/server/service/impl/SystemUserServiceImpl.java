@@ -15,7 +15,7 @@ import org.astrsomn.core.common.entity.SystemUserEntity;
 import org.astrsomn.core.mapper.SystemUserMapper;
 import org.astrsomn.server.service.SystemUserService;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

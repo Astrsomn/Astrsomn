@@ -7,7 +7,7 @@ import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.tool.ToolExecution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.langchain.ChatStreamEnum;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.starter.langchain.quota.ModelQuotaManager;

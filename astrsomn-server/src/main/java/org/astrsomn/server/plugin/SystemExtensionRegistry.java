@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import org.astrsomn.core.mapper.SystemExtensionMapper;

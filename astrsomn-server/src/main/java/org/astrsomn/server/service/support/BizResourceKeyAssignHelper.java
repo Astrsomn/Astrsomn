@@ -2,7 +2,7 @@ package org.astrsomn.server.service.support;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.base.BaseEntity;
 import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiAgentEntity;

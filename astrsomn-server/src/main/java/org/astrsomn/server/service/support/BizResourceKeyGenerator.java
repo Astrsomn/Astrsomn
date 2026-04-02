@@ -1,6 +1,6 @@
 package org.astrsomn.server.service.support;
 
-import org.apache.commons.lang3.StringUtils;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.springframework.stereotype.Component;
 
