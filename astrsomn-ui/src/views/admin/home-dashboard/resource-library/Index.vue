@@ -349,6 +349,7 @@ const navigateTo = (path: string) => {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  min-height: calc(100vh - 150px);
 }
 
 .content-card {
@@ -463,7 +464,7 @@ const navigateTo = (path: string) => {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  min-height: 580px;
+  min-height: calc(100vh - 150px);
 }
 
 .content-head {

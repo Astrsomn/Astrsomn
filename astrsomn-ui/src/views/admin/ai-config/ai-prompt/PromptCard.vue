@@ -129,7 +129,7 @@ const copyPromptKey = async (key?: string) => {
   --primary-color: #4f46e5;
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xl);
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
@@ -182,8 +182,9 @@ const copyPromptKey = async (key?: string) => {
 .mini-avatar {
   width: 24px;
   height: 24px;
-  background: linear-gradient(135deg, #279ea9, #3b64b2);
+
   color: white;
+  background: var(--chat-send-btn-bg);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;

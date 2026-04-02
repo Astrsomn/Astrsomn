@@ -58,6 +58,15 @@
         </div>
       </div>
 
+      <BaseOverview
+        :list-length="list.length"
+        :selected-count="selectedCount"
+        :all-current-selected="allCurrentSelected"
+        :part-current-selected="partCurrentSelected"
+        :show-actions="true"
+        @toggle-select-all="onToggleSelectAll"
+      />
+
       <a-spin :spinning="loading">
         <div v-if="list.length > 0" class="agent-grid">
           <div
@@ -67,8 +76,10 @@
           >
             <AgentCard
               :record="item"
+              :selected="selectedKeys.has(item.id!)"
               @edit="openEdit"
               @delete="handleDeleteOne"
+              @toggle="onToggleSelect"
             />
           </div>
         </div>
@@ -105,6 +116,7 @@ import {
   StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import BaseOverview from '@/components/home/BaseOverview.vue'
 import AgentCard from './AgentCard.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
 
@@ -131,8 +143,13 @@ const pageRef = ref<HTMLElement | null>(null)
 const loading = ref(false)
 const query = reactive<{ agentName?: string; status?: string }>({})
 const list = ref<AiAgent[]>([])
+const selectedKeys = ref<Set<string | number>>(new Set())
 const currentGridColumns = ref(resolveGridColumns())
 const agentGridTemplateColumns = computed(() => `repeat(${currentGridColumns.value}, minmax(0, 1fr))`)
+
+const selectedCount = computed(() => selectedKeys.value.size)
+const allCurrentSelected = computed(() => list.value.length > 0 && selectedKeys.value.size === list.value.length)
+const partCurrentSelected = computed(() => selectedKeys.value.size > 0 && selectedKeys.value.size < list.value.length)
 
 const page = reactive({
   pageNum: 1,
@@ -153,6 +170,7 @@ const fetchList = async () => {
     })
     list.value = resp.list || []
     page.total = resp.total || 0
+    selectedKeys.value.clear()
   } finally {
     loading.value = false
   }
@@ -205,6 +223,26 @@ const handleBatchDelete = async (ids: Array<number | string>) => {
   await aiAgentApi.delete(ids)
   message.success('已删除')
   void fetchList()
+}
+
+const onToggleSelectAll = (checked: boolean) => {
+  if (checked) {
+    list.value.forEach(item => {
+      if (item.id) {
+        selectedKeys.value.add(item.id)
+      }
+    })
+  } else {
+    selectedKeys.value.clear()
+  }
+}
+
+const onToggleSelect = (id: number | string, checked: boolean) => {
+  if (checked) {
+    selectedKeys.value.add(id)
+  } else {
+    selectedKeys.value.delete(id)
+  }
 }
 
 let resizeObserver: ResizeObserver | null = null

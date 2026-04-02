@@ -1,5 +1,8 @@
 <template>
-  <div class="agent-card" :class="{ 'is-disabled': record.status !== 'enabled' }">
+  <div class="agent-card" :class="{ 'is-disabled': record.status !== 'enabled', 'is-selected': selected }">
+    <div class="card-checkbox">
+      <a-checkbox :checked="selected" @change="onToggle" />
+    </div>
     <div class="card-header">
       <div class="avatar-box">
         <span class="avatar-letter">{{ initialLetter }}</span>
@@ -56,8 +59,12 @@ import {
   KeyOutlined,
 } from '@ant-design/icons-vue'
 
-const props = defineProps<{ record: any }>()
-const emit = defineEmits(['edit', 'delete'])
+const props = defineProps<{ record: any; selected?: boolean }>()
+const emit = defineEmits(['edit', 'delete', 'toggle'])
+
+const onToggle = (e: { target?: { checked?: boolean } }) => {
+  emit('toggle', props.record.id, Boolean(e?.target?.checked))
+}
 
 const initialLetter = computed(() => props.record.agentName?.charAt(0).toUpperCase() || '?')
 const formatTime = (raw?: string) => raw ? raw.replace('T', ' ').slice(5, 16) : '--'
@@ -94,6 +101,22 @@ const copyAgentKey = async () => {
   box-shadow:
     0 10px 28px rgba(15, 23, 42, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  padding: 8px 8px 0;
+}
+
+.card-checkbox {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+}
+
+.agent-card.is-selected {
+  border-color: var(--primary-color);
+  background: linear-gradient(180deg, rgba(79, 70, 229, 0.05) 0%, #ffffff 100%);
+  box-shadow:
+    0 16px 36px rgba(79, 70, 229, 0.08),
+    0 0 0 1px rgba(79, 70, 229, 0.2);
 }
 
 .agent-card:hover {

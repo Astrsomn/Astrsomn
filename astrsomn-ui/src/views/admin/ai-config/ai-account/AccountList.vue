@@ -310,7 +310,7 @@ const openModelsDrawer = async (account: AiAccount) => {
 .primary-btn,
 .ghost-btn {
   height: 40px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-max);
 }
 
 .danger-btn {

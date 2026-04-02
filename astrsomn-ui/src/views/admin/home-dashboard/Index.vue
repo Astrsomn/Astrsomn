@@ -46,7 +46,14 @@
       </section>
 
       <aside class="demo-right">
-      
+        <section class="side-card side-card--news">
+          <div class="side-news-icon" aria-hidden="true">✦</div>
+          <h4 class="side-news-title">新版本发布 v2.6</h4>
+          <p class="side-news-desc">
+            推理引擎已升级，对多模态模型支持提升了 30% 的稳定性。
+          </p>
+          <button type="button" class="side-news-btn" disabled>查看更新说明</button>
+        </section>
 
         <section class="side-card">
           <div class="side-card-head">
@@ -109,14 +116,7 @@
           </div>
         </section>
 
-        <section class="side-card side-card--news">
-          <div class="side-news-icon" aria-hidden="true">✦</div>
-          <h4 class="side-news-title">新版本发布 v2.6</h4>
-          <p class="side-news-desc">
-            推理引擎已升级，对多模态模型支持提升了 30% 的稳定性。
-          </p>
-          <button type="button" class="side-news-btn" disabled>查看更新说明</button>
-        </section>
+
       </aside>
     </div>
   </div>
@@ -254,6 +254,7 @@ const navigateTo = (path: string) => {
 }
 
 .demo-right {
+  padding-top: 65px;
   grid-column: span 3;
   min-width: 0;
   display: flex;
@@ -276,6 +277,7 @@ const navigateTo = (path: string) => {
 }
 
 .demo-section-title {
+  padding-top: 20px;
   margin: 0;
   font-size: 18px;
   font-weight: 800;
