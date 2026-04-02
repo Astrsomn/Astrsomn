@@ -25,6 +25,39 @@
         </div>
       </div>
 
+      <div v-if="usedModels.length > 0" class="models-shelf">
+        <div class="models-top">
+          <span class="models-label">使用模型</span>
+          <a-button
+            type="link"
+            size="small"
+            class="models-link"
+            @click.stop="emitShowModels"
+          >
+            侧边栏
+          </a-button>
+        </div>
+        <div class="models-chips">
+          <a-tag v-for="m in usedModels.slice(0, 3)" :key="m" class="model-chip">
+            {{ m }}
+          </a-tag>
+          <span v-if="usedModels.length > 3" class="more-text">+{{ usedModels.length - 3 }}</span>
+        </div>
+      </div>
+
+      <div v-else class="models-shelf empty-models">
+        <span class="models-label">使用模型</span>
+        <span class="no-models">暂无关联模型</span>
+        <a-button
+          type="link"
+          size="small"
+          class="models-link"
+          @click.stop="emitShowModels"
+        >
+          查看
+        </a-button>
+      </div>
+
       <div class="credentials-shelf">
         <div class="cred-item">
           <KeyOutlined class="i" />
@@ -57,6 +90,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import {
   UserOutlined,
   KeyOutlined,
@@ -76,10 +110,14 @@ interface AiAccount {
   accountTokens?: number
   createTime?: string
   createUser?: string
+
+  usedModelCount?: number
+  usedModelKeys?: string
+  usedModelNames?: string
 }
 
 const props = defineProps<{ account: AiAccount }>()
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits(['edit', 'delete', 'show-models'])
 
 const maskSecret = (v?: string) => v ? `${v.slice(0, 6)}••${v.slice(-4)}` : '••••-••••'
 const formatTokens = (t?: number) => {
@@ -90,20 +128,36 @@ const formatTime = (t?: string) => t ? t.split('T')[0] : 'N/A'
 
 const onEdit = () => emit('edit', props.account)
 const onDelete = () => props.account.id && emit('delete', props.account.id)
+
+const parseCsv = (raw?: string) => {
+  if (!raw) return []
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
+const usedModels = computed(() => {
+  const names = parseCsv(props.account.usedModelNames)
+  if (names.length > 0) return names
+  return parseCsv(props.account.usedModelKeys)
+})
+
+const emitShowModels = () => emit('show-models', props.account)
 </script>
 
 <style scoped>
 .c-dev-card {
-  background: #ffffff;
-  border: 1px solid #f0f0f0;
-  border-radius: 4px; /* 较硬的微圆角 */
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   overflow: hidden;
 }
 
 .c-dev-card:hover {
-  border-color: #d9d9d9;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  border-color: color-mix(in srgb, var(--border-default) 55%, var(--primary) 25%);
+  box-shadow: 0 10px 25px -5px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 /* Header */
@@ -112,8 +166,8 @@ const onDelete = () => props.account.id && emit('delete', props.account.id)
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fafafa;
-  border-bottom: 1px solid #f0f0f0;
+  background: color-mix(in srgb, var(--bg-card) 92%, var(--bg-surface));
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .status-group { display: flex; align-items: center; gap: 8px; }
@@ -123,8 +177,8 @@ const onDelete = () => props.account.id && emit('delete', props.account.id)
   font-weight: 800;
   padding: 1px 6px;
   border-radius: 2px;
-  background: #eee;
-  color: #8c8c8c;
+  background: color-mix(in srgb, var(--bg-card) 70%, var(--bg-surface));
+  color: var(--text-secondary);
   font-family: 'JetBrains Mono', monospace;
 }
 .env-badge.prod { background: #000; color: #fff; }
@@ -161,16 +215,69 @@ const onDelete = () => props.account.id && emit('delete', props.account.id)
   display: flex; align-items: center; gap: 4px;
 }
 
+.models-shelf {
+  margin-bottom: 14px;
+  padding: 12px 12px;
+  border: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--bg-surface) 72%, var(--bg-card));
+  border-radius: var(--radius-sm);
+}
+
+.models-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.models-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.models-link :deep(.ant-btn-link) {
+  padding: 0;
+}
+
+.models-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.model-chip :deep(.ant-tag) {
+  border-radius: 999px;
+}
+
+.more-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.empty-models {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.no-models {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
 .credentials-shelf {
   display: flex; flex-direction: column; gap: 8px;
 }
 
 .cred-item {
   display: flex; align-items: center; gap: 10px;
-  background: #f8f9fa;
+  background: color-mix(in srgb, var(--bg-surface) 72%, var(--bg-card));
   padding: 6px 10px;
-  border-radius: 2px;
-  border-left: 2px solid #eee;
+  border-radius: var(--radius-xs);
+  border-left: 2px solid var(--border-subtle);
 }
 
 .cred-item .i { color: #bfbfbf; font-size: 12px; }
@@ -183,7 +290,7 @@ const onDelete = () => props.account.id && emit('delete', props.account.id)
 /* Footer & Actions */
 .card-footer {
   padding: 10px 16px;
-  border-top: 1px solid #f5f5f5;
+  border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -206,6 +313,6 @@ const onDelete = () => props.account.id && emit('delete', props.account.id)
   transition: all 0.2s;
 }
 
-.btn-edit:hover { background: #e6f7ff; color: #1890ff; }
-.btn-delete:hover { background: #fff1f0; color: #ff4d4f; }
+.btn-edit:hover { background: color-mix(in srgb, #1890ff 16%, transparent); color: #1890ff; }
+.btn-delete:hover { background: color-mix(in srgb, #ff4d4f 12%, transparent); color: #ff4d4f; }
 </style>

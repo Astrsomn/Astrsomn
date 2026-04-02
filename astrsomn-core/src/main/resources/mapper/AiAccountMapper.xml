@@ -5,6 +5,39 @@
     <select id="queryPage" resultType="org.astrsomn.core.common.dto.account.AiAccountResponseDTO">
         SELECT
         aa.*
+        ,
+        (
+        SELECT
+        COUNT(1)
+        FROM
+        AI_MODEL am
+        WHERE
+        (am.deleted = 0 OR am.deleted IS NULL)
+        AND am.account_key = aa.account_key
+        AND am.env_code = aa.env_code
+        ) AS usedModelCount
+        ,
+        (
+        SELECT
+        GROUP_CONCAT(DISTINCT am.model_key ORDER BY am.model_key SEPARATOR ',')
+        FROM
+        AI_MODEL am
+        WHERE
+        (am.deleted = 0 OR am.deleted IS NULL)
+        AND am.account_key = aa.account_key
+        AND am.env_code = aa.env_code
+        ) AS usedModelKeys
+        ,
+        (
+        SELECT
+        GROUP_CONCAT(DISTINCT am.model_name ORDER BY am.model_name SEPARATOR ',')
+        FROM
+        AI_MODEL am
+        WHERE
+        (am.deleted = 0 OR am.deleted IS NULL)
+        AND am.account_key = aa.account_key
+        AND am.env_code = aa.env_code
+        ) AS usedModelNames
         FROM
         AI_ACCOUNT aa
         WHERE
