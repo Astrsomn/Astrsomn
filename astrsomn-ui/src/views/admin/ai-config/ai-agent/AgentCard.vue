@@ -1,9 +1,5 @@
 <template>
-  <div class="agent-card" :class="{ selected, 'is-disabled': record.status !== 'enabled' }">
-    <div class="card-checkbox">
-      <a-checkbox :checked="selected" @change="onCheckedChange" />
-    </div>
-
+  <div class="agent-card" :class="{ 'is-disabled': record.status !== 'enabled' }">
     <div class="card-header">
       <div class="avatar-box">
         <span class="avatar-letter">{{ initialLetter }}</span>
@@ -60,12 +56,11 @@ import {
   KeyOutlined,
 } from '@ant-design/icons-vue'
 
-const props = defineProps<{ record: any; selected: boolean }>()
-const emit = defineEmits(['edit', 'delete', 'select-change'])
+const props = defineProps<{ record: any }>()
+const emit = defineEmits(['edit', 'delete'])
 
 const initialLetter = computed(() => props.record.agentName?.charAt(0).toUpperCase() || '?')
 const formatTime = (raw?: string) => raw ? raw.replace('T', ' ').slice(5, 16) : '--'
-const onCheckedChange = (e: any) => emit('select-change', !!e.target.checked)
 const onConfirmDelete = () => props.record.id && emit('delete', props.record.id)
 
 const copyAgentKey = async () => {
@@ -107,13 +102,6 @@ const copyAgentKey = async () => {
     0 16px 36px rgba(79, 70, 229, 0.08),
     0 0 0 1px rgba(79, 70, 229, 0.08);
   transform: translateY(-1px);
-}
-
-.card-checkbox {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 10;
 }
 
 .card-header {
@@ -290,14 +278,6 @@ const copyAgentKey = async () => {
   width: 1px;
   height: 16px;
   background: #e2e8f0;
-}
-
-.agent-card.selected {
-  border-color: var(--primary-color);
-  background: linear-gradient(180deg, #f7f7ff 0%, #f5f7ff 100%);
-  box-shadow:
-    0 16px 36px rgba(79, 70, 229, 0.08),
-    0 0 0 1px rgba(79, 70, 229, 0.08);
 }
 
 .is-disabled {
