@@ -1,12 +1,8 @@
 <template>
   <button
     type="button"
-    class="glass-card glass-card--interactive wide-tile"
-    :class="
-      embedded
-        ? ['wide-tile--embedded', 'wide-tile--narrow']
-        : [wideSpanClass, { 'wide-tile--narrow': gridSpan === 3 }]
-    "
+    class="glass-card glass-card--interactive wide-tile wide-tile--embedded"
+    :class="{ 'wide-tile--narrow': compact }"
     :disabled="disabled"
     @click="go"
   >
@@ -22,7 +18,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ApiOutlined } from '@ant-design/icons-vue'
 
@@ -33,25 +28,15 @@ const props = withDefaults(
     to: string
     badge?: string
     disabled?: boolean
-    /** 3 / 4 / 8 / 12 列；3 为窄竖卡（与同排小格对齐） */
-    gridSpan?: 3 | 4 | 8 | 12
-    /** 嵌入 GridLayout 内时不挂 bento-span-*，避免污染外层 12 列栅格 */
-    embedded?: boolean
+    /** 1×1～小格时纵向紧凑排版 */
+    compact?: boolean
   }>(),
   {
     badge: '已就绪',
     disabled: false,
-    gridSpan: 4,
-    embedded: false,
+    compact: true,
   },
 )
-
-const wideSpanClass = computed(() => {
-  if (props.gridSpan === 12) return 'bento-span-12-1'
-  if (props.gridSpan === 8) return 'bento-span-8-1'
-  if (props.gridSpan === 3) return 'bento-span-3-1'
-  return 'bento-span-4-1'
-})
 
 const router = useRouter()
 

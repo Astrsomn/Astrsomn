@@ -1,5 +1,9 @@
 <template>
-  <section class="glass-card bento-span-4-2 load-panel">
+  <section
+    class="glass-card dash-mod dash-mod--console-load load-panel"
+    :data-col-tier="gridColTier(gridW)"
+    :data-row-tier="gridRowTier(gridH)"
+  >
     <div class="load-head">
       <h3 class="load-title">系统负载</h3>
       <span class="load-stable">
@@ -47,11 +51,38 @@
   </section>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { gridColTier, gridRowTier } from '../dashboardSizeTier'
+
+defineProps<{ gridW: number; gridH: number }>()
+</script>
 
 <style scoped>
 .load-panel {
   padding: 20px;
+  height: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-mod--console-load[data-row-tier='1'] .load-mini-grid,
+.dash-mod--console-load[data-row-tier='1'] .load-cpu,
+.dash-mod--console-load[data-row-tier='1'] .load-bars {
+  display: none;
+}
+
+.dash-mod--console-load[data-row-tier='2'] .load-cpu {
+  display: none;
+}
+
+.dash-mod--console-load[data-col-tier='1'] .load-big {
+  font-size: 1.125rem;
+}
+
+.dash-mod--console-load[data-col-tier='1'] .load-head {
+  margin-bottom: 12px;
 }
 
 .load-head {

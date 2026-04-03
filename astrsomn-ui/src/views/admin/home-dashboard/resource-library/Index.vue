@@ -109,7 +109,7 @@ import { LeftOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons-v
 // @ts-ignore
 import MenuSlotCard from '../backend/MenuSlotCard.vue'
 import { getCurrentUserRole, resolveManagementGroups } from '../backend/management'
-import { addDashboardShortcut } from '../backend/dashboardShortcutLayout'
+import { addDashboardShortcut } from '../backend/dashboardLayoutStorage'
 
 const router = useRouter()
 const keyword = ref('')

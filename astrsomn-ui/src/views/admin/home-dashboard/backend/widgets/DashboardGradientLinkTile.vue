@@ -1,14 +1,9 @@
 <template>
   <button
     type="button"
-    class="grad-tile"
+    class="grad-tile grad-tile--embedded"
     :class="[
-      embedded
-        ? 'grad-tile--embedded'
-        : [
-            gridSpan === 6 ? 'bento-span-6-1' : gridSpan === 3 ? 'bento-span-3-1' : 'bento-span-2-1',
-            { 'grad-tile--half': gridSpan === 6, 'grad-tile--third': gridSpan === 3 },
-          ],
+      compact ? 'grad-tile--third' : 'grad-tile--half',
       variant === 'market' ? 'grad-tile--market' : 'grad-tile--apps',
     ]"
     :disabled="disabled"
@@ -34,10 +29,9 @@ const props = withDefaults(
     icon: Component
     variant: 'market' | 'apps'
     disabled?: boolean
-    gridSpan?: 2 | 3 | 6
-    embedded?: boolean
+    compact?: boolean
   }>(),
-  { disabled: false, gridSpan: 2, embedded: false },
+  { disabled: false, compact: true },
 )
 
 const router = useRouter()

@@ -1,5 +1,5 @@
 <template>
-  <div class="bento-dashboard-root demo-dashboard">
+  <div class="console-home-root demo-dashboard">
     <div class="dashboard-toolbar">
       <p v-if="layoutEditMode" class="toolbar-hint">拖动卡片调整位置，拖右下角调整大小；编辑时点击入口不会跳转。</p>
       <div class="toolbar-actions">
@@ -17,14 +17,8 @@
       </div>
     </div>
 
-    <main class="bento-grid">
-      <BentoAgentPanel />
-
-      <BentoWorkflowPanel />
-
-      <BentoSystemLoadPanel />
-
-      <DashboardShortcutGrid :edit-mode="layoutEditMode" :entry-by-route="entryByRoute" />
+    <main class="dashboard-home-main">
+      <DashboardHomeGrid :edit-mode="layoutEditMode" :entry-by-route="entryByRoute" />
     </main>
 
     <div class="fab-wrap">
@@ -46,11 +40,8 @@ import { QuestionCircleOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import { Modal, message } from 'ant-design-vue'
 import type { ManagementEntry } from './backend/management'
 import { getCurrentUserRole, resolveManagementGroups } from './backend/management'
-import BentoAgentPanel from './backend/BentoAgentPanel.vue'
-import BentoWorkflowPanel from './backend/BentoWorkflowPanel.vue'
-import BentoSystemLoadPanel from './backend/BentoSystemLoadPanel.vue'
-import DashboardShortcutGrid from './backend/DashboardShortcutGrid.vue'
-import { resetDashboardShortcutsToDefault } from './backend/dashboardShortcutLayout'
+import DashboardHomeGrid from './backend/DashboardHomeGrid.vue'
+import { resetDashboardLayoutToDefault } from './backend/dashboardLayoutStorage'
 
 const router = useRouter()
 const layoutEditMode = ref(false)
@@ -75,11 +66,11 @@ const navigateTo = (path: string) => {
 const confirmResetLayout = () => {
   Modal.confirm({
     title: '恢复默认布局？',
-    content: '将重置快捷入口为系统默认排版（仍可在应用库继续添加）。',
+    content: '将重置控制台栅格为默认排版（含智能体、实例、负载与快捷入口；仍可在应用库继续添加快捷方式）。',
     okText: '恢复',
     cancelText: '取消',
     onOk() {
-      resetDashboardShortcutsToDefault()
+      resetDashboardLayoutToDefault()
       message.success('已恢复默认布局')
     },
   })
@@ -109,9 +100,15 @@ const confirmResetLayout = () => {
   pointer-events: none;
 }
 
-.bento-dashboard-root {
+.console-home-root {
   position: relative;
   z-index: 1;
+}
+
+.dashboard-home-main {
+  position: relative;
+  z-index: 1;
+  width: 100%;
 }
 
 .dashboard-toolbar {
@@ -243,5 +240,5 @@ const confirmResetLayout = () => {
 </style>
 
 <style>
-@import './backend/bento-dashboard.css';
+@import './backend/dashboard-shell.css';
 </style>

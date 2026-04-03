@@ -1,6 +1,8 @@
 <template>
   <section
-    class="glass-card glass-card--interactive bento-span-8-3 agent-panel"
+    class="glass-card glass-card--interactive dash-mod dash-mod--ai-agent agent-panel"
+    :data-col-tier="gridColTier(gridW)"
+    :data-row-tier="gridRowTier(gridH)"
     role="button"
     tabindex="0"
     @click="goAgentsList"
@@ -28,7 +30,7 @@
 
     <div class="agent-list">
       <button
-        v-for="(row, i) in displayRows"
+        v-for="row in displayRows"
         :key="row.key"
         type="button"
         class="agent-row"
@@ -70,6 +72,9 @@ import {
   CodeOutlined,
 } from '@ant-design/icons-vue'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
+import { gridColTier, gridRowTier } from '../dashboardSizeTier'
+
+defineProps<{ gridW: number; gridH: number }>()
 
 type RowTone = 'indigo' | 'purple' | 'slate'
 type RowState = 'active' | 'idle'
@@ -189,6 +194,8 @@ const goAgentsList = () => {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: 100%;
+  box-sizing: border-box;
   outline: none;
 }
 
@@ -196,6 +203,27 @@ const goAgentsList = () => {
   box-shadow:
     0 0 0 2px var(--bg-base),
     0 0 0 4px color-mix(in srgb, var(--primary) 45%, transparent);
+}
+
+.dash-mod--ai-agent[data-col-tier='1'] .agent-panel-desc,
+.dash-mod--ai-agent[data-col-tier='1'] .btn-new-agent {
+  display: none;
+}
+
+.dash-mod--ai-agent[data-col-tier='1'] .agent-calls {
+  display: none;
+}
+
+.dash-mod--ai-agent[data-row-tier='1'] .agent-list .agent-row:nth-child(n + 2) {
+  display: none;
+}
+
+.dash-mod--ai-agent[data-row-tier='2'] .agent-list .agent-row:nth-child(n + 3) {
+  display: none;
+}
+
+.dash-mod--ai-agent[data-row-tier='1'] .agent-panel-head {
+  margin-bottom: 12px;
 }
 
 .agent-panel-head {
@@ -291,6 +319,8 @@ const goAgentsList = () => {
   flex-direction: column;
   gap: 12px;
   margin-top: auto;
+  min-height: 0;
+  overflow: auto;
 }
 
 .agent-row {

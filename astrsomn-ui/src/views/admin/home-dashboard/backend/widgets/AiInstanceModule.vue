@@ -1,5 +1,11 @@
 <template>
-  <button type="button" class="glass-card glass-card--interactive bento-span-4-2 inst-panel" @click="go">
+  <button
+    type="button"
+    class="glass-card glass-card--interactive dash-mod dash-mod--ai-instance inst-panel"
+    :data-col-tier="gridColTier(gridW)"
+    :data-row-tier="gridRowTier(gridH)"
+    @click="go"
+  >
     <div class="inst-top">
       <div class="inst-icon-wrap">
         <control-outlined class="inst-icon" />
@@ -35,6 +41,9 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { ControlOutlined } from '@ant-design/icons-vue'
+import { gridColTier, gridRowTier } from '../dashboardSizeTier'
+
+defineProps<{ gridW: number; gridH: number }>()
 
 const router = useRouter()
 
@@ -53,6 +62,27 @@ const go = () => {
   border: none;
   font: inherit;
   color: inherit;
+  height: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+.dash-mod--ai-instance[data-row-tier='1'] .inst-stats,
+.dash-mod--ai-instance[data-row-tier='1'] .inst-capacity,
+.dash-mod--ai-instance[data-row-tier='1'] .inst-desc {
+  display: none;
+}
+
+.dash-mod--ai-instance[data-row-tier='1'] .inst-bottom {
+  gap: 8px;
+}
+
+.dash-mod--ai-instance[data-col-tier='1'] .inst-title {
+  font-size: 1rem;
+}
+
+.dash-mod--ai-instance[data-col-tier='1'] .inst-desc {
+  font-size: 0.8125rem;
 }
 
 .inst-top {
