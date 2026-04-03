@@ -45,12 +45,14 @@ export const PAGE_MODULE_MOCK: Record<DashboardPageModuleKind, PageModuleMock> =
   AiModel: {
     accent: 'blue',
     title: '模型接入 (Endpoints)',
-    description: '定义供应商 API 路径、模型类型与能力映射',
+    description:
+      '定义供应商 API 路径、模型类型与能力映射（支持多账号路由、超参策略、熔断降级规则与重试参数配置）',
     metrics: [
       { label: '已接入', value: '8' },
       { label: '健康检查', value: '7/8' },
     ],
-    footnote: 'Mock：近期新增 OpenAI 兼容端点 2 个',
+    footnote:
+      'Mock：近期新增 OpenAI 兼容端点 2 个，且已完成超参模板与路由策略更新（用于手动验证组件溢出截断效果）',
   },
   AiAccount: {
     accent: 'blue',
@@ -205,7 +207,8 @@ export const PAGE_MODULE_MOCK: Record<DashboardPageModuleKind, PageModuleMock> =
   ConsoleResourceLibrary: {
     accent: 'brand',
     title: '应用库',
-    description: '浏览全部管理入口并固定到控制台',
+    description:
+      '浏览全部管理入口并固定到控制台（支持分组筛选、拖拽排序与权限维度的展示策略配置）',
     metrics: [
       { label: '已固定', value: '—' },
       { label: '分组', value: '4' },

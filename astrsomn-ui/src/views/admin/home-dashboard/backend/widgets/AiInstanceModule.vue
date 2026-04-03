@@ -16,26 +16,28 @@
       </div>
       <span class="status-badge">多预设可用</span>
     </div>
-    <h2 class="inst-title">推理实例配置</h2>
-    <p class="inst-desc">管理对话 / 向量 / 图像等推理实例与采样、Token 等运行参数。</p>
+    <h2 class="inst-title" title="推理实例配置">推理实例配置</h2>
+    <p class="inst-desc" title="管理对话 / 向量 / 图像等推理实例与采样、Token 等运行参数。">
+      管理对话 / 向量 / 图像等推理实例与采样、Token 等运行参数。
+    </p>
 
     <div class="inst-bottom">
       <div class="progress-bar">
         <div class="progress-fill progress-fill--inst" :style="{ width: '62%' }" />
       </div>
       <div class="inst-capacity">
-        <span>实例池占用</span>
-        <span>62% Capacity</span>
+        <span title="实例池占用">实例池占用</span>
+        <span title="62% Capacity">62% Capacity</span>
       </div>
 
       <div class="inst-stats">
         <div class="inst-stat">
-          <p class="inst-stat-label">对话实例</p>
-          <p class="inst-stat-val">8</p>
+          <p class="inst-stat-label" title="对话实例">对话实例</p>
+          <p class="inst-stat-val" title="8">8</p>
         </div>
         <div class="inst-stat">
-          <p class="inst-stat-label">向量实例</p>
-          <p class="inst-stat-val inst-stat-val--amber">4</p>
+          <p class="inst-stat-label" title="向量实例">向量实例</p>
+          <p class="inst-stat-val inst-stat-val--amber" title="4">4</p>
         </div>
       </div>
     </div>
@@ -127,6 +129,9 @@ const go = () => {
   font-size: 1.25rem;
   font-weight: 800;
   color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .inst-desc {
@@ -134,6 +139,9 @@ const go = () => {
   font-size: 0.875rem;
   color: var(--text-muted);
   line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .inst-bottom {
@@ -167,6 +175,15 @@ const go = () => {
   font-size: 10px;
   font-weight: 800;
   color: var(--text-muted);
+  min-width: 0;
+  gap: 12px;
+}
+
+.inst-capacity > span {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .inst-stats {
@@ -174,6 +191,7 @@ const go = () => {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-top: 8px;
+  min-width: 0;
 }
 
 .inst-stat {
@@ -188,6 +206,9 @@ const go = () => {
   font-size: 10px;
   font-weight: 700;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .inst-stat-val {
@@ -195,6 +216,9 @@ const go = () => {
   font-size: 1.125rem;
   font-weight: 800;
   color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .inst-stat-val--amber {

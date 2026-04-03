@@ -16,10 +16,15 @@
         </div>
         <div>
           <div class="agent-panel-title-row">
-            <h2 class="agent-panel-title">智能体大脑</h2>
-            <span class="status-badge">{{ runningLabel }}</span>
+            <h2 class="agent-panel-title" title="智能体大脑">智能体大脑</h2>
+            <span class="status-badge" :title="runningLabel">{{ runningLabel }}</span>
           </div>
-          <p class="agent-panel-desc">封装复杂推理逻辑与多模态感知能力，核心编排入口。</p>
+          <p
+            class="agent-panel-desc"
+            title="封装复杂推理逻辑与多模态感知能力，核心编排入口。"
+          >
+            封装复杂推理逻辑与多模态感知能力，核心编排入口。
+          </p>
         </div>
       </div>
       <button type="button" class="btn-new-agent" @click.stop="goCreate">
@@ -42,18 +47,24 @@
             <component :is="row.icon" class="agent-avatar-icon" />
           </div>
           <div class="agent-row-text">
-            <p class="agent-row-name">{{ row.name }}</p>
-            <p class="agent-row-sub">{{ row.sub }}</p>
+            <p class="agent-row-name" :title="row.name">{{ row.name }}</p>
+            <p class="agent-row-sub" :title="row.sub">{{ row.sub }}</p>
           </div>
         </div>
         <div class="agent-row-right">
           <template v-if="row.calls != null">
             <div class="agent-calls">
-              <p class="agent-calls-val">{{ row.calls }}</p>
+              <p class="agent-calls-val" :title="row.calls">{{ row.calls }}</p>
               <p class="agent-calls-label">今日调用</p>
             </div>
           </template>
-          <span class="agent-status-pill" :class="`agent-status-pill--${row.state}`">{{ row.stateLabel }}</span>
+          <span
+            class="agent-status-pill"
+            :class="`agent-status-pill--${row.state}`"
+            :title="row.stateLabel"
+          >
+            {{ row.stateLabel }}
+          </span>
         </div>
       </button>
     </div>
@@ -269,7 +280,8 @@ const goAgentsList = () => {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: 0;
   margin-bottom: 4px;
 }
 
@@ -279,6 +291,10 @@ const goAgentsList = () => {
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-heading);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .status-badge {
@@ -288,6 +304,7 @@ const goAgentsList = () => {
   background: color-mix(in srgb, var(--primary) 12%, transparent);
   color: color-mix(in srgb, var(--primary) 85%, #3b82f6);
   font-weight: 700;
+  flex-shrink: 0;
 }
 
 .agent-panel-desc {
@@ -295,6 +312,9 @@ const goAgentsList = () => {
   font-size: 0.875rem;
   color: var(--text-muted);
   line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btn-new-agent {
@@ -323,6 +343,7 @@ const goAgentsList = () => {
   margin-top: auto;
   min-height: 0;
   overflow: auto;
+  overflow-x: hidden;
 }
 
 .agent-row {
@@ -400,23 +421,31 @@ const goAgentsList = () => {
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .agent-row-sub {
   margin: 4px 0 0;
   font-size: 10px;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .agent-row-right {
   display: flex;
   align-items: center;
-  gap: 24px;
-  flex-shrink: 0;
+  gap: 12px;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .agent-calls {
   text-align: right;
+  min-width: 0;
 }
 
 .agent-calls-val {
@@ -424,6 +453,11 @@ const goAgentsList = () => {
   font-size: 0.75rem;
   font-weight: 800;
   color: var(--text-heading);
+  display: block;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .agent-calls-label {

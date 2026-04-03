@@ -5,8 +5,8 @@
     :data-row-tier="gridRowTier(gridH)"
   >
     <div class="load-head">
-      <h3 class="load-title">系统负载</h3>
-      <span class="load-stable">
+      <h3 class="load-title" title="系统负载">系统负载</h3>
+      <span class="load-stable" title="稳定运行">
         <span class="load-dot" />
         稳定运行
       </span>
@@ -14,10 +14,10 @@
 
     <div class="load-throughput">
       <div>
-        <p class="load-big">
+        <p class="load-big" title="1.2k req/s">
           1.2k <span class="load-big-unit">req/s</span>
         </p>
-        <p class="load-sub">当前吞吐量</p>
+        <p class="load-sub" title="当前吞吐量">当前吞吐量</p>
       </div>
       <div class="load-bars" aria-hidden="true">
         <div class="load-bar load-bar--1" />
@@ -32,21 +32,21 @@
 
     <div class="load-mini-grid">
       <div class="load-mini">
-        <p class="load-mini-label">平均延迟</p>
-        <p class="load-mini-val">124ms</p>
+        <p class="load-mini-label" title="平均延迟">平均延迟</p>
+        <p class="load-mini-val" title="124ms">124ms</p>
       </div>
       <div class="load-mini">
-        <p class="load-mini-label">错误率</p>
-        <p class="load-mini-val load-mini-val--ok">0.02%</p>
+        <p class="load-mini-label" title="错误率">错误率</p>
+        <p class="load-mini-val load-mini-val--ok" title="0.02%">0.02%</p>
       </div>
     </div>
 
     <div class="load-cpu">
-      <p class="load-cpu-label">CPU 使用率</p>
+      <p class="load-cpu-label" title="CPU 使用率">CPU 使用率</p>
       <div class="progress-bar">
         <div class="progress-fill progress-fill--cpu" :style="{ width: '35%' }" />
       </div>
-      <p class="load-cpu-pct">35%</p>
+      <p class="load-cpu-pct" title="35%">35%</p>
     </div>
   </section>
 </template>
@@ -90,6 +90,7 @@ defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
   align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
+  min-width: 0;
 }
 
 .load-title {
@@ -99,6 +100,9 @@ defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .load-stable {
@@ -108,6 +112,10 @@ defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
   font-size: 10px;
   font-weight: 800;
   color: var(--success);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .load-dot {
@@ -123,6 +131,11 @@ defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
+  min-width: 0;
+}
+
+.load-throughput > div:first-child {
+  min-width: 0;
 }
 
 .load-big {
@@ -130,18 +143,25 @@ defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
   font-size: 1.5rem;
   font-weight: 800;
   color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .load-big-unit {
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .load-sub {
   margin: 4px 0 0;
   font-size: 10px;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .load-bars {
@@ -204,6 +224,9 @@ defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
   font-size: 10px;
   font-weight: 700;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .load-mini-val {
@@ -211,6 +234,9 @@ defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
   font-size: 0.875rem;
   font-weight: 800;
   color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .load-mini-val--ok {
@@ -226,6 +252,9 @@ defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
   font-size: 10px;
   font-weight: 700;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .progress-bar {
@@ -250,5 +279,8 @@ defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
   font-size: 10px;
   color: var(--text-muted);
   text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

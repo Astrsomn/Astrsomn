@@ -166,7 +166,7 @@ function migrateV2ToV3Items(raw: unknown[]): DashboardLayoutItem[] {
       it.kind === 'ConsoleSystemLoad' ||
       isDashboardPageModuleKind(it.kind)
     ) {
-      out.push(normalizeItem(it as DashboardLayoutItem))
+      out.push(normalizeItem(it as unknown as DashboardLayoutItem))
     }
   }
   return out.length > 0 ? out : defaultDashboardLayoutItems()
@@ -283,6 +283,18 @@ function findNextSlot(items: DashboardLayoutItem[], w: number, h: number): { x: 
 
 function layoutItemHasRoute(it: DashboardLayoutItem): it is DashboardPageModuleItem {
   return isDashboardPageModuleKind(it.kind)
+}
+
+/** 当前布局中已出现在控制台首页的应用路由（含智能体 / 实例等内置块） */
+export function getDashboardPinnedRoutes(): Set<string> {
+  const items = loadDashboardLayoutItems()
+  const set = new Set<string>()
+  for (const it of items) {
+    if (it.kind === 'AiAgent') set.add('/admin/agents')
+    else if (it.kind === 'AiInstance') set.add('/admin/ai-instance')
+    else if (layoutItemHasRoute(it)) set.add(it.route)
+  }
+  return set
 }
 
 /** 从应用库固定；已存在同 route 的页面模块则 false */

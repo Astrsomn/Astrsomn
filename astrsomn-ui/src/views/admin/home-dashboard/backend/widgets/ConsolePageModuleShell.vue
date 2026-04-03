@@ -16,19 +16,25 @@
         <appstore-outlined v-else class="console-page-mod-icon-glyph" />
       </div>
       <div class="console-page-mod-head-text">
-        <h3 class="console-page-mod-title">{{ displayTitle }}</h3>
-        <p class="console-page-mod-desc">{{ displayDescription }}</p>
+        <h3 class="console-page-mod-title" :title="displayTitle">{{ displayTitle }}</h3>
+        <p class="console-page-mod-desc" :title="displayDescription">{{ displayDescription }}</p>
       </div>
     </div>
 
     <div class="console-page-mod-metrics">
       <div v-for="(m, idx) in visibleMetrics" :key="idx" class="console-page-mod-metric">
-        <span class="console-page-mod-metric-label">{{ m.label }}</span>
-        <span class="console-page-mod-metric-value">{{ m.value }}</span>
+        <span class="console-page-mod-metric-label" :title="m.label">{{ m.label }}</span>
+        <span class="console-page-mod-metric-value" :title="m.value">{{ m.value }}</span>
       </div>
     </div>
 
-    <p v-if="footnoteVisible && mock.footnote" class="console-page-mod-foot">{{ mock.footnote }}</p>
+    <p
+      v-if="footnoteVisible && mock.footnote"
+      class="console-page-mod-foot"
+      :title="mock.footnote"
+    >
+      {{ mock.footnote }}
+    </p>
   </section>
 </template>
 
@@ -143,6 +149,9 @@ const go = () => {
   font-weight: 800;
   color: var(--text-heading);
   line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .console-page-mod--size-c1-r1 .console-page-mod-title {
@@ -154,15 +163,14 @@ const go = () => {
   font-size: 11px;
   color: var(--text-muted);
   line-height: 1.45;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
   overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .console-page-mod--size-c1-r1 .console-page-mod-desc,
 .console-page-mod--size-c1-r2 .console-page-mod-desc {
-  -webkit-line-clamp: 2;
+  font-size: 10px;
 }
 
 .console-page-mod-metrics {
@@ -184,18 +192,29 @@ const go = () => {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .console-page-mod-metric-label {
   font-size: 10px;
   font-weight: 700;
   color: var(--text-muted);
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .console-page-mod-metric-value {
   font-size: 0.8125rem;
   font-weight: 800;
   color: var(--text-heading);
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .console-page-mod-foot {
@@ -203,5 +222,8 @@ const go = () => {
   font-size: 10px;
   color: var(--text-muted);
   line-height: 1.4;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>

@@ -84,6 +84,7 @@
                   :accent="entry.accent"
                   variant="compact"
                   show-pin-to-dashboard
+                  :pinned="pinnedRouteSet.has(entry.route)"
                   @navigate="navigateTo"
                   @pin-to-dashboard="onPinToDashboard"
                 />
@@ -109,7 +110,11 @@ import { LeftOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons-v
 // @ts-ignore
 import MenuSlotCard from './MenuSlotCard.vue'
 import { getCurrentUserRole, resolveManagementGroups } from './management.ts'
-import { addDashboardShortcut } from '../backend/dashboardLayoutStorage'
+import {
+  addDashboardShortcut,
+  dashboardLayoutRevision,
+  getDashboardPinnedRoutes,
+} from '../backend/dashboardLayoutStorage'
 
 const router = useRouter()
 const keyword = ref('')
@@ -120,6 +125,11 @@ const gridContainerRef = ref<HTMLElement | null>(null)
 
 const currentRole = computed(() => getCurrentUserRole())
 const groups = computed(() => resolveManagementGroups(currentRole.value))
+
+const pinnedRouteSet = computed(() => {
+  void dashboardLayoutRevision.value
+  return getDashboardPinnedRoutes()
+})
 
 const groupsFiltered = computed(() =>
   groups.value
