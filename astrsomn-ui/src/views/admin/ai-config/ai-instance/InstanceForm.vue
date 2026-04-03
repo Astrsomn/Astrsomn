@@ -53,12 +53,13 @@
               </div>
             </div>
 
-            <div class="table-container">
+            <div ref="tableWrapRef" class="table-container">
               <a-table
                 :columns="columns"
                 :data-source="filteredModels"
                 :loading="modelsLoading"
-                :pagination="{ pageSize: 12, showTotal: t => `共 ${t} 个可用端点` }"
+                :pagination="{ pageSize: 12, showTotal: t => `共 ${t} 个可用端点`, showSizeChanger: false }"
+                :scroll="{ y: tableScrollY }"
                 :row-selection="{ selectedRowKeys: selectedKeys, onChange: onRowSelectChange, type: 'radio' }"
                 :custom-row="customRow"
                 row-key="modelKey"
@@ -82,6 +83,15 @@
                 <h3 class="section-title"><InfoCircleOutlined /> 基础定义</h3>
                 <a-form-item label="预设名称" name="instanceName" :rules="[{ required: true, message: '请输入名称' }]">
                   <a-input v-model:value="form.instanceName" placeholder="例如：通用对话-生产环境" size="large" />
+                </a-form-item>
+
+                <a-form-item label="实例标识 (instanceKey)" name="instanceKey" :rules="instanceKeyRules">
+                  <a-input
+                    v-model:value="form.instanceKey"
+                    placeholder="留空可由系统自动分配；自定义时请使用英文标识"
+                    size="large"
+                    allow-clear
+                  />
                 </a-form-item>
                 
                 <a-form-item label="运行状态">
@@ -177,7 +187,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue';
+import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { message } from 'ant-design-vue';
 import {
   ThunderboltFilled, InfoCircleOutlined, QuestionCircleOutlined, 
@@ -186,17 +196,19 @@ import {
 import { aiModelApi, type AiModel } from '@/api/aiModel';
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance';
 
-interface Props { visible: boolean; recordId?: string | number }
+interface Props { visible: boolean; record?: AiInstance }
 const props = defineProps<Props>();
 const emit = defineEmits(['update:visible', 'success']);
 
 const formRef = ref();
+const tableWrapRef = ref<HTMLElement | null>(null);
 const submitting = ref(false);
 const modelsLoading = ref(false);
 const modelList = ref<AiModel[]>([]);
 const selectedKeys = ref<string[]>([]);
 const searchQuery = ref('');
 const typeFilter = ref('all');
+const tableScrollY = ref(320);
 
 const form = reactive<AiInstance>({ 
   status: 'enabled', 
@@ -207,8 +219,46 @@ const form = reactive<AiInstance>({
   presencePenalty: 0
 });
 
-const isEdit = computed(() => !!props.recordId);
+const editId = computed(() => props.record?.id);
+const isEdit = computed(() => editId.value != null && String(editId.value) !== '');
+
+function resetForm() {
+  Object.assign(form, {
+    id: undefined,
+    instanceKey: undefined,
+    instanceName: undefined,
+    modelKey: undefined,
+    status: 'enabled',
+    temperature: 0.7,
+    maxTokens: 2048,
+    topP: 1.0,
+    frequencyPenalty: 0,
+    presencePenalty: 0
+  });
+  selectedKeys.value = [];
+}
+
+function updateTableScrollY() {
+  const el = tableWrapRef.value;
+  if (el && el.clientHeight > 160) {
+    // 预留表头、分页与间距，仅表体区域滚动
+    tableScrollY.value = Math.max(160, el.clientHeight - 140);
+    return;
+  }
+  tableScrollY.value = Math.max(200, window.innerHeight - 380);
+}
 const statusOptions = [{ label: '立即激活', value: 'enabled' }, { label: '暂存停用', value: 'disabled' }];
+
+const instanceKeyRules = [
+  {
+    validator: (_rule: unknown, value: unknown) => {
+      if (value == null || String(value).trim() === '') return Promise.resolve();
+      return /^[a-zA-Z0-9_-]+$/.test(String(value).trim())
+        ? Promise.resolve()
+        : Promise.reject('仅字母、数字、下划线、连字符');
+    }
+  }
+];
 
 const columns = [
   { title: '端点名称', dataIndex: 'modelName', key: 'modelName', width: 220 },
@@ -257,6 +307,11 @@ const onRowSelectChange = (keys: any[]) => {
 const handleCancel = () => emit('update:visible', false);
 
 const onSubmit = async () => {
+  try {
+    await formRef.value?.validate();
+  } catch {
+    return;
+  }
   if (!form.modelKey) return message.warning('请先选择一个模型端点');
   submitting.value = true;
   try {
@@ -271,11 +326,26 @@ const onSubmit = async () => {
 watch(() => props.visible, async (val) => {
   if (!val) return;
   await fetchModels();
-  if (props.recordId) {
-    const detail = await aiInstanceApi.detail(props.recordId);
+  if (isEdit.value && editId.value != null) {
+    const detail = await aiInstanceApi.detail(editId.value);
+    resetForm();
     Object.assign(form, detail);
     if (detail.modelKey) selectedKeys.value = [detail.modelKey];
+  } else {
+    resetForm();
   }
+  await nextTick();
+  requestAnimationFrame(() => {
+    updateTableScrollY();
+  });
+});
+
+onMounted(() => {
+  updateTableScrollY();
+  window.addEventListener('resize', updateTableScrollY);
+});
+onUnmounted(() => {
+  window.removeEventListener('resize', updateTableScrollY);
 });
 </script>
 
@@ -313,9 +383,17 @@ watch(() => props.visible, async (val) => {
 .pane-card { height: 100%; display: flex; flex-direction: column; padding: 20px; }
 
 /* 左侧 */
-.selection-pane { flex: 1; min-width: 0; }
-.pane-header { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
-.table-container { flex: 1; overflow: hidden; }
+.selection-pane { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.pane-header { flex-shrink: 0; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+.table-container {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.table-container :deep(.ant-pagination) {
+  margin: 12px 0 0;
+}
+.selection-pane .pane-card { min-height: 0; }
 :deep(.selected-row td) { background-color: #f5f3ff !important; color: #6366f1 !important; font-weight: 600; }
 
 /* 右侧 */
