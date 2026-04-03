@@ -18,15 +18,17 @@
           </div>
         </div>
         <div class="header-actions">
-          <a-button class="action-btn" @click="handleCancel">取消</a-button>
-          <a-button 
-            type="primary" 
-            class="action-btn gradient-btn" 
-            :loading="submitting" 
-            @click="onSubmit"
-          >
-            保存预设
-          </a-button>
+          <div class="header-action-pair">
+            <a-button class="header-action-btn header-action-btn-cancel" @click="handleCancel">取消</a-button>
+            <a-button
+              type="primary"
+              class="header-action-btn header-action-btn-save"
+              :loading="submitting"
+              @click="onSubmit"
+            >
+              保存预设
+            </a-button>
+          </div>
         </div>
       </header>
 
@@ -34,23 +36,22 @@
         <section class="selection-pane">
           <div class="pane-card glass-card">
             <div class="pane-header">
-              <div class="search-row">
-                <a-input-search
-                  v-model:value="searchQuery"
-                  placeholder="搜索名称、Provider 或 Model Key..."
-                  allow-clear
-                  size="large"
-                  class="custom-search"
+              <div class="search-input-wrapper">
+                <SearchOutlined class="search-icon" />
+                <input
+                  v-model="searchDraft"
+                  type="text"
+                  placeholder="名称、Model Key..."
+                  @keyup.enter="applyModelSearch"
                 />
+                <button type="button" class="search-btn" @click="applyModelSearch">搜索</button>
               </div>
-              <div class="filter-row">
-                <a-radio-group v-model:value="typeFilter" button-style="solid">
-                  <a-radio-button value="all">全部类型</a-radio-button>
-                  <a-radio-button value="chat">对话</a-radio-button>
-                  <a-radio-button value="embedding">向量</a-radio-button>
-                  <a-radio-button value="image">图像</a-radio-button>
-                </a-radio-group>
-              </div>
+              <a-tabs v-model:activeKey="typeFilter" class="model-type-tabs">
+                <a-tab-pane key="all" tab="全部类型" />
+                <a-tab-pane key="chat" tab="对话" />
+                <a-tab-pane key="embedding" tab="向量" />
+                <a-tab-pane key="image" tab="图像" />
+              </a-tabs>
             </div>
 
             <div ref="tableWrapRef" class="table-container">
@@ -58,7 +59,7 @@
                 :columns="columns"
                 :data-source="filteredModels"
                 :loading="modelsLoading"
-                :pagination="{ pageSize: 12, showTotal: t => `共 ${t} 个可用端点`, showSizeChanger: false }"
+                :pagination="{ pageSize: 12, showTotal: (t: number) => `共 ${t} 个可用端点`, showSizeChanger: false }"
                 :scroll="{ y: tableScrollY }"
                 :row-selection="{ selectedRowKeys: selectedKeys, onChange: onRowSelectChange, type: 'radio' }"
                 :custom-row="customRow"
@@ -82,7 +83,12 @@
               <div class="config-section">
                 <h3 class="section-title"><InfoCircleOutlined /> 基础定义</h3>
                 <a-form-item label="预设名称" name="instanceName" :rules="[{ required: true, message: '请输入名称' }]">
-                  <a-input v-model:value="form.instanceName" placeholder="例如：通用对话-生产环境" size="large" />
+                  <a-input
+                    v-model:value="form.instanceName"
+                    placeholder="默认与端点名称一致，可改为任意展示名"
+                    size="large"
+                    @update:value="onPresetNameUserInput"
+                  />
                 </a-form-item>
 
                 <a-form-item label="实例标识 (instanceKey)" name="instanceKey" :rules="instanceKeyRules">
@@ -103,8 +109,8 @@
 
               <div class="config-section">
                 <div class="section-header-flex">
-                  <h3 class="section-title"><ControlOutlined /> 推理参数</h3>
-                  <a-tag v-if="form.modelKey" color="purple" class="model-key-tag">{{ form.modelKey }}</a-tag>
+                  <h3 class="section-title"><ControlOutlined /> {{ paramSectionTitle }}</h3>
+                  <a-tag v-if="form.modelKey" color="blue" class="model-key-tag">{{ form.modelKey }}</a-tag>
                 </div>
 
                 <div v-if="!form.modelKey" class="empty-state">
@@ -113,69 +119,141 @@
                 </div>
 
                 <div v-else class="params-list">
-                  
-                  <div class="param-group-card">
-                    <div class="p-header">
-                      <a-tooltip placement="left">
-                        <template #title>
-                          控制生成内容的随机性。较低值使输出更聚焦严谨，较高值使输出更具创意和不可预测。
-                        </template>
-                        <span class="p-label">采样温度 (Temperature) <QuestionCircleOutlined /></span>
-                      </a-tooltip>
-                      <a-input-number v-model:value="form.temperature" :min="0" :max="2" :step="0.1" size="small" />
+                  <p v-if="capabilityHint" class="cap-hint">{{ capabilityHint }}</p>
+
+                  <!-- 对话：按 capabilities / InferenceParamEnum 与后端 containedIn 对齐 -->
+                  <template v-if="modelKind === 'chat'">
+                    <div v-if="showChatTemperature" class="param-group-card">
+                      <div class="p-header">
+                        <a-tooltip placement="left">
+                          <template #title>
+                            控制生成内容的随机性。较低值使输出更聚焦严谨，较高值使输出更具创意和不可预测。
+                          </template>
+                          <span class="p-label">采样温度 (Temperature) <QuestionCircleOutlined /></span>
+                        </a-tooltip>
+                        <a-input-number v-model:value="form.temperature" :min="0" :max="2" :step="0.1" size="small" />
+                      </div>
+                      <div class="slider-box">
+                        <a-slider
+                          v-model:value="form.temperature"
+                          :min="0"
+                          :max="2"
+                          :step="0.1"
+                          :marks="{ 0: '严谨', 0.7: '平衡', 1.5: '创意', 2: '随机' }"
+                        />
+                      </div>
+                      <div class="p-desc-bar" :class="getTempInfo(form.temperature ?? 0.7).color">
+                        {{ getTempInfo(form.temperature ?? 0.7).text }}
+                      </div>
                     </div>
-                    <div class="slider-box">
-                      <a-slider 
-                        v-model:value="form.temperature" 
-                        :min="0" :max="2" :step="0.1" 
-                        :marks="{ 0: '严谨', 0.7: '平衡', 1.5: '创意', 2: '随机' }" 
+
+                    <div v-if="showChatMaxTokens" class="param-group-card">
+                      <div class="p-header">
+                        <a-tooltip placement="left">
+                          <template #title>设置生成内容的最大长度限制。1000 tokens 约为 750 个英文单词。</template>
+                          <span class="p-label">响应上限 (Max Tokens) <QuestionCircleOutlined /></span>
+                        </a-tooltip>
+                        <a-input-number v-model:value="form.maxTokens" :min="1" :max="128000" size="small" />
+                      </div>
+                      <div class="slider-box">
+                        <a-slider
+                          v-model:value="form.maxTokens"
+                          :min="0"
+                          :max="8192"
+                          :step="256"
+                          :marks="{ 0: '短', 2048: '中等', 4096: '长', 8192: '超长' }"
+                        />
+                      </div>
+                    </div>
+
+                    <div v-if="showChatTopP" class="param-group-card">
+                      <div class="p-header">
+                        <a-tooltip placement="left" title="核心采样。模型仅考虑概率累积达到此比例的候选词。建议不与 Temperature 同时大幅调整。">
+                          <span class="p-label">核采样 (Top P) <QuestionCircleOutlined /></span>
+                        </a-tooltip>
+                        <a-input-number v-model:value="form.topP" :min="0" :max="1" :step="0.01" size="small" />
+                      </div>
+                      <div class="slider-box">
+                        <a-slider v-model:value="form.topP" :min="0" :max="1" :step="0.05" :marks="{ 0: '极窄', 0.5: '标准', 1: '完整' }" />
+                      </div>
+                    </div>
+
+                    <div v-if="showChatTopK" class="param-group-card">
+                      <div class="p-header">
+                        <a-tooltip placement="left" title="仅从每步概率最高的 K 个 token 中采样；与部分厂商对话模型对齐。">
+                          <span class="p-label">Top K <QuestionCircleOutlined /></span>
+                        </a-tooltip>
+                        <a-input-number v-model:value="form.topK" :min="0" :max="100" :step="1" size="small" />
+                      </div>
+                      <p class="p-inline-hint">0 表示不启用（由服务端/模型默认处理）</p>
+                    </div>
+
+                    <div v-if="showChatSeed" class="param-group-card">
+                      <div class="p-header">
+                        <a-tooltip placement="left" title="固定种子可在支持该能力的模型上复现输出。">
+                          <span class="p-label">随机种子 (Seed) <QuestionCircleOutlined /></span>
+                        </a-tooltip>
+                        <a-input-number v-model:value="form.seed" :min="0" :max="2147483647" :step="1" size="small" />
+                      </div>
+                    </div>
+
+                    <div v-if="showChatStopSequences" class="param-group-card">
+                      <div class="p-header">
+                        <span class="p-label">停止序列 (Stop)</span>
+                      </div>
+                      <a-textarea
+                        v-model:value="form.stopSequences"
+                        placeholder="多个序列用英文逗号分隔"
+                        :rows="3"
+                        class="stop-seq-input"
                       />
                     </div>
-                    <div class="p-desc-bar" :class="getTempInfo(form.temperature).color">
-                      {{ getTempInfo(form.temperature).text }}
-                    </div>
-                  </div>
 
-                  <div class="param-group-card">
-                    <div class="p-header">
-                      <a-tooltip placement="left">
-                        <template #title>设置生成内容的最大长度限制。1000 tokens 约为 750 个英文单词。</template>
-                        <span class="p-label">响应上限 (Max Tokens) <QuestionCircleOutlined /></span>
-                      </a-tooltip>
-                      <a-input-number v-model:value="form.maxTokens" :min="1" :max="128000" size="small" />
+                    <div v-if="showChatPenalties" class="penalty-row">
+                      <div v-if="showChatFrequencyPenalty" class="mini-param-card">
+                        <span class="mini-label">重复惩罚 (Frequency)</span>
+                        <a-slider v-model:value="form.frequencyPenalty" :min="-2" :max="2" :step="0.1" />
+                      </div>
+                      <div v-if="showChatPresencePenalty" class="mini-param-card">
+                        <span class="mini-label">新鲜度 (Presence)</span>
+                        <a-slider v-model:value="form.presencePenalty" :min="-2" :max="2" :step="0.1" />
+                      </div>
                     </div>
-                    <div class="slider-box">
-                      <a-slider 
-                        v-model:value="form.maxTokens" 
-                        :min="0" :max="8192" :step="256"
-                        :marks="{ 0: '短', 2048: '中等', 4096: '长', 8192: '超长' }"
-                      />
-                    </div>
-                  </div>
+                  </template>
 
-                  <div class="param-group-card">
-                    <div class="p-header">
-                      <a-tooltip placement="left" title="核心采样。模型仅考虑概率累积达到此比例的候选词。建议不与 Temperature 同时大幅调整。">
-                        <span class="p-label">核采样 (Top P) <QuestionCircleOutlined /></span>
-                      </a-tooltip>
-                      <a-input-number v-model:value="form.topP" :min="0" :max="1" :step="0.01" size="small" />
+                  <!-- 向量：EmbeddingInferenceParamEnum -->
+                  <template v-else-if="modelKind === 'embedding'">
+                    <div v-if="showEmbeddingDimensions" class="param-group-card">
+                      <div class="p-header">
+                        <a-tooltip placement="left" title="与 OpenAiEmbeddingModel.dimensions() 等对齐；请与模型实际输出维度一致。">
+                          <span class="p-label">向量维度 (Dimensions) <QuestionCircleOutlined /></span>
+                        </a-tooltip>
+                        <a-input-number v-model:value="form.dimensions" :min="1" :max="8192" :step="1" size="small" placeholder="如 1536" />
+                      </div>
                     </div>
-                    <div class="slider-box">
-                      <a-slider v-model:value="form.topP" :min="0" :max="1" :step="0.05" :marks="{ 0: '极窄', 0.5: '标准', 1: '完整' }" />
-                    </div>
-                  </div>
+                    <p v-if="!embeddingHasAnyControl" class="cap-hint muted">
+                      当前端点 capabilities 未包含可映射到实例的向量参数；可在模型管理中勾选「向量维度」等能力。
+                    </p>
+                  </template>
 
-                  <div class="penalty-row">
-                    <div class="mini-param-card">
-                      <span class="mini-label">重复惩罚 (Frequency)</span>
-                      <a-slider v-model:value="form.frequencyPenalty" :min="-2" :max="2" :step="0.1" />
+                  <!-- 图像：ImageGenParamEnum -->
+                  <template v-else-if="modelKind === 'image'">
+                    <div v-if="showImageSize" class="param-group-card">
+                      <div class="p-header">
+                        <span class="p-label">画幅尺寸 (Size)</span>
+                      </div>
+                      <a-input v-model:value="form.size" placeholder="例如 1024x1024" size="large" allow-clear />
                     </div>
-                    <div class="mini-param-card">
-                      <span class="mini-label">新鲜度 (Presence)</span>
-                      <a-slider v-model:value="form.presencePenalty" :min="-2" :max="2" :step="0.1" />
+                    <div v-if="showImageStyle" class="param-group-card">
+                      <div class="p-header">
+                        <span class="p-label">风格 (Style)</span>
+                      </div>
+                      <a-input v-model:value="form.style" placeholder="例如 vivid / natural" size="large" allow-clear />
                     </div>
-                  </div>
-
+                    <p v-if="!imageHasAnyControl" class="cap-hint muted">
+                      当前端点 capabilities 未包含尺寸或风格等图像参数；可在模型管理中勾选对应能力。
+                    </p>
+                  </template>
                 </div>
               </div>
             </a-form>
@@ -190,15 +268,30 @@
 import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { message } from 'ant-design-vue';
 import {
-  ThunderboltFilled, InfoCircleOutlined, QuestionCircleOutlined, 
-  ControlOutlined, SelectOutlined
+  ThunderboltFilled, InfoCircleOutlined, QuestionCircleOutlined,
+  ControlOutlined, SelectOutlined, SearchOutlined
 } from '@ant-design/icons-vue';
 import { aiModelApi, type AiModel } from '@/api/aiModel';
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance';
+import dayjs from 'dayjs';
+import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv';
+
+function parseCapabilitiesRaw(raw?: string): string[] {
+  if (!raw) return [];
+  try {
+    const p = JSON.parse(raw);
+    return Array.isArray(p) ? p.map(String) : [];
+  } catch {
+    return [];
+  }
+}
 
 interface Props { visible: boolean; record?: AiInstance }
 const props = defineProps<Props>();
 const emit = defineEmits(['update:visible', 'success']);
+
+const editId = computed(() => props.record?.id);
+const isEdit = computed(() => editId.value != null && String(editId.value) !== '');
 
 const formRef = ref();
 const tableWrapRef = ref<HTMLElement | null>(null);
@@ -206,8 +299,14 @@ const submitting = ref(false);
 const modelsLoading = ref(false);
 const modelList = ref<AiModel[]>([]);
 const selectedKeys = ref<string[]>([]);
+const searchDraft = ref('');
 const searchQuery = ref('');
 const typeFilter = ref('all');
+
+function applyModelSearch() {
+  searchQuery.value = String(searchDraft.value ?? '').trim();
+}
+
 const tableScrollY = ref(320);
 
 const form = reactive<AiInstance>({ 
@@ -219,8 +318,174 @@ const form = reactive<AiInstance>({
   presencePenalty: 0
 });
 
-const editId = computed(() => props.record?.id);
-const isEdit = computed(() => editId.value != null && String(editId.value) !== '');
+const createTimeDisplay = computed(() => {
+  if (!isEdit.value) return '保存后生成';
+  const t = form.createTime;
+  if (!t) return '—';
+  const d = dayjs(t);
+  return d.isValid() ? d.format('YYYY-MM-DD HH:mm:ss') : String(t);
+});
+
+const envDisplay = computed(() => {
+  if (isEdit.value) {
+    return form.envCode?.trim() || '默认';
+  }
+  if (typeof localStorage === 'undefined') return '跟随当前工作区';
+  const v = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY);
+  return v?.trim() || '跟随当前工作区';
+});
+
+/** 新建时跟随所选 modelName；用户改过预设名称后不再自动覆盖 */
+const presetNameUserEdited = ref(false);
+const syncingPresetNameFromModel = ref(false);
+
+function setPresetNameFromModel(name?: string) {
+  syncingPresetNameFromModel.value = true;
+  form.instanceName = name ?? '';
+  nextTick(() => {
+    syncingPresetNameFromModel.value = false;
+  });
+}
+
+function onPresetNameUserInput() {
+  if (syncingPresetNameFromModel.value) return;
+  presetNameUserEdited.value = true;
+}
+
+function applyModelSelection(record: AiModel) {
+  form.modelKey = record.modelKey;
+  if (!isEdit.value && !presetNameUserEdited.value) {
+    setPresetNameFromModel(record.modelName);
+  }
+}
+
+const selectedModel = computed(() => modelList.value.find((m) => m.modelKey === form.modelKey));
+const selectedCaps = computed(() => parseCapabilitiesRaw(selectedModel.value?.capabilities));
+
+const modelKind = computed<'chat' | 'embedding' | 'image'>(() => {
+  const t = selectedModel.value?.modelType;
+  if (t === 'embedding' || t === 'image') return t;
+  return 'chat';
+});
+
+const legacyChatFullPanel = computed(() => modelKind.value === 'chat' && selectedCaps.value.length === 0);
+const legacyEmbeddingPanel = computed(() => modelKind.value === 'embedding' && selectedCaps.value.length === 0);
+const legacyImagePanel = computed(() => modelKind.value === 'image' && selectedCaps.value.length === 0);
+
+const showChatTemperature = computed(() => {
+  if (modelKind.value !== 'chat') return false;
+  const c = selectedCaps.value;
+  if (legacyChatFullPanel.value) return true;
+  return c.includes('temperature') || c.includes('temperature_setting') || c.includes('text_generation');
+});
+
+const showChatMaxTokens = computed(() => {
+  if (modelKind.value !== 'chat') return false;
+  const c = selectedCaps.value;
+  if (legacyChatFullPanel.value) return true;
+  return c.includes('max_tokens') || c.includes('max_token_setting');
+});
+
+const showChatTopP = computed(() => {
+  if (modelKind.value !== 'chat') return false;
+  const c = selectedCaps.value;
+  if (legacyChatFullPanel.value) return true;
+  return c.includes('top_p') || c.includes('top_p_setting');
+});
+
+const showChatTopK = computed(() => {
+  if (modelKind.value !== 'chat') return false;
+  const c = selectedCaps.value;
+  if (legacyChatFullPanel.value) return false;
+  return c.includes('top_k') || c.includes('top_k_setting');
+});
+
+const showChatSeed = computed(() => {
+  if (modelKind.value !== 'chat') return false;
+  const c = selectedCaps.value;
+  if (legacyChatFullPanel.value) return false;
+  return c.includes('seed') || c.includes('seed_setting');
+});
+
+const showChatStopSequences = computed(() => {
+  if (modelKind.value !== 'chat') return false;
+  const c = selectedCaps.value;
+  if (legacyChatFullPanel.value) return false;
+  return c.includes('stop_sequences_setting');
+});
+
+const showChatFrequencyPenalty = computed(() => {
+  if (modelKind.value !== 'chat') return false;
+  const c = selectedCaps.value;
+  if (legacyChatFullPanel.value) return true;
+  return c.includes('frequency_penalty') || c.includes('frequency_penalty_setting');
+});
+
+const showChatPresencePenalty = computed(() => {
+  if (modelKind.value !== 'chat') return false;
+  const c = selectedCaps.value;
+  if (legacyChatFullPanel.value) return true;
+  return c.includes('presence_penalty') || c.includes('presence_penalty_setting');
+});
+
+const showChatPenalties = computed(
+  () => showChatFrequencyPenalty.value || showChatPresencePenalty.value
+);
+
+const showEmbeddingDimensions = computed(() => {
+  if (modelKind.value !== 'embedding') return false;
+  const c = selectedCaps.value;
+  if (legacyEmbeddingPanel.value) return true;
+  return c.includes('embedding_dimensions');
+});
+
+const showImageSize = computed(() => {
+  if (modelKind.value !== 'image') return false;
+  const c = selectedCaps.value;
+  if (legacyImagePanel.value) return true;
+  return c.includes('image_size') || c.includes('size_setting');
+});
+
+const showImageStyle = computed(() => {
+  if (modelKind.value !== 'image') return false;
+  const c = selectedCaps.value;
+  if (legacyImagePanel.value) return true;
+  return c.includes('image_style') || c.includes('style_setting');
+});
+
+const chatHasAnyControl = computed(
+  () =>
+    showChatTemperature.value ||
+    showChatMaxTokens.value ||
+    showChatTopP.value ||
+    showChatTopK.value ||
+    showChatSeed.value ||
+    showChatStopSequences.value ||
+    showChatFrequencyPenalty.value ||
+    showChatPresencePenalty.value
+);
+
+const embeddingHasAnyControl = computed(() => showEmbeddingDimensions.value);
+const imageHasAnyControl = computed(() => showImageSize.value || showImageStyle.value);
+
+const paramSectionTitle = computed(() => {
+  switch (modelKind.value) {
+    case 'embedding':
+      return '向量参数';
+    case 'image':
+      return '图像生成参数';
+    default:
+      return '对话推理参数';
+  }
+});
+
+const capabilityHint = computed(() => {
+  if (modelKind.value !== 'chat' || legacyChatFullPanel.value) return '';
+  if (!chatHasAnyControl.value) {
+    return '当前端点 capabilities 中未包含可调推理超参，请先在「模型管理」中为该端点勾选温度、Max Tokens 等推理能力。';
+  }
+  return '';
+});
 
 function resetForm() {
   Object.assign(form, {
@@ -232,8 +497,14 @@ function resetForm() {
     temperature: 0.7,
     maxTokens: 2048,
     topP: 1.0,
+    topK: undefined,
+    seed: undefined,
+    stopSequences: undefined,
     frequencyPenalty: 0,
-    presencePenalty: 0
+    presencePenalty: 0,
+    dimensions: undefined,
+    size: undefined,
+    style: undefined
   });
   selectedKeys.value = [];
 }
@@ -269,9 +540,11 @@ const columns = [
 const filteredModels = computed(() => {
   return modelList.value.filter(m => {
     const matchType = typeFilter.value === 'all' || m.modelType === typeFilter.value;
-    const matchSearch = !searchQuery.value || 
-      m.modelName?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      m.modelKey?.toLowerCase().includes(searchQuery.value.toLowerCase());
+    const q = searchQuery.value.toLowerCase();
+    const matchSearch = !searchQuery.value ||
+      m.modelName?.toLowerCase().includes(q) ||
+      m.modelKey?.toLowerCase().includes(q) ||
+      (m.provider && m.provider.toLowerCase().includes(q));
     return matchType && matchSearch;
   });
 });
@@ -294,14 +567,21 @@ const fetchModels = async () => {
 const customRow = (record: AiModel) => ({
   onClick: () => {
     selectedKeys.value = [record.modelKey!];
-    form.modelKey = record.modelKey;
+    applyModelSelection(record);
   },
   class: selectedKeys.value.includes(record.modelKey!) ? 'selected-row' : ''
 });
 
-const onRowSelectChange = (keys: any[]) => {
+const onRowSelectChange = (keys: string[]) => {
   selectedKeys.value = keys;
-  form.modelKey = keys[0];
+  const key = keys[0];
+  if (!key) {
+    form.modelKey = undefined;
+    return;
+  }
+  const record = modelList.value.find((m) => m.modelKey === key);
+  if (record) applyModelSelection(record);
+  else form.modelKey = key;
 };
 
 const handleCancel = () => emit('update:visible', false);
@@ -325,13 +605,17 @@ const onSubmit = async () => {
 
 watch(() => props.visible, async (val) => {
   if (!val) return;
+  searchDraft.value = '';
+  searchQuery.value = '';
   await fetchModels();
   if (isEdit.value && editId.value != null) {
+    presetNameUserEdited.value = true;
     const detail = await aiInstanceApi.detail(editId.value);
     resetForm();
     Object.assign(form, detail);
     if (detail.modelKey) selectedKeys.value = [detail.modelKey];
   } else {
+    presetNameUserEdited.value = false;
     resetForm();
   }
   await nextTick();
@@ -365,26 +649,163 @@ onUnmounted(() => {
 .header-left { display: flex; align-items: center; gap: 16px; }
 .logo-box {
   width: 42px; height: 42px; border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  background: var(--logo-gradient);
   display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px;
 }
 .main-title { display: block; font-size: 18px; font-weight: 800; color: #0f172a; }
 .sub-title { font-size: 12px; color: #94a3b8; }
-.gradient-btn {
-  background: linear-gradient(90deg, #6366f1, #a855f7); border: none;
-  height: 40px; padding: 0 24px; border-radius: 8px; font-weight: 600;
+
+.header-actions { display: flex; align-items: center; }
+.header-action-pair {
+  display: inline-flex;
+  align-items: stretch;
+}
+.header-action-btn {
+  height: 40px;
+  min-width: 120px;
+  padding: 0 22px;
+  font-weight: 600;
+}
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn) {
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default) {
+  color: #475569;
+  border-color: #cbd5e1;
+  background: #fff;
+  border-right: none;
+}
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default:hover) {
+  color: #334155;
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+.header-action-pair :deep(.header-action-btn-save.ant-btn) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+.header-action-pair :deep(.header-action-btn-save.ant-btn-primary) {
+  margin-left: -1px;
+  box-shadow: none;
 }
 
 /* 布局主体 */
 .main-content { flex: 1; display: flex; padding: 20px; gap: 20px; overflow: hidden; }
 
 /* 通用卡片样式 */
-.glass-card { background: #fff; border-radius: 20px; border: 1px solid #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+/* 本弹层为浅色底，左右面板固定白底 + 主题变量阴影（避免深色 :root 下 --bg-card 发灰） */
+.glass-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: var(--shadow-pane-elevated, 0 6px 24px rgba(15, 23, 42, 0.08));
+}
 .pane-card { height: 100%; display: flex; flex-direction: column; padding: 20px; }
 
 /* 左侧 */
 .selection-pane { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-.pane-header { flex-shrink: 0; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+.pane-header { flex-shrink: 0; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* 与列表页 InstanceList 搜索条一致（pill 容器 + 内嵌按钮） */
+.search-input-wrapper {
+  width: 100%;
+  max-width: 460px;
+  height: 52px;
+  background: #fff;
+  border-radius: 26px;
+  padding: 0 8px 0 20px;
+  display: flex;
+  align-items: center;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 4px 12px rgba(15, 23, 42, 0.08),
+    0 12px 28px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-input-wrapper:focus-within {
+  border-color: #3b82f6;
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.22),
+    0 4px 14px rgba(37, 99, 235, 0.2),
+    0 14px 32px rgba(15, 23, 42, 0.12);
+}
+
+.search-icon {
+  color: #3b82f6;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.search-input-wrapper input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  margin-left: 10px;
+  background: transparent;
+}
+
+.search-btn {
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 2px 4px rgba(29, 78, 216, 0.35),
+    0 6px 14px rgba(37, 99, 235, 0.28);
+}
+
+.model-type-tabs :deep(.ant-tabs-nav) {
+  margin-bottom: 0;
+}
+.model-type-tabs :deep(.ant-tabs-content-holder) {
+  display: none;
+}
+
+.instance-meta-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 32px;
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+  font-size: 12px;
+  color: #64748b;
+}
+.meta-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.meta-label {
+  color: #94a3b8;
+  font-weight: 600;
+}
+.meta-value {
+  color: #334155;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.meta-divider {
+  width: 1px;
+  height: 14px;
+  background: #e2e8f0;
+}
+
 .table-container {
   flex: 1;
   min-height: 0;
@@ -394,13 +815,41 @@ onUnmounted(() => {
   margin: 12px 0 0;
 }
 .selection-pane .pane-card { min-height: 0; }
-:deep(.selected-row td) { background-color: #f5f3ff !important; color: #6366f1 !important; font-weight: 600; }
+:deep(.selected-row td) {
+  background-color: color-mix(in srgb, var(--primary) 12%, #ffffff) !important;
+  color: var(--primary) !important;
+  font-weight: 600;
+}
 
 /* 右侧 */
 .config-pane { width: 440px; flex-shrink: 0; }
 .scroll-y { overflow-y: auto; }
+.section-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.section-header-flex .section-title { margin-bottom: 0; flex: 1; min-width: 0; }
+.model-key-tag { flex-shrink: 0; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+
 .section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.section-title .anticon { color: #6366f1; }
+.section-title .anticon { color: var(--primary); }
+
+.cap-hint {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.5;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+}
+.cap-hint.muted { color: #94a3b8; background: #fafafa; border-style: dashed; }
+.p-inline-hint { font-size: 11px; color: #94a3b8; margin: 0; }
+.stop-seq-input { margin-top: 8px; }
 
 /* 参数卡片 */
 .param-group-card {
@@ -427,5 +876,5 @@ onUnmounted(() => {
 .empty-state { text-align: center; padding: 100px 0; color: #cbd5e1; }
 
 :deep(.ant-slider-mark-text) { font-size: 10px; color: #94a3b8; }
-:deep(.ant-slider-mark-text-active) { color: #6366f1; font-weight: 700; }
+:deep(.ant-slider-mark-text-active) { color: var(--primary); font-weight: 700; }
 </style>

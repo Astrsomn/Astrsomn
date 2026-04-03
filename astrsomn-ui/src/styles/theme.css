@@ -17,19 +17,26 @@
     --text-secondary: #7b93b6;
     --text-muted: #5c7394;
     --text-placeholder: #5c7394;
-    --text-hover: #0e6ce7;
+    --text-hover: #60a5fa;
 
-    /* ── Accent / Primary ── */
-    --primary: #007bff;
-    --primary-light: #00a3ff;
-    --primary-hover: rgba(0, 123, 255, 0.15);
-    --primary-gradient: linear-gradient(90deg, #007bff, #00a3ff);
-    --logo-gradient: linear-gradient(135deg, #1677ff, #23c3ff);
+    /* ── Accent / Primary（全局蓝色系） ── */
+    --primary: #3b82f6;
+    --primary-light: #60a5fa;
+    --primary-hover: rgba(59, 130, 246, 0.2);
+    --primary-gradient: linear-gradient(90deg, #2563eb, #38bdf8);
+    --logo-gradient: linear-gradient(135deg, #2563eb, #0ea5e9);
 
     /* ── Semantic ── */
     --accent-blue: #3b82f6;
     --accent-cyan: #00e4ff;
     --section-title: #93c5fd;
+
+    /* 白/浅底浮层卡片：描边 + 多层阴影，偏「实体」堆叠感 */
+    --shadow-pane-elevated:
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 2px 4px rgba(0, 0, 0, 0.2),
+        0 10px 24px rgba(0, 0, 0, 0.32),
+        0 20px 48px rgba(0, 0, 0, 0.22);
     --success: #10b981;
     --error: #ef4444;
 
@@ -183,13 +190,27 @@
     --text-secondary: #6b7280;
     --text-muted: #909399;
     --text-placeholder: #909399;
+    --text-hover: #1677ff;
+    --section-title: #4096ff;
+
+    /* ── Accent / Primary（浅色主题蓝色，对齐 Ant Design 主色） ── */
+    --primary: #1677ff;
+    --primary-light: #4096ff;
+    --primary-hover: rgba(22, 119, 255, 0.12);
+    --primary-gradient: linear-gradient(90deg, #1677ff, #69b1ff);
+    --logo-gradient: linear-gradient(135deg, #1677ff, #36cfc9);
 
     /* ── Shadow ── */
     --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --shadow-pane-elevated:
+        0 0 0 1px rgba(15, 23, 42, 0.07),
+        0 1px 2px rgba(15, 23, 42, 0.05),
+        0 6px 16px rgba(15, 23, 42, 0.08),
+        0 16px 40px rgba(15, 23, 42, 0.1);
 
     --chat-input-placeholder: var(--text-placeholder);
     --chat-send-btn-bg: var(--primary);
-    --chat-send-btn-shadow: 0 2px 10px rgba(0, 123, 255, 0.22);
+    --chat-send-btn-shadow: 0 2px 10px rgba(22, 119, 255, 0.22);
 
     /* ── Chat message (light) ── */
     --chat-ai-card-bg: #ffffff;
@@ -352,13 +373,13 @@
 /* 4. 呼吸光圈 */
 @keyframes pulse-glow {
     0% {
-        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.45);
     }
     70% {
-        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
     }
 }
 
