@@ -36,16 +36,12 @@
         <section class="selection-pane">
           <div class="pane-card glass-card">
             <div class="pane-header">
-              <div class="search-input-wrapper">
-                <SearchOutlined class="search-icon" />
-                <input
-                  v-model="searchDraft"
-                  type="text"
-                  placeholder="名称、Model Key..."
-                  @keyup.enter="applyModelSearch"
-                />
-                <button type="button" class="search-btn" @click="applyModelSearch">搜索</button>
-              </div>
+              <ToolbarSearchPill
+                v-model="searchDraft"
+                layout="pane"
+                placeholder="名称、Model Key..."
+                @search="applyModelSearch"
+              />
               <a-tabs v-model:activeKey="typeFilter" class="model-type-tabs">
                 <a-tab-pane key="all" tab="全部类型" />
                 <a-tab-pane key="chat" tab="对话" />
@@ -269,8 +265,9 @@ import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from
 import { message } from 'ant-design-vue';
 import {
   ThunderboltFilled, InfoCircleOutlined, QuestionCircleOutlined,
-  ControlOutlined, SelectOutlined, SearchOutlined
+  ControlOutlined, SelectOutlined
 } from '@ant-design/icons-vue';
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue';
 import { aiModelApi, type AiModel } from '@/api/aiModel';
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance';
 import dayjs from 'dayjs';
@@ -710,63 +707,6 @@ onUnmounted(() => {
 /* 左侧 */
 .selection-pane { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 .pane-header { flex-shrink: 0; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; }
-
-/* 与列表页 InstanceList 搜索条一致（pill 容器 + 内嵌按钮） */
-.search-input-wrapper {
-  width: 100%;
-  max-width: 460px;
-  height: 52px;
-  background: #fff;
-  border-radius: 26px;
-  padding: 0 8px 0 20px;
-  display: flex;
-  align-items: center;
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.06),
-    0 4px 12px rgba(15, 23, 42, 0.08),
-    0 12px 28px rgba(15, 23, 42, 0.06);
-  border: 1px solid #e2e8f0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.search-input-wrapper:focus-within {
-  border-color: #3b82f6;
-  box-shadow:
-    0 0 0 3px rgba(59, 130, 246, 0.22),
-    0 4px 14px rgba(37, 99, 235, 0.2),
-    0 14px 32px rgba(15, 23, 42, 0.12);
-}
-
-.search-icon {
-  color: #3b82f6;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.search-input-wrapper input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
-  font-size: 15px;
-  margin-left: 10px;
-  background: transparent;
-}
-
-.search-btn {
-  flex-shrink: 0;
-  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.2) inset,
-    0 2px 4px rgba(29, 78, 216, 0.35),
-    0 6px 14px rgba(37, 99, 235, 0.28);
-}
 
 .model-type-tabs :deep(.ant-tabs-nav) {
   margin-bottom: 0;

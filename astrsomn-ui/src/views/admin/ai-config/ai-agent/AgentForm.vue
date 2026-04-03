@@ -22,17 +22,23 @@
           </div>
         </div>
         <div class="header-actions">
-          <a-button class="action-btn" @click="handleCancel" :disabled="loading">
-            取消
-          </a-button>
-          <a-button
-            type="primary"
-            class="action-btn gradient-btn"
-            :loading="loading"
-            @click="handleSubmit"
-          >
-            {{ isEdit ? '保存修改' : '发布智能体' }}
-          </a-button>
+          <div class="header-action-pair">
+            <a-button
+              class="action-btn header-action-btn-cancel"
+              :disabled="loading"
+              @click="handleCancel"
+            >
+              取消
+            </a-button>
+            <a-button
+              type="primary"
+              class="action-btn header-action-btn-save gradient-btn"
+              :loading="loading"
+              @click="handleSubmit"
+            >
+              {{ isEdit ? '保存修改' : '发布智能体' }}
+            </a-button>
+          </div>
         </div>
       </header>
 
@@ -615,12 +621,15 @@ onMounted(async () => {
   width: 42px;
   height: 42px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-size: 22px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 2px 6px rgba(29, 78, 216, 0.35);
 }
 
 .title-group .main-title {
@@ -638,20 +647,60 @@ onMounted(async () => {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+}
+
+.header-action-pair {
+  display: inline-flex;
+  align-items: stretch;
 }
 
 .action-btn {
   height: 40px;
-  border-radius: 8px;
-  padding: 0 20px;
+  min-width: 120px;
+  padding: 0 22px;
+  font-weight: 600;
+}
+
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn) {
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default) {
+  color: #475569;
+  border-color: #cbd5e1;
+  background: #fff;
+  border-right: none;
+}
+
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default:hover) {
+  color: #334155;
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.header-action-pair :deep(.header-action-btn-save.ant-btn) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+.header-action-pair :deep(.header-action-btn-save.ant-btn-primary) {
+  margin-left: -1px;
+  box-shadow: none;
 }
 
 .gradient-btn {
-  background: linear-gradient(90deg, #6366f1, #a855f7);
-  border: none;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  border: none !important;
   color: #fff;
-  font-weight: 600;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 3px 6px rgba(29, 78, 216, 0.4),
+    0 10px 24px rgba(37, 99, 235, 0.28) !important;
 }
 
 .main-content {
