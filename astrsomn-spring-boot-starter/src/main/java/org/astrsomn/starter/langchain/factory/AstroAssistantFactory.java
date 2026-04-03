@@ -28,18 +28,16 @@ public class AstroAssistantFactory {
 
     public <T> T createAssistant(AstroChatParam<T> param) {
         agentRuntimeConfigLoader.validateAndApplyAgent(param);
-        return cacheManager.getOrCreate(param, () -> {
-            AiServices<T> builder = AiServices.builder(param.getServiceClass());
-            if (param.getConversationSetting().isEnableStream()) {
-                StreamingChatModel streamingChatModel = astroModelFactory.createModel(param, StreamingChatModel.class);
-                builder.streamingChatModel(streamingChatModel);
-            } else {
-                ChatModel chatModel = astroModelFactory.createModel(param, ChatModel.class);
-                builder.chatModel(chatModel);
-            }
-            configureComponents(builder, param);
-            return builder.build();
-        });
+        AiServices<T> builder = AiServices.builder(param.getServiceClass());
+        if (param.getConversationSetting().isEnableStream()) {
+            StreamingChatModel streamingChatModel = astroModelFactory.createModel(param, StreamingChatModel.class);
+            builder.streamingChatModel(streamingChatModel);
+        } else {
+            ChatModel chatModel = astroModelFactory.createModel(param, ChatModel.class);
+            builder.chatModel(chatModel);
+        }
+        configureComponents(builder, param);
+        return builder.build();
     }
 
     private <T> void configureComponents(AiServices<T> builder, AstroChatParam<T> param) {

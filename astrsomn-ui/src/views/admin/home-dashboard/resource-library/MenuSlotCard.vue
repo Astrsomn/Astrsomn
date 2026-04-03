@@ -1,5 +1,5 @@
 <template>
-  <div class="slot-wrapper" :data-accent="accent">
+  <div class="slot-wrapper">
     <button
       type="button"
       class="slot-card"
@@ -21,21 +21,19 @@
       v-if="showPinToDashboard && entry"
       type="button"
       class="slot-pin"
-      :class="{ 'slot-pin--pinned': pinned }"
-      :title="pinned ? '已在控制台首页' : '固定到控制台首页'"
-      :aria-label="pinned ? '已在控制台首页' : '固定到控制台'"
+      title="固定到控制台首页"
+      aria-label="固定到控制台"
       @click.stop="emit('pinToDashboard', entry.route)"
     >
-      <pushpin-filled v-if="pinned" class="slot-pin-icon slot-pin-icon--filled" />
-      <pushpin-outlined v-else class="slot-pin-icon" />
+      <pushpin-outlined class="slot-pin-icon" />
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { PushpinFilled, PushpinOutlined } from '@ant-design/icons-vue'
-import type { EntryAccent, ManagementEntry } from '../resource-library/management.ts'
+import { PushpinOutlined } from '@ant-design/icons-vue'
+import type { EntryAccent, ManagementEntry } from './management.ts'
 
 const props = withDefaults(
   defineProps<{
@@ -47,15 +45,12 @@ const props = withDefaults(
     /** 为 true 时不可点击（例如控制台编辑布局中） */
     disabled?: boolean
     showPinToDashboard?: boolean
-    /** 已在控制台首页展示时实心图钉，便于区分 */
-    pinned?: boolean
   }>(),
   {
     accent: 'primary',
     variant: 'default',
     disabled: false,
     showPinToDashboard: false,
-    pinned: false,
   },
 )
 
@@ -82,7 +77,6 @@ const handleClick = () => {
 .slot-wrapper {
   min-width: 0;
   position: relative;
-  --entry-color: var(--accent-blue);
 }
 
 .slot-pin {
@@ -109,25 +103,14 @@ const handleClick = () => {
   background: color-mix(in srgb, var(--primary) 14%, var(--bg-card));
 }
 
-.slot-pin--pinned {
-  background: color-mix(in srgb, var(--entry-color) 78%, var(--bg-card));
-  box-shadow: 0 2px 14px color-mix(in srgb, var(--entry-color) 35%, transparent);
-}
-
-.slot-pin--pinned:hover {
-  background: color-mix(in srgb, var(--entry-color) 90%, var(--bg-card));
-}
-
 .slot-pin-icon {
   font-size: 13px;
   color: color-mix(in srgb, var(--primary) 75%, var(--text-muted));
 }
 
-.slot-pin-icon--filled {
-  color: var(--entry-color);
-}
-
 .slot-card {
+  --entry-color: var(--accent-blue);
+
   width: 100%;
   border: 1px solid color-mix(in srgb, var(--entry-color) 20%, var(--border-subtle));
   border-radius: 24px;
@@ -176,55 +159,42 @@ const handleClick = () => {
   transform: none;
 }
 
-.slot-wrapper[data-accent='primary'],
 .slot-card[data-accent='primary'] {
   --entry-color: var(--primary);
 }
-.slot-wrapper[data-accent='cyan'],
 .slot-card[data-accent='cyan'] {
   --entry-color: var(--accent-cyan);
 }
-.slot-wrapper[data-accent='blue'],
 .slot-card[data-accent='blue'] {
   --entry-color: var(--accent-blue);
 }
-.slot-wrapper[data-accent='sky'],
 .slot-card[data-accent='sky'] {
   --entry-color: var(--section-title);
 }
-.slot-wrapper[data-accent='mint'],
 .slot-card[data-accent='mint'] {
   --entry-color: var(--success);
 }
-.slot-wrapper[data-accent='coral'],
 .slot-card[data-accent='coral'] {
   --entry-color: var(--error);
 }
-.slot-wrapper[data-accent='primary-light'],
 .slot-card[data-accent='primary-light'] {
   --entry-color: var(--primary-light);
 }
-.slot-wrapper[data-accent='indigo'],
 .slot-card[data-accent='indigo'] {
   --entry-color: color-mix(in srgb, var(--primary) 45%, var(--accent-blue) 55%);
 }
-.slot-wrapper[data-accent='ocean'],
 .slot-card[data-accent='ocean'] {
   --entry-color: color-mix(in srgb, var(--primary) 35%, var(--accent-cyan) 65%);
 }
-.slot-wrapper[data-accent='violet'],
 .slot-card[data-accent='violet'] {
   --entry-color: color-mix(in srgb, var(--section-title) 88%, var(--accent-blue) 12%);
 }
-.slot-wrapper[data-accent='teal'],
 .slot-card[data-accent='teal'] {
   --entry-color: color-mix(in srgb, var(--success) 48%, var(--accent-cyan) 52%);
 }
-.slot-wrapper[data-accent='frost'],
 .slot-card[data-accent='frost'] {
   --entry-color: color-mix(in srgb, var(--section-title) 52%, var(--accent-cyan) 48%);
 }
-.slot-wrapper[data-accent='brand'],
 .slot-card[data-accent='brand'] {
   --entry-color: color-mix(in srgb, var(--primary) 52%, var(--accent-blue) 48%);
 }

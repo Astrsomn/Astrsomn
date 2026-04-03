@@ -1,74 +1,117 @@
 <template>
-  <AdminPageShell title="模型组装" description="">
-    <div class="assembly-page">
-      <div class="assembly-layout">
-          <AssemblyLeftPalette
-            ref="leftPaletteRef"
-            :page-size="pageSize.value"
-            :chat-items="chatItems"
-            :embedding-items="embeddingItems"
-            :image-items="imageItems"
-            :chat-page="pagination.chat"
-            :embedding-page="pagination.embedding"
-            :image-page="pagination.image"
-            @search="onLeftSearch"
-            @chat-page="onChatPage"
-            @embedding-page="onEmbeddingPage"
-            @image-page="onImagePage"
-            @drag-start="onDragStart"
-            @drag-end="onDragEnd"
-          />
-
-          <AssemblyCanvas
-            v-model:agent-form="agentForm"
-            :dragging-payload="dragPayload"
-            :active-drop-key="activeDropKey"
-            :chat-instance="chatInstance"
-            :embedding-instance="embeddingInstance"
-            :image-instance="imageInstance"
-            :prompt-instance="promptInstance"
-            :tools="placedTools"
-            :mcps="placedMcps"
-            :knowledge-keys="knowledgeKeys"
-            @hover="activeDropKey = $event"
-            @drop="onCanvasDrop"
-            @clear="onClearInstance"
-            @remove-tool="removeTool"
-            @remove-mcp="removeMcp"
-            @remove-knowledge-key="removeKnowledgeKey"
-            @reset="handleReset"
-            @submit="handleSubmit"
-          />
-
-          <AssemblyRightPalette
-            ref="rightPaletteRef"
-            :page-size="pageSize.value"
-            :tools="toolItems"
-            :mcps="mcpItems"
-            :prompts="promptItems"
-            :tool-page="pagination.tool"
-            :mcp-page="pagination.mcp"
-            :prompt-page="pagination.prompt"
-            @search-tool="onSearchTool"
-            @search-mcp="onSearchMcp"
-            @search-prompt="onSearchPrompt"
-            @tool-page="onToolPage"
-            @mcp-page="onMcpPage"
-            @prompt-page="onPromptPage"
-            @drag-start="onDragStart"
-            @drag-end="onDragEnd"
-          />
+  <a-modal
+    :open="visible"
+    width="100%"
+    :footer="null"
+    :closable="false"
+    wrap-class-name="astrsomn-full-modal"
+    destroy-on-close
+    @cancel="handleCancel"
+  >
+    <div class="fullscreen-wrapper">
+      <header class="modal-header">
+        <div class="header-left">
+          <div class="logo-box">
+            <ThunderboltFilled />
+          </div>
+          <div class="title-group">
+            <span class="main-title">{{ isEdit ? '编辑智能体' : '新建智能体' }}</span>
+            <span class="sub-title">
+              通过拖拽组装模型实例、工具与知识库，定义 Astrsomn 智能体策略
+            </span>
+          </div>
         </div>
+        <div class="header-actions">
+          <div class="header-action-pair">
+            <a-button
+              class="action-btn header-action-btn-cancel"
+              :disabled="loading"
+              @click="handleCancel"
+            >
+              取消
+            </a-button>
+            <a-button
+              type="primary"
+              class="action-btn header-action-btn-save gradient-btn"
+              :loading="loading"
+              @click="handleSubmit"
+            >
+              {{ isEdit ? '保存修改' : '发布智能体' }}
+            </a-button>
+          </div>
+        </div>
+      </header>
 
-    
+      <div class="main-content">
+        <div class="assembly-page">
+          <div class="assembly-layout">
+            <AssemblyLeftPalette
+              ref="leftPaletteRef"
+              :page-size="pageSize.value"
+              :chat-items="chatItems"
+              :embedding-items="embeddingItems"
+              :image-items="imageItems"
+              :chat-page="pagination.chat"
+              :embedding-page="pagination.embedding"
+              :image-page="pagination.image"
+              @search="onLeftSearch"
+              @chat-page="onChatPage"
+              @embedding-page="onEmbeddingPage"
+              @image-page="onImagePage"
+              @drag-start="onDragStart"
+              @drag-end="onDragEnd"
+            />
+
+            <AssemblyCanvas
+              v-model:agent-form="agentForm"
+              :dragging-payload="dragPayload"
+              :active-drop-key="activeDropKey"
+              :chat-instance="chatInstance"
+              :embedding-instance="embeddingInstance"
+              :image-instance="imageInstance"
+              :prompt-instance="promptInstance"
+              :tools="placedTools"
+              :mcps="placedMcps"
+              :knowledge-keys="knowledgeKeys"
+              @hover="activeDropKey = $event"
+              @drop="onCanvasDrop"
+              @clear="onClearInstance"
+              @remove-tool="removeTool"
+              @remove-mcp="removeMcp"
+              @remove-knowledge-key="removeKnowledgeKey"
+              @reset="handleReset"
+              @submit="handleSubmit"
+            />
+
+            <AssemblyRightPalette
+              ref="rightPaletteRef"
+              :page-size="pageSize.value"
+              :tools="toolItems"
+              :mcps="mcpItems"
+              :prompts="promptItems"
+              :tool-page="pagination.tool"
+              :mcp-page="pagination.mcp"
+              :prompt-page="pagination.prompt"
+              @search-tool="onSearchTool"
+              @search-mcp="onSearchMcp"
+              @search-prompt="onSearchPrompt"
+              @tool-page="onToolPage"
+              @mcp-page="onMcpPage"
+              @prompt-page="onPromptPage"
+              @drag-start="onDragStart"
+              @drag-end="onDragEnd"
+            />
+          </div>
+        </div>
+      </div>
     </div>
-  </AdminPageShell>
+  </a-modal>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import { ThunderboltFilled } from '@ant-design/icons-vue'
 import type { AiInstance } from '@/api/aiInstance'
 import type { AiTool } from '@/api/aiTool'
 import type { AiMcp } from '@/api/aiMcp'
@@ -89,6 +132,19 @@ import type {
   AssemblySlotKey,
   InstanceModelType
 } from './assembly/assemblyTypes'
+import type { AiAgent } from '@/api/aiAgent'
+
+interface Props {
+  visible: boolean
+  recordId?: string | number
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits(['update:visible', 'success'])
+
+const loading = ref(false)
+
+const isEdit = computed(() => !!props.recordId)
 
 // 动态计算 pageSize，基于容器高度保守估算
 const calculatePageSize = () => {
@@ -153,6 +209,8 @@ const knowledgeKeys = ref<string[]>([])
 
 const agentForm = ref<AssemblyAgentForm>({
   agentName: '',
+  agentKey: '',
+  status: 'enabled',
   enableStream: true,
   description: '',
   memoryMode: 'SLIDING_WINDOW',
@@ -219,6 +277,69 @@ async function loadAll() {
     await Promise.all([loadChat(), loadEmbedding(), loadImage(), loadTools(), loadMcps(), loadPrompts()])
   } catch {
     message.error('加载资源失败')
+  }
+}
+
+function applyAgentDetail(detail: AiAgent) {
+  agentForm.value = {
+    agentName: detail.agentName ?? '',
+    agentKey: detail.agentKey ?? '',
+    status: detail.status ?? 'enabled',
+    enableStream: detail.enableStream ?? true,
+    description: detail.description ?? '',
+    memoryMode: (detail.memoryMode as AssemblyAgentForm['memoryMode']) ?? 'SLIDING_WINDOW',
+    memoryWindowSize: detail.memoryWindowSize ?? '10'
+  }
+
+  knowledgeKeys.value = (detail.knowledgeBaseKeys || '')
+    .split(',')
+    .map((k) => k.trim())
+    .filter(Boolean)
+
+  if (detail.chatInstanceKey) {
+    chatInstance.value =
+      chatItems.value.find((i) => i.instanceKey === detail.chatInstanceKey) ?? null
+  }
+  if (detail.embeddingInstanceKey) {
+    embeddingInstance.value =
+      embeddingItems.value.find((i) => i.instanceKey === detail.embeddingInstanceKey) ?? null
+  }
+  if (detail.imageInstanceKey) {
+    imageInstance.value =
+      imageItems.value.find((i) => i.instanceKey === detail.imageInstanceKey) ?? null
+  }
+  if (detail.promptKey) {
+    promptInstance.value =
+      promptItems.value.find((p) => p.promptKey === detail.promptKey) ?? null
+  }
+
+  if (detail.toolKeys) {
+    const keys = detail.toolKeys
+      .split(',')
+      .map((k) => k.trim())
+      .filter(Boolean)
+    placedTools.value = toolItems.value.filter((t) => t.toolKey && keys.includes(t.toolKey))
+  }
+
+  if (detail.mcpKeys) {
+    const keys = detail.mcpKeys
+      .split(',')
+      .map((k) => k.trim())
+      .filter(Boolean)
+    placedMcps.value = mcpItems.value.filter((m) => m.mcpKey && keys.includes(m.mcpKey))
+  }
+}
+
+async function initEditState() {
+  if (!props.recordId) return
+  loading.value = true
+  try {
+    const detail = await aiAgentApi.detail(props.recordId)
+    applyAgentDetail(detail)
+  } catch (e: any) {
+    message.error(e?.message || '加载智能体详情失败')
+  } finally {
+    loading.value = false
   }
 }
 
@@ -385,6 +506,8 @@ function handleReset() {
   knowledgeKeys.value = []
   agentForm.value = {
     agentName: '',
+    agentKey: '',
+    status: 'enabled',
     enableStream: true,
     description: '',
     memoryMode: 'SLIDING_WINDOW',
@@ -399,6 +522,8 @@ function buildSubmitPayload() {
   const f = agentForm.value
   return {
     agentName: f.agentName,
+    agentKey: f.agentKey,
+    status: f.status,
     enableStream: f.enableStream,
     description: f.description,
     memoryMode: f.memoryMode,
@@ -417,10 +542,19 @@ async function handleSubmit() {
   loading.value = true
   try {
     const payload = buildSubmitPayload()
-    await aiAgentApi.create(payload)
-    message.success('发布成功')
-    // 发布成功后重置表单
-    handleReset()
+    if (isEdit.value) {
+      await aiAgentApi.update({
+        ...(payload as AiAgent),
+        id: props.recordId as string | number
+      })
+      message.success('智能体已更新')
+    } else {
+      await aiAgentApi.create(payload as AiAgent)
+      message.success('发布成功')
+      handleReset()
+    }
+    emit('success')
+    emit('update:visible', false)
   } catch (e: any) {
     message.error(e.message || '发布失败')
   } finally {
@@ -428,12 +562,154 @@ async function handleSubmit() {
   }
 }
 
-onMounted(() => {
-  void loadAll()
+function handleCancel() {
+  emit('update:visible', false)
+}
+
+watch(
+  () => props.visible,
+  async (val) => {
+    if (!val) return
+    await loadAll()
+    if (props.recordId) {
+      await initEditState()
+    } else {
+      handleReset()
+    }
+  }
+)
+
+onMounted(async () => {
+  if (props.visible) {
+    await loadAll()
+    await initEditState()
+  }
 })
 </script>
 
 <style scoped>
+/* 让全屏 Dialog 从视口顶部开始铺满，避免 AntD 默认 top/padding 留白 */
+:global(.astrsomn-full-modal .ant-modal) { max-width: 100vw; top: 0; padding: 0; margin: 0; }
+:global(.astrsomn-full-modal .ant-modal-content) { height: 100vh; border-radius: 0; padding: 0; background: #f8fafc; }
+:global(.astrsomn-full-modal .ant-modal-body) { height: 100%; padding: 0; }
+
+.fullscreen-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.modal-header {
+  height: 72px;
+  background: #fff;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 22px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 2px 6px rgba(29, 78, 216, 0.35);
+}
+
+.title-group .main-title {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.title-group .sub-title {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.header-action-pair {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.action-btn {
+  height: 40px;
+  min-width: 120px;
+  padding: 0 22px;
+  font-weight: 600;
+}
+
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn) {
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default) {
+  color: #475569;
+  border-color: #cbd5e1;
+  background: #fff;
+  border-right: none;
+}
+
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default:hover) {
+  color: #334155;
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.header-action-pair :deep(.header-action-btn-save.ant-btn) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+.header-action-pair :deep(.header-action-btn-save.ant-btn-primary) {
+  margin-left: -1px;
+  box-shadow: none;
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  border: none !important;
+  color: #fff;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 3px 6px rgba(29, 78, 216, 0.4),
+    0 10px 24px rgba(37, 99, 235, 0.28) !important;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
 .assembly-page {
   /* max-height: calc(100vh - 130px); */
   /* min-height: 620px; */

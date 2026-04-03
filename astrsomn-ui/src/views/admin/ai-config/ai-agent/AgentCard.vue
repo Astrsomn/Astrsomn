@@ -25,10 +25,28 @@
     <div class="card-body">
       <p class="description">{{ record.description || '暂无详细描述信息...' }}</p>
       
+      <div class="config-section">
+        <div class="config-row">
+          <div class="config-label">
+            <robot-outlined /> 模型实例
+          </div>
+          <div class="config-value primary">
+            {{ record.chatInstanceName || record.modelName || '未配置' }}
+          </div>
+        </div>
+        <div class="config-row">
+          <div class="config-label">
+            <file-text-outlined /> 提示词策略
+          </div>
+          <div class="config-value">
+            {{ record.promptTitle || '默认策略' }}
+          </div>
+        </div>
+      </div>
+      
       <div class="meta-info">
-        <div class="meta-item"><file-text-outlined /> {{ record.promptTitle || '默认策略' }}</div>
-        <div class="meta-item"><cloud-outlined /> {{ record.envCode || '默认环境' }}</div>
-        <div class="meta-item"><calendar-outlined /> {{ formatTime(record.createTime) }}</div>
+        <div class="meta-item" title="环境"><environment-outlined /> {{ record.envCode || '默认环境' }}</div>
+        <div class="meta-item" title="创建时间"><calendar-outlined /> {{ formatTime(record.createTime) }}</div>
       </div>
     </div>
 
@@ -55,8 +73,10 @@ import {
   CopyOutlined,
   EditOutlined,
   DeleteOutlined,
+  EnvironmentOutlined,
   FileTextOutlined,
   KeyOutlined,
+  RobotOutlined,
 } from '@ant-design/icons-vue'
 
 const props = defineProps<{ record: any; selected?: boolean }>()
@@ -91,7 +111,7 @@ const copyAgentKey = async () => {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, #ffffff 100%);
   border: 1px solid #e2e8f0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -138,7 +158,7 @@ const copyAgentKey = async () => {
   width: 52px;
   height: 52px;
   background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -193,7 +213,7 @@ const copyAgentKey = async () => {
   color: var(--model-color);
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: rgba(8, 145, 178, 0.08);
 }
 
@@ -206,7 +226,7 @@ const copyAgentKey = async () => {
   cursor: pointer;
   background: #f8fafc;
   padding: 4px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   border: 1px solid #e2e8f0;
   width: fit-content;
   transition:
@@ -248,6 +268,51 @@ const copyAgentKey = async () => {
   overflow: hidden;
 }
 
+.config-section {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.config-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.config-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-sub);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.config-value {
+  font-size: 13px;
+  color: var(--text-main);
+  font-weight: 600;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  max-width: 60%;
+}
+
+.config-value.primary {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
 .meta-info {
   display: flex;
   flex-wrap: wrap;
@@ -261,7 +326,7 @@ const copyAgentKey = async () => {
   align-items: center;
   gap: 4px;
   padding: 5px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: #f8fafc;
   border: 1px solid #eef2f7;
 }

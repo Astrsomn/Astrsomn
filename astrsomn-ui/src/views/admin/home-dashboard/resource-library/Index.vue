@@ -83,7 +83,10 @@
                   :description="entry.description"
                   :accent="entry.accent"
                   variant="compact"
+                  show-pin-to-dashboard
+                  :pinned="pinnedRouteSet.has(entry.route)"
                   @navigate="navigateTo"
+                  @pin-to-dashboard="onPinToDashboard"
                 />
               </div>
             </section>
@@ -101,12 +104,17 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Empty } from 'ant-design-vue'
+import { Empty, message } from 'ant-design-vue'
 import { LeftOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons-vue'
 // Vetur occasionally misses Vue SFC default exports in script setup files.
 // @ts-ignore
-import MenuSlotCard from '../backend/MenuSlotCard.vue'
-import { getCurrentUserRole, resolveManagementGroups } from '../backend/management'
+import MenuSlotCard from './MenuSlotCard.vue'
+import { getCurrentUserRole, resolveManagementGroups } from './management.ts'
+import {
+  addDashboardShortcut,
+  dashboardLayoutRevision,
+  getDashboardPinnedRoutes,
+} from '../backend/dashboardLayoutStorage'
 
 const router = useRouter()
 const keyword = ref('')
@@ -117,6 +125,11 @@ const gridContainerRef = ref<HTMLElement | null>(null)
 
 const currentRole = computed(() => getCurrentUserRole())
 const groups = computed(() => resolveManagementGroups(currentRole.value))
+
+const pinnedRouteSet = computed(() => {
+  void dashboardLayoutRevision.value
+  return getDashboardPinnedRoutes()
+})
 
 const groupsFiltered = computed(() =>
   groups.value
@@ -178,6 +191,14 @@ const changePage = (page: number) => {
 
 const navigateTo = (path: string) => {
   void router.push(path)
+}
+
+const onPinToDashboard = (route: string) => {
+  if (addDashboardShortcut(route)) {
+    message.success('已添加到控制台首页，可在首页「编辑布局」中拖动与缩放')
+  } else {
+    message.info('该入口已在控制台中')
+  }
 }
 </script>
 

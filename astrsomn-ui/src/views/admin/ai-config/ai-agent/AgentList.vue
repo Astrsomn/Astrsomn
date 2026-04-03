@@ -6,55 +6,41 @@
     <div ref="pageRef" class="agent-page">
       <div class="toolbar">
         <div class="toolbar-left">
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.agentName"
-              placeholder="搜索智能体名称"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-          </div>
+          <ToolbarSearchPill
+            v-model="query.agentName"
+            layout="toolbar"
+            placeholder="搜索智能体名称"
+            @search="fetchList"
+          />
 
           <div class="status-switch" role="group" aria-label="状态筛选">
             <a-button
-              class="status-btn"
+              class="status-btn status-btn-first"
               :class="{ active: query.status === 'enabled' }"
               @click="toggleStatusFilter('enabled')"
             >
-              <template #icon><check-circle-outlined /></template>
+              <template #icon><CheckCircleOutlined /></template>
               启用
             </a-button>
             <a-button
-              class="status-btn"
+              class="status-btn status-btn-last"
               :class="{ active: query.status === 'disabled' }"
               @click="toggleStatusFilter('disabled')"
             >
-              <template #icon><stop-outlined /></template>
+              <template #icon><StopOutlined /></template>
               禁用
             </a-button>
           </div>
         </div>
 
         <div class="toolbar-right">
-          <router-link v-slot="{ navigate }" to="/admin/agents/model-assembly" custom>
-            <a-button class="ghost-btn" @click="navigate">
-              <template #icon><apartment-outlined /></template>
-              模型组装
+          <div class="toolbar-action-pair">
+            <a-button class="toolbar-seg-btn toolbar-seg-reset" @click="resetFilters">重置</a-button>
+            <a-button type="primary" class="toolbar-seg-btn toolbar-seg-add" @click="openCreate">
+              <template #icon><PlusOutlined /></template>
+              新增
             </a-button>
-          </router-link>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+          </div>
         </div>
       </div>
 
@@ -99,6 +85,12 @@
           @change="onPageChange"
         />
       </div>
+
+      <AgentForm
+        v-model:visible="assemblyVisible"
+        :record-id="editingId"
+        @success="fetchList"
+      />
     </div>
   </AdminPageShell>
 </template>
@@ -106,18 +98,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { useRouter } from 'vue-router'
-import {
-  ApartmentOutlined,
-  CheckCircleOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-  SearchOutlined,
-  StopOutlined
-} from '@ant-design/icons-vue'
+import { CheckCircleOutlined, PlusOutlined, StopOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import AgentCard from './AgentCard.vue'
+import AgentForm from './AgentForm.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
 
 const AGENT_CARD_MIN_WIDTH_PX = 360
@@ -138,9 +124,10 @@ const resolvePageSize = (columns: number) => {
   return 6
 }
 
-const router = useRouter()
 const pageRef = ref<HTMLElement | null>(null)
 const loading = ref(false)
+const assemblyVisible = ref(false)
+const editingId = ref<string | number | undefined>(undefined)
 const query = reactive<{ agentName?: string; status?: string }>({})
 const list = ref<AiAgent[]>([])
 const selectedKeys = ref<Set<string | number>>(new Set())
@@ -203,13 +190,15 @@ const onPageChange = (p: number) => {
 }
 
 const openCreate = () => {
-  router.push('/admin/agents/model-assembly')
+  editingId.value = undefined
+  assemblyVisible.value = true
 }
 
 const openEdit = async (record: AiAgent) => {
   const id = record.id
   if (id == null) return
-  router.push(`/admin/agents/model-assembly?id=${id}`)
+  editingId.value = id
+  assemblyVisible.value = true
 }
 
 const handleDeleteOne = async (id: number | string) => {
@@ -285,7 +274,7 @@ void fetchList()
   margin-bottom: 6px;
   flex-wrap: wrap;
   padding: 16px 0;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-pro);
 
 }
 
@@ -304,47 +293,56 @@ void fetchList()
   flex-wrap: wrap;
 }
 
-.search-cluster {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 6px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
+.toolbar-action-pair {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.toolbar-seg-btn {
+  height: 44px;
+  min-width: 100px;
+  padding: 0 22px;
+  font-weight: 600;
+}
+
+.toolbar-action-pair :deep(.toolbar-seg-reset.ant-btn) {
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  color: #475569;
+  border-color: #cbd5e1;
+  background: #fff;
+  border-right: none;
   box-shadow: none;
 }
 
-.search-cluster :deep(.ant-input-affix-wrapper) {
+.toolbar-action-pair :deep(.toolbar-seg-reset.ant-btn:hover) {
+  color: #334155;
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.toolbar-action-pair :deep(.toolbar-seg-add.ant-btn) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+  margin-left: -1px;
   border: none;
-  box-shadow: none;
-  background: transparent;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #fff;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 3px 6px rgba(29, 78, 216, 0.4),
+    0 10px 24px rgba(37, 99, 235, 0.32);
 }
 
-.search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused) {
-  border: none;
-  box-shadow: none;
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface));
-}
-
-.search-cluster :deep(.ant-input) {
-  font-size: 14px;
-}
-
-.toolbar-input {
-  width: 200px;
-}
-
-.search-main-input {
-  width: 360px;
-}
-
-.primary-btn,
-.ghost-btn {
-  height: 40px;
-  border-radius: var(--radius-sm);
+.toolbar-action-pair :deep(.toolbar-seg-add.ant-btn-primary) {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 3px 6px rgba(29, 78, 216, 0.4),
+    0 10px 24px rgba(37, 99, 235, 0.32);
 }
 
 .danger-btn {
@@ -362,26 +360,33 @@ void fetchList()
 
 .status-switch {
   display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
+  align-items: stretch;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 4px 10px rgba(15, 23, 42, 0.06);
 }
 
-.status-btn {
-  height: 36px;
+.status-switch :deep(.status-btn.ant-btn) {
+  height: 44px;
+  border-radius: 0;
   border: none;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  background: transparent;
   box-shadow: none;
+  color: #64748b;
+  background: transparent;
+  font-weight: 600;
 }
 
-.status-btn.active {
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
+.status-switch :deep(.status-btn-last.ant-btn) {
+  border-left: 1px solid #e2e8f0;
+}
+
+.status-switch :deep(.status-btn.active.ant-btn) {
+  color: #1d4ed8;
+  background: #eff6ff;
 }
 
 .agent-grid {
@@ -419,27 +424,30 @@ void fetchList()
     padding: 14px;
   }
 
-  .toolbar-input,
-  .search-main-input {
-    width: 100%;
-  }
-
   .toolbar-left,
-  .toolbar-right,
-  .search-cluster {
+  .toolbar-right {
     width: 100%;
   }
 
-  .search-cluster {
-    padding: 8px;
+  :deep(.toolbar-search-pill--toolbar) {
+    max-width: none;
+    width: 100%;
+  }
+
+  .toolbar-action-pair {
+    width: 100%;
+  }
+
+  .toolbar-action-pair :deep(.toolbar-seg-reset.ant-btn),
+  .toolbar-action-pair :deep(.toolbar-seg-add.ant-btn) {
+    flex: 1;
   }
 
   .status-switch {
     width: 100%;
-    justify-content: space-between;
   }
 
-  .status-btn {
+  .status-switch :deep(.status-btn.ant-btn) {
     flex: 1;
   }
 

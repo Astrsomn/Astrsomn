@@ -30,6 +30,12 @@
         </div>
 
         <div class="header-row row-meta">
+          <a-form-item label="状态" class="fi-status">
+            <a-select v-model:value="agentForm.status" placeholder="选择状态">
+              <a-select-option value="enabled">启用</a-select-option>
+              <a-select-option value="disabled">禁用</a-select-option>
+            </a-select>
+          </a-form-item>
           <a-form-item label="标识符 (Agent Key)" class="fi-key">
             <a-input v-model:value="agentForm.agentKey" placeholder="唯一 ID" />
           </a-form-item>
@@ -316,6 +322,7 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 .fi-stream { flex: 0; }
 .fi-mem { flex: 1; }
 .fi-win { flex: 0 0 80px; }
+.fi-status { flex: 0 0 120px; }
 .fi-key { flex: 1; }
 .fi-desc { flex: 2; }
 

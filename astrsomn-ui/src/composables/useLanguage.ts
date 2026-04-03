@@ -26,8 +26,8 @@ function changeLang(lang: Lang) {
 }
 
 const languageOptions = [
-  { label: '简体中文', value: 'zh-CN' },
-  { label: 'English', value: 'en-US' }
+  { label: '🇨🇳', value: 'zh-CN' },
+  { label: '🇺🇸', value: 'en-US' }
 ]
 
 let initialized = false

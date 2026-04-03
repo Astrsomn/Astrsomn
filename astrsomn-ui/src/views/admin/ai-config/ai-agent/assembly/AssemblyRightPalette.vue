@@ -4,20 +4,15 @@
     <a-tabs class="palette-tabs" v-model:activeKey="activeTab">
       <!-- Prompt Tab -->
       <a-tab-pane key="prompts" tab="Prompt">
-        <div class="search-row">
-          <a-input
-            v-model:value="kwPrompt"
-            size="middle"
+        <div class="search-input-wrapper">
+          <SearchOutlined class="search-icon" />
+          <input
+            v-model="kwPrompt"
+            type="text"
             placeholder="Prompt名称 / Key"
-            allow-clear
-            class="search-input"
-            @pressEnter="$emit('searchPrompt')"
-          >
-            <template #prefix><SearchOutlined class="search-ico" /></template>
-          </a-input>
-          <a-button type="primary" class="search-btn search-btn-prompt" @click="$emit('searchPrompt')">
-            <template #icon><SearchOutlined /></template>
-          </a-button>
+            @keyup.enter="$emit('searchPrompt')"
+          />
+          <button type="button" class="search-submit-btn" @click="$emit('searchPrompt')">搜索</button>
         </div>
         <a-pagination
           v-if="promptPage.total > 0"
@@ -49,20 +44,15 @@
       
       <!-- 工具Tab -->
       <a-tab-pane key="tools" tab="工具">
-        <div class="search-row">
-          <a-input
-            v-model:value="kwTool"
-            size="middle"
+        <div class="search-input-wrapper">
+          <SearchOutlined class="search-icon" />
+          <input
+            v-model="kwTool"
+            type="text"
             placeholder="工具名 / Tool Key"
-            allow-clear
-            class="search-input"
-            @pressEnter="$emit('searchTool')"
-          >
-            <template #prefix><SearchOutlined class="search-ico" /></template>
-          </a-input>
-          <a-button type="primary" class="search-btn search-btn-tool" @click="$emit('searchTool')">
-            <template #icon><SearchOutlined /></template>
-          </a-button>
+            @keyup.enter="$emit('searchTool')"
+          />
+          <button type="button" class="search-submit-btn" @click="$emit('searchTool')">搜索</button>
         </div>
         <a-pagination
           v-if="toolPage.total > 0"
@@ -94,20 +84,15 @@
       
       <!-- MCP Tab -->
       <a-tab-pane key="mcps" tab="MCP">
-        <div class="search-row">
-          <a-input
-            v-model:value="kwMcp"
-            size="middle"
+        <div class="search-input-wrapper">
+          <SearchOutlined class="search-icon" />
+          <input
+            v-model="kwMcp"
+            type="text"
             placeholder="服务名 / MCP Key"
-            allow-clear
-            class="search-input"
-            @pressEnter="$emit('searchMcp')"
-          >
-            <template #prefix><SearchOutlined class="search-ico" /></template>
-          </a-input>
-          <a-button type="primary" class="search-btn search-btn-mcp" @click="$emit('searchMcp')">
-            <template #icon><SearchOutlined /></template>
-          </a-button>
+            @keyup.enter="$emit('searchMcp')"
+          />
+          <button type="button" class="search-submit-btn" @click="$emit('searchMcp')">搜索</button>
         </div>
         <a-pagination
           v-if="mcpPage.total > 0"
@@ -198,54 +183,63 @@ defineExpose({ getKeywords })
   overflow: hidden;
 }
 
-.search-row {
+/* 与 InstanceList 一致的 pill 搜索条（侧栏全宽） */
+.search-input-wrapper {
+  width: 100%;
+  height: 52px;
+  background: #fff;
+  border-radius: 26px;
+  padding: 0 8px 0 16px;
   display: flex;
-  align-items: stretch;
-  gap: 8px;
+  align-items: center;
   margin-bottom: 8px;
   flex-shrink: 0;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 4px 12px rgba(15, 23, 42, 0.08),
+    0 12px 28px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.search-input {
+.search-input-wrapper:focus-within {
+  border-color: #3b82f6;
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.22),
+    0 4px 14px rgba(37, 99, 235, 0.2),
+    0 14px 32px rgba(15, 23, 42, 0.12);
+}
+
+.search-icon {
+  color: #3b82f6;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.search-input-wrapper input {
   flex: 1;
   min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  margin-left: 8px;
+  background: transparent;
 }
 
-.search-ico {
-  color: var(--assembly-search-icon);
-}
-
-.search-row :deep(.ant-input-affix-wrapper) {
-  border-radius: 12px;
-  min-height: 36px;
-  padding-inline: 11px;
-}
-
-.search-btn {
+.search-submit-btn {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  min-height: 36px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-}
-
-.search-btn-tool {
-  background: #1890ff !important;
-  border-color: #1890ff !important;
-}
-
-.search-btn-mcp {
-  background: #52c41a !important;
-  border-color: #52c41a !important;
-}
-
-.search-btn-prompt {
-  background: #722ed1 !important;
-  border-color: #722ed1 !important;
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 2px 4px rgba(29, 78, 216, 0.35),
+    0 6px 14px rgba(37, 99, 235, 0.28);
 }
 
 .palette-tabs {

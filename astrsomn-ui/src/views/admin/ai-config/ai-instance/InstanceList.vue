@@ -7,15 +7,12 @@
     <div class="astrsomn-config-container">
       <header class="list-toolbar-glass">
         <div class="toolbar-left">
-          <div class="search-input-wrapper">
-            <search-outlined class="search-icon" />
-            <input 
-              v-model="query.instanceName" 
-              placeholder="搜索预设名称或标识..." 
-              @keyup.enter="fetchList"
-            />
-            <button class="search-btn" @click="fetchList">搜索</button>
-          </div>
+          <ToolbarSearchPill
+            v-model="query.instanceName"
+            layout="toolbar"
+            placeholder="搜索预设名称或标识..."
+            @search="fetchList"
+          />
           
    
         </div>
@@ -147,11 +144,12 @@
 import { computed, reactive, ref } from 'vue'
 import { message, Empty } from 'ant-design-vue'
 import {
-  DeleteOutlined, PlusOutlined, SearchOutlined, EditOutlined,
+  DeleteOutlined, PlusOutlined, EditOutlined,
   MessageOutlined, ThunderboltFilled, CheckOutlined, PartitionOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import InstanceForm from './InstanceForm.vue'
 import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance'
 import dayjs from 'dayjs'
@@ -229,44 +227,6 @@ fetchList()
   gap: 20px;
 }
 
-.search-input-wrapper {
-  flex: 1;
-  max-width: 460px;
-  height: 52px;
-  background: #fff;
-  border-radius: 26px;
-  padding: 0 8px 0 20px;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  border: 1px solid #eef2f6;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.search-input-wrapper:focus-within {
-  border-color: #6366f1;
-  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
-}
-
-.search-input-wrapper input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 15px;
-  margin-left: 10px;
-  background: transparent;
-}
-
-.search-btn {
-  background: #6366f1;
-  color: white;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .toc-select {
   width: 140px;
   :deep(.ant-select-selector) {
@@ -281,9 +241,13 @@ fetchList()
   padding: 0 28px;
   border-radius: 24px;
   font-weight: 700;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   border: none;
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 3px 6px rgba(29, 78, 216, 0.4),
+    0 10px 24px rgba(37, 99, 235, 0.32),
+    0 20px 40px rgba(15, 23, 42, 0.1);
 }
 
 /* --- 卡片网格布局 --- */
@@ -297,23 +261,35 @@ fetchList()
 .toc-card {
   background: #ffffff;
   border-radius: 24px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid #e2e8f0;
   position: relative;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 4px 10px rgba(15, 23, 42, 0.07),
+    0 10px 28px rgba(15, 23, 42, 0.08);
 }
 
 .toc-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-  border-color: #6366f1;
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, 0.06),
+    0 8px 18px rgba(15, 23, 42, 0.1),
+    0 18px 44px rgba(15, 23, 42, 0.14),
+    0 0 0 1px rgba(59, 130, 246, 0.12);
+  border-color: #3b82f6;
 }
 
 .toc-card.is-selected {
-  background: #f5f3ff;
-  border-color: #a78bfa;
+  background: #eff6ff;
+  border-color: #60a5fa;
+  box-shadow:
+    0 1px 2px rgba(37, 99, 235, 0.08),
+    0 6px 16px rgba(37, 99, 235, 0.14),
+    0 14px 36px rgba(37, 99, 235, 0.12);
 }
 
 /* 自定义 Checkbox */
@@ -338,9 +314,10 @@ fetchList()
 }
 
 .custom-check.active {
-  background: #6366f1;
-  border-color: #6366f1;
+  background: #2563eb;
+  border-color: #1d4ed8;
   color: white;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.45);
 }
 
 .toc-card-body {
@@ -368,7 +345,7 @@ fetchList()
   background: #64748b;
 }
 
-.type-icon-box.chat { background: linear-gradient(135deg, #6366f1, #818cf8); }
+.type-icon-box.chat { background: linear-gradient(135deg, #2563eb, #3b82f6); }
 .type-icon-box.embedding { background: linear-gradient(135deg, #10b981, #34d399); }
 
 .title-area .name {
@@ -426,7 +403,7 @@ fetchList()
 }
 
 .p-thumb.temp { background: #f59e0b; }
-.p-thumb.topp { background: #8b5cf6; }
+.p-thumb.topp { background: #2563eb; }
 
 /* 底部操作 */
 .toc-card-footer {

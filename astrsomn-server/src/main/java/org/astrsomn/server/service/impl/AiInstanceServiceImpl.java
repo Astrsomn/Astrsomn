@@ -68,6 +68,7 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
         }
         AiInstanceEntity entity = new AiInstanceEntity();
         BeanUtils.copyProperties(request, entity);
+        bizResourceKeyAssignHelper.assignInstanceKeyIfBlank(entity);
         entity.setModelKey(existing.getModelKey());
         boolean result = updateById(entity);
         return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);

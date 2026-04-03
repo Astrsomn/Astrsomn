@@ -40,7 +40,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'agents/model-assembly',
         name: 'AdminModelAssembly',
-        component: () => import('@/views/admin/ai-config/ai-agent/ModelAssemblyPage.vue'),
+        component: () => import('@/views/admin/ai-config/ai-agent/AgentForm.vue'),
         meta: { title: 'Agent组装', requiresAuth: true }
       },
       {

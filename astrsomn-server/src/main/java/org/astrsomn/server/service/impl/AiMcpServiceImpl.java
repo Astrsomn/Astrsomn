@@ -58,6 +58,7 @@ public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> impl
     public BaseResponse<String> update(AiMcpUpdateRequestDTO request) {
         AiMcpEntity entity = new AiMcpEntity();
         BeanUtils.copyProperties(request, entity);
+        bizResourceKeyAssignHelper.assignMcpKeyIfBlank(entity);
         boolean result = updateById(entity);
         return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
     }
