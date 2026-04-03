@@ -94,6 +94,8 @@ type DisplayRow = {
   key: string
   name: string
   sub: string
+  modelName?: string
+  promptTitle?: string
   icon: Component
   tone: RowTone
   state: RowState
@@ -113,39 +115,7 @@ const runningLabel = computed(() =>
 )
 
 const fallbackRows = computed<DisplayRow[]>(() => [
-  {
-    key: 'fb1',
-    name: '客服智能体 v2',
-    sub: '处理售后咨询与自动化工单',
-    icon: CustomerServiceOutlined,
-    tone: 'indigo',
-    state: 'active',
-    stateLabel: 'Active',
-    calls: '12k+',
-    onClick: () => void router.push('/admin/agents'),
-  },
-  {
-    key: 'fb2',
-    name: '文档分析助手',
-    sub: 'PDF/Excel 数据结构化提取',
-    icon: FileTextOutlined,
-    tone: 'purple',
-    state: 'active',
-    stateLabel: 'Active',
-    calls: '850',
-    onClick: () => void router.push('/admin/agents'),
-  },
-  {
-    key: 'fb3',
-    name: '代码生成插件',
-    sub: '自动化代码评审与补全',
-    icon: CodeOutlined,
-    tone: 'slate',
-    state: 'idle',
-    stateLabel: 'Idle',
-    muted: true,
-    onClick: () => void router.push('/admin/agents'),
-  },
+
 ])
 
 const displayRows = computed<DisplayRow[]>(() => {
@@ -153,16 +123,27 @@ const displayRows = computed<DisplayRow[]>(() => {
   return fallbackRows.value
 })
 
+function buildSub(a: AiAgent): string {
+  if (a.description) return a.description
+  const parts: string[] = []
+  if (a.modelName) parts.push(`模型：${a.modelName}`)
+  if (a.promptTitle) parts.push(`提示词：${a.promptTitle}`)
+  if (parts.length > 0) return parts.join(' · ')
+  return '智能体编排与推理'
+}
+
 function mapAgents(list: AiAgent[]): DisplayRow[] {
   const icons = [CustomerServiceOutlined, FileTextOutlined, CodeOutlined]
   const tones: RowTone[] = ['indigo', 'purple', 'slate']
-  return list.slice(0, 3).map((a, i) => {
+  return list.slice(0, 5).map((a, i) => {
     const id = a.id
     const enabled = a.status === 'enabled'
     return {
       key: String(id ?? a.agentKey ?? i),
       name: a.agentName || a.agentKey || '未命名智能体',
-      sub: a.description || '智能体编排与推理',
+      sub: buildSub(a),
+      modelName: a.modelName,
+      promptTitle: a.promptTitle,
       icon: icons[i % icons.length]!,
       tone: tones[i % tones.length]!,
       state: enabled ? 'active' : 'idle',
@@ -216,6 +197,29 @@ const goAgentsList = () => {
   box-shadow:
     0 0 0 2px var(--bg-base),
     0 0 0 4px color-mix(in srgb, var(--primary) 45%, transparent);
+}
+
+/* 1×1 极小尺寸：仅保留图标 + 名称，弱化其他元素 */
+.dash-mod--ai-agent[data-col-tier='1'][data-row-tier='1'] .agent-panel {
+  padding: 16px 18px;
+  align-items: center;
+  justify-content: center;
+}
+
+.dash-mod--ai-agent[data-col-tier='1'][data-row-tier='1'] .agent-panel-head {
+  margin-bottom: 0;
+  justify-content: center;
+}
+
+.dash-mod--ai-agent[data-col-tier='1'][data-row-tier='1'] .agent-panel-head-left {
+  justify-content: center;
+}
+
+.dash-mod--ai-agent[data-col-tier='1'][data-row-tier='1'] .status-badge,
+.dash-mod--ai-agent[data-col-tier='1'][data-row-tier='1'] .agent-panel-desc,
+.dash-mod--ai-agent[data-col-tier='1'][data-row-tier='1'] .btn-new-agent,
+.dash-mod--ai-agent[data-col-tier='1'][data-row-tier='1'] .agent-list {
+  display: none;
 }
 
 .dash-mod--ai-agent[data-col-tier='1'] .agent-panel-desc,
@@ -441,6 +445,32 @@ const goAgentsList = () => {
   gap: 12px;
   flex-shrink: 1;
   min-width: 0;
+}
+
+.agent-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 180px;
+  overflow: hidden;
+}
+
+.agent-meta-pill {
+  margin: 0;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 9px;
+  line-height: 1.4;
+  background: color-mix(in srgb, var(--bg-card) 60%, var(--primary) 6%);
+  color: var(--text-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* 窄列时隐藏模型/提示词信息，避免拥挤 */
+.dash-mod--ai-agent[data-col-tier='1'] .agent-meta {
+  display: none;
 }
 
 .agent-calls {

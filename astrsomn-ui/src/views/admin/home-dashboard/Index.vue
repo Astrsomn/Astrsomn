@@ -1,9 +1,11 @@
 <template>
   <div class="console-home-root demo-dashboard">
-    <div class="dashboard-toolbar">
-      <p v-if="layoutEditMode" class="toolbar-hint">拖动卡片调整位置，拖右下角调整大小；编辑时点击入口不会跳转。</p>
-      <div class="toolbar-actions">
-        <button
+    <main class="dashboard-home-main">
+      <DashboardHomeGrid :edit-mode="layoutEditMode" :entry-by-route="entryByRoute" />
+    </main>
+
+    <div class="fab-wrap">
+         <button
           v-if="layoutEditMode"
           type="button"
           class="toolbar-btn"
@@ -11,17 +13,9 @@
         >
           恢复默认布局
         </button>
-        <button type="button" class="toolbar-btn toolbar-btn--primary" @click="layoutEditMode = !layoutEditMode">
+         <button type="button" class="toolbar-btn toolbar-btn--primary" @click="layoutEditMode = !layoutEditMode">
           {{ layoutEditMode ? '完成编辑' : '编辑布局' }}
         </button>
-      </div>
-    </div>
-
-    <main class="dashboard-home-main">
-      <DashboardHomeGrid :edit-mode="layoutEditMode" :entry-by-route="entryByRoute" />
-    </main>
-
-    <div class="fab-wrap">
       <button type="button" class="fab fab--primary"  @click="navigateTo('/admin/resource-library')">
         <AppstoreOutlined />
         全部应用
@@ -82,7 +76,7 @@ const confirmResetLayout = () => {
 .demo-dashboard {
   position: relative;
   box-sizing: border-box;
-  padding: 10px 15px 96px;
+
   background: var(--bg-base);
   min-height: 100%;
   overflow-x: hidden;

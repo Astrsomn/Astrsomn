@@ -125,8 +125,9 @@ const handleLogin = () => {
   z-index: 1000;
   height: 64px;
   width: 100%;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   display: flex;
   align-items: center;
 }
