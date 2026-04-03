@@ -2,7 +2,6 @@
   <div class="doc-lang-theme">
     <a v-if="showDoc" href="javascript:;" class="doc-link" @click.prevent="goDoc">
       <book-outlined />
-      <span>文档</span>
     </a>
 
     <div v-if="showDoc" class="th-divider" />
@@ -14,6 +13,7 @@
       :options="languageOptions"
       @change="changeLang"
       :bordered="false"
+      option-label-prop="label"
     />
 
     <div class="th-divider" />
@@ -85,11 +85,24 @@ const goDoc = () => {
 }
 
 .lang-select {
-  width: 100px;
+  width: 56px;
   color: var(--text-primary);
 }
 
 .lang-select :deep(.ant-select-selection-item) {
+  font-size: 16px !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px 8px !important;
+  color: var(--text-secondary) !important;
+}
+
+.lang-select :deep(.ant-select-dropdown-menu-item) {
+  font-size: 16px !important;
+  padding: 8px 12px !important;
+  text-align: center !important;
   color: var(--text-secondary) !important;
 }
 
