@@ -26,7 +26,7 @@
       >
         <div class="grid-cell" :class="{ 'grid-cell--edit': editMode }">
           <button
-            v-if="editMode && isRouteShortcutRow(cell.i)"
+            v-if="editMode && isRemovablePageModule(cell.i)"
             type="button"
             class="grid-cell-remove"
             title="从控制台移除"
@@ -52,7 +52,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { GridLayout, GridItem } from 'grid-layout-plus'
 import type { Layout } from 'grid-layout-plus'
-import type { DashboardLayoutItem, DashboardRouteShortcutItem } from './dashboardLayoutTypes'
+import type { DashboardLayoutItem, DashboardPageModuleItem } from './dashboardLayoutTypes'
+import { isDashboardPageModuleKind } from './dashboardLayoutTypes'
 import {
   dashboardLayoutRevision,
   debouncedSaveDashboardItems,
@@ -63,7 +64,7 @@ import {
   removeDashboardItem,
 } from './dashboardLayoutStorage'
 import { DASHBOARD_WIDGET_BY_KIND } from './dashboardWidgets'
-import type { ManagementEntry } from './management'
+import type { ManagementEntry } from '../resource-library/management.ts'
 
 const props = defineProps<{
   editMode: boolean
@@ -111,9 +112,9 @@ function remove(i: string) {
   removeDashboardItem(i)
 }
 
-function isRouteShortcutRow(i: string | number): boolean {
+function isRemovablePageModule(i: string | number): boolean {
   const row = itemById.value[String(i)]
-  return row?.kind === 'RouteShortcut'
+  return !!row && isDashboardPageModuleKind(row.kind)
 }
 
 function widgetFor(i: string | number) {
@@ -125,13 +126,14 @@ function widgetFor(i: string | number) {
 function widgetProps(full: DashboardLayoutItem, cell: Layout[number]) {
   const w = cell.w
   const h = cell.h
-  if (full.kind === 'RouteShortcut') {
+  if (isDashboardPageModuleKind(full.kind)) {
+    const page = full as DashboardPageModuleItem
     return {
-      item: full as DashboardRouteShortcutItem,
       gridW: w,
       gridH: h,
       editMode: props.editMode,
       entryByRoute: props.entryByRoute,
+      route: page.route,
     }
   }
   return { gridW: w, gridH: h }

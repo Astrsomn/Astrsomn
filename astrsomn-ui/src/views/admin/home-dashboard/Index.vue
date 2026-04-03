@@ -22,8 +22,9 @@
     </main>
 
     <div class="fab-wrap">
-      <button type="button" class="fab fab--ghost" aria-label="帮助与入口" @click="navigateTo('/admin/resource-library')">
-        <question-circle-outlined />
+      <button type="button" class="fab fab--primary"  @click="navigateTo('/admin/resource-library')">
+        <AppstoreOutlined />
+        全部应用
       </button>
       <button type="button" class="fab fab--primary" @click="navigateTo('/admin/ai-instance')">
         <plus-outlined />
@@ -36,10 +37,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { QuestionCircleOutlined, PlusOutlined } from '@ant-design/icons-vue'
+import { AppstoreOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import { Modal, message } from 'ant-design-vue'
-import type { ManagementEntry } from './backend/management'
-import { getCurrentUserRole, resolveManagementGroups } from './backend/management'
+import type { ManagementEntry } from './resource-library/management.ts'
+import { getCurrentUserRole, resolveManagementGroups } from './resource-library/management.ts'
 import DashboardHomeGrid from './backend/DashboardHomeGrid.vue'
 import { resetDashboardLayoutToDefault } from './backend/dashboardLayoutStorage'
 

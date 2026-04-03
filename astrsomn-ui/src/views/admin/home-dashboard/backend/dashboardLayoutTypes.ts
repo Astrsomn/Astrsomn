@@ -1,12 +1,35 @@
 /**
- * 控制台栅格模块类型，命名对齐后端实体（如 AiAgentEntity → AiAgent）。
+ * 控制台栅格模块类型：内置三块 + 与应用库 management 条目对应的页面模块（命名贴近实体）。
  */
-export type DashboardShortcutVariant = 'compact' | 'mcp' | 'gradient-market' | 'gradient-apps'
-
-/** 内置业务模块（无 route） */
 export type DashboardBuiltinModuleKind = 'AiAgent' | 'AiInstance' | 'ConsoleSystemLoad'
 
-export type DashboardModuleKind = DashboardBuiltinModuleKind | 'RouteShortcut'
+export const DASHBOARD_PAGE_MODULE_KINDS = [
+  'AiModel',
+  'AiAccount',
+  'AiMcp',
+  'AiTool',
+  'AiPrompt',
+  'AiTemplate',
+  'KnowledgeBase',
+  'AiDocument',
+  'SecurityPolicy',
+  'TraceInsight',
+  'AiWorkflow',
+  'AiWorkflowTest',
+  'SystemUser',
+  'SystemEnv',
+  'SystemConfig',
+  'SystemExtension',
+  'ConsoleResourceLibrary',
+] as const
+
+export type DashboardPageModuleKind = (typeof DASHBOARD_PAGE_MODULE_KINDS)[number]
+
+export type DashboardModuleKind = DashboardBuiltinModuleKind | DashboardPageModuleKind
+
+export function isDashboardPageModuleKind(k: string): k is DashboardPageModuleKind {
+  return (DASHBOARD_PAGE_MODULE_KINDS as readonly string[]).includes(k)
+}
 
 export interface DashboardLayoutItemBase {
   i: string
@@ -32,15 +55,13 @@ export interface DashboardConsoleSystemLoadItem extends DashboardLayoutItemBase 
   kind: 'ConsoleSystemLoad'
 }
 
-export interface DashboardRouteShortcutItem extends DashboardLayoutItemBase {
-  kind: 'RouteShortcut'
+export interface DashboardPageModuleItem extends DashboardLayoutItemBase {
+  kind: DashboardPageModuleKind
   route: string
-  shortcutVariant: DashboardShortcutVariant
-  subtitle?: string
 }
 
 export type DashboardLayoutItem =
   | DashboardAiAgentItem
   | DashboardAiInstanceItem
   | DashboardConsoleSystemLoadItem
-  | DashboardRouteShortcutItem
+  | DashboardPageModuleItem

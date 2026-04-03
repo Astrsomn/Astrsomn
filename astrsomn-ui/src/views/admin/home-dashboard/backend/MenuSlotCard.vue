@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { PushpinOutlined } from '@ant-design/icons-vue'
-import type { EntryAccent, ManagementEntry } from './management.ts'
+import type { EntryAccent, ManagementEntry } from '../resource-library/management.ts'
 
 const props = withDefaults(
   defineProps<{

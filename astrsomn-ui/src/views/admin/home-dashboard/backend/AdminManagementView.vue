@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ManagementGroup } from './management'
+import type { ManagementGroup } from '../resource-library/management.ts'
 // Vetur occasionally misses Vue SFC default exports in script setup files.
 // @ts-ignore
 import AdminEntryCard from './AdminEntryCard.vue'

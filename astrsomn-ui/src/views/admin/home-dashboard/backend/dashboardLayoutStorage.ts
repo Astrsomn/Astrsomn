@@ -2,170 +2,118 @@ import { ref } from 'vue'
 import type { Layout } from 'grid-layout-plus'
 import type {
   DashboardLayoutItem,
-  DashboardRouteShortcutItem,
-  DashboardShortcutVariant,
+  DashboardModuleKind,
+  DashboardPageModuleItem,
 } from './dashboardLayoutTypes'
+import { isDashboardPageModuleKind } from './dashboardLayoutTypes'
+import { PAGE_KIND_ROUTE, ROUTE_TO_PAGE_KIND } from './dashboardPageRegistry'
 
-export type { DashboardLayoutItem, DashboardShortcutVariant } from './dashboardLayoutTypes'
+export type { DashboardLayoutItem } from './dashboardLayoutTypes'
 
+const STORAGE_V3_KEY = 'astrsomn.dashboard.layout.v3'
 const STORAGE_V2_KEY = 'astrsomn.dashboard.layout.v2'
 const STORAGE_V1_KEY = 'astrsomn.dashboard.shortcuts.v1'
-const STORAGE_VERSION = 2
+const STORAGE_VERSION = 3
+
+/** 默认占位：12 列栅格下每块 w=2、h=2（2×2） */
+const DEFAULT_WH = 2
+
+const DEFAULT_MODULE_ORDER: DashboardModuleKind[] = [
+  'AiAgent',
+  'AiInstance',
+  'ConsoleSystemLoad',
+  'AiModel',
+  'AiAccount',
+  'AiMcp',
+  'AiTool',
+  'AiPrompt',
+  'AiTemplate',
+  'KnowledgeBase',
+  'AiDocument',
+  'SecurityPolicy',
+  'TraceInsight',
+  'AiWorkflow',
+  'AiWorkflowTest',
+  'SystemUser',
+  'SystemEnv',
+  'SystemConfig',
+  'SystemExtension',
+  'ConsoleResourceLibrary',
+]
 
 export const dashboardLayoutRevision = ref(0)
 /** @deprecated 使用 dashboardLayoutRevision */
 export const dashboardShortcutsRevision = dashboardLayoutRevision
 
-const DEFAULT_BUILTIN_ITEMS: DashboardLayoutItem[] = [
-  {
-    i: 'mod_AiAgent',
-    kind: 'AiAgent',
-    x: 0,
-    y: 0,
-    w: 8,
-    h: 3,
-    minW: 3,
-    minH: 2,
-    maxW: 12,
-    maxH: 6,
-  },
-  {
-    i: 'mod_AiInstance',
-    kind: 'AiInstance',
-    x: 8,
-    y: 0,
-    w: 4,
-    h: 2,
-    minW: 2,
-    minH: 1,
-    maxW: 12,
-    maxH: 6,
-  },
-  {
-    i: 'mod_ConsoleSystemLoad',
-    kind: 'ConsoleSystemLoad',
-    x: 8,
-    y: 2,
-    w: 4,
-    h: 2,
-    minW: 2,
-    minH: 1,
-    maxW: 12,
-    maxH: 6,
-  },
-]
-
-const DEFAULT_SHORTCUT_ROWS: DashboardRouteShortcutItem[] = [
-  {
-    i: 'sc_kb',
-    kind: 'RouteShortcut',
-    route: '/admin/knowledge-bases',
-    shortcutVariant: 'compact',
-    subtitle: '12 个集群',
-    x: 0,
-    y: 4,
-    w: 3,
-    h: 1,
-    minW: 1,
-    minH: 1,
-    maxW: 12,
-    maxH: 6,
-  },
-  {
-    i: 'sc_models',
-    kind: 'RouteShortcut',
-    route: '/admin/models',
-    shortcutVariant: 'compact',
-    subtitle: '8 个模型',
-    x: 3,
-    y: 4,
-    w: 3,
-    h: 1,
-    minW: 1,
-    minH: 1,
-    maxW: 12,
-    maxH: 6,
-  },
-  {
-    i: 'sc_ftl',
-    kind: 'RouteShortcut',
-    route: '/admin/templates',
-    shortcutVariant: 'compact',
-    subtitle: '24 个模板',
-    x: 6,
-    y: 4,
-    w: 3,
-    h: 1,
-    minW: 1,
-    minH: 1,
-    maxW: 12,
-    maxH: 6,
-  },
-  {
-    i: 'sc_prompts',
-    kind: 'RouteShortcut',
-    route: '/admin/prompts',
-    shortcutVariant: 'compact',
-    subtitle: '版本化模板与预设',
-    x: 9,
-    y: 4,
-    w: 3,
-    h: 1,
-    minW: 1,
-    minH: 1,
-    maxW: 12,
-    maxH: 6,
-  },
-  {
-    i: 'sc_mcp',
-    kind: 'RouteShortcut',
-    route: '/admin/mcp',
-    shortcutVariant: 'mcp',
-    x: 0,
-    y: 5,
-    w: 3,
-    h: 1,
-    minW: 1,
-    minH: 1,
-    maxW: 12,
-    maxH: 6,
-  },
-  {
-    i: 'sc_tools',
-    kind: 'RouteShortcut',
-    route: '/admin/tools',
-    shortcutVariant: 'gradient-market',
-    x: 3,
-    y: 5,
-    w: 3,
-    h: 1,
-    minW: 1,
-    minH: 1,
-    maxW: 12,
-    maxH: 6,
-  },
-  {
-    i: 'sc_apps',
-    kind: 'RouteShortcut',
-    route: '/admin/resource-library',
-    shortcutVariant: 'gradient-apps',
-    x: 6,
-    y: 5,
-    w: 3,
-    h: 1,
-    minW: 1,
-    minH: 1,
-    maxW: 12,
-    maxH: 6,
-  },
-]
-
 export function defaultDashboardLayoutItems(): DashboardLayoutItem[] {
-  return [...DEFAULT_BUILTIN_ITEMS.map((r) => ({ ...r })), ...DEFAULT_SHORTCUT_ROWS.map((r) => ({ ...r }))]
-}
+  const items: DashboardLayoutItem[] = []
+  let x = 0
+  let y = 0
+  const w = DEFAULT_WH
+  const h = DEFAULT_WH
 
-function isRouteShortcut(it: DashboardLayoutItem): it is DashboardRouteShortcutItem {
-  return it.kind === 'RouteShortcut'
+  for (const kind of DEFAULT_MODULE_ORDER) {
+    if (kind === 'AiAgent') {
+      items.push({
+        i: 'mod_AiAgent',
+        kind: 'AiAgent',
+        x,
+        y,
+        w,
+        h,
+        minW: 1,
+        minH: 1,
+        maxW: 12,
+        maxH: 6,
+      })
+    } else if (kind === 'AiInstance') {
+      items.push({
+        i: 'mod_AiInstance',
+        kind: 'AiInstance',
+        x,
+        y,
+        w,
+        h,
+        minW: 1,
+        minH: 1,
+        maxW: 12,
+        maxH: 6,
+      })
+    } else if (kind === 'ConsoleSystemLoad') {
+      items.push({
+        i: 'mod_ConsoleSystemLoad',
+        kind: 'ConsoleSystemLoad',
+        x,
+        y,
+        w,
+        h,
+        minW: 1,
+        minH: 1,
+        maxW: 12,
+        maxH: 6,
+      })
+    } else {
+      items.push({
+        i: `mod_${kind}`,
+        kind,
+        route: PAGE_KIND_ROUTE[kind],
+        x,
+        y,
+        w,
+        h,
+        minW: 1,
+        minH: 1,
+        maxW: 12,
+        maxH: 6,
+      })
+    }
+    x += w
+    if (x >= 12) {
+      x = 0
+      y += h
+    }
+  }
+  return items
 }
 
 function normalizeItem(row: DashboardLayoutItem): DashboardLayoutItem {
@@ -176,7 +124,52 @@ function normalizeItem(row: DashboardLayoutItem): DashboardLayoutItem {
     maxW: row.maxW ?? 12,
     maxH: row.maxH ?? 6,
   }
+  if (isDashboardPageModuleKind(base.kind)) {
+    const pi = base as DashboardPageModuleItem
+    return {
+      ...pi,
+      route: pi.route || PAGE_KIND_ROUTE[pi.kind],
+    }
+  }
   return base as DashboardLayoutItem
+}
+
+function migrateV2ToV3Items(raw: unknown[]): DashboardLayoutItem[] {
+  const out: DashboardLayoutItem[] = []
+  for (const row of raw) {
+    const it = row as Record<string, unknown> & { i?: string; kind?: string; route?: string }
+    if (!it?.i || !it.kind) continue
+    if (it.kind === 'RouteShortcut' && typeof it.route === 'string') {
+      const k = ROUTE_TO_PAGE_KIND[it.route]
+      if (k) {
+        out.push(
+          normalizeItem({
+            i: String(it.i),
+            kind: k,
+            route: it.route,
+            x: Number(it.x) || 0,
+            y: Number(it.y) || 0,
+            w: Number(it.w) || DEFAULT_WH,
+            h: Number(it.h) || DEFAULT_WH,
+            minW: Number(it.minW) || 1,
+            minH: Number(it.minH) || 1,
+            maxW: Number(it.maxW) || 12,
+            maxH: Number(it.maxH) || 6,
+          } as DashboardPageModuleItem),
+        )
+      }
+      continue
+    }
+    if (
+      it.kind === 'AiAgent' ||
+      it.kind === 'AiInstance' ||
+      it.kind === 'ConsoleSystemLoad' ||
+      isDashboardPageModuleKind(it.kind)
+    ) {
+      out.push(normalizeItem(it as DashboardLayoutItem))
+    }
+  }
+  return out.length > 0 ? out : defaultDashboardLayoutItems()
 }
 
 export function itemsToLayout(items: DashboardLayoutItem[]): Layout {
@@ -204,55 +197,31 @@ export function mergeLayoutIntoItems(layout: Layout, items: DashboardLayoutItem[
 
 export function loadDashboardLayoutItems(): DashboardLayoutItem[] {
   try {
+    const rawV3 = localStorage.getItem(STORAGE_V3_KEY)
+    if (rawV3) {
+      const data = JSON.parse(rawV3) as { v?: number; items?: DashboardLayoutItem[] }
+      if (data.v === STORAGE_VERSION && Array.isArray(data.items) && data.items.length > 0) {
+        return data.items.map((row) => normalizeItem(row as DashboardLayoutItem))
+      }
+    }
+
     const rawV2 = localStorage.getItem(STORAGE_V2_KEY)
     if (rawV2) {
-      const data = JSON.parse(rawV2) as { v?: number; items?: DashboardLayoutItem[] }
-      if (data.v === STORAGE_VERSION && Array.isArray(data.items) && data.items.length > 0) {
-        return data.items.map((row) => normalizeItem(row))
+      const data = JSON.parse(rawV2) as { v?: number; items?: unknown[] }
+      if (data.v === 2 && Array.isArray(data.items) && data.items.length > 0) {
+        const migrated = migrateV2ToV3Items(data.items)
+        saveDashboardLayoutItems(migrated)
+        return migrated.map(normalizeItem)
       }
     }
 
     const rawV1 = localStorage.getItem(STORAGE_V1_KEY)
     if (rawV1) {
-      const data = JSON.parse(rawV1) as {
-        v?: number
-        items?: Array<{
-          i: string
-          route: string
-          variant: DashboardShortcutVariant
-          subtitle?: string
-          x: number
-          y: number
-          w: number
-          h: number
-          minW?: number
-          minH?: number
-        }>
-      }
-      if (data.v === 1 && Array.isArray(data.items) && data.items.length > 0) {
-        const migrated: DashboardLayoutItem[] = [
-          ...DEFAULT_BUILTIN_ITEMS.map((r) => ({ ...r })),
-          ...data.items.map(
-            (it) =>
-              ({
-                i: it.i,
-                kind: 'RouteShortcut' as const,
-                route: it.route,
-                shortcutVariant: it.variant,
-                subtitle: it.subtitle,
-                x: it.x,
-                y: it.y + 4,
-                w: it.w,
-                h: it.h,
-                minW: it.minW ?? 1,
-                minH: it.minH ?? 1,
-                maxW: 12,
-                maxH: 6,
-              }) satisfies DashboardRouteShortcutItem,
-          ),
-        ]
-        saveDashboardLayoutItems(migrated)
-        return migrated.map(normalizeItem)
+      const data = JSON.parse(rawV1) as { v?: number; items?: unknown[] }
+      if (data.v === 1 && Array.isArray(data.items)) {
+        const next = defaultDashboardLayoutItems()
+        saveDashboardLayoutItems(next)
+        return next.map(normalizeItem)
       }
     }
   } catch {
@@ -263,7 +232,7 @@ export function loadDashboardLayoutItems(): DashboardLayoutItem[] {
 }
 
 export function saveDashboardLayoutItems(items: DashboardLayoutItem[]) {
-  localStorage.setItem(STORAGE_V2_KEY, JSON.stringify({ v: STORAGE_VERSION, items }))
+  localStorage.setItem(STORAGE_V3_KEY, JSON.stringify({ v: STORAGE_VERSION, items }))
 }
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null
@@ -312,34 +281,33 @@ function findNextSlot(items: DashboardLayoutItem[], w: number, h: number): { x: 
   return { x: 0, y: 0 }
 }
 
-export function inferShortcutVariant(route: string): DashboardShortcutVariant {
-  if (route === '/admin/mcp') return 'mcp'
-  if (route === '/admin/tools') return 'gradient-market'
-  if (route === '/admin/resource-library') return 'gradient-apps'
-  return 'compact'
+function layoutItemHasRoute(it: DashboardLayoutItem): it is DashboardPageModuleItem {
+  return isDashboardPageModuleKind(it.kind)
 }
 
-function makeStableId(route: string): string {
-  return `sc_${route.replace(/^\/admin\/?/, '').replace(/\//g, '_') || 'root'}`
-}
-
-/** 从应用库固定；已存在同 route 则 false */
+/** 从应用库固定；已存在同 route 的页面模块则 false */
 export function addDashboardShortcut(route: string): boolean {
+  const kind = ROUTE_TO_PAGE_KIND[route]
+  if (!kind) return false
+
   const items = loadDashboardLayoutItems()
-  if (items.some((it) => isRouteShortcut(it) && it.route === route)) return false
-  let id = makeStableId(route)
+
+  if (items.some((it) => layoutItemHasRoute(it) && it.route === route)) return false
+  if (route === '/admin/agents' && items.some((it) => it.kind === 'AiAgent')) return false
+  if (route === '/admin/ai-instance' && items.some((it) => it.kind === 'AiInstance')) return false
+
+  let id = `mod_${kind}`
   if (items.some((it) => it.i === id)) id = `${id}_${Date.now()}`
-  const shortcutVariant = inferShortcutVariant(route)
-  const pos = findNextSlot(items, 3, 1)
-  const next: DashboardRouteShortcutItem = {
+
+  const pos = findNextSlot(items, DEFAULT_WH, DEFAULT_WH)
+  const next: DashboardPageModuleItem = {
     i: id,
-    kind: 'RouteShortcut',
-    route,
-    shortcutVariant,
+    kind,
+    route: PAGE_KIND_ROUTE[kind],
     x: pos.x,
     y: pos.y,
-    w: 3,
-    h: 1,
+    w: DEFAULT_WH,
+    h: DEFAULT_WH,
     minW: 1,
     minH: 1,
     maxW: 12,
