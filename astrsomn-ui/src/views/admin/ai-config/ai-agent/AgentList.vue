@@ -39,12 +39,10 @@
         </div>
 
         <div class="toolbar-right">
-          <router-link v-slot="{ navigate }" to="/admin/agents/model-assembly" custom>
-            <a-button class="ghost-btn" @click="navigate">
-              <template #icon><apartment-outlined /></template>
-              模型组装
-            </a-button>
-          </router-link>
+          <a-button class="ghost-btn" @click="openCreate">
+            <template #icon><apartment-outlined /></template>
+            模型组装
+          </a-button>
           <a-button type="primary" class="primary-btn" @click="fetchList">
             <template #icon><search-outlined /></template>
             查询
@@ -99,6 +97,12 @@
           @change="onPageChange"
         />
       </div>
+
+      <ModelAssemblyPage
+        v-model:visible="assemblyVisible"
+        :record-id="editingId"
+        @success="fetchList"
+      />
     </div>
   </AdminPageShell>
 </template>
@@ -106,7 +110,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { useRouter } from 'vue-router'
 import {
   ApartmentOutlined,
   CheckCircleOutlined,
@@ -118,6 +121,7 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import AgentCard from './AgentCard.vue'
+import ModelAssemblyPage from './ModelAssemblyPage.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
 
 const AGENT_CARD_MIN_WIDTH_PX = 360
@@ -138,9 +142,10 @@ const resolvePageSize = (columns: number) => {
   return 6
 }
 
-const router = useRouter()
 const pageRef = ref<HTMLElement | null>(null)
 const loading = ref(false)
+const assemblyVisible = ref(false)
+const editingId = ref<string | number | undefined>(undefined)
 const query = reactive<{ agentName?: string; status?: string }>({})
 const list = ref<AiAgent[]>([])
 const selectedKeys = ref<Set<string | number>>(new Set())
@@ -203,13 +208,15 @@ const onPageChange = (p: number) => {
 }
 
 const openCreate = () => {
-  router.push('/admin/agents/model-assembly')
+  editingId.value = undefined
+  assemblyVisible.value = true
 }
 
 const openEdit = async (record: AiAgent) => {
   const id = record.id
   if (id == null) return
-  router.push(`/admin/agents/model-assembly?id=${id}`)
+  editingId.value = id
+  assemblyVisible.value = true
 }
 
 const handleDeleteOne = async (id: number | string) => {
