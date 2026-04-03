@@ -1,31 +1,31 @@
 <template>
-  <button type="button" class="glass-card glass-card--interactive bento-span-4-2 wf-panel" @click="go">
-    <div class="wf-top">
-      <div class="wf-icon-wrap">
-        <node-index-outlined class="wf-icon" />
+  <button type="button" class="glass-card glass-card--interactive bento-span-4-2 inst-panel" @click="go">
+    <div class="inst-top">
+      <div class="inst-icon-wrap">
+        <control-outlined class="inst-icon" />
       </div>
-      <span class="status-badge">12个流正在运行</span>
+      <span class="status-badge">多预设可用</span>
     </div>
-    <h2 class="wf-title">工作流引擎</h2>
-    <p class="wf-desc">基于 DAG 的可视化任务编排系统。</p>
+    <h2 class="inst-title">推理实例配置</h2>
+    <p class="inst-desc">管理对话 / 向量 / 图像等推理实例与采样、Token 等运行参数。</p>
 
-    <div class="wf-bottom">
+    <div class="inst-bottom">
       <div class="progress-bar">
-        <div class="progress-fill progress-fill--wf" :style="{ width: '70%' }" />
+        <div class="progress-fill progress-fill--inst" :style="{ width: '62%' }" />
       </div>
-      <div class="wf-capacity">
-        <span>系统吞吐量</span>
-        <span>70% Capacity</span>
+      <div class="inst-capacity">
+        <span>实例池占用</span>
+        <span>62% Capacity</span>
       </div>
 
-      <div class="wf-stats">
-        <div class="wf-stat">
-          <p class="wf-stat-label">活跃工作流</p>
-          <p class="wf-stat-val">12</p>
+      <div class="inst-stats">
+        <div class="inst-stat">
+          <p class="inst-stat-label">对话实例</p>
+          <p class="inst-stat-val">8</p>
         </div>
-        <div class="wf-stat">
-          <p class="wf-stat-label">待执行</p>
-          <p class="wf-stat-val wf-stat-val--amber">3</p>
+        <div class="inst-stat">
+          <p class="inst-stat-label">向量实例</p>
+          <p class="inst-stat-val inst-stat-val--amber">4</p>
         </div>
       </div>
     </div>
@@ -34,17 +34,17 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { NodeIndexOutlined } from '@ant-design/icons-vue'
+import { ControlOutlined } from '@ant-design/icons-vue'
 
 const router = useRouter()
 
 const go = () => {
-  void router.push('/admin/workflows')
+  void router.push('/admin/ai-instance')
 }
 </script>
 
 <style scoped>
-.wf-panel {
+.inst-panel {
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -55,26 +55,26 @@ const go = () => {
   color: inherit;
 }
 
-.wf-top {
+.inst-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
 }
 
-.wf-icon-wrap {
+.inst-icon-wrap {
   width: 48px;
   height: 48px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #6366f1, #9333ea);
+  background: linear-gradient(135deg, #0d9488, #0891b2);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
 }
 
-.wf-icon {
+.inst-icon {
   font-size: 22px;
 }
 
@@ -87,21 +87,21 @@ const go = () => {
   font-weight: 700;
 }
 
-.wf-title {
+.inst-title {
   margin: 0 0 4px;
   font-size: 1.25rem;
   font-weight: 800;
   color: var(--text-heading);
 }
 
-.wf-desc {
+.inst-desc {
   margin: 0 0 24px;
   font-size: 0.875rem;
   color: var(--text-muted);
   line-height: 1.5;
 }
 
-.wf-bottom {
+.inst-bottom {
   margin-top: auto;
   display: flex;
   flex-direction: column;
@@ -121,12 +121,12 @@ const go = () => {
   transition: width 0.5s ease;
 }
 
-.progress-fill--wf {
-  background: linear-gradient(90deg, #6366f1, #9333ea);
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+.progress-fill--inst {
+  background: linear-gradient(90deg, #0d9488, #06b6d4);
+  box-shadow: 0 0 12px rgba(13, 148, 136, 0.4);
 }
 
-.wf-capacity {
+.inst-capacity {
   display: flex;
   justify-content: space-between;
   font-size: 10px;
@@ -134,35 +134,35 @@ const go = () => {
   color: var(--text-muted);
 }
 
-.wf-stats {
+.inst-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-top: 8px;
 }
 
-.wf-stat {
+.inst-stat {
   padding: 12px;
   border-radius: 12px;
   border: 1px solid var(--border-subtle);
   background: color-mix(in srgb, var(--text-muted) 8%, var(--bg-card));
 }
 
-.wf-stat-label {
+.inst-stat-label {
   margin: 0 0 6px;
   font-size: 10px;
   font-weight: 700;
   color: var(--text-muted);
 }
 
-.wf-stat-val {
+.inst-stat-val {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 800;
   color: var(--text-heading);
 }
 
-.wf-stat-val--amber {
+.inst-stat-val--amber {
   color: #d97706;
 }
 </style>

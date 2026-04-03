@@ -1,5 +1,22 @@
 <template>
   <div class="bento-dashboard-root demo-dashboard">
+    <div class="dashboard-toolbar">
+      <p v-if="layoutEditMode" class="toolbar-hint">拖动卡片调整位置，拖右下角调整大小；编辑时点击入口不会跳转。</p>
+      <div class="toolbar-actions">
+        <button
+          v-if="layoutEditMode"
+          type="button"
+          class="toolbar-btn"
+          @click="confirmResetLayout"
+        >
+          恢复默认布局
+        </button>
+        <button type="button" class="toolbar-btn toolbar-btn--primary" @click="layoutEditMode = !layoutEditMode">
+          {{ layoutEditMode ? '完成编辑' : '编辑布局' }}
+        </button>
+      </div>
+    </div>
+
     <main class="bento-grid">
       <BentoAgentPanel />
 
@@ -7,105 +24,36 @@
 
       <BentoSystemLoadPanel />
 
-      <BentoIconTile
-        title="向量知识库"
-        subtitle="12 个集群"
-        to="/admin/knowledge-bases"
-        :icon="DatabaseOutlined"
-        variant="amber"
-        :disabled="!entryByRoute['/admin/knowledge-bases']"
-      />
-
-      <BentoIconTile
-        title="模型路由"
-        subtitle="8 个模型"
-        to="/admin/models"
-        :icon="NodeIndexOutlined"
-        variant="cyan"
-        :disabled="!entryByRoute['/admin/models']"
-      />
-
-      <BentoWideTile
-        title="MCP 协议枢纽"
-        description="跨服务实时上下文协议连接器"
-        to="/admin/mcp"
-        :disabled="!entryByRoute['/admin/mcp']"
-      />
-
-      <BentoLogTerminal />
-
-      <BentoIconTile
-        title="FTL 渲染"
-        subtitle="24 个模板"
-        to="/admin/templates"
-        :icon="LayoutOutlined"
-        variant="rose"
-        :disabled="!entryByRoute['/admin/templates']"
-      />
-
-      <BentoIconTile
-        title="流水线"
-        subtitle="1.2k 任务/H"
-        to="/admin/documents"
-        :icon="PartitionOutlined"
-        variant="sky"
-        :disabled="!entryByRoute['/admin/documents']"
-      />
-
-      <BentoGradientTile
-        title="插件市场"
-        subtitle="AI能力扩展中心"
-        to="/admin/tools"
-        :icon="ShopOutlined"
-        variant="market"
-        :disabled="!entryByRoute['/admin/tools']"
-      />
-
-      <BentoGradientTile
-        title="全部应用"
-        subtitle="AI应用管理中心"
-        to="/admin/resource-library"
-        :icon="AppstoreOutlined"
-        variant="apps"
-      />
+      <DashboardShortcutGrid :edit-mode="layoutEditMode" :entry-by-route="entryByRoute" />
     </main>
 
     <div class="fab-wrap">
       <button type="button" class="fab fab--ghost" aria-label="帮助与入口" @click="navigateTo('/admin/resource-library')">
         <question-circle-outlined />
       </button>
-      <button type="button" class="fab fab--primary" @click="navigateTo('/admin/workflows')">
+      <button type="button" class="fab fab--primary" @click="navigateTo('/admin/ai-instance')">
         <plus-outlined />
-        快速编排
+        实例配置
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  DatabaseOutlined,
-  NodeIndexOutlined,
-  LayoutOutlined,
-  PartitionOutlined,
-  ShopOutlined,
-  AppstoreOutlined,
-  QuestionCircleOutlined,
-  PlusOutlined,
-} from '@ant-design/icons-vue'
+import { QuestionCircleOutlined, PlusOutlined } from '@ant-design/icons-vue'
+import { Modal, message } from 'ant-design-vue'
 import type { ManagementEntry } from './backend/management'
 import { getCurrentUserRole, resolveManagementGroups } from './backend/management'
 import BentoAgentPanel from './backend/BentoAgentPanel.vue'
 import BentoWorkflowPanel from './backend/BentoWorkflowPanel.vue'
 import BentoSystemLoadPanel from './backend/BentoSystemLoadPanel.vue'
-import BentoLogTerminal from './backend/BentoLogTerminal.vue'
-import BentoIconTile from './backend/BentoIconTile.vue'
-import BentoWideTile from './backend/BentoWideTile.vue'
-import BentoGradientTile from './backend/BentoGradientTile.vue'
+import DashboardShortcutGrid from './backend/DashboardShortcutGrid.vue'
+import { resetDashboardShortcutsToDefault } from './backend/dashboardShortcutLayout'
 
 const router = useRouter()
+const layoutEditMode = ref(false)
 
 const currentRole = computed(() => getCurrentUserRole())
 const managementGroups = computed(() => resolveManagementGroups(currentRole.value))
@@ -122,6 +70,19 @@ const entryByRoute = computed<Partial<Record<string, ManagementEntry>>>(() => {
 
 const navigateTo = (path: string) => {
   void router.push(path)
+}
+
+const confirmResetLayout = () => {
+  Modal.confirm({
+    title: '恢复默认布局？',
+    content: '将重置快捷入口为系统默认排版（仍可在应用库继续添加）。',
+    okText: '恢复',
+    cancelText: '取消',
+    onOk() {
+      resetDashboardShortcutsToDefault()
+      message.success('已恢复默认布局')
+    },
+  })
 }
 </script>
 
@@ -151,6 +112,55 @@ const navigateTo = (path: string) => {
 .bento-dashboard-root {
   position: relative;
   z-index: 1;
+}
+
+.dashboard-toolbar {
+  position: relative;
+  z-index: 2;
+  max-width: 1600px;
+  margin: 0 auto 12px;
+  padding: 0 4px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-hint {
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.toolbar-btn {
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--bg-card) 92%, transparent);
+  color: var(--text-heading);
+}
+
+.toolbar-btn:hover {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border-subtle));
+}
+
+.toolbar-btn--primary {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border-subtle));
+  background: color-mix(in srgb, var(--primary) 12%, var(--bg-card));
+  color: color-mix(in srgb, var(--primary) 85%, #2563eb);
 }
 
 .fab-wrap {

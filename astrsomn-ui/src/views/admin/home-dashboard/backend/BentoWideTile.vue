@@ -1,7 +1,12 @@
 <template>
   <button
     type="button"
-    class="glass-card glass-card--interactive bento-span-4-1 wide-tile"
+    class="glass-card glass-card--interactive wide-tile"
+    :class="
+      embedded
+        ? ['wide-tile--embedded', 'wide-tile--narrow']
+        : [wideSpanClass, { 'wide-tile--narrow': gridSpan === 3 }]
+    "
     :disabled="disabled"
     @click="go"
   >
@@ -17,6 +22,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ApiOutlined } from '@ant-design/icons-vue'
 
@@ -27,12 +33,25 @@ const props = withDefaults(
     to: string
     badge?: string
     disabled?: boolean
+    /** 3 / 4 / 8 / 12 列；3 为窄竖卡（与同排小格对齐） */
+    gridSpan?: 3 | 4 | 8 | 12
+    /** 嵌入 GridLayout 内时不挂 bento-span-*，避免污染外层 12 列栅格 */
+    embedded?: boolean
   }>(),
   {
     badge: '已就绪',
     disabled: false,
+    gridSpan: 4,
+    embedded: false,
   },
 )
+
+const wideSpanClass = computed(() => {
+  if (props.gridSpan === 12) return 'bento-span-12-1'
+  if (props.gridSpan === 8) return 'bento-span-8-1'
+  if (props.gridSpan === 3) return 'bento-span-3-1'
+  return 'bento-span-4-1'
+})
 
 const router = useRouter()
 
@@ -43,6 +62,12 @@ const go = () => {
 </script>
 
 <style scoped>
+.wide-tile--embedded {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
 .wide-tile {
   padding: 20px;
   display: flex;
@@ -104,5 +129,41 @@ const go = () => {
   background: color-mix(in srgb, var(--success) 14%, transparent);
   color: var(--success);
   border: 1px solid color-mix(in srgb, var(--success) 22%, transparent);
+}
+
+.wide-tile--narrow {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 10px;
+  gap: 10px;
+}
+
+.wide-tile--narrow .wide-tile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.wide-tile--narrow .wide-tile-glyph {
+  font-size: 18px;
+}
+
+.wide-tile--narrow .wide-tile-text {
+  width: 100%;
+}
+
+.wide-tile--narrow .wide-tile-title {
+  font-size: 0.8125rem;
+  margin-bottom: 2px;
+}
+
+.wide-tile--narrow .wide-tile-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 0.65rem;
+  line-height: 1.35;
 }
 </style>

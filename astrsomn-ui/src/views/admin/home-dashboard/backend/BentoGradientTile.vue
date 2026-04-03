@@ -1,8 +1,16 @@
 <template>
   <button
     type="button"
-    class="bento-span-2-1 grad-tile"
-    :class="variant === 'market' ? 'grad-tile--market' : 'grad-tile--apps'"
+    class="grad-tile"
+    :class="[
+      embedded
+        ? 'grad-tile--embedded'
+        : [
+            gridSpan === 6 ? 'bento-span-6-1' : gridSpan === 3 ? 'bento-span-3-1' : 'bento-span-2-1',
+            { 'grad-tile--half': gridSpan === 6, 'grad-tile--third': gridSpan === 3 },
+          ],
+      variant === 'market' ? 'grad-tile--market' : 'grad-tile--apps',
+    ]"
     :disabled="disabled"
     @click="go"
   >
@@ -26,8 +34,10 @@ const props = withDefaults(
     icon: Component
     variant: 'market' | 'apps'
     disabled?: boolean
+    gridSpan?: 2 | 3 | 6
+    embedded?: boolean
   }>(),
-  { disabled: false },
+  { disabled: false, gridSpan: 2, embedded: false },
 )
 
 const router = useRouter()
@@ -39,6 +49,12 @@ const go = () => {
 </script>
 
 <style scoped>
+.grad-tile--embedded {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
 .grad-tile {
   padding: 20px;
   display: flex;
@@ -54,6 +70,28 @@ const go = () => {
     transform 0.25s ease,
     box-shadow 0.25s ease;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+}
+
+.grad-tile--half {
+  min-height: 128px;
+  padding: 24px 20px;
+}
+
+.grad-tile--third {
+  min-height: 108px;
+  padding: 16px 10px;
+}
+
+.grad-tile--third .grad-tile-title {
+  font-size: 0.8125rem;
+}
+
+.grad-tile--third .grad-tile-sub {
+  font-size: 0.65rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .grad-tile:hover:not(:disabled) {

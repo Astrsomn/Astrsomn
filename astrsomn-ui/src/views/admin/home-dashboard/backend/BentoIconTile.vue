@@ -1,7 +1,11 @@
 <template>
   <button
     type="button"
-    class="glass-card glass-card--interactive bento-span-2-1 icon-tile"
+    class="glass-card glass-card--interactive icon-tile"
+    :class="[
+      gridSpan === 6 ? 'bento-span-6-1' : gridSpan === 3 ? 'bento-span-3-1' : 'bento-span-2-1',
+      { 'icon-tile--half': gridSpan === 6, 'icon-tile--third': gridSpan === 3 },
+    ]"
     :disabled="disabled"
     @click="go"
   >
@@ -25,8 +29,10 @@ const props = withDefaults(
     icon: Component
     variant: 'amber' | 'cyan' | 'rose' | 'sky'
     disabled?: boolean
+    /** 2 / 3 / 6 列 */
+    gridSpan?: 2 | 3 | 6
   }>(),
-  { disabled: false },
+  { disabled: false, gridSpan: 2 },
 )
 
 const router = useRouter()
@@ -48,6 +54,38 @@ const go = () => {
   border: none;
   font: inherit;
   color: inherit;
+}
+
+.icon-tile--half {
+  min-height: 128px;
+  padding: 24px 20px;
+}
+
+.icon-tile--third {
+  min-height: 108px;
+  padding: 16px 10px;
+}
+
+.icon-tile--third .icon-tile-title {
+  font-size: 0.8125rem;
+}
+
+.icon-tile--third .icon-tile-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 6px;
+}
+
+.icon-tile--third .icon-tile-glyph {
+  font-size: 17px;
+}
+
+.icon-tile--third .icon-tile-sub {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 0.65rem;
 }
 
 .icon-tile:disabled {

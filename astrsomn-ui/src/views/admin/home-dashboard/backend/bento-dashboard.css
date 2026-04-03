@@ -53,8 +53,34 @@
   min-width: 0;
 }
 
+.bento-dashboard-root .bento-span-8-1 {
+  grid-column: span 8;
+  grid-row: span 1;
+  min-width: 0;
+}
+
 .bento-dashboard-root .bento-span-2-1 {
   grid-column: span 2;
+  grid-row: span 1;
+  min-width: 0;
+}
+
+.bento-dashboard-root .bento-span-3-1 {
+  grid-column: span 3;
+  grid-row: span 1;
+  min-width: 0;
+}
+
+/* 半行双卡（各占 6 列） */
+.bento-dashboard-root .bento-span-6-1 {
+  grid-column: span 6;
+  grid-row: span 1;
+  min-width: 0;
+}
+
+/* 整行通栏 */
+.bento-dashboard-root .bento-span-12-1 {
+  grid-column: span 12;
   grid-row: span 1;
   min-width: 0;
 }
@@ -63,6 +89,10 @@
   .bento-dashboard-root .bento-grid > .bento-span-8-3,
   .bento-dashboard-root .bento-grid > .bento-span-4-2,
   .bento-dashboard-root .bento-grid > .bento-span-4-1,
+  .bento-dashboard-root .bento-grid > .bento-span-8-1,
+  .bento-dashboard-root .bento-grid > .bento-span-6-1,
+  .bento-dashboard-root .bento-grid > .bento-span-12-1,
+  .bento-dashboard-root .bento-grid > .bento-span-3-1,
   .bento-dashboard-root .bento-grid > .bento-span-2-1 {
     grid-column: 1 / -1;
     grid-row: auto;

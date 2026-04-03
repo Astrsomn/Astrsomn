@@ -1,5 +1,12 @@
 <template>
-  <section class="glass-card bento-span-8-3 agent-panel">
+  <section
+    class="glass-card glass-card--interactive bento-span-8-3 agent-panel"
+    role="button"
+    tabindex="0"
+    @click="goAgentsList"
+    @keydown.enter.prevent="goAgentsList"
+    @keydown.space.prevent="goAgentsList"
+  >
     <div class="agent-panel-head">
       <div class="agent-panel-head-left">
         <div class="agent-panel-icon-wrap">
@@ -26,7 +33,7 @@
         type="button"
         class="agent-row"
         :class="{ 'agent-row--muted': row.muted }"
-        @click="row.onClick"
+        @click.stop="row.onClick"
       >
         <div class="agent-row-left">
           <div class="agent-avatar" :class="`agent-avatar--${row.tone}`">
@@ -170,6 +177,10 @@ onMounted(async () => {
 const goCreate = () => {
   void router.push('/admin/agents/model-assembly')
 }
+
+const goAgentsList = () => {
+  void router.push('/admin/agents')
+}
 </script>
 
 <style scoped>
@@ -178,6 +189,13 @@ const goCreate = () => {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  outline: none;
+}
+
+.agent-panel:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--bg-base),
+    0 0 0 4px color-mix(in srgb, var(--primary) 45%, transparent);
 }
 
 .agent-panel-head {

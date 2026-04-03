@@ -5,7 +5,7 @@
       class="slot-card"
       :class="{ 'slot-card--compact': variant === 'compact' }"
       :data-accent="accent"
-      :disabled="!entry"
+      :disabled="buttonDisabled"
       @click="handleClick"
     >
       <div class="slot-icon" aria-hidden="true">
@@ -16,10 +16,23 @@
       <div class="slot-title">{{ title }}</div>
       <div class="slot-desc">{{ description || '暂无接入内容' }}</div>
     </button>
+
+    <button
+      v-if="showPinToDashboard && entry"
+      type="button"
+      class="slot-pin"
+      title="固定到控制台首页"
+      aria-label="固定到控制台"
+      @click.stop="emit('pinToDashboard', entry.route)"
+    >
+      <pushpin-outlined class="slot-pin-icon" />
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { PushpinOutlined } from '@ant-design/icons-vue'
 import type { EntryAccent, ManagementEntry } from './management.ts'
 
 const props = withDefaults(
@@ -29,15 +42,23 @@ const props = withDefaults(
     description?: string
     accent?: EntryAccent
     variant?: 'default' | 'compact'
+    /** 为 true 时不可点击（例如控制台编辑布局中） */
+    disabled?: boolean
+    showPinToDashboard?: boolean
   }>(),
   {
     accent: 'primary',
     variant: 'default',
+    disabled: false,
+    showPinToDashboard: false,
   },
 )
 
+const buttonDisabled = computed(() => props.disabled || !props.entry)
+
 const emit = defineEmits<{
   navigate: [route: string]
+  pinToDashboard: [route: string]
 }>()
 
 const accent = props.accent
@@ -55,6 +76,36 @@ const handleClick = () => {
 <style scoped>
 .slot-wrapper {
   min-width: 0;
+  position: relative;
+}
+
+.slot-pin {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg-card) 82%, transparent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+}
+
+.slot-pin:hover {
+  background: color-mix(in srgb, var(--primary) 14%, var(--bg-card));
+}
+
+.slot-pin-icon {
+  font-size: 13px;
+  color: color-mix(in srgb, var(--primary) 75%, var(--text-muted));
 }
 
 .slot-card {
