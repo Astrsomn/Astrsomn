@@ -78,7 +78,7 @@
     --chat-user-avatar-border: var(--border-input);
     --chat-user-avatar-text: var(--section-title);
 
-    /* ── Model assembly (ModelAssemblyPage, assembly/) ── */
+    /* ── Model assembly (AgentForm, assembly/) ── */
     --assembly-palette-bg: var(--bg-card);
     --assembly-palette-border: var(--border-default);
     --assembly-pane-divider: var(--border-default);

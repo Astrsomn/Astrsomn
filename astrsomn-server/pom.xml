@@ -102,6 +102,11 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-provider-deepseek</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

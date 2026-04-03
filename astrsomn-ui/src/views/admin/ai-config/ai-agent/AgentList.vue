@@ -39,10 +39,6 @@
         </div>
 
         <div class="toolbar-right">
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><apartment-outlined /></template>
-            模型组装
-          </a-button>
           <a-button type="primary" class="primary-btn" @click="fetchList">
             <template #icon><search-outlined /></template>
             查询
@@ -98,7 +94,7 @@
         />
       </div>
 
-      <ModelAssemblyPage
+      <AgentForm
         v-model:visible="assemblyVisible"
         :record-id="editingId"
         @success="fetchList"
@@ -121,7 +117,7 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import AgentCard from './AgentCard.vue'
-import ModelAssemblyPage from './ModelAssemblyPage.vue'
+import AgentForm from './AgentForm.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
 
 const AGENT_CARD_MIN_WIDTH_PX = 360
@@ -292,7 +288,7 @@ void fetchList()
   margin-bottom: 6px;
   flex-wrap: wrap;
   padding: 16px 0;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-pro);
 
 }
 
@@ -317,7 +313,7 @@ void fetchList()
   align-items: center;
   flex-wrap: wrap;
   padding: 6px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-default);
   background: var(--bg-surface);
   box-shadow: none;
@@ -351,7 +347,7 @@ void fetchList()
 .primary-btn,
 .ghost-btn {
   height: 40px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
 }
 
 .danger-btn {
@@ -372,7 +368,7 @@ void fetchList()
   align-items: center;
   gap: 8px;
   padding: 4px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
 }
@@ -380,7 +376,7 @@ void fetchList()
 .status-btn {
   height: 36px;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--text-secondary);
   background: transparent;
   box-shadow: none;

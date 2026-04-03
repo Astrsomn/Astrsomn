@@ -27,6 +27,8 @@ export type AssemblySlotKey =
 /** 与 AgentFormModal 第一步字段对齐（组装页预览） */
 export type AssemblyAgentForm = {
   agentName: string
+  agentKey?: string
+  status?: string
   enableStream: boolean
   description: string
   memoryMode: string

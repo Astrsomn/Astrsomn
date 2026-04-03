@@ -203,6 +203,8 @@ const knowledgeKeys = ref<string[]>([])
 
 const agentForm = ref<AssemblyAgentForm>({
   agentName: '',
+  agentKey: '',
+  status: 'enabled',
   enableStream: true,
   description: '',
   memoryMode: 'SLIDING_WINDOW',
@@ -275,6 +277,8 @@ async function loadAll() {
 function applyAgentDetail(detail: AiAgent) {
   agentForm.value = {
     agentName: detail.agentName ?? '',
+    agentKey: detail.agentKey ?? '',
+    status: detail.status ?? 'enabled',
     enableStream: detail.enableStream ?? true,
     description: detail.description ?? '',
     memoryMode: (detail.memoryMode as AssemblyAgentForm['memoryMode']) ?? 'SLIDING_WINDOW',
@@ -496,6 +500,8 @@ function handleReset() {
   knowledgeKeys.value = []
   agentForm.value = {
     agentName: '',
+    agentKey: '',
+    status: 'enabled',
     enableStream: true,
     description: '',
     memoryMode: 'SLIDING_WINDOW',
@@ -510,6 +516,8 @@ function buildSubmitPayload() {
   const f = agentForm.value
   return {
     agentName: f.agentName,
+    agentKey: f.agentKey,
+    status: f.status,
     enableStream: f.enableStream,
     description: f.description,
     memoryMode: f.memoryMode,
@@ -557,7 +565,11 @@ watch(
   async (val) => {
     if (!val) return
     await loadAll()
-    await initEditState()
+    if (props.recordId) {
+      await initEditState()
+    } else {
+      handleReset()
+    }
   }
 )
 

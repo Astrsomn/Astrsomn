@@ -42,6 +42,10 @@
             <span>正在为您准备回答…</span>
           </div>
 
+          <div v-else-if="error && (content || answerText)" class="ai-error-plain">
+            {{ answerText }}
+          </div>
+
           <div
             v-else-if="content || answerText"
             class="markdown-renderer"
@@ -49,7 +53,7 @@
             v-html="renderedHtml"
           />
 
-          <div v-if="!streaming && answerText" class="answer-actions">
+          <div v-if="!streaming && answerText && !error" class="answer-actions">
             <button type="button" class="text-action" @click="copyFullContent">
               <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
                 <path
@@ -228,15 +232,21 @@ md.renderer.rules.fence = (tokens, idx) => {
 const thoughtText = computed(() => props.segments?.find((s) => s.type === 'thought')?.content || '')
 const shouldShowThoughtToggle = computed(() => thoughtText.value.length > THOUGHT_AUTO_COLLAPSE_CHARS)
 const answerText = computed(() => {
-  if (props.segments) {
-    return props.segments.filter((s) => s.type !== 'thought').map((s) => s.content).join('')
+  if (props.segments?.length) {
+    const fromSegments = props.segments
+      .filter((s) => s.type !== 'thought')
+      .map((s) => s.content)
+      .join('')
+    if (fromSegments) {
+      return fromSegments
+    }
   }
   return props.content
 })
 
 const renderedHtml = computed(() => {
   if (props.role === 'user') return props.content
-  const src = normalizeAiMarkdown(answerText.value || '')
+  const src = normalizeAiMarkdown(answerText.value || props.content || '')
   return md.render(src)
 })
 
@@ -646,6 +656,16 @@ const handleCodeCopy = (e: MouseEvent) => {
 .text-action:hover {
   color: var(--chat-link);
   background: var(--chat-action-hover-bg);
+}
+
+/* 错误：与正文同一卡片内仅 plain text，无额外边框/复制区 */
+.ai-error-plain {
+  padding: 16px 18px 12px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--chat-markdown-text);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* 用户气泡 */

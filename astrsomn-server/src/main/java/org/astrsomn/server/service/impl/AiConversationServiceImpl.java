@@ -28,6 +28,7 @@ public class AiConversationServiceImpl extends ServiceImpl<AiConversationMapper,
     @Override
     public BaseResponse<String> create(AiConversationCreateRequestDTO request) {
         AiConversationEntity entity = new AiConversationEntity();
+    
         BeanUtils.copyProperties(request, entity);
         boolean result = save(entity);
         return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);

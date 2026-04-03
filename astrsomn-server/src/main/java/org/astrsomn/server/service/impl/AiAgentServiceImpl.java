@@ -59,6 +59,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
     public BaseResponse<String> updateAgent(AiAgentUpdateRequestDTO request) {
         AiAgentEntity aiAgent = new AiAgentEntity();
         BeanUtils.copyProperties(request, aiAgent);
+        bizResourceKeyAssignHelper.assignAgentKeyIfBlank(aiAgent);
         boolean result = updateById(aiAgent);
         return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
     }
