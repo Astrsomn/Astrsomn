@@ -1,10 +1,14 @@
 <template>
-  <button
-    type="button"
+  <section
     class="glass-card glass-card--interactive dash-mod dash-mod--ai-instance inst-panel"
     :data-col-tier="gridColTier(gridW)"
     :data-row-tier="gridRowTier(gridH)"
+    role="button"
+    tabindex="0"
+    :aria-disabled="editMode"
     @click="go"
+    @keydown.enter.prevent="go"
+    @keydown.space.prevent="go"
   >
     <div class="inst-top">
       <div class="inst-icon-wrap">
@@ -35,7 +39,7 @@
         </div>
       </div>
     </div>
-  </button>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -43,11 +47,12 @@ import { useRouter } from 'vue-router'
 import { ControlOutlined } from '@ant-design/icons-vue'
 import { gridColTier, gridRowTier } from '../dashboardSizeTier'
 
-defineProps<{ gridW: number; gridH: number }>()
+const props = defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
 
 const router = useRouter()
 
 const go = () => {
+  if (props.editMode) return
   void router.push('/admin/ai-instance')
 }
 </script>

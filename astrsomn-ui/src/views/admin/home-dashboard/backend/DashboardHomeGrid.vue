@@ -136,7 +136,7 @@ function widgetProps(full: DashboardLayoutItem, cell: Layout[number]) {
       route: page.route,
     }
   }
-  return { gridW: w, gridH: h }
+  return { gridW: w, gridH: h, editMode: props.editMode }
 }
 </script>
 

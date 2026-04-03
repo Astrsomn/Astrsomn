@@ -74,7 +74,7 @@ import {
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
 import { gridColTier, gridRowTier } from '../dashboardSizeTier'
 
-defineProps<{ gridW: number; gridH: number }>()
+const props = defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
 
 type RowTone = 'indigo' | 'purple' | 'slate'
 type RowState = 'active' | 'idle'
@@ -180,10 +180,12 @@ onMounted(async () => {
 })
 
 const goCreate = () => {
+  if (props.editMode) return
   void router.push('/admin/agents/model-assembly')
 }
 
 const goAgentsList = () => {
+  if (props.editMode) return
   void router.push('/admin/agents')
 }
 </script>

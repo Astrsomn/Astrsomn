@@ -1,11 +1,14 @@
 <template>
-  <button
-    type="button"
+  <section
     class="glass-card glass-card--interactive console-page-mod"
     :class="[`console-page-mod--${accent}`, sizeClass]"
     :data-accent="accent"
-    :disabled="editMode"
+    role="button"
+    tabindex="0"
+    :aria-disabled="editMode"
     @click="go"
+    @keydown.enter.prevent="go"
+    @keydown.space.prevent="go"
   >
     <div class="console-page-mod-head">
       <div class="console-page-mod-icon" aria-hidden="true">
@@ -26,7 +29,7 @@
     </div>
 
     <p v-if="footnoteVisible && mock.footnote" class="console-page-mod-foot">{{ mock.footnote }}</p>
-  </button>
+  </section>
 </template>
 
 <script setup lang="ts">

@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import { gridColTier, gridRowTier } from '../dashboardSizeTier'
 
-defineProps<{ gridW: number; gridH: number }>()
+defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
 </script>
 
 <style scoped>

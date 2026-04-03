@@ -107,7 +107,7 @@ import { Empty, message } from 'ant-design-vue'
 import { LeftOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons-vue'
 // Vetur occasionally misses Vue SFC default exports in script setup files.
 // @ts-ignore
-import MenuSlotCard from '../backend/MenuSlotCard.vue'
+import MenuSlotCard from './MenuSlotCard.vue'
 import { getCurrentUserRole, resolveManagementGroups } from './management.ts'
 import { addDashboardShortcut } from '../backend/dashboardLayoutStorage'
 
