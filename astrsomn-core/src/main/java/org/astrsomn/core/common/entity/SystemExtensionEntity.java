@@ -48,4 +48,7 @@ public class SystemExtensionEntity extends BaseEntity<Long> {
     @TableField("PROVIDER_CODE")
     private String providerCode;
 
+    @TableField("AVATAR")
+    private String avatar;
+
 }

@@ -17,7 +17,13 @@
     <div class="card-inner">
       <header class="card-header">
         <div class="ext-icon-box">
-          <component :is="getAntdIcon(record.type)" />
+          <span
+            v-if="record.avatar?.trim()"
+            class="ext-avatar-svg"
+            v-html="record.avatar"
+            aria-hidden="true"
+          />
+          <component v-else :is="getAntdIcon(record.type)" />
         </div>
         <div class="title-group">
           <h3 class="ext-name">{{ record.extensionName || '未命名扩展' }}</h3>
@@ -211,6 +217,21 @@ const getAntdIcon = (type: string) => {
   justify-content: center;
   font-size: 1.6rem;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.ext-avatar-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.ext-icon-box :deep(svg) {
+  width: 2rem;
+  height: 2rem;
+  max-width: 90%;
+  max-height: 90%;
 }
 
 .ext-name {

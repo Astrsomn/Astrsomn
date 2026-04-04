@@ -16,6 +16,11 @@ public class QianFanExtensionDescriptor extends AstroExtensionDescriptor {
     }
 
     @Override
+    public String getAvatar() {
+        return "";
+    }
+
+    @Override
     public String getName() {
         return "Baidu Qianfan Model Provider";
     }

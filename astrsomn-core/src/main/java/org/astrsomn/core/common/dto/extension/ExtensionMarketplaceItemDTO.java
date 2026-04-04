@@ -31,4 +31,7 @@ public class ExtensionMarketplaceItemDTO implements Serializable {
      * 公用厂商 code；模型类扩展时与 {@link org.astrsomn.core.common.constant.AiModelEnum.ProviderEnum#getCode()} 一致。
      */
     private String providerCode;
+
+    /** SVG 等展示用头像（可选） */
+    private String avatar;
 }

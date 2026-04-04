@@ -13,6 +13,8 @@ export type SystemExtension = {
   status?: string
   /** 公用：厂商/提供方 code（模型扩展时与 AiModelEnum.ProviderEnum 一致） */
   providerCode?: string
+  /** SVG 等展示用头像 */
+  avatar?: string
   createTime?: string
   updateTime?: string
 }
@@ -27,6 +29,7 @@ export type ExtensionMarketplaceItem = {
   description?: string
   jarName?: string
   providerCode?: string
+  avatar?: string
 }
 
 export type PageResponse<T> = {

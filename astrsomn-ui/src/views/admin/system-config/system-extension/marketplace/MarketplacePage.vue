@@ -103,6 +103,7 @@ const installFromCatalog = async (item: ExtensionRow) => {
     description: item.description,
     jarName: item.jarName,
     providerCode: item.providerCode,
+    avatar: item.avatar,
     applied: 'N',
     status: 'INSTALLED'
   }

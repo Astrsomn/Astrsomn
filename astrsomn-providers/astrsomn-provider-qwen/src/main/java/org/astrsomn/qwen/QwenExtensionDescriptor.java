@@ -8,6 +8,9 @@ import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
  */
 public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
 
+    private static final String AVATAR_SVG =
+            loadClasspathUtf8(QwenExtensionDescriptor.class, "/avatar/qwen-color.svg");
+
     @Override
     public String getExtensionKey() {
         return "qwen";
@@ -16,6 +19,11 @@ public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public SystemExtensionEnum.ExtensionTypeEnum getExtensionType() {
         return SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER;
+    }
+
+    @Override
+    public String getAvatar() {
+        return AVATAR_SVG;
     }
 
     @Override

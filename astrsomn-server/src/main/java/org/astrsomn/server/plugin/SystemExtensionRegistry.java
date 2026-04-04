@@ -9,12 +9,11 @@ import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
+import org.astrsomn.server.plugin.support.AstroExtensionDescriptorMerge;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.ServiceLoader;
 
 @Slf4j
 @Component
@@ -26,28 +25,8 @@ public class SystemExtensionRegistry {
 
     @PostConstruct
     public void registerExtensions() {
-        Map<String, AstroExtensionDescriptor> mergedByKey = new HashMap<>();
-        Map<String, AstroExtensionDescriptor> springDescriptors =
-                applicationContext.getBeansOfType(AstroExtensionDescriptor.class);
-        springDescriptors.forEach((beanName, descriptor) -> {
-            String extensionKey = StringUtils.trimToNull(descriptor.getExtensionKey());
-            if (extensionKey != null) {
-                mergedByKey.putIfAbsent(extensionKey, descriptor);
-            }
-        });
-
-        ServiceLoader<AstroExtensionDescriptor> serviceLoader =
-                ServiceLoader.load(AstroExtensionDescriptor.class);
-        for (AstroExtensionDescriptor descriptor : serviceLoader) {
-            if (descriptor == null) {
-                continue;
-            }
-            String extensionKey = StringUtils.trimToNull(descriptor.getExtensionKey());
-            if (extensionKey == null) {
-                continue;
-            }
-            mergedByKey.putIfAbsent(extensionKey, descriptor);
-        }
+        Map<String, AstroExtensionDescriptor> mergedByKey =
+                AstroExtensionDescriptorMerge.merge(applicationContext);
 
         if (mergedByKey.isEmpty()) {
             log.info("No AstroExtensionDescriptor found via Spring or SPI, skip system extension registration.");
@@ -94,6 +73,7 @@ public class SystemExtensionRegistry {
         entity.setVersion(StringUtils.trimToNull(descriptor.getVersion()));
         entity.setAuthor(StringUtils.trimToNull(descriptor.getAuthor()));
         entity.setDescription(StringUtils.trimToNull(descriptor.getDescription()));
+        entity.setAvatar(StringUtils.trimToNull(descriptor.getAvatar()));
         entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
         entity.setStatus(SystemExtensionEnum.StatusEnum.DISABLED.getCode());
         return entity;
