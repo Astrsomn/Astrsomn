@@ -79,6 +79,7 @@ public class MybatisPlusConfig {
         }
         metaObjectHandlerProvider.ifAvailable(handler -> globalConfig.setMetaObjectHandler(handler));
         GlobalConfigUtils.setGlobalConfig(mybatisConfiguration, globalConfig);
+        mybatisConfiguration.setMapUnderscoreToCamelCase(true);
         factoryBean.setConfiguration(mybatisConfiguration);
 
         return factoryBean.getObject();

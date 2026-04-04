@@ -5,6 +5,8 @@ import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
 public class QianFanExtensionDescriptor extends AstroExtensionDescriptor {
 
+    private static final String AVATAR_SVG =
+            loadClasspathUtf8(QianFanExtensionDescriptor.class, "/avatar/wenxin-color.svg");
     @Override
     public String getExtensionKey() {
         return "qianfan";
@@ -17,7 +19,7 @@ public class QianFanExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getAvatar() {
-        return "";
+        return AVATAR_SVG;
     }
 
     @Override

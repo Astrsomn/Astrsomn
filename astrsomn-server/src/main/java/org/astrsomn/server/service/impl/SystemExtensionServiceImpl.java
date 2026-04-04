@@ -15,12 +15,15 @@ import org.astrsomn.core.common.dto.extension.SystemExtensionQueryRequestDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionResponseDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionUpdateRequestDTO;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
+import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
+import org.astrsomn.server.plugin.SystemExtensionRegistry;
 import org.astrsomn.server.service.SystemExtensionService;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.server.service.support.SystemExtensionModelGuard;
 import org.astrsomn.starter.plugin.AstrsomnPluginManager;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -41,6 +45,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstrsomnPluginManager pluginManager;
     private final SystemExtensionModelGuard systemExtensionModelGuard;
+    private final ApplicationContext applicationContext;
 
     @Override
     public BaseResponse<String> create(SystemExtensionCreateRequestDTO request) {
@@ -70,6 +75,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         }
         SystemExtensionResponseDTO responseDTO = new SystemExtensionResponseDTO();
         BeanUtils.copyProperties(entity, responseDTO);
+        fillAvatarFromDescriptors(responseDTO);
         return BaseResponse.success(responseDTO);
     }
 
@@ -90,7 +96,40 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<SystemExtensionResponseDTO> result = baseMapper.queryPage(page, param);
+        Map<String, AstroExtensionDescriptor> descriptorsByKey =
+                SystemExtensionRegistry.mergeDescriptors(applicationContext);
+        if (result.getRecords() != null) {
+            for (SystemExtensionResponseDTO row : result.getRecords()) {
+                fillAvatarFromDescriptors(row, descriptorsByKey);
+            }
+        }
         return PageResponse.buildResponse(result);
+    }
+
+    private void fillAvatarFromDescriptors(SystemExtensionResponseDTO dto) {
+        fillAvatarFromDescriptors(dto, SystemExtensionRegistry.mergeDescriptors(applicationContext));
+    }
+
+    /**
+     * 库中 AVATAR 为空时，按 extensionKey 用内置 {@link AstroExtensionDescriptor} 补全（已安装列表/详情与 SPI 展示一致）。
+     */
+    private static void fillAvatarFromDescriptors(
+            SystemExtensionResponseDTO dto, Map<String, AstroExtensionDescriptor> descriptorsByKey) {
+        if (dto == null || StringUtils.isNotBlank(dto.getAvatar())) {
+            return;
+        }
+        String key = StringUtils.trimToNull(dto.getExtensionKey());
+        if (key == null) {
+            return;
+        }
+        AstroExtensionDescriptor d = descriptorsByKey.get(key);
+        if (d == null) {
+            return;
+        }
+        String svg = d.getAvatar();
+        if (StringUtils.isNotBlank(svg)) {
+            dto.setAvatar(svg);
+        }
     }
 
     @Override
