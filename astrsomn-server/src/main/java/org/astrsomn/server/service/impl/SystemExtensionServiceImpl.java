@@ -153,6 +153,30 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     }
 
     @Override
+    public BaseResponse<String> revokeApply(Long id) {
+        SystemExtensionEntity entity = getById(id);
+        if (entity == null) {
+            return BaseResponse.fail("记录不存在", null);
+        }
+        if (!SystemExtensionEnum.ExtensionInstallStatusEnum.APPLIED.getCode().equals(entity.getStatus())) {
+            return BaseResponse.fail("当前不是已应用状态，无需取消应用", null);
+        }
+        if (SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(entity.getType())) {
+            BaseResponse<Void> guard = systemExtensionModelGuard.assertNoInstancesUseProviderModels(id);
+            if (!guard.isSuccess()) {
+                return BaseResponse.fail(guard.getMessage(), null);
+            }
+        }
+        if (StringUtils.isNotBlank(entity.getJarName())) {
+            pluginManager.unloadPlugin(entity.getJarName());
+        }
+        entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
+        entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
+        boolean result = updateById(entity);
+        return result ? BaseResponse.success("已恢复为已安装") : BaseResponse.fail("更新失败", null);
+    }
+
+    @Override
     public BaseResponse<String> uninstall(Long id) {
         SystemExtensionEntity entity = getById(id);
         if (entity == null) {

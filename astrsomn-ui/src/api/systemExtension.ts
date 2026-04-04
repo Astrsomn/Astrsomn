@@ -131,6 +131,13 @@ export const systemExtensionApi = {
     })
   },
 
+  revokeApply: (id: number | string): Promise<string> => {
+    return request({
+      url: `/v1/astro/system-extension/revoke-apply?id=${encodeURIComponent(String(id))}`,
+      method: 'post'
+    })
+  },
+
   uninstall: (id: number | string): Promise<string> => {
     return request({
       url: `/v1/astro/system-extension/uninstall?id=${encodeURIComponent(String(id))}`,

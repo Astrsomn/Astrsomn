@@ -77,3 +77,4 @@ build.xml
 /astrsomn-spring-boot-starter/src/main/java/org/astrsomn/starter/langchain/orchestration.zip
 /astrsomn-introduction/docs/.vitepress/
 /plugins/
+/store/

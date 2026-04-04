@@ -56,24 +56,49 @@
 
         <div class="action-bar-container">
           <div class="control-strip">
-            <a-popconfirm title="确定应用该插件吗？" @confirm="emit('apply')" v-if="record.status !== 'APPLIED'">
-              <button class="icon-control-btn success" :disabled="!record.jarName">
-                <caret-right-outlined />
-              </button>
+            <a-popconfirm
+              v-if="record.status !== 'APPLIED'"
+              title="确定应用该插件吗？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="emit('apply')"
+            >
+              <a-button
+                type="text"
+                size="small"
+                class="strip-action strip-action--apply"
+                :disabled="!record.jarName"
+              >
+                <template #icon><caret-right-outlined /></template>
+                应用
+              </a-button>
             </a-popconfirm>
 
-            <a-popconfirm title="确定禁用此插件吗？" @confirm="emit('disable-provider-models')" v-else>
-              <button class="icon-control-btn warning">
-                <pause-outlined />
-              </button>
+            <a-popconfirm
+              v-else
+              title="确定取消应用吗？插件将恢复为「已安装」状态。"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="emit('revoke-apply')"
+            >
+              <a-button type="text" size="small" class="strip-action strip-action--revoke">
+                <template #icon><pause-outlined /></template>
+                禁用
+              </a-button>
             </a-popconfirm>
 
             <div class="strip-divider"></div>
 
-            <a-popconfirm title="确定卸载该插件吗？" @confirm="emit('uninstall')">
-              <button class="icon-control-btn danger">
-                <delete-outlined />
-              </button>
+            <a-popconfirm
+              title="确定卸载该插件吗？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="emit('uninstall')"
+            >
+              <a-button type="text" size="small" class="strip-action strip-action--uninstall">
+                <template #icon><delete-outlined /></template>
+                卸载插件
+              </a-button>
             </a-popconfirm>
           </div>
         </div>
@@ -105,7 +130,7 @@ const emit = defineEmits<{
   'toggle-select': [checked: boolean]
   'load-models': []
   'unload-models': []
-  'disable-provider-models': []
+  'revoke-apply': []
   uninstall: []
   apply: []
 }>()
@@ -307,53 +332,54 @@ const getAntdIcon = (type: string) => {
 
 .control-strip {
   background: var(--bg-soft);
-  padding: 8px;
+  padding: 6px 8px;
   border-radius: 1.75rem;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
+  gap: 4px;
 }
 
-.icon-control-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 1.25rem;
-  border: none;
-  background: #ffffff;
-  display: flex;
+.strip-action {
+  flex: 1;
+  min-height: 40px;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  border-radius: 1rem !important;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s;
+  background: #ffffff !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  font-size: 1.1rem;
+  transition: color 0.2s, background 0.2s, transform 0.2s;
 }
 
-.icon-control-btn.success {
-  color: #10b981;
-}
-.icon-control-btn.success:hover {
-  background: #10b981;
-  color: #fff;
-  transform: scale(1.1);
+.strip-action:disabled {
+  opacity: 0.45;
 }
 
-.icon-control-btn.warning {
-  color: #f59e0b;
+.strip-action--apply {
+  color: #10b981 !important;
 }
-.icon-control-btn.warning:hover {
-  background: #f59e0b;
-  color: #fff;
-  transform: scale(1.1);
+.strip-action--apply:hover:not(:disabled) {
+  color: #fff !important;
+  background: #10b981 !important;
 }
 
-.icon-control-btn.danger {
-  color: #94a3b8;
+.strip-action--revoke {
+  color: #f59e0b !important;
 }
-.icon-control-btn.danger:hover {
-  background: #ef4444;
-  color: #fff;
-  transform: scale(1.1);
+.strip-action--revoke:hover {
+  color: #fff !important;
+  background: #f59e0b !important;
+}
+
+.strip-action--uninstall {
+  color: #94a3b8 !important;
+}
+.strip-action--uninstall:hover {
+  color: #fff !important;
+  background: #ef4444 !important;
 }
 
 .strip-divider {

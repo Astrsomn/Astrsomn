@@ -91,6 +91,11 @@ public class SystemExtensionController extends BaseController {
         return systemExtensionService.apply(id);
     }
 
+    @PostMapping("/revoke-apply")
+    public BaseResponse<String> revokeApply(@RequestParam("id") Long id) {
+        return systemExtensionService.revokeApply(id);
+    }
+
     @PostMapping("/uninstall")
     public BaseResponse<String> uninstall(@RequestParam("id") Long id) {
         return systemExtensionService.uninstall(id);

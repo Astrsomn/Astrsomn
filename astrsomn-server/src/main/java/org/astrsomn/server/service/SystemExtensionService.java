@@ -25,6 +25,11 @@ public interface SystemExtensionService extends IService<SystemExtensionEntity> 
 
     BaseResponse<String> apply(Long id);
 
+    /**
+     * 取消应用：从运行时卸载插件 jar，状态恢复为「已安装」。
+     */
+    BaseResponse<String> revokeApply(Long id);
+
     BaseResponse<String> uninstall(Long id);
 
     /**

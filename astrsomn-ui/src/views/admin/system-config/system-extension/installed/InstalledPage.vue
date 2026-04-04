@@ -52,7 +52,7 @@
         @toggle-select="(checked) => onCardToggleSelect(item, checked)"
         @load-models="openLoadModelsPreview(item)"
         @unload-models="openUnloadModelsPreview(item)"
-        @disable-provider-models="handleDisableProviderModels(item.id)"
+        @revoke-apply="handleRevokeApply(item.id)"
         @uninstall="handleUninstall(item.id)"
         @apply="handleApply(item.id)"
       />
@@ -295,10 +295,27 @@ const handleBatchDelete = async () => {
 
 const handleApply = async (id: number | string | undefined) => {
   if (id == null) return
-  const msg = await systemExtensionApi.apply(id)
-  message.success(msg)
-  selectedRowKeys.value = []
-  void fetchList()
+  try {
+    const msg = await systemExtensionApi.apply(id)
+    message.success(msg)
+    selectedRowKeys.value = []
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '应用失败')
+  }
+}
+
+const handleRevokeApply = async (id: number | string | undefined) => {
+  if (id == null) return
+  try {
+    const msg = await systemExtensionApi.revokeApply(id)
+    message.success(msg)
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '取消应用失败')
+  }
 }
 
 const handleUninstall = async (id: number | string | undefined) => {
@@ -311,18 +328,6 @@ const handleUninstall = async (id: number | string | undefined) => {
   } catch (e: unknown) {
     const err = e as { message?: string }
     message.error(err?.message || '卸载失败')
-  }
-}
-
-const handleDisableProviderModels = async (id: number | string | undefined) => {
-  if (id == null) return
-  try {
-    const msg = await systemExtensionApi.disableProviderModels(id)
-    message.success(msg)
-    void fetchList()
-  } catch (e: unknown) {
-    const err = e as { message?: string }
-    message.error(err?.message || '禁用模型失败')
   }
 }
 
