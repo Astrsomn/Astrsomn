@@ -7,25 +7,15 @@
     <div ref="pageRef" class="prompt-page">
       <AdminListToolbar>
         <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.promptTitle"
+          <div class="prompt-toolbar-searches">
+            <ToolbarSearchPill
+              v-model="query.promptTitle"
+              layout="toolbar"
               placeholder="搜索标题"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-input
-              v-model:value="query.promptKey"
-              placeholder="Prompt Key"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><key-outlined /></template>
-            </a-input>
+              button-label="查询"
+              @search="fetchList"
+            />
+      
           </div>
 
           <div class="status-switch" role="group" aria-label="状态筛选">
@@ -47,65 +37,14 @@
             </a-button>
           </div>
 
-          <a-button class="filter-toggle-btn" @click="showAdvanced = !showAdvanced">
-            <template #icon><filter-outlined /></template>
-            {{ showAdvanced ? '收起筛选' : '更多筛选' }}
-          </a-button>
+      
         </template>
 
         <template #right>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="将删除选中项对应的 Prompt Key 下全部历史版本，确定吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量删除
-            </a-button>
-          </a-popconfirm>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+          <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
 
-        <template v-if="showAdvanced" #extra>
-          <a-input
-            v-model:value="query.scene"
-            placeholder="场景"
-            class="toolbar-input narrow"
-            allow-clear
-            @pressEnter="fetchList"
-          >
-            <template #prefix><tags-outlined /></template>
-          </a-input>
-          <a-input
-            v-model:value="query.envCode"
-            placeholder="环境编码"
-            class="toolbar-input narrow"
-            allow-clear
-            @pressEnter="fetchList"
-          >
-            <template #prefix><cloud-outlined /></template>
-          </a-input>
-          <a-input
-            v-model:value="query.createUser"
-            placeholder="创建人"
-            class="toolbar-input narrow"
-            allow-clear
-            @pressEnter="fetchList"
-          >
-            <template #prefix><user-outlined /></template>
-          </a-input>
-        </template>
+
       </AdminListToolbar>
 
       <BaseOverview
@@ -170,14 +109,14 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
   CloudOutlined,
   DeleteOutlined,
   FilterOutlined,
-  KeyOutlined,
   PlusOutlined,
+  ReloadOutlined,
   SearchOutlined,
   StopOutlined,
   TagsOutlined,
@@ -185,6 +124,8 @@ import {
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
 import PromptCard from './PromptCard.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
@@ -300,6 +241,40 @@ const resetFilters = () => {
   page.pageNum = 1
   void fetchList()
 }
+
+const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
+  {
+    label: '查询',
+    type: 'primary',
+    icon: SearchOutlined,
+    onClick: () => void fetchList()
+  },
+  {
+    label: '批量删除',
+    icon: DeleteOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: () => {
+      if (selectedRowKeys.value.length === 0) return
+      Modal.confirm({
+        title: '将删除选中项对应的 Prompt Key 下全部历史版本，确定吗？',
+        okText: '确认',
+        cancelText: '取消',
+        onOk: () => handleBatchDelete()
+      })
+    }
+  },
+  {
+    label: '重置',
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: '新增',
+    type: 'primary',
+    icon: PlusOutlined,
+    onClick: openCreate
+  }
+])
 
 const modal = reactive({
   open: false,
@@ -436,72 +411,25 @@ void fetchList()
 
 <style scoped>
 .prompt-page {
-  padding: 0 2px 0;
+  padding: 0 20px;
   margin-top: -8px;
 }
 
-.search-cluster {
+.prompt-toolbar-searches {
   display: flex;
-  gap: 8px;
-  align-items: center;
   flex-wrap: wrap;
-  padding: 6px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-  box-shadow: none;
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper) {
-  border: none;
-  box-shadow: none;
-  background: transparent;
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused) {
-  border: none;
-  box-shadow: none;
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface));
-}
-
-.search-cluster :deep(.ant-input) {
-  font-size: 14px;
+  gap: 12px;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
 }
 
 .toolbar-input {
   width: 200px;
 }
 
-.search-main-input {
-  width: 360px;
-}
-
-.search-sub-input {
-  width: 240px;
-}
-
 .toolbar-input.narrow {
   width: 160px;
-}
-
-.primary-btn,
-.ghost-btn {
-  height: 40px;
-  border-radius: var(--radius-sm);
-}
-
-.danger-btn {
-  color: var(--error);
-  border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
-  background: color-mix(in srgb, var(--error) 7%, var(--bg-card));
-}
-
-.danger-btn:hover,
-.danger-btn:focus {
-  color: var(--error) !important;
-  border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
-  background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
 }
 
 .status-switch {
@@ -566,19 +494,13 @@ void fetchList()
 
 @media (max-width: 720px) {
   .toolbar-input,
-  .toolbar-input.narrow,
-  .search-main-input,
-  .search-sub-input {
+  .toolbar-input.narrow {
     width: 100%;
   }
 
-  .search-cluster,
+  .prompt-toolbar-searches,
   .status-switch {
     width: 100%;
-  }
-
-  .search-cluster {
-    padding: 8px;
   }
 
   .status-switch {

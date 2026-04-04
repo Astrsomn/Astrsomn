@@ -4,7 +4,12 @@
 
     <select id="queryPage" resultType="org.astrsomn.core.common.dto.instance.AiInstanceResponseDTO">
         SELECT
-        ai.*
+        ai.*,
+        (SELECT m.model_type FROM AI_MODEL m
+         WHERE m.model_key = ai.model_key
+           AND m.env_code &lt;=&gt; ai.env_code
+           AND (m.deleted = 0 OR m.deleted IS NULL)
+         LIMIT 1) AS model_type
         FROM
         AI_INSTANCE ai
         WHERE
@@ -35,5 +40,18 @@
         </if>
         ORDER BY
         ai.create_time DESC
+    </select>
+
+    <select id="selectDetailDtoById" resultType="org.astrsomn.core.common.dto.instance.AiInstanceResponseDTO">
+        SELECT
+        ai.*,
+        (SELECT m.model_type FROM AI_MODEL m
+         WHERE m.model_key = ai.model_key
+           AND m.env_code &lt;=&gt; ai.env_code
+           AND (m.deleted = 0 OR m.deleted IS NULL)
+         LIMIT 1) AS model_type
+        FROM AI_INSTANCE ai
+        WHERE ai.id = #{id}
+          AND (ai.deleted = 0 OR ai.deleted IS NULL)
     </select>
 </mapper>

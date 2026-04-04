@@ -5,6 +5,8 @@ export type AiInstance = {
   instanceKey?: string
   instanceName?: string
   modelKey?: string
+  /** e.g. chat | embedding — drives list card preview */
+  modelType?: string
   maxTokens?: number
   temperature?: number
   presencePenalty?: number

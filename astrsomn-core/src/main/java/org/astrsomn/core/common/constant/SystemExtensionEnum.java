@@ -68,7 +68,8 @@ public interface SystemExtensionEnum {
 
     }
 
-
+    @Getter
+    @AllArgsConstructor
     enum ApplyStatusEnum implements BaseEnum{
         Y("Y", "Y"),
         N("N", "N");
