@@ -172,6 +172,7 @@ defineExpose({ getKeywords })
   min-height: 0;
   height: calc(100vh - 100px);
   overflow: hidden;
+  padding-inline: 8px;
 }
 
 .left-tabs {

@@ -4,210 +4,200 @@
       description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
   >
     <div class="model-page-container">
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <div class="search-cluster">
-            <a-input
-                v-model:value="query.modelName"
+      <div class="model-page-layout">
+        <aside class="provider-sidebar" aria-label="按供应商筛选">
+          <div class="provider-sidebar-title">供应商</div>
+          <div class="provider-menu-scroll">
+            <a-menu
+              mode="inline"
+              :selected-keys="providerMenuSelectedKeys"
+              class="provider-side-menu"
+              @click="onProviderMenuClick"
+            >
+              <a-menu-item key="__all__">全部</a-menu-item>
+              <a-menu-item v-for="opt in providerOptions" :key="String(opt.value)">
+                {{ opt.label }}
+              </a-menu-item>
+            </a-menu>
+          </div>
+        </aside>
+
+        <div class="model-page-main">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <ToolbarSearchPill
+                v-model="query.modelName"
+                layout="toolbar"
                 placeholder="搜索端点名称"
-                class="toolbar-input search-main-input"
-                allow-clear
-                @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-
-            <a-select
-                v-model:value="query.provider"
-                :options="providerOptions"
-                placeholder="筛选供应商"
-                class="toolbar-select provider-select"
-                allow-clear
-            />
-          </div>
-
-          <div class="status-switch" role="group" aria-label="状态筛选">
-            <a-button
-                class="status-btn"
-                :class="{ active: query.status === 'enabled' }"
-                @click="toggleStatusFilter('enabled')"
-            >
-              已上线
-            </a-button>
-            <a-button
-                class="status-btn"
-                :class="{ active: query.status === 'disabled' }"
-                @click="toggleStatusFilter('disabled')"
-            >
-              已下线
-            </a-button>
-          </div>
-        </div>
-
-        <div class="toolbar-right">
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            同步
-          </a-button>
-          <a-popconfirm
-              v-if="selectedRowKeys.length > 0"
-              :title="`确定删除选中的 ${selectedRowKeys.length} 个接入端点吗？`"
-              @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量移除
-            </a-button>
-          </a-popconfirm>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button type="primary" class="ghost-btn add-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            接入端点
-          </a-button>
-        </div>
-      </div>
-
-      <BaseOverview
-          :list-length="list.length"
-          :selected-count="selectedRowKeys.length"
-          :all-current-selected="allCurrentSelected"
-          :part-current-selected="partCurrentSelected"
-          :show-actions="list.length > 0"
-          :summary-text="`当前共有 ${list.length} 条端点记录，已选 ${selectedRowKeys.length} 条。`"
-          @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-
-      <div class="table-card">
-        <a-table
-            :columns="columns"
-            :data-source="list"
-            :pagination="false"
-            row-key="id"
-            :row-selection="rowSelection"
-            :scroll="{ x: 1680 }"
-        >
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'modelType'">
-              <div class="model-icon" :class="record.modelType">
-                <template v-if="record.modelType === 'chat'"><MessageOutlined /></template>
-                <template v-else-if="record.modelType === 'embedding'"><PartitionOutlined /></template>
-                <template v-else-if="record.modelType === 'image'"><PictureOutlined /></template>
-              </div>
-            </template>
-
-            <template v-else-if="column.key === 'modelName'">
-              <div class="model-info">
-                <div class="model-header">
-                  <span class="model-title">{{ record.modelName }}</span>
-                </div>
-                <div class="model-meta">
-                  <a-tag v-if="record.provider" :color="getProviderColor(record.provider)" class="provider-tag">
-                    {{ providerDict.getLabel(String(record.provider || '')) ?? record.provider }}
-                  </a-tag>
-                </div>
-              </div>
-            </template>
-
-            <template v-else-if="column.key === 'status'">
-              <a-switch
-                  :checked="record.status === 'enabled'"
-                  @change="(checked) => handleStatusChange(record.id, checked)"
-                  size="small"
+                @search="fetchList"
               />
-            </template>
 
-            <template v-else-if="column.key === 'isDefault'">
-              <a-tag v-if="record.isDefault === 1" color="blue">默认端点</a-tag>
-              <span v-else class="text-secondary">-</span>
-            </template>
-
-            <template v-else-if="column.key === 'modelKey'">
-              <code class="code-text">{{ record.modelKey }}</code>
-            </template>
-
-            <template v-else-if="column.key === 'apiUrl'">
-              <div class="api-url-cell" :title="record.apiUrl || '-'">
-                <span class="created-line">
-                  <global-outlined class="cell-icon subtle" />
-                  <span class="api-url-text">{{ record.apiUrl || '-' }}</span>
-                </span>
-              </div>
-            </template>
-
-            <template v-else-if="column.key === 'capabilities'">
-              <a-button
-                  v-if="parseCapabilities(record.capabilities).length > 0"
-                  type="link"
-                  size="small"
-                  @click="openCapabilitiesDialog(record)"
-              >
-                <template #icon><EyeOutlined /></template>
-                能力清单
-              </a-button>
-              <span v-else class="text-secondary">-</span>
-            </template>
-
-            <template v-else-if="column.key === 'envCode'">
-              <a-tag v-if="record.envCode" color="blue">{{ record.envCode }}</a-tag>
-              <span v-else class="text-secondary">-</span>
-            </template>
-
-            <template v-else-if="column.key === 'runtime'">
-              <div class="runtime-meta">
-                <span class="runtime-chip">
-                  <thunderbolt-outlined class="cell-icon" />
-                  限额 {{ record.maxQuotaTokens ?? 0 }}
-                </span>
-                <span class="runtime-chip">权重 {{ record.randomIndex ?? 0 }}</span>
-                <span class="runtime-chip">离散度 {{ record.topVariance ?? 0 }}</span>
-              </div>
-            </template>
-
-            <template v-else-if="column.key === 'createdMeta'">
-              <div class="created-meta">
-                <span class="created-line">
-                  <user-outlined class="cell-icon subtle" />
-                  {{ record.createUser || '-' }}
-                </span>
-                <span class="created-line">
-                  <calendar-outlined class="cell-icon subtle" />
-                  {{ formatTime(record.createTime) }}
-                </span>
-              </div>
-            </template>
-
-            <template v-else-if="column.key === 'actions'">
-              <div class="table-actions">
-                <a-button type="link" size="small" @click="openView(record)">
-                  <template #icon><eye-outlined /></template>
-                  详情
+              <div class="status-switch" role="group" aria-label="状态筛选">
+                <a-button
+                    class="status-btn"
+                    :class="{ active: query.status === 'enabled' }"
+                    @click="toggleStatusFilter('enabled')"
+                >
+                  已上线
                 </a-button>
-                <a-divider type="vertical" />
-                <a-button type="link" size="small" @click="openEdit(record)">
-                  <template #icon><edit-outlined /></template>
-                  配置
+                <a-button
+                    class="status-btn"
+                    :class="{ active: query.status === 'disabled' }"
+                    @click="toggleStatusFilter('disabled')"
+                >
+                  已下线
                 </a-button>
-                <a-divider type="vertical" />
-                <a-popconfirm title="移除端点将影响下游关联实例，确定吗？" @confirm="() => handleDeleteOne(record.id)">
-                  <a-button type="link" size="small" danger>
-                    <template #icon><delete-outlined /></template>
-                  </a-button>
-                </a-popconfirm>
               </div>
-            </template>
-          </template>
-        </a-table>
+            </div>
 
-        <div class="pagination-container">
-          <span class="total-text">共 {{ page.total }} 个端点节点</span>
-          <a-pagination
-              v-model:current="page.pageNum"
-              :page-size="page.pageSize"
-              :total="page.total"
-              size="small"
-              show-less-items
-              @change="onPageChange"
+            <div class="toolbar-right">
+              <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
+            </div>
+          </div>
+
+          <BaseOverview
+              :list-length="list.length"
+              :selected-count="selectedRowKeys.length"
+              :all-current-selected="allCurrentSelected"
+              :part-current-selected="partCurrentSelected"
+              :show-actions="list.length > 0"
+              :summary-text="`当前共有 ${list.length} 条端点记录，已选 ${selectedRowKeys.length} 条。`"
+              @toggle-select-all="toggleSelectAllCurrentPage"
           />
+
+          <div class="table-card">
+            <a-table
+                :columns="columns"
+                :data-source="list"
+                :pagination="false"
+                row-key="id"
+                :row-selection="rowSelection"
+                :scroll="{ x: 1680 }"
+            >
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'modelType'">
+                  <div class="model-icon" :class="record.modelType">
+                    <template v-if="record.modelType === 'chat'"><MessageOutlined /></template>
+                    <template v-else-if="record.modelType === 'embedding'"><PartitionOutlined /></template>
+                    <template v-else-if="record.modelType === 'image'"><PictureOutlined /></template>
+                  </div>
+                </template>
+
+                <template v-else-if="column.key === 'modelName'">
+                  <div class="model-info">
+                    <div class="model-header">
+                      <span class="model-title">{{ record.modelName }}</span>
+                    </div>
+                    <div class="model-meta">
+                      <a-tag v-if="record.provider" :color="getProviderColor(record.provider)" class="provider-tag">
+                        {{ providerDict.getLabel(String(record.provider || '')) ?? record.provider }}
+                      </a-tag>
+                    </div>
+                  </div>
+                </template>
+
+                <template v-else-if="column.key === 'status'">
+                  <a-switch
+                      :checked="record.status === 'enabled'"
+                      @change="(checked) => handleStatusChange(record.id, checked)"
+                      size="small"
+                  />
+                </template>
+
+                <template v-else-if="column.key === 'isDefault'">
+                  <a-tag v-if="record.isDefault === 1" color="blue">默认端点</a-tag>
+                  <span v-else class="text-secondary">-</span>
+                </template>
+
+                <template v-else-if="column.key === 'modelKey'">
+                  <code class="code-text">{{ record.modelKey }}</code>
+                </template>
+
+                <template v-else-if="column.key === 'apiUrl'">
+                  <div class="api-url-cell" :title="record.apiUrl || '-'">
+                    <span class="created-line">
+                      <global-outlined class="cell-icon subtle" />
+                      <span class="api-url-text">{{ record.apiUrl || '-' }}</span>
+                    </span>
+                  </div>
+                </template>
+
+                <template v-else-if="column.key === 'capabilities'">
+                  <a-button
+                      v-if="parseCapabilities(record.capabilities).length > 0"
+                      type="link"
+                      size="small"
+                      @click="openCapabilitiesDialog(record)"
+                  >
+                    <template #icon><EyeOutlined /></template>
+                    能力清单
+                  </a-button>
+                  <span v-else class="text-secondary">-</span>
+                </template>
+
+                <template v-else-if="column.key === 'envCode'">
+                  <a-tag v-if="record.envCode" color="blue">{{ record.envCode }}</a-tag>
+                  <span v-else class="text-secondary">-</span>
+                </template>
+
+                <template v-else-if="column.key === 'runtime'">
+                  <div class="runtime-meta">
+                    <span class="runtime-chip">
+                      <thunderbolt-outlined class="cell-icon" />
+                      限额 {{ record.maxQuotaTokens ?? 0 }}
+                    </span>
+                    <span class="runtime-chip">权重 {{ record.randomIndex ?? 0 }}</span>
+                    <span class="runtime-chip">离散度 {{ record.topVariance ?? 0 }}</span>
+                  </div>
+                </template>
+
+                <template v-else-if="column.key === 'createdMeta'">
+                  <div class="created-meta">
+                    <span class="created-line">
+                      <user-outlined class="cell-icon subtle" />
+                      {{ record.createUser || '-' }}
+                    </span>
+                    <span class="created-line">
+                      <calendar-outlined class="cell-icon subtle" />
+                      {{ formatTime(record.createTime) }}
+                    </span>
+                  </div>
+                </template>
+
+                <template v-else-if="column.key === 'actions'">
+                  <div class="table-actions">
+                    <a-button type="link" size="small" @click="openView(record)">
+                      <template #icon><eye-outlined /></template>
+                      详情
+                    </a-button>
+                    <a-divider type="vertical" />
+                    <a-button type="link" size="small" @click="openEdit(record)">
+                      <template #icon><edit-outlined /></template>
+                      配置
+                    </a-button>
+                    <a-divider type="vertical" />
+                    <a-popconfirm title="移除端点将影响下游关联实例，确定吗？" @confirm="() => handleDeleteOne(record.id)">
+                      <a-button type="link" size="small" danger>
+                        <template #icon><delete-outlined /></template>
+                      </a-button>
+                    </a-popconfirm>
+                  </div>
+                </template>
+              </template>
+            </a-table>
+
+            <div class="pagination-container">
+              <span class="total-text">共 {{ page.total }} 个端点节点</span>
+              <a-pagination
+                  v-model:current="page.pageNum"
+                  :page-size="page.pageSize"
+                  :total="page.total"
+                  size="small"
+                  show-less-items
+                  @change="onPageChange"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -253,7 +243,7 @@
 </template>
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import { 
   CalendarOutlined,
   DeleteOutlined,
@@ -268,9 +258,10 @@ import {
   ThunderboltOutlined,
   UserOutlined
 } from '@ant-design/icons-vue'
-import { Modal } from 'ant-design-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
 import ModelFormModal from './ModelFormModal.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
 import { useDictionary } from '@/locales/dictionary'
@@ -334,10 +325,20 @@ const formatTime = (raw?: string) => {
 }
 
 // ... 逻辑部分保持原样 ...
-const query = reactive<any>({})
+const ALL_PROVIDER_MENU_KEY = '__all__'
+
+const query = reactive<{ modelName?: string; provider?: string; status?: string }>({})
 const list = ref<AiModel[]>([])
 const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
 const selectedRowKeys = ref<Array<number | string>>([])
+
+const providerMenuSelectedKeys = computed(() => {
+  const p = query.provider
+  if (p === undefined || p === null || p === '') {
+    return [ALL_PROVIDER_MENU_KEY]
+  }
+  return [String(p)]
+})
 const rowSelection = computed(() => ({
   fixed: true,
   columnWidth: 54,
@@ -395,6 +396,17 @@ const fetchList = async () => {
   page.total = resp.total || 0
 }
 
+function onProviderMenuClick(info: { key: string | number }) {
+  const key = String(info.key)
+  if (key === ALL_PROVIDER_MENU_KEY) {
+    query.provider = undefined
+  } else {
+    query.provider = key
+  }
+  page.pageNum = 1
+  void fetchList()
+}
+
 const onPageChange = (p: number) => {
   page.pageNum = p
   fetchList()
@@ -425,6 +437,34 @@ const openCreate = () => {
   modalInitialData.value = null
   modal.open = true
 }
+
+const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
+  {
+    label: '搜索',
+    type: 'primary',
+    icon: SearchOutlined,
+    onClick: () => void fetchList()
+  },
+  {
+    label: '批量删除',
+    icon: DeleteOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: () => {
+      const n = selectedRowKeys.value.length
+      if (n === 0) return
+      Modal.confirm({
+        title: `确定删除选中的 ${n} 个接入端点吗？`,
+        onOk: () => handleBatchDelete()
+      })
+    }
+  },
+  {
+    label: '创建',
+    type: 'primary',
+    icon: PlusOutlined,
+    onClick: openCreate
+  }
+])
 
 const openView = async (record: AiModel) => {
   modal.mode = 'view'
@@ -492,6 +532,58 @@ onMounted(() => {
   gap: 0;
 }
 
+.model-page-layout {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  min-width: 0;
+}
+
+.provider-sidebar {
+  flex: 0 0 200px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  background: var(--bg-card);
+  padding: 12px 0 16px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.04);
+}
+
+.provider-menu-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.provider-sidebar-title {
+  padding: 0 16px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.provider-side-menu {
+  border-inline-end: none !important;
+  background: transparent !important;
+}
+
+.provider-side-menu :deep(.ant-menu-item) {
+  margin-inline: 8px;
+  width: auto;
+  border-radius: var(--radius-max);
+}
+
+.model-page-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;
@@ -516,66 +608,6 @@ onMounted(() => {
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
-}
-
-.search-cluster {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 6px;
-  border-radius: var(--radius-max);
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper),
-.search-cluster :deep(.ant-select-selector) {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused),
-.search-cluster :deep(.ant-select-focused .ant-select-selector),
-.search-cluster :deep(.ant-select-selector:hover) {
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface)) !important;
-}
-
-.toolbar-input {
-  width: 200px;
-}
-
-.search-main-input {
-  width: 300px;
-}
-
-.toolbar-select {
-  width: 160px;
-}
-
-.provider-select {
-  width: 160px;
-}
-
-.primary-btn,
-.ghost-btn {
-  height: 40px;
-  border-radius: var(--radius-max);
-}
-
-.danger-btn {
-  color: var(--error);
-  border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
-  background: color-mix(in srgb, var(--error) 7%, var(--bg-card));
-}
-
-.danger-btn:hover,
-.danger-btn:focus {
-  color: var(--error) !important;
-  border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
-  background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
 }
 
 .status-switch {

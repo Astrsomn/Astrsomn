@@ -3,6 +3,8 @@
     <button
       v-for="(btn, index) in buttons"
       :key="index"
+      type="button"
+      :disabled="Boolean(btn.disabled || btn.loading)"
       :class="[
         'seg-btn',
         btn.type === 'primary' ? 'seg-btn-primary' : 'seg-btn-default',
@@ -10,19 +12,23 @@
       ]"
       @click="btn.onClick"
     >
-      <component v-if="btn.icon" :is="btn.icon" class="seg-btn-icon" />
+      <LoadingOutlined v-if="btn.loading" class="seg-btn-icon seg-btn-icon-spin" />
+      <component v-else-if="btn.icon" :is="btn.icon" class="seg-btn-icon" />
       <span>{{ btn.label }}</span>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
+import { LoadingOutlined } from '@ant-design/icons-vue'
 import type { Component } from 'vue'
 
 export interface SegmentedButton {
   label: string
   type?: 'default' | 'primary'
   icon?: Component
+  disabled?: boolean
+  loading?: boolean
   onClick?: () => void
 }
 
@@ -62,7 +68,7 @@ defineProps<{
   color: var(--text-secondary, #7b93b6);
 }
 
-.seg-btn-default:hover {
+.seg-btn-default:hover:not(:disabled) {
   background: color-mix(in srgb, var(--bg-elevated, #111a2e) 80%, transparent);
   color: var(--text-heading, #ffffff);
   border-color: color-mix(in srgb, var(--primary) 32%, var(--border-subtle));
@@ -74,9 +80,22 @@ defineProps<{
   border-color: var(--primary, #3b82f6);
 }
 
-.seg-btn-primary:hover {
+.seg-btn-primary:hover:not(:disabled) {
   background: var(--primary-light, #60a5fa);
   border-color: var(--primary-light, #60a5fa);
+}
+
+.seg-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.seg-btn-default:disabled {
+  color: var(--text-muted, #64748b);
+}
+
+.seg-btn-primary:disabled {
+  opacity: 0.65;
 }
 
 .seg-btn-first {
@@ -89,5 +108,15 @@ defineProps<{
 
 .seg-btn-icon {
   font-size: 16px;
+}
+
+.seg-btn-icon-spin {
+  animation: seg-btn-spin 0.85s linear infinite;
+}
+
+@keyframes seg-btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
