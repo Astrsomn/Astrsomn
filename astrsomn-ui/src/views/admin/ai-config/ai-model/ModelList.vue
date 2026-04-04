@@ -581,7 +581,7 @@ onMounted(() => {
   margin-top: 12px;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  min-height:  var(--model-list-panel-max-height);
   max-height: var(--model-list-panel-max-height);
   overflow: hidden;
   background: var(--bg-card);

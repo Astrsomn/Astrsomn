@@ -1,6 +1,6 @@
 <template>
   <aside class="provider-sidebar" aria-label="按模型扩展筛选供应商">
-    <div class="provider-sidebar-title">模型提供商</div>
+    <h1 class="provider-sidebar-title">模型提供商</h1>
     <a-spin :spinning="loading" class="provider-spin">
       <div class="provider-menu-scroll">
         <a-menu
@@ -102,6 +102,7 @@ function onMenuClick(info: { key: string | number }) {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-height: calc(100vh - 70px);
   max-height: calc(100vh - 70px);
   overflow: hidden;
   border: 1px solid var(--border-default);
@@ -133,7 +134,7 @@ function onMenuClick(info: { key: string | number }) {
 
 .provider-sidebar-title {
   padding: 0 16px 10px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.04em;
