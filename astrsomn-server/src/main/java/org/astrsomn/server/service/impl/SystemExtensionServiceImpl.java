@@ -188,18 +188,59 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             return BaseResponse.fail("记录不存在", null);
         }
         if (SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(entity.getType())) {
-            BaseResponse<Void> guard = systemExtensionModelGuard.assertNoInstancesUseProviderModels(id);
+            BaseResponse<Void> guard = systemExtensionModelGuard.assertNoAiModelsForProviderExtension(id);
             if (!guard.isSuccess()) {
                 return BaseResponse.fail(guard.getMessage(), null);
             }
         }
-        if (StringUtils.isNotBlank(entity.getJarName())) {
-            pluginManager.unloadPlugin(entity.getJarName());
+        String jarName = entity.getJarName();
+        if (StringUtils.isNotBlank(jarName)) {
+            pluginManager.unloadPlugin(jarName);
         }
-        entity.setApplied("N");
-        entity.setStatus("UNINSTALLED");
-        boolean result = updateById(entity);
+        boolean result = removeById(id);
+        if (result && StringUtils.isNotBlank(jarName)) {
+            tryDeletePluginJarFromDisk(jarName);
+        }
         return result ? BaseResponse.success("卸载成功") : BaseResponse.fail("卸载失败", null);
+    }
+
+    /**
+     * 卸载成功后从 {@link AstrsomnPluginManager#getPluginsDirectory()} 下删除对应 jar（仅删除纯文件名、且解析后路径必须落在 plugins 目录内）。
+     */
+    private void tryDeletePluginJarFromDisk(String jarName) {
+        if (StringUtils.isBlank(jarName)) {
+            return;
+        }
+        final String safeName;
+        try {
+            safeName = sanitizeJarFileName(jarName);
+        } catch (IllegalArgumentException e) {
+            log.warn("卸载时跳过删除 jar，文件名不合法: {}", jarName);
+            return;
+        }
+        File pluginsDir = pluginManager.getPluginsDirectory();
+        File jarFile = new File(pluginsDir, safeName);
+        try {
+            String dirCanon = pluginsDir.getCanonicalPath();
+            String fileCanon = jarFile.getCanonicalPath();
+            if (!fileCanon.startsWith(dirCanon + File.separator)) {
+                log.warn("卸载时跳过删除 jar，路径不在 plugins 目录内: {}", fileCanon);
+                return;
+            }
+        } catch (IOException e) {
+            log.warn("解析插件 jar 路径失败: {}", jarName, e);
+            return;
+        }
+        if (!jarFile.isFile()) {
+            log.debug("卸载时 plugins 下无此文件，跳过删除: {}", jarFile.getAbsolutePath());
+            return;
+        }
+        try {
+            Files.deleteIfExists(jarFile.toPath());
+            log.info("已删除卸载插件 jar: {}", jarFile.getAbsolutePath());
+        } catch (IOException e) {
+            log.warn("删除插件 jar 失败（可手动删除）: {}", jarFile.getAbsolutePath(), e);
+        }
     }
 
     @Override

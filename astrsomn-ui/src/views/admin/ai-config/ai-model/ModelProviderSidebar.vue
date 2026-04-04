@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { systemExtensionApi, type ExtensionMarketplaceItem } from '@/api/systemExtension'
+import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension'
 
 const ALL_KEY = '__all__'
 
@@ -47,7 +47,7 @@ const emit = defineEmits<{
 }>()
 
 const loading = ref(false)
-const items = ref<ExtensionMarketplaceItem[]>([])
+const items = ref<SystemExtension[]>([])
 
 const menuSelectedKeys = computed(() => {
   const p = props.selectedKey
@@ -57,18 +57,25 @@ const menuSelectedKeys = computed(() => {
   return [String(p)]
 })
 
-function providerRowKey(it: ExtensionMarketplaceItem): string {
+function providerRowKey(it: SystemExtension): string {
   return String(it.providerCode?.trim() || it.extensionKey?.trim() || '')
 }
 
 async function load() {
   loading.value = true
   try {
-    const list = await systemExtensionApi.marketplaceCatalog('MODEL_PROVIDER')
-    items.value = (list || []).filter((x) => providerRowKey(x))
+    const resp = await systemExtensionApi.queryPage({
+      pageNo: 1,
+      pageSize: 500,
+      param: {
+        type: 'MODEL_PROVIDER',
+        listScope: 'INSTALLED'
+      }
+    })
+    items.value = (resp?.list ?? []).filter((x) => providerRowKey(x))
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '加载模型扩展目录失败')
+    message.error(err?.message || '加载模型提供商失败')
     items.value = []
   } finally {
     loading.value = false

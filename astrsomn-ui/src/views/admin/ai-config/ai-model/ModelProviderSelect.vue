@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { systemExtensionApi, type ExtensionMarketplaceItem } from '@/api/systemExtension'
+import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension'
 
 const props = withDefaults(
   defineProps<{
@@ -57,13 +57,13 @@ const emit = defineEmits<{
 }>()
 
 const loading = ref(false)
-const catalog = ref<ExtensionMarketplaceItem[]>([])
+const catalog = ref<SystemExtension[]>([])
 
-function rowKey(it: ExtensionMarketplaceItem): string {
+function rowKey(it: SystemExtension): string {
   return String(it.providerCode?.trim() || it.extensionKey?.trim() || '')
 }
 
-function displayName(it: ExtensionMarketplaceItem): string {
+function displayName(it: SystemExtension): string {
   return it.extensionName?.trim() || rowKey(it) || '—'
 }
 
@@ -91,11 +91,18 @@ const optionsWithFallback = computed((): OptRow[] => {
 async function load() {
   loading.value = true
   try {
-    const list = await systemExtensionApi.marketplaceCatalog('MODEL_PROVIDER')
-    catalog.value = list || []
+    const resp = await systemExtensionApi.queryPage({
+      pageNo: 1,
+      pageSize: 500,
+      param: {
+        type: 'MODEL_PROVIDER',
+        listScope: 'INSTALLED'
+      }
+    })
+    catalog.value = resp?.list ?? []
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '加载供应商目录失败')
+    message.error(err?.message || '加载模型提供商失败')
     catalog.value = []
   } finally {
     loading.value = false

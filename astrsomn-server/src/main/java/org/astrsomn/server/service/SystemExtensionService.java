@@ -30,6 +30,9 @@ public interface SystemExtensionService extends IService<SystemExtensionEntity> 
      */
     BaseResponse<String> revokeApply(Long id);
 
+    /**
+     * 卸载：校验通过后从运行时卸载 jar、物理删除 {@code SYSTEM_EXTENSION} 行，并尝试删除 {@code plugins} 下对应 jar。
+     */
     BaseResponse<String> uninstall(Long id);
 
     /**

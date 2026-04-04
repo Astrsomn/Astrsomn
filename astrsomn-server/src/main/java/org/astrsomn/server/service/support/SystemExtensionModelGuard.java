@@ -57,6 +57,43 @@ public class SystemExtensionModelGuard {
     }
 
     /**
+     * 模型类扩展卸载插件前：当前环境下 {@code AI_MODEL} 仍存在该厂商记录则拒绝（需先「卸载模型」清空表内数据）。
+     */
+    public BaseResponse<Void> assertNoAiModelsForProviderExtension(Long extensionId) {
+        SystemExtensionEntity ext = systemExtensionMapper.selectById(extensionId);
+        if (ext == null) {
+            return BaseResponse.fail("记录不存在", null);
+        }
+        if (!SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(ext.getType())) {
+            return BaseResponse.success(null);
+        }
+
+        String providerCode = resolveProviderCode(ext);
+        if (StringUtils.isBlank(providerCode)) {
+            return BaseResponse.fail("无法解析 providerCode / extensionKey，无法校验模型表", null);
+        }
+        String envCode = effectiveEnvCode();
+        if (StringUtils.isBlank(envCode)) {
+            return BaseResponse.fail("无法解析当前环境 envCode", null);
+        }
+
+        Long count =
+                aiModelMapper.selectCount(
+                        new LambdaQueryWrapper<AiModelEntity>()
+                                .eq(AiModelEntity::getProvider, providerCode.trim())
+                                .eq(AiModelEntity::getEnvCode, envCode.trim())
+                                .eq(AiModelEntity::getDeleted, false));
+        if (count != null && count > 0) {
+            return BaseResponse.fail(
+                    "当前环境下仍存在该厂商的 AI 模型数据（共 "
+                            + count
+                            + " 条），请先通过「卸载模型」清空后再卸载插件。",
+                    null);
+        }
+        return BaseResponse.success(null);
+    }
+
+    /**
      * 模型类扩展卸载插件前：若有实例引用该厂商任一模型则拒绝。
      */
     public BaseResponse<Void> assertNoInstancesUseProviderModels(Long extensionId) {
