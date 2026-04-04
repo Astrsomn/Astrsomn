@@ -17,7 +17,9 @@ import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.server.service.SystemExtensionModelSyncService;
 import org.astrsomn.server.service.SystemExtensionService;
 import org.astrsomn.server.service.support.SystemExtensionModelGuard;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +37,23 @@ public class SystemExtensionController extends BaseController {
     @PostMapping("/create")
     public BaseResponse<String> create(@RequestBody SystemExtensionCreateRequestDTO request) {
         return systemExtensionService.create(request);
+    }
+
+    /**
+     * 上传 jar 到进程工作目录下 {@code plugins}，并写入 {@code SYSTEM_EXTENSION}（已安装、未应用）。
+     */
+    @PostMapping(value = "/upload-jar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<String> uploadJar(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(value = "extensionKey", required = false) String extensionKey,
+            @RequestParam(value = "extensionName", required = false) String extensionName,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "version", required = false) String version,
+            @RequestParam(value = "author", required = false) String author,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "providerCode", required = false) String providerCode) {
+        return systemExtensionService.uploadJar(
+                file, extensionKey, extensionName, type, version, author, description, providerCode);
     }
 
     @DeleteMapping("/delete/{ids}")

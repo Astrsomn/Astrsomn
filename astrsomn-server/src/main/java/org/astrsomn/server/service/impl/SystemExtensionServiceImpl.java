@@ -1,8 +1,10 @@
 package org.astrsomn.server.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.base.BasePageRequest;
@@ -20,9 +22,17 @@ import org.astrsomn.server.service.support.SystemExtensionModelGuard;
 import org.astrsomn.starter.plugin.AstrsomnPluginManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMapper, SystemExtensionEntity>
@@ -122,5 +132,191 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         entity.setStatus("UNINSTALLED");
         boolean result = updateById(entity);
         return result ? BaseResponse.success("卸载成功") : BaseResponse.fail("卸载失败", null);
+    }
+
+    @Override
+    public BaseResponse<String> uploadJar(
+            MultipartFile file,
+            String extensionKey,
+            String extensionName,
+            String type,
+            String version,
+            String author,
+            String description,
+            String providerCode) {
+        if (file == null || file.isEmpty()) {
+            return BaseResponse.fail("请选择 jar 文件", null);
+        }
+        String originalName = file.getOriginalFilename();
+        String safeJarName;
+        try {
+            safeJarName = sanitizeJarFileName(originalName);
+        } catch (IllegalArgumentException e) {
+            return BaseResponse.fail(e.getMessage(), null);
+        }
+
+        File pluginsDir = pluginManager.getPluginsDirectory();
+        File dest = new File(pluginsDir, safeJarName);
+        if (dest.exists()) {
+            return BaseResponse.fail("plugins 目录下已存在同名文件: " + safeJarName, null);
+        }
+
+        String stem = safeJarName.substring(0, safeJarName.length() - 4);
+        String key;
+        try {
+            String paramKey = StringUtils.trimToNull(extensionKey);
+            if (paramKey == null) {
+                key = defaultExtensionKeyFromStem(stem);
+            } else {
+                key = sanitizeExtensionKey(paramKey);
+            }
+        } catch (IllegalArgumentException e) {
+            return BaseResponse.fail(e.getMessage(), null);
+        }
+        if (StringUtils.isBlank(key)) {
+            return BaseResponse.fail("extensionKey 无效", null);
+        }
+
+        Long dup = baseMapper.selectCount(
+                new LambdaQueryWrapper<SystemExtensionEntity>().eq(SystemExtensionEntity::getExtensionKey, key));
+        if (dup != null && dup > 0) {
+            return BaseResponse.fail("扩展 Key 已存在: " + key, null);
+        }
+
+        try {
+            file.transferTo(dest.toPath());
+        } catch (IOException e) {
+            log.error("保存插件 jar 失败: {}", safeJarName, e);
+            return BaseResponse.fail("保存文件失败: " + e.getMessage(), null);
+        }
+
+        SystemExtensionEntity entity = new SystemExtensionEntity();
+        entity.setExtensionKey(key);
+        entity.setJarName(safeJarName);
+        entity.setExtensionName(StringUtils.trimToNull(extensionName));
+        entity.setType(StringUtils.trimToNull(type));
+        entity.setVersion(StringUtils.trimToNull(version));
+        entity.setAuthor(StringUtils.trimToNull(author));
+        entity.setDescription(StringUtils.trimToNull(description));
+        entity.setProviderCode(StringUtils.trimToNull(providerCode));
+
+        applyManifestDefaults(dest, entity);
+
+        if (StringUtils.isBlank(entity.getExtensionName())) {
+            entity.setExtensionName(stem);
+        }
+        if (StringUtils.isBlank(entity.getType())) {
+            entity.setType(SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode());
+        }
+        if (StringUtils.isBlank(entity.getVersion())) {
+            entity.setVersion("unknown");
+        }
+        if (StringUtils.isBlank(entity.getAuthor())) {
+            entity.setAuthor("unknown");
+        }
+
+        entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
+        entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
+
+        boolean saved = save(entity);
+        if (!saved) {
+            try {
+                java.nio.file.Files.deleteIfExists(dest.toPath());
+            } catch (IOException ex) {
+                log.warn("回滚删除 jar 失败: {}", dest.getAbsolutePath(), ex);
+            }
+            return BaseResponse.fail("登记扩展记录失败", null);
+        }
+
+        try {
+            pluginManager.reloadPlugins();
+        } catch (Exception e) {
+            log.warn("上传后 reloadPlugins 异常（文件已保存、记录已写入）: {}", e.getMessage());
+        }
+
+        return BaseResponse.success("已上传到 plugins 并登记为已安装，请到「已安装插件」中应用。");
+    }
+
+    private static String sanitizeJarFileName(String original) {
+        if (StringUtils.isBlank(original)) {
+            throw new IllegalArgumentException("文件名无效");
+        }
+        String name = new File(original).getName();
+        if (name.contains("..") || name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
+            throw new IllegalArgumentException("非法文件名");
+        }
+        if (!name.toLowerCase(Locale.ROOT).endsWith(".jar")) {
+            throw new IllegalArgumentException("仅支持 .jar 文件");
+        }
+        return name;
+    }
+
+    private static String sanitizeExtensionKey(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String t = raw.trim();
+        if (t.isEmpty()) {
+            return null;
+        }
+        if (!t.matches("[a-zA-Z0-9][a-zA-Z0-9._-]*")) {
+            throw new IllegalArgumentException("extensionKey 仅允许字母、数字、点、下划线、中划线，且不能以点开头");
+        }
+        return t;
+    }
+
+    /** 由 jar 文件名推导 Key：非 [a-zA-Z0-9._-] 替换为下划线，保证以字母或数字开头。 */
+    private static String defaultExtensionKeyFromStem(String stem) {
+        if (StringUtils.isBlank(stem)) {
+            return "jar_" + System.currentTimeMillis();
+        }
+        String n = stem.trim().replaceAll("[^a-zA-Z0-9._-]", "_");
+        n = n.replaceAll("_+", "_");
+        n = n.replaceAll("^[._-]+", "");
+        n = n.replaceAll("[._-]+$", "");
+        if (n.isEmpty() || !Character.isLetterOrDigit(n.charAt(0))) {
+            n = "ext_" + System.currentTimeMillis();
+        }
+        return n;
+    }
+
+    private static void applyManifestDefaults(File jarFile, SystemExtensionEntity entity) {
+        try (JarFile jf = new JarFile(jarFile)) {
+            Manifest mf = jf.getManifest();
+            if (mf == null) {
+                return;
+            }
+            Attributes main = mf.getMainAttributes();
+            if (main == null) {
+                return;
+            }
+            if (StringUtils.isBlank(entity.getExtensionName())) {
+                String title = firstNonBlank(
+                        main.getValue(Attributes.Name.IMPLEMENTATION_TITLE),
+                        main.getValue("Bundle-Name"));
+                entity.setExtensionName(StringUtils.trimToNull(title));
+            }
+            if (StringUtils.isBlank(entity.getVersion())) {
+                String ver = firstNonBlank(
+                        main.getValue(Attributes.Name.IMPLEMENTATION_VERSION),
+                        main.getValue("Bundle-Version"));
+                entity.setVersion(StringUtils.trimToNull(ver));
+            }
+            if (StringUtils.isBlank(entity.getAuthor())) {
+                entity.setAuthor(StringUtils.trimToNull(main.getValue(Attributes.Name.IMPLEMENTATION_VENDOR)));
+            }
+        } catch (IOException e) {
+            log.debug("读取 manifest 跳过: {}", jarFile.getName(), e);
+        }
+    }
+
+    private static String firstNonBlank(String a, String b) {
+        if (StringUtils.isNotBlank(a)) {
+            return a.trim();
+        }
+        if (StringUtils.isNotBlank(b)) {
+            return b.trim();
+        }
+        return null;
     }
 }

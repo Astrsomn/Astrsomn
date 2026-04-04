@@ -6,6 +6,10 @@ logging:
 spring:
   application:
     name: astrsomn-server
+  servlet:
+    multipart:
+      max-file-size: 128MB
+      max-request-size: 130MB
   cloud:
     nacos:
       discovery:

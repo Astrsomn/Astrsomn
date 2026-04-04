@@ -177,6 +177,41 @@ export const systemExtensionApi = {
       url: `/v1/astro/system-extension/unload-models?id=${encodeURIComponent(String(id))}`,
       method: 'post'
     })
+  },
+
+  /** multipart：保存到服务端 plugins 目录并写入 SYSTEM_EXTENSION */
+  uploadJar: (
+    file: File,
+    meta?: Partial<
+      Pick<
+        SystemExtension,
+        'extensionKey' | 'extensionName' | 'type' | 'version' | 'author' | 'description' | 'providerCode'
+      >
+    >
+  ): Promise<string> => {
+    const fd = new FormData()
+    fd.append('file', file)
+    if (meta?.extensionKey) fd.append('extensionKey', meta.extensionKey)
+    if (meta?.extensionName) fd.append('extensionName', meta.extensionName)
+    if (meta?.type) fd.append('type', meta.type)
+    if (meta?.version) fd.append('version', meta.version)
+    if (meta?.author) fd.append('author', meta.author)
+    if (meta?.description) fd.append('description', meta.description)
+    if (meta?.providerCode) fd.append('providerCode', meta.providerCode)
+    return request({
+      url: '/v1/astro/system-extension/upload-jar',
+      method: 'post',
+      data: fd,
+      timeout: 300000,
+      transformRequest: [
+        (data, headers) => {
+          if (data instanceof FormData) {
+            delete (headers as Record<string, unknown>)['Content-Type']
+          }
+          return data
+        }
+      ]
+    })
   }
 }
 
