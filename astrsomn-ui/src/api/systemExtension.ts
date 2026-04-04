@@ -168,10 +168,14 @@ export const systemExtensionApi = {
     })
   },
 
-  loadModels: (id: number | string): Promise<string> => {
+  loadModels: (id: number | string, modelKeys?: string[]): Promise<string> => {
     return request({
-      url: `/v1/astro/system-extension/load-models?id=${encodeURIComponent(String(id))}`,
-      method: 'post'
+      url: `/v1/astro/system-extension/load-models`,
+      method: 'post',
+      params: {
+        id: encodeURIComponent(String(id)),
+        modelKeys: modelKeys?.join(',')
+      }
     })
   },
 
@@ -182,10 +186,14 @@ export const systemExtensionApi = {
     })
   },
 
-  unloadModels: (id: number | string): Promise<string> => {
+  unloadModels: (id: number | string, modelKeys?: string[]): Promise<string> => {
     return request({
-      url: `/v1/astro/system-extension/unload-models?id=${encodeURIComponent(String(id))}`,
-      method: 'post'
+      url: `/v1/astro/system-extension/unload-models`,
+      method: 'post',
+      params: {
+        id: encodeURIComponent(String(id)),
+        modelKeys: modelKeys?.join(',')
+      }
     })
   },
 

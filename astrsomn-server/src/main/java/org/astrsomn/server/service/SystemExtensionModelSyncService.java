@@ -9,12 +9,12 @@ public interface SystemExtensionModelSyncService {
     /**
      * 从 SPI {@link org.astrsomn.core.common.langchain.extension.ModelProviderHandler#getAvailableModels()} 导入模型到当前环境。
      */
-    BaseResponse<String> loadModels(Long extensionId);
+    BaseResponse<String> loadModels(Long extensionId, String modelKeys);
 
     /**
      * 按厂商删除当前环境下该 provider 的模型；被 AI 实例引用的模型键会跳过。
      */
-    BaseResponse<String> unloadModels(Long extensionId);
+    BaseResponse<String> unloadModels(Long extensionId, String modelKeys);
 
     /**
      * 预览加载模型：将新增 vs 已存在跳过（不写库）。

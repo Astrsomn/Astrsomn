@@ -124,8 +124,8 @@ public class SystemExtensionController extends BaseController {
     }
 
     @PostMapping("/load-models")
-    public BaseResponse<String> loadModels(@RequestParam("id") Long id) {
-        return systemExtensionModelSyncService.loadModels(id);
+    public BaseResponse<String> loadModels(@RequestParam("id") Long id, @RequestParam(value = "modelKeys", required = false) String modelKeys) {
+        return systemExtensionModelSyncService.loadModels(id, modelKeys);
     }
 
     @GetMapping("/unload-models/preview")
@@ -134,7 +134,7 @@ public class SystemExtensionController extends BaseController {
     }
 
     @PostMapping("/unload-models")
-    public BaseResponse<String> unloadModels(@RequestParam("id") Long id) {
-        return systemExtensionModelSyncService.unloadModels(id);
+    public BaseResponse<String> unloadModels(@RequestParam("id") Long id, @RequestParam(value = "modelKeys", required = false) String modelKeys) {
+        return systemExtensionModelSyncService.unloadModels(id, modelKeys);
     }
 }

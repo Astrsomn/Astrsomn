@@ -9,18 +9,7 @@
           @search="fetchList"
         />
       </template>
-      <template #right>
-        <a-upload
-          :show-upload-list="false"
-          accept=".jar,application/java-archive"
-          :before-upload="onBeforeUploadJar"
-        >
-          <a-button type="default" class="import-jar-btn" :loading="jarUploading">
-            <template #icon><upload-outlined /></template>
-            导入插件
-          </a-button>
-        </a-upload>
-      </template>
+
     </AdminListToolbar>
 
     <a-tabs v-model:activeKey="typeTabKey" class="type-tabs" @change="onTypeTabChange">
@@ -48,7 +37,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { UploadOutlined } from '@ant-design/icons-vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import ExtensionMarketplaceCard from './ExtensionMarketplaceCard.vue'
@@ -58,7 +46,6 @@ import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension'
 const typeTabKey = ref('ALL')
 const extensionNameInput = ref('')
 const list = ref<ExtensionRow[]>([])
-const jarUploading = ref(false)
 
 function rowKey(record: ExtensionRow) {
   return String(record.extensionKey ?? '')
@@ -76,21 +63,6 @@ const fetchList = async () => {
     rows = rows.filter((r) => (r.extensionName || '').toLowerCase().includes(n))
   }
   list.value = rows as ExtensionRow[]
-}
-
-const onBeforeUploadJar = async (file: File) => {
-  jarUploading.value = true
-  try {
-    const msg = await systemExtensionApi.uploadJar(file)
-    message.success(msg)
-    message.info('可在「已安装插件」中查看并应用。')
-  } catch (e: unknown) {
-    const err = e as { message?: string }
-    message.error(err?.message || '上传失败')
-  } finally {
-    jarUploading.value = false
-  }
-  return false
 }
 
 const installFromCatalog = async (item: ExtensionRow) => {
@@ -152,10 +124,7 @@ void fetchList()
   color: var(--text-muted);
 }
 
-.import-jar-btn {
-  height: 40px;
-  border-radius: var(--radius-lg);
-}
+
 
 @media (max-width: 720px) {
   .extension-grid {

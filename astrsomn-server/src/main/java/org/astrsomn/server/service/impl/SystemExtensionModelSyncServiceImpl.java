@@ -26,9 +26,7 @@ import org.astrsomn.starter.langchain.factory.AstroModelFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +45,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
     private record LoadSyncContext(String providerCode, String envCode, ModelProviderHandler handler) {}
 
     @Override
-    public BaseResponse<String> loadModels(Long extensionId) {
+    public BaseResponse<String> loadModels(Long extensionId, String modelKeys) {
         BaseResponse<LoadSyncContext> ctxResp = resolveLoadSyncContext(extensionId);
         if (!ctxResp.isSuccess() || ctxResp.getData() == null) {
             return BaseResponse.fail(ctxResp.getMessage(), null);
@@ -59,6 +57,12 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             return BaseResponse.success("厂商未返回可用模型清单");
         }
 
+        // 解析选中的模型键
+        Set<String> selectedModelKeys = new HashSet<>();
+        if (StringUtils.isNotBlank(modelKeys)) {
+            selectedModelKeys.addAll(Arrays.asList(modelKeys.split(",")));
+        }
+
         int added = 0;
         int skipped = 0;
         for (AiModelEntity src : available) {
@@ -67,6 +71,12 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 skipped++;
                 continue;
             }
+            
+            // 如果指定了模型键，且当前模型不在选中列表中，则跳过
+            if (!selectedModelKeys.isEmpty() && !selectedModelKeys.contains(modelKey)) {
+                continue;
+            }
+            
             String rowProvider = StringUtils.trimToNull(src.getProvider());
             if (rowProvider == null) {
                 rowProvider = ctx.providerCode();
@@ -102,7 +112,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
     }
 
     @Override
-    public BaseResponse<String> unloadModels(Long extensionId) {
+    public BaseResponse<String> unloadModels(Long extensionId, String modelKeys) {
         BaseResponse<ProviderEnv> peResp = resolveExtensionProviderEnv(extensionId);
         if (!peResp.isSuccess() || peResp.getData() == null) {
             return BaseResponse.fail(peResp.getMessage(), null);
@@ -115,6 +125,12 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                         .eq(AiModelEntity::getEnvCode, pe.envCode())
                         .eq(AiModelEntity::getDeleted, false));
 
+        // 解析选中的模型键
+        Set<String> selectedModelKeys = new HashSet<>();
+        if (StringUtils.isNotBlank(modelKeys)) {
+            selectedModelKeys.addAll(Arrays.asList(modelKeys.split(",")));
+        }
+
         int removed = 0;
         int skipped = 0;
         List<String> blockedKeys = new ArrayList<>();
@@ -123,7 +139,17 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 continue;
             }
             String mk = StringUtils.trimToNull(row.getModelKey());
-            if (mk != null && isModelKeyReferencedByInstance(mk, pe.envCode())) {
+            if (mk == null) {
+                skipped++;
+                continue;
+            }
+            
+            // 如果指定了模型键，且当前模型不在选中列表中，则跳过
+            if (!selectedModelKeys.isEmpty() && !selectedModelKeys.contains(mk)) {
+                continue;
+            }
+            
+            if (isModelKeyReferencedByInstance(mk, pe.envCode())) {
                 skipped++;
                 blockedKeys.add(mk);
                 continue;

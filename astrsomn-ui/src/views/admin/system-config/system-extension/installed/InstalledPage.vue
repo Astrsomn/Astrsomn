@@ -11,6 +11,16 @@
       </template>
 
       <template #right>
+        <a-upload
+          :show-upload-list="false"
+          accept=".jar,application/java-archive"
+          :before-upload="onBeforeUploadJar"
+        >
+          <a-button type="default" class="import-jar-btn" :loading="jarUploading">
+            <template #icon><upload-outlined /></template>
+            导入插件
+          </a-button>
+        </a-upload>
         <a-popconfirm
           v-if="selectedRowKeys.length > 0"
           title="确定批量删除选中的扩展吗？"
@@ -71,16 +81,23 @@
       />
     </div>
 
-    <ExtensionModelSyncDialog
-      v-model:open="modelSyncModal.open"
-      :mode="modelSyncModal.mode"
-      :extension-label="modelSyncModal.extensionLabel"
-      :loading-preview="modelSyncModal.loadingPreview"
-      :preview-error="modelSyncModal.previewError"
-      :load-preview="modelSyncModal.loadPreview"
-      :unload-preview="modelSyncModal.unloadPreview"
-      :confirm="confirmModelSync"
-      @cancel="resetModelSyncModal"
+    <ExtensionModelLoadDialog
+      v-model:open="loadSyncModal.open"
+      :extension-label="loadSyncModal.extensionLabel"
+      :loading-preview="loadSyncModal.loadingPreview"
+      :preview-error="loadSyncModal.previewError"
+      :load-preview="loadSyncModal.loadPreview"
+      :confirm="confirmLoadModels"
+      @cancel="resetLoadSyncModal"
+    />
+    <ExtensionModelUnloadDialog
+      v-model:open="unloadSyncModal.open"
+      :extension-label="unloadSyncModal.extensionLabel"
+      :loading-preview="unloadSyncModal.loadingPreview"
+      :preview-error="unloadSyncModal.previewError"
+      :unload-preview="unloadSyncModal.unloadPreview"
+      :confirm="confirmUnloadModels"
+      @cancel="resetUnloadSyncModal"
     />
   </div>
 </template>
@@ -88,12 +105,13 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { DeleteOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import ExtensionInstalledCard from './ExtensionInstalledCard.vue'
-import ExtensionModelSyncDialog from '../shared/ExtensionModelSyncDialog.vue'
+import ExtensionModelLoadDialog from '../shared/ExtensionModelLoadDialog.vue'
+import ExtensionModelUnloadDialog from '../shared/ExtensionModelUnloadDialog.vue'
 import type { ExtensionRow } from '../shared/extensionDisplay'
 import {
   systemExtensionApi,
@@ -107,6 +125,7 @@ import {
 const typeTabKey = ref('ALL')
 const extensionNameInput = ref('')
 const list = ref<ExtensionRow[]>([])
+const jarUploading = ref(false)
 
 const listSummaryText = computed(
   () => `当前页 ${list.value.length} 条扩展记录，已选 ${selectedRowKeys.value.length} 条。`
@@ -168,16 +187,21 @@ const onTypeTabChange = () => {
   void fetchList()
 }
 
-type ModelSyncMode = 'load' | 'unload'
-
-const modelSyncModal = reactive({
+const loadSyncModal = reactive({
   open: false,
-  mode: null as ModelSyncMode | null,
   extensionId: null as number | string | null,
   extensionLabel: '',
   loadingPreview: false,
   previewError: '',
-  loadPreview: null as ExtensionModelLoadPreview | null,
+  loadPreview: null as ExtensionModelLoadPreview | null
+})
+
+const unloadSyncModal = reactive({
+  open: false,
+  extensionId: null as number | string | null,
+  extensionLabel: '',
+  loadingPreview: false,
+  previewError: '',
   unloadPreview: null as ExtensionModelUnloadPreview | null
 })
 
@@ -197,84 +221,96 @@ const fetchList = async () => {
   page.total = resp.total || 0
 }
 
-function resetModelSyncModal() {
-  modelSyncModal.open = false
-  modelSyncModal.mode = null
-  modelSyncModal.extensionId = null
-  modelSyncModal.extensionLabel = ''
-  modelSyncModal.previewError = ''
-  modelSyncModal.loadPreview = null
-  modelSyncModal.unloadPreview = null
-  modelSyncModal.loadingPreview = false
+function resetLoadSyncModal() {
+  loadSyncModal.open = false
+  loadSyncModal.extensionId = null
+  loadSyncModal.extensionLabel = ''
+  loadSyncModal.previewError = ''
+  loadSyncModal.loadPreview = null
+  loadSyncModal.loadingPreview = false
+}
+
+function resetUnloadSyncModal() {
+  unloadSyncModal.open = false
+  unloadSyncModal.extensionId = null
+  unloadSyncModal.extensionLabel = ''
+  unloadSyncModal.previewError = ''
+  unloadSyncModal.unloadPreview = null
+  unloadSyncModal.loadingPreview = false
 }
 
 async function openLoadModelsPreview(record: ExtensionRow) {
   const id = record.id
   if (id == null) return
-  modelSyncModal.open = true
-  modelSyncModal.mode = 'load'
-  modelSyncModal.extensionId = id
-  modelSyncModal.extensionLabel = String(record.extensionName || record.extensionKey || id)
-  modelSyncModal.previewError = ''
-  modelSyncModal.loadPreview = null
-  modelSyncModal.unloadPreview = null
-  modelSyncModal.loadingPreview = true
+  loadSyncModal.open = true
+  loadSyncModal.extensionId = id
+  loadSyncModal.extensionLabel = String(record.extensionName || record.extensionKey || id)
+  loadSyncModal.previewError = ''
+  loadSyncModal.loadPreview = null
+  loadSyncModal.loadingPreview = true
   try {
     const data = await systemExtensionApi.previewLoadModels(id)
-    modelSyncModal.loadPreview = data ?? {
+    loadSyncModal.loadPreview = data ?? {
       toCreate: [],
       skippedExisting: [],
       skippedInvalidCount: 0
     }
   } catch (e: unknown) {
     const err = e as { message?: string }
-    modelSyncModal.previewError = err?.message || '加载预览失败'
-    modelSyncModal.loadPreview = null
+    loadSyncModal.previewError = err?.message || '加载预览失败'
+    loadSyncModal.loadPreview = null
   } finally {
-    modelSyncModal.loadingPreview = false
+    loadSyncModal.loadingPreview = false
   }
 }
 
 async function openUnloadModelsPreview(record: ExtensionRow) {
   const id = record.id
   if (id == null) return
-  modelSyncModal.open = true
-  modelSyncModal.mode = 'unload'
-  modelSyncModal.extensionId = id
-  modelSyncModal.extensionLabel = String(record.extensionName || record.extensionKey || id)
-  modelSyncModal.previewError = ''
-  modelSyncModal.loadPreview = null
-  modelSyncModal.unloadPreview = null
-  modelSyncModal.loadingPreview = true
+  unloadSyncModal.open = true
+  unloadSyncModal.extensionId = id
+  unloadSyncModal.extensionLabel = String(record.extensionName || record.extensionKey || id)
+  unloadSyncModal.previewError = ''
+  unloadSyncModal.unloadPreview = null
+  unloadSyncModal.loadingPreview = true
   try {
     const data = await systemExtensionApi.previewUnloadModels(id)
-    modelSyncModal.unloadPreview = data ?? { toRemove: [], keptReferenced: [] }
+    unloadSyncModal.unloadPreview = data ?? { toRemove: [], keptReferenced: [] }
   } catch (e: unknown) {
     const err = e as { message?: string }
-    modelSyncModal.previewError = err?.message || '卸载预览失败'
-    modelSyncModal.unloadPreview = null
+    unloadSyncModal.previewError = err?.message || '卸载预览失败'
+    unloadSyncModal.unloadPreview = null
   } finally {
-    modelSyncModal.loadingPreview = false
+    unloadSyncModal.loadingPreview = false
   }
 }
 
-async function confirmModelSync() {
-  const id = modelSyncModal.extensionId
-  const mode = modelSyncModal.mode
-  if (id == null || mode == null || modelSyncModal.previewError) return
+async function confirmLoadModels(selectedModelKeys: string[]) {
+  const id = loadSyncModal.extensionId
+  if (id == null || loadSyncModal.previewError || selectedModelKeys.length === 0) return
   try {
-    if (mode === 'load') {
-      const msg = await systemExtensionApi.loadModels(id)
-      message.success(msg)
-    } else {
-      const msg = await systemExtensionApi.unloadModels(id)
-      message.success(msg)
-    }
-    resetModelSyncModal()
+    const msg = await systemExtensionApi.loadModels(id, selectedModelKeys)
+    message.success(msg)
+    resetLoadSyncModal()
     void fetchList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || (mode === 'load' ? '加载模型失败' : '卸载模型失败'))
+    message.error(err?.message || '加载模型失败')
+    throw e
+  }
+}
+
+async function confirmUnloadModels(selectedModelKeys: string[]) {
+  const id = unloadSyncModal.extensionId
+  if (id == null || unloadSyncModal.previewError || selectedModelKeys.length === 0) return
+  try {
+    const msg = await systemExtensionApi.unloadModels(id, selectedModelKeys)
+    message.success(msg)
+    resetUnloadSyncModal()
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '卸载模型失败')
     throw e
   }
 }
@@ -331,6 +367,22 @@ const handleUninstall = async (id: number | string | undefined) => {
   }
 }
 
+const onBeforeUploadJar = async (file: File) => {
+  jarUploading.value = true
+  try {
+    const msg = await systemExtensionApi.uploadJar(file)
+    message.success(msg)
+    message.info('可在「已安装插件」中查看并应用。')
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '上传失败')
+  } finally {
+    jarUploading.value = false
+  }
+  return false
+}
+
 void fetchList()
 </script>
 
@@ -371,6 +423,12 @@ void fetchList()
   color: var(--error) !important;
   border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
   background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
+}
+
+.import-jar-btn {
+  height: 40px;
+  border-radius: var(--radius-lg);
+  margin-right: 12px;
 }
 
 .extension-grid {
