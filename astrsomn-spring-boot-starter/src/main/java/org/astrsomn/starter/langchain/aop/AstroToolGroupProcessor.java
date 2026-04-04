@@ -75,24 +75,5 @@ public class AstroToolGroupProcessor implements BeanPostProcessor {
         toolEntity.setType(toolGroup.type());
         toolEntity.setStatus(AiModelEnum.StatusEnum.ENABLED.getCode());
 
-//        try {
-//            boolean exists = aiToolService.lambdaQuery()
-//                    .eq(AiToolEntity::getToolKey, toolKey)
-//                    .exists();
-//
-//            if (exists) {
-//                log.info("工具 {} 已存在，跳过创建", toolKey);
-//                return;
-//            }
-//
-//            boolean result = aiToolService.save(toolEntity);
-//            if (result) {
-//                log.info("成功创建工具: {} - {}", toolKey, toolName);
-//            } else {
-//                log.error("创建工具失败: {} - {}", toolKey, toolName);
-//            }
-//        } catch (Exception e) {
-//            log.error("保存工具 {} 到数据库时发生错误", toolKey, e);
-//        }
     }
 }

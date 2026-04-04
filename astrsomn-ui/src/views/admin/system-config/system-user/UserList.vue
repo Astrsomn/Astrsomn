@@ -7,26 +7,12 @@
     <div class="user-page">
       <AdminListToolbar>
         <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.username"
-              placeholder="搜索用户名"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-input
-              v-model:value="query.email"
-              placeholder="邮箱"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><mail-outlined /></template>
-            </a-input>
-          </div>
+          <ToolbarSearchPill
+            v-model="query.username"
+            placeholder="搜索用户名"
+            @search="fetchList"
+          />
+
 
           <div class="status-switch" role="group" aria-label="角色筛选">
             <a-button
@@ -54,10 +40,7 @@
         </template>
 
         <template #right>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
+    
           <a-popconfirm
             v-if="selectedRowKeys.length > 0"
             title="确定批量删除选中的用户吗？"
@@ -151,6 +134,7 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import UserFormModal from './UserFormModal.vue'
 import { systemUserApi, type SystemUser, type PageResponse } from '@/api/systemUser.ts'
 
@@ -324,7 +308,7 @@ void fetchList()
 
 <style scoped>
 .user-page {
-  padding: 0 4px;
+  padding: 20px;
 }
 
 .search-cluster {

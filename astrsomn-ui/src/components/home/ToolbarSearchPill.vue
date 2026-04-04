@@ -56,14 +56,14 @@ function emitSearch() {
 
 <style scoped>
 .toolbar-search-pill {
-  height: 52px;
-  background: #fff;
+  height: 50px;
+  background: var(--bg-surface);
   border-radius: var(--radius-pro, 30px);
   padding: 0 8px 0 20px;
   display: flex;
   align-items: center;
   box-shadow: var(--shadow-overview);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-default);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -89,7 +89,7 @@ function emitSearch() {
 }
 
 .toolbar-search-pill__icon {
-  color: #3b82f6;
+  color: var(--primary);
   font-size: 18px;
   flex-shrink: 0;
 }
@@ -102,6 +102,11 @@ function emitSearch() {
   font-size: 15px;
   margin-left: 10px;
   background: transparent;
+  color: var(--text-primary);
+}
+
+.toolbar-search-pill__input::placeholder {
+  color: var(--text-placeholder);
 }
 
 .toolbar-search-pill--fluid .toolbar-search-pill__input {
@@ -111,7 +116,7 @@ function emitSearch() {
 
 .toolbar-search-pill__btn {
   flex-shrink: 0;
-  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--primary-gradient);
   color: white;
   border: none;
   padding: 8px 20px;

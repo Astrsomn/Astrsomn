@@ -13,24 +13,8 @@
             @search="fetchList"
           />
 
-          <div class="status-switch" role="group" aria-label="状态筛选">
-            <a-button
-              class="status-btn status-btn-first"
-              :class="{ active: query.status === 'enabled' }"
-              @click="toggleStatusFilter('enabled')"
-            >
-              <template #icon><CheckCircleOutlined /></template>
-              启用
-            </a-button>
-            <a-button
-              class="status-btn status-btn-last"
-              :class="{ active: query.status === 'disabled' }"
-              @click="toggleStatusFilter('disabled')"
-            >
-              <template #icon><StopOutlined /></template>
-              禁用
-            </a-button>
-          </div>
+          <TrioStateSwitch v-model="query.status" @change="fetchList" />
+
         </div>
 
         <div class="toolbar-right">
@@ -97,6 +81,7 @@ import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
+import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
 import AgentCard from './AgentCard.vue'
 import AgentForm from './AgentForm.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'

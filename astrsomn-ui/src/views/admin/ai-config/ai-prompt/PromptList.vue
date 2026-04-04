@@ -18,24 +18,8 @@
       
           </div>
 
-          <div class="status-switch" role="group" aria-label="状态筛选">
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'enabled' }"
-              @click="toggleEnabledFilter('enabled')"
-            >
-              <template #icon><check-circle-outlined /></template>
-              启用
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'disabled' }"
-              @click="toggleEnabledFilter('disabled')"
-            >
-              <template #icon><stop-outlined /></template>
-              禁用
-            </a-button>
-          </div>
+          <TrioStateSwitch v-model="query.status" @change="fetchList" />
+
 
       
         </template>
@@ -126,6 +110,7 @@ import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
+import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
 import PromptCard from './PromptCard.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
@@ -243,12 +228,7 @@ const resetFilters = () => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-  {
-    label: '查询',
-    type: 'primary',
-    icon: SearchOutlined,
-    onClick: () => void fetchList()
-  },
+
   {
     label: '批量删除',
     icon: DeleteOutlined,

@@ -105,10 +105,16 @@ const mainAreaStyle = computed(() => ({
 
 <style scoped>
 /* 全屏弹层：顶对齐、去圆角，尺寸由 wrap 上的 CSS 变量控制 */
+:global(.astrsomn-fullscreen-shell.ant-modal-wrap) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 :global(.astrsomn-fullscreen-shell .ant-modal) {
   max-width: var(--fsm-max-width, 100vw);
-  top: 0;
   padding: 0;
+  top: 0;
   margin: 0;
 }
 

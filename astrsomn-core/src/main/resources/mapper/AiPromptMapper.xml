@@ -40,8 +40,8 @@
         <if test="req != null and req.scene != null and req.scene != ''">
             AND ap.scene = #{req.scene}
         </if>
-        <if test="req != null and req.enabledFlag != null and req.enabledFlag != ''">
-            AND ap.enabled_flag = #{req.enabledFlag}
+        <if test="req != null and req.status != null and req.status != ''">
+            AND ap.status = #{req.status}
         </if>
         ORDER BY
         ap.create_time DESC

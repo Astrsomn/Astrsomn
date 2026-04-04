@@ -17,22 +17,8 @@
                 @search="fetchList"
               />
 
-              <div class="status-switch" role="group" aria-label="状态筛选">
-                <a-button
-                    class="status-btn"
-                    :class="{ active: query.status === 'enabled' }"
-                    @click="toggleStatusFilter('enabled')"
-                >
-                  已上线
-                </a-button>
-                <a-button
-                    class="status-btn"
-                    :class="{ active: query.status === 'disabled' }"
-                    @click="toggleStatusFilter('disabled')"
-                >
-                  已下线
-                </a-button>
-              </div>
+              <TrioStateSwitch v-model="query.status" @change="fetchList" />
+
             </div>
 
             <div class="toolbar-right">
@@ -258,6 +244,7 @@ import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
+import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
 import ModelFormModal from './ModelFormModal.vue'
 import ModelProviderSidebar from './ModelProviderSidebar.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'

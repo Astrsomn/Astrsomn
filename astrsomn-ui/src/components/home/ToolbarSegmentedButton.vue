@@ -53,7 +53,7 @@ defineProps<{
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px;
+  height: 50px;
   padding: 0 22px;
   font-size: 14px;
   font-weight: 600;
