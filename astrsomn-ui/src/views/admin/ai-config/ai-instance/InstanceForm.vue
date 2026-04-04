@@ -36,12 +36,25 @@
         <section class="selection-pane">
           <div class="pane-card glass-card">
             <div class="pane-header">
-              <ToolbarSearchPill
-                v-model="searchDraft"
-                layout="pane"
-                placeholder="名称、Model Key..."
-                @search="applyModelSearch"
-              />
+              <div class="pane-toolbar-row">
+                <div class="provider-field">
+                  <span class="field-label">模型提供商</span>
+                  <ModelProviderSelect
+                    :value="providerFilter"
+                    class="instance-provider-select"
+                    placeholder="全部提供商"
+                    size="middle"
+                    :allow-clear="true"
+                    @update:value="onProviderFilterChange"
+                  />
+                </div>
+                <ToolbarSearchPill
+                  v-model="searchDraft"
+                  layout="pane"
+                  placeholder="名称、Model Key..."
+                  @search="applyModelSearch"
+                />
+              </div>
               <a-tabs v-model:activeKey="typeFilter" class="model-type-tabs">
                 <a-tab-pane key="all" tab="全部类型" />
                 <a-tab-pane key="chat" tab="对话" />
@@ -63,7 +76,27 @@
                 size="middle"
               >
                 <template #bodyCell="{ column, record }">
-                  <template v-if="column.key === 'provider'">
+                  <template v-if="column.key === 'providerAvatar'">
+                    <span
+                      v-if="providerAvatarCell(record)"
+                      class="inst-provider-avatar-cell"
+                      v-html="providerAvatarCell(record)"
+                      aria-hidden="true"
+                    />
+                    <span v-else class="text-muted">—</span>
+                  </template>
+                  <template v-else-if="column.key === 'modelType'">
+                    <div class="inst-model-type-cell">
+                      <div class="inst-model-type-icon" :class="record.modelType">
+                        <template v-if="record.modelType === 'chat'"><MessageOutlined /></template>
+                        <template v-else-if="record.modelType === 'embedding'"><PartitionOutlined /></template>
+                        <template v-else-if="record.modelType === 'image'"><PictureOutlined /></template>
+                        <template v-else><MessageOutlined /></template>
+                      </div>
+                      <span class="inst-model-type-label">{{ modelTypeLabel(record.modelType) }}</span>
+                    </div>
+                  </template>
+                  <template v-else-if="column.key === 'provider'">
                     <span class="provider-tag" :data-type="record.provider">{{ record.provider || 'Local' }}</span>
                   </template>
                 </template>
@@ -265,9 +298,12 @@ import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from
 import { message } from 'ant-design-vue';
 import {
   ThunderboltFilled, InfoCircleOutlined, QuestionCircleOutlined,
-  ControlOutlined, SelectOutlined
+  ControlOutlined, SelectOutlined,
+  MessageOutlined, PartitionOutlined, PictureOutlined
 } from '@ant-design/icons-vue';
 import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue';
+import ModelProviderSelect from '@/views/admin/ai-config/ai-model/ModelProviderSelect.vue';
+import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage';
 import { aiModelApi, type AiModel } from '@/api/aiModel';
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance';
 import dayjs from 'dayjs';
@@ -299,6 +335,31 @@ const selectedKeys = ref<string[]>([]);
 const searchDraft = ref('');
 const searchQuery = ref('');
 const typeFilter = ref('all');
+/** 与模型列表一致：按 AI_MODEL.supplier（扩展 key）筛选 */
+const providerFilter = ref<string | undefined>(undefined);
+
+function providerAvatarCell(record: AiModel): string {
+  const raw = record.providerAvatar;
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : '';
+}
+
+function modelTypeLabel(t?: string) {
+  if (t === 'embedding') return '向量';
+  if (t === 'image') return '图像';
+  return '对话';
+}
+
+async function onProviderFilterChange(v: string | undefined) {
+  providerFilter.value = v;
+  if (!props.visible) return;
+  await fetchModels();
+  await nextTick();
+  const mk = form.modelKey;
+  if (mk && !modelList.value.some((m) => m.modelKey === mk)) {
+    selectedKeys.value = [];
+    form.modelKey = undefined;
+  }
+}
 
 function applyModelSearch() {
   searchQuery.value = String(searchDraft.value ?? '').trim();
@@ -529,8 +590,10 @@ const instanceKeyRules = [
 ];
 
 const columns = [
-  { title: '端点名称', dataIndex: 'modelName', key: 'modelName', width: 220 },
-  { title: 'Model Key', dataIndex: 'modelKey', key: 'modelKey' },
+  { title: '', dataIndex: 'providerAvatar', key: 'providerAvatar', width: 52 },
+  { title: '类型', dataIndex: 'modelType', key: 'modelType', width: 100 },
+  { title: '端点名称', dataIndex: 'modelName', key: 'modelName', width: 200 },
+  { title: 'Model Key', dataIndex: 'modelKey', key: 'modelKey', ellipsis: true },
   { title: '云供应商', dataIndex: 'provider', key: 'provider', width: 120 },
 ];
 
@@ -556,7 +619,14 @@ const getTempInfo = (v: number) => {
 const fetchModels = async () => {
   modelsLoading.value = true;
   try {
-    const res = await aiModelApi.queryPage({ pageNo: 1, pageSize: 1000, param: {} });
+    await ensureWorkspaceEnvInStorage();
+    const res = await aiModelApi.queryPage({
+      pageNo: 1,
+      pageSize: 1000,
+      param: {
+        supplier: providerFilter.value?.trim() || undefined
+      }
+    });
     modelList.value = res.list || [];
   } finally { modelsLoading.value = false; }
 };
@@ -602,6 +672,7 @@ const onSubmit = async () => {
 
 watch(() => props.visible, async (val) => {
   if (!val) return;
+  providerFilter.value = undefined;
   searchDraft.value = '';
   searchQuery.value = '';
   await fetchModels();
@@ -707,6 +778,71 @@ onUnmounted(() => {
 /* 左侧 */
 .selection-pane { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 .pane-header { flex-shrink: 0; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+.pane-toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.provider-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 200px;
+  flex: 0 1 220px;
+}
+.field-label {
+  font-size: 12px;
+  color: #64748b;
+}
+.instance-provider-select {
+  min-width: 200px;
+}
+
+.inst-provider-avatar-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+.inst-provider-avatar-cell :deep(svg) {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+.inst-model-type-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.inst-model-type-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.inst-model-type-icon.chat {
+  background: linear-gradient(135deg, #0061ff, #60efff);
+}
+.inst-model-type-icon.embedding {
+  background: linear-gradient(135deg, #7c4dff, #f94dff);
+}
+.inst-model-type-icon.image {
+  background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+}
+.inst-model-type-label {
+  font-size: 12px;
+  color: #475569;
+}
+.text-muted {
+  color: #94a3b8;
+}
 
 .model-type-tabs :deep(.ant-tabs-nav) {
   margin-bottom: 0;

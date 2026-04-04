@@ -38,7 +38,12 @@
             <h3 class="section-headline"><IdcardOutlined /> 端点身份识别</h3>
             <div class="form-grid">
               <a-form-item label="服务供应商 (Provider)" name="provider">
-                <a-select v-model:value="form.provider" :options="providerOptions" placeholder="请选择端点所属服务商" size="large" :disabled="props.mode === 'view'" />
+                <ModelProviderSelect
+                  v-model:value="form.provider"
+                  placeholder="请选择端点所属服务商"
+                  size="large"
+                  :disabled="props.mode === 'view'"
+                />
               </a-form-item>
 
               <a-form-item label="端点服务类型" name="modelType">
@@ -292,6 +297,7 @@ import {
   CheckCircleFilled, ControlOutlined, PictureOutlined, GlobalOutlined
 } from '@ant-design/icons-vue'
 import HomeFullscreenModal from '@/components/home/HomeFullscreenModal.vue'
+import ModelProviderSelect from './ModelProviderSelect.vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiModel } from '@/api/aiModel'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
@@ -312,7 +318,6 @@ const props = withDefaults(
       mode: 'create' | 'edit' | 'view'
       confirmLoading?: boolean
       initialData?: AiModel | null
-      providerOptions: { label: string; value: string }[]
       statusOptions: { label: string; value: string }[]
       submitHandler: (payload: AiModel) => Promise<void>
     }>(),

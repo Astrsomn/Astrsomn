@@ -5,22 +5,7 @@
   >
     <div class="model-page-container">
       <div class="model-page-layout">
-        <aside class="provider-sidebar" aria-label="按供应商筛选">
-          <div class="provider-sidebar-title">供应商</div>
-          <div class="provider-menu-scroll">
-            <a-menu
-              mode="inline"
-              :selected-keys="providerMenuSelectedKeys"
-              class="provider-side-menu"
-              @click="onProviderMenuClick"
-            >
-              <a-menu-item key="__all__">全部</a-menu-item>
-              <a-menu-item v-for="opt in providerOptions" :key="String(opt.value)">
-                {{ opt.label }}
-              </a-menu-item>
-            </a-menu>
-          </div>
-        </aside>
+        <ModelProviderSidebar v-model:selected-key="providerSidebarSelected" />
 
         <div class="model-page-main">
           <div class="toolbar">
@@ -218,7 +203,6 @@
           :mode="modal.mode"
           :confirm-loading="modal.submitting"
           :initial-data="modalInitialData"
-          :provider-options="providerOptions"
           :status-options="statusOptions"
           :is-default-options="isDefaultOptions"
           :submit-handler="handleFormSubmit"
@@ -275,6 +259,7 @@ import BaseOverview from '@/components/home/BaseOverview.vue'
 import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
 import ModelFormModal from './ModelFormModal.vue'
+import ModelProviderSidebar from './ModelProviderSidebar.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
 import { useDictionary } from '@/locales/dictionary'
 import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
@@ -285,7 +270,6 @@ const providerDict = useDictionary('ai-model.provider')
 const statusDict = useDictionary('ai-model.status')
 const capabilitiesDict = useDictionary('ai-model.capabilities')
 
-const providerOptions = computed(() => providerDict.value.options())
 const statusOptions = computed(() => statusDict.value.options())
 const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }]
 
@@ -342,21 +326,20 @@ const providerAvatarCell = (record: AiModel) => {
   return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
 }
 
-// ... 逻辑部分保持原样 ...
-const ALL_PROVIDER_MENU_KEY = '__all__'
-
 const query = reactive<{ modelName?: string; provider?: string; status?: string }>({})
 const list = ref<AiModel[]>([])
 const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
 const selectedRowKeys = ref<Array<number | string>>([])
 
-const providerMenuSelectedKeys = computed(() => {
-  const p = query.provider
-  if (p === undefined || p === null || p === '') {
-    return [ALL_PROVIDER_MENU_KEY]
+const providerSidebarSelected = computed({
+  get: () => query.provider,
+  set: (v: string | undefined) => {
+    query.provider = v
+    page.pageNum = 1
+    void fetchList()
   }
-  return [String(p)]
 })
+
 const rowSelection = computed(() => ({
   fixed: true,
   columnWidth: 54,
@@ -412,17 +395,6 @@ const fetchList = async () => {
   const resp: any = await aiModelApi.queryPage(payload)
   list.value = resp.list || []
   page.total = resp.total || 0
-}
-
-function onProviderMenuClick(info: { key: string | number }) {
-  const key = String(info.key)
-  if (key === ALL_PROVIDER_MENU_KEY) {
-    query.provider = undefined
-  } else {
-    query.provider = key
-  }
-  page.pageNum = 1
-  void fetchList()
 }
 
 const onPageChange = (p: number) => {
@@ -558,45 +530,6 @@ onMounted(() => {
   align-items: flex-start;
   gap: 16px;
   min-width: 0;
-}
-
-.provider-sidebar {
-  flex: 0 0 200px;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  max-height: calc(100vh - 70px);
-  overflow: hidden;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
-  background: var(--bg-card);
-  padding: 12px 0 16px;
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.04);
-}
-
-.provider-menu-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.provider-sidebar-title {
-  padding: 0 16px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.04em;
-}
-
-.provider-side-menu {
-  border-inline-end: none !important;
-  background: transparent !important;
-}
-
-.provider-side-menu :deep(.ant-menu-item) {
-  margin-inline: 8px;
-  width: auto;
-  border-radius: var(--radius-max);
 }
 
 .model-page-main {
