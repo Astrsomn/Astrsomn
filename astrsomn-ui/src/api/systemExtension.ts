@@ -57,6 +57,27 @@ export type SystemExtensionQueryPagePayload = {
   param?: SystemExtensionQueryParam
 }
 
+/** 模型同步预览单行 */
+export type ExtensionModelSyncPreviewRow = {
+  modelKey?: string
+  modelName?: string
+  modelType?: string
+  provider?: string
+}
+
+/** GET load-models/preview */
+export type ExtensionModelLoadPreview = {
+  toCreate?: ExtensionModelSyncPreviewRow[]
+  skippedExisting?: ExtensionModelSyncPreviewRow[]
+  skippedInvalidCount?: number
+}
+
+/** GET unload-models/preview */
+export type ExtensionModelUnloadPreview = {
+  toRemove?: ExtensionModelSyncPreviewRow[]
+  keptReferenced?: ExtensionModelSyncPreviewRow[]
+}
+
 /**
  * 对应 SystemExtensionController：`/v1/astro/system-extension`
  */
@@ -114,6 +135,14 @@ export const systemExtensionApi = {
     })
   },
 
+  /** 模型类扩展：当前环境下该厂商全部模型 status → disabled */
+  disableProviderModels: (id: number | string): Promise<string> => {
+    return request({
+      url: `/v1/astro/system-extension/disable-provider-models?id=${encodeURIComponent(String(id))}`,
+      method: 'post'
+    })
+  },
+
   marketplaceCatalog: (type?: string): Promise<ExtensionMarketplaceItem[]> => {
     const q = type && type !== 'ALL' ? `?type=${encodeURIComponent(type)}` : ''
     return request({
@@ -122,10 +151,24 @@ export const systemExtensionApi = {
     })
   },
 
+  previewLoadModels: (id: number | string): Promise<ExtensionModelLoadPreview> => {
+    return request({
+      url: `/v1/astro/system-extension/load-models/preview?id=${encodeURIComponent(String(id))}`,
+      method: 'get'
+    })
+  },
+
   loadModels: (id: number | string): Promise<string> => {
     return request({
       url: `/v1/astro/system-extension/load-models?id=${encodeURIComponent(String(id))}`,
       method: 'post'
+    })
+  },
+
+  previewUnloadModels: (id: number | string): Promise<ExtensionModelUnloadPreview> => {
+    return request({
+      url: `/v1/astro/system-extension/unload-models/preview?id=${encodeURIComponent(String(id))}`,
+      method: 'get'
     })
   },
 

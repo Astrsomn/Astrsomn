@@ -116,7 +116,7 @@
         :pagination="false"
         :row-key="tableRowKey"
         :row-selection="tableRowSelection"
-        :scroll="{ x: listScope === 'MARKETPLACE' ? 1480 : 1880 }"
+        :scroll="{ x: listScope === 'MARKETPLACE' ? 1480 : 1920 }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'type'">
@@ -139,33 +139,33 @@
               <a-button type="link" @click="installFromCatalog(record)">安装</a-button>
             </template>
             <template v-else>
-              <a-button type="link" @click="openEdit(record)">编辑</a-button>
-              <a-divider type="vertical" />
-
               <template v-if="record.type === 'MODEL_PROVIDER'">
-                <a-popconfirm
-                  title="从厂商 SPI 拉取可用模型并写入当前环境（已存在的 modelKey 会跳过）"
-                  ok-text="确认"
-                  cancel-text="取消"
-                  @confirm="() => handleLoadModels(record.id)"
-                >
-                  <a-button type="link" :disabled="record.id == null">加载模型</a-button>
-                </a-popconfirm>
+                <a-button type="link" :disabled="record.id == null" @click="openLoadModelsPreview(record)">
+                  加载模型
+                </a-button>
+                <a-divider type="vertical" />
+                <a-button type="link" danger :disabled="record.id == null" @click="openUnloadModelsPreview(record)">
+                  卸载模型
+                </a-button>
                 <a-divider type="vertical" />
                 <a-popconfirm
-                  title="确定按厂商卸载当前环境下的模型数据吗？（被实例引用的模型将保留）"
+                  title="将该厂商在当前环境下的全部 AI 模型状态设为停用（disabled），确认？"
                   ok-text="确认"
                   cancel-text="取消"
-                  @confirm="() => handleUnloadModels(record.id)"
+                  @confirm="() => handleDisableProviderModels(record.id)"
                 >
-                  <a-button type="link" danger :disabled="record.id == null">卸载模型</a-button>
+                  <a-button type="link" :disabled="record.id == null">禁用</a-button>
                 </a-popconfirm>
                 <a-divider type="vertical" />
               </template>
 
               <a-popconfirm
                 v-if="record.status === 'APPLIED'"
-                title="确定卸载该插件吗？"
+                :title="
+                  record.type === 'MODEL_PROVIDER'
+                    ? '卸载插件。模型类扩展：若仍有 AI 实例引用该厂商模型，服务端将拒绝卸载。'
+                    : '确定卸载该插件吗？'
+                "
                 ok-text="确认"
                 cancel-text="取消"
                 @confirm="() => handleUninstall(record.id)"
@@ -181,16 +181,6 @@
                 @confirm="() => handleApply(record.id)"
               >
                 <a-button type="link" :disabled="!record.jarName || record.id == null">应用</a-button>
-              </a-popconfirm>
-
-              <a-divider type="vertical" />
-              <a-popconfirm
-                title="确定删除吗？"
-                ok-text="确认"
-                cancel-text="取消"
-                @confirm="() => handleDeleteOne(record.id)"
-              >
-                <a-button type="link" danger :disabled="record.id == null">删除</a-button>
               </a-popconfirm>
             </template>
           </template>
@@ -209,11 +199,73 @@
 
       <ExtensionFormModel
         v-model:open="modal.open"
-        :mode="modal.mode"
+        mode="create"
         :confirm-loading="modal.submitting"
-        :initial="modalInitial"
+        :initial="null"
         @submit="handleFormSubmit"
       />
+
+      <a-modal
+        v-model:open="modelSyncModal.open"
+        :title="modelSyncModalTitle"
+        width="640px"
+        destroy-on-close
+        :ok-text="modelSyncModalOkText"
+        :ok-button-props="modelSyncOkButtonProps"
+        @ok="confirmModelSync"
+        @cancel="resetModelSyncModal"
+      >
+        <div v-if="modelSyncModal.previewError" class="model-sync-alert">
+          <a-alert type="error" :message="modelSyncModal.previewError" show-icon />
+        </div>
+        <a-spin v-else :spinning="modelSyncModal.loadingPreview">
+          <template v-if="modelSyncModal.mode === 'load' && modelSyncModal.loadPreview">
+            <p v-if="modelSyncModalEmptyHint" class="model-sync-hint">{{ modelSyncModalEmptyHint }}</p>
+            <div v-if="(modelSyncModal.loadPreview.skippedInvalidCount ?? 0) > 0" class="model-sync-hint">
+              厂商返回条目中有 {{ modelSyncModal.loadPreview.skippedInvalidCount }} 条缺少 modelKey，将跳过。
+            </div>
+            <div class="preview-section">
+              <div class="preview-section-title">将保存（新增）</div>
+              <div v-if="(modelSyncModal.loadPreview.toCreate?.length ?? 0) > 0" class="preview-list">
+                <div v-for="(r, i) in modelSyncModal.loadPreview.toCreate" :key="'c' + i" class="preview-line">
+                  {{ formatPreviewRow(r) }}
+                </div>
+              </div>
+              <div v-else class="preview-empty">无</div>
+            </div>
+            <div class="preview-section">
+              <div class="preview-section-title">已存在将跳过</div>
+              <div v-if="(modelSyncModal.loadPreview.skippedExisting?.length ?? 0) > 0" class="preview-list">
+                <div v-for="(r, i) in modelSyncModal.loadPreview.skippedExisting" :key="'s' + i" class="preview-line">
+                  {{ formatPreviewRow(r) }}
+                </div>
+              </div>
+              <div v-else class="preview-empty">无</div>
+            </div>
+          </template>
+          <template v-else-if="modelSyncModal.mode === 'unload' && modelSyncModal.unloadPreview">
+            <p v-if="modelSyncModalEmptyHint" class="model-sync-hint">{{ modelSyncModalEmptyHint }}</p>
+            <div class="preview-section">
+              <div class="preview-section-title">将卸载（删除）</div>
+              <div v-if="(modelSyncModal.unloadPreview.toRemove?.length ?? 0) > 0" class="preview-list">
+                <div v-for="(r, i) in modelSyncModal.unloadPreview.toRemove" :key="'r' + i" class="preview-line">
+                  {{ formatPreviewRow(r) }}
+                </div>
+              </div>
+              <div v-else class="preview-empty">无</div>
+            </div>
+            <div class="preview-section">
+              <div class="preview-section-title">因实例引用将保留</div>
+              <div v-if="(modelSyncModal.unloadPreview.keptReferenced?.length ?? 0) > 0" class="preview-list">
+                <div v-for="(r, i) in modelSyncModal.unloadPreview.keptReferenced" :key="'k' + i" class="preview-line">
+                  {{ formatPreviewRow(r) }}
+                </div>
+              </div>
+              <div v-else class="preview-empty">无</div>
+            </div>
+          </template>
+        </a-spin>
+      </a-modal>
         </a-layout-content>
       </a-layout>
     </div>
@@ -237,6 +289,9 @@ import ExtensionFormModel from './ExtensionFormModel.vue'
 import {
   systemExtensionApi,
   type ExtensionMarketplaceItem,
+  type ExtensionModelLoadPreview,
+  type ExtensionModelSyncPreviewRow,
+  type ExtensionModelUnloadPreview,
   type PageResponse,
   type SystemExtension,
   type SystemExtensionListScope,
@@ -303,7 +358,7 @@ const allColumns = [
   { title: '状态', key: 'status', width: 110 },
   { title: '已应用', key: 'applied', width: 100 },
   { title: '描述', dataIndex: 'description', key: 'description', width: 320, ellipsis: true },
-  { title: '操作', key: 'actions', width: 380, fixed: 'right' as const }
+  { title: '操作', key: 'actions', width: 400, fixed: 'right' as const }
 ]
 
 const tableColumns = computed(() => {
@@ -403,11 +458,21 @@ const resetFilters = () => {
 
 const modal = reactive({
   open: false,
-  mode: 'create' as 'create' | 'edit',
   submitting: false
 })
 
-const modalInitial = ref<SystemExtension | null>(null)
+type ModelSyncMode = 'load' | 'unload'
+
+const modelSyncModal = reactive({
+  open: false,
+  mode: null as ModelSyncMode | null,
+  extensionId: null as number | string | null,
+  extensionLabel: '',
+  loadingPreview: false,
+  previewError: '',
+  loadPreview: null as ExtensionModelLoadPreview | null,
+  unloadPreview: null as ExtensionModelUnloadPreview | null
+})
 
 const fetchList = async () => {
   if (listScope.value === 'MARKETPLACE') {
@@ -461,25 +526,131 @@ const installFromCatalog = async (item: ExtensionTableRow) => {
   message.info('可在「已安装插件」中查看、应用插件或加载模型。')
 }
 
-const handleLoadModels = async (id: number | string | undefined) => {
+function formatPreviewRow(r: ExtensionModelSyncPreviewRow) {
+  const parts = [r.modelKey, r.modelName, r.modelType, r.provider].filter(Boolean)
+  return parts.length ? parts.join(' · ') : '—'
+}
+
+const modelSyncModalTitle = computed(() => {
+  const name = modelSyncModal.extensionLabel || '扩展'
+  if (modelSyncModal.mode === 'load') return `确认加载模型 — ${name}`
+  if (modelSyncModal.mode === 'unload') return `确认卸载模型 — ${name}`
+  return '模型同步'
+})
+
+const modelSyncModalOkText = computed(() =>
+  modelSyncModal.mode === 'load'
+    ? '确认加载模型'
+    : modelSyncModal.mode === 'unload'
+      ? '确认卸载模型'
+      : '确认'
+)
+
+const modelSyncOkDisabled = computed(
+  () =>
+    modelSyncModal.loadingPreview || Boolean(modelSyncModal.previewError) || modelSyncModal.mode == null
+)
+
+const modelSyncOkButtonProps = computed(() => ({
+  disabled: modelSyncOkDisabled.value,
+  danger: modelSyncModal.mode === 'unload'
+}))
+
+const modelSyncModalEmptyHint = computed(() => {
+  if (modelSyncModal.loadingPreview || modelSyncModal.previewError) return ''
+  if (modelSyncModal.mode === 'load' && modelSyncModal.loadPreview) {
+    const p = modelSyncModal.loadPreview
+    const total =
+      (p.toCreate?.length ?? 0) + (p.skippedExisting?.length ?? 0) + (p.skippedInvalidCount ?? 0)
+    if (total === 0) return '厂商未返回可用模型条目，确认后不会产生新增。'
+  }
+  if (modelSyncModal.mode === 'unload' && modelSyncModal.unloadPreview) {
+    const p = modelSyncModal.unloadPreview
+    const total = (p.toRemove?.length ?? 0) + (p.keptReferenced?.length ?? 0)
+    if (total === 0) return '当前环境下该厂商暂无模型记录，确认后不会产生删除。'
+  }
+  return ''
+})
+
+function resetModelSyncModal() {
+  modelSyncModal.open = false
+  modelSyncModal.mode = null
+  modelSyncModal.extensionId = null
+  modelSyncModal.extensionLabel = ''
+  modelSyncModal.previewError = ''
+  modelSyncModal.loadPreview = null
+  modelSyncModal.unloadPreview = null
+  modelSyncModal.loadingPreview = false
+}
+
+async function openLoadModelsPreview(record: ExtensionTableRow) {
+  const id = record.id
   if (id == null) return
+  modelSyncModal.open = true
+  modelSyncModal.mode = 'load'
+  modelSyncModal.extensionId = id
+  modelSyncModal.extensionLabel = String(record.extensionName || record.extensionKey || id)
+  modelSyncModal.previewError = ''
+  modelSyncModal.loadPreview = null
+  modelSyncModal.unloadPreview = null
+  modelSyncModal.loadingPreview = true
   try {
-    const msg = await systemExtensionApi.loadModels(id)
-    message.success(msg)
+    const data = await systemExtensionApi.previewLoadModels(id)
+    modelSyncModal.loadPreview = data ?? {
+      toCreate: [],
+      skippedExisting: [],
+      skippedInvalidCount: 0
+    }
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '加载模型失败')
+    modelSyncModal.previewError = err?.message || '加载预览失败'
+    modelSyncModal.loadPreview = null
+  } finally {
+    modelSyncModal.loadingPreview = false
   }
 }
 
-const handleUnloadModels = async (id: number | string | undefined) => {
+async function openUnloadModelsPreview(record: ExtensionTableRow) {
+  const id = record.id
   if (id == null) return
+  modelSyncModal.open = true
+  modelSyncModal.mode = 'unload'
+  modelSyncModal.extensionId = id
+  modelSyncModal.extensionLabel = String(record.extensionName || record.extensionKey || id)
+  modelSyncModal.previewError = ''
+  modelSyncModal.loadPreview = null
+  modelSyncModal.unloadPreview = null
+  modelSyncModal.loadingPreview = true
   try {
-    const msg = await systemExtensionApi.unloadModels(id)
-    message.success(msg)
+    const data = await systemExtensionApi.previewUnloadModels(id)
+    modelSyncModal.unloadPreview = data ?? { toRemove: [], keptReferenced: [] }
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '卸载模型失败')
+    modelSyncModal.previewError = err?.message || '卸载预览失败'
+    modelSyncModal.unloadPreview = null
+  } finally {
+    modelSyncModal.loadingPreview = false
+  }
+}
+
+async function confirmModelSync() {
+  const id = modelSyncModal.extensionId
+  const mode = modelSyncModal.mode
+  if (id == null || mode == null || modelSyncModal.previewError) return
+  try {
+    if (mode === 'load') {
+      const msg = await systemExtensionApi.loadModels(id)
+      message.success(msg)
+    } else {
+      const msg = await systemExtensionApi.unloadModels(id)
+      message.success(msg)
+    }
+    resetModelSyncModal()
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || (mode === 'load' ? '加载模型失败' : '卸载模型失败'))
+    throw e
   }
 }
 
@@ -489,27 +660,7 @@ const onPageChange = (p: number) => {
 }
 
 const openCreate = () => {
-  modal.mode = 'create'
-  modalInitial.value = null
   modal.open = true
-}
-
-const openEdit = async (record: ExtensionTableRow) => {
-  modal.mode = 'edit'
-  const id = record.id
-  if (id == null) return
-
-  const detail = await systemExtensionApi.detail(id)
-  modalInitial.value = detail
-  modal.open = true
-}
-
-const handleDeleteOne = async (id: number | string | undefined) => {
-  if (id == null) return
-  const msg = await systemExtensionApi.delete([id])
-  message.success(msg)
-  selectedRowKeys.value = []
-  void fetchList()
 }
 
 const handleBatchDelete = async () => {
@@ -531,24 +682,35 @@ const handleApply = async (id: number | string | undefined) => {
 
 const handleUninstall = async (id: number | string | undefined) => {
   if (id == null) return
-  const msg = await systemExtensionApi.uninstall(id)
-  message.success(msg)
-  selectedRowKeys.value = []
-  void fetchList()
+  try {
+    const msg = await systemExtensionApi.uninstall(id)
+    message.success(msg)
+    selectedRowKeys.value = []
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '卸载失败')
+  }
+}
+
+const handleDisableProviderModels = async (id: number | string | undefined) => {
+  if (id == null) return
+  try {
+    const msg = await systemExtensionApi.disableProviderModels(id)
+    message.success(msg)
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '禁用模型失败')
+  }
 }
 
 const handleFormSubmit = async (form: SystemExtension) => {
   modal.submitting = true
   try {
     const payload: SystemExtension = { ...form }
-    let msg: string
-    if (modal.mode === 'create') {
-      delete (payload as { id?: unknown }).id
-      msg = await systemExtensionApi.create(payload)
-    } else {
-      msg = await systemExtensionApi.update(payload)
-    }
-
+    delete (payload as { id?: unknown }).id
+    const msg = await systemExtensionApi.create(payload)
     message.success(msg)
     modal.open = false
     void fetchList()
@@ -694,6 +856,47 @@ void fetchList()
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   color: rgba(0, 0, 0, 0.65);
   font-size: 12px;
+}
+
+.model-sync-alert {
+  margin-bottom: 8px;
+}
+
+.model-sync-hint {
+  margin: 0 0 12px;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 13px;
+}
+
+.preview-section {
+  margin-bottom: 16px;
+}
+
+.preview-section-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.preview-list {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--border-default, #f0f0f0);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--bg-surface, #fafafa);
+}
+
+.preview-line {
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 2px 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.preview-empty {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
 }
 
 @media (max-width: 720px) {

@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
+import org.astrsomn.core.common.dto.extension.ExtensionModelLoadPreviewDTO;
+import org.astrsomn.core.common.dto.extension.ExtensionModelSyncPreviewRowDTO;
+import org.astrsomn.core.common.dto.extension.ExtensionModelUnloadPreviewDTO;
 import org.astrsomn.core.common.dto.model.AiModelCreateRequestDTO;
 import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
@@ -39,35 +42,19 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstrsomnProperties astrsomnProperties;
 
+    private record ProviderEnv(String providerCode, String envCode) {}
+
+    private record LoadSyncContext(String providerCode, String envCode, ModelProviderHandler handler) {}
+
     @Override
     public BaseResponse<String> loadModels(Long extensionId) {
-        SystemExtensionEntity ext = systemExtensionService.getById(extensionId);
-        if (ext == null) {
-            return BaseResponse.fail("记录不存在", null);
+        BaseResponse<LoadSyncContext> ctxResp = resolveLoadSyncContext(extensionId);
+        if (!ctxResp.isSuccess() || ctxResp.getData() == null) {
+            return BaseResponse.fail(ctxResp.getMessage(), null);
         }
-        if (!SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(ext.getType())) {
-            return BaseResponse.fail("仅模型类扩展支持加载模型", null);
-        }
+        LoadSyncContext ctx = ctxResp.getData();
 
-        String providerCode = resolveProviderCode(ext);
-        if (providerCode == null) {
-            return BaseResponse.fail("无法解析 providerCode / extensionKey", null);
-        }
-        if (findProviderEnum(providerCode).isEmpty()) {
-            return BaseResponse.fail("非法的厂商代码: " + providerCode, null);
-        }
-
-        Optional<ModelProviderHandler> handlerOpt = astroModelFactory.getHandler(providerCode);
-        if (handlerOpt.isEmpty()) {
-            return BaseResponse.fail("当前运行时未加载该厂商的 ModelProviderHandler（SPI）: " + providerCode, null);
-        }
-
-        String envCode = effectiveEnvCode();
-        if (StringUtils.isBlank(envCode)) {
-            return BaseResponse.fail("无法解析当前环境 envCode", null);
-        }
-
-        List<AiModelEntity> available = handlerOpt.get().getAvailableModels();
+        List<AiModelEntity> available = ctx.handler().getAvailableModels();
         if (available == null || available.isEmpty()) {
             return BaseResponse.success("厂商未返回可用模型清单");
         }
@@ -82,14 +69,14 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             }
             String rowProvider = StringUtils.trimToNull(src.getProvider());
             if (rowProvider == null) {
-                rowProvider = providerCode;
+                rowProvider = ctx.providerCode();
             }
 
             long exists = aiModelMapper.selectCount(
                     new LambdaQueryWrapper<AiModelEntity>()
                             .eq(AiModelEntity::getModelKey, modelKey)
                             .eq(AiModelEntity::getProvider, rowProvider)
-                            .eq(AiModelEntity::getEnvCode, envCode)
+                            .eq(AiModelEntity::getEnvCode, ctx.envCode())
                             .eq(AiModelEntity::getDeleted, false));
             if (exists > 0) {
                 skipped++;
@@ -101,7 +88,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             dto.setId(null);
             dto.setModelKey(modelKey);
             dto.setProvider(rowProvider);
-            dto.setEnvCode(envCode);
+            dto.setEnvCode(ctx.envCode());
 
             BaseResponse<String> created = aiModelService.create(dto);
             if (created.isSuccess()) {
@@ -116,31 +103,16 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
 
     @Override
     public BaseResponse<String> unloadModels(Long extensionId) {
-        SystemExtensionEntity ext = systemExtensionService.getById(extensionId);
-        if (ext == null) {
-            return BaseResponse.fail("记录不存在", null);
+        BaseResponse<ProviderEnv> peResp = resolveExtensionProviderEnv(extensionId);
+        if (!peResp.isSuccess() || peResp.getData() == null) {
+            return BaseResponse.fail(peResp.getMessage(), null);
         }
-        if (!SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(ext.getType())) {
-            return BaseResponse.fail("仅模型类扩展支持卸载模型", null);
-        }
-
-        String providerCode = resolveProviderCode(ext);
-        if (providerCode == null) {
-            return BaseResponse.fail("无法解析 providerCode / extensionKey", null);
-        }
-        if (findProviderEnum(providerCode).isEmpty()) {
-            return BaseResponse.fail("非法的厂商代码: " + providerCode, null);
-        }
-
-        String envCode = effectiveEnvCode();
-        if (StringUtils.isBlank(envCode)) {
-            return BaseResponse.fail("无法解析当前环境 envCode", null);
-        }
+        ProviderEnv pe = peResp.getData();
 
         List<AiModelEntity> rows = aiModelMapper.selectList(
                 new LambdaQueryWrapper<AiModelEntity>()
-                        .eq(AiModelEntity::getProvider, providerCode)
-                        .eq(AiModelEntity::getEnvCode, envCode)
+                        .eq(AiModelEntity::getProvider, pe.providerCode())
+                        .eq(AiModelEntity::getEnvCode, pe.envCode())
                         .eq(AiModelEntity::getDeleted, false));
 
         int removed = 0;
@@ -151,7 +123,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 continue;
             }
             String mk = StringUtils.trimToNull(row.getModelKey());
-            if (mk != null && isModelKeyReferencedByInstance(mk, envCode)) {
+            if (mk != null && isModelKeyReferencedByInstance(mk, pe.envCode())) {
                 skipped++;
                 blockedKeys.add(mk);
                 continue;
@@ -169,6 +141,131 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             msg += " 以下模型仍被实例引用未删除: " + String.join(", ", blockedKeys);
         }
         return BaseResponse.success(msg);
+    }
+
+    @Override
+    public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(Long extensionId) {
+        BaseResponse<LoadSyncContext> ctxResp = resolveLoadSyncContext(extensionId);
+        if (!ctxResp.isSuccess() || ctxResp.getData() == null) {
+            return BaseResponse.fail(ctxResp.getMessage(), null);
+        }
+        LoadSyncContext ctx = ctxResp.getData();
+
+        ExtensionModelLoadPreviewDTO dto = new ExtensionModelLoadPreviewDTO();
+        List<AiModelEntity> available = ctx.handler().getAvailableModels();
+        if (available == null || available.isEmpty()) {
+            return BaseResponse.success(dto);
+        }
+
+        for (AiModelEntity src : available) {
+            String modelKey = StringUtils.trimToNull(src.getModelKey());
+            if (modelKey == null) {
+                dto.setSkippedInvalidCount(dto.getSkippedInvalidCount() + 1);
+                continue;
+            }
+            String rowProvider = StringUtils.trimToNull(src.getProvider());
+            if (rowProvider == null) {
+                rowProvider = ctx.providerCode();
+            }
+
+            long exists = aiModelMapper.selectCount(
+                    new LambdaQueryWrapper<AiModelEntity>()
+                            .eq(AiModelEntity::getModelKey, modelKey)
+                            .eq(AiModelEntity::getProvider, rowProvider)
+                            .eq(AiModelEntity::getEnvCode, ctx.envCode())
+                            .eq(AiModelEntity::getDeleted, false));
+            ExtensionModelSyncPreviewRowDTO row = toPreviewRow(src, rowProvider);
+            if (exists > 0) {
+                dto.getSkippedExisting().add(row);
+            } else {
+                dto.getToCreate().add(row);
+            }
+        }
+        return BaseResponse.success(dto);
+    }
+
+    @Override
+    public BaseResponse<ExtensionModelUnloadPreviewDTO> previewUnloadModels(Long extensionId) {
+        BaseResponse<ProviderEnv> peResp = resolveExtensionProviderEnv(extensionId);
+        if (!peResp.isSuccess() || peResp.getData() == null) {
+            return BaseResponse.fail(peResp.getMessage(), null);
+        }
+        ProviderEnv pe = peResp.getData();
+
+        ExtensionModelUnloadPreviewDTO dto = new ExtensionModelUnloadPreviewDTO();
+        List<AiModelEntity> rows = aiModelMapper.selectList(
+                new LambdaQueryWrapper<AiModelEntity>()
+                        .eq(AiModelEntity::getProvider, pe.providerCode())
+                        .eq(AiModelEntity::getEnvCode, pe.envCode())
+                        .eq(AiModelEntity::getDeleted, false));
+
+        for (AiModelEntity row : rows) {
+            if (row.getId() == null) {
+                continue;
+            }
+            ExtensionModelSyncPreviewRowDTO previewRow = toPreviewRow(row, pe.providerCode());
+            String mk = StringUtils.trimToNull(row.getModelKey());
+            if (mk != null && isModelKeyReferencedByInstance(mk, pe.envCode())) {
+                dto.getKeptReferenced().add(previewRow);
+            } else {
+                dto.getToRemove().add(previewRow);
+            }
+        }
+        return BaseResponse.success(dto);
+    }
+
+    private BaseResponse<ProviderEnv> resolveExtensionProviderEnv(Long extensionId) {
+        if (extensionId == null) {
+            return BaseResponse.fail("扩展 ID 不能为空", null);
+        }
+        SystemExtensionEntity ext = systemExtensionService.getById(extensionId);
+        if (ext == null) {
+            return BaseResponse.fail("记录不存在", null);
+        }
+        if (!SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(ext.getType())) {
+            return BaseResponse.fail("仅模型类扩展支持该操作", null);
+        }
+
+        String providerCode = resolveProviderCode(ext);
+        if (providerCode == null) {
+            return BaseResponse.fail("无法解析 providerCode / extensionKey", null);
+        }
+        if (findProviderEnum(providerCode).isEmpty()) {
+            return BaseResponse.fail("非法的厂商代码: " + providerCode, null);
+        }
+
+        String envCode = effectiveEnvCode();
+        if (StringUtils.isBlank(envCode)) {
+            return BaseResponse.fail("无法解析当前环境 envCode", null);
+        }
+
+        return BaseResponse.success(new ProviderEnv(providerCode, envCode));
+    }
+
+    private BaseResponse<LoadSyncContext> resolveLoadSyncContext(Long extensionId) {
+        BaseResponse<ProviderEnv> peResp = resolveExtensionProviderEnv(extensionId);
+        if (!peResp.isSuccess() || peResp.getData() == null) {
+            return BaseResponse.fail(peResp.getMessage(), null);
+        }
+        ProviderEnv pe = peResp.getData();
+
+        Optional<ModelProviderHandler> handlerOpt = astroModelFactory.getHandler(pe.providerCode());
+        if (handlerOpt.isEmpty()) {
+            return BaseResponse.fail(
+                    "当前运行时未加载该厂商的 ModelProviderHandler（SPI）: " + pe.providerCode(), null);
+        }
+
+        return BaseResponse.success(new LoadSyncContext(pe.providerCode(), pe.envCode(), handlerOpt.get()));
+    }
+
+    private static ExtensionModelSyncPreviewRowDTO toPreviewRow(AiModelEntity src, String fallbackProvider) {
+        ExtensionModelSyncPreviewRowDTO row = new ExtensionModelSyncPreviewRowDTO();
+        row.setModelKey(src.getModelKey());
+        row.setModelName(src.getModelName());
+        row.setModelType(src.getModelType());
+        String p = StringUtils.trimToNull(src.getProvider());
+        row.setProvider(p != null ? p : fallbackProvider);
+        return row;
     }
 
     private static String resolveProviderCode(SystemExtensionEntity ext) {

@@ -6,6 +6,8 @@ import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.extension.ExtensionMarketplaceItemDTO;
+import org.astrsomn.core.common.dto.extension.ExtensionModelLoadPreviewDTO;
+import org.astrsomn.core.common.dto.extension.ExtensionModelUnloadPreviewDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionCreateRequestDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionQueryRequestDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionResponseDTO;
@@ -14,6 +16,7 @@ import org.astrsomn.core.common.extension.marketplace.ExtensionMarketplaceCatalo
 import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.server.service.SystemExtensionModelSyncService;
 import org.astrsomn.server.service.SystemExtensionService;
+import org.astrsomn.server.service.support.SystemExtensionModelGuard;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +30,7 @@ public class SystemExtensionController extends BaseController {
     private final SystemExtensionService systemExtensionService;
     private final ExtensionMarketplaceCatalogSource extensionMarketplaceCatalogSource;
     private final SystemExtensionModelSyncService systemExtensionModelSyncService;
+    private final SystemExtensionModelGuard systemExtensionModelGuard;
 
     @PostMapping("/create")
     public BaseResponse<String> create(@RequestBody SystemExtensionCreateRequestDTO request) {
@@ -73,6 +77,14 @@ public class SystemExtensionController extends BaseController {
         return systemExtensionService.uninstall(id);
     }
 
+    /**
+     * 模型类扩展：将当前环境下该厂商全部 AI 模型状态设为 disabled。
+     */
+    @PostMapping("/disable-provider-models")
+    public BaseResponse<String> disableProviderModels(@RequestParam("id") Long id) {
+        return systemExtensionModelGuard.disableAllModelsForExtension(id);
+    }
+
     @GetMapping("/marketplace/catalog")
     public BaseResponse<List<ExtensionMarketplaceItemDTO>> marketplaceCatalog(
             @RequestParam(value = "type", required = false) String type) {
@@ -82,9 +94,19 @@ public class SystemExtensionController extends BaseController {
         return BaseResponse.success(list);
     }
 
+    @GetMapping("/load-models/preview")
+    public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(@RequestParam("id") Long id) {
+        return systemExtensionModelSyncService.previewLoadModels(id);
+    }
+
     @PostMapping("/load-models")
     public BaseResponse<String> loadModels(@RequestParam("id") Long id) {
         return systemExtensionModelSyncService.loadModels(id);
+    }
+
+    @GetMapping("/unload-models/preview")
+    public BaseResponse<ExtensionModelUnloadPreviewDTO> previewUnloadModels(@RequestParam("id") Long id) {
+        return systemExtensionModelSyncService.previewUnloadModels(id);
     }
 
     @PostMapping("/unload-models")

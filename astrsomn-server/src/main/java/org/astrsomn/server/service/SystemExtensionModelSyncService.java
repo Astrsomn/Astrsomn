@@ -1,6 +1,8 @@
 package org.astrsomn.server.service;
 
 import org.astrsomn.core.common.base.BaseResponse;
+import org.astrsomn.core.common.dto.extension.ExtensionModelLoadPreviewDTO;
+import org.astrsomn.core.common.dto.extension.ExtensionModelUnloadPreviewDTO;
 
 public interface SystemExtensionModelSyncService {
 
@@ -13,4 +15,14 @@ public interface SystemExtensionModelSyncService {
      * 按厂商删除当前环境下该 provider 的模型；被 AI 实例引用的模型键会跳过。
      */
     BaseResponse<String> unloadModels(Long extensionId);
+
+    /**
+     * 预览加载模型：将新增 vs 已存在跳过（不写库）。
+     */
+    BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(Long extensionId);
+
+    /**
+     * 预览卸载模型：将删除 vs 因实例引用保留（不删库）。
+     */
+    BaseResponse<ExtensionModelUnloadPreviewDTO> previewUnloadModels(Long extensionId);
 }
