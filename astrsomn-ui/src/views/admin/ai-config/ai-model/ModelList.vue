@@ -66,6 +66,7 @@
           />
 
           <div class="table-card">
+            <div class="table-card-scroll">
             <a-table
                 :columns="columns"
                 :data-source="list"
@@ -185,6 +186,7 @@
                 </template>
               </template>
             </a-table>
+            </div>
 
             <div class="pagination-container">
               <span class="total-text">共 {{ page.total }} 个端点节点</span>
@@ -530,11 +532,14 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0;
+  padding: 0 10px;
 }
 
 .model-page-layout {
+  /* 与 AdminPageShell min-height(100vh-70px) 对齐：预留顶栏、工具栏、BaseOverview 与间距 */
+  --model-list-panel-max-height: calc(100vh - 240px);
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
   gap: 16px;
   min-width: 0;
 }
@@ -544,6 +549,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  max-height: calc(100vh - 70px);
+  overflow: hidden;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-xl);
   background: var(--bg-card);
@@ -636,11 +643,26 @@ onMounted(() => {
 
 .table-card {
   margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: var(--model-list-panel-max-height);
+  overflow: hidden;
   background: var(--bg-card);
   border-radius: var(--radius-xl);
   padding: 10px;
   border: 1px solid var(--border-default);
   box-shadow: 0 16px 32px rgba(15, 23, 42, 0.04);
+}
+
+.table-card-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.table-card .pagination-container {
+  flex-shrink: 0;
 }
 
 .model-info {
