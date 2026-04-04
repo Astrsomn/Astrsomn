@@ -5,6 +5,14 @@
     empty-text="暂无系统扩展。"
   >
     <div class="extension-page">
+      <a-layout class="extension-layout">
+        <a-layout-sider width="208" theme="light" class="extension-sider">
+          <a-menu mode="inline" :selected-keys="[listScope]" @click="onListScopeSelect">
+            <a-menu-item key="MARKETPLACE">插件市场</a-menu-item>
+            <a-menu-item key="INSTALLED">已安装插件</a-menu-item>
+          </a-menu>
+        </a-layout-sider>
+        <a-layout-content class="extension-main">
       <AdminListToolbar>
         <template #left>
           <div class="search-cluster">
@@ -28,7 +36,12 @@
             </a-input>
           </div>
 
-          <div class="status-switch" role="group" aria-label="状态筛选">
+          <div
+            v-if="listScope === 'INSTALLED'"
+            class="status-switch"
+            role="group"
+            aria-label="状态筛选"
+          >
             <a-button
               class="status-btn"
               :class="{ active: query.status === 'INSTALLED' }"
@@ -60,7 +73,7 @@
           </a-button>
 
           <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
+            v-if="listScope === 'INSTALLED' && selectedRowKeys.length > 0"
             title="确定批量删除选中的扩展吗？"
             ok-text="确认"
             cancel-text="取消"
@@ -80,26 +93,36 @@
         </template>
       </AdminListToolbar>
 
+      <a-tabs v-model:activeKey="typeTabKey" class="type-tabs" @change="onTypeTabChange">
+        <a-tab-pane key="ALL" tab="全部" />
+        <a-tab-pane key="MODEL_PROVIDER" tab="模型" />
+        <a-tab-pane key="VECTOR_STORE" tab="向量库" />
+        <a-tab-pane key="MCP" tab="MCP" />
+      </a-tabs>
+
       <BaseOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
         :part-current-selected="partCurrentSelected"
         :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条扩展记录，已选 ${selectedRowKeys.length} 条。`"
+        :summary-text="listSummaryText"
         @toggle-select-all="toggleSelectAllCurrentPage"
       />
 
       <a-table
-        :columns="columns"
+        :columns="tableColumns"
         :data-source="list"
         :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1680 }"
+        :row-key="tableRowKey"
+        :row-selection="tableRowSelection"
+        :scroll="{ x: listScope === 'MARKETPLACE' ? 1480 : 1880 }"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'description'">
+          <template v-if="column.key === 'type'">
+            {{ extensionTypeLabel(record.type) }}
+          </template>
+          <template v-else-if="column.key === 'description'">
             <span class="desc-preview">{{ preview(record.description) }}</span>
           </template>
           <template v-else-if="column.key === 'jarName'">
@@ -112,43 +135,69 @@
             <a-tag :color="appliedTagColor(record.applied)">{{ appliedLabel(record.applied) }}</a-tag>
           </template>
           <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="openEdit(record)">编辑</a-button>
-            <a-divider type="vertical" />
+            <template v-if="listScope === 'MARKETPLACE'">
+              <a-button type="link" @click="installFromCatalog(record)">安装</a-button>
+            </template>
+            <template v-else>
+              <a-button type="link" @click="openEdit(record)">编辑</a-button>
+              <a-divider type="vertical" />
 
-            <a-popconfirm
-              v-if="record.status === 'APPLIED'"
-              title="确定卸载该插件吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleUninstall(record.id)"
-            >
-              <a-button type="link" danger :disabled="record.id == null">卸载</a-button>
-            </a-popconfirm>
+              <template v-if="record.type === 'MODEL_PROVIDER'">
+                <a-popconfirm
+                  title="从厂商 SPI 拉取可用模型并写入当前环境（已存在的 modelKey 会跳过）"
+                  ok-text="确认"
+                  cancel-text="取消"
+                  @confirm="() => handleLoadModels(record.id)"
+                >
+                  <a-button type="link" :disabled="record.id == null">加载模型</a-button>
+                </a-popconfirm>
+                <a-divider type="vertical" />
+                <a-popconfirm
+                  title="确定按厂商卸载当前环境下的模型数据吗？（被实例引用的模型将保留）"
+                  ok-text="确认"
+                  cancel-text="取消"
+                  @confirm="() => handleUnloadModels(record.id)"
+                >
+                  <a-button type="link" danger :disabled="record.id == null">卸载模型</a-button>
+                </a-popconfirm>
+                <a-divider type="vertical" />
+              </template>
 
-            <a-popconfirm
-              v-else
-              title="确定应用该插件吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleApply(record.id)"
-            >
-              <a-button type="link" :disabled="!record.jarName || record.id == null">应用</a-button>
-            </a-popconfirm>
+              <a-popconfirm
+                v-if="record.status === 'APPLIED'"
+                title="确定卸载该插件吗？"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="() => handleUninstall(record.id)"
+              >
+                <a-button type="link" danger :disabled="record.id == null">卸载</a-button>
+              </a-popconfirm>
 
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger :disabled="record.id == null">删除</a-button>
-            </a-popconfirm>
+              <a-popconfirm
+                v-else
+                title="确定应用该插件吗？"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="() => handleApply(record.id)"
+              >
+                <a-button type="link" :disabled="!record.jarName || record.id == null">应用</a-button>
+              </a-popconfirm>
+
+              <a-divider type="vertical" />
+              <a-popconfirm
+                title="确定删除吗？"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="() => handleDeleteOne(record.id)"
+              >
+                <a-button type="link" danger :disabled="record.id == null">删除</a-button>
+              </a-popconfirm>
+            </template>
           </template>
         </template>
       </a-table>
 
-      <div class="pagination-wrap">
+      <div v-if="listScope === 'INSTALLED'" class="pagination-wrap">
         <a-pagination
           :current="page.pageNum"
           :page-size="page.pageSize"
@@ -165,6 +214,8 @@
         :initial="modalInitial"
         @submit="handleFormSubmit"
       />
+        </a-layout-content>
+      </a-layout>
     </div>
   </AdminPageShell>
 </template>
@@ -183,7 +234,16 @@ import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import ExtensionFormModel from './ExtensionFormModel.vue'
-import { systemExtensionApi, type PageResponse, type SystemExtension } from '@/api/systemExtension.ts'
+import {
+  systemExtensionApi,
+  type ExtensionMarketplaceItem,
+  type PageResponse,
+  type SystemExtension,
+  type SystemExtensionListScope,
+  type SystemExtensionQueryPagePayload
+} from '@/api/systemExtension'
+
+type ExtensionTableRow = SystemExtension & ExtensionMarketplaceItem
 
 type QueryState = {
   extensionKey?: string
@@ -222,7 +282,18 @@ function appliedTagColor(value: string | undefined) {
   return 'default'
 }
 
-const columns = [
+function extensionTypeLabel(type: string | undefined) {
+  if (!type) return '—'
+  if (type === 'MODEL_PROVIDER') return '模型'
+  if (type === 'VECTOR_STORE') return '向量库'
+  if (type === 'MCP') return 'MCP'
+  return type
+}
+
+const listScope = ref<SystemExtensionListScope>('INSTALLED')
+const typeTabKey = ref('ALL')
+
+const allColumns = [
   { title: '扩展 Key', dataIndex: 'extensionKey', key: 'extensionKey', width: 180, ellipsis: true },
   { title: '扩展名称', dataIndex: 'extensionName', key: 'extensionName', width: 210, ellipsis: true },
   { title: '类型', dataIndex: 'type', key: 'type', width: 120, ellipsis: true },
@@ -232,11 +303,34 @@ const columns = [
   { title: '状态', key: 'status', width: 110 },
   { title: '已应用', key: 'applied', width: 100 },
   { title: '描述', dataIndex: 'description', key: 'description', width: 320, ellipsis: true },
-  { title: '操作', key: 'actions', width: 220, fixed: 'right' as const }
+  { title: '操作', key: 'actions', width: 380, fixed: 'right' as const }
 ]
 
+const tableColumns = computed(() => {
+  if (listScope.value === 'MARKETPLACE') {
+    return allColumns.filter((c) => c.key !== 'status' && c.key !== 'applied')
+  }
+  return allColumns
+})
+
 const query = reactive<QueryState>({})
-const list = ref<SystemExtension[]>([])
+const list = ref<ExtensionTableRow[]>([])
+
+const listSummaryText = computed(() => {
+  if (listScope.value === 'MARKETPLACE') {
+    return `市场目录 ${list.value.length} 条（Mock），安装后请到「已安装插件」管理。`
+  }
+  return `当前页 ${list.value.length} 条扩展记录，已选 ${selectedRowKeys.value.length} 条。`
+})
+
+const tableRowKey = (record: ExtensionTableRow) => {
+  if (listScope.value === 'MARKETPLACE') {
+    return String(record.extensionKey ?? '')
+  }
+  return record.id != null ? String(record.id) : String(record.extensionKey ?? '')
+}
+
+const tableRowSelection = computed(() => (listScope.value === 'INSTALLED' ? rowSelection.value : undefined))
 
 const page = reactive({
   pageNum: 1,
@@ -281,6 +375,23 @@ const toggleStatusFilter = (value: 'INSTALLED' | 'APPLIED' | 'UNINSTALLED') => {
   query.status = query.status === value ? undefined : value
 }
 
+function onListScopeSelect({ key }: { key: string }) {
+  const next = key as SystemExtensionListScope
+  if (next !== 'MARKETPLACE' && next !== 'INSTALLED') return
+  if (listScope.value === next) return
+  listScope.value = next
+  query.status = undefined
+  page.pageNum = 1
+  selectedRowKeys.value = []
+  void fetchList()
+}
+
+const onTypeTabChange = () => {
+  page.pageNum = 1
+  selectedRowKeys.value = []
+  void fetchList()
+}
+
 const resetFilters = () => {
   query.extensionKey = undefined
   query.extensionName = undefined
@@ -299,19 +410,77 @@ const modal = reactive({
 const modalInitial = ref<SystemExtension | null>(null)
 
 const fetchList = async () => {
-  const payload = {
+  if (listScope.value === 'MARKETPLACE') {
+    const typeQ = typeTabKey.value === 'ALL' ? undefined : typeTabKey.value
+    let rows = await systemExtensionApi.marketplaceCatalog(typeQ)
+    const k = query.extensionKey?.trim().toLowerCase()
+    if (k) {
+      rows = rows.filter((r) => (r.extensionKey || '').toLowerCase().includes(k))
+    }
+    const n = query.extensionName?.trim().toLowerCase()
+    if (n) {
+      rows = rows.filter((r) => (r.extensionName || '').toLowerCase().includes(n))
+    }
+    list.value = rows as ExtensionTableRow[]
+    page.total = rows.length
+    return
+  }
+
+  const payload: SystemExtensionQueryPagePayload = {
     pageNo: page.pageNum,
     pageSize: page.pageSize,
     param: {
       extensionKey: query.extensionKey || undefined,
       extensionName: query.extensionName || undefined,
-      status: query.status || undefined
+      status: query.status || undefined,
+      listScope: listScope.value,
+      type: typeTabKey.value === 'ALL' ? undefined : typeTabKey.value
     }
   }
 
   const resp: PageResponse<SystemExtension> = await systemExtensionApi.queryPage(payload)
-  list.value = resp.list || []
+  list.value = (resp.list || []) as ExtensionTableRow[]
   page.total = resp.total || 0
+}
+
+const installFromCatalog = async (item: ExtensionTableRow) => {
+  const payload: SystemExtension = {
+    extensionKey: item.extensionKey,
+    extensionName: item.extensionName,
+    type: item.type,
+    version: item.version,
+    author: item.author,
+    description: item.description,
+    jarName: item.jarName,
+    providerCode: item.providerCode,
+    applied: 'N',
+    status: 'INSTALLED'
+  }
+  const msg = await systemExtensionApi.create(payload)
+  message.success(msg)
+  message.info('可在「已安装插件」中查看、应用插件或加载模型。')
+}
+
+const handleLoadModels = async (id: number | string | undefined) => {
+  if (id == null) return
+  try {
+    const msg = await systemExtensionApi.loadModels(id)
+    message.success(msg)
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '加载模型失败')
+  }
+}
+
+const handleUnloadModels = async (id: number | string | undefined) => {
+  if (id == null) return
+  try {
+    const msg = await systemExtensionApi.unloadModels(id)
+    message.success(msg)
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '卸载模型失败')
+  }
 }
 
 const onPageChange = (p: number) => {
@@ -325,7 +494,7 @@ const openCreate = () => {
   modal.open = true
 }
 
-const openEdit = async (record: SystemExtension) => {
+const openEdit = async (record: ExtensionTableRow) => {
   modal.mode = 'edit'
   const id = record.id
   if (id == null) return
@@ -397,6 +566,35 @@ void fetchList()
 <style scoped>
 .extension-page {
   padding: 0 4px;
+}
+
+.extension-layout {
+  background: transparent;
+  align-items: stretch;
+}
+
+.extension-sider {
+  border-radius: 12px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-card) !important;
+  overflow: auto;
+}
+
+.extension-sider :deep(.ant-layout-sider-children) {
+  padding: 8px 0;
+}
+
+.extension-main {
+  padding-left: 16px;
+  min-width: 0;
+}
+
+.type-tabs {
+  margin: 12px 0 8px;
+}
+
+.type-tabs :deep(.ant-tabs-nav) {
+  margin-bottom: 0;
 }
 
 .search-cluster {
@@ -499,6 +697,20 @@ void fetchList()
 }
 
 @media (max-width: 720px) {
+  .extension-layout {
+    flex-direction: column;
+  }
+
+  .extension-sider {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 12px;
+  }
+
+  .extension-main {
+    padding-left: 0;
+  }
+
   .toolbar-input,
   .search-main-input,
   .search-sub-input {

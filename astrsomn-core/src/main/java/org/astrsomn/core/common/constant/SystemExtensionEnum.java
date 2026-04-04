@@ -11,8 +11,8 @@ public interface SystemExtensionEnum {
     enum ExtensionTypeEnum implements BaseEnum {
 
         MCP("MCP", "MCP"),
-        MODEL_PROVIDER("MODEL_PROVIDER", "model Provider"),
-        VECTOR_STORE("VECTOR_STORE", "vectorStore");
+        MODEL_PROVIDER("MODEL_PROVIDER", "模型"),
+        VECTOR_STORE("VECTOR_STORE", "向量库");
 
         private String code;
 
@@ -20,5 +20,52 @@ public interface SystemExtensionEnum {
 
     }
 
+    @Getter
+    @AllArgsConstructor
+    enum ExtensionInstallStatusEnum implements BaseEnum {
+
+        INSTALLED("INSTALLED", "已安装"),
+        APPLIED("APPLIED", "已应用"),
+        UNINSTALLED("UNINSTALLED", "未安装");
+
+        private String code;
+
+        private String desc;
+
+    }
+
+    @Getter
+    @AllArgsConstructor
+    enum ExtensionListScopeEnum implements BaseEnum {
+
+        MARKETPLACE("MARKETPLACE", "插件市场"),
+        INSTALLED("INSTALLED", "已安装插件");
+
+        private String code;
+
+        private String desc;
+
+    }
+
+
+    @Getter
+    @AllArgsConstructor
+    enum StatusEnum implements BaseEnum {
+
+        /**
+         * Enable
+         */
+        ENABLED("enabled", "Enabled"),
+
+        /**
+         * Disable
+         */
+        DISABLED("disabled", "Disable");
+
+        private String code;
+
+        private String desc;
+
+    }
 
 }

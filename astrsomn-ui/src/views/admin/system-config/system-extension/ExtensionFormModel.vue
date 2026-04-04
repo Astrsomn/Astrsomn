@@ -58,6 +58,14 @@
           <a-input v-model:value="form.jarName" placeholder="插件 jar 文件名，例如 xxx-extension.jar" :disabled="isApplied" autocomplete="off" />
         </a-form-item>
 
+        <a-form-item label="厂商 code" name="providerCode">
+          <a-input
+            v-model:value="form.providerCode"
+            placeholder="公用：如 deepseek（模型扩展用于同步 AI_MODEL；可选，默认同 extensionKey）"
+            autocomplete="off"
+          />
+        </a-form-item>
+
         <a-form-item label="描述" name="description" class="span-2">
           <a-textarea
             v-model:value="form.description"
@@ -73,7 +81,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import type { FormInstance } from 'ant-design-vue'
-import type { SystemExtension } from '@/api/systemExtension.ts'
+import type { SystemExtension } from '@/api/systemExtension'
 
 const props = defineProps<{
   mode: 'create' | 'edit'
@@ -98,6 +106,7 @@ function emptyForm(): SystemExtension {
     author: '',
     description: '',
     jarName: '',
+    providerCode: '',
     applied: '',
     status: ''
   }

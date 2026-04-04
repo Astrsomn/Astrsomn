@@ -11,8 +11,22 @@ export type SystemExtension = {
   jarName?: string
   applied?: string
   status?: string
+  /** 公用：厂商/提供方 code（模型扩展时与 AiModelEnum.ProviderEnum 一致） */
+  providerCode?: string
   createTime?: string
   updateTime?: string
+}
+
+/** 插件市场目录项（GET marketplace/catalog） */
+export type ExtensionMarketplaceItem = {
+  extensionKey?: string
+  extensionName?: string
+  type?: string
+  version?: string
+  author?: string
+  description?: string
+  jarName?: string
+  providerCode?: string
 }
 
 export type PageResponse<T> = {
@@ -24,11 +38,30 @@ export type PageResponse<T> = {
   list: T[]
 }
 
+/** 与 SystemExtensionEnum.ExtensionListScopeEnum.code 一致 */
+export type SystemExtensionListScope = 'MARKETPLACE' | 'INSTALLED'
+
+/** 分页查询 param，与 SystemExtensionQueryRequestDTO 对齐 */
+export type SystemExtensionQueryParam = {
+  extensionKey?: string
+  extensionName?: string
+  status?: string
+  /** ExtensionTypeEnum：MODEL_PROVIDER | VECTOR_STORE | MCP */
+  type?: string
+  listScope?: SystemExtensionListScope
+}
+
+export type SystemExtensionQueryPagePayload = {
+  pageNo: number
+  pageSize: number
+  param?: SystemExtensionQueryParam
+}
+
 /**
  * 对应 SystemExtensionController：`/v1/astro/system-extension`
  */
 export const systemExtensionApi = {
-  queryPage: (payload: unknown): Promise<PageResponse<SystemExtension>> => {
+  queryPage: (payload: SystemExtensionQueryPagePayload): Promise<PageResponse<SystemExtension>> => {
     return request({
       url: '/v1/astro/system-extension/queryPage',
       method: 'post',
@@ -77,6 +110,28 @@ export const systemExtensionApi = {
   uninstall: (id: number | string): Promise<string> => {
     return request({
       url: `/v1/astro/system-extension/uninstall?id=${encodeURIComponent(String(id))}`,
+      method: 'post'
+    })
+  },
+
+  marketplaceCatalog: (type?: string): Promise<ExtensionMarketplaceItem[]> => {
+    const q = type && type !== 'ALL' ? `?type=${encodeURIComponent(type)}` : ''
+    return request({
+      url: `/v1/astro/system-extension/marketplace/catalog${q}`,
+      method: 'get'
+    })
+  },
+
+  loadModels: (id: number | string): Promise<string> => {
+    return request({
+      url: `/v1/astro/system-extension/load-models?id=${encodeURIComponent(String(id))}`,
+      method: 'post'
+    })
+  },
+
+  unloadModels: (id: number | string): Promise<string> => {
+    return request({
+      url: `/v1/astro/system-extension/unload-models?id=${encodeURIComponent(String(id))}`,
       method: 'post'
     })
   }
