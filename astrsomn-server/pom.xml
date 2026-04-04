@@ -30,7 +30,7 @@
             <type>pom</type>
         </dependency>
 
-        <!-- 各 provider 为独立 jar；聚合 pom(astrsomn-providers) 不会带入子模块，须逐个声明以便 SPI 与 classpath 扫描 -->
+        <!-- 各 provider 为独立 jar；聚合 pom(astrsomn-providers) 不会带入子模块，须逐个声明以便 SPI 与 classpath 扫描
         <dependency>
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-provider-deepseek</artifactId>
@@ -55,7 +55,7 @@
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-provider-zhipu</artifactId>
             <version>${astrsomn.version}</version>
-        </dependency>
+        </dependency> -->
 
         <dependency>
             <groupId>org.astrsomn</groupId>
@@ -81,11 +81,7 @@
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
-        <!-- Spring Cloud -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
+  
 
 
         <!-- MyBatis-Plus -->

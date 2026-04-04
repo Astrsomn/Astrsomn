@@ -17,6 +17,8 @@ import org.astrsomn.core.common.dto.extension.SystemExtensionUpdateRequestDTO;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
+import org.astrsomn.server.plugin.ExtensionJarMetadata;
+import org.astrsomn.server.plugin.ExtensionJarMetadataReader;
 import org.astrsomn.server.plugin.SystemExtensionRegistry;
 import org.astrsomn.server.service.SystemExtensionService;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
@@ -29,9 +31,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -225,43 +230,75 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         }
 
         String stem = safeJarName.substring(0, safeJarName.length() - 4);
+
+        File tempJar = null;
+        try {
+            tempJar = File.createTempFile("astro-ext-upload-", ".jar");
+            file.transferTo(tempJar.toPath());
+        } catch (IOException e) {
+            log.error("暂存上传 jar 失败", e);
+            return BaseResponse.fail("保存文件失败: " + e.getMessage(), null);
+        }
+
+        Optional<ExtensionJarMetadata> jarMeta = ExtensionJarMetadataReader.tryLoad(tempJar);
+
         String key;
         try {
-            String paramKey = StringUtils.trimToNull(extensionKey);
-            if (paramKey == null) {
-                key = defaultExtensionKeyFromStem(stem);
-            } else {
-                key = sanitizeExtensionKey(paramKey);
-            }
+            key = resolveExtensionKeyForUpload(StringUtils.trimToNull(extensionKey), jarMeta, stem);
         } catch (IllegalArgumentException e) {
+            try {
+                Files.deleteIfExists(tempJar.toPath());
+            } catch (IOException ignored) {
+                // ignore
+            }
             return BaseResponse.fail(e.getMessage(), null);
         }
         if (StringUtils.isBlank(key)) {
+            try {
+                Files.deleteIfExists(tempJar.toPath());
+            } catch (IOException ignored) {
+                // ignore
+            }
             return BaseResponse.fail("extensionKey 无效", null);
         }
 
         Long dup = baseMapper.selectCount(
                 new LambdaQueryWrapper<SystemExtensionEntity>().eq(SystemExtensionEntity::getExtensionKey, key));
         if (dup != null && dup > 0) {
+            try {
+                Files.deleteIfExists(tempJar.toPath());
+            } catch (IOException ignored) {
+                // ignore
+            }
             return BaseResponse.fail("扩展 Key 已存在: " + key, null);
         }
 
         try {
-            file.transferTo(dest.toPath());
+            Files.createDirectories(pluginsDir.toPath());
+            Files.move(tempJar.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            tempJar = null;
         } catch (IOException e) {
-            log.error("保存插件 jar 失败: {}", safeJarName, e);
+            log.error("移动插件 jar 到 plugins 失败: {}", safeJarName, e);
+            if (tempJar != null) {
+                try {
+                    Files.deleteIfExists(tempJar.toPath());
+                } catch (IOException ignored) {
+                    // ignore
+                }
+            }
             return BaseResponse.fail("保存文件失败: " + e.getMessage(), null);
         }
 
         SystemExtensionEntity entity = new SystemExtensionEntity();
         entity.setExtensionKey(key);
         entity.setJarName(safeJarName);
-        entity.setExtensionName(StringUtils.trimToNull(extensionName));
-        entity.setType(StringUtils.trimToNull(type));
-        entity.setVersion(StringUtils.trimToNull(version));
-        entity.setAuthor(StringUtils.trimToNull(author));
-        entity.setDescription(StringUtils.trimToNull(description));
-        entity.setProviderCode(StringUtils.trimToNull(providerCode));
+        entity.setExtensionName(pickMeta(extensionName, jarMeta.map(ExtensionJarMetadata::extensionName)));
+        entity.setType(pickMeta(type, jarMeta.map(ExtensionJarMetadata::type)));
+        entity.setVersion(pickMeta(version, jarMeta.map(ExtensionJarMetadata::version)));
+        entity.setAuthor(pickMeta(author, jarMeta.map(ExtensionJarMetadata::author)));
+        entity.setDescription(pickMeta(description, jarMeta.map(ExtensionJarMetadata::description)));
+        entity.setProviderCode(pickMeta(providerCode, jarMeta.map(ExtensionJarMetadata::providerCode)));
+        entity.setAvatar(pickMeta(null, jarMeta.map(ExtensionJarMetadata::avatar)));
 
         applyManifestDefaults(dest, entity);
 
@@ -341,6 +378,36 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             n = "ext_" + System.currentTimeMillis();
         }
         return n;
+    }
+
+    /**
+     * 请求显式传入的 extensionKey 优先；否则用 jar 内 {@link AstroExtensionDescriptor#getExtensionKey()}；再否则由文件名推导。
+     */
+    private String resolveExtensionKeyForUpload(
+            String paramKey, Optional<ExtensionJarMetadata> jarMeta, String stem) {
+        if (StringUtils.isNotBlank(paramKey)) {
+            return sanitizeExtensionKey(paramKey);
+        }
+        if (jarMeta.isPresent()) {
+            String k = StringUtils.trimToNull(jarMeta.get().extensionKey());
+            if (k != null) {
+                try {
+                    return sanitizeExtensionKey(k);
+                } catch (IllegalArgumentException e) {
+                    log.warn("jar 内 extensionKey 不合法，改用文件名推导: {} — {}", k, e.getMessage());
+                }
+            }
+        }
+        return defaultExtensionKeyFromStem(stem);
+    }
+
+    /** 表单字段非空优先，否则使用 jar 内解析值。 */
+    private static String pickMeta(String requestOverride, Optional<String> fromJar) {
+        String r = StringUtils.trimToNull(requestOverride);
+        if (r != null) {
+            return r;
+        }
+        return fromJar.filter(StringUtils::isNotBlank).orElse(null);
     }
 
     private static void applyManifestDefaults(File jarFile, SystemExtensionEntity entity) {

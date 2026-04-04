@@ -212,15 +212,7 @@ export const systemExtensionApi = {
       url: '/v1/astro/system-extension/upload-jar',
       method: 'post',
       data: fd,
-      timeout: 300000,
-      transformRequest: [
-        (data, headers) => {
-          if (data instanceof FormData) {
-            delete (headers as Record<string, unknown>)['Content-Type']
-          }
-          return data
-        }
-      ]
+      timeout: 300000
     })
   }
 }
