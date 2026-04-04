@@ -143,8 +143,8 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         }
         try {
             pluginManager.applyPlugin(entity.getJarName());
-            entity.setApplied("Y");
-            entity.setStatus("APPLIED");
+            entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.Y.getCode());
+            entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.APPLIED.getCode());
             updateById(entity);
             return BaseResponse.success("应用成功");
         } catch (Exception e) {

@@ -1,5 +1,6 @@
 package org.astrsomn.qwen;
 
+import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
@@ -13,7 +14,7 @@ public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getExtensionKey() {
-        return "qwen";
+        return AiModelEnum.ProviderEnum.ALIBABA.getCode();
     }
 
     @Override

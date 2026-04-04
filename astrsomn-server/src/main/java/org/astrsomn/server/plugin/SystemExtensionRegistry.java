@@ -101,7 +101,7 @@ public class SystemExtensionRegistry {
         entity.setDescription(StringUtils.trimToNull(descriptor.getDescription()));
         entity.setAvatar(StringUtils.trimToNull(descriptor.getAvatar()));
         entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
-        entity.setStatus(SystemExtensionEnum.StatusEnum.DISABLED.getCode());
+        entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
         return entity;
     }
 }
