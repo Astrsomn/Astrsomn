@@ -13,259 +13,90 @@
           </a-menu>
         </a-layout-sider>
         <a-layout-content class="extension-main">
-      <AdminListToolbar>
-        <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.extensionKey"
-              placeholder="搜索扩展 Key"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><key-outlined /></template>
-            </a-input>
-            <a-input
-              v-model:value="query.extensionName"
-              placeholder="搜索扩展名称"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><file-text-outlined /></template>
-            </a-input>
-          </div>
-
-          <div
-            v-if="listScope === 'INSTALLED'"
-            class="status-switch"
-            role="group"
-            aria-label="状态筛选"
-          >
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'INSTALLED' }"
-              @click="toggleStatusFilter('INSTALLED')"
-            >
-              已安装
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'APPLIED' }"
-              @click="toggleStatusFilter('APPLIED')"
-            >
-              已应用
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'UNINSTALLED' }"
-              @click="toggleStatusFilter('UNINSTALLED')"
-            >
-              未安装
-            </a-button>
-          </div>
-        </template>
-
-        <template #right>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-
-          <a-popconfirm
-            v-if="listScope === 'INSTALLED' && selectedRowKeys.length > 0"
-            title="确定批量删除选中的扩展吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量删除
-            </a-button>
-          </a-popconfirm>
-
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
-        </template>
-      </AdminListToolbar>
-
-      <a-tabs v-model:activeKey="typeTabKey" class="type-tabs" @change="onTypeTabChange">
-        <a-tab-pane key="ALL" tab="全部" />
-        <a-tab-pane key="MODEL_PROVIDER" tab="模型" />
-        <a-tab-pane key="VECTOR_STORE" tab="向量库" />
-        <a-tab-pane key="MCP" tab="MCP" />
-      </a-tabs>
-
-      <BaseOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="listSummaryText"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-
-      <a-table
-        :columns="tableColumns"
-        :data-source="list"
-        :pagination="false"
-        :row-key="tableRowKey"
-        :row-selection="tableRowSelection"
-        :scroll="{ x: listScope === 'MARKETPLACE' ? 1480 : 1920 }"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'type'">
-            {{ extensionTypeLabel(record.type) }}
-          </template>
-          <template v-else-if="column.key === 'description'">
-            <span class="desc-preview">{{ preview(record.description) }}</span>
-          </template>
-          <template v-else-if="column.key === 'jarName'">
-            <code class="jar-code">{{ record.jarName || '—' }}</code>
-          </template>
-          <template v-else-if="column.key === 'status'">
-            <a-tag :color="statusTagColor(record.status)">{{ statusLabel(record.status) }}</a-tag>
-          </template>
-          <template v-else-if="column.key === 'applied'">
-            <a-tag :color="appliedTagColor(record.applied)">{{ appliedLabel(record.applied) }}</a-tag>
-          </template>
-          <template v-else-if="column.key === 'actions'">
-            <template v-if="listScope === 'MARKETPLACE'">
-              <a-button type="link" @click="installFromCatalog(record)">安装</a-button>
+          <AdminListToolbar>
+            <template #left>
+              <ToolbarSearchPill
+                v-model="extensionNameInput"
+                placeholder="搜索扩展名称"
+                layout="toolbar"
+                @search="fetchList"
+              />
             </template>
-            <template v-else>
-              <template v-if="record.type === 'MODEL_PROVIDER'">
-                <a-button type="link" :disabled="record.id == null" @click="openLoadModelsPreview(record)">
-                  加载模型
-                </a-button>
-                <a-divider type="vertical" />
-                <a-button type="link" danger :disabled="record.id == null" @click="openUnloadModelsPreview(record)">
-                  卸载模型
-                </a-button>
-                <a-divider type="vertical" />
-                <a-popconfirm
-                  title="将该厂商在当前环境下的全部 AI 模型状态设为停用（disabled），确认？"
-                  ok-text="确认"
-                  cancel-text="取消"
-                  @confirm="() => handleDisableProviderModels(record.id)"
-                >
-                  <a-button type="link" :disabled="record.id == null">禁用</a-button>
-                </a-popconfirm>
-                <a-divider type="vertical" />
-              </template>
 
+            <template #right>
               <a-popconfirm
-                v-if="record.status === 'APPLIED'"
-                :title="
-                  record.type === 'MODEL_PROVIDER'
-                    ? '卸载插件。模型类扩展：若仍有 AI 实例引用该厂商模型，服务端将拒绝卸载。'
-                    : '确定卸载该插件吗？'
-                "
+                v-if="listScope === 'INSTALLED' && selectedRowKeys.length > 0"
+                title="确定批量删除选中的扩展吗？"
                 ok-text="确认"
                 cancel-text="取消"
-                @confirm="() => handleUninstall(record.id)"
+                @confirm="handleBatchDelete"
               >
-                <a-button type="link" danger :disabled="record.id == null">卸载</a-button>
-              </a-popconfirm>
-
-              <a-popconfirm
-                v-else
-                title="确定应用该插件吗？"
-                ok-text="确认"
-                cancel-text="取消"
-                @confirm="() => handleApply(record.id)"
-              >
-                <a-button type="link" :disabled="!record.jarName || record.id == null">应用</a-button>
+                <a-button danger class="ghost-btn danger-btn">
+                  <template #icon><delete-outlined /></template>
+                  批量删除
+                </a-button>
               </a-popconfirm>
             </template>
-          </template>
-        </template>
-      </a-table>
+          </AdminListToolbar>
 
-      <div v-if="listScope === 'INSTALLED'" class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+          <a-tabs v-model:activeKey="typeTabKey" class="type-tabs" @change="onTypeTabChange">
+            <a-tab-pane key="ALL" tab="全部" />
+            <a-tab-pane key="MODEL_PROVIDER" tab="模型" />
+            <a-tab-pane key="VECTOR_STORE" tab="向量库" />
+            <a-tab-pane key="MCP" tab="MCP" />
+          </a-tabs>
 
-      <ExtensionFormModel
-        v-model:open="modal.open"
-        mode="create"
-        :confirm-loading="modal.submitting"
-        :initial="null"
-        @submit="handleFormSubmit"
-      />
+          <BaseOverview
+            :list-length="list.length"
+            :selected-count="selectedRowKeys.length"
+            :all-current-selected="allCurrentSelected"
+            :part-current-selected="partCurrentSelected"
+            :show-actions="list.length > 0"
+            :summary-text="listSummaryText"
+            @toggle-select-all="toggleSelectAllCurrentPage"
+          />
 
-      <a-modal
-        v-model:open="modelSyncModal.open"
-        :title="modelSyncModalTitle"
-        width="640px"
-        destroy-on-close
-        :ok-text="modelSyncModalOkText"
-        :ok-button-props="modelSyncOkButtonProps"
-        @ok="confirmModelSync"
-        @cancel="resetModelSyncModal"
-      >
-        <div v-if="modelSyncModal.previewError" class="model-sync-alert">
-          <a-alert type="error" :message="modelSyncModal.previewError" show-icon />
-        </div>
-        <a-spin v-else :spinning="modelSyncModal.loadingPreview">
-          <template v-if="modelSyncModal.mode === 'load' && modelSyncModal.loadPreview">
-            <p v-if="modelSyncModalEmptyHint" class="model-sync-hint">{{ modelSyncModalEmptyHint }}</p>
-            <div v-if="(modelSyncModal.loadPreview.skippedInvalidCount ?? 0) > 0" class="model-sync-hint">
-              厂商返回条目中有 {{ modelSyncModal.loadPreview.skippedInvalidCount }} 条缺少 modelKey，将跳过。
-            </div>
-            <div class="preview-section">
-              <div class="preview-section-title">将保存（新增）</div>
-              <div v-if="(modelSyncModal.loadPreview.toCreate?.length ?? 0) > 0" class="preview-list">
-                <div v-for="(r, i) in modelSyncModal.loadPreview.toCreate" :key="'c' + i" class="preview-line">
-                  {{ formatPreviewRow(r) }}
-                </div>
-              </div>
-              <div v-else class="preview-empty">无</div>
-            </div>
-            <div class="preview-section">
-              <div class="preview-section-title">已存在将跳过</div>
-              <div v-if="(modelSyncModal.loadPreview.skippedExisting?.length ?? 0) > 0" class="preview-list">
-                <div v-for="(r, i) in modelSyncModal.loadPreview.skippedExisting" :key="'s' + i" class="preview-line">
-                  {{ formatPreviewRow(r) }}
-                </div>
-              </div>
-              <div v-else class="preview-empty">无</div>
-            </div>
-          </template>
-          <template v-else-if="modelSyncModal.mode === 'unload' && modelSyncModal.unloadPreview">
-            <p v-if="modelSyncModalEmptyHint" class="model-sync-hint">{{ modelSyncModalEmptyHint }}</p>
-            <div class="preview-section">
-              <div class="preview-section-title">将卸载（删除）</div>
-              <div v-if="(modelSyncModal.unloadPreview.toRemove?.length ?? 0) > 0" class="preview-list">
-                <div v-for="(r, i) in modelSyncModal.unloadPreview.toRemove" :key="'r' + i" class="preview-line">
-                  {{ formatPreviewRow(r) }}
-                </div>
-              </div>
-              <div v-else class="preview-empty">无</div>
-            </div>
-            <div class="preview-section">
-              <div class="preview-section-title">因实例引用将保留</div>
-              <div v-if="(modelSyncModal.unloadPreview.keptReferenced?.length ?? 0) > 0" class="preview-list">
-                <div v-for="(r, i) in modelSyncModal.unloadPreview.keptReferenced" :key="'k' + i" class="preview-line">
-                  {{ formatPreviewRow(r) }}
-                </div>
-              </div>
-              <div v-else class="preview-empty">无</div>
-            </div>
-          </template>
-        </a-spin>
-      </a-modal>
+          <div v-if="list.length > 0" class="extension-grid">
+            <ExtensionCard
+              v-for="item in list"
+              :key="rowKey(item)"
+              :record="item"
+              :list-scope="listScope"
+              :selected="isRowSelected(item)"
+              @toggle-select="(checked) => onCardToggleSelect(item, checked)"
+              @install="installFromCatalog(item)"
+              @load-models="openLoadModelsPreview(item)"
+              @unload-models="openUnloadModelsPreview(item)"
+              @disable-provider-models="handleDisableProviderModels(item.id)"
+              @uninstall="handleUninstall(item.id)"
+              @apply="handleApply(item.id)"
+            />
+          </div>
+          <div v-else class="extension-empty">
+            <a-empty :description="listScope === 'MARKETPLACE' ? '暂无市场插件' : '暂无已安装扩展'" />
+          </div>
+
+          <div v-if="listScope === 'INSTALLED'" class="pagination-wrap">
+            <a-pagination
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              :show-size-changer="false"
+              @change="onPageChange"
+            />
+          </div>
+
+          <ExtensionModelSyncDialog
+            v-model:open="modelSyncModal.open"
+            :mode="modelSyncModal.mode"
+            :extension-label="modelSyncModal.extensionLabel"
+            :loading-preview="modelSyncModal.loadingPreview"
+            :preview-error="modelSyncModal.previewError"
+            :load-preview="modelSyncModal.loadPreview"
+            :unload-preview="modelSyncModal.unloadPreview"
+            :confirm="confirmModelSync"
+            @cancel="resetModelSyncModal"
+          />
         </a-layout-content>
       </a-layout>
     </div>
@@ -275,22 +106,17 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import {
-  DeleteOutlined,
-  FileTextOutlined,
-  KeyOutlined,
-  PlusOutlined,
-  SearchOutlined
-} from '@ant-design/icons-vue'
+import { DeleteOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
-import ExtensionFormModel from './ExtensionFormModel.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import ExtensionCard from './ExtensionCard.vue'
+import ExtensionModelSyncDialog from './ExtensionModelSyncDialog.vue'
+import type { ExtensionRow } from './extensionDisplay'
 import {
   systemExtensionApi,
-  type ExtensionMarketplaceItem,
   type ExtensionModelLoadPreview,
-  type ExtensionModelSyncPreviewRow,
   type ExtensionModelUnloadPreview,
   type PageResponse,
   type SystemExtension,
@@ -298,78 +124,11 @@ import {
   type SystemExtensionQueryPagePayload
 } from '@/api/systemExtension'
 
-type ExtensionTableRow = SystemExtension & ExtensionMarketplaceItem
-
-type QueryState = {
-  extensionKey?: string
-  extensionName?: string
-  status?: string
-}
-
-const preview = (raw: string | undefined) => {
-  if (!raw) return '—'
-  const text = raw.replace(/\s+/g, ' ').trim()
-  return text.length > 84 ? `${text.slice(0, 84)}…` : text
-}
-
-function statusLabel(value: string | undefined) {
-  if (value === 'INSTALLED') return '已安装'
-  if (value === 'APPLIED') return '已应用'
-  if (value === 'UNINSTALLED') return '未安装'
-  return value ?? '—'
-}
-
-function statusTagColor(value: string | undefined) {
-  if (value === 'APPLIED') return 'green'
-  if (value === 'INSTALLED') return 'blue'
-  if (value === 'UNINSTALLED') return 'red'
-  return 'default'
-}
-
-function appliedLabel(value: string | undefined) {
-  if (value === 'Y') return '已应用'
-  if (value === 'N') return '未应用'
-  return value ?? '—'
-}
-
-function appliedTagColor(value: string | undefined) {
-  if (value === 'Y') return 'green'
-  return 'default'
-}
-
-function extensionTypeLabel(type: string | undefined) {
-  if (!type) return '—'
-  if (type === 'MODEL_PROVIDER') return '模型'
-  if (type === 'VECTOR_STORE') return '向量库'
-  if (type === 'MCP') return 'MCP'
-  return type
-}
-
 const listScope = ref<SystemExtensionListScope>('INSTALLED')
 const typeTabKey = ref('ALL')
 
-const allColumns = [
-  { title: '扩展 Key', dataIndex: 'extensionKey', key: 'extensionKey', width: 180, ellipsis: true },
-  { title: '扩展名称', dataIndex: 'extensionName', key: 'extensionName', width: 210, ellipsis: true },
-  { title: '类型', dataIndex: 'type', key: 'type', width: 120, ellipsis: true },
-  { title: '版本', dataIndex: 'version', key: 'version', width: 100, ellipsis: true },
-  { title: '作者', dataIndex: 'author', key: 'author', width: 120, ellipsis: true },
-  { title: 'jarName', key: 'jarName', width: 260, ellipsis: true },
-  { title: '状态', key: 'status', width: 110 },
-  { title: '已应用', key: 'applied', width: 100 },
-  { title: '描述', dataIndex: 'description', key: 'description', width: 320, ellipsis: true },
-  { title: '操作', key: 'actions', width: 400, fixed: 'right' as const }
-]
-
-const tableColumns = computed(() => {
-  if (listScope.value === 'MARKETPLACE') {
-    return allColumns.filter((c) => c.key !== 'status' && c.key !== 'applied')
-  }
-  return allColumns
-})
-
-const query = reactive<QueryState>({})
-const list = ref<ExtensionTableRow[]>([])
+const extensionNameInput = ref('')
+const list = ref<ExtensionRow[]>([])
 
 const listSummaryText = computed(() => {
   if (listScope.value === 'MARKETPLACE') {
@@ -378,14 +137,12 @@ const listSummaryText = computed(() => {
   return `当前页 ${list.value.length} 条扩展记录，已选 ${selectedRowKeys.value.length} 条。`
 })
 
-const tableRowKey = (record: ExtensionTableRow) => {
+function rowKey(record: ExtensionRow) {
   if (listScope.value === 'MARKETPLACE') {
     return String(record.extensionKey ?? '')
   }
   return record.id != null ? String(record.id) : String(record.extensionKey ?? '')
 }
-
-const tableRowSelection = computed(() => (listScope.value === 'INSTALLED' ? rowSelection.value : undefined))
 
 const page = reactive({
   pageNum: 1,
@@ -411,12 +168,18 @@ const partCurrentSelected = computed(() => {
   return count > 0 && count < currentPageIds.value.length
 })
 
-const rowSelection = computed(() => ({
-  selectedRowKeys: selectedRowKeys.value,
-  onChange: (keys: Array<number | string>) => {
-    selectedRowKeys.value = keys
+function isRowSelected(record: ExtensionRow) {
+  return selectedRowKeys.value.includes(rowKey(record))
+}
+
+function onCardToggleSelect(record: ExtensionRow, checked: boolean) {
+  const k = rowKey(record)
+  if (checked) {
+    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, k]))
+    return
   }
-}))
+  selectedRowKeys.value = selectedRowKeys.value.filter((x) => x !== k)
+}
 
 const toggleSelectAllCurrentPage = (checked: boolean) => {
   if (checked) {
@@ -426,16 +189,11 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
   selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
 }
 
-const toggleStatusFilter = (value: 'INSTALLED' | 'APPLIED' | 'UNINSTALLED') => {
-  query.status = query.status === value ? undefined : value
-}
-
 function onListScopeSelect({ key }: { key: string }) {
   const next = key as SystemExtensionListScope
   if (next !== 'MARKETPLACE' && next !== 'INSTALLED') return
   if (listScope.value === next) return
   listScope.value = next
-  query.status = undefined
   page.pageNum = 1
   selectedRowKeys.value = []
   void fetchList()
@@ -446,20 +204,6 @@ const onTypeTabChange = () => {
   selectedRowKeys.value = []
   void fetchList()
 }
-
-const resetFilters = () => {
-  query.extensionKey = undefined
-  query.extensionName = undefined
-  query.status = undefined
-  page.pageNum = 1
-  selectedRowKeys.value = []
-  void fetchList()
-}
-
-const modal = reactive({
-  open: false,
-  submitting: false
-})
 
 type ModelSyncMode = 'load' | 'unload'
 
@@ -478,15 +222,11 @@ const fetchList = async () => {
   if (listScope.value === 'MARKETPLACE') {
     const typeQ = typeTabKey.value === 'ALL' ? undefined : typeTabKey.value
     let rows = await systemExtensionApi.marketplaceCatalog(typeQ)
-    const k = query.extensionKey?.trim().toLowerCase()
-    if (k) {
-      rows = rows.filter((r) => (r.extensionKey || '').toLowerCase().includes(k))
-    }
-    const n = query.extensionName?.trim().toLowerCase()
+    const n = extensionNameInput.value?.trim().toLowerCase()
     if (n) {
       rows = rows.filter((r) => (r.extensionName || '').toLowerCase().includes(n))
     }
-    list.value = rows as ExtensionTableRow[]
+    list.value = rows as ExtensionRow[]
     page.total = rows.length
     return
   }
@@ -495,20 +235,18 @@ const fetchList = async () => {
     pageNo: page.pageNum,
     pageSize: page.pageSize,
     param: {
-      extensionKey: query.extensionKey || undefined,
-      extensionName: query.extensionName || undefined,
-      status: query.status || undefined,
+      extensionName: extensionNameInput.value?.trim() || undefined,
       listScope: listScope.value,
       type: typeTabKey.value === 'ALL' ? undefined : typeTabKey.value
     }
   }
 
   const resp: PageResponse<SystemExtension> = await systemExtensionApi.queryPage(payload)
-  list.value = (resp.list || []) as ExtensionTableRow[]
+  list.value = (resp.list || []) as ExtensionRow[]
   page.total = resp.total || 0
 }
 
-const installFromCatalog = async (item: ExtensionTableRow) => {
+const installFromCatalog = async (item: ExtensionRow) => {
   const payload: SystemExtension = {
     extensionKey: item.extensionKey,
     extensionName: item.extensionName,
@@ -526,52 +264,6 @@ const installFromCatalog = async (item: ExtensionTableRow) => {
   message.info('可在「已安装插件」中查看、应用插件或加载模型。')
 }
 
-function formatPreviewRow(r: ExtensionModelSyncPreviewRow) {
-  const parts = [r.modelKey, r.modelName, r.modelType, r.provider].filter(Boolean)
-  return parts.length ? parts.join(' · ') : '—'
-}
-
-const modelSyncModalTitle = computed(() => {
-  const name = modelSyncModal.extensionLabel || '扩展'
-  if (modelSyncModal.mode === 'load') return `确认加载模型 — ${name}`
-  if (modelSyncModal.mode === 'unload') return `确认卸载模型 — ${name}`
-  return '模型同步'
-})
-
-const modelSyncModalOkText = computed(() =>
-  modelSyncModal.mode === 'load'
-    ? '确认加载模型'
-    : modelSyncModal.mode === 'unload'
-      ? '确认卸载模型'
-      : '确认'
-)
-
-const modelSyncOkDisabled = computed(
-  () =>
-    modelSyncModal.loadingPreview || Boolean(modelSyncModal.previewError) || modelSyncModal.mode == null
-)
-
-const modelSyncOkButtonProps = computed(() => ({
-  disabled: modelSyncOkDisabled.value,
-  danger: modelSyncModal.mode === 'unload'
-}))
-
-const modelSyncModalEmptyHint = computed(() => {
-  if (modelSyncModal.loadingPreview || modelSyncModal.previewError) return ''
-  if (modelSyncModal.mode === 'load' && modelSyncModal.loadPreview) {
-    const p = modelSyncModal.loadPreview
-    const total =
-      (p.toCreate?.length ?? 0) + (p.skippedExisting?.length ?? 0) + (p.skippedInvalidCount ?? 0)
-    if (total === 0) return '厂商未返回可用模型条目，确认后不会产生新增。'
-  }
-  if (modelSyncModal.mode === 'unload' && modelSyncModal.unloadPreview) {
-    const p = modelSyncModal.unloadPreview
-    const total = (p.toRemove?.length ?? 0) + (p.keptReferenced?.length ?? 0)
-    if (total === 0) return '当前环境下该厂商暂无模型记录，确认后不会产生删除。'
-  }
-  return ''
-})
-
 function resetModelSyncModal() {
   modelSyncModal.open = false
   modelSyncModal.mode = null
@@ -583,7 +275,7 @@ function resetModelSyncModal() {
   modelSyncModal.loadingPreview = false
 }
 
-async function openLoadModelsPreview(record: ExtensionTableRow) {
+async function openLoadModelsPreview(record: ExtensionRow) {
   const id = record.id
   if (id == null) return
   modelSyncModal.open = true
@@ -610,7 +302,7 @@ async function openLoadModelsPreview(record: ExtensionTableRow) {
   }
 }
 
-async function openUnloadModelsPreview(record: ExtensionTableRow) {
+async function openUnloadModelsPreview(record: ExtensionRow) {
   const id = record.id
   if (id == null) return
   modelSyncModal.open = true
@@ -659,10 +351,6 @@ const onPageChange = (p: number) => {
   void fetchList()
 }
 
-const openCreate = () => {
-  modal.open = true
-}
-
 const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
@@ -705,23 +393,6 @@ const handleDisableProviderModels = async (id: number | string | undefined) => {
   }
 }
 
-const handleFormSubmit = async (form: SystemExtension) => {
-  modal.submitting = true
-  try {
-    const payload: SystemExtension = { ...form }
-    delete (payload as { id?: unknown }).id
-    const msg = await systemExtensionApi.create(payload)
-    message.success(msg)
-    modal.open = false
-    void fetchList()
-  } catch (e: unknown) {
-    const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
-  } finally {
-    modal.submitting = false
-  }
-}
-
 void fetchList()
 </script>
 
@@ -736,7 +407,7 @@ void fetchList()
 }
 
 .extension-sider {
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-default);
   background: var(--bg-card) !important;
   overflow: auto;
@@ -744,6 +415,28 @@ void fetchList()
 
 .extension-sider :deep(.ant-layout-sider-children) {
   padding: 8px 0;
+}
+
+.extension-sider :deep(.ant-menu) {
+  background: transparent;
+  color: var(--text-primary);
+  border-inline-end: none !important;
+}
+
+.extension-sider :deep(.ant-menu-item) {
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  margin: 4px 8px;
+  width: auto;
+}
+
+.extension-sider :deep(.ant-menu-item-selected) {
+  background: color-mix(in srgb, var(--primary) 16%, transparent) !important;
+  color: var(--primary-light) !important;
+}
+
+.extension-sider :deep(.ant-menu-item:hover) {
+  color: var(--text-hover);
 }
 
 .extension-main {
@@ -759,46 +452,21 @@ void fetchList()
   margin-bottom: 0;
 }
 
-.search-cluster {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 6px;
-  border-radius: 16px;
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
+.type-tabs :deep(.ant-tabs-tab) {
+  color: var(--text-secondary);
 }
 
-.search-cluster :deep(.ant-input-affix-wrapper) {
-  border: none;
-  box-shadow: none;
-  background: transparent;
+.type-tabs :deep(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: var(--primary-light) !important;
 }
 
-.search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused) {
-  border: none;
-  box-shadow: none;
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface));
+.type-tabs :deep(.ant-tabs-ink-bar) {
+  background: var(--primary-gradient);
 }
 
-.toolbar-input {
-  width: 200px;
-}
-
-.search-main-input {
-  width: 260px;
-}
-
-.search-sub-input {
-  width: 240px;
-}
-
-.primary-btn,
 .ghost-btn {
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
 }
 
 .danger-btn {
@@ -814,28 +482,20 @@ void fetchList()
   background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
 }
 
-.status-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px;
-  border-radius: 14px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
+.extension-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
 }
 
-.status-btn {
-  height: 36px;
-  border: none;
-  border-radius: 10px;
-  color: var(--text-secondary);
-  background: transparent;
-  box-shadow: none;
+.extension-empty {
+  margin-top: 48px;
+  padding: 24px;
 }
 
-.status-btn.active {
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
+.extension-empty :deep(.ant-empty-description) {
+  color: var(--text-muted);
 }
 
 .pagination-wrap {
@@ -845,58 +505,6 @@ void fetchList()
   gap: 12px;
   margin-top: 20px;
   flex-wrap: wrap;
-}
-
-.desc-preview {
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 12px;
-}
-
-.jar-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: rgba(0, 0, 0, 0.65);
-  font-size: 12px;
-}
-
-.model-sync-alert {
-  margin-bottom: 8px;
-}
-
-.model-sync-hint {
-  margin: 0 0 12px;
-  color: rgba(0, 0, 0, 0.55);
-  font-size: 13px;
-}
-
-.preview-section {
-  margin-bottom: 16px;
-}
-
-.preview-section-title {
-  font-weight: 600;
-  margin-bottom: 8px;
-  font-size: 13px;
-}
-
-.preview-list {
-  max-height: 220px;
-  overflow: auto;
-  border: 1px solid var(--border-default, #f0f0f0);
-  border-radius: 8px;
-  padding: 8px 10px;
-  background: var(--bg-surface, #fafafa);
-}
-
-.preview-line {
-  font-size: 12px;
-  line-height: 1.5;
-  padding: 2px 0;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.preview-empty {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
 }
 
 @media (max-width: 720px) {
@@ -914,27 +522,8 @@ void fetchList()
     padding-left: 0;
   }
 
-  .toolbar-input,
-  .search-main-input,
-  .search-sub-input {
-    width: 100%;
-  }
-
-  .search-cluster,
-  .status-switch {
-    width: 100%;
-  }
-
-  .search-cluster {
-    padding: 8px;
-  }
-
-  .status-switch {
-    justify-content: space-between;
-  }
-
-  .status-btn {
-    flex: 1;
+  .extension-grid {
+    grid-template-columns: 1fr;
   }
 
   .pagination-wrap {
@@ -942,4 +531,3 @@ void fetchList()
   }
 }
 </style>
-

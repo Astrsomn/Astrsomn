@@ -68,4 +68,13 @@ public interface SystemExtensionEnum {
 
     }
 
+
+    enum ApplyStatusEnum implements BaseEnum{
+        Y("Y", "Y"),
+        N("N", "N");
+        private String code;
+
+        private String desc;
+    }
+
 }
