@@ -1,25 +1,27 @@
 <template>
-  <a-modal
+  <HomeFullscreenModal
     :open="visible"
-    :title="null"
-    :width="680"
-    :confirm-loading="submitting"
-    :centered="true"
-    destroy-on-close
-    @ok="onSubmit"
+    width="680px"
+    max-width="min(680px, 96vw)"
+    body-height="80vh"
+    :closable="true"
+    main-padding="0"
+    :wrap-class-name="isEdit ? 'account-form-fsm-wrap account-form-fsm-wrap--edit' : 'account-form-fsm-wrap'"
+    @update:open="emit('update:visible', $event)"
     @cancel="handleCancel"
-    class="premium-modal"
   >
-    <div class="modal-header-custom">
-      <div class="header-icon" :class="{ 'edit-mode': isEdit }">
-        <component :is="isEdit ? 'FormOutlined' : 'PlusCircleOutlined'" />
-      </div>
-      <div class="header-text">
-        <h2>{{ isEdit ? '编辑凭证节点' : '部署新凭证' }}</h2>
-        <p>{{ isEdit ? '正在更新现有资产的安全配置' : '配置一个新的 AI 模型接入点' }}</p>
-      </div>
-    </div>
+    <template #header-logo>
+      <component :is="isEdit ? FormOutlined : PlusCircleOutlined" />
+    </template>
+    <template #header-title>
+      {{ isEdit ? '编辑凭证节点' : '部署新凭证' }}
+    </template>
+    <template #header-subtitle>
+      {{ isEdit ? '正在更新现有资产的安全配置' : '配置一个新的 AI 模型接入点' }}
+    </template>
 
+    <div class="account-form-shell">
+    <div class="account-form-spin-wrap">
     <a-spin :spinning="loading">
       <div class="modal-body-content">
         <div v-if="accountKeyImmutable" class="info-alert">
@@ -109,23 +111,23 @@
         </a-form>
       </div>
     </a-spin>
+    </div>
 
-    <template #footer>
-      <div class="premium-footer">
-        <div class="footer-info">
-          <SyncOutlined spin class="sync-icon" />
-          <span>变更将实时同步至下游实例</span>
-        </div>
-        <div class="footer-actions">
-          <a-button @click="handleCancel" class="btn-cancel">放弃修改</a-button>
-          <a-button type="primary" :loading="submitting" @click="onSubmit" class="btn-submit">
-            <span>确认部署更新</span>
-            <ArrowRightOutlined />
-          </a-button>
-        </div>
+    <div class="premium-footer">
+      <div class="footer-info">
+        <SyncOutlined spin class="sync-icon" />
+        <span>变更将实时同步至下游实例</span>
       </div>
-    </template>
-  </a-modal>
+      <div class="footer-actions">
+        <a-button @click="handleCancel" class="btn-cancel">放弃修改</a-button>
+        <a-button type="primary" :loading="submitting" @click="onSubmit" class="btn-submit">
+          <span>确认部署更新</span>
+          <ArrowRightOutlined />
+        </a-button>
+      </div>
+    </div>
+    </div>
+  </HomeFullscreenModal>
 </template>
 
 <script setup lang="ts">
@@ -135,7 +137,7 @@ import {
   LockFilled, IdcardOutlined, SafetyOutlined, ControlOutlined,
   FormOutlined, PlusCircleOutlined, SyncOutlined, ArrowRightOutlined
 } from '@ant-design/icons-vue'
-// 假设 API 路径保持不变
+import HomeFullscreenModal from '@/components/home/HomeFullscreenModal.vue'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 
 interface Props {
@@ -207,51 +209,62 @@ watch(() => props.visible, (val) => {
 </script>
 
 <style scoped>
-/* 颜色变量 */
-.premium-modal {
+.account-form-shell {
   --primary-color: #3b82f6;
-  --success-color: #10b981;
-  --bg-color: #f8fafc;
-  --text-main: #1e293b;
-  --text-sub: #64748b;
-}
-
-/* Modal 整体样式 */
-:deep(.ant-modal-content) {
-  padding: 0;
-  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
-/* 自定义 Header */
-.modal-header-custom {
-  padding: 32px 32px 10px;
+.account-form-spin-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.account-form-spin-wrap :deep(.ant-spin-nested-loading) {
+  flex: 1;
+  min-height: 0;
+  display: flex !important;
+  flex-direction: column;
+}
+
+.account-form-spin-wrap :deep(.ant-spin-container) {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+:global(.account-form-fsm-wrap.ant-modal-wrap) {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
 }
-.header-icon {
-  width: 54px; height: 54px;
-  border-radius: 16px;
-  background: #eff6ff;
-  color: #3b82f6;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px;
-  flex-shrink: 0;
+
+:global(.account-form-fsm-wrap .ant-modal) {
+  top: 0;
+  padding-bottom: 0;
 }
-.header-icon.edit-mode {
-  background: #f0fdf4; color: #22c55e;
-}
-.header-text h2 {
-  margin: 0; font-size: 20px; font-weight: 700; color: var(--text-main);
-}
-.header-text p {
-  margin: 0; font-size: 13px; color: var(--text-sub);
+
+:global(.account-form-fsm-wrap--edit .fsm-logo-box) {
+  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 2px 6px rgba(22, 163, 74, 0.35);
 }
 
 .modal-body-content {
-  padding: 10px 32px 24px;
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 8px 24px 20px;
 }
 
 /* 温和的 Alert */
@@ -319,14 +332,19 @@ watch(() => props.visible, (val) => {
 
 /* Footer 优化 */
 .premium-footer {
-  padding: 16px 32px 32px;
-  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+  padding: 14px 24px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .footer-info {
   display: flex; align-items: center; gap: 8px;
   font-size: 12px; color: #94a3b8;
 }
-.sync-icon { color: var(--success-color); }
+.sync-icon { color: #10b981; }
 
 .footer-actions { display: flex; gap: 12px; }
 
