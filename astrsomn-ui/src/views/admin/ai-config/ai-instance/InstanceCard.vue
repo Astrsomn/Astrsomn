@@ -28,8 +28,16 @@
 
     <div class="toc-card-body" @click="emit('edit')">
       <div class="toc-card-header">
-        <div :class="['type-icon-box', getModelTypeClass(record)]">
-          <component :is="getModelIcon(record)" />
+        <div class="header-type-block">
+          <span
+            v-if="providerAvatarMarkup"
+            class="provider-logo"
+            v-html="providerAvatarMarkup"
+            aria-hidden="true"
+          />
+          <div :class="['type-icon-box', getModelTypeClass(record)]">
+            <component :is="getModelIcon(record)" />
+          </div>
         </div>
         <div class="title-area">
           <div class="top-row">
@@ -194,6 +202,11 @@ const getModelIcon = (r: AiInstance) => {
 }
 
 const getModelTypeClass = (r: AiInstance) => normalizeVariant(r)
+
+const providerAvatarMarkup = computed(() => {
+  const raw = props.record?.providerAvatar
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+})
 </script>
 
 <style scoped>
@@ -379,6 +392,25 @@ const getModelTypeClass = (r: AiInstance) => normalizeVariant(r)
 
 .toc-card-header {
   display: flex; gap: 16px; margin-bottom: 24px;
+}
+
+.header-type-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.provider-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.provider-logo :deep(svg) {
+  width: 28px;
+  height: 28px;
+  display: block;
 }
 
 /* 图标盒 - 潮流霓虹配色 */

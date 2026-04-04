@@ -73,7 +73,7 @@
                 :pagination="false"
                 row-key="id"
                 :row-selection="rowSelection"
-                :scroll="{ x: 1680 }"
+                :scroll="{ x: 1740 }"
             >
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'modelType'">
@@ -82,6 +82,16 @@
                     <template v-else-if="record.modelType === 'embedding'"><PartitionOutlined /></template>
                     <template v-else-if="record.modelType === 'image'"><PictureOutlined /></template>
                   </div>
+                </template>
+
+                <template v-else-if="column.key === 'providerAvatar'">
+                  <span
+                    v-if="providerAvatarCell(record)"
+                    class="provider-avatar-cell"
+                    v-html="providerAvatarCell(record)"
+                    aria-hidden="true"
+                  />
+                  <span v-else class="text-secondary">—</span>
                 </template>
 
                 <template v-else-if="column.key === 'modelName'">
@@ -280,8 +290,9 @@ const statusOptions = computed(() => statusDict.value.options())
 const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }]
 
 const columns = [
-  { title: '类型', key: 'modelType',  width: 60 },
-  { title: '模型信息', key: 'modelName',  width: 220 },
+  { title: '类型', key: 'modelType', width: 60 },
+  { title: '', key: 'providerAvatar', width: 44, align: 'center' },
+  { title: '模型信息', key: 'modelName', width: 220 },
   { title: '标识 Key', key: 'modelKey', width: 190 },
   { title: '状态', key: 'status', width: 100 },
   { title: '接口地址', key: 'apiUrl', width: 240 },
@@ -324,6 +335,11 @@ const formatCapabilityLabel = (capability: string) => {
 const formatTime = (raw?: string) => {
   if (!raw) return '-'
   return raw.replace('T', ' ').slice(0, 19)
+}
+
+const providerAvatarCell = (record: AiModel) => {
+  const raw = record?.providerAvatar
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
 }
 
 // ... 逻辑部分保持原样 ...
@@ -702,6 +718,19 @@ onMounted(() => {
 
 .model-icon.image {
   background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+}
+
+.provider-avatar-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.provider-avatar-cell :deep(svg) {
+  width: 22px;
+  height: 22px;
+  display: block;
 }
 
 .model-title {

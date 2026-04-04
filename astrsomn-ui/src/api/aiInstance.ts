@@ -7,6 +7,8 @@ export type AiInstance = {
   modelKey?: string
   /** e.g. chat | embedding — drives list card preview */
   modelType?: string
+  /** queryPage 子查询：关联模型 PROVIDER 在 SYSTEM_EXTENSION 中的头像（SVG） */
+  providerAvatar?: string
   maxTokens?: number
   temperature?: number
   presencePenalty?: number

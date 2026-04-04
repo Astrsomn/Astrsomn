@@ -7,10 +7,22 @@
         SELECT
         aa.*,
         am_chat.model_name AS modelName,
+        am_chat.provider AS modelProvider,
         ci_chat.instance_name AS chatInstanceName,
         ci_embed.instance_name AS embeddingInstanceName,
         ci_image.instance_name AS imageInstanceName,
-        ap.prompt_title AS promptTitle
+        ap.prompt_title AS promptTitle,
+        (
+            SELECT se.avatar
+            FROM SYSTEM_EXTENSION se
+            WHERE se.env_code = aa.env_code
+              AND (se.deleted = 0 OR se.deleted IS NULL)
+              AND am_chat.provider IS NOT NULL
+              AND am_chat.provider != ''
+              AND (se.provider_code = am_chat.provider OR se.extension_key = am_chat.provider)
+            ORDER BY CASE WHEN se.provider_code = am_chat.provider THEN 0 ELSE 1 END
+            LIMIT 1
+        ) AS providerAvatar
         FROM
         AI_AGENT aa
         LEFT JOIN AI_INSTANCE ci_chat

@@ -9,7 +9,22 @@
          WHERE m.model_key = ai.model_key
            AND m.env_code &lt;=&gt; ai.env_code
            AND (m.deleted = 0 OR m.deleted IS NULL)
-         LIMIT 1) AS model_type
+         LIMIT 1) AS model_type,
+        (
+            SELECT se.avatar
+            FROM AI_MODEL m
+            JOIN SYSTEM_EXTENSION se
+              ON se.env_code = ai.env_code
+             AND (se.deleted = 0 OR se.deleted IS NULL)
+             AND (se.provider_code = m.provider OR se.extension_key = m.provider)
+            WHERE m.model_key = ai.model_key
+              AND m.env_code &lt;=&gt; ai.env_code
+              AND (m.deleted = 0 OR m.deleted IS NULL)
+              AND m.provider IS NOT NULL
+              AND m.provider != ''
+            ORDER BY CASE WHEN se.provider_code = m.provider THEN 0 ELSE 1 END
+            LIMIT 1
+        ) AS providerAvatar
         FROM
         AI_INSTANCE ai
         WHERE
@@ -49,7 +64,22 @@
          WHERE m.model_key = ai.model_key
            AND m.env_code &lt;=&gt; ai.env_code
            AND (m.deleted = 0 OR m.deleted IS NULL)
-         LIMIT 1) AS model_type
+         LIMIT 1) AS model_type,
+        (
+            SELECT se.avatar
+            FROM AI_MODEL m
+            JOIN SYSTEM_EXTENSION se
+              ON se.env_code = ai.env_code
+             AND (se.deleted = 0 OR se.deleted IS NULL)
+             AND (se.provider_code = m.provider OR se.extension_key = m.provider)
+            WHERE m.model_key = ai.model_key
+              AND m.env_code &lt;=&gt; ai.env_code
+              AND (m.deleted = 0 OR m.deleted IS NULL)
+              AND m.provider IS NOT NULL
+              AND m.provider != ''
+            ORDER BY CASE WHEN se.provider_code = m.provider THEN 0 ELSE 1 END
+            LIMIT 1
+        ) AS providerAvatar
         FROM AI_INSTANCE ai
         WHERE ai.id = #{id}
           AND (ai.deleted = 0 OR ai.deleted IS NULL)

@@ -46,10 +46,18 @@
       <p class="description">{{ record.description || '暂无详细描述信息...' }}</p>
       
       <div class="config-grid">
-        <div class="config-item">
+        <div class="config-item config-item-model">
           <div class="item-label"><robot-outlined /> 模型实例</div>
-          <div class="item-value highlight">
-             {{ record.chatInstanceName || record.modelName || '未配置' }}
+          <div class="item-value item-value-with-logo">
+            <span
+              v-if="providerAvatarMarkup"
+              class="provider-logo"
+              v-html="providerAvatarMarkup"
+              aria-hidden="true"
+            />
+            <span class="highlight item-value-text">
+              {{ record.chatInstanceName || record.modelName || '未配置' }}
+            </span>
           </div>
         </div>
         <div class="config-item">
@@ -98,6 +106,11 @@ const onToggle = (e: any) => {
 }
 
 const initialLetter = computed(() => props.record.agentName?.charAt(0).toUpperCase() || '?')
+
+const providerAvatarMarkup = computed(() => {
+  const raw = props.record?.providerAvatar
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+})
 
 const formatTime = (raw?: string) => {
   if (!raw) return '--'
@@ -357,6 +370,32 @@ const copyAgentKey = async () => {
 
 .item-value.highlight {
   color: var(--primary-blue);
+}
+
+.item-value-with-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.provider-logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.provider-logo :deep(svg) {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.item-value-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 底部操作 */
