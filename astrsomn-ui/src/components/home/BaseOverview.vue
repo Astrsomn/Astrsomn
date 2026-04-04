@@ -53,8 +53,11 @@ const onToggleSelectAll = (e: { target?: { checked?: boolean } }) => {
   margin-bottom: 12px;
   padding: 10px 14px;
   border-radius: 50px;
-  background: var(--bg-card);
+  background: var(--bg-surface);
   border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-overview);
+  height: 50px;
+  box-sizing: border-box;
 }
 
 .overview-main {
@@ -74,7 +77,6 @@ const onToggleSelectAll = (e: { target?: { checked?: boolean } }) => {
   color: #fff;
   font-size: 15px;
   background: var(--primary-gradient);
-  box-shadow: 0 6px 14px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
 .overview-desc {

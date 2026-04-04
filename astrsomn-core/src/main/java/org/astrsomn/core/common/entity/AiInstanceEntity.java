@@ -27,6 +27,12 @@ public class AiInstanceEntity extends BaseEntity<Long> {
 
     @TableField("MODEL_KEY")
     private String modelKey;
+
+    /**
+     * Resolved from {@code AI_MODEL.MODEL_TYPE} by {@code modelKey} + {@code envCode}; not a column on {@code AI_INSTANCE}.
+     */
+    @TableField(exist = false)
+    private String modelType;
     /**
      * The maximum number of tokens allowed in the generated response.
      */

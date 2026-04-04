@@ -26,48 +26,20 @@
             />
           </div>
 
-          <div class="status-switch" role="group" aria-label="状态筛选">
-            <a-button
-              class="status-btn"
-              :class="{ active: query.enabled === 1 }"
-              @click="toggleEnabledFilter(1)"
-            >
-              <template #icon><check-circle-outlined /></template>
-              启用
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.enabled === 0 }"
-              @click="toggleEnabledFilter(0)"
-            >
-              <template #icon><stop-outlined /></template>
-              禁用
-            </a-button>
-          </div>
+          <TrioStateSwitch 
+            v-model="query.enabled" 
+            @change="fetchList"
+            :options="[
+              { label: '全部', value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
+              { label: '启用', value: 1, color: '#10b981', icon: CheckCircleOutlined },
+              { label: '禁用', value: 0, color: '#f43f5e', icon: StopOutlined }
+            ]"
+          />
+
         </template>
 
         <template #right>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的 MCP 吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量删除
-            </a-button>
-          </a-popconfirm>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+          <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
       </AdminListToolbar>
 
@@ -179,19 +151,22 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
   CopyOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
+  ReloadOutlined,
   SearchOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
+import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
+import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
 import McpFormModal from './McpFormModal.vue'
 import { aiMcpApi, type AiMcp, type PageResponse } from '@/api/aiMcp'
 
@@ -347,6 +322,39 @@ const resetFilters = () => {
   void fetchList()
 }
 
+const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
+  {
+    label: '查询',
+    type: 'primary',
+    icon: SearchOutlined,
+    onClick: () => void fetchList()
+  },
+  {
+    label: '批量删除',
+    icon: DeleteOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: () => {
+      const n = selectedRowKeys.value.length
+      if (n === 0) return
+      Modal.confirm({
+        title: `确定删除选中的 ${n} 个 MCP 吗？`,
+        onOk: () => handleBatchDelete()
+      })
+    }
+  },
+  {
+    label: '重置',
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: '新增',
+    type: 'primary',
+    icon: PlusOutlined,
+    onClick: openCreate
+  }
+])
+
 const modal = reactive({
   open: false,
   mode: 'create' as 'create' | 'edit',
@@ -441,7 +449,7 @@ void fetchList()
 
 <style scoped>
 .mcp-page {
-  padding: 0 4px;
+  padding: 20px;
 }
 
 .search-cluster {

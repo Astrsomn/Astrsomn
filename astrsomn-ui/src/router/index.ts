@@ -154,8 +154,16 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'system-config/system-extension',
         name: 'AdminSystemExtension',
-        component: () => import('@/views/admin/system-config/system-extension/ExtensionList.vue'),
+        component: () => import('@/views/admin/system-config/system-extension/index.vue'),
         meta: { title: '系统扩展', requiresAuth: true }
+      },
+      {
+        path: 'system-config/system-extension/marketplace',
+        redirect: { name: 'AdminSystemExtension' }
+      },
+      {
+        path: 'system-config/system-extension/installed',
+        redirect: { name: 'AdminSystemExtension' }
       }
     ]
   },

@@ -11,6 +11,6 @@ public class AiPromptQueryRequestDTO extends AiPromptEntity implements Serializa
     private String promptKey;
     private String promptTitle;
     private String scene;
-    private String enabledFlag;
+
 
 }

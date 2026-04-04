@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
@@ -23,21 +24,17 @@ public class SystemExtensionRegistry {
     private final ApplicationContext applicationContext;
     private final SystemExtensionMapper systemExtensionMapper;
 
-    @PostConstruct
-    public void registerExtensions() {
-        // 1) 先从 Spring 容器拿到（兼容历史实现）
-        // 2) 再从 Java SPI（ServiceLoader）加载（让插件扩展元数据摆脱 Spring 注册）
+    /**
+     * Spring Bean 优先，SPI 仅补充尚未出现的 extensionKey。市场目录、头像补全等可与注册共用同一套合并结果。
+     */
+    public static Map<String, AstroExtensionDescriptor> mergeDescriptors(ApplicationContext applicationContext) {
         Map<String, AstroExtensionDescriptor> mergedByKey = new HashMap<>();
-
-        Map<String, AstroExtensionDescriptor> springDescriptors =
-                applicationContext.getBeansOfType(AstroExtensionDescriptor.class);
-        springDescriptors.forEach((beanName, descriptor) -> {
+        applicationContext.getBeansOfType(AstroExtensionDescriptor.class).forEach((beanName, descriptor) -> {
             String extensionKey = StringUtils.trimToNull(descriptor.getExtensionKey());
             if (extensionKey != null) {
                 mergedByKey.putIfAbsent(extensionKey, descriptor);
             }
         });
-
         ServiceLoader<AstroExtensionDescriptor> serviceLoader =
                 ServiceLoader.load(AstroExtensionDescriptor.class);
         for (AstroExtensionDescriptor descriptor : serviceLoader) {
@@ -50,13 +47,19 @@ public class SystemExtensionRegistry {
             }
             mergedByKey.putIfAbsent(extensionKey, descriptor);
         }
+        return mergedByKey;
+    }
+
+    @PostConstruct
+    public void registerExtensions() {
+        Map<String, AstroExtensionDescriptor> mergedByKey = mergeDescriptors(applicationContext);
 
         if (mergedByKey.isEmpty()) {
             log.info("No AstroExtensionDescriptor found via Spring or SPI, skip system extension registration.");
             return;
         }
 
-        mergedByKey.forEach((extensionKey, descriptor) -> registerDescriptor(extensionKey, descriptor));
+        mergedByKey.forEach(this::registerDescriptor);
     }
 
     private void registerDescriptor(String beanName, AstroExtensionDescriptor descriptor) {
@@ -96,8 +99,9 @@ public class SystemExtensionRegistry {
         entity.setVersion(StringUtils.trimToNull(descriptor.getVersion()));
         entity.setAuthor(StringUtils.trimToNull(descriptor.getAuthor()));
         entity.setDescription(StringUtils.trimToNull(descriptor.getDescription()));
-        entity.setApplied("Y");
-        entity.setStatus("APPLIED");
+        entity.setAvatar(StringUtils.trimToNull(descriptor.getAvatar()));
+        entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
+        entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
         return entity;
     }
 }

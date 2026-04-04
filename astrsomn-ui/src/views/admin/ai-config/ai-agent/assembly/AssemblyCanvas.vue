@@ -18,15 +18,7 @@
             </a-form-item>
           </div>
           
-          <div class="canvas-actions">
-            <a-button class="action-btn btn-ghost" @click="emit('reset')">
-              <template #icon><UndoOutlined /></template>
-            </a-button>
-            <a-button type="primary" class="action-btn btn-primary" @click="emit('submit')">
-              <template #icon><SendOutlined /></template>
-              发布
-            </a-button>
-          </div>
+     
         </div>
 
         <div class="header-row row-meta">

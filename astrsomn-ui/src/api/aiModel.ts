@@ -8,6 +8,8 @@ export type AiModel = {
   modelKeyImmutable?: boolean
   modelType?: string
   provider?: string
+  /** queryPage 子查询：SYSTEM_EXTENSION 中与 PROVIDER 匹配的头像（SVG） */
+  providerAvatar?: string
   accountKey?: string
   apiUrl?: string
   status?: string

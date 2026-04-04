@@ -5,6 +5,9 @@ import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
 public class DeepSeekExtensionDescriptor extends AstroExtensionDescriptor {
 
+    private static final String AVATAR_SVG =
+            loadClasspathUtf8(DeepSeekExtensionDescriptor.class, "/avatar/deepseek-color.svg");
+
     @Override
     public String getExtensionKey() {
         return "deepseek";
@@ -23,5 +26,10 @@ public class DeepSeekExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public String getDescription() {
         return "DeepSeek provider (OpenAI-compatible API); 模型清单与调用细节可在本模块内扩展。";
+    }
+
+    @Override
+    public String getAvatar() {
+        return AVATAR_SVG;
     }
 }

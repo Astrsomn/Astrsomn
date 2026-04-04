@@ -61,4 +61,9 @@ public class AiToolEntity extends BaseEntity<Long> {
     @TableField("STATUS")
     private String status;
 
+    /**
+     *
+     */
+    @TableField("CLASS_NAME")
+    private String className;
 }

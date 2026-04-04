@@ -1,24 +1,14 @@
 package org.astrsomn.starter.langchain.factory;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.AiModelEnum;
-import org.astrsomn.core.common.entity.AiAccountEntity;
-import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.extension.ModelProviderHandler;
-import org.astrsomn.core.mapper.AiAccountMapper;
-import org.astrsomn.core.mapper.AiModelMapper;
-import org.astrsomn.starter.config.AstrsomnProperties;
-import org.astrsomn.starter.langchain.quota.ModelQuotaManager;
 import org.springframework.stereotype.Component;
-import jakarta.annotation.PostConstruct;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -61,17 +51,28 @@ public class AstroModelFactory {
     }
 
     /**
-     * 仍然保留动态注册接口，方便 PluginManager 在运行时手动注入
+     * 按厂商 code（与 {@link AiModelEnum.ProviderEnum#getCode()} 一致）解析 SPI 注册的处理器。
      */
+    public Optional<ModelProviderHandler> getHandler(String providerCode) {
+        if (providerCode == null || providerCode.isBlank()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(handlerMap.get(providerCode.trim()));
+    }
+
+    // TODO 安装模型拓展插件
     public void registerHandler(ModelProviderHandler handler) {
         if (handler != null && handler.getProvider() != null) {
             handlerMap.put(handler.getProvider().getCode(), handler);
         }
     }
 
+    // TODO 卸载模型拓展插件
     public void unregisterHandler(AiModelEnum.ProviderEnum provider) {
         if (provider != null) {
             handlerMap.remove(provider.getCode());
         }
     }
+
+
 }

@@ -1,9 +1,10 @@
 package org.astrsomn.core.common.langchain.extension;
 
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
-import org.astrsomn.core.common.entity.AiModelEntity;
 
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public abstract class AstroExtensionDescriptor {
 
@@ -16,6 +17,7 @@ public abstract class AstroExtensionDescriptor {
 
     public abstract SystemExtensionEnum.ExtensionTypeEnum getExtensionType();
 
+    public abstract   String getAvatar();
 
     public abstract String getName();
 
@@ -41,6 +43,17 @@ public abstract class AstroExtensionDescriptor {
         return "";
     }
 
-
-
+    /**
+     * 从 classpath 根路径读取 UTF-8 文本（如 {@code /avatar/foo.svg}），失败返回空串。
+     */
+    protected static String loadClasspathUtf8(Class<?> anchor, String absoluteClasspathPath) {
+        try (InputStream in = anchor.getResourceAsStream(absoluteClasspathPath)) {
+            if (in == null) {
+                return "";
+            }
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            return "";
+        }
+    }
 }

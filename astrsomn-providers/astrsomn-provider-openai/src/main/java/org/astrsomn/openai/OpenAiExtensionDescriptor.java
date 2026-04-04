@@ -5,6 +5,9 @@ import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
 public class OpenAiExtensionDescriptor extends AstroExtensionDescriptor {
 
+    private static final String AVATAR_SVG =
+            loadClasspathUtf8(OpenAiExtensionDescriptor.class, "/avatar/openai.svg");
+
     @Override
     public String getExtensionKey() {
         return "openai";
@@ -13,6 +16,11 @@ public class OpenAiExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public SystemExtensionEnum.ExtensionTypeEnum getExtensionType() {
         return SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER;
+    }
+
+    @Override
+    public String getAvatar() {
+        return AVATAR_SVG;
     }
 
     @Override

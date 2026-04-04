@@ -7,50 +7,26 @@
     <div class="account-page">
       <AdminListToolbar>
         <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.accountKey"
+          <div class="account-toolbar-searches">
+            <ToolbarSearchPill
+              v-model="query.accountKey"
+              layout="toolbar"
               placeholder="搜索 Account Key"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-input
-              v-model:value="query.accountName"
+              button-label="查询"
+              @search="fetchList"
+            />
+            <ToolbarSearchPill
+              v-model="query.accountName"
+              layout="toolbar"
               placeholder="账号名称"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><user-outlined /></template>
-            </a-input>
+              button-label="查询"
+              @search="fetchList"
+            />
           </div>
         </template>
 
         <template #right>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的账号吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量删除
-            </a-button>
-          </a-popconfirm>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn add-btn" @click="goCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+          <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
       </AdminListToolbar>
 
@@ -102,16 +78,18 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import {
   DeleteOutlined,
   PlusOutlined,
-  SearchOutlined,
-  UserOutlined
+  ReloadOutlined,
+  SearchOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
 import AccountForm from './AccountForm.vue'
 import AccountCard from './AccountCard.vue'
 import AccountModelsDrawer from './AccountModelsDrawer.vue'
@@ -180,6 +158,40 @@ const resetFilters = () => {
   selectedRowKeys.value = []
   void fetchList()
 }
+
+const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
+  {
+    label: '查询',
+    type: 'primary',
+    icon: SearchOutlined,
+    onClick: () => void fetchList()
+  },
+  {
+    label: '批量删除',
+    icon: DeleteOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: () => {
+      if (selectedRowKeys.value.length === 0) return
+      Modal.confirm({
+        title: '确定批量删除选中的账号吗？',
+        okText: '确认',
+        cancelText: '取消',
+        onOk: () => handleBatchDelete()
+      })
+    }
+  },
+  {
+    label: '重置',
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: '新增',
+    type: 'primary',
+    icon: PlusOutlined,
+    onClick: goCreate
+  }
+])
 
 const fetchList = async () => {
   const payload = {
@@ -270,60 +282,16 @@ const openModelsDrawer = async (account: AiAccount) => {
 
 <style scoped>
 .account-page {
-  padding: 0 4px;
+  padding: 0 20px;
 }
 
-.search-cluster {
+.account-toolbar-searches {
   display: flex;
-  gap: 8px;
-  align-items: center;
   flex-wrap: wrap;
-  padding: 6px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper) {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused) {
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface)) !important;
-}
-
-.toolbar-input {
-  width: 200px;
-}
-
-.search-main-input {
-  width: 280px;
-}
-
-.search-sub-input {
-  width: 220px;
-}
-
-.primary-btn,
-.ghost-btn {
-  height: 40px;
-  border-radius: var(--radius-max);
-}
-
-.danger-btn {
-  color: var(--error);
-  border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
-  background: color-mix(in srgb, var(--error) 7%, var(--bg-card));
-}
-
-.danger-btn:hover,
-.danger-btn:focus {
-  color: var(--error) !important;
-  border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
-  background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
+  gap: 12px;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
 }
 
 .account-grid {
@@ -372,13 +340,7 @@ const openModelsDrawer = async (account: AiAccount) => {
 }
 
 @media (max-width: 720px) {
-  .toolbar-input,
-  .search-main-input,
-  .search-sub-input {
-    width: 100%;
-  }
-
-  .search-cluster {
+  .account-toolbar-searches {
     width: 100%;
   }
 

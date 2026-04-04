@@ -13,6 +13,15 @@ const instance: AxiosInstance = axios.create({
 
 instance.interceptors.request.use(
   (config) => {
+    // 默认 Content-Type 为 json；FormData 必须去掉该头，否则服务端收不到 multipart part（如 upload-jar 的 file）
+    if (config.data instanceof FormData) {
+      const h = config.headers
+      if (h && typeof (h as { delete?: (key: string) => void }).delete === 'function') {
+        ;(h as { delete: (key: string) => void }).delete('Content-Type')
+      }
+      delete (h as Record<string, unknown>)['Content-Type']
+    }
+
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`

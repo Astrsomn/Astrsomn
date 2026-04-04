@@ -12,4 +12,9 @@ public class SystemExtensionQueryRequestDTO extends SystemExtensionEntity implem
     private String extensionName;
     private String type;
     private String status;
+
+    /**
+     * 列表范围：{@link org.astrsomn.core.common.constant.SystemExtensionEnum.ExtensionListScopeEnum}，非表字段。
+     */
+    private String listScope;
 }

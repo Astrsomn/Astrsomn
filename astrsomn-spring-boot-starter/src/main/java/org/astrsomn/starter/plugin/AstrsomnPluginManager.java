@@ -24,6 +24,21 @@ public class AstrsomnPluginManager {
     private final AstroModelFactory astroModelFactory;
     private final String pluginPath = "./plugins";
 
+    /** 与 {@link #reloadPlugins()}、{@link #applyPlugin(String)} 使用的目录一致（相对进程工作目录，通常为项目根下 {@code plugins}）。 */
+    public String getPluginPath() {
+        return pluginPath;
+    }
+
+    /** 确保目录存在并返回其 {@link File}。 */
+    public File getPluginsDirectory() {
+        File dir = new File(pluginPath);
+        if (!dir.exists()) {
+            boolean created = dir.mkdirs();
+            log.info("创建插件目录: {}, 结果: {}", pluginPath, created);
+        }
+        return dir;
+    }
+
     // 用于记录已加载的插件及其加载器，方便后续做卸载或热更新
     private final Map<String, PluginClassLoader> pluginCache = new ConcurrentHashMap<>();
     private final Map<String, List<ModelProviderHandler>> pluginHandlers = new ConcurrentHashMap<>();

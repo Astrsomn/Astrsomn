@@ -5,6 +5,9 @@ import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
 public class ZhipuExtensionDescriptor extends AstroExtensionDescriptor {
 
+    private static final String AVATAR_SVG =
+            loadClasspathUtf8(ZhipuExtensionDescriptor.class, "/avatar/chatglm-color.svg");
+
     @Override
     public String getExtensionKey() {
         return "zhipu";
@@ -13,6 +16,11 @@ public class ZhipuExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public SystemExtensionEnum.ExtensionTypeEnum getExtensionType() {
         return SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER;
+    }
+
+    @Override
+    public String getAvatar() {
+        return AVATAR_SVG;
     }
 
     @Override

@@ -44,72 +44,16 @@
       />
 
       <TransitionGroup name="list-stagger" tag="div" class="card-layout-grid">
-        <div
+        <InstanceCard
           v-for="(record, index) in list"
           :key="record.id || index"
-          :class="['toc-card', { 'is-selected': selectedRowKeys.includes(record.id!) }]"
-          :style="{ '--delay': index }"
-        >
-          <div class="toc-checkbox-wrapper" @click="toggleSelect(record.id)">
-            <div :class="['custom-check', { active: selectedRowKeys.includes(record.id!) }]">
-              <check-outlined v-if="selectedRowKeys.includes(record.id!)" />
-            </div>
-          </div>
-
-          <div class="toc-card-body" @click="goEdit(record)">
-            <div class="toc-card-header">
-              <div :class="['type-icon-box', getModelTypeClass(record)]">
-                <component :is="getModelIcon(record)" />
-              </div>
-              <div class="title-area">
-                <div class="top-row">
-                  <h4 class="name">{{ record.instanceName || '未命名配置' }}</h4>
-                  <div :class="['status-glow', record.status]">
-                    <span class="dot"></span> {{ record.status === 'enabled' ? '运行中' : '已停用' }}
-                  </div>
-                </div>
-                <p class="sub-key">{{ record.instanceKey || 'No ID' }}</p>
-              </div>
-            </div>
-
-            <div class="dynamic-params-preview">
-              <template v-if="record.modelType === 'chat' || !record.modelType">
-                <div class="mini-progress-item">
-                  <div class="p-labels"><span>温度 (Temp)</span> <b>{{ record.temperature ?? 0.7 }}</b></div>
-                  <div class="p-track"><div class="p-thumb temp" :style="{ width: `${(record.temperature || 0) / 2 * 100}%` }"></div></div>
-                </div>
-                <div class="mini-progress-item">
-                  <div class="p-labels"><span>核采样 (TopP)</span> <b>{{ record.topP ?? 1.0 }}</b></div>
-                  <div class="p-track"><div class="p-thumb topp" :style="{ width: `${(record.topP || 0) * 100}%` }"></div></div>
-                </div>
-              </template>
-
-              <template v-else-if="record.modelType === 'embedding'">
-                <div class="vector-spec">
-                  <div class="spec-tag">维度: {{ record.dimensions || 1536 }}</div>
-                  <div class="spec-tag">环境: {{ record.envCode || 'Default' }}</div>
-                </div>
-              </template>
-            </div>
-
-            <div class="toc-card-meta">
-              <div class="meta-left">
-                <span class="provider-label">{{ record.modelKey || '未关联端点' }}</span>
-              </div>
-              <div class="meta-right">
-                <span class="time-ago">{{ formatUpdateTime(record.updateTime) }}</span>
-              </div>
-            </div>
-          </div>
-
-          <footer class="toc-card-footer">
-            <a-button type="text" class="f-btn" @click.stop="goEdit(record)"><edit-outlined /> 编辑</a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm title="确定删除此配置？" @confirm="handleDeleteOne(record.id)">
-              <a-button type="text" danger class="f-btn"><delete-outlined /> 删除</a-button>
-            </a-popconfirm>
-          </footer>
-        </div>
+          :record="record"
+          :index="index"
+          :selected="selectedRowKeys.includes(record.id!)"
+          @toggle-select="toggleSelect(record.id)"
+          @edit="goEdit(record)"
+          @delete="handleDeleteOne(record.id)"
+        />
       </TransitionGroup>
 
       <div v-if="list.length === 0" class="toc-empty">
@@ -143,19 +87,13 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message, Empty } from 'ant-design-vue'
-import {
-  DeleteOutlined, PlusOutlined, EditOutlined,
-  MessageOutlined, ThunderboltFilled, CheckOutlined, PartitionOutlined
-} from '@ant-design/icons-vue'
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import InstanceForm from './InstanceForm.vue'
+import InstanceCard from './InstanceCard.vue'
 import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-
-dayjs.extend(relativeTime)
 
 const formVisible = ref(false)
 const currentRecord = ref<AiInstance | undefined>(undefined)
@@ -205,16 +143,12 @@ const handleBatchDelete = async () => {
   message.success('批量删除成功'); selectedRowKeys.value = []; fetchList()
 }
 
-const formatUpdateTime = (time?: string) => time ? dayjs(time).fromNow() : '—'
-const getModelIcon = (r: AiInstance) => r.modelType === 'embedding' ? PartitionOutlined : MessageOutlined
-const getModelTypeClass = (r: AiInstance) => r.modelType || 'chat'
-
 fetchList()
 </script>
 
 <style scoped>
 .astrsomn-config-container {
-  padding: 10px;
+  padding: 0 20px;
   background: transparent;
 }
 
@@ -258,166 +192,7 @@ fetchList()
   margin-top: 20px;
 }
 
-.toc-card {
-  background: #ffffff;
-  border-radius: 24px;
-  border: 1px solid #e2e8f0;
-  position: relative;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.05),
-    0 4px 10px rgba(15, 23, 42, 0.07),
-    0 10px 28px rgba(15, 23, 42, 0.08);
-}
-
-.toc-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow:
-    0 2px 4px rgba(15, 23, 42, 0.06),
-    0 8px 18px rgba(15, 23, 42, 0.1),
-    0 18px 44px rgba(15, 23, 42, 0.14),
-    0 0 0 1px rgba(59, 130, 246, 0.12);
-  border-color: #3b82f6;
-}
-
-.toc-card.is-selected {
-  background: #eff6ff;
-  border-color: #60a5fa;
-  box-shadow:
-    0 1px 2px rgba(37, 99, 235, 0.08),
-    0 6px 16px rgba(37, 99, 235, 0.14),
-    0 14px 36px rgba(37, 99, 235, 0.12);
-}
-
-/* 自定义 Checkbox */
-.toc-checkbox-wrapper {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 5;
-  cursor: pointer;
-}
-
-.custom-check {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  border: 2px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  background: white;
-}
-
-.custom-check.active {
-  background: #2563eb;
-  border-color: #1d4ed8;
-  color: white;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.45);
-}
-
-.toc-card-body {
-  padding: 24px;
-  cursor: pointer;
-  flex: 1;
-}
-
-/* 卡片头部 */
-.toc-card-header {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.type-icon-box {
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: white;
-  background: #64748b;
-}
-
-.type-icon-box.chat { background: linear-gradient(135deg, #2563eb, #3b82f6); }
-.type-icon-box.embedding { background: linear-gradient(135deg, #10b981, #34d399); }
-
-.title-area .name {
-  font-size: 17px;
-  font-weight: 800;
-  color: #1e293b;
-  margin: 0 0 4px 0;
-}
-
-.status-glow {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 10px;
-  border-radius: 20px;
-  background: #f1f5f9;
-}
-
-.status-glow.enabled { background: #dcfce7; color: #16a34a; }
-.status-glow .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-/* 动态预览条 */
-.dynamic-params-preview {
-  background: #f8fafc;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-.mini-progress-item {
-  margin-bottom: 12px;
-}
-.mini-progress-item:last-child { margin-bottom: 0; }
-
-.p-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  margin-bottom: 6px;
-  color: #64748b;
-}
-
-.p-track {
-  height: 6px;
-  background: #e2e8f0;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.p-thumb {
-  height: 100%;
-  border-radius: 3px;
-}
-
-.p-thumb.temp { background: #f59e0b; }
-.p-thumb.topp { background: #2563eb; }
-
-/* 底部操作 */
-.toc-card-footer {
-  padding: 12px 20px;
-  background: #fafafa;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border-top: 1px solid #f1f5f9;
-}
-
-.f-btn { font-weight: 600; color: #64748b; }
-
-/* --- 列表入场动画 --- */
+/* --- 列表入场动画（--delay 由 InstanceCard 根节点提供）--- */
 .list-stagger-enter-active {
   transition: all 0.5s ease;
   transition-delay: calc(var(--delay) * 0.05s);

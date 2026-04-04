@@ -29,6 +29,10 @@ export type AiAgent = {
   enableStream?: boolean
   /** queryPage 联表：对话实例背后的 AI_MODEL.MODEL_NAME */
   modelName?: string
+  /** queryPage 联表：对话模型 PROVIDER（厂商 code） */
+  modelProvider?: string
+  /** queryPage 子查询：SYSTEM_EXTENSION 中与厂商匹配的展示头像（SVG） */
+  providerAvatar?: string
   /** queryPage 联表：AI_PROMPT 当前版本标题 */
   promptTitle?: string
   toolNames?: string

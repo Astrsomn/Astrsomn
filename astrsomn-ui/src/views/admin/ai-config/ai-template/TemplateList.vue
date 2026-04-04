@@ -7,74 +7,19 @@
     <div class="template-page">
       <AdminListToolbar>
         <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.templateTitle"
-              placeholder="搜索模板标题"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-input
-              v-model:value="query.templateKey"
-              placeholder="Template Key"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><key-outlined /></template>
-            </a-input>
-          </div>
+          <ToolbarSearchPill
+            v-model="query.templateTitle"
+            placeholder="搜索模板标题"
+            @search="fetchList"
+          />
+          <TrioStateSwitch v-model="query.status" @change="fetchList" />
 
-          <div class="status-switch" role="group" aria-label="状态筛选">
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'enabled' }"
-              @click="toggleStatusFilter('enabled')"
-            >
-              <template #icon><check-circle-outlined /></template>
-              启用
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'disabled' }"
-              @click="toggleStatusFilter('disabled')"
-            >
-              <template #icon><stop-outlined /></template>
-              禁用
-            </a-button>
-          </div>
 
-          <a-button class="filter-toggle-btn" @click="showAdvanced = !showAdvanced">
-            <template #icon><filter-outlined /></template>
-            {{ showAdvanced ? '收起筛选' : '更多筛选' }}
-          </a-button>
+        
         </template>
 
         <template #right>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的模板吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量删除
-            </a-button>
-          </a-popconfirm>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+          <ToolbarSegmentedButton :buttons="segmentedButtons" />
         </template>
 
         <template v-if="showAdvanced" #extra>
@@ -177,6 +122,9 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import ToolbarSegmentedButton from '@/components/home/ToolbarSegmentedButton.vue'
+import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
 import TemplateFormModal from './TemplateFormModal.vue'
 import { aiTemplateApi, type AiTemplate, type PageResponse } from '@/api/aiTemplate.ts'
 
@@ -290,6 +238,32 @@ const modal = reactive({
 
 const modalInitial = ref<AiTemplate | null>(null)
 
+const segmentedButtons = computed(() => {
+  const buttons = [
+    {
+      label: '重置',
+      icon: FilterOutlined,
+      onClick: resetFilters
+    },
+    {
+      label: '新增',
+      icon: PlusOutlined,
+      type: 'primary',
+      onClick: openCreate
+    }
+  ]
+  
+  if (selectedRowKeys.value.length > 0) {
+    buttons.unshift({
+      label: '批量删除',
+      icon: DeleteOutlined,
+      onClick: handleBatchDelete
+    })
+  }
+  
+  return buttons
+})
+
 const fetchList = async () => {
   const payload = {
     pageNo: page.pageNum,
@@ -340,10 +314,13 @@ const handleDeleteOne = async (id: number | string) => {
 const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
-  const msg = await aiTemplateApi.delete(ids)
-  message.success(msg)
-  selectedRowKeys.value = []
-  void fetchList()
+  
+  if (confirm('确定批量删除选中的模板吗？')) {
+    const msg = await aiTemplateApi.delete(ids)
+    message.success(msg)
+    selectedRowKeys.value = []
+    void fetchList()
+  }
 }
 
 const handleFormSubmit = async (form: AiTemplate) => {
@@ -380,7 +357,7 @@ void fetchList()
 
 <style scoped>
 .template-page {
-  padding: 0 4px;
+  padding: 20px;
 }
 
 .search-cluster {

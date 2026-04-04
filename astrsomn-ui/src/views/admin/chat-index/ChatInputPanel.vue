@@ -23,23 +23,41 @@
 
             <div class="v-divider"></div>
 
-            <a-select
-              :value="selectedChatInstanceKey"
-              class="panel-select"
-              placeholder="选择对话实例"
-              :bordered="false"
-              dropdown-class-name="custom-dropdown"
-              :loading="optionsLoading"
-              @update:value="emit('update:selectedChatInstanceKey', $event)"
-            >
-              <a-select-option
-                v-for="inst in chatInstanceOptions"
-                :key="inst.instanceKey"
-                :value="inst.instanceKey"
+            <div class="instance-select-with-avatar">
+              <span
+                v-if="selectedChatInstanceAvatarHtml"
+                class="inst-select-inline-avatar"
+                v-html="selectedChatInstanceAvatarHtml"
+                aria-hidden="true"
+              />
+              <a-select
+                :value="selectedChatInstanceKey"
+                class="panel-select instance-select-inner"
+                placeholder="选择对话实例"
+                :bordered="false"
+                dropdown-class-name="custom-dropdown"
+                option-label-prop="label"
+                :loading="optionsLoading"
+                @update:value="emit('update:selectedChatInstanceKey', $event)"
               >
-                {{ inst.instanceName || inst.instanceKey }}
-              </a-select-option>
-            </a-select>
+                <a-select-option
+                  v-for="inst in chatInstanceOptions"
+                  :key="inst.instanceKey"
+                  :value="inst.instanceKey"
+                  :label="inst.instanceName || inst.instanceKey"
+                >
+                  <span class="inst-opt-row">
+                    <span
+                      v-if="instanceAvatarHtml(inst)"
+                      class="inst-opt-avatar"
+                      v-html="instanceAvatarHtml(inst)"
+                      aria-hidden="true"
+                    />
+                    <span class="inst-opt-text">{{ inst.instanceName || inst.instanceKey }}</span>
+                  </span>
+                </a-select-option>
+              </a-select>
+            </div>
           </div>
         </div>
 
@@ -115,7 +133,7 @@ import {
 } from '@ant-design/icons-vue'
 import type { AiAgent } from '@/api/aiAgent.ts'
 import type { AiInstance } from '@/api/aiInstance.ts'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps<{
   selectedAgent?: string
@@ -139,6 +157,20 @@ const emit = defineEmits<{
   submit: [text: string]
   stop: []
 }>()
+
+function instanceAvatarHtml(inst: AiInstance): string {
+  const raw = inst.providerAvatar
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+}
+
+const selectedChatInstance = computed(() =>
+  props.chatInstanceOptions.find((i) => i.instanceKey === props.selectedChatInstanceKey)
+)
+
+const selectedChatInstanceAvatarHtml = computed(() => {
+  const inst = selectedChatInstance.value
+  return inst ? instanceAvatarHtml(inst) : ''
+})
 
 /** 本地草稿：与父级 userInput 同步，但发送时先在此清空，避免仅依赖 v-model 时 a-textarea 不刷新 */
 const draft = ref('')
@@ -233,6 +265,32 @@ const handleEnter = (e: KeyboardEvent) => {
   background: var(--border-default);
 }
 
+.instance-select-with-avatar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 280px;
+}
+
+.inst-select-inline-avatar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inst-select-inline-avatar :deep(svg) {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.instance-select-inner.panel-select {
+  flex: 1;
+  min-width: 0;
+}
+
 .panel-select {
   min-width: 100px;
   font-size: 13px;
@@ -241,6 +299,34 @@ const handleEnter = (e: KeyboardEvent) => {
 
 .panel-select :deep(.ant-select-selection-item) {
   color: var(--text-secondary) !important;
+}
+
+/* 下拉挂载到 body，需全局类名 */
+:global(.custom-dropdown .inst-opt-row) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+:global(.custom-dropdown .inst-opt-avatar) {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:global(.custom-dropdown .inst-opt-avatar svg) {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+:global(.custom-dropdown .inst-opt-text) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .input-body {

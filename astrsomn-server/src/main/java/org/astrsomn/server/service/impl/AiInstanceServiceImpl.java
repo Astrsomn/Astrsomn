@@ -48,12 +48,10 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
 
     @Override
     public BaseResponse<AiInstanceResponseDTO> detail(Long id) {
-        AiInstanceEntity entity = getById(id);
-        if (entity == null) {
+        AiInstanceResponseDTO dto = baseMapper.selectDetailDtoById(id);
+        if (dto == null) {
             return BaseResponse.fail("记录不存在", null);
         }
-        AiInstanceResponseDTO dto = new AiInstanceResponseDTO();
-        BeanUtils.copyProperties(entity, dto);
         return BaseResponse.success(dto);
     }
 

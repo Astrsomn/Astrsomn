@@ -107,7 +107,7 @@ import {
 
 interface AiAccount {
   id?: number | string; accountName?: string; envCode?: string;
-  apiKey?: string; apiSecret?: string; accountTokens?: number;
+  apiKey?: string; apiSecret?: string; accountTokens?: number | null;
   createTime?: string; createUser?: string; usedModelNames?: string; usedModelKeys?: string;
 }
 
@@ -115,8 +115,8 @@ const props = defineProps<{ account: AiAccount }>()
 const emit = defineEmits(['edit', 'delete', 'show-models'])
 
 const maskSecret = (v?: string) => v ? `${v.slice(0, 6)}***${v.slice(-4)}` : '••••-••••'
-const formatTokens = (t?: number) => {
-  if (t === undefined) return '0'
+const formatTokens = (t?: number | null) => {
+  if (t == null) return '0'
   return t >= 1000 ? (t / 1000).toFixed(1) + 'k' : t.toString()
 }
 const formatTime = (t?: string) => t ? t.split('T')[0] : 'N/A'

@@ -286,7 +286,7 @@ void fetchList()
 
 <style scoped>
 .env-page {
-  padding: 0 4px;
+  padding: 20px;
 }
 
 .search-cluster {
