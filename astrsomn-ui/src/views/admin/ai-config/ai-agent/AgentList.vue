@@ -34,13 +34,7 @@
         </div>
 
         <div class="toolbar-right">
-          <div class="toolbar-action-pair">
-            <a-button class="toolbar-seg-btn toolbar-seg-reset" @click="resetFilters">重置</a-button>
-            <a-button type="primary" class="toolbar-seg-btn toolbar-seg-add" @click="openCreate">
-              <template #icon><PlusOutlined /></template>
-              新增
-            </a-button>
-          </div>
+          <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
         </div>
       </div>
 
@@ -98,10 +92,11 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { CheckCircleOutlined, PlusOutlined, StopOutlined } from '@ant-design/icons-vue'
+import { CheckCircleOutlined, PlusOutlined, ReloadOutlined, StopOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
 import AgentCard from './AgentCard.vue'
 import AgentForm from './AgentForm.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
@@ -194,6 +189,11 @@ const openCreate = () => {
   assemblyVisible.value = true
 }
 
+const toolbarSegmentButtons: SegmentedButton[] = [
+  { label: '重置', icon: ReloadOutlined, onClick: resetFilters },
+  { label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate },
+]
+
 const openEdit = async (record: AiAgent) => {
   const id = record.id
   if (id == null) return
@@ -262,7 +262,7 @@ void fetchList()
 
 <style scoped>
 .agent-page {
-  padding: 0 2px 0;
+  padding: 20px;
   margin-top: -8px;
 }
 
@@ -291,58 +291,6 @@ void fetchList()
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
-}
-
-.toolbar-action-pair {
-  display: inline-flex;
-  align-items: stretch;
-}
-
-.toolbar-seg-btn {
-  height: 44px;
-  min-width: 100px;
-  padding: 0 22px;
-  font-weight: 600;
-}
-
-.toolbar-action-pair :deep(.toolbar-seg-reset.ant-btn) {
-  border-top-left-radius: 14px;
-  border-bottom-left-radius: 14px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  color: #475569;
-  border-color: #cbd5e1;
-  background: #fff;
-  border-right: none;
-  box-shadow: none;
-}
-
-.toolbar-action-pair :deep(.toolbar-seg-reset.ant-btn:hover) {
-  color: #334155;
-  border-color: #94a3b8;
-  background: #f8fafc;
-}
-
-.toolbar-action-pair :deep(.toolbar-seg-add.ant-btn) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: 14px;
-  border-bottom-right-radius: 14px;
-  margin-left: -1px;
-  border: none;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  color: #fff;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.18) inset,
-    0 3px 6px rgba(29, 78, 216, 0.4),
-    0 10px 24px rgba(37, 99, 235, 0.32);
-}
-
-.toolbar-action-pair :deep(.toolbar-seg-add.ant-btn-primary) {
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.18) inset,
-    0 3px 6px rgba(29, 78, 216, 0.4),
-    0 10px 24px rgba(37, 99, 235, 0.32);
 }
 
 .danger-btn {
@@ -434,12 +382,11 @@ void fetchList()
     width: 100%;
   }
 
-  .toolbar-action-pair {
+  .toolbar-right :deep(.toolbar-segmented-btn) {
     width: 100%;
   }
 
-  .toolbar-action-pair :deep(.toolbar-seg-reset.ant-btn),
-  .toolbar-action-pair :deep(.toolbar-seg-add.ant-btn) {
+  .toolbar-right :deep(.seg-btn) {
     flex: 1;
   }
 

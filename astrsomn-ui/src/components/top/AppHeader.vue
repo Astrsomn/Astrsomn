@@ -137,7 +137,6 @@ const handleLogin = () => {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 1600px;
   margin: 0 auto;
   padding: 0 24px;
 }

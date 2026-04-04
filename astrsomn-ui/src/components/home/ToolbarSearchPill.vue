@@ -58,24 +58,18 @@ function emitSearch() {
 .toolbar-search-pill {
   height: 52px;
   background: #fff;
-  border-radius: 26px;
+  border-radius: var(--radius-pro, 30px);
   padding: 0 8px 0 20px;
   display: flex;
   align-items: center;
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.06),
-    0 4px 12px rgba(15, 23, 42, 0.08),
-    0 12px 28px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-overview);
   border: 1px solid #e2e8f0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toolbar-search-pill:focus-within {
   border-color: #3b82f6;
-  box-shadow:
-    0 0 0 3px rgba(59, 130, 246, 0.22),
-    0 4px 14px rgba(37, 99, 235, 0.2),
-    0 14px 32px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--shadow-overview), 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
 .toolbar-search-pill--toolbar {
@@ -125,10 +119,7 @@ function emitSearch() {
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.2) inset,
-    0 2px 4px rgba(29, 78, 216, 0.35),
-    0 6px 14px rgba(37, 99, 235, 0.28);
+  box-shadow: var(--shadow-overview);
 }
 
 .toolbar-search-pill--fluid .toolbar-search-pill__btn {

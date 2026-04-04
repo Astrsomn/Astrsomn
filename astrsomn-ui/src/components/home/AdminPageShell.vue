@@ -25,7 +25,5 @@ withDefaults(
 .page-content {
   min-height: calc(100vh - 70px);
   border-radius: var(--radius-sm);
-  padding: 24px;
-
 }
 </style>
