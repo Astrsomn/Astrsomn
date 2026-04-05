@@ -1,7 +1,11 @@
 <template>
   <div class="console-home-root demo-dashboard">
     <main class="dashboard-home-main">
-      <DashboardHomeGrid :edit-mode="layoutEditMode" :entry-by-route="entryByRoute" />
+      <DashboardHomeGrid 
+        :edit-mode="layoutEditMode" 
+        :entry-by-route="entryByRoute" 
+        @update:layout="updateCurrentLayout"
+      />
     </main>
 
     <div class="fab-wrap">
@@ -12,6 +16,14 @@
           @click="confirmResetLayout"
         >
           恢复默认布局
+        </button>
+        <button
+          v-if="layoutEditMode"
+          type="button"
+          class="toolbar-btn"
+          @click="copyCurrentLayout"
+        >
+          复制布局JSON
         </button>
          <button type="button" class="toolbar-btn toolbar-btn--primary" @click="layoutEditMode = !layoutEditMode">
           {{ layoutEditMode ? '完成编辑' : '编辑布局' }}
@@ -36,10 +48,12 @@ import { Modal, message } from 'ant-design-vue'
 import type { ManagementEntry } from './resource-library/management.ts'
 import { getCurrentUserRole, resolveManagementGroups } from './resource-library/management.ts'
 import DashboardHomeGrid from './backend/DashboardHomeGrid.vue'
-import { resetDashboardLayoutToDefault } from './backend/core/dashboardLayoutStorage'
+import { resetDashboardLayoutToDefault, loadDashboardLayoutItems } from './backend/core/dashboardLayoutStorage'
+import type { DashboardLayoutItem } from './backend/types/dashboardLayoutTypes'
 
 const router = useRouter()
 const layoutEditMode = ref(false)
+const currentLayout = ref<DashboardLayoutItem[]>(loadDashboardLayoutItems())
 
 const currentRole = computed(() => getCurrentUserRole())
 const managementGroups = computed(() => resolveManagementGroups(currentRole.value))
@@ -58,6 +72,10 @@ const navigateTo = (path: string) => {
   void router.push(path)
 }
 
+const updateCurrentLayout = (layout: DashboardLayoutItem[]) => {
+  currentLayout.value = layout
+}
+
 const confirmResetLayout = () => {
   Modal.confirm({
     title: '恢复默认布局？',
@@ -69,6 +87,27 @@ const confirmResetLayout = () => {
       message.success('已恢复默认布局')
     },
   })
+}
+
+const copyCurrentLayout = () => {
+  try {
+    const layoutJson = JSON.stringify(currentLayout.value, null, 2)
+    navigator.clipboard.writeText(layoutJson).then(() => {
+      message.success('布局JSON已复制到剪贴板')
+    }).catch(() => {
+      // 降级方案：创建临时文本区域
+      const textArea = document.createElement('textarea')
+      textArea.value = layoutJson
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      message.success('布局JSON已复制到剪贴板')
+    })
+  } catch (error) {
+    message.error('复制布局失败，请重试')
+    console.error('Failed to copy layout:', error)
+  }
 }
 </script>
 

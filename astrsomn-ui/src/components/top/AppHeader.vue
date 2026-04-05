@@ -266,7 +266,7 @@ const handleLogin = () => {
   width: 32px;
   height: 32px;
   border: 1px solid var(--border-default);
-
+  background-color: var(--bg-card);
   color: var(--text-primary);
   border-radius: var(--radius-max);
   cursor: pointer;

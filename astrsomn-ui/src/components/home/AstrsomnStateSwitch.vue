@@ -39,7 +39,7 @@ const props = withDefaults(defineProps<{
   }>;
 }>(), {
   options: () => [
-    { label: '全部', value: undefined, color: '#3b82f6', icon: AppstoreOutlined },
+    { label: '全部', value: undefined, color: '#1676fd', icon: AppstoreOutlined },
     { label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
     { label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined },
   ]
@@ -65,7 +65,7 @@ const activeIndex = computed(() => {
 
 // 计算当前激活的主题色
 const activeColor = computed(() => {
-  return options[activeIndex.value]?.color || '#6366f1';
+  return options[activeIndex.value]?.color || '#1676fd';
 });
 
 // 切换处理

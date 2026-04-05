@@ -72,12 +72,7 @@ const handleClick = () => {
 <style scoped>
 /* 核心变量定义 - 建议在全局主题文件中配置，此处为局部回退 */
 .slot-wrapper {
-  --primary: #3b82f6;
-  --bg-card: #ffffff;
-  --text-heading: #1e293b;
-  --text-muted: #64748b;
-  --border-subtle: #f1f5f9;
-  
+
   min-width: 0;
   position: relative;
   display: block;

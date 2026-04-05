@@ -136,26 +136,20 @@ const emitShowModels = () => emit('show-models', props.account)
 :deep(.ant-card-body) { padding: 0; }
 
 .c-side-card {
-  --primary-gradient: var(--primary-gradient);
-  --token-bg: var(--bg-elevated);
-  --tag-bg: var(--primary-hover);
-  --text-main: var(--text-heading);
-  --text-sub: var(--text-muted);
-  
   position: relative;
   border-radius: 24px; /* 超大圆角 */
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   box-shadow: var(--shadow-card);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 带有弹性的过渡 */
+  transition: var(--transition-pop); /* 带有弹性的过渡 */
   overflow: hidden;
   margin-bottom: 20px;
 }
 
 .c-side-card:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-card);
-  border-color: var(--primary-light);
+  box-shadow: var(--shadow-overview);
+  border-color: var(--primary);
 }
 
 /* 背景装饰球 */
@@ -168,12 +162,12 @@ const emitShowModels = () => emit('show-models', props.account)
 }
 .bubble-1 {
   width: 100px; height: 100px;
-  background: rgba(165, 180, 252, 0.3);
+  background: rgba(59, 130, 246, 0.3);
   top: -40px; right: -30px;
 }
 .bubble-2 {
   width: 80px; height: 80px;
-  background: rgba(251, 207, 232, 0.3);
+  background: rgba(16, 185, 129, 0.3);
   bottom: -30px; left: -20px;
 }
 
@@ -204,19 +198,19 @@ const emitShowModels = () => emit('show-models', props.account)
   color: white;
   display: flex; align-items: center; justify-content: center;
   font-size: 22px;
-  box-shadow: 0 4px 10px rgba(118, 75, 162, 0.3);
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
 }
 
 .text-info { display: flex; flex-direction: column; gap: 2px; }
 
 .account-title {
-  margin: 0; font-size: 18px; font-weight: 700; color: var(--text-main);
+  margin: 0; font-size: 18px; font-weight: 700; color: var(--text-primary);
   max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 .meta-under-title {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: var(--text-sub);
+  font-size: 12px; color: var(--text-secondary);
 }
 .meta-under-title .divider { color: var(--border-default); }
 
@@ -227,9 +221,9 @@ const emitShowModels = () => emit('show-models', props.account)
   text-transform: uppercase; letter-spacing: 0.5px;
 }
 /* PROD 使用清爽的紫色，DEV 使用柔和的蓝色 */
-.c-env-tag.prod { background: var(--primary-hover); color: var(--text-heading); border: 1px solid var(--primary); }
-.c-env-tag.dev { background: var(--primary-hover); color: var(--text-heading); border: 1px solid var(--primary); }
-.c-env-tag:not(.prod):not(.dev) { background: var(--bg-input); color: var(--text-muted); }
+.c-env-tag.prod { background: var(--primary-hover); color: var(--primary); border: 1px solid var(--primary); }
+.c-env-tag.dev { background: var(--primary-hover); color: var(--primary); border: 1px solid var(--primary); }
+.c-env-tag:not(.prod):not(.dev) { background: var(--bg-elevated); color: var(--text-secondary); }
 
 .c-live-dot {
   width: 10px; height: 10px;
@@ -242,41 +236,41 @@ const emitShowModels = () => emit('show-models', props.account)
 
 /* 核心 Token 区：像一个精美的流量包卡片 */
 .token-section {
-  background: var(--token-bg);
+
   border-radius: 16px;
   padding: 16px 20px;
   margin-bottom: 20px;
-  border: 1px solid var(--primary);
+  border: 1px solid var(--border-default);
 }
 
 .token-label {
-  font-size: 12px; color: var(--primary); /* 粉色调 */
+  font-size: 12px; color: var(--primary);
   font-weight: 600; display: flex; align-items: center; gap: 5px;
   margin-bottom: 8px;
 }
 
 .token-value-wrapper {
   display: flex; align-items: baseline;
-  color: var(--primary); /* 稍深的粉色 */
+  color: var(--text-primary);
 }
 .token-num { font-size: 36px; font-weight: 800; line-height: 1; font-family: 'Poppins', sans-serif; }
 .token-decimal { font-size: 20px; font-weight: 700; opacity: 0.8; }
-.token-unit { font-size: 14px; font-weight: 600; margin-left: 6px; color: var(--primary); opacity: 0.7; }
+.token-unit { font-size: 14px; font-weight: 600; margin-left: 6px; color: var(--text-secondary); }
 
 .token-progress {
-  height: 6px; background: var(--bg-input); border-radius: 99px;
+  height: 6px; background: var(--border-default); border-radius: 99px;
   margin-top: 10px; overflow: hidden;
 }
 .progress-bar {
   height: 100%;
-  background: var(--primary-gradient); /* 粉色渐变 */
+  background: var(--primary-gradient);
   border-radius: 99px;
 }
 
 /* 详情区：模块化、干净 */
 .details-section {
   display: flex; flex-direction: column; gap: 16px;
-  background: var(--bg-elevated); /* 极浅灰底色区隔 */
+
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 24px;
@@ -285,18 +279,18 @@ const emitShowModels = () => emit('show-models', props.account)
 .detail-item { display: flex; flex-direction: column; gap: 8px; }
 
 .item-label {
-  font-size: 12px; font-weight: 600; color: var(--text-sub);
+  font-size: 12px; font-weight: 600; color: var(--text-secondary);
   text-transform: uppercase; letter-spacing: 0.5px;
 }
 
 /* 模型标签：莫兰迪色系/冰淇淋色系 */
 .model-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .pastel-tag {
-  background: var(--tag-bg); color: var(--primary);
+  background: var(--primary-hover); color: var(--primary);
   padding: 3px 10px; border-radius: 8px; font-size: 12px;
   font-weight: 500; border: 1px solid var(--primary);
 }
-.more-text { font-size: 12px; color: var(--text-sub); cursor: pointer; font-weight: 600; }
+.more-text { font-size: 12px; color: var(--text-secondary); cursor: pointer; font-weight: 600; }
 .manage-btn { padding: 0; height: auto; font-size: 12px; margin-left: auto; color: var(--primary); }
 
 /* 密钥：单色、代码感 */
@@ -305,8 +299,8 @@ const emitShowModels = () => emit('show-models', props.account)
   display: flex; align-items: center; gap: 8px;
   background: var(--bg-card); padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border-default);
 }
-.k-icon { color: var(--text-muted); font-size: 12px; }
-.key-mono code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); letter-spacing: 0.5px; }
+.k-icon { color: var(--text-secondary); font-size: 12px; }
+.key-mono code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); letter-spacing: 0.5px; }
 
 /* 操作按钮：悬浮流式设计 */
 .card-actions {
@@ -327,27 +321,27 @@ const emitShowModels = () => emit('show-models', props.account)
   width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 10px;
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(4px); /* 毛玻璃效果 */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  color: var(--text-sub);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-card);
+  color: var(--text-secondary);
   transition: all 0.2s;
+  border: 1px solid var(--border-default);
 }
 .action-btn:hover { transform: scale(1.1); }
-.action-btn.edit:hover { background: var(--primary-hover); color: var(--primary); }
-.action-btn.delete:hover { background: var(--error); color: var(--text-heading); }
+.action-btn.edit:hover { background: var(--primary-hover); color: var(--primary); border-color: var(--primary); }
+.action-btn.delete:hover { background: rgba(239, 68, 68, 0.1); color: var(--error); border-color: var(--error); }
 
 /* 动画定义 */
 @keyframes live-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
-  70% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
 @keyframes live-pulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7), 0 0 10px #4ade80; }
-  70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(74, 222, 128, 0), 0 0 10px #4ade80; }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0), 0 0 10px #4ade80; }
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7), 0 0 10px var(--success); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0), 0 0 10px var(--success); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), 0 0 10px var(--success); }
 }
 
 /* 引入谷歌字体，增加数字的 C 端高级感 (实际项目中在 HTML head 引入) */

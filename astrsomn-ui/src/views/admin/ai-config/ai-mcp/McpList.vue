@@ -22,7 +22,7 @@
             v-model="query.enabled" 
             @change="fetchList"
             :options="[
-              { label: '全部', value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
+              { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
               { label: '启用', value: 1, color: '#10b981', icon: CheckCircleOutlined },
               { label: '禁用', value: 0, color: '#f43f5e', icon: StopOutlined }
             ]"
