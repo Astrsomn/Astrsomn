@@ -624,7 +624,8 @@ const fetchModels = async () => {
       pageNo: 1,
       pageSize: 1000,
       param: {
-        supplier: providerFilter.value?.trim() || undefined
+        supplier: providerFilter.value?.trim() || undefined,
+        status: 'enabled'
       }
     });
     modelList.value = res.list || [];

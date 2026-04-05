@@ -101,9 +101,7 @@ public class SystemExtensionController extends BaseController {
         return systemExtensionService.uninstall(id);
     }
 
-    /**
-     * 模型类扩展：将当前环境下该厂商全部 AI 模型状态设为 disabled。
-     */
+
     @PostMapping("/disable-provider-models")
     public BaseResponse<String> disableProviderModels(@RequestParam("id") Long id) {
         return systemExtensionModelGuard.disableAllModelsForExtension(id);

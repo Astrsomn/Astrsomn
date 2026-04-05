@@ -7,8 +7,12 @@
       :disabled="Boolean(btn.disabled || btn.loading)"
       :class="[
         'seg-btn',
-        btn.type === 'primary' ? 'seg-btn-primary' : 'seg-btn-default',
-        { 'seg-btn-first': index === 0, 'seg-btn-last': index === buttons.length - 1 }
+        btn.type ? `seg-btn-${btn.type}` : 'seg-btn-default',
+        { 
+          'seg-btn-first': index === 0, 
+          'seg-btn-last': index === buttons.length - 1,
+          'seg-btn-plain': btn.plain
+        }
       ]"
       @click="btn.onClick"
     >
@@ -25,10 +29,11 @@ import type { Component } from 'vue'
 
 export interface SegmentedButton {
   label: string
-  type?: 'default' | 'primary'
+  type?: 'default' | 'primary' | 'danger' | 'warning' | 'success'
   icon?: Component
   disabled?: boolean
   loading?: boolean
+  plain?: boolean
   onClick?: () => void
 }
 
@@ -85,6 +90,69 @@ defineProps<{
   border-color: var(--primary-light, #60a5fa);
 }
 
+.seg-btn-danger {
+  background: var(--error, #ef4444);
+  color: #ffffff;
+  border-color: var(--error, #ef4444);
+}
+
+.seg-btn-danger:hover:not(:disabled) {
+  background: var(--error-light, #f87171);
+  border-color: var(--error-light, #f87171);
+}
+
+.seg-btn-warning {
+  background: var(--warning, #f59e0b);
+  color: #ffffff;
+  border-color: var(--warning, #f59e0b);
+}
+
+.seg-btn-warning:hover:not(:disabled) {
+  background: var(--warning-light, #fbbf24);
+  border-color: var(--warning-light, #fbbf24);
+}
+
+.seg-btn-success {
+  background: var(--success, #10b981);
+  color: #ffffff;
+  border-color: var(--success, #10b981);
+}
+
+.seg-btn-success:hover:not(:disabled) {
+  background: var(--success-light, #34d399);
+  border-color: var(--success-light, #34d399);
+}
+
+.seg-btn-plain {
+  background: transparent !important;
+  border-color: var(--border-subtle, rgba(255, 255, 255, 0.06)) !important;
+}
+
+.seg-btn-plain.seg-btn-default {
+  color: var(--text-secondary, #7b93b6);
+}
+
+.seg-btn-plain.seg-btn-primary {
+  color: var(--primary, #3b82f6);
+}
+
+.seg-btn-plain.seg-btn-danger {
+  color: var(--error, #ef4444);
+}
+
+.seg-btn-plain.seg-btn-warning {
+  color: var(--warning, #f59e0b);
+}
+
+.seg-btn-plain.seg-btn-success {
+  color: var(--success, #10b981);
+}
+
+.seg-btn-plain:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 8%, transparent) !important;
+  border-color: color-mix(in srgb, currentColor 32%, var(--border-subtle)) !important;
+}
+
 .seg-btn:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -94,7 +162,10 @@ defineProps<{
   color: var(--text-muted, #64748b);
 }
 
-.seg-btn-primary:disabled {
+.seg-btn-primary:disabled,
+.seg-btn-danger:disabled,
+.seg-btn-warning:disabled,
+.seg-btn-success:disabled {
   opacity: 0.65;
 }
 

@@ -7,50 +7,20 @@
     <div class="env-page">
       <AdminListToolbar>
         <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.envName"
+  
+            <ToolbarSearchPill
+              v-model="query.envName"
               placeholder="搜索环境名称"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-input
-              v-model:value="query.envCode"
-              placeholder="环境 Key"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><key-outlined /></template>
-            </a-input>
-          </div>
+              button-label="搜索"
+              layout="toolbar"
+              @search="fetchList"
+            />
+       
+
         </template>
 
         <template #right>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的环境吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量删除
-            </a-button>
-          </a-popconfirm>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+          <ToolbarSegmentedButton :buttons="actionButtons" />
         </template>
       </AdminListToolbar>
 
@@ -114,16 +84,16 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import {
   DeleteOutlined,
-  KeyOutlined,
-  PlusOutlined,
-  SearchOutlined
+  PlusOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
 import EnvFormModal from './EnvFormModal.vue'
 import { systemEnvApi, type SystemEnv, type PageResponse } from '@/api/systemEnv.ts'
 
@@ -156,6 +126,31 @@ const page = reactive({
 })
 
 const selectedRowKeys = ref<Array<number | string>>([])
+
+const actionButtons = computed<SegmentedButton[]>(() => [
+
+  {
+    label: '批量删除',
+    type: 'danger',
+    icon: DeleteOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: handleBatchDelete,
+    plain: true
+  },
+  {
+    label: '重置',
+    type: 'primary',
+    onClick: resetFilters,
+    plain: true
+  },
+  {
+    label: '新增',
+    type: 'primary',
+    icon: PlusOutlined,
+    onClick: openCreate,
+    plain: false
+  }
+])
 
 const currentPageIds = computed(() =>
   list.value
@@ -251,10 +246,25 @@ const handleDeleteOne = async (id: number | string) => {
 const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
-  const msg = await systemEnvApi.delete(ids)
-  message.success(msg)
-  selectedRowKeys.value = []
-  void fetchList()
+  
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const modal = Modal.confirm({
+        title: '确定批量删除选中的环境吗？',
+        okText: '确认',
+        cancelText: '取消',
+        onOk: () => resolve(),
+        onCancel: () => reject(new Error('取消删除'))
+      })
+    })
+    
+    const msg = await systemEnvApi.delete(ids)
+    message.success(msg)
+    selectedRowKeys.value = []
+    void fetchList()
+  } catch (error) {
+    // 用户取消删除，不执行任何操作
+  }
 }
 
 const handleFormSubmit = async (form: SystemEnv) => {

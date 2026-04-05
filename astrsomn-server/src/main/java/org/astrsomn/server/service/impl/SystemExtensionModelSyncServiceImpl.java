@@ -13,6 +13,7 @@ import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.ModelProviderHandler;
+import org.astrsomn.core.common.util.CollectionUtils;
 import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
@@ -47,13 +48,13 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
     @Override
     public BaseResponse<String> loadModels(Long extensionId, String modelKeys) {
         BaseResponse<LoadSyncContext> ctxResp = resolveLoadSyncContext(extensionId);
-        if (!ctxResp.isSuccess() || ctxResp.getData() == null) {
+        if (!ctxResp.isSuccess() || Objects.isNull(ctxResp.getData())) {
             return BaseResponse.fail(ctxResp.getMessage(), null);
         }
         LoadSyncContext ctx = ctxResp.getData();
 
         List<AiModelEntity> available = ctx.handler().getAvailableModels();
-        if (available == null || available.isEmpty()) {
+        if (CollectionUtils.isEmpty(available)) {
             return BaseResponse.success("厂商未返回可用模型清单");
         }
 
@@ -93,15 +94,16 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 continue;
             }
 
-            AiModelCreateRequestDTO dto = new AiModelCreateRequestDTO();
+            AiModelEntity dto = new AiModelEntity();
             BeanUtils.copyProperties(src, dto);
             dto.setId(null);
             dto.setModelKey(modelKey);
             dto.setProvider(rowProvider);
             dto.setEnvCode(ctx.envCode());
 
-            BaseResponse<String> created = aiModelService.create(dto);
-            if (created.isSuccess()) {
+            boolean result = aiModelService.save(dto);
+
+            if (result) {
                 added++;
             } else {
                 skipped++;
@@ -276,12 +278,9 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
         ProviderEnv pe = peResp.getData();
 
         Optional<ModelProviderHandler> handlerOpt = astroModelFactory.getHandler(pe.providerCode());
-        if (handlerOpt.isEmpty()) {
-            return BaseResponse.fail(
-                    "当前运行时未加载该厂商的 ModelProviderHandler（SPI）: " + pe.providerCode(), null);
-        }
+        return handlerOpt.map(modelProviderHandler -> BaseResponse.success(new LoadSyncContext(pe.providerCode(), pe.envCode(), modelProviderHandler))).orElseGet(() -> BaseResponse.fail(
+                "当前运行时未加载该厂商的 ModelProviderHandler（SPI）: " + pe.providerCode(), null));
 
-        return BaseResponse.success(new LoadSyncContext(pe.providerCode(), pe.envCode(), handlerOpt.get()));
     }
 
     private static ExtensionModelSyncPreviewRowDTO toPreviewRow(AiModelEntity src, String fallbackProvider) {

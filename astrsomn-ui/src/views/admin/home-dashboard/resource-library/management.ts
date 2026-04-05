@@ -1,5 +1,5 @@
-import {markRaw} from 'vue'
-import type {Component} from 'vue'
+import { markRaw } from 'vue'
+import type { Component } from 'vue'
 import {
     TeamOutlined,
     ContainerOutlined,
@@ -12,7 +12,9 @@ import {
     SecurityScanOutlined,
     LineChartOutlined,
     NodeIndexOutlined,
- BuildOutlined, ControlOutlined, SafetyOutlined,
+    BuildOutlined,
+    ControlOutlined,
+    SafetyOutlined,
 } from '@ant-design/icons-vue'
 
 export type EntryAccent =
@@ -47,6 +49,9 @@ export type ManagementGroup = {
     items: ManagementEntry[]
 }
 
+/**
+ * 获取当前用户角色
+ */
 export function getCurrentUserRole(): string | undefined {
     try {
         const raw = localStorage.getItem('userInfo')
@@ -57,15 +62,22 @@ export function getCurrentUserRole(): string | undefined {
     }
 }
 
+/**
+ * 权限可见性过滤逻辑
+ */
 function entryVisibleForRole(entry: ManagementEntry, isSuper: boolean): boolean {
     if (isSuper) return true
+    // 普通管理员不可见用户管理与环境配置
     return entry.route !== '/admin/users' && entry.route !== '/admin/env'
 }
 
+/**
+ * 资源配置定义
+ */
 const managementGroupsAll: ManagementGroup[] = [
     {
         id: 'ai-core',
-        title: 'AI 核心编排', // 强化“编排”概念，突出工业感
+        title: 'AI 核心编排',
         subtitle: '从底层算力凭证到高层智能体，构建完整的推理执行链路',
         items: [
             {
@@ -74,31 +86,31 @@ const managementGroupsAll: ManagementGroup[] = [
                 description: '多模态大脑封装，关联工作流与工具链路',
                 icon: markRaw(TeamOutlined),
                 route: '/admin/agents',
-                accent: 'primary',
+                accent: 'brand', // 核心入口使用品牌色
             },
             {
                 key: 'ai-instance',
-                label: '推理配置 (Profiles)', // 建议改名：Instance 是具体化的参数集，叫“配置/预设”更直观
+                label: '推理配置 (Profiles)',
                 description: '定义模型运行参数（温度、采样、Token 限制等）',
-                icon: markRaw(ControlOutlined), // 换成“控制台”图标，暗示调节参数
+                icon: markRaw(ControlOutlined),
                 route: '/admin/ai-instance',
-                accent: 'mint',
+                accent: 'indigo', // 逻辑配置使用深色靛蓝
             },
             {
                 key: 'models',
-                label: '模型接入 (Endpoints)', // 建议改名：强调它是“端点/接口”，解决“路通不通”
+                label: '模型接入 (Endpoints)',
                 description: '定义供应商 API 路径、模型类型与能力映射',
-                icon: markRaw(NodeIndexOutlined), // 换成“节点”图标，暗示连接
+                icon: markRaw(NodeIndexOutlined),
                 route: '/admin/models',
-                accent: 'blue',
+                accent: 'blue', // 连接层使用标准蓝
             },
             {
                 key: 'ai-account',
-                label: '凭证管理 (Credentials)', // 建议改名：强调它是“身份/钱”，解决“有没有权限”
+                label: '凭证管理 (Credentials)',
                 description: '维护供应商 API_KEY、密钥凭证与账户额度',
-                icon: markRaw(SafetyOutlined), // 换成“安全/护盾”图标
+                icon: markRaw(SafetyOutlined),
                 route: '/admin/ai-account',
-                accent: 'blue',
+                accent: 'sky', // 权限层使用天蓝色，显轻盈
             },
             {
                 key: 'mcp',
@@ -106,15 +118,15 @@ const managementGroupsAll: ManagementGroup[] = [
                 description: '管理 Model Context Protocol 服务连接与健康度',
                 icon: markRaw(ContainerOutlined),
                 route: '/admin/mcp',
-                accent: 'ocean',
+                accent: 'ocean', // 协议层使用深邃海蓝
             },
             {
                 key: 'tools',
                 label: '工具插件 (Tools)',
                 description: '维护函数调用定义、API 工具与权限策略',
-                icon: markRaw(BuildOutlined), // 换成“构建”图标
+                icon: markRaw(BuildOutlined),
                 route: '/admin/tools',
-                accent: 'blue',
+                accent: 'cyan', // 扩展工具使用青色
             },
             {
                 key: 'prompts',
@@ -122,7 +134,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 description: '系统级提示词编排、版本快照与预设模板',
                 icon: markRaw(FileTextOutlined),
                 route: '/admin/prompts',
-                accent: 'mint',
+                accent: 'mint', // 内容输入使用清新薄荷色
                 highlight: true,
             },
         ],
@@ -146,7 +158,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 description: '管理知识库空间与索引配置',
                 icon: markRaw(BookOutlined),
                 route: '/admin/knowledge-bases',
-                accent: 'teal',
+                accent: 'teal', // 知识沉淀使用深青色
             },
             {
                 key: 'doc-mgr',
@@ -154,7 +166,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 description: '管理文档处理与入库任务',
                 icon: markRaw(FileTextOutlined),
                 route: '/admin/documents',
-                accent: 'cyan',
+                accent: 'frost', // 静态文档使用霜感色
             },
         ],
     },
@@ -169,7 +181,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 description: '配置敏感词、注入检测与风控策略',
                 icon: markRaw(SecurityScanOutlined),
                 route: '/admin/security',
-                accent: 'coral',
+                accent: 'coral', // 唯一警示色：珊瑚红
             },
             {
                 key: 'tracing',
@@ -177,7 +189,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 description: '监控大模型调用链路与日志输出',
                 icon: markRaw(LineChartOutlined),
                 route: '/admin/tracing',
-                accent: 'violet',
+                accent: 'violet', // 分析监控使用紫罗兰
             },
             {
                 key: 'workflows',
@@ -185,7 +197,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 description: '配置 DAG 节点流程、触发条件与执行链路',
                 icon: markRaw(NodeIndexOutlined),
                 route: '/admin/workflows',
-                accent: 'indigo',
+                accent: 'indigo', // 复杂编排使用靛蓝
                 highlight: true,
             },
             {
@@ -225,12 +237,12 @@ const managementGroupsAll: ManagementGroup[] = [
                 description: '管理系统配置、参数与日志',
                 icon: markRaw(SettingOutlined),
                 route: '/admin/system-config',
-                accent: 'blue',
+                accent: 'sky',
             },
             {
                 key: 'system-extension',
                 label: '系统扩展',
-                description: '管理系统插件扩展包（jarName）及应用/卸载状态',
+                description: '管理系统插件扩展包 (jarName) 及应用/卸载状态',
                 icon: markRaw(BuildOutlined),
                 route: '/admin/system-config/system-extension',
                 accent: 'ocean',
@@ -239,6 +251,9 @@ const managementGroupsAll: ManagementGroup[] = [
     },
 ]
 
+/**
+ * 根据角色解析显示的资源组
+ */
 export function resolveManagementGroups(role = getCurrentUserRole()): ManagementGroup[] {
     const isSuper = role === 'SUPER_ADMIN'
 

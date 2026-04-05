@@ -410,7 +410,7 @@ void fetchList()
 
 <style scoped>
 .sensitive-page {
-  padding: 0 4px;
+  padding: 20px;
 }
 
 .search-cluster {

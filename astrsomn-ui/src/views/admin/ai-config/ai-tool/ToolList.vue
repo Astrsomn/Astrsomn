@@ -7,33 +7,17 @@
     <div class="tool-page">
       <AdminListToolbar>
         <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.toolName"
+       
+            <ToolbarSearchPill
+              v-model="query.toolName"
               placeholder="搜索工具名称"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-input
-              v-model:value="query.toolKey"
-              placeholder="Tool Key"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><key-outlined /></template>
-            </a-input>
-            <a-select
-              v-model:value="query.type"
-              :options="typeFilterOptions"
-              placeholder="所有类型"
-              class="toolbar-select type-select"
-              allow-clear
+              button-label="搜索"
+              layout="toolbar"
+              @search="fetchList"
             />
-          </div>
+       
+       
+         
 
           <TrioStateSwitch 
             v-model="query.enableFlag" 
@@ -122,7 +106,6 @@ import {
   KeyOutlined,
   PlusOutlined,
   ReloadOutlined,
-  SearchOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
@@ -130,6 +113,7 @@ import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
 import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import ToolFormModal from './ToolFormModal.vue'
 import { aiToolApi, type AiTool, type PageResponse } from '@/api/aiTool.ts'
 
@@ -226,14 +210,11 @@ const resetFilters = () => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-  {
-    label: '查询',
-    type: 'primary',
-    icon: SearchOutlined,
-    onClick: () => void fetchList()
-  },
+
   {
     label: '批量删除',
+    type: 'danger',
+    plain: true,
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {

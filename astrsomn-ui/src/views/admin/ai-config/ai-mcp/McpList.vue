@@ -7,24 +7,16 @@
     <div class="mcp-page">
       <AdminListToolbar>
         <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.mcpKey"
+
+            <ToolbarSearchPill
+              v-model="query.mcpKey"
               placeholder="搜索 MCP Key"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-select
-              v-model:value="query.type"
-              :options="typeFilterOptions"
-              placeholder="所有类型"
-              class="toolbar-select type-select"
-              allow-clear
+              button-label="搜索"
+              layout="toolbar"
+              @search="fetchList"
             />
-          </div>
+      
+     
 
           <TrioStateSwitch 
             v-model="query.enabled" 
@@ -159,7 +151,6 @@ import {
   EditOutlined,
   PlusOutlined,
   ReloadOutlined,
-  SearchOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
@@ -167,6 +158,7 @@ import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import BaseOverview from '@/components/home/BaseOverview.vue'
 import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
 import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
+import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
 import McpFormModal from './McpFormModal.vue'
 import { aiMcpApi, type AiMcp, type PageResponse } from '@/api/aiMcp'
 
@@ -323,14 +315,11 @@ const resetFilters = () => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-  {
-    label: '查询',
-    type: 'primary',
-    icon: SearchOutlined,
-    onClick: () => void fetchList()
-  },
+
   {
     label: '批量删除',
+    type: 'danger',
+    plain: true,
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
@@ -344,6 +333,8 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   },
   {
     label: '重置',
+    type: 'primary',
+    plain: true,
     icon: ReloadOutlined,
     onClick: resetFilters
   },

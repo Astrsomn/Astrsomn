@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.extension.ModelProviderHandler;
+import org.astrsomn.core.common.util.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -54,7 +55,7 @@ public class AstroModelFactory {
      * 按厂商 code（与 {@link AiModelEnum.ProviderEnum#getCode()} 一致）解析 SPI 注册的处理器。
      */
     public Optional<ModelProviderHandler> getHandler(String providerCode) {
-        if (providerCode == null || providerCode.isBlank()) {
+        if (StringUtils.isEmpty(providerCode)) {
             return Optional.empty();
         }
         return Optional.ofNullable(handlerMap.get(providerCode.trim()));

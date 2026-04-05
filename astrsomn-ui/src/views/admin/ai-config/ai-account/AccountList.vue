@@ -8,13 +8,7 @@
       <AdminListToolbar>
         <template #left>
           <div class="account-toolbar-searches">
-            <ToolbarSearchPill
-              v-model="query.accountKey"
-              layout="toolbar"
-              placeholder="搜索 Account Key"
-              button-label="查询"
-              @search="fetchList"
-            />
+
             <ToolbarSearchPill
               v-model="query.accountName"
               layout="toolbar"
@@ -160,12 +154,7 @@ const resetFilters = () => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-  {
-    label: '查询',
-    type: 'primary',
-    icon: SearchOutlined,
-    onClick: () => void fetchList()
-  },
+
   {
     label: '批量删除',
     icon: DeleteOutlined,
@@ -180,11 +169,7 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
       })
     }
   },
-  {
-    label: '重置',
-    icon: ReloadOutlined,
-    onClick: resetFilters
-  },
+
   {
     label: '新增',
     type: 'primary',

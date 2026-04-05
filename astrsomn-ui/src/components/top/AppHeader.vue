@@ -125,11 +125,12 @@ const handleLogin = () => {
   z-index: 1000;
   height: 64px;
   width: 100%;
-  background: transparent;
+
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   display: flex;
   align-items: center;
+
 }
 
 .header-container {
@@ -146,6 +147,7 @@ const handleLogin = () => {
   display: flex;
   align-items: center;
   min-width: 240px;
+
 }
 
 .brand-area {
