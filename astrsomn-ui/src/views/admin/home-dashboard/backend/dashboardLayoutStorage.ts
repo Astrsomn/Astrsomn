@@ -7,6 +7,7 @@ import type {
 } from './dashboardLayoutTypes'
 import { isDashboardPageModuleKind } from './dashboardLayoutTypes'
 import { PAGE_KIND_ROUTE, ROUTE_TO_PAGE_KIND } from './dashboardPageRegistry'
+import { loadLayoutFromConfig } from './config'
 
 export type { DashboardLayoutItem } from './dashboardLayoutTypes'
 
@@ -20,8 +21,6 @@ const DEFAULT_WH = 2
 
 const DEFAULT_MODULE_ORDER: DashboardModuleKind[] = [
   'AiAgent',
-  'AiInstance',
-  'ConsoleSystemLoad',
   'AiModel',
   'AiAccount',
   'AiMcp',
@@ -46,6 +45,17 @@ export const dashboardLayoutRevision = ref(0)
 export const dashboardShortcutsRevision = dashboardLayoutRevision
 
 export function defaultDashboardLayoutItems(): DashboardLayoutItem[] {
+  try {
+    // 从JSON配置文件加载布局
+    const configItems = loadLayoutFromConfig()
+    if (configItems.length > 0) {
+      return configItems
+    }
+  } catch (error) {
+    console.warn('Failed to load layout from config:', error)
+  }
+  
+  //  fallback: 生成默认布局
   const items: DashboardLayoutItem[] = []
   let x = 0
   let y = 0
@@ -66,33 +76,7 @@ export function defaultDashboardLayoutItems(): DashboardLayoutItem[] {
         maxW: 12,
         maxH: 6,
       })
-    } else if (kind === 'AiInstance') {
-      items.push({
-        i: 'mod_AiInstance',
-        kind: 'AiInstance',
-        x,
-        y,
-        w,
-        h,
-        minW: 1,
-        minH: 1,
-        maxW: 12,
-        maxH: 6,
-      })
-    } else if (kind === 'ConsoleSystemLoad') {
-      items.push({
-        i: 'mod_ConsoleSystemLoad',
-        kind: 'ConsoleSystemLoad',
-        x,
-        y,
-        w,
-        h,
-        minW: 1,
-        minH: 1,
-        maxW: 12,
-        maxH: 6,
-      })
-    } else {
+    }  else {
       items.push({
         i: `mod_${kind}`,
         kind,
@@ -162,8 +146,6 @@ function migrateV2ToV3Items(raw: unknown[]): DashboardLayoutItem[] {
     }
     if (
       it.kind === 'AiAgent' ||
-      it.kind === 'AiInstance' ||
-      it.kind === 'ConsoleSystemLoad' ||
       isDashboardPageModuleKind(it.kind)
     ) {
       out.push(normalizeItem(it as unknown as DashboardLayoutItem))
