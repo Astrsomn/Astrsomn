@@ -216,6 +216,7 @@ const handleLogin = async () => {
   backdrop-filter: blur(8px);
 }
 
+
 .nav-item {
   color: var(--text-secondary);
   font-size: 13px;
@@ -342,6 +343,9 @@ const handleLogin = async () => {
   background: var(--bg-input) !important;
   border-color: var(--border-default) !important;
   transition: all 0.3s;
+}
+:deep(.ant-input){
+  background-color: var(--bg-input) !important;
 }
 
 :deep(.custom-input:hover), :deep(.custom-input:focus) {
