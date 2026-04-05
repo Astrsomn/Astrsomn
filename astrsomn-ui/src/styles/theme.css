@@ -42,7 +42,7 @@
 
     /* ── Shadow ── */
     --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
-    /* 列表概览 / 工具栏控件：与 BaseOverview 一致的柔和高光 */
+    /* 列表概览 / 工具栏控件：与 AstrsomnOverview 一致的柔和高光 */
     --shadow-overview: 0 6px 14px color-mix(in srgb, var(--primary) 22%, transparent);
 
     /* ── Radius ── */
@@ -175,7 +175,7 @@
 
 :root.light {
     /* ── Background ── */
-    --bg-base: #f5f7fa;
+    --bg-base: #ffffff;
     --bg-surface: #ffffff;
     --bg-elevated: #e6f7ff;
     --bg-card: #ffffff;

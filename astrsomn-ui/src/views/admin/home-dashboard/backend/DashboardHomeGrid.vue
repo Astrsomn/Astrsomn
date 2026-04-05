@@ -52,8 +52,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { GridLayout, GridItem } from 'grid-layout-plus'
 import type { Layout } from 'grid-layout-plus'
-import type { DashboardLayoutItem, DashboardPageModuleItem } from './dashboardLayoutTypes'
-import { isDashboardPageModuleKind } from './dashboardLayoutTypes'
+import type { DashboardLayoutItem, DashboardPageModuleItem } from './types/dashboardLayoutTypes'
+import { isDashboardPageModuleKind } from './types/dashboardLayoutTypes'
 import {
   dashboardLayoutRevision,
   debouncedSaveDashboardItems,
@@ -62,13 +62,17 @@ import {
   loadDashboardLayoutItems,
   mergeLayoutIntoItems,
   removeDashboardItem,
-} from './dashboardLayoutStorage'
-import { DASHBOARD_WIDGET_BY_KIND } from './dashboardWidgets'
+} from './core/dashboardLayoutStorage'
+import { DASHBOARD_WIDGET_BY_KIND } from './core/dashboardWidgets'
 import type { ManagementEntry } from '../resource-library/management.ts'
 
 const props = defineProps<{
   editMode: boolean
   entryByRoute: Partial<Record<string, ManagementEntry>>
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:layout', layout: DashboardLayoutItem[]): void
 }>()
 
 const rowHeight = 108
@@ -90,6 +94,7 @@ function syncFromStorage() {
 
 onMounted(() => {
   syncFromStorage()
+  emit('update:layout', items.value)
 })
 
 watch(dashboardLayoutRevision, () => {
@@ -99,6 +104,7 @@ watch(dashboardLayoutRevision, () => {
 function onLayoutUpdated(l: Layout) {
   items.value = mergeLayoutIntoItems(l, items.value)
   debouncedSaveDashboardItems(items.value)
+  emit('update:layout', items.value)
 }
 
 watch(
@@ -183,6 +189,13 @@ function widgetProps(full: DashboardLayoutItem, cell: Layout[number]) {
   color: var(--text-heading);
   background: color-mix(in srgb, var(--bg-card) 88%, transparent);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.grid-cell-body {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .grid-cell-remove:hover {

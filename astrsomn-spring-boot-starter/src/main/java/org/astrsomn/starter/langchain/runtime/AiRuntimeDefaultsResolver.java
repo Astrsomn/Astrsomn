@@ -2,6 +2,7 @@ package org.astrsomn.starter.langchain.runtime;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
+import org.astrsomn.core.common.constant.AiAgentEnum;
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiAgentEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AiRuntimeDefaultsResolver {
 
-    private static final String DEFAULT_FLAG = "Y";
+    private static final String DEFAULT_FLAG = AiAgentEnum.IsDefaultEnum.YES.getCode();
 
     private final AiAgentMapper aiAgentMapper;
     private final AiModelMapper aiModelMapper;

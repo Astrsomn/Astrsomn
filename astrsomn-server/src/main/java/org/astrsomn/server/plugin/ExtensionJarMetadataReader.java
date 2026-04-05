@@ -1,6 +1,7 @@
 package org.astrsomn.server.plugin;
 
 import lombok.extern.slf4j.Slf4j;
+import org.astrsomn.core.common.dto.extension.SystemExtensionMetaData;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import org.astrsomn.core.common.langchain.extension.ModelProviderHandler;
 import org.astrsomn.core.common.util.StringUtils;
@@ -21,7 +22,7 @@ public final class ExtensionJarMetadataReader {
 
     private ExtensionJarMetadataReader() {}
 
-    public static Optional<ExtensionJarMetadata> tryLoad(File jar) {
+    public static Optional<SystemExtensionMetaData> tryLoad(File jar) {
         if (jar == null || !jar.isFile()) {
             return Optional.empty();
         }
@@ -56,7 +57,7 @@ public final class ExtensionJarMetadataReader {
 
             String avatar = d.getAvatar();
             return Optional.of(
-                    new ExtensionJarMetadata(
+                    new SystemExtensionMetaData(
                             StringUtils.trimToNull(d.getExtensionKey()),
                             StringUtils.trimToNull(d.getName()),
                             d.getExtensionType() != null ? d.getExtensionType().getCode() : null,

@@ -8,7 +8,7 @@
       <AdminListToolbar>
         <template #left>
           <div class="prompt-toolbar-searches">
-            <ToolbarSearchPill
+            <AstrsomnSearchPill
               v-model="query.promptTitle"
               layout="toolbar"
               placeholder="搜索标题"
@@ -18,20 +18,20 @@
       
           </div>
 
-          <TrioStateSwitch v-model="query.status" @change="fetchList" />
+          <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
 
 
       
         </template>
 
         <template #right>
-          <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
+          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
 
 
       </AdminListToolbar>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -108,13 +108,13 @@ import {
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
-import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
-import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import PromptCard from './PromptCard.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
-import BaseOverview from '../../../../components/home/BaseOverview.vue'
+import AstrsomnOverview from '../../../../components/home/AstrsomnOverview.vue'
 import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt.ts'
 
 type QueryState = {

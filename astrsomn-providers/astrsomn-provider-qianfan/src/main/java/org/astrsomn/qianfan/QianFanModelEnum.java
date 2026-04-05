@@ -38,8 +38,8 @@ public enum QianFanModelEnum {
     ERNIE_BOT_MEDICAL("ernie-bot-medical", "ERNIE Bot Medical", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), "[\"text_generation\", \"streaming\", \"function_calling\"]"),
     ERNIE_BOT_FINANCE("ernie-bot-finance", "ERNIE Bot Finance", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), "[\"text_generation\", \"streaming\", \"function_calling\"]");
 
-    private final String modelKey;
     private final String modelName;
+    private final String modelKey;
     private final String modelType;
     private final String capabilities;
 
@@ -49,7 +49,8 @@ public enum QianFanModelEnum {
         entity.setModelName(this.modelName);
         entity.setModelType(this.modelType);
         entity.setProvider(provider);
-        entity.setStatus(AiModelEnum.StatusEnum.ENABLED.getCode());
+        entity.setCapabilities(this.capabilities);
+        entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
         return entity;
     }
 

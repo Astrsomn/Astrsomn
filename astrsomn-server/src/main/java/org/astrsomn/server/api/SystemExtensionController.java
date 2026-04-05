@@ -12,7 +12,7 @@ import org.astrsomn.core.common.dto.extension.SystemExtensionCreateRequestDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionQueryRequestDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionResponseDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionUpdateRequestDTO;
-import org.astrsomn.core.common.extension.marketplace.ExtensionMarketplaceCatalogSource;
+import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
 import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.server.service.SystemExtensionModelSyncService;
 import org.astrsomn.server.service.SystemExtensionService;
@@ -101,9 +101,7 @@ public class SystemExtensionController extends BaseController {
         return systemExtensionService.uninstall(id);
     }
 
-    /**
-     * 模型类扩展：将当前环境下该厂商全部 AI 模型状态设为 disabled。
-     */
+
     @PostMapping("/disable-provider-models")
     public BaseResponse<String> disableProviderModels(@RequestParam("id") Long id) {
         return systemExtensionModelGuard.disableAllModelsForExtension(id);

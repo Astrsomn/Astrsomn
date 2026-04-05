@@ -65,8 +65,9 @@ public enum DeepSeekModelEnum {
         entity.setModelKey(this.modelKey);
         entity.setModelName(this.modelName);
         entity.setModelType(this.modelType);
+        entity.setCapabilities(this.capabilities);
         entity.setProvider(provider);
-        entity.setStatus(AiModelEnum.StatusEnum.ENABLED.getCode());
+        entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
         return entity;
     }
 

@@ -1,5 +1,5 @@
 <template>
-  <HomeFullscreenModal
+  <AstrsomnModal
     :open="visible"
     width="680px"
     max-width="min(680px, 96vw)"
@@ -127,7 +127,7 @@
       </div>
     </div>
     </div>
-  </HomeFullscreenModal>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
@@ -137,7 +137,7 @@ import {
   LockFilled, IdcardOutlined, SafetyOutlined, ControlOutlined,
   FormOutlined, PlusCircleOutlined, SyncOutlined, ArrowRightOutlined
 } from '@ant-design/icons-vue'
-import HomeFullscreenModal from '@/components/home/HomeFullscreenModal.vue'
+import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 
 interface Props {

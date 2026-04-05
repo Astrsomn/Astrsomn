@@ -133,6 +133,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Spring Web - 使用provided scope，由使用方提供 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>io.projectreactor</groupId>

@@ -48,7 +48,7 @@
                     @update:value="onProviderFilterChange"
                   />
                 </div>
-                <ToolbarSearchPill
+                <AstrsomnSearchPill
                   v-model="searchDraft"
                   layout="pane"
                   placeholder="名称、Model Key..."
@@ -301,7 +301,7 @@ import {
   ControlOutlined, SelectOutlined,
   MessageOutlined, PartitionOutlined, PictureOutlined
 } from '@ant-design/icons-vue';
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue';
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue';
 import ModelProviderSelect from '@/views/admin/ai-config/ai-model/ModelProviderSelect.vue';
 import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage';
 import { aiModelApi, type AiModel } from '@/api/aiModel';
@@ -624,7 +624,8 @@ const fetchModels = async () => {
       pageNo: 1,
       pageSize: 1000,
       param: {
-        supplier: providerFilter.value?.trim() || undefined
+        supplier: providerFilter.value?.trim() || undefined,
+        status: 'enabled'
       }
     });
     modelList.value = res.list || [];

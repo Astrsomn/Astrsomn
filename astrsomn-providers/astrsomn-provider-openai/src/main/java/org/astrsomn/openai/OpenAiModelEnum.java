@@ -20,8 +20,8 @@ public enum OpenAiModelEnum {
             AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
             "[\"text_embedding\"]");
 
-    private final String modelKey;
     private final String modelName;
+    private final String modelKey;
     private final String modelType;
     private final String capabilities;
 
@@ -31,7 +31,8 @@ public enum OpenAiModelEnum {
         entity.setModelName(this.modelName);
         entity.setModelType(this.modelType);
         entity.setProvider(provider);
-        entity.setStatus(AiModelEnum.StatusEnum.ENABLED.getCode());
+        entity.setCapabilities(this.capabilities);
+        entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
         return entity;
     }
 }

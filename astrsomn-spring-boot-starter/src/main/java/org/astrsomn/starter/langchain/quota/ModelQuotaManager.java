@@ -15,13 +15,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @RequiredArgsConstructor
 public class ModelQuotaManager {
-    private final AstrsomnProperties astrsomnProperties;
 
+    private final AstrsomnProperties astrsomnProperties;
     private final AiConversationMapper conversationMapper;
-    // 本地缓存：ModelKey -> 今日消耗总量
+
     private final Map<String, Long> dailyUsageCache = new ConcurrentHashMap<>();
 
-    // 初始化：每天凌晨或启动时，汇总今日 Token 消耗
+
     @PostConstruct
     public void initQuota() {
         refreshUsage();
@@ -29,7 +29,6 @@ public class ModelQuotaManager {
 
     @Scheduled(fixedRate = 60000)
     public void refreshUsage() {
-        // SQL: SELECT MODEL_KEY, SUM(CONSUME_TOKENS) FROM AI_CONVERSATION WHERE CREATE_TIME >= TODAY GROUP BY MODEL_KEY
         String env = astrsomnProperties.getEnvCode();
         List<Map<String, Object>> stats = conversationMapper.selectTodayUsage(env);
         stats.forEach(map -> {

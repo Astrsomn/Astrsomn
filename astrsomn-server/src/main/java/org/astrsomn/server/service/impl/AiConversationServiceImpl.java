@@ -10,6 +10,8 @@ import org.astrsomn.core.common.dto.conversation.AiConversationQueryRequestDTO;
 import org.astrsomn.core.common.dto.conversation.AiConversationUpdateRequestDTO;
 import org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO;
 import org.astrsomn.core.common.entity.AiConversationEntity;
+import org.astrsomn.core.exception.base.BusinessException;
+import org.astrsomn.core.exception.constant.AiConversationErrorEnum;
 import org.astrsomn.core.mapper.AiConversationMapper;
 import org.astrsomn.server.service.AiConversationService;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
@@ -31,20 +33,26 @@ public class AiConversationServiceImpl extends ServiceImpl<AiConversationMapper,
     
         BeanUtils.copyProperties(request, entity);
         boolean result = save(entity);
-        return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
+        if (!result) {
+            throw new BusinessException(AiConversationErrorEnum.CONVERSATION_CREATE_FAILED);
+        }
+        return BaseResponse.success("创建成功");
     }
 
     @Override
     public BaseResponse<String> delete(long[] ids) {
         boolean result = removeByIds(Arrays.asList(Arrays.stream(ids).boxed().toArray(Long[]::new)));
-        return result ? BaseResponse.success("删除成功") : BaseResponse.fail("删除失败", null);
+        if (!result) {
+            throw new BusinessException(AiConversationErrorEnum.CONVERSATION_DELETE_FAILED);
+        }
+        return BaseResponse.success("删除成功");
     }
 
     @Override
     public BaseResponse<AiConversationResponseDTO> detail(Long id) {
         AiConversationEntity entity = getById(id);
         if (entity == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(AiConversationErrorEnum.CONVERSATION_NOT_FOUND);
         }
         AiConversationResponseDTO responseDTO = new AiConversationResponseDTO();
         BeanUtils.copyProperties(entity, responseDTO);
@@ -53,10 +61,20 @@ public class AiConversationServiceImpl extends ServiceImpl<AiConversationMapper,
 
     @Override
     public BaseResponse<String> update(AiConversationUpdateRequestDTO request) {
+        if (request.getId() == null) {
+            throw new BusinessException(AiConversationErrorEnum.CONVERSATION_PARAM_ERROR);
+        }
+        AiConversationEntity existing = getById(request.getId());
+        if (existing == null) {
+            throw new BusinessException(AiConversationErrorEnum.CONVERSATION_NOT_FOUND);
+        }
         AiConversationEntity entity = new AiConversationEntity();
         BeanUtils.copyProperties(request, entity);
         boolean result = updateById(entity);
-        return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
+        if (!result) {
+            throw new BusinessException(AiConversationErrorEnum.CONVERSATION_UPDATE_FAILED);
+        }
+        return BaseResponse.success("更新成功");
     }
 
     @Override

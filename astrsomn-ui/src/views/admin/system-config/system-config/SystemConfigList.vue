@@ -7,73 +7,29 @@
     <div class="config-page">
       <AdminListToolbar>
         <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.configKey"
-              placeholder="搜索配置 Key"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-input
-              v-model:value="query.configGroup"
+       
+            <AstrsomnSearchPill
+              v-model="query.configGroup"
               placeholder="配置分组"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><appstore-outlined /></template>
-            </a-input>
-          </div>
+              button-label="搜索"
+              layout="toolbar"
+              @search="fetchList"
+            />
+        
 
-          <div class="status-switch" role="group" aria-label="状态筛选">
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'ENABLED' }"
-              @click="toggleStatusFilter('ENABLED')"
-            >
-              <template #icon><check-circle-outlined /></template>
-              启用
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'DISABLED' }"
-              @click="toggleStatusFilter('DISABLED')"
-            >
-              <template #icon><stop-outlined /></template>
-              禁用
-            </a-button>
-          </div>
+          <AstrsomnStateSwitch
+            v-model="query.status"
+            :options="statusOptions"
+            @change="handleStatusChange"
+          />
         </template>
 
         <template #right>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的配置项吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量删除
-            </a-button>
-          </a-popconfirm>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+          <AstrsomnSegmentedButton :buttons="actionButtons" />
         </template>
       </AdminListToolbar>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -146,18 +102,20 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import {
   AppstoreOutlined,
   CheckCircleOutlined,
   DeleteOutlined,
   PlusOutlined,
-  SearchOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
+import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import ConfigFormModal from './ConfigFormModal.vue'
 import { systemConfigApi, type PageResponse, type SystemConfig } from '@/api/systemConfig.ts'
 
@@ -186,7 +144,34 @@ const page = reactive({
   total: 0
 })
 
+const statusOptions = [
+  { label: '全部', value: undefined, color: '#3b82f6', icon: AppstoreOutlined },
+  { label: '启用', value: 'ENABLED', color: '#10b981', icon: CheckCircleOutlined },
+  { label: '禁用', value: 'DISABLED', color: '#f43f5e', icon: StopOutlined }
+]
+
 const selectedRowKeys = ref<Array<number | string>>([])
+
+const actionButtons = computed<SegmentedButton[]>(() => [
+  {
+    label: '批量删除',
+    type: 'danger',
+    icon: DeleteOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: handleBatchDelete
+  },
+  {
+    label: '重置',
+    type: 'default',
+    onClick: resetFilters
+  },
+  {
+    label: '新增',
+    type: 'default',
+    icon: PlusOutlined,
+    onClick: openCreate
+  }
+])
 
 const currentPageIds = computed(() =>
   list.value
@@ -219,8 +204,9 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
   selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
 }
 
-const toggleStatusFilter = (value: 'ENABLED' | 'DISABLED') => {
-  query.status = query.status === value ? undefined : value
+const handleStatusChange = (value: string | undefined) => {
+  query.status = value
+  void fetchList()
 }
 
 const resetFilters = () => {
@@ -300,10 +286,25 @@ const handleDeleteOne = async (id: number | string | undefined) => {
 const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
-  const msg = await systemConfigApi.delete(ids)
-  message.success(msg)
-  selectedRowKeys.value = []
-  void fetchList()
+  
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const modal = Modal.confirm({
+        title: '确定批量删除选中的配置项吗？',
+        okText: '确认',
+        cancelText: '取消',
+        onOk: () => resolve(),
+        onCancel: () => reject(new Error('取消删除'))
+      })
+    })
+    
+    const msg = await systemConfigApi.delete(ids)
+    message.success(msg)
+    selectedRowKeys.value = []
+    void fetchList()
+  } catch (error) {
+    // 用户取消删除，不执行任何操作
+  }
 }
 
 const handleFormSubmit = async (form: SystemConfig) => {
@@ -334,7 +335,7 @@ void fetchList()
 
 <style scoped>
 .config-page {
-  padding: 0 4px;
+  padding: 20px;
 }
 
 .search-cluster {

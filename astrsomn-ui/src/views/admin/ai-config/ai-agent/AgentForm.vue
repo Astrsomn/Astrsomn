@@ -1,5 +1,5 @@
 <template>
-  <HomeFullscreenModal
+  <AstrsomnModal
     :open="visible"
     @update:open="emit('update:visible', $event)"
     @cancel="handleCancel"
@@ -14,7 +14,7 @@
       通过拖拽组装模型实例、工具与知识库，定义 Astrsomn 智能体策略
     </template>
     <template #header-actions>
-      <ToolbarSegmentedButton :buttons="headerFormSegmentButtons" />
+      <AstrsomnSegmentedButton :buttons="headerFormSegmentButtons" />
     </template>
 
     <div class="assembly-page">
@@ -77,7 +77,7 @@
         />
       </div>
     </div>
-  </HomeFullscreenModal>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
@@ -89,8 +89,8 @@ import {
   SaveOutlined,
   CloudUploadOutlined,
 } from '@ant-design/icons-vue'
-import HomeFullscreenModal from '@/components/home/HomeFullscreenModal.vue'
-import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
+import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
+import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import type { AiInstance } from '@/api/aiInstance'
 import type { AiTool } from '@/api/aiTool'
 import type { AiMcp } from '@/api/aiMcp'

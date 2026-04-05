@@ -47,7 +47,7 @@ public class AstroModelListener implements ChatModelListener {
                 TokenUsage usage = context.chatResponse().tokenUsage();
                 String rawContent = context.chatResponse().aiMessage().text();
 
-                // 敏感词清洗：将回答中的违规词替换为 *
+
                 String cleanedContent = sensitiveWordProvider.filter(rawContent);
 
                 if (usage != null) {

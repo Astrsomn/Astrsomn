@@ -7,30 +7,22 @@
     <div class="mcp-page">
       <AdminListToolbar>
         <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.mcpKey"
-              placeholder="搜索 MCP Key"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-select
-              v-model:value="query.type"
-              :options="typeFilterOptions"
-              placeholder="所有类型"
-              class="toolbar-select type-select"
-              allow-clear
-            />
-          </div>
 
-          <TrioStateSwitch 
+            <AstrsomnSearchPill
+              v-model="query.mcpKey"
+              placeholder="搜索 MCP Key"
+              button-label="搜索"
+              layout="toolbar"
+              @search="fetchList"
+            />
+      
+     
+
+          <AstrsomnStateSwitch
             v-model="query.enabled" 
             @change="fetchList"
             :options="[
-              { label: '全部', value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
+              { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
               { label: '启用', value: 1, color: '#10b981', icon: CheckCircleOutlined },
               { label: '禁用', value: 0, color: '#f43f5e', icon: StopOutlined }
             ]"
@@ -39,11 +31,11 @@
         </template>
 
         <template #right>
-          <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
+          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
       </AdminListToolbar>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -159,14 +151,14 @@ import {
   EditOutlined,
   PlusOutlined,
   ReloadOutlined,
-  SearchOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
-import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
-import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
+import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import McpFormModal from './McpFormModal.vue'
 import { aiMcpApi, type AiMcp, type PageResponse } from '@/api/aiMcp'
 
@@ -323,14 +315,11 @@ const resetFilters = () => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-  {
-    label: '查询',
-    type: 'primary',
-    icon: SearchOutlined,
-    onClick: () => void fetchList()
-  },
+
   {
     label: '批量删除',
+    type: 'danger',
+    plain: true,
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
@@ -344,6 +333,8 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   },
   {
     label: '重置',
+    type: 'primary',
+    plain: true,
     icon: ReloadOutlined,
     onClick: resetFilters
   },

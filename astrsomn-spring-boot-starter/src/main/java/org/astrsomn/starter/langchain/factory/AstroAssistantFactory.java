@@ -9,11 +9,15 @@ import lombok.RequiredArgsConstructor;
 import org.astrsomn.starter.langchain.cache.AssistantCacheManager;
 import org.astrsomn.starter.langchain.memory.ChatMemoryManager;
 import org.astrsomn.starter.langchain.memory.DynamicMemoryProvider;
+import org.astrsomn.starter.langchain.quota.AstroModelListener;
 import org.astrsomn.starter.langchain.runtime.AgentRuntimeConfigLoader;
 import org.astrsomn.starter.langchain.tool.ToolProviderAssembler;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.starter.langchain.tool.rag.RagComponentAssembler;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +29,11 @@ public class AstroAssistantFactory {
     private final ToolProviderAssembler toolProviderAssembler;
     private final RagComponentAssembler ragComponentAssembler;
     private final AstroModelFactory astroModelFactory;
+    private final AstroModelListener  astroModelListener;
 
     public <T> T createAssistant(AstroChatParam<T> param) {
         agentRuntimeConfigLoader.validateAndApplyAgent(param);
+        param.setChatModelListeners(List.of(astroModelListener.createBindingListener(param)));
         AiServices<T> builder = AiServices.builder(param.getServiceClass());
         if (param.getConversationSetting().isEnableStream()) {
             StreamingChatModel streamingChatModel = astroModelFactory.createModel(param, StreamingChatModel.class);
@@ -45,7 +51,6 @@ public class AstroAssistantFactory {
             builder.chatMemoryProvider(new DynamicMemoryProvider(chatMemoryManager, param.getMaxHistoryMessages()));
         }
         toolProviderAssembler.assemble(param).ifPresent(builder::toolProvider);
-
         if (param.getRagSetting() != null && param.getRagSetting().isEnabled()) {
             ContentRetriever retriever = ragComponentAssembler.createRetriever(param);
             builder.contentRetriever(retriever);

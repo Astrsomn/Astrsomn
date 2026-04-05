@@ -2,20 +2,19 @@
   <AdminPageShell title="资源库" description="管理系统资源和能力入口">
     <div class="resource-layout">
       <aside class="filter-column">
-        <section class="panel-card filter-card">
-          <header class="panel-head">
-            <h2 class="panel-title">筛选导航</h2>
+        <div class="filter-inner-wrapper">
+          <header class="filter-header">
+            <h2 class="filter-title">筛选导航</h2>
+            <div class="search-container">
+              <AstrsomnSearchPill
+                v-model="keyword"
+                placeholder="搜索资源..."
+                button-label="搜索"
+                layout="fluid"
+                @search="handleSearch"
+              />
+            </div>
           </header>
-
-          <div class="search-box">
-            <ToolbarSearchPill
-              v-model="keyword"
-              placeholder="搜索资源"
-              button-label="搜索"
-              layout="fluid"
-              @search="handleSearch"
-            />
-          </div>
 
           <nav class="group-nav">
             <button
@@ -23,9 +22,13 @@
               :class="{ active: activeGroupId === 'all' }"
               @click="activeGroupId = 'all'"
             >
-              <span class="label">全部入口</span>
-              <span class="badge">{{ filteredTotalCount }}</span>
+              <div class="nav-icon">
+                <component :is="getGroupIcon('all')" />
+              </div>
+              <span class="nav-label">全部入口</span>
+              <span class="nav-badge">{{ filteredTotalCount }}</span>
             </button>
+
             <button
               v-for="group in groupsFiltered"
               :key="group.id"
@@ -33,30 +36,41 @@
               :class="{ active: activeGroupId === group.id }"
               @click="activeGroupId = group.id"
             >
-              <span class="label">{{ group.title }}</span>
-              <span class="badge">{{ group.filteredItems.length }}</span>
+              <div class="nav-icon">
+                <component :is="getGroupIcon(group.id)" />
+              </div>
+              <span class="nav-label">{{ group.title }}</span>
+              <span class="nav-badge">{{ group.filteredItems.length }}</span>
             </button>
           </nav>
-        </section>
+        </div>
       </aside>
 
       <main class="content-column">
-        <section class="panel-card content-card">
-          <header class="content-head">
-            <div class="content-title-wrap">
-              <h2 class="content-title">{{ activeGroupTitle }}</h2>
+        <div class="content-inner-wrapper">
+          <header class="content-header">
+            <div class="title-section">
+              <h1 class="main-title">{{ activeGroupTitle }}</h1>
+              <span class="count-chip">共 {{ filteredEntries.length }} 项</span>
             </div>
 
-            <div class="content-tools">
-              <span class="summary-chip">共 {{ filteredEntries.length }} 个入口</span>
-              <div class="pagination-wrapper" v-if="totalPages > 1">
-                <button class="icon-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
+            <div class="action-section">
+              <div class="modern-pagination" v-if="totalPages > 1">
+                <button 
+                  class="page-btn" 
+                  :disabled="currentPage === 1" 
+                  @click="changePage(currentPage - 1)"
+                >
                   <LeftOutlined />
                 </button>
-                <span class="page-info"><b>{{ currentPage }}</b> / {{ totalPages }}</span>
-                <button
-                  class="icon-btn"
-                  :disabled="currentPage === totalPages"
+                <div class="page-indicator">
+                  <span class="current">{{ currentPage }}</span>
+                  <span class="divider">/</span>
+                  <span class="total">{{ totalPages }}</span>
+                </div>
+                <button 
+                  class="page-btn" 
+                  :disabled="currentPage === totalPages" 
                   @click="changePage(currentPage + 1)"
                 >
                   <RightOutlined />
@@ -65,19 +79,20 @@
             </div>
           </header>
 
-          <section class="content-body" ref="gridContainerRef">
-            <div v-if="paginatedEntries.length === 0" class="empty-holder">
-              <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" description="暂无匹配入口" />
+          <section class="grid-section" ref="gridContainerRef">
+            <div v-if="paginatedEntries.length === 0" class="empty-state">
+              <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" description="未找到相关资源" />
             </div>
 
             <div v-else class="resource-grid">
               <MenuSlotCard
-                v-for="entry in paginatedEntries"
+                v-for="(entry, index) in paginatedEntries"
                 :key="entry.route"
                 :entry="entry"
                 :title="entry.label"
                 :description="entry.description"
                 :accent="entry.accent"
+                :style="{ animationDelay: `${index * 0.05}s` }"
                 variant="compact"
                 show-pin-to-dashboard
                 :pinned="pinnedRouteSet.has(entry.route)"
@@ -88,9 +103,12 @@
           </section>
 
           <footer class="content-footer">
-            <span>已显示 {{ paginatedEntries.length }} / {{ filteredEntries.length }} 个入口</span>
+            <div class="footer-info">
+              显示第 {{ (currentPage - 1) * pageSize + 1 }} - 
+              {{ Math.min(currentPage * pageSize, filteredEntries.length) }} 条结果
+            </div>
           </footer>
-        </section>
+        </div>
       </main>
     </div>
   </AdminPageShell>
@@ -100,18 +118,18 @@
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Empty, message } from 'ant-design-vue'
-import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
+import { LeftOutlined, RightOutlined, HomeOutlined, RobotOutlined, FileTextOutlined, SafetyCertificateOutlined, SettingOutlined } from '@ant-design/icons-vue'
 // Vetur occasionally misses Vue SFC default exports in script setup files.
 // @ts-ignore
 import MenuSlotCard from './MenuSlotCard.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import { getCurrentUserRole, resolveManagementGroups } from './management.ts'
 import {
   addDashboardShortcut,
   dashboardLayoutRevision,
   getDashboardPinnedRoutes,
-} from '../backend/dashboardLayoutStorage'
+} from '../backend/core/dashboardLayoutStorage'
 
 const router = useRouter()
 const keyword = ref('')
@@ -152,6 +170,23 @@ const activeGroup = computed(() =>
 const activeGroupTitle = computed(() =>
   activeGroupId.value === 'all' ? '全部入口' : activeGroup.value?.title ?? '全部入口',
 )
+
+const getGroupIcon = (groupId: string) => {
+  switch (groupId) {
+    case 'all':
+      return HomeOutlined
+    case 'ai-core':
+      return RobotOutlined
+    case 'content':
+      return FileTextOutlined
+    case 'ops':
+      return SafetyCertificateOutlined
+    case 'system':
+      return SettingOutlined
+    default:
+      return HomeOutlined
+  }
+}
 
 const filteredEntries = computed(() => {
   if (activeGroupId.value === 'all') {
@@ -204,387 +239,231 @@ const handleSearch = () => {
 </script>
 
 <style scoped>
+/* 样式重构 - 统一现代简约风格 */
+
 .resource-layout {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  gap: 0;
-  align-items: stretch;
+  grid-template-columns: 280px 1fr;
   min-height: calc(100vh - 70px);
+  background-color: var(--bg-surface);
 }
 
-.filter-column,
-.content-column {
-  min-width: 0;
+/* --- 侧边栏样式 --- */
+.filter-column {
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-default);
+  padding: 32px 16px;
 }
 
-.filter-card,
-.content-card {
-  padding: 24px;
+.filter-header {
+  margin-bottom: 32px;
+  padding: 0 8px;
 }
 
-.panel-card {
-  position: relative;
-  border: none;
-  border-radius: 0;
-  background: color-mix(in srgb, var(--bg-card) 96%, transparent);
-  box-shadow: none;
-  transition:
-    border-color 0.25s ease,
-    transform 0.25s ease;
-  animation: panelLift 0.45s ease both;
-}
-
-.panel-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 5%, transparent), transparent 28%);
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.panel-card:hover {
-  border-color: transparent;
-}
-
-.filter-card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  height: 100%;
-  border-right: 1px solid var(--border-subtle);
-}
-
-.content-card {
-  animation-delay: 0.08s;
-}
-
-.panel-head {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.panel-title {
-  margin: 0;
-  font-size: 16px;
+.filter-title {
+  font-size: 14px;
   font-weight: 700;
-  color: var(--text-heading);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
 }
 
-.search-box {
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-subtle);
+.search-container :deep(.toolbar-search-pill) {
+  background: var(--bg-input);
+  border: 1px solid var(--border-input);
+  height: 48px;
+  transition: all 0.3s;
+  box-shadow: none;
 }
 
-.search-box :deep(.toolbar-search-pill) {
-  height: 44px;
-  border-radius: 12px;
-  padding: 0 6px 0 16px;
+.search-container :deep(.toolbar-search-pill:focus-within) {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .group-nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .nav-item {
   all: unset;
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 12px 16px;
   border-radius: 16px;
-  border: 1px solid transparent;
-  color: var(--text-secondary);
   cursor: pointer;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.nav-item::before {
-  content: '';
-  position: absolute;
-  left: 8px;
-  top: 10px;
-  bottom: 10px;
-  width: 3px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--primary) 82%, white);
-  opacity: 0;
-  transform: scaleY(0.35);
-  transform-origin: center;
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+  color: var(--text-secondary);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-item:hover {
-  background: color-mix(in srgb, var(--primary) 8%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--primary) 18%, var(--border-subtle));
-  color: var(--text-heading);
-  transform: translateX(2px);
+  background: var(--primary-hover);
+  color: var(--text-primary);
 }
 
 .nav-item.active {
-  background: color-mix(in srgb, var(--primary) 14%, var(--bg-card));
-  border-color: color-mix(in srgb, var(--primary) 32%, var(--border-subtle));
-  color: var(--text-heading);
-  transform: translateX(4px);
+  background: var(--bg-elevated);
+  color: var(--primary);
+  box-shadow: var(--shadow-card);
 }
 
-.nav-item.active::before {
-  opacity: 1;
-  transform: scaleY(1);
+.nav-icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
 }
 
-.label {
-  font-size: 13px;
-  font-weight: 600;
+.nav-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.badge {
-  flex-shrink: 0;
-  min-width: 28px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+.nav-badge {
   font-size: 11px;
-  line-height: 1.2;
-  text-align: center;
+  font-weight: 600;
+  padding: 2px 8px;
+  background: var(--bg-input);
+  border-radius: 20px;
   color: var(--text-muted);
 }
 
-.nav-item.active .badge {
-  background: color-mix(in srgb, var(--primary) 18%, transparent);
+.nav-item.active .nav-badge {
+  background: var(--primary-hover);
   color: var(--primary);
 }
 
-.content-card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  height: 100%;
+/* --- 主内容区样式 --- */
+.content-column {
+  padding: 40px;
+  overflow-y: auto;
 }
 
-.content-head {
+.content-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-subtle);
+  align-items: flex-end;
+  margin-bottom: 32px;
 }
 
-.content-title-wrap {
-  min-width: 0;
-}
-
-.content-title {
-  margin: 0;
-  font-size: 24px;
-  line-height: 1.2;
+.main-title {
+  font-size: 28px;
   font-weight: 800;
   color: var(--text-heading);
+  margin: 0;
 }
 
-.content-tools {
+.count-chip {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* 翻页器重构 */
+.modern-pagination {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 8px;
+  background: var(--bg-input);
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
 }
 
-.summary-chip,
-.pagination-wrapper {
-  border: 1px solid var(--border-subtle);
-  background: color-mix(in srgb, var(--bg-base) 58%, transparent);
-}
-
-.summary-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 38px;
-  padding: 0 16px;
-  border-radius: 999px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.pagination-wrapper {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
-  border-radius: 999px;
-}
-
-.icon-btn {
+.page-btn {
   all: unset;
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 8px;
   cursor: pointer;
-  color: var(--text-muted);
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
+  color: var(--text-secondary);
+  transition: all 0.2s;
 }
 
-.icon-btn:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--primary) 14%, transparent);
+.page-btn:hover:not(:disabled) {
+  background: var(--bg-card);
   color: var(--primary);
+  box-shadow: var(--shadow-card);
 }
 
-.icon-btn:disabled {
-  opacity: 0.35;
+.page-btn:disabled {
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
-.page-info {
-  min-width: 58px;
-  text-align: center;
-  font-size: 12px;
-  color: var(--text-muted);
+.page-indicator {
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
-.content-body {
-  flex: 1;
-  min-height: 320px;
+.divider {
+  margin: 0 4px;
+  color: var(--border-default);
+}
+
+/* 网格布局 */
+.grid-section {
+  min-height: 400px;
 }
 
 .resource-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
-.resource-grid :deep(.slot-wrapper),
-.resource-grid :deep(.slot-card) {
-  height: 100%;
+/* 卡片入场动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .resource-grid :deep(.slot-wrapper) {
-  animation: itemFadeIn 0.45s ease both;
+  animation: fadeInUp 0.5s cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
-.resource-grid :deep(.slot-wrapper:nth-child(2)) {
-  animation-delay: 0.04s;
-}
-
-.resource-grid :deep(.slot-wrapper:nth-child(3)) {
-  animation-delay: 0.08s;
-}
-
-.resource-grid :deep(.slot-wrapper:nth-child(4)) {
-  animation-delay: 0.12s;
-}
-
-.resource-grid :deep(.slot-wrapper:nth-child(5)) {
-  animation-delay: 0.16s;
-}
-
-.resource-grid :deep(.slot-wrapper:nth-child(6)) {
-  animation-delay: 0.2s;
-}
-
-.empty-holder {
-  min-height: 320px;
+/* 空状态 */
+.empty-state {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px dashed var(--border-subtle);
+  height: 300px;
+  background: var(--bg-elevated);
   border-radius: 24px;
-  background: color-mix(in srgb, var(--bg-base) 55%, transparent);
+  border: 2px dashed var(--border-default);
 }
 
 .content-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 6px;
-  border-top: 1px solid var(--border-subtle);
-  font-size: 12px;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-default);
   color: var(--text-muted);
+  font-size: 13px;
 }
 
-
-
-
-
-@media (max-width: 1280px) {
+/* 响应式适配 */
+@media (max-width: 1024px) {
   .resource-layout {
     grid-template-columns: 1fr;
   }
-
-  .group-nav {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .page-hero,
-  .content-head,
-  .content-footer {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .page-metrics,
-  .content-tools {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .content-card {
-    min-height: 0;
-  }
-
-  .filter-card {
+  .filter-column {
     border-right: none;
-    border-bottom: 1px solid var(--border-subtle);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .resource-grid :deep(.slot-wrapper) {
-    animation: none;
-  }
-
-  .nav-item {
-    transition: none;
-  }
-}
-
-@media (max-width: 640px) {
-  .filter-card,
-  .content-card {
-    padding: 12px;
-  }
-
-  .content-title {
-    font-size: 22px;
-  }
-
-  .group-nav,
-  .resource-grid {
-    grid-template-columns: 1fr;
+    border-bottom: 1px solid var(--border-default);
   }
 }
 </style>

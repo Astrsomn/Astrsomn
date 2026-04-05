@@ -134,14 +134,14 @@ const copyAgentKey = async () => {
 <style scoped>
 /* 核心容器 */
 .agent-card-v3 {
-  --primary-blue: #2563eb;
-  --light-blue: #eff6ff;
-  --border-color: #e2e8f0;
-  --text-main: #1e293b;
-  --text-sub: #64748b;
+  --primary-blue: var(--primary);
+  --light-blue: var(--primary-hover);
+  --border-color: var(--border-default);
+  --text-main: var(--text-heading);
+  --text-sub: var(--text-muted);
   max-width: 400px;
   max-height: 400px;
-  background: #ffffff;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 24px;
   display: flex;
@@ -149,7 +149,7 @@ const copyAgentKey = async () => {
   position: relative;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  box-shadow: var(--shadow-card);
 }
 
 /* 装饰性背景微光 */
@@ -167,14 +167,14 @@ const copyAgentKey = async () => {
 /* 悬浮与选中状态 */
 .agent-card-v3:hover {
   transform: translateY(-4px);
-  border-color: #bfdbfe;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-card);
 }
 
 .agent-card-v3.is-selected {
   border-color: var(--primary-blue);
-  background: linear-gradient(to bottom right, #ffffff, #f0f7ff);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 2px var(--primary-hover);
 }
 
 /* 顶部栏 */
@@ -191,7 +191,7 @@ const copyAgentKey = async () => {
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  background: #f1f5f9;
+  background: var(--bg-input);
   border-radius: 8px;
   font-size: 10px;
   font-weight: 800;
@@ -201,8 +201,8 @@ const copyAgentKey = async () => {
 }
 
 .env-tag.prod, .env-tag.production {
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--success);
+  color: var(--text-heading);
 }
 
 .status-dot {
@@ -228,12 +228,12 @@ const copyAgentKey = async () => {
 .avatar-main {
   width: 52px;
   height: 52px;
-  background: linear-gradient(135deg, var(--primary-blue) 0%, #3b82f6 100%);
+  background: var(--primary-gradient);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 8px 16px -4px rgba(59, 130, 246, 0.3);
 }
 
 .avatar-letter {
@@ -249,12 +249,12 @@ const copyAgentKey = async () => {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 3px solid #fff;
-  background: #cbd5e1;
+  border: 3px solid var(--bg-card);
+  background: var(--text-muted);
 }
 
 .status-badge.enabled {
-  background: #10b981;
+  background: var(--success);
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
 }
 
@@ -283,16 +283,16 @@ const copyAgentKey = async () => {
 .key-section {
   margin: 0 16px 16px;
   padding: 12px;
-  background: #f8fafc;
+  background: var(--bg-elevated);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1px dashed #e2e8f0;
+  border: 1px dashed var(--border-default);
 }
 
 .key-section:hover {
   background: var(--light-blue);
-  border-color: #bfdbfe;
+  border-color: var(--primary-light);
 }
 
 .key-label {
@@ -301,7 +301,7 @@ const copyAgentKey = async () => {
   gap: 6px;
   font-size: 9px;
   font-weight: 800;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin-bottom: 4px;
 }
 
@@ -345,8 +345,8 @@ const copyAgentKey = async () => {
 
 .config-item {
   padding: 10px;
-  background: white;
-  border: 1px solid #f1f5f9;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
 }
 
@@ -401,7 +401,7 @@ const copyAgentKey = async () => {
 /* 底部操作 */
 .card-footer {
   display: flex;
-  border-top: 1px solid #f8fafc;
+  border-top: 1px solid var(--border-default);
   padding: 8px;
   gap: 8px;
 }
@@ -424,19 +424,19 @@ const copyAgentKey = async () => {
 }
 
 .action-btn:hover {
-  background: #f1f5f9;
+  background: var(--bg-input);
   color: var(--primary-blue);
 }
 
 .action-btn.delete:hover {
-  background: #fef2f2;
-  color: #ef4444;
+  background: var(--error);
+  color: var(--text-heading);
 }
 
 .btn-divider {
   width: 1px;
   height: 20px;
-  background: #f1f5f9;
+  background: var(--border-default);
   align-self: center;
 }
 

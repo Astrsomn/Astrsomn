@@ -119,17 +119,18 @@ const handleLogin = () => {
 
 <style scoped>
 .app-header {
-  --primary-glow: rgba(0, 97, 255, 0.15);
+  --primary-glow: rgba(59, 130, 246, 0.2);
   position: sticky;
   top: 0;
   z-index: 1000;
   height: 64px;
   width: 100%;
-  background: transparent;
+
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   display: flex;
   align-items: center;
+
 }
 
 .header-container {
@@ -146,6 +147,7 @@ const handleLogin = () => {
   display: flex;
   align-items: center;
   min-width: 240px;
+
 }
 
 .brand-area {
@@ -264,7 +266,7 @@ const handleLogin = () => {
   width: 32px;
   height: 32px;
   border: 1px solid var(--border-default);
-
+  background-color: var(--bg-card);
   color: var(--text-primary);
   border-radius: var(--radius-max);
   cursor: pointer;
