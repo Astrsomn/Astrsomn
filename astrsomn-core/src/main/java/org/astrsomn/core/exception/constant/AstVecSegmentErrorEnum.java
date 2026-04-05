@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * 向量片段错误枚举
+ * Vector Segment Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AstVecSegmentErrorEnum implements IError {
     /**
-     * 片段不存在
+     * Segment not found
      */
-    SEGMENT_NOT_FOUND(140001, "片段不存在"),
+    SEGMENT_NOT_FOUND(140001, "Segment not found"),
     
     /**
-     * 片段创建失败
+     * Segment creation failed
      */
-    SEGMENT_CREATE_FAILED(140002, "片段创建失败"),
+    SEGMENT_CREATE_FAILED(140002, "Segment creation failed"),
     
     /**
-     * 片段更新失败
+     * Segment update failed
      */
-    SEGMENT_UPDATE_FAILED(140003, "片段更新失败"),
+    SEGMENT_UPDATE_FAILED(140003, "Segment update failed"),
     
     /**
-     * 片段删除失败
+     * Segment deletion failed
      */
-    SEGMENT_DELETE_FAILED(140004, "片段删除失败"),
+    SEGMENT_DELETE_FAILED(140004, "Segment deletion failed"),
     
     /**
-     * 片段参数错误
+     * Segment parameter error
      */
-    SEGMENT_PARAM_ERROR(140005, "片段参数错误"),
+    SEGMENT_PARAM_ERROR(140005, "Segment parameter error"),
     
     /**
-     * 片段权限不足
+     * Segment permission denied
      */
-    SEGMENT_PERMISSION_DENIED(140006, "片段权限不足");
+    SEGMENT_PERMISSION_DENIED(140006, "Segment permission denied");
     
     private final int code;
     private final String message;

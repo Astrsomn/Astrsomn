@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * 系统用户错误枚举
+ * System User Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum SystemUserErrorEnum implements IError {
     /**
-     * 用户不存在
+     * User not found
      */
-    USER_NOT_FOUND(200001, "用户不存在"),
+    USER_NOT_FOUND(200001, "User not found"),
     
     /**
-     * 用户创建失败
+     * User creation failed
      */
-    USER_CREATE_FAILED(200002, "用户创建失败"),
+    USER_CREATE_FAILED(200002, "User creation failed"),
     
     /**
-     * 用户更新失败
+     * User update failed
      */
-    USER_UPDATE_FAILED(200003, "用户更新失败"),
+    USER_UPDATE_FAILED(200003, "User update failed"),
     
     /**
-     * 用户删除失败
+     * User deletion failed
      */
-    USER_DELETE_FAILED(200004, "用户删除失败"),
+    USER_DELETE_FAILED(200004, "User deletion failed"),
     
     /**
-     * 用户参数错误
+     * User parameter error
      */
-    USER_PARAM_ERROR(200005, "用户参数错误"),
+    USER_PARAM_ERROR(200005, "User parameter error"),
     
     /**
-     * 用户权限不足
+     * User permission denied
      */
-    USER_PERMISSION_DENIED(200006, "用户权限不足");
+    USER_PERMISSION_DENIED(200006, "User permission denied");
     
     private final int code;
     private final String message;

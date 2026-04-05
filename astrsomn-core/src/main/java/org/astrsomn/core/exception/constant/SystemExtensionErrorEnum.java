@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * 系统扩展错误枚举
+ * System Extension Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum SystemExtensionErrorEnum implements IError {
     /**
-     * 扩展不存在
+     * Extension not found
      */
-    EXTENSION_NOT_FOUND(190001, "扩展不存在"),
+    EXTENSION_NOT_FOUND(190001, "Extension not found"),
     
     /**
-     * 扩展创建失败
+     * Extension creation failed
      */
-    EXTENSION_CREATE_FAILED(190002, "扩展创建失败"),
+    EXTENSION_CREATE_FAILED(190002, "Extension creation failed"),
     
     /**
-     * 扩展更新失败
+     * Extension update failed
      */
-    EXTENSION_UPDATE_FAILED(190003, "扩展更新失败"),
+    EXTENSION_UPDATE_FAILED(190003, "Extension update failed"),
     
     /**
-     * 扩展删除失败
+     * Extension deletion failed
      */
-    EXTENSION_DELETE_FAILED(190004, "扩展删除失败"),
+    EXTENSION_DELETE_FAILED(190004, "Extension deletion failed"),
     
     /**
-     * 扩展参数错误
+     * Extension parameter error
      */
-    EXTENSION_PARAM_ERROR(190005, "扩展参数错误"),
+    EXTENSION_PARAM_ERROR(190005, "Extension parameter error"),
     
     /**
-     * 扩展权限不足
+     * Extension permission denied
      */
-    EXTENSION_PERMISSION_DENIED(190006, "扩展权限不足");
+    EXTENSION_PERMISSION_DENIED(190006, "Extension permission denied");
     
     private final int code;
     private final String message;

@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI代理错误枚举
+ * AI Agent Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiAgentErrorEnum implements IError {
     /**
-     * 代理不存在
+     * Agent not found
      */
-    AGENT_NOT_FOUND(20001, "代理不存在"),
+    AGENT_NOT_FOUND(20001, "Agent not found"),
     
     /**
-     * 代理创建失败
+     * Agent creation failed
      */
-    AGENT_CREATE_FAILED(20002, "代理创建失败"),
+    AGENT_CREATE_FAILED(20002, "Agent creation failed"),
     
     /**
-     * 代理更新失败
+     * Agent update failed
      */
-    AGENT_UPDATE_FAILED(20003, "代理更新失败"),
+    AGENT_UPDATE_FAILED(20003, "Agent update failed"),
     
     /**
-     * 代理删除失败
+     * Agent deletion failed
      */
-    AGENT_DELETE_FAILED(20004, "代理删除失败"),
+    AGENT_DELETE_FAILED(20004, "Agent deletion failed"),
     
     /**
-     * 代理参数错误
+     * Agent parameter error
      */
-    AGENT_PARAM_ERROR(20005, "代理参数错误"),
+    AGENT_PARAM_ERROR(20005, "Agent parameter error"),
     
     /**
-     * 代理权限不足
+     * Agent permission denied
      */
-    AGENT_PERMISSION_DENIED(20006, "代理权限不足");
+    AGENT_PERMISSION_DENIED(20006, "Agent permission denied");
     
     private final int code;
     private final String message;

@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI工具错误枚举
+ * AI Tool Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiToolErrorEnum implements IError {
     /**
-     * 工具不存在
+     * Tool not found
      */
-    TOOL_NOT_FOUND(100001, "工具不存在"),
+    TOOL_NOT_FOUND(100001, "Tool not found"),
     
     /**
-     * 工具创建失败
+     * Tool creation failed
      */
-    TOOL_CREATE_FAILED(100002, "工具创建失败"),
+    TOOL_CREATE_FAILED(100002, "Tool creation failed"),
     
     /**
-     * 工具更新失败
+     * Tool update failed
      */
-    TOOL_UPDATE_FAILED(100003, "工具更新失败"),
+    TOOL_UPDATE_FAILED(100003, "Tool update failed"),
     
     /**
-     * 工具删除失败
+     * Tool deletion failed
      */
-    TOOL_DELETE_FAILED(100004, "工具删除失败"),
+    TOOL_DELETE_FAILED(100004, "Tool deletion failed"),
     
     /**
-     * 工具参数错误
+     * Tool parameter error
      */
-    TOOL_PARAM_ERROR(100005, "工具参数错误"),
+    TOOL_PARAM_ERROR(100005, "Tool parameter error"),
     
     /**
-     * 工具权限不足
+     * Tool permission denied
      */
-    TOOL_PERMISSION_DENIED(100006, "工具权限不足");
+    TOOL_PERMISSION_DENIED(100006, "Tool permission denied");
     
     private final int code;
     private final String message;

@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI实例错误枚举
+ * AI Instance Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiInstanceErrorEnum implements IError {
     /**
-     * 实例不存在
+     * Instance not found
      */
-    INSTANCE_NOT_FOUND(40001, "实例不存在"),
+    INSTANCE_NOT_FOUND(40001, "Instance not found"),
     
     /**
-     * 实例创建失败
+     * Instance creation failed
      */
-    INSTANCE_CREATE_FAILED(40002, "实例创建失败"),
+    INSTANCE_CREATE_FAILED(40002, "Instance creation failed"),
     
     /**
-     * 实例更新失败
+     * Instance update failed
      */
-    INSTANCE_UPDATE_FAILED(40003, "实例更新失败"),
+    INSTANCE_UPDATE_FAILED(40003, "Instance update failed"),
     
     /**
-     * 实例删除失败
+     * Instance deletion failed
      */
-    INSTANCE_DELETE_FAILED(40004, "实例删除失败"),
+    INSTANCE_DELETE_FAILED(40004, "Instance deletion failed"),
     
     /**
-     * 实例参数错误
+     * Instance parameter error
      */
-    INSTANCE_PARAM_ERROR(40005, "实例参数错误"),
+    INSTANCE_PARAM_ERROR(40005, "Instance parameter error"),
     
     /**
-     * 实例权限不足
+     * Instance permission denied
      */
-    INSTANCE_PERMISSION_DENIED(40006, "实例权限不足");
+    INSTANCE_PERMISSION_DENIED(40006, "Instance permission denied");
     
     private final int code;
     private final String message;

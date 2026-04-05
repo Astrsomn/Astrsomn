@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI账号错误枚举
+ * AI Account Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiAccountErrorEnum implements IError {
     /**
-     * 账号不存在
+     * Account not found
      */
-    ACCOUNT_NOT_FOUND(10001, "账号不存在"),
+    ACCOUNT_NOT_FOUND(10001, "Account not found"),
     
     /**
-     * 账号创建失败
+     * Account creation failed
      */
-    ACCOUNT_CREATE_FAILED(10002, "账号创建失败"),
+    ACCOUNT_CREATE_FAILED(10002, "Account creation failed"),
     
     /**
-     * 账号更新失败
+     * Account update failed
      */
-    ACCOUNT_UPDATE_FAILED(10003, "账号更新失败"),
+    ACCOUNT_UPDATE_FAILED(10003, "Account update failed"),
     
     /**
-     * 账号删除失败
+     * Account deletion failed
      */
-    ACCOUNT_DELETE_FAILED(10004, "账号删除失败"),
+    ACCOUNT_DELETE_FAILED(10004, "Account deletion failed"),
     
     /**
-     * 账号参数错误
+     * Account parameter error
      */
-    ACCOUNT_PARAM_ERROR(10005, "账号参数错误"),
+    ACCOUNT_PARAM_ERROR(10005, "Account parameter error"),
     
     /**
-     * 账号权限不足
+     * Account permission denied
      */
-    ACCOUNT_PERMISSION_DENIED(10006, "账号权限不足");
+    ACCOUNT_PERMISSION_DENIED(10006, "Account permission denied");
     
     private final int code;
     private final String message;

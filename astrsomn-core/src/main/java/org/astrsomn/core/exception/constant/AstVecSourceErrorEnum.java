@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * 向量源错误枚举
+ * Vector Source Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AstVecSourceErrorEnum implements IError {
     /**
-     * 源不存在
+     * Source not found
      */
-    SOURCE_NOT_FOUND(150001, "源不存在"),
+    SOURCE_NOT_FOUND(150001, "Source not found"),
     
     /**
-     * 源创建失败
+     * Source creation failed
      */
-    SOURCE_CREATE_FAILED(150002, "源创建失败"),
+    SOURCE_CREATE_FAILED(150002, "Source creation failed"),
     
     /**
-     * 源更新失败
+     * Source update failed
      */
-    SOURCE_UPDATE_FAILED(150003, "源更新失败"),
+    SOURCE_UPDATE_FAILED(150003, "Source update failed"),
     
     /**
-     * 源删除失败
+     * Source deletion failed
      */
-    SOURCE_DELETE_FAILED(150004, "源删除失败"),
+    SOURCE_DELETE_FAILED(150004, "Source deletion failed"),
     
     /**
-     * 源参数错误
+     * Source parameter error
      */
-    SOURCE_PARAM_ERROR(150005, "源参数错误"),
+    SOURCE_PARAM_ERROR(150005, "Source parameter error"),
     
     /**
-     * 源权限不足
+     * Source permission denied
      */
-    SOURCE_PERMISSION_DENIED(150006, "源权限不足");
+    SOURCE_PERMISSION_DENIED(150006, "Source permission denied");
     
     private final int code;
     private final String message;

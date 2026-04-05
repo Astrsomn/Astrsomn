@@ -5,30 +5,30 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI工作流运行错误枚举
+ * AI Workflow Run Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiWorkflowRunErrorEnum implements IError {
     /**
-     * 工作流运行记录不存在
+     * Workflow run record not found
      */
-    WORKFLOW_RUN_NOT_FOUND(120001, "工作流运行记录不存在"),
+    WORKFLOW_RUN_NOT_FOUND(120001, "Workflow run record not found"),
     
     /**
-     * 工作流运行失败
+     * Workflow run failed
      */
-    WORKFLOW_RUN_FAILED(120002, "工作流运行失败"),
+    WORKFLOW_RUN_FAILED(120002, "Workflow run failed"),
     
     /**
-     * 工作流运行参数错误
+     * Workflow run parameter error
      */
-    WORKFLOW_RUN_PARAM_ERROR(120003, "工作流运行参数错误"),
+    WORKFLOW_RUN_PARAM_ERROR(120003, "Workflow run parameter error"),
     
     /**
-     * 工作流运行权限不足
+     * Workflow run permission denied
      */
-    WORKFLOW_RUN_PERMISSION_DENIED(120004, "工作流运行权限不足");
+    WORKFLOW_RUN_PERMISSION_DENIED(120004, "Workflow run permission denied");
     
     private final int code;
     private final String message;

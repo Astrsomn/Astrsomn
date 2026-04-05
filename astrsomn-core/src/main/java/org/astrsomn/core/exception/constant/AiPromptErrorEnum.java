@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI提示词错误枚举
+ * AI Prompt Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiPromptErrorEnum implements IError {
     /**
-     * 提示词不存在
+     * Prompt not found
      */
-    PROMPT_NOT_FOUND(70001, "提示词不存在"),
+    PROMPT_NOT_FOUND(70001, "Prompt not found"),
     
     /**
-     * 提示词创建失败
+     * Prompt creation failed
      */
-    PROMPT_CREATE_FAILED(70002, "提示词创建失败"),
+    PROMPT_CREATE_FAILED(70002, "Prompt creation failed"),
     
     /**
-     * 提示词更新失败
+     * Prompt update failed
      */
-    PROMPT_UPDATE_FAILED(70003, "提示词更新失败"),
+    PROMPT_UPDATE_FAILED(70003, "Prompt update failed"),
     
     /**
-     * 提示词删除失败
+     * Prompt deletion failed
      */
-    PROMPT_DELETE_FAILED(70004, "提示词删除失败"),
+    PROMPT_DELETE_FAILED(70004, "Prompt deletion failed"),
     
     /**
-     * 提示词参数错误
+     * Prompt parameter error
      */
-    PROMPT_PARAM_ERROR(70005, "提示词参数错误"),
+    PROMPT_PARAM_ERROR(70005, "Prompt parameter error"),
     
     /**
-     * 提示词权限不足
+     * Prompt permission denied
      */
-    PROMPT_PERMISSION_DENIED(70006, "提示词权限不足");
+    PROMPT_PERMISSION_DENIED(70006, "Prompt permission denied");
     
     private final int code;
     private final String message;

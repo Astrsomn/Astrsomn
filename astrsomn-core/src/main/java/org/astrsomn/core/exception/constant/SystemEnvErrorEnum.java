@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * 系统环境错误枚举
+ * System Environment Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum SystemEnvErrorEnum implements IError {
     /**
-     * 环境不存在
+     * Environment not found
      */
-    ENV_NOT_FOUND(180001, "环境不存在"),
+    ENV_NOT_FOUND(180001, "Environment not found"),
     
     /**
-     * 环境创建失败
+     * Environment creation failed
      */
-    ENV_CREATE_FAILED(180002, "环境创建失败"),
+    ENV_CREATE_FAILED(180002, "Environment creation failed"),
     
     /**
-     * 环境更新失败
+     * Environment update failed
      */
-    ENV_UPDATE_FAILED(180003, "环境更新失败"),
+    ENV_UPDATE_FAILED(180003, "Environment update failed"),
     
     /**
-     * 环境删除失败
+     * Environment deletion failed
      */
-    ENV_DELETE_FAILED(180004, "环境删除失败"),
+    ENV_DELETE_FAILED(180004, "Environment deletion failed"),
     
     /**
-     * 环境参数错误
+     * Environment parameter error
      */
-    ENV_PARAM_ERROR(180005, "环境参数错误"),
+    ENV_PARAM_ERROR(180005, "Environment parameter error"),
     
     /**
-     * 环境权限不足
+     * Environment permission denied
      */
-    ENV_PERMISSION_DENIED(180006, "环境权限不足");
+    ENV_PERMISSION_DENIED(180006, "Environment permission denied");
     
     private final int code;
     private final String message;

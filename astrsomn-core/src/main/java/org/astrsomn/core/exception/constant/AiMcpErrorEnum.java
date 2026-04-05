@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI MCP错误枚举
+ * AI MCP Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiMcpErrorEnum implements IError {
     /**
-     * MCP不存在
+     * MCP not found
      */
-    MCP_NOT_FOUND(50001, "MCP不存在"),
+    MCP_NOT_FOUND(50001, "MCP not found"),
     
     /**
-     * MCP创建失败
+     * MCP creation failed
      */
-    MCP_CREATE_FAILED(50002, "MCP创建失败"),
+    MCP_CREATE_FAILED(50002, "MCP creation failed"),
     
     /**
-     * MCP更新失败
+     * MCP update failed
      */
-    MCP_UPDATE_FAILED(50003, "MCP更新失败"),
+    MCP_UPDATE_FAILED(50003, "MCP update failed"),
     
     /**
-     * MCP删除失败
+     * MCP deletion failed
      */
-    MCP_DELETE_FAILED(50004, "MCP删除失败"),
+    MCP_DELETE_FAILED(50004, "MCP deletion failed"),
     
     /**
-     * MCP参数错误
+     * MCP parameter error
      */
-    MCP_PARAM_ERROR(50005, "MCP参数错误"),
+    MCP_PARAM_ERROR(50005, "MCP parameter error"),
     
     /**
-     * MCP权限不足
+     * MCP permission denied
      */
-    MCP_PERMISSION_DENIED(50006, "MCP权限不足");
+    MCP_PERMISSION_DENIED(50006, "MCP permission denied");
     
     private final int code;
     private final String message;

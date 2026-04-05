@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI模型错误枚举
+ * AI Model Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiModelErrorEnum implements IError {
     /**
-     * 模型不存在
+     * Model not found
      */
-    MODEL_NOT_FOUND(60001, "模型不存在"),
+    MODEL_NOT_FOUND(60001, "Model not found"),
     
     /**
-     * 模型创建失败
+     * Model creation failed
      */
-    MODEL_CREATE_FAILED(60002, "模型创建失败"),
+    MODEL_CREATE_FAILED(60002, "Model creation failed"),
     
     /**
-     * 模型更新失败
+     * Model update failed
      */
-    MODEL_UPDATE_FAILED(60003, "模型更新失败"),
+    MODEL_UPDATE_FAILED(60003, "Model update failed"),
     
     /**
-     * 模型删除失败
+     * Model deletion failed
      */
-    MODEL_DELETE_FAILED(60004, "模型删除失败"),
+    MODEL_DELETE_FAILED(60004, "Model deletion failed"),
     
     /**
-     * 模型参数错误
+     * Model parameter error
      */
-    MODEL_PARAM_ERROR(60005, "模型参数错误"),
+    MODEL_PARAM_ERROR(60005, "Model parameter error"),
     
     /**
-     * 模型权限不足
+     * Model permission denied
      */
-    MODEL_PERMISSION_DENIED(60006, "模型权限不足");
+    MODEL_PERMISSION_DENIED(60006, "Model permission denied");
     
     private final int code;
     private final String message;

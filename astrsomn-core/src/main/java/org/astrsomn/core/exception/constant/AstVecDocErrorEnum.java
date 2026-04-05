@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * 向量文档错误枚举
+ * Vector Document Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AstVecDocErrorEnum implements IError {
     /**
-     * 文档不存在
+     * Document not found
      */
-    DOC_NOT_FOUND(130001, "文档不存在"),
+    DOC_NOT_FOUND(130001, "Document not found"),
     
     /**
-     * 文档创建失败
+     * Document creation failed
      */
-    DOC_CREATE_FAILED(130002, "文档创建失败"),
+    DOC_CREATE_FAILED(130002, "Document creation failed"),
     
     /**
-     * 文档更新失败
+     * Document update failed
      */
-    DOC_UPDATE_FAILED(130003, "文档更新失败"),
+    DOC_UPDATE_FAILED(130003, "Document update failed"),
     
     /**
-     * 文档删除失败
+     * Document deletion failed
      */
-    DOC_DELETE_FAILED(130004, "文档删除失败"),
+    DOC_DELETE_FAILED(130004, "Document deletion failed"),
     
     /**
-     * 文档参数错误
+     * Document parameter error
      */
-    DOC_PARAM_ERROR(130005, "文档参数错误"),
+    DOC_PARAM_ERROR(130005, "Document parameter error"),
     
     /**
-     * 文档权限不足
+     * Document permission denied
      */
-    DOC_PERMISSION_DENIED(130006, "文档权限不足");
+    DOC_PERMISSION_DENIED(130006, "Document permission denied");
     
     private final int code;
     private final String message;

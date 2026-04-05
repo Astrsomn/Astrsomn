@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI工作流错误枚举
+ * AI Workflow Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiWorkflowErrorEnum implements IError {
     /**
-     * 工作流不存在
+     * Workflow not found
      */
-    WORKFLOW_NOT_FOUND(110001, "工作流不存在"),
+    WORKFLOW_NOT_FOUND(110001, "Workflow not found"),
     
     /**
-     * 工作流创建失败
+     * Workflow creation failed
      */
-    WORKFLOW_CREATE_FAILED(110002, "工作流创建失败"),
+    WORKFLOW_CREATE_FAILED(110002, "Workflow creation failed"),
     
     /**
-     * 工作流更新失败
+     * Workflow update failed
      */
-    WORKFLOW_UPDATE_FAILED(110003, "工作流更新失败"),
+    WORKFLOW_UPDATE_FAILED(110003, "Workflow update failed"),
     
     /**
-     * 工作流删除失败
+     * Workflow deletion failed
      */
-    WORKFLOW_DELETE_FAILED(110004, "工作流删除失败"),
+    WORKFLOW_DELETE_FAILED(110004, "Workflow deletion failed"),
     
     /**
-     * 工作流参数错误
+     * Workflow parameter error
      */
-    WORKFLOW_PARAM_ERROR(110005, "工作流参数错误"),
+    WORKFLOW_PARAM_ERROR(110005, "Workflow parameter error"),
     
     /**
-     * 工作流权限不足
+     * Workflow permission denied
      */
-    WORKFLOW_PERMISSION_DENIED(110006, "工作流权限不足");
+    WORKFLOW_PERMISSION_DENIED(110006, "Workflow permission denied");
     
     private final int code;
     private final String message;

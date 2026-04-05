@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI会话错误枚举
+ * AI Conversation Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiConversationErrorEnum implements IError {
     /**
-     * 会话不存在
+     * Conversation not found
      */
-    CONVERSATION_NOT_FOUND(30001, "会话不存在"),
+    CONVERSATION_NOT_FOUND(30001, "Conversation not found"),
     
     /**
-     * 会话创建失败
+     * Conversation creation failed
      */
-    CONVERSATION_CREATE_FAILED(30002, "会话创建失败"),
+    CONVERSATION_CREATE_FAILED(30002, "Conversation creation failed"),
     
     /**
-     * 会话更新失败
+     * Conversation update failed
      */
-    CONVERSATION_UPDATE_FAILED(30003, "会话更新失败"),
+    CONVERSATION_UPDATE_FAILED(30003, "Conversation update failed"),
     
     /**
-     * 会话删除失败
+     * Conversation deletion failed
      */
-    CONVERSATION_DELETE_FAILED(30004, "会话删除失败"),
+    CONVERSATION_DELETE_FAILED(30004, "Conversation deletion failed"),
     
     /**
-     * 会话参数错误
+     * Conversation parameter error
      */
-    CONVERSATION_PARAM_ERROR(30005, "会话参数错误"),
+    CONVERSATION_PARAM_ERROR(30005, "Conversation parameter error"),
     
     /**
-     * 会话权限不足
+     * Conversation permission denied
      */
-    CONVERSATION_PERMISSION_DENIED(30006, "会话权限不足");
+    CONVERSATION_PERMISSION_DENIED(30006, "Conversation permission denied");
     
     private final int code;
     private final String message;

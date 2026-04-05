@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * 向量存储错误枚举
+ * Vector Store Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AstVecStoreErrorEnum implements IError {
     /**
-     * 存储不存在
+     * Store not found
      */
-    STORE_NOT_FOUND(160001, "存储不存在"),
+    STORE_NOT_FOUND(160001, "Store not found"),
     
     /**
-     * 存储创建失败
+     * Store creation failed
      */
-    STORE_CREATE_FAILED(160002, "存储创建失败"),
+    STORE_CREATE_FAILED(160002, "Store creation failed"),
     
     /**
-     * 存储更新失败
+     * Store update failed
      */
-    STORE_UPDATE_FAILED(160003, "存储更新失败"),
+    STORE_UPDATE_FAILED(160003, "Store update failed"),
     
     /**
-     * 存储删除失败
+     * Store deletion failed
      */
-    STORE_DELETE_FAILED(160004, "存储删除失败"),
+    STORE_DELETE_FAILED(160004, "Store deletion failed"),
     
     /**
-     * 存储参数错误
+     * Store parameter error
      */
-    STORE_PARAM_ERROR(160005, "存储参数错误"),
+    STORE_PARAM_ERROR(160005, "Store parameter error"),
     
     /**
-     * 存储权限不足
+     * Store permission denied
      */
-    STORE_PERMISSION_DENIED(160006, "存储权限不足");
+    STORE_PERMISSION_DENIED(160006, "Store permission denied");
     
     private final int code;
     private final String message;

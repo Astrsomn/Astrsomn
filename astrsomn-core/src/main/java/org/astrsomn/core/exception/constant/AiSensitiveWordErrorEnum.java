@@ -5,40 +5,40 @@ import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
 /**
- * AI敏感词错误枚举
+ * AI Sensitive Word Error Enum
  */
 @Getter
 @AllArgsConstructor
 public enum AiSensitiveWordErrorEnum implements IError {
     /**
-     * 敏感词不存在
+     * Sensitive word not found
      */
-    SENSITIVE_WORD_NOT_FOUND(80001, "敏感词不存在"),
+    SENSITIVE_WORD_NOT_FOUND(80001, "Sensitive word not found"),
     
     /**
-     * 敏感词创建失败
+     * Sensitive word creation failed
      */
-    SENSITIVE_WORD_CREATE_FAILED(80002, "敏感词创建失败"),
+    SENSITIVE_WORD_CREATE_FAILED(80002, "Sensitive word creation failed"),
     
     /**
-     * 敏感词更新失败
+     * Sensitive word update failed
      */
-    SENSITIVE_WORD_UPDATE_FAILED(80003, "敏感词更新失败"),
+    SENSITIVE_WORD_UPDATE_FAILED(80003, "Sensitive word update failed"),
     
     /**
-     * 敏感词删除失败
+     * Sensitive word deletion failed
      */
-    SENSITIVE_WORD_DELETE_FAILED(80004, "敏感词删除失败"),
+    SENSITIVE_WORD_DELETE_FAILED(80004, "Sensitive word deletion failed"),
     
     /**
-     * 敏感词参数错误
+     * Sensitive word parameter error
      */
-    SENSITIVE_WORD_PARAM_ERROR(80005, "敏感词参数错误"),
+    SENSITIVE_WORD_PARAM_ERROR(80005, "Sensitive word parameter error"),
     
     /**
-     * 敏感词权限不足
+     * Sensitive word permission denied
      */
-    SENSITIVE_WORD_PERMISSION_DENIED(80006, "敏感词权限不足");
+    SENSITIVE_WORD_PERMISSION_DENIED(80006, "Sensitive word permission denied");
     
     private final int code;
     private final String message;
