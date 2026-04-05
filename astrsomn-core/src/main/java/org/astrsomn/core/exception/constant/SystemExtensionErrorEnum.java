@@ -1,45 +1,24 @@
 package org.astrsomn.core.exception.constant;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.astrsomn.core.exception.base.IError;
 
-/**
- * System Extension Error Enum
- */
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 @Getter
 @AllArgsConstructor
 public enum SystemExtensionErrorEnum implements IError {
-    /**
-     * Extension not found
-     */
-    EXTENSION_NOT_FOUND(190001, "Extension not found"),
-    
-    /**
-     * Extension creation failed
-     */
-    EXTENSION_CREATE_FAILED(190002, "Extension creation failed"),
-    
-    /**
-     * Extension update failed
-     */
-    EXTENSION_UPDATE_FAILED(190003, "Extension update failed"),
-    
-    /**
-     * Extension deletion failed
-     */
-    EXTENSION_DELETE_FAILED(190004, "Extension deletion failed"),
-    
-    /**
-     * Extension parameter error
-     */
-    EXTENSION_PARAM_ERROR(190005, "Extension parameter error"),
-    
-    /**
-     * Extension permission denied
-     */
-    EXTENSION_PERMISSION_DENIED(190006, "Extension permission denied");
-    
+    EXTENSION_NOT_FOUND(70001, "Extension not found"),
+    EXTENSION_CREATE_FAILED(70002, "Extension creation failed"),
+    EXTENSION_UPDATE_FAILED(70003, "Extension update failed"),
+    EXTENSION_DELETE_FAILED(70004, "Extension deletion failed"),
+    EXTENSION_PARAM_ERROR(70005, "Extension parameter error"),
+    EXTENSION_PERMISSION_DENIED(70006, "Extension permission denied"),
+    EXTENSION_APPLY_FAILED(70007, "Extension apply failed"),
+    EXTENSION_REVOKE_FAILED(70008, "Extension revoke failed"),
+    EXTENSION_UNINSTALL_FAILED(70009, "Extension uninstall failed"),
+    EXTENSION_UPLOAD_FAILED(70010, "Extension upload failed");
+
     private final int code;
     private final String message;
 }

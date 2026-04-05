@@ -16,6 +16,8 @@ import org.astrsomn.core.common.dto.extension.SystemExtensionResponseDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionUpdateRequestDTO;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
+import org.astrsomn.core.exception.base.BusinessException;
+import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
 import org.astrsomn.core.common.dto.extension.SystemExtensionMetaData;
 import org.astrsomn.server.plugin.ExtensionJarMetadataReader;
@@ -63,20 +65,26 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             entity.setApplied("N");
         }
         boolean result = save(entity);
-        return result ? BaseResponse.success("安装成功，待应用") : BaseResponse.fail("安装失败", null);
+        if (!result) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_CREATE_FAILED);
+        }
+        return BaseResponse.success("安装成功，待应用");
     }
 
     @Override
     public BaseResponse<String> delete(long[] ids) {
         boolean result = removeByIds(Arrays.asList(Arrays.stream(ids).boxed().toArray(Long[]::new)));
-        return result ? BaseResponse.success("删除成功") : BaseResponse.fail("删除失败", null);
+        if (!result) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_DELETE_FAILED);
+        }
+        return BaseResponse.success("删除成功");
     }
 
     @Override
     public BaseResponse<SystemExtensionResponseDTO> detail(Long id) {
         SystemExtensionEntity entity = getById(id);
         if (entity == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
         }
         SystemExtensionResponseDTO responseDTO = new SystemExtensionResponseDTO();
         BeanUtils.copyProperties(entity, responseDTO);
@@ -86,10 +94,20 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
 
     @Override
     public BaseResponse<String> update(SystemExtensionUpdateRequestDTO request) {
+        if (request.getId() == null) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR);
+        }
+        SystemExtensionEntity existing = getById(request.getId());
+        if (existing == null) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
+        }
         SystemExtensionEntity entity = new SystemExtensionEntity();
         BeanUtils.copyProperties(request, entity);
         boolean result = updateById(entity);
-        return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
+        if (!result) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UPDATE_FAILED);
+        }
+        return BaseResponse.success("更新成功");
     }
 
     @Override
@@ -141,10 +159,10 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     public BaseResponse<String> apply(Long id) {
         SystemExtensionEntity entity = getById(id);
         if (entity == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
         }
         if (StringUtils.isBlank(entity.getJarName())) {
-            return BaseResponse.fail("未配置 jarName，无法应用插件", null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "未配置 jarName，无法应用插件");
         }
         try {
             pluginManager.applyPlugin(entity.getJarName());
@@ -153,7 +171,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             updateById(entity);
             return BaseResponse.success("应用成功");
         } catch (Exception e) {
-            return BaseResponse.fail("应用失败: " + e.getMessage(), null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_APPLY_FAILED, e.getMessage());
         }
     }
 
@@ -161,15 +179,15 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     public BaseResponse<String> revokeApply(Long id) {
         SystemExtensionEntity entity = getById(id);
         if (entity == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
         }
         if (!SystemExtensionEnum.ExtensionInstallStatusEnum.APPLIED.getCode().equals(entity.getStatus())) {
-            return BaseResponse.fail("当前不是已应用状态，无需取消应用", null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "当前不是已应用状态，无需取消应用");
         }
         if (SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(entity.getType())) {
             BaseResponse<Void> guard = systemExtensionModelGuard.assertNoInstancesUseProviderModels(id);
             if (!guard.isSuccess()) {
-                return BaseResponse.fail(guard.getMessage(), null);
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
             }
         }
         if (StringUtils.isNotBlank(entity.getJarName())) {
@@ -178,19 +196,22 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
         entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
         boolean result = updateById(entity);
-        return result ? BaseResponse.success("已恢复为已安装") : BaseResponse.fail("更新失败", null);
+        if (!result) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_REVOKE_FAILED);
+        }
+        return BaseResponse.success("已恢复为已安装");
     }
 
     @Override
     public BaseResponse<String> uninstall(Long id) {
         SystemExtensionEntity entity = getById(id);
         if (entity == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
         }
         if (SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(entity.getType())) {
             BaseResponse<Void> guard = systemExtensionModelGuard.assertNoAiModelsForProviderExtension(id);
             if (!guard.isSuccess()) {
-                return BaseResponse.fail(guard.getMessage(), null);
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
             }
         }
         String jarName = entity.getJarName();
@@ -198,10 +219,13 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             pluginManager.unloadPlugin(jarName);
         }
         boolean result = removeById(id);
-        if (result && StringUtils.isNotBlank(jarName)) {
+        if (!result) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UNINSTALL_FAILED);
+        }
+        if (StringUtils.isNotBlank(jarName)) {
             tryDeletePluginJarFromDisk(jarName);
         }
-        return result ? BaseResponse.success("卸载成功") : BaseResponse.fail("卸载失败", null);
+        return BaseResponse.success("卸载成功");
     }
 
     /**
@@ -254,20 +278,20 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             String description,
             String providerCode) {
         if (file == null || file.isEmpty()) {
-            return BaseResponse.fail("请选择 jar 文件", null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "请选择 jar 文件");
         }
         String originalName = file.getOriginalFilename();
         String safeJarName;
         try {
             safeJarName = sanitizeJarFileName(originalName);
         } catch (IllegalArgumentException e) {
-            return BaseResponse.fail(e.getMessage(), null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, e.getMessage());
         }
 
         File pluginsDir = pluginManager.getPluginsDirectory();
         File dest = new File(pluginsDir, safeJarName);
         if (dest.exists()) {
-            return BaseResponse.fail("plugins 目录下已存在同名文件: " + safeJarName, null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "plugins 目录下已存在同名文件: " + safeJarName);
         }
 
         String stem = safeJarName.substring(0, safeJarName.length() - 4);
@@ -278,7 +302,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             file.transferTo(tempJar.toPath());
         } catch (IOException e) {
             log.error("暂存上传 jar 失败", e);
-            return BaseResponse.fail("保存文件失败: " + e.getMessage(), null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UPLOAD_FAILED, "保存文件失败: " + e.getMessage());
         }
 
         Optional<SystemExtensionMetaData> jarMeta = ExtensionJarMetadataReader.tryLoad(tempJar);
@@ -292,7 +316,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             } catch (IOException ignored) {
                 // ignore
             }
-            return BaseResponse.fail(e.getMessage(), null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, e.getMessage());
         }
         if (StringUtils.isBlank(key)) {
             try {
@@ -300,7 +324,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             } catch (IOException ignored) {
                 // ignore
             }
-            return BaseResponse.fail("extensionKey 无效", null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "extensionKey 无效");
         }
 
         Long dup = baseMapper.selectCount(
@@ -311,7 +335,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             } catch (IOException ignored) {
                 // ignore
             }
-            return BaseResponse.fail("扩展 Key 已存在: " + key, null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "扩展 Key 已存在: " + key);
         }
 
         try {
@@ -327,7 +351,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
                     // ignore
                 }
             }
-            return BaseResponse.fail("保存文件失败: " + e.getMessage(), null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UPLOAD_FAILED, "保存文件失败: " + e.getMessage());
         }
 
         SystemExtensionEntity entity = new SystemExtensionEntity();
@@ -366,7 +390,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             } catch (IOException ex) {
                 log.warn("回滚删除 jar 失败: {}", dest.getAbsolutePath(), ex);
             }
-            return BaseResponse.fail("登记扩展记录失败", null);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_CREATE_FAILED, "登记扩展记录失败");
         }
 
         try {

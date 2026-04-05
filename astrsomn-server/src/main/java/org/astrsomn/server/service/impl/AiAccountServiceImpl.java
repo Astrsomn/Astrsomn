@@ -14,6 +14,8 @@ import org.astrsomn.core.common.dto.account.AiAccountResponseDTO;
 import org.astrsomn.core.common.dto.account.AiAccountUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
+import org.astrsomn.core.exception.base.BusinessException;
+import org.astrsomn.core.exception.constant.AiAccountErrorEnum;
 import org.astrsomn.core.mapper.AiAccountMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiAccountService;
@@ -38,20 +40,26 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         BeanUtils.copyProperties(request, entity);
         bizResourceKeyAssignHelper.assignAccountKeyIfBlank(entity);
         boolean result = save(entity);
-        return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
+        if (!result) {
+            throw new BusinessException(AiAccountErrorEnum.ACCOUNT_CREATE_FAILED);
+        }
+        return BaseResponse.success("创建成功");
     }
 
     @Override
     public BaseResponse<String> delete(long[] ids) {
         boolean result = removeByIds(Arrays.asList(Arrays.stream(ids).boxed().toArray(Long[]::new)));
-        return result ? BaseResponse.success("删除成功") : BaseResponse.fail("删除失败", null);
+        if (!result) {
+            throw new BusinessException(AiAccountErrorEnum.ACCOUNT_DELETE_FAILED);
+        }
+        return BaseResponse.success("删除成功");
     }
 
     @Override
     public BaseResponse<AiAccountResponseDTO> detail(Long id) {
         AiAccountEntity entity = getById(id);
         if (entity == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(AiAccountErrorEnum.ACCOUNT_NOT_FOUND);
         }
         AiAccountResponseDTO dto = new AiAccountResponseDTO();
         BeanUtils.copyProperties(entity, dto);
@@ -62,11 +70,11 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
     @Override
     public BaseResponse<String> update(AiAccountUpdateRequestDTO request) {
         if (request.getId() == null) {
-            return BaseResponse.fail("ID不能为空", null);
+            throw new BusinessException(AiAccountErrorEnum.ACCOUNT_PARAM_ERROR);
         }
         AiAccountEntity existing = getById(request.getId());
         if (existing == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(AiAccountErrorEnum.ACCOUNT_NOT_FOUND);
         }
         AiAccountEntity entity = new AiAccountEntity();
         BeanUtils.copyProperties(request, entity);
@@ -76,7 +84,10 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
             bizResourceKeyAssignHelper.assignAccountKeyIfBlank(entity, entity.getId());
         }
         boolean result = updateById(entity);
-        return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
+        if (!result) {
+            throw new BusinessException(AiAccountErrorEnum.ACCOUNT_UPDATE_FAILED);
+        }
+        return BaseResponse.success("更新成功");
     }
 
     @Override

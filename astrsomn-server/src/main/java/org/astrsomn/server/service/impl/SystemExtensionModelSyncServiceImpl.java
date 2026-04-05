@@ -15,6 +15,8 @@ import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.ModelProviderHandler;
 import org.astrsomn.core.common.util.CollectionUtils;
 import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.exception.base.BusinessException;
+import org.astrsomn.core.exception.constant.SystemExtensionModelSyncErrorEnum;
 import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiModelService;
@@ -47,11 +49,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
 
     @Override
     public BaseResponse<String> loadModels(Long extensionId, String modelKeys) {
-        BaseResponse<LoadSyncContext> ctxResp = resolveLoadSyncContext(extensionId);
-        if (!ctxResp.isSuccess() || Objects.isNull(ctxResp.getData())) {
-            return BaseResponse.fail(ctxResp.getMessage(), null);
-        }
-        LoadSyncContext ctx = ctxResp.getData();
+        LoadSyncContext ctx = resolveLoadSyncContext(extensionId);
 
         List<AiModelEntity> available = ctx.handler().getAvailableModels();
         if (CollectionUtils.isEmpty(available)) {
@@ -115,11 +113,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
 
     @Override
     public BaseResponse<String> unloadModels(Long extensionId, String modelKeys) {
-        BaseResponse<ProviderEnv> peResp = resolveExtensionProviderEnv(extensionId);
-        if (!peResp.isSuccess() || peResp.getData() == null) {
-            return BaseResponse.fail(peResp.getMessage(), null);
-        }
-        ProviderEnv pe = peResp.getData();
+        ProviderEnv pe = resolveExtensionProviderEnv(extensionId);
 
         List<AiModelEntity> rows = aiModelMapper.selectList(
                 new LambdaQueryWrapper<AiModelEntity>()
@@ -173,11 +167,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
 
     @Override
     public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(Long extensionId) {
-        BaseResponse<LoadSyncContext> ctxResp = resolveLoadSyncContext(extensionId);
-        if (!ctxResp.isSuccess() || ctxResp.getData() == null) {
-            return BaseResponse.fail(ctxResp.getMessage(), null);
-        }
-        LoadSyncContext ctx = ctxResp.getData();
+        LoadSyncContext ctx = resolveLoadSyncContext(extensionId);
 
         ExtensionModelLoadPreviewDTO dto = new ExtensionModelLoadPreviewDTO();
         List<AiModelEntity> available = ctx.handler().getAvailableModels();
@@ -214,11 +204,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
 
     @Override
     public BaseResponse<ExtensionModelUnloadPreviewDTO> previewUnloadModels(Long extensionId) {
-        BaseResponse<ProviderEnv> peResp = resolveExtensionProviderEnv(extensionId);
-        if (!peResp.isSuccess() || peResp.getData() == null) {
-            return BaseResponse.fail(peResp.getMessage(), null);
-        }
-        ProviderEnv pe = peResp.getData();
+        ProviderEnv pe = resolveExtensionProviderEnv(extensionId);
 
         ExtensionModelUnloadPreviewDTO dto = new ExtensionModelUnloadPreviewDTO();
         List<AiModelEntity> rows = aiModelMapper.selectList(
@@ -242,45 +228,42 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
         return BaseResponse.success(dto);
     }
 
-    private BaseResponse<ProviderEnv> resolveExtensionProviderEnv(Long extensionId) {
+    private ProviderEnv resolveExtensionProviderEnv(Long extensionId) {
         if (extensionId == null) {
-            return BaseResponse.fail("扩展 ID 不能为空", null);
+            throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_PARAM_ERROR);
         }
         SystemExtensionEntity ext = systemExtensionService.getById(extensionId);
         if (ext == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(SystemExtensionModelSyncErrorEnum.EXTENSION_NOT_FOUND);
         }
         if (!SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(ext.getType())) {
-            return BaseResponse.fail("仅模型类扩展支持该操作", null);
+            throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_PARAM_ERROR);
         }
 
         String providerCode = resolveProviderCode(ext);
         if (providerCode == null) {
-            return BaseResponse.fail("无法解析 providerCode / extensionKey", null);
+            throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_PARAM_ERROR);
         }
         if (findProviderEnum(providerCode).isEmpty()) {
-            return BaseResponse.fail("非法的厂商代码: " + providerCode, null);
+            throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_PARAM_ERROR);
         }
 
         String envCode = effectiveEnvCode();
         if (StringUtils.isBlank(envCode)) {
-            return BaseResponse.fail("无法解析当前环境 envCode", null);
+            throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_PARAM_ERROR);
         }
 
-        return BaseResponse.success(new ProviderEnv(providerCode, envCode));
+        return new ProviderEnv(providerCode, envCode);
     }
 
-    private BaseResponse<LoadSyncContext> resolveLoadSyncContext(Long extensionId) {
-        BaseResponse<ProviderEnv> peResp = resolveExtensionProviderEnv(extensionId);
-        if (!peResp.isSuccess() || peResp.getData() == null) {
-            return BaseResponse.fail(peResp.getMessage(), null);
-        }
-        ProviderEnv pe = peResp.getData();
+    private LoadSyncContext resolveLoadSyncContext(Long extensionId) {
+        ProviderEnv pe = resolveExtensionProviderEnv(extensionId);
 
         Optional<ModelProviderHandler> handlerOpt = astroModelFactory.getHandler(pe.providerCode());
-        return handlerOpt.map(modelProviderHandler -> BaseResponse.success(new LoadSyncContext(pe.providerCode(), pe.envCode(), modelProviderHandler))).orElseGet(() -> BaseResponse.fail(
-                "当前运行时未加载该厂商的 ModelProviderHandler（SPI）: " + pe.providerCode(), null));
-
+        if (!handlerOpt.isPresent()) {
+            throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_FAILED, "当前运行时未加载该厂商的 ModelProviderHandler（SPI）: " + pe.providerCode());
+        }
+        return new LoadSyncContext(pe.providerCode(), pe.envCode(), handlerOpt.get());
     }
 
     private static ExtensionModelSyncPreviewRowDTO toPreviewRow(AiModelEntity src, String fallbackProvider) {
