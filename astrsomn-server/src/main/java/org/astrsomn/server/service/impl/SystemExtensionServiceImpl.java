@@ -17,7 +17,7 @@ import org.astrsomn.core.common.dto.extension.SystemExtensionUpdateRequestDTO;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
-import org.astrsomn.server.plugin.ExtensionJarMetadata;
+import org.astrsomn.core.common.dto.extension.SystemExtensionMetaData;
 import org.astrsomn.server.plugin.ExtensionJarMetadataReader;
 import org.astrsomn.server.plugin.SystemExtensionRegistry;
 import org.astrsomn.server.service.SystemExtensionService;
@@ -281,7 +281,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             return BaseResponse.fail("保存文件失败: " + e.getMessage(), null);
         }
 
-        Optional<ExtensionJarMetadata> jarMeta = ExtensionJarMetadataReader.tryLoad(tempJar);
+        Optional<SystemExtensionMetaData> jarMeta = ExtensionJarMetadataReader.tryLoad(tempJar);
 
         String key;
         try {
@@ -333,13 +333,13 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         SystemExtensionEntity entity = new SystemExtensionEntity();
         entity.setExtensionKey(key);
         entity.setJarName(safeJarName);
-        entity.setExtensionName(pickMeta(extensionName, jarMeta.map(ExtensionJarMetadata::extensionName)));
-        entity.setType(pickMeta(type, jarMeta.map(ExtensionJarMetadata::type)));
-        entity.setVersion(pickMeta(version, jarMeta.map(ExtensionJarMetadata::version)));
-        entity.setAuthor(pickMeta(author, jarMeta.map(ExtensionJarMetadata::author)));
-        entity.setDescription(pickMeta(description, jarMeta.map(ExtensionJarMetadata::description)));
-        entity.setProviderCode(pickMeta(providerCode, jarMeta.map(ExtensionJarMetadata::providerCode)));
-        entity.setAvatar(pickMeta(null, jarMeta.map(ExtensionJarMetadata::avatar)));
+        entity.setExtensionName(pickMeta(extensionName, jarMeta.map(SystemExtensionMetaData::extensionName)));
+        entity.setType(pickMeta(type, jarMeta.map(SystemExtensionMetaData::type)));
+        entity.setVersion(pickMeta(version, jarMeta.map(SystemExtensionMetaData::version)));
+        entity.setAuthor(pickMeta(author, jarMeta.map(SystemExtensionMetaData::author)));
+        entity.setDescription(pickMeta(description, jarMeta.map(SystemExtensionMetaData::description)));
+        entity.setProviderCode(pickMeta(providerCode, jarMeta.map(SystemExtensionMetaData::providerCode)));
+        entity.setAvatar(pickMeta(null, jarMeta.map(SystemExtensionMetaData::avatar)));
 
         applyManifestDefaults(dest, entity);
 
@@ -425,7 +425,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
      * 请求显式传入的 extensionKey 优先；否则用 jar 内 {@link AstroExtensionDescriptor#getExtensionKey()}；再否则由文件名推导。
      */
     private String resolveExtensionKeyForUpload(
-            String paramKey, Optional<ExtensionJarMetadata> jarMeta, String stem) {
+            String paramKey, Optional<SystemExtensionMetaData> jarMeta, String stem) {
         if (StringUtils.isNotBlank(paramKey)) {
             return sanitizeExtensionKey(paramKey);
         }
