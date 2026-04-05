@@ -38,7 +38,12 @@ public enum AiWorkflowErrorEnum implements IError {
     /**
      * Workflow permission denied
      */
-    WORKFLOW_PERMISSION_DENIED(110006, "Workflow permission denied");
+    WORKFLOW_PERMISSION_DENIED(110006, "Workflow permission denied"),
+
+    /**
+     *
+     */
+    WORKFLOW_EXECUTION_FAILED(110007, "WorkFlow execution failed" );
     
     private final int code;
     private final String message;
