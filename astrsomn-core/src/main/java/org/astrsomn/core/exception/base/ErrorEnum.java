@@ -1,9 +1,14 @@
-package org.astrsomn.core.exception;
+package org.astrsomn.core.exception.base;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * 错误枚举
  */
-public enum ErrorEnum {
+@Getter
+@AllArgsConstructor
+public enum ErrorEnum implements IError {
     /**
      * 系统错误
      */
@@ -48,17 +53,4 @@ public enum ErrorEnum {
      * 错误消息
      */
     private final String message;
-
-    ErrorEnum(int code, String message) {
-        this.code = code;
-        this.message = message;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 }

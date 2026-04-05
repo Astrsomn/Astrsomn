@@ -31,9 +31,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(buildBody(code, ex.getMessage(), ex, request));
     }
 
-    @ExceptionHandler(org.astrsomn.core.exception.BusinessException.class)
+    @ExceptionHandler(org.astrsomn.core.exception.base.BusinessException.class)
     public ResponseEntity<Map<String, Object>> handleCoreBusinessException(
-            org.astrsomn.core.exception.BusinessException ex,
+            org.astrsomn.core.exception.base.BusinessException ex,
             HttpServletRequest request) {
         int code = ex.getCode();
         HttpStatus status = HttpStatus.resolve(code);

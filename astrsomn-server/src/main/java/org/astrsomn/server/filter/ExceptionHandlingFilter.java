@@ -50,7 +50,7 @@ public class ExceptionHandlingFilter implements Filter {
                     status = be.getCode();
                 }
                 message = be.getMessage();
-            } else if (e instanceof org.astrsomn.core.exception.BusinessException be) {
+            } else if (e instanceof org.astrsomn.core.exception.base.BusinessException be) {
                 code = be.getCode();
                 status = be.getCode();
                 message = be.getMessage();
