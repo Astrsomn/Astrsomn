@@ -11,13 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @Slf4j
 public class SensitiveWordProvider {
-    // 根节点：存储所有敏感词的树状结构
+
     private final Map<Character, Object> nodes = new ConcurrentHashMap<>();
     private static final String IS_END = "isEnd";
 
-    /**
-     * 初始化/刷新词库
-     */
+
     public void refreshWords(List<String> words) {
         nodes.clear();
         for (String word : words) {
@@ -30,9 +28,7 @@ public class SensitiveWordProvider {
         log.info("====> [Astrsomn] 敏感词库加载完成，共 {} 条", words.size());
     }
 
-    /**
-     * 过滤敏感词，替换为 *
-     */
+
     public String filter(String text) {
         if (StringUtils.isBlank(text)) return text;
         StringBuilder result = new StringBuilder(text);
@@ -48,9 +44,7 @@ public class SensitiveWordProvider {
         return result.toString();
     }
 
-    /**
-     * 检查是否存在敏感词，并返回长度
-     */
+
     public int checkSensitiveWord(String text, int beginIndex) {
         Map<Character, Object> current = nodes;
         int length = 0;
@@ -61,7 +55,7 @@ public class SensitiveWordProvider {
             if (current == null) break;
             length++;
             if (current.containsKey((char) 0)) {
-                matchLength = length; // 找到一个词，记录当前长度
+                matchLength = length;
             }
         }
         return matchLength;

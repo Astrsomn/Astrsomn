@@ -1,4 +1,4 @@
 package org.astrsomn.core.exception;
 
-public class ModelNotFoundException {
+public class ModelException {
 }

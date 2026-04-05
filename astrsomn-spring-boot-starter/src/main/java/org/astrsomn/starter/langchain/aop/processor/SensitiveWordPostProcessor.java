@@ -1,4 +1,4 @@
-package org.astrsomn.starter.langchain.aop;
+package org.astrsomn.starter.langchain.aop.processor;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;

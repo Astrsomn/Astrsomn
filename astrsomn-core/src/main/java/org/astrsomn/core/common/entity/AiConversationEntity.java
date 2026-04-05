@@ -57,17 +57,27 @@ public class AiConversationEntity extends BaseEntity<Long> {
     private Integer consumeTokens;
 
     /**
-     * The ID of the model used to generate this response.
-     */
-    @TableField("MODEL_KEY")
-    private String modelKey;
-
-    /**
      * The ID of the Agent associated with this conversation.
      */
     @TableField("AGENT_KEY")
     private String agentKey;
 
+    /**
+     *
+     */
+    @TableField("INSTANCE_KEY")
+    private String instanceKey;
+
+    /**
+     * The ID of the model used to generate this response.
+     */
+    @TableField("MODEL_KEY")
+    private String modelKey;
+    /**
+     *
+     */
+    @TableField("ACCOUNT_KEY")
+    private String accountKey;
     /**
      * The ID of the prompt or template associated with this conversation.
      */

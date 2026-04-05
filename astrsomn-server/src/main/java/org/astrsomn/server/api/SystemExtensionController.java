@@ -12,7 +12,7 @@ import org.astrsomn.core.common.dto.extension.SystemExtensionCreateRequestDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionQueryRequestDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionResponseDTO;
 import org.astrsomn.core.common.dto.extension.SystemExtensionUpdateRequestDTO;
-import org.astrsomn.core.common.extension.marketplace.ExtensionMarketplaceCatalogSource;
+import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
 import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.server.service.SystemExtensionModelSyncService;
 import org.astrsomn.server.service.SystemExtensionService;

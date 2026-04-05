@@ -2,7 +2,7 @@ package org.astrsomn.server.marketplace;
 
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.dto.extension.ExtensionMarketplaceItemDTO;
-import org.astrsomn.core.common.extension.marketplace.ExtensionMarketplaceCatalogSource;
+import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.server.plugin.SystemExtensionRegistry;

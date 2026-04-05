@@ -1,7 +1,7 @@
 package org.astrsomn.starter.langchain.aop.example;
 
 import dev.langchain4j.agent.tool.Tool;
-import org.astrsomn.starter.langchain.aop.AstroToolGroup;
+import org.astrsomn.starter.langchain.aop.annotation.AstroToolGroup;
 
 @AstroToolGroup(
     value = "weather",

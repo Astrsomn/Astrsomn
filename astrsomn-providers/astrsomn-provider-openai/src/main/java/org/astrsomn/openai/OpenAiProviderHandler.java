@@ -66,6 +66,9 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
         }
+        if (param.getChatModelListener() != null) {
+            builder.listeners(param.getChatModelListeners());
+        }
         return builder.build();
     }
 
@@ -75,6 +78,9 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
                 .apiKey(param.getModelSetting().getApiKey());
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
+        }
+        if (param.getChatModelListener() != null) {
+            builder.listener(param.getChatModelListener());
         }
         return builder.build();
     }

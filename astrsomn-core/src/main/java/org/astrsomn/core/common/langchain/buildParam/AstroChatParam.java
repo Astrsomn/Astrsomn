@@ -1,10 +1,13 @@
 package org.astrsomn.core.common.langchain.buildParam;
 
 
+import dev.langchain4j.model.chat.listener.ChatModelListener;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.astrsomn.core.common.langchain.buildParam.setting.*;
+
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
@@ -92,6 +95,12 @@ public class AstroChatParam<T> {
      */
     @Builder.Default
     private ModelSetting modelSetting = new ModelSetting();
+    
+    /**
+     * 模型监听器
+     */
+    private List<ChatModelListener> chatModelListeners;
+    
     /**
      * 最终执行接口
      */

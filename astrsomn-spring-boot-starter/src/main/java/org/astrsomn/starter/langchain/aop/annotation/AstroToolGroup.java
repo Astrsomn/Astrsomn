@@ -1,4 +1,4 @@
-package org.astrsomn.starter.langchain.aop;
+package org.astrsomn.starter.langchain.aop.annotation;
 
 import org.springframework.stereotype.Component;
 

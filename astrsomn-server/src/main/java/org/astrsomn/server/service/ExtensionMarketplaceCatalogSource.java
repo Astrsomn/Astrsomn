@@ -1,4 +1,4 @@
-package org.astrsomn.core.common.extension.marketplace;
+package org.astrsomn.server.service;
 
 import org.astrsomn.core.common.dto.extension.ExtensionMarketplaceItemDTO;
 

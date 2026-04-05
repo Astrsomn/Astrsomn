@@ -1,4 +1,4 @@
-package org.astrsomn.starter.langchain.aop;
+package org.astrsomn.starter.langchain.aop.processor;
 
 import cn.hutool.core.bean.BeanException;
 import lombok.RequiredArgsConstructor;
@@ -6,14 +6,16 @@ import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.context.EnvRuntime;
+import org.astrsomn.starter.langchain.aop.annotation.Astro;
 import org.astrsomn.starter.langchain.factory.AstroAssistantFactory;
 import org.astrsomn.starter.langchain.runtime.AiRuntimeDefaultsResolver;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
-
-
+/**
+ * 作用：处理Astro注解，注入Assistant实例
+ */
 @Component
 @RequiredArgsConstructor
 public class AstroAnnotationProcessor implements BeanPostProcessor {

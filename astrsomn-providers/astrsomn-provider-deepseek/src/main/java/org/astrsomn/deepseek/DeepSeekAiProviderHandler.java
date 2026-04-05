@@ -10,6 +10,7 @@ import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.extension.AbstractModelProviderHandler;
+import org.astrsomn.core.common.util.CollectionUtils;
 import org.astrsomn.core.exception.UnknowModelException;
 
 import java.util.Arrays;
@@ -65,6 +66,9 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
         }
+        if (CollectionUtils.isNotEmpty(param.getChatModelListeners())) {
+            builder.listeners(param.getChatModelListeners());
+        }
         return builder.build();
     }
 
@@ -74,6 +78,9 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
                 .apiKey(param.getModelSetting().getApiKey());
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
+        }
+        if (CollectionUtils.isNotEmpty(param.getChatModelListeners())) {
+            builder.listeners(param.getChatModelListeners());
         }
         return builder.build();
     }
