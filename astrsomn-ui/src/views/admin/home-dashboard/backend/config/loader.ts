@@ -1,4 +1,4 @@
-import type { DashboardLayoutItem } from '../dashboardLayoutTypes'
+import type { DashboardLayoutItem } from '../types/dashboardLayoutTypes'
 import type { DashboardLayoutConfig, DashboardModuleConfig } from './types'
 import defaultLayoutConfig from './dashboard-layout.json'
 
@@ -27,8 +27,12 @@ export function convertConfigToLayoutItem(
 
   // 特殊处理AiAgent模块，允许更大的尺寸
   const isAiAgent = config.kind === 'AiAgent'
-  const maxWidth = isAiAgent ? 6 : 3
-  const maxHeight = isAiAgent ? 4 : 3
+  const defaultMaxWidth = isAiAgent ? 6 : 3
+  const defaultMaxHeight = isAiAgent ? 4 : 3
+
+  // 使用配置中的最大尺寸，如果没有配置则使用默认值
+  const maxWidth = config.maxW ?? defaultMaxWidth
+  const maxHeight = config.maxH ?? defaultMaxHeight
 
   const base = {
     i: `${config.kind}-${index}`,
@@ -36,10 +40,10 @@ export function convertConfigToLayoutItem(
     y: config.y,
     w: Math.min(maxWidth, config.w),
     h: Math.min(maxHeight, config.h),
-    minW: config.minW,
-    minH: config.minH,
-    maxW: config.maxW ? Math.min(maxWidth, config.maxW) : maxWidth,
-    maxH: config.maxH ? Math.min(maxHeight, config.maxH) : maxHeight,
+    minW: config.minW ?? 1, // 默认最小宽度为1
+    minH: config.minH ?? 1, // 默认最小高度为1
+    maxW: maxWidth,
+    maxH: maxHeight,
   }
 
   if (config.route) {

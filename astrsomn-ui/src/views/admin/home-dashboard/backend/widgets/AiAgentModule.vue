@@ -78,7 +78,7 @@ import {
   FileTextOutlined, CodeOutlined
 } from '@ant-design/icons-vue'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
-import { gridColTier, gridRowTier } from '../dashboardSizeTier'
+import { gridColTier, gridRowTier } from '../utils/dashboardSizeTier'
 
 const props = defineProps<{ gridW: number; gridH: number; editMode?: boolean }>()
 const router = useRouter()

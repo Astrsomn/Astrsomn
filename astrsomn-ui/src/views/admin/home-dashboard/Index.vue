@@ -36,7 +36,7 @@ import { Modal, message } from 'ant-design-vue'
 import type { ManagementEntry } from './resource-library/management.ts'
 import { getCurrentUserRole, resolveManagementGroups } from './resource-library/management.ts'
 import DashboardHomeGrid from './backend/DashboardHomeGrid.vue'
-import { resetDashboardLayoutToDefault } from './backend/dashboardLayoutStorage'
+import { resetDashboardLayoutToDefault } from './backend/core/dashboardLayoutStorage'
 
 const router = useRouter()
 const layoutEditMode = ref(false)

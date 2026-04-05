@@ -4,12 +4,12 @@ import type {
   DashboardLayoutItem,
   DashboardModuleKind,
   DashboardPageModuleItem,
-} from './dashboardLayoutTypes'
-import { isDashboardPageModuleKind } from './dashboardLayoutTypes'
+} from '../types/dashboardLayoutTypes'
+import { isDashboardPageModuleKind } from '../types/dashboardLayoutTypes'
 import { PAGE_KIND_ROUTE, ROUTE_TO_PAGE_KIND } from './dashboardPageRegistry'
-import { loadLayoutFromConfig } from './config'
+import { loadLayoutFromConfig } from '../config'
 
-export type { DashboardLayoutItem } from './dashboardLayoutTypes'
+export type { DashboardLayoutItem } from '../types/dashboardLayoutTypes'
 
 const STORAGE_V3_KEY = 'astrsomn.dashboard.layout.v3'
 const STORAGE_V2_KEY = 'astrsomn.dashboard.layout.v2'
@@ -105,8 +105,8 @@ function normalizeItem(row: DashboardLayoutItem): DashboardLayoutItem {
     ...row,
     minW: row.minW ?? 1,
     minH: row.minH ?? 1,
-    maxW: row.maxW ?? 12,
-    maxH: row.maxH ?? 6,
+    maxW: row.maxW ?? 3, // 默认最大宽度为3，与标准组件一致
+    maxH: row.maxH ?? 3, // 默认最大高度为3，与标准组件一致
   }
   if (isDashboardPageModuleKind(base.kind)) {
     const pi = base as DashboardPageModuleItem
@@ -163,8 +163,8 @@ export function itemsToLayout(items: DashboardLayoutItem[]): Layout {
     i,
     minW: minW ?? 1,
     minH: minH ?? 1,
-    maxW: maxW ?? 12,
-    maxH: maxH ?? 6,
+    maxW: maxW ?? 3, // 默认最大宽度为3，与标准组件一致
+    maxH: maxH ?? 3, // 默认最大高度为3，与标准组件一致
   }))
 }
 

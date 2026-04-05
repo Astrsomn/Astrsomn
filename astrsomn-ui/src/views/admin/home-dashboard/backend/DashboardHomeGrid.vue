@@ -52,8 +52,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { GridLayout, GridItem } from 'grid-layout-plus'
 import type { Layout } from 'grid-layout-plus'
-import type { DashboardLayoutItem, DashboardPageModuleItem } from './dashboardLayoutTypes'
-import { isDashboardPageModuleKind } from './dashboardLayoutTypes'
+import type { DashboardLayoutItem, DashboardPageModuleItem } from './types/dashboardLayoutTypes'
+import { isDashboardPageModuleKind } from './types/dashboardLayoutTypes'
 import {
   dashboardLayoutRevision,
   debouncedSaveDashboardItems,
@@ -62,8 +62,8 @@ import {
   loadDashboardLayoutItems,
   mergeLayoutIntoItems,
   removeDashboardItem,
-} from './dashboardLayoutStorage'
-import { DASHBOARD_WIDGET_BY_KIND } from './dashboardWidgets'
+} from './core/dashboardLayoutStorage'
+import { DASHBOARD_WIDGET_BY_KIND } from './core/dashboardWidgets'
 import type { ManagementEntry } from '../resource-library/management.ts'
 
 const props = defineProps<{

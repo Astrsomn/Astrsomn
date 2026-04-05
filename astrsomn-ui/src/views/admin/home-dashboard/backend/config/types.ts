@@ -1,4 +1,4 @@
-import type { DashboardModuleKind, DashboardPageModuleKind } from '../dashboardLayoutTypes'
+import type { DashboardModuleKind, DashboardPageModuleKind } from '../types/dashboardLayoutTypes'
 
 export interface DashboardLayoutConfig {
   version: number

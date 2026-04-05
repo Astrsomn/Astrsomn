@@ -1,5 +1,5 @@
-import type { EntryAccent } from '../resource-library/management.ts'
-import type { DashboardPageModuleKind } from './dashboardLayoutTypes'
+import type { EntryAccent } from '../../resource-library/management.ts'
+import type { DashboardPageModuleKind } from '../types/dashboardLayoutTypes'
 
 export const PAGE_KIND_ROUTE: Record<DashboardPageModuleKind, string> = {
   AiModel: '/admin/models',
