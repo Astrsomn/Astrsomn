@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import ConsolePageModuleShell from './ConsolePageModuleShell.vue'
-import type { ManagementEntry } from '../../resource-library/management.ts'
+import HomeTemplateCard from '../HomeTemplateCard.vue'
+import type { ManagementEntry } from '../../../resource-library/management.ts'
 
-const PAGE_KIND = 'AiTemplate' as const
+const PAGE_KIND = 'AiWorkflow' as const
 
 defineProps<{
   gridW: number
@@ -13,7 +13,7 @@ defineProps<{
 }>()
 </script>
 <template>
-  <ConsolePageModuleShell
+  <HomeTemplateCard
     :page-kind="PAGE_KIND"
     :route="route"
     :grid-w="gridW"

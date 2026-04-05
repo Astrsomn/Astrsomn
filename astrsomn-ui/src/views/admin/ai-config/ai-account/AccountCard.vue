@@ -136,17 +136,17 @@ const emitShowModels = () => emit('show-models', props.account)
 :deep(.ant-card-body) { padding: 0; }
 
 .c-side-card {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* 温暖的紫蓝渐变 */
-  --token-bg: #fdf2f8; /* 极浅的粉色，用于核心数据区背景 */
-  --tag-bg: #e0f2fe; /* 极浅的蓝色，用于模型标签 */
-  --text-main: #334155;
-  --text-sub: #94a3b8;
+  --primary-gradient: var(--primary-gradient);
+  --token-bg: var(--bg-elevated);
+  --tag-bg: var(--primary-hover);
+  --text-main: var(--text-heading);
+  --text-sub: var(--text-muted);
   
   position: relative;
   border-radius: 24px; /* 超大圆角 */
-  background: #ffffff;
-  border: 1px solid #f1f5f9;
-  box-shadow: 0 10px 25px -5px rgba(118, 75, 162, 0.08); /* 带有主色调的柔和阴影 */
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-card);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 带有弹性的过渡 */
   overflow: hidden;
   margin-bottom: 20px;
@@ -154,26 +154,26 @@ const emitShowModels = () => emit('show-models', props.account)
 
 .c-side-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 35px -5px rgba(118, 75, 162, 0.15);
-  border-color: #e2e8f0;
+  box-shadow: var(--shadow-card);
+  border-color: var(--primary-light);
 }
 
 /* 背景装饰球 */
 .deco-bubble {
   position: absolute;
   border-radius: 50%;
-  opacity: 0.5;
+  opacity: 0.3;
   filter: blur(20px);
   z-index: 1;
 }
 .bubble-1 {
   width: 100px; height: 100px;
-  background: #a5b4fc;
+  background: rgba(165, 180, 252, 0.3);
   top: -40px; right: -30px;
 }
 .bubble-2 {
   width: 80px; height: 80px;
-  background: #fbcfe8;
+  background: rgba(251, 207, 232, 0.3);
   bottom: -30px; left: -20px;
 }
 
@@ -218,7 +218,7 @@ const emitShowModels = () => emit('show-models', props.account)
   display: flex; align-items: center; gap: 6px;
   font-size: 12px; color: var(--text-sub);
 }
-.meta-under-title .divider { color: #e2e8f0; }
+.meta-under-title .divider { color: var(--border-default); }
 
 .status-tags { display: flex; align-items: center; gap: 8px; }
 
@@ -227,16 +227,16 @@ const emitShowModels = () => emit('show-models', props.account)
   text-transform: uppercase; letter-spacing: 0.5px;
 }
 /* PROD 使用清爽的紫色，DEV 使用柔和的蓝色 */
-.c-env-tag.prod { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
-.c-env-tag.dev { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-.c-env-tag:not(.prod):not(.dev) { background: #f1f5f9; color: #64748b; }
+.c-env-tag.prod { background: var(--primary-hover); color: var(--text-heading); border: 1px solid var(--primary); }
+.c-env-tag.dev { background: var(--primary-hover); color: var(--text-heading); border: 1px solid var(--primary); }
+.c-env-tag:not(.prod):not(.dev) { background: var(--bg-input); color: var(--text-muted); }
 
 .c-live-dot {
   width: 10px; height: 10px;
-  background: #4ade80; /* 绿宝石色 */
+  background: var(--success); /* 绿宝石色 */
   border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 0 0 2px #4ade80, 0 0 10px #4ade80;
+  border: 2px solid var(--bg-card);
+  box-shadow: 0 0 0 2px var(--success), 0 0 10px var(--success);
   animation: live-pulse 2s infinite;
 }
 
@@ -246,37 +246,37 @@ const emitShowModels = () => emit('show-models', props.account)
   border-radius: 16px;
   padding: 16px 20px;
   margin-bottom: 20px;
-  border: 1px solid #fbcfe8;
+  border: 1px solid var(--primary);
 }
 
 .token-label {
-  font-size: 12px; color: #db2777; /* 粉色调 */
+  font-size: 12px; color: var(--primary); /* 粉色调 */
   font-weight: 600; display: flex; align-items: center; gap: 5px;
   margin-bottom: 8px;
 }
 
 .token-value-wrapper {
   display: flex; align-items: baseline;
-  color: #c2185b; /* 稍深的粉色 */
+  color: var(--primary); /* 稍深的粉色 */
 }
 .token-num { font-size: 36px; font-weight: 800; line-height: 1; font-family: 'Poppins', sans-serif; }
 .token-decimal { font-size: 20px; font-weight: 700; opacity: 0.8; }
-.token-unit { font-size: 14px; font-weight: 600; margin-left: 6px; color: #db2777; opacity: 0.7; }
+.token-unit { font-size: 14px; font-weight: 600; margin-left: 6px; color: var(--primary); opacity: 0.7; }
 
 .token-progress {
-  height: 6px; background: #fce7f3; border-radius: 99px;
+  height: 6px; background: var(--bg-input); border-radius: 99px;
   margin-top: 10px; overflow: hidden;
 }
 .progress-bar {
   height: 100%;
-  background: linear-gradient(to right, #ec4899, #db2777); /* 粉色渐变 */
+  background: var(--primary-gradient); /* 粉色渐变 */
   border-radius: 99px;
 }
 
 /* 详情区：模块化、干净 */
 .details-section {
   display: flex; flex-direction: column; gap: 16px;
-  background: #f8fafc; /* 极浅灰底色区隔 */
+  background: var(--bg-elevated); /* 极浅灰底色区隔 */
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 24px;
@@ -292,21 +292,21 @@ const emitShowModels = () => emit('show-models', props.account)
 /* 模型标签：莫兰迪色系/冰淇淋色系 */
 .model-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .pastel-tag {
-  background: var(--tag-bg); color: #0284c7;
+  background: var(--tag-bg); color: var(--primary);
   padding: 3px 10px; border-radius: 8px; font-size: 12px;
-  font-weight: 500; border: 1px solid #bae6fd;
+  font-weight: 500; border: 1px solid var(--primary);
 }
 .more-text { font-size: 12px; color: var(--text-sub); cursor: pointer; font-weight: 600; }
-.manage-btn { padding: 0; height: auto; font-size: 12px; margin-left: auto; color: #764ba2; }
+.manage-btn { padding: 0; height: auto; font-size: 12px; margin-left: auto; color: var(--primary); }
 
 /* 密钥：单色、代码感 */
 .key-rows { display: flex; flex-direction: column; gap: 6px; }
 .key-mono {
   display: flex; align-items: center; gap: 8px;
-  background: white; padding: 4px 10px; border-radius: 8px; border: 1px solid #e2e8f0;
+  background: var(--bg-card); padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border-default);
 }
-.k-icon { color: #cbd5e1; font-size: 12px; }
-.key-mono code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #64748b; letter-spacing: 0.5px; }
+.k-icon { color: var(--text-muted); font-size: 12px; }
+.key-mono code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); letter-spacing: 0.5px; }
 
 /* 操作按钮：悬浮流式设计 */
 .card-actions {
@@ -327,15 +327,15 @@ const emitShowModels = () => emit('show-models', props.account)
   width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
   border-radius: 10px;
-  background: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.1);
   backdrop-filter: blur(4px); /* 毛玻璃效果 */
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   color: var(--text-sub);
   transition: all 0.2s;
 }
 .action-btn:hover { transform: scale(1.1); }
-.action-btn.edit:hover { background: #e0f2fe; color: #0369a1; }
-.action-btn.delete:hover { background: #fee2e2; color: #dc2626; }
+.action-btn.edit:hover { background: var(--primary-hover); color: var(--primary); }
+.action-btn.delete:hover { background: var(--error); color: var(--text-heading); }
 
 /* 动画定义 */
 @keyframes live-pulse {

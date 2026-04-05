@@ -119,7 +119,7 @@ const handleLogin = () => {
 
 <style scoped>
 .app-header {
-  --primary-glow: rgba(0, 97, 255, 0.15);
+  --primary-glow: rgba(59, 130, 246, 0.2);
   position: sticky;
   top: 0;
   z-index: 1000;

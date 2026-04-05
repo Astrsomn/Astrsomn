@@ -1,0 +1,180 @@
+{
+  "version": 2,
+  "description": "控制台首页布局配置文件 - 根据现有布局更新",
+  "layout": {
+    "cols": 12,
+    "rowHeight": 100,
+    "gap": 16,
+    "maxRows": 20
+  },
+  "modules": [
+    {
+      "kind": "AiAgent",
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 3,
+      "minW": 4,
+      "minH": 2,
+      "maxW": 6,
+      "maxH": 4
+    },
+
+    {
+      "kind": "AiModel",
+      "route": "/admin/models",
+      "x": 6,
+      "y": 3,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "AiAccount",
+      "route": "/admin/ai-account",
+      "x": 9,
+      "y": 3,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "AiTool",
+      "route": "/admin/tools",
+      "x": 0,
+      "y": 3,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "AiPrompt",
+      "route": "/admin/prompts",
+      "x": 3,
+      "y": 3,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "AiTemplate",
+      "route": "/admin/templates",
+      "x": 6,
+      "y": 5,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "KnowledgeBase",
+      "route": "/admin/knowledge-bases",
+      "x": 9,
+      "y": 5,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "AiDocument",
+      "route": "/admin/documents",
+      "x": 0,
+      "y": 5,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "AiMcp",
+      "route": "/admin/mcp",
+      "x": 3,
+      "y": 5,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "AiWorkflowTest",
+      "route": "/admin/workflows/simple",
+      "x": 6,
+      "y": 7,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "TraceInsight",
+      "route": "/admin/tracing",
+      "x": 0,
+      "y": 7,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "AiWorkflow",
+      "route": "/admin/workflows",
+      "x": 3,
+      "y": 7,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "SystemUser",
+      "route": "/admin/users",
+      "x": 9,
+      "y": 7,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    },
+    {
+      "kind": "SystemEnv",
+      "route": "/admin/env",
+      "x": 0,
+      "y": 9,
+      "w": 3,
+      "h": 2,
+      "minW": 1,
+      "minH": 1,
+      "maxW": 3,
+      "maxH": 3
+    }
+  ]
+}

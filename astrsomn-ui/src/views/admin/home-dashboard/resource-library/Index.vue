@@ -244,7 +244,7 @@ const handleSearch = () => {
 .resource-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
-  min-height: calc(100vh - 80px);
+  min-height: calc(100vh - 70px);
   background-color: var(--bg-surface);
 }
 
