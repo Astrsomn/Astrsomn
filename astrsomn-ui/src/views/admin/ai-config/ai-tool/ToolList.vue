@@ -8,7 +8,7 @@
       <AdminListToolbar>
         <template #left>
        
-            <ToolbarSearchPill
+            <AstrsomnSearchPill
               v-model="query.toolName"
               placeholder="搜索工具名称"
               button-label="搜索"
@@ -19,7 +19,7 @@
        
          
 
-          <TrioStateSwitch 
+          <AstrsomnStateSwitch
             v-model="query.enableFlag" 
             @change="fetchList"
             :options="[
@@ -32,11 +32,11 @@
         </template>
 
         <template #right>
-          <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
+          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
       </AdminListToolbar>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -110,10 +110,10 @@ import {
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
-import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
-import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
+import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ToolFormModal from './ToolFormModal.vue'
 import { aiToolApi, type AiTool, type PageResponse } from '@/api/aiTool.ts'
 

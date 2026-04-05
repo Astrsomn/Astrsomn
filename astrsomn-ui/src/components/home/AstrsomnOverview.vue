@@ -55,7 +55,7 @@ const onToggleSelectAll = (e: { target?: { checked?: boolean } }) => {
   border-radius: 50px;
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-overview);
+
   height: 50px;
   box-sizing: border-box;
 }

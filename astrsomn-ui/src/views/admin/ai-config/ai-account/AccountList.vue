@@ -9,7 +9,7 @@
         <template #left>
           <div class="account-toolbar-searches">
 
-            <ToolbarSearchPill
+            <AstrsomnSearchPill
               v-model="query.accountName"
               layout="toolbar"
               placeholder="账号名称"
@@ -20,11 +20,11 @@
         </template>
 
         <template #right>
-          <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
+          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
       </AdminListToolbar>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -81,9 +81,9 @@ import {
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
-import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AccountForm from './AccountForm.vue'
 import AccountCard from './AccountCard.vue'
 import AccountModelsDrawer from './AccountModelsDrawer.vue'

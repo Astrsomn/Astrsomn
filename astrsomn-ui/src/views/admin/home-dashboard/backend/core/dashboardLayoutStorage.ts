@@ -273,7 +273,6 @@ export function getDashboardPinnedRoutes(): Set<string> {
   const set = new Set<string>()
   for (const it of items) {
     if (it.kind === 'AiAgent') set.add('/admin/agents')
-    else if (it.kind === 'AiInstance') set.add('/admin/ai-instance')
     else if (layoutItemHasRoute(it)) set.add(it.route)
   }
   return set
@@ -288,7 +287,7 @@ export function addDashboardShortcut(route: string): boolean {
 
   if (items.some((it) => layoutItemHasRoute(it) && it.route === route)) return false
   if (route === '/admin/agents' && items.some((it) => it.kind === 'AiAgent')) return false
-  if (route === '/admin/ai-instance' && items.some((it) => it.kind === 'AiInstance')) return false
+
 
   let id = `mod_${kind}`
   if (items.some((it) => it.i === id)) id = `${id}_${Date.now()}`

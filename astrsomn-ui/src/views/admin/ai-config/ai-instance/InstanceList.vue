@@ -7,7 +7,7 @@
     <div class="astrsomn-config-container">
       <header class="list-toolbar-glass">
         <div class="toolbar-left">
-          <ToolbarSearchPill
+          <AstrsomnSearchPill
             v-model="query.instanceName"
             layout="toolbar"
             placeholder="搜索预设名称或标识..."
@@ -35,7 +35,7 @@
         </div>
       </header>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -89,8 +89,8 @@ import { computed, reactive, ref } from 'vue'
 import { message, Empty } from 'ant-design-vue'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import InstanceForm from './InstanceForm.vue'
 import InstanceCard from './InstanceCard.vue'
 import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance'

@@ -2,7 +2,7 @@
   <div class="extension-subpage">
     <AdminListToolbar>
       <template #left>
-        <ToolbarSearchPill
+        <AstrsomnSearchPill
           v-model="extensionNameInput"
           placeholder="搜索扩展名称"
           layout="toolbar"
@@ -38,7 +38,7 @@
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ExtensionMarketplaceCard from './ExtensionMarketplaceCard.vue'
 import type { ExtensionRow } from '../shared/extensionDisplay'
 import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension'

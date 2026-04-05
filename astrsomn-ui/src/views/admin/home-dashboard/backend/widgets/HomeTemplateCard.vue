@@ -55,7 +55,7 @@ const props = withDefaults(
     }>(),
     {
       editMode: false,
-      mock: () => ({ title: '标题', description: '这里是描述内容内容内容内容', footnote: 'Mock: 辅助信息' })
+      mock: () => ({ title: '标题', description: '这里是描述内容内容内容内容', footnote: '辅助信息' })
     }
 )
 

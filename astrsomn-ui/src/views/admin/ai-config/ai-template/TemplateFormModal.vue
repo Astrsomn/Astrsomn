@@ -1,5 +1,5 @@
 <template>
-  <HomeFullscreenModal
+  <AstrsomnModal
     :open="open"
     width="80vw"
     :body-height="'80vh'"
@@ -109,7 +109,7 @@
         </a-form-item>
       </aside>
     </div>
-  </HomeFullscreenModal>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
@@ -119,7 +119,7 @@ import { Codemirror } from 'vue-codemirror'
 import { html } from '@codemirror/lang-html'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { CodeOutlined } from '@ant-design/icons-vue'
-import HomeFullscreenModal from '@/components/home/HomeFullscreenModal.vue'
+import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import type { AiTemplate } from '@/api/aiTemplate.ts'
 
 const props = defineProps<{

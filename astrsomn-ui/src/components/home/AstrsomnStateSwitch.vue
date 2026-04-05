@@ -96,7 +96,6 @@ const handleSelect = (value: string | number, index: number) => {
   cursor: pointer;
   user-select: none;
   border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-overview);
   height: 50px;
   box-sizing: border-box;
 }

@@ -1,5 +1,5 @@
 <template>
-  <HomeFullscreenModal
+  <AstrsomnModal
     :open="open"
     width="80vw"
     max-width="80vw"
@@ -87,14 +87,14 @@
         </div>
       </a-form>
     </div>
-  </HomeFullscreenModal>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref, watch } from "vue";
 import type { FormInstance } from "ant-design-vue";
 import { FormOutlined, PlusCircleOutlined } from "@ant-design/icons-vue";
-import HomeFullscreenModal from "@/components/home/HomeFullscreenModal.vue";
+import AstrsomnModal from "@/components/home/AstrsomnModal.vue";
 
 const props = defineProps<{
   mode: "create" | "edit";

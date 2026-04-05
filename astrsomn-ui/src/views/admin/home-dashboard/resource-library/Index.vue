@@ -6,7 +6,7 @@
           <header class="filter-header">
             <h2 class="filter-title">筛选导航</h2>
             <div class="search-container">
-              <ToolbarSearchPill
+              <AstrsomnSearchPill
                 v-model="keyword"
                 placeholder="搜索资源..."
                 button-label="搜索"
@@ -122,14 +122,14 @@ import { LeftOutlined, RightOutlined, HomeOutlined, RobotOutlined, FileTextOutli
 // Vetur occasionally misses Vue SFC default exports in script setup files.
 // @ts-ignore
 import MenuSlotCard from './MenuSlotCard.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import { getCurrentUserRole, resolveManagementGroups } from './management.ts'
 import {
   addDashboardShortcut,
   dashboardLayoutRevision,
   getDashboardPinnedRoutes,
-} from '../backend/dashboardLayoutStorage'
+} from '../backend/core/dashboardLayoutStorage'
 
 const router = useRouter()
 const keyword = ref('')

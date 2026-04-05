@@ -62,7 +62,6 @@ function emitSearch() {
   padding: 0 8px 0 20px;
   display: flex;
   align-items: center;
-  box-shadow: var(--shadow-overview);
   border: 1px solid var(--border-default);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

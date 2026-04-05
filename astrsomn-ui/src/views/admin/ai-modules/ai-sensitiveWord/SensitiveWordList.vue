@@ -104,7 +104,7 @@
         </template>
       </AdminListToolbar>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -195,7 +195,7 @@ import {
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import SensitiveWordFormModal from './SensitiveWordFormModal.vue'
 import { aiSensitiveWordApi, type AiSensitiveWord, type PageResponse } from '@/api/aiSensitiveWord.ts'
 

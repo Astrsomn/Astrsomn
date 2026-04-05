@@ -10,23 +10,23 @@
         <div class="model-page-main">
           <div class="toolbar">
             <div class="toolbar-left">
-              <ToolbarSearchPill
+              <AstrsomnSearchPill
                 v-model="query.modelName"
                 layout="toolbar"
                 placeholder="搜索端点名称"
                 @search="fetchList"
               />
 
-              <TrioStateSwitch v-model="query.status" @change="fetchList" />
+              <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
 
             </div>
 
             <div class="toolbar-right">
-              <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
             </div>
           </div>
 
-          <BaseOverview
+          <AstrsomnOverview
               :list-length="list.length"
               :selected-count="selectedRowKeys.length"
               :all-current-selected="allCurrentSelected"
@@ -241,10 +241,10 @@ import {
   UserOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
-import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
-import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import ModelFormModal from './ModelFormModal.vue'
 import ModelProviderSidebar from './ModelProviderSidebar.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
@@ -511,7 +511,7 @@ onMounted(() => {
 }
 
 .model-page-layout {
-  /* 与 AdminPageShell min-height(100vh-70px) 对齐：预留顶栏、工具栏、BaseOverview 与间距 */
+  /* 与 AdminPageShell min-height(100vh-70px) 对齐：预留顶栏、工具栏、AstrsomnOverview 与间距 */
   --model-list-panel-max-height: calc(100vh - 240px);
   display: flex;
   align-items: flex-start;

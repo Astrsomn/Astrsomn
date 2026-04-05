@@ -49,7 +49,7 @@ defineProps<{
   gap: 0;
   border-radius: var(--radius-pro, 30px);
   overflow: hidden;
-  box-shadow: var(--shadow-overview);
+  border: 1px solid var(--border-default);
 }
 
 .seg-btn {

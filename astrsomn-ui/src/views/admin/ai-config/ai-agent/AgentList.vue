@@ -6,23 +6,23 @@
     <div ref="pageRef" class="agent-page">
       <div class="toolbar">
         <div class="toolbar-left">
-          <ToolbarSearchPill
+          <AstrsomnSearchPill
             v-model="query.agentName"
             layout="toolbar"
             placeholder="搜索智能体名称"
             @search="fetchList"
           />
 
-          <TrioStateSwitch v-model="query.status" @change="fetchList" />
+          <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
 
         </div>
 
         <div class="toolbar-right">
-          <ToolbarSegmentedButton :buttons="toolbarSegmentButtons" />
+          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </div>
       </div>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedCount"
         :all-current-selected="allCurrentSelected"
@@ -78,10 +78,10 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { CheckCircleOutlined, PlusOutlined, ReloadOutlined, StopOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
-import ToolbarSegmentedButton, { type SegmentedButton } from '@/components/home/ToolbarSegmentedButton.vue'
-import TrioStateSwitch from '@/components/home/TrioStateSwitch.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AgentCard from './AgentCard.vue'
 import AgentForm from './AgentForm.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'

@@ -2,7 +2,7 @@
   <div class="extension-subpage">
     <AdminListToolbar>
       <template #left>
-        <ToolbarSearchPill
+        <AstrsomnSearchPill
           v-model="extensionNameInput"
           placeholder="搜索扩展名称"
           layout="toolbar"
@@ -35,7 +35,7 @@
         </a-popconfirm>
       </template>
     </AdminListToolbar>
-    <BaseOverview
+    <AstrsomnOverview
       :list-length="list.length"
       :selected-count="selectedRowKeys.length"
       :all-current-selected="allCurrentSelected"
@@ -107,8 +107,8 @@ import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { DeleteOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ExtensionInstalledCard from './ExtensionInstalledCard.vue'
 import ExtensionModelLoadDialog from '../shared/ExtensionModelLoadDialog.vue'
 import ExtensionModelUnloadDialog from '../shared/ExtensionModelUnloadDialog.vue'

@@ -1,7 +1,7 @@
 /**
  * 控制台栅格模块类型：内置三块 + 与应用库 management 条目对应的页面模块（命名贴近实体）。
  */
-export type DashboardBuiltinModuleKind = 'AiAgent' | 'AiInstance' | 'ConsoleSystemLoad'
+export type DashboardBuiltinModuleKind = 'AiAgent'
 
 export const DASHBOARD_PAGE_MODULE_KINDS = [
   'AiModel',
@@ -47,13 +47,7 @@ export interface DashboardAiAgentItem extends DashboardLayoutItemBase {
   kind: 'AiAgent'
 }
 
-export interface DashboardAiInstanceItem extends DashboardLayoutItemBase {
-  kind: 'AiInstance'
-}
 
-export interface DashboardConsoleSystemLoadItem extends DashboardLayoutItemBase {
-  kind: 'ConsoleSystemLoad'
-}
 
 export interface DashboardPageModuleItem extends DashboardLayoutItemBase {
   kind: DashboardPageModuleKind
@@ -62,6 +56,4 @@ export interface DashboardPageModuleItem extends DashboardLayoutItemBase {
 
 export type DashboardLayoutItem =
   | DashboardAiAgentItem
-  | DashboardAiInstanceItem
-  | DashboardConsoleSystemLoadItem
   | DashboardPageModuleItem

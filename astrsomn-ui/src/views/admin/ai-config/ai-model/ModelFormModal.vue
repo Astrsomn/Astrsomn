@@ -1,5 +1,5 @@
 <template>
-  <HomeFullscreenModal
+  <AstrsomnModal
     :open="open"
     width="80vw"
     max-width="80vw"
@@ -285,7 +285,7 @@
       </div>
     </div>
     </div>
-  </HomeFullscreenModal>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
@@ -296,7 +296,7 @@ import {
   PartitionOutlined, LockOutlined, ThunderboltOutlined,
   CheckCircleFilled, ControlOutlined, PictureOutlined, GlobalOutlined
 } from '@ant-design/icons-vue'
-import HomeFullscreenModal from '@/components/home/HomeFullscreenModal.vue'
+import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import ModelProviderSelect from './ModelProviderSelect.vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiModel } from '@/api/aiModel'

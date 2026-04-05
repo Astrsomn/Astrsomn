@@ -7,7 +7,7 @@
     <div class="user-page">
       <AdminListToolbar>
         <template #left>
-          <ToolbarSearchPill
+          <AstrsomnSearchPill
             v-model="query.username"
             placeholder="搜索用户名"
             @search="fetchList"
@@ -61,7 +61,7 @@
         </template>
       </AdminListToolbar>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -133,8 +133,8 @@ import {
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
-import ToolbarSearchPill from '@/components/home/ToolbarSearchPill.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import UserFormModal from './UserFormModal.vue'
 import { systemUserApi, type SystemUser, type PageResponse } from '@/api/systemUser.ts'
 
