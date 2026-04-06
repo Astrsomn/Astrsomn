@@ -99,6 +99,30 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '链路追踪', requiresAuth: true }
       },
       {
+        path: 'vec-source',
+        name: 'AdminVecSource',
+        component: () => import('@/views/admin/ai-modules/vec-source/VecSourceList.vue'),
+        meta: { title: '向量源', requiresAuth: true }
+      },
+      {
+        path: 'vec-store',
+        name: 'AdminVecStore',
+        component: () => import('@/views/admin/ai-modules/vec-store/VecStoreList.vue'),
+        meta: { title: '向量存储', requiresAuth: true }
+      },
+      {
+        path: 'vec-doc',
+        name: 'AdminVecDoc',
+        component: () => import('@/views/admin/ai-modules/vec-doc/VecDocList.vue'),
+        meta: { title: '向量文档', requiresAuth: true }
+      },
+      {
+        path: 'vec-segment',
+        name: 'AdminVecSegment',
+        component: () => import('@/views/admin/ai-modules/vec-segment/VecSegmentList.vue'),
+        meta: { title: '向量分段', requiresAuth: true }
+      },
+      {
         path: 'resource-library',
         name: 'AdminResourceLibrary',
         component: () => import('@/views/admin/home-dashboard/resource-library/Index.vue'),

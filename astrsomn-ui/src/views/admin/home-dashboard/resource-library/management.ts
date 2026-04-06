@@ -15,6 +15,10 @@ import {
     BuildOutlined,
     ControlOutlined,
     SafetyOutlined,
+    DatabaseOutlined,
+    PartitionOutlined,
+    FileSearchOutlined,
+    CloudUploadOutlined,
 } from '@ant-design/icons-vue'
 
 export type EntryAccent =
@@ -137,14 +141,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 accent: 'mint', // 内容输入使用清新薄荷色
                 highlight: true,
             },
-        ],
-    },
-    {
-        id: 'content',
-        title: '模板与知识',
-        subtitle: '内容模板、知识库与文档入库',
-        items: [
-            {
+                        {
                 key: 'templates',
                 label: 'FTL 模板',
                 description: 'Freemarker / StringTemplate 模板（AI_TEMPLATE）',
@@ -152,6 +149,46 @@ const managementGroupsAll: ManagementGroup[] = [
                 route: '/admin/templates',
                 accent: 'primary-light',
             }
+        ],
+    },
+
+    {
+        id: 'vector',
+        title: '向量知识库',
+        subtitle: '向量数据库连接、集合配置与文档切片管理',
+        items: [
+            {
+                key: 'vec-source',
+                label: '向量源 (Sources)',
+                description: '配置向量数据库连接，支持 Milvus、Pinecone、DashVector 等',
+                icon: markRaw(CloudUploadOutlined),
+                route: '/admin/vec-source',
+                accent: 'teal',
+            },
+            {
+                key: 'vec-store',
+                label: '向量存储 (Collections)',
+                description: '管理向量集合，定义维度、距离度量和元数据模式',
+                icon: markRaw(DatabaseOutlined),
+                route: '/admin/vec-store',
+                accent: 'ocean',
+            },
+            {
+                key: 'vec-doc',
+                label: '向量文档 (Documents)',
+                description: '管理知识库文档记录，追踪入库状态与同步进度',
+                icon: markRaw(FileSearchOutlined),
+                route: '/admin/vec-doc',
+                accent: 'sky',
+            },
+            {
+                key: 'vec-segment',
+                label: '向量分段 (Segments)',
+                description: '管理文档切片与向量映射，支持分段内容预览',
+                icon: markRaw(PartitionOutlined),
+                route: '/admin/vec-segment',
+                accent: 'cyan',
+            },
         ],
     },
     {

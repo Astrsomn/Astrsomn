@@ -10,7 +10,7 @@
     <artifactId>astrsomn-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>astrsomn-server</name>
-    <description>AI分析服务</description>
+    <description>AI网关</description>
     <packaging>jar</packaging>
 
     <properties>
@@ -23,39 +23,6 @@
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-spring-boot-starter</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-vector</artifactId>
-            <type>pom</type>
-        </dependency>
-
-        <!-- 各 provider 为独立 jar；聚合 pom(astrsomn-providers) 不会带入子模块，须逐个声明以便 SPI 与 classpath 扫描
-        <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-provider-deepseek</artifactId>
-            <version>${astrsomn.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-provider-qwen</artifactId>
-            <version>${astrsomn.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-provider-openai</artifactId>
-            <version>${astrsomn.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-provider-qianfan</artifactId>
-            <version>${astrsomn.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-provider-zhipu</artifactId>
-            <version>${astrsomn.version}</version>
-        </dependency> -->
 
         <dependency>
             <groupId>org.astrsomn</groupId>
@@ -81,9 +48,6 @@
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
-  
-
-
         <!-- MyBatis-Plus -->
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -103,8 +67,6 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-
 
         <!-- 测试 -->
         <dependency>
