@@ -10,7 +10,7 @@
     <artifactId>astrsomn-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>astrsomn-server</name>
-    <description>AI网关</description>
+    <description>AI分析服务</description>
     <packaging>jar</packaging>
 
     <properties>
@@ -26,19 +26,21 @@
 
         <dependency>
             <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-workflow-spring-boot-starter</artifactId>
+            <artifactId>astrsomn-providers</artifactId>
+            <type>pom</type>
         </dependency>
 
         <dependency>
             <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-vector-qdrant</artifactId>
+            <artifactId>astrsomn-vector</artifactId>
+            <type>pom</type>
         </dependency>
 
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-workflow-spring-boot-starter</artifactId>
         </dependency>
+
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -57,6 +59,13 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
+
+        <!-- Spring Cloud -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
 
         <!-- MyBatis-Plus -->
         <dependency>
@@ -78,17 +87,25 @@
             <scope>runtime</scope>
         </dependency>
 
+
+
         <!-- 测试 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.13.0</version>
-            <scope>compile</scope>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-provider-qwen</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-provider-deepseek</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
     </dependencies>
