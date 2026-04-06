@@ -85,18 +85,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/ai-config/ai-template/TemplateList.vue'),
         meta: { title: 'FTL 模板管理', requiresAuth: true }
       },
-      {
-        path: 'knowledge-bases',
-        name: 'AdminKnowledgeBases',
-        component: () => import('@/views/admin/ai-modules/ai-rag/KnowledgeBaseList.vue'),
-        meta: { title: '知识库管理', requiresAuth: true }
-      },
-      {
-        path: 'documents',
-        name: 'AdminDocuments',
-        component: () => import('@/views/admin/ai-modules/ai-docs/DocumentList.vue'),
-        meta: { title: '文档管理', requiresAuth: true }
-      },
+
       {
         path: 'security',
         name: 'AdminSecurity',

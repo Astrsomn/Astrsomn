@@ -6,8 +6,8 @@ import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
 
 @Data
-@TableName("AST_VEC_STORE")
-public class AstVecStoreEntity extends BaseEntity<Long> {
+@TableName("AI_VEC_STORE")
+public class AiVecStoreEntity extends BaseEntity<Long> {
 
     @TableField("ID")
     private Long id;
