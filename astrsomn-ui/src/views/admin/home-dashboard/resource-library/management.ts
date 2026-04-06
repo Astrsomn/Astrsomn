@@ -4,7 +4,7 @@ import {
     TeamOutlined,
     ContainerOutlined,
     SettingOutlined,
-    BookOutlined,
+
     FileTextOutlined,
     UserOutlined,
     CloudServerOutlined,
@@ -151,23 +151,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 icon: markRaw(CodeOutlined),
                 route: '/admin/templates',
                 accent: 'primary-light',
-            },
-            {
-                key: 'kb-mgr',
-                label: '知识库管理',
-                description: '管理知识库空间与索引配置',
-                icon: markRaw(BookOutlined),
-                route: '/admin/knowledge-bases',
-                accent: 'teal', // 知识沉淀使用深青色
-            },
-            {
-                key: 'doc-mgr',
-                label: '文档管理',
-                description: '管理文档处理与入库任务',
-                icon: markRaw(FileTextOutlined),
-                route: '/admin/documents',
-                accent: 'frost', // 静态文档使用霜感色
-            },
+            }
         ],
     },
     {
@@ -191,23 +175,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 route: '/admin/tracing',
                 accent: 'violet', // 分析监控使用紫罗兰
             },
-            {
-                key: 'workflows',
-                label: '工作流',
-                description: '配置 DAG 节点流程、触发条件与执行链路',
-                icon: markRaw(NodeIndexOutlined),
-                route: '/admin/workflows',
-                accent: 'indigo', // 复杂编排使用靛蓝
-                highlight: true,
-            },
-            {
-                key: 'workflow-simple',
-                label: '工作流编排测试',
-                description: '按 Workflow Key 快速调用后端测试运行（已发布版本）',
-                icon: markRaw(NodeIndexOutlined),
-                route: '/admin/workflows/simple',
-                accent: 'blue',
-            },
+
         ],
     },
     {

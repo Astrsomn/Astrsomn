@@ -95,26 +95,8 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'tracing',
         name: 'AdminTracing',
-        component: () => import('@/views/admin/ai-modules/ai-trace/TraceList.vue'),
+        component: () => import('@/views/admin/ai-modules/ai-trace-log/TraceList.vue'),
         meta: { title: '链路追踪', requiresAuth: true }
-      },
-      {
-        path: 'workflows',
-        name: 'AdminWorkflows',
-        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowList.vue'),
-        meta: { title: '工作流', requiresAuth: true }
-      },
-      {
-        path: 'workflows/edit/:id',
-        name: 'AdminWorkflowEdit',
-        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowEditor.vue'),
-        meta: { title: '工作流编排', requiresAuth: true }
-      },
-      {
-        path: 'workflows/simple',
-        name: 'AdminWorkflowSimple',
-        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowSimpleTest.vue'),
-        meta: { title: '工作流编排测试', requiresAuth: true }
       },
       {
         path: 'resource-library',
