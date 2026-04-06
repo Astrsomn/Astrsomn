@@ -1,4 +1,4 @@
-package org.astrsomn.server.marketplace;
+package org.astrsomn.server.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.dto.extension.ExtensionMarketplaceItemDTO;
