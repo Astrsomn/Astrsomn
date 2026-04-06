@@ -6,6 +6,8 @@ import org.astrsomn.core.common.base.BaseEnum;
 import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 
 import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public interface AiModelEnum {
 
@@ -176,6 +178,15 @@ public interface AiModelEnum {
         public String getCode() {
             return this.code;
         }
+
+        /**
+         * 获取所有聊天模型能力的列表
+         */
+        public static List<String> getAllCodes() {
+            return Arrays.stream(values())
+                    .map(ChatCapabilitiesEnum::getCode)
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
@@ -240,6 +251,15 @@ public interface AiModelEnum {
                 case FREQUENCY_PENALTY -> capabilities.contains("frequency_penalty_setting");
             };
         }
+
+        /**
+         * 获取所有推理参数的列表
+         */
+        public static List<String> getAllCodes() {
+            return Arrays.stream(values())
+                    .map(InferenceParamEnum::getCode)
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
@@ -290,6 +310,15 @@ public interface AiModelEnum {
                 default -> false;
             };
         }
+
+        /**
+         * 获取所有图像生成参数的列表
+         */
+        public static List<String> getAllCodes() {
+            return Arrays.stream(values())
+                    .map(ImageGenParamEnum::getCode)
+                    .collect(Collectors.toList());
+        }
     }
 
     /**
@@ -328,6 +357,15 @@ public interface AiModelEnum {
         public boolean containedIn(List<String> capabilities) {
             return capabilities != null && capabilities.contains(code);
         }
+
+        /**
+         * 获取所有嵌入模型参数的列表
+         */
+        public static List<String> getAllCodes() {
+            return Arrays.stream(values())
+                    .map(EmbeddingInferenceParamEnum::getCode)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Getter
@@ -356,6 +394,15 @@ public interface AiModelEnum {
         @Override
         public String getCode() {
             return this.code;
+        }
+
+        /**
+         * 获取所有嵌入模型能力的列表
+         */
+        public static List<String> getAllCodes() {
+            return Arrays.stream(values())
+                    .map(EmbeddingCapabilitiesEnum::getCode)
+                    .collect(Collectors.toList());
         }
     }
 
@@ -401,6 +448,15 @@ public interface AiModelEnum {
         public String getCode() {
             return this.code;
         }
+
+        /**
+         * 获取所有图像模型能力的列表
+         */
+        public static List<String> getAllCodes() {
+            return Arrays.stream(values())
+                    .map(ImageCapabilitiesEnum::getCode)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Getter
@@ -427,5 +483,14 @@ public interface AiModelEnum {
 
 
         private String desc;
+
+        /**
+         * 获取所有模型类型的列表
+         */
+        public static List<String> getAllCodes() {
+            return Arrays.stream(values())
+                    .map(ModelTypeEnum::getCode)
+                    .collect(Collectors.toList());
+        }
     }
 }
