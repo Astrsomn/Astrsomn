@@ -1,67 +1,57 @@
 import request from '@/utils/request'
 
-export type AiVecSegment = {
+export interface AiVecSegment {
   id?: number | string
   docId?: number | string
   collectionId?: number | string
   vectorId?: string
   segmentContent?: string
-  wordCount?: number | string
-  chunkIndex?: number | string
+  wordCount?: number
+  chunkIndex?: number
   metadataJson?: string
-  createTime?: string
-  updateTime?: string
-  createUser?: string
-  updateUser?: string
-  envCode?: string
 }
 
-export type PageResponse<T> = {
-  total: number
-  pageSize: number
-  pageNum: number
-  pages: number
-  hasNext: boolean
+export interface PageResponse<T> {
   list: T[]
+  total: number
+  pageNum: number
+  pageSize: number
+}
+
+export interface AiVecSegmentQueryRequest {
+  docId?: number
+  collectionId?: number
+  vectorId?: string
+  chunkIndex?: number
 }
 
 export const aiVecSegmentApi = {
-  queryPage: (payload: unknown): Promise<PageResponse<AiVecSegment>> => {
-    return request({
-      url: '/v1/astro/ai-vec-segment/queryPage',
-      method: 'post',
-      data: payload
-    })
+  async create(data: AiVecSegment): Promise<string> {
+    const res = await request.post<{ message: string }>('/v1/astro/ai-vec-segment/create', data)
+    return res.message
   },
 
-  detail: (id: number | string): Promise<AiVecSegment> => {
-    return request({
-      url: `/v1/astro/ai-vec-segment/detail?id=${encodeURIComponent(String(id))}`,
-      method: 'get'
-    })
+  async update(data: AiVecSegment): Promise<string> {
+    const res = await request.post<{ message: string }>('/v1/astro/ai-vec-segment/update', data)
+    return res.message
   },
 
-  create: (payload: AiVecSegment): Promise<string> => {
-    return request({
-      url: '/v1/astro/ai-vec-segment/create',
-      method: 'post',
-      data: payload
-    })
+  async delete(ids: Array<number | string>): Promise<string> {
+    const res = await request.delete<{ message: string }>(`/v1/astro/ai-vec-segment/delete/${ids.join(',')}`)
+    return res.message
   },
 
-  update: (payload: AiVecSegment): Promise<string> => {
-    return request({
-      url: '/v1/astro/ai-vec-segment/update',
-      method: 'post',
-      data: payload
-    })
+  async detail(id: number | string): Promise<AiVecSegment> {
+    const res = await request.get<{ data: AiVecSegment }>(`/v1/astro/ai-vec-segment/detail?id=${id}`)
+    return res.data
   },
 
-  delete: (ids: Array<number | string>): Promise<string> => {
-    const joined = ids.map((x) => String(x)).join(',')
-    return request({
-      url: `/v1/astro/ai-vec-segment/delete/${joined}`,
-      method: 'delete'
-    })
+  async queryPage(params: {
+    pageNo: number
+    pageSize: number
+    param?: AiVecSegmentQueryRequest
+  }): Promise<PageResponse<AiVecSegment>> {
+    const res = await request.post<PageResponse<AiVecSegment>>('/v1/astro/ai-vec-segment/queryPage', params)
+    return res
   }
 }

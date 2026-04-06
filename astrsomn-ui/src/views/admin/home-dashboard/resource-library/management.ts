@@ -160,7 +160,7 @@ const managementGroupsAll: ManagementGroup[] = [
             {
                 key: 'vec-source',
                 label: '向量源 (Sources)',
-                description: '配置向量数据库连接，支持 Milvus、Pinecone、DashVector 等',
+                description: '配置向量数据库连接，支持多种数据源',
                 icon: markRaw(CloudUploadOutlined),
                 route: '/admin/vec-source',
                 accent: 'teal',

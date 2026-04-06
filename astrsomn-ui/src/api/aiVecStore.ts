@@ -1,66 +1,55 @@
 import request from '@/utils/request'
 
-export type AiVecStore = {
+export interface AiVecStore {
   id?: number | string
   sourceId?: number | string
-  collectionName?: string
-  dimension?: number | string
-  distanceMetric?: string
+  collectionName: string
+  dimension: number
+  distanceMetric: string
   metadataSchema?: string
   modelKey?: string
-  createTime?: string
-  updateTime?: string
-  createUser?: string
-  updateUser?: string
-  envCode?: string
 }
 
-export type PageResponse<T> = {
-  total: number
-  pageSize: number
-  pageNum: number
-  pages: number
-  hasNext: boolean
+export interface PageResponse<T> {
   list: T[]
+  total: number
+  pageNum: number
+  pageSize: number
+}
+
+export interface AiVecStoreQueryRequest {
+  collectionName?: string
+  modelKey?: string
+  dimension?: number
 }
 
 export const aiVecStoreApi = {
-  queryPage: (payload: unknown): Promise<PageResponse<AiVecStore>> => {
-    return request({
-      url: '/v1/astro/ai-vec-store/queryPage',
-      method: 'post',
-      data: payload
-    })
+  async create(data: AiVecStore): Promise<string> {
+    const res = await request.post<{ message: string }>('/v1/astro/ai-vec-store/create', data)
+    return res.message
   },
 
-  detail: (id: number | string): Promise<AiVecStore> => {
-    return request({
-      url: `/v1/astro/ai-vec-store/detail?id=${encodeURIComponent(String(id))}`,
-      method: 'get'
-    })
+  async update(data: AiVecStore): Promise<string> {
+    const res = await request.post<{ message: string }>('/v1/astro/ai-vec-store/update', data)
+    return res.message
   },
 
-  create: (payload: AiVecStore): Promise<string> => {
-    return request({
-      url: '/v1/astro/ai-vec-store/create',
-      method: 'post',
-      data: payload
-    })
+  async delete(ids: Array<number | string>): Promise<string> {
+    const res = await request.delete<{ message: string }>(`/v1/astro/ai-vec-store/delete/${ids.join(',')}`)
+    return res.message
   },
 
-  update: (payload: AiVecStore): Promise<string> => {
-    return request({
-      url: '/v1/astro/ai-vec-store/update',
-      method: 'post',
-      data: payload
-    })
+  async detail(id: number | string): Promise<AiVecStore> {
+    const res = await request.get<{ data: AiVecStore }>(`/v1/astro/ai-vec-store/detail?id=${id}`)
+    return res.data
   },
 
-  delete: (ids: Array<number | string>): Promise<string> => {
-    const joined = ids.map((x) => String(x)).join(',')
-    return request({
-      url: `/v1/astro/ai-vec-store/delete/${joined}`,
-      method: 'delete'
-    })
+  async queryPage(params: {
+    pageNo: number
+    pageSize: number
+    param?: AiVecStoreQueryRequest
+  }): Promise<PageResponse<AiVecStore>> {
+    const res = await request.post<PageResponse<AiVecStore>>('/v1/astro/ai-vec-store/queryPage', params)
+    return res
   }
 }

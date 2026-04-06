@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Empty, message } from 'ant-design-vue'
 import { LeftOutlined, RightOutlined, HomeOutlined, RobotOutlined, FileTextOutlined, SafetyCertificateOutlined, SettingOutlined } from '@ant-design/icons-vue'
@@ -131,12 +131,50 @@ import {
   getDashboardPinnedRoutes,
 } from '../backend/core/dashboardLayoutStorage'
 
+const CARD_MIN_WIDTH = 300
+const GRID_GAP = 20
+const ROWS = 3
+
 const router = useRouter()
 const keyword = ref('')
 const activeGroupId = ref<string>('all')
 const currentPage = ref(1)
 const pageSize = ref(9)
 const gridContainerRef = ref<HTMLElement | null>(null)
+const contentColumnRef = ref<HTMLElement | null>(null)
+let resizeObserver: ResizeObserver | null = null
+
+const calculateColumns = (containerWidth: number): number => {
+  const columns = Math.floor((containerWidth + GRID_GAP) / (CARD_MIN_WIDTH + GRID_GAP))
+  return Math.max(1, columns)
+}
+
+const updatePageSize = () => {
+  if (contentColumnRef.value) {
+    const width = contentColumnRef.value.clientWidth
+    const columns = calculateColumns(width)
+    pageSize.value = columns * ROWS
+  }
+}
+
+onMounted(() => {
+  const contentColumn = document.querySelector('.content-column')
+  if (contentColumn) {
+    contentColumnRef.value = contentColumn as HTMLElement
+    updatePageSize()
+    resizeObserver = new ResizeObserver(() => {
+      updatePageSize()
+    })
+    resizeObserver.observe(contentColumn)
+  }
+})
+
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+})
 
 const currentRole = computed(() => getCurrentUserRole())
 const groups = computed(() => resolveManagementGroups(currentRole.value))
