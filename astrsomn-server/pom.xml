@@ -29,6 +29,16 @@
             <artifactId>astrsomn-workflow-spring-boot-starter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-vector-qdrant</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -73,6 +83,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.13.0</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>

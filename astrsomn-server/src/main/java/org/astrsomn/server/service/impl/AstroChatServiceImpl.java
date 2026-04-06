@@ -1,5 +1,6 @@
 package org.astrsomn.server.service.impl;
 
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.langchain.AstroChatRequest;
 import org.astrsomn.core.common.langchain.AstroChatAssistant;
@@ -10,16 +11,21 @@ import org.astrsomn.core.exception.constant.AstroChatErrorEnum;
 import org.astrsomn.server.service.AstroChatService;
 import org.astrsomn.starter.langchain.factory.AstroAssistantFactory;
 import org.astrsomn.starter.langchain.stream.AstroChatStreamUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 
 @Service
-@RequiredArgsConstructor
+
 public class AstroChatServiceImpl implements AstroChatService {
 
-    private final AstroAssistantFactory assistantFactory;
-    private final AstroChatStreamUtil chatStreamUtil;
+    @Resource
+    private  AstroAssistantFactory assistantFactory;
+
+    @Resource
+    private  AstroChatStreamUtil chatStreamUtil;
 
 
     @Override
