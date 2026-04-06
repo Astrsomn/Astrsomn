@@ -71,9 +71,9 @@ const props = withDefaults(defineProps<Props>(), {
   bodyHeight: '100vh',
   maxWidth: '100vw',
   headerHeight: '72px',
-  contentBackground: '#f8fafc',
+  contentBackground: 'var(--bg-card, #f8fafc)',
   mainPadding: '20px',
-  mainBackground: '#f8fafc',
+  mainBackground: 'var(--bg-surface, #f8fafc)',
   closable: false,
   destroyOnClose: true,
   footer: null,
@@ -122,7 +122,7 @@ const mainAreaStyle = computed(() => ({
   height: var(--fsm-body-height, 100vh);
   border-radius: 0;
   padding: 0;
-  background: var(--fsm-modal-content-bg, #f8fafc);
+  background: var(--fsm-modal-content-bg, var(--bg-card, #f8fafc));
 }
 
 :global(.astrsomn-fullscreen-shell .ant-modal-body) {
@@ -141,12 +141,12 @@ const mainAreaStyle = computed(() => ({
 .fsm-header {
   min-height: var(--fsm-header-height, 72px);
   box-sizing: border-box;
-  background: #fff;
+  background: var(--bg-card, #fff);
   padding: 0 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-default, #e2e8f0);
   flex-shrink: 0;
 }
 
@@ -161,7 +161,7 @@ const mainAreaStyle = computed(() => ({
   width: 42px;
   height: 42px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  background: var(--primary-gradient, linear-gradient(135deg, #2563eb 0%, #3b82f6 100%));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,13 +181,13 @@ const mainAreaStyle = computed(() => ({
   display: block;
   font-size: 18px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-heading, #0f172a);
 }
 
 .fsm-sub-title {
   display: block;
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-muted, #94a3b8);
 }
 
 .fsm-header-actions {

@@ -4,7 +4,7 @@ import {
     TeamOutlined,
     ContainerOutlined,
     SettingOutlined,
-    BookOutlined,
+
     FileTextOutlined,
     UserOutlined,
     CloudServerOutlined,
@@ -15,6 +15,10 @@ import {
     BuildOutlined,
     ControlOutlined,
     SafetyOutlined,
+    DatabaseOutlined,
+    PartitionOutlined,
+    FileSearchOutlined,
+    CloudUploadOutlined,
 } from '@ant-design/icons-vue'
 
 export type EntryAccent =
@@ -137,36 +141,53 @@ const managementGroupsAll: ManagementGroup[] = [
                 accent: 'mint', // 内容输入使用清新薄荷色
                 highlight: true,
             },
-        ],
-    },
-    {
-        id: 'content',
-        title: '模板与知识',
-        subtitle: '内容模板、知识库与文档入库',
-        items: [
-            {
+                        {
                 key: 'templates',
                 label: 'FTL 模板',
                 description: 'Freemarker / StringTemplate 模板（AI_TEMPLATE）',
                 icon: markRaw(CodeOutlined),
                 route: '/admin/templates',
                 accent: 'primary-light',
+            }
+        ],
+    },
+
+    {
+        id: 'vector',
+        title: '向量知识库',
+        subtitle: '向量数据库连接、集合配置与文档切片管理',
+        items: [
+            {
+                key: 'vec-source',
+                label: '向量源 (Sources)',
+                description: '配置向量数据库连接，支持多种数据源',
+                icon: markRaw(CloudUploadOutlined),
+                route: '/admin/vec-source',
+                accent: 'teal',
             },
             {
-                key: 'kb-mgr',
-                label: '知识库管理',
-                description: '管理知识库空间与索引配置',
-                icon: markRaw(BookOutlined),
-                route: '/admin/knowledge-bases',
-                accent: 'teal', // 知识沉淀使用深青色
+                key: 'vec-store',
+                label: '向量存储 (Collections)',
+                description: '管理向量集合，定义维度、距离度量和元数据模式',
+                icon: markRaw(DatabaseOutlined),
+                route: '/admin/vec-store',
+                accent: 'ocean',
             },
             {
-                key: 'doc-mgr',
-                label: '文档管理',
-                description: '管理文档处理与入库任务',
-                icon: markRaw(FileTextOutlined),
-                route: '/admin/documents',
-                accent: 'frost', // 静态文档使用霜感色
+                key: 'vec-doc',
+                label: '向量文档 (Documents)',
+                description: '管理知识库文档记录，追踪入库状态与同步进度',
+                icon: markRaw(FileSearchOutlined),
+                route: '/admin/vec-doc',
+                accent: 'sky',
+            },
+            {
+                key: 'vec-segment',
+                label: '向量分段 (Segments)',
+                description: '管理文档切片与向量映射，支持分段内容预览',
+                icon: markRaw(PartitionOutlined),
+                route: '/admin/vec-segment',
+                accent: 'cyan',
             },
         ],
     },
@@ -191,23 +212,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 route: '/admin/tracing',
                 accent: 'violet', // 分析监控使用紫罗兰
             },
-            {
-                key: 'workflows',
-                label: '工作流',
-                description: '配置 DAG 节点流程、触发条件与执行链路',
-                icon: markRaw(NodeIndexOutlined),
-                route: '/admin/workflows',
-                accent: 'indigo', // 复杂编排使用靛蓝
-                highlight: true,
-            },
-            {
-                key: 'workflow-simple',
-                label: '工作流编排测试',
-                description: '按 Workflow Key 快速调用后端测试运行（已发布版本）',
-                icon: markRaw(NodeIndexOutlined),
-                route: '/admin/workflows/simple',
-                accent: 'blue',
-            },
+
         ],
     },
     {

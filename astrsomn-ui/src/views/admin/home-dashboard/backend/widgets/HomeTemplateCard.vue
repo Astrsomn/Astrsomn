@@ -102,13 +102,13 @@ const go = () => {
 <style scoped>
 /* 1. 基础容器与变量 */
 .console-page-mod {
-  --primary: #2563eb;
-  --bg-icon: #eff6ff;
-  --border: rgba(37, 99, 235, 0.1);
+  --primary: var(--accent-blue, #2563eb);
+  --bg-icon: var(--bg-elevated, #eff6ff);
+  --border: var(--border-default, rgba(37, 99, 235, 0.1));
 
   width: 100%;
   height: 100%;
-  background: #ffffff;
+  background: var(--bg-card, #ffffff);
   border: 1px solid var(--border);
   border-radius: 16px;
   position: relative;
@@ -122,13 +122,13 @@ const go = () => {
 }
 
 /* 颜色变体 */
-.accent-blue { --primary: #2563eb; --bg-icon: #eff6ff; }
-.accent-green { --primary: #10b981; --bg-icon: #f0fdf4; }
-.accent-purple { --primary: #8b5cf6; --bg-icon: #f5f3ff; }
+.accent-blue { --primary: var(--accent-blue, #2563eb); --bg-icon: var(--bg-elevated, #eff6ff); }
+.accent-green { --primary: var(--success, #10b981); --bg-icon: var(--bg-elevated, #f0fdf4); }
+.accent-purple { --primary: var(--assembly-label-emb, #8b5cf6); --bg-icon: var(--bg-elevated, #f5f3ff); }
 
 /* Hover 状态 */
 .console-page-mod:hover:not(.is-edit-mode) {
-  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1);
+  box-shadow: var(--shadow-overview, 0 10px 25px -5px rgba(37, 99, 235, 0.1));
   border-color: var(--primary);
   transform: translateY(-2px);
 }
@@ -152,14 +152,14 @@ const go = () => {
 
 .mod-title {
   margin: 0;
-  color: #1e293b;
+  color: var(--text-heading, #1e293b);
   font-weight: 700;
   line-height: 1.4;
 }
 
 .mod-desc {
   margin: 4px 0 0;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   font-size: 12px;
   line-height: 1.5;
   display: -webkit-box;
@@ -178,13 +178,13 @@ const go = () => {
 .mod-divider {
   width: 100%;
   height: 1px;
-  border-top: 1px dashed #e2e8f0;
+  border-top: 1px dashed var(--border-subtle, #e2e8f0);
   margin-bottom: 8px;
 }
 
 .mod-foot-text {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-muted, #94a3b8);
   display: block;
 }
 
@@ -266,18 +266,18 @@ const go = () => {
   right: 8px;
   width: 20px;
   height: 20px;
-  background: #f1f5f9;
+  background: var(--bg-elevated, #f1f5f9);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 10px;
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
   z-index: 10;
   transition: background 0.2s;
 }
 .mod-close-btn:hover {
-  background: #ef4444;
+  background: var(--error, #ef4444);
   color: #ffffff;
 }
 
@@ -291,7 +291,7 @@ const go = () => {
   top: 4px;
   left: 6px;
   font-size: 9px;
-  color: #cbd5e1;
+  color: var(--text-muted, #cbd5e1);
   pointer-events: none;
 }
 </style>

@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.springframework.stereotype.Component;
 
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

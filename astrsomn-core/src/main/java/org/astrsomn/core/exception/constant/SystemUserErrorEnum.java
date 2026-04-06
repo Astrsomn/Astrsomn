@@ -1,9 +1,8 @@
 package org.astrsomn.core.exception.constant;
 
-import org.astrsomn.core.exception.base.IError;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.astrsomn.core.exception.base.IError;
 
 @Getter
 @AllArgsConstructor

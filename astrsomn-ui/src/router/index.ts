@@ -85,18 +85,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/ai-config/ai-template/TemplateList.vue'),
         meta: { title: 'FTL 模板管理', requiresAuth: true }
       },
-      {
-        path: 'knowledge-bases',
-        name: 'AdminKnowledgeBases',
-        component: () => import('@/views/admin/ai-modules/ai-rag/KnowledgeBaseList.vue'),
-        meta: { title: '知识库管理', requiresAuth: true }
-      },
-      {
-        path: 'documents',
-        name: 'AdminDocuments',
-        component: () => import('@/views/admin/ai-modules/ai-docs/DocumentList.vue'),
-        meta: { title: '文档管理', requiresAuth: true }
-      },
+
       {
         path: 'security',
         name: 'AdminSecurity',
@@ -106,26 +95,32 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'tracing',
         name: 'AdminTracing',
-        component: () => import('@/views/admin/ai-modules/ai-trace/TraceList.vue'),
+        component: () => import('@/views/admin/ai-modules/ai-trace-log/TraceList.vue'),
         meta: { title: '链路追踪', requiresAuth: true }
       },
       {
-        path: 'workflows',
-        name: 'AdminWorkflows',
-        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowList.vue'),
-        meta: { title: '工作流', requiresAuth: true }
+        path: 'vec-source',
+        name: 'AdminVecSource',
+        component: () => import('@/views/admin/ai-modules/vec-source/VecSourceList.vue'),
+        meta: { title: '向量源', requiresAuth: true }
       },
       {
-        path: 'workflows/edit/:id',
-        name: 'AdminWorkflowEdit',
-        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowEditor.vue'),
-        meta: { title: '工作流编排', requiresAuth: true }
+        path: 'vec-store',
+        name: 'AdminVecStore',
+        component: () => import('@/views/admin/ai-modules/vec-store/VecStoreList.vue'),
+        meta: { title: '向量存储', requiresAuth: true }
       },
       {
-        path: 'workflows/simple',
-        name: 'AdminWorkflowSimple',
-        component: () => import('@/views/admin/ai-modules/ai-workflow/WorkflowSimpleTest.vue'),
-        meta: { title: '工作流编排测试', requiresAuth: true }
+        path: 'vec-doc',
+        name: 'AdminVecDoc',
+        component: () => import('@/views/admin/ai-modules/vec-doc/VecDocList.vue'),
+        meta: { title: '向量文档', requiresAuth: true }
+      },
+      {
+        path: 'vec-segment',
+        name: 'AdminVecSegment',
+        component: () => import('@/views/admin/ai-modules/vec-segment/VecSegmentList.vue'),
+        meta: { title: '向量分段', requiresAuth: true }
       },
       {
         path: 'resource-library',

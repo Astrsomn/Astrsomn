@@ -1,12 +1,10 @@
 package org.astrsomn.starter.langchain.tool;
 
-import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.service.tool.ToolProvider;
 import dev.langchain4j.service.tool.ToolProviderRequest;
 import dev.langchain4j.service.tool.ToolProviderResult;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j

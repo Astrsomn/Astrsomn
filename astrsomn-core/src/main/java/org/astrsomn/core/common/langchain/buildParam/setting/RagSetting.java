@@ -31,7 +31,10 @@ public class RagSetting {
      */
     private List<String> knowledgeKeys;
 
-
+    /**
+     * 嵌入模型 key（与 {@code AI_MODEL.MODEL_KEY} 对应）；为空时可由向量运行时从集合 {@code modelKey} 推断。
+     */
+    private String embeddingModelKey;
 
     private String host;
 

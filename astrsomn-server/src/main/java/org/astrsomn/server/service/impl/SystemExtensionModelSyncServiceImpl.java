@@ -8,7 +8,6 @@ import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.dto.extension.ExtensionModelLoadPreviewDTO;
 import org.astrsomn.core.common.dto.extension.ExtensionModelSyncPreviewRowDTO;
 import org.astrsomn.core.common.dto.extension.ExtensionModelUnloadPreviewDTO;
-import org.astrsomn.core.common.dto.model.AiModelCreateRequestDTO;
 import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;

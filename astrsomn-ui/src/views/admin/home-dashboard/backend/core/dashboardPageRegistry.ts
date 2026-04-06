@@ -8,12 +8,8 @@ export const PAGE_KIND_ROUTE: Record<DashboardPageModuleKind, string> = {
   AiTool: '/admin/tools',
   AiPrompt: '/admin/prompts',
   AiTemplate: '/admin/templates',
-  KnowledgeBase: '/admin/knowledge-bases',
-  AiDocument: '/admin/documents',
   SecurityPolicy: '/admin/security',
   TraceInsight: '/admin/tracing',
-  AiWorkflow: '/admin/workflows',
-  AiWorkflowTest: '/admin/workflows/simple',
   SystemUser: '/admin/users',
   SystemEnv: '/admin/env',
   SystemConfig: '/admin/system-config',
@@ -79,18 +75,7 @@ export const PAGE_MODULE_MOCK: Record<DashboardPageModuleKind, PageModuleMock> =
     description: 'Freemarker / StringTemplate 模板（AI_TEMPLATE）',
     footnote: 'Mock：热点模板 order_confirm_ftl',
   },
-  KnowledgeBase: {
-    accent: 'teal',
-    title: '知识库管理',
-    description: '管理知识库空间与索引配置',
-    footnote: 'Mock：向量维度 1536',
-  },
-  AiDocument: {
-    accent: 'cyan',
-    title: '文档管理',
-    description: '管理文档处理与入库任务',
-    footnote: 'Mock：OCR 平均耗时 1.8s/页',
-  },
+
   SecurityPolicy: {
     accent: 'coral',
     title: '安全治理',
@@ -102,18 +87,6 @@ export const PAGE_MODULE_MOCK: Record<DashboardPageModuleKind, PageModuleMock> =
     title: '链路追踪',
     description: '监控大模型调用链路与日志输出',
     footnote: 'Mock：Jaeger 后端已连接',
-  },
-  AiWorkflow: {
-    accent: 'indigo',
-    title: '工作流',
-    description: '配置 DAG 节点流程、触发条件与执行链路',
-    footnote: 'Mock：审批流调用量 +18%',
-  },
-  AiWorkflowTest: {
-    accent: 'blue',
-    title: '工作流编排测试',
-    description: '按 Workflow Key 快速调用后端测试运行（已发布版本）',
-    footnote: 'Mock：仅沙箱环境',
   },
   SystemUser: {
     accent: 'blue',

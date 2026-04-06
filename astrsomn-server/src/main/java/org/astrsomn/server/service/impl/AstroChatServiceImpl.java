@@ -1,8 +1,8 @@
 package org.astrsomn.server.service.impl;
 
-import lombok.RequiredArgsConstructor;
-import org.astrsomn.core.common.langchain.AstroChatRequest;
+import jakarta.annotation.Resource;
 import org.astrsomn.core.common.langchain.AstroChatAssistant;
+import org.astrsomn.core.common.langchain.AstroChatRequest;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ConversationSetting;
 import org.astrsomn.core.exception.base.BusinessException;
@@ -15,11 +15,14 @@ import reactor.core.publisher.Flux;
 
 
 @Service
-@RequiredArgsConstructor
+
 public class AstroChatServiceImpl implements AstroChatService {
 
-    private final AstroAssistantFactory assistantFactory;
-    private final AstroChatStreamUtil chatStreamUtil;
+    @Resource
+    private  AstroAssistantFactory assistantFactory;
+
+    @Resource
+    private  AstroChatStreamUtil chatStreamUtil;
 
 
     @Override

@@ -1,11 +1,8 @@
 package org.astrsomn.core.common.langchain;
 
-import dev.langchain4j.model.output.Response;
 import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
-
-import java.awt.*;
 
 public interface AstroChatAssistant {
 

@@ -109,7 +109,7 @@ function onMenuClick(info: { key: string | number }) {
   border-radius: var(--radius-xl);
   background: var(--bg-card);
   padding: 12px 0 16px;
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.04);
+  box-shadow: var(--shadow-card, 0 16px 32px rgba(15, 23, 42, 0.04));
 }
 
 .provider-spin {

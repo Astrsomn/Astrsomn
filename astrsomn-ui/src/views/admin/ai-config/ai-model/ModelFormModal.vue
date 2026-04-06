@@ -645,17 +645,17 @@ const onCancel = () => emit('update:open', false)
 }
 
 .model-form-pane--left {
-  background: #fff;
+  background: var(--bg-card, #fff);
 }
 
 .model-form-pane--right {
-  background: #f8fafc;
+  background: var(--bg-surface, #f8fafc);
 }
 
 .model-form-divider {
   width: 1px;
   flex-shrink: 0;
-  background: #e2e8f0;
+  background: var(--border-default, #e2e8f0);
   align-self: stretch;
 }
 
@@ -664,7 +664,7 @@ const onCancel = () => emit('update:open', false)
 }
 
 .model-form-pane::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: var(--border-default, #e2e8f0);
   border-radius: 4px;
 }
 
@@ -675,7 +675,7 @@ const onCancel = () => emit('update:open', false)
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #444;
+  color: var(--text-heading, #444);
 }
 
 .form-grid {
@@ -706,9 +706,9 @@ const onCancel = () => emit('update:open', false)
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid #d9d9d9;
-  background: #fff;
-  color: #595959;
+  border: 1px solid var(--border-default, #d9d9d9);
+  background: var(--bg-card, #fff);
+  color: var(--text-secondary, #595959);
   transition:
     background 0.2s,
     border-color 0.2s,
@@ -746,12 +746,12 @@ const onCancel = () => emit('update:open', false)
 }
 
 :deep(.ant-segmented-item-selected) {
-  background-color: #1890ff !important;
+  background-color: var(--primary, #1890ff) !important;
   color: white !important;
 }
 
 :deep(.ant-segmented-item-selected:hover) {
-  background-color: #40a9ff !important;
+  background-color: var(--primary, #40a9ff) !important;
   color: white !important;
 }
 
@@ -759,7 +759,7 @@ const onCancel = () => emit('update:open', false)
   margin: 0 0 12px;
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: var(--text-heading, #334155);
 }
 
 .capability-panel-section + .capability-panel-section {
@@ -769,7 +769,7 @@ const onCancel = () => emit('update:open', false)
 .cap-subhead {
   font-size: 12px;
   font-weight: 600;
-  color: #555;
+  color: var(--text-secondary, #555);
   margin: 16px 0 10px;
 }
 
@@ -778,14 +778,14 @@ const onCancel = () => emit('update:open', false)
 }
 
 .cap-subhead.muted {
-  color: #888;
+  color: var(--text-muted, #888);
   font-weight: 500;
 }
 
 .orphan-block {
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px dashed #e8e8e8;
+  border-top: 1px dashed var(--border-default, #e8e8e8);
 }
 
 .cap-tag-grid {
@@ -797,8 +797,8 @@ const onCancel = () => emit('update:open', false)
 .custom-cap-tag {
   min-height: 72px;
   padding: 12px 14px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-default, #e2e8f0);
   border-radius: 10px;
   cursor: pointer;
   transition:
@@ -819,7 +819,7 @@ const onCancel = () => emit('update:open', false)
   flex-shrink: 0;
   margin-top: 2px;
   font-size: 16px;
-  color: #0061ff;
+  color: var(--primary, #0061ff);
 }
 
 .custom-cap-tag__text {
@@ -834,7 +834,7 @@ const onCancel = () => emit('update:open', false)
 .custom-cap-tag__title {
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: var(--text-heading, #334155);
   line-height: 1.4;
   word-break: break-word;
 }
@@ -842,24 +842,24 @@ const onCancel = () => emit('update:open', false)
 .custom-cap-tag__field {
   font-size: 11px;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-muted, #94a3b8);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   line-height: 1.35;
   word-break: break-all;
 }
 
 .custom-cap-tag:hover {
-  border-color: #0061ff;
+  border-color: var(--primary, #0061ff);
   box-shadow: 0 1px 4px rgba(0, 97, 255, 0.12);
 }
 
 .custom-cap-tag:hover .custom-cap-tag__title {
-  color: #0061ff;
+  color: var(--primary, #0061ff);
 }
 
 .custom-cap-tag.active {
   background: #eff6ff;
-  border-color: #0061ff;
+  border-color: var(--primary, #0061ff);
   box-shadow: 0 1px 4px rgba(0, 97, 255, 0.18);
 }
 
@@ -868,11 +868,11 @@ const onCancel = () => emit('update:open', false)
 }
 
 .custom-cap-tag.active .custom-cap-tag__field {
-  color: #64748b;
+  color: var(--text-secondary, #64748b);
 }
 
 .custom-cap-tag.orphan {
-  background: #fafafa;
+  background: var(--bg-surface, #fafafa);
   border-style: dashed;
 }
 
@@ -887,8 +887,8 @@ const onCancel = () => emit('update:open', false)
 
 .runtime-params-box {
   margin-top: 24px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-default, #e2e8f0);
   border-radius: 16px;
   padding: 16px;
 }
@@ -897,7 +897,7 @@ const onCancel = () => emit('update:open', false)
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111;
+  color: var(--text-heading, #111);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -917,14 +917,14 @@ const onCancel = () => emit('update:open', false)
 
 .pl {
   font-size: 11px;
-  color: #999;
+  color: var(--text-muted, #999);
 }
 
 .modal-footer-action {
   flex-shrink: 0;
   padding: 14px 24px;
-  background: #fff;
-  border-top: 1px solid #e2e8f0;
+  background: var(--bg-card, #fff);
+  border-top: 1px solid var(--border-default, #e2e8f0);
   display: flex;
   justify-content: space-between;
   align-items: center;

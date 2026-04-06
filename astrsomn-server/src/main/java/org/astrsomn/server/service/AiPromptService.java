@@ -6,8 +6,8 @@ import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.prompt.AiPromptCreateRequestDTO;
 import org.astrsomn.core.common.dto.prompt.AiPromptQueryRequestDTO;
-import org.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
 import org.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
+import org.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiPromptEntity;
 
 import java.util.List;

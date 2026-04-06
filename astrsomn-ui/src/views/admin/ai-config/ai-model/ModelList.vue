@@ -769,11 +769,11 @@ onMounted(() => {
 }
 
 .total-text {
-  color: #8c8c8c;
+  color: var(--text-muted, #8c8c8c);
   font-size: 13px;
 }
 
-.text-secondary { color: #bfbfbf; }
+.text-secondary { color: var(--text-muted, #bfbfbf); }
 
 /* 能力标签查看对话框样式 */
 .capabilities-modal-content {
@@ -795,7 +795,7 @@ onMounted(() => {
 .no-capabilities {
   text-align: center;
   padding: 24px 0;
-  color: #999;
+  color: var(--text-muted, #999);
   font-size: 14px;
 }
 
@@ -803,11 +803,11 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   padding: 16px 0 0;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border-default, #f0f0f0);
 }
 
 :deep(.ant-table-thead > tr > th) {
-  background: color-mix(in srgb, var(--bg-surface) 82%, white);
+  background: color-mix(in srgb, var(--bg-surface) 82%, var(--bg-card));
   font-weight: 600;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-default);
@@ -818,7 +818,7 @@ onMounted(() => {
 :deep(.ant-table-tbody > tr > td) {
   padding-top: 14px;
   padding-bottom: 14px;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 82%, white);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 82%, var(--bg-card));
   vertical-align: middle;
 }
 
