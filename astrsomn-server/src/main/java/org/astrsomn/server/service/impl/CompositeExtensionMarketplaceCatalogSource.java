@@ -2,18 +2,14 @@ package org.astrsomn.server.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.dto.extension.ExtensionMarketplaceItemDTO;
-import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.server.plugin.SystemExtensionRegistry;
+import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 插件市场目录：仅来自 {@link SystemExtensionRegistry#mergeDescriptors(ApplicationContext)} 合并后的 Descriptor。

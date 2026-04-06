@@ -7,8 +7,8 @@ import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.conversation.AiConversationCreateRequestDTO;
 import org.astrsomn.core.common.dto.conversation.AiConversationQueryRequestDTO;
-import org.astrsomn.core.common.dto.conversation.AiConversationUpdateRequestDTO;
 import org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO;
+import org.astrsomn.core.common.dto.conversation.AiConversationUpdateRequestDTO;
 import org.astrsomn.server.service.AiConversationService;
 import org.springframework.web.bind.annotation.*;
 

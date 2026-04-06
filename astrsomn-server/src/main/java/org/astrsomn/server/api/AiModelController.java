@@ -3,15 +3,15 @@ package org.astrsomn.server.api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.base.BaseController;
+import org.astrsomn.core.common.base.BasePageRequest;
+import org.astrsomn.core.common.base.BaseResponse;
+import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.model.AiModelCreateRequestDTO;
 import org.astrsomn.core.common.dto.model.AiModelQueryRequestDTO;
 import org.astrsomn.core.common.dto.model.AiModelResponseDTO;
 import org.astrsomn.core.common.dto.model.AiModelUpdateRequestDTO;
 import org.astrsomn.server.service.AiModelService;
 import org.springframework.web.bind.annotation.*;
-import org.astrsomn.core.common.base.BasePageRequest;
-import org.astrsomn.core.common.base.BaseResponse;
-import org.astrsomn.core.common.base.PageResponse;
 
 @Slf4j
 @RestController

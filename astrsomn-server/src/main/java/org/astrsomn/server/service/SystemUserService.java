@@ -6,8 +6,8 @@ import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.user.SystemUserCreateRequestDTO;
 import org.astrsomn.core.common.dto.user.SystemUserQueryRequestDTO;
-import org.astrsomn.core.common.dto.user.SystemUserUpdateRequestDTO;
 import org.astrsomn.core.common.dto.user.SystemUserResponseDTO;
+import org.astrsomn.core.common.dto.user.SystemUserUpdateRequestDTO;
 import org.astrsomn.core.common.entity.SystemUserEntity;
 
 public interface SystemUserService extends IService<SystemUserEntity> {

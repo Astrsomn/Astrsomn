@@ -1,11 +1,8 @@
 package org.astrsomn.core.common.util;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 

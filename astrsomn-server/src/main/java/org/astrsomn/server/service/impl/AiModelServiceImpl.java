@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
@@ -14,10 +13,9 @@ import org.astrsomn.core.common.dto.model.AiModelResponseDTO;
 import org.astrsomn.core.common.dto.model.AiModelUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AiModelErrorEnum;
-
-import org.springframework.beans.BeanUtils;
 import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiModelService;
@@ -25,6 +23,7 @@ import org.astrsomn.server.service.support.BizResourceKeyGenerator;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.context.EnvRuntime;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;

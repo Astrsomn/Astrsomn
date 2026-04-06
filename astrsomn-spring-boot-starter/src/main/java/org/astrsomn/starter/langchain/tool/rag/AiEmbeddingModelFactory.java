@@ -2,12 +2,12 @@ package org.astrsomn.starter.langchain.tool.rag;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import org.astrsomn.core.common.entity.AiAccountEntity;
+import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.RagSetting;
 import org.astrsomn.core.common.langchain.rag.RagEmbeddingStoreResolver;
-import org.astrsomn.core.common.entity.AiAccountEntity;
-import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.mapper.AiAccountMapper;
 import org.astrsomn.core.mapper.AiModelMapper;

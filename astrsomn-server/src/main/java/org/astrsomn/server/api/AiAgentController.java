@@ -7,8 +7,8 @@ import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.agent.AiAgentCreateRequestDTO;
 import org.astrsomn.core.common.dto.agent.AiAgentQueryRequestDTO;
-import org.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
 import org.astrsomn.core.common.dto.agent.AiAgentResponseDTO;
+import org.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
 import org.astrsomn.server.service.AiAgentService;
 import org.springframework.web.bind.annotation.*;
 

@@ -7,8 +7,8 @@ import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.mcp.AiMcpCreateRequestDTO;
 import org.astrsomn.core.common.dto.mcp.AiMcpQueryRequestDTO;
-import org.astrsomn.core.common.dto.mcp.AiMcpUpdateRequestDTO;
 import org.astrsomn.core.common.dto.mcp.AiMcpResponseDTO;
+import org.astrsomn.core.common.dto.mcp.AiMcpUpdateRequestDTO;
 import org.astrsomn.server.service.AiMcpService;
 import org.springframework.web.bind.annotation.*;
 

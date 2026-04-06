@@ -7,8 +7,8 @@ import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.user.SystemUserCreateRequestDTO;
 import org.astrsomn.core.common.dto.user.SystemUserQueryRequestDTO;
-import org.astrsomn.core.common.dto.user.SystemUserUpdateRequestDTO;
 import org.astrsomn.core.common.dto.user.SystemUserResponseDTO;
+import org.astrsomn.core.common.dto.user.SystemUserUpdateRequestDTO;
 import org.astrsomn.server.service.SystemUserService;
 import org.springframework.web.bind.annotation.*;
 

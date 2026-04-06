@@ -9,7 +9,6 @@ import org.astrsomn.core.common.dto.tracelog.AiTraceLogQueryRequestDTO;
 import org.astrsomn.core.common.dto.tracelog.AiTraceLogResponseDTO;
 import org.astrsomn.core.common.dto.tracelog.AiTraceLogUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiTraceLogEntity;
-import org.astrsomn.core.mapper.AiTraceLogMapper;
 
 public interface AiTraceLogService extends IService<AiTraceLogEntity> {
 

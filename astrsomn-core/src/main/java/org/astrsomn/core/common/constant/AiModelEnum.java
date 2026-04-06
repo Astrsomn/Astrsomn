@@ -5,8 +5,8 @@ import lombok.Getter;
 import org.astrsomn.core.common.base.BaseEnum;
 import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public interface AiModelEnum {
