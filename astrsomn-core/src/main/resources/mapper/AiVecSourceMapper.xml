@@ -2,4 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.astrsomn.core.mapper.AiVecSourceMapper">
 
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.vecsource.AiVecSourceResponseDTO">
+        SELECT
+            *
+        FROM
+            AI_VEC_SOURCE
+        WHERE
+            deleted = 0
+        <if test="req != null and req.name != null and req.name != ''">
+            AND NAME LIKE CONCAT('%', #{req.name}, '%')
+        </if>
+        <if test="req != null and req.provider != null and req.provider != ''">
+            AND PROVIDER = #{req.provider}
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND STATUS = #{req.status}
+        </if>
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND ENV_CODE = #{req.envCode}
+        </if>
+        <if test="req != null and req.createUser != null and req.createUser != ''">
+            AND CREATE_USER = #{req.createUser}
+        </if>
+        ORDER BY
+            CREATE_TIME DESC
+    </select>
+
 </mapper>

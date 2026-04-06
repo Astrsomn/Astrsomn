@@ -413,7 +413,7 @@ public interface AiModelEnum {
         /**
          * 图像识别
          */
-        IMAGE_RECOGNITION("image_recognition", "图像识别"),
+        IMAGE_UNDERSTANDING("image_understanding", "图像识别"),
 
         /**
          * 图像生成
