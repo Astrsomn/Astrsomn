@@ -19,7 +19,7 @@ spring:
         file-extension: yml
 
 server:
-  port: 8080
+  port: 4481
 
 astrsomn:
   env-code: pro
