@@ -72,7 +72,7 @@
         <AssemblyDropZone
           slot-key="promptInstance"
           title="系统提示词 (Prompt)"
-          variant="prompt"
+          variant="chat"
           :icon="FileTextOutlined"
           :dragging-payload="draggingPayload"
           :active-drop-key="activeDropKey"
@@ -210,7 +210,7 @@
 import { computed } from 'vue'
 import {
   ApiOutlined, BookOutlined, FileTextOutlined, MessageOutlined, PartitionOutlined, 
-  PictureOutlined, SendOutlined, ToolOutlined, UndoOutlined
+  PictureOutlined, ToolOutlined
 } from '@ant-design/icons-vue'
 import type { AiInstance } from '@/api/aiInstance'
 import type { AiTool } from '@/api/aiTool'

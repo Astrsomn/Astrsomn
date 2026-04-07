@@ -145,8 +145,8 @@ public enum DeepSeekModelEnum {
         AiModelEnum.ChatCapabilitiesEnum.STREAMING
     ));
 
-    private final String modelKey;
     private final String modelName;
+    private final String modelKey;
     private final String modelType;
     private final List<? extends BaseEnum> capabilities;
 
