@@ -191,8 +191,8 @@ const handleLogin = async () => {
 }
 
 .logo-img {
-  width: 64px;
-  height: 64px;
+  width: 32px;
+  height: 32px;
   object-fit: cover;
   object-position: 50% 0%;
 }

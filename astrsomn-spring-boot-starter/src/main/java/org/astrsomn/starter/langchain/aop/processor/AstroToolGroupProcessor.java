@@ -1,10 +1,13 @@
 package org.astrsomn.starter.langchain.aop.processor;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import dev.langchain4j.agent.tool.Tool;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiToolEntity;
+import org.astrsomn.core.mapper.AiToolMapper;
 import org.astrsomn.starter.langchain.aop.annotation.AstroToolGroup;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -17,6 +20,9 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class AstroToolGroupProcessor implements BeanPostProcessor {
+
+    @Autowired
+    private AiToolMapper aiToolMapper;
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
@@ -66,7 +72,22 @@ public class AstroToolGroupProcessor implements BeanPostProcessor {
                 ? toolGroup.description()
                 : toolDescriptions[0];
 
-        AiToolEntity toolEntity = new AiToolEntity();
+        // 检查工具是否已存在
+        LambdaQueryWrapper<AiToolEntity> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AiToolEntity::getToolKey, toolKey);
+        AiToolEntity existingTool = aiToolMapper.selectOne(queryWrapper);
+
+        AiToolEntity toolEntity;
+        if (existingTool != null) {
+            // 更新现有工具
+            toolEntity = existingTool;
+            log.info("更新现有工具: {}", toolKey);
+        } else {
+            // 创建新工具
+            toolEntity = new AiToolEntity();
+            log.info("创建新工具: {}", toolKey);
+        }
+
         toolEntity.setToolName(toolName);
         toolEntity.setToolKey(toolKey);
         toolEntity.setDescription(description);
@@ -74,6 +95,12 @@ public class AstroToolGroupProcessor implements BeanPostProcessor {
         toolEntity.setMethodName(method.getName());
         toolEntity.setType(toolGroup.type());
         toolEntity.setStatus(AiModelEnum.StatusEnum.ENABLED.getCode());
+        toolEntity.setClassName(bean.getClass().getName());
 
+        if (existingTool != null) {
+            aiToolMapper.updateById(toolEntity);
+        } else {
+            aiToolMapper.insert(toolEntity);
+        }
     }
 }
