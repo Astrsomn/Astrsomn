@@ -1,7 +1,7 @@
 <template>
   <a-modal
     :open="visible"
-    width="100%"
+    width="80vw"
     :footer="null"
     :closable="false"
     wrap-class-name="astrsomn-full-modal"
@@ -33,6 +33,194 @@
       </header>
 
       <div class="main-content">
+        <!-- 左侧：基础定义 -->
+        <aside class="basic-pane">
+          <div class="pane-card glass-card scroll-y">
+            <a-form ref="formRef" layout="vertical" :model="form">
+              <div class="config-section">
+                <h3 class="section-title"><InfoCircleOutlined /> 基础定义</h3>
+                <a-form-item label="预设名称" name="instanceName" :rules="[{ required: true, message: '请输入名称' }]">
+                  <a-input
+                    v-model:value="form.instanceName"
+                    placeholder="默认与端点名称一致，可改为任意展示名"
+                    size="large"
+                    @update:value="onPresetNameUserInput"
+                  />
+                </a-form-item>
+
+                <a-form-item label="实例标识 (instanceKey)" name="instanceKey" :rules="instanceKeyRules">
+                  <a-input
+                    v-model:value="form.instanceKey"
+                    placeholder="留空可由系统自动分配；自定义时请使用英文标识"
+                    size="large"
+                    allow-clear
+                  />
+                </a-form-item>
+                
+                <a-form-item label="运行状态">
+                  <a-segmented v-model:value="form.status" :options="statusOptions" block size="large" />
+                </a-form-item>
+              </div>
+            </a-form>
+          </div>
+        </aside>
+
+        <!-- 中间：参数设定 -->
+        <section class="params-pane">
+          <div class="pane-card glass-card scroll-y">
+            <div class="config-section">
+              <div class="section-header-flex">
+                <h3 class="section-title"><ControlOutlined /> {{ paramSectionTitle }}</h3>
+                <a-tag v-if="form.modelKey" color="blue" class="model-key-tag">{{ form.modelKey }}</a-tag>
+              </div>
+
+              <div v-if="!form.modelKey" class="empty-state">
+                <div class="empty-icon"><SelectOutlined /></div>
+                <p>请在最右侧表格中选中一个接入端点</p>
+              </div>
+
+              <div v-else class="params-list">
+                <p v-if="capabilityHint" class="cap-hint">{{ capabilityHint }}</p>
+
+                <!-- 对话：按 capabilities / InferenceParamEnum 与后端 containedIn 对齐 -->
+                <template v-if="modelKind === 'chat'">
+                  <div v-if="showChatTemperature" class="param-group-card">
+                    <div class="p-header">
+                      <a-tooltip placement="left">
+                        <template #title>
+                          控制生成内容的随机性。较低值使输出更聚焦严谨，较高值使输出更具创意和不可预测。
+                        </template>
+                        <span class="p-label">采样温度 (Temperature) <QuestionCircleOutlined /></span>
+                      </a-tooltip>
+                      <a-input-number v-model:value="form.temperature" :min="0" :max="2" :step="0.1" size="small" />
+                    </div>
+                    <div class="slider-box">
+                      <a-slider
+                        v-model:value="form.temperature"
+                        :min="0"
+                        :max="2"
+                        :step="0.1"
+                        :marks="{ 0: '严谨', 0.7: '平衡', 1.5: '创意', 2: '随机' }"
+                      />
+                    </div>
+                    <div class="p-desc-bar" :class="getTempInfo(form.temperature ?? 0.7).color">
+                      {{ getTempInfo(form.temperature ?? 0.7).text }}
+                    </div>
+                  </div>
+
+                  <div v-if="showChatMaxTokens" class="param-group-card">
+                    <div class="p-header">
+                      <a-tooltip placement="left">
+                        <template #title>设置生成内容的最大长度限制。1000 tokens 约为 750 个英文单词。</template>
+                        <span class="p-label">响应上限 (Max Tokens) <QuestionCircleOutlined /></span>
+                      </a-tooltip>
+                      <a-input-number v-model:value="form.maxTokens" :min="1" :max="128000" size="small" />
+                    </div>
+                    <div class="slider-box">
+                      <a-slider
+                        v-model:value="form.maxTokens"
+                        :min="0"
+                        :max="8192"
+                        :step="256"
+                        :marks="{ 0: '短', 2048: '中等', 4096: '长', 8192: '超长' }"
+                      />
+                    </div>
+                  </div>
+
+                  <div v-if="showChatTopP" class="param-group-card">
+                    <div class="p-header">
+                      <a-tooltip placement="left" title="核心采样。模型仅考虑概率累积达到此比例的候选词。建议不与 Temperature 同时大幅调整。">
+                        <span class="p-label">核采样 (Top P) <QuestionCircleOutlined /></span>
+                      </a-tooltip>
+                      <a-input-number v-model:value="form.topP" :min="0" :max="1" :step="0.01" size="small" />
+                    </div>
+                    <div class="slider-box">
+                      <a-slider v-model:value="form.topP" :min="0" :max="1" :step="0.05" :marks="{ 0: '极窄', 0.5: '标准', 1: '完整' }" />
+                    </div>
+                  </div>
+
+                  <div v-if="showChatTopK" class="param-group-card">
+                    <div class="p-header">
+                      <a-tooltip placement="left" title="仅从每步概率最高的 K 个 token 中采样；与部分厂商对话模型对齐。">
+                        <span class="p-label">Top K <QuestionCircleOutlined /></span>
+                      </a-tooltip>
+                      <a-input-number v-model:value="form.topK" :min="0" :max="100" :step="1" size="small" />
+                    </div>
+                    <p class="p-inline-hint">0 表示不启用（由服务端/模型默认处理）</p>
+                  </div>
+
+                  <div v-if="showChatSeed" class="param-group-card">
+                    <div class="p-header">
+                      <a-tooltip placement="left" title="固定种子可在支持该能力的模型上复现输出。">
+                        <span class="p-label">随机种子 (Seed) <QuestionCircleOutlined /></span>
+                      </a-tooltip>
+                      <a-input-number v-model:value="form.seed" :min="0" :max="2147483647" :step="1" size="small" />
+                    </div>
+                  </div>
+
+                  <div v-if="showChatStopSequences" class="param-group-card">
+                    <div class="p-header">
+                      <span class="p-label">停止序列 (Stop)</span>
+                    </div>
+                    <a-textarea
+                      v-model:value="form.stopSequences"
+                      placeholder="多个序列用英文逗号分隔"
+                      :rows="3"
+                      class="stop-seq-input"
+                    />
+                  </div>
+
+                  <div v-if="showChatPenalties" class="penalty-row">
+                    <div v-if="showChatFrequencyPenalty" class="mini-param-card">
+                      <span class="mini-label">重复惩罚 (Frequency)</span>
+                      <a-slider v-model:value="form.frequencyPenalty" :min="-2" :max="2" :step="0.1" />
+                    </div>
+                    <div v-if="showChatPresencePenalty" class="mini-param-card">
+                      <span class="mini-label">新鲜度 (Presence)</span>
+                      <a-slider v-model:value="form.presencePenalty" :min="-2" :max="2" :step="0.1" />
+                    </div>
+                  </div>
+                </template>
+
+                <!-- 向量：EmbeddingInferenceParamEnum -->
+                <template v-else-if="modelKind === 'embedding'">
+                  <div v-if="showEmbeddingDimensions" class="param-group-card">
+                    <div class="p-header">
+                      <a-tooltip placement="left" title="与 OpenAiEmbeddingModel.dimensions() 等对齐；请与模型实际输出维度一致。">
+                        <span class="p-label">向量维度 (Dimensions) <QuestionCircleOutlined /></span>
+                      </a-tooltip>
+                      <a-input-number v-model:value="form.dimensions" :min="1" :max="8192" :step="1" size="small" placeholder="如 1536" />
+                    </div>
+                  </div>
+                  <p v-if="!embeddingHasAnyControl" class="cap-hint muted">
+                    当前端点 capabilities 未包含可映射到实例的向量参数；可在模型管理中勾选「向量维度」等能力。
+                  </p>
+                </template>
+
+                <!-- 图像：ImageGenParamEnum -->
+                <template v-else-if="modelKind === 'image'">
+                  <div v-if="showImageSize" class="param-group-card">
+                    <div class="p-header">
+                      <span class="p-label">画幅尺寸 (Size)</span>
+                    </div>
+                    <a-input v-model:value="form.size" placeholder="例如 1024x1024" size="large" allow-clear />
+                  </div>
+                  <div v-if="showImageStyle" class="param-group-card">
+                    <div class="p-header">
+                      <span class="p-label">风格 (Style)</span>
+                    </div>
+                    <a-input v-model:value="form.style" placeholder="例如 vivid / natural" size="large" allow-clear />
+                  </div>
+                  <p v-if="!imageHasAnyControl" class="cap-hint muted">
+                    当前端点 capabilities 未包含尺寸或风格等图像参数；可在模型管理中勾选对应能力。
+                  </p>
+                </template>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 右侧：模型选择 -->
         <section class="selection-pane">
           <div class="pane-card glass-card">
             <div class="pane-header">
@@ -104,190 +292,6 @@
             </div>
           </div>
         </section>
-
-        <aside class="config-pane">
-          <div class="pane-card glass-card scroll-y">
-            <a-form ref="formRef" layout="vertical" :model="form">
-              
-              <div class="config-section">
-                <h3 class="section-title"><InfoCircleOutlined /> 基础定义</h3>
-                <a-form-item label="预设名称" name="instanceName" :rules="[{ required: true, message: '请输入名称' }]">
-                  <a-input
-                    v-model:value="form.instanceName"
-                    placeholder="默认与端点名称一致，可改为任意展示名"
-                    size="large"
-                    @update:value="onPresetNameUserInput"
-                  />
-                </a-form-item>
-
-                <a-form-item label="实例标识 (instanceKey)" name="instanceKey" :rules="instanceKeyRules">
-                  <a-input
-                    v-model:value="form.instanceKey"
-                    placeholder="留空可由系统自动分配；自定义时请使用英文标识"
-                    size="large"
-                    allow-clear
-                  />
-                </a-form-item>
-                
-                <a-form-item label="运行状态">
-                  <a-segmented v-model:value="form.status" :options="statusOptions" block size="large" />
-                </a-form-item>
-              </div>
-
-              <a-divider />
-
-              <div class="config-section">
-                <div class="section-header-flex">
-                  <h3 class="section-title"><ControlOutlined /> {{ paramSectionTitle }}</h3>
-                  <a-tag v-if="form.modelKey" color="blue" class="model-key-tag">{{ form.modelKey }}</a-tag>
-                </div>
-
-                <div v-if="!form.modelKey" class="empty-state">
-                  <div class="empty-icon"><SelectOutlined /></div>
-                  <p>请在左侧表格中选中一个接入端点</p>
-                </div>
-
-                <div v-else class="params-list">
-                  <p v-if="capabilityHint" class="cap-hint">{{ capabilityHint }}</p>
-
-                  <!-- 对话：按 capabilities / InferenceParamEnum 与后端 containedIn 对齐 -->
-                  <template v-if="modelKind === 'chat'">
-                    <div v-if="showChatTemperature" class="param-group-card">
-                      <div class="p-header">
-                        <a-tooltip placement="left">
-                          <template #title>
-                            控制生成内容的随机性。较低值使输出更聚焦严谨，较高值使输出更具创意和不可预测。
-                          </template>
-                          <span class="p-label">采样温度 (Temperature) <QuestionCircleOutlined /></span>
-                        </a-tooltip>
-                        <a-input-number v-model:value="form.temperature" :min="0" :max="2" :step="0.1" size="small" />
-                      </div>
-                      <div class="slider-box">
-                        <a-slider
-                          v-model:value="form.temperature"
-                          :min="0"
-                          :max="2"
-                          :step="0.1"
-                          :marks="{ 0: '严谨', 0.7: '平衡', 1.5: '创意', 2: '随机' }"
-                        />
-                      </div>
-                      <div class="p-desc-bar" :class="getTempInfo(form.temperature ?? 0.7).color">
-                        {{ getTempInfo(form.temperature ?? 0.7).text }}
-                      </div>
-                    </div>
-
-                    <div v-if="showChatMaxTokens" class="param-group-card">
-                      <div class="p-header">
-                        <a-tooltip placement="left">
-                          <template #title>设置生成内容的最大长度限制。1000 tokens 约为 750 个英文单词。</template>
-                          <span class="p-label">响应上限 (Max Tokens) <QuestionCircleOutlined /></span>
-                        </a-tooltip>
-                        <a-input-number v-model:value="form.maxTokens" :min="1" :max="128000" size="small" />
-                      </div>
-                      <div class="slider-box">
-                        <a-slider
-                          v-model:value="form.maxTokens"
-                          :min="0"
-                          :max="8192"
-                          :step="256"
-                          :marks="{ 0: '短', 2048: '中等', 4096: '长', 8192: '超长' }"
-                        />
-                      </div>
-                    </div>
-
-                    <div v-if="showChatTopP" class="param-group-card">
-                      <div class="p-header">
-                        <a-tooltip placement="left" title="核心采样。模型仅考虑概率累积达到此比例的候选词。建议不与 Temperature 同时大幅调整。">
-                          <span class="p-label">核采样 (Top P) <QuestionCircleOutlined /></span>
-                        </a-tooltip>
-                        <a-input-number v-model:value="form.topP" :min="0" :max="1" :step="0.01" size="small" />
-                      </div>
-                      <div class="slider-box">
-                        <a-slider v-model:value="form.topP" :min="0" :max="1" :step="0.05" :marks="{ 0: '极窄', 0.5: '标准', 1: '完整' }" />
-                      </div>
-                    </div>
-
-                    <div v-if="showChatTopK" class="param-group-card">
-                      <div class="p-header">
-                        <a-tooltip placement="left" title="仅从每步概率最高的 K 个 token 中采样；与部分厂商对话模型对齐。">
-                          <span class="p-label">Top K <QuestionCircleOutlined /></span>
-                        </a-tooltip>
-                        <a-input-number v-model:value="form.topK" :min="0" :max="100" :step="1" size="small" />
-                      </div>
-                      <p class="p-inline-hint">0 表示不启用（由服务端/模型默认处理）</p>
-                    </div>
-
-                    <div v-if="showChatSeed" class="param-group-card">
-                      <div class="p-header">
-                        <a-tooltip placement="left" title="固定种子可在支持该能力的模型上复现输出。">
-                          <span class="p-label">随机种子 (Seed) <QuestionCircleOutlined /></span>
-                        </a-tooltip>
-                        <a-input-number v-model:value="form.seed" :min="0" :max="2147483647" :step="1" size="small" />
-                      </div>
-                    </div>
-
-                    <div v-if="showChatStopSequences" class="param-group-card">
-                      <div class="p-header">
-                        <span class="p-label">停止序列 (Stop)</span>
-                      </div>
-                      <a-textarea
-                        v-model:value="form.stopSequences"
-                        placeholder="多个序列用英文逗号分隔"
-                        :rows="3"
-                        class="stop-seq-input"
-                      />
-                    </div>
-
-                    <div v-if="showChatPenalties" class="penalty-row">
-                      <div v-if="showChatFrequencyPenalty" class="mini-param-card">
-                        <span class="mini-label">重复惩罚 (Frequency)</span>
-                        <a-slider v-model:value="form.frequencyPenalty" :min="-2" :max="2" :step="0.1" />
-                      </div>
-                      <div v-if="showChatPresencePenalty" class="mini-param-card">
-                        <span class="mini-label">新鲜度 (Presence)</span>
-                        <a-slider v-model:value="form.presencePenalty" :min="-2" :max="2" :step="0.1" />
-                      </div>
-                    </div>
-                  </template>
-
-                  <!-- 向量：EmbeddingInferenceParamEnum -->
-                  <template v-else-if="modelKind === 'embedding'">
-                    <div v-if="showEmbeddingDimensions" class="param-group-card">
-                      <div class="p-header">
-                        <a-tooltip placement="left" title="与 OpenAiEmbeddingModel.dimensions() 等对齐；请与模型实际输出维度一致。">
-                          <span class="p-label">向量维度 (Dimensions) <QuestionCircleOutlined /></span>
-                        </a-tooltip>
-                        <a-input-number v-model:value="form.dimensions" :min="1" :max="8192" :step="1" size="small" placeholder="如 1536" />
-                      </div>
-                    </div>
-                    <p v-if="!embeddingHasAnyControl" class="cap-hint muted">
-                      当前端点 capabilities 未包含可映射到实例的向量参数；可在模型管理中勾选「向量维度」等能力。
-                    </p>
-                  </template>
-
-                  <!-- 图像：ImageGenParamEnum -->
-                  <template v-else-if="modelKind === 'image'">
-                    <div v-if="showImageSize" class="param-group-card">
-                      <div class="p-header">
-                        <span class="p-label">画幅尺寸 (Size)</span>
-                      </div>
-                      <a-input v-model:value="form.size" placeholder="例如 1024x1024" size="large" allow-clear />
-                    </div>
-                    <div v-if="showImageStyle" class="param-group-card">
-                      <div class="p-header">
-                        <span class="p-label">风格 (Style)</span>
-                      </div>
-                      <a-input v-model:value="form.style" placeholder="例如 vivid / natural" size="large" allow-clear />
-                    </div>
-                    <p v-if="!imageHasAnyControl" class="cap-hint muted">
-                      当前端点 capabilities 未包含尺寸或风格等图像参数；可在模型管理中勾选对应能力。
-                    </p>
-                  </template>
-                </div>
-              </div>
-            </a-form>
-          </div>
-        </aside>
       </div>
     </div>
   </a-modal>
@@ -704,10 +708,44 @@ onUnmounted(() => {
 
 <style scoped>
 /* 全屏容器 */
-:global(.astrsomn-full-modal .ant-modal) { max-width: 100vw; top: 0; padding: 0; margin: 0; }
-:global(.astrsomn-full-modal .ant-modal-content) { height: 100vh; border-radius: 0; padding: 0; background: var(--bg-surface, #f8fafc); }
+:global(.astrsomn-full-modal.ant-modal-wrap) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 
-.fullscreen-wrapper { display: flex; flex-direction: column; height: 100vh; }
+:global(.astrsomn-full-modal .ant-modal) { 
+  max-width: 80vw !important; 
+  width: 80vw !important;
+  padding: 0 !important; 
+  margin: 0 !important; 
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  position: relative !important;
+}
+:global(.astrsomn-full-modal .ant-modal-content) { 
+  height: 80vh !important; 
+  border-radius: 20px !important; 
+  padding: 0 !important; 
+  background: var(--bg-surface, #f8fafc) !important;
+  overflow: hidden !important;
+}
+
+.fullscreen-wrapper { 
+  display: flex; 
+  flex-direction: column; 
+  height: 100%; 
+  overflow: hidden;
+}
 
 /* Header */
 .modal-header {
@@ -763,7 +801,7 @@ onUnmounted(() => {
   box-shadow: none;
 }
 
-/* 布局主体 */
+/* 布局主体 - 三栏布局 */
 .main-content { flex: 1; display: flex; padding: 20px; gap: 20px; overflow: hidden; background: var(--bg-base, #f8fafc); }
 
 /* 通用卡片样式 */
@@ -776,8 +814,16 @@ onUnmounted(() => {
 }
 .pane-card { height: 100%; display: flex; flex-direction: column; padding: 20px; }
 
-/* 左侧 */
-.selection-pane { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+/* 左侧：基础定义 */
+.basic-pane { width: 280px; flex-shrink: 0; }
+.basic-pane .pane-card { overflow-y: auto; }
+
+/* 中间：参数设定 */
+.params-pane { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.params-pane .pane-card { overflow-y: auto; }
+
+/* 右侧：模型选择 */
+.selection-pane { width: 420px; flex-shrink: 0; min-height: 0; display: flex; flex-direction: column; }
 .pane-header { flex-shrink: 0; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; }
 
 .pane-toolbar-row {
@@ -898,8 +944,7 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
-/* 右侧 */
-.config-pane { width: 440px; flex-shrink: 0; }
+/* 滚动容器 */
 .scroll-y { overflow-y: auto; }
 .section-header-flex {
   display: flex;

@@ -37,7 +37,7 @@
           <div class="form-section">
             <h3 class="section-headline"><IdcardOutlined /> 端点身份识别</h3>
             <div class="form-grid">
-              <a-form-item label="服务供应商 (Provider)" name="provider">
+              <a-form-item label="供应商" name="provider">
                 <ModelProviderSelect
                   v-model:value="form.provider"
                   placeholder="请选择端点所属服务商"
@@ -46,15 +46,22 @@
                 />
               </a-form-item>
 
-              <a-form-item label="端点服务类型" name="modelType">
+              <a-form-item label="状态" name="status">
+                <a-select v-model:value="form.status" size="large" :disabled="props.mode === 'view'">
+                  <a-select-option value="enabled">已启用</a-select-option>
+                  <a-select-option value="disabled">已禁用</a-select-option>
+                </a-select>
+              </a-form-item>
+
+              <a-form-item label="端点类型" name="modelType">
                 <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}]" block size="large" :disabled="props.mode === 'view'" />
               </a-form-item>
 
-              <a-form-item label="端点展示名称" name="modelName">
+              <a-form-item label="展示名称" name="modelName">
                 <a-input v-model:value="form.modelName" placeholder="例如：OpenAI 官方端点 或 私有部署 Llama3" size="large" :disabled="props.mode === 'view'" />
               </a-form-item>
 
-              <a-form-item label="端点识别码 (Model Key)" name="modelKey">
+              <a-form-item label="识别码 (Model Key)" name="modelKey">
                 <a-tooltip
                   v-if="modelKeyImmutable || props.mode === 'view'"
                   :title="modelKeyImmutable ? '已有推理实例在同环境下引用该端点 Key，不可修改' : '查看模式下不可修改'"
@@ -75,7 +82,7 @@
                 </a-input>
               </a-form-item>
 
-              <a-form-item label="关联凭证账号" name="accountKey">
+              <a-form-item label="关联凭证" name="accountKey">
                 <a-select
                   v-model:value="form.accountKey"
                   :options="accountSelectOptions"
@@ -90,30 +97,7 @@
                 />
               </a-form-item>
 
-              <a-form-item label="端点激活状态">
-                <div class="endpoint-status-btns" :class="{ 'endpoint-status-btns--disabled': props.mode === 'view' }">
-                  <button
-                    type="button"
-                    class="endpoint-status-btn endpoint-status-btn--enable"
-                    :class="{ 'is-selected': form.status === 'enabled' }"
-                    :disabled="props.mode === 'view'"
-                    @click="setEndpointStatus('enabled')"
-                  >
-                    启用
-                  </button>
-                  <button
-                    type="button"
-                    class="endpoint-status-btn endpoint-status-btn--disable"
-                    :class="{ 'is-selected': form.status === 'disabled' }"
-                    :disabled="props.mode === 'view'"
-                    @click="setEndpointStatus('disabled')"
-                  >
-                    禁用
-                  </button>
-                </div>
-              </a-form-item>
-
-              <a-form-item label="接入地址 (API URL)" name="apiUrl" class="span-2">
+              <a-form-item label="API 地址" name="apiUrl" class="span-2">
                 <a-input v-model:value="form.apiUrl" placeholder="供应商 Base URL，如 https://api.openai.com/v1" size="large" :disabled="props.mode === 'view'">
                   <template #prefix><GlobalOutlined style="color: #bfbfbf" /></template>
                 </a-input>
@@ -476,10 +460,6 @@ const removeImageOrphan = (val: string) => {
   imageOrphanCapabilities.value = imageOrphanCapabilities.value.filter((c) => c !== val)
 }
 
-const setEndpointStatus = (status: 'enabled' | 'disabled') => {
-  form.status = status
-}
-
 function partitionCapabilities(caps: string[], modelType: string) {
   chatInferenceCapabilities.value = []
   chatOrphanCapabilities.value = []
@@ -688,62 +668,7 @@ const onCancel = () => emit('update:open', false)
   grid-column: span 2;
 }
 
-.endpoint-status-btns {
-  display: flex;
-  gap: 12px;
-  max-width: 420px;
-}
 
-.endpoint-status-btns--disabled {
-  opacity: 0.85;
-}
-
-.endpoint-status-btn {
-  flex: 1;
-  min-height: 40px;
-  padding: 0 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid var(--border-default, #d9d9d9);
-  background: var(--bg-card, #fff);
-  color: var(--text-secondary, #595959);
-  transition:
-    background 0.2s,
-    border-color 0.2s,
-    color 0.2s,
-    box-shadow 0.2s;
-}
-
-.endpoint-status-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.65;
-}
-
-.endpoint-status-btn--enable:not(:disabled):hover {
-  border-color: #73d13d;
-  color: #389e0d;
-}
-
-.endpoint-status-btn--enable.is-selected {
-  background: #52c41a;
-  border-color: #52c41a;
-  color: #fff;
-  box-shadow: 0 1px 2px rgba(82, 196, 26, 0.35);
-}
-
-.endpoint-status-btn--disable:not(:disabled):hover {
-  border-color: #ff7875;
-  color: #cf1322;
-}
-
-.endpoint-status-btn--disable.is-selected {
-  background: #ff4d4f;
-  border-color: #ff4d4f;
-  color: #fff;
-  box-shadow: 0 1px 2px rgba(255, 77, 79, 0.35);
-}
 
 :deep(.ant-segmented-item-selected) {
   background-color: var(--primary, #1890ff) !important;
