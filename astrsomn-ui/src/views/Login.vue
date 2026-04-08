@@ -111,7 +111,7 @@ import {
   LockOutlined, 
   CheckCircleFilled 
 } from '@ant-design/icons-vue'
-import logoUrl from '@/assets/Astrsomn.png'
+import logoUrl from '@/assets/Astrsomn-logo.png'
 import DocLangTheme from '@/components/top/DocLangTheme.vue'
 
 const router = useRouter()
@@ -191,8 +191,8 @@ const handleLogin = async () => {
 }
 
 .logo-img {
-  width: 100px;
-  height: 80px;
+  width: 32px;
+  height: 32px;
   object-fit: cover;
   object-position: 50% 0%;
 }
