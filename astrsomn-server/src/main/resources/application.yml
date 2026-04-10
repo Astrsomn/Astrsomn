@@ -30,7 +30,7 @@ astrsomn:
   # 默认智能体/模型：在库中为当前 env-code 各维护一条 AI_AGENT.IS_DEFAULT=1、AI_MODEL(IS_DEFAULT=1 AND MODEL_TYPE=chat)，无需 refs
   data-base:
     database-type: mysql
-    host: 154.201.94.113
+    host: 127.0.0.1
     port: 3306
     database-name: astro_ai
     username: astro_ai

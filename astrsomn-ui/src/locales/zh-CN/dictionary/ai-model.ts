@@ -1,5 +1,5 @@
 /**
- * 与后端 `AiModelEnum` 内各枚举的 code 一一对应（中文文案）。
+ * 与后端 `AiModelParamEnum` 内各枚举的 code 一一对应（中文文案）。
  */
 import { createEnumDictionary } from '@/locales/dictionary/core'
 import {
@@ -52,67 +52,53 @@ export const aiModelStatusDictionary = createEnumDictionary({
 })
 
 const capabilityLabels = {
-  // 聊天模型核心能力
-  text_generation: '自然语言文本生成',
-  deep_reasoning: '多步逻辑推理与思维链',
-  function_calling: '函数调用',
-  streaming: '流式输出',
-  json_mode: 'JSON 模式',
-  vision: '视觉能力',
-  network_search: '联网搜索',
-  
-  // 聊天模型推理参数
-  temperature: '温度 temperature（LangChain / OpenAI 兼容）',
-  top_p: '核采样 top_p',
+  // === 聊天模型能力位 (ChatCapabilitiesEnum) ===
+  streaming: '流式输出 (StreamingChatLanguageModel)',
+  tools: '工具/函数调用 (ToolSpecifications)',
+  vision: '视觉理解 (ImageContent)',
+  json_mode: 'JSON 模式 (ResponseFormat)',
+  deep_reasoning: '深度推理 (如 DeepSeek-R1 / O1)',
+  context_caching: '上下文缓存 (Context Caching)',
+
+  // === 聊天模型推理参数 (ChatParamEnum) ===
+  temperature: '采样温度',
+  top_p: '核采样 (Top-P)',
   top_k: 'Top-K 采样',
-  presence_penalty: '存在惩罚 presence_penalty',
-  frequency_penalty: '频率惩罚 frequency_penalty',
-  max_tokens: '最大生成 token max_tokens',
-  seed: '随机种子 seed',
-  
-  // 聊天模型推理参数（历史别名）
-  temperature_setting: '温度：控制输出随机性与创造性',
-  top_p_setting: '核采样（Top-p）：累积概率阈值',
-  top_k_setting: 'Top-k：仅从概率最高的 k 个 token 中采样',
-  presence_penalty_setting: '存在惩罚：抑制已出现主题重复',
-  frequency_penalty_setting: '频率惩罚：抑制同一表述重复',
-  max_token_setting: '最大生成 token 数',
-  stop_sequences_setting: '停止序列：自定义结束标记',
-  seed_setting: '随机种子：可复现输出',
-  
-  // 图像模型核心能力
-  image_recognition: '图像理解与识别（视觉）',
-  image_generation: '文生图',
-  text_to_image: '文本转图像',
-  image_to_image: '图像转图像',
-  image_editing: '图像编辑',
-  image_inpainting: '图像修复',
-  
-  // 图像模型生成参数
-  image_size: '文生图：尺寸 image_size（如 1024x1024）',
-  image_quality: '文生图：质量 image_quality（standard/hd）',
-  image_style: '文生图：风格 image_style（vivid/natural）',
-  image_user: '文生图：终端用户标识 image_user',
-  image_response_format: '文生图：返回格式 image_response_format（url/b64_json）',
-  image_max_retries: '文生图：重试次数 image_max_retries',
-  image_timeout_seconds: '文生图：超时秒数 image_timeout_seconds',
-  
-  // 图像模型生成参数（历史别名）
-  size_setting: '文生图：尺寸（旧别名，等同 image_size）',
-  style_setting: '文生图：风格（旧别名，等同 image_style）',
-  
-  // 嵌入模型核心能力
-  text_embedding: '文本嵌入',
-  image_embedding: '图像嵌入',
-  semantic_search: '语义搜索',
-  
-  // 嵌入模型推理参数
-  embedding_dimensions: '嵌入：向量维度 embedding_dimensions',
-  embedding_user: '嵌入：终端用户 embedding_user',
-  embedding_max_retries: '嵌入：重试次数 embedding_max_retries',
-  embedding_max_segments_per_batch: '嵌入：单批最大条数 embedding_max_segments_per_batch',
-  embedding_encoding_format: '嵌入：编码格式 embedding_encoding_format',
-  embedding_timeout_seconds: '嵌入：超时秒数 embedding_timeout_seconds'
+  max_tokens: '最大生成 Token 数',
+  stop_sequences: '停止词列表',
+  seed: '随机种子',
+  presence_penalty: '话题存在惩罚',
+  frequency_penalty: '频率惩罚',
+  logit_bias: 'Token 偏好偏差',
+
+  // === 向量模型能力位 (EmbeddingCapabilityEnum) ===
+  text_embedding: '文本向量化',
+  image_embedding: '图像向量化',
+
+  // === 向量模型参数 (EmbeddingParamEnum) ===
+  dimensions: '向量输出维度',
+  model_name: '模型名称',
+  user: '终端用户标识',
+
+  // === 图像模型能力位 (ImageCapabilitiesEnum) ===
+  text_to_image: '文生图',
+  image_to_image: '图生图',
+  image_editing: '图像编辑/修复',
+
+  // === 图像生成参数 (ImageParamEnum) ===
+  size: '图片尺寸 (如 1024x1024)',
+  quality: '质量 (standard/hd)',
+  style: '风格 (vivid/natural)',
+  response_format: '响应格式 (url/b64_json)',
+
+  // === 系统与 HTTP 级配置 (SystemConfigParam) ===
+  base_url: '接口基础地址',
+  api_key: '令牌/密钥',
+  timeout_seconds: '超时时间 (秒)',
+  max_retries: '最大重试次数',
+  log_requests: '启用请求日志',
+  log_responses: '启用响应日志',
+  proxy_url: '代理服务器地址'
 } as const
 
 export const aiModelCapabilitiesDictionary = createEnumDictionary({

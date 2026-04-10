@@ -133,6 +133,41 @@ public interface AiModelEnum {
 
     @Getter
     @AllArgsConstructor
+    enum ModelTypeEnum implements BaseEnum {
+        /**
+         *
+         */
+        CHAT_MODEL("chat", "聊天模型"),
+
+        /**
+         *
+         */
+        EMBEDDING_MODEL("embedding", "向量模型"),
+
+        /**
+         *
+         */
+        IMAGE_MODEL("image", "图像模型");
+
+
+
+        private String code;
+
+
+        private String desc;
+
+        /**
+         * 获取所有模型类型的列表
+         */
+        public static List<String> getAllCodes() {
+            return Arrays.stream(values())
+                    .map(ModelTypeEnum::getCode)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
     enum ChatCapabilitiesEnum implements BaseEnum {
 
         /**
@@ -459,38 +494,5 @@ public interface AiModelEnum {
         }
     }
 
-    @Getter
-    @AllArgsConstructor
-    enum ModelTypeEnum implements BaseEnum {
-        /**
-         *
-         */
-        CHAT_MODEL("chat", "聊天模型"),
 
-        /**
-         *
-         */
-        EMBEDDING_MODEL("embedding", "向量模型"),
-
-        /**
-         *
-         */
-        IMAGE_MODEL("image", "图像模型");
-
-
-
-        private String code;
-
-
-        private String desc;
-
-        /**
-         * 获取所有模型类型的列表
-         */
-        public static List<String> getAllCodes() {
-            return Arrays.stream(values())
-                    .map(ModelTypeEnum::getCode)
-                    .collect(Collectors.toList());
-        }
-    }
 }

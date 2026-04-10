@@ -18,6 +18,7 @@ export type AiModel = {
   topVariance?: number
   isDefault?: number
   capabilities?: string
+  param?: string
   maxQuotaTokens?: number
   createUser?: string
   createTime?: string

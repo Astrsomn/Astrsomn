@@ -21,7 +21,7 @@
       {{ mode === 'create' ? '注册接入端点' : mode === 'view' ? '查看端点配置' : '编辑端点配置' }}
     </template>
     <template #header-subtitle>
-      左侧填写基本信息，右侧勾选能力并设置资源约束
+      左侧填写基本信息，右侧配置能力位与推理参数
     </template>
 
     <div class="model-form-shell">
@@ -110,43 +110,22 @@
 
         <div class="model-form-pane model-form-pane--right">
           <div class="form-section">
-            <h3 class="section-headline"><ThunderboltOutlined /> 端点能力（写入 Capabilities）</h3>
+            <h3 class="section-headline"><ThunderboltOutlined /> 协议能力位 (Capabilities)</h3>
 
             <div v-if="form.modelType === 'chat'" class="capability-panel-section">
-              <h4 class="cap-panel-title">对话端点能力 · InferenceParamEnum</h4>
               <div class="cap-tag-grid">
                 <div
-                  v-for="opt in chatInferenceOptions"
+                  v-for="opt in chatCapabilitiesOptions"
                   :key="opt.value"
-                  :class="['custom-cap-tag', { active: chatInferenceCapabilities.includes(opt.value) }]"
-                  @click="props.mode !== 'view' && toggleChatInference(opt.value)"
+                  :class="['custom-cap-tag', { active: chatCapabilities.includes(opt.value) }]"
+                  @click="props.mode !== 'view' && toggleChatCapability(opt.value)"
                   :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
                 >
                   <div class="custom-cap-tag__body">
-                    <CheckCircleFilled v-if="chatInferenceCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
+                    <CheckCircleFilled v-if="chatCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
                     <div class="custom-cap-tag__text">
                       <span class="custom-cap-tag__title">{{ opt.titleZh }}</span>
                       <span class="custom-cap-tag__field">{{ opt.fieldCode }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="chatOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">非推理枚举 code（可能是历史标签，点击可移除）</div>
-                <div class="cap-tag-grid">
-                  <div
-                    v-for="c in chatOrphanCapabilities"
-                    :key="c"
-                    class="custom-cap-tag orphan"
-                    @click="props.mode !== 'view' && removeChatOrphan(c)"
-                    :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
-                  >
-                    <div class="custom-cap-tag__body">
-                      <div class="custom-cap-tag__text">
-                        <span class="custom-cap-tag__title">{{ capabilityOrphanTitle(c) }}</span>
-                        <span class="custom-cap-tag__field">{{ c }}</span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -154,40 +133,19 @@
             </div>
 
             <div v-if="form.modelType === 'embedding'" class="capability-panel-section">
-              <h4 class="cap-panel-title">向量端点能力 · EmbeddingInferenceParamEnum</h4>
               <div class="cap-tag-grid">
                 <div
-                  v-for="opt in embeddingInferenceOptions"
+                  v-for="opt in embeddingCapabilitiesOptions"
                   :key="opt.value"
-                  :class="['custom-cap-tag', { active: embeddingInferenceCapabilities.includes(opt.value) }]"
-                  @click="props.mode !== 'view' && toggleEmbeddingInference(opt.value)"
+                  :class="['custom-cap-tag', { active: embeddingCapabilities.includes(opt.value) }]"
+                  @click="props.mode !== 'view' && toggleEmbeddingCapability(opt.value)"
                   :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
                 >
                   <div class="custom-cap-tag__body">
-                    <CheckCircleFilled v-if="embeddingInferenceCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
+                    <CheckCircleFilled v-if="embeddingCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
                     <div class="custom-cap-tag__text">
                       <span class="custom-cap-tag__title">{{ opt.titleZh }}</span>
                       <span class="custom-cap-tag__field">{{ opt.fieldCode }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="embeddingOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">自定义能力 code</div>
-                <div class="cap-tag-grid">
-                  <div
-                    v-for="c in embeddingOrphanCapabilities"
-                    :key="c"
-                    class="custom-cap-tag orphan"
-                    @click="props.mode !== 'view' && removeEmbeddingOrphan(c)"
-                    :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
-                  >
-                    <div class="custom-cap-tag__body">
-                      <div class="custom-cap-tag__text">
-                        <span class="custom-cap-tag__title">{{ capabilityOrphanTitle(c) }}</span>
-                        <span class="custom-cap-tag__field">{{ c }}</span>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -195,17 +153,16 @@
             </div>
 
             <div v-if="form.modelType === 'image'" class="capability-panel-section">
-              <h4 class="cap-panel-title">图像端点能力 · ImageGenParamEnum</h4>
               <div class="cap-tag-grid">
                 <div
-                  v-for="opt in imageGenOptions"
+                  v-for="opt in imageCapabilitiesOptions"
                   :key="opt.value"
-                  :class="['custom-cap-tag', { active: imageGenCapabilities.includes(opt.value) }]"
-                  @click="props.mode !== 'view' && toggleImageGen(opt.value)"
+                  :class="['custom-cap-tag', { active: imageCapabilities.includes(opt.value) }]"
+                  @click="props.mode !== 'view' && toggleImageCapability(opt.value)"
                   :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
                 >
                   <div class="custom-cap-tag__body">
-                    <CheckCircleFilled v-if="imageGenCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
+                    <CheckCircleFilled v-if="imageCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
                     <div class="custom-cap-tag__text">
                       <span class="custom-cap-tag__title">{{ opt.titleZh }}</span>
                       <span class="custom-cap-tag__field">{{ opt.fieldCode }}</span>
@@ -213,22 +170,45 @@
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div v-if="imageOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">自定义能力 code</div>
-                <div class="cap-tag-grid">
-                  <div
-                    v-for="c in imageOrphanCapabilities"
-                    :key="c"
-                    class="custom-cap-tag orphan"
-                    @click="props.mode !== 'view' && removeImageOrphan(c)"
-                    :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
-                  >
-                    <div class="custom-cap-tag__body">
-                      <div class="custom-cap-tag__text">
-                        <span class="custom-cap-tag__title">{{ capabilityOrphanTitle(c) }}</span>
-                        <span class="custom-cap-tag__field">{{ c }}</span>
-                      </div>
+            <div class="param-schema-section">
+              <h3 class="section-headline"><SettingOutlined /> 推理参数架构 (Parameter Schema)</h3>
+              <p class="section-desc">控制实例层可填写的参数范围。未启用的参数在实例层将被禁用或忽略。</p>
+              
+              <div class="param-table">
+                <div class="param-table-header">
+                  <div class="param-col param-col--id">参数标识</div>
+                  <div class="param-col param-col--desc">说明/映射字段</div>
+                  <div class="param-col param-col--default">默认值</div>
+                  <div class="param-col param-col--range">取值范围</div>
+                  <div class="param-col param-col--toggle">启用</div>
+                </div>
+                <div class="param-table-body">
+                  <div v-for="(param, idx) in currentParams" :key="param.id" class="param-row">
+                    <div class="param-col param-col--id">
+                      <span class="param-id">{{ param.id }}</span>
+                    </div>
+                    <div class="param-col param-col--desc">
+                      <span class="param-desc">{{ param.desc }}</span>
+                      <span class="param-mapping">{{ param.mapping }}</span>
+                    </div>
+                    <div class="param-col param-col--default">
+                      <a-input 
+                        v-model:value="param.default" 
+                        size="small" 
+                        :disabled="props.mode === 'view'"
+                        placeholder="默认值"
+                      />
+                    </div>
+                    <div class="param-col param-col--range">
+                      <span class="param-range">{{ param.range }}</span>
+                    </div>
+                    <div class="param-col param-col--toggle">
+                      <a-switch 
+                        v-model:checked="param.active" 
+                        :disabled="props.mode === 'view'"
+                      />
                     </div>
                   </div>
                 </div>
@@ -278,7 +258,8 @@ import { message } from 'ant-design-vue'
 import {
   IdcardOutlined, ReloadOutlined, MessageOutlined,
   PartitionOutlined, LockOutlined, ThunderboltOutlined,
-  CheckCircleFilled, ControlOutlined, PictureOutlined, GlobalOutlined
+  CheckCircleFilled, ControlOutlined, PictureOutlined, GlobalOutlined,
+  SettingOutlined
 } from '@ant-design/icons-vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import ModelProviderSelect from './ModelProviderSelect.vue'
@@ -288,12 +269,16 @@ import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
 import { aiModelCapabilitiesDictionary } from '@/locales/zh-CN/dictionary/ai-model'
 import {
-  CHAT_INFERENCE_CODES,
-  CHAT_INFERENCE_SET,
-  EMBEDDING_INFERENCE_CODES,
-  EMBEDDING_INFERENCE_SET,
-  IMAGE_GEN_CODES,
-  IMAGE_GEN_SET
+  CHAT_CAPABILITIES_CODES,
+  CHAT_CAPABILITIES_SET,
+  CHAT_PARAM_CODES,
+  EMBEDDING_CAPABILITIES_CODES,
+  EMBEDDING_CAPABILITIES_SET,
+  EMBEDDING_PARAM_CODES,
+  IMAGE_CAPABILITIES_CODES,
+  IMAGE_CAPABILITIES_SET,
+  IMAGE_PARAM_CODES,
+  MODEL_CONFIG_MAP
 } from '@/constants/aiModelCapabilityCodes'
 
 const props = withDefaults(
@@ -314,8 +299,32 @@ const formRef = ref<FormInstance | null>(null)
 
 const accountList = ref<AiAccount[]>([])
 const accountOptionsLoading = ref(false)
-/** 编辑时由详情接口返回：被推理实例引用则不可改 modelKey */
 const modelKeyImmutable = ref(false)
+
+const PARAM_TEMPLATES = {
+  chat: [
+    { id: 'temperature', desc: '采样温度', mapping: 'temperature', default: '0.7', range: '0-2.0', active: true },
+    { id: 'top_p', desc: '核采样阈值', mapping: 'top_p', default: '1.0', range: '0-1.0', active: true },
+    { id: 'top_k', desc: 'Top-K 采样', mapping: 'top_k', default: '', range: 'int', active: false },
+    { id: 'max_tokens', desc: '最大生成长度', mapping: 'max_tokens', default: '2048', range: '1-32k', active: true },
+    { id: 'presence_penalty', desc: '话题存在惩罚', mapping: 'presence_penalty', default: '0', range: '-2-2', active: false },
+    { id: 'frequency_penalty', desc: '频率重复惩罚', mapping: 'frequency_penalty', default: '0', range: '-2-2', active: false },
+    { id: 'stop_sequences', desc: '停止符', mapping: 'stop_sequences', default: '', range: 'Array', active: false },
+    { id: 'seed', desc: '随机种子', mapping: 'seed', default: '', range: 'int', active: false },
+    { id: 'logit_bias', desc: 'Token 偏好偏差', mapping: 'logit_bias', default: '', range: 'Object', active: false }
+  ],
+  embedding: [
+    { id: 'dimensions', desc: '向量输出维度', mapping: 'dimensions', default: '1536', range: 'int', active: true },
+    { id: 'model_name', desc: '模型名称', mapping: 'model_name', default: '', range: 'string', active: false },
+    { id: 'user', desc: '终端用户标识', mapping: 'user', default: '', range: 'string', active: false }
+  ],
+  image: [
+    { id: 'size', desc: '图片尺寸', mapping: 'size', default: '1024x1024', range: 'string', active: true },
+    { id: 'quality', desc: '生成质量', mapping: 'quality', default: 'standard', range: 'standard/hd', active: true },
+    { id: 'style', desc: '画面风格', mapping: 'style', default: 'vivid', range: 'vivid/natural', active: true },
+    { id: 'response_format', desc: '响应格式', mapping: 'response_format', default: 'url', range: 'url/b64_json', active: false }
+  ]
+}
 
 function resolveQueryCreateUser(): string | undefined {
   try {
@@ -383,54 +392,30 @@ const filterAccountOption = (input: string, option: { label?: string }) => {
   return String(option?.label ?? '').toLowerCase().includes(q)
 }
 
-/** 能力卡片：上行中文说明，下行字段 code（与 Capabilities JSON 一致） */
 function capOptionRow(code: string) {
   const titleZh = aiModelCapabilitiesDictionary.getLabel(code) ?? code
   return { value: code, titleZh, fieldCode: code }
 }
 
-function capabilityOrphanTitle(code: string): string {
-  const zh = aiModelCapabilitiesDictionary.getLabel(code)
-  if (zh && zh !== code) return zh
-  return '历史 / 非枚举标签'
-}
+const chatCapabilitiesOptions = computed(() => CHAT_CAPABILITIES_CODES.map((value) => capOptionRow(value)))
+const embeddingCapabilitiesOptions = computed(() => EMBEDDING_CAPABILITIES_CODES.map((value) => capOptionRow(value)))
+const imageCapabilitiesOptions = computed(() => IMAGE_CAPABILITIES_CODES.map((value) => capOptionRow(value)))
 
-function capOptions(codes: readonly string[]) {
-  const aliasParams = new Set([
-    'temperature_setting',
-    'top_p_setting',
-    'top_k_setting',
-    'presence_penalty_setting',
-    'frequency_penalty_setting',
-    'max_token_setting',
-    'stop_sequences_setting',
-    'seed_setting',
-    'size_setting',
-    'style_setting'
-  ])
-
-  return codes
-    .filter((value) => !aliasParams.has(value))
-    .map((value) => capOptionRow(value))
-}
-
-const chatInferenceOptions = computed(() => capOptions(CHAT_INFERENCE_CODES))
-const embeddingInferenceOptions = computed(() => capOptions(EMBEDDING_INFERENCE_CODES))
-const imageGenOptions = computed(() => capOptions(IMAGE_GEN_CODES))
-
-const chatInferenceCapabilities = ref<string[]>([])
+const chatCapabilities = ref<string[]>([])
 const chatOrphanCapabilities = ref<string[]>([])
 
-const embeddingInferenceCapabilities = ref<string[]>([])
+const embeddingCapabilities = ref<string[]>([])
 const embeddingOrphanCapabilities = ref<string[]>([])
 
-const imageGenCapabilities = ref<string[]>([])
+const imageCapabilities = ref<string[]>([])
 const imageOrphanCapabilities = ref<string[]>([])
+
+const currentParams = ref<any[]>(JSON.parse(JSON.stringify(PARAM_TEMPLATES.chat)))
 
 const form = reactive<AiModel>({
   modelName: '', modelKey: '', modelType: 'chat', provider: '',
   accountKey: '', apiUrl: '', status: 'enabled', isDefault: 0, responseLimit: 4096,
-  capabilities: '', randomIndex: 0, topVariance: 0, maxQuotaTokens: 0
+  capabilities: '', param: '', randomIndex: 0, topVariance: 0, maxQuotaTokens: 0
 })
 
 const rules = {
@@ -445,45 +430,59 @@ function toggleInList(list: string[], val: string) {
   else list.push(val)
 }
 
-const toggleChatInference = (val: string) => toggleInList(chatInferenceCapabilities.value, val)
+const toggleChatCapability = (val: string) => toggleInList(chatCapabilities.value, val)
 const removeChatOrphan = (val: string) => {
   chatOrphanCapabilities.value = chatOrphanCapabilities.value.filter((c) => c !== val)
 }
 
-const toggleEmbeddingInference = (val: string) => toggleInList(embeddingInferenceCapabilities.value, val)
+const toggleEmbeddingCapability = (val: string) => toggleInList(embeddingCapabilities.value, val)
 const removeEmbeddingOrphan = (val: string) => {
   embeddingOrphanCapabilities.value = embeddingOrphanCapabilities.value.filter((c) => c !== val)
 }
 
-const toggleImageGen = (val: string) => toggleInList(imageGenCapabilities.value, val)
+const toggleImageCapability = (val: string) => toggleInList(imageCapabilities.value, val)
 const removeImageOrphan = (val: string) => {
   imageOrphanCapabilities.value = imageOrphanCapabilities.value.filter((c) => c !== val)
 }
 
-function partitionCapabilities(caps: string[], modelType: string) {
-  chatInferenceCapabilities.value = []
+function partitionConfig(caps: string[], params: any[], modelType: string) {
+  chatCapabilities.value = []
   chatOrphanCapabilities.value = []
-  embeddingInferenceCapabilities.value = []
+  embeddingCapabilities.value = []
   embeddingOrphanCapabilities.value = []
-  imageGenCapabilities.value = []
+  imageCapabilities.value = []
   imageOrphanCapabilities.value = []
 
   if (modelType === 'chat') {
-    chatInferenceCapabilities.value = caps.filter((c) => CHAT_INFERENCE_SET.has(c))
-    chatOrphanCapabilities.value = caps.filter((c) => !CHAT_INFERENCE_SET.has(c))
+    chatCapabilities.value = caps.filter((c) => CHAT_CAPABILITIES_SET.has(c))
+    chatOrphanCapabilities.value = caps.filter((c) => !CHAT_CAPABILITIES_SET.has(c))
+    if (params && params.length > 0) {
+      currentParams.value = params
+    } else {
+      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.chat))
+    }
   } else if (modelType === 'embedding') {
-    embeddingInferenceCapabilities.value = caps.filter((c) => EMBEDDING_INFERENCE_SET.has(c))
-    embeddingOrphanCapabilities.value = caps.filter((c) => !EMBEDDING_INFERENCE_SET.has(c))
+    embeddingCapabilities.value = caps.filter((c) => EMBEDDING_CAPABILITIES_SET.has(c))
+    embeddingOrphanCapabilities.value = caps.filter((c) => !EMBEDDING_CAPABILITIES_SET.has(c))
+    if (params && params.length > 0) {
+      currentParams.value = params
+    } else {
+      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.embedding))
+    }
   } else if (modelType === 'image') {
-    imageGenCapabilities.value = caps.filter((c) => IMAGE_GEN_SET.has(c))
-    imageOrphanCapabilities.value = caps.filter((c) => !IMAGE_GEN_SET.has(c))
+    imageCapabilities.value = caps.filter((c) => IMAGE_CAPABILITIES_SET.has(c))
+    imageOrphanCapabilities.value = caps.filter((c) => !IMAGE_CAPABILITIES_SET.has(c))
+    if (params && params.length > 0) {
+      currentParams.value = params
+    } else {
+      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.image))
+    }
   }
 }
 
 const syncForm = () => {
   if (props.mode === 'create' || !props.initialData) {
     modelKeyImmutable.value = false
-    // 完全重置 form 对象，确保所有字段都被清空
     Object.assign(form, {
       id: '',
       modelName: '',
@@ -495,22 +494,35 @@ const syncForm = () => {
       status: 'enabled',
       isDefault: 0,
       capabilities: '',
+      param: '',
       randomIndex: 0,
       topVariance: 0,
       maxQuotaTokens: 0
     })
-    partitionCapabilities([], String(form.modelType ?? 'chat'))
+    partitionConfig([], [], String(form.modelType ?? 'chat'))
   } else {
     Object.assign(form, props.initialData)
     modelKeyImmutable.value = props.initialData.modelKeyImmutable === true
     delete (form as Record<string, unknown>).modelKeyImmutable
+    
+    let capabilitiesArray: string[] = []
+    let paramsArray: any[] = []
+    
     try {
-      const parsed = JSON.parse(form.capabilities || '[]')
-      const caps = Array.isArray(parsed) ? parsed.map(String) : []
-      partitionCapabilities(caps, String(form.modelType || 'chat'))
+      const parsedCaps = JSON.parse(form.capabilities || '[]')
+      capabilitiesArray = Array.isArray(parsedCaps) ? parsedCaps.map(String) : []
     } catch {
-      partitionCapabilities([], String(form.modelType || 'chat'))
+      capabilitiesArray = []
     }
+    
+    try {
+      const parsedParams = JSON.parse(form.param || '[]')
+      paramsArray = Array.isArray(parsedParams) ? parsedParams : []
+    } catch {
+      paramsArray = []
+    }
+    
+    partitionConfig(capabilitiesArray, paramsArray, String(form.modelType || 'chat'))
   }
 }
 
@@ -523,7 +535,6 @@ watch(
   }
 )
 
-// 监听模式变化，确保从编辑切换到创建时表单数据会重置
 watch(
   () => props.mode,
   () => {
@@ -534,7 +545,7 @@ watch(
 )
 
 watch(() => form.modelType, () => {
-  partitionCapabilities([], String(form.modelType || 'chat'))
+  partitionConfig([], [], String(form.modelType || 'chat'))
 })
 
 const handleSubmit = async () => {
@@ -543,14 +554,15 @@ const handleSubmit = async () => {
   
   let allCapabilities: string[] = []
   if (form.modelType === 'chat') {
-    allCapabilities = [...chatInferenceCapabilities.value, ...chatOrphanCapabilities.value]
+    allCapabilities = [...chatCapabilities.value, ...chatOrphanCapabilities.value]
   } else if (form.modelType === 'embedding') {
-    allCapabilities = [...embeddingInferenceCapabilities.value, ...embeddingOrphanCapabilities.value]
+    allCapabilities = [...embeddingCapabilities.value, ...embeddingOrphanCapabilities.value]
   } else if (form.modelType === 'image') {
-    allCapabilities = [...imageGenCapabilities.value, ...imageOrphanCapabilities.value]
+    allCapabilities = [...imageCapabilities.value, ...imageOrphanCapabilities.value]
   }
   
   payload.capabilities = allCapabilities.length > 0 ? JSON.stringify(allCapabilities) : ''
+  payload.param = currentParams.value.length > 0 ? JSON.stringify(currentParams.value) : ''
   delete (payload as { modelKeyImmutable?: unknown }).modelKeyImmutable
   await props.submitHandler(payload)
 }
@@ -559,7 +571,6 @@ const onCancel = () => emit('update:open', false)
 </script>
 
 <style scoped>
-/* 80vw×80vh 弹层在视口中居中 */
 :global(.model-form-fsm-wrap.ant-modal-wrap) {
   display: flex;
   align-items: center;
@@ -658,6 +669,12 @@ const onCancel = () => emit('update:open', false)
   color: var(--text-heading, #444);
 }
 
+.section-desc {
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  margin: -8px 0 16px 0;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -667,8 +684,6 @@ const onCancel = () => emit('update:open', false)
 .span-2 {
   grid-column: span 2;
 }
-
-
 
 :deep(.ant-segmented-item-selected) {
   background-color: var(--primary, #1890ff) !important;
@@ -680,37 +695,8 @@ const onCancel = () => emit('update:open', false)
   color: white !important;
 }
 
-.cap-panel-title {
-  margin: 0 0 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-heading, #334155);
-}
-
-.capability-panel-section + .capability-panel-section {
-  margin-top: 8px;
-}
-
-.cap-subhead {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary, #555);
-  margin: 16px 0 10px;
-}
-
-.cap-subhead:first-of-type {
-  margin-top: 0;
-}
-
-.cap-subhead.muted {
-  color: var(--text-muted, #888);
-  font-weight: 500;
-}
-
-.orphan-block {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--border-default, #e8e8e8);
+.capability-panel-section {
+  margin-bottom: 20px;
 }
 
 .cap-tag-grid {
@@ -796,18 +782,100 @@ const onCancel = () => emit('update:open', false)
   color: var(--text-secondary, #64748b);
 }
 
-.custom-cap-tag.orphan {
-  background: var(--bg-surface, #fafafa);
-  border-style: dashed;
+.param-schema-section {
+  margin-top: 24px;
 }
 
-.custom-cap-tag.orphan:hover {
-  border-color: #ff4d4f;
-  box-shadow: 0 1px 4px rgba(255, 77, 79, 0.12);
+.param-table {
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.custom-cap-tag.orphan:hover .custom-cap-tag__title {
-  color: #cf1322;
+.param-table-header {
+  display: grid;
+  grid-template-columns: 120px 1fr 100px 100px 60px;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-surface, #f8fafc);
+  border-bottom: 1px solid var(--border-default, #e2e8f0);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+}
+
+.param-table-body {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.param-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 100px 100px 60px;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-default, #f1f5f9);
+  align-items: center;
+}
+
+.param-row:hover {
+  background: var(--bg-surface, #f8fafc);
+}
+
+.param-col {
+  display: flex;
+  align-items: center;
+}
+
+.param-col--id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-heading, #334155);
+}
+
+.param-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-heading, #334155);
+}
+
+.param-col--desc {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.param-desc {
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+}
+
+.param-mapping {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+  background: var(--bg-surface, #f1f5f9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.param-col--range {
+  justify-content: center;
+}
+
+.param-range {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+  text-align: center;
+}
+
+.param-col--toggle {
+  justify-content: center;
 }
 
 .runtime-params-box {
