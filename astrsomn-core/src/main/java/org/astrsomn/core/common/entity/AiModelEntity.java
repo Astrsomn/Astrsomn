@@ -79,6 +79,11 @@ public class AiModelEntity extends BaseEntity<Long> {
     private String capabilities;
 
     /**
+     * Params
+     */
+    @TableField("PARAMS")
+    private String params;
+    /**
      * token使用总量限制
      */
     @TableField("MAX_QUOTA_TOKENS")
