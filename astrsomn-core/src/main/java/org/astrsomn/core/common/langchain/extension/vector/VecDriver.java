@@ -1,5 +1,6 @@
 package org.astrsomn.core.common.langchain.extension.vector;
 
+import org.astrsomn.core.common.entity.AiVecDriverEntity;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
 
 /**
@@ -27,4 +28,6 @@ public interface VecDriver {
     default String getAuthor() {
         return "Astrsomn";
     }
+
+    AiVecDriverEntity getDriverEntity();
 }

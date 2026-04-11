@@ -18,7 +18,12 @@
     </properties>
 
     <dependencies>
-        <!-- 核心模块 -->
+        <!-- 核心模块（显式依赖，保证单模块构建 testCompile 等场景下类路径完整） -->
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-core</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-spring-boot-starter</artifactId>
@@ -111,6 +116,9 @@
             <artifactId>astrsomn-provider-zhipu</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+
+        <!-- 向量库 Qdrant 通过「扩展插件」上传 jar 动态加载，勿在此处引入 astrsomn-vector-qdrant，
+             否则会注册 QdrantVectorAutoConfiguration 并可能与插件方式重复或元数据读取失败。 -->
 
     </dependencies>
 
