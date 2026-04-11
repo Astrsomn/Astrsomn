@@ -135,7 +135,15 @@ public class AstroVecSourceFactory {
                                                 "未注册向量驱动: provider="
                                                         + provider
                                                         + "（请引入对应 astrsomn-vector-* 模块或加载含 VecDriver SPI 的插件）"));
-        return driver.bindSource(entity);
+        String pluginJar = pluginDriverOwningJar.get(provider);
+        log.info(
+                "[Astro] bindSource: driverClass={}, fromPluginJar={}",
+                driver.getClass().getName(),
+                pluginJar != null ? pluginJar : "(classpath)");
+        log.info("[Astro] bindSource: invoking driver.bindSource(entity) ...");
+        VecSource bound = driver.bindSource(entity);
+        log.info("[Astro] bindSource: got VecSource class={}", bound.getClass().getName());
+        return bound;
     }
 
     /**
@@ -222,19 +230,64 @@ public class AstroVecSourceFactory {
      */
     public boolean testConnection(AiVecSourceEntity entity) {
         if (entity == null) {
+            log.warn("[Astro] testConnection: entity is null");
             return false;
         }
+        long t0 = System.nanoTime();
+        String provider = entity.getProvider();
+        String host = entity.getHost();
+        String port = entity.getPort();
+        log.info(
+                "[Astro] testConnection begin: provider={}, host={}, port={}, configJsonBlank={}, tokenConfigured={}",
+                provider,
+                host,
+                port,
+                StringUtils.isBlank(entity.getConfigJson()),
+                StringUtils.isNotBlank(entity.getToken()));
+        VecSource source = null;
         try {
-            // 绑定源并测试连接
-            VecSource source = bindSource(entity);
-            // 测试连接
+            source = bindSource(entity);
+            log.info("[Astro] testConnection: bindSource done, calling VecSource.testConnection() ...");
             boolean success = source.testConnection();
-            // 关闭连接
-            shutdownQuietly(source);
+            long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
+            if (success) {
+                log.info(
+                        "[Astro] testConnection ok in {}ms: provider={}, host={}, port={}",
+                        elapsedMs,
+                        provider,
+                        host,
+                        port);
+            } else {
+                log.warn(
+                        "[Astro] testConnection returned false in {}ms: provider={}, host={}, port={}",
+                        elapsedMs,
+                        provider,
+                        host,
+                        port);
+            }
             return success;
+        } catch (RuntimeException e) {
+            long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
+            log.error(
+                    "[Astro] testConnection failed in {}ms: provider={}, host={}, port={}",
+                    elapsedMs,
+                    provider,
+                    host,
+                    port,
+                    e);
+            throw e;
         } catch (Exception e) {
-            log.error("向量源连接测试失败: {}", e.getMessage());
-            return false;
+            long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
+            log.error(
+                    "[Astro] testConnection failed in {}ms: provider={}, host={}, port={}",
+                    elapsedMs,
+                    provider,
+                    host,
+                    port,
+                    e);
+            throw new RuntimeException(e);
+        } finally {
+            shutdownQuietly(source);
         }
     }
 }

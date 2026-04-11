@@ -11,6 +11,12 @@ public final class QdrantVecConstants {
     /** {@code CONFIG_JSON} 布尔：是否对 gRPC 使用 TLS。 */
     public static final String CONFIG_USE_TLS = "useTls";
 
+    /**
+     * {@code CONFIG_JSON} 布尔：是否在客户端初始化时与 Qdrant 校验版本（会多一次 RPC；网络不可达时会长时间阻塞）。
+     * 缺省按 {@link org.astrsomn.vector.qdrant.internal.QdrantConfigSupport#readCheckCompatibility} 处理。
+     */
+    public static final String CONFIG_CHECK_COMPATIBILITY = "checkCompatibility";
+
     /** LangChain4j Qdrant 默认 payload 文本字段名。 */
     public static final String DEFAULT_PAYLOAD_TEXT_KEY = "text_segment";
 

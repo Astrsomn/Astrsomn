@@ -12,6 +12,7 @@ import org.astrsomn.core.common.dto.vecsource.AiVecSourceQueryRequestDTO;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceResponseDTO;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AstVecSourceErrorEnum;
 import org.astrsomn.core.mapper.AiVecSourceMapper;
@@ -117,19 +118,39 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
 
     @Override
     public BaseResponse<String> testConnection(AiVecSourceCreateRequestDTO request) {
+        long t0 = System.nanoTime();
         try {
-            // 创建临时实体用于测试
             AiVecSourceEntity entity = new AiVecSourceEntity();
             BeanUtils.copyProperties(request, entity);
-            // 使用 AstroVecSourceFactory 测试连接
+            log.info(
+                    "[AiVecSource] testConnection start: provider={}, host={}, port={}, envCode={}, sourceId={}, tokenConfigured={}",
+                    entity.getProvider(),
+                    entity.getHost(),
+                    entity.getPort(),
+                    entity.getEnvCode(),
+                    entity.getId(),
+                    StringUtils.isNotBlank(entity.getToken()));
             boolean success = astroVecSourceFactory.testConnection(entity);
+            long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
             if (success) {
+                log.info(
+                        "[AiVecSource] testConnection success in {}ms: provider={}, host={}, port={}",
+                        elapsedMs,
+                        entity.getProvider(),
+                        entity.getHost(),
+                        entity.getPort());
                 return BaseResponse.success("连接测试成功");
-            } else {
-                return BaseResponse.fail("连接测试失败");
             }
+            log.warn(
+                    "[AiVecSource] testConnection failed in {}ms: provider={}, host={}, port={}",
+                    elapsedMs,
+                    entity.getProvider(),
+                    entity.getHost(),
+                    entity.getPort());
+            return BaseResponse.fail("连接测试失败");
         } catch (Exception e) {
-            log.error("向量源连接测试失败: {}", e.getMessage());
+            long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
+            log.error("[AiVecSource] testConnection error in {}ms: {}", elapsedMs, e.getMessage(), e);
             return BaseResponse.fail("连接测试失败: " + e.getMessage());
         }
     }
