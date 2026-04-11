@@ -37,13 +37,16 @@
         :pagination="false"
         row-key="id"
         :row-selection="rowSelection"
-        :scroll="{ x: 1280 }"
+        :scroll="{ x: 1400 }"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'metadataSchema'">
             <div class="metadata-cell">
               <span class="metadata-info">{{ getMetadataInfo(record.metadataSchema) }}</span>
             </div>
+          </template>
+          <template v-else-if="column.key === 'instanceName'">
+            <span class="instance-name">{{ record.instanceName || '未关联' }}</span>
           </template>
           <template v-else-if="column.key === 'actions'">
             <a-button type="link" class="action-link" @click="openEdit(record)">
@@ -106,7 +109,7 @@ import { aiVecStoreApi, type AiVecStore, type PageResponse } from '@/api/aiVecSt
 
 type QueryState = {
   collectionName?: string
-  modelKey?: string
+  instanceKey?: string
   dimension?: number
 }
 
@@ -114,7 +117,8 @@ const columns = [
   { title: '集合名称', dataIndex: 'collectionName', key: 'collectionName', width: 240 },
   { title: '向量维度', dataIndex: 'dimension', key: 'dimension', width: 120 },
   { title: '距离度量', dataIndex: 'distanceMetric', key: 'distanceMetric', width: 150 },
-  { title: '模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 200, ellipsis: true },
+  { title: '实例名称', key: 'instanceName', width: 200 },
+  { title: '实例 Key', dataIndex: 'instanceKey', key: 'instanceKey', width: 200, ellipsis: true },
   { title: '元数据模式', key: 'metadataSchema', width: 300 },
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
@@ -178,7 +182,7 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
 
 const resetFilters = () => {
   query.collectionName = undefined
-  query.modelKey = undefined
+  query.instanceKey = undefined
   query.dimension = undefined
   page.pageNum = 1
   selectedRowKeys.value = []
@@ -230,7 +234,7 @@ const fetchList = async () => {
     pageSize: page.pageSize,
     param: {
       collectionName: query.collectionName || undefined,
-      modelKey: query.modelKey || undefined,
+      instanceKey: query.instanceKey || undefined,
       dimension: query.dimension || undefined
     }
   }
@@ -405,6 +409,11 @@ void fetchList()
   align-items: center;
   gap: 4px;
   padding-inline: 4px;
+}
+
+.instance-name {
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 @media (max-width: 720px) {

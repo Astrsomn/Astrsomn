@@ -30,6 +30,6 @@ public class AiVecStoreEntity extends BaseEntity<Long> {
     @TableField("METADATA_SCHEMA")
     private String metadataSchema;
 
-    @TableField("MODEL_KEY")
-    private String modelKey;
+    @TableField("INSTANCE_KEY")
+    private String instanceKey;
 }

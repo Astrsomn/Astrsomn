@@ -129,6 +129,12 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-vector-chroma</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- 可选：classpath 引入 astrsomn-vector-*（如 astrsomn-vector-qdrant）；向量扩展通过 SPI 注册，与厂商 provider 模块一致，无需额外 @Configuration。 -->
 
     </dependencies>

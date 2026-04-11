@@ -39,6 +39,18 @@ public class AiVecDocEntity extends BaseEntity<Long> {
     @TableField("SYNC_STATUS")
     private String syncStatus;
 
+    /**
+     * 文件相对路径
+     */
+    @TableField("FILE_PATH")
+    private String filePath;
+
+    /**
+     * 原始文件名
+     */
+    @TableField("ORIGINAL_FILE_NAME")
+    private String originalFileName;
+
 
 
 }

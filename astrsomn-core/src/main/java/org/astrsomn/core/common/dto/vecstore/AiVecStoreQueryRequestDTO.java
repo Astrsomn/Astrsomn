@@ -8,7 +8,6 @@ import java.io.Serializable;
 @Data
 public class AiVecStoreQueryRequestDTO extends AiVecStoreEntity implements Serializable {
 
-    private Long sourceId;
-    private String collectionName;
-    private String modelKey;
+
+
 }
