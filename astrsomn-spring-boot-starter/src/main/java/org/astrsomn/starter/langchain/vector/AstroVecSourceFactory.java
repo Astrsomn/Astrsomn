@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +32,14 @@ public class AstroVecSourceFactory {
     private final ConcurrentHashMap<String, VecDriver> pluginDriverOverrides = new ConcurrentHashMap<>();
     /** extensionKey → 提供该实现的插件 jar 文件名 */
     private final ConcurrentHashMap<String, String> pluginDriverOwningJar = new ConcurrentHashMap<>();
+
+    /** 已启用向量源 id → 运行时连接句柄（单源单客户端复用） */
+    private final ConcurrentHashMap<Long, VecSource> activeSources = new ConcurrentHashMap<>();
+
+    /** 与 {@link #activeSources} 对应的连接配置指纹，用于判断是否需要重建句柄 */
+    private final ConcurrentHashMap<Long, String> activeSourceFingerprints = new ConcurrentHashMap<>();
+
+    private static final String STATUS_ENABLED = "ENABLED";
 
     public AstroVecSourceFactory() {
         this.classpathDrivers = loadClasspathDrivers();
@@ -127,5 +136,84 @@ public class AstroVecSourceFactory {
                                                         + provider
                                                         + "（请引入对应 astrsomn-vector-* 模块或加载含 VecDriver SPI 的插件）"));
         return driver.bindSource(entity);
+    }
+
+    /**
+     * 获取已注册且仍为启用状态的向量源句柄（未调用过 {@link #registerOrRefresh} 则为空）。
+     */
+    public Optional<VecSource> tryGetActiveSource(Long sourceId) {
+        if (sourceId == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(activeSources.get(sourceId));
+    }
+
+    /**
+     * 按持久化实体维护运行时连接：启用则绑定并缓存；禁用则关闭并移除。
+     * 配置变更时先 shutdown 再重建。
+     */
+    public synchronized void registerOrRefresh(AiVecSourceEntity entity) {
+        if (entity == null || entity.getId() == null) {
+            return;
+        }
+        Long id = entity.getId();
+        if (!STATUS_ENABLED.equals(StringUtils.defaultIfBlank(StringUtils.trimToNull(entity.getStatus()), ""))) {
+            removeActiveSource(id);
+            return;
+        }
+        String fp = connectionFingerprint(entity);
+        String prevFp = activeSourceFingerprints.get(id);
+        VecSource current = activeSources.get(id);
+        if (current != null && Objects.equals(fp, prevFp)) {
+            return;
+        }
+        shutdownQuietly(current);
+        VecSource next = bindSource(entity);
+        activeSources.put(id, next);
+        activeSourceFingerprints.put(id, fp);
+        log.info("[Astro] VecSource registered: id={} provider={}", id, entity.getProvider());
+    }
+
+    /**
+     * 移除并释放指定向量源的运行时句柄（删除数据源或禁用时调用）。
+     */
+    public synchronized void removeActiveSource(Long sourceId) {
+        if (sourceId == null) {
+            return;
+        }
+        VecSource removed = activeSources.remove(sourceId);
+        activeSourceFingerprints.remove(sourceId);
+        shutdownQuietly(removed);
+        if (removed != null) {
+            log.info("[Astro] VecSource removed from cache: id={}", sourceId);
+        }
+    }
+
+    private static void shutdownQuietly(VecSource source) {
+        if (source == null) {
+            return;
+        }
+        try {
+            source.shutdown();
+        } catch (Exception e) {
+            log.warn("[Astro] VecSource shutdown failed: {}", e.getMessage());
+        }
+    }
+
+    private static String connectionFingerprint(AiVecSourceEntity e) {
+        return String.join(
+                "\u0001",
+                nz(e.getProvider()),
+                nz(e.getHost()),
+                nz(e.getPort()),
+                nz(e.getUsername()),
+                nz(e.getPassword()),
+                nz(e.getDatabaseName()),
+                nz(e.getToken()),
+                nz(e.getConfigJson()));
+    }
+
+    private static String nz(String s) {
+        return StringUtils.defaultIfBlank(StringUtils.trimToNull(s), "");
     }
 }

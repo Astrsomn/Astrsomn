@@ -24,6 +24,14 @@ export interface AiVecDriverQueryRequest {
 }
 
 export const aiVecDriverApi = {
+  /** 全量列表（下拉框），无分页 */
+  async list(): Promise<AiVecDriver[]> {
+    return request({
+      url: '/v1/astro/ai-vec-driver/list',
+      method: 'get'
+    })
+  },
+
   async create(data: AiVecDriver): Promise<string> {
     const res = await request.post<{ message: string }>('/v1/astro/ai-vec-driver/create', data)
     return res.message

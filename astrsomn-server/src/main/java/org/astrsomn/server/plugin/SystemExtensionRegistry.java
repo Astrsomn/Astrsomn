@@ -80,6 +80,11 @@ public class SystemExtensionRegistry {
             created = systemExtensionMapper.insert(entity) > 0;
         } else {
             entity.setId(existing.getId());
+            // 仅同步 SPI 元数据，保留用户操作状态（已应用 / 插件 jar 名等），避免每次启动把「已应用」写回未应用
+            entity.setApplied(existing.getApplied());
+            entity.setStatus(existing.getStatus());
+            entity.setJarName(existing.getJarName());
+            entity.setProviderCode(existing.getProviderCode());
             created = systemExtensionMapper.updateById(entity) > 0;
         }
 

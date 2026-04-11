@@ -10,6 +10,8 @@ import org.astrsomn.core.common.dto.vecdriver.AiVecDriverResponseDTO;
 import org.astrsomn.core.common.dto.vecdriver.AiVecDriverUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiVecDriverEntity;
 
+import java.util.List;
+
 public interface AiVecDriverService extends IService<AiVecDriverEntity> {
 
     BaseResponse<String> create(AiVecDriverCreateRequestDTO request);
@@ -21,4 +23,9 @@ public interface AiVecDriverService extends IService<AiVecDriverEntity> {
     PageResponse<AiVecDriverResponseDTO> queryPage(BasePageRequest<AiVecDriverQueryRequestDTO> request);
 
     BaseResponse<AiVecDriverResponseDTO> detail(Long id);
+
+    /**
+     * 下拉框等场景：全量驱动列表（无分页），按名称排序。
+     */
+    BaseResponse<List<AiVecDriverResponseDTO>> listForSelect();
 }

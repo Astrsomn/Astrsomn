@@ -12,6 +12,8 @@ import org.astrsomn.core.common.dto.vecdriver.AiVecDriverUpdateRequestDTO;
 import org.astrsomn.server.service.AiVecDriverService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/astro/ai-vec-driver")
 @RequiredArgsConstructor
@@ -47,5 +49,10 @@ public class AiVecDriverController extends BaseController {
     @GetMapping("/detail")
     public BaseResponse<AiVecDriverResponseDTO> detail(@RequestParam("id") Long id) {
         return aiVecDriverService.detail(id);
+    }
+
+    @GetMapping("/list")
+    public BaseResponse<List<AiVecDriverResponseDTO>> listForSelect() {
+        return aiVecDriverService.listForSelect();
     }
 }

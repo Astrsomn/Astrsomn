@@ -15,6 +15,9 @@ import org.astrsomn.core.mapper.AiVecDriverMapper;
 import org.astrsomn.server.service.AiVecDriverService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class AiVecDriverServiceImpl extends ServiceImpl<AiVecDriverMapper, AiVecDriverEntity> implements AiVecDriverService {
 
@@ -75,18 +78,16 @@ public class AiVecDriverServiceImpl extends ServiceImpl<AiVecDriverMapper, AiVec
         page(page, wrapper);
         PageResponse<AiVecDriverResponseDTO> response = new PageResponse<>();
         response.setTotal(page.getTotal());
-        response.setList(page.getRecords().stream().map(item -> {
-            AiVecDriverResponseDTO dto = new AiVecDriverResponseDTO();
-            dto.setId(item.getId());
-            dto.setDriverName(item.getDriverName());
-            dto.setProvider(item.getProvider());
-
-            dto.setParams(item.getParams());
-            dto.setCreateTime(item.getCreateTime());
-            dto.setUpdateTime(item.getUpdateTime());
-            return dto;
-        }).collect(java.util.stream.Collectors.toList()));
+        response.setList(page.getRecords().stream().map(this::toResponseDto).collect(Collectors.toList()));
         return response;
+    }
+
+    @Override
+    public BaseResponse<List<AiVecDriverResponseDTO>> listForSelect() {
+        LambdaQueryWrapper<AiVecDriverEntity> w = new LambdaQueryWrapper<>();
+        w.orderByAsc(AiVecDriverEntity::getDriverName);
+        List<AiVecDriverResponseDTO> list = list(w).stream().map(this::toResponseDto).collect(Collectors.toList());
+        return BaseResponse.success(list);
     }
 
     @Override
@@ -95,14 +96,17 @@ public class AiVecDriverServiceImpl extends ServiceImpl<AiVecDriverMapper, AiVec
         if (entity == null) {
             return BaseResponse.fail("驱动不存在");
         }
-        AiVecDriverResponseDTO dto = new AiVecDriverResponseDTO();
-        dto.setId(entity.getId());
-        dto.setDriverName(entity.getDriverName());
-        dto.setProvider(entity.getProvider());
+        return BaseResponse.success(toResponseDto(entity));
+    }
 
-        dto.setParams(entity.getParams());
-        dto.setCreateTime(entity.getCreateTime());
-        dto.setUpdateTime(entity.getUpdateTime());
-        return BaseResponse.success(dto);
+    private AiVecDriverResponseDTO toResponseDto(AiVecDriverEntity item) {
+        AiVecDriverResponseDTO dto = new AiVecDriverResponseDTO();
+        dto.setId(item.getId());
+        dto.setDriverName(item.getDriverName());
+        dto.setProvider(item.getProvider());
+        dto.setParams(item.getParams());
+        dto.setCreateTime(item.getCreateTime());
+        dto.setUpdateTime(item.getUpdateTime());
+        return dto;
     }
 }

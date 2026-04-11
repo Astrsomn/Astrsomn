@@ -122,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
@@ -140,6 +140,7 @@ import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import VecSourceFormModal from './VecSourceFormModal.vue'
 import { aiVecSourceApi, type AiVecSource, type PageResponse } from '@/api/aiVecSource'
+import { aiVecDriverApi } from '@/api/aiVecDriver'
 
 type QueryState = {
   name?: string
@@ -170,7 +171,28 @@ const normalizeText = (value?: string, fallback = '—') => {
   return text || fallback
 }
 
-const getProviderLabel = (provider?: string) => providerLabelMap[String(provider || '').toUpperCase()] || normalizeText(provider)
+/** 来自 AI_VEC_DRIVER.driverName，key 为 provider 大写 */
+const driverNameByProviderUpper = ref<Record<string, string>>({})
+
+async function loadDriverLabels() {
+  try {
+    const drivers = await aiVecDriverApi.list()
+    const m: Record<string, string> = {}
+    for (const d of drivers) {
+      if (d.provider) {
+        m[String(d.provider).toUpperCase()] = d.driverName || d.provider
+      }
+    }
+    driverNameByProviderUpper.value = m
+  } catch {
+    driverNameByProviderUpper.value = {}
+  }
+}
+
+const getProviderLabel = (provider?: string) => {
+  const key = String(provider || '').toUpperCase()
+  return driverNameByProviderUpper.value[key] || providerLabelMap[key] || normalizeText(provider)
+}
 
 const getConnectionInfo = (record: AiVecSource) => {
   if (record.host) {
@@ -347,6 +369,10 @@ const handleFormSubmit = async (form: AiVecSource) => {
     modal.submitting = false
   }
 }
+
+onMounted(() => {
+  void loadDriverLabels()
+})
 
 void fetchList()
 </script>
