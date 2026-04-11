@@ -8,12 +8,14 @@ import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.entity.AiMcpEntity;
 import org.astrsomn.core.common.entity.AiToolEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
+import org.astrsomn.core.common.langchain.buildParam.setting.ConversationSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
 import org.astrsomn.core.mapper.AiMcpMapper;
 import org.astrsomn.core.mapper.AiToolMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
-import org.astrsomn.starter.langchain.tool.image.AiImageModelFactory;
-import org.astrsomn.starter.langchain.tool.image.ImageToolProvider;
+import org.astrsomn.starter.langchain.factory.AstroModelFactory;
+
+import org.astrsomn.starter.langchain.tool.image.DynamicImageToolProvider;
 import org.astrsomn.starter.langchain.tool.local.DynamicToolProvider;
 import org.astrsomn.starter.langchain.tool.local.LocalToolCacheManager;
 import org.astrsomn.starter.langchain.tool.mcp.DynamicMcpToolProvider;
@@ -38,39 +40,36 @@ public class ToolProviderAssembler {
     private final ApplicationContext applicationContext;
     private final LocalToolCacheManager globalToolCache;
     private final AstrsomnProperties astrsomnProperties;
-    private final AiImageModelFactory  aiImageModelFactory;
+    private final AstroModelFactory astroModelFactory;
+    public ToolProvider assemble(AstroChatParam<?> param) {
+        return Optional.ofNullable(param.getToolSetting())
+                .map(setting -> {
+                    List<ToolProvider> providers = new ArrayList<>();
+                    String env = astrsomnProperties.getEnvCode();
 
-    public Optional<ToolProvider> assemble(AstroChatParam<?> param) {
-        ToolSetting toolSetting = param.getToolSetting();
-        if (toolSetting == null) {
-            return Optional.empty();
-        }
+                    Optional.ofNullable(setting.getMcpKeys())
+                            .filter(CollectionUtil::isNotEmpty)
+                            .map(keys -> aiMcpMapper.selectList(new LambdaQueryWrapper<AiMcpEntity>()
+                                    .in(AiMcpEntity::getMcpKey, keys)
+                                    .eq(AiMcpEntity::getEnvCode, env)))
+                            .ifPresent(configs -> providers.add(new DynamicMcpToolProvider(mcpToolManager,configs )));
 
-        List<ToolProvider> providers = new ArrayList<>();
-        String env = astrsomnProperties.getEnvCode();
+                    Optional.ofNullable(setting.getToolKeys())
+                            .filter(CollectionUtil::isNotEmpty)
+                            .map(keys -> aiToolMapper.selectList(new LambdaQueryWrapper<AiToolEntity>()
+                                    .in(AiToolEntity::getToolKey, keys)
+                                    .eq(AiToolEntity::getEnvCode, env)))
+                            .ifPresent(configs -> providers.add(new DynamicToolProvider(configs, applicationContext, globalToolCache)));
 
-        if (toolSetting.getMcpKeys() != null && !toolSetting.getMcpKeys().isEmpty()) {
-            List<AiMcpEntity> mcpConfigs = aiMcpMapper.selectList(
-                    new LambdaQueryWrapper<AiMcpEntity>()
-                            .in(AiMcpEntity::getMcpKey, toolSetting.getMcpKeys())
-                            .eq(AiMcpEntity::getEnvCode, env));
-            providers.add(new DynamicMcpToolProvider(mcpConfigs, mcpToolManager));
-        }
-        if (toolSetting.getToolKeys() != null && !toolSetting.getToolKeys().isEmpty()) {
-            List<AiToolEntity> toolConfigs = aiToolMapper.selectList(
-                    new LambdaQueryWrapper<AiToolEntity>()
-                            .in(AiToolEntity::getToolKey, toolSetting.getToolKeys())
-                            .eq(AiToolEntity::getEnvCode, env));
-            providers.add(new DynamicToolProvider(toolConfigs, applicationContext, globalToolCache));
-        }
-        if (param.getConversationSetting().isEnableImageGenerate()) {
-            ImageModel imageModel = aiImageModelFactory.getImageModel(param);
-            providers.add(new ImageToolProvider(imageModel));
-        }
+                    Optional.ofNullable(param.getConversationSetting())
+                            .filter(ConversationSetting::isEnableImageGenerate)
+                            .map(s -> astroModelFactory.createModel(param, ImageModel.class))
+                            .ifPresent(model -> providers.add(new DynamicImageToolProvider(model)));
 
-        if (CollectionUtil.isEmpty(providers)) {
-            return Optional.empty();
-        }
-        return Optional.of(new UnionToolProvider(providers));
+                    return providers;
+                })
+                .filter(CollectionUtil::isNotEmpty)
+                .map(UnionToolProvider::new)
+                .orElse(null);
     }
 }

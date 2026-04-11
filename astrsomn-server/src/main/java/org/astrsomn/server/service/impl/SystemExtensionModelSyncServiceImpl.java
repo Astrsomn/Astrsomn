@@ -11,7 +11,7 @@ import org.astrsomn.core.common.dto.extension.ExtensionModelUnloadPreviewDTO;
 import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
-import org.astrsomn.core.common.langchain.extension.ModelProviderHandler;
+import org.astrsomn.core.common.langchain.extension.model.ModelProviderHandler;
 import org.astrsomn.core.common.util.CollectionUtils;
 import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;

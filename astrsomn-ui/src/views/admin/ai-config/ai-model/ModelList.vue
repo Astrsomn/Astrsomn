@@ -44,7 +44,7 @@
                 :pagination="false"
                 row-key="id"
                 :row-selection="rowSelection"
-                :scroll="{ x: 1740 }"
+                :scroll="{ x: 1200 }"
             >
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'modelType'">
@@ -70,20 +70,23 @@
                     <div class="model-header">
                       <span class="model-title">{{ record.modelName }}</span>
                     </div>
-                    <div class="model-meta">
-                      <a-tag v-if="record.provider" :color="getProviderColor(record.provider)" class="provider-tag">
-                        {{ providerDict.getLabel(String(record.provider || '')) ?? record.provider }}
-                      </a-tag>
-                    </div>
                   </div>
                 </template>
 
                 <template v-else-if="column.key === 'status'">
-                  <a-switch
-                      :checked="record.status === 'enabled'"
-                      @change="(checked) => handleStatusChange(record.id, checked)"
+                  <a-button
+                      type="text"
                       size="small"
-                  />
+                      @click="handleStatusChange(record.id, record.status !== 'enabled')"
+                  >
+                    <template #icon>
+                      <check-circle-outlined v-if="record.status === 'enabled'" style="color: #52c41a" />
+                      <close-circle-outlined v-else style="color: #ff4d4f" />
+                    </template>
+                    <span :style="{ color: record.status === 'enabled' ? '#52c41a' : '#ff4d4f' }">
+                      {{ record.status === 'enabled' ? '启用' : '禁用' }}
+                    </span>
+                  </a-button>
                 </template>
 
                 <template v-else-if="column.key === 'isDefault'">
@@ -95,26 +98,17 @@
                   <code class="code-text">{{ record.modelKey }}</code>
                 </template>
 
-                <template v-else-if="column.key === 'apiUrl'">
-                  <div class="api-url-cell" :title="record.apiUrl || '-'">
-                    <span class="created-line">
-                      <global-outlined class="cell-icon subtle" />
-                      <span class="api-url-text">{{ record.apiUrl || '-' }}</span>
-                    </span>
-                  </div>
+                <template v-else-if="column.key === 'sourceType'">
+                  <a-tag v-if="record.sourceType" :color="record.sourceType === 'plugin' ? 'purple' : 'blue'">
+                    {{ sourceTypeDict.getLabel(String(record.sourceType || '')) }}
+                  </a-tag>
+                  <span v-else class="text-secondary">-</span>
                 </template>
 
-                <template v-else-if="column.key === 'capabilities'">
-                  <a-button
-                      v-if="parseCapabilities(record.capabilities).length > 0"
-                      type="link"
-                      size="small"
-                      @click="openCapabilitiesDialog(record)"
-                  >
-                    <template #icon><EyeOutlined /></template>
-                    能力清单
-                  </a-button>
-                  <span v-else class="text-secondary">-</span>
+                <template v-else-if="column.key === 'apiUrl'">
+                  <a-tag :color="record.apiUrl ? 'green' : 'default'">
+                    {{ record.apiUrl ? '已配置' : '未配置' }}
+                  </a-tag>
                 </template>
 
                 <template v-else-if="column.key === 'envCode'">
@@ -135,10 +129,6 @@
 
                 <template v-else-if="column.key === 'createdMeta'">
                   <div class="created-meta">
-                    <span class="created-line">
-                      <user-outlined class="cell-icon subtle" />
-                      {{ record.createUser || '-' }}
-                    </span>
                     <span class="created-line">
                       <calendar-outlined class="cell-icon subtle" />
                       {{ formatTime(record.createTime) }}
@@ -194,32 +184,7 @@
           :submit-handler="handleFormSubmit"
       />
 
-      <a-modal
-          v-model:open="showCapabilitiesModal"
-          :title="currentModel ? `${currentModel.modelName} - 支持能力集` : '能力清单'"
-          width="600px"
-          :footer="null"
-      >
-        <div class="capabilities-modal-content" v-if="currentModel">
-          <div class="cap-tag-grid">
-            <a-tag
-                v-for="capability in parseCapabilities(currentModel.capabilities)"
-                :key="capability"
-                class="capability-tag"
-                color="processing"
-            >
-              {{ formatCapabilityLabel(String(capability)) }}
-            </a-tag>
-          </div>
-          <div v-if="parseCapabilities(currentModel.capabilities).length === 0" class="no-capabilities">
-            该端点未配置额外能力标签
-          </div>
-        </div>
 
-        <div class="modal-footer">
-          <a-button type="primary" @click="closeCapabilitiesDialog">关闭</a-button>
-        </div>
-      </a-modal>
     </div>
   </AdminPageShell>
 </template>
@@ -228,16 +193,16 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { 
   CalendarOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
-  EyeOutlined,
   GlobalOutlined,
   MessageOutlined,
   PartitionOutlined,
   PictureOutlined,
   PlusOutlined,
   SearchOutlined,
-  ThunderboltOutlined,
   UserOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
@@ -255,7 +220,7 @@ import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
 
 const providerDict = useDictionary('ai-model.provider')
 const statusDict = useDictionary('ai-model.status')
-const capabilitiesDict = useDictionary('ai-model.capabilities')
+const sourceTypeDict = useDictionary('ai-model.sourceType')
 
 const statusOptions = computed(() => statusDict.value.options())
 const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }]
@@ -263,14 +228,14 @@ const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }
 const columns = [
   { title: '类型', key: 'modelType', width: 60 },
   { title: '', key: 'providerAvatar', width: 44, align: 'center' },
-  { title: '模型信息', key: 'modelName', width: 220 },
-  { title: '标识 Key', key: 'modelKey', width: 190 },
+  { title: '模型信息', key: 'modelName', width: 180 },
+  { title: '标识 Key', key: 'modelKey', width: 150 },
+  { title: '来源', key: 'sourceType', width: 100 },
   { title: '状态', key: 'status', width: 100 },
-  { title: '接口地址', key: 'apiUrl', width: 240 },
-  { title: '能力标签', key: 'capabilities', width: 100 },
-  { title: "环境", key: "envCode", width: 120},
-  { title: '创建信息', key: 'createdMeta', width: 190 },
-  { title: '操作', key: 'actions', fixed: 'right', width: 170 }
+  { title: '接口地址', key: 'apiUrl', width: 100 },
+  { title: "环境", key: "envCode", width: 100},
+  { title: '创建信息', key: 'createdMeta', width: 150 },
+  { title: '操作', key: 'actions', width: 140 }
 ]
 
 // 简单的颜色映射逻辑
@@ -289,19 +254,7 @@ const getModelTypeLabel = (modelType?: string) => {
   return '对话模型'
 }
 
-const parseCapabilities = (raw?: string) => {
-  if (!raw) return []
-  try {
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
-  }
-}
 
-const formatCapabilityLabel = (capability: string) => {
-  return capabilitiesDict.value.getLabel(capability) ?? capability
-}
 
 const formatTime = (raw?: string) => {
   if (!raw) return '-'
@@ -335,22 +288,6 @@ const rowSelection = computed(() => ({
 }))
 const modal = reactive({ open: false, mode: 'create' as any, submitting: false })
 const modalInitialData = ref<AiModel | null>(null)
-
-// 能力标签查看对话框
-const showCapabilitiesModal = ref(false)
-const currentModel = ref<AiModel | null>(null)
-
-// 打开能力标签查看对话框
-const openCapabilitiesDialog = (record: AiModel) => {
-  currentModel.value = record
-  showCapabilitiesModal.value = true
-}
-
-// 关闭能力标签查看对话框
-const closeCapabilitiesDialog = () => {
-  showCapabilitiesModal.value = false
-  currentModel.value = null
-}
 
 const currentPageIds = computed(() =>
   list.value
@@ -774,37 +711,6 @@ onMounted(() => {
 }
 
 .text-secondary { color: var(--text-muted, #bfbfbf); }
-
-/* 能力标签查看对话框样式 */
-.capabilities-modal-content {
-  padding: 16px 0;
-}
-
-.cap-tag-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.capability-tag {
-  margin-bottom: 6px;
-  font-size: 12px;
-  height: 24px;
-}
-
-.no-capabilities {
-  text-align: center;
-  padding: 24px 0;
-  color: var(--text-muted, #999);
-  font-size: 14px;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  padding: 16px 0 0;
-  border-top: 1px solid var(--border-default, #f0f0f0);
-}
 
 :deep(.ant-table-thead > tr > th) {
   background: color-mix(in srgb, var(--bg-surface) 82%, var(--bg-card));

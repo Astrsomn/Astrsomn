@@ -20,8 +20,8 @@
             @change="fetchList"
             :options="[
               { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
-              { label: '启用', value: 'ENABLED', color: '#10b981', icon: CheckCircleOutlined },
-              { label: '禁用', value: 'DISABLED', color: '#f43f5e', icon: StopOutlined }
+              { label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
+              { label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined }
             ]"
           />
         </template>
@@ -75,14 +75,19 @@
             </span>
           </template>
           <template v-else-if="column.key === 'status'">
-            <span class="status-pill" :class="{ off: record.status !== 'ENABLED' }">
-              {{ record.status === 'ENABLED' ? '启用' : '禁用' }}
+            <span class="status-pill" :class="{ off: record.status !== 'enabled' }">
+              {{ record.status === 'enabled' ? '启用' : '禁用' }}
             </span>
           </template>
           <template v-else-if="column.key === 'actions'">
             <a-button type="link" class="action-link" @click="openEdit(record)">
               <template #icon><edit-outlined /></template>
               编辑
+            </a-button>
+            <a-divider type="vertical" />
+            <a-button type="link" class="action-link" @click="testConnection(record)">
+              <template #icon><ReloadOutlined /></template>
+              测试连接
             </a-button>
             <a-divider type="vertical" />
             <a-popconfirm
@@ -122,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
@@ -140,6 +145,7 @@ import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import VecSourceFormModal from './VecSourceFormModal.vue'
 import { aiVecSourceApi, type AiVecSource, type PageResponse } from '@/api/aiVecSource'
+import { aiVecDriverApi } from '@/api/aiVecDriver'
 
 type QueryState = {
   name?: string
@@ -170,7 +176,28 @@ const normalizeText = (value?: string, fallback = '—') => {
   return text || fallback
 }
 
-const getProviderLabel = (provider?: string) => providerLabelMap[String(provider || '').toUpperCase()] || normalizeText(provider)
+/** 来自 AI_VEC_DRIVER.driverName，key 为 provider 大写 */
+const driverNameByProviderUpper = ref<Record<string, string>>({})
+
+async function loadDriverLabels() {
+  try {
+    const drivers = await aiVecDriverApi.list()
+    const m: Record<string, string> = {}
+    for (const d of drivers) {
+      if (d.provider) {
+        m[String(d.provider).toUpperCase()] = d.driverName || d.provider
+      }
+    }
+    driverNameByProviderUpper.value = m
+  } catch {
+    driverNameByProviderUpper.value = {}
+  }
+}
+
+const getProviderLabel = (provider?: string) => {
+  const key = String(provider || '').toUpperCase()
+  return driverNameByProviderUpper.value[key] || providerLabelMap[key] || normalizeText(provider)
+}
 
 const getConnectionInfo = (record: AiVecSource) => {
   if (record.host) {
@@ -347,6 +374,20 @@ const handleFormSubmit = async (form: AiVecSource) => {
     modal.submitting = false
   }
 }
+
+const testConnection = async (record: AiVecSource) => {
+  try {
+    const msg = await aiVecSourceApi.testConnection(record)
+    message.success(msg)
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '测试连接失败')
+  }
+}
+
+onMounted(() => {
+  void loadDriverLabels()
+})
 
 void fetchList()
 </script>

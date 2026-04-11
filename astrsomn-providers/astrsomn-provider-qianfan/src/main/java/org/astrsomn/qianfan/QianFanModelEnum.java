@@ -264,6 +264,7 @@ public enum QianFanModelEnum {
         entity.setParams(this.getParams());
         entity.setProvider(provider);
         entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
+        entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
         return entity;
     }
 

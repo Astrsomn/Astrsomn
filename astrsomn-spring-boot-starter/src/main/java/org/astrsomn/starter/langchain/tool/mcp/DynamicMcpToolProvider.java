@@ -6,21 +6,18 @@ import dev.langchain4j.service.tool.ToolExecutor;
 import dev.langchain4j.service.tool.ToolProvider;
 import dev.langchain4j.service.tool.ToolProviderRequest;
 import dev.langchain4j.service.tool.ToolProviderResult;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.entity.AiMcpEntity;
 
 import java.util.List;
 
 @Slf4j
+@AllArgsConstructor
 public class DynamicMcpToolProvider implements ToolProvider {
 
     private final McpToolCacheManager mcpToolManager;
     private final List<AiMcpEntity> mcpConfigs;
-
-    public DynamicMcpToolProvider(List<AiMcpEntity> mcpConfigs, McpToolCacheManager mcpToolManager) {
-        this.mcpToolManager = mcpToolManager;
-        this.mcpConfigs = mcpConfigs;
-    }
 
     @Override
     public ToolProviderResult provideTools(ToolProviderRequest request) {

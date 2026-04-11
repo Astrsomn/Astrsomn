@@ -20,6 +20,7 @@ export type AiModel = {
   capabilities?: string
   param?: string
   maxQuotaTokens?: number
+  sourceType?: string
   createUser?: string
   createTime?: string
   updateUser?: string

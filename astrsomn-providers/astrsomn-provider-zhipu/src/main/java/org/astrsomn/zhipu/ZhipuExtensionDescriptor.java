@@ -29,6 +29,11 @@ public class ZhipuExtensionDescriptor extends AstroExtensionDescriptor {
     }
 
     @Override
+    public String getVersion() {
+        return "";
+    }
+
+    @Override
     public String getAuthor() {
         return "Zhipu AI";
     }

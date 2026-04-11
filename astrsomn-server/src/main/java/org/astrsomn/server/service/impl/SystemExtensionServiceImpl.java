@@ -19,8 +19,10 @@ import org.astrsomn.core.mapper.SystemExtensionMapper;
 import org.astrsomn.server.plugin.ExtensionJarMetadataReader;
 import org.astrsomn.server.plugin.SystemExtensionRegistry;
 import org.astrsomn.server.service.SystemExtensionService;
+import org.astrsomn.server.service.SystemExtensionVecDriverSyncService;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.server.service.support.SystemExtensionModelGuard;
+import org.astrsomn.server.service.support.SystemExtensionVecGuard;
 import org.astrsomn.starter.plugin.AstrsomnPluginManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationContext;
@@ -48,6 +50,8 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstrsomnPluginManager pluginManager;
     private final SystemExtensionModelGuard systemExtensionModelGuard;
+    private final SystemExtensionVecGuard systemExtensionVecGuard;
+    private final SystemExtensionVecDriverSyncService systemExtensionVecDriverSyncService;
     private final ApplicationContext applicationContext;
 
     @Override
@@ -157,15 +161,28 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         if (entity == null) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
         }
-        if (StringUtils.isBlank(entity.getJarName())) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "未配置 jarName，无法应用插件");
-        }
+        String type = entity.getType();
+
+
         try {
-            pluginManager.applyPlugin(entity.getJarName());
+            if (SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(type)) {
+                pluginManager.applyPlugin(entity.getJarName());
+            } else if (SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE.getCode().equals(type)) {
+                if (StringUtils.isNotBlank(entity.getJarName())) {
+                    pluginManager.applyPlugin(entity.getJarName());
+                }
+                systemExtensionVecDriverSyncService.upsertFromExtension(entity);
+            } else {
+                if (StringUtils.isNotBlank(entity.getJarName())) {
+                    pluginManager.applyPlugin(entity.getJarName());
+                }
+            }
             entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.Y.getCode());
             entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.APPLIED.getCode());
             updateById(entity);
-            return BaseResponse.success("应用成功");
+            return BaseResponse.success("插件应用成功");
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_APPLY_FAILED, e.getMessage());
         }
@@ -186,8 +203,20 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
                 throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
             }
         }
+        if (SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE.getCode().equals(entity.getType())) {
+            BaseResponse<Void> vecGuard = systemExtensionVecGuard.assertNoVecSourcesUseProvider(id);
+            if (!vecGuard.isSuccess()) {
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, vecGuard.getMessage());
+            }
+        }
         if (StringUtils.isNotBlank(entity.getJarName())) {
             pluginManager.unloadPlugin(entity.getJarName());
+        }
+        if (SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE.getCode().equals(entity.getType())) {
+            String provider = StringUtils.trimToNull(entity.getExtensionKey());
+            if (provider != null) {
+                systemExtensionVecDriverSyncService.removeDriverRowForProvider(provider);
+            }
         }
         entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
         entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
@@ -208,6 +237,16 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             BaseResponse<Void> guard = systemExtensionModelGuard.assertNoAiModelsForProviderExtension(id);
             if (!guard.isSuccess()) {
                 throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
+            }
+        }
+        if (SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE.getCode().equals(entity.getType())) {
+            BaseResponse<Void> vecGuard = systemExtensionVecGuard.assertNoVecSourcesUseProvider(id);
+            if (!vecGuard.isSuccess()) {
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, vecGuard.getMessage());
+            }
+            String provider = StringUtils.trimToNull(entity.getExtensionKey());
+            if (provider != null) {
+                systemExtensionVecDriverSyncService.removeDriverRowForProvider(provider);
             }
         }
         String jarName = entity.getJarName();

@@ -28,6 +28,16 @@ public class QianFanExtensionDescriptor extends AstroExtensionDescriptor {
     }
 
     @Override
+    public String getVersion() {
+        return "";
+    }
+
+    @Override
+    public String getAuthor() {
+        return "";
+    }
+
+    @Override
     public String getDescription() {
         return "千帆大模型平台接入；需配置 apiKey + secretKey（对应 ModelSetting.apiKey / apiSecret）。";
     }

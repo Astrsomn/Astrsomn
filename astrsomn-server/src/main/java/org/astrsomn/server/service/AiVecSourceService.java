@@ -18,6 +18,8 @@ public interface AiVecSourceService extends IService<AiVecSourceEntity> {
 
     BaseResponse<String> update(AiVecSourceUpdateRequestDTO request);
 
+    BaseResponse<String> testConnection(AiVecSourceCreateRequestDTO request);
+
     PageResponse<AiVecSourceResponseDTO> queryPage(BasePageRequest<AiVecSourceQueryRequestDTO> request);
 
     BaseResponse<AiVecSourceResponseDTO> detail(Long id);

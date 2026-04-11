@@ -15,9 +15,6 @@
     <name>astrsomn-vector-qdrant</name>
     <description>astrsomn-vector-qdrant</description>
 
-    <properties>
-        <langchain4j.version>1.11.0</langchain4j.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.astrsomn</groupId>
@@ -25,23 +22,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- 编译期解析 core 中 Mapper 继承的 BaseMapper -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-            <version>3.5.5</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-qdrant</artifactId>
-            <version>1.0.0-beta3</version>
+            <version>${langchain4j.integration.version}</version>
         </dependency>
     </dependencies>
 

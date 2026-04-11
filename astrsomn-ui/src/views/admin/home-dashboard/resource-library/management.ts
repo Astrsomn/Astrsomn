@@ -189,6 +189,14 @@ const managementGroupsAll: ManagementGroup[] = [
                 route: '/admin/vec-segment',
                 accent: 'cyan',
             },
+            {
+                key: 'vec-driver',
+                label: '向量驱动 (Drivers)',
+                description: '管理向量数据库驱动配置，支持多种向量数据库',
+                icon: markRaw(SettingOutlined),
+                route: '/admin/vec-driver',
+                accent: 'frost',
+            },
         ],
     },
     {

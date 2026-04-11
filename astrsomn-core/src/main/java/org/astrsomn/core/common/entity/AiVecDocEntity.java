@@ -2,6 +2,8 @@ package org.astrsomn.core.common.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
 
@@ -10,6 +12,7 @@ import org.astrsomn.core.common.base.BaseEntity;
 public class AiVecDocEntity extends BaseEntity<Long> {
 
     @TableField("ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
@@ -35,6 +38,18 @@ public class AiVecDocEntity extends BaseEntity<Long> {
      */
     @TableField("SYNC_STATUS")
     private String syncStatus;
+
+    /**
+     * 文件相对路径
+     */
+    @TableField("FILE_PATH")
+    private String filePath;
+
+    /**
+     * 原始文件名
+     */
+    @TableField("ORIGINAL_FILE_NAME")
+    private String originalFileName;
 
 
 

@@ -29,6 +29,16 @@ public class OpenAiExtensionDescriptor extends AstroExtensionDescriptor {
     }
 
     @Override
+    public String getVersion() {
+        return "";
+    }
+
+    @Override
+    public String getAuthor() {
+        return "";
+    }
+
+    @Override
     public String getDescription() {
         return "OpenAI 及 OpenAI 兼容 API；可在本模块扩展 Image 等能力。";
     }

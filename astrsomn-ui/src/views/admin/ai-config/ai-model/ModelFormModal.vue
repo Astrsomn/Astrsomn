@@ -37,12 +37,19 @@
           <div class="form-section">
             <h3 class="section-headline"><IdcardOutlined /> 端点身份识别</h3>
             <div class="form-grid">
+              <a-form-item label="来源类型" name="sourceType">
+                <a-select v-model:value="form.sourceType" size="large" :disabled="props.mode === 'view'">
+                  <a-select-option value="user_custom">用户自定义模型</a-select-option>
+                  <a-select-option value="plugin">插件模型</a-select-option>
+                </a-select>
+              </a-form-item>
+
               <a-form-item label="供应商" name="provider">
                 <ModelProviderSelect
                   v-model:value="form.provider"
                   placeholder="请选择端点所属服务商"
                   size="large"
-                  :disabled="props.mode === 'view'"
+                  :disabled="props.mode === 'view' || isPluginModel"
                 />
               </a-form-item>
 
@@ -54,17 +61,17 @@
               </a-form-item>
 
               <a-form-item label="端点类型" name="modelType">
-                <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}]" block size="large" :disabled="props.mode === 'view'" />
+                <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}]" block size="large" :disabled="props.mode === 'view' || isPluginModel" />
               </a-form-item>
 
               <a-form-item label="展示名称" name="modelName">
-                <a-input v-model:value="form.modelName" placeholder="例如：OpenAI 官方端点 或 私有部署 Llama3" size="large" :disabled="props.mode === 'view'" />
+                <a-input v-model:value="form.modelName" placeholder="例如：OpenAI 官方端点 或 私有部署 Llama3" size="large" :disabled="props.mode === 'view' || isPluginModel" />
               </a-form-item>
 
               <a-form-item label="识别码 (Model Key)" name="modelKey">
                 <a-tooltip
-                  v-if="modelKeyImmutable || props.mode === 'view'"
-                  :title="modelKeyImmutable ? '已有推理实例在同环境下引用该端点 Key，不可修改' : '查看模式下不可修改'"
+                  v-if="modelKeyImmutable || props.mode === 'view' || isPluginModel"
+                  :title="isPluginModel ? '插件模型不可修改' : (modelKeyImmutable ? '已有推理实例在同环境下引用该端点 Key，不可修改' : '查看模式下不可修改')"
                 >
                   <a-input v-model:value="form.modelKey" placeholder="建议留空，系统将自动生成唯一索引" size="large" disabled />
                 </a-tooltip>
@@ -118,8 +125,8 @@
                   v-for="opt in chatCapabilitiesOptions"
                   :key="opt.value"
                   :class="['custom-cap-tag', { active: chatCapabilities.includes(opt.value) }]"
-                  @click="props.mode !== 'view' && toggleChatCapability(opt.value)"
-                  :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
+                  @click="props.mode !== 'view' && !isPluginModel && toggleChatCapability(opt.value)"
+                  :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
                 >
                   <div class="custom-cap-tag__body">
                     <CheckCircleFilled v-if="chatCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
@@ -138,8 +145,8 @@
                   v-for="opt in embeddingCapabilitiesOptions"
                   :key="opt.value"
                   :class="['custom-cap-tag', { active: embeddingCapabilities.includes(opt.value) }]"
-                  @click="props.mode !== 'view' && toggleEmbeddingCapability(opt.value)"
-                  :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
+                  @click="props.mode !== 'view' && !isPluginModel && toggleEmbeddingCapability(opt.value)"
+                  :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
                 >
                   <div class="custom-cap-tag__body">
                     <CheckCircleFilled v-if="embeddingCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
@@ -158,8 +165,8 @@
                   v-for="opt in imageCapabilitiesOptions"
                   :key="opt.value"
                   :class="['custom-cap-tag', { active: imageCapabilities.includes(opt.value) }]"
-                  @click="props.mode !== 'view' && toggleImageCapability(opt.value)"
-                  :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
+                  @click="props.mode !== 'view' && !isPluginModel && toggleImageCapability(opt.value)"
+                  :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
                 >
                   <div class="custom-cap-tag__body">
                     <CheckCircleFilled v-if="imageCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
@@ -180,8 +187,8 @@
                 <div class="param-table-header">
                   <div class="param-col param-col--id">参数标识</div>
                   <div class="param-col param-col--desc">说明/映射字段</div>
-                  <div class="param-col param-col--default">默认值</div>
-                  <div class="param-col param-col--range">取值范围</div>
+                 
+               
                   <div class="param-col param-col--toggle">启用</div>
                 </div>
                 <div class="param-table-body">
@@ -193,21 +200,10 @@
                       <span class="param-desc">{{ param.desc }}</span>
                       <span class="param-mapping">{{ param.mapping }}</span>
                     </div>
-                    <div class="param-col param-col--default">
-                      <a-input 
-                        v-model:value="param.default" 
-                        size="small" 
-                        :disabled="props.mode === 'view'"
-                        placeholder="默认值"
-                      />
-                    </div>
-                    <div class="param-col param-col--range">
-                      <span class="param-range">{{ param.range }}</span>
-                    </div>
                     <div class="param-col param-col--toggle">
                       <a-switch 
                         v-model:checked="param.active" 
-                        :disabled="props.mode === 'view'"
+                        :disabled="props.mode === 'view' || isPluginModel"
                       />
                     </div>
                   </div>
@@ -220,11 +216,11 @@
               <div class="param-grid">
                 <div class="param-item">
                   <span class="pl">单次响应上限 (Tokens)</span>
-                  <a-input-number v-model:value="form.responseLimit" :min="0" placeholder="默认 4096" block :disabled="props.mode === 'view'" />
+                  <a-input-number v-model:value="form.responseLimit" :min="0" placeholder="默认 4096" block :disabled="props.mode === 'view' || isPluginModel" />
                 </div>
                 <div class="param-item">
                   <span class="pl">累计消耗配额 (Tokens)</span>
-                  <a-input-number v-model:value="form.maxQuotaTokens" :min="0" placeholder="0 表示无限制" block :disabled="props.mode === 'view'" />
+                  <a-input-number v-model:value="form.maxQuotaTokens" :min="0" placeholder="0 表示无限制" block :disabled="props.mode === 'view' || isPluginModel" />
                 </div>
               </div>
             </div>
@@ -267,7 +263,7 @@ import type { FormInstance } from 'ant-design-vue'
 import type { AiModel } from '@/api/aiModel'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
-import { aiModelCapabilitiesDictionary } from '@/locales/zh-CN/dictionary/ai-model'
+import { aiModelCapabilitiesDictionary, aiModelSourceTypeDictionary } from '@/locales/zh-CN/dictionary/ai-model'
 import {
   CHAT_CAPABILITIES_CODES,
   CHAT_CAPABILITIES_SET,
@@ -412,10 +408,12 @@ const imageOrphanCapabilities = ref<string[]>([])
 
 const currentParams = ref<any[]>(JSON.parse(JSON.stringify(PARAM_TEMPLATES.chat)))
 
+const isPluginModel = computed(() => form.sourceType === 'plugin')
+
 const form = reactive<AiModel>({
   modelName: '', modelKey: '', modelType: 'chat', provider: '',
   accountKey: '', apiUrl: '', status: 'enabled', isDefault: 0, responseLimit: 4096,
-  capabilities: '', param: '', randomIndex: 0, topVariance: 0, maxQuotaTokens: 0
+  capabilities: '', param: '', randomIndex: 0, topVariance: 0, maxQuotaTokens: 0, sourceType: 'user_custom'
 })
 
 const rules = {
@@ -497,13 +495,18 @@ const syncForm = () => {
       param: '',
       randomIndex: 0,
       topVariance: 0,
-      maxQuotaTokens: 0
+      maxQuotaTokens: 0,
+      sourceType: 'user_custom'
     })
     partitionConfig([], [], String(form.modelType ?? 'chat'))
   } else {
     Object.assign(form, props.initialData)
     modelKeyImmutable.value = props.initialData.modelKeyImmutable === true
     delete (form as Record<string, unknown>).modelKeyImmutable
+    
+    if (!form.sourceType) {
+      form.sourceType = 'user_custom'
+    }
     
     let capabilitiesArray: string[] = []
     let paramsArray: any[] = []

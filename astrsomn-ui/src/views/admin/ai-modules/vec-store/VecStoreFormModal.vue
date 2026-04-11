@@ -50,8 +50,26 @@
               </a-select>
             </a-form-item>
 
-            <a-form-item label="模型 Key" name="modelKey">
-              <a-input v-model:value="form.modelKey" placeholder="关联的模型 Key" size="large" />
+            <a-form-item label="实例 Key" name="instanceKey">
+              <div class="instance-selector">
+                <a-input 
+                  v-model:value="form.instanceKey" 
+                  placeholder="选择 AI 实例" 
+                  size="large" 
+                  readonly
+                />
+                <a-button 
+                  type="primary" 
+                  size="large" 
+                  class="select-button"
+                  @click="openInstanceSelectDialog"
+                >
+                  选择
+                </a-button>
+              </div>
+              <div v-if="selectedInstanceName" class="instance-info">
+                已选择：{{ selectedInstanceName }}
+              </div>
             </a-form-item>
 
             <a-form-item label="元数据模式 (JSON)" name="metadataSchema" class="span-2">
@@ -85,22 +103,31 @@
         </a-button>
       </div>
     </div>
+
+    <InstanceSelectDialog
+      v-model:open="instanceSelectDialogVisible"
+      @select="handleInstanceSelect"
+    />
   </a-modal>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import { 
   DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined 
 } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiVecStore } from '@/api/aiVecStore.ts'
+import InstanceSelectDialog from '@/components/ai/InstanceSelectDialog.vue'
+import type { AiInstance } from '@/api/aiInstance'
 
 const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiVecStore | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecStore] }>()
 const open = defineModel<boolean>('open', { required: true })
 
 const formRef = ref<FormInstance | null>(null)
+const instanceSelectDialogVisible = ref(false)
+const selectedInstance = ref<AiInstance | null>(null)
 
 function emptyForm(): AiVecStore {
   return {
@@ -108,7 +135,7 @@ function emptyForm(): AiVecStore {
     dimension: 1536,
     distanceMetric: 'cosine',
     metadataSchema: '',
-    modelKey: ''
+    instanceKey: ''
   }
 }
 
@@ -117,17 +144,24 @@ const form = reactive<AiVecStore>(emptyForm())
 const rules = {
   collectionName: [{ required: true, message: '请输入集合名称' }],
   dimension: [{ required: true, message: '请输入向量维度' }],
-  distanceMetric: [{ required: true, message: '请选择距离度量' }]
+  distanceMetric: [{ required: true, message: '请选择距离度量' }],
+  instanceKey: [{ required: true, message: '请选择 AI 实例' }]
 }
+
+const selectedInstanceName = computed(() => {
+  return selectedInstance.value?.instanceName || ''
+})
 
 function assignFromInitial(src: AiVecStore) {
   Object.assign(form, emptyForm(), src)
+  // 这里可以根据需要获取实例详情来显示实例名称
 }
 
 watch(() => [open.value, props.initial] as const, ([isOpen, initial]) => {
   if (isOpen) {
     if (initial && Object.keys(initial).length > 0) assignFromInitial(initial)
     else Object.assign(form, emptyForm())
+    selectedInstance.value = null
   }
 })
 
@@ -137,7 +171,23 @@ async function handleOk() {
   emit('submit', payload)
 }
 
-const onCancel = () => { open.value = false }
+const onCancel = () => { 
+  open.value = false 
+  instanceSelectDialogVisible.value = false
+}
+
+const openInstanceSelectDialog = () => {
+  instanceSelectDialogVisible.value = true
+}
+
+const handleInstanceSelect = (instance: AiInstance) => {
+  selectedInstance.value = instance
+  form.instanceKey = instance.instanceKey
+  // 如果是嵌入模型，可以自动填充维度
+  if (instance.modelType === 'embedding' && instance.dimensions) {
+    form.dimension = instance.dimensions
+  }
+}
 </script>
 
 <style scoped>
@@ -165,6 +215,28 @@ const onCancel = () => { open.value = false }
 .section-headline { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #333; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
 .span-2 { grid-column: span 2; }
+
+/* 实例选择器 */
+.instance-selector {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.instance-selector :deep(.ant-input) {
+  flex: 1;
+}
+
+.select-button {
+  flex-shrink: 0;
+}
+
+.instance-info {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #1677ff;
+  font-weight: 600;
+}
 
 /* JSON 编辑器 */
 .json-editor-wrapper {
