@@ -6,6 +6,7 @@ export interface AiVecDriver {
   provider?: string
   driverType?: string
   params?: string
+  status?: string
   createTime?: string
   updateTime?: string
 }
@@ -25,10 +26,11 @@ export interface AiVecDriverQueryRequest {
 
 export const aiVecDriverApi = {
   /** 全量列表（下拉框），无分页 */
-  async list(): Promise<AiVecDriver[]> {
+  async list(params?: { status?: string }): Promise<AiVecDriver[]> {
     return request({
       url: '/v1/astro/ai-vec-driver/list',
-      method: 'get'
+      method: 'get',
+      params
     })
   },
 

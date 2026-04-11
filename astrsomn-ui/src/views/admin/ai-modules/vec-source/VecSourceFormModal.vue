@@ -132,6 +132,9 @@
       </div>
       <div class="footer-right">
         <a-button class="btn-flat" @click="onCancel">取消</a-button>
+        <a-button type="primary" class="btn-test" :loading="testLoading" @click="testConnection">
+          测试连接
+        </a-button>
         <a-button type="primary" class="btn-submit" :loading="confirmLoading" @click="handleOk">
           保存配置
         </a-button>
@@ -167,6 +170,7 @@ const drivers = ref<AiVecDriver[]>([])
 const driversLoading = ref(false)
 const syncingInitial = ref(false)
 const advancedKeys = ref<string | string[]>([])
+const testLoading = ref(false)
 
 type ParamMeta = {
   label: string
@@ -179,14 +183,14 @@ type ParamMeta = {
 const paramMeta: Record<string, ParamMeta> = {
   host: {
     label: '主机地址 (Host)',
-    placeholder: '例如：localhost 或 192.168.1.100',
+    placeholder: '请输入主机地址',
     prefix: GlobalOutlined
   },
-  port: { label: '端口 (Port)', placeholder: '例如：6334 / 19530', prefix: ApiOutlined },
-  databaseName: { label: '数据库 / 库名', placeholder: '例如：default', wide: true },
-  username: { label: '用户名', placeholder: '用户名', prefix: UserOutlined },
-  password: { label: '密码', placeholder: '密码', password: true, prefix: LockOutlined },
-  token: { label: 'API Token / Key', placeholder: 'API Key 或 Token', password: true, prefix: KeyOutlined }
+  port: { label: '端口 (Port)', placeholder: '请输入端口', prefix: ApiOutlined },
+  databaseName: { label: '数据库 / 库名', placeholder: '请输入数据库名称', wide: true },
+  username: { label: '用户名', placeholder: '请输入用户名', prefix: UserOutlined },
+  password: { label: '密码', placeholder: '请输入密码', password: true, prefix: LockOutlined },
+  token: { label: 'API Token / Key', placeholder: '请输入 API Key 或 Token', password: true, prefix: KeyOutlined }
 }
 
 type FormRow = AiVecSource & Record<string, string | undefined>
@@ -202,7 +206,7 @@ function emptyForm(): FormRow {
     databaseName: '',
     token: '',
     configJson: '',
-    status: 'ENABLED'
+    status: 'enabled'
   }
 }
 
@@ -210,9 +214,9 @@ const form = reactive<FormRow>(emptyForm())
 const formRow = form as Record<string, string | undefined>
 
 const statusChecked = computed({
-  get: () => form.status === 'ENABLED',
+  get: () => form.status === 'enabled',
   set: (v: boolean) => {
-    form.status = v ? 'ENABLED' : 'DISABLED'
+    form.status = v ? 'enabled' : 'disabled'
   }
 })
 
@@ -249,7 +253,9 @@ const formRules = computed<Record<string, Rule[]>>(() => {
   }
   for (const code of paramCodes.value) {
     if (!paramMeta[code]) continue
-    r[code] = [{ required: true, message: `请填写${paramMeta[code].label}` }]
+    if (code === 'host' || code === 'port') {
+      r[code] = [{ required: true, message: `请填写${paramMeta[code].label}` }]
+    }
   }
   return r
 })
@@ -272,7 +278,7 @@ function onProviderChange() {
 async function loadDrivers() {
   driversLoading.value = true
   try {
-    drivers.value = await aiVecDriverApi.list()
+    drivers.value = await aiVecDriverApi.list({ status: 'enabled' })
   } catch {
     drivers.value = []
   } finally {
@@ -283,7 +289,7 @@ async function loadDrivers() {
 function assignFromInitial(src: AiVecSource) {
   Object.assign(form, emptyForm(), src)
   if (!form.status) {
-    form.status = 'ENABLED'
+    form.status = 'enabled'
   }
 }
 
@@ -304,6 +310,21 @@ async function handleOk() {
   await formRef.value?.validate()
   const payload: AiVecSource = { ...form }
   emit('submit', payload)
+}
+
+const testConnection = async () => {
+  testLoading.value = true
+  try {
+    await formRef.value?.validate()
+    const payload: AiVecSource = { ...form }
+    const msg = await aiVecSourceApi.testConnection(payload)
+    message.success(msg)
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '测试连接失败')
+  } finally {
+    testLoading.value = false
+  }
 }
 
 const onCancel = () => {

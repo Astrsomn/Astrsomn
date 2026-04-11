@@ -2,9 +2,9 @@
   <div class="extension-card" :class="{ 'is-selected': selected }">
     <div class="card-top-meta">
       <div class="status-indicator">
-        <a-badge :status="record.status === 'APPLIED' ? 'processing' : 'default'" />
-        <span class="status-text" :class="{ 'is-active': record.status === 'APPLIED' }">
-          {{ statusLabel(record.status) }}
+        <a-badge :status="record.applied === 'Y' ? 'processing' : 'default'" />
+        <span class="status-text" :class="{ 'is-active': record.applied === 'Y' }">
+          {{ record.applied === 'Y' ? '已启用' : '未启用' }}
         </span>
       </div>
       <div class="version-tag">{{ record.version || 'v1.0.0' }}</div>
@@ -57,7 +57,7 @@
         <div class="action-bar-container">
           <div class="control-strip">
             <a-popconfirm
-              v-if="record.status !== 'APPLIED'"
+              v-if="record.applied === 'N'"
               title="确定应用该插件吗？"
               ok-text="确定"
               cancel-text="取消"
@@ -67,16 +67,15 @@
                 type="text"
                 size="small"
                 class="strip-action strip-action--apply"
-                :disabled="!record.jarName"
               >
                 <template #icon><caret-right-outlined /></template>
-                应用
+                启用
               </a-button>
             </a-popconfirm>
 
             <a-popconfirm
               v-else
-              title="确定取消应用吗？插件将恢复为「已安装」状态。"
+              title="确定取消启用吗？插件将恢复为「未启用」状态。"
               ok-text="确定"
               cancel-text="取消"
               @confirm="emit('revoke-apply')"

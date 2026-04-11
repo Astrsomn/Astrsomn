@@ -66,5 +66,13 @@ export const aiVecSourceApi = {
       url: `/v1/astro/ai-vec-source/delete/${joined}`,
       method: 'delete'
     })
+  },
+
+  testConnection: (data: AiVecSource): Promise<string> => {
+    return request({
+      url: '/v1/astro/ai-vec-source/test-connection',
+      method: 'post',
+      data
+    })
   }
 }

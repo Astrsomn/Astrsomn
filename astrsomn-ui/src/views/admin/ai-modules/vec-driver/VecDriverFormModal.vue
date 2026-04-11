@@ -15,7 +15,7 @@
             <SettingOutlined />
           </div>
           <div class="text-group">
-            <h2>{{ mode === 'create' ? '创建向量驱动' : '编辑向量驱动' }}</h2>
+            <h2>{{ mode === 'create' ? '创建向量驱动' : mode === 'edit' ? '编辑向量驱动' : '查看向量驱动' }}</h2>
             <p>管理向量数据库驱动配置，支持多种向量数据库</p>
           </div>
         </div>
@@ -35,11 +35,11 @@
 
           <div class="form-grid">
             <a-form-item label="驱动名称" name="driverName">
-              <a-input v-model:value="form.driverName" placeholder="驱动名称" size="large" />
+              <a-input v-model:value="form.driverName" placeholder="驱动名称" size="large" :disabled="mode === 'view'" />
             </a-form-item>
 
             <a-form-item label="提供商" name="provider">
-              <a-select v-model:value="form.provider" placeholder="选择向量数据库提供商" size="large">
+              <a-select v-model:value="form.provider" placeholder="选择向量数据库提供商" size="large" :disabled="mode === 'view'">
                 <a-select-option value="qdrant">Qdrant Vector Database</a-select-option>
                 <a-select-option value="milvus">Zilliz / Milvus</a-select-option>
                 <a-select-option value="pinecone">Pinecone Managed Service</a-select-option>
@@ -54,7 +54,7 @@
             </a-form-item>
 
             <a-form-item label="驱动类型" name="driverType">
-              <a-input v-model:value="form.driverType" placeholder="驱动类型" size="large" />
+              <a-input v-model:value="form.driverType" placeholder="驱动类型" size="large" :disabled="mode === 'view'" />
             </a-form-item>
 
             <a-form-item label="参数配置 (JSON)" name="params" class="span-2">
@@ -64,6 +64,7 @@
                   :auto-size="{ minRows: 4, maxRows: 6 }"
                   placeholder='{"host": "localhost", "port": 6333}'
                   class="mono-text"
+                  :disabled="mode === 'view'"
                 />
               </div>
             </a-form-item>
@@ -72,7 +73,7 @@
       </div>
     </a-form>
 
-    <div class="modal-footer-action">
+    <div class="modal-footer-action" v-if="mode !== 'view'">
       <div class="footer-left">
         <SafetyCertificateOutlined /> 数据安全加密存储
       </div>
@@ -88,6 +89,11 @@
         </a-button>
       </div>
     </div>
+    <div class="modal-footer-action" v-else>
+      <div class="footer-right" style="justify-content: flex-end;">
+        <a-button class="btn-flat" @click="onCancel">关闭</a-button>
+      </div>
+    </div>
   </a-modal>
 </template>
 
@@ -99,7 +105,7 @@ import {
 import type { FormInstance } from 'ant-design-vue'
 import type { AiVecDriver } from '@/api/aiVecDriver.ts'
 
-const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiVecDriver | null }>()
+const props = defineProps<{ mode: 'create' | 'edit' | 'view', confirmLoading: boolean, initial: AiVecDriver | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecDriver] }>()
 const open = defineModel<boolean>('open', { required: true })
 

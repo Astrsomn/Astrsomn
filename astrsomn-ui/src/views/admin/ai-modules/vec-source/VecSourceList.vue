@@ -20,8 +20,8 @@
             @change="fetchList"
             :options="[
               { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
-              { label: '启用', value: 'ENABLED', color: '#10b981', icon: CheckCircleOutlined },
-              { label: '禁用', value: 'DISABLED', color: '#f43f5e', icon: StopOutlined }
+              { label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
+              { label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined }
             ]"
           />
         </template>
@@ -75,14 +75,19 @@
             </span>
           </template>
           <template v-else-if="column.key === 'status'">
-            <span class="status-pill" :class="{ off: record.status !== 'ENABLED' }">
-              {{ record.status === 'ENABLED' ? '启用' : '禁用' }}
+            <span class="status-pill" :class="{ off: record.status !== 'enabled' }">
+              {{ record.status === 'enabled' ? '启用' : '禁用' }}
             </span>
           </template>
           <template v-else-if="column.key === 'actions'">
             <a-button type="link" class="action-link" @click="openEdit(record)">
               <template #icon><edit-outlined /></template>
               编辑
+            </a-button>
+            <a-divider type="vertical" />
+            <a-button type="link" class="action-link" @click="testConnection(record)">
+              <template #icon><ReloadOutlined /></template>
+              测试连接
             </a-button>
             <a-divider type="vertical" />
             <a-popconfirm
@@ -367,6 +372,16 @@ const handleFormSubmit = async (form: AiVecSource) => {
     message.error(err?.message || '保存失败')
   } finally {
     modal.submitting = false
+  }
+}
+
+const testConnection = async (record: AiVecSource) => {
+  try {
+    const msg = await aiVecSourceApi.testConnection(record)
+    message.success(msg)
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '测试连接失败')
   }
 }
 

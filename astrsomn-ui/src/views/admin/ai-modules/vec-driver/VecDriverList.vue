@@ -45,23 +45,24 @@
               <span class="params-info">{{ getParamsInfo(record.params) }}</span>
             </div>
           </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-button type="link" class="action-link" @click="openEdit(record)">
-              <template #icon><edit-outlined /></template>
-              编辑
-            </a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
+          <template v-else-if="column.key === 'createTime'">
+            {{ formatDate(record.createTime) }}
+          </template>
+          <template v-else-if="column.key === 'status'">
+            <a-select 
+              :value="record.status" 
+              style="width: 100px" 
+              @change="(value) => handleStatusChange(record, value)"
             >
-              <a-button type="link" danger class="action-link">
-                <template #icon><delete-outlined /></template>
-                删除
-              </a-button>
-            </a-popconfirm>
+              <a-select-option value="enabled">启用</a-select-option>
+              <a-select-option value="disabled">禁用</a-select-option>
+            </a-select>
+          </template>
+          <template v-else-if="column.key === 'actions'">
+            <a-button type="link" class="action-link" @click="openView(record)">
+              <template #icon><eye-outlined /></template>
+              查看
+            </a-button>
           </template>
         </template>
       </a-table>
@@ -91,8 +92,11 @@
 import { computed, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
+  EyeOutlined,
   PlusOutlined,
   ReloadOutlined
 } from '@ant-design/icons-vue'
@@ -114,10 +118,10 @@ type QueryState = {
 const columns = [
   { title: '驱动名称', dataIndex: 'driverName', key: 'driverName', width: 200 },
   { title: '提供商', dataIndex: 'provider', key: 'provider', width: 200 },
-  { title: '驱动类型', dataIndex: 'driverType', key: 'driverType', width: 200 },
   { title: '参数配置', key: 'params', width: 300 },
+  { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 200 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  { title: '操作', dataIndex: 'actions', key: 'actions', width: 160, fixed: 'right' as const }
 ]
 
 const getParamsInfo = (params?: string) => {
@@ -126,12 +130,27 @@ const getParamsInfo = (params?: string) => {
 
   try {
     const parsed = JSON.parse(text)
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+    if (Array.isArray(parsed)) {
+      return parsed.join(', ')
+    } else if (parsed && typeof parsed === 'object') {
       return `属性: ${Object.keys(parsed).length}`
     }
   } catch (error) {}
 
   return '已配置'
+}
+
+const formatDate = (dateString?: string) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
 }
 
 const query = reactive<QueryState>({})
@@ -187,38 +206,17 @@ const resetFilters = () => {
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '批量删除',
-    type: 'danger',
-    plain: true,
-    icon: DeleteOutlined,
-    disabled: selectedRowKeys.value.length === 0,
-    onClick: () => {
-      const n = selectedRowKeys.value.length
-      if (n === 0) return
-      Modal.confirm({
-        title: `确定删除选中的 ${n} 个向量驱动吗？`,
-        onOk: () => handleBatchDelete()
-      })
-    }
-  },
-  {
     label: '重置',
     type: 'primary',
     plain: true,
     icon: ReloadOutlined,
     onClick: resetFilters
-  },
-  {
-    label: '新增',
-    type: 'primary',
-    icon: PlusOutlined,
-    onClick: openCreate
   }
 ])
 
 const modal = reactive({
   open: false,
-  mode: 'create' as 'create' | 'edit',
+  mode: 'view' as 'create' | 'edit' | 'view',
   submitting: false
 })
 
@@ -245,20 +243,34 @@ const onPageChange = (p: number) => {
   void fetchList()
 }
 
-const openCreate = () => {
-  modal.mode = 'create'
-  modalInitial.value = null
-  modal.open = true
-}
-
-const openEdit = async (record: AiVecDriver) => {
-  modal.mode = 'edit'
+const openView = async (record: AiVecDriver) => {
+  modal.mode = 'view'
   const id = record.id
   if (id == null) return
 
   const detail = await aiVecDriverApi.detail(id)
   modalInitial.value = detail
-  modal.open = true
+  // 确保数据更新后再打开模态框
+  setTimeout(() => {
+    modal.open = true
+  }, 0)
+}
+
+const handleStatusChange = async (record: AiVecDriver, value: string) => {
+  const id = record.id
+  if (id == null) return
+  
+  try {
+    await aiVecDriverApi.update({
+      ...record,
+      status: value
+    })
+    message.success('状态切换成功')
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '状态切换失败')
+  }
 }
 
 const handleDeleteOne = async (id: number | string) => {
