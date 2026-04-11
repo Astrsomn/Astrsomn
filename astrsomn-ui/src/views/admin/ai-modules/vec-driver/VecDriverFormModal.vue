@@ -1,0 +1,194 @@
+<template>
+  <a-modal
+    v-model:open="open"
+    :title="null"
+    width="860px"
+    :footer="null"
+    :destroy-on-close="true"
+    @cancel="onCancel"
+    class="vec-driver-modal"
+  >
+    <div class="modal-header-gradient">
+      <div class="header-content">
+        <div class="title-area">
+          <div class="icon-box">
+            <SettingOutlined />
+          </div>
+          <div class="text-group">
+            <h2>{{ mode === 'create' ? '创建向量驱动' : '编辑向量驱动' }}</h2>
+            <p>管理向量数据库驱动配置，支持多种向量数据库</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <a-form
+      ref="formRef"
+      :model="form"
+      :rules="rules"
+      layout="vertical"
+      class="professional-form"
+    >
+      <div class="form-body-container">
+        <div class="form-section">
+          <h3 class="section-headline"><IdcardOutlined /> 基本配置</h3>
+
+          <div class="form-grid">
+            <a-form-item label="驱动名称" name="driverName">
+              <a-input v-model:value="form.driverName" placeholder="驱动名称" size="large" />
+            </a-form-item>
+
+            <a-form-item label="提供商" name="provider">
+              <a-select v-model:value="form.provider" placeholder="选择向量数据库提供商" size="large">
+                <a-select-option value="qdrant">Qdrant Vector Database</a-select-option>
+                <a-select-option value="milvus">Zilliz / Milvus</a-select-option>
+                <a-select-option value="pinecone">Pinecone Managed Service</a-select-option>
+                <a-select-option value="chroma">Chroma AI</a-select-option>
+                <a-select-option value="dashvector">Alibaba Cloud DashVector</a-select-option>
+                <a-select-option value="weaviate">Weaviate Vector Search</a-select-option>
+                <a-select-option value="elasticsearch">Elasticsearch / OpenSearch</a-select-option>
+                <a-select-option value="pgvector">PostgreSQL pgvector Extension</a-select-option>
+                <a-select-option value="redis">Redis Search & Query</a-select-option>
+                <a-select-option value="in_memory">Local In-Memory Store</a-select-option>
+              </a-select>
+            </a-form-item>
+
+            <a-form-item label="驱动类型" name="driverType">
+              <a-input v-model:value="form.driverType" placeholder="驱动类型" size="large" />
+            </a-form-item>
+
+            <a-form-item label="参数配置 (JSON)" name="params" class="span-2">
+              <div class="json-editor-wrapper">
+                <a-textarea
+                  v-model:value="form.params"
+                  :auto-size="{ minRows: 4, maxRows: 6 }"
+                  placeholder='{"host": "localhost", "port": 6333}'
+                  class="mono-text"
+                />
+              </div>
+            </a-form-item>
+          </div>
+        </div>
+      </div>
+    </a-form>
+
+    <div class="modal-footer-action">
+      <div class="footer-left">
+        <SafetyCertificateOutlined /> 数据安全加密存储
+      </div>
+      <div class="footer-right">
+        <a-button class="btn-flat" @click="onCancel">取消</a-button>
+        <a-button 
+          type="primary" 
+          class="btn-submit" 
+          :loading="confirmLoading" 
+          @click="handleOk"
+        >
+          保存配置
+        </a-button>
+      </div>
+    </div>
+  </a-modal>
+</template>
+
+<script setup lang="ts">
+import { reactive, ref, watch } from 'vue'
+import { 
+  SettingOutlined, IdcardOutlined, SafetyCertificateOutlined 
+} from '@ant-design/icons-vue'
+import type { FormInstance } from 'ant-design-vue'
+import type { AiVecDriver } from '@/api/aiVecDriver.ts'
+
+const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiVecDriver | null }>()
+const emit = defineEmits<{ submit: [payload: AiVecDriver] }>()
+const open = defineModel<boolean>('open', { required: true })
+
+const formRef = ref<FormInstance | null>(null)
+
+function emptyForm(): AiVecDriver {
+  return {
+    driverName: '',
+    provider: '',
+    driverType: '',
+    params: ''
+  }
+}
+
+const form = reactive<AiVecDriver>(emptyForm())
+
+const rules = {
+  driverName: [{ required: true, message: '请输入驱动名称' }],
+  provider: [{ required: true, message: '请选择提供商' }],
+  driverType: [{ required: true, message: '请输入驱动类型' }]
+}
+
+function assignFromInitial(src: AiVecDriver) {
+  Object.assign(form, emptyForm(), src)
+}
+
+watch(() => [open.value, props.initial] as const, ([isOpen, initial]) => {
+  if (isOpen) {
+    if (initial && Object.keys(initial).length > 0) assignFromInitial(initial)
+    else Object.assign(form, emptyForm())
+  }
+})
+
+async function handleOk() {
+  await formRef.value?.validate()
+  const payload: AiVecDriver = { ...form }
+  emit('submit', payload)
+}
+
+const onCancel = () => { open.value = false }
+</script>
+
+<style scoped>
+/* 弹窗基础：统一风格 */
+.vec-driver-modal :deep(.ant-modal-content) { padding: 0; border-radius: 20px; overflow: hidden; }
+
+.modal-header-gradient { background: #fff; padding: 32px 40px; border-bottom: 1px solid #f0f2f5; }
+.header-content { display: flex; justify-content: space-between; align-items: center; }
+.title-area { display: flex; gap: 16px; align-items: center; }
+.icon-box {
+  width: 48px; height: 48px; background: #1677ff; color: white; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+  box-shadow: 0 8px 16px rgba(22, 119, 255, 0.2);
+}
+.text-group h2 { margin: 0; font-size: 20px; font-weight: 700; color: #111; }
+.text-group p { margin: 4px 0 0; color: #999; font-size: 13px; }
+
+/* 容器高度控制 */
+.professional-form { height: 400px; display: flex; flex-direction: column; }
+.form-body-container { flex: 1; overflow-y: auto; padding: 24px 40px; }
+.form-body-container::-webkit-scrollbar { width: 4px; }
+.form-body-container::-webkit-scrollbar-thumb { background: #eee; border-radius: 4px; }
+
+/* 内部组件样式 */
+.section-headline { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #333; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
+.span-2 { grid-column: span 2; }
+
+/* JSON 编辑器 */
+.json-editor-wrapper {
+  border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;
+  background: #fafafa; transition: 0.3s;
+}
+.json-editor-wrapper:focus-within { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+.mono-text {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 13px; background: transparent; border: none; padding: 12px;
+}
+.mono-text:focus { box-shadow: none; }
+
+/* 底部操作 */
+.modal-footer-action {
+  padding: 16px 40px; background: #fff; border-top: 1px solid #f0f0f0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-left { font-size: 12px; color: #52c41a; display: flex; align-items: center; gap: 6px; }
+.btn-flat { border: none; color: #999; font-weight: 600; }
+.btn-submit { border-radius: 8px; font-weight: 600; height: 38px; padding: 0 24px; }
+
+.mt-16 { margin-top: 16px; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>

@@ -123,6 +123,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '向量分段', requiresAuth: true }
       },
       {
+        path: 'vec-driver',
+        name: 'AdminVecDriver',
+        component: () => import('@/views/admin/ai-modules/vec-driver/VecDriverList.vue'),
+        meta: { title: '向量驱动', requiresAuth: true }
+      },
+      {
         path: 'resource-library',
         name: 'AdminResourceLibrary',
         component: () => import('@/views/admin/home-dashboard/resource-library/Index.vue'),

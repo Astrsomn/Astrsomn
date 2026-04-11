@@ -19,8 +19,7 @@ public class AiVecDriverEntity extends BaseEntity<Long> {
     @TableField("PROVIDER")
     private String provider;
 
-    @TableField("DRIVER_TYPE")
-    private String driverType;
+
 
     @TableField("PARAMS")
     private String params;
