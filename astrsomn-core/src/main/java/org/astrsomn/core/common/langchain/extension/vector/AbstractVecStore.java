@@ -1,4 +1,4 @@
-package org.astrsomn.core.common.langchain.vector;
+package org.astrsomn.core.common.langchain.extension.vector;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;

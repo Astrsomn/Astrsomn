@@ -10,7 +10,7 @@ import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.EmbeddingSetting;
-import org.astrsomn.core.common.langchain.extension.AbstractModelProviderHandler;
+import org.astrsomn.core.common.langchain.extension.model.AbstractModelProviderHandler;
 import org.astrsomn.core.common.util.CollectionUtils;
 import org.astrsomn.core.exception.UnknowModelException;
 

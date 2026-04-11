@@ -1,4 +1,4 @@
-package org.astrsomn.core.common.langchain.vector;
+package org.astrsomn.core.common.langchain.extension.vector;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

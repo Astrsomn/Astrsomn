@@ -1,31 +1,33 @@
-package org.astrsomn.zhipu;
+package org.astrsomn.vector.qdrant.config;
 
+import org.astrsomn.core.common.constant.AiVecDriverEnum;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
-public class ZhipuExtensionDescriptor extends AstroExtensionDescriptor {
+public class QdrantExtensionDescriptor extends AstroExtensionDescriptor {
 
-    private static final String AVATAR_SVG =
-            loadClasspathUtf8(ZhipuExtensionDescriptor.class, "/avatar/chatglm-color.svg");
+
+    private static final String AVATAR_SVG = "";
+
 
     @Override
     public String getExtensionKey() {
-        return "zhipu";
+        return AiVecDriverEnum.Provider.QDRANT.getCode();
     }
 
     @Override
     public SystemExtensionEnum.ExtensionTypeEnum getExtensionType() {
-        return SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER;
+        return null;
     }
 
     @Override
     public String getAvatar() {
-        return AVATAR_SVG;
+        return "";
     }
 
     @Override
     public String getName() {
-        return "Zhipu GLM Model Provider";
+        return "";
     }
 
     @Override
@@ -35,11 +37,11 @@ public class ZhipuExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getAuthor() {
-        return "Zhipu AI";
+        return "";
     }
 
     @Override
     public String getDescription() {
-        return "智谱 GLM 对话与向量模型；参数与模型列表可按业务扩展。";
+        return "";
     }
 }

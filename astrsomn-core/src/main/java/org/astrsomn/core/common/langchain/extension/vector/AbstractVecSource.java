@@ -1,4 +1,4 @@
-package org.astrsomn.core.common.langchain.vector;
+package org.astrsomn.core.common.langchain.extension.vector;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,6 @@ import org.astrsomn.core.common.entity.AiVecStoreEntity;
 public abstract class AbstractVecSource {
 
     private final AiVecSourceEntity entity;
-
 
 
     /**

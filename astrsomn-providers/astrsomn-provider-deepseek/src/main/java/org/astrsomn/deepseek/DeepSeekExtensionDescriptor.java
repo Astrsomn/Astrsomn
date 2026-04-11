@@ -1,5 +1,6 @@
 package org.astrsomn.deepseek;
 
+import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
@@ -10,7 +11,7 @@ public class DeepSeekExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getExtensionKey() {
-        return "deepseek";
+        return AiModelEnum.ProviderEnum.DEEPSEEK.getCode();
     }
 
     @Override
@@ -21,6 +22,16 @@ public class DeepSeekExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public String getName() {
         return "DeepSeek Model Provider";
+    }
+
+    @Override
+    public String getVersion() {
+        return "";
+    }
+
+    @Override
+    public String getAuthor() {
+        return "Astrsomn";
     }
 
     @Override

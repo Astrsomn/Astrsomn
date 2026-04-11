@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.astrsomn.core.common.base.BaseEnum;
 
-public interface AiVecSourceEnum {
+public interface AiVecDriverEnum {
 
 
     @Getter
@@ -64,6 +64,25 @@ public interface AiVecSourceEnum {
         private final String code;
         private final String desc;
 
+    }
+
+
+
+    @Getter
+    @AllArgsConstructor
+    enum ParamEnum implements BaseEnum {
+
+        HOST("host", "Host"),
+        PORT("port", "Port"),
+        USERNAME("username", "Username"),
+        PASSWORD("password", "Password"),
+        DATABASE_NAME("databaseName", "Database Name"),
+        TOKEN("token", "Token"),;
+
+
+
+        private final String code;
+        private final String desc;
     }
 
 

@@ -3,7 +3,7 @@ package org.astrsomn.starter.plugin;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.astrsomn.core.common.langchain.extension.ModelProviderHandler;
+import org.astrsomn.core.common.langchain.extension.model.ModelProviderHandler;
 import org.astrsomn.starter.langchain.factory.AstroModelFactory;
 import org.springframework.stereotype.Component;
 

@@ -33,9 +33,7 @@ public class AiVecSourceEntity extends BaseEntity<Long> {
     @TableField("DATABASE_NAME")
     private String databaseName;
 
-    /**
-     * API Key Pinecone/DashVector
-     */
+
     @TableField("TOKEN")
     private String token;
 
