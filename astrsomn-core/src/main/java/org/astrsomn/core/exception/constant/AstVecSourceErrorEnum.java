@@ -38,7 +38,12 @@ public enum AstVecSourceErrorEnum implements IError {
     /**
      * Source permission denied
      */
-    SOURCE_PERMISSION_DENIED(150006, "Source permission denied");
+    SOURCE_PERMISSION_DENIED(150006, "Source permission denied"),
+
+    /**
+     * No VecDriver registered for provider
+     */
+    VEC_DRIVER_NOT_FOUND(150007, "Vector driver not found for provider");
     
     private final int code;
     private final String message;

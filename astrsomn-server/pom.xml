@@ -117,8 +117,7 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <!-- 向量库 Qdrant 通过「扩展插件」上传 jar 动态加载，勿在此处引入 astrsomn-vector-qdrant，
-             否则会注册 QdrantVectorAutoConfiguration 并可能与插件方式重复或元数据读取失败。 -->
+        <!-- 可选：classpath 引入 astrsomn-vector-*（如 astrsomn-vector-qdrant）；向量扩展通过 SPI 注册，与厂商 provider 模块一致，无需额外 @Configuration。 -->
 
     </dependencies>
 

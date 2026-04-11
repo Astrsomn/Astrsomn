@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.langchain.extension.model.ModelProviderHandler;
 import org.astrsomn.core.common.langchain.extension.vector.VecDriver;
 import org.astrsomn.starter.langchain.factory.AstroModelFactory;
+import org.astrsomn.starter.langchain.vector.AstroVecSourceFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AstrsomnPluginManager {
 
     private final AstroModelFactory astroModelFactory;
+    private final AstroVecSourceFactory astroVecSourceFactory;
     private final String pluginPath = "./plugins";
 
     // 缓存已加载的插件及其类加载器，用于卸载与热更新
@@ -77,6 +79,7 @@ public class AstrsomnPluginManager {
                 .ifPresent(handlers -> handlers.forEach(h -> astroModelFactory.unregisterHandler(h.getProvider())));
 
         pluginVecDrivers.remove(jarName);
+        astroVecSourceFactory.removePluginDrivers(jarName);
 
         // 关闭并移除类加载器释放资源
         Optional.ofNullable(pluginCache.remove(jarName))
@@ -127,6 +130,7 @@ public class AstrsomnPluginManager {
             pluginCache.put(jar.getName(), classLoader);
             pluginHandlers.put(jar.getName(), loadedHandlers);
             pluginVecDrivers.put(jar.getName(), loadedVecDrivers);
+            astroVecSourceFactory.applyPluginDrivers(jar.getName(), loadedVecDrivers);
         } else {
             log.warn("文件 {} 未发现 ModelProviderHandler 或 VecDriver 的 SPI 配置", jar.getName());
             classLoader.close();
