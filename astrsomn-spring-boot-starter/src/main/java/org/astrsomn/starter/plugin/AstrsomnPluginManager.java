@@ -9,12 +9,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -23,12 +19,19 @@ public class AstrsomnPluginManager {
     private final AstroModelFactory astroModelFactory;
     private final String pluginPath = "./plugins";
 
-    /** 与 {@link #reloadPlugins()}、{@link #applyPlugin(String)} 使用的目录一致（相对进程工作目录，通常为项目根下 {@code plugins}）。 */
+    // 缓存已加载的插件及其类加载器，用于卸载与热更新
+    private final Map<String, PluginClassLoader> pluginCache = new ConcurrentHashMap<>();
+    private final Map<String, List<ModelProviderHandler>> pluginHandlers = new ConcurrentHashMap<>();
+
+    @PostConstruct
+    public void init() {
+        reloadPlugins();
+    }
+
     public String getPluginPath() {
         return pluginPath;
     }
 
-    /** 确保目录存在并返回其 {@link File}。 */
     public File getPluginsDirectory() {
         File dir = new File(pluginPath);
         if (!dir.exists()) {
@@ -38,42 +41,27 @@ public class AstrsomnPluginManager {
         return dir;
     }
 
-    // 用于记录已加载的插件及其加载器，方便后续做卸载或热更新
-    private final Map<String, PluginClassLoader> pluginCache = new ConcurrentHashMap<>();
-    private final Map<String, List<ModelProviderHandler>> pluginHandlers = new ConcurrentHashMap<>();
-
-    @PostConstruct
-    public void init() {
-        reloadPlugins();
-    }
-
     public void reloadPlugins() {
-        File dir = new File(pluginPath);
-        if (!dir.exists()) {
-            boolean created = dir.mkdirs();
-            log.info("创建插件目录: {}, 结果: {}", pluginPath, created);
-        }
+        File dir = getPluginsDirectory();
 
-        File[] jarFiles = dir.listFiles((d, name) -> name.endsWith(".jar"));
-        if (jarFiles == null) return;
-
-        for (File jar : jarFiles) {
-            // 如果已经加载过该文件，可以跳过（简单去重逻辑）
-            if (pluginCache.containsKey(jar.getName())) continue;
-
-            try {
-                loadPlugin(jar);
-            } catch (Exception e) {
-                log.error("插件加载失败: " + jar.getName(), e);
-            }
-        }
+        Optional.ofNullable(dir.listFiles((d, name) -> name.endsWith(".jar")))
+                .ifPresent(jarFiles -> Arrays.stream(jarFiles)
+                        .filter(jar -> !pluginCache.containsKey(jar.getName()))
+                        .forEach(jar -> {
+                            try {
+                                loadPlugin(jar);
+                            } catch (Exception e) {
+                                log.error("插件加载失败: {}", jar.getName(), e);
+                            }
+                        }));
     }
 
     public void applyPlugin(String jarName) throws Exception {
         if (pluginCache.containsKey(jarName)) {
-            log.info("插件 {} 已加载，跳过重复应用", jarName);
+            log.info("插件 {} 已加载，跳过", jarName);
             return;
         }
+
         File jar = new File(pluginPath, jarName);
         if (!jar.exists()) {
             throw new IllegalArgumentException("插件文件不存在: " + jar.getAbsolutePath());
@@ -82,49 +70,44 @@ public class AstrsomnPluginManager {
     }
 
     public void unloadPlugin(String jarName) {
-        List<ModelProviderHandler> handlers = pluginHandlers.remove(jarName);
-        if (handlers != null) {
-            handlers.forEach(handler -> astroModelFactory.unregisterHandler(handler.getProvider()));
-        }
-        PluginClassLoader loader = pluginCache.remove(jarName);
-        if (loader != null) {
-            try {
-                loader.close();
-            } catch (Exception e) {
-                log.warn("关闭插件类加载器失败: {}", jarName, e);
-            }
-        }
+        // 从模型工厂注销处理器
+        Optional.ofNullable(pluginHandlers.remove(jarName))
+                .ifPresent(handlers -> handlers.forEach(h -> astroModelFactory.unregisterHandler(h.getProvider())));
+
+        // 关闭并移除类加载器释放资源
+        Optional.ofNullable(pluginCache.remove(jarName))
+                .ifPresent(loader -> {
+                    try {
+                        loader.close();
+                    } catch (Exception e) {
+                        log.warn("关闭插件类加载器失败: {}", jarName, e);
+                    }
+                });
     }
 
     private void loadPlugin(File jar) throws Exception {
         URL[] urls = { jar.toURI().toURL() };
-
-        // 使用自定义的 PluginClassLoader
-        // 传入当前线程的 ContextClassLoader 作为父加载器
+        // 传入 ContextClassLoader 作为父加载器以保证类可见性
         PluginClassLoader classLoader = new PluginClassLoader(urls, Thread.currentThread().getContextClassLoader());
 
-        // 使用 SPI 发现实现类
-        ServiceLoader<ModelProviderHandler> serviceLoader =
-                ServiceLoader.load(ModelProviderHandler.class, classLoader);
+        // 通过 SPI 发现并实例化插件实现
+        ServiceLoader<ModelProviderHandler> serviceLoader = ServiceLoader.load(ModelProviderHandler.class, classLoader);
 
-        boolean found = false;
         List<ModelProviderHandler> loadedHandlers = new ArrayList<>();
         for (ModelProviderHandler handler : serviceLoader) {
-            log.info("🚀 成功从外部加载插件: [{}] 厂商: {}, 版本: {}",
+            log.info("🚀 成功加载插件: [{}] 厂商: {}, 版本: {}",
                     jar.getName(), handler.getProvider().getCode(), handler.getVersion());
 
-            // 注册到工厂
             astroModelFactory.registerHandler(handler);
             loadedHandlers.add(handler);
-            found = true;
         }
 
-        if (found) {
+        if (!loadedHandlers.isEmpty()) {
             pluginCache.put(jar.getName(), classLoader);
             pluginHandlers.put(jar.getName(), loadedHandlers);
         } else {
-            log.warn("文件 {} 中未发现有效的 ModelProviderHandler SPI 配置", jar.getName());
-            classLoader.close(); // 没找到就关闭加载器释放资源
+            log.warn("文件 {} 未发现 SPI 配置", jar.getName());
+            classLoader.close();
         }
     }
 }

@@ -3,20 +3,21 @@ package org.astrsomn.starter.langchain.factory;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
-import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.service.AiServices;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
+import org.astrsomn.core.common.langchain.buildParam.setting.RagSetting;
 import org.astrsomn.starter.langchain.cache.AssistantCacheManager;
 import org.astrsomn.starter.langchain.memory.ChatMemoryManager;
 import org.astrsomn.starter.langchain.memory.DynamicMemoryProvider;
 import org.astrsomn.starter.langchain.quota.AstroModelListener;
 import org.astrsomn.starter.langchain.runtime.AgentRuntimeConfigLoader;
 import org.astrsomn.starter.langchain.tool.ToolProviderAssembler;
-import org.astrsomn.starter.langchain.tool.rag.RagComponentAssembler;
+import org.astrsomn.starter.langchain.tool.rag.DynamicRagProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,33 +27,47 @@ public class AstroAssistantFactory {
     private final AssistantCacheManager cacheManager;
     private final AgentRuntimeConfigLoader agentRuntimeConfigLoader;
     private final ToolProviderAssembler toolProviderAssembler;
-    private final RagComponentAssembler ragComponentAssembler;
+    private final DynamicRagProvider ragComponentAssembler;
     private final AstroModelFactory astroModelFactory;
     private final AstroModelListener  astroModelListener;
 
     public <T> T createAssistant(AstroChatParam<T> param) {
         agentRuntimeConfigLoader.validateAndApplyAgent(param);
         param.setChatModelListeners(List.of(astroModelListener.createBindingListener(param)));
+
         AiServices<T> builder = AiServices.builder(param.getServiceClass());
-        if (param.getConversationSetting().isEnableStream()) {
-            StreamingChatModel streamingChatModel = astroModelFactory.createModel(param, StreamingChatModel.class);
-            builder.streamingChatModel(streamingChatModel);
-        } else {
-            ChatModel chatModel = astroModelFactory.createModel(param, ChatModel.class);
-            builder.chatModel(chatModel);
-        }
+
+        boolean isStream = param.getConversationSetting().isEnableStream();
+
+        Optional.of(isStream)
+                .filter(Boolean::booleanValue)
+                .map(b -> astroModelFactory.createModel(param, StreamingChatModel.class))
+                .ifPresent(builder::streamingChatModel);
+
+        Optional.of(isStream)
+                .filter(b -> !b)
+                .map(b -> astroModelFactory.createModel(param, ChatModel.class))
+                .ifPresent(builder::chatModel);
+
         configureComponents(builder, param);
         return builder.build();
     }
 
     private <T> void configureComponents(AiServices<T> builder, AstroChatParam<T> param) {
-        if (param.getMaxHistoryMessages() > 0) {
-            builder.chatMemoryProvider(new DynamicMemoryProvider(chatMemoryManager, param.getMaxHistoryMessages()));
-        }
-        toolProviderAssembler.assemble(param).ifPresent(builder::toolProvider);
-        if (param.getRagSetting() != null && param.getRagSetting().isEnabled()) {
-            ContentRetriever retriever = ragComponentAssembler.createRetriever(param);
-            builder.contentRetriever(retriever);
-        }
+        // TODO 组装调用工具
+        Optional.ofNullable(toolProviderAssembler.assemble(param))
+                .ifPresent(builder::toolProvider);
+
+        // TODO 组装历史消息
+        Optional.ofNullable(param.getMaxHistoryMessages())
+                .filter(max -> max > 0)
+                .map(max -> new DynamicMemoryProvider(chatMemoryManager, max))
+                .ifPresent(builder::chatMemoryProvider);
+
+        // TODO 组装Rag
+        Optional.ofNullable(param.getRagSetting())
+                .filter(RagSetting::isEnabled)
+                .map(setting -> ragComponentAssembler.createRetriever(param))
+                .ifPresent(builder::contentRetriever);
     }
 }

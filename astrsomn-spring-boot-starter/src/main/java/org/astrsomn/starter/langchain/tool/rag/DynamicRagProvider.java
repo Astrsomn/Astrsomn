@@ -9,17 +9,19 @@ import dev.langchain4j.store.embedding.EmbeddingStore;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.RagSetting;
+import org.astrsomn.starter.langchain.factory.AstroModelFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class RagComponentAssembler {
+public class DynamicRagProvider {
 
-    private final AiEmbeddingModelFactory embeddingModelFactory;
+
+    private final AstroModelFactory astroModelFactory;
     private final VectorStoreRegistry vectorStoreRegistry;
 
     public ContentRetriever createRetriever(AstroChatParam param) {
-        EmbeddingModel embeddingModel = embeddingModelFactory.getEmbeddingModel(param);
+        EmbeddingModel embeddingModel = astroModelFactory.createModel(param, EmbeddingModel.class);
         EmbeddingStore<TextSegment> embeddingStore = vectorStoreRegistry.getStore(param);
         RagSetting rag = param.getRagSetting() != null ? param.getRagSetting() : new RagSetting();
         return EmbeddingStoreContentRetriever.builder()

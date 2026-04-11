@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public class ImageToolProvider implements ToolProvider {
+public class DynamicImageToolProvider implements ToolProvider {
 
     private final ImageModel imageModel;
     private final ObjectMapper objectMapper = new ObjectMapper();

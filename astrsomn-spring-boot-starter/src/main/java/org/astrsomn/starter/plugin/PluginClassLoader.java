@@ -2,10 +2,6 @@ package org.astrsomn.starter.plugin;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-
-/**
- * 插件类加载器：实现“插件优先”逻辑，打破双亲委派
- */
 public class PluginClassLoader extends URLClassLoader {
 
     public PluginClassLoader(URL[] urls, ClassLoader parent) {
@@ -15,21 +11,19 @@ public class PluginClassLoader extends URLClassLoader {
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         synchronized (getClassLoadingLock(name)) {
-            // 1. 检查类是否已经加载
             Class<?> c = findLoadedClass(name);
 
             if (c == null) {
-                // 2. 关键：如果是核心契约类（Core 模块里的），必须交给父加载器
-                // 否则会出现 ClassCastException，因为接口和实现类必须由同一个“祖先”加载
-                if (name.startsWith("org.astrsomn.core")) {
+                // 核心契约类强制由父加载器（主程序）加载，确保接口一致性
+                if (isCoreClass(name)) {
                     return super.loadClass(name, resolve);
                 }
 
                 try {
-                    // 3. 尝试插件优先：先从插件自己的 JAR 包里找
+                    // 插件优先逻辑：先尝试从插件自身的 JAR 包中寻找类
                     c = findClass(name);
                 } catch (ClassNotFoundException e) {
-                    // 4. 插件里没有，再按常规逻辑走（交给父类）
+                    // 插件内未找到时，回归双亲委派标准逻辑
                     c = super.loadClass(name, resolve);
                 }
             }
@@ -39,5 +33,11 @@ public class PluginClassLoader extends URLClassLoader {
             }
             return c;
         }
+    }
+
+    private boolean isCoreClass(String name) {
+        return name.startsWith("org.astrsomn.core")
+                || name.startsWith("dev.langchain4j")
+                || name.startsWith("org.slf4j");
     }
 }
