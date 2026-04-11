@@ -5,13 +5,15 @@ import { createEnumDictionary } from '@/locales/dictionary/core'
 import {
   AI_MODEL_CAPABILITY_ORDER,
   AI_MODEL_PROVIDER_ORDER,
-  AI_MODEL_STATUS_ORDER
+  AI_MODEL_STATUS_ORDER,
+  AI_MODEL_SOURCE_TYPE_ORDER
 } from '@/locales/dictionary/ai-model-orders'
 
 export type {
   AiModelCapabilityCode,
   AiModelProviderCode,
-  AiModelStatusCode
+  AiModelStatusCode,
+  AiModelSourceTypeCode
 } from '@/locales/dictionary/ai-model-orders'
 
 const providerLabels = {
@@ -105,4 +107,15 @@ export const aiModelCapabilitiesDictionary = createEnumDictionary({
   id: 'ai-model.capabilities',
   labels: capabilityLabels,
   order: AI_MODEL_CAPABILITY_ORDER
+})
+
+const sourceTypeLabels = {
+  user_custom: '用户自定义模型',
+  plugin: '插件模型'
+} as const
+
+export const aiModelSourceTypeDictionary = createEnumDictionary({
+  id: 'ai-model.sourceType',
+  labels: sourceTypeLabels,
+  order: AI_MODEL_SOURCE_TYPE_ORDER
 })

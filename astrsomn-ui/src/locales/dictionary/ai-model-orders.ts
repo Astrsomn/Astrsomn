@@ -68,3 +68,7 @@ export const AI_MODEL_CAPABILITY_ORDER = [
 ] as const
 
 export type AiModelCapabilityCode = (typeof AI_MODEL_CAPABILITY_ORDER)[number]
+
+export const AI_MODEL_SOURCE_TYPE_ORDER = ['user_custom', 'plugin'] as const
+
+export type AiModelSourceTypeCode = (typeof AI_MODEL_SOURCE_TYPE_ORDER)[number]
