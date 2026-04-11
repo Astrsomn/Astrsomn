@@ -52,7 +52,7 @@ public class AiVecDriverController extends BaseController {
     }
 
     @GetMapping("/list")
-    public BaseResponse<List<AiVecDriverResponseDTO>> listForSelect() {
-        return aiVecDriverService.listForSelect();
+    public BaseResponse<List<AiVecDriverResponseDTO>> listForSelect(@RequestParam(value = "status", required = false) String status) {
+        return aiVecDriverService.listForSelect(status);
     }
 }

@@ -2,6 +2,7 @@ package org.astrsomn.server.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
+import org.astrsomn.core.common.constant.AiVecDriverEnum;
 import org.astrsomn.core.common.entity.AiVecDriverEntity;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.vector.VecDriver;
@@ -36,6 +37,7 @@ public class SystemExtensionVecDriverSyncServiceImpl implements SystemExtensionV
                     "未找到 extensionKey=" + extensionKey + " 的 VecDriver 实现（请确认已加载插件或已引入对应模块）");
         }
         AiVecDriverEntity incoming = driver.getDriverEntity();
+
         if (incoming == null || StringUtils.isBlank(incoming.getProvider())) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_APPLY_FAILED, "VecDriver#getDriverEntity 数据无效");
         }

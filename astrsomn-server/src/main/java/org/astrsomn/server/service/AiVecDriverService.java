@@ -27,5 +27,5 @@ public interface AiVecDriverService extends IService<AiVecDriverEntity> {
     /**
      * 下拉框等场景：全量驱动列表（无分页），按名称排序。
      */
-    BaseResponse<List<AiVecDriverResponseDTO>> listForSelect();
+    BaseResponse<List<AiVecDriverResponseDTO>> listForSelect(String status);
 }

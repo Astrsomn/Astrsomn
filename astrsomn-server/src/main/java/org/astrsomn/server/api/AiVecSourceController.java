@@ -34,6 +34,11 @@ public class AiVecSourceController extends BaseController {
         }
     }
 
+    @PostMapping("/test-connection")
+    public BaseResponse<String> testConnection(@RequestBody AiVecSourceCreateRequestDTO request) {
+        return aiVecSourceService.testConnection(request);
+    }
+
     @PostMapping("/update")
     public BaseResponse<String> update(@RequestBody AiVecSourceUpdateRequestDTO request) {
         return aiVecSourceService.update(request);

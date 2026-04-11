@@ -1,6 +1,7 @@
 package org.astrsomn.server.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.astrsomn.core.common.base.BasePageRequest;
@@ -54,6 +55,7 @@ public class AiVecDriverServiceImpl extends ServiceImpl<AiVecDriverMapper, AiVec
         entity.setProvider(request.getProvider());
 
         entity.setParams(request.getParams());
+        entity.setStatus(request.getStatus());
         if (updateById(entity)) {
             return BaseResponse.success("更新成功");
         } else {
@@ -63,28 +65,21 @@ public class AiVecDriverServiceImpl extends ServiceImpl<AiVecDriverMapper, AiVec
 
     @Override
     public PageResponse<AiVecDriverResponseDTO> queryPage(BasePageRequest<AiVecDriverQueryRequestDTO> request) {
-        Page<AiVecDriverEntity> page = new Page<>(request.getPageNo(), request.getPageSize());
-        LambdaQueryWrapper<AiVecDriverEntity> wrapper = new LambdaQueryWrapper<>();
-        AiVecDriverQueryRequestDTO query = request.getParam();
-        if (query != null) {
-            if (query.getDriverName() != null && !query.getDriverName().isEmpty()) {
-                wrapper.like(AiVecDriverEntity::getDriverName, query.getDriverName());
-            }
-            if (query.getProvider() != null && !query.getProvider().isEmpty()) {
-                wrapper.eq(AiVecDriverEntity::getProvider, query.getProvider());
-            }
-
+        IPage<AiVecDriverResponseDTO> page = request.buildPage();
+        AiVecDriverQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new AiVecDriverQueryRequestDTO();
         }
-        page(page, wrapper);
-        PageResponse<AiVecDriverResponseDTO> response = new PageResponse<>();
-        response.setTotal(page.getTotal());
-        response.setList(page.getRecords().stream().map(this::toResponseDto).collect(Collectors.toList()));
-        return response;
+        IPage<AiVecDriverResponseDTO> result = baseMapper.queryPage(page, param);
+        return PageResponse.buildResponse(result);
     }
 
     @Override
-    public BaseResponse<List<AiVecDriverResponseDTO>> listForSelect() {
+    public BaseResponse<List<AiVecDriverResponseDTO>> listForSelect(String status) {
         LambdaQueryWrapper<AiVecDriverEntity> w = new LambdaQueryWrapper<>();
+        if (status != null && !status.isEmpty()) {
+            w.eq(AiVecDriverEntity::getStatus, status);
+        }
         w.orderByAsc(AiVecDriverEntity::getDriverName);
         List<AiVecDriverResponseDTO> list = list(w).stream().map(this::toResponseDto).collect(Collectors.toList());
         return BaseResponse.success(list);

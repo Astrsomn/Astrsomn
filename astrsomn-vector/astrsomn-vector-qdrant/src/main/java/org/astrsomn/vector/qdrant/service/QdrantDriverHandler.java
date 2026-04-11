@@ -26,14 +26,12 @@ public final class QdrantDriverHandler extends AbstractVecDriver {
         List<AiVecDriverEnum.ParamEnum> allowedParams = List.of(
                 AiVecDriverEnum.ParamEnum.HOST,
                 AiVecDriverEnum.ParamEnum.PORT,
-                AiVecDriverEnum.ParamEnum.USERNAME,
-                AiVecDriverEnum.ParamEnum.PASSWORD,
-                AiVecDriverEnum.ParamEnum.DATABASE_NAME,
                 AiVecDriverEnum.ParamEnum.TOKEN);
         return AiVecDriverEntity.builder()
                 .driverName(AiVecDriverEnum.Provider.QDRANT.getDesc())
                 .provider(AiVecDriverEnum.Provider.QDRANT.getCode())
                 .params(EnumUtils.toCapabilitiesJson(allowedParams))
+                .status(AiVecDriverEnum.StatusEnum.ENABLED.getCode())
                 .build();
     }
 }

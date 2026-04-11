@@ -15,7 +15,7 @@ public interface VecSource {
     /**
      * 校验与向量服务的网络与鉴权是否可用。
      */
-    void testConnection();
+    boolean testConnection();
 
     /**
      * 资源释放（插件卸载或服务关闭时调用）。

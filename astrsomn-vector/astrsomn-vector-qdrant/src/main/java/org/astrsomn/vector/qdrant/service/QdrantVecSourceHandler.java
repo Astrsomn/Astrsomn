@@ -43,9 +43,10 @@ public final class QdrantVecSourceHandler extends AbstractVecSource {
     }
 
     @Override
-    public void testConnection() {
+    public boolean testConnection() {
         try {
             qdrantClient.listCollectionsAsync().get();
+            return true;
         } catch (Exception e) {
             throw new IllegalStateException("Qdrant testConnection failed", e);
         }

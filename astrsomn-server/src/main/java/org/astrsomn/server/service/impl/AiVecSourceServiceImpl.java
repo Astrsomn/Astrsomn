@@ -114,4 +114,23 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
         BeanUtils.copyProperties(entity, responseDTO);
         return BaseResponse.success(responseDTO);
     }
+
+    @Override
+    public BaseResponse<String> testConnection(AiVecSourceCreateRequestDTO request) {
+        try {
+            // 创建临时实体用于测试
+            AiVecSourceEntity entity = new AiVecSourceEntity();
+            BeanUtils.copyProperties(request, entity);
+            // 使用 AstroVecSourceFactory 测试连接
+            boolean success = astroVecSourceFactory.testConnection(entity);
+            if (success) {
+                return BaseResponse.success("连接测试成功");
+            } else {
+                return BaseResponse.fail("连接测试失败");
+            }
+        } catch (Exception e) {
+            log.error("向量源连接测试失败: {}", e.getMessage());
+            return BaseResponse.fail("连接测试失败: " + e.getMessage());
+        }
+    }
 }

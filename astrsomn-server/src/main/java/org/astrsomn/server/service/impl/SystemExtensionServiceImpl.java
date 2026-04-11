@@ -162,14 +162,12 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
         }
         String type = entity.getType();
-        boolean vectorStore = SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE.getCode().equals(type);
-        if (StringUtils.isBlank(entity.getJarName()) && !vectorStore) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "未配置 jarName，无法应用插件");
-        }
+
+
         try {
             if (SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(type)) {
                 pluginManager.applyPlugin(entity.getJarName());
-            } else if (vectorStore) {
+            } else if (SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE.getCode().equals(type)) {
                 if (StringUtils.isNotBlank(entity.getJarName())) {
                     pluginManager.applyPlugin(entity.getJarName());
                 }
@@ -182,7 +180,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.Y.getCode());
             entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.APPLIED.getCode());
             updateById(entity);
-            return BaseResponse.success("应用成功");
+            return BaseResponse.success("插件应用成功");
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {

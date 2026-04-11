@@ -3,6 +3,8 @@ package org.astrsomn.core.common.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +20,7 @@ import org.astrsomn.core.common.base.BaseEntity;
 public class AiVecDriverEntity extends BaseEntity<Long> {
 
     @TableField("ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     @TableField("DRIVER_NAME")
@@ -27,8 +30,9 @@ public class AiVecDriverEntity extends BaseEntity<Long> {
     private String provider;
 
 
-
     @TableField("PARAMS")
     private String params;
 
+    @TableField("STATUS")
+    private String status;
 }

@@ -28,12 +28,12 @@ public final class MilvusDriverHandler extends AbstractVecDriver {
                 AiVecDriverEnum.ParamEnum.PORT,
                 AiVecDriverEnum.ParamEnum.USERNAME,
                 AiVecDriverEnum.ParamEnum.PASSWORD,
-                AiVecDriverEnum.ParamEnum.DATABASE_NAME,
-                AiVecDriverEnum.ParamEnum.TOKEN);
+                AiVecDriverEnum.ParamEnum.DATABASE_NAME);
         return AiVecDriverEntity.builder()
                 .driverName(AiVecDriverEnum.Provider.MILVUS.getDesc())
                 .provider(AiVecDriverEnum.Provider.MILVUS.getCode())
                 .params(EnumUtils.toCapabilitiesJson(allowedParams))
+                .status(AiVecDriverEnum.StatusEnum.ENABLED.getCode())
                 .build();
     }
 }

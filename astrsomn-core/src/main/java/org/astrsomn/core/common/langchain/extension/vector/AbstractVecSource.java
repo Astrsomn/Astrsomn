@@ -13,7 +13,7 @@ public abstract class AbstractVecSource implements VecSource {
     private final AiVecSourceEntity entity;
 
     @Override
-    public abstract void testConnection();
+    public abstract boolean testConnection();
 
     @Override
     public abstract void shutdown();

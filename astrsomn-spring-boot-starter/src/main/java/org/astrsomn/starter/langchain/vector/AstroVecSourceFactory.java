@@ -216,4 +216,25 @@ public class AstroVecSourceFactory {
     private static String nz(String s) {
         return StringUtils.defaultIfBlank(StringUtils.trimToNull(s), "");
     }
+
+    /**
+     * 测试向量源连接
+     */
+    public boolean testConnection(AiVecSourceEntity entity) {
+        if (entity == null) {
+            return false;
+        }
+        try {
+            // 绑定源并测试连接
+            VecSource source = bindSource(entity);
+            // 测试连接
+            boolean success = source.testConnection();
+            // 关闭连接
+            shutdownQuietly(source);
+            return success;
+        } catch (Exception e) {
+            log.error("向量源连接测试失败: {}", e.getMessage());
+            return false;
+        }
+    }
 }

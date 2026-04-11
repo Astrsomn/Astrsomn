@@ -43,11 +43,12 @@ public final class MilvusVecSourceHandler extends AbstractVecSource {
     }
 
     @Override
-    public void testConnection() {
+    public boolean testConnection() {
         R<GetVersionResponse> r = milvusClient.getVersion();
         if (r.getStatus() != R.Status.Success.getCode()) {
             throw new IllegalStateException("Milvus testConnection failed: " + r.getMessage());
         }
+        return false;
     }
 
     @Override
