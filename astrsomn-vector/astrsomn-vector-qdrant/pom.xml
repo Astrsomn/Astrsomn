@@ -15,9 +15,6 @@
     <name>astrsomn-vector-qdrant</name>
     <description>astrsomn-vector-qdrant</description>
 
-    <properties>
-        <langchain4j.version>1.11.0</langchain4j.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.astrsomn</groupId>
@@ -41,7 +38,7 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-qdrant</artifactId>
-            <version>1.0.0-beta3</version>
+            <version>${langchain4j.integration.version}</version>
         </dependency>
     </dependencies>
 

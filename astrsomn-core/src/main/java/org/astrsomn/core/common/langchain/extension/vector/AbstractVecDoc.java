@@ -8,18 +8,14 @@ import org.astrsomn.core.common.entity.AiVecSegmentEntity;
 
 @Getter
 @AllArgsConstructor
-public abstract class AbstractVecDoc {
+public abstract class AbstractVecDoc implements VecDoc {
+
     private final AbstractVecStore store;
     private final AiVecDocEntity entity;
 
-
-    /**
-     * 删除该文档在向量库中对应的全部向量（实现可能按 metadata 过滤或批量 id）。
-     */
+    @Override
     public abstract void deleteAllEmbeddingsInStore();
 
-    /**
-     * 绑定单条切片，用于点删、对账等。
-     */
+    @Override
     public abstract AbstractVecSegment bindSegment(AiVecSegmentEntity segment);
 }

@@ -7,13 +7,11 @@ import org.astrsomn.core.common.entity.AiVecSegmentEntity;
 
 @Getter
 @AllArgsConstructor
-public abstract class AbstractVecSegment {
+public abstract class AbstractVecSegment implements VecSegment {
 
     private final AbstractVecDoc doc;
     private final AiVecSegmentEntity entity;
 
-    /**
-     * 按向量 id 删除向量库中的单条记录。
-     */
+    @Override
     public abstract void deleteEmbedding();
 }

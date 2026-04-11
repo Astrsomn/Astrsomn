@@ -9,26 +9,26 @@ import org.astrsomn.core.common.entity.AiVecStoreEntity;
 
 @Getter
 @AllArgsConstructor
-public abstract class AbstractVecStore {
+public abstract class AbstractVecStore implements VecStore {
 
     private final AbstractVecSource source;
     private final AiVecStoreEntity entity;
 
-    // 创建向量侧物理集合
+    @Override
     public abstract void createCollection();
 
-    // 删除向量侧物理集合
+    @Override
     public abstract void dropCollection();
 
-    // 判断是否存在
+    @Override
     public abstract boolean exists();
 
-    // 统计数量
+    @Override
     public abstract long count();
 
-    // 打开 LangChain4j 的嵌入存储，供检索与写入。
+    @Override
     public abstract EmbeddingStore<TextSegment> getEmbeddingStore();
 
-    // 绑定业务文档实体，进入文档级操作。
+    @Override
     public abstract AbstractVecDoc bindDoc(AiVecDocEntity doc);
 }

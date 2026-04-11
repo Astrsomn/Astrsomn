@@ -1,14 +1,14 @@
-package org.astrsomn.vector.qdrant.config;
+package org.astrsomn.vector.milvus.config;
 
 import org.astrsomn.core.common.constant.AiVecDriverEnum;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
-public class QdrantExtensionDescriptor extends AstroExtensionDescriptor {
+public class MilvusExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getExtensionKey() {
-        return AiVecDriverEnum.Provider.QDRANT.getCode();
+        return AiVecDriverEnum.Provider.MILVUS.getCode();
     }
 
     @Override
@@ -23,7 +23,7 @@ public class QdrantExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getName() {
-        return AiVecDriverEnum.Provider.QDRANT.getDesc();
+        return AiVecDriverEnum.Provider.MILVUS.getDesc();
     }
 
     @Override
@@ -38,6 +38,6 @@ public class QdrantExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getDescription() {
-        return "Qdrant vector database integration (LangChain4j).";
+        return "Milvus / Zilliz vector database integration (LangChain4j).";
     }
 }
