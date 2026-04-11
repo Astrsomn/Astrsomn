@@ -120,6 +120,7 @@ public enum ZhipuModelEnum {
         entity.setCapabilities(this.getCapabilities());
         entity.setParams(this.getParams());
         entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
+        entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
         return entity;
     }
 }

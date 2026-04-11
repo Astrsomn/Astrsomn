@@ -90,4 +90,6 @@ public class AiModelEntity extends BaseEntity<Long> {
     private Long maxQuotaTokens;
 
 
+    @TableField("SOURCE_TYPE")
+    private String sourceType;
 }
