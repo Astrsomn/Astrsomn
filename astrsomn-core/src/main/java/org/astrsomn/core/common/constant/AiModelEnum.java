@@ -172,13 +172,7 @@ public interface AiModelEnum {
         /**
          * 本地模型
          */
-        LOCAL("local", "本地模型"),
-
-        /**
-         * 在线模型
-         */
-        ONLINE("online", "在线模型"),
-        
+        USER_CUSTOM("user_custom", "用户自定义模型"),
         /**
          * 插件模型
          */

@@ -12,11 +12,7 @@ import org.astrsomn.core.common.langchain.vector.AbstractVecSource;
  */
 public interface VecStoreBackend {
 
-    /**
-     * 与 {@link org.astrsomn.core.common.entity.AiVecSourceEntity#getProvider()}、
-     * {@link org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor#getExtensionKey()} 一致。
-     */
-    String getExtensionKey();
+
 
     /**
      * 将数据源实体绑定为可逐级下探的抽象句柄（Source → Store → Doc → Segment），用于统一获取连接与领域操作。
