@@ -1,26 +1,41 @@
 <template>
-  <a-modal
-    v-model:open="open"
-    :title="null"
-    width="860px"
+  <AstrsomnModal
+    :open="open"
+    :width="width"
     :footer="null"
     :destroy-on-close="true"
+    :closable="true"
+    @update:open="emit('update:open', $event)"
     @cancel="onCancel"
-    class="vec-store-modal"
   >
-    <div class="modal-header-gradient">
-      <div class="header-content">
-        <div class="title-area">
-          <div class="icon-box">
-            <DatabaseOutlined />
-          </div>
-          <div class="text-group">
-            <h2>{{ mode === 'create' ? '创建向量存储' : '编辑向量存储' }}</h2>
-            <p>管理向量集合配置，定义维度、距离度量和元数据模式</p>
-          </div>
-        </div>
+    <template #header-logo>
+      <div class="icon-box">
+        <DatabaseOutlined />
       </div>
-    </div>
+    </template>
+    <template #header-title>
+      {{ mode === 'create' ? '创建向量存储' : '编辑向量存储' }}
+    </template>
+    <template #header-subtitle>
+      管理向量集合配置，定义维度、距离度量和元数据模式
+    </template>
+    <template #header-actions>
+      <div class="header-actions">
+        <a-button class="btn-flat" @click="onCancel">
+          <CloseOutlined />
+          取消
+        </a-button>
+        <a-button 
+          type="primary" 
+          class="btn-submit" 
+          :loading="confirmLoading" 
+          @click="handleOk"
+        >
+          <SaveOutlined />
+          保存配置
+        </a-button>
+      </div>
+    </template>
 
     <a-form
       ref="formRef"
@@ -34,32 +49,6 @@
           <h3 class="section-headline"><IdcardOutlined /> 基本配置</h3>
 
           <div class="form-grid">
-            <a-form-item label="向量源" name="sourceId">
-              <div class="source-selector">
-                <a-input 
-                  v-model:value="form.sourceId" 
-                  placeholder="选择向量源" 
-                  size="large" 
-                  readonly
-                />
-                <a-button 
-                  type="primary" 
-                  size="large" 
-                  class="select-button"
-                  @click="openSourceSelectDialog"
-                >
-                  选择
-                </a-button>
-              </div>
-              <div v-if="selectedSourceName" class="source-info">
-                <div class="source-badge" :class="getProviderClass(selectedSourceProvider)">
-                  <DatabaseOutlined />
-                </div>
-                <span>{{ selectedSourceName }}</span>
-                <span v-if="selectedSourceProvider" class="provider-label">({{ getProviderLabel(selectedSourceProvider) }})</span>
-              </div>
-            </a-form-item>
-
             <a-form-item label="集合名称" name="collectionName">
               <a-input v-model:value="form.collectionName" placeholder="例如：document_embeddings" size="large" />
             </a-form-item>
@@ -90,6 +79,7 @@
                   class="select-button"
                   @click="openInstanceSelectDialog"
                 >
+                  <SelectOutlined />
                   选择
                 </a-button>
               </div>
@@ -113,46 +103,29 @@
       </div>
     </a-form>
 
-    <div class="modal-footer-action">
-      <div class="footer-left">
-        <SafetyCertificateOutlined /> 数据安全加密存储
-      </div>
-      <div class="footer-right">
-        <a-button class="btn-flat" @click="onCancel">取消</a-button>
-        <a-button 
-          type="primary" 
-          class="btn-submit" 
-          :loading="confirmLoading" 
-          @click="handleOk"
-        >
-          保存配置
-        </a-button>
-      </div>
+    <div class="modal-footer-info">
+      <SafetyCertificateOutlined /> 数据安全加密存储
     </div>
-
-    <SourceSelectDialog
-      v-model:open="sourceSelectDialogVisible"
-      @select="handleSourceSelect"
-    />
 
     <InstanceSelectDialog
       v-model:open="instanceSelectDialogVisible"
+      :default-type="'embedding'"
       @select="handleInstanceSelect"
     />
-  </a-modal>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref, watch, computed } from 'vue'
 import { 
-  DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined 
+  IdcardOutlined, SafetyCertificateOutlined, 
+  SaveOutlined, CloseOutlined, SelectOutlined
 } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiVecStore } from '@/api/aiVecStore.ts'
 import InstanceSelectDialog from '@/components/ai/InstanceSelectDialog.vue'
-import SourceSelectDialog from '@/components/ai/SourceSelectDialog.vue'
+import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import type { AiInstance } from '@/api/aiInstance'
-import type { AiVecSource } from '@/api/aiVecSource'
 
 const props = defineProps<{ 
   mode: 'create' | 'edit', 
@@ -160,14 +133,16 @@ const props = defineProps<{
   initial: AiVecStore | null,
   defaultSourceId?: number | string | null
 }>()
-const emit = defineEmits<{ submit: [payload: AiVecStore] }>()
+const emit = defineEmits<{ 
+  submit: [payload: AiVecStore],
+  'update:open': [value: boolean]
+}>()
 const open = defineModel<boolean>('open', { required: true })
+const width = '860px'
 
 const formRef = ref<FormInstance | null>(null)
-const sourceSelectDialogVisible = ref(false)
 const instanceSelectDialogVisible = ref(false)
 const selectedInstance = ref<AiInstance | null>(null)
-const selectedSource = ref<AiVecSource | null>(null)
 
 function emptyForm(): AiVecStore {
   return {
@@ -183,53 +158,17 @@ function emptyForm(): AiVecStore {
 const form = reactive<AiVecStore>(emptyForm())
 
 const rules = {
-  sourceId: [{ required: true, message: '请选择向量源' }],
   collectionName: [{ required: true, message: '请输入集合名称' }],
   dimension: [{ required: true, message: '请输入向量维度' }],
   distanceMetric: [{ required: true, message: '请选择距离度量' }]
 }
 
-const selectedSourceName = computed(() => {
-  return selectedSource.value?.name || ''
-})
-
-const selectedSourceProvider = computed(() => {
-  return selectedSource.value?.provider || ''
-})
-
 const selectedInstanceName = computed(() => {
   return selectedInstance.value?.instanceName || ''
 })
 
-const providerLabelMap: Record<string, string> = {
-  MILVUS: 'Milvus',
-  PINECONE: 'Pinecone',
-  DASHVECTOR: 'DashVector',
-  CHROMA: 'Chroma',
-  QDRANT: 'Qdrant',
-  WEAVIATE: 'Weaviate',
-  OTHER: '其他'
-}
-
-const getProviderLabel = (provider?: string) => {
-  const key = String(provider || '').toUpperCase()
-  return providerLabelMap[key] || provider || '未知'
-}
-
-const getProviderClass = (provider?: string) => {
-  const key = String(provider || '').toLowerCase()
-  return `provider-${key}`
-}
-
 function assignFromInitial(src: AiVecStore) {
   Object.assign(form, emptyForm(), src)
-  if (src.sourceId) {
-    selectedSource.value = {
-      id: src.sourceId,
-      name: src.sourceName,
-      provider: src.sourceProvider
-    } as AiVecSource
-  }
   if (src.instanceKey) {
     selectedInstance.value = {
       instanceKey: src.instanceKey,
@@ -248,7 +187,6 @@ watch(() => [open.value, props.initial, props.defaultSourceId] as const, ([isOpe
       }
     }
     selectedInstance.value = null
-    selectedSource.value = null
   }
 })
 
@@ -260,21 +198,11 @@ async function handleOk() {
 
 const onCancel = () => { 
   open.value = false 
-  sourceSelectDialogVisible.value = false
   instanceSelectDialogVisible.value = false
-}
-
-const openSourceSelectDialog = () => {
-  sourceSelectDialogVisible.value = true
 }
 
 const openInstanceSelectDialog = () => {
   instanceSelectDialogVisible.value = true
-}
-
-const handleSourceSelect = (source: AiVecSource) => {
-  selectedSource.value = source
-  form.sourceId = source.id
 }
 
 const handleInstanceSelect = (instance: AiInstance) => {
@@ -287,18 +215,17 @@ const handleInstanceSelect = (instance: AiInstance) => {
 </script>
 
 <style scoped>
-.vec-store-modal :deep(.ant-modal-content) { padding: 0; border-radius: 20px; overflow: hidden; }
-
-.modal-header-gradient { background: #fff; padding: 32px 40px; border-bottom: 1px solid #f0f2f5; }
-.header-content { display: flex; justify-content: space-between; align-items: center; }
-.title-area { display: flex; gap: 16px; align-items: center; }
 .icon-box {
   width: 48px; height: 48px; background: #1677ff; color: white; border-radius: 12px;
   display: flex; align-items: center; justify-content: center; font-size: 22px;
   box-shadow: 0 8px 16px rgba(22, 119, 255, 0.2);
 }
-.text-group h2 { margin: 0; font-size: 20px; font-weight: 700; color: #111; }
-.text-group p { margin: 4px 0 0; color: #999; font-size: 13px; }
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
 .professional-form { height: 500px; display: flex; flex-direction: column; }
 .form-body-container { flex: 1; overflow-y: auto; padding: 24px 40px; }
@@ -323,6 +250,9 @@ const handleInstanceSelect = (instance: AiInstance) => {
 
 .select-button {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .source-info {
@@ -393,13 +323,13 @@ const handleInstanceSelect = (instance: AiInstance) => {
 }
 .mono-text:focus { box-shadow: none; }
 
-.modal-footer-action {
+.modal-footer-info {
   padding: 16px 40px; background: #fff; border-top: 1px solid #f0f0f0;
-  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: #52c41a; display: flex; align-items: center; gap: 6px;
 }
-.footer-left { font-size: 12px; color: #52c41a; display: flex; align-items: center; gap: 6px; }
-.btn-flat { border: none; color: #999; font-weight: 600; }
-.btn-submit { border-radius: 8px; font-weight: 600; height: 38px; padding: 0 24px; }
+
+.btn-flat { border: none; color: #999; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.btn-submit { border-radius: 8px; font-weight: 600; height: 38px; padding: 0 24px; display: flex; align-items: center; gap: 4px; }
 
 .mt-16 { margin-top: 16px; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

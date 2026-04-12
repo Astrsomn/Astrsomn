@@ -64,19 +64,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { MessageOutlined, PartitionOutlined, PictureOutlined } from '@ant-design/icons-vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance'
 
 const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ select: [instance: AiInstance] }>()
+const props = defineProps<{
+  defaultType?: string
+}>()
 
 const loading = ref(false)
 const instances = ref<AiInstance[]>([])
 const searchQuery = ref('')
-const typeFilter = ref('all')
+const typeFilter = ref(props.defaultType || 'all')
 const selectedKeys = ref<string[]>([])
+
+// 监听open变化，当打开时设置默认类型
+watch(() => open.value, (isOpen) => {
+  if (isOpen && props.defaultType) {
+    typeFilter.value = props.defaultType
+  }
+})
 
 const columns = [
   { title: '实例名称', dataIndex: 'instanceName', key: 'instanceName', width: 200 },

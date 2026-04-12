@@ -1,53 +1,10 @@
 <template>
   <div class="vec-store-page-wrapper">
-    <div class="source-sidebar">
-      <div class="sidebar-header">
-        <h3><DatabaseOutlined /> 向量源</h3>
-        <a-button type="link" size="small" @click="openSourceManage">
-          <template #icon><SettingOutlined /></template>
-          管理
-        </a-button>
-      </div>
-      
-      <div class="sidebar-search">
-        <a-input
-          v-model:value="sourceSearchQuery"
-          placeholder="搜索向量源..."
-          size="small"
-          allow-clear
-        >
-          <template #prefix><SearchOutlined /></template>
-        </a-input>
-      </div>
-
-      <div class="source-list">
-        <div
-          class="source-item"
-          :class="{ active: selectedSourceId === null }"
-          @click="selectSource(null)"
-        >
-          <div class="source-icon all">
-            <AppstoreOutlined />
-          </div>
-          <div class="source-info">
-            <span class="source-name">全部向量存储</span>
-            <span class="source-count">{{ totalStoreCount }} 条存储</span>
-          </div>
-        </div>
-
-        <a-spin :spinning="sourceLoading">
-          <div v-for="source in filteredSources" :key="source.id" class="source-item" :class="{ active: selectedSourceId === source.id }" @click="selectSource(source.id)">
-            <div class="source-icon" :class="getProviderClass(source.provider)">
-              <DatabaseOutlined />
-            </div>
-            <div class="source-info">
-              <span class="source-name">{{ source.name || '未命名' }}</span>
-              <span class="source-provider">{{ getProviderLabel(source.provider) }}</span>
-            </div>
-          </div>
-        </a-spin>
-      </div>
-    </div>
+    <SourceSidebar
+      v-model:selectedSourceId="selectedSourceId"
+      :totalStoreCount="totalStoreCount"
+      @refresh="fetchList"
+    />
 
     <div class="store-content">
       <AdminPageShell
@@ -55,7 +12,14 @@
         :description="currentSourceDescription"
         empty-text="暂无向量存储配置。"
       >
-        <div class="vec-store-page">
+        <div v-if="selectedSourceId === null" class="no-source-selected">
+          <div class="no-source-icon">
+            <DatabaseOutlined />
+          </div>
+          <h3>请选择一个向量源</h3>
+          <p>在左侧边栏选择一个向量源，以管理其对应的向量存储配置</p>
+        </div>
+        <div v-else class="vec-store-page">
           <AdminListToolbar>
             <template #left>
               <AstrsomnSearchPill
@@ -166,20 +130,17 @@ import {
   EditOutlined,
   PlusOutlined,
   ReloadOutlined,
-  DatabaseOutlined,
-  SettingOutlined,
-  SearchOutlined,
-  AppstoreOutlined
+  DatabaseOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import SourceSidebar from '@/components/ai/SourceSidebar.vue'
 import VecStoreFormModal from './VecStoreFormModal.vue'
 import { aiVecStoreApi, type AiVecStore, type PageResponse } from '@/api/aiVecStore'
 import { aiVecSourceApi, type AiVecSource } from '@/api/aiVecSource'
-import { useRouter } from 'vue-router'
 
 type QueryState = {
   collectionName?: string
@@ -187,8 +148,6 @@ type QueryState = {
   instanceKey?: string
   dimension?: number
 }
-
-const router = useRouter()
 
 const columns = [
   { title: '集合名称', key: 'collectionName', width: 240 },
@@ -245,36 +204,18 @@ const page = reactive({
 })
 
 const selectedRowKeys = ref<Array<number | string>>([])
-
-const sourceLoading = ref(false)
-const sources = ref<AiVecSource[]>([])
-const sourceSearchQuery = ref('')
 const selectedSourceId = ref<number | string | null>(null)
 
 const totalStoreCount = computed(() => page.total)
 
-const filteredSources = computed(() => {
-  if (!sourceSearchQuery.value) return sources.value
-  const search = sourceSearchQuery.value.toLowerCase()
-  return sources.value.filter(s => 
-    (s.name || '').toLowerCase().includes(search) ||
-    (s.provider || '').toLowerCase().includes(search)
-  )
-})
-
 const currentSourceTitle = computed(() => {
   if (selectedSourceId.value === null) return '向量存储'
-  const source = sources.value.find(s => s.id === selectedSourceId.value)
-  return source ? `${source.name} - 向量存储` : '向量存储'
+  return '向量存储'
 })
 
 const currentSourceDescription = computed(() => {
   if (selectedSourceId.value === null) {
     return '管理向量集合配置，定义维度、距离度量和元数据模式。'
-  }
-  const source = sources.value.find(s => s.id === selectedSourceId.value)
-  if (source) {
-    return `${getProviderLabel(source.provider)} 向量数据库 - ${source.host || '未配置地址'}`
   }
   return '管理向量集合配置，定义维度、距离度量和元数据模式。'
 })
@@ -358,33 +299,6 @@ const modal = reactive({
 
 const modalInitial = ref<AiVecStore | null>(null)
 
-const fetchSources = async () => {
-  sourceLoading.value = true
-  try {
-    const response = await aiVecSourceApi.queryPage({
-      pageNo: 1,
-      pageSize: 100,
-      param: {
-        status: 'enabled'
-      }
-    })
-    sources.value = response.list || []
-  } finally {
-    sourceLoading.value = false
-  }
-}
-
-const selectSource = (sourceId: number | string | null) => {
-  selectedSourceId.value = sourceId
-  query.sourceId = sourceId || undefined
-  page.pageNum = 1
-  void fetchList()
-}
-
-const openSourceManage = () => {
-  router.push('/admin/ai-modules/vec-source')
-}
-
 const fetchList = async () => {
   const payload = {
     pageNo: page.pageNum,
@@ -462,8 +376,13 @@ const handleFormSubmit = async (form: AiVecStore) => {
   }
 }
 
+watch(selectedSourceId, (newValue) => {
+  query.sourceId = newValue || undefined
+  page.pageNum = 1
+  void fetchList()
+})
+
 onMounted(() => {
-  fetchSources()
   fetchList()
 })
 </script>
@@ -475,132 +394,11 @@ onMounted(() => {
   background: var(--bg-page);
 }
 
-.source-sidebar {
-  width: 280px;
-  background: var(--bg-card);
-  border-right: 1px solid var(--border-default);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-.sidebar-header {
-  padding: 20px 16px 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--border-default);
-}
-
-.sidebar-header h3 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sidebar-search {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-default);
-}
-
-.source-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px;
-}
-
-.source-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 4px;
-}
-
-.source-item:hover {
-  background: var(--bg-surface);
-}
-
-.source-item.active {
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
-}
-
-.source-item.active .source-name {
-  color: var(--primary);
-  font-weight: 600;
-}
-
-.source-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: white;
-  flex-shrink: 0;
-}
-
-.source-icon.all {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-}
-
-.source-icon.provider-milvus {
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-}
-
-.source-icon.provider-chroma {
-  background: linear-gradient(135deg, #10b981, #047857);
-}
-
-.source-icon.provider-qdrant {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-}
-
-.source-icon.provider-pinecone {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-}
-
-.source-icon.provider-dashvector {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.source-icon.provider-weaviate {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-}
-
-.source-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.source-name {
-  font-weight: 500;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.source-provider,
-.source-count {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
 .store-content {
   flex: 1;
   min-width: 0;
+  height: 100vh;
+  overflow: auto;
 }
 
 .vec-store-page {
@@ -705,22 +503,8 @@ onMounted(() => {
     flex-direction: column;
   }
 
-  .source-sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border-default);
-  }
-
-  .source-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 12px;
-  }
-
-  .source-item {
-    flex: 0 0 auto;
-    padding: 8px 12px;
+  .store-content {
+    height: auto;
   }
 }
 
@@ -728,5 +512,44 @@ onMounted(() => {
   .pagination-wrap {
     justify-content: center;
   }
+}
+
+.no-source-selected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: var(--bg-surface);
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.no-source-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.no-source-selected h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.no-source-selected p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 400px;
 }
 </style>
