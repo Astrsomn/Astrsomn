@@ -1,5 +1,6 @@
 package org.astrsomn.server.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -7,9 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
+import org.astrsomn.core.common.constant.AiVecDriverEnum;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceCreateRequestDTO;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceQueryRequestDTO;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceResponseDTO;
+import org.astrsomn.core.common.dto.vecsource.AiVecSourceSetStatusRequestDTO;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
 import org.astrsomn.core.common.util.StringUtils;
@@ -114,6 +117,47 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
         AiVecSourceResponseDTO responseDTO = new AiVecSourceResponseDTO();
         BeanUtils.copyProperties(entity, responseDTO);
         return BaseResponse.success(responseDTO);
+    }
+
+    @Override
+    public BaseResponse<String> setEnabledStatus(AiVecSourceSetStatusRequestDTO request) {
+        if (request == null || request.getId() == null || request.getEnabled() == null) {
+            throw new BusinessException(AstVecSourceErrorEnum.SOURCE_PARAM_ERROR);
+        }
+        AiVecSourceEntity existing = getById(request.getId());
+        if (existing == null) {
+            throw new BusinessException(AstVecSourceErrorEnum.SOURCE_NOT_FOUND);
+        }
+        String newStatus =
+                Boolean.TRUE.equals(request.getEnabled())
+                        ? AiVecDriverEnum.StatusEnum.ENABLED.getCode()
+                        : AiVecDriverEnum.StatusEnum.DISABLED.getCode();
+        LambdaUpdateWrapper<AiVecSourceEntity> uw = new LambdaUpdateWrapper<>();
+        uw.eq(AiVecSourceEntity::getId, request.getId()).set(AiVecSourceEntity::getStatus, newStatus);
+        boolean updated = update(uw);
+        if (!updated) {
+            throw new BusinessException(AstVecSourceErrorEnum.SOURCE_UPDATE_FAILED);
+        }
+        AiVecSourceEntity persisted = getById(request.getId());
+        if (persisted == null) {
+            throw new BusinessException(AstVecSourceErrorEnum.SOURCE_NOT_FOUND);
+        }
+        if (Boolean.TRUE.equals(request.getEnabled())) {
+            try {
+                astroVecSourceFactory.registerOrRefresh(persisted);
+            } catch (Exception e) {
+                LambdaUpdateWrapper<AiVecSourceEntity> revert = new LambdaUpdateWrapper<>();
+                revert.eq(AiVecSourceEntity::getId, request.getId())
+                        .set(AiVecSourceEntity::getStatus, AiVecDriverEnum.StatusEnum.DISABLED.getCode());
+                update(revert);
+                astroVecSourceFactory.removeActiveSource(request.getId());
+                log.warn("向量源启用失败，已回滚为禁用 id={}: {}", request.getId(), e.getMessage());
+                throw new BusinessException(AstVecSourceErrorEnum.SOURCE_UPDATE_FAILED, e.getMessage());
+            }
+            return BaseResponse.success("已启用并加载连接");
+        }
+        astroVecSourceFactory.removeActiveSource(request.getId());
+        return BaseResponse.success("已禁用并释放连接");
     }
 
     @Override
