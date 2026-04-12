@@ -44,9 +44,9 @@
 
             <a-form-item label="同步状态" name="syncStatus">
               <a-select v-model:value="form.syncStatus" placeholder="选择同步状态" size="large" allow-clear>
-                <a-select-option value="PENDING">待向量化</a-select-option>
-                <a-select-option value="STORED">已入库</a-select-option>
-                <a-select-option value="INVALID">已失效</a-select-option>
+                <a-select-option :value="AiVecDocSyncStatus.PENDING">待向量化</a-select-option>
+                <a-select-option :value="AiVecDocSyncStatus.STORED">已入库</a-select-option>
+                <a-select-option :value="AiVecDocSyncStatus.INVALID">已失效</a-select-option>
               </a-select>
             </a-form-item>
 
@@ -87,7 +87,7 @@ import {
   FileTextOutlined, IdcardOutlined, SafetyCertificateOutlined 
 } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
-import type { AiVecDoc } from '@/api/aiVecDoc'
+import { AiVecDocSyncStatus, type AiVecDoc } from '@/api/aiVecDoc'
 
 const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiVecDoc | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecDoc] }>()
@@ -100,7 +100,7 @@ function emptyForm(): AiVecDoc {
     collectionId: undefined,
     docIdInStore: '',
     contentSummary: '',
-    syncStatus: 'PENDING'
+    syncStatus: AiVecDocSyncStatus.PENDING
   }
 }
 
@@ -108,7 +108,17 @@ const form = reactive<AiVecDoc>(emptyForm())
 
 const rules = {
   collectionId: [{ required: true, message: '请输入集合 ID' }],
-  docIdInStore: [{ required: true, message: '请输入存储文档 ID' }],
+  docIdInStore: [
+    {
+      validator: async (_rule: unknown, value: string) => {
+        const st = String(form.syncStatus || '').toUpperCase()
+        if (st === AiVecDocSyncStatus.STORED && !String(value || '').trim()) {
+          return Promise.reject(new Error('已入库状态需填写存储文档 ID'))
+        }
+        return Promise.resolve()
+      }
+    }
+  ],
   contentSummary: [{ required: true, message: '请输入内容摘要' }],
   syncStatus: [{ required: true, message: '请选择同步状态' }]
 }
@@ -116,7 +126,7 @@ const rules = {
 function assignFromInitial(src: AiVecDoc) {
   Object.assign(form, emptyForm(), src)
   if (!form.syncStatus) {
-    form.syncStatus = 'PENDING'
+    form.syncStatus = AiVecDocSyncStatus.PENDING
   }
 }
 
