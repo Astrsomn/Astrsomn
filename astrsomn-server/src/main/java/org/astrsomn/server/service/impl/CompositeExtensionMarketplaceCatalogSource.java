@@ -25,10 +25,10 @@ public class CompositeExtensionMarketplaceCatalogSource implements ExtensionMark
     private final RestTemplate restTemplate;
 
     @Override
-    public PageResponse<ExtensionMarketplaceItemDTO> listCatalog(int pageNum, int pageSize, Optional<String> typeFilter) {
+    public PageResponse<ExtensionMarketplaceItemDTO> listCatalog(int pageNo, int pageSize, Optional<String> typeFilter) {
         // 构建请求参数
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("pageNum", pageNum);
+        requestBody.put("pageNo", pageNo);
         requestBody.put("pageSize", pageSize);
         
         Map<String, Object> data = new HashMap<>();

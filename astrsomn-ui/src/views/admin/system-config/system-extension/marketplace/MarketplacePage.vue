@@ -21,7 +21,7 @@
       </a-tabs>
       <div class="pagination-container">
         <a-pagination
-          :current="pageNum"
+          :current="pageNo"
           :page-size="pageSize"
           :total="total"
           :show-total="(total) => `共 ${total} 个`"
@@ -59,7 +59,7 @@ import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension'
 const typeTabKey = ref('ALL')
 const extensionNameInput = ref('')
 const list = ref<ExtensionRow[]>([])
-const pageNum = ref(1)
+const pageNo = ref(1)
 const pageSize = ref(8)
 const total = ref(0)
 
@@ -68,24 +68,24 @@ function rowKey(record: ExtensionRow) {
 }
 
 const onTypeTabChange = () => {
-  pageNum.value = 1
+  pageNo.value = 1
   void fetchList()
 }
 
 const handlePageChange = (page: number) => {
-  pageNum.value = page
+  pageNo.value = page
   void fetchList()
 }
 
 const handleSizeChange = (current: number, size: number) => {
   pageSize.value = size
-  pageNum.value = 1
+  pageNo.value = 1
   void fetchList()
 }
 
 const fetchList = async () => {
   const typeQ = typeTabKey.value === 'ALL' ? undefined : typeTabKey.value
-  const response = await systemExtensionApi.marketplaceCatalog(typeQ, pageNum.value, pageSize.value)
+  const response = await systemExtensionApi.marketplaceCatalog(typeQ, pageNo.value, pageSize.value)
   let rows = response.list
   const n = extensionNameInput.value?.trim().toLowerCase()
   if (n) {

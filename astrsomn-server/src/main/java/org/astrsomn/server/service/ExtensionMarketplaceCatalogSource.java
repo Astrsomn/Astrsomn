@@ -13,5 +13,5 @@ public interface ExtensionMarketplaceCatalogSource {
     /**
      * @param typeFilter 可选，与 {@link org.astrsomn.core.common.constant.SystemExtensionEnum.ExtensionTypeEnum} 的 code 一致
      */
-    PageResponse<ExtensionMarketplaceItemDTO> listCatalog(int pageNum, int pageSize, Optional<String> typeFilter);
+    PageResponse<ExtensionMarketplaceItemDTO> listCatalog(int pageNo, int pageSize, Optional<String> typeFilter);
 }

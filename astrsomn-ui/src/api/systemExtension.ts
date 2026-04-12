@@ -153,9 +153,9 @@ export const systemExtensionApi = {
     })
   },
 
-  marketplaceCatalog: (type?: string, pageNum: number = 1, pageSize: number = 10): Promise<PageResponse<ExtensionMarketplaceItem>> => {
+  marketplaceCatalog: (type?: string, pageNo: number = 1, pageSize: number = 10): Promise<PageResponse<ExtensionMarketplaceItem>> => {
     let q = type && type !== 'ALL' ? `?type=${encodeURIComponent(type)}` : ''
-    q += (q ? '&' : '?') + `pageNum=${pageNum}&pageSize=${pageSize}`
+    q += (q ? '&' : '?') + `pageNo=${pageNo}&pageSize=${pageSize}`
     return request({
       url: `/v1/astro/system-extension/marketplace/catalog${q}`,
       method: 'get'

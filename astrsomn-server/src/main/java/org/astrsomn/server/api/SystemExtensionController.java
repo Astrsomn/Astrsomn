@@ -104,11 +104,11 @@ public class SystemExtensionController extends BaseController {
     @GetMapping("/marketplace/catalog")
     public BaseResponse<PageResponse<ExtensionMarketplaceItemDTO>> marketplaceCatalog(
             @RequestParam(value = "type", required = false) String type,
-            @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+            @RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         String t = StringUtils.trimToNull(type);
         PageResponse<ExtensionMarketplaceItemDTO> pageResponse =
-                extensionMarketplaceCatalogSource.listCatalog(pageNum, pageSize, Optional.ofNullable(t));
+                extensionMarketplaceCatalogSource.listCatalog(pageNo, pageSize, Optional.ofNullable(t));
         return BaseResponse.success(pageResponse);
     }
 
