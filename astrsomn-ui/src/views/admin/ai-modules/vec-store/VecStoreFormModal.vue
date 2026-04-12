@@ -34,6 +34,32 @@
           <h3 class="section-headline"><IdcardOutlined /> 基本配置</h3>
 
           <div class="form-grid">
+            <a-form-item label="向量源" name="sourceId">
+              <div class="source-selector">
+                <a-input 
+                  v-model:value="form.sourceId" 
+                  placeholder="选择向量源" 
+                  size="large" 
+                  readonly
+                />
+                <a-button 
+                  type="primary" 
+                  size="large" 
+                  class="select-button"
+                  @click="openSourceSelectDialog"
+                >
+                  选择
+                </a-button>
+              </div>
+              <div v-if="selectedSourceName" class="source-info">
+                <div class="source-badge" :class="getProviderClass(selectedSourceProvider)">
+                  <DatabaseOutlined />
+                </div>
+                <span>{{ selectedSourceName }}</span>
+                <span v-if="selectedSourceProvider" class="provider-label">({{ getProviderLabel(selectedSourceProvider) }})</span>
+              </div>
+            </a-form-item>
+
             <a-form-item label="集合名称" name="collectionName">
               <a-input v-model:value="form.collectionName" placeholder="例如：document_embeddings" size="large" />
             </a-form-item>
@@ -104,6 +130,11 @@
       </div>
     </div>
 
+    <SourceSelectDialog
+      v-model:open="sourceSelectDialogVisible"
+      @select="handleSourceSelect"
+    />
+
     <InstanceSelectDialog
       v-model:open="instanceSelectDialogVisible"
       @select="handleInstanceSelect"
@@ -119,18 +150,28 @@ import {
 import type { FormInstance } from 'ant-design-vue'
 import type { AiVecStore } from '@/api/aiVecStore.ts'
 import InstanceSelectDialog from '@/components/ai/InstanceSelectDialog.vue'
+import SourceSelectDialog from '@/components/ai/SourceSelectDialog.vue'
 import type { AiInstance } from '@/api/aiInstance'
+import type { AiVecSource } from '@/api/aiVecSource'
 
-const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiVecStore | null }>()
+const props = defineProps<{ 
+  mode: 'create' | 'edit', 
+  confirmLoading: boolean, 
+  initial: AiVecStore | null,
+  defaultSourceId?: number | string | null
+}>()
 const emit = defineEmits<{ submit: [payload: AiVecStore] }>()
 const open = defineModel<boolean>('open', { required: true })
 
 const formRef = ref<FormInstance | null>(null)
+const sourceSelectDialogVisible = ref(false)
 const instanceSelectDialogVisible = ref(false)
 const selectedInstance = ref<AiInstance | null>(null)
+const selectedSource = ref<AiVecSource | null>(null)
 
 function emptyForm(): AiVecStore {
   return {
+    sourceId: props.defaultSourceId || undefined,
     collectionName: '',
     dimension: 1536,
     distanceMetric: 'cosine',
@@ -142,26 +183,72 @@ function emptyForm(): AiVecStore {
 const form = reactive<AiVecStore>(emptyForm())
 
 const rules = {
+  sourceId: [{ required: true, message: '请选择向量源' }],
   collectionName: [{ required: true, message: '请输入集合名称' }],
   dimension: [{ required: true, message: '请输入向量维度' }],
-  distanceMetric: [{ required: true, message: '请选择距离度量' }],
-  instanceKey: [{ required: true, message: '请选择 AI 实例' }]
+  distanceMetric: [{ required: true, message: '请选择距离度量' }]
 }
+
+const selectedSourceName = computed(() => {
+  return selectedSource.value?.name || ''
+})
+
+const selectedSourceProvider = computed(() => {
+  return selectedSource.value?.provider || ''
+})
 
 const selectedInstanceName = computed(() => {
   return selectedInstance.value?.instanceName || ''
 })
 
-function assignFromInitial(src: AiVecStore) {
-  Object.assign(form, emptyForm(), src)
-  // 这里可以根据需要获取实例详情来显示实例名称
+const providerLabelMap: Record<string, string> = {
+  MILVUS: 'Milvus',
+  PINECONE: 'Pinecone',
+  DASHVECTOR: 'DashVector',
+  CHROMA: 'Chroma',
+  QDRANT: 'Qdrant',
+  WEAVIATE: 'Weaviate',
+  OTHER: '其他'
 }
 
-watch(() => [open.value, props.initial] as const, ([isOpen, initial]) => {
+const getProviderLabel = (provider?: string) => {
+  const key = String(provider || '').toUpperCase()
+  return providerLabelMap[key] || provider || '未知'
+}
+
+const getProviderClass = (provider?: string) => {
+  const key = String(provider || '').toLowerCase()
+  return `provider-${key}`
+}
+
+function assignFromInitial(src: AiVecStore) {
+  Object.assign(form, emptyForm(), src)
+  if (src.sourceId) {
+    selectedSource.value = {
+      id: src.sourceId,
+      name: src.sourceName,
+      provider: src.sourceProvider
+    } as AiVecSource
+  }
+  if (src.instanceKey) {
+    selectedInstance.value = {
+      instanceKey: src.instanceKey,
+      instanceName: src.instanceName
+    } as AiInstance
+  }
+}
+
+watch(() => [open.value, props.initial, props.defaultSourceId] as const, ([isOpen, initial, defaultSourceId]) => {
   if (isOpen) {
     if (initial && Object.keys(initial).length > 0) assignFromInitial(initial)
-    else Object.assign(form, emptyForm())
+    else {
+      Object.assign(form, emptyForm())
+      if (defaultSourceId) {
+        form.sourceId = defaultSourceId
+      }
+    }
     selectedInstance.value = null
+    selectedSource.value = null
   }
 })
 
@@ -173,17 +260,26 @@ async function handleOk() {
 
 const onCancel = () => { 
   open.value = false 
+  sourceSelectDialogVisible.value = false
   instanceSelectDialogVisible.value = false
+}
+
+const openSourceSelectDialog = () => {
+  sourceSelectDialogVisible.value = true
 }
 
 const openInstanceSelectDialog = () => {
   instanceSelectDialogVisible.value = true
 }
 
+const handleSourceSelect = (source: AiVecSource) => {
+  selectedSource.value = source
+  form.sourceId = source.id
+}
+
 const handleInstanceSelect = (instance: AiInstance) => {
   selectedInstance.value = instance
   form.instanceKey = instance.instanceKey
-  // 如果是嵌入模型，可以自动填充维度
   if (instance.modelType === 'embedding' && instance.dimensions) {
     form.dimension = instance.dimensions
   }
@@ -191,7 +287,6 @@ const handleInstanceSelect = (instance: AiInstance) => {
 </script>
 
 <style scoped>
-/* 弹窗基础：统一风格 */
 .vec-store-modal :deep(.ant-modal-content) { padding: 0; border-radius: 20px; overflow: hidden; }
 
 .modal-header-gradient { background: #fff; padding: 32px 40px; border-bottom: 1px solid #f0f2f5; }
@@ -205,30 +300,79 @@ const handleInstanceSelect = (instance: AiInstance) => {
 .text-group h2 { margin: 0; font-size: 20px; font-weight: 700; color: #111; }
 .text-group p { margin: 4px 0 0; color: #999; font-size: 13px; }
 
-/* 容器高度控制 */
 .professional-form { height: 500px; display: flex; flex-direction: column; }
 .form-body-container { flex: 1; overflow-y: auto; padding: 24px 40px; }
 .form-body-container::-webkit-scrollbar { width: 4px; }
 .form-body-container::-webkit-scrollbar-thumb { background: #eee; border-radius: 4px; }
 
-/* 内部组件样式 */
 .section-headline { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #333; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
 .span-2 { grid-column: span 2; }
 
-/* 实例选择器 */
+.source-selector,
 .instance-selector {
   display: flex;
   gap: 10px;
   align-items: center;
 }
 
+.source-selector :deep(.ant-input),
 .instance-selector :deep(.ant-input) {
   flex: 1;
 }
 
 .select-button {
   flex-shrink: 0;
+}
+
+.source-info {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #1677ff;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.source-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+}
+
+.source-badge.provider-milvus {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+}
+
+.source-badge.provider-chroma {
+  background: linear-gradient(135deg, #10b981, #047857);
+}
+
+.source-badge.provider-qdrant {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.source-badge.provider-pinecone {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.source-badge.provider-dashvector {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.source-badge.provider-weaviate {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+.provider-label {
+  color: #6b7280;
+  font-weight: 400;
 }
 
 .instance-info {
@@ -238,7 +382,6 @@ const handleInstanceSelect = (instance: AiInstance) => {
   font-weight: 600;
 }
 
-/* JSON 编辑器 */
 .json-editor-wrapper {
   border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;
   background: #fafafa; transition: 0.3s;
@@ -250,7 +393,6 @@ const handleInstanceSelect = (instance: AiInstance) => {
 }
 .mono-text:focus { box-shadow: none; }
 
-/* 底部操作 */
 .modal-footer-action {
   padding: 16px 40px; background: #fff; border-top: 1px solid #f0f0f0;
   display: flex; justify-content: space-between; align-items: center;

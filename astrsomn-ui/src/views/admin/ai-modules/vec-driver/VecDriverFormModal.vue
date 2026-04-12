@@ -53,19 +53,39 @@
               </a-select>
             </a-form-item>
 
-            <a-form-item label="驱动类型" name="driverType">
-              <a-input v-model:value="form.driverType" placeholder="驱动类型" size="large" :disabled="mode === 'view'" />
-            </a-form-item>
+      
 
-            <a-form-item label="参数配置 (JSON)" name="params" class="span-2">
-              <div class="json-editor-wrapper">
-                <a-textarea
-                  v-model:value="form.params"
-                  :auto-size="{ minRows: 4, maxRows: 6 }"
-                  placeholder='{"host": "localhost", "port": 6333}'
-                  class="mono-text"
-                  :disabled="mode === 'view'"
-                />
+            <a-form-item label="参数配置" name="params" class="span-2">
+              <div class="params-container">
+                <template v-if="isParamsArray">
+                  <div class="params-tags-wrapper">
+                    <div class="params-header">
+                      <TagOutlined class="params-icon" />
+                      <span class="params-title">驱动支持的参数字段</span>
+                    </div>
+                    <div class="params-tags">
+                      <a-tag 
+                        v-for="param in parsedParams" 
+                        :key="param" 
+                        class="param-tag"
+                        color="blue"
+                      >
+                        {{ param }}
+                      </a-tag>
+                    </div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="json-editor-wrapper">
+                    <a-textarea
+                      v-model:value="form.params"
+                      :auto-size="{ minRows: 4, maxRows: 6 }"
+                      placeholder='["host", "port", "username", "password", "databaseName"]'
+                      class="mono-text"
+                      :disabled="mode === 'view'"
+                    />
+                  </div>
+                </template>
               </div>
             </a-form-item>
           </div>
@@ -98,9 +118,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { 
-  SettingOutlined, IdcardOutlined, SafetyCertificateOutlined 
+  SettingOutlined, IdcardOutlined, SafetyCertificateOutlined, TagOutlined 
 } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiVecDriver } from '@/api/aiVecDriver.ts'
@@ -124,9 +144,25 @@ const form = reactive<AiVecDriver>(emptyForm())
 
 const rules = {
   driverName: [{ required: true, message: '请输入驱动名称' }],
-  provider: [{ required: true, message: '请选择提供商' }],
-  driverType: [{ required: true, message: '请输入驱动类型' }]
+  provider: [{ required: true, message: '请选择提供商' }]
 }
+
+const parsedParams = computed<string[]>(() => {
+  const text = String(form.params || '').trim()
+  if (!text) return []
+  
+  try {
+    const parsed = JSON.parse(text)
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === 'string')
+    }
+  } catch (e) {
+    // 解析失败，返回空数组
+  }
+  return []
+})
+
+const isParamsArray = computed(() => parsedParams.value.length > 0)
 
 function assignFromInitial(src: AiVecDriver) {
   Object.assign(form, emptyForm(), src)
@@ -196,5 +232,32 @@ const onCancel = () => { open.value = false }
 .btn-submit { border-radius: 8px; font-weight: 600; height: 38px; padding: 0 24px; }
 
 .mt-16 { margin-top: 16px; }
+
+.params-container { width: 100%; }
+.params-tags-wrapper {
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #fafafa;
+  padding: 16px;
+  transition: 0.3s;
+}
+.params-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8e8e8;
+}
+.params-icon { color: #1677ff; font-size: 16px; }
+.params-title { font-size: 14px; font-weight: 600; color: #333; }
+.params-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.param-tag {
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>

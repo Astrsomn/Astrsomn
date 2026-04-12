@@ -7,7 +7,12 @@ export interface AiVecStore {
   dimension: number
   distanceMetric: string
   metadataSchema?: string
-  modelKey?: string
+  instanceKey?: string
+  sourceName?: string
+  sourceProvider?: string
+  instanceName?: string
+  createTime?: string
+  updateTime?: string
 }
 
 export interface PageResponse<T> {
@@ -19,7 +24,8 @@ export interface PageResponse<T> {
 
 export interface AiVecStoreQueryRequest {
   collectionName?: string
-  modelKey?: string
+  sourceId?: number | string
+  instanceKey?: string
   dimension?: number
 }
 
