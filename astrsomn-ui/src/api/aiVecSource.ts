@@ -74,5 +74,14 @@ export const aiVecSourceApi = {
       method: 'post',
       data
     })
+  },
+
+  /** 启用或禁用：更新状态并同步运行时连接 */
+  setStatus: (id: number | string, enabled: boolean): Promise<string> => {
+    return request({
+      url: '/v1/astro/ai-vec-source/set-status',
+      method: 'post',
+      data: { id, enabled }
+    })
   }
 }

@@ -20,11 +20,25 @@
             @change="fetchList"
             :options="[
               { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
-              { label: '待向量化', value: 'PENDING', color: '#f59e0b', icon: ClockCircleOutlined },
-              { label: '已入库', value: 'STORED', color: '#10b981', icon: CheckCircleOutlined },
-              { label: '已失效', value: 'INVALID', color: '#f43f5e', icon: CloseCircleOutlined }
+              { label: '待向量化', value: AiVecDocSyncStatus.PENDING, color: '#f59e0b', icon: ClockCircleOutlined },
+              { label: '已入库', value: AiVecDocSyncStatus.STORED, color: '#10b981', icon: CheckCircleOutlined },
+              { label: '已失效', value: AiVecDocSyncStatus.INVALID, color: '#f43f5e', icon: CloseCircleOutlined }
             ]"
           />
+
+          <a-select
+            v-model:value="uploadCollectionId"
+            placeholder="上传前选择向量集合"
+            style="width: 260px"
+            :options="storeOptions"
+            allow-clear
+          />
+          <a-upload :show-upload-list="false" accept=".txt" :custom-request="handleUpload">
+            <a-button type="primary" ghost :disabled="!uploadCollectionId" :loading="uploadSubmitting">
+              <template #icon><UploadOutlined /></template>
+              上传 txt
+            </a-button>
+          </a-upload>
         </template>
 
         <template #right>
@@ -78,6 +92,19 @@
             </span>
           </template>
           <template v-else-if="column.key === 'actions'">
+            <a-button
+              v-if="String(record.syncStatus || '').toUpperCase() === AiVecDocSyncStatus.PENDING"
+              type="link"
+              class="action-link"
+              :loading="vectorizeLoadingId === record.id"
+              @click="handleVectorize(record)"
+            >
+              向量化
+            </a-button>
+            <a-divider
+              v-if="String(record.syncStatus || '').toUpperCase() === AiVecDocSyncStatus.PENDING"
+              type="vertical"
+            />
             <a-button type="link" class="action-link" @click="openEdit(record)">
               <template #icon><edit-outlined /></template>
               编辑
@@ -120,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
@@ -130,7 +157,8 @@ import {
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  UploadOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
@@ -139,7 +167,14 @@ import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import VecDocFormModal from './VecDocFormModal.vue'
-import { aiVecDocApi, type AiVecDoc, type PageResponse } from '@/api/aiVecDoc'
+import { aiVecStoreApi } from '@/api/aiVecStore'
+import {
+  aiVecDocApi,
+  AiVecDocSyncStatus,
+  type AiVecDoc,
+  type PageResponse
+} from '@/api/aiVecDoc'
+import type { UploadProps } from 'ant-design-vue'
 
 type QueryState = {
   docIdInStore?: string
@@ -152,13 +187,13 @@ const columns = [
   { title: '存储文档 ID', key: 'docId', width: 220, ellipsis: true },
   { title: '集合 ID', dataIndex: 'collectionId', key: 'collectionId', width: 140 },
   { title: '同步状态', key: 'status', width: 120 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  { title: '操作', key: 'actions', width: 240, fixed: 'right' as const }
 ]
 
 const statusLabelMap: Record<string, string> = {
-  PENDING: '待向量化',
-  STORED: '已入库',
-  INVALID: '已失效'
+  [AiVecDocSyncStatus.PENDING]: '待向量化',
+  [AiVecDocSyncStatus.STORED]: '已入库',
+  [AiVecDocSyncStatus.INVALID]: '已失效'
 }
 
 const normalizeText = (value?: string | number, fallback = '—') => {
@@ -185,6 +220,62 @@ const copyDocId = async (value?: string) => {
 
 const query = reactive<QueryState>({})
 const list = ref<AiVecDoc[]>([])
+
+const uploadCollectionId = ref<number | string | undefined>()
+const storeOptions = ref<{ label: string; value: number | string }[]>([])
+const uploadSubmitting = ref(false)
+const vectorizeLoadingId = ref<number | string | null>(null)
+
+const loadStores = async () => {
+  try {
+    const resp = await aiVecStoreApi.queryPage({ pageNo: 1, pageSize: 500, param: {} })
+    storeOptions.value = (resp.list || [])
+      .filter((s) => s.id != null)
+      .map((s) => ({
+        label: `${s.collectionName} (id=${s.id})`,
+        value: s.id as number | string
+      }))
+  } catch {
+    storeOptions.value = []
+  }
+}
+
+const handleUpload: UploadProps['customRequest'] = async (options) => {
+  const raw = options.file as File
+  if (uploadCollectionId.value == null || uploadCollectionId.value === '') {
+    message.warning('请先选择向量集合')
+    options.onError?.(new Error('no collection'))
+    return
+  }
+  uploadSubmitting.value = true
+  try {
+    await aiVecDocApi.upload(raw, uploadCollectionId.value)
+    message.success('上传成功')
+    options.onSuccess?.({})
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '上传失败')
+    options.onError?.(e as Error)
+  } finally {
+    uploadSubmitting.value = false
+  }
+}
+
+const handleVectorize = async (record: AiVecDoc) => {
+  if (record.id == null) return
+  vectorizeLoadingId.value = record.id
+  try {
+    const msg = await aiVecDocApi.vectorize(record.id)
+    message.success(typeof msg === 'string' ? msg : '向量化完成')
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '向量化失败')
+  } finally {
+    vectorizeLoadingId.value = null
+  }
+}
 
 const page = reactive({
   pageNum: 1,
@@ -350,6 +441,10 @@ const handleFormSubmit = async (form: AiVecDoc) => {
     modal.submitting = false
   }
 }
+
+onMounted(() => {
+  void loadStores()
+})
 
 void fetchList()
 </script>

@@ -39,8 +39,6 @@ public class AstroVecSourceFactory {
     /** 与 {@link #activeSources} 对应的连接配置指纹，用于判断是否需要重建句柄 */
     private final ConcurrentHashMap<Long, String> activeSourceFingerprints = new ConcurrentHashMap<>();
 
-    private static final String STATUS_ENABLED = "ENABLED";
-
     public AstroVecSourceFactory() {
         this.classpathDrivers = loadClasspathDrivers();
     }
@@ -165,7 +163,7 @@ public class AstroVecSourceFactory {
             return;
         }
         Long id = entity.getId();
-        if (!STATUS_ENABLED.equals(StringUtils.defaultIfBlank(StringUtils.trimToNull(entity.getStatus()), ""))) {
+        if (!isEnabledStatus(entity.getStatus())) {
             removeActiveSource(id);
             return;
         }
@@ -223,6 +221,15 @@ public class AstroVecSourceFactory {
 
     private static String nz(String s) {
         return StringUtils.defaultIfBlank(StringUtils.trimToNull(s), "");
+    }
+
+    /** 与 {@code ENABLED}/{@code enabled} 一致；{@code disabled} 等为 false。 */
+    private static boolean isEnabledStatus(String raw) {
+        String s = StringUtils.trimToNull(raw);
+        if (s == null) {
+            return false;
+        }
+        return "enabled".equalsIgnoreCase(s);
     }
 
     /**

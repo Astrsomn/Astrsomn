@@ -102,12 +102,14 @@ public class SystemExtensionController extends BaseController {
     }
 
     @GetMapping("/marketplace/catalog")
-    public BaseResponse<List<ExtensionMarketplaceItemDTO>> marketplaceCatalog(
-            @RequestParam(value = "type", required = false) String type) {
+    public BaseResponse<PageResponse<ExtensionMarketplaceItemDTO>> marketplaceCatalog(
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         String t = StringUtils.trimToNull(type);
-        List<ExtensionMarketplaceItemDTO> list =
-                extensionMarketplaceCatalogSource.listCatalog(Optional.ofNullable(t));
-        return BaseResponse.success(list);
+        PageResponse<ExtensionMarketplaceItemDTO> pageResponse =
+                extensionMarketplaceCatalogSource.listCatalog(pageNo, pageSize, Optional.ofNullable(t));
+        return BaseResponse.success(pageResponse);
     }
 
     @GetMapping("/load-models/preview")

@@ -11,5 +11,14 @@ public final class ChromaVecConstants {
     /** LangChain4j Chroma 默认 payload 文本字段名。 */
     public static final String DEFAULT_PAYLOAD_TEXT_KEY = "text_segment";
 
+    /** {@code CONFIG_JSON} 字符串：Chroma REST API 版本，取值 {@code V1} / {@code V2}；缺省为 V2（适配 Chroma 0.7+）。 */
+    public static final String CONFIG_API_VERSION = "apiVersion";
+
+    /** {@code CONFIG_JSON} 字符串：Chroma API V2 租户名；缺省由 LangChain4j 使用 {@code default}。 */
+    public static final String CONFIG_TENANT_NAME = "tenantName";
+
+    /** {@code CONFIG_JSON} 布尔：是否对 HTTP 使用 TLS（{@code https://}）。 */
+    public static final String CONFIG_USE_TLS = "useTls";
+
     private ChromaVecConstants() {}
 }

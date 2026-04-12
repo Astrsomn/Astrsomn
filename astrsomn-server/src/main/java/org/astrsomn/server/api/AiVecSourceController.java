@@ -8,6 +8,7 @@ import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceCreateRequestDTO;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceQueryRequestDTO;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceResponseDTO;
+import org.astrsomn.core.common.dto.vecsource.AiVecSourceSetStatusRequestDTO;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceUpdateRequestDTO;
 import org.astrsomn.server.service.AiVecSourceService;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,12 @@ public class AiVecSourceController extends BaseController {
     @PostMapping("/test-connection")
     public BaseResponse<String> testConnection(@RequestBody AiVecSourceCreateRequestDTO request) {
         return aiVecSourceService.testConnection(request);
+    }
+
+    /** 启用 / 禁用：更新 STATUS，并注册或移除运行时向量源连接缓存。 */
+    @PostMapping("/set-status")
+    public BaseResponse<String> setStatus(@RequestBody AiVecSourceSetStatusRequestDTO request) {
+        return aiVecSourceService.setEnabledStatus(request);
     }
 
     @PostMapping("/update")

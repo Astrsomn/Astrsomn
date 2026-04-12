@@ -75,11 +75,36 @@
             </span>
           </template>
           <template v-else-if="column.key === 'status'">
-            <span class="status-pill" :class="{ off: record.status !== 'enabled' }">
-              {{ record.status === 'enabled' ? '启用' : '禁用' }}
+            <span class="status-pill" :class="{ off: !isRecordEnabled(record) }">
+              {{ isRecordEnabled(record) ? '启用' : '禁用' }}
             </span>
           </template>
           <template v-else-if="column.key === 'actions'">
+            <a-popconfirm
+              v-if="isRecordEnabled(record)"
+              title="确定禁用该向量源？将释放运行时连接。"
+              ok-text="确认"
+              cancel-text="取消"
+              @confirm="() => handleSetStatus(record, false)"
+            >
+              <a-button type="link" class="action-link">
+                <template #icon><StopOutlined /></template>
+                禁用
+              </a-button>
+            </a-popconfirm>
+            <a-popconfirm
+              v-else
+              title="确定启用该向量源？将加载运行时连接。"
+              ok-text="确认"
+              cancel-text="取消"
+              @confirm="() => handleSetStatus(record, true)"
+            >
+              <a-button type="link" class="action-link">
+                <template #icon><CheckCircleOutlined /></template>
+                启用
+              </a-button>
+            </a-popconfirm>
+            <a-divider type="vertical" />
             <a-button type="link" class="action-link" @click="openEdit(record)">
               <template #icon><edit-outlined /></template>
               编辑
@@ -158,7 +183,7 @@ const columns = [
   { title: '提供商', dataIndex: 'provider', key: 'provider', width: 140 },
   { title: '连接信息', key: 'connection', width: 380 },
   { title: '状态', key: 'status', width: 100 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  { title: '操作', key: 'actions', width: 300, fixed: 'right' as const }
 ]
 
 const providerLabelMap: Record<string, string> = {
@@ -205,6 +230,10 @@ const getConnectionInfo = (record: AiVecSource) => {
     return `${record.host}${port}`
   }
   return '未配置连接地址'
+}
+
+const isRecordEnabled = (record: AiVecSource) => {
+  return String(record.status || '').toLowerCase() === 'enabled'
 }
 
 const query = reactive<QueryState>({})
@@ -382,6 +411,19 @@ const testConnection = async (record: AiVecSource) => {
   } catch (e: unknown) {
     const err = e as { message?: string }
     message.error(err?.message || '测试连接失败')
+  }
+}
+
+const handleSetStatus = async (record: AiVecSource, enabled: boolean) => {
+  const id = record.id
+  if (id == null) return
+  try {
+    const msg = await aiVecSourceApi.setStatus(id, enabled)
+    message.success(msg)
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '操作失败')
   }
 }
 

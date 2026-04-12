@@ -46,34 +46,38 @@
         <a-spin v-else :spinning="loadingPreview">
           <template v-if="unloadPreview">
             <p v-if="emptyHint" class="ems-hint">{{ emptyHint }}</p>
-            <p class="ems-summary">已选择 {{ selectedCount }} 个模型将从本环境删除。</p>
+            <p class="ems-summary ems-summary-danger">
+              已选择 {{ selectedCount }} 个模型将从本环境删除。
+            </p>
+
             <div class="ems-preview-section">
-              <div class="ems-preview-section-title">
-                将卸载（删除）
-                <span v-if="(unloadPreview.toRemove?.length ?? 0) > 0" class="ems-select-all">
-                  <a-checkbox :checked="selectAllToRemove" @update:checked="onSelectAllToRemove">
-                    全选
-                  </a-checkbox>
-                </span>
-              </div>
-              <div v-if="(unloadPreview.toRemove?.length ?? 0) > 0" class="ems-preview-list">
-                <div v-for="(r, i) in unloadPreview.toRemove" :key="'r' + i" class="ems-preview-line">
-                  <a-checkbox
-                    :checked="selectedRemoveModels[r.modelKey]"
-                    @update:checked="(v) => setRemoveRowChecked(r.modelKey, v)"
-                  />
-                  <span class="ems-model-info">{{ formatExtensionModelPreviewRow(r) }}</span>
-                </div>
-              </div>
+              <div class="ems-preview-section-title">将卸载（删除）</div>
+              <a-table
+                v-if="(unloadPreview.toRemove?.length ?? 0) > 0"
+                :data-source="unloadPreview.toRemove"
+                :columns="commonColumns"
+                :row-selection="rowSelection"
+                :row-key="'modelKey'"
+                size="small"
+                class="ems-preview-table"
+                :pagination="false"
+                :scroll="{ y: 280 }"
+              />
               <div v-else class="ems-preview-empty">无</div>
             </div>
+
             <div class="ems-preview-section">
               <div class="ems-preview-section-title">因实例引用将保留</div>
-              <div v-if="(unloadPreview.keptReferenced?.length ?? 0) > 0" class="ems-preview-list">
-                <div v-for="(r, i) in unloadPreview.keptReferenced" :key="'k' + i" class="ems-preview-line">
-                  <span class="ems-model-info">{{ formatExtensionModelPreviewRow(r) }}</span>
-                </div>
-              </div>
+              <a-table
+                v-if="(unloadPreview.keptReferenced?.length ?? 0) > 0"
+                :data-source="unloadPreview.keptReferenced"
+                :columns="commonColumns"
+                :row-key="'modelKey'"
+                size="small"
+                class="ems-preview-table ems-table-disabled"
+                :pagination="false"
+                :scroll="{ y: 200 }"
+              />
               <div v-else class="ems-preview-empty">无</div>
             </div>
           </template>
@@ -84,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, h } from 'vue'
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import type { ExtensionModelUnloadPreview } from '@/api/systemExtension'
 import { formatExtensionModelPreviewRow } from './extensionModelSyncPreview'
@@ -104,48 +108,33 @@ const emit = defineEmits<{
 }>()
 
 const modalWidth = 'min(92vw, 820px)'
-
 const confirming = ref(false)
 
-const selectedRemoveModels = ref<Record<string, boolean>>({})
+// 选中的 Key 列表
+const selectedRowKeys = ref<string[]>([])
 
+// 监听数据变化，默认全部勾选待删除项
 watch(
   () => props.unloadPreview,
   (newPreview) => {
     if (newPreview?.toRemove) {
-      const next: Record<string, boolean> = {}
-      newPreview.toRemove.forEach((model) => {
-        next[model.modelKey] = false
-      })
-      selectedRemoveModels.value = next
+      selectedRowKeys.value = newPreview.toRemove.map(m => m.modelKey)
     } else {
-      selectedRemoveModels.value = {}
+      selectedRowKeys.value = []
     }
   },
-  { deep: true }
+  { immediate: true }
 )
 
-const selectAllToRemove = computed(() => {
-  if (!props.unloadPreview?.toRemove?.length) return false
-  return props.unloadPreview.toRemove.every((m) => selectedRemoveModels.value[m.modelKey])
-})
+// 表格选择配置
+const rowSelection = computed(() => ({
+  selectedRowKeys: selectedRowKeys.value,
+  onChange: (keys: string[]) => {
+    selectedRowKeys.value = keys
+  },
+}))
 
-function onSelectAllToRemove(value: boolean) {
-  if (!props.unloadPreview?.toRemove) return
-  const next = { ...selectedRemoveModels.value }
-  props.unloadPreview.toRemove.forEach((m) => {
-    next[m.modelKey] = value
-  })
-  selectedRemoveModels.value = next
-}
-
-function setRemoveRowChecked(modelKey: string, value: boolean) {
-  selectedRemoveModels.value = { ...selectedRemoveModels.value, [modelKey]: value }
-}
-
-const selectedCount = computed(
-  () => Object.entries(selectedRemoveModels.value).filter(([, v]) => v).length
-)
+const selectedCount = computed(() => selectedRowKeys.value.length)
 
 const okDisabled = computed(() => {
   if (props.loadingPreview || props.previewError) return true
@@ -157,7 +146,7 @@ const emptyHint = computed(() => {
   if (!props.unloadPreview) return ''
   const p = props.unloadPreview
   const total = (p.toRemove?.length ?? 0) + (p.keptReferenced?.length ?? 0)
-  if (total === 0) return '当前环境下该厂商暂无模型记录，确认后不会产生删除。'
+  if (total === 0) return '当前环境下该厂商暂无模型记录。'
   return ''
 })
 
@@ -166,14 +155,24 @@ function onUpdateOpen(v: boolean) {
   if (!v) emit('cancel')
 }
 
+// 通用的列定义，移除了固定的 width: 600
+const commonColumns = [
+  {
+    title: '模型详细信息',
+    dataIndex: 'modelKey',
+    render: (_, record: any) => {
+      return h('div', { 
+        style: { padding: '2px 0', fontSize: '13px' } 
+      }, formatExtensionModelPreviewRow(record))
+    }
+  }
+]
+
 async function handleOk() {
-  const keys = Object.entries(selectedRemoveModels.value)
-    .filter(([, sel]) => sel)
-    .map(([k]) => k)
-  if (keys.length === 0) return
+  if (selectedRowKeys.value.length === 0) return
   confirming.value = true
   try {
-    await props.confirm(keys)
+    await props.confirm(selectedRowKeys.value)
   } finally {
     confirming.value = false
   }
@@ -182,4 +181,44 @@ async function handleOk() {
 
 <style scoped>
 @import './extensionModelSyncDialog.css';
+
+/* 1. 解决间距问题：增加单元格内边距 */
+.ems-preview-table :deep(.ant-table-cell) {
+  padding: 10px 12px !important;
+}
+
+/* 2. 勾选框列宽度自适应调整 */
+.ems-preview-table :deep(.ant-table-selection-column) {
+  width: 46px;
+  text-align: center;
+}
+
+/* 危险操作的汇总文案颜色 */
+.ems-summary-danger {
+  color: #ff4d4f;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.ems-preview-section {
+  margin-bottom: 24px;
+}
+
+.ems-preview-section-title {
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+/* 已保留列表的样式微调 */
+.ems-table-disabled :deep(.ant-table-cell) {
+  color: #999;
+}
+
+.ems-preview-empty {
+  padding: 16px;
+  text-align: center;
+  color: #bfbfbf;
+  border: 1px dashed #eee;
+}
 </style>

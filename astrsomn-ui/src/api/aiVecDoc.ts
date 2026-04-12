@@ -1,11 +1,20 @@
 import request from '@/utils/request'
 
+/** 与后端 {@code AiVecDocEnum.SyncStatus} 一致 */
+export const AiVecDocSyncStatus = {
+  PENDING: 'PENDING',
+  STORED: 'STORED',
+  INVALID: 'INVALID'
+} as const
+
 export type AiVecDoc = {
   id?: number | string
   collectionId?: number | string
   docIdInStore?: string
   contentSummary?: string
   syncStatus?: string
+  filePath?: string
+  originalFileName?: string
   createTime?: string
   updateTime?: string
   createUser?: string
@@ -59,6 +68,27 @@ export const aiVecDocApi = {
     return request({
       url: `/v1/astro/ai-vec-doc/delete/${joined}`,
       method: 'delete'
+    })
+  },
+
+  upload: (file: File | Blob, collectionId: number | string): Promise<AiVecDoc> => {
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('collectionId', String(collectionId))
+    return request({
+      url: '/v1/astro/ai-vec-doc/upload',
+      method: 'post',
+      data: fd,
+      timeout: 120000
+    })
+  },
+
+  vectorize: (id: number | string): Promise<string> => {
+    return request({
+      url: '/v1/astro/ai-vec-doc/vectorize',
+      method: 'post',
+      data: { id },
+      timeout: 300000
     })
   }
 }

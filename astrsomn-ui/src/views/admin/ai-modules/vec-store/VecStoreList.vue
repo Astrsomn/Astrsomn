@@ -1,122 +1,158 @@
 <template>
-  <AdminPageShell
-    title="向量存储"
-    description="管理向量集合配置，定义维度、距离度量和元数据模式。"
-    empty-text="暂无向量存储配置。"
-  >
-    <div class="vec-store-page">
-      <AdminListToolbar>
-        <template #left>
-          <AstrsomnSearchPill
-            v-model="query.collectionName"
-            placeholder="搜索集合名称"
-            button-label="搜索"
-            layout="toolbar"
-            @search="fetchList"
-          />
-        </template>
+  <div class="vec-store-page-wrapper">
+    <SourceSidebar
+      v-model:selectedSourceId="selectedSourceId"
+      :totalStoreCount="totalStoreCount"
+      @refresh="fetchList"
+    />
 
-        <template #right>
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
-        </template>
-      </AdminListToolbar>
-
-      <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条向量存储，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-
-      <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1400 }"
+    <div class="store-content">
+      <AdminPageShell
+        :title="currentSourceTitle"
+        :description="currentSourceDescription"
+        empty-text="暂无向量存储配置。"
       >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'metadataSchema'">
-            <div class="metadata-cell">
-              <span class="metadata-info">{{ getMetadataInfo(record.metadataSchema) }}</span>
-            </div>
-          </template>
-          <template v-else-if="column.key === 'instanceName'">
-            <span class="instance-name">{{ record.instanceName || '未关联' }}</span>
-          </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-button type="link" class="action-link" @click="openEdit(record)">
-              <template #icon><edit-outlined /></template>
-              编辑
-            </a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger class="action-link">
-                <template #icon><delete-outlined /></template>
-                删除
-              </a-button>
-            </a-popconfirm>
-          </template>
-        </template>
-      </a-table>
+        <div v-if="selectedSourceId === null" class="no-source-selected">
+          <div class="no-source-icon">
+            <DatabaseOutlined />
+          </div>
+          <h3>请选择一个向量源</h3>
+          <p>在左侧边栏选择一个向量源，以管理其对应的向量存储配置</p>
+        </div>
+        <div v-else class="vec-store-page">
+          <AdminListToolbar>
+            <template #left>
+              <AstrsomnSearchPill
+                v-model="query.collectionName"
+                placeholder="搜索集合名称"
+                button-label="搜索"
+                layout="toolbar"
+                @search="fetchList"
+              />
+            </template>
 
-      <div class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+            <template #right>
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+            </template>
+          </AdminListToolbar>
 
-      <VecStoreFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
-      />
+          <AstrsomnOverview
+            :list-length="list.length"
+            :selected-count="selectedRowKeys.length"
+            :all-current-selected="allCurrentSelected"
+            :part-current-selected="partCurrentSelected"
+            :show-actions="list.length > 0"
+            :summary-text="`当前页 ${list.length} 条向量存储，已选 ${selectedRowKeys.length} 条。`"
+            @toggle-select-all="toggleSelectAllCurrentPage"
+          />
+
+          <a-table
+            :columns="columns"
+            :data-source="list"
+            :pagination="false"
+            row-key="id"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1400 }"
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'collectionName'">
+                <div class="cell-stack">
+                  <span class="cell-title">{{ record.collectionName || '未命名集合' }}</span>
+                  <span class="cell-subtitle">维度: {{ record.dimension || '-' }}</span>
+                </div>
+              </template>
+              <template v-if="column.key === 'metadataSchema'">
+                <div class="metadata-cell">
+                  <span class="metadata-info">{{ getMetadataInfo(record.metadataSchema) }}</span>
+                </div>
+              </template>
+              <template v-else-if="column.key === 'sourceName'">
+                <div class="source-cell-inline">
+                  <div class="source-icon-small" :class="getProviderClass(record.sourceProvider)">
+                    <DatabaseOutlined />
+                  </div>
+                  <span>{{ record.sourceName || '未关联' }}</span>
+                </div>
+              </template>
+              <template v-else-if="column.key === 'instanceName'">
+                <span class="instance-name">{{ record.instanceName || '未关联' }}</span>
+              </template>
+              <template v-else-if="column.key === 'actions'">
+                <a-button type="link" class="action-link" @click="openEdit(record)">
+                  <template #icon><edit-outlined /></template>
+                  编辑
+                </a-button>
+                <a-divider type="vertical" />
+                <a-popconfirm
+                  title="确定删除吗？"
+                  ok-text="确认"
+                  cancel-text="取消"
+                  @confirm="() => handleDeleteOne(record.id)"
+                >
+                  <a-button type="link" danger class="action-link">
+                    <template #icon><delete-outlined /></template>
+                    删除
+                  </a-button>
+                </a-popconfirm>
+              </template>
+            </template>
+          </a-table>
+
+          <div class="pagination-wrap">
+            <a-pagination
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              :show-size-changer="false"
+              @change="onPageChange"
+            />
+          </div>
+
+          <VecStoreFormModal
+            v-model:open="modal.open"
+            :mode="modal.mode"
+            :confirm-loading="modal.submitting"
+            :initial="modalInitial"
+            :default-source-id="selectedSourceId"
+            @submit="handleFormSubmit"
+          />
+        </div>
+      </AdminPageShell>
     </div>
-  </AdminPageShell>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onMounted, watch } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  DatabaseOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import SourceSidebar from '@/components/ai/SourceSidebar.vue'
 import VecStoreFormModal from './VecStoreFormModal.vue'
 import { aiVecStoreApi, type AiVecStore, type PageResponse } from '@/api/aiVecStore'
+import { aiVecSourceApi, type AiVecSource } from '@/api/aiVecSource'
 
 type QueryState = {
   collectionName?: string
+  sourceId?: number | string
   instanceKey?: string
   dimension?: number
 }
 
 const columns = [
-  { title: '集合名称', dataIndex: 'collectionName', key: 'collectionName', width: 240 },
-  { title: '向量维度', dataIndex: 'dimension', key: 'dimension', width: 120 },
+  { title: '集合名称', key: 'collectionName', width: 240 },
   { title: '距离度量', dataIndex: 'distanceMetric', key: 'distanceMetric', width: 150 },
+  { title: '向量源', key: 'sourceName', width: 200 },
   { title: '实例名称', key: 'instanceName', width: 200 },
   { title: '实例 Key', dataIndex: 'instanceKey', key: 'instanceKey', width: 200, ellipsis: true },
   { title: '元数据模式', key: 'metadataSchema', width: 300 },
@@ -138,6 +174,26 @@ const getMetadataInfo = (metadataSchema?: string) => {
   return '已配置'
 }
 
+const providerLabelMap: Record<string, string> = {
+  MILVUS: 'Milvus',
+  PINECONE: 'Pinecone',
+  DASHVECTOR: 'DashVector',
+  CHROMA: 'Chroma',
+  QDRANT: 'Qdrant',
+  WEAVIATE: 'Weaviate',
+  OTHER: '其他'
+}
+
+const getProviderLabel = (provider?: string) => {
+  const key = String(provider || '').toUpperCase()
+  return providerLabelMap[key] || provider || '未知'
+}
+
+const getProviderClass = (provider?: string) => {
+  const key = String(provider || '').toLowerCase()
+  return `provider-${key}`
+}
+
 const query = reactive<QueryState>({})
 const list = ref<AiVecStore[]>([])
 
@@ -148,6 +204,21 @@ const page = reactive({
 })
 
 const selectedRowKeys = ref<Array<number | string>>([])
+const selectedSourceId = ref<number | string | null>(null)
+
+const totalStoreCount = computed(() => page.total)
+
+const currentSourceTitle = computed(() => {
+  if (selectedSourceId.value === null) return '向量存储'
+  return '向量存储'
+})
+
+const currentSourceDescription = computed(() => {
+  if (selectedSourceId.value === null) {
+    return '管理向量集合配置，定义维度、距离度量和元数据模式。'
+  }
+  return '管理向量集合配置，定义维度、距离度量和元数据模式。'
+})
 
 const currentPageIds = computed(() =>
   list.value
@@ -234,6 +305,7 @@ const fetchList = async () => {
     pageSize: page.pageSize,
     param: {
       collectionName: query.collectionName || undefined,
+      sourceId: query.sourceId || undefined,
       instanceKey: query.instanceKey || undefined,
       dimension: query.dimension || undefined
     }
@@ -304,72 +376,33 @@ const handleFormSubmit = async (form: AiVecStore) => {
   }
 }
 
-void fetchList()
+watch(selectedSourceId, (newValue) => {
+  query.sourceId = newValue || undefined
+  page.pageNum = 1
+  void fetchList()
+})
+
+onMounted(() => {
+  fetchList()
+})
 </script>
 
 <style scoped>
+.vec-store-page-wrapper {
+  display: flex;
+  min-height: 100%;
+  background: var(--bg-page);
+}
+
+.store-content {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  overflow: auto;
+}
+
 .vec-store-page {
   padding: 20px;
-}
-
-.search-cluster {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 6px;
-  border-radius: 16px;
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper),
-.search-cluster :deep(.ant-select-selector) {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused),
-.search-cluster :deep(.ant-select-focused .ant-select-selector),
-.search-cluster :deep(.ant-select-selector:hover) {
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface)) !important;
-}
-
-.toolbar-input {
-  width: 200px;
-}
-
-.search-main-input {
-  width: 360px;
-}
-
-.toolbar-select {
-  width: 180px;
-}
-
-.type-select {
-  min-width: 180px;
-}
-
-.primary-btn,
-.ghost-btn {
-  height: 40px;
-  border-radius: 12px;
-}
-
-.danger-btn {
-  color: var(--error);
-  border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
-  background: color-mix(in srgb, var(--error) 7%, var(--bg-card));
-}
-
-.danger-btn:hover,
-.danger-btn:focus {
-  color: var(--error) !important;
-  border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
-  background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
 }
 
 .pagination-wrap {
@@ -379,15 +412,6 @@ void fetchList()
   gap: 12px;
   margin-top: 20px;
   flex-wrap: wrap;
-}
-
-.ellipsis {
-  display: inline-block;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: bottom;
 }
 
 .metadata-cell {
@@ -416,24 +440,116 @@ void fetchList()
   color: var(--text-primary);
 }
 
+.cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cell-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cell-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.source-cell-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.source-icon-small {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.source-icon-small.provider-milvus {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+}
+
+.source-icon-small.provider-chroma {
+  background: linear-gradient(135deg, #10b981, #047857);
+}
+
+.source-icon-small.provider-qdrant {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.source-icon-small.provider-pinecone {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.source-icon-small.provider-dashvector {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.source-icon-small.provider-weaviate {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+@media (max-width: 1024px) {
+  .vec-store-page-wrapper {
+    flex-direction: column;
+  }
+
+  .store-content {
+    height: auto;
+  }
+}
+
 @media (max-width: 720px) {
-  .toolbar-input,
-  .search-main-input,
-  .toolbar-select,
-  .type-select {
-    width: 100%;
-  }
-
-  .search-cluster {
-    width: 100%;
-  }
-
-  .search-cluster {
-    padding: 8px;
-  }
-
   .pagination-wrap {
     justify-content: center;
   }
+}
+
+.no-source-selected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: var(--bg-surface);
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.no-source-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.no-source-selected h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.no-source-selected p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 400px;
 }
 </style>

@@ -6,38 +6,56 @@
   >
     <div class="extension-page">
       <a-layout class="extension-layout">
-        <a-layout-sider width="252" theme="light" class="extension-sider">
-          <div class="sider-shell">
-            <header class="sider-brand">
-           
-              <h2 class="sider-title">Astrsomn系统扩展</h2>
-              <p class="sider-desc">
-                浏览市场插件并安装到当前环境，在已安装列表中应用、同步模型与卸载维护。
-              </p>
+        <a-layout-sider width="240" theme="light" class="extension-sider">
+          <div class="sider-wrapper">
+            <header class="sider-header">
+              <div class="brand-info">
+                <div class="brand-logo">A</div>
+                <div class="brand-text">
+                  <h2 class="sider-title">扩展中心</h2>
+                  <span class="sider-version">v2.4.0</span>
+                </div>
+              </div>
             </header>
 
-            <div class="sider-menu-wrap">
-              <a-menu mode="inline" :selected-keys="selectedMenuKeys" @click="onMenuClick">
-                <a-menu-item key="marketplace">
-                  <template #icon><shop-outlined /></template>
-                  插件市场
-                </a-menu-item>
+            <div class="sider-menu-container">
+              <a-menu mode="inline" :selected-keys="selectedMenuKeys" @click="onMenuClick" class="custom-menu">
                 <a-menu-item key="installed">
                   <template #icon><inbox-outlined /></template>
                   已安装插件
                 </a-menu-item>
+                <a-menu-item key="marketplace">
+                  <template #icon><appstore-outlined /></template>
+                  云端仓库
+                </a-menu-item>
               </a-menu>
             </div>
 
-            <footer class="sider-foot">
-              <p class="foot-line">扩展包对接 </p>
-              <p class="foot-muted">安装前请确认环境与依赖兼容</p>
-            </footer>
+            <div class="sider-footer">
+              <div class="promo-card" @click="openMarketplace">
+                <div class="promo-content">
+                  <div class="promo-icon">
+                    <rocket-filled />
+                  </div>
+                  <div class="promo-text">
+                    <div class="promo-title">官方插件市场</div>
+                    <div class="promo-slogan">探索更多无限可能</div>
+                  </div>
+                </div>
+                <div class="promo-action">
+                  <span>立即访问</span>
+                  <right-outlined />
+                </div>
+              </div>
+            </div>
           </div>
         </a-layout-sider>
+
         <a-layout-content class="extension-main">
-          <MarketplacePage v-if="activePanel === 'marketplace'" />
-          <InstalledPage v-else />
+          <div class="content-card">
+            <MarketplacePage v-if="activePanel === 'marketplace'" />
+            <InstalledPage v-else />
+          </div>
         </a-layout-content>
       </a-layout>
     </div>
@@ -46,15 +64,18 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { ShopOutlined, InboxOutlined } from '@ant-design/icons-vue'
+import { 
+  InboxOutlined, 
+  AppstoreOutlined, 
+  RocketFilled, 
+  RightOutlined 
+} from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import MarketplacePage from './marketplace/MarketplacePage.vue'
 import InstalledPage from './installed/InstalledPage.vue'
 
 type ExtensionPanel = 'marketplace' | 'installed'
-
 const activePanel = ref<ExtensionPanel>('installed')
-
 const selectedMenuKeys = computed(() => [activePanel.value])
 
 function onMenuClick({ key }: { key: string }) {
@@ -62,168 +83,180 @@ function onMenuClick({ key }: { key: string }) {
     activePanel.value = key
   }
 }
+
+function openMarketplace() {
+  window.open('https://www.astrsomn.com/market', '_blank')
+}
 </script>
 
 <style scoped>
 .extension-page {
-  padding: 0 4px;
+  padding: 0 12px;
 }
 
 .extension-layout {
   background: transparent;
-  align-items: stretch;
-  height: calc(100vh - 70px);
+  min-height: calc(100vh - 100px); /* 保持高度不调整 */
+  gap: 16px;
 }
 
+/* 侧边栏主体 */
 .extension-sider {
-  border-radius: var(--radius-lg);
-  border: none;
-  background: linear-gradient(
-      165deg,
-      color-mix(in srgb, var(--primary) 7%, var(--bg-surface)) 0%,
-      var(--bg-surface) 42%,
-      color-mix(in srgb, var(--bg-card) 88%, var(--bg-surface)) 100%
-    )
-    !important;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border-default) 45%, transparent),
-    0 8px 28px -18px color-mix(in srgb, var(--primary) 22%, transparent);
+  background: #ffffff !important;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   overflow: hidden;
 }
 
-.extension-sider :deep(.ant-layout-sider-children) {
-  height: 100%;
-  padding: 0;
-}
-
-.sider-shell {
+.sider-wrapper {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 0;
 }
 
-.sider-brand {
-  padding: 18px 16px 14px;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-default) 35%, transparent);
+/* 顶部品牌区 */
+.sider-header {
+  padding: 24px 20px;
 }
 
-.brand-row {
+.brand-info {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
+  gap: 12px;
 }
 
-.brand-name {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--primary-light);
-}
-
-.brand-pill {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  padding: 2px 8px;
-  border-radius: 999px;
-  color: var(--text-muted);
-  background: color-mix(in srgb, var(--primary) 9%, transparent);
-  border: 1px solid color-mix(in srgb, var(--primary) 14%, transparent);
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  background: var(--primary);
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
 }
 
 .sider-title {
-  margin: 0 0 8px;
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--text-primary);
-}
-
-.sider-desc {
   margin: 0;
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--text-muted);
-}
-
-.sider-menu-wrap {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 12px 8px 8px;
-}
-
-.sider-foot {
-  padding: 12px 16px 16px;
-  margin-top: auto;
-  border-top: 1px solid color-mix(in srgb, var(--border-default) 30%, transparent);
-}
-
-.foot-line {
-  margin: 0 0 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-.foot-muted {
-  margin: 0;
-  font-size: 11px;
-  line-height: 1.45;
-  color: var(--text-muted);
-}
-
-.extension-sider :deep(.ant-menu) {
-  background: transparent;
-  color: var(--text-primary);
-  border-inline-end: none !important;
-}
-
-.extension-sider :deep(.ant-menu-item) {
-  color: var(--text-secondary);
-  border-radius: var(--radius-md);
-  margin: 4px 4px;
-  width: auto;
-  height: auto !important;
-  line-height: 1.35 !important;
-  padding: 10px 12px !important;
-}
-
-.extension-sider :deep(.ant-menu-item .anticon) {
   font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.2;
 }
 
-.extension-sider :deep(.ant-menu-item-selected) {
-  background: color-mix(in srgb, var(--primary) 14%, transparent) !important;
-  color: var(--primary-light) !important;
+.sider-version {
+  font-size: 11px;
+  color: #999;
 }
 
-.extension-sider :deep(.ant-menu-item:hover) {
-  color: var(--text-hover);
+/* 菜单区 */
+.sider-menu-container {
+  flex: 1;
+  padding: 0 10px;
 }
 
-.extension-main {
-  padding-left: 16px;
-  min-width: 0;
+.custom-menu {
+  border: none !important;
+  background: transparent !important;
 }
 
-@media (max-width: 720px) {
-  .extension-layout {
-    flex-direction: column;
-  }
+:deep(.ant-menu-item) {
+  height: 44px !important;
+  line-height: 44px !important;
+  margin: 4px 0 !important;
+  border-radius: 10px !important;
+  color: #666 !important;
+}
 
-  .extension-sider {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: 12px;
-  }
+:deep(.ant-menu-item-selected) {
+  background: color-mix(in srgb, var(--primary) 8%, transparent) !important;
+  color: var(--primary) !important;
+}
 
-  .extension-main {
-    padding-left: 0;
-  }
+/* 底部大图标卡片优化 */
+.sider-footer {
+  padding: 20px 12px;
+}
+
+.promo-card {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); /* 使用更高级的紫色渐变 */
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.promo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+.promo-card::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.promo-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.promo-icon {
+  font-size: 24px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.promo-title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.promo-slogan {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.promo-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* 主内容区 */
+.content-card {
+  background: #fff;
+  border-radius: 16px;
+  height: 100%;
+  padding: 24px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 </style>

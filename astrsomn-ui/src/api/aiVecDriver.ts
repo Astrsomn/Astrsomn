@@ -50,8 +50,8 @@ export const aiVecDriverApi = {
   },
 
   async detail(id: number | string): Promise<AiVecDriver> {
-    const res = await request.get<{ data: AiVecDriver }>(`/v1/astro/ai-vec-driver/detail?id=${id}`)
-    return res.data
+    const res = await request.get<AiVecDriver>(`/v1/astro/ai-vec-driver/detail?id=${id}`)
+    return res
   },
 
   async queryPage(params: {

@@ -12,4 +12,6 @@ import org.astrsomn.core.common.entity.AiVecStoreEntity;
 public interface AiVecStoreMapper extends BaseMapper<AiVecStoreEntity> {
 
     IPage<AiVecStoreResponseDTO> queryPage(IPage<AiVecStoreResponseDTO> page, @Param("req") AiVecStoreQueryRequestDTO param);
+
+    AiVecStoreResponseDTO selectDetailDtoById(@Param("id") Long id);
 }

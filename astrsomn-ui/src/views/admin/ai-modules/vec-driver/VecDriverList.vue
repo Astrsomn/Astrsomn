@@ -42,7 +42,17 @@
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'params'">
             <div class="params-cell">
-              <span class="params-info">{{ getParamsInfo(record.params) }}</span>
+              <template v-if="getParamsArray(record.params).length > 0">
+                <a-tag 
+                  v-for="param in getParamsArray(record.params)" 
+                  :key="param" 
+                  class="param-tag"
+                  color="blue"
+                >
+                  {{ param }}
+                </a-tag>
+              </template>
+              <span v-else class="params-info">{{ getParamsInfo(record.params) }}</span>
             </div>
           </template>
           <template v-else-if="column.key === 'createTime'">
@@ -51,11 +61,18 @@
           <template v-else-if="column.key === 'status'">
             <a-select 
               :value="record.status" 
-              style="width: 100px" 
+              :class="['status-select', record.status === 'enabled' ? 'status-enabled' : 'status-disabled']"
               @change="(value) => handleStatusChange(record, value)"
+              :bordered="false"
             >
-              <a-select-option value="enabled">启用</a-select-option>
-              <a-select-option value="disabled">禁用</a-select-option>
+              <a-select-option value="enabled">
+                <CheckCircleOutlined class="status-icon enabled-icon" />
+                启用
+              </a-select-option>
+              <a-select-option value="disabled">
+                <CloseCircleOutlined class="status-icon disabled-icon" />
+                禁用
+              </a-select-option>
             </a-select>
           </template>
           <template v-else-if="column.key === 'actions'">
@@ -89,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, nextTick, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
@@ -123,6 +140,20 @@ const columns = [
   { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 200 },
   { title: '操作', dataIndex: 'actions', key: 'actions', width: 160, fixed: 'right' as const }
 ]
+
+const getParamsArray = (params?: string): string[] => {
+  const text = String(params || '').trim()
+  if (!text) return []
+  
+  try {
+    const parsed = JSON.parse(text)
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === 'string')
+    }
+  } catch (error) {}
+  
+  return []
+}
 
 const getParamsInfo = (params?: string) => {
   const text = String(params || '').trim()
@@ -250,10 +281,8 @@ const openView = async (record: AiVecDriver) => {
 
   const detail = await aiVecDriverApi.detail(id)
   modalInitial.value = detail
-  // 确保数据更新后再打开模态框
-  setTimeout(() => {
-    modal.open = true
-  }, 0)
+  await nextTick()
+  modal.open = true
 }
 
 const handleStatusChange = async (record: AiVecDriver, value: string) => {
@@ -401,6 +430,15 @@ void fetchList()
 .params-cell {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.param-tag {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 .params-info {
@@ -417,6 +455,46 @@ void fetchList()
   align-items: center;
   gap: 4px;
   padding-inline: 4px;
+}
+
+.status-select {
+  min-width: 90px;
+  font-weight: 500;
+}
+
+.status-select :deep(.ant-select-selector) {
+  padding: 0 8px !important;
+  border-radius: 16px !important;
+}
+
+.status-enabled :deep(.ant-select-selector) {
+  background: rgba(82, 196, 26, 0.1) !important;
+  color: #52c41a !important;
+}
+
+.status-enabled :deep(.ant-select-arrow) {
+  color: #52c41a !important;
+}
+
+.status-disabled :deep(.ant-select-selector) {
+  background: rgba(255, 77, 79, 0.1) !important;
+  color: #ff4d4f !important;
+}
+
+.status-disabled :deep(.ant-select-arrow) {
+  color: #ff4d4f !important;
+}
+
+.status-icon {
+  margin-right: 4px;
+}
+
+.enabled-icon {
+  color: #52c41a;
+}
+
+.disabled-icon {
+  color: #ff4d4f;
 }
 
 @media (max-width: 720px) {
