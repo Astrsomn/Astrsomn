@@ -7,6 +7,7 @@ import org.astrsomn.core.common.entity.AiVecStoreEntity;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecDoc;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecStore;
 import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.vector.chroma.internal.ChromaCollectionAdmin;
 import org.astrsomn.vector.chroma.internal.ChromaEmbeddingStores;
 
 public final class ChromaVecStoreHandler extends AbstractVecStore {
@@ -28,13 +29,13 @@ public final class ChromaVecStoreHandler extends AbstractVecStore {
         if (exists()) {
             return;
         }
-        getEmbeddingStore(); // Chroma 会自动创建集合
+        getEmbeddingStore();
     }
 
     @Override
     public void dropCollection() {
         try {
-            ChromaEmbeddingStores.buildForCollection(chromaSource.getEntity(), collectionNameRequired());
+            ChromaCollectionAdmin.deleteCollection(chromaSource.getEntity(), collectionNameRequired());
         } finally {
             embeddingStoreCache = null;
         }
@@ -42,12 +43,7 @@ public final class ChromaVecStoreHandler extends AbstractVecStore {
 
     @Override
     public boolean exists() {
-        try {
-            ChromaEmbeddingStores.buildForCollection(chromaSource.getEntity(), collectionNameRequired());
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+        return ChromaCollectionAdmin.collectionExists(chromaSource.getEntity(), collectionNameRequired());
     }
 
     @Override
