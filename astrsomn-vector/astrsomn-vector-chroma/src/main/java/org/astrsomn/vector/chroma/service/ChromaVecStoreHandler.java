@@ -2,12 +2,12 @@ package org.astrsomn.vector.chroma.service;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import org.astrsomn.core.common.entity.AiVecDocEntity;
 import org.astrsomn.core.common.entity.AiVecStoreEntity;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecDoc;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecStore;
 import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.vector.chroma.internal.ChromaEmbeddingStores;
 
 public final class ChromaVecStoreHandler extends AbstractVecStore {
 
@@ -25,7 +25,6 @@ public final class ChromaVecStoreHandler extends AbstractVecStore {
 
     @Override
     public void createCollection() {
-        String name = collectionNameRequired();
         if (exists()) {
             return;
         }
@@ -35,13 +34,7 @@ public final class ChromaVecStoreHandler extends AbstractVecStore {
     @Override
     public void dropCollection() {
         try {
-            // 创建一个临时的 embedding store 来删除集合
-            ChromaEmbeddingStore.builder()
-                    .baseUrl(chromaSource.baseUrl())
-
-                    .collectionName(collectionNameRequired())
-                    .build()
-                    ;
+            ChromaEmbeddingStores.buildForCollection(chromaSource.getEntity(), collectionNameRequired());
         } finally {
             embeddingStoreCache = null;
         }
@@ -50,14 +43,7 @@ public final class ChromaVecStoreHandler extends AbstractVecStore {
     @Override
     public boolean exists() {
         try {
-            // 创建一个临时的 embedding store 来检查集合是否存在
-            ChromaEmbeddingStore embeddingStore = ChromaEmbeddingStore.builder()
-                    .baseUrl(chromaSource.baseUrl())
-
-                    .collectionName(collectionNameRequired())
-                    .build();
-            // 尝试获取集合信息，如果不存在会抛出异常
-
+            ChromaEmbeddingStores.buildForCollection(chromaSource.getEntity(), collectionNameRequired());
             return true;
         } catch (Exception e) {
             return false;
@@ -74,11 +60,8 @@ public final class ChromaVecStoreHandler extends AbstractVecStore {
         if (embeddingStoreCache == null) {
             synchronized (this) {
                 if (embeddingStoreCache == null) {
-                    embeddingStoreCache = ChromaEmbeddingStore.builder()
-                            .baseUrl(chromaSource.baseUrl())
-
-                            .collectionName(collectionNameRequired())
-                            .build();
+                    embeddingStoreCache =
+                            ChromaEmbeddingStores.buildForCollection(chromaSource.getEntity(), collectionNameRequired());
                 }
             }
         }

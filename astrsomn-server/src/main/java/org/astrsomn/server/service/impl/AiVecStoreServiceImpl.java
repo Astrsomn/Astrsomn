@@ -79,12 +79,10 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
 
     @Override
     public BaseResponse<AiVecStoreResponseDTO> detail(Long id) {
-        AiVecStoreEntity entity = getById(id);
-        if (entity == null) {
+        AiVecStoreResponseDTO responseDTO = baseMapper.selectDetailDtoById(id);
+        if (responseDTO == null) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_NOT_FOUND);
         }
-        AiVecStoreResponseDTO responseDTO = new AiVecStoreResponseDTO();
-        BeanUtils.copyProperties(entity, responseDTO);
         return BaseResponse.success(responseDTO);
     }
 }

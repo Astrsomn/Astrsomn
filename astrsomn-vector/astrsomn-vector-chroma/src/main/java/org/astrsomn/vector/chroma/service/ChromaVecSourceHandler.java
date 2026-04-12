@@ -1,12 +1,14 @@
 package org.astrsomn.vector.chroma.service;
 
-import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
+import dev.langchain4j.store.embedding.chroma.ChromaApiVersion;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
 import org.astrsomn.core.common.entity.AiVecStoreEntity;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecSource;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecStore;
 import org.astrsomn.core.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
 import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.vector.chroma.internal.ChromaConfigSupport;
+import org.astrsomn.vector.chroma.internal.ChromaEmbeddingStores;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,7 @@ public final class ChromaVecSourceHandler extends AbstractVecSource {
 
     private final AiVecSourceConnectionProperties connectionProperties;
     private final String baseUrl;
+    private final ChromaApiVersion apiVersion;
     private final String apiKey;
 
     public ChromaVecSourceHandler(AiVecSourceEntity entity) {
@@ -23,11 +26,15 @@ public final class ChromaVecSourceHandler extends AbstractVecSource {
         log.info("[Chroma] constructor: start");
         this.connectionProperties = AiVecSourceConnectionProperties.from(entity);
         log.info("[Chroma] constructor: AiVecSourceConnectionProperties parsed");
-        String resolvedHost = connectionProperties.resolvedHost();
-        int resolvedPort = connectionProperties.resolvedPort(8000);
-        this.baseUrl = "http://" + resolvedHost + ":" + resolvedPort;
+        this.baseUrl = ChromaEmbeddingStores.resolveBaseUrl(entity);
+        this.apiVersion = ChromaConfigSupport.readApiVersion(entity.getConfigJson());
         this.apiKey = connectionProperties.getToken();
-        log.info("[Chroma] client configured: baseUrl={}, apiKeyConfigured={}", baseUrl, StringUtils.isNotBlank(apiKey));
+        log.info(
+                "[Chroma] client configured: baseUrl={}, apiVersion={}, useTls={}, apiKeyConfigured={}",
+                baseUrl,
+                apiVersion,
+                ChromaConfigSupport.readUseTls(entity.getConfigJson()),
+                StringUtils.isNotBlank(apiKey));
     }
 
     AiVecSourceConnectionProperties connectionProperties() {
@@ -38,6 +45,10 @@ public final class ChromaVecSourceHandler extends AbstractVecSource {
         return baseUrl;
     }
 
+    ChromaApiVersion apiVersion() {
+        return apiVersion;
+    }
+
     String apiKey() {
         return apiKey;
     }
@@ -45,14 +56,9 @@ public final class ChromaVecSourceHandler extends AbstractVecSource {
     @Override
     public boolean testConnection() {
         long t0 = System.nanoTime();
-        log.info("[Chroma] testConnection: creating test embedding store");
+        log.info("[Chroma] testConnection: creating test embedding store (apiVersion={})", apiVersion);
         try {
-            // 创建一个临时的 embedding store 来测试连接
-            ChromaEmbeddingStore.builder()
-                    .baseUrl(baseUrl)
-
-                    .collectionName("test_connection")
-                    .build();
+            ChromaEmbeddingStores.buildForCollection(getEntity(), "test_connection");
             long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
             log.info("[Chroma] testConnection success in {}ms", elapsedMs);
             return true;
@@ -66,14 +72,19 @@ public final class ChromaVecSourceHandler extends AbstractVecSource {
     private static String chromaTestFailureHint(Exception e) {
         for (Throwable t = e; t != null; t = t.getCause()) {
             if (t instanceof java.net.ConnectException) {
-                return "Chroma HTTP 连接失败（请从运行本服务的主机访问 TCP 8000）: " + t.getMessage();
+                return "Chroma HTTP 连接失败（请从运行本服务的主机访问 Chroma 端口）: " + t.getMessage();
             }
             String msg = t.getMessage();
             if (msg != null && msg.contains("Connection timed out")) {
-                return "Chroma HTTP 连接超时（请检查防火墙、Docker 是否映射 8000、Chroma 是否对外监听）: " + msg;
+                return "Chroma HTTP 连接超时（请检查防火墙、Docker 端口映射、Chroma 是否对外监听）: " + msg;
+            }
+            if (msg != null && (msg.contains("HTTP error") || msg.contains("410") || msg.contains("404"))) {
+                return "Chroma HTTP 调用失败（Chroma 0.7+ 仅支持 REST API V2；请在 CONFIG_JSON 设置 \"apiVersion\":\"V2\" 或留空使用默认 V2；"
+                        + "若仍失败请核对 tenantName、databaseName、TLS(useTls) 与 Chroma 版本）: "
+                        + msg;
             }
         }
-        return "Chroma testConnection failed";
+        return "Chroma testConnection failed（若服务端为 Chroma 0.7+，请使用 API V2；浏览器能打开 /docs 不代表 V1 客户端仍可用）";
     }
 
     @Override
