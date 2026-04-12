@@ -12,13 +12,26 @@
 
     </AdminListToolbar>
 
-    <a-tabs v-model:activeKey="typeTabKey" class="type-tabs" @change="onTypeTabChange">
-      <a-tab-pane key="ALL" tab="全部" />
-      <a-tab-pane key="MODEL_PROVIDER" tab="模型" />
-      <a-tab-pane key="VECTOR_STORE" tab="向量库" />
-      <a-tab-pane key="MCP" tab="MCP" />
-    </a-tabs>
-
+    <div class="tab-and-pagination">
+      <a-tabs v-model:activeKey="typeTabKey" class="type-tabs" @change="onTypeTabChange">
+        <a-tab-pane key="ALL" tab="全部" />
+        <a-tab-pane key="MODEL_PROVIDER" tab="模型" />
+        <a-tab-pane key="VECTOR_STORE" tab="向量库" />
+        <a-tab-pane key="MCP" tab="MCP" />
+      </a-tabs>
+      <div class="pagination-container">
+        <a-pagination
+          :current="pageNum"
+          :page-size="pageSize"
+          :total="total"
+          :show-total="(total) => `共 ${total} 个`"
+          :show-size-changer="true"
+          :page-size-options="['8', '16', '24', '32']"
+          @change="handlePageChange"
+          @showSizeChange="handleSizeChange"
+        />
+      </div>
+    </div>
 
     <div v-if="list.length > 0" class="extension-grid">
       <ExtensionMarketplaceCard
@@ -46,23 +59,40 @@ import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension'
 const typeTabKey = ref('ALL')
 const extensionNameInput = ref('')
 const list = ref<ExtensionRow[]>([])
+const pageNum = ref(1)
+const pageSize = ref(8)
+const total = ref(0)
 
 function rowKey(record: ExtensionRow) {
   return String(record.extensionKey ?? '')
 }
 
 const onTypeTabChange = () => {
+  pageNum.value = 1
+  void fetchList()
+}
+
+const handlePageChange = (page: number) => {
+  pageNum.value = page
+  void fetchList()
+}
+
+const handleSizeChange = (current: number, size: number) => {
+  pageSize.value = size
+  pageNum.value = 1
   void fetchList()
 }
 
 const fetchList = async () => {
   const typeQ = typeTabKey.value === 'ALL' ? undefined : typeTabKey.value
-  let rows = await systemExtensionApi.marketplaceCatalog(typeQ)
+  const response = await systemExtensionApi.marketplaceCatalog(typeQ, pageNum.value, pageSize.value)
+  let rows = response.list
   const n = extensionNameInput.value?.trim().toLowerCase()
   if (n) {
     rows = rows.filter((r) => (r.extensionName || '').toLowerCase().includes(n))
   }
   list.value = rows as ExtensionRow[]
+  total.value = response.total
 }
 
 const installFromCatalog = async (item: ExtensionRow) => {
@@ -88,12 +118,24 @@ void fetchList()
 </script>
 
 <style scoped>
-.type-tabs {
+.tab-and-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin: 12px 0 8px;
+}
+
+.type-tabs {
+  flex: 1;
 }
 
 .type-tabs :deep(.ant-tabs-nav) {
   margin-bottom: 0;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .type-tabs :deep(.ant-tabs-tab) {
@@ -127,6 +169,17 @@ void fetchList()
 
 
 @media (max-width: 720px) {
+  .tab-and-pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .pagination-container {
+    margin-top: 8px;
+    width: 100%;
+    justify-content: center;
+  }
+  
   .extension-grid {
     grid-template-columns: 1fr;
   }

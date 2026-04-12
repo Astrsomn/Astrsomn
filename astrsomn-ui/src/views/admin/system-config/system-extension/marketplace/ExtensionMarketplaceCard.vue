@@ -7,11 +7,11 @@
     <div class="card-inner">
       <header class="card-header">
         <div class="ext-icon-box">
-          <span
+          <img
             v-if="record.avatar?.trim()"
-            class="ext-avatar-svg"
-            v-html="record.avatar"
-            aria-hidden="true"
+            class="ext-avatar-img"
+            :src="record.avatar"
+            :alt="record.extensionName"
           />
           <component v-else :is="getAntdIcon(record.type)" />
         </div>
@@ -136,12 +136,11 @@ const getAntdIcon = (type: string) => {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-.ext-avatar-svg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.ext-avatar-img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .ext-icon-box :deep(svg) {

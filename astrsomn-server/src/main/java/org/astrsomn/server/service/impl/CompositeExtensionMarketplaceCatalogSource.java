@@ -1,60 +1,55 @@
 package org.astrsomn.server.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.extension.ExtensionMarketplaceItemDTO;
-import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
-import org.astrsomn.core.common.util.StringUtils;
-import org.astrsomn.server.plugin.SystemExtensionRegistry;
 import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
 /**
- * 插件市场目录：仅来自 {@link SystemExtensionRegistry#mergeDescriptors(ApplicationContext)} 合并后的 Descriptor。
+ * 插件市场目录：调用外部 API 获取插件列表。
  */
 @Component
 @RequiredArgsConstructor
 public class CompositeExtensionMarketplaceCatalogSource implements ExtensionMarketplaceCatalogSource {
 
     private final ApplicationContext applicationContext;
+    private final RestTemplate restTemplate;
 
     @Override
-    public List<ExtensionMarketplaceItemDTO> listCatalog(Optional<String> typeFilter) {
-        List<AstroExtensionDescriptor> descriptors = new ArrayList<>(
-                SystemExtensionRegistry.mergeDescriptors(applicationContext).values());
-        descriptors.sort(Comparator.comparing(AstroExtensionDescriptor::getName,
-                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
-
-        List<ExtensionMarketplaceItemDTO> list = new ArrayList<>();
-        for (AstroExtensionDescriptor d : descriptors) {
-            String key = StringUtils.trimToNull(d.getExtensionKey());
-            if (key == null) {
-                continue;
-            }
-            list.add(toMarketplaceItem(d));
+    public PageResponse<ExtensionMarketplaceItemDTO> listCatalog(int pageNum, int pageSize, Optional<String> typeFilter) {
+        // 构建请求参数
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("pageNum", pageNum);
+        requestBody.put("pageSize", pageSize);
+        
+        Map<String, Object> data = new HashMap<>();
+        typeFilter.ifPresent(t -> data.put("type", t));
+        requestBody.put("data", data);
+        
+        // 设置请求头
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+        
+        // 调用外部 API
+        String url = "https://www.astrsomn.com/api/plugins/queryPage";
+        try {
+            return restTemplate.exchange(url, HttpMethod.POST, entity, 
+                    new org.springframework.core.ParameterizedTypeReference<PageResponse<ExtensionMarketplaceItemDTO>>() {})
+                    .getBody();
+        } catch (Exception e) {
+            // 如果外部 API 调用失败，返回空分页结果
+            return PageResponse.empty();
         }
-
-        String t = typeFilter.map(s -> s.trim().toUpperCase(Locale.ROOT)).filter(s -> !s.isEmpty()).orElse(null);
-        if (t == null) {
-            return List.copyOf(list);
-        }
-        return list.stream()
-                .filter(item -> item.getType() != null && item.getType().equalsIgnoreCase(t))
-                .toList();
-    }
-
-    private static ExtensionMarketplaceItemDTO toMarketplaceItem(AstroExtensionDescriptor d) {
-        return ExtensionMarketplaceItemDTO.builder()
-                .extensionKey(d.getExtensionKey())
-                .extensionName(d.getName())
-                .type(d.getExtensionType() == null ? null : d.getExtensionType().getCode())
-                .version(d.getVersion())
-                .author(d.getAuthor())
-                .description(d.getDescription())
-                .avatar(d.getAvatar())
-                .providerCode(d.getExtensionKey())
-                .build();
     }
 }

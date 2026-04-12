@@ -203,3 +203,38 @@
   font-size: 13px;
   color: var(--text-secondary);
 }
+
+.ems-preview-table :deep(.ant-table-container) {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.ems-preview-table :deep(.ant-table-header) {
+  background: var(--bg-surface);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ems-preview-table :deep(.ant-table-body) {
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--text-secondary);
+}
+
+.ems-preview-table :deep(.ant-table-tbody > tr > td) {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.ems-preview-table :deep(.ant-table-tbody > tr:last-child > td) {
+  border-bottom: none;
+}
+
+.ems-preview-table :deep(.ant-table-tbody > tr:hover > td) {
+  background: var(--bg-hover);
+}
+
+.ems-preview-table :deep(.ant-checkbox) {
+  margin-right: 8px;
+}
