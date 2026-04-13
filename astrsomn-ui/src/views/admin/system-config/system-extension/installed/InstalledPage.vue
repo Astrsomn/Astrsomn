@@ -35,23 +35,23 @@
         </a-popconfirm>
       </template>
     </AdminListToolbar>
-    <AstrsomnOverview
-      :list-length="list.length"
-      :selected-count="selectedRowKeys.length"
-      :all-current-selected="allCurrentSelected"
-      :part-current-selected="partCurrentSelected"
-      :show-actions="list.length > 0"
-      :summary-text="listSummaryText"
-      @toggle-select-all="toggleSelectAllCurrentPage"
-    />
-    <a-tabs v-model:activeKey="typeTabKey" class="type-tabs" @change="onTypeTabChange">
-      <a-tab-pane key="ALL" tab="全部" />
-      <a-tab-pane key="MODEL_PROVIDER" tab="模型" />
-      <a-tab-pane key="VECTOR_STORE" tab="向量库" />
-      <a-tab-pane key="MCP" tab="MCP" />
-    </a-tabs>
-
-
+    <div class="tab-pagination-container">
+      <a-tabs v-model:activeKey="typeTabKey" class="type-tabs" @change="onTypeTabChange">
+        <a-tab-pane key="ALL" tab="全部" />
+        <a-tab-pane key="MODEL_PROVIDER" tab="模型" />
+        <a-tab-pane key="VECTOR_STORE" tab="向量库" />
+        <a-tab-pane key="MCP" tab="MCP" />
+      </a-tabs>
+      <div class="pagination-wrap">
+        <a-pagination
+          :current="page.pageNum"
+          :page-size="page.pageSize"
+          :total="page.total"
+          :show-size-changer="false"
+          @change="onPageChange"
+        />
+      </div>
+    </div>
 
     <div v-if="list.length > 0" class="extension-grid">
       <ExtensionInstalledCard
@@ -69,16 +69,6 @@
     </div>
     <div v-else class="extension-empty">
       <a-empty description="暂无已安装扩展" />
-    </div>
-
-    <div class="pagination-wrap">
-      <a-pagination
-        :current="page.pageNum"
-        :page-size="page.pageSize"
-        :total="page.total"
-        :show-size-changer="false"
-        @change="onPageChange"
-      />
     </div>
 
     <ExtensionModelLoadDialog
@@ -103,11 +93,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { DeleteOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ExtensionInstalledCard from './ExtensionInstalledCard.vue'
 import ExtensionModelLoadDialog from '../shared/ExtensionModelLoadDialog.vue'
@@ -127,10 +116,6 @@ const extensionNameInput = ref('')
 const list = ref<ExtensionRow[]>([])
 const jarUploading = ref(false)
 
-const listSummaryText = computed(
-  () => `当前页 ${list.value.length} 条扩展记录，已选 ${selectedRowKeys.value.length} 条。`
-)
-
 function rowKey(record: ExtensionRow) {
   return record.id != null ? String(record.id) : String(record.extensionKey ?? '')
 }
@@ -143,23 +128,6 @@ const page = reactive({
 
 const selectedRowKeys = ref<string[]>([])
 
-const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
-    .map((id) => String(id))
-)
-
-const allCurrentSelected = computed(() => {
-  return currentPageIds.value.length > 0 && currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
-})
-
-const partCurrentSelected = computed(() => {
-  if (currentPageIds.value.length === 0) return false
-  const count = currentPageIds.value.filter((id) => selectedRowKeys.value.includes(id)).length
-  return count > 0 && count < currentPageIds.value.length
-})
-
 function isRowSelected(record: ExtensionRow) {
   return selectedRowKeys.value.includes(rowKey(record))
 }
@@ -171,14 +139,6 @@ function onCardToggleSelect(record: ExtensionRow, checked: boolean) {
     return
   }
   selectedRowKeys.value = selectedRowKeys.value.filter((x) => x !== k)
-}
-
-const toggleSelectAllCurrentPage = (checked: boolean) => {
-  if (checked) {
-    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...currentPageIds.value]))
-    return
-  }
-  selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
 }
 
 const onTypeTabChange = () => {
@@ -387,8 +347,18 @@ void fetchList()
 </script>
 
 <style scoped>
-.type-tabs {
+.tab-pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin: 12px 0 8px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.type-tabs {
+  flex: 1;
+  min-width: 0;
 }
 
 .type-tabs :deep(.ant-tabs-nav) {
@@ -405,6 +375,10 @@ void fetchList()
 
 .type-tabs :deep(.ant-tabs-ink-bar) {
   background: var(--primary-gradient);
+}
+
+.pagination-wrap {
+  flex-shrink: 0;
 }
 
 .ghost-btn {
@@ -447,14 +421,7 @@ void fetchList()
   color: var(--text-muted);
 }
 
-.pagination-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
+
 
 @media (max-width: 720px) {
   .extension-grid {

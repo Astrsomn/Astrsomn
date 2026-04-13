@@ -92,11 +92,14 @@ function openMarketplace() {
 <style scoped>
 .extension-page {
   padding: 0 12px;
+  height: calc(100vh - 70px);
+  overflow: hidden;
 }
 
 .extension-layout {
   background: transparent;
-  min-height: calc(100vh - 70px);
+  min-height: 100%;
+  height: 100%;
   gap: 16px;
 }
 
@@ -106,7 +109,7 @@ function openMarketplace() {
   border-radius: 16px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   overflow: hidden;
-  height: calc(100vh - 70px);
+  height: 100%;
 }
 
 .sider-wrapper {
@@ -156,11 +159,14 @@ function openMarketplace() {
 .sider-menu-container {
   flex: 1;
   padding: 0 10px;
+  overflow: hidden;
 }
 
 .custom-menu {
   border: none !important;
   background: transparent !important;
+  height: 100%;
+  overflow: hidden;
 }
 
 :deep(.ant-menu-item) {
@@ -253,11 +259,35 @@ function openMarketplace() {
 }
 
 /* 主内容区 */
+.extension-main {
+  overflow: hidden;
+}
+
 .content-card {
   background: #fff;
   border-radius: 16px;
-  min-height: calc(100vh - 70px);
+  height: 100%;
   padding: 24px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  overflow-y: auto;
+}
+
+/* 滚动条样式 */
+.content-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-card::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+  border-radius: 3px;
+}
+
+.content-card::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+
+.content-card::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
 }
 </style>

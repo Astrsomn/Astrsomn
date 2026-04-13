@@ -84,6 +84,7 @@ const getAntdIcon = (type: string) => {
   flex-direction: column;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+  min-height: 380px;
 }
 
 .extension-card:hover {
