@@ -1,136 +1,177 @@
 <template>
-  <a-modal
-    v-model:open="open"
-    :title="mode === 'create' ? '新增提示词' : '编辑提示词'"
-    width="1000px" 
-    :confirm-loading="confirmLoading"
-    :body-style="{ padding: '16px 24px' }"
-    @ok="handleOk"
+  <AstrsomnModal
+    :open="open"
+    width="80vw"
+    max-width="80vw"
+    body-height="80vh"
+    :closable="true"
+    main-padding="0"
+    wrap-class-name="prompt-form-fsm-wrap"
+    @update:open="onFsmOpenUpdate"
     @cancel="onCancel"
   >
-    <a-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      layout="vertical"
-    >
-      <a-alert
-        type="info"
-        show-icon
-        class="compact-alert"
-      >
-        <template #message>
-          <span v-if="mode === 'create'">Prompt Key 可留空，后端自动生成；首次创建为版本 1。</span>
-          <span v-else>可修改 Prompt Key；若留空则沿用当前值，保存后自动递增版本号。</span>
-        </template>
-      </a-alert>
+    <template #header-logo>
+      <component :is="mode === 'create' ? PlusCircleOutlined : FormOutlined" />
+    </template>
+    <template #header-title>
+      {{ mode === 'create' ? '新增提示词' : '编辑提示词' }}
+    </template>
+    <template #header-subtitle>
+      维护展示信息、场景分类与提示词正文
+    </template>
+    <template #header-actions>
+      <a-space>
+        <a-button @click="onCancel">取消</a-button>
+        <a-button type="primary" :loading="confirmLoading" @click="handleOk">
+          确定
+        </a-button>
+      </a-space>
+    </template>
 
-      <div class="editor-layout">
-        <div class="config-side">
-          <a-form-item label="标题" name="promptTitle">
-            <a-input v-model:value="form.promptTitle" placeholder="展示名称" />
-          </a-form-item>
+    <div class="prompt-form-body">
+      <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
+        <a-alert type="info" show-icon class="compact-alert">
+          <template #message>
+            <span v-if="mode === 'create'"
+              >Prompt Key 可留空，后端自动生成；首次创建为版本 1。</span
+            >
+            <span v-else
+              >可修改 Prompt Key；若留空则沿用当前值，保存后自动递增版本号。</span
+            >
+          </template>
+        </a-alert>
 
-          <a-form-item label="Prompt Key" name="promptKey">
-            <a-input
-              v-model:value="form.promptKey"
-              placeholder="唯一标识（选填）"
-              allow-clear
-            />
-          </a-form-item>
-
-          <div class="form-row">
-            <a-form-item label="场景" name="scene" class="flex-1">
-              <a-input v-model:value="form.scene" placeholder="分类" allow-clear />
+        <div class="editor-layout">
+          <div class="config-side">
+            <a-form-item label="标题" name="promptTitle">
+              <a-input v-model:value="form.promptTitle" placeholder="展示名称" />
             </a-form-item>
-            <a-form-item label="状态" name="status" class="w-80">
+
+            <a-form-item label="Prompt Key" name="promptKey">
+              <a-input
+                v-model:value="form.promptKey"
+                placeholder="唯一标识（选填）"
+                allow-clear
+              />
+            </a-form-item>
+
+            <a-form-item label="状态" name="status">
               <a-select v-model:value="form.status" :options="enabledOptions" />
+            </a-form-item>
+
+            <a-form-item label="场景" name="scene">
+              <a-textarea
+                minRows="3"
+                v-model:value="form.scene"
+                placeholder="分类"
+                allow-clear
+                class="content-area"
+              />
             </a-form-item>
           </div>
 
-          <a-form-item v-if="mode === 'edit'" label="当前版本">
-            <a-tag color="blue">V{{ form.version ?? '1' }}</a-tag>
-          </a-form-item>
+          <div class="content-side">
+            <a-form-item
+              label="提示词内容"
+              name="promptContent"
+              class="no-margin-bottom"
+            >
+              <a-textarea
+                v-model:value="form.promptContent"
+                :auto-size="{ minRows: 16, maxRows: 16 }"
+                placeholder="请输入 System 或 User Prompt..."
+                class="content-area"
+              />
+            </a-form-item>
+          </div>
         </div>
-
-        <div class="content-side">
-          <a-form-item label="提示词内容" name="promptContent" class="no-margin-bottom">
-            <a-textarea
-              v-model:value="form.promptContent"
-              :auto-size="{ minRows: 16, maxRows: 16 }"
-              placeholder="请输入 System 或 User Prompt..."
-              class="content-area"
-            />
-          </a-form-item>
-        </div>
-      </div>
-    </a-form>
-  </a-modal>
+      </a-form>
+    </div>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
-// ... script 部分逻辑保持不变 ...
-import { reactive, ref, watch } from 'vue'
-import type { FormInstance } from 'ant-design-vue'
+import { reactive, ref, watch } from "vue";
+import type { FormInstance } from "ant-design-vue";
+import { FormOutlined, PlusCircleOutlined } from "@ant-design/icons-vue";
+import AstrsomnModal from "@/components/home/AstrsomnModal.vue";
 
 const props = defineProps<{
-  mode: 'create' | 'edit'
-  confirmLoading: boolean
-  initial: any | null
-}>()
+  mode: "create" | "edit";
+  confirmLoading: boolean;
+  initial: any | null;
+}>();
 
-const emit = defineEmits(['submit'])
-const open = defineModel<boolean>('open', { required: true })
-const formRef = ref<FormInstance | null>(null)
+const emit = defineEmits(["submit"]);
+const open = defineModel<boolean>("open", { required: true });
+const formRef = ref<FormInstance | null>(null);
 
 const enabledOptions = [
-  { label: '启用', value: 'enabled' },
-  { label: '停用', value: 'disabled' }
-]
+  { label: "启用", value: "enabled" },
+  { label: "停用", value: "disabled" },
+];
 
 const emptyForm = () => ({
-  promptKey: '',
-  promptTitle: '',
-  promptContent: '',
-  scene: '',
-  status: 'enabled',
-  version: 1
-})
+  promptKey: "",
+  promptTitle: "",
+  promptContent: "",
+  scene: "",
+  status: "enabled",
+  version: 1,
+});
 
-const form = reactive(emptyForm())
+const form = reactive(emptyForm());
 
 const rules = {
-  promptTitle: [{ required: true, message: '请输入标题' }],
-  promptContent: [{ required: true, message: '请输入提示词内容' }],
-  status: [{ required: true, message: '请选择启用状态' }]
-}
+  promptTitle: [{ required: true, message: "请输入标题" }],
+  promptContent: [{ required: true, message: "请输入提示词内容" }],
+  status: [{ required: true, message: "请选择启用状态" }],
+};
 
-watch([() => open.value, () => props.initial], ([isOpen, initial]) => {
-  if (!isOpen) return
-  if (initial && Object.keys(initial).length > 0) {
-    Object.assign(form, emptyForm(), initial)
-  } else {
-    Object.assign(form, emptyForm())
-  }
-}, { immediate: true })
+watch(
+  [() => open.value, () => props.initial],
+  ([isOpen, initial]) => {
+    if (!isOpen) return;
+    if (initial && Object.keys(initial).length > 0) {
+      Object.assign(form, emptyForm(), initial);
+    } else {
+      Object.assign(form, emptyForm());
+    }
+  },
+  { immediate: true },
+);
 
 async function handleOk() {
   try {
-    await formRef.value?.validate()
-    const payload: Record<string, any> = { ...form }
+    await formRef.value?.validate();
+    const payload: Record<string, any> = { ...form };
     if (!payload.promptKey?.trim()) {
-      delete payload.promptKey
+      delete payload.promptKey;
     } else {
-      payload.promptKey = payload.promptKey.trim()
+      payload.promptKey = payload.promptKey.trim();
     }
-    emit('submit', payload)
+    emit("submit", payload);
   } catch (err) {}
 }
 
-function onCancel() { open.value = false }
+function onCancel() {
+  open.value = false;
+}
+
+function onFsmOpenUpdate(v: boolean) {
+  open.value = v;
+}
 </script>
 
 <style scoped>
+.prompt-form-body {
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px 24px;
+  box-sizing: border-box;
+}
+
 .compact-alert {
   margin-bottom: 20px;
   padding: 8px 12px;
@@ -159,11 +200,15 @@ function onCancel() { open.value = false }
   gap: 12px;
 }
 
-.flex-1 { flex: 1; }
-.w-80 { width: 100px; }
+.flex-1 {
+  flex: 1;
+}
+.w-80 {
+  width: 100px;
+}
 
 .content-area {
-  font-family: 'Fira Code', ui-monospace, monospace;
+  font-family: "Fira Code", ui-monospace, monospace;
   font-size: 13px;
   background-color: #f8fafc;
   padding: 12px;
@@ -172,7 +217,6 @@ function onCancel() { open.value = false }
   resize: none;
 }
 
-/* 覆盖 Ant Design 默认边距，紧凑显示 */
 :deep(.ant-form-item) {
   margin-bottom: 16px;
 }
@@ -181,7 +225,6 @@ function onCancel() { open.value = false }
   margin-bottom: 0 !important;
 }
 
-/* 适配移动端/小屏幕 */
 @media (max-width: 800px) {
   .editor-layout {
     flex-direction: column;
@@ -189,5 +232,17 @@ function onCancel() { open.value = false }
   .config-side {
     width: 100%;
   }
+}
+
+/* 80vw×80vh 弹层在视口中居中 */
+:global(.prompt-form-fsm-wrap.ant-modal-wrap) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:global(.prompt-form-fsm-wrap .ant-modal) {
+  top: 0;
+  padding-bottom: 0;
 }
 </style>

@@ -6,12 +6,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.workflow.*;
 import org.astrsomn.core.common.entity.AiWorkflowEntity;
+import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.exception.base.BusinessException;
+import org.astrsomn.core.exception.constant.AiWorkflowErrorEnum;
 import org.astrsomn.core.mapper.AiWorkflowMapper;
 import org.astrsomn.server.service.AiWorkflowService;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
@@ -57,18 +59,28 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
             entity.setStatus("DRAFT");
         }
         boolean ok = save(entity);
-        return ok ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
+        if (!ok) {
+            throw new BusinessException(AiWorkflowErrorEnum.WORKFLOW_CREATE_FAILED);
+        }
+        return BaseResponse.success("创建成功");
     }
 
     @Override
     public BaseResponse<String> update(AiWorkflowUpdateRequestDTO request) {
         if (request.getId() == null) {
-            return BaseResponse.fail("id 不能为空", null);
+            throw new BusinessException(AiWorkflowErrorEnum.WORKFLOW_PARAM_ERROR);
+        }
+        AiWorkflowEntity existing = getById(request.getId());
+        if (existing == null || Boolean.TRUE.equals(existing.getDeleted())) {
+            throw new BusinessException(AiWorkflowErrorEnum.WORKFLOW_NOT_FOUND);
         }
         AiWorkflowEntity entity = new AiWorkflowEntity();
         BeanUtils.copyProperties(request, entity);
         boolean ok = updateById(entity);
-        return ok ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
+        if (!ok) {
+            throw new BusinessException(AiWorkflowErrorEnum.WORKFLOW_UPDATE_FAILED);
+        }
+        return BaseResponse.success("更新成功");
     }
 
     @Override
@@ -89,7 +101,7 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
                 .eq(AiWorkflowEntity::getEnvCode, queryEnvParamHelper.effectiveEnvCode())
                 .eq(AiWorkflowEntity::getDeleted, false));
         if (entity == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(AiWorkflowErrorEnum.WORKFLOW_NOT_FOUND);
         }
         AiWorkflowResponseDTO dto = new AiWorkflowResponseDTO();
         BeanUtils.copyProperties(entity, dto);
@@ -130,11 +142,14 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
     public BaseResponse<String> publish(Long id) {
         AiWorkflowEntity entity = getById(id);
         if (entity == null || Boolean.TRUE.equals(entity.getDeleted())) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(AiWorkflowErrorEnum.WORKFLOW_NOT_FOUND);
         }
         entity.setStatus("PUBLISHED");
         boolean ok = updateById(entity);
-        return ok ? BaseResponse.success("发布成功") : BaseResponse.fail("发布失败", null);
+        if (!ok) {
+            throw new BusinessException(AiWorkflowErrorEnum.WORKFLOW_UPDATE_FAILED);
+        }
+        return BaseResponse.success("发布成功");
     }
 
     @Override
@@ -169,11 +184,7 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
             }
         }
         if (entity == null) {
-            String env = queryEnvParamHelper.effectiveEnvCode();
-            return BaseResponse.fail(
-                    "未找到工作流：请确认 workflowKey 已在当前环境 ENV_CODE=" + env + " 下创建，"
-                            + "且前端工作空间环境与后端一致；若仅本地新建，请先在列表保存并核对 Key。",
-                    null);
+            throw new BusinessException(AiWorkflowErrorEnum.WORKFLOW_NOT_FOUND);
         }
         try {
             WorkflowDefinition def = objectMapper.readValue(entity.getGraphJson(), WorkflowDefinition.class);
@@ -193,7 +204,7 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, AiWorkf
             }
             return BaseResponse.success(out);
         } catch (Exception e) {
-            return BaseResponse.fail("执行失败: " + e.getMessage(), null);
+            throw new BusinessException(AiWorkflowErrorEnum.WORKFLOW_EXECUTION_FAILED, e.getMessage());
         }
     }
 }

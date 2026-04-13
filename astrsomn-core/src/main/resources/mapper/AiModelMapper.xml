@@ -4,7 +4,18 @@
 
     <select id="queryPage" resultType="org.astrsomn.core.common.dto.model.AiModelResponseDTO">
         SELECT
-        am.*
+        am.*,
+        (
+            SELECT se.avatar
+            FROM SYSTEM_EXTENSION se
+            WHERE se.env_code = am.env_code
+              AND (se.deleted = 0 OR se.deleted IS NULL)
+              AND am.provider IS NOT NULL
+              AND am.provider != ''
+              AND (se.provider_code = am.provider OR se.extension_key = am.provider)
+            ORDER BY CASE WHEN se.provider_code = am.provider THEN 0 ELSE 1 END
+            LIMIT 1
+        ) AS providerAvatar
         FROM
         AI_MODEL am
         WHERE
@@ -20,6 +31,9 @@
         </if>
         <if test="req != null and req.modelKey != null and req.modelKey != ''">
             AND am.model_key = #{req.modelKey}
+        </if>
+        <if test="req != null and req.accountKey != null and req.accountKey != ''">
+            AND am.account_key = #{req.accountKey}
         </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND am.status = #{req.status}

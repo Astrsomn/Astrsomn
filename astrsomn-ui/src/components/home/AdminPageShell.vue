@@ -24,10 +24,6 @@ withDefaults(
 
 .page-content {
   min-height: calc(100vh - 70px);
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 24px;
-
 }
 </style>

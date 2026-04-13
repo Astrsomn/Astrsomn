@@ -3,17 +3,19 @@ package org.astrsomn.server.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
-import org.astrsomn.core.common.entity.AiAgentEntity;
-import org.astrsomn.core.mapper.AiAgentMapper;
 import org.astrsomn.core.common.dto.agent.AiAgentCreateRequestDTO;
 import org.astrsomn.core.common.dto.agent.AiAgentQueryRequestDTO;
-import org.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
 import org.astrsomn.core.common.dto.agent.AiAgentResponseDTO;
+import org.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
+import org.astrsomn.core.common.entity.AiAgentEntity;
+import org.astrsomn.core.exception.base.BusinessException;
+import org.astrsomn.core.exception.constant.AiAgentErrorEnum;
+import org.astrsomn.core.mapper.AiAgentMapper;
 import org.astrsomn.server.service.AiAgentService;
-import lombok.RequiredArgsConstructor;
 import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
@@ -34,21 +36,26 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         BeanUtils.copyProperties(request, aiAgent);
         bizResourceKeyAssignHelper.assignAgentKeyIfBlank(aiAgent);
         boolean result = save(aiAgent);
-
-        return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
+        if (!result) {
+            throw new BusinessException(AiAgentErrorEnum.AGENT_CREATE_FAILED);
+        }
+        return BaseResponse.success("创建成功");
     }
 
     @Override
     public BaseResponse<String> delete(long[] ids) {
         boolean result = removeByIds(Arrays.asList(Arrays.stream(ids).boxed().toArray(Long[]::new)));
-        return result ? BaseResponse.success("删除成功") : BaseResponse.fail("删除失败", null);
+        if (!result) {
+            throw new BusinessException(AiAgentErrorEnum.AGENT_DELETE_FAILED);
+        }
+        return BaseResponse.success("删除成功");
     }
 
     @Override
     public BaseResponse<AiAgentResponseDTO> detail(Long longId) {
         AiAgentEntity aiAgent = getById(longId);
         if (aiAgent == null) {
-            return BaseResponse.fail("Agent不存在", null);
+            throw new BusinessException(AiAgentErrorEnum.AGENT_NOT_FOUND);
         }
         AiAgentResponseDTO responseDTO = new AiAgentResponseDTO();
         BeanUtils.copyProperties(aiAgent, responseDTO);
@@ -57,10 +64,21 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
 
     @Override
     public BaseResponse<String> updateAgent(AiAgentUpdateRequestDTO request) {
+        if (request.getId() == null) {
+            throw new BusinessException(AiAgentErrorEnum.AGENT_PARAM_ERROR);
+        }
+        AiAgentEntity existing = getById(request.getId());
+        if (existing == null) {
+            throw new BusinessException(AiAgentErrorEnum.AGENT_NOT_FOUND);
+        }
         AiAgentEntity aiAgent = new AiAgentEntity();
         BeanUtils.copyProperties(request, aiAgent);
+        bizResourceKeyAssignHelper.assignAgentKeyIfBlank(aiAgent);
         boolean result = updateById(aiAgent);
-        return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
+        if (!result) {
+            throw new BusinessException(AiAgentErrorEnum.AGENT_UPDATE_FAILED);
+        }
+        return BaseResponse.success("更新成功");
     }
 
     @Override

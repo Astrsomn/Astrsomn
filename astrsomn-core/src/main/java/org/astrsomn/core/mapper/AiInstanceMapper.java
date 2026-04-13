@@ -13,4 +13,6 @@ public interface AiInstanceMapper extends BaseMapper<AiInstanceEntity> {
 
     IPage<AiInstanceResponseDTO> queryPage(IPage<AiInstanceResponseDTO> page,
                                            @Param("req") AiInstanceQueryRequestDTO param);
+
+    AiInstanceResponseDTO selectDetailDtoById(@Param("id") Long id);
 }

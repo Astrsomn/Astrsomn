@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.springframework.stereotype.Component;
 
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -52,7 +51,7 @@ public class AssistantCacheManager {
     private String generateConfigHash(AstroChatParam<?> param) {
         StringBuilder sb = new StringBuilder();
         sb.append(param.getAgentKey());
-        sb.append(param.getChatSetting().isEnableDeepThinking());
+        sb.append(param.getConversationSetting().isEnableDeepThinking());
         sb.append(param.getPromptSetting().getPromptKey());
         sb.append(param.getServiceClass().getName());
 

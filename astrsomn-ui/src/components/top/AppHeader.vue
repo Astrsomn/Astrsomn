@@ -110,7 +110,7 @@ const handleSwitch = () => {
     isClicking.value = false;
   }, 200);
 };
-const handleBack = () => router.push('/admin');
+const handleBack = () => router.back();
 const handleLogin = () => {
   localStorage.removeItem('token');
   router.push('/login');
@@ -119,18 +119,18 @@ const handleLogin = () => {
 
 <style scoped>
 .app-header {
-  --primary-glow: rgba(0, 97, 255, 0.15);
+  --primary-glow: rgba(59, 130, 246, 0.2);
   position: sticky;
   top: 0;
   z-index: 1000;
   height: 64px;
   width: 100%;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-subtle);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   display: flex;
   align-items: center;
+
 }
 
 .header-container {
@@ -138,7 +138,6 @@ const handleLogin = () => {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 1600px;
   margin: 0 auto;
   padding: 0 24px;
 }
@@ -148,6 +147,7 @@ const handleLogin = () => {
   display: flex;
   align-items: center;
   min-width: 240px;
+
 }
 
 .brand-area {
@@ -266,9 +266,9 @@ const handleLogin = () => {
   width: 32px;
   height: 32px;
   border: 1px solid var(--border-default);
-  background: var(--bg-base);
+  background-color: var(--bg-card);
   color: var(--text-primary);
-  border-radius: 8px;
+  border-radius: var(--radius-max);
   cursor: pointer;
   display: flex;
   align-items: center;

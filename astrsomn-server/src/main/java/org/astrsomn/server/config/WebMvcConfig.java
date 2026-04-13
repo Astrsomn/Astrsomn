@@ -1,10 +1,6 @@
 package org.astrsomn.server.config;
 
-import org.astrsomn.server.interceptor.AuthenticationInterceptor;
-import org.astrsomn.server.interceptor.AuthorizationInterceptor;
-import org.astrsomn.server.interceptor.EnvCodeRequestInterceptor;
-import org.astrsomn.server.interceptor.LoggingInterceptor;
-import org.astrsomn.server.interceptor.RateLimitingInterceptor;
+import org.astrsomn.server.interceptor.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

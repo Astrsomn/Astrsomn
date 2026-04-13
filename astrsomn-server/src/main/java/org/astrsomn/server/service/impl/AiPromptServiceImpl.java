@@ -3,15 +3,18 @@ package org.astrsomn.server.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.commons.lang3.StringUtils;
+import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.prompt.AiPromptCreateRequestDTO;
 import org.astrsomn.core.common.dto.prompt.AiPromptQueryRequestDTO;
-import org.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
 import org.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
+import org.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiPromptEntity;
+import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.exception.base.BusinessException;
+import org.astrsomn.core.exception.constant.AiPromptErrorEnum;
 import org.astrsomn.core.mapper.AiPromptMapper;
 import org.astrsomn.server.service.AiPromptService;
 import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
@@ -22,8 +25,6 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -47,16 +48,19 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
                 .eq(AiPromptEntity::getEnvCode, env)
                 .count();
         if (exists > 0) {
-            return BaseResponse.fail("该 Prompt Key 已存在，请从列表进入编辑或留空由系统生成", null);
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
         boolean result = save(entity);
-        return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
+        if (!result) {
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_CREATE_FAILED);
+        }
+        return BaseResponse.success("创建成功");
     }
 
     @Override
     public BaseResponse<String> delete(long[] ids) {
         if (ids == null || ids.length == 0) {
-            return BaseResponse.fail("请选择要删除的记录", null);
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
         Set<String> seen = new LinkedHashSet<>();
         for (long id : ids) {
@@ -78,7 +82,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     public BaseResponse<AiPromptResponseDTO> detail(Long id) {
         AiPromptEntity entity = getById(id);
         if (entity == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_NOT_FOUND);
         }
         AiPromptResponseDTO responseDTO = new AiPromptResponseDTO();
         BeanUtils.copyProperties(entity, responseDTO);
@@ -88,11 +92,11 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     @Override
     public BaseResponse<String> update(AiPromptUpdateRequestDTO request) {
         if (request.getId() == null) {
-            return BaseResponse.fail("缺少记录 ID", null);
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
         AiPromptEntity current = getById(request.getId());
         if (current == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_NOT_FOUND);
         }
         AiPromptEntity next = new AiPromptEntity();
         BeanUtils.copyProperties(request, next);
@@ -110,7 +114,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
                     .eq(AiPromptEntity::getEnvCode, env)
                     .count();
             if (exists > 0) {
-                return BaseResponse.fail("该 Prompt Key 已存在，请使用其他 Prompt Key", null);
+                throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
             }
         }
         AiPromptEntity top = lambdaQuery()
@@ -125,7 +129,10 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         }
         next.setVersion(base + 1);
         boolean result = save(next);
-        return result ? BaseResponse.success("已保存为新版本") : BaseResponse.fail("保存失败", null);
+        if (!result) {
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_UPDATE_FAILED);
+        }
+        return BaseResponse.success("已保存为新版本");
     }
 
     @Override
@@ -143,7 +150,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     @Override
     public BaseResponse<List<AiPromptResponseDTO>> history(String promptKey, String envCode) {
         if (StringUtils.isBlank(promptKey)) {
-            return BaseResponse.fail("缺少 promptKey", null);
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
         if (StringUtils.isBlank(envCode)) {
             envCode = queryEnvParamHelper.effectiveEnvCode();

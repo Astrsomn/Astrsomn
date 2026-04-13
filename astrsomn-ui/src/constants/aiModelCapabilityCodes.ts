@@ -1,85 +1,110 @@
 /**
- * 与后端 `org.astrsomn.core.common.constant.AiModelEnum` 各枚举 code 一致，
- * 供模型表单一处维护 capabilities JSON。
+ * 与后端 `org.astrsomn.core.common.constant.AiModelParamEnum` 各枚举 code 一致，
+ * 供模型表单一处维护 capabilities 和 param 的分离配置。
  */
 
-/** ChatCapabilitiesEnum */
-export const CHAT_FEATURE_CODES = [
-  'text_generation',
-  'deep_reasoning',
-  'function_calling',
+/** ChatCapabilitiesEnum - 聊天模型能力位 */
+export const CHAT_CAPABILITIES_CODES = [
   'streaming',
-  'json_mode',
+  'tools',
   'vision',
-  'network_search'
+  'json_mode',
+  'deep_reasoning',
+  'context_caching'
 ] as const
 
-/** InferenceParamEnum 主 code + 历史别名（后端 containedIn 仍识别） */
-export const CHAT_INFERENCE_CODES = [
+/** ChatParamEnum - 聊天模型推理参数 */
+export const CHAT_PARAM_CODES = [
   'temperature',
   'top_p',
   'top_k',
+  'max_tokens',
+  'stop_sequences',
+  'seed',
   'presence_penalty',
   'frequency_penalty',
-  'max_tokens',
-  'seed',
-  'temperature_setting',
-  'top_p_setting',
-  'top_k_setting',
-  'presence_penalty_setting',
-  'frequency_penalty_setting',
-  'max_token_setting',
-  'stop_sequences_setting',
-  'seed_setting'
+  'logit_bias'
 ] as const
 
-/** EmbeddingCapabilitiesEnum */
-export const EMBEDDING_FEATURE_CODES = ['text_embedding', 'image_embedding', 'semantic_search'] as const
-
-/** EmbeddingInferenceParamEnum */
-export const EMBEDDING_INFERENCE_CODES = [
-  'embedding_dimensions',
-  'embedding_user',
-  'embedding_max_retries',
-  'embedding_max_segments_per_batch',
-  'embedding_encoding_format',
-  'embedding_timeout_seconds'
+/** EmbeddingCapabilityEnum - 向量模型能力位 */
+export const EMBEDDING_CAPABILITIES_CODES = [
+  'text_embedding',
+  'image_embedding'
 ] as const
 
-/** ImageCapabilitiesEnum */
-export const IMAGE_FEATURE_CODES = [
-  'image_recognition',
-  'image_generation',
+/** EmbeddingParamEnum - 向量模型参数 */
+export const EMBEDDING_PARAM_CODES = [
+  'dimensions',
+  'model_name',
+  'user'
+] as const
+
+/** ImageCapabilitiesEnum - 图像模型能力位 */
+export const IMAGE_CAPABILITIES_CODES = [
   'text_to_image',
   'image_to_image',
-  'image_editing',
-  'image_inpainting'
+  'image_editing'
 ] as const
 
-/** ImageGenParamEnum（含后端 size_setting / style_setting 别名识别） */
-export const IMAGE_GEN_CODES = [
-  'image_size',
-  'image_quality',
-  'image_style',
-  'image_user',
-  'image_response_format',
-  'image_max_retries',
-  'image_timeout_seconds',
-  'size_setting',
-  'style_setting'
+/** ImageParamEnum - 图像生成参数 */
+export const IMAGE_PARAM_CODES = [
+  'size',
+  'quality',
+  'style',
+  'response_format'
 ] as const
 
-export const CHAT_FEATURE_SET = new Set<string>(CHAT_FEATURE_CODES)
-export const CHAT_INFERENCE_SET = new Set<string>(CHAT_INFERENCE_CODES)
-export const CHAT_ALL_KNOWN_SET = new Set<string>([...CHAT_FEATURE_CODES, ...CHAT_INFERENCE_CODES])
+/** SystemConfigParam - 系统与 HTTP 级配置 */
+export const SYSTEM_CONFIG_CODES = [
+  'base_url',
+  'api_key',
+  'timeout_seconds',
+  'max_retries',
+  'log_requests',
+  'log_responses',
+  'proxy_url'
+] as const
 
-export const EMBEDDING_FEATURE_SET = new Set<string>(EMBEDDING_FEATURE_CODES)
-export const EMBEDDING_INFERENCE_SET = new Set<string>(EMBEDDING_INFERENCE_CODES)
+// 集合形式，方便快速查找
+export const CHAT_CAPABILITIES_SET = new Set<string>(CHAT_CAPABILITIES_CODES)
+export const CHAT_PARAM_SET = new Set<string>(CHAT_PARAM_CODES)
+export const CHAT_ALL_KNOWN_SET = new Set<string>([...CHAT_CAPABILITIES_CODES, ...CHAT_PARAM_CODES])
+
+export const EMBEDDING_CAPABILITIES_SET = new Set<string>(EMBEDDING_CAPABILITIES_CODES)
+export const EMBEDDING_PARAM_SET = new Set<string>(EMBEDDING_PARAM_CODES)
 export const EMBEDDING_ALL_KNOWN_SET = new Set<string>([
-  ...EMBEDDING_FEATURE_CODES,
-  ...EMBEDDING_INFERENCE_CODES
+  ...EMBEDDING_CAPABILITIES_CODES,
+  ...EMBEDDING_PARAM_CODES
 ])
 
-export const IMAGE_FEATURE_SET = new Set<string>(IMAGE_FEATURE_CODES)
-export const IMAGE_GEN_SET = new Set<string>(IMAGE_GEN_CODES)
-export const IMAGE_ALL_KNOWN_SET = new Set<string>([...IMAGE_FEATURE_CODES, ...IMAGE_GEN_CODES])
+export const IMAGE_CAPABILITIES_SET = new Set<string>(IMAGE_CAPABILITIES_CODES)
+export const IMAGE_PARAM_SET = new Set<string>(IMAGE_PARAM_CODES)
+export const IMAGE_ALL_KNOWN_SET = new Set<string>([...IMAGE_CAPABILITIES_CODES, ...IMAGE_PARAM_CODES])
+
+export const SYSTEM_CONFIG_SET = new Set<string>(SYSTEM_CONFIG_CODES)
+
+// 模型类型常量
+export const MODEL_TYPE_CODES = {
+  CHAT: 'chat',
+  EMBEDDING: 'embedding',
+  IMAGE: 'image'
+} as const
+
+// 能力与参数映射，方便根据模型类型获取对应配置
+export const MODEL_CONFIG_MAP = {
+  [MODEL_TYPE_CODES.CHAT]: {
+    capabilities: CHAT_CAPABILITIES_CODES,
+    params: CHAT_PARAM_CODES,
+    allKnown: [...CHAT_CAPABILITIES_CODES, ...CHAT_PARAM_CODES]
+  },
+  [MODEL_TYPE_CODES.EMBEDDING]: {
+    capabilities: EMBEDDING_CAPABILITIES_CODES,
+    params: EMBEDDING_PARAM_CODES,
+    allKnown: [...EMBEDDING_CAPABILITIES_CODES, ...EMBEDDING_PARAM_CODES]
+  },
+  [MODEL_TYPE_CODES.IMAGE]: {
+    capabilities: IMAGE_CAPABILITIES_CODES,
+    params: IMAGE_PARAM_CODES,
+    allKnown: [...IMAGE_CAPABILITIES_CODES, ...IMAGE_PARAM_CODES]
+  }
+} as const

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.astrsomn.core.mapper.AiVecStoreMapper">
+
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO">
+        SELECT
+            s.ID,
+            s.SOURCE_ID,
+            s.COLLECTION_NAME,
+            s.DIMENSION,
+            s.DISTANCE_METRIC,
+            s.METADATA_SCHEMA,
+            s.INSTANCE_KEY,
+            s.CREATE_TIME,
+            s.UPDATE_TIME,
+            s.CREATE_USER,
+            s.UPDATE_USER,
+            s.ENV_CODE,
+            src.NAME AS SOURCE_NAME,
+            src.PROVIDER AS SOURCE_PROVIDER,
+            inst.INSTANCE_NAME
+        FROM
+            AI_VEC_STORE s
+        LEFT JOIN AI_VEC_SOURCE src ON s.SOURCE_ID = src.ID AND src.DELETED = 0
+        LEFT JOIN AI_INSTANCE inst ON s.INSTANCE_KEY = inst.INSTANCE_KEY AND inst.DELETED = 0
+        WHERE
+            s.deleted = 0
+        <if test="req != null and req.sourceId != null">
+            AND s.SOURCE_ID = #{req.sourceId}
+        </if>
+        <if test="req != null and req.collectionName != null and req.collectionName != ''">
+            AND s.COLLECTION_NAME LIKE CONCAT('%', #{req.collectionName}, '%')
+        </if>
+        <if test="req != null and req.instanceKey != null and req.instanceKey != ''">
+            AND s.INSTANCE_KEY = #{req.instanceKey}
+        </if>
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND s.ENV_CODE = #{req.envCode}
+        </if>
+        <if test="req != null and req.createUser != null and req.createUser != ''">
+            AND s.CREATE_USER = #{req.createUser}
+        </if>
+        ORDER BY
+            s.CREATE_TIME DESC
+    </select>
+
+    <select id="selectDetailDtoById" resultType="org.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO">
+        SELECT
+            s.ID,
+            s.SOURCE_ID,
+            s.COLLECTION_NAME,
+            s.DIMENSION,
+            s.DISTANCE_METRIC,
+            s.METADATA_SCHEMA,
+            s.INSTANCE_KEY,
+            s.CREATE_TIME,
+            s.UPDATE_TIME,
+            s.CREATE_USER,
+            s.UPDATE_USER,
+            s.ENV_CODE,
+            src.NAME AS SOURCE_NAME,
+            src.PROVIDER AS SOURCE_PROVIDER,
+            inst.INSTANCE_NAME
+        FROM
+            AI_VEC_STORE s
+        LEFT JOIN AI_VEC_SOURCE src ON s.SOURCE_ID = src.ID AND src.DELETED = 0
+        LEFT JOIN AI_INSTANCE inst ON s.INSTANCE_KEY = inst.INSTANCE_KEY AND inst.DELETED = 0
+        WHERE
+            s.ID = #{id}
+            AND s.deleted = 0
+    </select>
+
+</mapper>

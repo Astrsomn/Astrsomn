@@ -9,9 +9,8 @@ import org.astrsomn.server.exception.BusinessException;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-
 import java.io.IOException;
+import java.time.Instant;
 
 @Slf4j
 @Component
@@ -50,7 +49,7 @@ public class ExceptionHandlingFilter implements Filter {
                     status = be.getCode();
                 }
                 message = be.getMessage();
-            } else if (e instanceof org.astrsomn.core.exception.BusinessException be) {
+            } else if (e instanceof org.astrsomn.core.exception.base.BusinessException be) {
                 code = be.getCode();
                 status = be.getCode();
                 message = be.getMessage();

@@ -18,42 +18,14 @@
     </properties>
 
     <dependencies>
-        <!-- LangChain4j 核心依赖 -->
+
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
             <version>${langchain4j.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-open-ai</artifactId>
-            <version>${langchain4j.version}</version>
-        </dependency>
 
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-community-dashscope</artifactId>
-            <version>1.11.0-beta19</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-community-zhipu-ai</artifactId>
-            <version>1.11.0-beta19</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-community-qianfan</artifactId>
-            <version>1.11.0-beta19</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-google-ai-gemini</artifactId>
-            <version>${langchain4j.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>dev.langchain4j</groupId>
@@ -63,51 +35,22 @@
 
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-embeddings-all-minilm-l6-v2</artifactId>
-            <version>1.0.0-beta3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-mcp</artifactId>
             <version>1.0.0-beta3</version>
         </dependency>
 
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-qdrant</artifactId>
-            <version>1.0.0-beta3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-chroma</artifactId>
-            <version>1.11.0-beta19</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-jina</artifactId>
-            <version>1.11.0-beta19</version>
-        </dependency>
-
-
-        <!-- 工具类 -->
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>2.3.33</version>
         </dependency>
 
-
-        <!-- Jackson：实体上 @JsonSerialize；provided，运行时由 Spring Boot 提供 -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- MyBatis-Plus - 使用provided scope，由使用方提供 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
@@ -115,34 +58,23 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- 工具类 -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>4.4</version>
-        </dependency>
-
-        <!-- 测试 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
 
-
-
-        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>io.projectreactor</groupId>

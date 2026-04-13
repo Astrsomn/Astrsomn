@@ -191,8 +191,8 @@ const handleLogin = async () => {
 }
 
 .logo-img {
-  width: 64px;
-  height: 64px;
+  width: 32px;
+  height: 32px;
   object-fit: cover;
   object-position: 50% 0%;
 }
@@ -215,6 +215,7 @@ const handleLogin = async () => {
   border-radius: 20px;
   backdrop-filter: blur(8px);
 }
+
 
 .nav-item {
   color: var(--text-secondary);
@@ -342,6 +343,9 @@ const handleLogin = async () => {
   background: var(--bg-input) !important;
   border-color: var(--border-default) !important;
   transition: all 0.3s;
+}
+:deep(.ant-input){
+  background-color: var(--bg-input) !important;
 }
 
 :deep(.custom-input:hover), :deep(.custom-input:focus) {

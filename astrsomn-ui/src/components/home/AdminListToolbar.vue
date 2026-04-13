@@ -22,7 +22,6 @@
   margin-bottom: 6px;
   padding: 16px 0;
   border-radius: var(--radius-sm);
-  background: var(--bg-card);
 }
 
 .toolbar-main {

@@ -1,66 +1,68 @@
 <template>
   <div
-    class="prompt-card"
+    class="air-prompt-card-400"
     :class="{
-      selected,
-      disabled: String(record.status || '') !== 'enabled'
+      'is-selected': selected,
+      'is-disabled': String(record.status || '') !== 'enabled'
     }"
   >
-    <div class="card-checkbox-corner">
-      <a-checkbox :checked="selected" @change="onCheckedChange" />
+    <div class="card-header-status">
+      <div class="status-chip" :class="String(record.status || 'disabled')">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ renderEnabled(String(record.status || 'disabled')) }}</span>
+      </div>
+      <div class="header-checkbox">
+        <a-checkbox :checked="selected" @change="onCheckedChange" />
+      </div>
     </div>
 
-    <div class="card-top-row">
-      <div class="left-section">
-        <div class="mini-avatar">
+    <div class="card-content">
+      <div class="avatar-section">
+        <div class="avatar-glow">
           <file-text-outlined />
         </div>
-        <h3 class="prompt-title" :title="record.promptTitle">
-          {{ record.promptTitle || '未命名提示词' }}
-        </h3>
+        <div class="version-tag">VER {{ record.version ?? 1 }}</div>
       </div>
-      <div class="status-tag">
-        <a-tag :color="String(record.status || '') === 'enabled' ? 'success' : 'error'" class="compact-tag">
-          {{ renderEnabled(String(record.status || 'disabled')) }}
-        </a-tag>
-      </div>
-    </div>
 
-    <div class="card-info-grid">
-      <div class="tag-group">
-        <span class="info-label"><cloud-outlined /> {{ record.envCode || '默认' }}</span>
-        <span class="info-label"><tags-outlined /> {{ record.scene || '通用' }}</span>
-        <span class="info-label version-label">V{{ record.version ?? 1 }}</span>
-      </div>
-      <button
-        type="button"
-        class="compact-key"
-        :disabled="!record.promptKey"
+      <h3 class="title" :title="record.promptTitle">
+        {{ record.promptTitle || '未命名提示词' }}
+      </h3>
+
+      <div 
+        class="key-capsule-btn" 
         @click="copyPromptKey(record.promptKey)"
       >
-        <span class="key-text">{{ record.promptKey || '自动生成' }}</span>
-        <copy-outlined v-if="record.promptKey" />
-      </button>
+        <span class="label">KEY</span>
+        <code class="code">{{ record.promptKey || '自动生成' }}</code>
+        <copy-outlined class="icon" />
+      </div>
+
+      <div class="description-box">
+        <p class="description-text">
+          {{ previewContent(record.promptContent) }}
+        </p>
+      </div>
     </div>
 
-    <p class="content-preview">{{ previewContent(record.promptContent) }}</p>
-
-    <div class="card-footer">
-      <div class="meta-info">
-        <span :title="record.createUser"><user-outlined /> {{ record.createUser || '系统' }}</span>
-        <span><calendar-outlined /> {{ formatShortTime(record.createTime) }}</span>
+    <div class="card-footer-action">
+      <div class="user-meta">
+        <user-outlined class="meta-icon" />
+        <span class="meta-info">{{ record.createUser || '系统' }}</span>
+        <span class="divider">/</span>
+        <span class="meta-info">{{ formatShortTime(record.createTime) }}</span>
       </div>
-      <div class="card-actions">
-        <a-button type="text" size="small" class="action-btn history-btn" @click="emit('history', record)">
-          <template #icon><history-outlined /></template>
-        </a-button>
-        <a-button type="text" size="small" class="action-btn edit-btn" @click="emit('edit', record)">
-          <template #icon><edit-outlined /></template>
-        </a-button>
+
+      <div class="action-group">
+        <button class="action-circle-btn" @click="emit('history', record)">
+          <history-outlined />
+        </button>
+        <button class="action-circle-btn" @click="emit('edit', record)">
+          <edit-outlined />
+        </button>
         <a-popconfirm title="确定删除吗？" @confirm="onDelete">
-          <a-button type="text" size="small" danger class="action-btn delete-btn">
-            <template #icon><delete-outlined /></template>
-          </a-button>
+          <button class="action-circle-btn delete">
+            <delete-outlined />
+          </button>
         </a-popconfirm>
       </div>
     </div>
@@ -70,14 +72,11 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue'
 import {
-  CalendarOutlined,
-  CloudOutlined,
   CopyOutlined,
   DeleteOutlined,
   EditOutlined,
   FileTextOutlined,
   HistoryOutlined,
-  TagsOutlined,
   UserOutlined
 } from '@ant-design/icons-vue'
 
@@ -101,17 +100,18 @@ const props = defineProps<{
 
 const emit = defineEmits(['history', 'edit', 'delete', 'select-change'])
 
-const renderEnabled = (f: string) => f === 'enabled' ? '启用' : '停用'
+const renderEnabled = (f: string) => f === 'enabled' ? 'Active' : 'Paused'
 
 const previewContent = (raw?: string) => {
-  if (!raw) return '暂无内容...'
+  if (!raw) return '暂无描述内容配置。该智能体尚未定义具体的 Prompt 指令...'
   const clean = raw.replace(/\s+/g, ' ').trim()
-  return clean.length > 70 ? `${clean.slice(0, 70)}...` : clean
+  // 增加字数限制以填充 400px 的空间感
+  return clean.length > 120 ? `${clean.slice(0, 120)}...` : clean
 }
 
 const formatShortTime = (raw?: string) => {
   if (!raw) return '--'
-  return raw.split('T')[0].slice(2) // 返回 YY-MM-DD 格式节省空间
+  return raw.split('T')[0].slice(5) 
 }
 
 const onCheckedChange = (e: any) => emit('select-change', e.target.checked)
@@ -120,216 +120,247 @@ const onDelete = () => props.record.id && emit('delete', props.record.id)
 const copyPromptKey = async (key?: string) => {
   if (!key) return
   await navigator.clipboard.writeText(key)
-  message.success('已复制')
+  message.success('密钥已复制')
 }
 </script>
 
 <style scoped>
-.prompt-card {
-  --primary-color: #4f46e5;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
+.air-prompt-card-400 {
+  --primary-color: #3b82f6;
+  --text-main: #0f172a;
+  --text-muted: #94a3b8;
+  
+  width: 100%;
+  max-width: 320px;
+  min-height: 400px; /* 强制最小高度 */
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
-  overflow: hidden;
+  border: 1px solid #f1f5f9;
 }
 
-.card-checkbox-corner {
-  position: absolute;
-  left: 12px;
-  bottom: 10px;
-  display: flex;
-  align-items: center;
-  z-index: 1;
+.air-prompt-card-400:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 60px -12px rgba(15, 23, 42, 0.08);
+  border-color: #e2e8f0;
 }
 
-.prompt-card:hover {
+.air-prompt-card-400.is-selected {
   border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: #f8faff;
 }
 
-.prompt-card.selected {
-  border-color: var(--primary-color);
-  background: #f5f3ff;
-}
-
-.prompt-card.disabled {
-  opacity: 0.6;
-  background: #fafafa;
-}
-
-/* 顶部：标题栏 */
-.card-top-row {
+/* 顶部：状态与勾选并排 */
+.card-header-status {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  margin-bottom: 24px;
 }
 
-.left-section {
+.status-chip {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #f1f5f9;
+  border-radius: 100px;
 }
 
-.mini-avatar {
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(135deg, #279ea9, #3b64b2);
-  color: white;
-  border-radius: var(--radius-sm);
+.status-chip.enabled { background: #f0fdf4; }
+.status-chip.enabled .status-dot { background: #22c55e; }
+.status-chip.enabled .status-text { color: #16a34a; }
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+
+.status-text {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* 内容区：垂直分布 */
+.card-content {
+  flex: 1; /* 撑开中间 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.avatar-section {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.avatar-glow {
+  width: 64px;
+  height: 64px;
+  background: #ffffff;
+  border-radius: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  flex-shrink: 0;
-}
-
-.prompt-title {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 600;
-  color: #1f2937;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.compact-tag {
-  margin: 0;
-  padding: 0 4px;
-  font-size: 10px;
-  line-height: 16px;
-  border-radius: var(--radius-sm);
-}
-
-/* 信息网格 */
-.card-info-grid {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 4px;
-}
-
-.tag-group {
-  display: flex;
-  gap: 8px;
-  color: #6b7280;
-  font-size: 11px;
-}
-
-.info-label {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.version-label {
-  color: #b45309;
-  font-weight: bold;
-}
-
-.compact-key {
-  cursor: pointer;
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
-  border-radius: var(--radius-sm);
-  padding: 2px 6px;
-  font-size: 10px;
-  font-family: monospace;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  max-width: 100px;
-}
-
-.compact-key:hover {
+  font-size: 24px;
   color: var(--primary-color);
+  box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.15);
+  border: 1px solid #f1f5f9;
+}
+
+.version-tag {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: var(--text-main);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 16px;
+  letter-spacing: -0.5px;
+}
+
+.key-capsule-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: #f8fafc;
+  border-radius: 100px;
+  border: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 24px;
+}
+
+.key-capsule-btn:hover {
+  background: #fff;
   border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
 }
 
-.key-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.key-capsule-btn .label {
+  font-size: 9px;
+  font-weight: 900;
+  color: #cbd5e1;
 }
 
-/* 内容预览 */
-.content-preview {
-  margin: 0;
+.key-capsule-btn .code {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: #4b5563;
-  line-height: 1.5;
-  min-height: 32px;
+  color: var(--text-main);
+}
+
+.key-capsule-btn .icon {
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+/* 描述盒子：控制高度占比 */
+.description-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.description-text {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.8;
+  font-style: italic;
+  margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* 底部操作区 */
-.card-footer {
+/* 底部：沉底对齐 */
+.card-footer-action {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #f8fafc;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 4px;
-  padding-top: 8px;
-  padding-left: 24px;
-  border-top: 1px dashed #f3f4f6;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.meta-info {
-  display: flex;
-  gap: 8px;
-  font-size: 10px;
-  color: #9ca3af;
-}
-
-.card-actions {
-  display: flex;
-  gap: 2px;
-}
-
-.action-btn {
-  padding: 0 4px;
-  height: 24px;
-  width: 24px;
+.user-meta {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
 }
 
-.history-btn {
-  color: #16a34a;
+.meta-icon {
+  font-size: 12px;
+  color: #cbd5e1;
 }
 
-.history-btn:hover {
-  color: #15803d;
-  background: #f0fdf4;
+.meta-info {
+  font-size: 11px;
+  font-weight: 600;
+  color: #cbd5e1;
 }
 
-.edit-btn {
-  color: #2563eb;
+.divider {
+  color: #f1f5f9;
+  font-size: 10px;
 }
 
-.edit-btn:hover {
-  color: #1d4ed8;
-  background: #eff6ff;
+.action-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
 }
 
-.delete-btn {
-  color: #dc2626;
+.action-circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #f1f5f9;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
 }
 
-.delete-btn:hover {
-  color: #b91c1c;
-  background: #fef2f2;
+.action-circle-btn:hover {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.action-circle-btn.delete:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.is-disabled {
+  opacity: 0.5;
+  filter: grayscale(1);
 }
 </style>

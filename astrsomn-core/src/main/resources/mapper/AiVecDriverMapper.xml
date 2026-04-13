@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.astrsomn.core.mapper.AiVecDriverMapper">
+
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.vecdriver.AiVecDriverResponseDTO">
+        SELECT
+            *
+        FROM
+            AI_VEC_DRIVER
+        WHERE
+            deleted = 0
+        <if test="req != null and req.driverName != null and req.driverName != ''">
+            AND DRIVER_NAME LIKE CONCAT('%', #{req.driverName}, '%')
+        </if>
+        <if test="req != null and req.provider != null and req.provider != ''">
+            AND PROVIDER = #{req.provider}
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND STATUS = #{req.status}
+        </if>
+        ORDER BY
+            CREATE_TIME DESC
+    </select>
+
+</mapper>

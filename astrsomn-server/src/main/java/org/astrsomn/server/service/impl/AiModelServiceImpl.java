@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
@@ -14,8 +13,9 @@ import org.astrsomn.core.common.dto.model.AiModelResponseDTO;
 import org.astrsomn.core.common.dto.model.AiModelUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
-
-import org.springframework.beans.BeanUtils;
+import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.exception.base.BusinessException;
+import org.astrsomn.core.exception.constant.AiModelErrorEnum;
 import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiModelService;
@@ -23,6 +23,7 @@ import org.astrsomn.server.service.support.BizResourceKeyGenerator;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.context.EnvRuntime;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -40,7 +41,10 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     @Override
     public BaseResponse<String> delete(long[] longIds) {
         boolean result = removeByIds(Arrays.stream(longIds).boxed().toList());
-        return result ? BaseResponse.success("删除成功") : BaseResponse.fail("删除失败", null);
+        if (!result) {
+            throw new BusinessException(AiModelErrorEnum.MODEL_DELETE_FAILED);
+        }
+        return BaseResponse.success("删除成功");
     }
 
     @Override
@@ -59,7 +63,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     public BaseResponse<AiModelResponseDTO> detail(Long longId) {
         AiModelEntity entity = getById(longId);
         if (entity == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(AiModelErrorEnum.MODEL_NOT_FOUND);
         }
 
         AiModelResponseDTO responseDTO = new AiModelResponseDTO();
@@ -71,11 +75,11 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     @Override
     public BaseResponse<String> updateModel(AiModelUpdateRequestDTO request) {
         if (request.getId() == null) {
-            return BaseResponse.fail("ID不能为空", null);
+            throw new BusinessException(AiModelErrorEnum.MODEL_PARAM_ERROR);
         }
         AiModelEntity existing = getById(request.getId());
         if (existing == null) {
-            return BaseResponse.fail("记录不存在", null);
+            throw new BusinessException(AiModelErrorEnum.MODEL_NOT_FOUND);
         }
         AiModelEntity entity = new AiModelEntity();
         BeanUtils.copyProperties(request, entity);
@@ -88,7 +92,10 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
             assignModelKeyIfBlank(entity);
         }
         boolean result = updateById(entity);
-        return result ? BaseResponse.success("更新成功") : BaseResponse.fail("更新失败", null);
+        if (!result) {
+            throw new BusinessException(AiModelErrorEnum.MODEL_UPDATE_FAILED);
+        }
+        return BaseResponse.success("更新成功");
     }
 
     @Override
@@ -100,7 +107,10 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         }
         assignModelKeyIfBlank(entity);
         boolean result = save(entity);
-        return result ? BaseResponse.success("创建成功") : BaseResponse.fail("创建失败", null);
+        if (!result) {
+            throw new BusinessException(AiModelErrorEnum.MODEL_CREATE_FAILED);
+        }
+        return BaseResponse.success("创建成功");
     }
 
     private void assignModelKeyIfBlank(AiModelEntity entity) {

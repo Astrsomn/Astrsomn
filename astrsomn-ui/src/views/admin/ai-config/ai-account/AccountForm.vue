@@ -1,130 +1,143 @@
 <template>
-  <a-modal
-      :open="visible"
-      :title="isEdit ? 'UPDATE_CREDENTIAL_NODE' : 'PROVISION_CREDENTIAL_NODE'"
-      :width="640"
-      :confirm-loading="submitting"
-      :centered="true"
-      destroy-on-close
-      @ok="onSubmit"
-      @cancel="handleCancel"
-      class="dev-modal"
+  <AstrsomnModal
+    :open="visible"
+    width="680px"
+    max-width="min(680px, 96vw)"
+    body-height="80vh"
+    :closable="true"
+    main-padding="0"
+    :wrap-class-name="isEdit ? 'account-form-fsm-wrap account-form-fsm-wrap--edit' : 'account-form-fsm-wrap'"
+    @update:open="emit('update:visible', $event)"
+    @cancel="handleCancel"
   >
-    <a-spin :spinning="loading">
-      <div v-if="accountKeyImmutable" class="immutable-banner">
-        <LockOutlined class="icon" />
-        <span class="text">该凭证已绑定至活跃接入端点 (Endpoints)，核心索引标识已锁定</span>
-      </div>
+    <template #header-logo>
+      <component :is="isEdit ? FormOutlined : PlusCircleOutlined" />
+    </template>
+    <template #header-title>
+      {{ isEdit ? '编辑凭证节点' : '部署新凭证' }}
+    </template>
+    <template #header-subtitle>
+      {{ isEdit ? '正在更新现有资产的安全配置' : '配置一个新的 AI 模型接入点' }}
+    </template>
 
-      <a-form layout="vertical" :model="form" class="industrial-form">
-        <div class="form-group">
-          <div class="group-title">
-            <IdcardOutlined /> 资产身份标识 / IDENTITY_INDEX
+    <div class="account-form-shell">
+    <div class="account-form-spin-wrap">
+    <a-spin :spinning="loading">
+      <div class="modal-body-content">
+        <div v-if="accountKeyImmutable" class="info-alert">
+          <div class="alert-content">
+            <LockFilled class="alert-icon" />
+            <span>核心索引已锁定：该凭证正被活跃的端点使用，无法修改 Key 标识。</span>
           </div>
-          <a-row :gutter="20">
-            <a-col :span="12">
-              <a-form-item name="accountKey">
-                <template #label><span class="label-txt">凭证唯一标识 (Key)</span></template>
-                <a-input
+        </div>
+
+        <a-form layout="vertical" :model="form" class="refined-form">
+          <div class="form-section">
+            <div class="section-tag"><IdcardOutlined /> 基础身份</div>
+            <a-row :gutter="24">
+              <a-col :span="12">
+                <a-form-item name="accountKey">
+                  <template #label><span class="field-label">凭证唯一标识 <small>(Key)</small></span></template>
+                  <a-input
                     v-model:value="form.accountKey"
-                    :placeholder="accountKeyImmutable ? '' : 'SYSTEM_AUTO_GENERATE'"
+                    :placeholder="accountKeyImmutable ? '' : '系统自动生成'"
                     :disabled="accountKeyImmutable"
-                    class="dev-input mono"
-                />
-                <div class="helper-text">引用此凭证资产的唯一 Key，建议使用大写蛇形命名</div>
-              </a-form-item>
-            </a-col>
-            <a-col :span="12">
-              <a-form-item
+                    class="premium-input mono"
+                  />
+                  <div class="field-hint">建议：UPPER_SNAKE_CASE</div>
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-item
                   name="accountName"
                   :rules="[{ required: true, message: '请定义凭证展示名称' }]"
-              >
-                <template #label><span class="label-txt">凭证名称</span></template>
-                <a-input
+                >
+                  <template #label><span class="field-label">展示名称</span></template>
+                  <a-input
                     v-model:value="form.accountName"
-                    placeholder="例如：OPENAI_PROD_01"
-                    class="dev-input"
+                    placeholder="例如：OpenAI 生产环境"
+                    class="premium-input"
                     allow-clear
-                />
-                <div class="helper-text">在接入端点 (Endpoints) 配置中显示的识别名称</div>
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </div>
-
-        <div class="form-group security">
-          <div class="group-title">
-            <SafetyOutlined /> 安全鉴权凭证 / AUTH_CREDENTIALS
+                  />
+                  <div class="field-hint">仅用于管理界面的识别名称</div>
+                </a-form-item>
+              </a-col>
+            </a-row>
           </div>
-          <a-row :gutter="20">
-            <a-col :span="12">
-              <a-form-item name="apiKey">
-                <template #label><span class="label-txt">API_KEY</span></template>
-                <a-input-password
+
+          <div class="form-section">
+            <div class="section-tag security"><SafetyOutlined /> 安全鉴权</div>
+            <a-row :gutter="24">
+              <a-col :span="12">
+                <a-form-item name="apiKey">
+                  <template #label><span class="field-label">API Key</span></template>
+                  <a-input-password
                     v-model:value="form.apiKey"
-                    placeholder="Secret API Key"
-                    class="dev-input mono"
-                />
-              </a-form-item>
-            </a-col>
-            <a-col :span="12">
-              <a-form-item name="apiSecret">
-                <template #label><span class="label-txt">API_SECRET (Optional)</span></template>
-                <a-input-password
+                    placeholder="请输入 API Key"
+                    class="premium-input mono"
+                  />
+                </a-form-item>
+              </a-col>
+              <a-col :span="12">
+                <a-form-item name="apiSecret">
+                  <template #label><span class="field-label">API Secret <small>(可选)</small></span></template>
+                  <a-input-password
                     v-model:value="form.apiSecret"
-                    placeholder="供应商提供的 Secret 密钥"
-                    class="dev-input mono"
-                />
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </div>
-
-        <div class="form-group">
-          <div class="group-title">
-            <ControlOutlined /> 资产配额控制 / QUOTA_CIRCUIT_BREAKER
+                    placeholder="请输入 Secret 密钥"
+                    class="premium-input mono"
+                  />
+                </a-form-item>
+              </a-col>
+            </a-row>
           </div>
-          <a-row :gutter="20">
-            <a-col :span="12">
-              <a-form-item name="accountTokens">
-                <template #label><span class="label-txt">Token 消耗上限</span></template>
-                <a-input-number
+
+          <div class="form-section">
+            <div class="section-tag quota"><ControlOutlined /> 配额熔断</div>
+            <a-row :gutter="24">
+              <a-col :span="12">
+                <a-form-item name="accountTokens">
+                  <template #label><span class="field-label">消耗上限 <small>(Tokens)</small></span></template>
+                  <a-input-number
                     v-model:value="form.accountTokens"
                     :min="0"
-                    placeholder="UNLIMITED"
-                    class="dev-input-number w-full mono"
-                />
-                <div class="helper-text">达到限额后，所有关联端点将自动熔断停止服务</div>
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </div>
-      </a-form>
-    </a-spin>
-
-    <template #footer>
-      <div class="modal-footer">
-        <span class="footer-hint">变更将实时同步至所有下游推理实例 (Instances)</span>
-        <div class="footer-btns">
-          <a-button @click="handleCancel" class="dev-btn">DISCARD</a-button>
-          <a-button type="primary" :loading="submitting" @click="onSubmit" class="dev-btn-primary">
-            COMMIT_CHANGES
-            </a-button>
-        </div>
+                    placeholder="无限制"
+                    class="premium-input-number w-full mono"
+                  />
+                  <div class="field-hint">达到上限后，关联服务将自动进入熔断状态</div>
+                </a-form-item>
+              </a-col>
+            </a-row>
+          </div>
+        </a-form>
       </div>
-    </template>
-  </a-modal>
+    </a-spin>
+    </div>
+
+    <div class="premium-footer">
+      <div class="footer-info">
+        <SyncOutlined spin class="sync-icon" />
+        <span>变更将实时同步至下游实例</span>
+      </div>
+      <div class="footer-actions">
+        <a-button @click="handleCancel" class="btn-cancel">放弃修改</a-button>
+        <a-button type="primary" :loading="submitting" @click="onSubmit" class="btn-submit">
+          <span>确认部署更新</span>
+          <ArrowRightOutlined />
+        </a-button>
+      </div>
+    </div>
+    </div>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref, watch, computed } from 'vue'
 import { message } from 'ant-design-vue'
 import {
-  LockOutlined,
-  IdcardOutlined,
-  SafetyOutlined,
-  ControlOutlined
+  LockFilled, IdcardOutlined, SafetyOutlined, ControlOutlined,
+  FormOutlined, PlusCircleOutlined, SyncOutlined, ArrowRightOutlined
 } from '@ant-design/icons-vue'
+import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 
 interface Props {
@@ -168,16 +181,11 @@ const onSubmit = async () => {
     message.error('请填写账户名称')
     return
   }
-
   submitting.value = true
   try {
     const payload = { ...form }
     if (!isEdit.value) delete payload.id
-
-    const msg = isEdit.value
-        ? await aiAccountApi.update(payload)
-        : await aiAccountApi.create(payload)
-
+    const msg = isEdit.value ? await aiAccountApi.update(payload) : await aiAccountApi.create(payload)
     message.success(msg || '操作成功')
     emit('update:visible', false)
     emit('success')
@@ -193,14 +201,7 @@ watch(() => props.visible, (val) => {
     if (props.record?.id) {
       loadDetail(props.record.id)
     } else {
-      Object.assign(form, {
-        id: undefined,
-        accountKey: '',
-        accountName: '',
-        apiKey: '',
-        apiSecret: '',
-        accountTokens: undefined
-      })
+      Object.assign(form, { id: undefined, accountKey: '', accountName: '', apiKey: '', apiSecret: '', accountTokens: undefined })
       accountKeyImmutable.value = false
     }
   }
@@ -208,90 +209,156 @@ watch(() => props.visible, (val) => {
 </script>
 
 <style scoped>
-/* 样式重构：开发者精致工业风 */
+.account-form-shell {
+  --primary-color: #3b82f6;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
 
-/* 顶部 Banner */
-.immutable-banner {
-  background: #fffbe6;
-  border: 1px solid #ffe58f;
-  padding: 10px 16px;
-  border-radius: 4px;
+.account-form-spin-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.account-form-spin-wrap :deep(.ant-spin-nested-loading) {
+  flex: 1;
+  min-height: 0;
+  display: flex !important;
+  flex-direction: column;
+}
+
+.account-form-spin-wrap :deep(.ant-spin-container) {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+:global(.account-form-fsm-wrap.ant-modal-wrap) {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+}
+
+:global(.account-form-fsm-wrap .ant-modal) {
+  top: 0;
+  padding-bottom: 0;
+}
+
+:global(.account-form-fsm-wrap--edit .fsm-logo-box) {
+  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 2px 6px rgba(22, 163, 74, 0.35);
+}
+
+.modal-body-content {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 8px 24px 20px;
+}
+
+/* 温和的 Alert */
+.info-alert {
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 12px 16px;
   margin-bottom: 24px;
 }
-.immutable-banner .icon { color: #faad14; }
-.immutable-banner .text { font-size: 13px; color: #856404; font-weight: 500; }
-
-/* 表单分组 */
-.form-group {
-  margin-bottom: 32px;
+.alert-content {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: #475569;
 }
-.group-title {
-  font-family: 'JetBrains Mono', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  color: #bfbfbf;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f0f0f0;
-}
+.alert-icon { color: #94a3b8; }
 
-.label-txt {
-  font-size: 13px;
-  font-weight: 600;
-  color: #262626;
+/* 表单分段卡片 */
+.form-section {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+.form-section:hover {
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
 }
 
-.helper-text {
-  font-size: 11px;
-  color: #bfbfbf;
-  margin-top: 4px;
+.section-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; color: var(--primary-color);
+  padding: 4px 12px; background: #eff6ff;
+  border-radius: 20px; margin-bottom: 18px;
+  text-transform: uppercase;
 }
+.section-tag.security { color: #f59e0b; background: #fffbeb; }
+.section-tag.quota { color: #8b5cf6; background: #f5f3ff; }
 
-/* 输入框统一风格 */
-.dev-input, .dev-input-number {
-  border-radius: 2px;
-  background: #fcfcfc;
-  border-color: #d9d9d9;
+/* 输入控件优化 */
+.field-label {
+  font-size: 14px; font-weight: 600; color: #334155;
 }
-.dev-input:hover, .dev-input:focus {
+.field-label small { color: #94a3b8; font-weight: normal; margin-left: 4px; }
+
+.premium-input, .premium-input-number {
+  border-radius: 10px;
+  padding: 8px 12px;
+  border-color: #e2e8f0;
+  background: #f8fafc;
+}
+.premium-input:focus, .premium-input:hover {
   background: #fff;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .mono {
-  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
-  font-size: 13px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
-/* Footer 布局 */
-.modal-footer {
+.field-hint {
+  font-size: 11px; color: #94a3b8; margin-top: 6px;
+}
+
+/* Footer 优化 */
+.premium-footer {
+  flex-shrink: 0;
+  padding: 14px 24px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
 }
-.footer-hint {
-  font-size: 12px;
-  color: #bfbfbf;
+.footer-info {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: #94a3b8;
 }
-.footer-btns {
-  display: flex;
-  gap: 12px;
+.sync-icon { color: #10b981; }
+
+.footer-actions { display: flex; gap: 12px; }
+
+.btn-cancel {
+  border-radius: 10px; height: 44px; padding: 0 20px;
+  border-color: #e2e8f0; color: #64748b; font-weight: 600;
+}
+.btn-submit {
+  border-radius: 10px; height: 44px; padding: 0 24px;
+  font-weight: 700; display: flex; align-items: center; gap: 8px;
+  background: var(--primary-color); box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
 }
 
-.dev-btn { border-radius: 2px; }
-.dev-btn-primary { border-radius: 2px; background: #000; border: none; }
-.dev-btn-primary:hover { background: #333; }
-
-/* 响应式微调 */
+:deep(.ant-form-item) { margin-bottom: 0; } /* 卡片已经有间距 */
+:deep(.ant-form-item-label) { padding-bottom: 8px; }
 .w-full { width: 100%; }
-
-/* 全局覆盖 (Scoped) */
-:deep(.ant-form-item-label) { padding-bottom: 6px; }
-:deep(.ant-modal-title) { font-weight: 800; }
 </style>

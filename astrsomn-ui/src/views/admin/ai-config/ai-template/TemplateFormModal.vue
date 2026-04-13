@@ -1,60 +1,93 @@
 <template>
-  <a-modal
-    v-model:open="open"
-    :title="mode === 'create' ? '新增 FTL/ST 模板' : '编辑 FTL/ST 模板'"
-    width="880px"
-    :confirm-loading="confirmLoading"
-    :body-style="{ maxHeight: '78vh', overflowY: 'auto' }"
-    @ok="handleOk"
+  <AstrsomnModal
+    :open="open"
+    width="80vw"
+    :body-height="'80vh'"
+    @update:open="(value) => open = value"
     @cancel="onCancel"
   >
-    <a-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      layout="vertical"
-      class="template-form"
-    >
-      <div class="form-grid">
-        <a-form-item label="Template Key" name="templateKey">
-          <a-input
-            v-model:value="form.templateKey"
-            placeholder="同一逻辑多版本共用的 Key"
-            :disabled="mode === 'edit'"
-          />
-        </a-form-item>
+    <template #header-logo>
+      <div class="logo-box"><CodeOutlined /></div>
+    </template>
+    <template #header-title>
+      <span class="main-title">{{ mode === 'create' ? '新增 FTL/ST 模板' : '编辑 FTL/ST 模板' }}</span>
+    </template>
+    <template #header-subtitle>
+      <span class="sub-title">配置模板的基本信息和代码内容</span>
+    </template>
+    <template #header-actions>
+      <div class="header-action-pair">
+        <a-button class="header-action-btn header-action-btn-cancel" @click="onCancel">取消</a-button>
+        <a-button
+          type="primary"
+          class="header-action-btn header-action-btn-save"
+          :loading="confirmLoading"
+          @click="handleOk"
+        >
+          保存模板
+        </a-button>
+      </div>
+    </template>
 
-        <a-form-item label="标题" name="templateTitle">
-          <a-input v-model:value="form.templateTitle" placeholder="展示名称" />
-        </a-form-item>
+    <div class="main-content">
+      <section class="info-pane">
+        <div class="pane-card glass-card">
+          <a-form
+            ref="formRef"
+            :model="form"
+            :rules="rules"
+            layout="vertical"
+            class="template-form"
+          >
+            <div class="form-grid">
+              <a-form-item label="Template Key" name="templateKey">
+                <a-input
+                  v-model:value="form.templateKey"
+                  placeholder="同一逻辑多版本共用的 Key"
+                  :disabled="mode === 'edit'"
+                  size="large"
+                />
+              </a-form-item>
 
-        <a-form-item label="分类" name="category">
-          <a-input v-model:value="form.category" placeholder="可选" allow-clear />
-        </a-form-item>
+              <a-form-item label="标题" name="templateTitle">
+                <a-input v-model:value="form.templateTitle" placeholder="展示名称" size="large" />
+              </a-form-item>
 
-        <a-form-item label="模板类型" name="templateType">
-          <a-select
-            v-model:value="form.templateType"
-            :options="templateTypeOptions"
-            placeholder="选择引擎"
-          />
-        </a-form-item>
+              <a-form-item label="分类" name="category">
+                <a-input v-model:value="form.category" placeholder="可选" allow-clear size="large" />
+              </a-form-item>
 
-        <a-form-item label="版本号" name="version">
-          <a-input-number
-            v-model:value="form.version"
-            :min="1"
-            :precision="0"
-            class="w-full"
-            placeholder="默认 1"
-          />
-        </a-form-item>
+              <a-form-item label="模板类型" name="templateType">
+                <a-select
+                  v-model:value="form.templateType"
+                  :options="templateTypeOptions"
+                  placeholder="选择引擎"
+                  size="large"
+                />
+              </a-form-item>
 
-        <a-form-item label="状态" name="status">
-          <a-select v-model:value="form.status" :options="statusOptions" />
-        </a-form-item>
+              <a-form-item label="版本号" name="version">
+                <a-input-number
+                  v-model:value="form.version"
+                  :min="1"
+                  :precision="0"
+                  class="w-full"
+                  placeholder="默认 1"
+                  size="large"
+                  :disabled="true"
+                />
+              </a-form-item>
 
-        <a-form-item label="模板内容" name="content" class="span-2">
+              <a-form-item label="状态" name="status">
+                <a-select v-model:value="form.status" :options="statusOptions" size="large" />
+              </a-form-item>
+            </div>
+          </a-form>
+        </div>
+      </section>
+
+      <aside class="code-pane">
+        <a-form-item name="content">
           <div class="editor-shell">
             <div class="editor-toolbar">
               <span class="editor-title">
@@ -74,9 +107,9 @@
             />
           </div>
         </a-form-item>
-      </div>
-    </a-form>
-  </a-modal>
+      </aside>
+    </div>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
@@ -85,6 +118,8 @@ import type { FormInstance } from 'ant-design-vue'
 import { Codemirror } from 'vue-codemirror'
 import { html } from '@codemirror/lang-html'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { CodeOutlined } from '@ant-design/icons-vue'
+import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import type { AiTemplate } from '@/api/aiTemplate.ts'
 
 const props = defineProps<{
@@ -126,7 +161,7 @@ function emptyForm(): AiTemplate {
 const form = reactive<AiTemplate>(emptyForm())
 
 const rules = {
-  templateKey: [{ required: true, message: '请输入 Template Key' }],
+  templateKey: [],
   templateTitle: [{ required: true, message: '请输入标题' }],
   content: [{ required: true, message: '请输入模板内容' }],
   templateType: [{ required: true, message: '请选择模板类型' }],
@@ -179,29 +214,164 @@ function onCancel() {
 </script>
 
 <style scoped>
+/* Header */
+.logo-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 2px 6px rgba(29, 78, 216, 0.35);
+}
+
+.main-title {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.sub-title {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.header-action-pair {
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.header-action-btn {
+  height: 40px;
+  min-width: 120px;
+  padding: 0 22px;
+  font-weight: 600;
+}
+
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn) {
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default) {
+  color: #475569;
+  border-color: #cbd5e1;
+  background: #fff;
+  border-right: none;
+}
+
+.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default:hover) {
+  color: #334155;
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.header-action-pair :deep(.header-action-btn-save.ant-btn) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+.header-action-pair :deep(.header-action-btn-save.ant-btn-primary) {
+  margin-left: -1px;
+  box-shadow: none;
+}
+
+/* 布局主体 */
+.main-content {
+  flex: 1;
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+  overflow: hidden;
+}
+
+/* 通用卡片样式 */
+.glass-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
+}
+
+.pane-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+/* 左侧信息面板 */
+.info-pane {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .template-form {
   margin-top: 4px;
+  flex: 1;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 16px;
+  gap: 16px;
 }
 
-.span-2 {
-  grid-column: span 2;
+/* 右侧代码面板 */
+.code-pane {
+  width: 50%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
 }
 
-.w-full {
-  width: 100%;
-}
-
+/* 编辑器样式 */
 .editor-shell {
   border: 1px solid #d9d9d9;
   border-radius: 8px;
   overflow: hidden;
   background: #0f172a;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* 移除form-item的默认margin */
+.code-pane :deep(.ant-form-item) {
+  margin-bottom: 0;
+  margin-top: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.code-pane :deep(.ant-form-item-control) {
+  flex: 1;
+  min-height: 0;
 }
 
 .editor-toolbar {
@@ -212,6 +382,7 @@ function onCancel() {
   padding: 10px 12px;
   background: #111827;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .editor-title {
@@ -227,22 +398,31 @@ function onCancel() {
 
 .content-editor {
   font-size: 13px;
+  flex: 1;
 }
 
 :deep(.content-editor .cm-editor) {
-  min-height: 320px;
+  height: 100%;
+  min-height: 400px;
 }
 
 :deep(.content-editor .cm-scroller) {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+/* 响应式 */
 @media (max-width: 1024px) {
+  .main-content {
+    flex-direction: column;
+  }
+  
+  .code-pane {
+    width: 100%;
+    min-height: 400px;
+  }
+  
   .form-grid {
     grid-template-columns: 1fr;
-  }
-  .span-2 {
-    grid-column: auto;
   }
 }
 </style>

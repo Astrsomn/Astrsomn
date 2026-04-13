@@ -18,6 +18,8 @@
 
     <properties>
         <langchain4j.version>1.11.0</langchain4j.version>
+        <!-- LangChain4j 各向量集成模块与 core 主版本对齐的 beta 线 -->
+        <langchain4j.integration.version>1.11.0-beta19</langchain4j.integration.version>
     </properties>
     <modules>
         <module>astrsomn-vector-chroma</module>

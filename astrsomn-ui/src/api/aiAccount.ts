@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import type { AiModel } from '@/api/aiModel'
 
 export type AiAccount = {
   id?: number | string
@@ -10,6 +11,12 @@ export type AiAccount = {
   apiSecret?: string
   accountTokens?: number
   envCode?: string
+  /** 同环境下使用该 accountKey 的模型数量 */
+  usedModelCount?: number
+  /** 同环境下使用该 accountKey 的模型 Key 列表（逗号分隔） */
+  usedModelKeys?: string
+  /** 同环境下使用该 accountKey 的模型名称列表（逗号分隔） */
+  usedModelNames?: string
   createUser?: string
   createTime?: string
   updateUser?: string
@@ -29,6 +36,14 @@ export const aiAccountApi = {
   queryPage: (payload: unknown): Promise<PageResponse<AiAccount>> => {
     return request({
       url: '/v1/astro/ai-account/queryPage',
+      method: 'post',
+      data: payload
+    })
+  },
+
+  queryModelsByAccountKey: (payload: unknown): Promise<PageResponse<AiModel>> => {
+    return request({
+      url: '/v1/astro/ai-account/queryModelsByAccountKey',
       method: 'post',
       data: payload
     })

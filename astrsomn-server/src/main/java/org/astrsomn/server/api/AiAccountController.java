@@ -1,5 +1,6 @@
 package org.astrsomn.server.api;
 
+
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.base.BaseController;
 import org.astrsomn.core.common.base.BasePageRequest;
@@ -9,7 +10,10 @@ import org.astrsomn.core.common.dto.account.AiAccountCreateRequestDTO;
 import org.astrsomn.core.common.dto.account.AiAccountQueryRequestDTO;
 import org.astrsomn.core.common.dto.account.AiAccountResponseDTO;
 import org.astrsomn.core.common.dto.account.AiAccountUpdateRequestDTO;
+import org.astrsomn.core.common.dto.model.AiModelQueryRequestDTO;
+import org.astrsomn.core.common.dto.model.AiModelResponseDTO;
 import org.astrsomn.server.service.AiAccountService;
+import org.astrsomn.server.service.AiModelService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class AiAccountController extends BaseController {
 
     private final AiAccountService aiAccountService;
+    private final AiModelService aiModelService;
 
     @PostMapping("/create")
     public BaseResponse<String> create(@RequestBody AiAccountCreateRequestDTO request) {
@@ -43,6 +48,16 @@ public class AiAccountController extends BaseController {
     public PageResponse<AiAccountResponseDTO> queryPage(
             @RequestBody BasePageRequest<AiAccountQueryRequestDTO> request) {
         return aiAccountService.queryPage(request);
+    }
+
+    /**
+     * 按 accountKey 获取该账号在当前环境下关联使用的模型列表。
+     * 前端用于「账号卡片 - 侧边栏模型列表」。
+     */
+    @PostMapping("/queryModelsByAccountKey")
+    public PageResponse<AiModelResponseDTO> queryModelsByAccountKey(
+            @RequestBody BasePageRequest<AiModelQueryRequestDTO> request) {
+        return aiModelService.queryPage(request);
     }
 
     @GetMapping("/detail")

@@ -4,8 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.langchain.AstroChatAssistant;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import org.astrsomn.starter.langchain.AstroAssistantFactory;
-import org.astrsomn.starter.langchain.runtime.AgentRuntimeConfigLoader;
+import org.astrsomn.starter.langchain.factory.AstroAssistantFactory;
 import org.astrsomn.workflow.core.context.WorkflowContext;
 import org.astrsomn.workflow.core.model.FlowNode;
 import org.astrsomn.workflow.core.model.FlowNodeType;
@@ -33,7 +32,6 @@ public class WorkflowAssistantNodeHandlerRegistrar {
 
     private final NodeHandlerRegistry nodeHandlerRegistry;
     private final AstroAssistantFactory astroAssistantFactory;
-    private final AgentRuntimeConfigLoader agentRuntimeConfigLoader;
 
     @PostConstruct
     void registerAssistantTaskHandler() {
@@ -70,7 +68,6 @@ public class WorkflowAssistantNodeHandlerRegistrar {
                 .memoryKey(memoryKey)
                 .build();
 
-        agentRuntimeConfigLoader.validateAndApplyAgent(param);
         AstroChatAssistant assistant = astroAssistantFactory.createAssistant(param);
         String reply = assistant.chat(param.getUserMessage(), param.getMemoryKey());
 

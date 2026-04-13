@@ -24,6 +24,8 @@
         <module>astrsomn-provider-deepseek</module>
         <module>astrsomn-provider-qwen</module>
         <module>astrsomn-provider-openai</module>
+        <module>astrsomn-provider-qianfan</module>
+        <module>astrsomn-provider-zhipu</module>
     </modules>
 
 

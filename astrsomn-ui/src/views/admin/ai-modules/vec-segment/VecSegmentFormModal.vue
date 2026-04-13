@@ -1,0 +1,205 @@
+<template>
+  <a-modal
+    v-model:open="open"
+    :title="null"
+    width="860px"
+    :footer="null"
+    :destroy-on-close="true"
+    @cancel="onCancel"
+    class="vec-segment-modal"
+  >
+    <div class="modal-header-gradient">
+      <div class="header-content">
+        <div class="title-area">
+          <div class="icon-box">
+            <FileTextOutlined />
+          </div>
+          <div class="text-group">
+            <h2>{{ mode === 'create' ? '创建向量分段' : '编辑向量分段' }}</h2>
+            <p>管理文档切片与向量映射，支持分段内容预览</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <a-form
+      ref="formRef"
+      :model="form"
+      :rules="rules"
+      layout="vertical"
+      class="professional-form"
+    >
+      <div class="form-body-container">
+        <div class="form-section">
+          <h3 class="section-headline"><IdcardOutlined /> 基本配置</h3>
+
+          <div class="form-grid">
+            <a-form-item label="文档 ID" name="docId">
+              <a-input-number v-model:value="form.docId" placeholder="关联的文档 ID" size="large" min="1" />
+            </a-form-item>
+
+            <a-form-item label="集合 ID" name="collectionId">
+              <a-input-number v-model:value="form.collectionId" placeholder="关联的向量集合 ID" size="large" min="1" />
+            </a-form-item>
+
+            <a-form-item label="向量 ID" name="vectorId">
+              <a-input v-model:value="form.vectorId" placeholder="向量库中的唯一标识" size="large" />
+            </a-form-item>
+
+            <a-form-item label="分段序号" name="chunkIndex">
+              <a-input-number v-model:value="form.chunkIndex" placeholder="切片序号" size="large" min="0" />
+            </a-form-item>
+
+            <a-form-item label="字符数" name="wordCount">
+              <a-input-number v-model:value="form.wordCount" placeholder="字符数" size="large" min="0" />
+            </a-form-item>
+
+            <a-form-item label="分段内容" name="segmentContent" class="span-2">
+              <a-textarea
+                v-model:value="form.segmentContent"
+                :auto-size="{ minRows: 4, maxRows: 6 }"
+                placeholder="切片文本内容"
+              />
+            </a-form-item>
+
+            <a-form-item label="元数据 (JSON)" name="metadataJson" class="span-2">
+              <div class="json-editor-wrapper">
+                <a-textarea
+                  v-model:value="form.metadataJson"
+                  :auto-size="{ minRows: 4, maxRows: 6 }"
+                  placeholder='{"page": 1, "author": "admin"}'
+                  class="mono-text"
+                />
+              </div>
+            </a-form-item>
+          </div>
+        </div>
+      </div>
+    </a-form>
+
+    <div class="modal-footer-action">
+      <div class="footer-left">
+        <SafetyCertificateOutlined /> 数据安全加密存储
+      </div>
+      <div class="footer-right">
+        <a-button class="btn-flat" @click="onCancel">取消</a-button>
+        <a-button 
+          type="primary" 
+          class="btn-submit" 
+          :loading="confirmLoading" 
+          @click="handleOk"
+        >
+          保存配置
+        </a-button>
+      </div>
+    </div>
+  </a-modal>
+</template>
+
+<script setup lang="ts">
+import { reactive, ref, watch } from 'vue'
+import { 
+  FileTextOutlined, IdcardOutlined, SafetyCertificateOutlined 
+} from '@ant-design/icons-vue'
+import type { FormInstance } from 'ant-design-vue'
+import type { AiVecSegment } from '@/api/aiVecSegment.ts'
+
+const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiVecSegment | null }>()
+const emit = defineEmits<{ submit: [payload: AiVecSegment] }>()
+const open = defineModel<boolean>('open', { required: true })
+
+const formRef = ref<FormInstance | null>(null)
+
+function emptyForm(): AiVecSegment {
+  return {
+    docId: 0,
+    collectionId: 0,
+    vectorId: '',
+    segmentContent: '',
+    wordCount: 0,
+    chunkIndex: 0,
+    metadataJson: ''
+  }
+}
+
+const form = reactive<AiVecSegment>(emptyForm())
+
+const rules = {
+  docId: [{ required: true, message: '请输入文档 ID' }],
+  collectionId: [{ required: true, message: '请输入集合 ID' }],
+  vectorId: [{ required: true, message: '请输入向量 ID' }],
+  chunkIndex: [{ required: true, message: '请输入分段序号' }],
+  wordCount: [{ required: true, message: '请输入字符数' }],
+  segmentContent: [{ required: true, message: '请输入分段内容' }]
+}
+
+function assignFromInitial(src: AiVecSegment) {
+  Object.assign(form, emptyForm(), src)
+}
+
+watch(() => [open.value, props.initial] as const, ([isOpen, initial]) => {
+  if (isOpen) {
+    if (initial && Object.keys(initial).length > 0) assignFromInitial(initial)
+    else Object.assign(form, emptyForm())
+  }
+})
+
+async function handleOk() {
+  await formRef.value?.validate()
+  const payload: AiVecSegment = { ...form }
+  emit('submit', payload)
+}
+
+const onCancel = () => { open.value = false }
+</script>
+
+<style scoped>
+/* 弹窗基础：统一风格 */
+.vec-segment-modal :deep(.ant-modal-content) { padding: 0; border-radius: 20px; overflow: hidden; }
+
+.modal-header-gradient { background: #fff; padding: 32px 40px; border-bottom: 1px solid #f0f2f5; }
+.header-content { display: flex; justify-content: space-between; align-items: center; }
+.title-area { display: flex; gap: 16px; align-items: center; }
+.icon-box {
+  width: 48px; height: 48px; background: #1677ff; color: white; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+  box-shadow: 0 8px 16px rgba(22, 119, 255, 0.2);
+}
+.text-group h2 { margin: 0; font-size: 20px; font-weight: 700; color: #111; }
+.text-group p { margin: 4px 0 0; color: #999; font-size: 13px; }
+
+/* 容器高度控制 */
+.professional-form { height: 500px; display: flex; flex-direction: column; }
+.form-body-container { flex: 1; overflow-y: auto; padding: 24px 40px; }
+.form-body-container::-webkit-scrollbar { width: 4px; }
+.form-body-container::-webkit-scrollbar-thumb { background: #eee; border-radius: 4px; }
+
+/* 内部组件样式 */
+.section-headline { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #333; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
+.span-2 { grid-column: span 2; }
+
+/* JSON 编辑器 */
+.json-editor-wrapper {
+  border: 1px solid #d9d9d9; border-radius: 8px; overflow: hidden;
+  background: #fafafa; transition: 0.3s;
+}
+.json-editor-wrapper:focus-within { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1); }
+.mono-text {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 13px; background: transparent; border: none; padding: 12px;
+}
+.mono-text:focus { box-shadow: none; }
+
+/* 底部操作 */
+.modal-footer-action {
+  padding: 16px 40px; background: #fff; border-top: 1px solid #f0f0f0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-left { font-size: 12px; color: #52c41a; display: flex; align-items: center; gap: 6px; }
+.btn-flat { border: none; color: #999; font-weight: 600; }
+.btn-submit { border-radius: 8px; font-weight: 600; height: 38px; padding: 0 24px; }
+
+.mt-16 { margin-top: 16px; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>

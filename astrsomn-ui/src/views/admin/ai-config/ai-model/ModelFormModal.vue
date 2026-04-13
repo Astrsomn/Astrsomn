@@ -1,75 +1,85 @@
 <template>
-  <a-modal
-      :open="open"
-      :title="null"
-      width="860px"
-      :footer="null"
-      :destroy-on-close="true"
-      @cancel="onCancel"
-      class="premium-model-modal"
+  <AstrsomnModal
+    :open="open"
+    width="80vw"
+    max-width="80vw"
+    body-height="80vh"
+    :closable="true"
+    main-padding="0"
+    wrap-class-name="model-form-fsm-wrap"
+    @update:open="emit('update:open', $event)"
+    @cancel="onCancel"
   >
-    <div class="modal-header-gradient">
-      <div class="header-content">
-        <div class="title-area">
-          <div class="icon-box" :class="form.modelType">
-            <template v-if="form.modelType === 'chat'"><MessageOutlined /></template>
-            <template v-else-if="form.modelType === 'embedding'"><PartitionOutlined /></template>
-            <template v-else><PictureOutlined /></template>
-          </div>
-          <div class="text-group">
-            <h2>{{ mode === 'create' ? '注册接入端点' : '编辑端点配置' }}</h2>
-            <p>配置物理供应源、API 地址及该端点支持的协议能力</p>
-          </div>
-        </div>
-        <div class="steps-nav">
-          <div
-              v-for="(s, index) in ['接入识别', '能力定义']"
-              :key="index"
-              :class="['step-item', { active: currentStep === index, done: currentStep > index }]"
-          >
-            <span class="step-num">{{ index + 1 }}</span>
-            <span class="step-text">{{ s }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <template #header-logo>
+      <span class="header-type-icon" :class="form.modelType">
+        <template v-if="form.modelType === 'chat'"><MessageOutlined /></template>
+        <template v-else-if="form.modelType === 'embedding'"><PartitionOutlined /></template>
+        <template v-else><PictureOutlined /></template>
+      </span>
+    </template>
+    <template #header-title>
+      {{ mode === 'create' ? '注册接入端点' : mode === 'view' ? '查看端点配置' : '编辑端点配置' }}
+    </template>
+    <template #header-subtitle>
+      左侧填写基本信息，右侧配置能力位与推理参数
+    </template>
 
+    <div class="model-form-shell">
     <a-form
-        ref="formRef"
-        :model="form"
-        :rules="rules"
-        layout="vertical"
-        class="professional-form"
+      ref="formRef"
+      :model="form"
+      :rules="rules"
+      layout="vertical"
+      class="model-form-root"
     >
-      <div class="form-body-container">
-        <div v-show="currentStep === 0" class="step-container animate-fade">
+      <div class="model-form-split">
+        <div class="model-form-pane model-form-pane--left">
           <div class="form-section">
-            <h3 class="section-headline"><IdcardOutlined /> 1. 端点身份识别</h3>
+            <h3 class="section-headline"><IdcardOutlined /> 端点身份识别</h3>
             <div class="form-grid">
-              <a-form-item label="服务供应商 (Provider)" name="provider">
-                <a-select v-model:value="form.provider" :options="providerOptions" placeholder="请选择端点所属服务商" size="large" :disabled="props.mode === 'view'" />
+              <a-form-item label="来源类型" name="sourceType">
+                <a-select v-model:value="form.sourceType" size="large" :disabled="props.mode === 'view'">
+                  <a-select-option value="user_custom">用户自定义模型</a-select-option>
+                  <a-select-option value="plugin">插件模型</a-select-option>
+                </a-select>
               </a-form-item>
 
-              <a-form-item label="端点服务类型" name="modelType">
-                <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}]" block size="large" :disabled="props.mode === 'view'" />
+              <a-form-item label="供应商" name="provider">
+                <ModelProviderSelect
+                  v-model:value="form.provider"
+                  placeholder="请选择端点所属服务商"
+                  size="large"
+                  :disabled="props.mode === 'view' || isPluginModel"
+                />
               </a-form-item>
 
-              <a-form-item label="端点展示名称" name="modelName">
-                <a-input v-model:value="form.modelName" placeholder="例如：OpenAI 官方端点 或 私有部署 Llama3" size="large" :disabled="props.mode === 'view'" />
+              <a-form-item label="状态" name="status">
+                <a-select v-model:value="form.status" size="large" :disabled="props.mode === 'view'">
+                  <a-select-option value="enabled">已启用</a-select-option>
+                  <a-select-option value="disabled">已禁用</a-select-option>
+                </a-select>
               </a-form-item>
 
-              <a-form-item label="端点识别码 (Model Key)" name="modelKey">
+              <a-form-item label="端点类型" name="modelType">
+                <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}]" block size="large" :disabled="props.mode === 'view' || isPluginModel" />
+              </a-form-item>
+
+              <a-form-item label="展示名称" name="modelName">
+                <a-input v-model:value="form.modelName" placeholder="例如：OpenAI 官方端点 或 私有部署 Llama3" size="large" :disabled="props.mode === 'view' || isPluginModel" />
+              </a-form-item>
+
+              <a-form-item label="识别码 (Model Key)" name="modelKey">
                 <a-tooltip
-                    v-if="modelKeyImmutable || props.mode === 'view'"
-                    :title="modelKeyImmutable ? '已有推理实例在同环境下引用该端点 Key，不可修改' : '查看模式下不可修改'"
+                  v-if="modelKeyImmutable || props.mode === 'view' || isPluginModel"
+                  :title="isPluginModel ? '插件模型不可修改' : (modelKeyImmutable ? '已有推理实例在同环境下引用该端点 Key，不可修改' : '查看模式下不可修改')"
                 >
                   <a-input v-model:value="form.modelKey" placeholder="建议留空，系统将自动生成唯一索引" size="large" disabled />
                 </a-tooltip>
                 <a-input
-                    v-else
-                    v-model:value="form.modelKey"
-                    placeholder="建议留空，系统将自动生成唯一索引"
-                    size="large"
+                  v-else
+                  v-model:value="form.modelKey"
+                  placeholder="建议留空，系统将自动生成唯一索引"
+                  size="large"
                 >
                   <template #suffix>
                     <a-tooltip title="重置识别码">
@@ -79,35 +89,22 @@
                 </a-input>
               </a-form-item>
 
-              <a-form-item label="关联凭证账号" name="accountKey">
+              <a-form-item label="关联凭证" name="accountKey">
                 <a-select
-                    v-model:value="form.accountKey"
-                    :options="accountSelectOptions"
-                    :loading="accountOptionsLoading"
-                    allow-clear
-                    show-search
-                    :filter-option="filterAccountOption"
-                    placeholder="请关联对应的 API 凭证资产"
-                    size="large"
-                    option-filter-prop="label"
-                    :disabled="props.mode === 'view'"
+                  v-model:value="form.accountKey"
+                  :options="accountSelectOptions"
+                  :loading="accountOptionsLoading"
+                  allow-clear
+                  show-search
+                  :filter-option="filterAccountOption"
+                  placeholder="请关联对应的 API 凭证资产"
+                  size="large"
+                  option-filter-prop="label"
+                  :disabled="props.mode === 'view'"
                 />
               </a-form-item>
 
-              <a-form-item label="端点激活状态">
-                <div class="status-toggle-card">
-                  <a-switch
-                      :checked="form.status === 'enabled'"
-                      @change="onStatusSwitch"
-                      checked-children="已上线"
-                      un-checked-children="已下线"
-                      :un-checked-color="'#ff4d4f'"
-                      :disabled="props.mode === 'view'"
-                  />
-                </div>
-              </a-form-item>
-
-              <a-form-item label="接入地址 (API URL)" name="apiUrl" class="span-2">
+              <a-form-item label="API 地址" name="apiUrl" class="span-2">
                 <a-input v-model:value="form.apiUrl" placeholder="供应商 Base URL，如 https://api.openai.com/v1" size="large" :disabled="props.mode === 'view'">
                   <template #prefix><GlobalOutlined style="color: #bfbfbf" /></template>
                 </a-input>
@@ -116,15 +113,102 @@
           </div>
         </div>
 
-        <div v-show="currentStep === 1" class="step-container animate-fade">
-          <div class="form-section">
-            <h3 class="section-headline"><ThunderboltOutlined /> 2. 端点能力定义（写入 Capabilities 供解析）</h3>
+        <div class="model-form-divider" aria-hidden="true" />
 
-            <div class="capability-quick-view">
-              <a-button type="primary" ghost @click="openCapabilitiesModal">
-                <template #icon><EyeOutlined /></template>
-                配置支持能力集
-              </a-button>
+        <div class="model-form-pane model-form-pane--right">
+          <div class="form-section">
+            <h3 class="section-headline"><ThunderboltOutlined /> 协议能力位 (Capabilities)</h3>
+
+            <div v-if="form.modelType === 'chat'" class="capability-panel-section">
+              <div class="cap-tag-grid">
+                <div
+                  v-for="opt in chatCapabilitiesOptions"
+                  :key="opt.value"
+                  :class="['custom-cap-tag', { active: chatCapabilities.includes(opt.value) }]"
+                  @click="props.mode !== 'view' && !isPluginModel && toggleChatCapability(opt.value)"
+                  :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
+                >
+                  <div class="custom-cap-tag__body">
+                    <CheckCircleFilled v-if="chatCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
+                    <div class="custom-cap-tag__text">
+                      <span class="custom-cap-tag__title">{{ opt.titleZh }}</span>
+                      <span class="custom-cap-tag__field">{{ opt.fieldCode }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="form.modelType === 'embedding'" class="capability-panel-section">
+              <div class="cap-tag-grid">
+                <div
+                  v-for="opt in embeddingCapabilitiesOptions"
+                  :key="opt.value"
+                  :class="['custom-cap-tag', { active: embeddingCapabilities.includes(opt.value) }]"
+                  @click="props.mode !== 'view' && !isPluginModel && toggleEmbeddingCapability(opt.value)"
+                  :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
+                >
+                  <div class="custom-cap-tag__body">
+                    <CheckCircleFilled v-if="embeddingCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
+                    <div class="custom-cap-tag__text">
+                      <span class="custom-cap-tag__title">{{ opt.titleZh }}</span>
+                      <span class="custom-cap-tag__field">{{ opt.fieldCode }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="form.modelType === 'image'" class="capability-panel-section">
+              <div class="cap-tag-grid">
+                <div
+                  v-for="opt in imageCapabilitiesOptions"
+                  :key="opt.value"
+                  :class="['custom-cap-tag', { active: imageCapabilities.includes(opt.value) }]"
+                  @click="props.mode !== 'view' && !isPluginModel && toggleImageCapability(opt.value)"
+                  :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
+                >
+                  <div class="custom-cap-tag__body">
+                    <CheckCircleFilled v-if="imageCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
+                    <div class="custom-cap-tag__text">
+                      <span class="custom-cap-tag__title">{{ opt.titleZh }}</span>
+                      <span class="custom-cap-tag__field">{{ opt.fieldCode }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="param-schema-section">
+              <h3 class="section-headline"><SettingOutlined /> 推理参数架构 (Parameter Schema)</h3>
+              <p class="section-desc">控制实例层可填写的参数范围。未启用的参数在实例层将被禁用或忽略。</p>
+              
+              <div class="param-table">
+                <div class="param-table-header">
+                  <div class="param-col param-col--id">参数标识</div>
+                  <div class="param-col param-col--desc">说明/映射字段</div>
+                 
+               
+                  <div class="param-col param-col--toggle">启用</div>
+                </div>
+                <div class="param-table-body">
+                  <div v-for="(param, idx) in currentParams" :key="param.id" class="param-row">
+                    <div class="param-col param-col--id">
+                      <span class="param-id">{{ param.id }}</span>
+                    </div>
+                    <div class="param-col param-col--desc">
+                      <span class="param-desc">{{ param.desc }}</span>
+                      <span class="param-mapping">{{ param.mapping }}</span>
+                    </div>
+                    <div class="param-col param-col--toggle">
+                      <a-switch 
+                        v-model:checked="param.active" 
+                        :disabled="props.mode === 'view' || isPluginModel"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="runtime-params-box">
@@ -132,122 +216,16 @@
               <div class="param-grid">
                 <div class="param-item">
                   <span class="pl">单次响应上限 (Tokens)</span>
-                  <a-input-number v-model:value="form.responseLimit" :min="0" placeholder="默认 4096" block :disabled="props.mode === 'view'" />
+                  <a-input-number v-model:value="form.responseLimit" :min="0" placeholder="默认 4096" block :disabled="props.mode === 'view' || isPluginModel" />
                 </div>
                 <div class="param-item">
                   <span class="pl">累计消耗配额 (Tokens)</span>
-                  <a-input-number v-model:value="form.maxQuotaTokens" :min="0" placeholder="0 表示无限制" block :disabled="props.mode === 'view'" />
+                  <a-input-number v-model:value="form.maxQuotaTokens" :min="0" placeholder="0 表示无限制" block :disabled="props.mode === 'view' || isPluginModel" />
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        <a-modal
-            v-model:open="showCapabilitiesModal"
-            :title="capabilitiesModalTitle"
-            width="600px"
-            :footer="null"
-        >
-          <div class="capabilities-modal-content">
-            <div v-if="form.modelType === 'chat'" class="capability-modal-section">
-              <h4>对话端点能力 · InferenceParamEnum</h4>
-              <div class="cap-tag-grid">
-                <div
-                    v-for="opt in chatInferenceOptions"
-                    :key="opt.value"
-                    :class="['custom-cap-tag', { active: chatInferenceCapabilities.includes(opt.value) }]"
-                    @click="props.mode !== 'view' && toggleChatInference(opt.value)"
-                    :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
-                >
-                  <CheckCircleFilled v-if="chatInferenceCapabilities.includes(opt.value)" />
-                  {{ opt.label }}
-                </div>
-              </div>
-
-              <div v-if="chatOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">非推理枚举 code（可能是历史标签，点击可移除）</div>
-                <div class="cap-tag-grid">
-                  <div
-                      v-for="c in chatOrphanCapabilities"
-                      :key="c"
-                      class="custom-cap-tag orphan"
-                      @click="props.mode !== 'view' && removeChatOrphan(c)"
-                      :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
-                  >
-                    {{ c }}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="form.modelType === 'embedding'" class="capability-modal-section">
-              <h4>向量端点能力 · EmbeddingInferenceParamEnum</h4>
-              <div class="cap-tag-grid">
-                <div
-                    v-for="opt in embeddingInferenceOptions"
-                    :key="opt.value"
-                    :class="['custom-cap-tag', { active: embeddingInferenceCapabilities.includes(opt.value) }]"
-                    @click="props.mode !== 'view' && toggleEmbeddingInference(opt.value)"
-                    :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
-                >
-                  <CheckCircleFilled v-if="embeddingInferenceCapabilities.includes(opt.value)" />
-                  {{ opt.label }}
-                </div>
-              </div>
-
-              <div v-if="embeddingOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">自定义能力 code</div>
-                <div class="cap-tag-grid">
-                  <div
-                      v-for="c in embeddingOrphanCapabilities"
-                      :key="c"
-                      class="custom-cap-tag orphan"
-                      @click="props.mode !== 'view' && removeEmbeddingOrphan(c)"
-                      :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
-                  >
-                    {{ c }}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="form.modelType === 'image'" class="capability-modal-section">
-              <h4>图像端点能力 · ImageGenParamEnum</h4>
-              <div class="cap-tag-grid">
-                <div
-                    v-for="opt in imageGenOptions"
-                    :key="opt.value"
-                    :class="['custom-cap-tag', { active: imageGenCapabilities.includes(opt.value) }]"
-                    @click="props.mode !== 'view' && toggleImageGen(opt.value)"
-                    :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
-                >
-                  <CheckCircleFilled v-if="imageGenCapabilities.includes(opt.value)" />
-                  {{ opt.label }}
-                </div>
-              </div>
-
-              <div v-if="imageOrphanCapabilities.length" class="orphan-block">
-                <div class="cap-subhead muted">自定义能力 code</div>
-                <div class="cap-tag-grid">
-                  <div
-                      v-for="c in imageOrphanCapabilities"
-                      :key="c"
-                      class="custom-cap-tag orphan"
-                      @click="props.mode !== 'view' && removeImageOrphan(c)"
-                      :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
-                  >
-                    {{ c }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <a-button type="primary" @click="closeCapabilitiesModal">关闭</a-button>
-          </div>
-        </a-modal>
       </div>
     </a-form>
 
@@ -256,22 +234,7 @@
         <LockOutlined /> 端点变更将影响下游所有推理实例
       </div>
       <div class="footer-right">
-        <a-button v-if="currentStep > 0" class="btn-flat" @click="currentStep--">返回接入识别</a-button>
-        <a-button
-            v-if="currentStep < 1"
-            type="primary"
-            class="btn-next"
-            @click="nextStep"
-        >
-          配置能力集
-        </a-button>
-        <a-button
-            v-else
-            type="primary"
-            class="btn-submit"
-            :loading="confirmLoading"
-            @click="handleSubmit"
-        >
+        <a-button type="primary" class="btn-submit" :loading="confirmLoading" @click="handleSubmit">
           确认并保存端点
         </a-button>
       </div>
@@ -281,30 +244,37 @@
         <a-button type="primary" @click="emit('update:open', false)">关闭</a-button>
       </div>
     </div>
-  </a-modal>
+    </div>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
-import { message, Modal } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
 import {
   IdcardOutlined, ReloadOutlined, MessageOutlined,
   PartitionOutlined, LockOutlined, ThunderboltOutlined,
   CheckCircleFilled, ControlOutlined, PictureOutlined, GlobalOutlined,
-  EyeOutlined
+  SettingOutlined
 } from '@ant-design/icons-vue'
+import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
+import ModelProviderSelect from './ModelProviderSelect.vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiModel } from '@/api/aiModel'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
-import { aiModelCapabilitiesDictionary } from '@/locales/zh-CN/dictionary/ai-model'
+import { aiModelCapabilitiesDictionary, aiModelSourceTypeDictionary } from '@/locales/zh-CN/dictionary/ai-model'
 import {
-  CHAT_INFERENCE_CODES,
-  CHAT_INFERENCE_SET,
-  EMBEDDING_INFERENCE_CODES,
-  EMBEDDING_INFERENCE_SET,
-  IMAGE_GEN_CODES,
-  IMAGE_GEN_SET
+  CHAT_CAPABILITIES_CODES,
+  CHAT_CAPABILITIES_SET,
+  CHAT_PARAM_CODES,
+  EMBEDDING_CAPABILITIES_CODES,
+  EMBEDDING_CAPABILITIES_SET,
+  EMBEDDING_PARAM_CODES,
+  IMAGE_CAPABILITIES_CODES,
+  IMAGE_CAPABILITIES_SET,
+  IMAGE_PARAM_CODES,
+  MODEL_CONFIG_MAP
 } from '@/constants/aiModelCapabilityCodes'
 
 const props = withDefaults(
@@ -313,7 +283,6 @@ const props = withDefaults(
       mode: 'create' | 'edit' | 'view'
       confirmLoading?: boolean
       initialData?: AiModel | null
-      providerOptions: { label: string; value: string }[]
       statusOptions: { label: string; value: string }[]
       submitHandler: (payload: AiModel) => Promise<void>
     }>(),
@@ -322,28 +291,35 @@ const props = withDefaults(
 
 const emit = defineEmits(['update:open'])
 
-const currentStep = ref(0)
 const formRef = ref<FormInstance | null>(null)
 
 const accountList = ref<AiAccount[]>([])
 const accountOptionsLoading = ref(false)
-/** 编辑时由详情接口返回：被推理实例引用则不可改 modelKey */
 const modelKeyImmutable = ref(false)
 
-// 能力标签查看对话框
-const showCapabilitiesModal = ref(false)
-const capabilitiesModalTitle = computed(() => {
-  return `${form.modelName} - 能力标签`
-})
-
-// 打开能力标签查看对话框
-const openCapabilitiesModal = () => {
-  showCapabilitiesModal.value = true
-}
-
-// 关闭能力标签查看对话框
-const closeCapabilitiesModal = () => {
-  showCapabilitiesModal.value = false
+const PARAM_TEMPLATES = {
+  chat: [
+    { id: 'temperature', desc: '采样温度', mapping: 'temperature', default: '0.7', range: '0-2.0', active: true },
+    { id: 'top_p', desc: '核采样阈值', mapping: 'top_p', default: '1.0', range: '0-1.0', active: true },
+    { id: 'top_k', desc: 'Top-K 采样', mapping: 'top_k', default: '', range: 'int', active: false },
+    { id: 'max_tokens', desc: '最大生成长度', mapping: 'max_tokens', default: '2048', range: '1-32k', active: true },
+    { id: 'presence_penalty', desc: '话题存在惩罚', mapping: 'presence_penalty', default: '0', range: '-2-2', active: false },
+    { id: 'frequency_penalty', desc: '频率重复惩罚', mapping: 'frequency_penalty', default: '0', range: '-2-2', active: false },
+    { id: 'stop_sequences', desc: '停止符', mapping: 'stop_sequences', default: '', range: 'Array', active: false },
+    { id: 'seed', desc: '随机种子', mapping: 'seed', default: '', range: 'int', active: false },
+    { id: 'logit_bias', desc: 'Token 偏好偏差', mapping: 'logit_bias', default: '', range: 'Object', active: false }
+  ],
+  embedding: [
+    { id: 'dimensions', desc: '向量输出维度', mapping: 'dimensions', default: '1536', range: 'int', active: true },
+    { id: 'model_name', desc: '模型名称', mapping: 'model_name', default: '', range: 'string', active: false },
+    { id: 'user', desc: '终端用户标识', mapping: 'user', default: '', range: 'string', active: false }
+  ],
+  image: [
+    { id: 'size', desc: '图片尺寸', mapping: 'size', default: '1024x1024', range: 'string', active: true },
+    { id: 'quality', desc: '生成质量', mapping: 'quality', default: 'standard', range: 'standard/hd', active: true },
+    { id: 'style', desc: '画面风格', mapping: 'style', default: 'vivid', range: 'vivid/natural', active: true },
+    { id: 'response_format', desc: '响应格式', mapping: 'response_format', default: 'url', range: 'url/b64_json', active: false }
+  ]
 }
 
 function resolveQueryCreateUser(): string | undefined {
@@ -412,72 +388,32 @@ const filterAccountOption = (input: string, option: { label?: string }) => {
   return String(option?.label ?? '').toLowerCase().includes(q)
 }
 
-function capLabel(code: string): string {
-  // 对于推理参数，只返回英文参数名，保持学术简洁性
-  const inferenceParams = new Set([
-    'temperature', 'top_p', 'top_k', 'presence_penalty', 'frequency_penalty',
-    'max_tokens', 'seed', 'image_size', 'image_quality', 'image_style',
-    'image_user', 'image_response_format', 'image_max_retries', 'image_timeout_seconds',
-    'embedding_dimensions', 'embedding_user', 'embedding_max_retries',
-    'embedding_max_segments_per_batch', 'embedding_encoding_format', 'embedding_timeout_seconds'
-  ])
-  
-  if (inferenceParams.has(code)) {
-    return code
-  }
-  
-  // 对于其他能力标签，保持原有标签
-  return aiModelCapabilitiesDictionary.getLabel(code) ?? code
+function capOptionRow(code: string) {
+  const titleZh = aiModelCapabilitiesDictionary.getLabel(code) ?? code
+  return { value: code, titleZh, fieldCode: code }
 }
 
-function capOptions(codes: readonly string[]) {
-  // 定义别名参数列表
-  const aliasParams = new Set([
-    'temperature_setting',
-    'top_p_setting',
-    'top_k_setting',
-    'presence_penalty_setting',
-    'frequency_penalty_setting',
-    'max_token_setting',
-    'stop_sequences_setting',
-    'seed_setting',
-    'size_setting',
-    'style_setting'
-  ])
-  
-  // 过滤掉别名参数，只保留主参数
-  return codes
-    .filter(value => !aliasParams.has(value))
-    .map(value => ({ value, label: capLabel(value) }))
-}
+const chatCapabilitiesOptions = computed(() => CHAT_CAPABILITIES_CODES.map((value) => capOptionRow(value)))
+const embeddingCapabilitiesOptions = computed(() => EMBEDDING_CAPABILITIES_CODES.map((value) => capOptionRow(value)))
+const imageCapabilitiesOptions = computed(() => IMAGE_CAPABILITIES_CODES.map((value) => capOptionRow(value)))
 
-const chatInferenceOptions = computed(() => capOptions(CHAT_INFERENCE_CODES))
-const embeddingInferenceOptions = computed(() => capOptions(EMBEDDING_INFERENCE_CODES))
-const imageGenOptions = computed(() => capOptions(IMAGE_GEN_CODES))
-
-const chatInferenceCapabilities = ref<string[]>([])
+const chatCapabilities = ref<string[]>([])
 const chatOrphanCapabilities = ref<string[]>([])
 
-const embeddingInferenceCapabilities = ref<string[]>([])
+const embeddingCapabilities = ref<string[]>([])
 const embeddingOrphanCapabilities = ref<string[]>([])
 
-const imageGenCapabilities = ref<string[]>([])
+const imageCapabilities = ref<string[]>([])
 const imageOrphanCapabilities = ref<string[]>([])
 
-const chatInferenceTotal = computed(
-    () => chatInferenceCapabilities.value.length + chatOrphanCapabilities.value.length
-)
-const embeddingInferenceTotal = computed(
-    () => embeddingInferenceCapabilities.value.length + embeddingOrphanCapabilities.value.length
-)
-const imageGenTotal = computed(
-    () => imageGenCapabilities.value.length + imageOrphanCapabilities.value.length
-)
+const currentParams = ref<any[]>(JSON.parse(JSON.stringify(PARAM_TEMPLATES.chat)))
+
+const isPluginModel = computed(() => form.sourceType === 'plugin')
 
 const form = reactive<AiModel>({
   modelName: '', modelKey: '', modelType: 'chat', provider: '',
   accountKey: '', apiUrl: '', status: 'enabled', isDefault: 0, responseLimit: 4096,
-  capabilities: '', randomIndex: 0, topVariance: 0, maxQuotaTokens: 0
+  capabilities: '', param: '', randomIndex: 0, topVariance: 0, maxQuotaTokens: 0, sourceType: 'user_custom'
 })
 
 const rules = {
@@ -492,57 +428,59 @@ function toggleInList(list: string[], val: string) {
   else list.push(val)
 }
 
-const toggleChatInference = (val: string) => toggleInList(chatInferenceCapabilities.value, val)
+const toggleChatCapability = (val: string) => toggleInList(chatCapabilities.value, val)
 const removeChatOrphan = (val: string) => {
   chatOrphanCapabilities.value = chatOrphanCapabilities.value.filter((c) => c !== val)
 }
 
-const toggleEmbeddingInference = (val: string) => toggleInList(embeddingInferenceCapabilities.value, val)
+const toggleEmbeddingCapability = (val: string) => toggleInList(embeddingCapabilities.value, val)
 const removeEmbeddingOrphan = (val: string) => {
   embeddingOrphanCapabilities.value = embeddingOrphanCapabilities.value.filter((c) => c !== val)
 }
 
-const toggleImageGen = (val: string) => toggleInList(imageGenCapabilities.value, val)
+const toggleImageCapability = (val: string) => toggleInList(imageCapabilities.value, val)
 const removeImageOrphan = (val: string) => {
   imageOrphanCapabilities.value = imageOrphanCapabilities.value.filter((c) => c !== val)
 }
 
-const onStatusSwitch = (checked: boolean) => {
-  form.status = checked ? 'enabled' : 'disabled'
-}
-
-const nextStep = async () => {
-  try {
-    if (currentStep.value === 0) await formRef.value?.validateFields(['provider', 'modelName'])
-    currentStep.value++
-  } catch (e) {}
-}
-
-function partitionCapabilities(caps: string[], modelType: string) {
-  chatInferenceCapabilities.value = []
+function partitionConfig(caps: string[], params: any[], modelType: string) {
+  chatCapabilities.value = []
   chatOrphanCapabilities.value = []
-  embeddingInferenceCapabilities.value = []
+  embeddingCapabilities.value = []
   embeddingOrphanCapabilities.value = []
-  imageGenCapabilities.value = []
+  imageCapabilities.value = []
   imageOrphanCapabilities.value = []
 
   if (modelType === 'chat') {
-    chatInferenceCapabilities.value = caps.filter((c) => CHAT_INFERENCE_SET.has(c))
-    chatOrphanCapabilities.value = caps.filter((c) => !CHAT_INFERENCE_SET.has(c))
+    chatCapabilities.value = caps.filter((c) => CHAT_CAPABILITIES_SET.has(c))
+    chatOrphanCapabilities.value = caps.filter((c) => !CHAT_CAPABILITIES_SET.has(c))
+    if (params && params.length > 0) {
+      currentParams.value = params
+    } else {
+      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.chat))
+    }
   } else if (modelType === 'embedding') {
-    embeddingInferenceCapabilities.value = caps.filter((c) => EMBEDDING_INFERENCE_SET.has(c))
-    embeddingOrphanCapabilities.value = caps.filter((c) => !EMBEDDING_INFERENCE_SET.has(c))
+    embeddingCapabilities.value = caps.filter((c) => EMBEDDING_CAPABILITIES_SET.has(c))
+    embeddingOrphanCapabilities.value = caps.filter((c) => !EMBEDDING_CAPABILITIES_SET.has(c))
+    if (params && params.length > 0) {
+      currentParams.value = params
+    } else {
+      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.embedding))
+    }
   } else if (modelType === 'image') {
-    imageGenCapabilities.value = caps.filter((c) => IMAGE_GEN_SET.has(c))
-    imageOrphanCapabilities.value = caps.filter((c) => !IMAGE_GEN_SET.has(c))
+    imageCapabilities.value = caps.filter((c) => IMAGE_CAPABILITIES_SET.has(c))
+    imageOrphanCapabilities.value = caps.filter((c) => !IMAGE_CAPABILITIES_SET.has(c))
+    if (params && params.length > 0) {
+      currentParams.value = params
+    } else {
+      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.image))
+    }
   }
 }
 
 const syncForm = () => {
-  currentStep.value = 0
   if (props.mode === 'create' || !props.initialData) {
     modelKeyImmutable.value = false
-    // 完全重置 form 对象，确保所有字段都被清空
     Object.assign(form, {
       id: '',
       modelName: '',
@@ -554,22 +492,40 @@ const syncForm = () => {
       status: 'enabled',
       isDefault: 0,
       capabilities: '',
+      param: '',
       randomIndex: 0,
       topVariance: 0,
-      maxQuotaTokens: 0
+      maxQuotaTokens: 0,
+      sourceType: 'user_custom'
     })
-    partitionCapabilities([], String(form.modelType ?? 'chat'))
+    partitionConfig([], [], String(form.modelType ?? 'chat'))
   } else {
     Object.assign(form, props.initialData)
     modelKeyImmutable.value = props.initialData.modelKeyImmutable === true
     delete (form as Record<string, unknown>).modelKeyImmutable
-    try {
-      const parsed = JSON.parse(form.capabilities || '[]')
-      const caps = Array.isArray(parsed) ? parsed.map(String) : []
-      partitionCapabilities(caps, String(form.modelType || 'chat'))
-    } catch {
-      partitionCapabilities([], String(form.modelType || 'chat'))
+    
+    if (!form.sourceType) {
+      form.sourceType = 'user_custom'
     }
+    
+    let capabilitiesArray: string[] = []
+    let paramsArray: any[] = []
+    
+    try {
+      const parsedCaps = JSON.parse(form.capabilities || '[]')
+      capabilitiesArray = Array.isArray(parsedCaps) ? parsedCaps.map(String) : []
+    } catch {
+      capabilitiesArray = []
+    }
+    
+    try {
+      const parsedParams = JSON.parse(form.param || '[]')
+      paramsArray = Array.isArray(parsedParams) ? parsedParams : []
+    } catch {
+      paramsArray = []
+    }
+    
+    partitionConfig(capabilitiesArray, paramsArray, String(form.modelType || 'chat'))
   }
 }
 
@@ -582,7 +538,6 @@ watch(
   }
 )
 
-// 监听模式变化，确保从编辑切换到创建时表单数据会重置
 watch(
   () => props.mode,
   () => {
@@ -593,7 +548,7 @@ watch(
 )
 
 watch(() => form.modelType, () => {
-  partitionCapabilities([], String(form.modelType || 'chat'))
+  partitionConfig([], [], String(form.modelType || 'chat'))
 })
 
 const handleSubmit = async () => {
@@ -602,14 +557,15 @@ const handleSubmit = async () => {
   
   let allCapabilities: string[] = []
   if (form.modelType === 'chat') {
-    allCapabilities = [...chatInferenceCapabilities.value, ...chatOrphanCapabilities.value]
+    allCapabilities = [...chatCapabilities.value, ...chatOrphanCapabilities.value]
   } else if (form.modelType === 'embedding') {
-    allCapabilities = [...embeddingInferenceCapabilities.value, ...embeddingOrphanCapabilities.value]
+    allCapabilities = [...embeddingCapabilities.value, ...embeddingOrphanCapabilities.value]
   } else if (form.modelType === 'image') {
-    allCapabilities = [...imageGenCapabilities.value, ...imageOrphanCapabilities.value]
+    allCapabilities = [...imageCapabilities.value, ...imageOrphanCapabilities.value]
   }
   
   payload.capabilities = allCapabilities.length > 0 ? JSON.stringify(allCapabilities) : ''
+  payload.param = currentParams.value.length > 0 ? JSON.stringify(currentParams.value) : ''
   delete (payload as { modelKeyImmutable?: unknown }).modelKeyImmutable
   await props.submitHandler(payload)
 }
@@ -618,113 +574,375 @@ const onCancel = () => emit('update:open', false)
 </script>
 
 <style scoped>
-/* 弹窗核心：统一视觉语言 */
-.premium-model-modal :deep(.ant-modal-content) {
-  padding: 0; border-radius: 20px; overflow: hidden;
+:global(.model-form-fsm-wrap.ant-modal-wrap) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.modal-header-gradient {
-  background: #fff; padding: 32px 40px; border-bottom: 1px solid #f0f2f5;
-}
-.header-content { display: flex; justify-content: space-between; align-items: center; }
-.title-area { display: flex; gap: 16px; align-items: center; }
-.icon-box {
-  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
-  justify-content: center; font-size: 22px; color: white;
-}
-.icon-box.chat { background: linear-gradient(135deg, #0061ff, #60efff); }
-.icon-box.embedding { background: linear-gradient(135deg, #7c4dff, #f94dff); }
-.icon-box.image { background: linear-gradient(135deg, #ff6b6b, #ffd93d); }
-.text-group h2 { margin: 0; font-size: 20px; font-weight: 700; color: #111; }
-.text-group p { margin: 4px 0 0; color: #999; font-size: 13px; }
-
-/* 步骤导航微调 */
-.steps-nav { display: flex; gap: 20px; }
-.step-item { display: flex; align-items: center; gap: 8px; color: #ccc; transition: 0.3s; font-size: 14px; }
-.step-item.active { color: #111; font-weight: 600; }
-.step-item.done { color: #0061ff; }
-.step-num {
-  width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid currentColor;
-  display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800;
+:global(.model-form-fsm-wrap .ant-modal) {
+  top: 0;
+  padding-bottom: 0;
 }
 
-/* 核心高度控制区 */
-.professional-form { height: 500px; display: flex; flex-direction: column; }
-.form-body-container { flex: 1; overflow-y: auto; padding: 24px 40px; }
-.form-body-container::-webkit-scrollbar { width: 4px; }
-.form-body-container::-webkit-scrollbar-thumb { background: #eee; border-radius: 4px; }
-
-/* 分段布局 */
-.section-headline { font-size: 14px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #444; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
-.span-2 { grid-column: span 2; }
-
-/* 开关卡片 */
-.status-toggle-card {
-  display: flex; justify-content: center; align-items: center;
-  background: #f8f9fb; padding: 12px 16px; border-radius: 12px; border: 1px solid #eef1f6;
+.header-type-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
 }
 
-/* 模型类型选中高亮蓝色 */
+.header-type-icon.chat {
+  color: #bae6fd;
+}
+
+.header-type-icon.embedding {
+  color: #e9d5ff;
+}
+
+.header-type-icon.image {
+  color: #fef08a;
+}
+
+.model-form-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.model-form-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.model-form-split {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+  align-items: stretch;
+}
+
+.model-form-pane {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 24px;
+  box-sizing: border-box;
+}
+
+.model-form-pane--left {
+  background: var(--bg-card, #fff);
+}
+
+.model-form-pane--right {
+  background: var(--bg-surface, #f8fafc);
+}
+
+.model-form-divider {
+  width: 1px;
+  flex-shrink: 0;
+  background: var(--border-default, #e2e8f0);
+  align-self: stretch;
+}
+
+.model-form-pane::-webkit-scrollbar {
+  width: 6px;
+}
+
+.model-form-pane::-webkit-scrollbar-thumb {
+  background: var(--border-default, #e2e8f0);
+  border-radius: 4px;
+}
+
+.section-headline {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-heading, #444);
+}
+
+.section-desc {
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  margin: -8px 0 16px 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
 :deep(.ant-segmented-item-selected) {
-  background-color: #1890ff !important;
+  background-color: var(--primary, #1890ff) !important;
   color: white !important;
 }
 
 :deep(.ant-segmented-item-selected:hover) {
-  background-color: #40a9ff !important;
+  background-color: var(--primary, #40a9ff) !important;
   color: white !important;
 }
 
-/* 能力矩阵布局 */
-.capability-wrapper { background: #fafafa; border-radius: 16px; padding: 20px; border: 1px solid #f0f0f0; }
-.cap-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
-.cap-header .badge { background: #0061ff; color: #fff; padding: 0 8px; border-radius: 10px; font-size: 11px; }
-.cap-subhead {
+.capability-panel-section {
+  margin-bottom: 20px;
+}
+
+.cap-tag-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.custom-cap-tag {
+  min-height: 72px;
+  padding: 12px 14px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.custom-cap-tag__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 48px;
+}
+
+.custom-cap-tag__check {
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: 16px;
+  color: var(--primary, #0061ff);
+}
+
+.custom-cap-tag__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.custom-cap-tag__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-heading, #334155);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.custom-cap-tag__field {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted, #94a3b8);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  line-height: 1.35;
+  word-break: break-all;
+}
+
+.custom-cap-tag:hover {
+  border-color: var(--primary, #0061ff);
+  box-shadow: 0 1px 4px rgba(0, 97, 255, 0.12);
+}
+
+.custom-cap-tag:hover .custom-cap-tag__title {
+  color: var(--primary, #0061ff);
+}
+
+.custom-cap-tag.active {
+  background: #eff6ff;
+  border-color: var(--primary, #0061ff);
+  box-shadow: 0 1px 4px rgba(0, 97, 255, 0.18);
+}
+
+.custom-cap-tag.active .custom-cap-tag__title {
+  color: #1d4ed8;
+}
+
+.custom-cap-tag.active .custom-cap-tag__field {
+  color: var(--text-secondary, #64748b);
+}
+
+.param-schema-section {
+  margin-top: 24px;
+}
+
+.param-table {
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.param-table-header {
+  display: grid;
+  grid-template-columns: 120px 1fr 100px 100px 60px;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-surface, #f8fafc);
+  border-bottom: 1px solid var(--border-default, #e2e8f0);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+}
+
+.param-table-body {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.param-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 100px 100px 60px;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-default, #f1f5f9);
+  align-items: center;
+}
+
+.param-row:hover {
+  background: var(--bg-surface, #f8fafc);
+}
+
+.param-col {
+  display: flex;
+  align-items: center;
+}
+
+.param-col--id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
   font-weight: 600;
-  color: #555;
-  margin: 16px 0 10px;
+  color: var(--text-heading, #334155);
 }
-.cap-subhead:first-of-type { margin-top: 0; }
-.cap-subhead.muted { color: #888; font-weight: 500; }
-.orphan-block { margin-top: 14px; padding-top: 12px; border-top: 1px dashed #e8e8e8; }
-.cap-tag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
-.custom-cap-tag {
-  padding: 8px 12px; background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
-  cursor: pointer; transition: 0.2s; font-size: 12px; color: #666; display: flex; align-items: center; gap: 6px;
+
+.param-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-heading, #334155);
 }
-.custom-cap-tag:hover { border-color: #0061ff; color: #0061ff; }
-.custom-cap-tag.active {
-  background: #e6f0ff; border-color: #0061ff; color: #0061ff; font-weight: 600;
+
+.param-col--desc {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
 }
-.custom-cap-tag.orphan {
-  background: #fafafa;
-  border-style: dashed;
-  font-family: ui-monospace, monospace;
+
+.param-desc {
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+}
+
+.param-mapping {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+  background: var(--bg-surface, #f1f5f9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.param-col--range {
+  justify-content: center;
+}
+
+.param-range {
+  font-size: 10px;
+  color: var(--text-muted, #94a3b8);
+  text-align: center;
+}
+
+.param-col--toggle {
+  justify-content: center;
+}
+
+.runtime-params-box {
+  margin-top: 24px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.box-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-heading, #111);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.param-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.param-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pl {
   font-size: 11px;
+  color: var(--text-muted, #999);
 }
-.custom-cap-tag.orphan:hover { border-color: #ff4d4f; color: #ff4d4f; }
 
-/* 运行参数卡片 */
-.runtime-params-box { margin-top: 24px; background: #fff; border: 1px solid #eee; border-radius: 16px; padding: 16px; }
-.box-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: #111; display: flex; align-items: center; gap: 6px; }
-.param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.param-item { display: flex; flex-direction: column; gap: 6px; }
-.pl { font-size: 11px; color: #999; }
-
-/* 底部操作 */
 .modal-footer-action {
-  padding: 16px 40px; background: #fff; border-top: 1px solid #f0f0f0;
-  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+  padding: 14px 24px;
+  background: var(--bg-card, #fff);
+  border-top: 1px solid var(--border-default, #e2e8f0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.footer-left { font-size: 12px; color: #52c41a; display: flex; align-items: center; gap: 4px; }
-.btn-flat { border: none; color: #999; }
-.btn-next, .btn-submit { border-radius: 8px; font-weight: 600; padding: 0 24px; height: 38px; }
 
-.mt-16 { margin-top: 16px; }
-.animate-fade { animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.footer-left {
+  font-size: 12px;
+  color: #52c41a;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
-.input-action-icon:hover { color: #ff4d4f; cursor: pointer; }
+.btn-submit {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0 24px;
+  height: 38px;
+}
+
+.input-action-icon:hover {
+  color: #ff4d4f;
+  cursor: pointer;
+}
 </style>

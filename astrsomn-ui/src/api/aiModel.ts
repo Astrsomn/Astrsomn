@@ -8,6 +8,8 @@ export type AiModel = {
   modelKeyImmutable?: boolean
   modelType?: string
   provider?: string
+  /** queryPage 子查询：SYSTEM_EXTENSION 中与 PROVIDER 匹配的头像（SVG） */
+  providerAvatar?: string
   accountKey?: string
   apiUrl?: string
   status?: string
@@ -16,7 +18,9 @@ export type AiModel = {
   topVariance?: number
   isDefault?: number
   capabilities?: string
+  param?: string
   maxQuotaTokens?: number
+  sourceType?: string
   createUser?: string
   createTime?: string
   updateUser?: string

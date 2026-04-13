@@ -1,8 +1,8 @@
 package org.astrsomn.server.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.reflection.MetaObject;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.server.util.UserContext;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.context.EnvRuntime;

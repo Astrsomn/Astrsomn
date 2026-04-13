@@ -5,7 +5,10 @@ import org.astrsomn.core.common.base.BaseController;
 import org.astrsomn.core.common.langchain.AstroChatRequest;
 import org.astrsomn.server.service.AstroChatService;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 @RestController

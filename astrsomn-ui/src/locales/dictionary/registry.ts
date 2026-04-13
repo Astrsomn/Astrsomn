@@ -3,12 +3,14 @@ import type { EnumDictionary } from './core'
 import {
   aiModelCapabilitiesDictionary as aiModelCapabilitiesEn,
   aiModelProviderDictionary as aiModelProviderEn,
-  aiModelStatusDictionary as aiModelStatusEn
+  aiModelStatusDictionary as aiModelStatusEn,
+  aiModelSourceTypeDictionary as aiModelSourceTypeEn
 } from '../en-US/dictionary/ai-model'
 import {
   aiModelCapabilitiesDictionary as aiModelCapabilitiesZh,
   aiModelProviderDictionary as aiModelProviderZh,
-  aiModelStatusDictionary as aiModelStatusZh
+  aiModelStatusDictionary as aiModelStatusZh,
+  aiModelSourceTypeDictionary as aiModelSourceTypeZh
 } from '../zh-CN/dictionary/ai-model'
 
 /** 与 `bundles`、useLanguage 的 Lang 保持一致 */
@@ -19,6 +21,7 @@ export type DictionaryBundle = {
   'ai-model.provider': EnumDictionary<Record<string, string>>
   'ai-model.status': EnumDictionary<Record<string, string>>
   'ai-model.capabilities': EnumDictionary<Record<string, string>>
+  'ai-model.sourceType': EnumDictionary<Record<string, string>>
 }
 
 export type DictionaryId = keyof DictionaryBundle
@@ -26,13 +29,15 @@ export type DictionaryId = keyof DictionaryBundle
 const zhCNDictionaryBundle = {
   'ai-model.provider': aiModelProviderZh,
   'ai-model.status': aiModelStatusZh,
-  'ai-model.capabilities': aiModelCapabilitiesZh
+  'ai-model.capabilities': aiModelCapabilitiesZh,
+  'ai-model.sourceType': aiModelSourceTypeZh
 } satisfies DictionaryBundle
 
 const enUSDictionaryBundle = {
   'ai-model.provider': aiModelProviderEn,
   'ai-model.status': aiModelStatusEn,
-  'ai-model.capabilities': aiModelCapabilitiesEn
+  'ai-model.capabilities': aiModelCapabilitiesEn,
+  'ai-model.sourceType': aiModelSourceTypeEn
 } satisfies DictionaryBundle
 
 const bundles: Record<DictionaryLocale, DictionaryBundle> = {

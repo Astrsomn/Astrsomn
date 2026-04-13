@@ -1,6 +1,5 @@
 package org.astrsomn.starter.langchain.quota;
 
-import dev.langchain4j.model.chat.listener.ChatModelErrorContext;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.chat.listener.ChatModelRequestContext;
 import dev.langchain4j.model.chat.listener.ChatModelResponseContext;
@@ -47,7 +46,7 @@ public class AstroModelListener implements ChatModelListener {
                 TokenUsage usage = context.chatResponse().tokenUsage();
                 String rawContent = context.chatResponse().aiMessage().text();
 
-                // 敏感词清洗：将回答中的违规词替换为 *
+
                 String cleanedContent = sensitiveWordProvider.filter(rawContent);
 
                 if (usage != null) {

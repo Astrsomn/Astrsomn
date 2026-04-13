@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.astrsomn.core.mapper.SystemExtensionMapper">
+
+    <select id="queryPage" resultType="org.astrsomn.core.common.dto.extension.SystemExtensionResponseDTO">
+        SELECT
+        se.*
+        FROM
+        SYSTEM_EXTENSION se
+        WHERE
+        1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND se.env_code = #{req.envCode}
+        </if>
+        <if test="req != null and req.extensionKey != null and req.extensionKey != ''">
+            AND se.extension_key LIKE CONCAT('%', #{req.extensionKey}, '%')
+        </if>
+        <if test="req != null and req.extensionName != null and req.extensionName != ''">
+            AND se.extension_name LIKE CONCAT('%', #{req.extensionName}, '%')
+        </if>
+        <if test="req != null and req.type != null and req.type != ''">
+            AND se.type = #{req.type}
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND se.status = #{req.status}
+        </if>
+        <if test="req != null and req.listScope != null and req.listScope == 'MARKETPLACE'">
+            AND se.status = 'UNINSTALLED'
+        </if>
+        <if test="req != null and req.listScope != null and req.listScope == 'INSTALLED'">
+            AND se.status IN ('INSTALLED', 'APPLIED')
+        </if>
+        ORDER BY
+        se.create_time DESC
+    </select>
+
+</mapper>

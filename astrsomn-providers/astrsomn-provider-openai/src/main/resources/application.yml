@@ -1,0 +1,4 @@
+# 作为依赖被主应用加载时通常不单独使用；仅约定模块名便于日志与诊断
+spring:
+  application:
+    name: astrsomn-provider-openai

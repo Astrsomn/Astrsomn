@@ -6,77 +6,29 @@
     <div ref="pageRef" class="agent-page">
       <div class="toolbar">
         <div class="toolbar-left">
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.agentName"
-              placeholder="搜索智能体名称"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-          </div>
+          <AstrsomnSearchPill
+            v-model="query.agentName"
+            layout="toolbar"
+            placeholder="搜索智能体名称"
+            @search="fetchList"
+          />
 
-          <div class="status-switch" role="group" aria-label="状态筛选">
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'enabled' }"
-              @click="toggleStatusFilter('enabled')"
-            >
-              <template #icon><check-circle-outlined /></template>
-              启用
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'disabled' }"
-              @click="toggleStatusFilter('disabled')"
-            >
-              <template #icon><stop-outlined /></template>
-              禁用
-            </a-button>
-          </div>
+          <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
+
         </div>
 
         <div class="toolbar-right">
-          <router-link v-slot="{ navigate }" to="/admin/agents/model-assembly" custom>
-            <a-button class="ghost-btn" @click="navigate">
-              <template #icon><apartment-outlined /></template>
-              模型组装
-            </a-button>
-          </router-link>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定删除选中的智能体吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量删除
-            </a-button>
-          </a-popconfirm>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </div>
       </div>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
+        :selected-count="selectedCount"
         :all-current-selected="allCurrentSelected"
         :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="overviewSummary"
-        @toggle-select-all="toggleSelectAllCurrentPage"
+        :show-actions="true"
+        @toggle-select-all="onToggleSelectAll"
       />
 
       <a-spin :spinning="loading">
@@ -88,10 +40,10 @@
           >
             <AgentCard
               :record="item"
-              :selected="isSelected(item.id)"
-              @select-change="(checked) => toggleSelect(item.id, checked)"
+              :selected="selectedKeys.has(item.id!)"
               @edit="openEdit"
               @delete="handleDeleteOne"
+              @toggle="onToggleSelect"
             />
           </div>
         </div>
@@ -112,12 +64,10 @@
         />
       </div>
 
-      <AgentFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+      <AgentForm
+        v-model:visible="assemblyVisible"
+        :record-id="editingId"
+        @success="fetchList"
       />
     </div>
   </AdminPageShell>
@@ -126,18 +76,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import {
-  ApartmentOutlined,
-  CheckCircleOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-  SearchOutlined,
-  StopOutlined
-} from '@ant-design/icons-vue'
+import { CheckCircleOutlined, PlusOutlined, ReloadOutlined, StopOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
-import AgentFormModal from './AgentFormModal.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AgentCard from './AgentCard.vue'
+import AgentForm from './AgentForm.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
 
 const AGENT_CARD_MIN_WIDTH_PX = 360
@@ -160,67 +106,23 @@ const resolvePageSize = (columns: number) => {
 
 const pageRef = ref<HTMLElement | null>(null)
 const loading = ref(false)
+const assemblyVisible = ref(false)
+const editingId = ref<string | number | undefined>(undefined)
 const query = reactive<{ agentName?: string; status?: string }>({})
 const list = ref<AiAgent[]>([])
-const selectedRowKeys = ref<Array<number | string>>([])
+const selectedKeys = ref<Set<string | number>>(new Set())
 const currentGridColumns = ref(resolveGridColumns())
 const agentGridTemplateColumns = computed(() => `repeat(${currentGridColumns.value}, minmax(0, 1fr))`)
-const overviewSummary = computed(
-  () => `当前页 ${list.value.length} 条智能体卡片，已选 ${selectedRowKeys.value.length} 条。`
-)
+
+const selectedCount = computed(() => selectedKeys.value.size)
+const allCurrentSelected = computed(() => list.value.length > 0 && selectedKeys.value.size === list.value.length)
+const partCurrentSelected = computed(() => selectedKeys.value.size > 0 && selectedKeys.value.size < list.value.length)
 
 const page = reactive({
   pageNum: 1,
   pageSize: resolvePageSize(currentGridColumns.value),
   total: 0
 })
-
-const modal = reactive({
-  open: false,
-  mode: 'create' as 'create' | 'edit',
-  submitting: false
-})
-const modalInitial = ref<AiAgent | null>(null)
-
-const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
-)
-
-const allCurrentSelected = computed(() => {
-  return currentPageIds.value.length > 0 && currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
-})
-
-const partCurrentSelected = computed(() => {
-  if (currentPageIds.value.length === 0) return false
-  const count = currentPageIds.value.filter((id) => selectedRowKeys.value.includes(id)).length
-  return count > 0 && count < currentPageIds.value.length
-})
-
-const isSelected = (id: number | string | undefined) => {
-  if (id == null) return false
-  return selectedRowKeys.value.includes(id)
-}
-
-const toggleSelect = (id: number | string | undefined, checked: boolean) => {
-  if (id == null) return
-  if (checked) {
-    if (!selectedRowKeys.value.includes(id)) {
-      selectedRowKeys.value = [...selectedRowKeys.value, id]
-    }
-    return
-  }
-  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== id)
-}
-
-const toggleSelectAllCurrentPage = (checked: boolean) => {
-  if (checked) {
-    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...currentPageIds.value]))
-    return
-  }
-  selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
-}
 
 const fetchList = async () => {
   loading.value = true
@@ -235,6 +137,7 @@ const fetchList = async () => {
     })
     list.value = resp.list || []
     page.total = resp.total || 0
+    selectedKeys.value.clear()
   } finally {
     loading.value = false
   }
@@ -267,52 +170,52 @@ const onPageChange = (p: number) => {
 }
 
 const openCreate = () => {
-  modal.mode = 'create'
-  modalInitial.value = null
-  modal.open = true
+  editingId.value = undefined
+  assemblyVisible.value = true
 }
 
+const toolbarSegmentButtons: SegmentedButton[] = [
+  { label: '重置', icon: ReloadOutlined, onClick: resetFilters },
+  { label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate },
+]
+
 const openEdit = async (record: AiAgent) => {
-  modal.mode = 'edit'
   const id = record.id
   if (id == null) return
-  const detail = await aiAgentApi.detail(id)
-  // 详情接口不含联表展示字段，保留列表行上的实例名 / 提示词标题等便于弹窗展示
-  modalInitial.value = { ...record, ...detail }
-  modal.open = true
+  editingId.value = id
+  assemblyVisible.value = true
 }
 
 const handleDeleteOne = async (id: number | string) => {
   await aiAgentApi.delete([id])
   message.success('已删除')
-  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== id)
   void fetchList()
 }
 
-const handleBatchDelete = async () => {
-  const ids = [...selectedRowKeys.value]
+const handleBatchDelete = async (ids: Array<number | string>) => {
   if (ids.length === 0) return
   await aiAgentApi.delete(ids)
   message.success('已删除')
-  selectedRowKeys.value = []
   void fetchList()
 }
 
-const handleFormSubmit = async (form: AiAgent) => {
-  modal.submitting = true
-  try {
-    if (modal.mode === 'create') {
-      await aiAgentApi.create(form)
-    } else {
-      await aiAgentApi.update(form)
-    }
-    message.success('保存成功')
-    modal.open = false
-    void fetchList()
-  } catch (e: any) {
-    message.error(e.message)
-  } finally {
-    modal.submitting = false
+const onToggleSelectAll = (checked: boolean) => {
+  if (checked) {
+    list.value.forEach(item => {
+      if (item.id) {
+        selectedKeys.value.add(item.id)
+      }
+    })
+  } else {
+    selectedKeys.value.clear()
+  }
+}
+
+const onToggleSelect = (id: number | string, checked: boolean) => {
+  if (checked) {
+    selectedKeys.value.add(id)
+  } else {
+    selectedKeys.value.delete(id)
   }
 }
 
@@ -344,7 +247,7 @@ void fetchList()
 
 <style scoped>
 .agent-page {
-  padding: 0 2px 0;
+  padding: 20px;
   margin-top: -8px;
 }
 
@@ -356,8 +259,8 @@ void fetchList()
   margin-bottom: 6px;
   flex-wrap: wrap;
   padding: 16px 0;
-  border-radius: var(--radius-sm);
-  background: var(--bg-card);
+  border-radius: var(--radius-pro);
+
 }
 
 .toolbar-left {
@@ -375,49 +278,6 @@ void fetchList()
   flex-wrap: wrap;
 }
 
-.search-cluster {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 6px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-  box-shadow: none;
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper) {
-  border: none;
-  box-shadow: none;
-  background: transparent;
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused) {
-  border: none;
-  box-shadow: none;
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface));
-}
-
-.search-cluster :deep(.ant-input) {
-  font-size: 14px;
-}
-
-.toolbar-input {
-  width: 200px;
-}
-
-.search-main-input {
-  width: 360px;
-}
-
-.primary-btn,
-.ghost-btn {
-  height: 40px;
-  border-radius: var(--radius-sm);
-}
-
 .danger-btn {
   color: var(--error);
   border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
@@ -433,26 +293,33 @@ void fetchList()
 
 .status-switch {
   display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
+  align-items: stretch;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 4px 10px rgba(15, 23, 42, 0.06);
 }
 
-.status-btn {
-  height: 36px;
+.status-switch :deep(.status-btn.ant-btn) {
+  height: 44px;
+  border-radius: 0;
   border: none;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  background: transparent;
   box-shadow: none;
+  color: #64748b;
+  background: transparent;
+  font-weight: 600;
 }
 
-.status-btn.active {
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
+.status-switch :deep(.status-btn-last.ant-btn) {
+  border-left: 1px solid #e2e8f0;
+}
+
+.status-switch :deep(.status-btn.active.ant-btn) {
+  color: #1d4ed8;
+  background: #eff6ff;
 }
 
 .agent-grid {
@@ -490,27 +357,29 @@ void fetchList()
     padding: 14px;
   }
 
-  .toolbar-input,
-  .search-main-input {
-    width: 100%;
-  }
-
   .toolbar-left,
-  .toolbar-right,
-  .search-cluster {
+  .toolbar-right {
     width: 100%;
   }
 
-  .search-cluster {
-    padding: 8px;
+  :deep(.toolbar-search-pill--toolbar) {
+    max-width: none;
+    width: 100%;
+  }
+
+  .toolbar-right :deep(.toolbar-segmented-btn) {
+    width: 100%;
+  }
+
+  .toolbar-right :deep(.seg-btn) {
+    flex: 1;
   }
 
   .status-switch {
     width: 100%;
-    justify-content: space-between;
   }
 
-  .status-btn {
+  .status-switch :deep(.status-btn.ant-btn) {
     flex: 1;
   }
 

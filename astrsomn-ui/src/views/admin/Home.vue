@@ -47,7 +47,6 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
 
 /* 主体内容区 */
 .shell-content {
-  //border: 1px solid red;
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -72,9 +71,7 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
 }
 
 .content-wrapper {
-  max-width: 1600px;
-  margin: 0 auto;
-  //padding: 0 32px;
+  margin: 60px auto 0;
 }
 
 
@@ -82,5 +79,13 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
 /* 响应式适配 */
 @media (max-width: 768px) {
   .content-wrapper { padding: 0 16px; }
+}
+
+/* 让顶部 Header 覆盖在内容上方，这样 Header 透明时能看到底下页面内容 */
+:deep(.app-header) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
 }
 </style>

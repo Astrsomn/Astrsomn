@@ -7,80 +7,36 @@
     <div class="tool-page">
       <AdminListToolbar>
         <template #left>
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.toolName"
+       
+            <AstrsomnSearchPill
+              v-model="query.toolName"
               placeholder="搜索工具名称"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-input
-              v-model:value="query.toolKey"
-              placeholder="Tool Key"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><key-outlined /></template>
-            </a-input>
-            <a-select
-              v-model:value="query.type"
-              :options="typeFilterOptions"
-              placeholder="所有类型"
-              class="toolbar-select type-select"
-              allow-clear
+              button-label="搜索"
+              layout="toolbar"
+              @search="fetchList"
             />
-          </div>
+       
+       
+         
 
-          <div class="status-switch" role="group" aria-label="状态筛选">
-            <a-button
-              class="status-btn"
-              :class="{ active: query.enableFlag === 'enabled' }"
-              @click="toggleEnabledFilter('enabled')"
-            >
-              <template #icon><check-circle-outlined /></template>
-              启用
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.enableFlag === 'disabled' }"
-              @click="toggleEnabledFilter('disabled')"
-            >
-              <template #icon><stop-outlined /></template>
-              禁用
-            </a-button>
-          </div>
+          <AstrsomnStateSwitch
+            v-model="query.enableFlag" 
+            @change="fetchList"
+            :options="[
+              { label: '全部', value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
+              { label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
+              { label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined }
+            ]"
+          />
+
         </template>
 
         <template #right>
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的工具吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              批量删除
-            </a-button>
-          </a-popconfirm>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
       </AdminListToolbar>
 
-      <BaseOverview
+      <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -143,18 +99,21 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
   DeleteOutlined,
   KeyOutlined,
   PlusOutlined,
-  SearchOutlined,
+  ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import BaseOverview from '@/components/home/BaseOverview.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
+import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ToolFormModal from './ToolFormModal.vue'
 import { aiToolApi, type AiTool, type PageResponse } from '@/api/aiTool.ts'
 
@@ -250,6 +209,36 @@ const resetFilters = () => {
   void fetchList()
 }
 
+const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
+
+  {
+    label: '批量删除',
+    type: 'danger',
+    plain: true,
+    icon: DeleteOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: () => {
+      const n = selectedRowKeys.value.length
+      if (n === 0) return
+      Modal.confirm({
+        title: `确定删除选中的 ${n} 个工具吗？`,
+        onOk: () => handleBatchDelete()
+      })
+    }
+  },
+  {
+    label: '重置',
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: '新增',
+    type: 'primary',
+    icon: PlusOutlined,
+    onClick: openCreate
+  }
+])
+
 const modal = reactive({
   open: false,
   mode: 'create' as 'create' | 'edit',
@@ -342,7 +331,7 @@ void fetchList()
 
 <style scoped>
 .tool-page {
-  padding: 0 4px;
+  padding: 20px;
 }
 
 .search-cluster {

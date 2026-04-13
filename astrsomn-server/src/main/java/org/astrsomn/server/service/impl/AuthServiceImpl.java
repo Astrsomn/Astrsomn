@@ -3,11 +3,12 @@ package org.astrsomn.server.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.entity.SystemUserEntity;
+import org.astrsomn.core.exception.base.BusinessException;
+import org.astrsomn.core.exception.constant.AuthErrorEnum;
 import org.astrsomn.core.mapper.SystemUserMapper;
 import org.astrsomn.server.dto.request.LoginRequest;
 import org.astrsomn.server.dto.request.RefreshTokenRequest;
 import org.astrsomn.server.dto.response.LoginResponse;
-import org.astrsomn.server.exception.BusinessException;
 import org.astrsomn.server.service.AuthService;
 import org.astrsomn.server.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,12 +45,12 @@ public class AuthServiceImpl implements AuthService {
 
         if (user == null) {
             log.warn("用户不存在 - Username: {}", username);
-            throw new BusinessException(401, "用户名或密码错误");
+            throw new BusinessException(AuthErrorEnum.USER_NOT_FOUND);
         }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             log.warn("密码错误 - Username: {}", username);
-            throw new BusinessException(401, "用户名或密码错误");
+            throw new BusinessException(AuthErrorEnum.PASSWORD_ERROR);
         }
 
         String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getUserRole());
@@ -75,19 +76,19 @@ public class AuthServiceImpl implements AuthService {
         log.info("刷新Token");
 
         if (!jwtUtil.validateToken(oldToken)) {
-            throw new BusinessException(401, "Token无效或已过期");
+            throw new BusinessException(AuthErrorEnum.INVALID_TOKEN);
         }
 
         Long userId = jwtUtil.getUserIdFromToken(oldToken);
         String username = jwtUtil.getUsernameFromToken(oldToken);
 
         if (userId == null || username == null) {
-            throw new BusinessException(401, "Token解析失败");
+            throw new BusinessException(AuthErrorEnum.INVALID_TOKEN);
         }
 
         SystemUserEntity user = systemUserMapper.selectById(userId);
         if (user == null) {
-            throw new BusinessException(401, "用户不存在");
+            throw new BusinessException(AuthErrorEnum.USER_NOT_FOUND);
         }
 
         String newToken = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getUserRole());

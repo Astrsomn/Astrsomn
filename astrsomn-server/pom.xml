@@ -18,22 +18,15 @@
     </properties>
 
     <dependencies>
-        <!-- 核心模块 -->
+        <!-- 核心模块（显式依赖，保证单模块构建 testCompile 等场景下类路径完整） -->
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-core</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-spring-boot-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-providers</artifactId>
-            <type>pom</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-vector</artifactId>
-            <type>pom</type>
         </dependency>
 
         <dependency>
@@ -60,13 +53,6 @@
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
-        <!-- Spring Cloud -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
-
-
         <!-- MyBatis-Plus -->
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -87,16 +73,69 @@
             <scope>runtime</scope>
         </dependency>
 
-
-
         <!-- 测试 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JJWT API -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.3</version>
+        </dependency>
+        <!-- JJWT 实现 -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.3</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- JJWT Jackson 序列化支持 -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.3</version>
+            <scope>runtime</scope>
+        </dependency>
 
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-provider-deepseek</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-provider-zhipu</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-vector-qdrant</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-vector-milvus</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.astrsomn</groupId>
+            <artifactId>astrsomn-vector-chroma</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <!-- 可选：classpath 引入 astrsomn-vector-*（如 astrsomn-vector-qdrant）；向量扩展通过 SPI 注册，与厂商 provider 模块一致，无需额外 @Configuration。 -->
 
     </dependencies>
 
@@ -105,6 +144,17 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.astrsomn.server.AstrsomnServerApplication</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

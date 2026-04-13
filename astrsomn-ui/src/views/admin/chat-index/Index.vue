@@ -494,6 +494,9 @@ const loadOptions = async () => {
     chatInstanceOptions.value = instanceResp.list || []
     agentOptions.value = agentResp.list || []
 
+    console.log('Agent options loaded:', agentOptions.value)
+    console.log('Chat instance options loaded:', chatInstanceOptions.value)
+
     if (!selectedAgent.value) {
       selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
     }
@@ -505,6 +508,7 @@ const loadOptions = async () => {
         undefined
     }
   } catch (error: any) {
+    console.error('Error loading options:', error)
     message.error(error?.message || '加载聊天配置失败')
   } finally {
     optionsLoading.value = false
@@ -581,14 +585,48 @@ const submitQuestion = async (promptArg?: string) => {
     const target = messages.value.find((item) => item.id === assistantMessageId)
     if (target) {
       if (error?.name === 'AbortError') {
-        target.content = target.content || '已停止生成'
+        const stopText = target.content || '已停止生成'
+        target.content = stopText
+        if (!target.segments?.length) {
+          target.segments = [{ type: 'text', content: stopText }]
+        }
       } else {
-        target.content = error?.message || '请求失败，请稍后重试'
+        // 解析错误响应（须同步 segments，否则 ChatMessageItem 在 segments 存在时会忽略 content）
+        let errorMessage = '请求失败，请稍后重试'
+        let errorDetail = ''
+
+        if (error?.response?.data) {
+          const errorData = error.response.data
+          errorMessage = errorData.message || errorMessage
+          if (errorData.rootCause) {
+            errorDetail = errorData.rootCause
+          }
+        } else if (error?.data) {
+          errorMessage = error.data.message || error.message || errorMessage
+          if (error.data.rootCause) {
+            errorDetail = error.data.rootCause
+          }
+        } else {
+          errorMessage = error?.message || errorMessage
+        }
+
+        const fullText = errorDetail ? `${errorMessage}\n\n原因：${errorDetail}` : errorMessage
+        target.content = fullText
+        target.segments = [{ type: 'text', content: fullText }]
         target.error = true
       }
     }
     if (error?.name !== 'AbortError') {
-      message.error(error?.message || '聊天请求失败')
+      // 解析错误消息用于弹窗
+      let errorMessage = '聊天请求失败'
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error?.data?.message) {
+        errorMessage = error.data.message
+      } else if (error?.message) {
+        errorMessage = error.message
+      }
+      message.error(errorMessage)
     }
   } finally {
     const target = messages.value.find((item) => item.id === assistantMessageId)

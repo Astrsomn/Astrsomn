@@ -1,7 +1,7 @@
 package org.astrsomn.server.service.support;
 
-import org.apache.commons.lang3.StringUtils;
 import org.astrsomn.core.common.base.BaseEntity;
+import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.context.EnvRuntime;
 import org.springframework.stereotype.Component;

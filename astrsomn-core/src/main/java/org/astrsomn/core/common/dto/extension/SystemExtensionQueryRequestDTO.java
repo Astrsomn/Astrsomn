@@ -1,0 +1,20 @@
+package org.astrsomn.core.common.dto.extension;
+
+import lombok.Data;
+import org.astrsomn.core.common.entity.SystemExtensionEntity;
+
+import java.io.Serializable;
+
+@Data
+public class SystemExtensionQueryRequestDTO extends SystemExtensionEntity implements Serializable {
+
+    private String extensionKey;
+    private String extensionName;
+    private String type;
+    private String status;
+
+    /**
+     * 列表范围：{@link org.astrsomn.core.common.constant.SystemExtensionEnum.ExtensionListScopeEnum}，非表字段。
+     */
+    private String listScope;
+}
