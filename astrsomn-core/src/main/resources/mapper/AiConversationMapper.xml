@@ -6,23 +6,23 @@
         SELECT
         ac.*,
         am.model_name AS modelName,
-        aa.name AS agentName,
+        aa.agent_name AS agentName,
         ap.prompt_title AS promptTitle
         FROM
         AI_CONVERSATION ac
         LEFT JOIN
-        AI_MODEL_CONFIG am ON ac.model_id = am.id
+        AI_MODEL am ON ac.model_key = am.model_key
         LEFT JOIN
-        AI_AGENT aa ON ac.agent_id = aa.id
+        AI_AGENT aa ON ac.agent_key = aa.agent_key
         LEFT JOIN
-        AI_PROMPT ap ON ac.prompt_id = ap.id
+        AI_PROMPT ap ON ac.prompt_key = ap.prompt_key
         WHERE
         1=1
         <if test="req != null and req.envCode != null and req.envCode != ''">
             AND ac.env_code = #{req.envCode}
         </if>
-        <if test="req != null and req.memoryId != null and req.memoryId != ''">
-            AND ac.memory_id = #{req.memoryId}
+        <if test="req != null and req.memoryKey != null and req.memoryKey != ''">
+            AND ac.memory_id = #{req.memoryKey}
         </if>
         <if test="req != null and req.role != null and req.role != ''">
             AND ac.role = #{req.role}
@@ -33,6 +33,63 @@
 
     <select id="getMaxMessageOrder" resultType="java.lang.Integer">
         SELECT COALESCE(MAX(message_order), -1) FROM AI_CONVERSATION WHERE deleted = 0 AND memory_key = #{messageKey}
+    </select>
+
+    <select id="queryGroups" resultType="org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO">
+        SELECT
+            ac.*,
+            am.model_name AS modelName,
+            aa.agent_name AS agentName,
+            ap.prompt_title AS promptTitle
+        FROM
+            (
+                SELECT
+                    *, 
+                    ROW_NUMBER() OVER (PARTITION BY ac.memory_key ORDER BY ac.update_time DESC) AS rn
+                FROM
+                    AI_CONVERSATION ac
+                WHERE
+                    1=1
+                <if test="req != null and req.envCode != null and req.envCode != ''">
+                    AND ac.env_code = #{req.envCode}
+                </if>
+                <if test="req != null and req.memoryKey != null and req.memoryKey != ''">
+                    AND ac.memory_id = #{req.memoryKey}
+                </if>
+                <if test="req != null and req.role != null and req.role != ''">
+                    AND ac.role = #{req.role}
+                </if>
+            ) ac
+        LEFT JOIN
+            AI_MODEL am ON ac.model_key = am.model_key
+        LEFT JOIN
+            AI_AGENT aa ON ac.agent_key = aa.agent_key
+        LEFT JOIN
+            AI_PROMPT ap ON ac.prompt_key = ap.prompt_key
+        WHERE
+            ac.rn = 1
+        ORDER BY
+            ac.create_time DESC
+    </select>
+
+    <select id="recoverByMemoryKey" resultType="org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO">
+        SELECT
+            ac.*,
+            am.model_name AS modelName,
+            aa.agent_name AS agentName,
+            ap.prompt_title AS promptTitle
+        FROM
+            AI_CONVERSATION ac
+        LEFT JOIN
+            AI_MODEL am ON ac.model_key = am.model_key
+        LEFT JOIN
+            AI_AGENT aa ON ac.agent_key = aa.agent_key
+        LEFT JOIN
+            AI_PROMPT ap ON ac.prompt_key = ap.prompt_key
+        WHERE
+            ac.memory_key = #{memoryKey}
+        ORDER BY
+            ac.update_time ASC
     </select>
 
 </mapper>

@@ -45,60 +45,57 @@
       </div>
 
       <footer class="card-footer">
-        <div v-if="record.type === 'MODEL_PROVIDER'" class="model-action-grid">
-          <a-button type="text" size="small" class="action-btn" @click="emit('load-models')">
+        <div v-if="record.type === 'MODEL_PROVIDER' && record.applied === 'Y'" class="model-action-grid">
+          <a-button size="small" class="action-btn btn-primary" @click="emit('load-models')">
             <template #icon><cloud-download-outlined /></template>加载模型
           </a-button>
-          <a-button type="text" size="small" class="action-btn danger-text" @click="emit('unload-models')">
+          <a-button size="small" class="action-btn btn-danger" @click="emit('unload-models')">
             <template #icon><rest-outlined /></template>卸载模型
           </a-button>
         </div>
 
         <div class="action-bar-container">
           <div class="control-strip">
-            <a-popconfirm
-              v-if="record.applied === 'N'"
-              title="确定应用该插件吗？"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="emit('apply')"
-            >
-              <a-button
-                type="text"
-                size="small"
-                class="strip-action strip-action--apply"
+            <template v-if="record.applied === 'N'">
+              <a-popconfirm
+                title="确定应用该插件吗？"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="emit('apply')"
               >
-                <template #icon><caret-right-outlined /></template>
-                启用
-              </a-button>
-            </a-popconfirm>
+                <a-button size="small" class="strip-action btn-success">
+                  <template #icon><caret-right-outlined /></template>
+                  启用
+                </a-button>
+              </a-popconfirm>
 
-            <a-popconfirm
-              v-else
-              title="确定取消启用吗？插件将恢复为「未启用」状态。"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="emit('revoke-apply')"
-            >
-              <a-button type="text" size="small" class="strip-action strip-action--revoke">
-                <template #icon><pause-outlined /></template>
-                禁用
-              </a-button>
-            </a-popconfirm>
+              <div class="strip-divider"></div>
 
-            <div class="strip-divider"></div>
-
-            <a-popconfirm
-              title="确定卸载该插件吗？"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="emit('uninstall')"
-            >
-              <a-button type="text" size="small" class="strip-action strip-action--uninstall">
-                <template #icon><delete-outlined /></template>
-                卸载插件
-              </a-button>
-            </a-popconfirm>
+              <a-popconfirm
+                title="确定卸载该插件吗？"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="emit('uninstall')"
+              >
+                <a-button size="small" class="strip-action btn-danger">
+                  <template #icon><delete-outlined /></template>
+                  卸载插件
+                </a-button>
+              </a-popconfirm>
+            </template>
+            <template v-else>
+              <a-popconfirm
+                title="确定取消启用吗？插件将恢复为「未启用」状态。"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="emit('revoke-apply')"
+              >
+                <a-button size="small" class="strip-action btn-warning">
+                  <template #icon><pause-outlined /></template>
+                  禁用插件
+                </a-button>
+              </a-popconfirm>
+            </template>
           </div>
         </div>
       </footer>
@@ -118,7 +115,7 @@ import {
   PauseOutlined,
   DeleteOutlined
 } from '@ant-design/icons-vue'
-import { preview, statusLabel, type ExtensionRow } from '../shared/extensionDisplay'
+import { preview, type ExtensionRow } from '../shared/extensionDisplay'
 
 defineProps<{
   record: ExtensionRow
@@ -149,6 +146,9 @@ const getAntdIcon = (type: string) => {
 .extension-card {
   --primary: #4f46e5;
   --bg-soft: #f8fafc;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
 
   position: relative;
   background: #ffffff;
@@ -159,6 +159,7 @@ const getAntdIcon = (type: string) => {
   flex-direction: column;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+  min-height: 380px;
 }
 
 .extension-card:hover {
@@ -188,10 +189,11 @@ const getAntdIcon = (type: string) => {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
   padding: 4px 12px;
   border-radius: 1rem;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .status-text {
@@ -201,7 +203,7 @@ const getAntdIcon = (type: string) => {
 }
 
 .status-text.is-active {
-  color: #10b981;
+  color: var(--success);
 }
 
 .version-tag {
@@ -212,7 +214,7 @@ const getAntdIcon = (type: string) => {
 
 .card-checkbox {
   position: absolute;
-  top: 4rem;
+  top: 3.5rem;
   right: 1.5rem;
 }
 
@@ -227,7 +229,7 @@ const getAntdIcon = (type: string) => {
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
 }
 
 .ext-icon-box {
@@ -254,8 +256,6 @@ const getAntdIcon = (type: string) => {
 .ext-icon-box :deep(svg) {
   width: 2rem;
   height: 2rem;
-  max-width: 90%;
-  max-height: 90%;
 }
 
 .ext-name {
@@ -300,91 +300,101 @@ const getAntdIcon = (type: string) => {
   font-size: 13px;
   color: #64748b;
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.model-action-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+/* --- 按钮优化部分 --- */
+
+.card-footer {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  padding: 12px 0;
+}
+
+.model-action-grid {
+  display: flex;
+  gap: 10px;
+  padding-top: 12px;
   border-top: 1px dashed #f1f5f9;
 }
 
-.action-btn {
-  font-weight: 700 !important;
-  font-size: 12px !important;
-  color: #64748b !important;
-}
-
-.danger-text {
-  color: #ef4444 !important;
-}
-
 .action-bar-container {
-  margin-top: 0.5rem;
+  width: 100%;
 }
 
 .control-strip {
-  background: var(--bg-soft);
-  padding: 6px 8px;
-  border-radius: 1.75rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px;
+  gap: 8px;
 }
 
-.strip-action {
+/* 通用按钮样式优化 */
+.action-btn, .strip-action {
   flex: 1;
-  min-height: 40px;
+  min-height: 42px;
   font-weight: 700 !important;
-  font-size: 12px !important;
-  border-radius: 1rem !important;
+  font-size: 13px !important;
+  border-radius: 14px !important;
+  border: none !important;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  background: #ffffff !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  transition: color 0.2s, background 0.2s, transform 0.2s;
+  gap: 6px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: #ffffff !important;
 }
 
-.strip-action:disabled {
-  opacity: 0.45;
+.action-btn:hover, .strip-action:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
 }
 
-.strip-action--apply {
-  color: #10b981 !important;
-}
-.strip-action--apply:hover:not(:disabled) {
-  color: #fff !important;
-  background: #10b981 !important;
+.action-btn:active, .strip-action:active {
+  transform: translateY(0);
 }
 
-.strip-action--revoke {
-  color: #f59e0b !important;
+/* 颜色分类 - 使用渐变增强视觉感 */
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
 }
-.strip-action--revoke:hover {
-  color: #fff !important;
-  background: #f59e0b !important;
+.btn-primary:hover {
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35) !important;
 }
 
-.strip-action--uninstall {
-  color: #94a3b8 !important;
+.btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25) !important;
 }
-.strip-action--uninstall:hover {
-  color: #fff !important;
-  background: #ef4444 !important;
+.btn-success:hover {
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35) !important;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%) !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25) !important;
+}
+.btn-danger:hover {
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35) !important;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25) !important;
+}
+.btn-warning:hover {
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35) !important;
 }
 
 .strip-divider {
   width: 1px;
   height: 24px;
-  background: #e2e8f0;
+  background: #f1f5f9;
+  margin: 0 2px;
 }
 
 :deep(.ant-checkbox-inner) {

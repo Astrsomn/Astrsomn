@@ -20,7 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-
+import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AiConversationServiceImpl extends ServiceImpl<AiConversationMapper, AiConversationEntity> implements AiConversationService {
@@ -86,5 +86,31 @@ public class AiConversationServiceImpl extends ServiceImpl<AiConversationMapper,
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiConversationResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
+    }
+
+    @Override
+    public PageResponse<AiConversationResponseDTO> queryGroups(BasePageRequest<AiConversationQueryRequestDTO> request) {
+        IPage<AiConversationResponseDTO> page = request.buildPage();
+        AiConversationQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new AiConversationQueryRequestDTO();
+        }
+        queryEnvParamHelper.stampEffectiveEnv(param);
+        IPage<AiConversationResponseDTO> result = baseMapper.queryGroups(page, param);
+        return PageResponse.buildResponse(result);
+    }
+
+    @Override
+    public BaseResponse<List<AiConversationResponseDTO>> recoverByMemoryKey(String memoryKey) {
+        if (memoryKey == null || memoryKey.isEmpty()) {
+            throw new BusinessException(AiConversationErrorEnum.CONVERSATION_PARAM_ERROR);
+        }
+        
+        List<AiConversationResponseDTO> responseDTOs = baseMapper.recoverByMemoryKey(memoryKey);
+        if (responseDTOs == null || responseDTOs.isEmpty()) {
+            throw new BusinessException(AiConversationErrorEnum.CONVERSATION_NOT_FOUND);
+        }
+        
+        return BaseResponse.success(responseDTOs);
     }
 }
