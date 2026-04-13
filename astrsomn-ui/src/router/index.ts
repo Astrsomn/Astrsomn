@@ -85,6 +85,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/ai-config/ai-template/TemplateList.vue'),
         meta: { title: 'FTL 模板管理', requiresAuth: true }
       },
+      {
+        path: 'conversations',
+        name: 'AdminConversations',
+        component: () => import('@/views/admin/ai-config/ai-conversation/ConversationList.vue'),
+        meta: { title: '对话管理', requiresAuth: true }
+      },
 
       {
         path: 'security',

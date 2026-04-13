@@ -212,12 +212,12 @@ const getAntdIcon = (type: string) => {
 
 .card-checkbox {
   position: absolute;
-  top: 4rem;
+  top: 3rem;
   right: 1.5rem;
 }
 
 .card-inner {
-  padding: 3.5rem 2rem 1.5rem;
+  padding: 2.5rem 2rem 1rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -227,7 +227,7 @@ const getAntdIcon = (type: string) => {
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .ext-icon-box {
@@ -300,7 +300,7 @@ const getAntdIcon = (type: string) => {
   font-size: 13px;
   color: #64748b;
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

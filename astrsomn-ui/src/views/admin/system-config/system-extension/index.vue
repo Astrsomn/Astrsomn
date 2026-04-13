@@ -96,7 +96,7 @@ function openMarketplace() {
 
 .extension-layout {
   background: transparent;
-  min-height: calc(100vh - 100px); /* 保持高度不调整 */
+  min-height: calc(100vh - 70px);
   gap: 16px;
 }
 
@@ -106,6 +106,7 @@ function openMarketplace() {
   border-radius: 16px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+  height: calc(100vh - 70px);
 }
 
 .sider-wrapper {
@@ -255,7 +256,7 @@ function openMarketplace() {
 .content-card {
   background: #fff;
   border-radius: 16px;
-  height: 100%;
+  min-height: calc(100vh - 70px);
   padding: 24px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
