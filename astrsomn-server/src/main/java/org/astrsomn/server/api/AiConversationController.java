@@ -12,6 +12,8 @@ import org.astrsomn.core.common.dto.conversation.AiConversationUpdateRequestDTO;
 import org.astrsomn.server.service.AiConversationService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/v1/astro/ai-conversation")
 @RequiredArgsConstructor
@@ -51,5 +53,15 @@ public class AiConversationController extends BaseController {
         } catch (NumberFormatException e) {
             return BaseResponse.fail("ID格式错误", null);
         }
+    }
+
+    @PostMapping("/queryGroups")
+    public PageResponse<AiConversationResponseDTO> queryGroups(@RequestBody BasePageRequest<AiConversationQueryRequestDTO> request) {
+        return aiConversationService.queryGroups(request);
+    }
+
+    @GetMapping("/recoverByMemoryKey")
+    public BaseResponse<List<AiConversationResponseDTO>> recoverByMemoryKey(@RequestParam("memoryKey") String memoryKey) {
+        return aiConversationService.recoverByMemoryKey(memoryKey);
     }
 }
