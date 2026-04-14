@@ -167,13 +167,13 @@ import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import VecDocFormModal from './VecDocFormModal.vue'
-import { aiVecStoreApi } from '@/api/aiVecStore'
+import { aiVecStoreApi } from '@/api/aiVecStore.ts'
 import {
   aiVecDocApi,
   AiVecDocSyncStatus,
   type AiVecDoc,
   type PageResponse
-} from '@/api/aiVecDoc'
+} from '@/api/aiVecDoc.ts'
 import type { UploadProps } from 'ant-design-vue'
 
 type QueryState = {

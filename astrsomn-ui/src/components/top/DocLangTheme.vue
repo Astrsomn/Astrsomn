@@ -1,6 +1,6 @@
 <template>
   <div class="doc-lang-theme">
-    <a v-if="showDoc" href="javascript:;" class="doc-link" @click.prevent="goDoc">
+    <a v-if="showDoc" href="https://doc.astrsomn.com/" class="doc-link" target="_blank">
       <book-outlined />
     </a>
 
@@ -49,9 +49,7 @@ const router = useRouter()
 const { isDark, toggleTheme } = useTheme()
 const { currentLang, changeLang, languageOptions } = useLanguage()
 
-const goDoc = () => {
-  router.push(docTo)
-}
+
 </script>
 
 <style scoped>

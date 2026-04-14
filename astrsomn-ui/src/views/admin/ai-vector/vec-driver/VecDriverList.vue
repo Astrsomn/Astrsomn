@@ -1,15 +1,15 @@
 <template>
   <AdminPageShell
-    title="向量分段"
-    description="管理文档切片与向量映射，支持分段内容预览。"
-    empty-text="暂无向量分段数据。"
+    title="向量驱动"
+    description="管理向量数据库驱动配置，支持多种向量数据库。"
+    empty-text="暂无向量驱动数据。"
   >
-    <div class="vec-segment-page">
+    <div class="vec-driver-page">
       <AdminListToolbar>
         <template #left>
           <AstrsomnSearchPill
-            v-model="query.vectorId"
-            placeholder="搜索向量 ID"
+            v-model="query.driverName"
+            placeholder="搜索驱动名称"
             button-label="搜索"
             layout="toolbar"
             @search="fetchList"
@@ -27,7 +27,7 @@
         :all-current-selected="allCurrentSelected"
         :part-current-selected="partCurrentSelected"
         :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条向量分段，已选 ${selectedRowKeys.length} 条。`"
+        :summary-text="`当前页 ${list.length} 条向量驱动，已选 ${selectedRowKeys.length} 条。`"
         @toggle-select-all="toggleSelectAllCurrentPage"
       />
 
@@ -40,33 +40,46 @@
         :scroll="{ x: 1280 }"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'segmentContent'">
-            <div class="segment-content">
-              <span class="content-text multiline-2">{{ record.segmentContent || '—' }}</span>
+          <template v-if="column.key === 'params'">
+            <div class="params-cell">
+              <template v-if="getParamsArray(record.params).length > 0">
+                <a-tag 
+                  v-for="param in getParamsArray(record.params)" 
+                  :key="param" 
+                  class="param-tag"
+                  color="blue"
+                >
+                  {{ param }}
+                </a-tag>
+              </template>
+              <span v-else class="params-info">{{ getParamsInfo(record.params) }}</span>
             </div>
           </template>
-          <template v-else-if="column.key === 'metadataJson'">
-            <div class="metadata-cell">
-              <span class="metadata-info">{{ getMetadataInfo(record.metadataJson) }}</span>
-            </div>
+          <template v-else-if="column.key === 'createTime'">
+            {{ formatDate(record.createTime) }}
+          </template>
+          <template v-else-if="column.key === 'status'">
+            <a-select 
+              :value="record.status" 
+              :class="['status-select', record.status === 'enabled' ? 'status-enabled' : 'status-disabled']"
+              @change="(value) => handleStatusChange(record, value)"
+              :bordered="false"
+            >
+              <a-select-option value="enabled">
+                <CheckCircleOutlined class="status-icon enabled-icon" />
+                启用
+              </a-select-option>
+              <a-select-option value="disabled">
+                <CloseCircleOutlined class="status-icon disabled-icon" />
+                禁用
+              </a-select-option>
+            </a-select>
           </template>
           <template v-else-if="column.key === 'actions'">
-            <a-button type="link" class="action-link" @click="openEdit(record)">
-              <template #icon><edit-outlined /></template>
-              编辑
+            <a-button type="link" class="action-link" @click="openView(record)">
+              <template #icon><eye-outlined /></template>
+              查看
             </a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger class="action-link">
-                <template #icon><delete-outlined /></template>
-                删除
-              </a-button>
-            </a-popconfirm>
           </template>
         </template>
       </a-table>
@@ -81,7 +94,7 @@
         />
       </div>
 
-      <VecSegmentFormModal
+      <VecDriverFormModal
         v-model:open="modal.open"
         :mode="modal.mode"
         :confirm-loading="modal.submitting"
@@ -93,11 +106,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, nextTick, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
+  EyeOutlined,
   PlusOutlined,
   ReloadOutlined
 } from '@ant-design/icons-vue'
@@ -106,34 +122,48 @@ import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import VecSegmentFormModal from './VecSegmentFormModal.vue'
-import { aiVecSegmentApi, type AiVecSegment, type PageResponse } from '@/api/aiVecSegment'
+import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
+import VecDriverFormModal from './VecDriverFormModal.vue'
+import { aiVecDriverApi, type AiVecDriver, type PageResponse } from '@/api/aiVecDriver.ts'
 
 type QueryState = {
-  docId?: number
-  collectionId?: number
-  vectorId?: string
-  chunkIndex?: number
+  driverName?: string
+  provider?: string
+  driverType?: string
 }
 
 const columns = [
-  { title: '文档 ID', dataIndex: 'docId', key: 'docId', width: 120 },
-  { title: '集合 ID', dataIndex: 'collectionId', key: 'collectionId', width: 120 },
-  { title: '向量 ID', dataIndex: 'vectorId', key: 'vectorId', width: 200, ellipsis: true },
-  { title: '分段序号', dataIndex: 'chunkIndex', key: 'chunkIndex', width: 100 },
-  { title: '字符数', dataIndex: 'wordCount', key: 'wordCount', width: 100 },
-  { title: '分段内容', key: 'segmentContent', width: 400 },
-  { title: '元数据', key: 'metadataJson', width: 200 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  { title: '驱动名称', dataIndex: 'driverName', key: 'driverName', width: 200 },
+  { title: '提供商', dataIndex: 'provider', key: 'provider', width: 200 },
+  { title: '参数配置', key: 'params', width: 300 },
+  { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
+  { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 200 },
+  { title: '操作', dataIndex: 'actions', key: 'actions', width: 160, fixed: 'right' as const }
 ]
 
-const getMetadataInfo = (metadataJson?: string) => {
-  const text = String(metadataJson || '').trim()
+const getParamsArray = (params?: string): string[] => {
+  const text = String(params || '').trim()
+  if (!text) return []
+  
+  try {
+    const parsed = JSON.parse(text)
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === 'string')
+    }
+  } catch (error) {}
+  
+  return []
+}
+
+const getParamsInfo = (params?: string) => {
+  const text = String(params || '').trim()
   if (!text) return '未配置'
 
   try {
     const parsed = JSON.parse(text)
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+    if (Array.isArray(parsed)) {
+      return parsed.join(', ')
+    } else if (parsed && typeof parsed === 'object') {
       return `属性: ${Object.keys(parsed).length}`
     }
   } catch (error) {}
@@ -141,8 +171,21 @@ const getMetadataInfo = (metadataJson?: string) => {
   return '已配置'
 }
 
+const formatDate = (dateString?: string) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+}
+
 const query = reactive<QueryState>({})
-const list = ref<AiVecSegment[]>([])
+const list = ref<AiVecDriver[]>([])
 
 const page = reactive({
   pageNum: 1,
@@ -184,10 +227,9 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
 }
 
 const resetFilters = () => {
-  query.docId = undefined
-  query.collectionId = undefined
-  query.vectorId = undefined
-  query.chunkIndex = undefined
+  query.driverName = undefined
+  query.provider = undefined
+  query.driverType = undefined
   page.pageNum = 1
   selectedRowKeys.value = []
   void fetchList()
@@ -195,56 +237,34 @@ const resetFilters = () => {
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '批量删除',
-    type: 'danger',
-    plain: true,
-    icon: DeleteOutlined,
-    disabled: selectedRowKeys.value.length === 0,
-    onClick: () => {
-      const n = selectedRowKeys.value.length
-      if (n === 0) return
-      Modal.confirm({
-        title: `确定删除选中的 ${n} 个向量分段吗？`,
-        onOk: () => handleBatchDelete()
-      })
-    }
-  },
-  {
     label: '重置',
     type: 'primary',
     plain: true,
     icon: ReloadOutlined,
     onClick: resetFilters
-  },
-  {
-    label: '新增',
-    type: 'primary',
-    icon: PlusOutlined,
-    onClick: openCreate
   }
 ])
 
 const modal = reactive({
   open: false,
-  mode: 'create' as 'create' | 'edit',
+  mode: 'view' as 'create' | 'edit' | 'view',
   submitting: false
 })
 
-const modalInitial = ref<AiVecSegment | null>(null)
+const modalInitial = ref<AiVecDriver | null>(null)
 
 const fetchList = async () => {
   const payload = {
     pageNo: page.pageNum,
     pageSize: page.pageSize,
     param: {
-      docId: query.docId || undefined,
-      collectionId: query.collectionId || undefined,
-      vectorId: query.vectorId || undefined,
-      chunkIndex: query.chunkIndex || undefined
+      driverName: query.driverName || undefined,
+      provider: query.provider || undefined,
+      driverType: query.driverType || undefined
     }
   }
 
-  const resp: PageResponse<AiVecSegment> = await aiVecSegmentApi.queryPage(payload)
+  const resp: PageResponse<AiVecDriver> = await aiVecDriverApi.queryPage(payload)
   list.value = resp.list || []
   page.total = resp.total || 0
 }
@@ -254,25 +274,37 @@ const onPageChange = (p: number) => {
   void fetchList()
 }
 
-const openCreate = () => {
-  modal.mode = 'create'
-  modalInitial.value = null
-  modal.open = true
-}
-
-const openEdit = async (record: AiVecSegment) => {
-  modal.mode = 'edit'
+const openView = async (record: AiVecDriver) => {
+  modal.mode = 'view'
   const id = record.id
   if (id == null) return
 
-  const detail = await aiVecSegmentApi.detail(id)
+  const detail = await aiVecDriverApi.detail(id)
   modalInitial.value = detail
+  await nextTick()
   modal.open = true
+}
+
+const handleStatusChange = async (record: AiVecDriver, value: string) => {
+  const id = record.id
+  if (id == null) return
+  
+  try {
+    await aiVecDriverApi.update({
+      ...record,
+      status: value
+    })
+    message.success('状态切换成功')
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '状态切换失败')
+  }
 }
 
 const handleDeleteOne = async (id: number | string) => {
   if (id == null) return
-  const msg = await aiVecSegmentApi.delete([id])
+  const msg = await aiVecDriverApi.delete([id])
   message.success(msg)
   selectedRowKeys.value = []
   void fetchList()
@@ -281,21 +313,21 @@ const handleDeleteOne = async (id: number | string) => {
 const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
-  const msg = await aiVecSegmentApi.delete(ids)
+  const msg = await aiVecDriverApi.delete(ids)
   message.success(msg)
   selectedRowKeys.value = []
   void fetchList()
 }
 
-const handleFormSubmit = async (form: AiVecSegment) => {
+const handleFormSubmit = async (form: AiVecDriver) => {
   modal.submitting = true
   try {
     let msg: string
     if (modal.mode === 'create') {
       delete (form as { id?: unknown }).id
-      msg = await aiVecSegmentApi.create(form)
+      msg = await aiVecDriverApi.create(form)
     } else {
-      msg = await aiVecSegmentApi.update(form)
+      msg = await aiVecDriverApi.update(form)
     }
 
     message.success(msg)
@@ -313,7 +345,7 @@ void fetchList()
 </script>
 
 <style scoped>
-.vec-segment-page {
+.vec-driver-page {
   padding: 20px;
 }
 
@@ -395,30 +427,21 @@ void fetchList()
   vertical-align: bottom;
 }
 
-.segment-content {
-  display: flex;
-  align-items: flex-start;
-}
-
-.content-text {
-  color: var(--text-primary, #111827);
-  line-height: 1.5;
-}
-
-.multiline-2 {
-  display: -webkit-box;
-  overflow: hidden;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.metadata-cell {
+.params-cell {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
-.metadata-info {
+.param-tag {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.params-info {
   padding: 4px 10px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--bg-surface) 85%, white);
@@ -432,6 +455,46 @@ void fetchList()
   align-items: center;
   gap: 4px;
   padding-inline: 4px;
+}
+
+.status-select {
+  min-width: 90px;
+  font-weight: 500;
+}
+
+.status-select :deep(.ant-select-selector) {
+  padding: 0 8px !important;
+  border-radius: 16px !important;
+}
+
+.status-enabled :deep(.ant-select-selector) {
+  background: rgba(82, 196, 26, 0.1) !important;
+  color: #52c41a !important;
+}
+
+.status-enabled :deep(.ant-select-arrow) {
+  color: #52c41a !important;
+}
+
+.status-disabled :deep(.ant-select-selector) {
+  background: rgba(255, 77, 79, 0.1) !important;
+  color: #ff4d4f !important;
+}
+
+.status-disabled :deep(.ant-select-arrow) {
+  color: #ff4d4f !important;
+}
+
+.status-icon {
+  margin-right: 4px;
+}
+
+.enabled-icon {
+  color: #52c41a;
+}
+
+.disabled-icon {
+  color: #ff4d4f;
 }
 
 @media (max-width: 720px) {
