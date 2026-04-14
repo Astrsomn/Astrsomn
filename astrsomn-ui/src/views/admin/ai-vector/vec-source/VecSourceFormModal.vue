@@ -144,9 +144,9 @@ import type { FormInstance } from 'ant-design-vue/es/form'
 import type { Rule } from 'ant-design-vue/es/form'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
-import type { AiVecSource } from '@/api/aiVecSource'
-import { aiVecSourceApi } from '@/api/aiVecSource'
-import { aiVecDriverApi, type AiVecDriver } from '@/api/aiVecDriver'
+import type { AiVecSource } from '@/api/aiVecSource.ts'
+import { aiVecSourceApi } from '@/api/aiVecSource.ts'
+import { aiVecDriverApi, type AiVecDriver } from '@/api/aiVecDriver.ts'
 
 const props = defineProps<{ mode: 'create' | 'edit'; confirmLoading: boolean; initial: AiVecSource | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecSource] }>()

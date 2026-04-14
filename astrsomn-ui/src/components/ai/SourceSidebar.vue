@@ -81,7 +81,7 @@ import {
   EditOutlined,
   DeleteOutlined
 } from '@ant-design/icons-vue'
-import VecSourceFormModal from '@/views/admin/ai-modules/vec-source/VecSourceFormModal.vue'
+import VecSourceFormModal from '@/views/admin/ai-vector/vec-source/VecSourceFormModal.vue'
 import { aiVecSourceApi, type AiVecSource, type PageResponse } from '@/api/aiVecSource'
 
 const props = defineProps<{

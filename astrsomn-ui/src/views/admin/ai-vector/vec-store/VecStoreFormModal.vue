@@ -125,7 +125,7 @@ import type { FormInstance } from 'ant-design-vue'
 import type { AiVecStore } from '@/api/aiVecStore.ts'
 import InstanceSelectDialog from '@/components/ai/InstanceSelectDialog.vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
-import type { AiInstance } from '@/api/aiInstance'
+import type { AiInstance } from '@/api/aiInstance.ts'
 
 const props = defineProps<{ 
   mode: 'create' | 'edit', 

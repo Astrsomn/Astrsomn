@@ -87,7 +87,7 @@ import {
   FileTextOutlined, IdcardOutlined, SafetyCertificateOutlined 
 } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
-import { AiVecDocSyncStatus, type AiVecDoc } from '@/api/aiVecDoc'
+import { AiVecDocSyncStatus, type AiVecDoc } from '@/api/aiVecDoc.ts'
 
 const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiVecDoc | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecDoc] }>()

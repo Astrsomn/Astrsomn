@@ -139,8 +139,8 @@ import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import SourceSidebar from '@/components/ai/SourceSidebar.vue'
 import VecStoreFormModal from './VecStoreFormModal.vue'
-import { aiVecStoreApi, type AiVecStore, type PageResponse } from '@/api/aiVecStore'
-import { aiVecSourceApi, type AiVecSource } from '@/api/aiVecSource'
+import { aiVecStoreApi, type AiVecStore, type PageResponse } from '@/api/aiVecStore.ts'
+import { aiVecSourceApi, type AiVecSource } from '@/api/aiVecSource.ts'
 
 type QueryState = {
   collectionName?: string

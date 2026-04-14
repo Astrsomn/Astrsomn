@@ -169,8 +169,8 @@ import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import VecSourceFormModal from './VecSourceFormModal.vue'
-import { aiVecSourceApi, type AiVecSource, type PageResponse } from '@/api/aiVecSource'
-import { aiVecDriverApi } from '@/api/aiVecDriver'
+import { aiVecSourceApi, type AiVecSource, type PageResponse } from '@/api/aiVecSource.ts'
+import { aiVecDriverApi } from '@/api/aiVecDriver.ts'
 
 type QueryState = {
   name?: string
