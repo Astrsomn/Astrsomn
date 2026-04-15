@@ -61,14 +61,10 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
 
     @Override
     public BaseResponse<AiModelResponseDTO> detail(Long longId) {
-        AiModelEntity entity = getById(longId);
-        if (entity == null) {
+        AiModelResponseDTO responseDTO = baseMapper.selectModelWithReferenceStatus(longId);
+        if (responseDTO == null) {
             throw new BusinessException(AiModelErrorEnum.MODEL_NOT_FOUND);
         }
-
-        AiModelResponseDTO responseDTO = new AiModelResponseDTO();
-        BeanUtils.copyProperties(entity, responseDTO);
-        responseDTO.setModelKeyImmutable(isModelKeyReferencedByInstance(entity.getModelKey(), entity.getEnvCode()));
         return BaseResponse.success(responseDTO);
     }
 
@@ -88,7 +84,10 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         }
         bizResourceKeyAssignHelper.assignModelKeyIfBlank(entity);
 
-        if (isModelKeyReferencedByInstance(existing.getModelKey(), existing.getEnvCode())) {
+        if (aiInstanceMapper.selectCount(
+                new LambdaQueryWrapper<AiInstanceEntity>()
+                        .eq(AiInstanceEntity::getModelKey, existing.getModelKey().trim())
+                        .eq(AiInstanceEntity::getEnvCode, existing.getEnvCode().trim())) > 0) {
             entity.setModelKey(existing.getModelKey());
         } else {
             bizResourceKeyAssignHelper.assignModelKeyIfBlank(entity);
@@ -116,14 +115,5 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     }
 
 
-    private boolean isModelKeyReferencedByInstance(String modelKey, String envCode) {
-        if (StringUtils.isBlank(modelKey) || StringUtils.isBlank(envCode)) {
-            return false;
-        }
-        return aiInstanceMapper.selectCount(
-                        new LambdaQueryWrapper<AiInstanceEntity>()
-                                .eq(AiInstanceEntity::getModelKey, modelKey.trim())
-                                .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
-                > 0;
-    }
+
 }
