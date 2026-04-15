@@ -49,15 +49,15 @@ public class AstroVecSourceFactory {
         for (VecDriver driver : loader) {
             String key = StringUtils.trimToNull(driver.getExtensionKey());
             if (key == null) {
-                log.warn("[Astro] Skip VecDriver with blank extensionKey: {}", driver.getClass().getName());
+                log.warn("[Astro] 跳过扩展键为空的 VecDriver: {}", driver.getClass().getName());
                 continue;
             }
             if (map.containsKey(key)) {
-                log.warn("[Astro] Duplicate classpath VecDriver skipped: {}", key);
+                log.warn("[Astro] 跳过重复的 classpath VecDriver: {}", key);
                 continue;
             }
             map.put(key, driver);
-            log.info("[Astro] Loaded classpath VecDriver: {} ({})", key, driver.getClass().getSimpleName());
+            log.info("[Astro] 加载 classpath VecDriver: {} ({})", key, driver.getClass().getSimpleName());
         }
         return Collections.unmodifiableMap(map);
     }
@@ -76,7 +76,7 @@ public class AstroVecSourceFactory {
             }
             pluginDriverOverrides.put(key, driver);
             pluginDriverOwningJar.put(key, jarName);
-            log.info("[Astro] Plugin VecDriver registered: key={} jar={}", key, jarName);
+            log.info("[Astro] 注册插件 VecDriver: key={} jar={}", key, jarName);
         }
     }
 
@@ -93,7 +93,7 @@ public class AstroVecSourceFactory {
                 String key = e.getKey();
                 it.remove();
                 pluginDriverOverrides.remove(key);
-                log.info("[Astro] Plugin VecDriver removed: key={} jar={}", key, jarName);
+                log.info("[Astro] 移除插件 VecDriver: key={} jar={}", key, jarName);
             }
         }
     }
@@ -138,9 +138,9 @@ public class AstroVecSourceFactory {
                 "[Astro] bindSource: driverClass={}, fromPluginJar={}",
                 driver.getClass().getName(),
                 pluginJar != null ? pluginJar : "(classpath)");
-        log.info("[Astro] bindSource: invoking driver.bindSource(entity) ...");
+        log.info("[Astro] bindSource: 调用 driver.bindSource(entity) ...");
         VecSource bound = driver.bindSource(entity);
-        log.info("[Astro] bindSource: got VecSource class={}", bound.getClass().getName());
+        log.info("[Astro] bindSource: 获取 VecSource 类={}", bound.getClass().getName());
         return bound;
     }
 
@@ -177,7 +177,7 @@ public class AstroVecSourceFactory {
         VecSource next = bindSource(entity);
         activeSources.put(id, next);
         activeSourceFingerprints.put(id, fp);
-        log.info("[Astro] VecSource registered: id={} provider={}", id, entity.getProvider());
+        log.info("[Astro] 注册 VecSource: id={} provider={}", id, entity.getProvider());
     }
 
     /**
@@ -191,7 +191,7 @@ public class AstroVecSourceFactory {
         activeSourceFingerprints.remove(sourceId);
         shutdownQuietly(removed);
         if (removed != null) {
-            log.info("[Astro] VecSource removed from cache: id={}", sourceId);
+            log.info("[Astro] 从缓存中移除 VecSource: id={}", sourceId);
         }
     }
 
@@ -202,7 +202,7 @@ public class AstroVecSourceFactory {
         try {
             source.shutdown();
         } catch (Exception e) {
-            log.warn("[Astro] VecSource shutdown failed: {}", e.getMessage());
+            log.warn("[Astro] VecSource 关闭失败: {}", e.getMessage());
         }
     }
 
@@ -237,7 +237,7 @@ public class AstroVecSourceFactory {
      */
     public boolean testConnection(AiVecSourceEntity entity) {
         if (entity == null) {
-            log.warn("[Astro] testConnection: entity is null");
+            log.warn("[Astro] testConnection: 实体为 null");
             return false;
         }
         long t0 = System.nanoTime();
@@ -245,7 +245,7 @@ public class AstroVecSourceFactory {
         String host = entity.getHost();
         String port = entity.getPort();
         log.info(
-                "[Astro] testConnection begin: provider={}, host={}, port={}, configJsonBlank={}, tokenConfigured={}",
+                "[Astro] testConnection 开始: provider={}, host={}, port={}, configJsonBlank={}, tokenConfigured={}",
                 provider,
                 host,
                 port,
@@ -254,19 +254,19 @@ public class AstroVecSourceFactory {
         VecSource source = null;
         try {
             source = bindSource(entity);
-            log.info("[Astro] testConnection: bindSource done, calling VecSource.testConnection() ...");
+            log.info("[Astro] testConnection: bindSource 完成，调用 VecSource.testConnection() ...");
             boolean success = source.testConnection();
             long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
             if (success) {
                 log.info(
-                        "[Astro] testConnection ok in {}ms: provider={}, host={}, port={}",
+                        "[Astro] testConnection 成功，耗时 {}ms: provider={}, host={}, port={}",
                         elapsedMs,
                         provider,
                         host,
                         port);
             } else {
                 log.warn(
-                        "[Astro] testConnection returned false in {}ms: provider={}, host={}, port={}",
+                        "[Astro] testConnection 返回 false，耗时 {}ms: provider={}, host={}, port={}",
                         elapsedMs,
                         provider,
                         host,
@@ -276,7 +276,7 @@ public class AstroVecSourceFactory {
         } catch (RuntimeException e) {
             long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
             log.error(
-                    "[Astro] testConnection failed in {}ms: provider={}, host={}, port={}",
+                    "[Astro] testConnection 失败，耗时 {}ms: provider={}, host={}, port={}",
                     elapsedMs,
                     provider,
                     host,
@@ -286,7 +286,7 @@ public class AstroVecSourceFactory {
         } catch (Exception e) {
             long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
             log.error(
-                    "[Astro] testConnection failed in {}ms: provider={}, host={}, port={}",
+                    "[Astro] testConnection 失败，耗时 {}ms: provider={}, host={}, port={}",
                     elapsedMs,
                     provider,
                     host,

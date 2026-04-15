@@ -34,13 +34,13 @@ import java.time.LocalDateTime;
 public class DefaultAdminInitializer implements CommandLineRunner {
 
     @Value("${astrsomn.default-admin.username:admin}")
-    private String username;
+    private String defaultAdminUsername;
 
     @Value("${astrsomn.default-admin.password:admin}")
-    private String password;
+    private String defaultAdminPassword;
 
     @Value("${astrsomn.default-admin.email:}")
-    private String email;
+    private String defaultAdminEmail;
 
     @Value("${astrsomn.env-code:pro}")
     private String envCode;
@@ -66,27 +66,44 @@ public class DefaultAdminInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            ensureDefaultEnv();
-            ensureDefaultAdmin();
+            initializeDefaultEnv();
+            initializeDefaultAdmin();
         } catch (Exception e) {
             log.error("默认环境/管理员初始化失败: {}", e.getMessage(), e);
         }
     }
 
     /**
-     * 若不存在与当前 {@code astrsomn.env-code} 对应的 {@link SystemEnvEntity#envKey}，则插入一条，便于环境管理与后续「用户绑定环境」数据一致。
+     * 初始化默认环境
+     * 若不存在与当前 {@code astrsomn.env-code} 对应的 {@link SystemEnvEntity#envKey}，则插入一条
      */
-    private void ensureDefaultEnv() {
-        SystemEnvEntity exist = systemEnvMapper.selectOne(
-                new LambdaQueryWrapper<SystemEnvEntity>()
-                        .eq(SystemEnvEntity::getEnvKey, envCode)
-                        .last("LIMIT 1")
-        );
-        if (exist != null) {
+    private void initializeDefaultEnv() {
+        if (isEnvExists(envCode)) {
             log.info("默认环境已存在 - envKey={}", envCode);
             return;
         }
 
+        SystemEnvEntity envEntity = createDefaultEnvEntity();
+        int rows = systemEnvMapper.insert(envEntity);
+        log.info("初始化默认环境完成 - envKey={}, envName={}, 影响行数={}", envCode, defaultEnvName, rows);
+    }
+
+    /**
+     * 检查环境是否存在
+     */
+    private boolean isEnvExists(String envKey) {
+        SystemEnvEntity existingEnv = systemEnvMapper.selectOne(
+                new LambdaQueryWrapper<SystemEnvEntity>()
+                        .eq(SystemEnvEntity::getEnvKey, envKey)
+                        .last("LIMIT 1")
+        );
+        return existingEnv != null;
+    }
+
+    /**
+     * 创建默认环境实体
+     */
+    private SystemEnvEntity createDefaultEnvEntity() {
         SystemEnvEntity entity = new SystemEnvEntity();
         entity.setEnvKey(envCode);
         entity.setEnvName(defaultEnvName);
@@ -95,33 +112,47 @@ public class DefaultAdminInitializer implements CommandLineRunner {
         entity.setCreateTime(LocalDateTime.now());
         entity.setUpdateTime(LocalDateTime.now());
         entity.setDeleted(Boolean.FALSE);
-
-        int rows = systemEnvMapper.insert(entity);
-        log.info("初始化默认环境完成 - envKey={}, envName={}, rows={}", envCode, defaultEnvName, rows);
+        return entity;
     }
 
-    private void ensureDefaultAdmin() {
-        SystemUserEntity exist = systemUserMapper.selectOne(
-                new LambdaQueryWrapper<SystemUserEntity>()
-                        .eq(SystemUserEntity::getUsername, username)
-        );
-
-        if (exist != null) {
-            log.info("默认管理员已存在 - username={}", username);
+    /**
+     * 初始化默认管理员
+     */
+    private void initializeDefaultAdmin() {
+        if (isAdminExists(defaultAdminUsername)) {
+            log.info("默认管理员已存在 - username={}", defaultAdminUsername);
             return;
         }
 
+        SystemUserEntity adminEntity = createDefaultAdminEntity();
+        int rows = systemUserMapper.insert(adminEntity);
+        log.info("初始化默认管理员完成 - username={}, envCode={}, 影响行数={}", defaultAdminUsername, envCode, rows);
+    }
+
+    /**
+     * 检查管理员是否存在
+     */
+    private boolean isAdminExists(String username) {
+        SystemUserEntity existingAdmin = systemUserMapper.selectOne(
+                new LambdaQueryWrapper<SystemUserEntity>()
+                        .eq(SystemUserEntity::getUsername, username)
+        );
+        return existingAdmin != null;
+    }
+
+    /**
+     * 创建默认管理员实体
+     */
+    private SystemUserEntity createDefaultAdminEntity() {
         SystemUserEntity entity = new SystemUserEntity();
-        entity.setUsername(username);
-        entity.setPassword(passwordEncoder.encode(password));
-        entity.setEmail(email);
+        entity.setUsername(defaultAdminUsername);
+        entity.setPassword(passwordEncoder.encode(defaultAdminPassword));
+        entity.setEmail(defaultAdminEmail);
         entity.setUserRole(UserRoleEnum.SUPER_ADMIN.getCode());
         entity.setAdminFlag(AdminEnum.YES.getCode());
         entity.setCreateTime(LocalDateTime.now());
         entity.setUpdateTime(LocalDateTime.now());
         entity.setEnvCode(envCode);
-
-        int rows = systemUserMapper.insert(entity);
-        log.info("初始化默认管理员完成 - username={}, envCode={}, rows={}", username, envCode, rows);
+        return entity;
     }
 }

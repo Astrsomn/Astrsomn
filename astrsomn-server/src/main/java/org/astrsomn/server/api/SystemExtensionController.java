@@ -27,11 +27,12 @@ public class SystemExtensionController extends BaseController {
     private final SystemExtensionModelSyncService systemExtensionModelSyncService;
     private final SystemExtensionModelGuard systemExtensionModelGuard;
 
+    // ==================================== SystemExtensionService ====================================
+    
     @PostMapping("/create")
     public BaseResponse<String> create(@RequestBody SystemExtensionCreateRequestDTO request) {
         return systemExtensionService.create(request);
     }
-
 
     @PostMapping(value = "/upload-jar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<String> uploadJar(
@@ -92,12 +93,8 @@ public class SystemExtensionController extends BaseController {
         return systemExtensionService.uninstall(id);
     }
 
-
-    @PostMapping("/disable-provider-models")
-    public BaseResponse<String> disableProviderModels(@RequestParam("id") Long id) {
-        return systemExtensionModelGuard.disableAllModelsForExtension(id);
-    }
-
+    // ==================================== ExtensionMarketplaceCatalogSource ====================================
+    
     @GetMapping("/marketplace/catalog")
     public BaseResponse<PageResponse<ExtensionMarketplaceItemDTO>> marketplaceCatalog(
             @RequestParam(value = "type", required = false) String type,
@@ -116,6 +113,8 @@ public class SystemExtensionController extends BaseController {
         return extensionMarketplaceCatalogSource.installExtension(pluginId, version);
     }
 
+    // ==================================== SystemExtensionModelSyncService ====================================
+    
     @GetMapping("/load-models/preview")
     public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(@RequestParam("id") Long id) {
         return systemExtensionModelSyncService.previewLoadModels(id);
@@ -134,5 +133,12 @@ public class SystemExtensionController extends BaseController {
     @PostMapping("/unload-models")
     public BaseResponse<String> unloadModels(@RequestParam("id") Long id, @RequestParam(value = "modelKeys", required = false) String modelKeys) {
         return systemExtensionModelSyncService.unloadModels(id, modelKeys);
+    }
+
+    // ==================================== SystemExtensionModelGuard ====================================
+    
+    @PostMapping("/disable-provider-models")
+    public BaseResponse<String> disableProviderModels(@RequestParam("id") Long id) {
+        return systemExtensionModelGuard.disableAllModelsForExtension(id);
     }
 }
