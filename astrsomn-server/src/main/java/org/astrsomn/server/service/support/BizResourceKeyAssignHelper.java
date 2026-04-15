@@ -25,6 +25,7 @@ public class BizResourceKeyAssignHelper {
     private final AiMcpMapper aiMcpMapper;
     private final AiInstanceMapper aiInstanceMapper;
     private final AiAccountMapper aiAccountMapper;
+    private final AiModelMapper aiModelMapper;
 
     public void assignAgentKeyIfBlank(AiAgentEntity entity) {
         String trimmed = StringUtils.trimToNull(entity.getAgentKey());
@@ -172,6 +173,26 @@ public class BizResourceKeyAssignHelper {
                                         new LambdaQueryWrapper<AiMcpEntity>()
                                                 .eq(AiMcpEntity::getEnvCode, envCode)
                                                 .eq(AiMcpEntity::getMcpKey, candidate))));
+    }
+
+    public void assignModelKeyIfBlank(AiModelEntity entity) {
+        String trimmed = StringUtils.trimToNull(entity.getModelKey());
+        if (trimmed != null) {
+            entity.setModelKey(trimmed);
+            return;
+        }
+        fillEnv(entity);
+        final String envCode = entity.getEnvCode();
+        entity.setModelKey(
+                bizResourceKeyGenerator.generateDateBasedBizKey(BizKeyNamespace.MODEL,
+                        candidateKey ->
+                                aiModelMapper.selectCount(
+                                        new LambdaQueryWrapper<AiModelEntity>()
+                                                .eq(AiModelEntity::getEnvCode, envCode)
+                                                .eq(AiModelEntity::getModelKey, candidateKey)
+                                )
+                )
+        );
     }
 
     private void fillEnv(BaseEntity<?> entity) {
