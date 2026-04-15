@@ -1,5 +1,6 @@
 package org.astrsomn.server.service;
 
+import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.dto.extension.ExtensionMarketplaceItemDTO;
 import org.astrsomn.core.common.base.PageResponse;
 
@@ -14,4 +15,12 @@ public interface ExtensionMarketplaceCatalogSource {
      * @param typeFilter 可选，与 {@link org.astrsomn.core.common.constant.SystemExtensionEnum.ExtensionTypeEnum} 的 code 一致
      */
     PageResponse<ExtensionMarketplaceItemDTO> listCatalog(int pageNo, int pageSize, Optional<String> typeFilter);
+
+    /**
+     * 从网络安装插件
+     * @param pluginId
+     * @param version
+     * @return
+     */
+    BaseResponse<String> installExtension(String pluginId, String version);
 }

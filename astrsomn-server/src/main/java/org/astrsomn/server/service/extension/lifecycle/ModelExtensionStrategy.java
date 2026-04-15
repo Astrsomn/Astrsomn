@@ -1,0 +1,63 @@
+package org.astrsomn.server.service.extension.lifecycle;
+
+import lombok.RequiredArgsConstructor;
+import org.astrsomn.core.common.base.BaseResponse;
+import org.astrsomn.core.common.constant.SystemExtensionEnum;
+import org.astrsomn.core.common.entity.SystemExtensionEntity;
+import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.exception.base.BusinessException;
+import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
+import org.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
+import org.astrsomn.starter.plugin.AstrsomnPluginManager;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class ModelExtensionStrategy implements ExtensionLifecycleStrategy {
+
+    private final AstrsomnPluginManager pluginManager;
+    private final SystemExtensionModelGuard modelGuard;
+
+    @Override
+    public SystemExtensionEnum.ExtensionTypeEnum supportType() {
+        return SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER;
+    }
+
+    @Override
+    public void apply(SystemExtensionEntity extension) {
+        String jarName = StringUtils.trimToNull(extension.getJarName());
+        if (jarName == null) {
+            return;
+        }
+        try {
+            pluginManager.applyPlugin(jarName);
+        } catch (Exception e) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_APPLY_FAILED, e.getMessage());
+        }
+    }
+
+    @Override
+    public void revoke(SystemExtensionEntity extension) {
+        BaseResponse<Void> guard = modelGuard.assertNoInstancesUseProviderModels(extension.getId());
+        if (!guard.isSuccess()) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
+        }
+        String jarName = StringUtils.trimToNull(extension.getJarName());
+        if (jarName != null) {
+            pluginManager.unloadPlugin(jarName);
+        }
+    }
+
+    @Override
+    public void uninstall(SystemExtensionEntity extension) {
+        BaseResponse<Void> guard = modelGuard.assertNoAiModelsForProviderExtension(extension.getId());
+        if (!guard.isSuccess()) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
+        }
+        String jarName = StringUtils.trimToNull(extension.getJarName());
+        if (jarName != null) {
+            pluginManager.unloadPlugin(jarName);
+        }
+    }
+}
+

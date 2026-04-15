@@ -13,4 +13,6 @@ public interface AiModelMapper extends BaseMapper<AiModelEntity> {
 
     IPage<AiModelResponseDTO> queryPage(IPage<AiModelResponseDTO> page,
                                         @Param("req") AiModelQueryRequestDTO param);
+
+    AiModelResponseDTO selectModelWithReferenceStatus(@Param("id") Long id);
 }

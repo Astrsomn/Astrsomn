@@ -10,12 +10,11 @@ import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
 import org.astrsomn.server.service.SystemExtensionModelSyncService;
 import org.astrsomn.server.service.SystemExtensionService;
-import org.astrsomn.server.service.support.SystemExtensionModelGuard;
+import org.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -28,14 +27,13 @@ public class SystemExtensionController extends BaseController {
     private final SystemExtensionModelSyncService systemExtensionModelSyncService;
     private final SystemExtensionModelGuard systemExtensionModelGuard;
 
+    // ==================================== SystemExtensionService ====================================
+    
     @PostMapping("/create")
     public BaseResponse<String> create(@RequestBody SystemExtensionCreateRequestDTO request) {
         return systemExtensionService.create(request);
     }
 
-    /**
-     * 上传 jar 到进程工作目录下 {@code plugins}，并写入 {@code SYSTEM_EXTENSION}（已安装、未应用）。
-     */
     @PostMapping(value = "/upload-jar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<String> uploadJar(
             @RequestPart("file") MultipartFile file,
@@ -95,12 +93,8 @@ public class SystemExtensionController extends BaseController {
         return systemExtensionService.uninstall(id);
     }
 
-
-    @PostMapping("/disable-provider-models")
-    public BaseResponse<String> disableProviderModels(@RequestParam("id") Long id) {
-        return systemExtensionModelGuard.disableAllModelsForExtension(id);
-    }
-
+    // ==================================== ExtensionMarketplaceCatalogSource ====================================
+    
     @GetMapping("/marketplace/catalog")
     public BaseResponse<PageResponse<ExtensionMarketplaceItemDTO>> marketplaceCatalog(
             @RequestParam(value = "type", required = false) String type,
@@ -112,6 +106,15 @@ public class SystemExtensionController extends BaseController {
         return BaseResponse.success(pageResponse);
     }
 
+    @PostMapping("/marketplace/install")
+    public BaseResponse<String> installMarketplaceExtension(
+            @RequestParam("pluginId") String pluginId,
+            @RequestParam("version") String version) {
+        return extensionMarketplaceCatalogSource.installExtension(pluginId, version);
+    }
+
+    // ==================================== SystemExtensionModelSyncService ====================================
+    
     @GetMapping("/load-models/preview")
     public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(@RequestParam("id") Long id) {
         return systemExtensionModelSyncService.previewLoadModels(id);
@@ -130,5 +133,12 @@ public class SystemExtensionController extends BaseController {
     @PostMapping("/unload-models")
     public BaseResponse<String> unloadModels(@RequestParam("id") Long id, @RequestParam(value = "modelKeys", required = false) String modelKeys) {
         return systemExtensionModelSyncService.unloadModels(id, modelKeys);
+    }
+
+    // ==================================== SystemExtensionModelGuard ====================================
+    
+    @PostMapping("/disable-provider-models")
+    public BaseResponse<String> disableProviderModels(@RequestParam("id") Long id) {
+        return systemExtensionModelGuard.disableAllModelsForExtension(id);
     }
 }

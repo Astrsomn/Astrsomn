@@ -1,4 +1,4 @@
-package org.astrsomn.server.dto.response;
+package org.astrsomn.core.common.dto.auth;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;

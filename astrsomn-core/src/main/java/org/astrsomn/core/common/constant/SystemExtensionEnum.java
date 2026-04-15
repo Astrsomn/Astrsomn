@@ -60,4 +60,35 @@ public interface SystemExtensionEnum {
         private String desc;
     }
 
+    @Getter
+    @AllArgsConstructor
+    enum DiscoveryMechanismEnum implements BaseEnum {
+        SPI("SPI", "SPI发现"),
+        DEPENDENCY("DEPENDENCY", "依赖声明");
+
+        private String code;
+        private String desc;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    enum DependencyScopeEnum implements BaseEnum {
+        HARD("HARD", "硬依赖"),
+        SOFT("SOFT", "软依赖");
+
+        private String code;
+        private String desc;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    enum LifecycleActionEnum implements BaseEnum {
+        APPLY("APPLY", "应用"),
+        REVOKE("REVOKE", "取消应用"),
+        UNINSTALL("UNINSTALL", "卸载");
+
+        private String code;
+        private String desc;
+    }
+
 }

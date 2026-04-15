@@ -1,4 +1,4 @@
-package org.astrsomn.server.service.support;
+package org.astrsomn.server.service.extension.guard;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
@@ -44,3 +44,4 @@ public class SystemExtensionVecGuard {
         return BaseResponse.success(null);
     }
 }
+

@@ -37,104 +37,132 @@ public class EnabledVecSourceWarmup implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        LambdaQueryWrapper<AiVecSourceEntity> w = new LambdaQueryWrapper<>();
-        w.eq(AiVecSourceEntity::getDeleted, Boolean.FALSE);
-        w.and(
-                q ->
-                        q.eq(AiVecSourceEntity::getStatus, "ENABLED")
-                                .or()
-                                .eq(AiVecSourceEntity::getStatus, "enabled"));
         String env = queryEnvParamHelper.effectiveEnvCode();
-        if (env != null) {
-            w.eq(AiVecSourceEntity::getEnvCode, env);
-        }
-        List<AiVecSourceEntity> list = aiVecSourceMapper.selectList(w);
-        if (list.isEmpty()) {
-            log.debug("No enabled vec sources to warm up for env={}", env);
+        List<AiVecSourceEntity> enabledVecSources = getEnabledVecSources(env);
+        
+        if (enabledVecSources.isEmpty()) {
+            log.debug("当前环境 {} 没有需要预热的启用向量源", env);
             return;
         }
+        
         int ok = 0;
         int skipped = 0;
         int disabled = 0;
-        for (AiVecSourceEntity e : list) {
-            Long id = e.getId();
-            try {
-                astroVecSourceFactory.registerOrRefresh(e);
-            } catch (Throwable ex) {
-                log.warn(
-                        "Warmup registerOrRefresh failed, skip id={} name={} provider={}: {}",
-                        id,
-                        e.getName(),
-                        e.getProvider(),
-                        ex.getMessage());
+        
+        for (AiVecSourceEntity source : enabledVecSources) {
+            Long sourceId = source.getId();
+            
+            if (!registerVecSource(source, sourceId)) {
                 skipped++;
                 continue;
             }
-            VecSource vs = astroVecSourceFactory.tryGetActiveSource(id).orElse(null);
-            if (vs == null) {
-                log.warn(
-                        "Warmup: no VecSource in cache after registerOrRefresh, skip test id={} name={} provider={} status={}",
-                        id,
-                        e.getName(),
-                        e.getProvider(),
-                        e.getStatus());
+            
+            VecSource vecSource = getVecSourceFromCache(sourceId);
+            if (vecSource == null) {
+                log.warn("预热：注册后缓存中无向量源实例，跳过测试，ID={}，名称={}，提供商={}，状态={}",
+                        sourceId, source.getName(), source.getProvider(), source.getStatus());
                 skipped++;
                 continue;
             }
-            try {
-                if (!vs.testConnection()) {
-                    markDisabledAfterFailedTest(id, e, "testConnection returned false", null);
-                    disabled++;
-                } else {
-                    ok++;
-                }
-            } catch (Throwable ex) {
-                markDisabledAfterFailedTest(id, e, ex.getMessage(), ex);
+            
+            if (!testVecSourceConnection(source, sourceId, vecSource)) {
                 disabled++;
+            } else {
+                ok++;
             }
         }
-        log.info(
-                "Vec source warmup finished: env={} ok={} skipped={} disabled={} total={}",
-                env,
-                ok,
-                skipped,
-                disabled,
-                list.size());
+        
+        log.info("向量源预热完成：环境={}，成功={}，跳过={}，禁用={}，总数={}",
+                env, ok, skipped, disabled, enabledVecSources.size());
     }
 
-    private void markDisabledAfterFailedTest(Long sourceId, AiVecSourceEntity e, String detail, Throwable ex) {
+    /**
+     * 获取已启用的向量源列表
+     */
+    private List<AiVecSourceEntity> getEnabledVecSources(String env) {
+        LambdaQueryWrapper<AiVecSourceEntity> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AiVecSourceEntity::getDeleted, Boolean.FALSE);
+        queryWrapper.and(q -> q.eq(AiVecSourceEntity::getStatus, "ENABLED").or().eq(AiVecSourceEntity::getStatus, "enabled"));
+        
+        if (env != null) {
+            queryWrapper.eq(AiVecSourceEntity::getEnvCode, env);
+        }
+        
+        return aiVecSourceMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 注册向量源
+     */
+    private boolean registerVecSource(AiVecSourceEntity source, Long sourceId) {
+        try {
+            astroVecSourceFactory.registerOrRefresh(source);
+            return true;
+        } catch (Throwable ex) {
+            log.warn("预热注册失败，跳过，ID={}，名称={}，提供商={}：{}",
+                    sourceId, source.getName(), source.getProvider(), ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 从缓存获取向量源实例
+     */
+    private VecSource getVecSourceFromCache(Long sourceId) {
+        return astroVecSourceFactory.tryGetActiveSource(sourceId).orElse(null);
+    }
+
+    /**
+     * 测试向量源连接
+     */
+    private boolean testVecSourceConnection(AiVecSourceEntity source, Long sourceId, VecSource vecSource) {
+        try {
+            if (!vecSource.testConnection()) {
+                markDisabledAfterFailedTest(sourceId, source, "连接测试返回 false");
+                return false;
+            }
+            return true;
+        } catch (Throwable ex) {
+            markDisabledAfterFailedTest(sourceId, source, "连接测试异常：" + ex.getMessage(), ex);
+            return false;
+        }
+    }
+
+    /**
+     * 测试失败后标记为禁用
+     */
+    private void markDisabledAfterFailedTest(Long sourceId, AiVecSourceEntity source, String detail) {
+        markDisabledAfterFailedTest(sourceId, source, detail, null);
+    }
+
+    /**
+     * 测试失败后标记为禁用（带异常）
+     */
+    private void markDisabledAfterFailedTest(Long sourceId, AiVecSourceEntity source, String detail, Throwable ex) {
         if (sourceId == null) {
             return;
         }
+        
+        // 从缓存中移除
         astroVecSourceFactory.removeActiveSource(sourceId);
-        LambdaUpdateWrapper<AiVecSourceEntity> uw = new LambdaUpdateWrapper<>();
-        uw.eq(AiVecSourceEntity::getId, sourceId).set(AiVecSourceEntity::getStatus, STATUS_DISABLED);
+        
+        // 更新数据库状态
+        LambdaUpdateWrapper<AiVecSourceEntity> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(AiVecSourceEntity::getId, sourceId).set(AiVecSourceEntity::getStatus, STATUS_DISABLED);
+        
         try {
-            int n = aiVecSourceMapper.update(null, uw);
+            int rows = aiVecSourceMapper.update(null, updateWrapper);
             if (ex != null) {
-                log.warn(
-                        "Warmup test failed, status set to disabled (rows={}) id={} name={} provider={}: {}",
-                        n,
-                        e != null ? e.getId() : null,
-                        e != null ? e.getName() : null,
-                        e != null ? e.getProvider() : null,
-                        detail,
-                        ex);
+                log.warn("预热测试失败，状态已设置为禁用（影响行数={}），ID={}，名称={}，提供商={}：{}",
+                        rows, source != null ? source.getId() : null, source != null ? source.getName() : null,
+                        source != null ? source.getProvider() : null, detail, ex);
             } else {
-                log.warn(
-                        "Warmup test failed, status set to disabled (rows={}) id={} name={} provider={}: {}",
-                        n,
-                        e != null ? e.getId() : null,
-                        e != null ? e.getName() : null,
-                        e != null ? e.getProvider() : null,
-                        detail);
+                log.warn("预热测试失败，状态已设置为禁用（影响行数={}），ID={}，名称={}，提供商={}：{}",
+                        rows, source != null ? source.getId() : null, source != null ? source.getName() : null,
+                        source != null ? source.getProvider() : null, detail);
             }
         } catch (Exception updateEx) {
-            log.error(
-                    "Warmup failed to set disabled in DB id={}: {}",
-                    sourceId,
-                    updateEx.getMessage(),
-                    updateEx);
+            log.error("预热失败：无法在数据库中设置禁用状态，ID={}：{}", sourceId, updateEx.getMessage(), updateEx);
         }
     }
 }

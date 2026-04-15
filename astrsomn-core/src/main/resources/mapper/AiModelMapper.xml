@@ -43,4 +43,21 @@
         am.model_type DESC
     </select>
 
+    <select id="selectModelWithReferenceStatus" resultType="org.astrsomn.core.common.dto.model.AiModelResponseDTO">
+        SELECT
+        am.*,
+        (EXISTS (
+            SELECT 1
+            FROM AI_INSTANCE ai
+            WHERE ai.model_key = am.model_key
+              AND ai.env_code = am.env_code
+              AND (ai.deleted = 0 OR ai.deleted IS NULL)
+        )) AS modelKeyImmutable
+        FROM
+        AI_MODEL am
+        WHERE
+        am.id = #{id}
+        AND (am.deleted = 0 OR am.deleted IS NULL)
+    </select>
+
 </mapper>
