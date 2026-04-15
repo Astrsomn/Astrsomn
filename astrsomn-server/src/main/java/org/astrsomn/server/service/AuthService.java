@@ -1,8 +1,8 @@
 package org.astrsomn.server.service;
 
-import org.astrsomn.server.dto.request.LoginRequest;
-import org.astrsomn.server.dto.request.RefreshTokenRequest;
-import org.astrsomn.server.dto.response.LoginResponse;
+import org.astrsomn.core.common.dto.auth.LoginRequest;
+import org.astrsomn.core.common.dto.auth.RefreshTokenRequest;
+import org.astrsomn.core.common.dto.auth.LoginResponse;
 
 public interface AuthService {
 

@@ -109,6 +109,13 @@ public class SystemExtensionController extends BaseController {
         return BaseResponse.success(pageResponse);
     }
 
+    @PostMapping("/marketplace/install")
+    public BaseResponse<String> installMarketplaceExtension(
+            @RequestParam("pluginId") String pluginId,
+            @RequestParam("version") String version) {
+        return extensionMarketplaceCatalogSource.installExtension(pluginId, version);
+    }
+
     @GetMapping("/load-models/preview")
     public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(@RequestParam("id") Long id) {
         return systemExtensionModelSyncService.previewLoadModels(id);
