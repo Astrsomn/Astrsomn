@@ -1,4 +1,4 @@
-package org.astrsomn.server.plugin;
+package org.astrsomn.server.plugin.registry;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.PostConstruct;
@@ -110,3 +110,4 @@ public class SystemExtensionRegistry {
         return entity;
     }
 }
+

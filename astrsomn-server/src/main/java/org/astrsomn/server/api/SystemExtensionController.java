@@ -10,12 +10,11 @@ import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
 import org.astrsomn.server.service.SystemExtensionModelSyncService;
 import org.astrsomn.server.service.SystemExtensionService;
-import org.astrsomn.server.service.support.SystemExtensionModelGuard;
+import org.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController

@@ -1,4 +1,4 @@
-package org.astrsomn.server.plugin;
+package org.astrsomn.server.plugin.metadata;
 
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.dto.extension.SystemExtensionMetaData;
@@ -72,3 +72,4 @@ public final class ExtensionJarMetadataReader {
         }
     }
 }
+

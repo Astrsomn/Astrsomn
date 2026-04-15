@@ -1,4 +1,4 @@
-package org.astrsomn.server.service.support;
+package org.astrsomn.server.service.extension.guard;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -13,6 +13,7 @@ import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
+import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.context.EnvRuntime;
 import org.springframework.stereotype.Component;
@@ -195,3 +196,4 @@ public class SystemExtensionModelGuard {
                 > 0;
     }
 }
+

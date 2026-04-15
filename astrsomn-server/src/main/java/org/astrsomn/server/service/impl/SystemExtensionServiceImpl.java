@@ -16,13 +16,11 @@ import org.astrsomn.core.common.util.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
-import org.astrsomn.server.plugin.ExtensionJarMetadataReader;
-import org.astrsomn.server.plugin.SystemExtensionRegistry;
+import org.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
+import org.astrsomn.server.plugin.registry.SystemExtensionRegistry;
 import org.astrsomn.server.service.SystemExtensionService;
-import org.astrsomn.server.service.SystemExtensionVecDriverSyncService;
+import org.astrsomn.server.service.extension.lifecycle.SystemExtensionLifecycleOrchestrator;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
-import org.astrsomn.server.service.support.SystemExtensionModelGuard;
-import org.astrsomn.server.service.support.SystemExtensionVecGuard;
 import org.astrsomn.starter.plugin.AstrsomnPluginManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationContext;
@@ -49,9 +47,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
 
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstrsomnPluginManager pluginManager;
-    private final SystemExtensionModelGuard systemExtensionModelGuard;
-    private final SystemExtensionVecGuard systemExtensionVecGuard;
-    private final SystemExtensionVecDriverSyncService systemExtensionVecDriverSyncService;
+    private final SystemExtensionLifecycleOrchestrator lifecycleOrchestrator;
     private final ApplicationContext applicationContext;
 
     @Override
@@ -157,149 +153,17 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
 
     @Override
     public BaseResponse<String> apply(Long id) {
-        SystemExtensionEntity entity = getById(id);
-        if (entity == null) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
-        }
-        String type = entity.getType();
-
-
-        try {
-            if (SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(type)) {
-                pluginManager.applyPlugin(entity.getJarName());
-            } else if (SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE.getCode().equals(type)) {
-                if (StringUtils.isNotBlank(entity.getJarName())) {
-                    pluginManager.applyPlugin(entity.getJarName());
-                }
-                systemExtensionVecDriverSyncService.upsertFromExtension(entity);
-            } else {
-                if (StringUtils.isNotBlank(entity.getJarName())) {
-                    pluginManager.applyPlugin(entity.getJarName());
-                }
-            }
-            entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.Y.getCode());
-            entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.APPLIED.getCode());
-            updateById(entity);
-            return BaseResponse.success("插件应用成功");
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_APPLY_FAILED, e.getMessage());
-        }
+        return lifecycleOrchestrator.apply(id);
     }
 
     @Override
     public BaseResponse<String> revokeApply(Long id) {
-        SystemExtensionEntity entity = getById(id);
-        if (entity == null) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
-        }
-        if (!SystemExtensionEnum.ExtensionInstallStatusEnum.APPLIED.getCode().equals(entity.getStatus())) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "当前不是已应用状态，无需取消应用");
-        }
-        if (SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(entity.getType())) {
-            BaseResponse<Void> guard = systemExtensionModelGuard.assertNoInstancesUseProviderModels(id);
-            if (!guard.isSuccess()) {
-                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
-            }
-        }
-        if (SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE.getCode().equals(entity.getType())) {
-            BaseResponse<Void> vecGuard = systemExtensionVecGuard.assertNoVecSourcesUseProvider(id);
-            if (!vecGuard.isSuccess()) {
-                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, vecGuard.getMessage());
-            }
-        }
-        if (StringUtils.isNotBlank(entity.getJarName())) {
-            pluginManager.unloadPlugin(entity.getJarName());
-        }
-        if (SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE.getCode().equals(entity.getType())) {
-            String provider = StringUtils.trimToNull(entity.getExtensionKey());
-            if (provider != null) {
-                systemExtensionVecDriverSyncService.removeDriverRowForProvider(provider);
-            }
-        }
-        entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
-        entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
-        boolean result = updateById(entity);
-        if (!result) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_REVOKE_FAILED);
-        }
-        return BaseResponse.success("已恢复为已安装");
+        return lifecycleOrchestrator.revoke(id);
     }
 
     @Override
     public BaseResponse<String> uninstall(Long id) {
-        SystemExtensionEntity entity = getById(id);
-        if (entity == null) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
-        }
-        if (SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode().equals(entity.getType())) {
-            BaseResponse<Void> guard = systemExtensionModelGuard.assertNoAiModelsForProviderExtension(id);
-            if (!guard.isSuccess()) {
-                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
-            }
-        }
-        if (SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE.getCode().equals(entity.getType())) {
-            BaseResponse<Void> vecGuard = systemExtensionVecGuard.assertNoVecSourcesUseProvider(id);
-            if (!vecGuard.isSuccess()) {
-                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, vecGuard.getMessage());
-            }
-            String provider = StringUtils.trimToNull(entity.getExtensionKey());
-            if (provider != null) {
-                systemExtensionVecDriverSyncService.removeDriverRowForProvider(provider);
-            }
-        }
-        String jarName = entity.getJarName();
-        if (StringUtils.isNotBlank(jarName)) {
-            pluginManager.unloadPlugin(jarName);
-        }
-        boolean result = removeById(id);
-        if (!result) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UNINSTALL_FAILED);
-        }
-        if (StringUtils.isNotBlank(jarName)) {
-            tryDeletePluginJarFromDisk(jarName);
-        }
-        return BaseResponse.success("卸载成功");
-    }
-
-    /**
-     * 卸载成功后从 {@link AstrsomnPluginManager#getPluginsDirectory()} 下删除对应 jar（仅删除纯文件名、且解析后路径必须落在 plugins 目录内）。
-     */
-    private void tryDeletePluginJarFromDisk(String jarName) {
-        if (StringUtils.isBlank(jarName)) {
-            return;
-        }
-        final String safeName;
-        try {
-            safeName = sanitizeJarFileName(jarName);
-        } catch (IllegalArgumentException e) {
-            log.warn("卸载时跳过删除 jar，文件名不合法: {}", jarName);
-            return;
-        }
-        File pluginsDir = pluginManager.getPluginsDirectory();
-        File jarFile = new File(pluginsDir, safeName);
-        try {
-            String dirCanon = pluginsDir.getCanonicalPath();
-            String fileCanon = jarFile.getCanonicalPath();
-            if (!fileCanon.startsWith(dirCanon + File.separator)) {
-                log.warn("卸载时跳过删除 jar，路径不在 plugins 目录内: {}", fileCanon);
-                return;
-            }
-        } catch (IOException e) {
-            log.warn("解析插件 jar 路径失败: {}", jarName, e);
-            return;
-        }
-        if (!jarFile.isFile()) {
-            log.debug("卸载时 plugins 下无此文件，跳过删除: {}", jarFile.getAbsolutePath());
-            return;
-        }
-        try {
-            Files.deleteIfExists(jarFile.toPath());
-            log.info("已删除卸载插件 jar: {}", jarFile.getAbsolutePath());
-        } catch (IOException e) {
-            log.warn("删除插件 jar 失败（可手动删除）: {}", jarFile.getAbsolutePath(), e);
-        }
+        return lifecycleOrchestrator.uninstall(id);
     }
 
     @Override
