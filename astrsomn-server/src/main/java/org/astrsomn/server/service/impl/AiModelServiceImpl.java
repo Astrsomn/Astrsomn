@@ -19,6 +19,7 @@ import org.astrsomn.core.exception.constant.AiModelErrorEnum;
 import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiModelService;
+import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import org.astrsomn.server.service.support.BizResourceKeyGenerator;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.starter.config.AstrsomnProperties;
@@ -32,11 +33,10 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity> implements AiModelService {
 
-    private final BizResourceKeyGenerator bizResourceKeyGenerator;
     private final AstrsomnProperties astrsomnProperties;
     private final AiInstanceMapper aiInstanceMapper;
     private final QueryEnvParamHelper queryEnvParamHelper;
-
+    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
 
     @Override
     public BaseResponse<String> delete(long[] longIds) {
@@ -86,10 +86,12 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         if (StringUtils.isBlank(entity.getEnvCode())) {
             entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
+        bizResourceKeyAssignHelper.assignModelKeyIfBlank(entity);
+
         if (isModelKeyReferencedByInstance(existing.getModelKey(), existing.getEnvCode())) {
             entity.setModelKey(existing.getModelKey());
         } else {
-            assignModelKeyIfBlank(entity);
+            bizResourceKeyAssignHelper.assignModelKeyIfBlank(entity);
         }
         boolean result = updateById(entity);
         if (!result) {
@@ -105,7 +107,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         if (StringUtils.isBlank(entity.getEnvCode())) {
             entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
-        assignModelKeyIfBlank(entity);
+        bizResourceKeyAssignHelper.assignModelKeyIfBlank(entity);
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AiModelErrorEnum.MODEL_CREATE_FAILED);
@@ -113,22 +115,6 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         return BaseResponse.success("创建成功");
     }
 
-    private void assignModelKeyIfBlank(AiModelEntity entity) {
-        String trimmed = StringUtils.trimToNull(entity.getModelKey());
-        if (trimmed != null) {
-            entity.setModelKey(trimmed);
-            return;
-        }
-        String user = StringUtils.defaultIfBlank(entity.getCreateUser(), "0");
-        entity.setModelKey(
-                bizResourceKeyGenerator.generateUniqueModelKey(
-                        entity,
-                        candidate ->
-                                baseMapper.selectCount(
-                                        new LambdaQueryWrapper<AiModelEntity>()
-                                                .eq(AiModelEntity::getCreateUser, user)
-                                                .eq(AiModelEntity::getModelKey, candidate))));
-    }
 
     private boolean isModelKeyReferencedByInstance(String modelKey, String envCode) {
         if (StringUtils.isBlank(modelKey) || StringUtils.isBlank(envCode)) {
