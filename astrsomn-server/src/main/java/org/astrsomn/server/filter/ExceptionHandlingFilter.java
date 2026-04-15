@@ -5,7 +5,7 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.astrsomn.server.exception.BusinessException;
+
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -43,13 +43,7 @@ public class ExceptionHandlingFilter implements Filter {
             int code = 500;
             String message = "系统内部错误";
 
-            if (e instanceof BusinessException be) {
-                if (be.getCode() != null) {
-                    code = be.getCode();
-                    status = be.getCode();
-                }
-                message = be.getMessage();
-            } else if (e instanceof org.astrsomn.core.exception.base.BusinessException be) {
+            if (e instanceof org.astrsomn.core.exception.base.BusinessException be) {
                 code = be.getCode();
                 status = be.getCode();
                 message = be.getMessage();

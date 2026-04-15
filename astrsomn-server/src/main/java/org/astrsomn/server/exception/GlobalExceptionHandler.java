@@ -2,6 +2,7 @@ package org.astrsomn.server.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.astrsomn.core.exception.base.BusinessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -19,28 +20,15 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Map<String, Object>> handleServerBusinessException(
+    public ResponseEntity<Map<String, Object>> handleBusinessException(
             BusinessException ex,
-            HttpServletRequest request) {
-        int code = ex.getCode() != null ? ex.getCode() : HttpStatus.INTERNAL_SERVER_ERROR.value();
-        HttpStatus status = HttpStatus.resolve(code);
-        if (status == null) {
-            status = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-        log.warn("业务异常 - URI: {}, code={}, message={}", request.getRequestURI(), code, ex.getMessage(), ex);
-        return ResponseEntity.status(status).body(buildBody(code, ex.getMessage(), ex, request));
-    }
-
-    @ExceptionHandler(org.astrsomn.core.exception.base.BusinessException.class)
-    public ResponseEntity<Map<String, Object>> handleCoreBusinessException(
-            org.astrsomn.core.exception.base.BusinessException ex,
             HttpServletRequest request) {
         int code = ex.getCode();
         HttpStatus status = HttpStatus.resolve(code);
         if (status == null) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
-        log.warn("核心业务异常 - URI: {}, code={}, message={}", request.getRequestURI(), code, ex.getMessage(), ex);
+        log.warn("业务异常 - URI: {}, code={}, message={}", request.getRequestURI(), code, ex.getMessage(), ex);
         return ResponseEntity.status(status).body(buildBody(code, ex.getMessage(), ex, request));
     }
 
