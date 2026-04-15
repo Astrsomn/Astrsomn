@@ -32,9 +32,7 @@ public class SystemExtensionController extends BaseController {
         return systemExtensionService.create(request);
     }
 
-    /**
-     * 上传 jar 到进程工作目录下 {@code plugins}，并写入 {@code SYSTEM_EXTENSION}（已安装、未应用）。
-     */
+
     @PostMapping(value = "/upload-jar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<String> uploadJar(
             @RequestPart("file") MultipartFile file,
