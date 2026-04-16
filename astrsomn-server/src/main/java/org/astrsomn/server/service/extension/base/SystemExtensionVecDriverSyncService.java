@@ -1,4 +1,4 @@
-package org.astrsomn.server.service;
+package org.astrsomn.server.service.extension.base;
 
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 

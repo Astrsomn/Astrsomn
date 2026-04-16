@@ -1,4 +1,4 @@
-package org.astrsomn.server.service.impl;
+package org.astrsomn.server.service.extension.base.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ import org.astrsomn.core.exception.constant.SystemExtensionModelSyncErrorEnum;
 import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiModelService;
-import org.astrsomn.server.service.SystemExtensionModelSyncService;
-import org.astrsomn.server.service.SystemExtensionService;
+import org.astrsomn.server.service.extension.base.SystemExtensionModelSyncService;
+import org.astrsomn.server.service.extension.base.SystemExtensionService;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.context.EnvRuntime;

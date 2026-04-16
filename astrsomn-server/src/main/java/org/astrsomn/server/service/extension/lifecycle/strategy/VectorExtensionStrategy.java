@@ -7,7 +7,7 @@ import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
-import org.astrsomn.server.service.SystemExtensionVecDriverSyncService;
+import org.astrsomn.server.service.extension.base.SystemExtensionVecDriverSyncService;
 import org.astrsomn.server.service.extension.guard.SystemExtensionVecGuard;
 import org.astrsomn.server.service.extension.lifecycle.ExtensionLifecycleStrategy;
 import org.astrsomn.server.service.extension.warmup.VectorSourceInitializer;

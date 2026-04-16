@@ -1,4 +1,4 @@
-package org.astrsomn.server.service;
+package org.astrsomn.server.service.extension.base;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.astrsomn.core.common.base.BasePageRequest;

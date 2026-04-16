@@ -25,9 +25,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class AstroChatStreamUtil {
 
 
-    private final DatabaseHistoryRecorder historyRecorder;
-    private final ModelQuotaManager modelQuotaManager;
-
     public Flux<String> convertStreamToFlux(TokenStream inputStream, AstroChatParam chatParam) {
         // 用于记录全文内容
         AtomicReference<StringBuilder> contentBuilder = new AtomicReference<>(new StringBuilder());
@@ -92,29 +89,6 @@ public class AstroChatStreamUtil {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * 将 Map 转换为 JSON 字符串
-     * 专门针对基础封装设计，处理了转义、嵌套和常见数据类型
-     */
-    public static String toJson(Map<String, Object> map) {
-        if (map == null) return "null";
-
-        StringBuilder sb = new StringBuilder();
-        serializeMap(map, sb);
-        return sb.toString();
-    }
 
     private static void serializeMap(Map<?, ?> map, StringBuilder sb) {
         sb.append("{");

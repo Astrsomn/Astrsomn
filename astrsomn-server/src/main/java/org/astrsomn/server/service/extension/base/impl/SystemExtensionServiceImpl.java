@@ -1,4 +1,4 @@
-package org.astrsomn.server.service.impl;
+package org.astrsomn.server.service.extension.base.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -19,7 +19,7 @@ import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
 import org.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
 import org.astrsomn.server.plugin.registry.SystemExtensionRegistry;
-import org.astrsomn.server.service.SystemExtensionService;
+import org.astrsomn.server.service.extension.base.SystemExtensionService;
 import org.astrsomn.server.service.extension.lifecycle.SystemExtensionLifecycleOrchestrator;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.starter.plugin.AstrsomnPluginManager;
