@@ -13,7 +13,7 @@ import org.astrsomn.core.common.dto.user.SystemUserQueryRequestDTO;
 import org.astrsomn.core.common.dto.user.SystemUserResponseDTO;
 import org.astrsomn.core.common.dto.user.SystemUserUpdateRequestDTO;
 import org.astrsomn.core.common.entity.SystemUserEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.SystemUserErrorEnum;
 import org.astrsomn.core.mapper.SystemUserMapper;

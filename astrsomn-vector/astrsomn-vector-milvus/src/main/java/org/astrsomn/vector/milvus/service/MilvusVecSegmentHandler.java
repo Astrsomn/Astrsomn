@@ -2,7 +2,7 @@ package org.astrsomn.vector.milvus.service;
 
 import org.astrsomn.core.common.entity.AiVecSegmentEntity;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecSegment;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 
 import java.util.List;
 

@@ -11,7 +11,7 @@ import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.workflow.*;
 import org.astrsomn.core.common.entity.AiWorkflowEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AiWorkflowErrorEnum;
 import org.astrsomn.core.mapper.AiWorkflowMapper;

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
 import org.astrsomn.core.mapper.SystemExtensionMapper;

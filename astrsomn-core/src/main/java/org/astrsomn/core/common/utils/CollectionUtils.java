@@ -1,4 +1,4 @@
-package org.astrsomn.core.common.util;
+package org.astrsomn.core.common.utils;
 
 import java.util.*;
 import java.util.function.Function;

@@ -3,7 +3,7 @@ package org.astrsomn.core.common.constant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.astrsomn.core.common.base.BaseEnum;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 
 import java.util.Optional;
 

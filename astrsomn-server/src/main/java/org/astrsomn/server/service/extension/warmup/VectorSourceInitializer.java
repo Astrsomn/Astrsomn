@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.constant.AiVecSourceEnum;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.mapper.AiVecSourceMapper;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.starter.langchain.vector.AstroVecSourceFactory;

@@ -7,7 +7,7 @@ import org.astrsomn.core.common.entity.AiVecSourceEntity;
 import org.astrsomn.core.common.entity.AiVecStoreEntity;
 import org.astrsomn.core.common.langchain.extension.vector.VecSource;
 import org.astrsomn.core.common.langchain.extension.vector.VecStore;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AstVecStoreErrorEnum;
 import org.astrsomn.server.service.AiVecSourceService;

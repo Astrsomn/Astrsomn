@@ -1,4 +1,4 @@
-package org.astrsomn.core.common.util;
+package org.astrsomn.core.common.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;

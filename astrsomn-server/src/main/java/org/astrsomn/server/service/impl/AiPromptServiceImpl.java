@@ -12,7 +12,7 @@ import org.astrsomn.core.common.dto.prompt.AiPromptQueryRequestDTO;
 import org.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
 import org.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiPromptEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AiPromptErrorEnum;
 import org.astrsomn.core.mapper.AiPromptMapper;

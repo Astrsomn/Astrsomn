@@ -6,7 +6,7 @@ import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.extension.*;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.server.service.SystemExtensionMarketService;
 import org.astrsomn.server.service.SystemExtensionModelSyncService;
 import org.astrsomn.server.service.SystemExtensionService;

@@ -3,7 +3,7 @@ package org.astrsomn.server.service.extension.lifecycle.strategy;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
 import org.astrsomn.server.service.extension.lifecycle.ExtensionLifecycleStrategy;

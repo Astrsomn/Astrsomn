@@ -6,7 +6,7 @@ import org.astrsomn.core.common.constant.AiAgentEnum;
 import org.astrsomn.core.common.constant.AiModelEnum;
 import org.astrsomn.core.common.entity.AiAgentEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.mapper.AiAgentMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.springframework.stereotype.Component;

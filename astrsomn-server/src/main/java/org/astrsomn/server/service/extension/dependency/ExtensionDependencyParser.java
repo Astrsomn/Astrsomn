@@ -1,7 +1,7 @@
 package org.astrsomn.server.service.extension.dependency;
 
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

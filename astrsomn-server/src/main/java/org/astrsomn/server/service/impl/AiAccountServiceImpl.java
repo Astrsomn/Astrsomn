@@ -13,7 +13,7 @@ import org.astrsomn.core.common.dto.account.AiAccountResponseDTO;
 import org.astrsomn.core.common.dto.account.AiAccountUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AiAccountErrorEnum;
 import org.astrsomn.core.mapper.AiAccountMapper;

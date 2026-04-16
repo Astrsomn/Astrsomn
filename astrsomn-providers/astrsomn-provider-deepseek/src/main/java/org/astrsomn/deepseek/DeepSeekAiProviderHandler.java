@@ -11,7 +11,7 @@ import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.EmbeddingSetting;
 import org.astrsomn.core.common.langchain.extension.model.AbstractModelProviderHandler;
-import org.astrsomn.core.common.util.CollectionUtils;
+import org.astrsomn.core.common.utils.CollectionUtils;
 import org.astrsomn.core.exception.UnknowModelException;
 
 import java.time.Duration;
@@ -107,7 +107,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
         if (es.getDimensions() != null) {
             builder.dimensions(es.getDimensions());
         }
-        if (org.astrsomn.core.common.util.StringUtils.isNotBlank(es.getUser())) {
+        if (org.astrsomn.core.common.utils.StringUtils.isNotBlank(es.getUser())) {
             builder.user(es.getUser());
         }
         if (es.getMaxRetries() != null) {
@@ -116,7 +116,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
         if (es.getMaxSegmentsPerBatch() != null) {
             builder.maxSegmentsPerBatch(es.getMaxSegmentsPerBatch());
         }
-        if (org.astrsomn.core.common.util.StringUtils.isNotBlank(es.getEncodingFormat())) {
+        if (org.astrsomn.core.common.utils.StringUtils.isNotBlank(es.getEncodingFormat())) {
             builder.encodingFormat(es.getEncodingFormat());
         }
         if (es.getTimeoutSeconds() != null && es.getTimeoutSeconds() > 0) {

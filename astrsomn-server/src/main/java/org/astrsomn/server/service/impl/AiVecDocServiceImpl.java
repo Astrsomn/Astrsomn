@@ -33,7 +33,7 @@ import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
 import org.astrsomn.core.common.langchain.extension.vector.VecSource;
 import org.astrsomn.core.common.langchain.extension.vector.VecStore;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AstVecDocErrorEnum;
 import org.astrsomn.core.mapper.AiAccountMapper;

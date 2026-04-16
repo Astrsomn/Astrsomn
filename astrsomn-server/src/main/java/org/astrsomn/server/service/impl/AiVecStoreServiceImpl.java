@@ -13,7 +13,7 @@ import org.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO;
 import org.astrsomn.core.common.dto.vecstore.AiVecStoreUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
 import org.astrsomn.core.common.entity.AiVecStoreEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AstVecStoreErrorEnum;
 import org.astrsomn.core.mapper.AiVecStoreMapper;

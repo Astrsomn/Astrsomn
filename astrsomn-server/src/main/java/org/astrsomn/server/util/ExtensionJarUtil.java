@@ -2,9 +2,8 @@ package org.astrsomn.server.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.common.dto.extension.SystemExtensionMetaData;
-import org.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
 
 import java.io.File;
 import java.io.IOException;

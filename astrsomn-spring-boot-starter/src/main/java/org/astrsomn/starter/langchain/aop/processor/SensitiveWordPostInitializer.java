@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.entity.AiSensitiveWordEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.mapper.AiSensitiveWordMapper;
 import org.astrsomn.starter.langchain.quota.SensitiveWordProvider;
 import org.springframework.beans.BeansException;
