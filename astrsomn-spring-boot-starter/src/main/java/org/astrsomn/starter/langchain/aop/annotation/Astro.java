@@ -12,7 +12,7 @@ public @interface Astro {
 
     String envCode() default "";
 
-    String systemPromptKey() default "";
+    String promptKey() default "";
 
     boolean enableNetwork() default false;
 

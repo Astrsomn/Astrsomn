@@ -6,10 +6,10 @@ import org.astrsomn.core.common.base.BasePageRequest;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.extension.*;
-import org.astrsomn.core.common.util.StringUtils;
-import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
-import org.astrsomn.server.service.SystemExtensionModelSyncService;
-import org.astrsomn.server.service.SystemExtensionService;
+import org.astrsomn.core.common.utils.StringUtils;
+import org.astrsomn.server.service.extension.base.SystemExtensionMarketService;
+import org.astrsomn.server.service.extension.base.SystemExtensionModelSyncService;
+import org.astrsomn.server.service.extension.base.SystemExtensionService;
 import org.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -23,29 +23,20 @@ import java.util.Optional;
 public class SystemExtensionController extends BaseController {
 
     private final SystemExtensionService systemExtensionService;
-    private final ExtensionMarketplaceCatalogSource extensionMarketplaceCatalogSource;
+    private final SystemExtensionMarketService extensionMarketplaceCatalogSource;
     private final SystemExtensionModelSyncService systemExtensionModelSyncService;
     private final SystemExtensionModelGuard systemExtensionModelGuard;
 
     // ==================================== SystemExtensionService ====================================
-    
+
     @PostMapping("/create")
     public BaseResponse<String> create(@RequestBody SystemExtensionCreateRequestDTO request) {
         return systemExtensionService.create(request);
     }
 
     @PostMapping(value = "/upload-jar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponse<String> uploadJar(
-            @RequestPart("file") MultipartFile file,
-            @RequestParam(value = "extensionKey", required = false) String extensionKey,
-            @RequestParam(value = "extensionName", required = false) String extensionName,
-            @RequestParam(value = "type", required = false) String type,
-            @RequestParam(value = "version", required = false) String version,
-            @RequestParam(value = "author", required = false) String author,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "providerCode", required = false) String providerCode) {
-        return systemExtensionService.uploadJar(
-                file, extensionKey, extensionName, type, version, author, description, providerCode);
+    public BaseResponse<String> uploadJar(@RequestPart("file") MultipartFile file) {
+        return systemExtensionService.uploadJar(file);
     }
 
     @DeleteMapping("/delete/{ids}")
@@ -94,7 +85,7 @@ public class SystemExtensionController extends BaseController {
     }
 
     // ==================================== ExtensionMarketplaceCatalogSource ====================================
-    
+
     @GetMapping("/marketplace/catalog")
     public BaseResponse<PageResponse<ExtensionMarketplaceItemDTO>> marketplaceCatalog(
             @RequestParam(value = "type", required = false) String type,
@@ -114,7 +105,7 @@ public class SystemExtensionController extends BaseController {
     }
 
     // ==================================== SystemExtensionModelSyncService ====================================
-    
+
     @GetMapping("/load-models/preview")
     public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(@RequestParam("id") Long id) {
         return systemExtensionModelSyncService.previewLoadModels(id);
@@ -136,7 +127,7 @@ public class SystemExtensionController extends BaseController {
     }
 
     // ==================================== SystemExtensionModelGuard ====================================
-    
+
     @PostMapping("/disable-provider-models")
     public BaseResponse<String> disableProviderModels(@RequestParam("id") Long id) {
         return systemExtensionModelGuard.disableAllModelsForExtension(id);

@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.langchain.ChatStreamEnum;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import org.astrsomn.core.common.util.JsonUtil;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.JsonUtil;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.starter.langchain.quota.ModelQuotaManager;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -24,9 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiredArgsConstructor
 public class AstroChatStreamUtil {
 
-
-    private final DatabaseHistoryRecorder historyRecorder;
-    private final ModelQuotaManager modelQuotaManager;
 
     public Flux<String> convertStreamToFlux(TokenStream inputStream, AstroChatParam chatParam) {
         // 用于记录全文内容
@@ -92,29 +89,6 @@ public class AstroChatStreamUtil {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * 将 Map 转换为 JSON 字符串
-     * 专门针对基础封装设计，处理了转义、嵌套和常见数据类型
-     */
-    public static String toJson(Map<String, Object> map) {
-        if (map == null) return "null";
-
-        StringBuilder sb = new StringBuilder();
-        serializeMap(map, sb);
-        return sb.toString();
-    }
 
     private static void serializeMap(Map<?, ?> map, StringBuilder sb) {
         sb.append("{");

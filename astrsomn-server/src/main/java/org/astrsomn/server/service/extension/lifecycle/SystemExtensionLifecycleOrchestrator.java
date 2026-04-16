@@ -5,10 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
+import org.astrsomn.server.service.extension.support.SystemExtensionSourceHelper;
 import org.astrsomn.server.service.extension.capability.ExtensionCapabilityResolver;
 import org.astrsomn.server.service.extension.dependency.ExtensionDependencyGuard;
 import org.astrsomn.starter.plugin.AstrsomnPluginManager;
@@ -63,6 +64,9 @@ public class SystemExtensionLifecycleOrchestrator {
 
     public BaseResponse<String> uninstall(Long id) {
         SystemExtensionEntity extension = mustGet(id);
+        if (!SystemExtensionSourceHelper.canUninstall(extension)) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, "Classpath 依赖扩展不支持卸载，仅支持启用/禁用");
+        }
         ExtensionLifecycleStrategy strategy = strategyResolver.resolve(extension.getType());
         strategy.uninstall(extension);
 
@@ -71,7 +75,7 @@ public class SystemExtensionLifecycleOrchestrator {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UNINSTALL_FAILED);
         }
         String jarName = StringUtils.trimToNull(extension.getJarName());
-        if (jarName != null) {
+        if (jarName != null && SystemExtensionSourceHelper.canDeleteJarFromDisk(extension)) {
             tryDeletePluginJarFromDisk(jarName);
         }
         return BaseResponse.success("卸载成功");

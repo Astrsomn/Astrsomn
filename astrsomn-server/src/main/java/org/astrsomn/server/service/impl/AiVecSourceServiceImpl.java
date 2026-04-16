@@ -15,7 +15,7 @@ import org.astrsomn.core.common.dto.vecsource.AiVecSourceResponseDTO;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceSetStatusRequestDTO;
 import org.astrsomn.core.common.dto.vecsource.AiVecSourceUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AstVecSourceErrorEnum;
 import org.astrsomn.core.mapper.AiVecSourceMapper;

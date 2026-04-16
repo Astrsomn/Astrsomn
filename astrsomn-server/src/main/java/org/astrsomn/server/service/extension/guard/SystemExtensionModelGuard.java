@@ -9,10 +9,11 @@ import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
+import org.astrsomn.server.service.extension.base.SystemExtensionService;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.context.EnvRuntime;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 模型类扩展：停用厂商下全部模型、卸载前校验实例引用（避免与 {@link org.astrsomn.server.service.SystemExtensionService} 循环依赖）。
+ * 模型类扩展：停用厂商下全部模型、卸载前校验实例引用（避免与 {@link SystemExtensionService} 循环依赖）。
  */
 @Component
 @RequiredArgsConstructor

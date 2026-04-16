@@ -1,12 +1,9 @@
 package org.astrsomn.server.service.support;
 
-import org.astrsomn.core.common.entity.AiModelEntity;
-import org.astrsomn.core.common.util.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 /**
  * 业务资源 key 统一生成：model / agent / prompt / tool / mcp 在各自表内、按

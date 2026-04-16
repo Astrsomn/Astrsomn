@@ -6,7 +6,7 @@ import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.mapper.AiVecSourceMapper;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
 import org.springframework.stereotype.Component;

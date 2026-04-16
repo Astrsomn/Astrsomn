@@ -3,7 +3,7 @@ package org.astrsomn.server.service.extension.capability;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.entity.SystemExtensionEntity;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.server.plugin.registry.SystemExtensionRegistry;
 import org.astrsomn.starter.langchain.factory.AstroModelFactory;
 import org.astrsomn.starter.langchain.vector.AstroVecSourceFactory;
@@ -16,13 +16,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExtensionCapabilityResolver {
 
-    private final ApplicationContext applicationContext;
+
     private final AstroModelFactory astroModelFactory;
     private final AstroVecSourceFactory astroVecSourceFactory;
 
-    public Map<String, AstroExtensionDescriptor> descriptorsByKey() {
-        return SystemExtensionRegistry.mergeDescriptors(applicationContext);
-    }
+
 
     public boolean hasModelProviderCapability(SystemExtensionEntity extension) {
         String provider = resolveProviderCode(extension);

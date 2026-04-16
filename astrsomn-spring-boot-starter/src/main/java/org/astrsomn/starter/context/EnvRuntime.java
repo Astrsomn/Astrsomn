@@ -1,6 +1,6 @@
 package org.astrsomn.starter.context;
 
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.starter.config.AstrsomnProperties;
 
 /**
