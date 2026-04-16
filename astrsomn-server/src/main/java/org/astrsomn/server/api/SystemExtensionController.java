@@ -7,7 +7,7 @@ import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.extension.*;
 import org.astrsomn.core.common.util.StringUtils;
-import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
+import org.astrsomn.server.service.SystemExtensionMarketService;
 import org.astrsomn.server.service.SystemExtensionModelSyncService;
 import org.astrsomn.server.service.SystemExtensionService;
 import org.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
@@ -23,7 +23,7 @@ import java.util.Optional;
 public class SystemExtensionController extends BaseController {
 
     private final SystemExtensionService systemExtensionService;
-    private final ExtensionMarketplaceCatalogSource extensionMarketplaceCatalogSource;
+    private final SystemExtensionMarketService extensionMarketplaceCatalogSource;
     private final SystemExtensionModelSyncService systemExtensionModelSyncService;
     private final SystemExtensionModelGuard systemExtensionModelGuard;
 

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.base.BaseResponse;
 import org.astrsomn.core.common.base.PageResponse;
 import org.astrsomn.core.common.dto.extension.ExtensionMarketplaceItemDTO;
-import org.astrsomn.server.service.ExtensionMarketplaceCatalogSource;
+import org.astrsomn.server.service.SystemExtensionMarketService;
 import org.astrsomn.server.service.SystemExtensionService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
@@ -23,7 +23,7 @@ import java.util.*;
  */
 @Component
 @RequiredArgsConstructor
-public class CompositeExtensionMarketplaceCatalogSource implements ExtensionMarketplaceCatalogSource {
+public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketService {
 
     private final ApplicationContext applicationContext;
     private final RestTemplate restTemplate;
