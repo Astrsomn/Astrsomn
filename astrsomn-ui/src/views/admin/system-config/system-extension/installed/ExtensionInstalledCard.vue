@@ -38,7 +38,7 @@
 
         <div class="jar-pill">
           <paper-clip-outlined class="jar-icon" />
-          <span class="jar-name">{{ record.jarName || 'empty.jar' }}</span>
+          <span class="jar-name">{{ record.jarName || 'classpath dependency' }}</span>
         </div>
 
         <p class="desc-text">{{ preview(record.description) }}</p>
@@ -69,19 +69,21 @@
                 </a-button>
               </a-popconfirm>
 
-              <div class="strip-divider"></div>
+              <template v-if="isUninstallableExtension(record)">
+                <div class="strip-divider"></div>
 
-              <a-popconfirm
-                title="确定卸载该插件吗？"
-                ok-text="确定"
-                cancel-text="取消"
-                @confirm="emit('uninstall')"
-              >
-                <a-button size="small" class="strip-action btn-danger">
-                  <template #icon><delete-outlined /></template>
-                  卸载插件
-                </a-button>
-              </a-popconfirm>
+                <a-popconfirm
+                  title="确定卸载该插件吗？"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="emit('uninstall')"
+                >
+                  <a-button size="small" class="strip-action btn-danger">
+                    <template #icon><delete-outlined /></template>
+                    卸载插件
+                  </a-button>
+                </a-popconfirm>
+              </template>
             </template>
             <template v-else>
               <a-popconfirm
@@ -115,7 +117,7 @@ import {
   PauseOutlined,
   DeleteOutlined
 } from '@ant-design/icons-vue'
-import { preview, type ExtensionRow } from '../shared/extensionDisplay'
+import { isUninstallableExtension, preview, type ExtensionRow } from '../shared/extensionDisplay'
 
 defineProps<{
   record: ExtensionRow
@@ -135,7 +137,7 @@ const onToggle = (e: { target: { checked: boolean } }) => {
   emit('toggle-select', e.target.checked)
 }
 
-const getAntdIcon = (type: string) => {
+const getAntdIcon = (type?: string) => {
   if (type === 'MODEL_PROVIDER') return RocketOutlined
   if (type === 'TOOL') return BuildOutlined
   return AppstoreOutlined

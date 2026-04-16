@@ -68,13 +68,11 @@ public class ExtensionJarUtil {
     }
 
     /**
-     * 请求显式传入的 extensionKey 优先；否则用 jar 内 {@link org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor#getExtensionKey()}；再否则由文件名推导
+     * 上传接口只接收文件：优先用 jar 内
+     * {@link org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor#getExtensionKey()}，
+     * 缺失时由文件名推导。
      */
-    public static String resolveExtensionKeyForUpload(
-            String paramKey, Optional<SystemExtensionMetaData> jarMeta, String stem) {
-        if (StringUtils.isNotBlank(paramKey)) {
-            return sanitizeExtensionKey(paramKey);
-        }
+    public static String resolveExtensionKeyForUpload(Optional<SystemExtensionMetaData> jarMeta, String stem) {
         if (jarMeta.isPresent()) {
             String k = StringUtils.trimToNull(jarMeta.get().extensionKey());
             if (k != null) {

@@ -122,14 +122,7 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
             // 调用 uploadJar 方法安装插件
             // 注意：这里的参数需要根据实际情况设置，暂时使用默认值
             return systemExtensionService.uploadJar(
-                    multipartFile, 
-                    pluginId, // extensionKey
-                    pluginId, // extensionName
-                    null, // type
-                    version, // version
-                    null, // author
-                    null, // description
-                    null  // providerCode
+                    multipartFile
             );
         } catch (Exception e) {
             return BaseResponse.fail("安装插件失败：" + e.getMessage(), null);

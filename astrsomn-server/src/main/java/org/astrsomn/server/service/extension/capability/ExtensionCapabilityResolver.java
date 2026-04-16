@@ -16,13 +16,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExtensionCapabilityResolver {
 
-    private final ApplicationContext applicationContext;
+
     private final AstroModelFactory astroModelFactory;
     private final AstroVecSourceFactory astroVecSourceFactory;
 
-    public Map<String, AstroExtensionDescriptor> descriptorsByKey() {
-        return SystemExtensionRegistry.mergeDescriptors(applicationContext);
-    }
+
 
     public boolean hasModelProviderCapability(SystemExtensionEntity extension) {
         String provider = resolveProviderCode(extension);

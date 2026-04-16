@@ -63,7 +63,7 @@ const emit = defineEmits<{
   install: []
 }>()
 
-const getAntdIcon = (type: string) => {
+const getAntdIcon = (type?: string) => {
   if (type === 'MODEL_PROVIDER') return RocketOutlined
   if (type === 'TOOL') return BuildOutlined
   return AppstoreOutlined

@@ -7,6 +7,7 @@ import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
 import org.astrsomn.server.service.extension.lifecycle.ExtensionLifecycleStrategy;
+import org.astrsomn.server.service.extension.support.SystemExtensionSourceHelper;
 import org.astrsomn.starter.plugin.AstrsomnPluginManager;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,9 @@ public class McpExtensionStrategy implements ExtensionLifecycleStrategy {
 
     @Override
     public void apply(SystemExtensionEntity extension) {
+        if (!SystemExtensionSourceHelper.isPluginJarSource(extension)) {
+            return;
+        }
         String jarName = StringUtils.trimToNull(extension.getJarName());
         if (jarName == null) {
             return;
@@ -37,7 +41,7 @@ public class McpExtensionStrategy implements ExtensionLifecycleStrategy {
     @Override
     public void revoke(SystemExtensionEntity extension) {
         String jarName = StringUtils.trimToNull(extension.getJarName());
-        if (jarName != null) {
+        if (jarName != null && SystemExtensionSourceHelper.isPluginJarSource(extension)) {
             pluginManager.unloadPlugin(jarName);
         }
     }
@@ -45,7 +49,7 @@ public class McpExtensionStrategy implements ExtensionLifecycleStrategy {
     @Override
     public void uninstall(SystemExtensionEntity extension) {
         String jarName = StringUtils.trimToNull(extension.getJarName());
-        if (jarName != null) {
+        if (jarName != null && SystemExtensionSourceHelper.isPluginJarSource(extension)) {
             pluginManager.unloadPlugin(jarName);
         }
     }

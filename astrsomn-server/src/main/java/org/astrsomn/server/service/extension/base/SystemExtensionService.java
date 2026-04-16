@@ -38,13 +38,5 @@ public interface SystemExtensionService extends IService<SystemExtensionEntity> 
     /**
      * 将 jar 保存到插件目录并写入 {@code SYSTEM_EXTENSION}（状态与「从市场安装」一致：已安装、未应用）。
      */
-    BaseResponse<String> uploadJar(
-            MultipartFile file,
-            String extensionKey,
-            String extensionName,
-            String type,
-            String version,
-            String author,
-            String description,
-            String providerCode);
+    BaseResponse<String> uploadJar(MultipartFile file);
 }

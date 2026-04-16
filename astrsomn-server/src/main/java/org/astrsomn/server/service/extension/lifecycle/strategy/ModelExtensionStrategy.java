@@ -9,6 +9,7 @@ import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
 import org.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
 import org.astrsomn.server.service.extension.lifecycle.ExtensionLifecycleStrategy;
+import org.astrsomn.server.service.extension.support.SystemExtensionSourceHelper;
 import org.astrsomn.starter.plugin.AstrsomnPluginManager;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,9 @@ public class ModelExtensionStrategy implements ExtensionLifecycleStrategy {
 
     @Override
     public void apply(SystemExtensionEntity extension) {
+        if (!SystemExtensionSourceHelper.isPluginJarSource(extension)) {
+            return;
+        }
         String jarName = StringUtils.trimToNull(extension.getJarName());
         if (jarName == null) {
             return;
@@ -44,7 +48,7 @@ public class ModelExtensionStrategy implements ExtensionLifecycleStrategy {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
         }
         String jarName = StringUtils.trimToNull(extension.getJarName());
-        if (jarName != null) {
+        if (jarName != null && SystemExtensionSourceHelper.isPluginJarSource(extension)) {
             pluginManager.unloadPlugin(jarName);
         }
     }
@@ -56,7 +60,7 @@ public class ModelExtensionStrategy implements ExtensionLifecycleStrategy {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
         }
         String jarName = StringUtils.trimToNull(extension.getJarName());
-        if (jarName != null) {
+        if (jarName != null && SystemExtensionSourceHelper.isPluginJarSource(extension)) {
             pluginManager.unloadPlugin(jarName);
         }
     }

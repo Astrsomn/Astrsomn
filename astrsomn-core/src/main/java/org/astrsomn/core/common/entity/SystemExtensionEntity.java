@@ -50,4 +50,7 @@ public class SystemExtensionEntity extends BaseEntity<Long> {
 
     @TableField("DISCOVERY_MECHANISM")
     private String discoveryMechanism;
+
+    @TableField("INSTALL_SOURCE")
+    private String installSource;
 }

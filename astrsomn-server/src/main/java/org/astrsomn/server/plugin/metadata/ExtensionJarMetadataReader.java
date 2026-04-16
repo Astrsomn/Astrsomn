@@ -7,10 +7,12 @@ import org.astrsomn.core.common.langchain.extension.model.ModelProviderHandler;
 import org.astrsomn.core.common.utils.StringUtils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.StreamSupport;
+import java.util.jar.JarFile;
 
 /**
  * 使用独立 {@link URLClassLoader} 读取 jar 内 SPI，避免与当前进程已加载的同名类冲突；读取后关闭加载器。
@@ -31,10 +33,11 @@ public final class ExtensionJarMetadataReader {
         ClassLoader parentCl = Optional.ofNullable(Thread.currentThread().getContextClassLoader())
                 .orElse(ExtensionJarMetadataReader.class.getClassLoader());
 
-        try (URLClassLoader cl = new URLClassLoader(new URL[]{jar.toURI().toURL()}, parentCl)) {
-            return findFirstSpi(AstroExtensionDescriptor.class, cl, jar.getName())
+        try (URLClassLoader cl = new URLClassLoader(new URL[]{jar.toURI().toURL()}, parentCl);
+             JarFile jarFile = new JarFile(jar)) {
+            return findFirstSpiInJar(AstroExtensionDescriptor.class, cl, jarFile, jar.getName())
                     .map(d -> {
-                        String providerCode = findFirstSpi(ModelProviderHandler.class, cl, jar.getName())
+                        String providerCode = findFirstSpiInJar(ModelProviderHandler.class, cl, jarFile, jar.getName())
                                 .map(ExtensionJarMetadataReader::extractProviderCode)
                                 .orElse(null);
                         return buildMetaData(d, providerCode);
@@ -46,15 +49,59 @@ public final class ExtensionJarMetadataReader {
     }
 
     /**
-     * 通用的 SPI 获取方法，获取第一个实现并针对多实现打印警告
+     * 仅从目标 jar 的 META-INF/services 读取 SPI，避免父 ClassLoader 里的 SPI 干扰。
      */
-    private static <T> Optional<T> findFirstSpi(Class<T> serviceClass, ClassLoader cl, String jarName) {
-        var instances = StreamSupport.stream(ServiceLoader.load(serviceClass, cl).spliterator(), false).toList();
-        if (instances.isEmpty()) return Optional.empty();
-        if (instances.size() > 1) {
+    private static <T> Optional<T> findFirstSpiInJar(Class<T> serviceClass, ClassLoader cl, JarFile jarFile, String jarName) {
+        String spiPath = "META-INF/services/" + serviceClass.getName();
+        var entry = jarFile.getJarEntry(spiPath);
+        if (entry == null) {
+            return Optional.empty();
+        }
+        List<String> implClassNames = readServiceImplClassNames(jarFile, entry);
+        if (implClassNames.isEmpty()) {
+            return Optional.empty();
+        }
+        if (implClassNames.size() > 1) {
             log.warn("{} Jar 存在多个 {} 实现，仅取首个 | Jar: {}", LOG_PREFIX, serviceClass.getSimpleName(), jarName);
         }
-        return Optional.of(instances.get(0));
+        String className = implClassNames.get(0);
+        try {
+            Class<?> implClass = Class.forName(className, true, cl);
+            if (!serviceClass.isAssignableFrom(implClass)) {
+                log.warn("{} SPI 实现类型不匹配 | Service: {} | Impl: {} | Jar: {}",
+                        LOG_PREFIX, serviceClass.getSimpleName(), className, jarName);
+                return Optional.empty();
+            }
+            Object instance = implClass.getDeclaredConstructor().newInstance();
+            return Optional.of(serviceClass.cast(instance));
+        } catch (Throwable t) {
+            log.warn("{} SPI 实现实例化失败 | Service: {} | Impl: {} | Jar: {} | 异常: {}",
+                    LOG_PREFIX, serviceClass.getSimpleName(), className, jarName, t.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    private static List<String> readServiceImplClassNames(JarFile jarFile, java.util.jar.JarEntry entry) {
+        try (InputStream in = jarFile.getInputStream(entry)) {
+            String content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            List<String> classNames = new ArrayList<>();
+            for (String line : content.split("\\R")) {
+                String trimmed = StringUtils.trimToNull(line);
+                if (trimmed == null || trimmed.startsWith("#")) {
+                    continue;
+                }
+                int commentPos = trimmed.indexOf('#');
+                if (commentPos >= 0) {
+                    trimmed = StringUtils.trimToNull(trimmed.substring(0, commentPos));
+                }
+                if (trimmed != null) {
+                    classNames.add(trimmed);
+                }
+            }
+            return classNames;
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 
     private static String extractProviderCode(ModelProviderHandler handler) {

@@ -19,6 +19,7 @@ import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
 import org.astrsomn.core.mapper.SystemExtensionMapper;
 import org.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
 import org.astrsomn.server.plugin.registry.SystemExtensionRegistry;
+import org.astrsomn.server.plugin.registry.PluginDirectoryExtensionSyncService;
 import org.astrsomn.server.service.extension.base.SystemExtensionService;
 import org.astrsomn.server.service.extension.lifecycle.SystemExtensionLifecycleOrchestrator;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
@@ -36,6 +37,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+
 import org.astrsomn.server.util.ExtensionJarUtil;
 
 @Slf4j
@@ -48,6 +50,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     private final AstrsomnPluginManager pluginManager;
     private final SystemExtensionLifecycleOrchestrator lifecycleOrchestrator;
     private final ApplicationContext applicationContext;
+    private final PluginDirectoryExtensionSyncService pluginDirectoryExtensionSyncService;
 
     @Override
     public BaseResponse<String> create(SystemExtensionCreateRequestDTO request) {
@@ -167,15 +170,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
 
     @Override
     @Transactional(rollbackFor = Exception.class) // 建议开启事务
-    public BaseResponse<String> uploadJar(
-            MultipartFile file,
-            String extensionKey,
-            String extensionName,
-            String type,
-            String version,
-            String author,
-            String description,
-            String providerCode) {
+    public BaseResponse<String> uploadJar(MultipartFile file) {
 
         // 1. 基础校验
         if (file == null || file.isEmpty()) {
@@ -210,9 +205,12 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             }
 
             Optional<SystemExtensionMetaData> jarMeta = ExtensionJarMetadataReader.tryLoad(tempJar);
+            if (jarMeta.isEmpty()) {
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "未读取到扩展描述符，请确认 jar 内包含 AstroExtensionDescriptor SPI 配置");
+            }
 
             // 3. 业务逻辑校验（Key 冲突检查）
-            String key = ExtensionJarUtil.resolveExtensionKeyForUpload(StringUtils.trimToNull(extensionKey), jarMeta, stem);
+            String key = ExtensionJarUtil.resolveExtensionKeyForUpload(jarMeta, stem);
             if (StringUtils.isBlank(key)) {
                 throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "extensionKey 无效");
             }
@@ -235,8 +233,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             }
 
             // 5. 构建并保存实体
-            SystemExtensionEntity entity = buildExtensionEntity(key, safeJarName, stem, jarMeta,
-                    extensionName, type, version, author, description, providerCode);
+            SystemExtensionEntity entity = buildExtensionEntity(key, safeJarName, stem, jarMeta.get());
 
             // 从最终文件应用 Manifest 默认值
             ExtensionJarUtil.applyManifestDefaults(destFile, entity);
@@ -264,32 +261,33 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
      * 提取实体构建逻辑，保持主流程简洁
      */
     private SystemExtensionEntity buildExtensionEntity(
-            String key, String jarName, String stem, Optional<SystemExtensionMetaData> meta,
-            String name, String type, String ver, String author, String desc, String provider) {
+            String key, String jarName, String stem, SystemExtensionMetaData meta) {
 
         SystemExtensionEntity entity = new SystemExtensionEntity();
         entity.setExtensionKey(key);
         entity.setJarName(jarName);
 
-        // 合并元数据：优先使用传入参数，其次使用 Jar 包内的，最后使用默认值
-        entity.setExtensionName(ExtensionJarUtil.pickMeta(name, meta.map(SystemExtensionMetaData::extensionName)));
-        entity.setType(ExtensionJarUtil.pickMeta(type, meta.map(SystemExtensionMetaData::type)));
-        entity.setVersion(ExtensionJarUtil.pickMeta(ver, meta.map(SystemExtensionMetaData::version)));
-        entity.setAuthor(ExtensionJarUtil.pickMeta(author, meta.map(SystemExtensionMetaData::author)));
-        entity.setDescription(ExtensionJarUtil.pickMeta(desc, meta.map(SystemExtensionMetaData::description)));
-        entity.setProviderCode(ExtensionJarUtil.pickMeta(provider, meta.map(SystemExtensionMetaData::providerCode)));
-        entity.setAvatar(ExtensionJarUtil.pickMeta(null, meta.map(SystemExtensionMetaData::avatar)));
+        // 上传接口仅接收文件，扩展元数据统一从 jar 内描述符读取。
+        entity.setExtensionName(StringUtils.trimToNull(meta.extensionName()));
+        entity.setType(StringUtils.trimToNull(meta.type()));
+        entity.setVersion(StringUtils.trimToNull(meta.version()));
+        entity.setAuthor(StringUtils.trimToNull(meta.author()));
+        entity.setDescription(StringUtils.trimToNull(meta.description()));
+        entity.setProviderCode(StringUtils.trimToNull(meta.providerCode()));
+        entity.setAvatar(StringUtils.trimToNull(meta.avatar()));
 
         // 填充缺失默认值
         if (StringUtils.isBlank(entity.getExtensionName())) entity.setExtensionName(stem);
-        if (StringUtils.isBlank(entity.getType())) entity.setType(SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode());
+        if (StringUtils.isBlank(entity.getType()))
+            entity.setType(SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode());
         if (StringUtils.isBlank(entity.getVersion())) entity.setVersion("1.0.0");
         if (StringUtils.isBlank(entity.getAuthor())) entity.setAuthor("unknown");
 
         entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
         entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
-        // 设置发现机制，JAR 包安装的扩展使用 SPI
+        // 上传进入 plugins 目录并受平台托管的扩展，显式标记来源与发现方式。
         entity.setDiscoveryMechanism(SystemExtensionEnum.DiscoveryMechanismEnum.SPI.getCode());
+        entity.setInstallSource(SystemExtensionEnum.InstallSourceEnum.PLUGIN_JAR_UPLOAD.getCode());
 
         return entity;
     }
@@ -297,6 +295,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     private void refreshPluginSafely() {
         try {
             pluginManager.reloadPlugins();
+            pluginDirectoryExtensionSyncService.syncDiscoveredPlugins();
         } catch (Exception e) {
             log.error("上传后 reloadPlugins 失败，请手动重试: {}", e.getMessage());
         }
