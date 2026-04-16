@@ -1,4 +1,4 @@
-package org.astrsomn.server.service.extension.lifecycle;
+package org.astrsomn.server.service.extension.lifecycle.strategy;
 
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.base.BaseResponse;
@@ -9,7 +9,8 @@ import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
 import org.astrsomn.server.service.SystemExtensionVecDriverSyncService;
 import org.astrsomn.server.service.extension.guard.SystemExtensionVecGuard;
-import org.astrsomn.server.service.extension.warmup.VectorProviderWarmupService;
+import org.astrsomn.server.service.extension.lifecycle.ExtensionLifecycleStrategy;
+import org.astrsomn.server.service.extension.warmup.VectorSourceInitializer;
 import org.astrsomn.starter.plugin.AstrsomnPluginManager;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,7 @@ public class VectorExtensionStrategy implements ExtensionLifecycleStrategy {
     private final AstrsomnPluginManager pluginManager;
     private final SystemExtensionVecDriverSyncService vecDriverSyncService;
     private final SystemExtensionVecGuard vecGuard;
-    private final VectorProviderWarmupService vectorProviderWarmupService;
+    private final VectorSourceInitializer vectorProviderWarmupService;
 
     @Override
     public SystemExtensionEnum.ExtensionTypeEnum supportType() {
@@ -35,7 +36,7 @@ public class VectorExtensionStrategy implements ExtensionLifecycleStrategy {
                 pluginManager.applyPlugin(jarName);
             }
             vecDriverSyncService.upsertFromExtension(extension);
-            vectorProviderWarmupService.warmupEnabledSourcesForProvider(extension.getExtensionKey());
+            vectorProviderWarmupService.warmupEnabledSourcesByProvider(extension.getExtensionKey());
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {

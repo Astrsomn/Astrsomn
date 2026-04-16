@@ -12,102 +12,94 @@ import org.astrsomn.core.mapper.SystemExtensionMapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SystemExtensionRegistry {
 
+    private static final String LOG_PREFIX = "[Astrsomn] [扩展注册中心] ====> ";
+
     private final ApplicationContext applicationContext;
     private final SystemExtensionMapper systemExtensionMapper;
 
     /**
-     * Spring Bean 优先，SPI 仅补充尚未出现的 extensionKey。市场目录、头像补全等可与注册共用同一套合并结果。
+     * 合并 Spring Bean 和 SPI 加载的扩展描述符（Bean 优先）
      */
     public static Map<String, AstroExtensionDescriptor> mergeDescriptors(ApplicationContext applicationContext) {
-        Map<String, AstroExtensionDescriptor> mergedByKey = new HashMap<>();
-        applicationContext.getBeansOfType(AstroExtensionDescriptor.class).forEach((beanName, descriptor) -> {
-            String extensionKey = StringUtils.trimToNull(descriptor.getExtensionKey());
-            if (extensionKey != null) {
-                mergedByKey.putIfAbsent(extensionKey, descriptor);
-            }
-        });
-        ServiceLoader<AstroExtensionDescriptor> serviceLoader =
-                ServiceLoader.load(AstroExtensionDescriptor.class);
-        for (AstroExtensionDescriptor descriptor : serviceLoader) {
-            if (descriptor == null) {
-                continue;
-            }
-            String extensionKey = StringUtils.trimToNull(descriptor.getExtensionKey());
-            if (extensionKey == null) {
-                continue;
-            }
-            mergedByKey.putIfAbsent(extensionKey, descriptor);
-        }
-        return mergedByKey;
+        Stream<AstroExtensionDescriptor> beanStream = applicationContext.getBeansOfType(AstroExtensionDescriptor.class).values().stream();
+        Stream<AstroExtensionDescriptor> spiStream = StreamSupport.stream(ServiceLoader.load(AstroExtensionDescriptor.class).spliterator(), false);
+
+        return Stream.concat(beanStream, spiStream)
+                .filter(d -> Objects.nonNull(d) && Objects.nonNull(StringUtils.trimToNull(d.getExtensionKey())))
+                .collect(Collectors.toMap(
+                        d -> StringUtils.trim(d.getExtensionKey()),
+                        d -> d,
+                        (existing, replacement) -> existing // 保持 Bean 优先
+                ));
     }
 
+    /**
+     * 初始化注册逻辑
+     */
     @PostConstruct
     public void registerExtensions() {
-        Map<String, AstroExtensionDescriptor> mergedByKey = mergeDescriptors(applicationContext);
+        Map<String, AstroExtensionDescriptor> mergedMap = mergeDescriptors(applicationContext);
 
-        if (mergedByKey.isEmpty()) {
-            log.info("No AstroExtensionDescriptor found via Spring or SPI, skip system extension registration.");
+        if (mergedMap.isEmpty()) {
+            log.info("{} 未发现任何扩展描述符 (Spring/SPI)，跳过注册", LOG_PREFIX);
             return;
         }
 
-        mergedByKey.forEach(this::registerDescriptor);
+        mergedMap.forEach(this::processRegistration);
     }
 
-    private void registerDescriptor(String beanName, AstroExtensionDescriptor descriptor) {
-        String extensionKey = StringUtils.trimToNull(descriptor.getExtensionKey());
-        if (extensionKey == null) {
-            log.warn("Skip registering extension bean {} because extensionKey is blank.", beanName);
-            return;
-        }
+    /**
+     * 执行单个描述符的数据库同步
+     */
+    private void processRegistration(String key, AstroExtensionDescriptor descriptor) {
+        SystemExtensionEntity entity = buildEntity(descriptor, key);
 
-        SystemExtensionEntity existing = systemExtensionMapper.selectOne(
+        Optional<SystemExtensionEntity> existingOpt = Optional.ofNullable(systemExtensionMapper.selectOne(
                 new LambdaQueryWrapper<SystemExtensionEntity>()
-                        .eq(SystemExtensionEntity::getExtensionKey, extensionKey)
-                        .last("LIMIT 1"));
+                        .eq(SystemExtensionEntity::getExtensionKey, key)
+                        .last("LIMIT 1")));
 
-        SystemExtensionEntity entity = buildEntity(descriptor, extensionKey);
-        boolean created;
-        if (existing == null) {
-            created = systemExtensionMapper.insert(entity) > 0;
-        } else {
+        boolean success = existingOpt.map(existing -> {
             entity.setId(existing.getId());
-            // 仅同步 SPI 元数据，保留用户操作状态（已应用 / 插件 jar 名等），避免每次启动把「已应用」写回未应用
             entity.setApplied(existing.getApplied());
             entity.setStatus(existing.getStatus());
             entity.setJarName(existing.getJarName());
             entity.setProviderCode(existing.getProviderCode());
-            created = systemExtensionMapper.updateById(entity) > 0;
-        }
+            return systemExtensionMapper.updateById(entity) > 0;
+        }).orElseGet(() -> systemExtensionMapper.insert(entity) > 0);
 
-        if (created) {
-            log.info("Registered extension: key={}, name={}, type={}",
-                    entity.getExtensionKey(), entity.getExtensionName(), entity.getType());
+        if (success) {
+            log.info("{} 注册成功 | Key: {} | Name: {} | Type: {}",
+                    LOG_PREFIX, key, entity.getExtensionName(), entity.getType());
         } else {
-            log.warn("Failed to register extension: key={}", extensionKey);
+            log.warn("{} 注册失败 | Key: {}", LOG_PREFIX, key);
         }
     }
 
-    private SystemExtensionEntity buildEntity(AstroExtensionDescriptor descriptor, String extensionKey) {
+    /**
+     * 构建系统扩展实体
+     */
+    private SystemExtensionEntity buildEntity(AstroExtensionDescriptor d, String key) {
         SystemExtensionEntity entity = new SystemExtensionEntity();
-        entity.setExtensionKey(extensionKey);
-        entity.setExtensionName(StringUtils.trimToNull(descriptor.getName()));
-        entity.setType(descriptor.getExtensionType() == null ? null : descriptor.getExtensionType().getCode());
-        entity.setVersion(StringUtils.trimToNull(descriptor.getVersion()));
-        entity.setAuthor(StringUtils.trimToNull(descriptor.getAuthor()));
-        entity.setDescription(StringUtils.trimToNull(descriptor.getDescription()));
-        entity.setAvatar(StringUtils.trimToNull(descriptor.getAvatar()));
+        entity.setExtensionKey(key);
+        entity.setExtensionName(StringUtils.trimToNull(d.getName()));
+        entity.setType(Optional.ofNullable(d.getExtensionType()).map(SystemExtensionEnum.ExtensionTypeEnum::getCode).orElse(null));
+        entity.setVersion(StringUtils.trimToNull(d.getVersion()));
+        entity.setAuthor(StringUtils.trimToNull(d.getAuthor()));
+        entity.setDescription(StringUtils.trimToNull(d.getDescription()));
+        entity.setAvatar(StringUtils.trimToNull(d.getAvatar()));
         entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
         entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
         return entity;
     }
 }
-

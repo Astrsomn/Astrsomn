@@ -32,11 +32,11 @@ public class AstroVecSourceFactory {
     private static final String LOG_PREFIX = "[Astrsomn] [向量工厂] ====> ";
 
     /**
-     * 变量名	级别	核心职责	存储内容
-     * classpathDrivers	静态底座	提供基础能力	原生驱动类
+     * 变量名	                级别  	核心职责    	存储内容
+     * classpathDrivers	        静态底座	提供基础能力	原生驱动类
      * pluginDriverOverrides	动态扩展	插件能力覆盖	插件驱动类
      * pluginDriverOwningJar	管理辅助	插件卸载追踪	驱动 -> 插件包名
-     * activeSources	运行性能	避免重复连接	连接句柄对象
+     * activeSources	        运行性能	避免重复连接	连接句柄对象
      * activeSourceFingerprints	状态一致性	感知配置变更	配置信息的字符串
      */
     private final Map<String, VecDriver> classpathDrivers;
@@ -218,13 +218,11 @@ public class AstroVecSourceFactory {
     private String generateFingerprint(AiVecSourceEntity e) {
         return StreamOf(e.getProvider(), e.getHost(), e.getPort(), e.getUsername(),
                 e.getPassword(), e.getDatabaseName(), e.getToken(), e.getConfigJson())
-                .map(this::normalize)
+                .map(StringUtils::normalize)
                 .collect(Collectors.joining("\u0001"));
     }
 
-    private String normalize(String s) {
-        return Optional.ofNullable(s).map(String::trim).orElse("");
-    }
+
 
 
 

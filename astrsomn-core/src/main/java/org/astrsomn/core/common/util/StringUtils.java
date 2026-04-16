@@ -2,6 +2,7 @@ package org.astrsomn.core.common.util;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 字符串工具类
@@ -149,5 +150,19 @@ public class StringUtils {
      */
     public static boolean equalsIgnoreCase(String s1, String s2) {
         return (s1 == s2) || (s1 != null && s1.equalsIgnoreCase(s2));
+    }
+
+    public static String trim(String extensionKey) {
+        // 1. 先进行判空检查，防止抛出 NullPointerException
+        if (extensionKey == null) {
+            return null;
+        }
+        // 2. 调用 String 类自带的 trim() 方法，去除首尾空白符（如空格、\n、\r 等）
+        return extensionKey.trim();
+    }
+
+
+    public static String normalize(String s) {
+        return Optional.ofNullable(s).map(String::trim).orElse("");
     }
 }
