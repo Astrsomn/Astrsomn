@@ -4,6 +4,6 @@ import org.astrsomn.core.common.constant.SystemExtensionEnum;
 
 public record ExtensionDependencySpec(
         String dependencyKey,
-        SystemExtensionEnum.DependencyScopeEnum scope) {
+        SystemExtensionEnum.DiscoveryMechanismEnum scope) {
 }
 

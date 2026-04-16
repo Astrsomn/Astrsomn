@@ -16,8 +16,8 @@ class ExtensionDependencyParserTest {
         Assertions.assertEquals(3, result.safeDependencies().size());
         Assertions.assertTrue(result.mechanisms().contains(SystemExtensionEnum.DiscoveryMechanismEnum.SPI));
         Assertions.assertTrue(result.mechanisms().contains(SystemExtensionEnum.DiscoveryMechanismEnum.DEPENDENCY));
-        Assertions.assertEquals(SystemExtensionEnum.DependencyScopeEnum.HARD, result.safeDependencies().get(0).scope());
-        Assertions.assertEquals(SystemExtensionEnum.DependencyScopeEnum.SOFT, result.safeDependencies().get(2).scope());
+        Assertions.assertEquals(SystemExtensionEnum.DiscoveryMechanismEnum.SPI, result.safeDependencies().get(0).scope());
+        Assertions.assertEquals(SystemExtensionEnum.DiscoveryMechanismEnum.DEPENDENCY, result.safeDependencies().get(2).scope());
     }
 
     @Test

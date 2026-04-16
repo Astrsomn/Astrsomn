@@ -52,9 +52,9 @@ public class ExtensionDependencyParser {
             if (scopeRaw == null || keysRaw == null) {
                 continue;
             }
-            SystemExtensionEnum.DependencyScopeEnum scope = "hard".equalsIgnoreCase(scopeRaw)
-                    ? SystemExtensionEnum.DependencyScopeEnum.HARD
-                    : "soft".equalsIgnoreCase(scopeRaw) ? SystemExtensionEnum.DependencyScopeEnum.SOFT : null;
+            SystemExtensionEnum.DiscoveryMechanismEnum scope = "hard".equalsIgnoreCase(scopeRaw)
+                    ? SystemExtensionEnum.DiscoveryMechanismEnum.SPI
+                    : "soft".equalsIgnoreCase(scopeRaw) ? SystemExtensionEnum.DiscoveryMechanismEnum.DEPENDENCY : null;
             if (scope == null) {
                 continue;
             }

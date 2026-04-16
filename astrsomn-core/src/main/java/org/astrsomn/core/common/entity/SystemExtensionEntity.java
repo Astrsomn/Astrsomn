@@ -42,13 +42,12 @@ public class SystemExtensionEntity extends BaseEntity<Long> {
     @TableField("STATUS")
     private String status;
 
-    /**
-     * 公用：厂商/提供方 code（如模型扩展同步 AI_MODEL 时对应 AiModelEnum.ProviderEnum），与 extensionKey 可不同。
-     */
     @TableField("PROVIDER_CODE")
     private String providerCode;
 
     @TableField("AVATAR")
     private String avatar;
 
+    @TableField("DISCOVERY_MECHANISM")
+    private String discoveryMechanism;
 }

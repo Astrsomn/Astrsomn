@@ -43,10 +43,12 @@ public class ExtensionDependencyGuard {
             boolean satisfied = dependency != null
                     && SystemExtensionEnum.ApplyStatusEnum.Y.getCode().equals(dependency.getApplied());
             if (satisfied) {
+                // 保存发现机制
+                extension.setDiscoveryMechanism(spec.scope().getCode());
                 continue;
             }
             String msg = "依赖扩展未就绪: key=" + depKey + "，要求=" + spec.scope().getCode() + "，需先安装并应用";
-            if (SystemExtensionEnum.DependencyScopeEnum.HARD == spec.scope()) {
+            if (SystemExtensionEnum.DiscoveryMechanismEnum.SPI == spec.scope()) {
                 hardFailures.add(msg);
             } else {
                 warnings.add(msg);

@@ -288,6 +288,8 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
 
         entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
         entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
+        // 设置发现机制，JAR 包安装的扩展使用 SPI
+        entity.setDiscoveryMechanism(SystemExtensionEnum.DiscoveryMechanismEnum.SPI.getCode());
 
         return entity;
     }
