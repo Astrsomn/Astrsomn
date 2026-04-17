@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 智谱 GLM 占位清单；可按实际开放模型名扩展。
@@ -122,5 +123,26 @@ public enum ZhipuModelEnum {
         entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
         entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
         return entity;
+    }
+
+    /**
+     * 按 modelKey + paramCode 判断模型是否支持指定参数。
+     */
+    public static boolean isParamAvailable(String modelKey, String targetParamCode) {
+        if (modelKey == null || modelKey.isBlank() || targetParamCode == null || targetParamCode.isBlank()) {
+            return false;
+        }
+        for (ZhipuModelEnum model : values()) {
+            if (!Objects.equals(model.getModelKey(), modelKey) && !Objects.equals(model.getModelName(), modelKey)) {
+                continue;
+            }
+            for (BaseEnum modelParam : model.params) {
+                if (Objects.equals(modelParam.getCode(), targetParamCode)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
     }
 }

@@ -54,6 +54,8 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         entity.setAgentKey(param.getAgentKey());
         entity.setModelKey(param.getModelKey());
         entity.setPromptKey(param.getPromptSetting().getPromptKey());
+        entity.setInstanceKey(param.getInstanceKey());
+        entity.setAccountKey(param.getModelSetting().getAccountKey());
         if (StringUtils.isNotBlank(astrsomnProperties.getEnvCode())) {
             entity.setEnvCode(astrsomnProperties.getEnvCode());
         }

@@ -6,10 +6,10 @@
     <parent>
         <groupId>org.astrsomn</groupId>
         <artifactId>Astrsomn</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.1.0-alpha.1</version>
     </parent>
 
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-alpha.1</version>
     <artifactId>astrsomn-workflow-core</artifactId>
     <name>astrsomn-workflow-core</name>
     <description>Workflow graph model and execution engine (VueFlow-compatible)</description>

@@ -5,10 +5,10 @@
     <parent>
         <groupId>org.astrsomn</groupId>
         <artifactId>Astrsomn</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.1.0-alpha.1</version>
     </parent>
     <artifactId>astrsomn-server</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-alpha.1</version>
     <name>astrsomn-server</name>
     <description>AI分析服务</description>
     <packaging>jar</packaging>
@@ -108,31 +108,31 @@
         <dependency>
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-provider-deepseek</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-provider-zhipu</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-vector-qdrant</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-vector-milvus</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
             <groupId>org.astrsomn</groupId>
             <artifactId>astrsomn-vector-chroma</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.1.0-alpha.1</version>
         </dependency>
 
         <!-- 可选：classpath 引入 astrsomn-vector-*（如 astrsomn-vector-qdrant）；向量扩展通过 SPI 注册，与厂商 provider 模块一致，无需额外 @Configuration。 -->

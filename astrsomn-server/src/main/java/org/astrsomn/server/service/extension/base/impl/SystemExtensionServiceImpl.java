@@ -275,6 +275,8 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         entity.setDescription(StringUtils.trimToNull(meta.description()));
         entity.setProviderCode(StringUtils.trimToNull(meta.providerCode()));
         entity.setAvatar(StringUtils.trimToNull(meta.avatar()));
+        entity.setChangelog(StringUtils.trimToNull(meta.changelog()));
+        entity.setMinServerVersion(StringUtils.trimToNull(meta.minServerVersion()));
 
         // 填充缺失默认值
         if (StringUtils.isBlank(entity.getExtensionName())) entity.setExtensionName(stem);

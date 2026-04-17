@@ -11,4 +11,6 @@ public record SystemExtensionMetaData(
         String author,
         String description,
         String avatar,
-        String providerCode) {}
+        String providerCode,
+        String changelog,
+        String minServerVersion) {}

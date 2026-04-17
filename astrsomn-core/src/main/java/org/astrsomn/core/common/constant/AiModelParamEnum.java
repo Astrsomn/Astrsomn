@@ -87,7 +87,11 @@ public interface AiModelParamEnum {
     enum EmbeddingParamEnum implements BaseEnum {
         DIMENSIONS("dimensions", "向量输出维度"),
         MODEL_NAME("model_name", "模型名称"),
-        USER("user", "终端用户标识");
+        USER("user", "终端用户标识"),
+        MAX_RETRIES("max_retries", "最大重试次数"),
+        TIMEOUT_SECONDS("timeout_seconds", "超时时间（秒）"),
+        MAX_SEGMENTS_PER_BATCH("max_segments_per_batch", "每批最大分段数"),
+        ENCODING_FORMAT("encoding_format", "嵌入编码格式");
 
         private final String code;
         private final String desc;
@@ -102,7 +106,10 @@ public interface AiModelParamEnum {
         SIZE("size", "图片尺寸 (如 1024x1024)"),
         QUALITY("quality", "质量 (standard/hd)"),
         STYLE("style", "风格 (vivid/natural)"),
-        RESPONSE_FORMAT("response_format", "响应格式 (url/b64_json)");
+        RESPONSE_FORMAT("response_format", "响应格式 (url/b64_json)"),
+        USER("user", "终端用户标识"),
+        MAX_RETRIES("max_retries", "最大重试次数"),
+        TIMEOUT_SECONDS("timeout_seconds", "超时时间 (秒)");
 
         private final String code;
         private final String desc;

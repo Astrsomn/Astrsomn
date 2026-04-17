@@ -63,6 +63,9 @@ public final class RuntimeChatParamMergeSupport {
         if (StringUtils.isBlank(target.getProvider())) {
             target.setProvider(StringUtils.trimToNull(model.getProvider()));
         }
+        if (StringUtils.isBlank(target.getApiKey())) {
+            target.setAccountKey(StringUtils.trimToNull(model.getAccountKey()));
+        }
     }
 
     public static void mergeModelSettingFromAccount(ModelSetting target, AiAccountEntity account) {
