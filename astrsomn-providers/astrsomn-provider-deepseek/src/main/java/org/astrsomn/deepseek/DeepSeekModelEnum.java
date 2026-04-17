@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Getter
 public enum DeepSeekModelEnum {
@@ -162,7 +163,12 @@ public enum DeepSeekModelEnum {
             AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
         ),
         List.of(
-            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
+            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS,
+            AiModelParamEnum.EmbeddingParamEnum.USER,
+            AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES,
+            AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS,
+            AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH,
+            AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT
         )
     ),
     DEEPSEEK_EMBEDDING_V2("deepseek-embed-v2", "DeepSeek Embedding v2",
@@ -171,7 +177,12 @@ public enum DeepSeekModelEnum {
             AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
         ),
         List.of(
-            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
+            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS,
+            AiModelParamEnum.EmbeddingParamEnum.USER,
+            AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES,
+            AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS,
+            AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH,
+            AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT
         )
     ),
     DEEPSEEK_EMBEDDING_LITE("deepseek-embed-lite", "DeepSeek Embedding Lite",
@@ -180,7 +191,12 @@ public enum DeepSeekModelEnum {
             AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
         ),
         List.of(
-            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
+            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS,
+            AiModelParamEnum.EmbeddingParamEnum.USER,
+            AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES,
+            AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS,
+            AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH,
+            AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT
         )
     ),
 
@@ -219,7 +235,11 @@ public enum DeepSeekModelEnum {
         List.of(
             AiModelParamEnum.ImageParamEnum.SIZE,
             AiModelParamEnum.ImageParamEnum.QUALITY,
-            AiModelParamEnum.ImageParamEnum.STYLE
+            AiModelParamEnum.ImageParamEnum.STYLE,
+            AiModelParamEnum.ImageParamEnum.RESPONSE_FORMAT,
+            AiModelParamEnum.ImageParamEnum.USER,
+            AiModelParamEnum.ImageParamEnum.MAX_RETRIES,
+            AiModelParamEnum.ImageParamEnum.TIMEOUT_SECONDS
         )
     ),
     DEEPSEEK_JANUS_PRO("deepseek-janus-pro", "DeepSeek Janus Pro",
@@ -231,7 +251,11 @@ public enum DeepSeekModelEnum {
         List.of(
             AiModelParamEnum.ImageParamEnum.SIZE,
             AiModelParamEnum.ImageParamEnum.QUALITY,
-            AiModelParamEnum.ImageParamEnum.STYLE
+            AiModelParamEnum.ImageParamEnum.STYLE,
+            AiModelParamEnum.ImageParamEnum.RESPONSE_FORMAT,
+            AiModelParamEnum.ImageParamEnum.USER,
+            AiModelParamEnum.ImageParamEnum.MAX_RETRIES,
+            AiModelParamEnum.ImageParamEnum.TIMEOUT_SECONDS
         )
     ),
 
@@ -326,6 +350,27 @@ public enum DeepSeekModelEnum {
         entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
         entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
         return entity;
+    }
+
+    /**
+     * 判断指定模型是否支持给定参数编码。
+     */
+    public static boolean isParamAvailable(String modelKey, String targetParamCode) {
+        if (modelKey == null || modelKey.isBlank() || targetParamCode == null || targetParamCode.isBlank()) {
+            return false;
+        }
+        for (DeepSeekModelEnum model : values()) {
+            if (!modelKey.equals(model.getModelKey())) {
+                continue;
+            }
+            for (BaseEnum modelParam : model.params) {
+                if (Objects.equals(modelParam.getCode(), targetParamCode)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
     }
 
 
