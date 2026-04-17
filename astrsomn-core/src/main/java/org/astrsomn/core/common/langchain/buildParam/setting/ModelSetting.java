@@ -34,4 +34,9 @@ public class ModelSetting {
      *
      */
     private String provider;
+
+    /**
+     * 账号Key
+     */
+    private String accountKey;
 }
