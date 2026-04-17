@@ -22,6 +22,14 @@ public abstract class AstroExtensionDescriptor {
 
     public abstract String getDescription();
 
+    public String getChangelog() {
+        return "";
+    }
+
+    public String getMinServerVersion() {
+        return "";
+    }
+
     protected static String loadClasspathUtf8(Class<?> anchor, String absoluteClasspathPath) {
         try (InputStream in = anchor.getResourceAsStream(absoluteClasspathPath)) {
             if (in == null) {

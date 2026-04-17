@@ -125,7 +125,9 @@ public final class ExtensionJarMetadataReader {
                 StringUtils.trimToNull(d.getAuthor()),
                 StringUtils.trimToNull(d.getDescription()),
                 StringUtils.trimToNull(d.getAvatar()),
-                StringUtils.trimToNull(providerCode)
+                StringUtils.trimToNull(providerCode),
+                StringUtils.trimToNull(d.getChangelog()),
+                StringUtils.trimToNull(d.getMinServerVersion())
         );
     }
 }

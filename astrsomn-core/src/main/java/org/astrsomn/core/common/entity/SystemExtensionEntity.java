@@ -48,6 +48,12 @@ public class SystemExtensionEntity extends BaseEntity<Long> {
     @TableField("AVATAR")
     private String avatar;
 
+    @TableField("CHANGELOG")
+    private String changelog;
+
+    @TableField("MIN_SERVER_VERSION")
+    private String minServerVersion;
+
     @TableField("DISCOVERY_MECHANISM")
     private String discoveryMechanism;
 

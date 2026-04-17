@@ -1,10 +1,18 @@
 package org.astrsomn.vector.chroma.config;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.Properties;
 import org.astrsomn.core.common.constant.AiVecDriverEnum;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
 public class ChromaExtensionDescriptor extends AstroExtensionDescriptor {
+
+    private static final String DEFAULT_NAME = AiVecDriverEnum.Provider.CHROMA.getDesc();
+    private static final String DEFAULT_VERSION = "0.1.0-alpha.1";
+    private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
 
     @Override
     public String getExtensionKey() {
@@ -23,12 +31,12 @@ public class ChromaExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getName() {
-        return AiVecDriverEnum.Provider.CHROMA.getDesc();
+        return EXTENSION_PROPERTIES.getProperty("name", DEFAULT_NAME);
     }
 
     @Override
     public String getVersion() {
-        return "1.0.0";
+        return EXTENSION_PROPERTIES.getProperty("version", DEFAULT_VERSION);
     }
 
     @Override
@@ -39,5 +47,28 @@ public class ChromaExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public String getDescription() {
         return "Chroma vector database integration (LangChain4j).";
+    }
+
+    @Override
+    public String getChangelog() {
+        return EXTENSION_PROPERTIES.getProperty("changelog", "");
+    }
+
+    @Override
+    public String getMinServerVersion() {
+        return EXTENSION_PROPERTIES.getProperty("minServerVersion", "");
+    }
+
+    private static Properties loadExtensionProperties() {
+        try (InputStream inputStream = ChromaExtensionDescriptor.class.getResourceAsStream("/extension.properties")) {
+            if (inputStream == null) {
+                return new Properties();
+            }
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load /extension.properties", e);
+        }
     }
 }

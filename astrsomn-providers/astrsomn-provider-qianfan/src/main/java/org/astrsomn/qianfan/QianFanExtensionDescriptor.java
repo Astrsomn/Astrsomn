@@ -1,12 +1,19 @@
 package org.astrsomn.qianfan;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.Properties;
 import org.astrsomn.core.common.constant.SystemExtensionEnum;
 import org.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 
 public class QianFanExtensionDescriptor extends AstroExtensionDescriptor {
 
+    private static final String DEFAULT_NAME = "Baidu Qianfan Model Provider";
+    private static final String DEFAULT_VERSION = "0.1.0-alpha.1";
     private static final String AVATAR_SVG =
             loadClasspathUtf8(QianFanExtensionDescriptor.class, "/avatar/wenxin-color.svg");
+    private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
     @Override
     public String getExtensionKey() {
         return "qianfan";
@@ -24,12 +31,12 @@ public class QianFanExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getName() {
-        return "Baidu Qianfan Model Provider";
+        return EXTENSION_PROPERTIES.getProperty("name", DEFAULT_NAME);
     }
 
     @Override
     public String getVersion() {
-        return "";
+        return EXTENSION_PROPERTIES.getProperty("version", DEFAULT_VERSION);
     }
 
     @Override
@@ -40,5 +47,28 @@ public class QianFanExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public String getDescription() {
         return "千帆大模型平台接入；需配置 apiKey + secretKey（对应 ModelSetting.apiKey / apiSecret）。";
+    }
+
+    @Override
+    public String getChangelog() {
+        return EXTENSION_PROPERTIES.getProperty("changelog", "");
+    }
+
+    @Override
+    public String getMinServerVersion() {
+        return EXTENSION_PROPERTIES.getProperty("minServerVersion", "");
+    }
+
+    private static Properties loadExtensionProperties() {
+        try (InputStream inputStream = QianFanExtensionDescriptor.class.getResourceAsStream("/extension.properties")) {
+            if (inputStream == null) {
+                return new Properties();
+            }
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load /extension.properties", e);
+        }
     }
 }
