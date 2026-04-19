@@ -210,7 +210,8 @@ function onFsmOpenUpdate(v: boolean) {
 .content-area {
   font-family: "Fira Code", ui-monospace, monospace;
   font-size: 13px;
-  background-color: #f8fafc;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
   padding: 12px;
   border-radius: 8px;
   line-height: 1.6;

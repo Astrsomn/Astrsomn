@@ -31,10 +31,7 @@
         </dependency>
 
         <!-- 工作流引擎：TASK 节点回调 {@link org.astrsomn.starter.langchain.factory.AstroAssistantFactory} -->
-        <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-workflow-core</artifactId>
-        </dependency>
+
 
         <!-- Spring Boot - 使用provided scope，由使用方提供 -->
         <dependency>

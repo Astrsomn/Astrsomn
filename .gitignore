@@ -79,3 +79,4 @@ build.xml
 /plugins/
 /store/
 /deployment/
+/astrsomn-server/src/main/resources/static/

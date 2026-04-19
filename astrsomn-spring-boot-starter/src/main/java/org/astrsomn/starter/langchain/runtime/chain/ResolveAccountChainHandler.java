@@ -3,6 +3,7 @@ package org.astrsomn.starter.langchain.runtime.chain;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.astrsomn.core.common.entity.AiAccountEntity;
+import org.astrsomn.core.common.util.CryptoUtil;
 import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.mapper.AiAccountMapper;
 import org.springframework.core.annotation.Order;
@@ -37,6 +38,13 @@ public class ResolveAccountChainHandler implements AgentRuntimeChainHandler {
         if (account == null) {
             throw new IllegalStateException(
                     "未找到账号配置: accountKey=" + accountKey + ", envCode=" + ctx.getEnvCode());
+        }
+        // 解密 API Key 和 Secret
+        if (account.getApiKey() != null) {
+            account.setApiKey(CryptoUtil.decrypt(account.getApiKey()));
+        }
+        if (account.getApiSecret() != null) {
+            account.setApiSecret(CryptoUtil.decrypt(account.getApiSecret()));
         }
         ctx.setAccount(account);
         RuntimeChatParamMergeSupport.mergeModelSettingFromAccount(ctx.getParam().getModelSetting(), account);

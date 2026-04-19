@@ -105,6 +105,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '链路追踪', requiresAuth: true }
       },
       {
+        path: 'builder',
+        name: 'AdminBuilder',
+        component: () => import('@/views/admin/ai-config/builder/Index.vue'),
+        meta: { title: 'Agent Studio', requiresAuth: true }
+      },
+      {
         path: 'vec-source',
         name: 'AdminVecSource',
         component: () => import('@/views/admin/ai-vector/vec-source/VecSourceList.vue'),
@@ -133,6 +139,12 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminVecDriver',
         component: () => import('@/views/admin/ai-vector/vec-driver/VecDriverList.vue'),
         meta: { title: '向量驱动', requiresAuth: true }
+      },
+      {
+        path: 'vec-builder',
+        name: 'AdminVectorBuilder',
+        component: () => import('@/views/admin/ai-vector/builder/Index.vue'),
+        meta: { title: '向量知识库管理', requiresAuth: true }
       },
       {
         path: 'resource-library',
