@@ -4,9 +4,9 @@
       <FileTextOutlined class="extension-icon extension-icon--blue" />
       <span>提示词库</span>
     </div>
-    <div class="extension-card" @click="navigateTo('/admin/tracing')">
+    <div class="extension-card" @click="navigateTo('/admin/builder')">
       <LinkOutlined class="extension-icon extension-icon--purple" />
-      <span>链路追踪</span>
+      <span>Agent Studio</span>
     </div>
     <div class="extension-card" @click="navigateTo('/admin/conversations')">
       <MessageOutlined class="extension-icon extension-icon--cyan" />

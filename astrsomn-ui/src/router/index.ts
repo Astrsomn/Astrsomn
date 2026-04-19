@@ -105,6 +105,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '链路追踪', requiresAuth: true }
       },
       {
+        path: 'builder',
+        name: 'AdminBuilder',
+        component: () => import('@/views/admin/ai-config/builder/Index.vue'),
+        meta: { title: 'Agent Studio', requiresAuth: true }
+      },
+      {
         path: 'vec-source',
         name: 'AdminVecSource',
         component: () => import('@/views/admin/ai-vector/vec-source/VecSourceList.vue'),
