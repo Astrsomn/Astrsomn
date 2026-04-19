@@ -1,54 +1,74 @@
 <template>
-  <div class="bento-card main-card">
+  <div class="ultra-card main-brain-card">
     <div class="card-header">
-      <div>
+      <div class="header-content">
         <h2 class="card-title">智能体大脑</h2>
         <p class="card-desc">封装推理逻辑与 Agent 运行时状态</p>
       </div>
-      <button class="btn btn-primary" @click="navigateToAgents">
-        <i class="fa-solid fa-plus"></i>新建
-      </button>
+      <div class="header-actions">
+        <button class="icon-btn" title="查看全部" @click="navigateToAgents">
+          <SecurityScanOutlined />
+        </button>
+        <button class="icon-btn btn-primary-icon" title="新建智能体" @click="navigateToAgents">
+          <PlusOutlined />
+        </button>
+      </div>
     </div>
 
     <div v-if="loading" class="loading-wrap">
       <a-spin size="small" />
     </div>
 
-    <div v-else-if="list.length > 0" class="agent-list">
+    <div v-else-if="list.length > 0" class="agent-list-wrapper custom-scrollbar">
       <div
         v-for="item in list"
-        :key="item.id ?? item.agentKey ?? item.agentName ?? 'agent'"
-        class="agent-item"
+        :key="item.id ?? item.agentKey ?? item.agentName"
+        class="agent-item-premium"
         @click="navigateToAgents"
       >
-        <div class="agent-info">
-          <img class="agent-icon" src="@/assets/dashboard-icons/agents-color.svg" alt="agent" />
-          <div class="agent-details">
-            <div class="agent-name-row">
-              <h4 class="agent-name">{{ item.agentName }}</h4>
-              <span v-if="item.envCode" class="env-tag" :class="item.envCode">
-                {{ item.envCode || '默认环境' }}
+        <div class="item-identity">
+          <div class="icon-container">
+            <img class="agent-avatar" src="@/assets/dashboard-icons/agents-color.svg" alt="agent" />
+            <div v-if="item.status === 'enabled'" class="alive-indicator"></div>
+          </div>
+          
+          <div class="info-cluster">
+            <div class="top-line">
+              <span class="name">{{ item.agentName }}</span>
+              <span v-if="item.envCode" :class="['premium-tag', item.envCode]">
+                {{ item.envCode }}
               </span>
             </div>
-            <p class="agent-meta">{{ getAgentMeta(item) }}</p>
-            <p v-if="item.description" class="agent-desc">{{ item.description }}</p>
-            <div v-if="item.agentKey" class="agent-key">
-              <span class="key-label">AGENT KEY:</span>
-              <span class="key-value">{{ item.agentKey }}</span>
+            <div class="bottom-line">
+              <span class="meta-info">{{ getAgentMeta(item) }}</span>
+              <span class="dot-split"></span>
+              <span class="key-display">{{ item.agentKey || 'NO_KEY' }}</span>
             </div>
           </div>
         </div>
-        <div class="agent-status">
-          <span :class="['status-pill', item.status === 'enabled' ? 'status-active' : 'status-inactive']">
-            {{ item.status === 'enabled' ? '在线' : '停用' }}
-          </span>
-          <p v-if="item.createTime" class="create-time">{{ formatTime(item.createTime) }}</p>
+
+        <div class="item-visual-density">
+          <div class="mini-sparkline">
+            <div class="spark-bar" style="height: 40%"></div>
+            <div class="spark-bar" style="height: 70%"></div>
+            <div class="spark-bar" style="height: 50%"></div>
+            <div class="spark-bar active" style="height: 90%"></div>
+            <div class="spark-bar" style="height: 60%"></div>
+          </div>
+        </div>
+
+        <div class="item-meta-status">
+          <div :class="['status-indicator', item.status === 'enabled' ? 'is-active' : 'is-inactive']">
+            {{ item.status === 'enabled' ? 'ON' : 'OFF' }}
+          </div>
+          <span class="timestamp">{{ formatTime(item.createTime) }}</span>
         </div>
       </div>
     </div>
 
-    <div v-else class="empty-wrap">
-      <span class="empty-text">暂无智能体</span>
+    <div v-else class="empty-placeholder">
+      <div class="empty-icon"><TeamOutlined /></div>
+      <p>暂无配置智能体</p>
     </div>
   </div>
 </template>
@@ -57,6 +77,11 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
+import { 
+  SecurityScanOutlined, 
+  PlusOutlined, 
+  TeamOutlined 
+} from '@ant-design/icons-vue'
 
 const router = useRouter()
 const loading = ref(false)
@@ -67,18 +92,15 @@ const navigateToAgents = () => {
 }
 
 const getAgentMeta = (item: AiAgent) => {
-  if (item.modelName) {
-    return `模型: ${item.modelName}`
-  }
-  if (item.chatInstanceName) {
-    return `实例: ${item.chatInstanceName}`
-  }
-  return '未配置模型'
+  if (item.modelName) return item.modelName
+  if (item.chatInstanceName) return item.chatInstanceName
+  return '未配模型'
 }
 
 const formatTime = (raw?: string) => {
   if (!raw) return ''
-  return raw.replace('T', ' ').slice(0, 16)
+  // 仅提取 HH:mm 增强极简感，如果需要日期可自行修改
+  return raw.includes('T') ? raw.split('T')[1].slice(0, 5) : raw.slice(11, 16)
 }
 
 const fetchList = async () => {
@@ -86,7 +108,7 @@ const fetchList = async () => {
   try {
     const resp = await aiAgentApi.queryPage({
       pageNo: 1,
-      pageSize: 4,
+      pageSize: 5, // 稍微增加信息密度
       param: {}
     })
     list.value = resp.list || []
@@ -101,237 +123,275 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.bento-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* 容器：去掉了厚重的边框，使用极浅的背景偏移 */
+.ultra-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
-.bento-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border-color: #3b82f6;
+.ultra-card:hover {
+  box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.08);
 }
 
-.main-card {
-  display: flex;
-  flex-direction: column;
-}
-
+/* Header: 纯图标化 */
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 }
 
 .card-title {
-  font-size: 16px;
-  font-weight: bold;
-  color: #1f2937;
+  font-size: 17px;
+  font-weight: 800;
+  color: #1a1d23;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .card-desc {
   font-size: 11px;
-  color: #9ca3af;
+  color: #94a3b8;
   margin: 2px 0 0;
 }
 
-.btn {
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: bold;
-  cursor: pointer;
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.2s;
-}
-
-.btn-primary {
-  background: #2563eb;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #1d4ed8;
-}
-
-.loading-wrap {
+  background: #f1f5f9;
+  color: #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 0;
-  flex: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
 }
 
-.agent-list {
+.icon-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.btn-primary-icon {
+  background: #0062ff;
+  color: #ffffff;
+}
+
+.btn-primary-icon:hover {
+  background: #0056e0;
+  color: #ffffff;
+}
+
+/* 列表区域 */
+.agent-list-wrapper {
   display: flex;
   flex-direction: column;
   gap: 12px;
   flex: 1;
-  overflow: hidden;
 }
 
-.agent-item {
-  padding: 12px 14px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+.agent-item-premium {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
+  padding: 16px;
+  border-radius: 16px;
   cursor: pointer;
-  transition: background 0.2s;
-  gap: 12px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
 
-.agent-item:hover {
-  background: #f9fafb;
+.agent-item-premium:hover {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.02);
 }
 
-.agent-info {
+/* 身份信息 */
+.item-identity {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  flex: 1;
-}
-
-.agent-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.agent-details {
-  flex: 1;
+  flex: 3;
   min-width: 0;
 }
 
-.agent-name-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.agent-name {
-  font-size: 14px;
-  font-weight: bold;
-  color: #374151;
-  margin: 0;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.env-tag {
-  padding: 2px 8px;
-  border-radius: 8px;
-  font-size: 9px;
-  font-weight: 800;
-  color: #6b7280;
-  background: #f3f4f6;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.env-tag.prod, .env-tag.production {
-  background: #10b981;
-  color: white;
-}
-
-.agent-meta {
-  font-size: 11px;
-  color: #9ca3af;
-  margin: 0 0 4px;
-}
-
-.agent-desc {
-  font-size: 11px;
-  color: #6b7280;
-  margin: 0 0 6px;
-  line-height: 1.4;
-  height: 28px;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.agent-key {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.key-label {
-  font-size: 9px;
-  font-weight: 700;
-  color: #9ca3af;
-}
-
-.key-value {
-  font-size: 10px;
-  color: #3b82f6;
-  font-family: ui-monospace, monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.agent-status {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
+.icon-container {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  background: #f8fafc;
+  border-radius: 12px;
   flex-shrink: 0;
-}
-
-.status-pill {
-  padding: 3px 8px;
-  border-radius: 9999px;
-  font-size: 10px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.status-active {
-  background: #d1fae5;
-  color: #059669;
-}
-
-.status-inactive {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.create-time {
-  font-size: 10px;
-  color: #9ca3af;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.empty-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 0;
-  flex: 1;
 }
 
-.empty-text {
+.agent-avatar {
+  width: 24px;
+  height: 24px;
+}
+
+.alive-indicator {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+}
+
+.info-cluster {
+  min-width: 0;
+}
+
+.top-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.premium-tag {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 5px;
+  text-transform: uppercase;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.premium-tag.prod { background: #dcfce7; color: #15803d; }
+
+.bottom-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.dot-split {
+  width: 3px;
+  height: 3px;
+  background: #cbd5e1;
+  border-radius: 50%;
+}
+
+.key-display {
+  font-family: ui-monospace, monospace;
+  opacity: 0.6;
+}
+
+/* 视觉密度图 (Sparkline) */
+.item-visual-density {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.mini-sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+}
+
+.spark-bar {
+  width: 2px;
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+.spark-bar.active {
+  background: #3b82f6;
+}
+
+/* 状态与时间 */
+.item-meta-status {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.status-indicator {
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.status-indicator.is-active {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.status-indicator.is-inactive {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.timestamp {
+  font-size: 10px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+/* 滚动条优化 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+/* 其他辅助 */
+.loading-wrap, .empty-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.empty-icon {
+  font-size: 24px;
+  color: #e2e8f0;
+  margin-bottom: 8px;
+}
+
+.empty-placeholder p {
   font-size: 12px;
-  color: #9ca3af;
+  color: #94a3b8;
 }
 </style>

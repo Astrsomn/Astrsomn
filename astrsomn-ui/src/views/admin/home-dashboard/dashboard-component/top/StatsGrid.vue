@@ -12,7 +12,7 @@
         </div>
         <div class="icon-side">
           <div class="icon-box">
-            <cluster-outlined />
+            <ClusterOutlined />
           </div>
         </div>
       </div>
@@ -31,7 +31,7 @@
         </div>
         <div class="icon-side">
           <div class="icon-box">
-            <cpu-outlined />
+            <AppstoreOutlined />
           </div>
         </div>
       </div>
@@ -54,7 +54,7 @@
         </div>
         <div class="icon-side">
           <div class="icon-box">
-            <thunderbolt-outlined />
+            <ThunderboltOutlined />
           </div>
         </div>
       </div>
@@ -73,11 +73,11 @@
         </div>
         <div class="icon-side">
           <div class="icon-box">
-            <shield-check-outlined />
+            <SecurityScanOutlined />
           </div>
         </div>
       </div>
-      <safety-certificate-outlined class="bg-watermark" />
+      <CheckCircleOutlined class="bg-watermark" />
     </div>
   </section>
 </template>
@@ -85,10 +85,10 @@
 <script setup lang="ts">
 import { 
   ClusterOutlined, 
-  CiOutlined,
+  AppstoreOutlined,
   ThunderboltOutlined, 
-  CheckOutlined,
-  SafetyCertificateOutlined
+  SecurityScanOutlined,
+  CheckCircleOutlined,
 } from '@ant-design/icons-vue'
 </script>
 
@@ -96,7 +96,7 @@ import {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 20px;
   margin-bottom: 24px;
 }
 
@@ -104,11 +104,12 @@ import {
   position: relative;
   background: #ffffff;
   border-radius: 16px;
-  padding: 16px 20px;
+  padding: 20px 24px;
   border: 1px solid #f0f2f5;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
   overflow: hidden;
   transition: all 0.3s ease;
+  min-height: 120px;
 
   &:hover {
     transform: translateY(-2px);

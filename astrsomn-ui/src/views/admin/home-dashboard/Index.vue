@@ -8,7 +8,9 @@
         <SmallCards />
       </div>
 
-      <ExtensionGrid />
+      <div class="bottom-section">
+        <ExtensionGrid />
+      </div>
     </main>
   </div>
 </template>
@@ -24,14 +26,26 @@ import ExtensionGrid from './dashboard-component/bottom/ExtensionGrid.vue'
 .demo-dashboard-wrapper {
   position: relative;
   background: #fff;
-  height: calc(100vh - 70px);
+  min-height: calc(100vh - 70px);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  overflow: hidden;
+  font-size: 14px;
+  color: #333;
+}
+
+/* 统一字体样式 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 600;
+  color: #1a1d23;
+}
+
+p, span, div {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .main-content {
   max-width: 1600px;
-  height: 100%;
+  height: auto;
   margin-left: auto;
   margin-right: auto;
   padding: 24px 32px;
@@ -45,6 +59,13 @@ import ExtensionGrid from './dashboard-component/bottom/ExtensionGrid.vue'
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   flex: 1;
-  min-height: 0;
+  min-height: 380px;
+}
+
+.bottom-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 140px;
 }
 </style>
