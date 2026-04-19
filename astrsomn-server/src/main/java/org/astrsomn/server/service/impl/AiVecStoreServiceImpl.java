@@ -13,13 +13,13 @@ import org.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO;
 import org.astrsomn.core.common.dto.vecstore.AiVecStoreUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
 import org.astrsomn.core.common.entity.AiVecStoreEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AstVecStoreErrorEnum;
 import org.astrsomn.core.mapper.AiVecStoreMapper;
 import org.astrsomn.server.service.AiVecSourceService;
 import org.astrsomn.server.service.AiVecStoreService;
-import org.astrsomn.server.service.support.AstroVecStorePhysicalOps;
+import org.astrsomn.server.service.vector.VectorStorePhysicalHandler;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ import java.util.Objects;
 public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecStoreEntity> implements AiVecStoreService {
 
     private final QueryEnvParamHelper queryEnvParamHelper;
-    private final AstroVecStorePhysicalOps astroVecStorePhysicalOps;
+    private final VectorStorePhysicalHandler astroVecStorePhysicalOps;
     private final AiVecSourceService aiVecSourceService;
 
     @Override

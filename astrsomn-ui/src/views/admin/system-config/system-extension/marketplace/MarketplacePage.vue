@@ -24,11 +24,9 @@
           :current="pageNo"
           :page-size="pageSize"
           :total="total"
-          :show-total="(total) => `共 ${total} 个`"
-          :show-size-changer="true"
-          :page-size-options="['8', '16', '24', '32']"
+          :show-total="false"
+          :show-size-changer="false"
           @change="handlePageChange"
-          @showSizeChange="handleSizeChange"
         />
       </div>
     </div>
@@ -77,11 +75,7 @@ const handlePageChange = (page: number) => {
   void fetchList()
 }
 
-const handleSizeChange = (current: number, size: number) => {
-  pageSize.value = size
-  pageNo.value = 1
-  void fetchList()
-}
+
 
 const fetchList = async () => {
   const typeQ = typeTabKey.value === 'ALL' ? undefined : typeTabKey.value
@@ -136,6 +130,45 @@ void fetchList()
 .pagination-container {
   display: flex;
   justify-content: flex-end;
+}
+
+.pagination-container :deep(.ant-pagination-item) {
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0;
+  min-width: 32px;
+  height: 32px;
+  line-height: 32px;
+  margin: 0 4px;
+}
+
+.pagination-container :deep(.ant-pagination-item-active) {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+.pagination-container :deep(.ant-pagination-item-active a) {
+  color: #fff !important;
+}
+
+.pagination-container :deep(.ant-pagination-prev),
+.pagination-container :deep(.ant-pagination-next) {
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0;
+  min-width: 32px;
+  height: 32px;
+  line-height: 32px;
+  margin: 0 4px;
+}
+
+.pagination-container :deep(.ant-pagination-prev:hover),
+.pagination-container :deep(.ant-pagination-next:hover) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.pagination-container :deep(.ant-pagination-disabled:hover) {
+  border-color: #e2e8f0;
+  color: #cbd5e1;
 }
 
 .type-tabs :deep(.ant-tabs-tab) {

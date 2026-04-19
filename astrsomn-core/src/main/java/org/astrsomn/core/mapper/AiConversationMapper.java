@@ -26,4 +26,8 @@ public interface AiConversationMapper extends BaseMapper<AiConversationEntity> {
             "AND ENV_CODE = #{envCode} " +
             "GROUP BY MODEL_KEY")
     List<Map<String, Object>> selectTodayUsage(@Param("envCode") String envCode);
+
+    IPage<AiConversationResponseDTO> queryGroups(IPage<AiConversationResponseDTO> page, @Param("req") AiConversationQueryRequestDTO param);
+
+    List<AiConversationResponseDTO> recoverByMemoryKey(@Param("memoryKey") String memoryKey);
 }

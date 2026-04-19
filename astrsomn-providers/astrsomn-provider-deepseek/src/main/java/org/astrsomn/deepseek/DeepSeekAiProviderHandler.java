@@ -3,16 +3,23 @@ package org.astrsomn.deepseek;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.image.ImageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiImageModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import org.astrsomn.core.common.constant.AiModelEnum;
+import org.astrsomn.core.common.constant.AiModelParamEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
+import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.EmbeddingSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.ImageSetting;
 import org.astrsomn.core.common.langchain.extension.model.AbstractModelProviderHandler;
-import org.astrsomn.core.common.util.CollectionUtils;
+import org.astrsomn.core.common.utils.CollectionUtils;
 import org.astrsomn.core.exception.UnknowModelException;
+
+import org.astrsomn.core.common.utils.StringUtils;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -39,6 +46,8 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
             model = getStreamModel(param);
         } else if (ChatModel.class.isAssignableFrom(modelClass)) {
             model = getChatModel(param);
+        } else if (ImageModel.class.isAssignableFrom(modelClass)) {
+            model = getImageModel(param);
         } else if (EmbeddingModel.class.isAssignableFrom(modelClass)) {
             model = getEmbeddingModel(param);
         } else {
@@ -71,6 +80,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
         if (CollectionUtils.isNotEmpty(param.getChatModelListeners())) {
             builder.listeners(param.getChatModelListeners());
         }
+        applyChatSetting(builder, param);
         return builder.build();
     }
 
@@ -84,6 +94,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
         if (CollectionUtils.isNotEmpty(param.getChatModelListeners())) {
             builder.listeners(param.getChatModelListeners());
         }
+        applyChatSetting(builder, param);
         return builder.build();
     }
 
@@ -98,30 +109,161 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
+    private ImageModel getImageModel(AstroChatParam<?> param) {
+        var builder = OpenAiImageModel.builder()
+                .modelName(param.getModelSetting().getModelName())
+                .apiKey(param.getModelSetting().getApiKey());
+        if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
+            builder.baseUrl(param.getModelSetting().getApiUrl());
+        }
+        applyImageSetting(builder, param);
+        return builder.build();
+    }
+
     private static void applyEmbeddingSetting(
             OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder builder, AstroChatParam<?> param) {
         EmbeddingSetting es = param.getEmbeddingSetting();
         if (es == null) {
             return;
         }
-        if (es.getDimensions() != null) {
+        String modelKey = param.getModelKey();
+        if ((modelKey == null || modelKey.isBlank()) && param.getModelSetting() != null) {
+            modelKey = param.getModelSetting().getModelName();
+        }
+        if (es.getDimensions() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS.getCode())) {
             builder.dimensions(es.getDimensions());
         }
-        if (org.astrsomn.core.common.util.StringUtils.isNotBlank(es.getUser())) {
+        if (StringUtils.isNotBlank(es.getUser())
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.USER.getCode())) {
             builder.user(es.getUser());
         }
-        if (es.getMaxRetries() != null) {
+        if (es.getMaxRetries() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES.getCode())) {
             builder.maxRetries(es.getMaxRetries());
         }
-        if (es.getMaxSegmentsPerBatch() != null) {
+        if (es.getMaxSegmentsPerBatch() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH.getCode())) {
             builder.maxSegmentsPerBatch(es.getMaxSegmentsPerBatch());
         }
-        if (org.astrsomn.core.common.util.StringUtils.isNotBlank(es.getEncodingFormat())) {
+        if (StringUtils.isNotBlank(es.getEncodingFormat())
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT.getCode())) {
             builder.encodingFormat(es.getEncodingFormat());
         }
-        if (es.getTimeoutSeconds() != null && es.getTimeoutSeconds() > 0) {
+        if (es.getTimeoutSeconds() != null
+                && es.getTimeoutSeconds() > 0
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS.getCode())) {
             builder.timeout(Duration.ofSeconds(es.getTimeoutSeconds()));
         }
+    }
+
+    private static void applyChatSetting(OpenAiChatModel.OpenAiChatModelBuilder builder, AstroChatParam<?> param) {
+        ChatSetting cs = param.getChatSetting();
+        if (cs == null) {
+            return;
+        }
+        String modelKey = resolveModelKey(param);
+        if (cs.getTemperature() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+            builder.temperature(cs.getTemperature());
+        }
+        if (cs.getTopP() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+            builder.topP(cs.getTopP());
+        }
+        if (cs.getMaxTokens() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.MAX_TOKENS.getCode())) {
+            builder.maxTokens(cs.getMaxTokens());
+        }
+        if (cs.getSeed() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.SEED.getCode())) {
+            builder.seed(cs.getSeed());
+        }
+        if (cs.getPresencePenalty() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.PRESENCE_PENALTY.getCode())) {
+            builder.presencePenalty(cs.getPresencePenalty());
+        }
+        if (cs.getFrequencyPenalty() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.FREQUENCY_PENALTY.getCode())) {
+            builder.frequencyPenalty(cs.getFrequencyPenalty());
+        }
+    }
+
+    private static void applyChatSetting(OpenAiStreamingChatModel.OpenAiStreamingChatModelBuilder builder, AstroChatParam<?> param) {
+        ChatSetting cs = param.getChatSetting();
+        if (cs == null) {
+            return;
+        }
+        String modelKey = resolveModelKey(param);
+        if (cs.getTemperature() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+            builder.temperature(cs.getTemperature());
+        }
+        if (cs.getTopP() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+            builder.topP(cs.getTopP());
+        }
+        if (cs.getMaxTokens() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.MAX_TOKENS.getCode())) {
+            builder.maxTokens(cs.getMaxTokens());
+        }
+        if (cs.getSeed() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.SEED.getCode())) {
+            builder.seed(cs.getSeed());
+        }
+        if (cs.getPresencePenalty() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.PRESENCE_PENALTY.getCode())) {
+            builder.presencePenalty(cs.getPresencePenalty());
+        }
+        if (cs.getFrequencyPenalty() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.FREQUENCY_PENALTY.getCode())) {
+            builder.frequencyPenalty(cs.getFrequencyPenalty());
+        }
+    }
+
+    private static void applyImageSetting(OpenAiImageModel.OpenAiImageModelBuilder builder, AstroChatParam<?> param) {
+        ImageSetting is = param.getImageSetting();
+        if (is == null) {
+            return;
+        }
+        String modelKey = resolveModelKey(param);
+        if (StringUtils.isNotBlank(is.getSize())
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.SIZE.getCode())) {
+            builder.size(is.getSize());
+        }
+        if (StringUtils.isNotBlank(is.getStyle())
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.STYLE.getCode())) {
+            builder.style(is.getStyle());
+        }
+        if (StringUtils.isNotBlank(is.getQuality())
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.QUALITY.getCode())) {
+            builder.quality(is.getQuality());
+        }
+        if (StringUtils.isNotBlank(is.getResponseFormat())
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.RESPONSE_FORMAT.getCode())) {
+            builder.responseFormat(is.getResponseFormat());
+        }
+        if (StringUtils.isNotBlank(is.getUser())
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.USER.getCode())) {
+            builder.user(is.getUser());
+        }
+        if (is.getMaxRetries() != null
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.MAX_RETRIES.getCode())) {
+            builder.maxRetries(is.getMaxRetries());
+        }
+        if (is.getTimeoutSeconds() != null
+                && is.getTimeoutSeconds() > 0
+                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.TIMEOUT_SECONDS.getCode())) {
+            builder.timeout(Duration.ofSeconds(is.getTimeoutSeconds()));
+        }
+    }
+
+    private static String resolveModelKey(AstroChatParam<?> param) {
+        String modelKey = param.getModelKey();
+        if ((modelKey == null || modelKey.isBlank()) && param.getModelSetting() != null) {
+            modelKey = param.getModelSetting().getModelName();
+        }
+        return modelKey;
     }
 
 

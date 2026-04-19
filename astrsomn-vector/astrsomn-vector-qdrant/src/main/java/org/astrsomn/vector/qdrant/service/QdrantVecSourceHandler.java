@@ -7,7 +7,7 @@ import org.astrsomn.core.common.entity.AiVecStoreEntity;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecSource;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecStore;
 import org.astrsomn.core.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.vector.qdrant.internal.QdrantConfigSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

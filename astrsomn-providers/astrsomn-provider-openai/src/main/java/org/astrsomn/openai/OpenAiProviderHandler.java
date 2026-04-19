@@ -11,8 +11,8 @@ import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import org.astrsomn.core.common.langchain.buildParam.setting.EmbeddingSetting;
 import org.astrsomn.core.common.langchain.extension.model.AbstractModelProviderHandler;
-import org.astrsomn.core.common.util.CollectionUtils;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.CollectionUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.UnknowModelException;
 
 import java.time.Duration;

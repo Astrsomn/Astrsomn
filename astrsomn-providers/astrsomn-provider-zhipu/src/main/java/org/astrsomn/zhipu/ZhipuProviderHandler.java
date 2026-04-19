@@ -7,11 +7,14 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import org.astrsomn.core.common.constant.AiModelEnum;
+import org.astrsomn.core.common.constant.AiModelParamEnum;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.langchain.buildParam.AstroChatParam;
+import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
+import org.astrsomn.core.common.langchain.buildParam.setting.EmbeddingSetting;
 import org.astrsomn.core.common.langchain.extension.model.AbstractModelProviderHandler;
-import org.astrsomn.core.common.util.CollectionUtils;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.CollectionUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.UnknowModelException;
 
 import java.util.Arrays;
@@ -74,6 +77,7 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
         if (CollectionUtils.isNotEmpty(param.getChatModelListeners())) {
             builder.listeners(param.getChatModelListeners());
         }
+        applyChatSetting(builder, param);
         return builder.build();
     }
 
@@ -87,6 +91,7 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
         if (CollectionUtils.isNotEmpty(param.getChatModelListeners())) {
             builder.listeners(param.getChatModelListeners());
         }
+        applyChatSetting(builder, param);
         return builder.build();
     }
 
@@ -97,6 +102,61 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
         }
+        applyEmbeddingSetting(builder, param);
         return builder.build();
+    }
+
+    private static void applyChatSetting(ZhipuAiChatModel.ZhipuAiChatModelBuilder builder, AstroChatParam<?> param) {
+        ChatSetting chatSetting = param.getChatSetting();
+        if (chatSetting == null) {
+            return;
+        }
+        String modelKey = resolveModelKey(param);
+        if (chatSetting.getTemperature() != null
+                && ZhipuModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+            builder.temperature(chatSetting.getTemperature());
+        }
+        if (chatSetting.getTopP() != null
+                && ZhipuModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+            builder.topP(chatSetting.getTopP());
+        }
+    }
+
+    private static void applyChatSetting(
+            ZhipuAiStreamingChatModel.ZhipuAiStreamingChatModelBuilder builder, AstroChatParam<?> param) {
+        ChatSetting chatSetting = param.getChatSetting();
+        if (chatSetting == null) {
+            return;
+        }
+        String modelKey = resolveModelKey(param);
+        if (chatSetting.getTemperature() != null
+                && ZhipuModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+            builder.temperature(chatSetting.getTemperature());
+        }
+        if (chatSetting.getTopP() != null
+                && ZhipuModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+            builder.topP(chatSetting.getTopP());
+        }
+    }
+
+    private static void applyEmbeddingSetting(
+            ZhipuAiEmbeddingModel.ZhipuAiEmbeddingModelBuilder builder, AstroChatParam<?> param) {
+        EmbeddingSetting embeddingSetting = param.getEmbeddingSetting();
+        if (embeddingSetting == null) {
+            return;
+        }
+        String modelKey = resolveModelKey(param);
+        if (embeddingSetting.getDimensions() != null
+                && ZhipuModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS.getCode())) {
+            builder.dimensions(embeddingSetting.getDimensions());
+        }
+    }
+
+    private static String resolveModelKey(AstroChatParam<?> param) {
+        String modelKey = param.getModelKey();
+        if (StringUtils.isBlank(modelKey) && param.getModelSetting() != null) {
+            modelKey = param.getModelSetting().getModelName();
+        }
+        return modelKey;
     }
 }

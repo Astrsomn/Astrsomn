@@ -11,6 +11,8 @@ export type SystemExtension = {
   jarName?: string
   applied?: string
   status?: string
+  discoveryMechanism?: string
+  installSource?: string
   /** 公用：厂商/提供方 code（模型扩展时与 AiModelEnum.ProviderEnum 一致） */
   providerCode?: string
   /** SVG 等展示用头像 */

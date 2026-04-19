@@ -6,14 +6,14 @@
 
     <groupId>org.astrsomn</groupId>
     <artifactId>Astrsomn</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1.0-alpha.1</version>
     <packaging>pom</packaging>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <astrsomn.version>0.0.1-SNAPSHOT</astrsomn.version>
+        <astrsomn.version>0.1.0-alpha.1</astrsomn.version>
         <spring-boot.version>3.3.0</spring-boot.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.1.2</spring-cloud-alibaba.version>
@@ -28,8 +28,6 @@
         <module>astrsomn-core</module>
         <module>astrsomn-server</module>
         <module>astrsomn-spring-boot-starter</module>
-        <module>astrsomn-workflow-spring-boot-starter</module>
-        <module>astrsomn-workflow-core</module>
         <module>astrsomn-providers</module>
         <module>astrsomn-vector</module>
     </modules>
@@ -48,17 +46,7 @@
                 <version>${astrsomn.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.astrsomn</groupId>
-                <artifactId>astrsomn-workflow-core</artifactId>
-                <version>${astrsomn.version}</version>
-            </dependency>
 
-            <dependency>
-                <groupId>org.astrsomn</groupId>
-                <artifactId>astrsomn-workflow-spring-boot-starter</artifactId>
-                <version>${astrsomn.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.astrsomn</groupId>

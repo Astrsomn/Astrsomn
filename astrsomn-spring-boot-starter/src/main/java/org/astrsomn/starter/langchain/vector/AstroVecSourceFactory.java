@@ -1,17 +1,16 @@
 package org.astrsomn.starter.langchain.vector;
 
 import lombok.extern.slf4j.Slf4j;
+import org.astrsomn.core.common.constant.AiVecSourceEnum;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
 import org.astrsomn.core.common.langchain.extension.vector.VecDriver;
 import org.astrsomn.core.common.langchain.extension.vector.VecSource;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AstVecSourceErrorEnum;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,282 +18,216 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * 按 {@link AiVecSourceEntity} 解析 {@link VecDriver} 并实例化 {@link VecSource}（一条数据源一条连接句柄，可多次调用以得到多条独立连接）。
- * <p>
- * classpath 通过 Java SPI 加载驱动；插件 jar 中的驱动在 {@link org.astrsomn.starter.plugin.AstrsomnPluginManager} 中注册后覆盖同 extensionKey 的 classpath 实现。
- */
+
+
+import java.util.*;
+
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 @Slf4j
 @Component
 public class AstroVecSourceFactory {
 
+    private static final String LOG_PREFIX = "[Astrsomn] [向量工厂] ====> ";
+
+    /**
+     * 变量名	                级别  	核心职责    	存储内容
+     * classpathDrivers	        静态底座	提供基础能力	原生驱动类
+     * pluginDriverOverrides	动态扩展	插件能力覆盖	插件驱动类
+     * pluginDriverOwningJar	管理辅助	插件卸载追踪	驱动 -> 插件包名
+     * activeSources	        运行性能	避免重复连接	连接句柄对象
+     * activeSourceFingerprints	状态一致性	感知配置变更	配置信息的字符串
+     */
     private final Map<String, VecDriver> classpathDrivers;
     private final ConcurrentHashMap<String, VecDriver> pluginDriverOverrides = new ConcurrentHashMap<>();
-    /** extensionKey → 提供该实现的插件 jar 文件名 */
     private final ConcurrentHashMap<String, String> pluginDriverOwningJar = new ConcurrentHashMap<>();
-
-    /** 已启用向量源 id → 运行时连接句柄（单源单客户端复用） */
     private final ConcurrentHashMap<Long, VecSource> activeSources = new ConcurrentHashMap<>();
-
-    /** 与 {@link #activeSources} 对应的连接配置指纹，用于判断是否需要重建句柄 */
     private final ConcurrentHashMap<Long, String> activeSourceFingerprints = new ConcurrentHashMap<>();
 
     public AstroVecSourceFactory() {
         this.classpathDrivers = loadClasspathDrivers();
     }
 
+    /**
+     * SPI 加载本地 Classpath 驱动
+     */
     private static Map<String, VecDriver> loadClasspathDrivers() {
-        Map<String, VecDriver> map = new HashMap<>();
         ServiceLoader<VecDriver> loader = ServiceLoader.load(VecDriver.class);
-        for (VecDriver driver : loader) {
-            String key = StringUtils.trimToNull(driver.getExtensionKey());
-            if (key == null) {
-                log.warn("[Astro] Skip VecDriver with blank extensionKey: {}", driver.getClass().getName());
-                continue;
-            }
-            if (map.containsKey(key)) {
-                log.warn("[Astro] Duplicate classpath VecDriver skipped: {}", key);
-                continue;
-            }
-            map.put(key, driver);
-            log.info("[Astro] Loaded classpath VecDriver: {} ({})", key, driver.getClass().getSimpleName());
-        }
-        return Collections.unmodifiableMap(map);
+
+        return StreamSupport.stream(loader.spliterator(), false)
+                .filter(driver -> {
+                    String key = StringUtils.trimToNull(driver.getExtensionKey());
+                    if (Objects.isNull(key)) {
+                        log.warn("{} 跳过无效 VecDriver (Key为空): {}", LOG_PREFIX, driver.getClass().getName());
+                        return false;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toMap(
+                        VecDriver::getExtensionKey,
+                        driver -> {
+                            log.info("{} 加载 Classpath 驱动: {} ({})", LOG_PREFIX, driver.getExtensionKey(), driver.getClass().getSimpleName());
+                            return driver;
+                        },
+                        (existing, replacement) -> {
+                            log.warn("{} 发现重复的 Classpath 驱动: {}", LOG_PREFIX, existing.getExtensionKey());
+                            return existing;
+                        }
+                ));
     }
 
     /**
-     * 插件加载完成后注册其中的向量驱动（同 extensionKey 覆盖 classpath）。
+     * 注册插件驱动
      */
     public void applyPluginDrivers(String jarName, List<VecDriver> drivers) {
-        if (StringUtils.isBlank(jarName) || drivers == null || drivers.isEmpty()) {
-            return;
-        }
-        for (VecDriver driver : drivers) {
-            String key = StringUtils.trimToNull(driver.getExtensionKey());
-            if (key == null) {
-                continue;
-            }
-            pluginDriverOverrides.put(key, driver);
-            pluginDriverOwningJar.put(key, jarName);
-            log.info("[Astro] Plugin VecDriver registered: key={} jar={}", key, jarName);
-        }
+        if (StringUtils.isBlank(jarName) || Objects.isNull(drivers)) return;
+
+        drivers.stream()
+                .filter(d -> Objects.nonNull(StringUtils.trimToNull(d.getExtensionKey())))
+                .forEach(driver -> {
+                    String key = driver.getExtensionKey();
+                    pluginDriverOverrides.put(key, driver);
+                    pluginDriverOwningJar.put(key, jarName);
+                    log.info("{} 注册插件驱动 | Key: {} | Jar: {}", LOG_PREFIX, key, jarName);
+                });
     }
 
     /**
-     * 插件卸载时移除由该 jar 注册的驱动覆盖。
+     * 移除指定 Jar 关联的插件驱动
      */
     public void removePluginDrivers(String jarName) {
-        if (StringUtils.isBlank(jarName)) {
-            return;
-        }
-        for (Iterator<Map.Entry<String, String>> it = pluginDriverOwningJar.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<String, String> e = it.next();
-            if (jarName.equals(e.getValue())) {
-                String key = e.getKey();
-                it.remove();
+        if (StringUtils.isBlank(jarName)) return;
+
+        pluginDriverOwningJar.entrySet().removeIf(entry -> {
+            if (Objects.equals(jarName, entry.getValue())) {
+                String key = entry.getKey();
                 pluginDriverOverrides.remove(key);
-                log.info("[Astro] Plugin VecDriver removed: key={} jar={}", key, jarName);
+                log.info("{} 移除插件驱动 | Key: {} | Jar: {}", LOG_PREFIX, key, jarName);
+                return true;
             }
-        }
+            return false;
+        });
     }
 
     /**
-     * 按厂商/扩展键解析驱动（与 {@link AiVecSourceEntity#getProvider()} 一致）。
+     * 解析驱动：优先插件，后本地
      */
     public Optional<VecDriver> resolveDriver(String providerCode) {
-        String p = StringUtils.trimToNull(providerCode);
-        if (p == null) {
-            return Optional.empty();
-        }
-        VecDriver fromPlugin = pluginDriverOverrides.get(p);
-        if (fromPlugin != null) {
-            return Optional.of(fromPlugin);
-        }
-        return Optional.ofNullable(classpathDrivers.get(p));
+        return Optional.ofNullable(StringUtils.trimToNull(providerCode))
+                .map(p -> Optional.ofNullable(pluginDriverOverrides.get(p))
+                        .orElseGet(() -> classpathDrivers.get(p)));
     }
 
     /**
-     * 根据持久化实体创建一条新的数据源连接句柄；可针对多条 {@link AiVecSourceEntity} 或同一实体的多次连接分别调用。
+     * 绑定数据源句柄
      */
     public VecSource bindSource(AiVecSourceEntity entity) {
-        if (entity == null) {
-            throw new BusinessException(AstVecSourceErrorEnum.SOURCE_PARAM_ERROR, "AiVecSourceEntity 不能为空");
-        }
-        String provider = StringUtils.trimToNull(entity.getProvider());
-        if (provider == null) {
-            throw new BusinessException(AstVecSourceErrorEnum.SOURCE_PARAM_ERROR, "向量数据源 provider 不能为空");
-        }
-        VecDriver driver =
-                resolveDriver(provider)
-                        .orElseThrow(
-                                () ->
-                                        new BusinessException(
-                                                AstVecSourceErrorEnum.VEC_DRIVER_NOT_FOUND,
-                                                "未注册向量驱动: provider="
-                                                        + provider
-                                                        + "（请引入对应 astrsomn-vector-* 模块或加载含 VecDriver SPI 的插件）"));
-        String pluginJar = pluginDriverOwningJar.get(provider);
-        log.info(
-                "[Astro] bindSource: driverClass={}, fromPluginJar={}",
-                driver.getClass().getName(),
-                pluginJar != null ? pluginJar : "(classpath)");
-        log.info("[Astro] bindSource: invoking driver.bindSource(entity) ...");
-        VecSource bound = driver.bindSource(entity);
-        log.info("[Astro] bindSource: got VecSource class={}", bound.getClass().getName());
-        return bound;
+        return Optional.ofNullable(entity)
+                .map(e -> StringUtils.trimToNull(e.getProvider()))
+                .flatMap(this::resolveDriver)
+                .map(driver -> {
+                    String provider = entity.getProvider();
+                    String jar = pluginDriverOwningJar.getOrDefault(provider, "classpath");
+                    log.info("{} 绑定句柄 | 驱动: {} | 来源: {}", LOG_PREFIX, driver.getClass().getSimpleName(), jar);
+                    return driver.bindSource(entity);
+                })
+                .orElseThrow(() -> new BusinessException(AstVecSourceErrorEnum.VEC_DRIVER_NOT_FOUND,
+                        "未找到对应的向量驱动: " + (entity != null ? entity.getProvider() : "null")));
     }
 
     /**
-     * 获取已注册且仍为启用状态的向量源句柄（未调用过 {@link #registerOrRefresh} 则为空）。
-     */
-    public Optional<VecSource> tryGetActiveSource(Long sourceId) {
-        if (sourceId == null) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(activeSources.get(sourceId));
-    }
-
-    /**
-     * 按持久化实体维护运行时连接：启用则绑定并缓存；禁用则关闭并移除。
-     * 配置变更时先 shutdown 再重建。
+     * 维护运行时连接缓存
      */
     public synchronized void registerOrRefresh(AiVecSourceEntity entity) {
-        if (entity == null || entity.getId() == null) {
-            return;
-        }
+        if (Objects.isNull(entity) || Objects.isNull(entity.getId())) return;
+
         Long id = entity.getId();
-        if (!isEnabledStatus(entity.getStatus())) {
+        if (!entity.getStatus().equals(AiVecSourceEnum.StatusEnum.ENABLED.getCode())) {
             removeActiveSource(id);
             return;
         }
-        String fp = connectionFingerprint(entity);
-        String prevFp = activeSourceFingerprints.get(id);
-        VecSource current = activeSources.get(id);
-        if (current != null && Objects.equals(fp, prevFp)) {
+
+        String fingerprint = generateFingerprint(entity);
+        VecSource existing = activeSources.get(id);
+
+        // 指纹未变且实例存在则跳过
+        if (Objects.nonNull(existing) && Objects.equals(fingerprint, activeSourceFingerprints.get(id))) {
             return;
         }
-        shutdownQuietly(current);
+
+        shutdownQuietly(existing);
         VecSource next = bindSource(entity);
         activeSources.put(id, next);
-        activeSourceFingerprints.put(id, fp);
-        log.info("[Astro] VecSource registered: id={} provider={}", id, entity.getProvider());
+        activeSourceFingerprints.put(id, fingerprint);
+        log.info("{} 缓存已刷新 | ID: {} | Provider: {}", LOG_PREFIX, id, entity.getProvider());
     }
 
     /**
-     * 移除并释放指定向量源的运行时句柄（删除数据源或禁用时调用）。
+     * 移除缓存并释放资源
      */
     public synchronized void removeActiveSource(Long sourceId) {
-        if (sourceId == null) {
-            return;
-        }
-        VecSource removed = activeSources.remove(sourceId);
-        activeSourceFingerprints.remove(sourceId);
-        shutdownQuietly(removed);
-        if (removed != null) {
-            log.info("[Astro] VecSource removed from cache: id={}", sourceId);
-        }
-    }
-
-    private static void shutdownQuietly(VecSource source) {
-        if (source == null) {
-            return;
-        }
-        try {
-            source.shutdown();
-        } catch (Exception e) {
-            log.warn("[Astro] VecSource shutdown failed: {}", e.getMessage());
-        }
-    }
-
-    private static String connectionFingerprint(AiVecSourceEntity e) {
-        return String.join(
-                "\u0001",
-                nz(e.getProvider()),
-                nz(e.getHost()),
-                nz(e.getPort()),
-                nz(e.getUsername()),
-                nz(e.getPassword()),
-                nz(e.getDatabaseName()),
-                nz(e.getToken()),
-                nz(e.getConfigJson()));
-    }
-
-    private static String nz(String s) {
-        return StringUtils.defaultIfBlank(StringUtils.trimToNull(s), "");
-    }
-
-    /** 与 {@code ENABLED}/{@code enabled} 一致；{@code disabled} 等为 false。 */
-    private static boolean isEnabledStatus(String raw) {
-        String s = StringUtils.trimToNull(raw);
-        if (s == null) {
-            return false;
-        }
-        return "enabled".equalsIgnoreCase(s);
+        Optional.ofNullable(sourceId)
+                .map(activeSources::remove)
+                .ifPresent(removed -> {
+                    activeSourceFingerprints.remove(sourceId);
+                    shutdownQuietly(removed);
+                    log.info("{} 缓存已移除 | ID: {}", LOG_PREFIX, sourceId);
+                });
     }
 
     /**
-     * 测试向量源连接
+     * 获取活跃句柄
+     */
+    public Optional<VecSource> tryGetActiveSource(Long sourceId) {
+        return Optional.ofNullable(sourceId).map(activeSources::get);
+    }
+
+    /**
+     * 测试连接（不影响长连接缓存）
      */
     public boolean testConnection(AiVecSourceEntity entity) {
-        if (entity == null) {
-            log.warn("[Astro] testConnection: entity is null");
-            return false;
-        }
-        long t0 = System.nanoTime();
-        String provider = entity.getProvider();
-        String host = entity.getHost();
-        String port = entity.getPort();
-        log.info(
-                "[Astro] testConnection begin: provider={}, host={}, port={}, configJsonBlank={}, tokenConfigured={}",
-                provider,
-                host,
-                port,
-                StringUtils.isBlank(entity.getConfigJson()),
-                StringUtils.isNotBlank(entity.getToken()));
-        VecSource source = null;
+        if (Objects.isNull(entity)) return false;
+
+        long start = System.currentTimeMillis();
+        VecSource tempSource = null;
         try {
-            source = bindSource(entity);
-            log.info("[Astro] testConnection: bindSource done, calling VecSource.testConnection() ...");
-            boolean success = source.testConnection();
-            long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
-            if (success) {
-                log.info(
-                        "[Astro] testConnection ok in {}ms: provider={}, host={}, port={}",
-                        elapsedMs,
-                        provider,
-                        host,
-                        port);
-            } else {
-                log.warn(
-                        "[Astro] testConnection returned false in {}ms: provider={}, host={}, port={}",
-                        elapsedMs,
-                        provider,
-                        host,
-                        port);
-            }
-            return success;
-        } catch (RuntimeException e) {
-            long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
-            log.error(
-                    "[Astro] testConnection failed in {}ms: provider={}, host={}, port={}",
-                    elapsedMs,
-                    provider,
-                    host,
-                    port,
-                    e);
-            throw e;
+            tempSource = bindSource(entity);
+            boolean healthy = tempSource.testConnection();
+            log.info("{} 连接测试{} | 耗时: {}ms | Provider: {}",
+                    LOG_PREFIX, healthy ? "成功" : "失败", (System.currentTimeMillis() - start), entity.getProvider());
+            return healthy;
         } catch (Exception e) {
-            long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
-            log.error(
-                    "[Astro] testConnection failed in {}ms: provider={}, host={}, port={}",
-                    elapsedMs,
-                    provider,
-                    host,
-                    port,
-                    e);
-            throw new RuntimeException(e);
+            log.error("{} 连接测试异常 | Provider: {} | 错误: {}", LOG_PREFIX, entity.getProvider(), e.getMessage());
+            return false;
         } finally {
-            shutdownQuietly(source);
+            shutdownQuietly(tempSource);
         }
+    }
+
+    private void shutdownQuietly(VecSource source) {
+        Optional.ofNullable(source).ifPresent(s -> {
+            try {
+                s.shutdown();
+            } catch (Exception e) {
+                log.warn("{} 句柄关闭异常: {}", LOG_PREFIX, e.getMessage());
+            }
+        });
+    }
+
+    private String generateFingerprint(AiVecSourceEntity e) {
+        return StreamOf(e.getProvider(), e.getHost(), e.getPort(), e.getUsername(),
+                e.getPassword(), e.getDatabaseName(), e.getToken(), e.getConfigJson())
+                .map(StringUtils::normalize)
+                .collect(Collectors.joining("\u0001"));
+    }
+
+
+
+
+
+    /** 辅助快速构建流 */
+    private java.util.stream.Stream<String> StreamOf(String... args) {
+        return Arrays.stream(args);
     }
 }

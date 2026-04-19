@@ -6,7 +6,7 @@ import org.astrsomn.core.common.entity.AiVecDocEntity;
 import org.astrsomn.core.common.entity.AiVecStoreEntity;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecDoc;
 import org.astrsomn.core.common.langchain.extension.vector.AbstractVecStore;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.vector.chroma.internal.ChromaCollectionAdmin;
 import org.astrsomn.vector.chroma.internal.ChromaEmbeddingStores;
 

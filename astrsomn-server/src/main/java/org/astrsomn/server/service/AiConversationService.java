@@ -10,6 +10,8 @@ import org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO;
 import org.astrsomn.core.common.dto.conversation.AiConversationUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiConversationEntity;
 
+import java.util.List;
+
 public interface AiConversationService extends IService<AiConversationEntity> {
     BaseResponse<String> create(AiConversationCreateRequestDTO request);
 
@@ -20,4 +22,8 @@ public interface AiConversationService extends IService<AiConversationEntity> {
     BaseResponse<String> update(AiConversationUpdateRequestDTO request);
 
     PageResponse<AiConversationResponseDTO> queryPage(BasePageRequest<AiConversationQueryRequestDTO> request);
+
+    PageResponse<AiConversationResponseDTO> queryGroups(BasePageRequest<AiConversationQueryRequestDTO> request);
+
+    BaseResponse<List<AiConversationResponseDTO>> recoverByMemoryKey(String memoryKey);
 }

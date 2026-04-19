@@ -41,6 +41,8 @@ export type ManagementEntry = {
     label: string
     description: string
     icon: Component
+    /** 可选：自定义彩色图标URL（配置后会替换默认图标） */
+    iconUrl?: string
     route: string
     accent: EntryAccent
     highlight?: boolean
@@ -148,6 +150,14 @@ const managementGroupsAll: ManagementGroup[] = [
                 icon: markRaw(CodeOutlined),
                 route: '/admin/templates',
                 accent: 'primary-light',
+            },
+            {
+                key: 'conversations',
+                label: '对话管理',
+                description: '管理 AI 对话记录，按 memoryKey 聚合展示',
+                icon: markRaw(FileTextOutlined),
+                route: '/admin/conversations',
+                accent: 'violet',
             }
         ],
     },

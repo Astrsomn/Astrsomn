@@ -40,3 +40,8 @@ export function extensionTypeLabel(type: string | undefined) {
   if (type === 'MCP') return 'MCP'
   return type
 }
+
+export function isUninstallableExtension(record: ExtensionRow | undefined) {
+  const source = record?.installSource
+  return source === 'PLUGIN_JAR_UPLOAD' || source === 'PLUGIN_JAR_DISCOVERED'
+}

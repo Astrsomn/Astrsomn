@@ -11,7 +11,7 @@ import org.astrsomn.core.common.dto.instance.AiInstanceQueryRequestDTO;
 import org.astrsomn.core.common.dto.instance.AiInstanceResponseDTO;
 import org.astrsomn.core.common.dto.instance.AiInstanceUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiInstanceEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AiInstanceErrorEnum;
 import org.astrsomn.core.mapper.AiInstanceMapper;

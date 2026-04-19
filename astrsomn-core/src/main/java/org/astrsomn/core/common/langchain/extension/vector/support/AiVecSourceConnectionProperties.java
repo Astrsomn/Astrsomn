@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.astrsomn.core.common.constant.AiVecDriverEnum;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 
 import java.util.Collections;
 import java.util.Map;

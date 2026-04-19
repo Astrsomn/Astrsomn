@@ -36,9 +36,10 @@ public class AstroChatParam<T> {
     private String instanceKey;
 
     /**
-     * 会话记忆 ID (前端生成或后端分配)
+     * 会话记忆 Key (UUID)
      */
     private String memoryKey;
+
 
     /**
      * 历史消息最大保留数 (属于记忆管理策略，也可单独拆分，这里暂留)

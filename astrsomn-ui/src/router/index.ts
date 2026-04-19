@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'ChatHome',
-    component: () => import('@/views/admin/chat-index/Index.vue'),
+    component: () => import('@/views/chat-index/Index.vue'),
     meta: {
       title: '大模型聊天',
       requiresAuth: false
@@ -82,14 +82,20 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'templates',
         name: 'AdminTemplates',
-        component: () => import('@/views/admin/ai-config/ai-template/TemplateList.vue'),
+        component: () => import('@/views/admin/ai-modules/ai-template/TemplateList.vue'),
         meta: { title: 'FTL 模板管理', requiresAuth: true }
+      },
+      {
+        path: 'conversations',
+        name: 'AdminConversations',
+        component: () => import('@/views/admin/ai-config/ai-conversation/ConversationList.vue'),
+        meta: { title: '对话管理', requiresAuth: true }
       },
 
       {
         path: 'security',
         name: 'AdminSecurity',
-        component: () => import('@/views/admin/ai-modules/ai-sensitiveWord/SensitiveWordList.vue'),
+        component: () => import('@/views/admin/ai-modules/ai-sensitive-word/SensitiveWordList.vue'),
         meta: { title: '安全治理', requiresAuth: true }
       },
       {
@@ -101,31 +107,31 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'vec-source',
         name: 'AdminVecSource',
-        component: () => import('@/views/admin/ai-modules/vec-source/VecSourceList.vue'),
+        component: () => import('@/views/admin/ai-vector/vec-source/VecSourceList.vue'),
         meta: { title: '向量源', requiresAuth: true }
       },
       {
         path: 'vec-store',
         name: 'AdminVecStore',
-        component: () => import('@/views/admin/ai-modules/vec-store/VecStoreList.vue'),
+        component: () => import('@/views/admin/ai-vector/vec-store/VecStoreList.vue'),
         meta: { title: '向量存储', requiresAuth: true }
       },
       {
         path: 'vec-doc',
         name: 'AdminVecDoc',
-        component: () => import('@/views/admin/ai-modules/vec-doc/VecDocList.vue'),
+        component: () => import('@/views/admin/ai-vector/vec-doc/VecDocList.vue'),
         meta: { title: '向量文档', requiresAuth: true }
       },
       {
         path: 'vec-segment',
         name: 'AdminVecSegment',
-        component: () => import('@/views/admin/ai-modules/vec-segment/VecSegmentList.vue'),
+        component: () => import('@/views/admin/ai-vector/vec-segment/VecSegmentList.vue'),
         meta: { title: '向量分段', requiresAuth: true }
       },
       {
         path: 'vec-driver',
         name: 'AdminVecDriver',
-        component: () => import('@/views/admin/ai-modules/vec-driver/VecDriverList.vue'),
+        component: () => import('@/views/admin/ai-vector/vec-driver/VecDriverList.vue'),
         meta: { title: '向量驱动', requiresAuth: true }
       },
       {

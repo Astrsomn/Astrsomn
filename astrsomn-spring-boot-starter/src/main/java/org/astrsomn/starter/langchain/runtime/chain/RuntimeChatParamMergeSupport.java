@@ -9,8 +9,8 @@ import org.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.PromptSetting;
 import org.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
-import org.astrsomn.core.common.util.JsonUtil;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.JsonUtil;
+import org.astrsomn.core.common.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +62,9 @@ public final class RuntimeChatParamMergeSupport {
         }
         if (StringUtils.isBlank(target.getProvider())) {
             target.setProvider(StringUtils.trimToNull(model.getProvider()));
+        }
+        if (StringUtils.isBlank(target.getApiKey())) {
+            target.setAccountKey(StringUtils.trimToNull(model.getAccountKey()));
         }
     }
 

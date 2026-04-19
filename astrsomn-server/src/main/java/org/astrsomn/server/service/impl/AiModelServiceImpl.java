@@ -13,7 +13,7 @@ import org.astrsomn.core.common.dto.model.AiModelResponseDTO;
 import org.astrsomn.core.common.dto.model.AiModelUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiInstanceEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AiModelErrorEnum;
 import org.astrsomn.core.mapper.AiInstanceMapper;
@@ -61,14 +61,10 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
 
     @Override
     public BaseResponse<AiModelResponseDTO> detail(Long longId) {
-        AiModelEntity entity = getById(longId);
-        if (entity == null) {
+        AiModelResponseDTO responseDTO = baseMapper.selectModelWithReferenceStatus(longId);
+        if (responseDTO == null) {
             throw new BusinessException(AiModelErrorEnum.MODEL_NOT_FOUND);
         }
-
-        AiModelResponseDTO responseDTO = new AiModelResponseDTO();
-        BeanUtils.copyProperties(entity, responseDTO);
-        responseDTO.setModelKeyImmutable(isModelKeyReferencedByInstance(entity.getModelKey(), entity.getEnvCode()));
         return BaseResponse.success(responseDTO);
     }
 
@@ -116,14 +112,5 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     }
 
 
-    private boolean isModelKeyReferencedByInstance(String modelKey, String envCode) {
-        if (StringUtils.isBlank(modelKey) || StringUtils.isBlank(envCode)) {
-            return false;
-        }
-        return aiInstanceMapper.selectCount(
-                        new LambdaQueryWrapper<AiInstanceEntity>()
-                                .eq(AiInstanceEntity::getModelKey, modelKey.trim())
-                                .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
-                > 0;
-    }
+
 }

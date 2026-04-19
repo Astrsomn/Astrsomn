@@ -4,7 +4,7 @@ import dev.langchain4j.store.embedding.chroma.ChromaApiVersion;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import org.astrsomn.core.common.entity.AiVecSourceEntity;
 import org.astrsomn.core.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
-import org.astrsomn.core.common.util.StringUtils;
+import org.astrsomn.core.common.utils.StringUtils;
 
 /**
  * 统一构建 {@link ChromaEmbeddingStore}，保证 testConnection、集合 CRUD、向量读写使用同一套连接参数（含 API V2、租户、库、TLS）。

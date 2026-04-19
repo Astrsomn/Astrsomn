@@ -6,6 +6,7 @@ import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.astrsomn.core.common.constant.AiMcpEnum;
 import org.astrsomn.core.common.entity.AiMcpEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -16,48 +17,58 @@ import java.util.*;
 @Component
 @RequiredArgsConstructor
 public class StdioProtocolHandler implements McpProtocolHandler {
+    private static final String LOG_PREFIX = "[Astrsomn] [STDIO处理器] ====> ";
     private final ObjectMapper objectMapper;
 
     @Override
     public boolean supports(String type) {
-        return "STDIO".equalsIgnoreCase(type);
+        return AiMcpEnum.TypeEnum.STDIO.getCode().equalsIgnoreCase(type);
     }
 
     @Override
     public McpTransport createTransport(AiMcpEntity config) throws IOException {
-        if (!StringUtils.hasText(config.getCommand())) {
-            throw new IllegalStateException("STDIO 命令不能为空");
-        }
+        String commandBase = Optional.ofNullable(config.getCommand())
+                .filter(StringUtils::hasText)
+                .orElseThrow(() -> new IllegalStateException(LOG_PREFIX + "本地进程启动命令不能为空"));
 
-        // 1. 组装命令
-        List<String> command = new ArrayList<>();
-        command.add(config.getCommand());
+        List<String> fullCommand = new ArrayList<>();
+        fullCommand.add(commandBase);
 
-        // 2. 解析参数 (JSON 数组格式)
-        if (StringUtils.hasText(config.getArgs())) {
-            try {
-                List<String> args = objectMapper.readValue(config.getArgs(), new TypeReference<>() {});
-                command.addAll(args);
-            } catch (Exception e) {
-                log.warn("MCP 参数解析失败，尝试按空格分割: {}", config.getArgs());
-                command.addAll(Arrays.asList(config.getArgs().split("\\s+")));
-            }
-        }
+        // 1. 填充参数
+        Optional.ofNullable(config.getArgs())
+                .filter(StringUtils::hasText)
+                .ifPresent(args -> fullCommand.addAll(parseArgs(args)));
 
-        // 3. 解析环境变量 (JSON 对象格式)
-        Map<String, String> environment = new HashMap<>();
-        if (StringUtils.hasText(config.getEnvVars())) {
-            try {
-                environment = objectMapper.readValue(config.getEnvVars(), new TypeReference<>() {});
-            } catch (Exception e) {
-                log.error("环境变量解析失败: {}", config.getEnvVars());
-            }
-        }
+        // 2. 填充环境变量
+        Map<String, String> envVars = Optional.ofNullable(config.getEnvVars())
+                .filter(StringUtils::hasText)
+                .map(this::parseEnvVars)
+                .orElse(Collections.emptyMap());
+
+        log.info("{} 构建传输层 | 命令: {} | 环境变量数: {}", LOG_PREFIX, String.join(" ", fullCommand), envVars.size());
 
         return new StdioMcpTransport.Builder()
-                .command(command)
-                .environment(environment)
-                .logEvents(false) // 生产环境建议关闭
+                .command(fullCommand)
+                .environment(envVars)
+                .logEvents(false)
                 .build();
+    }
+
+    private List<String> parseArgs(String argsJson) {
+        try {
+            return objectMapper.readValue(argsJson, new TypeReference<>() {});
+        } catch (Exception e) {
+            log.warn("{} 参数 JSON 解析失败，回退至空格分割 | 原始值: {}", LOG_PREFIX, argsJson);
+            return Arrays.asList(argsJson.split("\\s+"));
+        }
+    }
+
+    private Map<String, String> parseEnvVars(String envJson) {
+        try {
+            return objectMapper.readValue(envJson, new TypeReference<>() {});
+        } catch (Exception e) {
+            log.error("{} 环境变量解析失败 | 原始值: {}", LOG_PREFIX, envJson);
+            return Collections.emptyMap();
+        }
     }
 }
