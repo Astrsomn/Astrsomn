@@ -28,8 +28,6 @@
         <module>astrsomn-core</module>
         <module>astrsomn-server</module>
         <module>astrsomn-spring-boot-starter</module>
-        <module>astrsomn-workflow-spring-boot-starter</module>
-        <module>astrsomn-workflow-core</module>
         <module>astrsomn-providers</module>
         <module>astrsomn-vector</module>
     </modules>
@@ -48,17 +46,7 @@
                 <version>${astrsomn.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.astrsomn</groupId>
-                <artifactId>astrsomn-workflow-core</artifactId>
-                <version>${astrsomn.version}</version>
-            </dependency>
 
-            <dependency>
-                <groupId>org.astrsomn</groupId>
-                <artifactId>astrsomn-workflow-spring-boot-starter</artifactId>
-                <version>${astrsomn.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.astrsomn</groupId>
