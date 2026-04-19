@@ -20,6 +20,7 @@ import org.astrsomn.core.mapper.AiInstanceMapper;
 import org.astrsomn.core.mapper.AiModelMapper;
 import org.astrsomn.server.service.AiModelService;
 import org.astrsomn.server.service.support.BizResourceKeyAssignHelper;
+import org.astrsomn.server.service.support.BizResourceKeyGenerator;
 import org.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.astrsomn.starter.context.EnvRuntime;
@@ -83,10 +84,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         }
         bizResourceKeyAssignHelper.assignModelKeyIfBlank(entity);
 
-        if (aiInstanceMapper.selectCount(
-                new LambdaQueryWrapper<AiInstanceEntity>()
-                        .eq(AiInstanceEntity::getModelKey, existing.getModelKey().trim())
-                        .eq(AiInstanceEntity::getEnvCode, existing.getEnvCode().trim())) > 0) {
+        if (isModelKeyReferencedByInstance(existing.getModelKey(), existing.getEnvCode())) {
             entity.setModelKey(existing.getModelKey());
         } else {
             bizResourceKeyAssignHelper.assignModelKeyIfBlank(entity);
