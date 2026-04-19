@@ -63,8 +63,8 @@ const navigateTo = (path: string) => {
 }
 
 .extension-card {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 16px;
   padding: 16px;
   display: flex;
@@ -75,25 +75,29 @@ const navigateTo = (path: string) => {
   transition: all 0.2s;
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-primary);
   gap: 12px;
   min-height: 60px;
 }
 
 .extension-card:hover {
-  background: #eff6ff;
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  background: var(--bg-elevated);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-card);
 }
 
 .extension-icon {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
 }
 
 .extension-icon--blue {
-  color: #3b82f6;
+  color: var(--primary);
 }
 
 .extension-icon--purple {

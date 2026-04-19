@@ -125,18 +125,17 @@ onMounted(() => {
 <style scoped>
 /* 容器：去掉了厚重的边框，使用极浅的背景偏移 */
 .ultra-card {
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 24px;
   padding: 24px 28px;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(0, 0, 0, 0.04);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   height: 100%;
 }
 
 .ultra-card:hover {
-  box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-card);
 }
 
 /* Header: 纯图标化 */
@@ -150,14 +149,14 @@ onMounted(() => {
 .card-title {
   font-size: 17px;
   font-weight: 800;
-  color: #1a1d23;
+  color: var(--text-heading);
   margin: 0;
   letter-spacing: -0.01em;
 }
 
 .card-desc {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin: 2px 0 0;
 }
 
@@ -171,8 +170,8 @@ onMounted(() => {
   height: 32px;
   border-radius: 10px;
   border: none;
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,17 +181,17 @@ onMounted(() => {
 }
 
 .icon-btn:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: var(--bg-input);
+  color: var(--text-primary);
 }
 
 .btn-primary-icon {
-  background: #0062ff;
+  background: var(--primary);
   color: #ffffff;
 }
 
 .btn-primary-icon:hover {
-  background: #0056e0;
+  background: var(--primary-light);
   color: #ffffff;
 }
 
@@ -212,12 +211,12 @@ onMounted(() => {
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid transparent;
+  border: 1px solid var(--border-light);
 }
 
 .agent-item-premium:hover {
-  background: #f8fafc;
-  border-color: rgba(0, 0, 0, 0.02);
+  background: var(--bg-elevated);
+  border-color: var(--border-default);
 }
 
 /* 身份信息 */
@@ -233,7 +232,7 @@ onMounted(() => {
   position: relative;
   width: 40px;
   height: 40px;
-  background: #f8fafc;
+  background: var(--bg-elevated);
   border-radius: 12px;
   flex-shrink: 0;
   display: flex;
@@ -253,7 +252,7 @@ onMounted(() => {
   width: 8px;
   height: 8px;
   background: #22c55e;
-  border: 1.5px solid #fff;
+  border: 1.5px solid var(--bg-card);
   border-radius: 50%;
 }
 
@@ -271,7 +270,7 @@ onMounted(() => {
 .name {
   font-size: 14px;
   font-weight: 700;
-  color: #334155;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -283,24 +282,24 @@ onMounted(() => {
   padding: 1px 4px;
   border-radius: 5px;
   text-transform: uppercase;
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
 }
 
-.premium-tag.prod { background: #dcfce7; color: #15803d; }
+.premium-tag.prod { background: rgba(82, 196, 26, 0.15); color: #52c41a; }
 
 .bottom-line {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .dot-split {
   width: 3px;
   height: 3px;
-  background: #cbd5e1;
+  background: var(--border-default);
   border-radius: 50%;
 }
 
@@ -325,12 +324,12 @@ onMounted(() => {
 
 .spark-bar {
   width: 2px;
-  background: #e2e8f0;
+  background: var(--border-default);
   border-radius: 4px;
 }
 
 .spark-bar.active {
-  background: #3b82f6;
+  background: var(--primary);
 }
 
 /* 状态与时间 */
@@ -350,18 +349,18 @@ onMounted(() => {
 }
 
 .status-indicator.is-active {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: rgba(82, 196, 26, 0.12);
+  color: #52c41a;
 }
 
 .status-indicator.is-inactive {
-  background: #f1f5f9;
-  color: #94a3b8;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
 }
 
 .timestamp {
   font-size: 10px;
-  color: #cbd5e1;
+  color: var(--text-muted);
   font-weight: 500;
 }
 
@@ -370,7 +369,7 @@ onMounted(() => {
   width: 3px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #f1f5f9;
+  background: var(--border-default);
   border-radius: 10px;
 }
 
@@ -386,12 +385,12 @@ onMounted(() => {
 
 .empty-icon {
   font-size: 24px;
-  color: #e2e8f0;
+  color: var(--text-muted);
   margin-bottom: 8px;
 }
 
 .empty-placeholder p {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 </style>

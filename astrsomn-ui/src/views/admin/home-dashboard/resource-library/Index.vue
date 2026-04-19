@@ -312,14 +312,14 @@ const handleSearch = () => {
 }
 
 .search-container :deep(.toolbar-search-pill:focus-within) {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  border-color: var(--text-muted);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .group-nav {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .nav-item {
@@ -327,21 +327,24 @@ const handleSearch = () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 16px 16px;
   border-radius: 16px;
   cursor: pointer;
   color: var(--text-secondary);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
 }
 
 .nav-item:hover {
-  background: var(--primary-hover);
+  background: var(--bg-elevated);
   color: var(--text-primary);
+  border-color: var(--border-default);
 }
 
 .nav-item.active {
   background: var(--bg-elevated);
-  color: var(--primary);
+  color: var(--text-primary);
+  border-color: var(--border-default);
   box-shadow: var(--shadow-card);
 }
 
@@ -349,6 +352,12 @@ const handleSearch = () => {
   font-size: 18px;
   display: flex;
   align-items: center;
+  color: var(--text-muted);
+}
+
+.nav-item:hover .nav-icon,
+.nav-item.active .nav-icon {
+  color: var(--text-primary);
 }
 
 .nav-label {
@@ -364,11 +373,13 @@ const handleSearch = () => {
   background: var(--bg-input);
   border-radius: 20px;
   color: var(--text-muted);
+  border: 1px solid var(--border-default);
 }
 
 .nav-item.active .nav-badge {
-  background: var(--primary-hover);
-  color: var(--primary);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border-color: var(--border-default);
 }
 
 /* --- 主内容区样式 --- */

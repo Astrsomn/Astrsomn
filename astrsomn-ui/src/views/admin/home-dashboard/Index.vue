@@ -25,18 +25,18 @@ import ExtensionGrid from './dashboard-component/bottom/ExtensionGrid.vue'
 <style scoped>
 .demo-dashboard-wrapper {
   position: relative;
-  background: #fff;
+  background: var(--bg-base);
   min-height: calc(100vh - 70px);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 14px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 /* 统一字体样式 */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-weight: 600;
-  color: #1a1d23;
+  color: var(--text-heading);
 }
 
 p, span, div {

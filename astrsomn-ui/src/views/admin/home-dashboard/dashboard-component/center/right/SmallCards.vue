@@ -1,43 +1,39 @@
 <template>
   <div class="small-cards col-span-2">
-    <div class="bento-card clickable" @click="navigateTo('/admin/models')">
-      <div class="card-icon blue-icon"><DatabaseOutlined /></div>
-      <h3 class="card-title-small">模型接入</h3>
-      <p class="card-desc-small">定义供应商 API 路径与能力映射</p>
-    </div>
-
-    <div class="bento-card clickable" @click="navigateTo('/admin/ai-instance')">
-      <div class="card-icon purple-icon"><SettingOutlined /></div>
-      <h3 class="card-title-small">推理配置</h3>
-      <p class="card-desc-small">定义模型运行参数与 Token 限制</p>
-    </div>
-
-    <div class="bento-card clickable" @click="navigateTo('/admin/mcp')">
-      <div class="card-icon indigo-icon"><ApiOutlined /></div>
-      <h3 class="card-title-small">AI MCP</h3>
-      <p class="card-desc-small">管理 Model Context Protocol 服务</p>
-    </div>
-
-    <div class="bento-card clickable" @click="navigateTo('/admin/tools')">
-      <div class="card-icon teal-icon"><ToolOutlined /></div>
-      <h3 class="card-title-small">工具插件</h3>
-      <p class="card-desc-small">维护函数调用与 API 工具</p>
-    </div>
-
-    <div class="bento-card clickable" @click="navigateTo('/admin/ai-account')">
-      <div class="card-icon sky-icon"><KeyOutlined /></div>
-      <h3 class="card-title-small">凭证管理</h3>
-      <p class="card-desc-small">维护 API_KEY 与账户额度</p>
-    </div>
-
-    <div class="bento-card clickable" @click="navigateTo('/admin/security')">
-      <div class="card-icon red-icon"><SecurityScanOutlined /></div>
-      <h3 class="card-title-small">安全治理</h3>
-      <p class="card-desc-small">管理安全策略与访问控制</p>
-    </div>
-
+    <!-- 第一行：全部应用入口 -->
     <div class="discovery-hub-container">
       <DiscoveryHub />
+    </div>
+    
+    <!-- 第一行：凭证管理 -->
+    <div class="credential-card-container">
+      <CredentialManagementCard />
+    </div>
+    
+    <!-- 第二行：模型接入和 MCP -->
+    <div class="cards-row">
+      <!-- 模型接入 -->
+      <div class="models-card">
+        <ModelAccessCard />
+      </div>
+
+      <!-- AI MCP -->
+      <div class="mcp-card">
+        <McpCard />
+      </div>
+    </div>
+
+    <!-- 第三行：推理配置和工具插件 -->
+    <div class="cards-row">
+      <!-- 推理配置 -->
+      <div class="inference-card">
+        <InferenceConfigCard />
+      </div>
+
+      <!-- 工具插件 -->
+      <div class="tools-card">
+        <ToolPluginCard />
+      </div>
     </div>
   </div>
 </template>
@@ -45,14 +41,11 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import DiscoveryHub from '@/components/dashboard/DiscoveryHub.vue'
-import { 
-  DatabaseOutlined, 
-  SettingOutlined, 
-  ApiOutlined, 
-  ToolOutlined, 
-  KeyOutlined, 
-  SecurityScanOutlined,
-} from '@ant-design/icons-vue'
+import CredentialManagementCard from '@/components/dashboard/CredentialManagementCard.vue'
+import ModelAccessCard from '@/components/dashboard/ModelAccessCard.vue'
+import McpCard from '@/components/dashboard/McpCard.vue'
+import InferenceConfigCard from '@/components/dashboard/InferenceConfigCard.vue'
+import ToolPluginCard from '@/components/dashboard/ToolPluginCard.vue'
 
 const router = useRouter()
 
@@ -64,31 +57,70 @@ const navigateTo = (path: string) => {
 <style scoped>
 .small-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: auto auto auto;
   gap: 16px;
   height: 100%;
 }
 
 .bento-card {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 16px;
   padding: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
   min-height: 100px;
 }
 
 .bento-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border-color: #3b82f6;
+  box-shadow: var(--shadow-card);
+  border-color: var(--primary);
 }
 
 .discovery-hub-container {
-  grid-column: span 2;
+  grid-row: 1;
+  grid-column: 1;
   height: 100%;
-  min-height: 180px;
   width: 100%;
   box-sizing: border-box;
+}
+
+.credential-card-container {
+  grid-row: 1;
+  grid-column: 2;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* 卡片行容器 */
+.cards-row {
+  grid-column: 1 / span 2;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  height: 100%;
+}
+
+/* 第二行：模型接入和 MCP */
+.cards-row:nth-child(3) {
+  grid-row: 2;
+}
+
+/* 第三行：推理配置和工具插件 */
+.cards-row:nth-child(4) {
+  grid-row: 3;
+}
+
+/* 占两列的卡片 */
+.models-card,
+.inference-card {
+  grid-column: 1;
+}
+
+/* 占一列的卡片 */
+.mcp-card,
+.tools-card {
+  grid-column: 2;
 }
 
 .card-icon {
@@ -103,45 +135,35 @@ const navigateTo = (path: string) => {
 }
 
 .blue-icon {
-  background: #e6f7ff;
-  color: #1890ff;
+  background: var(--primary-hover);
+  color: var(--primary);
 }
 
 .purple-icon {
-  background: #f9f0ff;
-  color: #722ed1;
+  background: rgba(114, 46, 209, 0.15);
+  color: #a855f7;
 }
 
 .indigo-icon {
-  background: #f0f5ff;
-  color: #409eff;
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
 }
 
 .teal-icon {
-  background: #e6fffb;
-  color: #13c2c2;
-}
-
-.sky-icon {
-  background: #e6f7ff;
-  color: #1890ff;
-}
-
-.red-icon {
-  background: #fff2f0;
-  color: #ff4d4f;
+  background: rgba(20, 184, 166, 0.15);
+  color: #14b8a6;
 }
 
 .card-title-small {
   font-size: 13px;
   font-weight: bold;
-  color: #1f2937;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .card-desc-small {
   font-size: 10px;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin: 2px 0 0;
 }
 
@@ -150,7 +172,7 @@ const navigateTo = (path: string) => {
 }
 
 .clickable:hover {
-  border-color: #3b82f6;
+  border-color: var(--primary);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 </style>

@@ -118,7 +118,7 @@
           </div>
         </div>
       </div>
-      <p class="input-hint">Astrsomn 可能产生错误信息，请核查重要内容。</p>
+
     </div>
   </transition>
 </template>

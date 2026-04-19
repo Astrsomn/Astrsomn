@@ -102,18 +102,18 @@ import {
 
 .compact-stat-card {
   position: relative;
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 20px 24px;
-  border: 1px solid #f0f2f5;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
   transition: all 0.3s ease;
   min-height: 120px;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-card);
   }
 
   .card-inner {
@@ -128,7 +128,7 @@ import {
   .info-side {
     .label {
       font-size: 12px;
-      color: #8c8c8c;
+      color: var(--text-muted);
       margin-bottom: 4px;
       font-weight: 500;
     }
@@ -142,13 +142,13 @@ import {
     .value {
       font-size: 24px;
       font-weight: 800;
-      color: #1f1f1f;
+      color: var(--text-heading);
       line-height: 1.2;
     }
 
     .unit {
       font-size: 12px;
-      color: #bfbfbf;
+      color: var(--text-muted);
       font-weight: 600;
     }
 
@@ -171,16 +171,16 @@ import {
   }
 
   /* 各色卡片细节 */
-  &.blue .icon-box { background: #e6f7ff; color: #1890ff; }
-  &.purple .icon-box { background: #f9f0ff; color: #722ed1; }
-  &.amber .icon-box { background: #fffbe6; color: #faad14; }
+  &.blue .icon-box { background: var(--primary-hover); color: var(--primary); }
+  &.purple .icon-box { background: rgba(114, 46, 209, 0.15); color: #a855f7; }
+  &.amber .icon-box { background: rgba(250, 204, 21, 0.15); color: #f59e0b; }
   
   &.dark {
-    background: #001529;
-    border: none;
-    .label { color: #8c8c8c; }
-    .value { color: #ffffff; }
-    .icon-box { background: rgba(255,255,255,0.08); color: #ffffff; }
+    background: var(--bg-base);
+    border: 1px solid var(--border-default);
+    .label { color: var(--text-muted); }
+    .value { color: var(--text-heading); }
+    .icon-box { background: var(--bg-elevated); color: var(--text-primary); }
   }
 }
 
@@ -192,13 +192,13 @@ import {
   margin-left: 8px;
   font-weight: 700;
   
-  &.positive { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
-  &.stable { background: #f5f5f5; color: #8c8c8c; border: 1px solid #d9d9d9; }
+  &.positive { background: rgba(82, 196, 26, 0.12); color: #52c41a; border: 1px solid rgba(82, 196, 26, 0.3); }
+  &.stable { background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border-default); }
 }
 
 .status-text {
   font-size: 10px;
-  color: #8c8c8c;
+  color: var(--text-muted);
   font-weight: 700;
   margin-top: 4px;
   display: flex;
@@ -225,8 +225,8 @@ import {
   left: 0;
   width: 100%;
   height: 3px;
-  background: #f0f0f0;
-  .progress-fill { height: 100%; background: #722ed1; border-radius: 0 2px 2px 0; }
+  background: var(--border-default);
+  .progress-fill { height: 100%; background: #a855f7; border-radius: 0 2px 2px 0; }
 }
 
 .bg-watermark {
@@ -234,7 +234,7 @@ import {
   right: -10px;
   bottom: -10px;
   font-size: 64px;
-  color: rgba(255, 255, 255, 0.03);
+  color: var(--border-subtle);
   z-index: 1;
 }
 
