@@ -1,67 +1,81 @@
 package org.astrsomn.core.common.util;
 
-import cn.hutool.crypto.symmetric.AES;
-import cn.hutool.core.util.IdUtil;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.UUID;
 
 @Slf4j
 public class CryptoUtil {
 
-    private static AES aes;
+    private static final String ALGORITHM = "AES";
+    private static final String TRANSFORMATION = "AES/ECB/PKCS5Padding";
+    private static final int KEY_SIZE = 16;
 
-    /**
-     * 设置 AES 实例（由 CryptoConfig 调用）
-     */
-    public static void setAes(AES aes) {
-        CryptoUtil.aes = aes;
+    private static SecretKeySpec secretKey;
+
+    public static void setKey(String key) {
+        if (key == null || key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be null or empty");
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] keyBytes = md.digest(key.getBytes(StandardCharsets.UTF_8));
+            byte[] adjustedKey = new byte[KEY_SIZE];
+            System.arraycopy(keyBytes, 0, adjustedKey, 0, Math.min(keyBytes.length, KEY_SIZE));
+            secretKey = new SecretKeySpec(adjustedKey, ALGORITHM);
+        } catch (NoSuchAlgorithmException e) {
+            log.error("Failed to initialize encryption key", e);
+            throw new RuntimeException("Failed to initialize encryption key", e);
+        }
     }
 
-    /**
-     * 加密字符串
-     */
     public static String encrypt(String plaintext) {
         if (plaintext == null || plaintext.isEmpty()) {
             return plaintext;
         }
+        if (secretKey == null) {
+            throw new IllegalStateException("Encryption key not initialized");
+        }
         try {
-            if (aes == null) {
-                throw new IllegalStateException("AES not initialized");
-            }
-            return aes.encryptBase64(plaintext);
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encrypted = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(encrypted);
         } catch (Exception e) {
             log.error("Encryption failed", e);
             throw new RuntimeException("Encryption failed", e);
         }
     }
 
-    /**
-     * 解密字符串
-     */
     public static String decrypt(String ciphertext) {
         if (ciphertext == null || ciphertext.isEmpty()) {
             return ciphertext;
         }
+        if (secretKey == null) {
+            throw new IllegalStateException("Encryption key not initialized");
+        }
         try {
-            if (aes == null) {
-                throw new IllegalStateException("AES not initialized");
-            }
-            return aes.decryptStr(ciphertext);
+            byte[] decoded = Base64.getDecoder().decode(ciphertext);
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] decrypted = cipher.doFinal(decoded);
+            return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
             log.error("Decryption failed", e);
             throw new RuntimeException("Decryption failed", e);
         }
     }
 
-    /**
-     * 生成随机密钥
-     */
     public static String generateKey() {
-        return IdUtil.simpleUUID();
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
-    /**
-     * 脱敏处理
-     */
     public static String mask(String value) {
         if (value == null || value.length() <= 4) {
             return "****";

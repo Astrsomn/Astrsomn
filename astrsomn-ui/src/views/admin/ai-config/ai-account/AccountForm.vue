@@ -198,11 +198,12 @@ const onSubmit = async () => {
 
 watch(() => props.visible, (val) => {
   if (val) {
+    // 先清空表单，避免数据残留
+    Object.assign(form, { id: undefined, accountKey: '', accountName: '', apiKey: '', apiSecret: '', accountTokens: undefined })
+    accountKeyImmutable.value = false
+    
     if (props.record?.id) {
       loadDetail(props.record.id)
-    } else {
-      Object.assign(form, { id: undefined, accountKey: '', accountName: '', apiKey: '', apiSecret: '', accountTokens: undefined })
-      accountKeyImmutable.value = false
     }
   }
 })
