@@ -94,10 +94,7 @@
                 :accent="entry.accent"
                 :style="{ animationDelay: `${index * 0.05}s` }"
                 variant="compact"
-                show-pin-to-dashboard
-                :pinned="pinnedRouteSet.has(entry.route)"
                 @navigate="navigateTo"
-                @pin-to-dashboard="onPinToDashboard"
               />
             </div>
           </section>
@@ -115,9 +112,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { Empty, message } from 'ant-design-vue'
+import { Empty } from 'ant-design-vue'
 import { LeftOutlined, RightOutlined, HomeOutlined, RobotOutlined, FileTextOutlined, SafetyCertificateOutlined, SettingOutlined } from '@ant-design/icons-vue'
 // Vetur occasionally misses Vue SFC default exports in script setup files.
 // @ts-ignore
@@ -125,11 +122,6 @@ import MenuSlotCard from './MenuSlotCard.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import { getCurrentUserRole, resolveManagementGroups } from './management.ts'
-import {
-  addDashboardShortcut,
-  dashboardLayoutRevision,
-  getDashboardPinnedRoutes,
-} from '../backend/core/dashboardLayoutStorage'
 
 const CARD_MIN_WIDTH = 300
 const GRID_GAP = 20
@@ -143,10 +135,21 @@ const pageSize = ref(9)
 const gridContainerRef = ref<HTMLElement | null>(null)
 const contentColumnRef = ref<HTMLElement | null>(null)
 let resizeObserver: ResizeObserver | null = null
+let resizeTimeout: ReturnType<typeof setTimeout> | null = null
+let lastColumns = 0
 
 const calculateColumns = (containerWidth: number): number => {
-  const columns = Math.floor((containerWidth + GRID_GAP) / (CARD_MIN_WIDTH + GRID_GAP))
-  return Math.max(1, columns)
+  const rawColumns = Math.floor((containerWidth + GRID_GAP) / (CARD_MIN_WIDTH + GRID_GAP))
+  const columns = Math.max(1, rawColumns)
+  if (lastColumns > 0 && columns !== lastColumns) {
+    const threshold = CARD_MIN_WIDTH * 0.1
+    const prevWidth = lastColumns * CARD_MIN_WIDTH + (lastColumns - 1) * GRID_GAP
+    if (Math.abs(containerWidth - prevWidth) < threshold) {
+      return lastColumns
+    }
+  }
+  lastColumns = columns
+  return columns
 }
 
 const updatePageSize = () => {
@@ -157,13 +160,15 @@ const updatePageSize = () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
   const contentColumn = document.querySelector('.content-column')
   if (contentColumn) {
     contentColumnRef.value = contentColumn as HTMLElement
     updatePageSize()
     resizeObserver = new ResizeObserver(() => {
-      updatePageSize()
+      if (resizeTimeout) clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(updatePageSize, 100)
     })
     resizeObserver.observe(contentColumn)
   }
@@ -174,15 +179,14 @@ onUnmounted(() => {
     resizeObserver.disconnect()
     resizeObserver = null
   }
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout)
+    resizeTimeout = null
+  }
 })
 
 const currentRole = computed(() => getCurrentUserRole())
 const groups = computed(() => resolveManagementGroups(currentRole.value))
-
-const pinnedRouteSet = computed(() => {
-  void dashboardLayoutRevision.value
-  return getDashboardPinnedRoutes()
-})
 
 const groupsFiltered = computed(() =>
   groups.value
@@ -261,14 +265,6 @@ const changePage = (page: number) => {
 
 const navigateTo = (path: string) => {
   void router.push(path)
-}
-
-const onPinToDashboard = (route: string) => {
-  if (addDashboardShortcut(route)) {
-    message.success('已添加到控制台首页，可在首页「编辑布局」中拖动与缩放')
-  } else {
-    message.info('该入口已在控制台中')
-  }
 }
 
 const handleSearch = () => {

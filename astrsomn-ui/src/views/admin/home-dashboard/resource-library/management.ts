@@ -41,6 +41,8 @@ export type ManagementEntry = {
     label: string
     description: string
     icon: Component
+    /** 可选：自定义彩色图标URL（配置后会替换默认图标） */
+    iconUrl?: string
     route: string
     accent: EntryAccent
     highlight?: boolean
