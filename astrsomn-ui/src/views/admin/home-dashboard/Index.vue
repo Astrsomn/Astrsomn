@@ -23,22 +23,28 @@ import ExtensionGrid from './dashboard-component/bottom/ExtensionGrid.vue'
 <style scoped>
 .demo-dashboard-wrapper {
   position: relative;
-  background: #f8fafc;
-  min-height: 100vh;
+  background: #fff;
+  height: calc(100vh - 70px);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
 }
 
 .main-content {
   max-width: 1600px;
+  height: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding: 0 32px 32px;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .center-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  margin-bottom: 24px;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
 }
 </style>
