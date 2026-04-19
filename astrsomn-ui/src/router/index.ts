@@ -141,6 +141,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '向量驱动', requiresAuth: true }
       },
       {
+        path: 'vec-builder',
+        name: 'AdminVectorBuilder',
+        component: () => import('@/views/admin/ai-vector/builder/Index.vue'),
+        meta: { title: '向量知识库管理', requiresAuth: true }
+      },
+      {
         path: 'resource-library',
         name: 'AdminResourceLibrary',
         component: () => import('@/views/admin/home-dashboard/resource-library/Index.vue'),

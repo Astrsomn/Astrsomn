@@ -1,27 +1,154 @@
 <template>
-  <div style="background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-xl); padding: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);" @mouseenter="this.style.transform = 'translateY(-3px)'; this.style.boxShadow = 'var(--shadow-card)'; this.style.borderColor = 'var(--primary)';" @mouseleave="this.style.transform = 'translateY(0)'; this.style.boxShadow = 'none'; this.style.borderColor = 'var(--border-default)';">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <div style="width: 32px; height: 32px; background: rgba(99, 102, 241, 0.1); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--primary); box-shadow: var(--shadow-sm);">
-          <span class="anticon anticon-edit"><svg viewBox="64 64 896 896" focusable="false" data-icon="edit" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M257.7 752c13.3 0 24.1-10.8 24.1-24.1V432.7L592.3 176.3c15.1-15.1 40.5-4.4 40.5 16.9V728c0 17.7-14.3 32-32 32H257.7zM832 64H600c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h184v696c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8V72c0-4.4-3.6-8-8-8H832z"></path><path d="M375.4 650.6c-6.3 6.3-16.4 6.3-22.7 0l-117-117c-6.3-6.3-6.3-16.4 0-22.7s16.4-6.3 22.7 0l117 117c6.3 6.3 6.3 16.4 0 22.7z"></path><path d="M481.4 650.6c-6.3 6.3-16.4 6.3-22.7 0l-117-117c-6.3-6.3-6.3-16.4 0-22.7s16.4-6.3 22.7 0l117 117c6.3 6.3 6.3 16.4 0 22.7z"></path></svg></span>
+  <div class="prompt-card">
+    <div class="card-header">
+      <div class="header-left">
+        <div class="icon-badge">
+          <EditOutlined />
         </div>
-        <h3 style="font-weight: bold; color: var(--text-primary);">人设与指令 (Prompt)</h3>
+        <h3 class="card-title">人设与指令 (Prompt)</h3>
       </div>
-      <div style="display: flex; gap: 4px;">
-        <button style="width: 28px; height: 28px; background: rgba(99, 102, 241, 0.1); color: var(--primary); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; transition: all 0.2s;" @mouseenter="this.style.background = 'var(--primary)'; this.style.color = 'white';" @mouseleave="this.style.background = 'rgba(99, 102, 241, 0.1)'; this.style.color = 'var(--primary)';">
-          <span class="anticon anticon-magic-stick"><svg viewBox="64 64 896 896" focusable="false" data-icon="magic-stick" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M821 303c-1.6-6.5-4.6-12.5-8.8-17.6-26.2-28.7-61-44.1-99.5-44.1-27.6 0-53.7 7.9-76 22.1-3.8 2.5-4.9 7.8-2.4 11.6l25.4 38.1c2.5 3.8 7.8 4.9 11.6 2.4 16.6-10.8 36.5-16.6 57.4-16.6 26.6 0 51.3 9.8 70.3 28.8 3.8 3.8 3.8 10 0 13.8-19 19-43.7 28.8-70.3 28.8-20.9 0-40.8-5.9-57.4-16.6-3.8-2.5-8.9-1.4-11.6 2.4l-25.4 38.1c-2.5 3.8-1.4 8.9 2.4 11.6 22.3 14.2 48.4 22.1 76 22.1 38.4 0 73.3-15.4 99.5-44.1 4.2-5 7.2-11 8.8-17.6l38.1-145.5c1.6-6.2-1.9-12.6-7.8-14.2l-145.5-38.1z"></path><path d="M192 512c0-28.1 6.9-55 19.2-79 8.2-16.4 19.2-31.1 32.5-43.4l-44-44c-35.8-35.8-35.8-94 0-129.9s94-35.8 129.9 0l44 44c12.3-13.3 27-24.3 43.4-32.5 24-12.3 50.9-19.2 79-19.2s55 6.9 79 19.2c16.4 8.2 31.1 19.2 43.4 32.5l44-44c35.8-35.8 94-35.8 129.9 0s35.8 94 0 129.9l-44 44c13.3 12.3 24.3 27 32.5 43.4 12.3 24 19.2 50.9 19.2 79s-6.9 55-19.2 79c-8.2 16.4-19.2 31.1-32.5 43.4l44 44c35.8 35.8 35.8 94 0 129.9s-94 35.8-129.9 0l-44-44c-12.3 13.3-27 24.3-43.4 32.5-24 12.3-50.9 19.2-79 19.2s-55-6.9-79-19.2c-16.4-8.2-31.1-19.2-43.4-32.5l-44 44c-35.8 35.8-94 35.8-129.9 0s-35.8-94 0-129.9l44-44c-13.3-12.3-24.3-27-32.5-43.4-12.3-24-19.2-50.9-19.2-79z"></path></svg></span>
+      <div class="header-actions">
+        <button class="action-btn primary">
+          <ThunderboltOutlined />
         </button>
-        <button style="width: 28px; height: 28px; background: var(--bg-elevated); color: var(--text-secondary); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; transition: all 0.2s;" @mouseenter="this.style.background = 'var(--bg-secondary)';" @mouseleave="this.style.background = 'var(--bg-elevated)';">
-          <span class="anticon anticon-fullscreen"><svg viewBox="64 64 896 896" focusable="false" data-icon="fullscreen" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M473 155H312c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h136v224H312c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h161c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H392V211h81c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8zm341 271h-48c-4.4 0-8 3.6-8 8v161c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V434c0-4.4-3.6-8-8-8zm-684 0H155c-4.4 0-8 3.6-8 8v161c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V434c0-4.4-3.6-8-8-8zm271 271H392v-224h136c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H312c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h136v224H312c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h161c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8z"></path></svg></span>
+        <button class="action-btn">
+          <FullscreenOutlined />
         </button>
       </div>
     </div>
-    <textarea rows="4" style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 16px; font-size: 12px; font-weight: 500; color: var(--text-primary); outline: none; transition: all 0.3s; resize: none;" placeholder="给你的 Agent 一个酷炫的人设..." @focus="this.style.borderColor = 'var(--primary)'; this.style.boxShadow = '0 0 0 2px rgba(99, 102, 241, 0.1)';" @blur="this.style.borderColor = 'var(--border-default)'; this.style.boxShadow = 'none';"></textarea>
+    <textarea
+      class="prompt-textarea custom-scrollbar"
+      rows="4"
+      placeholder="给你的 Agent 一个酷炫的人设..."
+    ></textarea>
   </div>
 </template>
 
 <script setup lang="ts">
+import { EditOutlined, ThunderboltOutlined, FullscreenOutlined } from '@ant-design/icons-vue';
 </script>
 
 <style scoped>
+.prompt-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prompt-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+  border-color: var(--primary);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-badge {
+  width: 32px;
+  height: 32px;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.icon-badge .anticon {
+  font-size: 14px;
+}
+
+.card-title {
+  font-weight: bold;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.action-btn {
+  width: 28px;
+  height: 28px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: var(--bg-secondary);
+}
+
+.action-btn.primary {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
+}
+
+.action-btn.primary:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.action-btn .anticon {
+  font-size: 12px;
+}
+
+.prompt-textarea {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.3s;
+  resize: none;
+  font-family: inherit;
+}
+
+.prompt-textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.prompt-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 10px;
+}
 </style>

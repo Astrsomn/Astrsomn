@@ -20,9 +20,9 @@
       <SettingOutlined class="extension-icon extension-icon--violet" />
       <span>系统扩展</span>
     </div>
-    <div class="extension-card" @click="navigateTo('/admin/ai-account')">
+    <div class="extension-card" @click="navigateTo('/admin/vec-builder')">
       <KeyOutlined class="extension-icon extension-icon--sky" />
-      <span>凭证管理</span>
+      <span>向量知识库管理</span>
     </div>
     <div class="extension-card" @click="navigateTo('/admin/security')">
       <SecurityScanOutlined class="extension-icon extension-icon--red" />

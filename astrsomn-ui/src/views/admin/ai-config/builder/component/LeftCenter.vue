@@ -1,26 +1,19 @@
 <template>
-  <div style="flex: 1; overflow-y: auto; padding: 16px 32px 32px;" class="custom-scrollbar">
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
-      <span style="width: 6px; height: 16px; background: var(--border-default); border-radius: 3px;"></span>
-      <h2 style="font-weight: bold; font-size: 14px; color: var(--text-heading);">功能增强模组</h2>
+  <div class="left-center custom-scrollbar">
+    <div class="section-header">
+      <div class="section-title">
+        <span class="title-indicator"></span>
+        <h2 class="title-text">功能增强模组</h2>
+      </div>
     </div>
-    
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-      <!-- 左列 -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
-        <!-- Prompt 块 -->
+
+    <div class="card-grid">
+      <div class="card-column">
         <PromptCard />
-        
-        <!-- Image Model 块 -->
         <ImageModelCard />
       </div>
-
-      <!-- 右列 -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
-        <!-- Tools 块 -->
+      <div class="card-column">
         <ToolCard />
-        
-        <!-- RAG/Embedding 块 -->
         <RagCard />
       </div>
     </div>
@@ -35,6 +28,45 @@ import RagCard from './left-center/RagCard.vue';
 </script>
 
 <style scoped>
+.left-center {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 32px 32px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.title-indicator {
+  width: 6px;
+  height: 16px;
+  background: var(--border-default);
+  border-radius: 3px;
+}
+
+.title-text {
+  font-weight: bold;
+  font-size: 14px;
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.card-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
