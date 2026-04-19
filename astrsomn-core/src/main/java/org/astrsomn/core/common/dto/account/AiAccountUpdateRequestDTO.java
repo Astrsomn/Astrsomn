@@ -9,7 +9,14 @@ import java.io.Serializable;
  * {@link org.astrsomn.core.common.base.BaseEntity}，勿在此重复声明非 ISO-8601 的日期格式。
  */
 @Data
-public class AiAccountUpdateRequestDTO extends AiAccountCreateRequestDTO implements Serializable {
+public class AiAccountUpdateRequestDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private Long id;
+    private String accountKey;
+    private String accountName;
+    private String apiKey;
+    private String apiSecret;
+    private Long accountTokens;
 }

@@ -14,6 +14,7 @@ import org.astrsomn.core.common.dto.account.AiAccountUpdateRequestDTO;
 import org.astrsomn.core.common.entity.AiAccountEntity;
 import org.astrsomn.core.common.entity.AiModelEntity;
 import org.astrsomn.core.common.utils.StringUtils;
+import org.astrsomn.core.common.util.CryptoUtil;
 import org.astrsomn.core.exception.base.BusinessException;
 import org.astrsomn.core.exception.constant.AiAccountErrorEnum;
 import org.astrsomn.core.mapper.AiAccountMapper;
@@ -38,6 +39,13 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
     public BaseResponse<String> create(AiAccountCreateRequestDTO request) {
         AiAccountEntity entity = new AiAccountEntity();
         BeanUtils.copyProperties(request, entity);
+        // 加密API Key和Secret
+        if (request.getApiKey() != null) {
+            entity.setApiKey(CryptoUtil.encrypt(request.getApiKey()));
+        }
+        if (request.getApiSecret() != null) {
+            entity.setApiSecret(CryptoUtil.encrypt(request.getApiSecret()));
+        }
         bizResourceKeyAssignHelper.assignAccountKeyIfBlank(entity);
         boolean result = save(entity);
         if (!result) {
@@ -78,6 +86,13 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         }
         AiAccountEntity entity = new AiAccountEntity();
         BeanUtils.copyProperties(request, entity);
+        // 加密API Key和Secret
+        if (request.getApiKey() != null) {
+            entity.setApiKey(CryptoUtil.encrypt(request.getApiKey()));
+        }
+        if (request.getApiSecret() != null) {
+            entity.setApiSecret(CryptoUtil.encrypt(request.getApiSecret()));
+        }
         if (isAccountKeyReferencedByModel(existing.getAccountKey(), existing.getEnvCode())) {
             entity.setAccountKey(existing.getAccountKey());
         } else {
@@ -100,6 +115,40 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiAccountResponseDTO> result = baseMapper.queryPage(page, param);
         return PageResponse.buildResponse(result);
+    }
+
+    /**
+     * 获取解密后的AI账号信息（内部使用）
+     */
+    public AiAccountEntity getDecryptedAccount(Long id) {
+        AiAccountEntity entity = getById(id);
+        if (entity != null) {
+            if (entity.getApiKey() != null) {
+                entity.setApiKey(CryptoUtil.decrypt(entity.getApiKey()));
+            }
+            if (entity.getApiSecret() != null) {
+                entity.setApiSecret(CryptoUtil.decrypt(entity.getApiSecret()));
+            }
+        }
+        return entity;
+    }
+
+    /**
+     * 获取解密后的AI账号信息（内部使用）
+     */
+    public AiAccountEntity getDecryptedAccountByKey(String accountKey, String envCode) {
+        AiAccountEntity entity = getOne(new LambdaQueryWrapper<AiAccountEntity>()
+                .eq(AiAccountEntity::getAccountKey, accountKey)
+                .eq(AiAccountEntity::getEnvCode, envCode));
+        if (entity != null) {
+            if (entity.getApiKey() != null) {
+                entity.setApiKey(CryptoUtil.decrypt(entity.getApiKey()));
+            }
+            if (entity.getApiSecret() != null) {
+                entity.setApiSecret(CryptoUtil.decrypt(entity.getApiSecret()));
+            }
+        }
+        return entity;
     }
 
     /**

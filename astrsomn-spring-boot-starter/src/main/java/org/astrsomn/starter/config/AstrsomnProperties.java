@@ -15,6 +15,11 @@ public class AstrsomnProperties {
     private String envCode;
 
     /**
+     * 加密密钥，用于加密 API Key 和 Secret。
+     */
+    private String accountKey = "astrsomn-account-key";
+
+    /**
      * MyBatis-Plus 配置。
      */
     private MybatisPlus mybatisPlus = new MybatisPlus();

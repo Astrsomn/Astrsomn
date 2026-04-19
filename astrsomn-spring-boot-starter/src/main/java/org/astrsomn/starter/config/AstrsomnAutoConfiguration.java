@@ -14,7 +14,8 @@ import org.springframework.context.annotation.Import;
 @Import({
         DataSourceConfig.class,             // 负责数据源初始化（已合并 MySQL/Oracle）
         MybatisPlusConfig.class,           // 负责 MP 插件配置（已合并）
-        AstrsomnEnvAutoConfiguration.class // 负责环境隔离拦截器的注入
+        AstrsomnEnvAutoConfiguration.class, // 负责环境隔离拦截器的注入
+        CryptoConfig.class                 // 负责加密配置
 })
 public class AstrsomnAutoConfiguration {
     // 这里通常不需要写代码，仅作为组件入口
