@@ -4,20 +4,34 @@
       <div class="status-dot"></div>
       <span class="status-text">实时预览测试</span>
     </div>
-    <button class="reset-btn">
-      <DeleteOutlined />
-      重置对话
-    </button>
+    <div class="action-buttons">
+      <button class="action-btn" :class="{ active: mode === 'code' }" @click="$emit('toggle')">
+        <code-outlined />
+        {{ mode === 'code' ? '对话模式' : '代码模式' }}
+      </button>
+      <button class="action-btn reset-btn">
+        <delete-outlined />
+        重置
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { DeleteOutlined } from '@ant-design/icons-vue';
+import { DeleteOutlined, CodeOutlined } from '@ant-design/icons-vue';
+
+defineProps<{
+  mode: 'chat' | 'code';
+}>();
+
+defineEmits<{
+  toggle: [];
+}>();
 </script>
 
 <style scoped>
 .right-top {
-  padding: 20px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-default);
   display: flex;
   align-items: center;
@@ -41,17 +55,24 @@ import { DeleteOutlined } from '@ant-design/icons-vue';
 
 .status-text {
   font-weight: bold;
+  font-size: 13px;
   color: var(--text-primary);
 }
 
-.reset-btn {
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
   font-size: 11px;
-  font-weight: bold;
+  font-weight: 600;
   color: var(--text-secondary);
-  padding: 4px 12px;
+  padding: 5px 12px;
   border-radius: var(--radius-md);
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
@@ -59,12 +80,19 @@ import { DeleteOutlined } from '@ant-design/icons-vue';
   gap: 4px;
 }
 
-.reset-btn:hover {
+.action-btn:hover {
   color: var(--primary);
   background: rgba(99, 102, 241, 0.1);
 }
 
-.reset-btn .anticon {
-  font-size: 12px;
+.action-btn.active {
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--primary);
+}
+
+.reset-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
 }
 </style>
