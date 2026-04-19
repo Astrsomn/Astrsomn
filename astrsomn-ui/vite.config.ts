@@ -9,10 +9,13 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  build: {
+    outDir: resolve(__dirname, '../astrsomn-server/src/main/resources/static'),
+    emptyOutDir: true
+  },
   server: {
     port: 3000,
     proxy: {
-      // 开发代理：浏览器请求 /api/xxx → 转发为后端 /xxx（后端业务路径不带 /api 前缀）
       '/api': {
         target: 'http://localhost:4481',
         changeOrigin: true,
