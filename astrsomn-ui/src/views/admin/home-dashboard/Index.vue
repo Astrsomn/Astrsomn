@@ -1,15 +1,23 @@
 <template>
   <div class="demo-dashboard-wrapper">
     <main class="main-content">
-      <StatsGrid />
+      <div class="animate-fade-in" style="animation-delay: 0ms">
+        <StatsGrid />
+      </div>
 
       <div class="center-grid">
-        <AgentBrainCard />
-        <SmallCards />
+        <div class="animate-fade-in" style="animation-delay: 100ms">
+          <AgentBrainCard />
+        </div>
+        <div class="animate-fade-in" style="animation-delay: 200ms">
+          <SmallCards />
+        </div>
       </div>
 
       <div class="bottom-section">
-        <ExtensionGrid />
+        <div class="animate-fade-in" style="animation-delay: 300ms">
+          <ExtensionGrid />
+        </div>
       </div>
     </main>
   </div>
@@ -67,5 +75,19 @@ p, span, div {
   flex-direction: column;
   gap: 16px;
   min-height: 140px;
+}
+
+/* 页面进入动画 */
+.animate-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
