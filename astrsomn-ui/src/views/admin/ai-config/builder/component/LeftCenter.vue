@@ -15,7 +15,7 @@
           @create="handleCreatePrompt"
           @update:promptContent="handlePromptContentUpdate"
         />
-        <ImageModelCard />
+        <ImageModelCard :current-image-instance="currentImageInstance" @select:image-instance="handleSelectImageInstance" />
       </div>
       <div class="card-column">
         <ToolCard />
@@ -47,10 +47,12 @@ import RagCard from './left-center/RagCard.vue'
 import PromptSelectDrawer from '../../ai-prompt/PromptSelectDrawer.vue'
 import PromptFormModal from '../../ai-prompt/PromptFormModal.vue'
 import type { AiPrompt } from '@/api/aiPrompt'
+import type { AiInstance } from '@/api/aiInstance'
 
 const promptDrawerOpen = ref(false)
 const promptFormOpen = ref(false)
 const currentPrompt = ref<AiPrompt | undefined>(undefined)
+const currentImageInstance = ref<AiInstance | undefined>(undefined)
 
 const handleSelectPrompt = () => {
   promptDrawerOpen.value = true
@@ -74,6 +76,12 @@ const handlePromptContentUpdate = (content: string) => {
 const handlePromptSubmit = async (form: AiPrompt) => {
   promptFormOpen.value = false
   currentPrompt.value = form
+}
+
+const handleSelectImageInstance = (instance: AiInstance) => {
+  console.log('Received image instance in LeftCenter:', instance)
+  currentImageInstance.value = instance
+  console.log('Updated currentImageInstance in LeftCenter:', currentImageInstance.value)
 }
 </script>
 

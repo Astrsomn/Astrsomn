@@ -21,11 +21,11 @@
         </div>
       </div>
       <input 
-        v-model="agentDescLocal" 
+        v-model="descriptionLocal" 
         class="agent-name-input desc-input"
         placeholder="智能体描述"
         maxlength="100"
-        @input="handleDescInput"
+        @input="handleDescriptionInput"
       />
 
     </div>
@@ -38,14 +38,14 @@ import { RobotOutlined, DoubleRightOutlined } from '@ant-design/icons-vue'
 
 interface Props {
   agentName?: string
-  agentDesc?: string
+  description?: string
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'update:agentName', value: string): void
-  (e: 'update:agentDesc', value: string): void
+  (e: 'update:description', value: string): void
 }>()
 
 const agentNameLocal = computed({
@@ -53,9 +53,9 @@ const agentNameLocal = computed({
   set: (val) => emit('update:agentName', val)
 })
 
-const agentDescLocal = computed({
-  get: () => props.agentDesc || '',
-  set: (val) => emit('update:agentDesc', val)
+const descriptionLocal = computed({
+  get: () => props.description || '',
+  set: (val) => emit('update:description', val)
 })
 
 const handleAgentNameInput = (event: Event) => {
@@ -63,9 +63,9 @@ const handleAgentNameInput = (event: Event) => {
   emit('update:agentName', target.value)
 }
 
-const handleDescInput = (event: Event) => {
+const handleDescriptionInput = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('update:agentDesc', target.value)
+  emit('update:description', target.value)
 }
 </script>
 

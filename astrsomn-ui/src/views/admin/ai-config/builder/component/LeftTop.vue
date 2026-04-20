@@ -25,9 +25,9 @@
       />
       <AgentCard 
         :agent-name="agentName"
-        :agent-desc="agentDesc"
+        :description="description"
         @update:agentName="handleAgentNameUpdate"
-        @update:agentDesc="handleAgentDescUpdate"
+        @update:description="handleDescriptionUpdate"
       />
     </div>
 
@@ -77,12 +77,12 @@ import type { AiInstance } from '@/api/aiInstance'
 
 const props = defineProps<{
   agentName?: string
-  agentDesc?: string
+  description?: string
 }>()
 
 const emit = defineEmits<{
   (e: 'update:agentName', value: string): void
-  (e: 'update:agentDesc', value: string): void
+  (e: 'update:description', value: string): void
 }>()
 
 const formVisible = ref(false)
@@ -144,8 +144,8 @@ const handleAgentNameUpdate = (value: string) => {
   emit('update:agentName', value)
 }
 
-const handleAgentDescUpdate = (value: string) => {
-  emit('update:agentDesc', value)
+const handleDescriptionUpdate = (value: string) => {
+  emit('update:description', value)
 }
 </script>
 

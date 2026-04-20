@@ -4,7 +4,7 @@
 
     <main class="builder-main">
       <section class="builder-left">
-        <LeftTop :agent-name="agentName" @update:agentName="agentName = $event" />
+        <LeftTop :agent-name="agentName" :description="description" @update:agentName="agentName = $event" @update:description="description = $event" />
         <LeftCenter />
       </section>
       <Right />
@@ -22,6 +22,7 @@ import LeftCenter from './component/LeftCenter.vue'
 import Right from './component/Right.vue'
 
 const agentName = ref('未命名的智能体')
+const description = ref('')
 </script>
 
 <style scoped>

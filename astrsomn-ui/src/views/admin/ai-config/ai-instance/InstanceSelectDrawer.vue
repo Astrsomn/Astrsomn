@@ -86,6 +86,7 @@ import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInsta
 
 const props = defineProps<{
   open: boolean
+  disableTtlEdit?: boolean
 }>()
 
 const emit = defineEmits<{
