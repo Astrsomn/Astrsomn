@@ -284,7 +284,7 @@ const handleSearch = () => {
 
 /* --- 侧边栏样式 --- */
 .filter-column {
-  background-color: var(--bg-card);
+
   border-right: 1px solid var(--border-default);
   padding: 32px 16px;
 }
@@ -328,7 +328,7 @@ const handleSearch = () => {
   align-items: center;
   gap: 12px;
   padding: 16px 16px;
-  border-radius: 16px;
+  border-radius: 12px;
   cursor: pointer;
   color: var(--text-secondary);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -336,13 +336,13 @@ const handleSearch = () => {
 }
 
 .nav-item:hover {
-  background: var(--bg-elevated);
+
   color: var(--text-primary);
   border-color: var(--border-default);
 }
 
 .nav-item.active {
-  background: var(--bg-elevated);
+
   color: var(--text-primary);
   border-color: var(--border-default);
   box-shadow: var(--shadow-card);

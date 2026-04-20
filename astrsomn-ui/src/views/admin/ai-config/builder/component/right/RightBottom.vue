@@ -31,7 +31,7 @@ import { PaperClipOutlined, AudioOutlined, SendOutlined } from '@ant-design/icon
 
 .input-wrapper {
   position: relative;
-  background: var(--bg-elevated);
+  background: #ffffff;
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-default);
   padding: 8px;
