@@ -2,22 +2,71 @@
   <div class="node-connector">
     <div class="agent-card">
       <div class="card-header">
-        <span class="card-label">Agent Name</span>
-        <RobotOutlined class="card-icon" />
+        <div class="header-left">
+          <div class="icon-badge">
+            <RobotOutlined />
+          </div>
+          <div class="header-info">
+            <input 
+              v-model="agentNameLocal" 
+              class="agent-name-input header-input"
+              placeholder="智能体名称"
+              maxlength="50"
+              @input="handleAgentNameInput"
+            />
+          </div>
+        </div>
+        <div class="card-icon">
+          <DoubleRightOutlined />
+        </div>
       </div>
-      <div class="card-title">Astrsomn_v2</div>
-      <div class="card-subtitle">Ready to sync</div>
-      <div class="card-overlay">
-        <button class="overlay-btn" title="修改基本信息">
-          <EditOutlined />
-        </button>
-      </div>
+      <input 
+        v-model="agentDescLocal" 
+        class="agent-name-input desc-input"
+        placeholder="智能体描述"
+        maxlength="100"
+        @input="handleDescInput"
+      />
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { RobotOutlined, EditOutlined } from '@ant-design/icons-vue';
+import { computed } from 'vue'
+import { RobotOutlined, DoubleRightOutlined } from '@ant-design/icons-vue'
+
+interface Props {
+  agentName?: string
+  agentDesc?: string
+}
+
+const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  (e: 'update:agentName', value: string): void
+  (e: 'update:agentDesc', value: string): void
+}>()
+
+const agentNameLocal = computed({
+  get: () => props.agentName || '',
+  set: (val) => emit('update:agentName', val)
+})
+
+const agentDescLocal = computed({
+  get: () => props.agentDesc || '',
+  set: (val) => emit('update:agentDesc', val)
+})
+
+const handleAgentNameInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  emit('update:agentName', target.value)
+}
+
+const handleDescInput = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  emit('update:agentDesc', target.value)
+}
 </script>
 
 <style scoped>
@@ -36,6 +85,9 @@ import { RobotOutlined, EditOutlined } from '@ant-design/icons-vue';
   box-shadow: var(--shadow-overview);
   color: white;
   cursor: pointer;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
 }
 
 .agent-card:hover {
@@ -50,6 +102,34 @@ import { RobotOutlined, EditOutlined } from '@ant-design/icons-vue';
   margin-bottom: 8px;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-badge {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.icon-badge .anticon {
+  font-size: 16px;
+}
+
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .card-label {
   font-size: 10px;
   font-weight: bold;
@@ -58,60 +138,62 @@ import { RobotOutlined, EditOutlined } from '@ant-design/icons-vue';
 }
 
 .card-icon {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.3);
   font-size: 16px;
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.card-title {
+.agent-name-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.header-input {
   font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin-bottom: 8px;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.header-input:focus {
+  box-shadow: none;
+  background: transparent;
+}
+
+.desc-input {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.agent-name-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.agent-name-input:focus {
+  outline: none;
+  border-color: white;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 .card-subtitle {
-  font-size: 10px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
   margin-top: 4px;
-}
-
-.card-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  opacity: 0;
-  transition: opacity 0.2s;
-  pointer-events: none;
-}
-
-.agent-card:hover .card-overlay {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.overlay-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  color: var(--primary);
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.overlay-btn:hover {
-  transform: scale(1.1);
-}
-
-.overlay-btn .anticon {
-  font-size: 14px;
 }
 </style>

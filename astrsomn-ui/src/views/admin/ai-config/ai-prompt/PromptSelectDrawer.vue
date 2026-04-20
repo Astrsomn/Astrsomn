@@ -1,0 +1,279 @@
+<template>
+  <a-drawer
+    :open="props.open"
+    placement="right"
+    :width="560"
+    :maskClosable="true"
+    :closable="true"
+    title="选择提示词"
+    @close="handleClose"
+    root-class-name="prompt-select-drawer"
+  >
+    <div class="select-drawer-content">
+      <div class="search-bar">
+        <a-input
+          v-model:value="keyword"
+          placeholder="搜索标题"
+          allow-clear
+          @pressEnter="handleSearch"
+        >
+          <template #prefix>
+            <SearchOutlined />
+          </template>
+        </a-input>
+        <a-select
+          v-model:value="queryStatus"
+          placeholder="状态筛选"
+          allow-clear
+          style="width: 120px"
+          @change="handleSearch"
+        >
+          <a-select-option value="enabled">启用</a-select-option>
+          <a-select-option value="disabled">禁用</a-select-option>
+        </a-select>
+        <a-button type="primary" @click="handleSearch">查询</a-button>
+      </div>
+
+      <a-spin :spinning="loading">
+        <div class="prompt-list">
+          <div
+            v-for="prompt in list"
+            :key="prompt.id"
+            class="prompt-item"
+            :class="{ selected: selectedId === prompt.id }"
+            @click="handleSelect(prompt)"
+          >
+            <div class="prompt-icon">
+              <EditOutlined />
+            </div>
+            <div class="prompt-info">
+              <div class="prompt-title">{{ prompt.promptTitle }}</div>
+              <div class="prompt-key">
+                <KeyOutlined /> {{ prompt.promptKey || '自动生成' }}
+              </div>
+              <div class="prompt-scene" v-if="prompt.scene">{{ prompt.scene }}</div>
+            </div>
+            <div class="prompt-meta">
+              <span class="version-tag">v{{ prompt.version || 1 }}</span>
+              <span class="status-badge" :class="prompt.enabledFlag">
+                {{ prompt.enabledFlag === 'enabled' ? '启用' : '禁用' }}
+              </span>
+            </div>
+          </div>
+
+          <a-empty v-if="!loading && list.length === 0" description="暂无提示词" />
+        </div>
+      </a-spin>
+
+      <div class="drawer-footer">
+        <a-pagination
+          v-model:current="page.pageNum"
+          :page-size="page.pageSize"
+          :total="page.total"
+          :show-size-changer="false"
+          @change="fetchList"
+        />
+      </div>
+    </div>
+  </a-drawer>
+</template>
+
+<script setup lang="ts">
+import { reactive, ref, watch } from 'vue'
+import { SearchOutlined, EditOutlined, KeyOutlined } from '@ant-design/icons-vue'
+import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt'
+
+const props = defineProps<{
+  open: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:open', value: boolean): void
+  (e: 'select', prompt: AiPrompt): void
+}>()
+
+const keyword = ref('')
+const queryStatus = ref<string | undefined>()
+const loading = ref(false)
+const list = ref<AiPrompt[]>([])
+const selectedId = ref<number | string | undefined>()
+const page = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  total: 0
+})
+
+const fetchList = async () => {
+  loading.value = true
+  try {
+    const payload = {
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: {
+        promptTitle: keyword.value || undefined,
+        status: queryStatus.value || undefined
+      }
+    }
+    const resp: PageResponse<AiPrompt> = await aiPromptApi.queryPage(payload)
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleSearch = () => {
+  page.pageNum = 1
+  void fetchList()
+}
+
+const handleSelect = (prompt: AiPrompt) => {
+  selectedId.value = prompt.id
+  emit('select', prompt)
+}
+
+const handleClose = () => {
+  emit('update:open', false)
+}
+
+watch(() => props.open, (val) => {
+  if (val) {
+    keyword.value = ''
+    queryStatus.value = undefined
+    selectedId.value = undefined
+    page.pageNum = 1
+    void fetchList()
+  }
+})
+</script>
+
+<style scoped>
+.select-drawer-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.search-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.prompt-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prompt-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.prompt-item:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-card);
+}
+
+.prompt-item.selected {
+  border-color: var(--primary);
+  background: var(--primary-hover);
+}
+
+.prompt-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.prompt-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.prompt-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prompt-key {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.prompt-scene {
+  font-size: 12px;
+  color: var(--text-hint);
+  margin-top: 4px;
+}
+
+.prompt-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.version-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 4px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.status-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.status-badge.enabled {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge.disabled {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.drawer-footer {
+  flex-shrink: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  justify-content: center;
+}
+</style>

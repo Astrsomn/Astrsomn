@@ -9,7 +9,12 @@
 
     <div class="card-grid">
       <div class="card-column">
-        <PromptCard />
+        <PromptCard
+          :prompt="currentPrompt"
+          @select="handleSelectPrompt"
+          @create="handleCreatePrompt"
+          @update:promptContent="handlePromptContentUpdate"
+        />
         <ImageModelCard />
       </div>
       <div class="card-column">
@@ -17,14 +22,59 @@
         <RagCard />
       </div>
     </div>
+
+    <PromptSelectDrawer
+      v-model:open="promptDrawerOpen"
+      @select="handlePromptSelect"
+    />
+
+    <PromptFormModal
+      v-model:open="promptFormOpen"
+      mode="create"
+      :confirm-loading="false"
+      :initial="null"
+      @submit="handlePromptSubmit"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import PromptCard from './left-center/PromptCard.vue';
-import ImageModelCard from './left-center/ImageModelCard.vue';
-import ToolCard from './left-center/ToolCard.vue';
-import RagCard from './left-center/RagCard.vue';
+import { ref } from 'vue'
+import PromptCard from './left-center/PromptCard.vue'
+import ImageModelCard from './left-center/ImageModelCard.vue'
+import ToolCard from './left-center/ToolCard.vue'
+import RagCard from './left-center/RagCard.vue'
+import PromptSelectDrawer from '../../ai-prompt/PromptSelectDrawer.vue'
+import PromptFormModal from '../../ai-prompt/PromptFormModal.vue'
+import type { AiPrompt } from '@/api/aiPrompt'
+
+const promptDrawerOpen = ref(false)
+const promptFormOpen = ref(false)
+const currentPrompt = ref<AiPrompt | undefined>(undefined)
+
+const handleSelectPrompt = () => {
+  promptDrawerOpen.value = true
+}
+
+const handleCreatePrompt = () => {
+  promptFormOpen.value = true
+}
+
+const handlePromptSelect = (prompt: AiPrompt) => {
+  currentPrompt.value = prompt
+  promptDrawerOpen.value = false
+}
+
+const handlePromptContentUpdate = (content: string) => {
+  if (currentPrompt.value) {
+    currentPrompt.value.promptContent = content
+  }
+}
+
+const handlePromptSubmit = async (form: AiPrompt) => {
+  promptFormOpen.value = false
+  currentPrompt.value = form
+}
 </script>
 
 <style scoped>
