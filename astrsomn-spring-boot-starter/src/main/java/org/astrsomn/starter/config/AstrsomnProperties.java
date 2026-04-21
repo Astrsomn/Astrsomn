@@ -55,9 +55,9 @@ public class AstrsomnProperties {
     public static class DataBase {
 
         /**
-         * 数据库类型。可选值：mysql, oracle。
+         * 数据库类型。可选值：mysql, oracle, sqlite。
          */
-        private String databaseType = "mysql";
+        private String databaseType = "sqlite";
 
         /**
          * 数据库主机地址，默认为 localhost。
