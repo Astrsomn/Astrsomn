@@ -74,6 +74,14 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.46.1.1</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Hutool - 只引入需要的模块，避免引入all -->
         <dependency>
             <groupId>cn.hutool</groupId>
