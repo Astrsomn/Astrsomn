@@ -1,41 +1,19 @@
-logging:
-  level:
-    org.astrsomn.core.mapper: debug
-
 spring:
   application:
     name: astrsomn-server
+  profiles:
+    active: sqlite
   servlet:
     multipart:
       max-file-size: 128MB
       max-request-size: 130MB
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-      config:
-        server-addr: localhost:8848
-        file-extension: yml
 
 server:
   port: 4481
 
 astrsomn:
   env-code: pro
-  data-base:
-    database-type: mysql
-    host: 127.0.0.1
-    port: 3306
-    database-name: astro_ai
-    username: astro_ai
-    password: k7NHzMP7ErRZ4SFC
-    driver: com.mysql.cj.jdbc.Driver
-    use-ssl: false
-    charset: utf8
-    timezone: Asia/Shanghai
-    connection-timeout: 30000
-    maximum-pool-size: 10
-    minimum-idle: 5
 
-
-
+logging:
+  level:
+    org.astrsomn.core.mapper: debug
