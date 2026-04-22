@@ -1,0 +1,15 @@
+astrsomn:
+  data-base:
+    database-type: mysql
+    host: 127.0.0.1
+    port: 3306
+    database-name: astro_ai
+    username: astro_ai
+    password: k7NHzMP7ErRZ4SFC
+    driver: com.mysql.cj.jdbc.Driver
+    use-ssl: false
+    charset: utf8
+    timezone: Asia/Shanghai
+    connection-timeout: 30000
+    maximum-pool-size: 10
+    minimum-idle: 5
