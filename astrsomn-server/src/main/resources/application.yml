@@ -1,6 +1,5 @@
 logging:
   level:
-    # MyBatis Mapper：DEBUG 时会在控制台打印 SQL 与参数（本地开发常用；生产可改为 info 或关闭）
     org.astrsomn.core.mapper: debug
 
 spring:
@@ -23,11 +22,6 @@ server:
 
 astrsomn:
   env-code: pro
-  # 首次启动写入 SYSTEM_ENV（env_key = env-code）；默认管理员同此环境
-  # default-env:
-  #   name: 生产环境
-  #   description: 可选说明
-  # 默认智能体/模型：在库中为当前 env-code 各维护一条 AI_AGENT.IS_DEFAULT=1、AI_MODEL(IS_DEFAULT=1 AND MODEL_TYPE=chat)，无需 refs
   data-base:
     database-type: mysql
     host: 127.0.0.1
@@ -43,19 +37,5 @@ astrsomn:
     maximum-pool-size: 10
     minimum-idle: 5
 
-# Oracle配置示例
-# astrsomn:
-#   env-code: pro
-#   data-base:
-#     database-type: oracle
-#     host: localhost
-#     port: 1521
-#     database-name: ORCL
-#     schema: astrsomn
-#     username: system
-#     password: oracle
-#     driver: oracle.jdbc.OracleDriver
-#     connection-timeout: 30000
-#     maximum-pool-size: 10
-#     minimum-idle: 5
+
 
