@@ -1,5 +1,0 @@
-astrsomn:
-  data-base:
-    database-type: sqlite
-    driver: org.sqlite.JDBC
-    url: jdbc:sqlite:../database/astro_ai.db

@@ -1,0 +1,10 @@
+astrsomn:
+  data-base:
+    database-type: h2
+    driver: org.h2.Driver
+    url: jdbc:h2:tcp://localhost:9092/./astrosomn;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    username: sa
+    password: 
+    connection-timeout: 30000
+    maximum-pool-size: 10
+    minimum-idle: 5
