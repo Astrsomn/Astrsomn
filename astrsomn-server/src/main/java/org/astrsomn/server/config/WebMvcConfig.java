@@ -87,4 +87,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/**", "/v1/astro/**")
                 .order(5);
     }
+
 }

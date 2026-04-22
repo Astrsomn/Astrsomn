@@ -10,6 +10,7 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -45,6 +46,22 @@ public class GlobalExceptionHandler {
         log.warn("请求参数异常 - URI: {}, message={}", request.getRequestURI(), message, ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(buildBody(HttpStatus.BAD_REQUEST.value(), message, ex, request));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleResponseStatusException(
+            ResponseStatusException ex,
+            HttpServletRequest request) {
+        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        String message = ex.getReason();
+        if (message == null || message.isBlank()) {
+            message = status.getReasonPhrase();
+        }
+        return ResponseEntity.status(status)
+                .body(buildBody(status.value(), message, ex, request));
     }
 
     @ExceptionHandler(Exception.class)

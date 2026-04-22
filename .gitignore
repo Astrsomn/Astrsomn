@@ -80,3 +80,5 @@ build.xml
 /store/
 /deployment/
 /astrsomn-server/src/main/resources/static/
+/deploy/windows/output/
+/deploy/windows/run/.runtime/
