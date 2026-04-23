@@ -10,7 +10,7 @@ import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
 
 @Data
-@TableName("SYSTEM_ENV")
+@TableName("SYS_ENV")
 public class SystemEnvEntity extends BaseEntity<Long> {
 
     /**

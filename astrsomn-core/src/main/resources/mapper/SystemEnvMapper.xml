@@ -6,7 +6,7 @@
         SELECT
         se.*
         FROM
-        `SYSTEM_ENV` se
+        `SYS_ENV` se
         WHERE
         1=1
         <if test="req != null and req.envName != null and req.envName != ''">

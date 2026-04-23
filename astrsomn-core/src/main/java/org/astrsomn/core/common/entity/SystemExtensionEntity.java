@@ -10,7 +10,7 @@ import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
 
 @Data
-@TableName("SYSTEM_EXTENSION")
+@TableName("SYS_EXTENSION")
 public class SystemExtensionEntity extends BaseEntity<Long> {
 
     @TableId(value = "ID", type = IdType.ASSIGN_ID)

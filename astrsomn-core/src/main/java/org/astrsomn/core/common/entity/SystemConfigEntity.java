@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 import org.astrsomn.core.common.base.BaseEntity;
 
 @Data
-@TableName("SYSTEM_CONFIG")
+@TableName("SYS_CONFIG")
 @EqualsAndHashCode(callSuper = true)
 public class SystemConfigEntity extends BaseEntity<Long>{
     @TableId(value = "ID", type = IdType.ASSIGN_ID)
