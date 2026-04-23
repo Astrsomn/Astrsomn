@@ -7,13 +7,16 @@ spring:
     multipart:
       max-file-size: 128MB
       max-request-size: 130MB
-
 server:
   port: 4481
-
 astrsomn:
   env-code: PRO
-
 logging:
   level:
     org.astrsomn.core.mapper: debug
+cookie:
+  default-path: "/"
+  default-max-age: 604800
+jwt:
+  secret: MIIBtzCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9E
+  expiration: 86400000

@@ -3,25 +3,31 @@ package org.astrsomn.server.util;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CookieUtil {
 
-    private static final String DEFAULT_PATH = "/";
-    private static final int DEFAULT_MAX_AGE = 7 * 24 * 60 * 60; // 7天
+    @Value("${cookie.default-path:/}")
+    private String defaultPath;
 
-    public static void addCookie(HttpServletResponse response, String name, String value) {
-        addCookie(response, name, value, DEFAULT_MAX_AGE, DEFAULT_PATH, false, false);
+    @Value("${cookie.default-max-age:604800}")
+    private int defaultMaxAge;
+
+    public void addCookie(HttpServletResponse response, String name, String value) {
+        addCookie(response, name, value, defaultMaxAge, defaultPath, false, false);
     }
 
-    public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
-        addCookie(response, name, value, maxAge, DEFAULT_PATH, false, false);
+    public void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+        addCookie(response, name, value, maxAge, defaultPath, false, false);
     }
 
-    public static void addCookie(HttpServletResponse response, String name, String value, int maxAge, String path) {
+    public void addCookie(HttpServletResponse response, String name, String value, int maxAge, String path) {
         addCookie(response, name, value, maxAge, path, false, false);
     }
 
-    public static void addCookie(HttpServletResponse response, String name, String value, int maxAge, 
+    public void addCookie(HttpServletResponse response, String name, String value, int maxAge, 
                                  String path, boolean httpOnly, boolean secure) {
         // TODO: 添加Cookie
         Cookie cookie = new Cookie(name, value);
@@ -32,7 +38,7 @@ public class CookieUtil {
         response.addCookie(cookie);
     }
 
-    public static String getCookieValue(HttpServletRequest request, String name) {
+    public String getCookieValue(HttpServletRequest request, String name) {
         // TODO: 获取Cookie值
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -45,11 +51,11 @@ public class CookieUtil {
         return null;
     }
 
-    public static void removeCookie(HttpServletResponse response, String name) {
+    public void removeCookie(HttpServletResponse response, String name) {
         // TODO: 删除Cookie
         Cookie cookie = new Cookie(name, "");
         cookie.setMaxAge(0);
-        cookie.setPath(DEFAULT_PATH);
+        cookie.setPath(defaultPath);
         response.addCookie(cookie);
     }
 }
