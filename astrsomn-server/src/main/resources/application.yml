@@ -2,7 +2,7 @@ spring:
   application:
     name: astrsomn-server
   profiles:
-    active: mysql
+    active: h2
   servlet:
     multipart:
       max-file-size: 128MB

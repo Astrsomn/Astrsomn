@@ -117,4 +117,18 @@
             AC.UPDATE_TIME ASC
     </select>
 
+    <select id="selectTodayUsage" resultType="org.astrsomn.core.common.dto.conversation.AiConversationUsageDTO">
+        SELECT
+            MODEL_KEY AS modelKey,
+            SUM(CONSUME_TOKENS) AS total
+        FROM
+            `AI_CONVERSATION`
+        WHERE
+            CREATE_TIME >= CURDATE()
+            AND DELETED = 0
+            AND ENV_CODE = #{envCode}
+        GROUP BY
+            MODEL_KEY
+    </select>
+
 </mapper>

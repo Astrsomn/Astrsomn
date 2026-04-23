@@ -3,6 +3,7 @@ package org.astrsomn.starter.langchain.quota;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.astrsomn.core.common.dto.conversation.AiConversationUsageDTO;
 import org.astrsomn.core.mapper.AiConversationMapper;
 import org.astrsomn.starter.config.AstrsomnProperties;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -30,9 +31,9 @@ public class ModelQuotaManager {
     @Scheduled(fixedRate = 60000)
     public void refreshUsage() {
         String env = astrsomnProperties.getEnvCode();
-        List<Map<String, Object>> stats = conversationMapper.selectTodayUsage(env);
-        stats.forEach(map -> {
-            dailyUsageCache.put((String) map.get("MODEL_KEY"), ((Number) map.get("TOTAL")).longValue());
+        List<AiConversationUsageDTO> stats = conversationMapper.selectTodayUsage(env);
+        stats.forEach(dto -> {
+            dailyUsageCache.put(dto.getModelKey(), dto.getTotal());
         });
     }
 

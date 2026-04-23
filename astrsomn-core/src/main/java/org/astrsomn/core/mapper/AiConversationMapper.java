@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.astrsomn.core.common.dto.conversation.AiConversationQueryRequestDTO;
 import org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO;
+import org.astrsomn.core.common.dto.conversation.AiConversationUsageDTO;
 import org.astrsomn.core.common.entity.AiConversationEntity;
 
 import java.util.List;
@@ -19,13 +20,7 @@ public interface AiConversationMapper extends BaseMapper<AiConversationEntity> {
 
     int getMaxMessageOrder(@Param("messageKey") String messageKey);
 
-    @Select("SELECT MODEL_KEY AS MODEL_KEY, SUM(CONSUME_TOKENS) AS TOTAL " +
-            "FROM AI_CONVERSATION " +
-            "WHERE CREATE_TIME >= CURDATE() " +
-            "AND DELETED = 0 " +
-            "AND ENV_CODE = #{envCode} " +
-            "GROUP BY MODEL_KEY")
-    List<Map<String, Object>> selectTodayUsage(@Param("envCode") String envCode);
+    List<AiConversationUsageDTO> selectTodayUsage(@Param("envCode") String envCode);
 
     IPage<AiConversationResponseDTO> queryGroups(IPage<AiConversationResponseDTO> page, @Param("req") AiConversationQueryRequestDTO param);
 
