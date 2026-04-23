@@ -2,9 +2,12 @@ astrsomn:
   data-base:
     database-type: h2
     driver: org.h2.Driver
-    url: jdbc:h2:tcp://localhost:9092/./astrosomn;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    # 修改说明：
+    # 1. 增加了 DATABASE_TO_UPPER=FALSE 以解决 SYSTEM_USER 关键字报错
+    # 2. 保持 MODE=MySQL 兼容模式
+    url: jdbc:h2:file:D:/Project/astrsomn/astrsomn-launcher/distribution/windows/database/astro_ai;MODE=MySQL;DATABASE_TO_UPPER=TRUE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     username: sa
-    password: 
+    password:
     connection-timeout: 30000
     maximum-pool-size: 10
     minimum-idle: 5

@@ -4,57 +4,59 @@
 
     <select id="queryPage" resultType="org.astrsomn.core.common.dto.account.AiAccountResponseDTO">
         SELECT
-        aa.*
-        ,
+        aa."ACCOUNT_KEY",
+        aa."ACCOUNT_NAME",
+        aa."ENV_CODE",
+        aa."DELETED",
+        aa."CREATE_USER",
+        aa."CREATE_TIME",
         (
         SELECT
         COUNT(1)
         FROM
-        AI_MODEL am
+        "AI_MODEL" am
         WHERE
-        (am.deleted = 0 OR am.deleted IS NULL)
-        AND am.account_key = aa.account_key
-        AND am.env_code = aa.env_code
-        ) AS usedModelCount
-        ,
+        (am."DELETED" = 0 OR am."DELETED" IS NULL)
+        AND am."ACCOUNT_KEY" = aa."ACCOUNT_KEY"
+        AND am."ENV_CODE" = aa."ENV_CODE"
+        ) AS "usedModelCount",
         (
         SELECT
-        GROUP_CONCAT(DISTINCT am.model_key ORDER BY am.model_key SEPARATOR ',')
+        GROUP_CONCAT(DISTINCT am."MODEL_KEY" ORDER BY am."MODEL_KEY" SEPARATOR ',')
         FROM
-        AI_MODEL am
+        "AI_MODEL" am
         WHERE
-        (am.deleted = 0 OR am.deleted IS NULL)
-        AND am.account_key = aa.account_key
-        AND am.env_code = aa.env_code
-        ) AS usedModelKeys
-        ,
+        (am."DELETED" = 0 OR am."DELETED" IS NULL)
+        AND am."ACCOUNT_KEY" = aa."ACCOUNT_KEY"
+        AND am."ENV_CODE" = aa."ENV_CODE"
+        ) AS "usedModelKeys",
         (
         SELECT
-        GROUP_CONCAT(DISTINCT am.model_name ORDER BY am.model_name SEPARATOR ',')
+        GROUP_CONCAT(DISTINCT am."MODEL_NAME" ORDER BY am."MODEL_NAME" SEPARATOR ',')
         FROM
-        AI_MODEL am
+        "AI_MODEL" am
         WHERE
-        (am.deleted = 0 OR am.deleted IS NULL)
-        AND am.account_key = aa.account_key
-        AND am.env_code = aa.env_code
-        ) AS usedModelNames
+        (am."DELETED" = 0 OR am."DELETED" IS NULL)
+        AND am."ACCOUNT_KEY" = aa."ACCOUNT_KEY"
+        AND am."ENV_CODE" = aa."ENV_CODE"
+        ) AS "usedModelNames"
         FROM
-        AI_ACCOUNT aa
+        "AI_ACCOUNT" aa
         WHERE
-        (aa.deleted = 0 OR aa.deleted IS NULL)
+        (aa."DELETED" = 0 OR aa."DELETED" IS NULL)
         <if test="req != null and req.accountKey != null and req.accountKey != ''">
-            AND aa.account_key LIKE CONCAT('%', #{req.accountKey}, '%')
+            AND aa."ACCOUNT_KEY" LIKE CONCAT('%', #{req.accountKey}, '%')
         </if>
         <if test="req != null and req.accountName != null and req.accountName != ''">
-            AND aa.account_name LIKE CONCAT('%', #{req.accountName}, '%')
+            AND aa."ACCOUNT_NAME" LIKE CONCAT('%', #{req.accountName}, '%')
         </if>
         <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND aa.env_code = #{req.envCode}
+            AND aa."ENV_CODE" = #{req.envCode}
         </if>
         <if test="req != null and req.createUser != null and req.createUser != ''">
-            AND aa.create_user = #{req.createUser}
+            AND aa."CREATE_USER" = #{req.createUser}
         </if>
         ORDER BY
-        aa.create_time DESC
+        aa."CREATE_TIME" DESC
     </select>
 </mapper>

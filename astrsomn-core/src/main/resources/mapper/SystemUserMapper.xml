@@ -6,26 +6,26 @@
         SELECT
         su.*
         FROM
-        SYSTEM_USER su
+        `SYS_USER` su
         WHERE
         1=1
         <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND su.env_code = #{req.envCode}
+            AND su.ENV_CODE = #{req.envCode}
         </if>
         <if test="req != null and req.username != null and req.username != ''">
             AND su.username LIKE CONCAT('%', #{req.username}, '%')
         </if>
         <if test="req != null and req.adminFlag != null and req.adminFlag != ''">
-            AND su.admin_flag = #{req.adminFlag}
+            AND su.ADMIN_FLAG = #{req.adminFlag}
         </if>
         <if test="req != null and req.userRole != null and req.userRole != ''">
-            AND su.user_role = #{req.userRole}
+            AND su.USER_ROLE = #{req.userRole}
         </if>
         <if test="req != null and req.email != null and req.email != ''">
-            AND su.email LIKE CONCAT('%', #{req.email}, '%')
+            AND su.EMAIL LIKE CONCAT('%', #{req.email}, '%')
         </if>
         ORDER BY
-        su.create_time DESC
+        su.CREATE_TIME DESC
     </select>
 
 </mapper>

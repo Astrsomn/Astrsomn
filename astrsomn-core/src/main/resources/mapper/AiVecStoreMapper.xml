@@ -20,9 +20,9 @@
             src.PROVIDER AS SOURCE_PROVIDER,
             inst.INSTANCE_NAME
         FROM
-            AI_VEC_STORE s
-        LEFT JOIN AI_VEC_SOURCE src ON s.SOURCE_ID = src.ID AND src.DELETED = 0
-        LEFT JOIN AI_INSTANCE inst ON s.INSTANCE_KEY = inst.INSTANCE_KEY AND inst.DELETED = 0
+            `AI_VEC_STORE` s
+        LEFT JOIN `AI_VEC_SOURCE` src ON s.SOURCE_ID = src.ID AND src.DELETED = 0
+        LEFT JOIN `AI_INSTANCE` inst ON s.INSTANCE_KEY = inst.INSTANCE_KEY AND inst.DELETED = 0
         WHERE
             s.deleted = 0
         <if test="req != null and req.sourceId != null">

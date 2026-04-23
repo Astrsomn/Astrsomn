@@ -4,34 +4,34 @@
 
     <select id="queryPage" resultType="org.astrsomn.core.common.dto.extension.SystemExtensionResponseDTO">
         SELECT
-        se.*
+        SE.*
         FROM
-        SYSTEM_EXTENSION se
+        `SYSTEM_EXTENSION` SE
         WHERE
         1=1
         <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND se.env_code = #{req.envCode}
+            AND SE.ENV_CODE = #{req.envCode}
         </if>
         <if test="req != null and req.extensionKey != null and req.extensionKey != ''">
-            AND se.extension_key LIKE CONCAT('%', #{req.extensionKey}, '%')
+            AND SE.EXTENSION_KEY LIKE CONCAT('%', #{req.extensionKey}, '%')
         </if>
         <if test="req != null and req.extensionName != null and req.extensionName != ''">
-            AND se.extension_name LIKE CONCAT('%', #{req.extensionName}, '%')
+            AND SE.EXTENSION_NAME LIKE CONCAT('%', #{req.extensionName}, '%')
         </if>
         <if test="req != null and req.type != null and req.type != ''">
-            AND se.type = #{req.type}
+            AND SE.TYPE = #{req.type}
         </if>
         <if test="req != null and req.status != null and req.status != ''">
-            AND se.status = #{req.status}
+            AND SE.STATUS = #{req.status}
         </if>
         <if test="req != null and req.listScope != null and req.listScope == 'MARKETPLACE'">
-            AND se.status = 'UNINSTALLED'
+            AND SE.STATUS = 'UNINSTALLED'
         </if>
         <if test="req != null and req.listScope != null and req.listScope == 'INSTALLED'">
-            AND se.status IN ('INSTALLED', 'APPLIED')
+            AND SE.STATUS IN ('INSTALLED', 'APPLIED')
         </if>
         ORDER BY
-        se.create_time DESC
+        SE.CREATE_TIME DESC
     </select>
 
 </mapper>

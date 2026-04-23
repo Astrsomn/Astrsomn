@@ -6,7 +6,7 @@
         SELECT
             *
         FROM
-            AI_VEC_DOC
+            `AI_VEC_DOC`
         WHERE
             deleted = 0
         <if test="req != null and req.collectionId != null">

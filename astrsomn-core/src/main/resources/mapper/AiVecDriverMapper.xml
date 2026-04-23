@@ -6,7 +6,7 @@
         SELECT
             *
         FROM
-            AI_VEC_DRIVER
+            `AI_VEC_DRIVER`
         WHERE
             deleted = 0
         <if test="req != null and req.driverName != null and req.driverName != ''">

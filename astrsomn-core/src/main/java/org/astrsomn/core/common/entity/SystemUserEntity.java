@@ -10,7 +10,7 @@ import lombok.Data;
 import org.astrsomn.core.common.base.BaseEntity;
 
 @Data
-@TableName("SYSTEM_USER")
+@TableName("SYS_USER")
 public class SystemUserEntity extends BaseEntity<Long> {
 
     /**

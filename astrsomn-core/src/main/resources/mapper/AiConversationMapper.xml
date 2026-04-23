@@ -1,121 +1,120 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.astrsomn.core.mapper.AiConversationMapper">
-
     <select id="queryPage" resultType="org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO">
         SELECT
-        ac.*,
-        am.model_name AS modelName,
-        aa.agent_name AS agentName,
-        ap.prompt_title AS promptTitle
+        AC.*,
+        AM.MODEL_NAME AS modelName,
+        AA.AGENT_NAME AS agentName,
+        AP.PROMPT_TITLE AS promptTitle
         FROM
-        AI_CONVERSATION ac
+        `AI_CONVERSATION` AC
         LEFT JOIN
-        AI_MODEL am ON ac.model_key = am.model_key
+        `AI_MODEL` AM ON AC.MODEL_KEY = AM.MODEL_KEY
         LEFT JOIN
-        AI_AGENT aa ON ac.agent_key = aa.agent_key
+        `AI_AGENT` AA ON AC.AGENT_KEY = AA.AGENT_KEY
         LEFT JOIN
-        AI_PROMPT ap ON ac.prompt_key = ap.prompt_key
+        `AI_PROMPT` AP ON AC.PROMPT_KEY = AP.PROMPT_KEY
         WHERE
         1=1
         <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND ac.env_code = #{req.envCode}
+            AND AC.ENV_CODE = #{req.envCode}
         </if>
         <if test="req != null and req.memoryKey != null and req.memoryKey != ''">
-            AND ac.memory_id = #{req.memoryKey}
+            AND AC.MEMORY_ID = #{req.memoryKey}
         </if>
         <if test="req != null and req.role != null and req.role != ''">
-            AND ac.role = #{req.role}
+            AND AC.ROLE = #{req.role}
         </if>
         ORDER BY
-        ac.create_time DESC
+        AC.CREATE_TIME DESC
     </select>
 
     <select id="getMaxMessageOrder" resultType="java.lang.Integer">
-        SELECT COALESCE(MAX(message_order), -1) FROM AI_CONVERSATION WHERE deleted = 0 AND memory_key = #{messageKey}
+        SELECT COALESCE(MAX(MESSAGE_ORDER), -1) FROM `AI_CONVERSATION` WHERE DELETED = 0 AND MEMORY_KEY = #{messageKey}
     </select>
 
     <select id="queryGroups" resultType="org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO">
         SELECT
-            ac.*,
-            first_msg.content AS content,
-            am.model_name AS modelName,
-            aa.agent_name AS agentName,
-            ap.prompt_title AS promptTitle
+        AC.*,
+        FIRST_MSG.CONTENT AS content,
+        AM.MODEL_NAME AS modelName,
+        AA.AGENT_NAME AS agentName,
+        AP.PROMPT_TITLE AS promptTitle
         FROM
-            (
-                SELECT
-                    memory_key,
-                    MAX(create_time) AS max_create_time,
-                    MAX(update_time) AS max_update_time
-                FROM
-                    AI_CONVERSATION
-                WHERE
-                    1=1
-                <if test="req != null and req.envCode != null and req.envCode != ''">
-                    AND env_code = #{req.envCode}
-                </if>
-                <if test="req != null and req.memoryKey != null and req.memoryKey != ''">
-                    AND memory_id = #{req.memoryKey}
-                </if>
-                GROUP BY
-                    memory_key
-            ) group_info
+        (
+        SELECT
+        MEMORY_KEY,
+        MAX(CREATE_TIME) AS MAX_CREATE_TIME,
+        MAX(UPDATE_TIME) AS MAX_UPDATE_TIME
+        FROM
+        `AI_CONVERSATION`
+        WHERE
+        1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND ENV_CODE = #{req.envCode}
+        </if>
+        <if test="req != null and req.memoryKey != null and req.memoryKey != ''">
+            AND MEMORY_ID = #{req.memoryKey}
+        </if>
+        GROUP BY
+        MEMORY_KEY
+        ) GROUP_INFO
         LEFT JOIN
-            AI_CONVERSATION ac ON ac.memory_key = group_info.memory_key AND ac.update_time = group_info.max_update_time
+        `AI_CONVERSATION` AC ON AC.MEMORY_KEY = GROUP_INFO.MEMORY_KEY AND AC.UPDATE_TIME = GROUP_INFO.MAX_UPDATE_TIME
         LEFT JOIN
-            (
-                SELECT
-                    memory_key,
-                    content
-                FROM
-                    (
-                        SELECT
-                            memory_key,
-                            content,
-                            ROW_NUMBER() OVER (PARTITION BY memory_key ORDER BY message_order ASC) AS rn
-                        FROM
-                            AI_CONVERSATION
-                        WHERE
-                            1=1
-                        <if test="req != null and req.envCode != null and req.envCode != ''">
-                            AND env_code = #{req.envCode}
-                        </if>
-                        <if test="req != null and req.memoryKey != null and req.memoryKey != ''">
-                            AND memory_id = #{req.memoryKey}
-                        </if>
-                    ) t
-                WHERE
-                    t.rn = 1
-            ) first_msg ON first_msg.memory_key = group_info.memory_key
+        (
+        SELECT
+        MEMORY_KEY,
+        CONTENT
+        FROM
+        (
+        SELECT
+        MEMORY_KEY,
+        CONTENT,
+        ROW_NUMBER() OVER (PARTITION BY MEMORY_KEY ORDER BY MESSAGE_ORDER ASC) AS RN
+        FROM
+        `AI_CONVERSATION`
+        WHERE
+        1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND ENV_CODE = #{req.envCode}
+        </if>
+        <if test="req != null and req.memoryKey != null and req.memoryKey != ''">
+            AND MEMORY_ID = #{req.memoryKey}
+        </if>
+        ) T
+        WHERE
+        T.RN = 1
+        ) FIRST_MSG ON FIRST_MSG.MEMORY_KEY = GROUP_INFO.MEMORY_KEY
         LEFT JOIN
-            AI_MODEL am ON ac.model_key = am.model_key
+        AI_MODEL AM ON AC.MODEL_KEY = AM.MODEL_KEY
         LEFT JOIN
-            AI_AGENT aa ON ac.agent_key = aa.agent_key
+        AI_AGENT AA ON AC.AGENT_KEY = AA.AGENT_KEY
         LEFT JOIN
-            AI_PROMPT ap ON ac.prompt_key = ap.prompt_key
+        AI_PROMPT AP ON AC.PROMPT_KEY = AP.PROMPT_KEY
         ORDER BY
-            group_info.max_create_time DESC
+        GROUP_INFO.MAX_CREATE_TIME DESC
     </select>
 
     <select id="recoverByMemoryKey" resultType="org.astrsomn.core.common.dto.conversation.AiConversationResponseDTO">
         SELECT
-            ac.*,
-            am.model_name AS modelName,
-            aa.agent_name AS agentName,
-            ap.prompt_title AS promptTitle
+            AC.*,
+            AM.MODEL_NAME AS modelName,
+            AA.AGENT_NAME AS agentName,
+            AP.PROMPT_TITLE AS promptTitle
         FROM
-            AI_CONVERSATION ac
-        LEFT JOIN
-            AI_MODEL am ON ac.model_key = am.model_key
-        LEFT JOIN
-            AI_AGENT aa ON ac.agent_key = aa.agent_key
-        LEFT JOIN
-            AI_PROMPT ap ON ac.prompt_key = ap.prompt_key
+            `AI_CONVERSATION` AC
+                LEFT JOIN
+            `AI_MODEL` AM ON AC.MODEL_KEY = AM.MODEL_KEY
+                LEFT JOIN
+            `AI_AGENT` AA ON AC.AGENT_KEY = AA.AGENT_KEY
+                LEFT JOIN
+            `AI_PROMPT` AP ON AC.PROMPT_KEY = AP.PROMPT_KEY
         WHERE
-            ac.memory_key = #{memoryKey}
+            AC.MEMORY_KEY = #{memoryKey}
         ORDER BY
-            ac.update_time ASC
+            AC.UPDATE_TIME ASC
     </select>
 
 </mapper>

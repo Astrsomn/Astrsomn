@@ -4,31 +4,31 @@
 
     <select id="queryPage" resultType="org.astrsomn.core.common.dto.template.AiTemplateResponseDTO">
         SELECT
-        at.*
+        AT.*
         FROM
-        AI_TEMPLATE at
+        `AI_TEMPLATE` AT
         WHERE
         1=1
         <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND at.env_code = #{req.envCode}
+            AND AT.ENV_CODE = #{req.envCode}
         </if>
         <if test="req != null and req.templateKey != null and req.templateKey != ''">
-            AND at.template_key = #{req.templateKey}
+            AND AT.TEMPLATE_KEY = #{req.templateKey}
         </if>
         <if test="req != null and req.templateTitle != null and req.templateTitle != ''">
-            AND at.template_title LIKE CONCAT('%', #{req.templateTitle}, '%')
+            AND AT.TEMPLATE_TITLE LIKE CONCAT('%', #{req.templateTitle}, '%')
         </if>
         <if test="req != null and req.category != null and req.category != ''">
-            AND at.category = #{req.category}
+            AND AT.CATEGORY = #{req.category}
         </if>
         <if test="req != null and req.templateType != null and req.templateType != ''">
-            AND at.template_type = #{req.templateType}
+            AND AT.TEMPLATE_TYPE = #{req.templateType}
         </if>
         <if test="req != null and req.status != null and req.status != ''">
-            AND at.status = #{req.status}
+            AND AT.STATUS = #{req.status}
         </if>
         ORDER BY
-        at.create_time DESC
+        AT.CREATE_TIME DESC
     </select>
 
 </mapper>

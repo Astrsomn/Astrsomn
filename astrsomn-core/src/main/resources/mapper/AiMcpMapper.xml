@@ -4,25 +4,25 @@
 
     <select id="queryPage" resultType="org.astrsomn.core.common.dto.mcp.AiMcpResponseDTO">
         SELECT
-        amc.*
+        AMC.*
         FROM
-        AI_MCP amc
+        `AI_MCP` AMC
         WHERE
         1=1
         <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND amc.env_code = #{req.envCode}
+            AND AMC.ENV_CODE = #{req.envCode}
         </if>
         <if test="req != null and req.mcpKey != null and req.mcpKey != ''">
-            AND amc.mcp_key = #{req.mcpKey}
+            AND AMC.MCP_KEY = #{req.mcpKey}
         </if>
         <if test="req != null and req.type != null and req.type != ''">
-            AND amc.type = #{req.type}
+            AND AMC.TYPE = #{req.type}
         </if>
         <if test="req != null and req.enabled != null">
-            AND amc.enabled = #{req.enabled}
+            AND AMC.ENABLED = #{req.enabled}
         </if>
         ORDER BY
-        amc.create_time DESC
+        AMC.CREATE_TIME DESC
     </select>
 
 </mapper>

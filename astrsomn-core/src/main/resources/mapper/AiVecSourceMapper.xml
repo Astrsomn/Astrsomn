@@ -6,7 +6,7 @@
         SELECT
             *
         FROM
-            AI_VEC_SOURCE
+            `AI_VEC_SOURCE`
         WHERE
             deleted = 0
         <if test="req != null and req.name != null and req.name != ''">

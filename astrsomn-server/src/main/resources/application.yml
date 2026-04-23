@@ -12,7 +12,7 @@ server:
   port: 4481
 
 astrsomn:
-  env-code: pro
+  env-code: PRO
 
 logging:
   level:

@@ -6,7 +6,7 @@
         SELECT
             *
         FROM
-            AI_TRACE_LOG
+            `AI_TRACE_LOG`
         WHERE
             deleted = 0
         <if test="req != null and req.traceId != null and req.traceId != ''">
