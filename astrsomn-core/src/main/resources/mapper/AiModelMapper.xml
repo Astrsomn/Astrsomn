@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.astrsomn.core.mapper.AiModelMapper">
-    <select id="queryPage" resultType="org.astrsomn.core.common.dto.model.AiModelResponseDTO">
+<mapper namespace="com.astrsomn.core.mapper.AiModelMapper">
+    <select id="queryPage" resultType="com.astrsomn.core.common.dto.model.AiModelResponseDTO">
         SELECT
         AM.*,
         (
@@ -42,7 +42,7 @@
         AM.MODEL_TYPE DESC
     </select>
 
-    <select id="selectModelWithReferenceStatus" resultType="org.astrsomn.core.common.dto.model.AiModelResponseDTO">
+    <select id="selectModelWithReferenceStatus" resultType="com.astrsomn.core.common.dto.model.AiModelResponseDTO">
         SELECT
             AM.*,
             (EXISTS (

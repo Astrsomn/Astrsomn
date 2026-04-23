@@ -4,7 +4,7 @@ Created-By: Apache Maven 3.6.3
 Built-By: MIscedence
 Build-Jdk: 17.0.2
 Main-Class: org.springframework.boot.loader.JarLauncher
-Start-Class: org.astrsomn.server.AstrsomnServerApplication
+Start-Class: com.astrsomn.server.AstrsomnServerApplication
 Spring-Boot-Version: 3.0.0
 Spring-Boot-Classes: BOOT-INF/classes/
 Spring-Boot-Lib: BOOT-INF/lib/

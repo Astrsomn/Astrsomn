@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.astrsomn.core.mapper.AiAgentMapper">
+<mapper namespace="com.astrsomn.core.mapper.AiAgentMapper">
 
 
-    <select id="queryPage" resultType="org.astrsomn.core.common.dto.agent.AiAgentResponseDTO">
+    <select id="queryPage" resultType="com.astrsomn.core.common.dto.agent.AiAgentResponseDTO">
         SELECT
         AA.*,
         AM_CHAT.`MODEL_NAME` AS modelName,

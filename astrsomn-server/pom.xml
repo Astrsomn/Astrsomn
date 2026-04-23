@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.astrsomn</groupId>
+        <groupId>com.astrsomn</groupId>
         <artifactId>Astrsomn</artifactId>
         <version>0.1.0-alpha.1</version>
     </parent>
@@ -20,12 +20,12 @@
     <dependencies>
         <!-- 核心模块（显式依赖，保证单模块构建 testCompile 等场景下类路径完整） -->
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-spring-boot-starter</artifactId>
         </dependency>
 
@@ -103,31 +103,31 @@
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-deepseek</artifactId>
             <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-zhipu</artifactId>
             <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-qdrant</artifactId>
             <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-milvus</artifactId>
             <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-chroma</artifactId>
             <version>0.1.0-alpha.1</version>
         </dependency>
@@ -148,7 +148,7 @@
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <mainClass>org.astrsomn.server.AstrsomnServerApplication</mainClass>
+                            <mainClass>com.astrsomn.server.AstrsomnServerApplication</mainClass>
                         </configuration>
                     </execution>
                 </executions>

@@ -13,7 +13,13 @@ astrsomn:
   env-code: PRO
 logging:
   level:
-    org.astrsomn.core.mapper: debug
+    com.astrsomn.core.mapper: debug
+    root: info
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+  file:
+    name: ./log/file
 cookie:
   default-path: "/"
   default-max-age: 604800

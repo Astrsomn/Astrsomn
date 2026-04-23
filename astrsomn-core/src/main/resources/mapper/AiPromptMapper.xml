@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.astrsomn.core.mapper.AiPromptMapper">
-    <select id="queryPage" resultType="org.astrsomn.core.common.dto.prompt.AiPromptResponseDTO">
+<mapper namespace="com.astrsomn.core.mapper.AiPromptMapper">
+    <select id="queryPage" resultType="com.astrsomn.core.common.dto.prompt.AiPromptResponseDTO">
         SELECT
         AP.*
         FROM
@@ -45,7 +45,7 @@
         AP.CREATE_TIME DESC
     </select>
 
-    <select id="listHistoryByPromptKey" resultType="org.astrsomn.core.common.dto.prompt.AiPromptResponseDTO">
+    <select id="listHistoryByPromptKey" resultType="com.astrsomn.core.common.dto.prompt.AiPromptResponseDTO">
         SELECT
             AP.*
         FROM

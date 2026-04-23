@@ -1,0 +1,145 @@
+package com.astrsomn.server.config;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import com.astrsomn.core.common.constant.AiVecDriverEnum;
+import com.astrsomn.core.common.constant.AiVecSourceEnum;
+import com.astrsomn.core.common.entity.AiVecSourceEntity;
+import com.astrsomn.core.common.langchain.extension.vector.VecSource;
+import com.astrsomn.core.mapper.AiVecSourceMapper;
+import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.astrsomn.starter.langchain.vector.AstroVecSourceFactory;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+
+
+
+@Slf4j
+@Component
+@Order(20)
+@RequiredArgsConstructor
+public class EnabledVecSourceWarmup implements ApplicationRunner {
+
+    private static final String LOG_PREFIX = "[Astrsomn] [向量库连接池预热器] ====> ";
+    private static final String STATUS_DISABLED = AiVecDriverEnum.StatusEnum.DISABLED.getCode();
+    private static final String STATUS_ENABLED = AiVecSourceEnum.StatusEnum.ENABLED.getCode();
+
+    private final AiVecSourceMapper vecSourceMapper;
+    private final AstroVecSourceFactory vecSourceFactory;
+    private final QueryEnvParamHelper envParamHelper;
+
+    @Override
+    public void run(ApplicationArguments args) {
+        String env = envParamHelper.effectiveEnvCode();
+        List<AiVecSourceEntity> sources = fetchEnabledSources(env);
+
+        if (sources.isEmpty()) {
+            log.debug("{} 当前环境 [{}] 没有需要预热的启用向量源", LOG_PREFIX, env);
+            return;
+        }
+
+        log.info("{} 开始执行预热任务 | 环境: {} | 待处理数量: {}", LOG_PREFIX, env, sources.size());
+
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger skipCount = new AtomicInteger(0);
+        AtomicInteger disableCount = new AtomicInteger(0);
+
+        sources.forEach(source -> {
+            // 1. 注册向量源
+            if (!registerSource(source)) {
+                skipCount.incrementAndGet();
+                return;
+            }
+
+            // 2. 获取并测试实例
+            vecSourceFactory.tryGetActiveSource(source.getId())
+                    .ifPresentOrElse(
+                            vecSource -> {
+                                if (checkConnection(vecSource, source)) {
+                                    successCount.incrementAndGet();
+                                } else {
+                                    disableCount.incrementAndGet();
+                                }
+                            },
+                            () -> {
+                                log.warn("{} 预热跳过 | 原因: 注册后无法从缓存获取实例 | ID: {} | 名称: {}",
+                                        LOG_PREFIX, source.getId(), source.getName());
+                                skipCount.incrementAndGet();
+                            }
+                    );
+        });
+
+        log.info("{} 向量源预热完成 | 环境: {} | 总数: {} | 成功: {} | 禁用: {} | 跳过: {}",
+                LOG_PREFIX, env, sources.size(), successCount.get(), disableCount.get(), skipCount.get());
+    }
+
+    /**
+     * 获取已启用的向量源列表
+     */
+    private List<AiVecSourceEntity> fetchEnabledSources(String env) {
+        return vecSourceMapper.selectList(new LambdaQueryWrapper<AiVecSourceEntity>()
+                .eq(AiVecSourceEntity::getDeleted, Boolean.FALSE)
+                .eq(AiVecSourceEntity::getStatus, STATUS_ENABLED)
+                .eq(Objects.nonNull(env), AiVecSourceEntity::getEnvCode, env));
+    }
+
+    /**
+     * 注册向量源
+     */
+    private boolean registerSource(AiVecSourceEntity source) {
+        try {
+            vecSourceFactory.registerOrRefresh(source);
+            return true;
+        } catch (Throwable ex) {
+            log.warn("{} 注册失败 | ID: {} | 名称: {} | 异常: {}",
+                    LOG_PREFIX, source.getId(), source.getName(), ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 测试向量源连接并处理失败情况
+     */
+    private boolean checkConnection(VecSource vecSource, AiVecSourceEntity source) {
+        try {
+            if (vecSource.testConnection()) {
+                log.debug("{} 连接成功 | ID: {} | 名称: {}", LOG_PREFIX, source.getId(), source.getName());
+                return true;
+            }
+            handleFailure(source, "连接测试返回 false (不可达)", null);
+        } catch (Throwable ex) {
+            handleFailure(source, "连接测试异常: " + ex.getMessage(), ex);
+        }
+        return false;
+    }
+
+    /**
+     * 预热失败处理：清理缓存并禁用
+     */
+    private void handleFailure(AiVecSourceEntity source, String detail, Throwable ex) {
+        Long id = source.getId();
+        if (Objects.isNull(id)) return;
+
+        vecSourceFactory.removeActiveSource(id);
+
+        int rows = vecSourceMapper.update(null, new LambdaUpdateWrapper<AiVecSourceEntity>()
+                .eq(AiVecSourceEntity::getId, id)
+                .set(AiVecSourceEntity::getStatus, STATUS_DISABLED));
+
+        if (Objects.nonNull(ex)) {
+            log.warn("{} 预热失败已禁用 (rows={}) | ID: {} | 名称: {} | 原因: {}",
+                    LOG_PREFIX, rows, id, source.getName(), detail, ex);
+        } else {
+            log.warn("{} 预热失败已禁用 (rows={}) | ID: {} | 名称: {} | 原因: {}",
+                    LOG_PREFIX, rows, id, source.getName(), detail);
+        }
+    }
+}
