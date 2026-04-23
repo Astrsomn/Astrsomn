@@ -7,7 +7,7 @@
         AI.*,
         (SELECT M.MODEL_TYPE FROM AI_MODEL M
         WHERE M.MODEL_KEY = AI.MODEL_KEY
-        AND M.ENV_CODE &lt;=&gt; AI.ENV_CODE
+        AND M.ENV_CODE = AI.ENV_CODE
         AND (M.DELETED = 0 OR M.DELETED IS NULL)
         LIMIT 1) AS model_type,
         (
@@ -18,7 +18,7 @@
         AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
         AND (SE.PROVIDER_CODE = M.PROVIDER OR SE.EXTENSION_KEY = M.PROVIDER)
         WHERE M.MODEL_KEY = AI.MODEL_KEY
-        AND M.ENV_CODE &lt;=&gt; AI.ENV_CODE
+        AND M.ENV_CODE = AI.ENV_CODE
         AND (M.DELETED = 0 OR M.DELETED IS NULL)
         AND M.PROVIDER IS NOT NULL
         AND M.PROVIDER != ''
@@ -59,29 +59,32 @@
 
     <select id="selectDetailDtoById" resultType="org.astrsomn.core.common.dto.instance.AiInstanceResponseDTO">
         SELECT
-            AI.*,
-            (SELECT M.MODEL_TYPE FROM AI_MODEL M
-             WHERE M.MODEL_KEY = AI.MODEL_KEY
-               AND M.ENV_CODE &lt;=&gt; AI.ENV_CODE
-            AND (M.DELETED = 0 OR M.DELETED IS NULL)
-            LIMIT 1) AS model_type,
-            (
+        AI.*,
+        (
+        SELECT M.MODEL_TYPE
+        FROM AI_MODEL M
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND (M.ENV_CODE = AI.ENV_CODE OR (M.ENV_CODE IS NULL AND AI.ENV_CODE IS NULL))
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        LIMIT 1
+        ) AS model_type,
+        (
         SELECT SE.AVATAR
         FROM AI_MODEL M
-            JOIN SYSTEM_EXTENSION SE
+        JOIN SYSTEM_EXTENSION SE
         ON SE.ENV_CODE = AI.ENV_CODE
-            AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
-            AND (SE.PROVIDER_CODE = M.PROVIDER OR SE.EXTENSION_KEY = M.PROVIDER)
+        AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
+        AND (SE.PROVIDER_CODE = M.PROVIDER OR SE.EXTENSION_KEY = M.PROVIDER)
         WHERE M.MODEL_KEY = AI.MODEL_KEY
-          AND M.ENV_CODE &lt;=&gt; AI.ENV_CODE
-          AND (M.DELETED = 0 OR M.DELETED IS NULL)
-          AND M.PROVIDER IS NOT NULL
-          AND M.PROVIDER != ''
-        ORDER BY CASE WHEN SE.PROVIDER_CODE = M.PROVIDER THEN 0 ELSE 1 END
-            LIMIT 1
-            ) AS providerAvatar
+        AND (M.ENV_CODE = AI.ENV_CODE OR (M.ENV_CODE IS NULL AND AI.ENV_CODE IS NULL))
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        AND M.PROVIDER IS NOT NULL
+        AND M.PROVIDER != ''
+        ORDER BY (CASE WHEN SE.PROVIDER_CODE = M.PROVIDER THEN 0 ELSE 1 END)
+        LIMIT 1
+        ) AS providerAvatar
         FROM AI_INSTANCE AI
         WHERE AI.ID = #{id}
-          AND (AI.DELETED = 0 OR AI.DELETED IS NULL)
+        AND (AI.DELETED = 0 OR AI.DELETED IS NULL)
     </select>
 </mapper>
