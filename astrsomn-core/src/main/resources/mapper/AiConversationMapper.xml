@@ -125,7 +125,7 @@
             `AI_CONVERSATION`
         WHERE
             CREATE_TIME >= CURDATE()
-            AND DELETED = 0
+            AND DELETED = true
             AND ENV_CODE = #{envCode}
         GROUP BY
             MODEL_KEY
