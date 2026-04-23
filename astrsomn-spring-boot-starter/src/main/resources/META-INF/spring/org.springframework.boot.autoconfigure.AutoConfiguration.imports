@@ -1,3 +1,3 @@
-org.astrsomn.starter.config.AstrsomnPropertiesAutoConfiguration
-org.astrsomn.starter.config.AstrsomnAutoConfiguration
+com.astrsomn.starter.config.AstrsomnPropertiesAutoConfiguration
+com.astrsomn.starter.config.AstrsomnAutoConfiguration
 

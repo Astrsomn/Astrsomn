@@ -1,37 +1,37 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.astrsomn.core.mapper.AiSensitiveWordMapper">
+<mapper namespace="com.astrsomn.core.mapper.AiSensitiveWordMapper">
 
-    <select id="queryPage" resultType="org.astrsomn.core.common.dto.sensitiveword.AiSensitiveWordResponseDTO">
+    <select id="queryPage" resultType="com.astrsomn.core.common.dto.sensitiveword.AiSensitiveWordResponseDTO">
         SELECT
-        asw.*
+        ASW.*
         FROM
-        AI_SENSITIVE_WORD asw
+        `AI_SENSITIVE_WORD` ASW
         WHERE
         1=1
         <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND asw.env_code = #{req.envCode}
+            AND ASW.ENV_CODE = #{req.envCode}
         </if>
         <if test="req != null and req.word != null and req.word != ''">
-            AND asw.word LIKE CONCAT('%', #{req.word}, '%')
+            AND ASW.WORD LIKE CONCAT('%', #{req.word}, '%')
         </if>
         <if test="req != null and req.matchType != null and req.matchType != ''">
-            AND asw.match_type = #{req.matchType}
+            AND ASW.MATCH_TYPE = #{req.matchType}
         </if>
         <if test="req != null and req.scopeKey != null and req.scopeKey != ''">
-            AND asw.scope_key = #{req.scopeKey}
+            AND ASW.SCOPE_KEY = #{req.scopeKey}
         </if>
         <if test="req != null and req.action != null and req.action != ''">
-            AND asw.action = #{req.action}
+            AND ASW.ACTION = #{req.action}
         </if>
         <if test="req != null and req.status != null and req.status != ''">
-            AND asw.status = #{req.status}
+            AND ASW.STATUS = #{req.status}
         </if>
         <if test="req != null and req.category != null and req.category != ''">
-            AND asw.category = #{req.category}
+            AND ASW.CATEGORY = #{req.category}
         </if>
         ORDER BY
-        asw.create_time DESC
+        ASW.CREATE_TIME DESC
     </select>
 
 </mapper>

@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.astrsomn.core.mapper.AiTraceLogMapper">
+<mapper namespace="com.astrsomn.core.mapper.AiTraceLogMapper">
 
-    <select id="queryPage" resultType="org.astrsomn.core.common.dto.tracelog.AiTraceLogResponseDTO">
+    <select id="queryPage" resultType="com.astrsomn.core.common.dto.tracelog.AiTraceLogResponseDTO">
         SELECT
             *
         FROM
-            AI_TRACE_LOG
+            `AI_TRACE_LOG`
         WHERE
             deleted = 0
         <if test="req != null and req.traceId != null and req.traceId != ''">

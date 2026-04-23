@@ -1,5 +1,5 @@
 /**
- * 与后端 `org.astrsomn.core.common.constant.AiModelParamEnum` 各枚举 code 一致，
+ * 与后端 `com.astrsomn.core.common.constant.AiModelParamEnum` 各枚举 code 一致，
  * 供模型表单一处维护 capabilities 和 param 的分离配置。
  */
 

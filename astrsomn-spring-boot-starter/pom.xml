@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.astrsomn</groupId>
+        <groupId>com.astrsomn</groupId>
         <artifactId>Astrsomn</artifactId>
         <version>0.1.0-alpha.1</version>
     </parent>
@@ -26,11 +26,11 @@
 
         <!-- 核心模块 -->
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-core</artifactId>
         </dependency>
 
-        <!-- 工作流引擎：TASK 节点回调 {@link org.astrsomn.starter.langchain.factory.AstroAssistantFactory} -->
+        <!-- 工作流引擎：TASK 节点回调 {@link factory.langchain.com.astrsomn.starter.AstroAssistantFactory} -->
 
 
         <!-- Spring Boot - 使用provided scope，由使用方提供 -->

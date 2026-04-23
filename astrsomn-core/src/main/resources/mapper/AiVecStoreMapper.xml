@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.astrsomn.core.mapper.AiVecStoreMapper">
+<mapper namespace="com.astrsomn.core.mapper.AiVecStoreMapper">
 
-    <select id="queryPage" resultType="org.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO">
+    <select id="queryPage" resultType="com.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO">
         SELECT
             s.ID,
             s.SOURCE_ID,
@@ -20,9 +20,9 @@
             src.PROVIDER AS SOURCE_PROVIDER,
             inst.INSTANCE_NAME
         FROM
-            AI_VEC_STORE s
-        LEFT JOIN AI_VEC_SOURCE src ON s.SOURCE_ID = src.ID AND src.DELETED = 0
-        LEFT JOIN AI_INSTANCE inst ON s.INSTANCE_KEY = inst.INSTANCE_KEY AND inst.DELETED = 0
+            `AI_VEC_STORE` s
+        LEFT JOIN `AI_VEC_SOURCE` src ON s.SOURCE_ID = src.ID AND src.DELETED = 0
+        LEFT JOIN `AI_INSTANCE` inst ON s.INSTANCE_KEY = inst.INSTANCE_KEY AND inst.DELETED = 0
         WHERE
             s.deleted = 0
         <if test="req != null and req.sourceId != null">
@@ -44,7 +44,7 @@
             s.CREATE_TIME DESC
     </select>
 
-    <select id="selectDetailDtoById" resultType="org.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO">
+    <select id="selectDetailDtoById" resultType="com.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO">
         SELECT
             s.ID,
             s.SOURCE_ID,
