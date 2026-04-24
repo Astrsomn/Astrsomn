@@ -131,6 +131,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #0c1521;
   height: 100%;
 }
 
@@ -211,10 +212,11 @@ onMounted(() => {
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid var(--border-light);
+  border: 1px solid #0f766e;
 }
 
 .agent-item-premium:hover {
+
   background: var(--bg-elevated);
   border-color: var(--border-default);
 }

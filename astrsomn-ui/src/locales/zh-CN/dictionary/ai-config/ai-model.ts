@@ -1,20 +1,17 @@
 /**
  * 与后端 `AiModelParamEnum` 内各枚举的 code 一一对应（中文文案）。
  */
-import { createEnumDictionary } from '@/locales/dictionary/core'
+import { createEnumDictionary } from '@/locales/dictionary/core.ts'
 import {
   AI_MODEL_CAPABILITY_ORDER,
   AI_MODEL_PROVIDER_ORDER,
   AI_MODEL_STATUS_ORDER,
-  AI_MODEL_SOURCE_TYPE_ORDER
-} from '@/locales/dictionary/ai-model-orders'
-
-export type {
+  AI_MODEL_SOURCE_TYPE_ORDER,
   AiModelCapabilityCode,
   AiModelProviderCode,
   AiModelStatusCode,
   AiModelSourceTypeCode
-} from '@/locales/dictionary/ai-model-orders'
+} from '@/constants/aiModelEnums.ts'
 
 const providerLabels = {
     openai:      'OpenAI',
@@ -81,6 +78,10 @@ const capabilityLabels = {
   dimensions: '向量输出维度',
   model_name: '模型名称',
   user: '终端用户标识',
+  max_retries: '最大重试次数',
+  timeout_seconds: '超时时间（秒）',
+  max_segments_per_batch: '每批最大分段数',
+  encoding_format: '嵌入编码格式',
 
   // === 图像模型能力位 (ImageCapabilitiesEnum) ===
   text_to_image: '文生图',
@@ -92,6 +93,9 @@ const capabilityLabels = {
   quality: '质量 (standard/hd)',
   style: '风格 (vivid/natural)',
   response_format: '响应格式 (url/b64_json)',
+  user: '终端用户标识',
+  max_retries: '最大重试次数',
+  timeout_seconds: '超时时间 (秒)',
 
   // === 系统与 HTTP 级配置 (SystemConfigParam) ===
   base_url: '接口基础地址',

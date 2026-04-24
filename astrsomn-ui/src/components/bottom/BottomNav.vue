@@ -138,7 +138,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 12px;
+
   transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 

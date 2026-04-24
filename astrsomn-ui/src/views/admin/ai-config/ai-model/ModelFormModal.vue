@@ -263,7 +263,7 @@ import type { FormInstance } from 'ant-design-vue'
 import type { AiModel } from '@/api/aiModel'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
-import { aiModelCapabilitiesDictionary, aiModelSourceTypeDictionary } from '@/locales/zh-CN/dictionary/ai-model'
+import { aiModelCapabilitiesDictionary, aiModelSourceTypeDictionary } from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'
 import {
   CHAT_CAPABILITIES_CODES,
   CHAT_CAPABILITIES_SET,

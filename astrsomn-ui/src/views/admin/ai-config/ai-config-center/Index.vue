@@ -14,11 +14,11 @@
         </div>
       </div>
 
-      <div class="bottom-section">
-        <div class="animate-fade-in" style="animation-delay: 300ms">
-          <ExtensionGrid />
-        </div>
-      </div>
+<!--      <div class="bottom-section">-->
+<!--        <div class="animate-fade-in" style="animation-delay: 300ms">-->
+<!--          <ExtensionGrid />-->
+<!--        </div>-->
+<!--      </div>-->
     </main>
   </div>
 </template>

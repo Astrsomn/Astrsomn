@@ -1,9 +1,5 @@
 <template>
-  <AdminPageShell
-    title="安全治理中心"
-    description="统一管理模板、敏感词与链路追踪模块。"
-    empty-text="暂无可管理模块。"
-  >
+
     <div class="center-page">
       <div class="card-grid">
         <button
@@ -18,7 +14,7 @@
         </button>
       </div>
     </div>
-  </AdminPageShell>
+
 </template>
 
 <script setup lang="ts">

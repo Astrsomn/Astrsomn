@@ -5,7 +5,7 @@ import {
   AI_MODEL_PROVIDER_ORDER,
   AI_MODEL_STATUS_ORDER,
   AI_MODEL_SOURCE_TYPE_ORDER
-} from '@/locales/dictionary/ai-model-orders.ts'
+} from '@/constants/aiModelEnums.ts'
 
 const providerLabels = {
   openai: 'OpenAI (GPT)',
@@ -46,41 +46,55 @@ export const aiModelStatusDictionary = createEnumDictionary({
 })
 
 const capabilityLabels = {
-  text_generation: 'Natural language text generation',
-  image_recognition: 'Image understanding (vision)',
-  image_generation: 'Text-to-image generation',
-  deep_reasoning: 'Multi-step reasoning & chain-of-thought',
-  temperature: 'Temperature (LangChain / OpenAI-compatible)',
-  top_p: 'Top-p nucleus sampling',
+  // === Chat Model Capabilities (ChatCapabilitiesEnum) ===
+  streaming: 'Streaming output (StreamingChatLanguageModel)',
+  tools: 'Tool/function calling (ToolSpecifications)',
+  vision: 'Vision understanding (ImageContent)',
+  json_mode: 'JSON mode (ResponseFormat)',
+  deep_reasoning: 'Deep reasoning (e.g. DeepSeek-R1 / O1)',
+  context_caching: 'Context caching (Context Caching)',
+  
+  // === Embedding Model Capabilities (EmbeddingCapabilityEnum) ===
+  text_embedding: 'Text embedding',
+  image_embedding: 'Image embedding',
+  
+  // === Image Model Capabilities (ImageCapabilitiesEnum) ===
+  text_to_image: 'Text to image',
+  image_to_image: 'Image to image',
+  image_editing: 'Image editing/repair',
+  
+  // === Chat Model Parameters (ChatParamEnum) ===
+  temperature: 'Temperature',
+  top_p: 'Top-p (nucleus sampling)',
   top_k: 'Top-k sampling',
+  max_tokens: 'Max output tokens',
+  stop_sequences: 'Stop sequences',
+  seed: 'Random seed',
   presence_penalty: 'Presence penalty',
   frequency_penalty: 'Frequency penalty',
-  max_tokens: 'Max output tokens (max_tokens)',
-  seed: 'Random seed',
-  temperature_setting: 'Temperature (randomness / creativity)',
-  top_p_setting: 'Top-p (nucleus sampling threshold)',
-  top_k_setting: 'Top-k sampling',
-  presence_penalty_setting: 'Presence penalty',
-  frequency_penalty_setting: 'Frequency penalty',
-  max_token_setting: 'Max tokens to generate',
-  stop_sequences_setting: 'Stop sequences',
-  seed_setting: 'Random seed (reproducible output)',
-  image_size: 'Image: size (e.g. 1024x1024)',
-  image_quality: 'Image: quality (standard / hd)',
-  image_style: 'Image: style (vivid / natural)',
-  image_user: 'Image: end-user id',
-  image_response_format: 'Image: response format (url / b64_json)',
-  image_max_retries: 'Image: max retries',
-  image_timeout_seconds: 'Image: HTTP timeout (seconds)',
-  size_setting: 'Image: size (legacy alias)',
-  style_setting: 'Image: style (legacy alias)',
-  embedding_dimensions: 'Embedding: output dimensions',
-  embedding_user: 'Embedding: end-user id',
-  embedding_max_retries: 'Embedding: max retries',
-  embedding_max_segments_per_batch: 'Embedding: max segments per batch',
-  embedding_encoding_format: 'Embedding: encoding format',
-  embedding_timeout_seconds: 'Embedding: HTTP timeout (seconds)',
-  network_search: 'Web search'
+  logit_bias: 'Token bias',
+  
+  // === Embedding Model Parameters (EmbeddingParamEnum) ===
+  dimensions: 'Output dimensions',
+  model_name: 'Model name',
+  user: 'End-user id',
+  max_retries: 'Max retries',
+  timeout_seconds: 'Timeout (seconds)',
+  max_segments_per_batch: 'Max segments per batch',
+  encoding_format: 'Encoding format',
+  
+  // === Image Model Parameters (ImageParamEnum) ===
+  size: 'Image size (e.g. 1024x1024)',
+  quality: 'Quality (standard/hd)',
+  style: 'Style (vivid/natural)',
+  response_format: 'Response format (url/b64_json)',
+  
+  // === System & HTTP Configuration (SystemConfigParam) ===
+  base_url: 'Base API URL',
+  api_key: 'API key/token',
+  log_requests: 'Enable request logging',
+  log_responses: 'Enable response logging',
+  proxy_url: 'Proxy server URL'
 } as const
 
 export const aiModelCapabilitiesDictionary = createEnumDictionary({

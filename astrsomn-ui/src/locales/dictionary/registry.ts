@@ -11,7 +11,29 @@ import {
   aiModelProviderDictionary as aiModelProviderZh,
   aiModelStatusDictionary as aiModelStatusZh,
   aiModelSourceTypeDictionary as aiModelSourceTypeZh
-} from '../zh-CN/dictionary/ai-model'
+} from '../zh-CN/dictionary/ai-config/ai-model.ts'
+import {
+  aiAccountStatusDictionary as aiAccountStatusEn
+} from '../en-US/dictionary/ai-config/ai-account.ts'
+import {
+  aiAccountStatusDictionary as aiAccountStatusZh
+} from '../zh-CN/dictionary/ai-config/ai-account.ts'
+import {
+  aiInstanceStatusDictionary as aiInstanceStatusEn
+} from '../en-US/dictionary/ai-config/ai-instance.ts'
+import {
+  aiInstanceStatusDictionary as aiInstanceStatusZh
+} from '../zh-CN/dictionary/ai-config/ai-instance.ts'
+import {
+  aiAgentStatusDictionary as aiAgentStatusEn,
+  aiAgentMemoryModeDictionary as aiAgentMemoryModeEn,
+  aiAgentIsDefaultDictionary as aiAgentIsDefaultEn
+} from '../en-US/dictionary/ai-config/ai-agent.ts'
+import {
+  aiAgentStatusDictionary as aiAgentStatusZh,
+  aiAgentMemoryModeDictionary as aiAgentMemoryModeZh,
+  aiAgentIsDefaultDictionary as aiAgentIsDefaultZh
+} from '../zh-CN/dictionary/ai-config/ai-agent.ts'
 
 /** 与 `bundles`、useLanguage 的 Lang 保持一致 */
 export type DictionaryLocale = 'zh-CN' | 'en-US'
@@ -22,6 +44,11 @@ export type DictionaryBundle = {
   'ai-model.status': EnumDictionary<Record<string, string>>
   'ai-model.capabilities': EnumDictionary<Record<string, string>>
   'ai-model.sourceType': EnumDictionary<Record<string, string>>
+  'ai-account.status': EnumDictionary<Record<string, string>>
+  'ai-instance.status': EnumDictionary<Record<string, string>>
+  'ai-agent.status': EnumDictionary<Record<string, string>>
+  'ai-agent.memoryMode': EnumDictionary<Record<string, string>>
+  'ai-agent.isDefault': EnumDictionary<Record<string, string>>
 }
 
 export type DictionaryId = keyof DictionaryBundle
@@ -30,14 +57,24 @@ const zhCNDictionaryBundle = {
   'ai-model.provider': aiModelProviderZh,
   'ai-model.status': aiModelStatusZh,
   'ai-model.capabilities': aiModelCapabilitiesZh,
-  'ai-model.sourceType': aiModelSourceTypeZh
+  'ai-model.sourceType': aiModelSourceTypeZh,
+  'ai-account.status': aiAccountStatusZh,
+  'ai-instance.status': aiInstanceStatusZh,
+  'ai-agent.status': aiAgentStatusZh,
+  'ai-agent.memoryMode': aiAgentMemoryModeZh,
+  'ai-agent.isDefault': aiAgentIsDefaultZh
 } satisfies DictionaryBundle
 
 const enUSDictionaryBundle = {
   'ai-model.provider': aiModelProviderEn,
   'ai-model.status': aiModelStatusEn,
   'ai-model.capabilities': aiModelCapabilitiesEn,
-  'ai-model.sourceType': aiModelSourceTypeEn
+  'ai-model.sourceType': aiModelSourceTypeEn,
+  'ai-account.status': aiAccountStatusEn,
+  'ai-instance.status': aiInstanceStatusEn,
+  'ai-agent.status': aiAgentStatusEn,
+  'ai-agent.memoryMode': aiAgentMemoryModeEn,
+  'ai-agent.isDefault': aiAgentIsDefaultEn
 } satisfies DictionaryBundle
 
 const bundles: Record<DictionaryLocale, DictionaryBundle> = {
