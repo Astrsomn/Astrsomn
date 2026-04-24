@@ -5,11 +5,11 @@
     </div>
     <div class="event-list">
       <article v-for="event in latestEvents" :key="event.title" class="event-item">
-        <div class="event-title-row">
-          <span class="event-title">{{ event.title }}</span>
-          <span class="event-level" :class="`level-${event.level}`">{{ event.levelText }}</span>
+        <div class="event-content">
+          <div class="event-title">{{ event.title }}</div>
+          <div class="event-meta">{{ event.source }} · {{ event.time }}</div>
         </div>
-        <div class="event-meta">{{ event.source }} · {{ event.time }}</div>
+        <span class="event-level" :class="`level-${event.level}`">{{ event.levelText }}</span>
       </article>
     </div>
   </div>
@@ -31,75 +31,99 @@ defineProps<{
 
 <style scoped>
 .panel-card {
-  border: 1px solid var(--border-default);
-  border-radius: 14px;
-  background: var(--bg-card);
-  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 30px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
 }
 
 .panel-head {
-  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
 .panel-head h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
-  color: var(--text-heading);
+  color: #1e293b;
 }
 
 .event-list {
-  display: grid;
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
 }
 
 .event-item {
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  background: var(--bg-card);
-  padding: 12px;
-}
-
-.event-title-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  padding: 16px;
+  border: 1px solid #f1f5f9;
+  border-radius: 20px;
+  background: rgba(248, 250, 252, 0.2);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.event-item:hover {
+  background: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.event-content {
+  flex: 1;
 }
 
 .event-title {
-  font-size: 13px;
-  color: var(--text-heading);
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  transition: color 0.2s ease;
+}
+
+.event-item:hover .event-title {
+  color: #3b82f6;
+}
+
+.event-meta {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
 }
 
 .event-level {
-  font-size: 12px;
-  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 6px;
   padding: 2px 8px;
   border: 1px solid transparent;
 }
 
 .level-high {
-  color: #dd4b39;
-  background: color-mix(in srgb, #dd4b39 12%, transparent);
-  border-color: color-mix(in srgb, #dd4b39 24%, transparent);
+  color: #ef4444;
+  background: #fef2f2;
+  border-color: #fee2e2;
 }
 
 .level-medium {
-  color: #f39c12;
-  background: color-mix(in srgb, #f39c12 12%, transparent);
-  border-color: color-mix(in srgb, #f39c12 24%, transparent);
+  color: #f97316;
+  background: #fff7ed;
+  border-color: #fed7aa;
 }
 
 .level-low {
-  color: #2e9f5d;
-  background: color-mix(in srgb, #2e9f5d 12%, transparent);
-  border-color: color-mix(in srgb, #2e9f5d 24%, transparent);
-}
-
-.event-meta {
-  margin-top: 6px;
-  color: var(--text-secondary);
-  font-size: 12px;
+  color: #10b981;
+  background: #ecfdf5;
+  border-color: #d1fae5;
 }
 </style>

@@ -1,8 +1,5 @@
 <template>
   <DashboardWrapper>
-    <div class="center-page">
-      <Top :overview-stats="overviewStats" />
-
       <Center
         :paged-online-systems="pagedOnlineSystems"
         :current-page="currentPage"
@@ -15,7 +12,6 @@
         @next-page="nextPage"
         @go-to="goTo"
       />
-    </div>
   </DashboardWrapper>
 </template>
 
@@ -39,7 +35,6 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import DashboardWrapper from '@/components/home/DashboardWrapper.vue'
 import type { Component } from 'vue'
-import Top from './component/top.vue'
 import Center from './component/center/Center.vue'
 
 type ModuleCard = {
@@ -49,15 +44,7 @@ type ModuleCard = {
   icon: Component
 }
 
-type Trend = 'up' | 'down' | 'flat'
 
-type OverviewStat = {
-  label: string
-  value: string
-  hint: string
-  trend: Trend
-  icon: Component
-}
 
 type OnlineStatus = 'online' | 'degraded' | 'offline'
 
@@ -73,17 +60,10 @@ type OnlineSystem = {
 const router = useRouter()
 
 const moduleCards: ModuleCard[] = [
-  { title: '用户管理', desc: '维护系统用户与权限角色。', routeName: 'AdminUsers', icon: UserOutlined },
-  { title: '环境管理', desc: '维护系统运行环境与配置隔离。', routeName: 'AdminEnv', icon: ClusterOutlined },
-  { title: '系统配置', desc: '管理系统参数与配置项。', routeName: 'AdminSystemConfig', icon: SettingOutlined },
-  { title: '系统扩展', desc: '管理扩展安装与市场模块。', routeName: 'AdminSystemExtension', icon: ApiOutlined }
-]
-
-const overviewStats: OverviewStat[] = [
-  { label: '在线业务系统', value: '18', hint: '较昨日 +2', trend: 'up', icon: TeamOutlined },
-  { label: '活跃会话', value: '356', hint: '峰值时段 420', trend: 'up', icon: DatabaseOutlined },
-  { label: '配置项总数', value: '246', hint: '本周新增 8 项', trend: 'flat', icon: SettingOutlined },
-  { label: '健康告警', value: '2', hint: '较昨日 -3', trend: 'down', icon: AlertOutlined }
+  { title: '用户管理', desc: '维护系统用户与权限角色', routeName: 'AdminUsers', icon: UserOutlined },
+  { title: '环境管理', desc: '维护系统运行环境与配置', routeName: 'AdminEnv', icon: ClusterOutlined },
+  { title: '系统配置', desc: '管理系统参数与配置项', routeName: 'AdminSystemConfig', icon: SettingOutlined },
+  { title: '系统扩展', desc: '管理扩展安装与市场模块', routeName: 'AdminSystemExtension', icon: ApiOutlined }
 ]
 
 const extensionCards = [
@@ -165,11 +145,7 @@ const goTo = (routeName: string) => {
 </script>
 
 <style scoped>
-.center-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+
 
 @media (max-width: 900px) {
   .center-page {

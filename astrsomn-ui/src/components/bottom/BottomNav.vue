@@ -18,25 +18,28 @@
           <span class="nav-text">AI 配置</span>
         </div>
 
-        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/vec-center') }" @click="navigateTo('/admin/vec-center')">
-          <div class="icon-wrapper"><DatabaseOutlined /></div>
-          <span class="nav-text">向量中心</span>
+                <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/system-config-center') }" @click="navigateTo('/admin/system-config-center')">
+          <div class="icon-wrapper"><SettingOutlined /></div>
+          <span class="nav-text">系统管理</span>
         </div>
-        
         <div class="center-btn" :class="{ 'center-btn-active': isActivePath('/admin/builder') }" @click="navigateTo('/admin/builder')">
           <div class="pulse-ring"></div>
           <ToolOutlined />
           <span class="floating-label">Agent Studio</span>
         </div>
-        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/system-config-center') }" @click="navigateTo('/admin/system-config-center')">
-          <div class="icon-wrapper"><SettingOutlined /></div>
-          <span class="nav-text">系统管理</span>
-        </div>
+
 
 
         <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-safety-center') }" @click="navigateTo('/admin/ai-safety-center')">
           <div class="icon-wrapper"><SafetyOutlined /></div>
           <span class="nav-text">安全治理</span>
+        </div>
+
+
+        
+        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/vec-center') }" @click="navigateTo('/admin/vec-center')">
+          <div class="icon-wrapper"><DatabaseOutlined /></div>
+          <span class="nav-text">向量中心</span>
         </div>
       </div>
     </div>

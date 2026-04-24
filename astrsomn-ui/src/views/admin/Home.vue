@@ -21,7 +21,7 @@
     </main>
 
     <!-- 底部导航栏组件 -->
-    <BottomNav :auto-hide="false" />
+    <BottomNav :auto-hide="true" />
   </div>
 </template>
 
@@ -90,6 +90,8 @@ const handleScroll = () => {
 
 .content-wrapper {
   margin: 60px auto 0;
+  width: 100%;
+
 }
 
 

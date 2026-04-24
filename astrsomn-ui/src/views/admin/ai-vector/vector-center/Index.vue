@@ -1,5 +1,4 @@
 <template>
-  <a-layout class="min-h-screen">
 
 
     <a-layout>
@@ -15,12 +14,11 @@
 
       </a-layout-content>
     </a-layout>
-  </a-layout>
+
 </template>
 
 <script lang="ts" setup>
-import { defineComponent } from 'vue';
-import { RobotOutlined } from '@ant-design/icons-vue';
+
 import { Layout, Badge } from 'ant-design-vue';
 import Left from '@/views/admin/ai-vector/vector-center/component/Left.vue';
 import RightTop from '@/views/admin/ai-vector/vector-center/component/RightTop.vue';

@@ -203,13 +203,13 @@ const handleDbMenuClick = (key: string, sourceId: string, db: Db) => {
 
 .sidebar-container {
   height: calc(100vh - 74px);
-  width: 250px;
+  width: 100%;
   background: #fff;
   display: flex;
   flex-direction: column;
   border: 1px solid @border-subtle;
   border-radius: 12px;
-  margin: 0 0 4px 2px;
+  margin: 0;
   overflow: hidden;
 }
 

@@ -1,129 +1,75 @@
 <template>
-  <div class="panel-card extension-panel">
-    <div class="panel-head">
-      <h3>
+  <div class="extension-panel">
+    <div class="panel-header">
+      <div class="header-left">
         <ApiOutlined />
-        系统扩展能力
-      </h3>
-      <div class="panel-actions">
-        <span class="panel-subtitle">支持多类型扩展：插件、向量库、模型等</span>
-        <a-button 
-          type="text" 
-          size="small" 
-          @click="handleImport"
-          class="import-btn"
-        >
-          <ImportOutlined />
-          导入插件
-          <input 
-            type="file" 
-            ref="fileInput" 
-            class="file-input" 
-            @change="handleFileImport"
-          />
-        </a-button>
+        <h3 class="panel-title">系统扩展能力</h3>
       </div>
+      <button class="import-btn" @click="handleImport">导入插件</button>
+      <input 
+        type="file" 
+        ref="fileInput" 
+        class="file-input" 
+        @change="handleFileImport"
+      />
     </div>
-    
-    <!-- 选项卡切换 -->
-    <div class="tab-container">
-      <a-tabs v-model:activeKey="activeTab" size="small" type="line" @change="handleTabChange">
-        <a-tab-pane key="installed" tab="现有插件" />
-        <a-tab-pane key="market" tab="插件市场" />
-      </a-tabs>
+
+    <!-- 搜索框 -->
+    <div class="search-container">
+      <SearchOutlined class="search-icon" />
+      <input type="text" placeholder="搜索已安装插件..." class="search-input" />
     </div>
-    
-    <!-- 内容列表容器 -->
-    <div class="extension-list" v-if="currentPlugins.length > 0">
+
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <button 
+        class="tab-btn" 
+        :class="{ active: activeTab === 'installed' }"
+        @click="activeTab = 'installed'; currentPage = 1"
+      >
+        现有插件
+      </button>
+      <button 
+        class="tab-btn" 
+        :class="{ active: activeTab === 'market' }"
+        @click="activeTab = 'market'; currentPage = 1"
+      >
+        插件市场
+      </button>
+    </div>
+
+    <!-- 插件列表 -->
+    <div class="plugins-list" v-if="currentPlugins.length > 0">
       <div 
         v-for="item in currentPlugins" 
         :key="item.id"
-        class="extension-item"
+        class="plugin-card"
       >
-        <div class="extension-header">
-          <div class="extension-info">
+        <div class="plugin-header">
+          <div class="plugin-info">
             <div class="icon-wrapper">
               <component :is="item.icon" />
             </div>
-            <div class="info-content">
-              <h4 class="extension-name">{{ item.name }}</h4>
-              <p class="extension-desc">{{ item.desc }}</p>
-            </div>
+            <div class="plugin-name">{{ item.name }}</div>
           </div>
-          <div class="extension-count">{{ item.count }}</div>
+          <div class="plugin-count">{{ item.count }}</div>
         </div>
-        
-        <div class="extension-footer">
-          <div class="extension-tags">
-            <a-tag 
-              v-for="tag in item.tags" 
-              :key="tag"
-              size="small"
-              class="extension-tag"
-            >
-              {{ tag }}
-            </a-tag>
-          </div>
-          <div class="extension-actions">
-            <a-button 
-              v-if="activeTab === 'installed'"
-              type="text" 
-              size="small" 
-              danger
-              @click="handleAction('卸载', item.name)"
-            >
-              卸载
-            </a-button>
-            <a-button 
-              v-if="activeTab === 'installed'"
-              type="text" 
-              size="small"
-              @click="handleAction('更新', item.name)"
-            >
-              更新
-            </a-button>
-            <a-button 
-              v-else
-              type="primary" 
-              size="small"
-              @click="handleAction('安装', item.name)"
-            >
-              安装插件
-            </a-button>
-          </div>
+        <div class="plugin-actions">
+          <button class="action-btn uninstall-btn">卸载</button>
+          <button class="action-btn update-btn">更新</button>
         </div>
       </div>
     </div>
-    
+
     <!-- 空状态 -->
     <div v-else class="empty-state">
-      <a-empty description="暂无插件" />
+      <p class="empty-text">暂无插件</p>
     </div>
-    
-    <!-- 分页区域 -->
-    <div class="pager-wrap extension-pager">
-      <button
-        type="button"
-        class="pager-btn"
-        :disabled="currentPage === 1"
-        @click="prevPage"
-      >
-        上一页
-      </button>
-      <span class="pager-text">
-        第 {{ currentPage }} / {{ totalPages }} 页，共 {{ totalItems }} 项
-      </span>
-      <button
-        type="button"
-        class="pager-btn"
-        :disabled="currentPage === totalPages"
-        @click="nextPage"
-      >
-        下一页
-      </button>
+
+    <!-- 分页 -->
+    <div class="pagination">
+      <span class="pagination-text">Page {{ currentPage }} / {{ totalPages }}</span>
     </div>
-    
-    <!-- 提示框 -->
   </div>
 </template>
 
@@ -132,6 +78,7 @@ import { ref, computed, onMounted } from 'vue'
 import { 
   ApiOutlined, 
   ImportOutlined,
+  SearchOutlined,
   ShareAltOutlined,
   DatabaseOutlined,
   RobotOutlined,
@@ -260,183 +207,193 @@ const handleTabChange = (key: string) => {
 </script>
 
 <style scoped>
-.panel-card {
-  border: 1px solid var(--border-default);
-  border-radius: 14px;
-  background: var(--bg-card);
-  padding: 20px;
-  min-height: 0;
+.extension-panel {
+  background: white;
+  border-radius: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.extension-panel {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.panel-head {
+.panel-header {
+  padding: 24px 24px 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
 }
 
-.panel-head h3 {
-  margin: 0;
+.header-left {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+}
+
+.header-left :deep(.anticon) {
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
+}
+
+.panel-title {
   font-size: 16px;
-  color: var(--text-heading);
-  flex-shrink: 0;
-}
-
-.panel-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.panel-subtitle {
-  font-size: 12px;
-  color: var(--text-secondary);
-  white-space: nowrap;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
 }
 
 .import-btn {
   font-size: 12px;
-  color: var(--primary);
+  font-weight: 700;
+  color: #3b82f6;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
 .file-input {
   display: none;
 }
 
-.tab-container {
-  margin-bottom: 16px;
+.search-container {
+  position: relative;
+  margin: 16px 24px;
 }
 
-.extension-list {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: 4px;
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: #94a3b8;
 }
 
-.extension-item {
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 12px;
-  background: color-mix(in srgb, var(--bg-card) 95%, var(--bg-base));
+.search-input {
+  width: 100%;
+  padding: 6px 12px 6px 36px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  font-size: 11px;
+  color: #64748b;
+  outline: none;
   transition: all 0.2s ease;
 }
 
-.extension-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  transform: translateY(-1px);
-  border-color: var(--border-hover);
+.search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
-.extension-header {
+.tabs-container {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid #f1f5f9;
+  margin: 0 24px;
+}
+
+.tab-btn {
+  padding: 0 0 8px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  border-bottom-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.plugins-list {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.plugin-card {
+  padding: 16px;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.plugin-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
-.extension-info {
+.plugin-info {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex: 1;
-  min-width: 0;
 }
 
 .icon-wrapper {
-  width: 40px;
-  height: 40px;
-  background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid var(--border-default);
 }
 
 .icon-wrapper :deep(.anticon) {
-  font-size: 18px;
-  color: var(--text-secondary);
+  width: 20px;
+  height: 20px;
+  color: #64748b;
 }
 
-.info-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.extension-name {
-  margin: 0 0 4px 0;
+.plugin-name {
   font-size: 14px;
-  font-weight: 600;
-  color: var(--text-heading);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 700;
+  color: #334155;
 }
 
-.extension-desc {
-  margin: 0;
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.4;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.extension-count {
+.plugin-count {
   font-size: 20px;
-  font-weight: 600;
-  color: var(--text-heading);
-  flex-shrink: 0;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: -0.5px;
 }
 
-.extension-footer {
+.plugin-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: flex-end;
   gap: 12px;
-  flex-wrap: wrap;
+  margin-top: 12px;
 }
 
-.extension-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
+.action-btn {
+  font-size: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
-.extension-tag {
-  font-size: 11px;
-  height: 22px;
-  line-height: 20px;
-  background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
-  border-color: var(--border-default);
+.uninstall-btn {
+  color: #ef4444;
 }
 
-.extension-actions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
+.update-btn {
+  color: #1e293b;
+  font-weight: 700;
 }
 
 .empty-state {
@@ -444,85 +401,23 @@ const handleTabChange = (key: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  padding: 48px 24px;
 }
 
-.extension-pager {
-  margin-top: 16px;
-  border-top: 1px solid var(--border-divider);
-  padding-top: 12px;
-}
-
-.pager-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.pager-btn {
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  background: var(--bg-card);
-  color: var(--text-primary);
+.empty-text {
   font-size: 12px;
-  padding: 4px 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  color: #94a3b8;
+  margin: 0;
 }
 
-.pager-btn:hover:not(:disabled) {
-  border-color: var(--primary);
-  color: var(--primary);
+.pagination {
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
 }
 
-.pager-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.pager-text {
-  color: var(--text-secondary);
-  font-size: 12px;
-  flex-shrink: 0;
-}
-
-@media (max-width: 900px) {
-  .panel-head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .panel-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .extension-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .extension-footer {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .extension-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-  
-  .pager-wrap {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .pager-text {
-    text-align: center;
-  }
+.pagination-text {
+  font-size: 10px;
+  color: #94a3b8;
 }
 </style>

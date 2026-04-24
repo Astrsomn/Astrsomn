@@ -20,7 +20,7 @@ import DashboardWrapper from '@/components/home/DashboardWrapper.vue'
 import StatsGrid from '@/views/admin/ai-config/ai-config-center/component/top/StatsGrid.vue'
 import AgentBrainCard from '@/views/admin/ai-config/ai-config-center/component/center/left/AgentBrainCard.vue'
 import SmallCards from '@/views/admin/ai-config/ai-config-center/component/center/right/SmallCards.vue'
-import ExtensionGrid from './component/bottom/ExtensionGrid.vue'
+
 </script>
 
 <style scoped>

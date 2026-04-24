@@ -1,40 +1,20 @@
 <template>
   <section class="main-grid">
-    <div class="left-cards">
-      <div class="card-grid">
-        <button
-          v-for="item in leftModuleCards"
-          :key="item.routeName"
-          class="route-card"
-          type="button"
-          @click="emit('go-to', item.routeName)"
-        >
-          <div class="card-title">
-            <component :is="item.icon" />
-            {{ item.title }}
-          </div>
-          <div class="card-desc">{{ item.desc }}</div>
-        </button>
+    <button
+      v-for="item in moduleCards"
+      :key="item.routeName"
+      class="route-card"
+      type="button"
+      @click="emit('go-to', item.routeName)"
+    >
+      <div class="card-icon">
+        <component :is="item.icon" />
       </div>
-    </div>
-    <div class="nav-area"></div>
-    <div class="right-cards">
-      <div class="card-grid">
-        <button
-          v-for="item in rightModuleCards"
-          :key="item.routeName"
-          class="route-card"
-          type="button"
-          @click="emit('go-to', item.routeName)"
-        >
-          <div class="card-title">
-            <component :is="item.icon" />
-            {{ item.title }}
-          </div>
-          <div class="card-desc">{{ item.desc }}</div>
-        </button>
+      <div class="card-content">
+        <h4 class="card-title">{{ item.title }}</h4>
+        <p class="card-desc">{{ item.desc }}</p>
       </div>
-    </div>
+    </button>
   </section>
 </template>
 
@@ -55,82 +35,70 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'go-to', routeName: string): void
 }>()
-
-// 分割卡片数据
-const leftModuleCards = props.moduleCards.slice(0, Math.ceil(props.moduleCards.length / 2))
-const rightModuleCards = props.moduleCards.slice(Math.ceil(props.moduleCards.length / 2))
 </script>
 
 <style scoped>
 .main-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
-  padding: 14px 0;
-}
-
-.nav-area {
-  /* 中间导航栏区域 */
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
 }
 
 .route-card {
-  min-height: 72px;
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  background: var(--bg-card);
-  padding: 9px 10px;
-  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   cursor: pointer;
   transition: all 0.2s ease;
-  overflow: hidden;
+  text-align: left;
 }
 
 .route-card:hover {
-  border-color: var(--primary);
-  transform: translateY(-1px);
+  background: #f8fafc;
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-icon :deep(*) {
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
+}
+
+.card-content {
+  flex: 1;
 }
 
 .card-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  margin: 0 0 2px 0;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-heading);
+  color: #1e293b;
 }
 
 .card-desc {
-  margin-top: 4px;
-  color: var(--text-secondary);
+  margin: 0;
+  font-size: 10px;
+  font-weight: 500;
+  color: #94a3b8;
   line-height: 1.3;
-  font-size: 11px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 768px) {
   .main-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .nav-area {
-    display: none;
-  }
-  
-  .card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .card-grid {
     grid-template-columns: 1fr;
   }
 }

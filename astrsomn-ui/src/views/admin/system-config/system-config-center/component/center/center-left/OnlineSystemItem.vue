@@ -1,30 +1,25 @@
 <template>
-  <div class="online-item">
-    <div class="online-top">
-      <div class="online-name">
-        <component :is="system.icon" />
-        <span class="system-name">{{ system.name }}</span>
+  <div class="online-system-card card-hover">
+    <div class="card-header">
+      <div class="system-info">
+        <div class="icon-wrapper">
+          <component :is="system.icon" />
+        </div>
+        <h4 class="system-name">{{ system.name }}</h4>
       </div>
-      <span class="online-status" :class="`status-${system.status}`">
-        <span class="status-dot"></span>
-        {{ system.statusText }}
+      <span class="status-badge" :class="`status-${system.status}`">
+        {{ getStatusText(system.status) }}
       </span>
     </div>
-    <div class="online-meta">
-      <div class="meta-item">
+    <div class="card-footer">
+      <span class="meta-item">
         <ClockCircleOutlined />
         <span>{{ system.lastHeartbeat }}</span>
-      </div>
-      <div class="meta-item">
-        <DatabaseOutlined />
+      </span>
+      <span class="meta-item">
+        <MessageOutlined />
         <span>{{ system.sessions }} 会话</span>
-      </div>
-    </div>
-    <div class="online-extra" v-if="system.extraInfo">
-      <div v-for="(value, key) in system.extraInfo" :key="key" class="extra-item">
-        <span class="extra-key">{{ key }}:</span>
-        <span class="extra-value">{{ value }}</span>
-      </div>
+      </span>
     </div>
   </div>
 </template>
@@ -32,7 +27,7 @@
 <script setup lang="ts">
 import {
   ClockCircleOutlined,
-  DatabaseOutlined
+  MessageOutlined
 } from '@ant-design/icons-vue'
 import type { Component } from 'vue'
 
@@ -51,100 +46,99 @@ type OnlineSystem = {
 defineProps<{
   system: OnlineSystem
 }>()
+
+const getStatusText = (status: OnlineStatus): string => {
+  switch (status) {
+    case 'online': return 'ONLINE'
+    case 'degraded': return 'DELAY'
+    case 'offline': return 'OFFLINE'
+    default: return 'UNKNOWN'
+  }
+}
 </script>
 
 <style scoped>
-.online-item {
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  background: var(--bg-card);
+.online-system-card {
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  background: #f8fafc;
   padding: 12px;
-  width: 220px;
-  height: 100px;
+  height: 112px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   transition: all 0.2s ease;
 }
 
-.online-item:hover {
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
+.card-hover:hover {
+  border-color: #3b82f6;
+  background-color: #ffffff;
 }
 
-.online-top {
+.card-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
+  align-items: flex-start;
 }
 
-.online-name {
+.system-info {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
+  gap: 8px;
 }
 
-.online-name :deep(.anticon) {
-  font-size: 14px;
-  color: var(--text-secondary);
+.icon-wrapper {
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-wrapper :deep(.anticon) {
+  width: 14px;
+  height: 14px;
+  color: #64748b;
 }
 
 .system-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-heading);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0;
 }
 
-.online-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.status-badge {
+  font-size: 9px;
   padding: 2px 6px;
-  border-radius: 999px;
-  font-size: 11px;
-  border: 1px solid transparent;
-  flex-shrink: 0;
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: currentColor;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .status-online {
-  color: #2e9f5d;
-  background: color-mix(in srgb, #2e9f5d 12%, transparent);
-  border-color: color-mix(in srgb, #2e9f5d 26%, transparent);
+  background: #d1fae5;
+  color: #059669;
 }
 
 .status-degraded {
-  color: #f39c12;
-  background: color-mix(in srgb, #f39c12 12%, transparent);
-  border-color: color-mix(in srgb, #f39c12 24%, transparent);
+  background: #fef3c7;
+  color: #d97706;
 }
 
 .status-offline {
-  color: #dd4b39;
-  background: color-mix(in srgb, #dd4b39 12%, transparent);
-  border-color: color-mix(in srgb, #dd4b39 24%, transparent);
+  background: #fee2e2;
+  color: #dc2626;
 }
 
-.online-meta {
+.card-footer {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 6px;
+  align-items: center;
+  gap: 12px;
 }
 
 .meta-item {
@@ -152,37 +146,19 @@ defineProps<{
   align-items: center;
   gap: 4px;
   font-size: 10px;
-  color: var(--text-secondary);
+  color: #94a3b8;
 }
 
 .meta-item :deep(.anticon) {
-  font-size: 10px;
+  width: 12px;
+  height: 12px;
 }
 
-.online-extra {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 4px;
+.status-degraded .meta-item:first-child {
+  color: #f59e0b;
 }
 
-.extra-item {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 9px;
-  color: var(--text-muted);
-  background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
-  padding: 1px 4px;
-  border-radius: 4px;
-  border: 1px solid var(--border-default);
-}
-
-.extra-key {
-  font-weight: 500;
-}
-
-.extra-value {
-  font-family: ui-monospace, monospace;
+.status-degraded .meta-item:first-child :deep(.anticon) {
+  color: #f59e0b;
 }
 </style>

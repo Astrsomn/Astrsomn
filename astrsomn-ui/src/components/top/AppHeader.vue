@@ -123,9 +123,10 @@ const handleLogin = () => {
   position: sticky;
   top: 0;
   z-index: 1000;
-  height: 64px;
+  height: 60px;
   width: 100%;
 
+  box-sizing: border-box;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   display: flex;

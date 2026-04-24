@@ -37,60 +37,66 @@ defineProps<{
 }
 
 .stat-card {
-  border: 1px solid var(--border-default);
-  border-radius: 14px;
-  background: var(--bg-card);
-  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #ffffff;
+  padding: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .stat-head {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 12px;
 }
 
 .stat-icon {
-  color: var(--primary);
+  color: #3b82f6;
   font-size: 16px;
 }
 
 .stat-label {
-  font-size: 13px;
-  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .stat-value {
-  margin-top: 10px;
-  font-size: 28px;
+  font-size: 30px;
   line-height: 1;
   font-weight: 700;
-  color: var(--text-heading);
+  color: #1e293b;
+  letter-spacing: -0.02em;
 }
 
 .stat-hint {
-  margin-top: 10px;
-  font-size: 12px;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .trend-up {
-  color: var(--success, #2e9f5d);
+  color: #10b981;
 }
 
 .trend-down {
-  color: var(--warning, #dd4b39);
+  color: #f97316;
 }
 
 .trend-flat {
-  color: var(--text-secondary);
+  color: #94a3b8;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .stats-grid {
     grid-template-columns: 1fr;
   }

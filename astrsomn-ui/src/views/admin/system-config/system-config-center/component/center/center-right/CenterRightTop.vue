@@ -1,14 +1,16 @@
 <template>
-  <div class="panel-card">
-    <div class="panel-head">
-      <h3>
+  <div class="todo-panel">
+    <div class="panel-header">
+      <div class="header-left">
         <AlertOutlined />
-        待处理事项
-      </h3>
-      <span>建议优先处理项</span>
+        <h3 class="panel-title">待处理事项</h3>
+      </div>
     </div>
     <ul class="todo-list">
-      <li v-for="task in todoItems" :key="task">{{ task }}</li>
+      <li v-for="task in todoItems" :key="task" class="todo-item">
+        <div class="task-dot"></div>
+        <span class="task-text">{{ task }}</span>
+      </li>
     </ul>
   </div>
 </template>
@@ -22,47 +24,67 @@ defineProps<{
 </script>
 
 <style scoped>
-.panel-card {
-  border: 1px solid var(--border-default);
-  border-radius: 14px;
-  background: var(--bg-card);
-  padding: 20px;
-  min-height: 0;
+.todo-panel {
+  background: white;
+  border-radius: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  padding: 24px;
 }
 
-.panel-head {
+.panel-header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 14px;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-.panel-head h3 {
-  margin: 0;
+.header-left {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 16px;
-  color: var(--text-heading);
+  gap: 8px;
 }
 
-.panel-head span {
-  font-size: 12px;
-  color: var(--text-secondary);
+.header-left :deep(.anticon) {
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
 }
 
 .todo-list {
   margin: 0;
-  padding: 0 0 0 16px;
-  display: grid;
-  gap: 8px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  font-size: 13px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.todo-list li::marker {
-  color: var(--primary);
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.task-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3b82f6;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.task-text {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.5;
+  flex: 1;
 }
 </style>

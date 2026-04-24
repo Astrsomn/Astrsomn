@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统管理中心 - 管理后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+        }
+
+        /* 严格保持截图比例的布局 */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px; /* 保持左主右辅的比例 */
+            gap: 24px;
+        }
+
+        .card-hover {
+            transition: all 0.2s ease;
+        }
+
+        .card-hover:hover {
+            border-color: #3b82f6;
+            background-color: #ffffff;
+        }
+
+        @media (max-width: 1100px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="p-8">
+
+<div class="max-w-[1600px] mx-auto space-y-8">
+
+    <!-- 1. 顶部快捷入口 (保持截图4列布局) -->
+    <section class="grid grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 flex items-center gap-4 shadow-sm cursor-pointer">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-sm">用户管理</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">维护系统用户与权限角色</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 flex items-center gap-4 shadow-sm cursor-pointer">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <i data-lucide="layers" class="w-6 h-6 text-emerald-600"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-sm">环境管理</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">维护系统运行环境与配置</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 flex items-center gap-4 shadow-sm cursor-pointer">
+            <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center">
+                <i data-lucide="settings" class="w-6 h-6 text-orange-600"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-sm">系统配置</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">管理系统参数与配置项</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 flex items-center gap-4 shadow-sm cursor-pointer">
+            <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center">
+                <i data-lucide="blocks" class="w-6 h-6 text-purple-600"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-sm">系统扩展</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">管理扩展安装与市场模块</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. 主体布局 (严格遵循原图左右结构) -->
+    <main class="main-layout">
+
+        <!-- 左侧：在线业务系统 (优化卡片尺寸，不改整体容器) -->
+        <div class="bg-white rounded-3xl border border-slate-200 flex flex-col shadow-sm">
+            <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="activity" class="w-5 h-5 text-slate-400"></i>
+                    <h2 class="text-lg font-bold text-slate-800">在线业务系统</h2>
+                </div>
+                <span class="text-xs text-slate-400 italic">用户即业务系统，展示实时在线状态</span>
+            </div>
+
+            <!-- 这里改小了 Card 的内边距和间距，使之更精简 -->
+            <div class="p-6 grid grid-cols-2 gap-3">
+                <!-- 紧凑型卡片 -->
+                <div class="border border-slate-100 rounded-xl p-3 bg-slate-50/30 card-hover flex flex-col justify-between h-28">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 bg-white rounded shadow-sm flex items-center justify-center">
+                                <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-slate-600"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-700 text-sm">OMS 订单中心</h4>
+                        </div>
+                        <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-600 font-bold uppercase tracking-tight">ONLINE</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-[10px] text-slate-400">
+                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> 10s前</span>
+                        <span class="flex items-center gap-1"><i data-lucide="message-square" class="w-3 h-3"></i> 86 会话</span>
+                    </div>
+                </div>
+
+                <div class="border border-slate-100 rounded-xl p-3 bg-slate-50/30 card-hover flex flex-col justify-between h-28">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 bg-white rounded shadow-sm flex items-center justify-center">
+                                <i data-lucide="package" class="w-3.5 h-3.5 text-slate-600"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-700 text-sm">WMS 仓储系统</h4>
+                        </div>
+                        <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-600 font-bold uppercase tracking-tight">ONLINE</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-[10px] text-slate-400">
+                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> 18s前</span>
+                        <span class="flex items-center gap-1"><i data-lucide="message-square" class="w-3 h-3"></i> 64 会话</span>
+                    </div>
+                </div>
+
+                <div class="border border-slate-100 rounded-xl p-3 bg-slate-50/30 card-hover flex flex-col justify-between h-28">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 bg-white rounded shadow-sm flex items-center justify-center">
+                                <i data-lucide="users-2" class="w-3.5 h-3.5 text-slate-600"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-700 text-sm">CRM 客户中心</h4>
+                        </div>
+                        <span class="text-[9px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-600 font-bold uppercase tracking-tight">DELAY</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-[10px] text-slate-400">
+                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3 text-orange-400"></i> 35s前</span>
+                        <span class="flex items-center gap-1"><i data-lucide="message-square" class="w-3 h-3"></i> 39 会话</span>
+                    </div>
+                </div>
+
+                <div class="border border-slate-100 rounded-xl p-3 bg-slate-50/30 card-hover flex flex-col justify-between h-28">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 bg-white rounded shadow-sm flex items-center justify-center">
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-slate-600"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-700 text-sm">风控引擎</h4>
+                        </div>
+                        <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-600 font-bold uppercase tracking-tight">ONLINE</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-[10px] text-slate-400">
+                        <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> 12s前</span>
+                        <span class="flex items-center gap-1"><i data-lucide="message-square" class="w-3 h-3"></i> 52 会话</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="p-6 border-t border-slate-50 flex justify-between items-center text-xs text-slate-400">
+                <button class="px-3 py-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors italic">Prev</button>
+                <span>Page 1 / 3</span>
+                <button class="px-3 py-1.5 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors italic">Next</button>
+            </div>
+        </div>
+
+        <!-- 右侧：待处理与扩展 (保持原布局) -->
+        <aside class="space-y-6">
+
+            <!-- 待处理事项 -->
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-2 font-bold text-slate-800">
+                        <i data-lucide="clipboard-list" class="w-5 h-5 text-slate-400"></i>
+                        待处理事项
+                    </div>
+                </div>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3 group">
+                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5"></div>
+                        <span class="text-xs text-slate-600 leading-relaxed">校验生产环境关键参数，避免配置漂移</span>
+                    </li>
+                    <li class="flex items-start gap-3 group">
+                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5"></div>
+                        <span class="text-xs text-slate-600 leading-relaxed">清理 30 天未登录账号并复核权限</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 系统扩展能力 (保持原有模块并加入搜索) -->
+            <div class="bg-white rounded-3xl border border-slate-200 flex flex-col shadow-sm">
+                <div class="p-6 pb-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2 font-bold text-slate-800">
+                            <i data-lucide="cable" class="w-5 h-5 text-slate-400"></i>
+                            系统扩展能力
+                        </div>
+                        <button class="text-xs text-blue-600 font-bold">导入插件</button>
+                    </div>
+
+                    <!-- 搜索框：在这里加入 -->
+                    <div class="relative mb-4">
+                        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" placeholder="搜索已安装插件..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-[11px] focus:outline-none focus:ring-1 focus:ring-blue-500/20">
+                    </div>
+
+                    <!-- Tabs (保持原图样式) -->
+                    <div class="flex gap-6 border-b border-slate-100 mb-4 text-xs font-bold">
+                        <button class="pb-2 border-b-2 border-blue-600 text-blue-600">现有插件</button>
+                        <button class="pb-2 border-b-2 border-transparent text-slate-400">插件市场</button>
+                    </div>
+                </div>
+
+                <div class="px-6 pb-6 space-y-4">
+                    <!-- 插件项 -->
+                    <div class="p-4 rounded-2xl border border-slate-100 bg-slate-50/30">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                    <i data-lucide="share-2" class="w-5 h-5 text-slate-600"></i>
+                                </div>
+                                <div class="font-bold text-slate-700 text-sm">平台插件</div>
+                            </div>
+                            <span class="text-xl font-bold text-slate-200 tracking-tighter">24</span>
+                        </div>
+                        <div class="flex justify-end gap-3 mt-3">
+                            <button class="text-[10px] text-red-400">卸载</button>
+                            <button class="text-[10px] text-slate-800 font-bold">更新</button>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl border border-slate-100 bg-slate-50/30">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                                    <i data-lucide="database" class="w-5 h-5 text-slate-600"></i>
+                                </div>
+                                <div class="font-bold text-slate-700 text-sm">向量库接入</div>
+                            </div>
+                            <span class="text-xl font-bold text-slate-200 tracking-tighter">6</span>
+                        </div>
+                        <div class="flex justify-end gap-3 mt-3">
+                            <button class="text-[10px] text-red-400">卸载</button>
+                            <button class="text-[10px] text-slate-800 font-bold">更新</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-t border-slate-50 text-center text-[10px] text-slate-400">
+                    Page 1 / 1
+                </div>
+            </div>
+        </aside>
+    </main>
+</div>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

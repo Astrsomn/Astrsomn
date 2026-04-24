@@ -1,27 +1,27 @@
 <template>
-  <div class="panel-card online-panel">
-    <div class="panel-head">
-      <h3>
+  <div class="online-systems-container">
+    <div class="panel-header">
+      <div class="header-left">
         <TeamOutlined />
-        在线业务系统
-      </h3>
-      <span>用户即业务系统，展示实时在线状态</span>
+        <h2 class="panel-title">在线业务系统</h2>
+      </div>
+      <span class="panel-subtitle">用户即业务系统，展示实时在线状态</span>
     </div>
-    <div class="online-grid">
+
+    <!-- 在线系统卡片网格 -->
+    <div class="online-systems-grid">
       <OnlineSystemItem
         v-for="system in pagedOnlineSystems"
         :key="system.name"
         :system="system"
       />
     </div>
-    <div class="pager-wrap">
-      <button type="button" class="pager-btn" :disabled="currentPage === 1" @click="emit('prev-page')">
-        上一页
-      </button>
-      <span class="pager-text">第 {{ currentPage }} / {{ totalPages }} 页，共 {{ totalSystems }} 个系统</span>
-      <button type="button" class="pager-btn" :disabled="currentPage === totalPages" @click="emit('next-page')">
-        下一页
-      </button>
+
+    <!-- 分页 -->
+    <div class="pagination">
+      <button class="pagination-btn" :disabled="currentPage === 1" @click="emit('prev-page')">Prev</button>
+      <span class="pagination-text">Page {{ currentPage }} / {{ totalPages }}</span>
+      <button class="pagination-btn" :disabled="currentPage === totalPages" @click="emit('next-page')">Next</button>
     </div>
   </div>
 </template>
@@ -56,88 +56,94 @@ const emit = defineEmits<{
 </script>
 
 <style scoped>
-.panel-card {
-  border: 1px solid var(--border-default);
-  border-radius: 14px;
-  background: var(--bg-card);
-  padding: 16px;
-}
-
-.online-panel {
+.online-systems-container {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 65px);
+  height: calc(100vh - 300px);
   overflow: hidden;
 }
 
-.panel-head {
+.panel-header {
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 10px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-.panel-head h3 {
-  margin: 0;
+.header-left {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 16px;
-  color: var(--text-heading);
-}
-
-.panel-head span {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.online-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
-  min-height: 0;
-}
-
-.pager-wrap {
-  margin-top: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 8px;
 }
 
-.pager-btn {
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  font-size: 12px;
-  padding: 4px 10px;
-  cursor: pointer;
+.header-left :deep(.anticon) {
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
 }
 
-.pager-btn:disabled {
+.panel-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.panel-subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.online-systems-grid {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.pagination {
+  padding: 24px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.pagination-btn {
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 12px;
+  font-style: italic;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.pagination-btn:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
 
-.pager-text {
-  color: var(--text-secondary);
+.pagination-text {
   font-size: 12px;
+  color: #94a3b8;
 }
 
-@media (max-width: 900px) {
-  .pager-wrap {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .pager-text {
-    text-align: center;
+@media (max-width: 768px) {
+  .online-systems-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

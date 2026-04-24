@@ -21,9 +21,8 @@
   height: auto;
   margin-left: auto;
   margin-right: auto;
-  padding: 24px 32px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+
 }
 </style>

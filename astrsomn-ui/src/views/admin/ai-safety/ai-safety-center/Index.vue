@@ -1,6 +1,6 @@
 <template>
   <DashboardWrapper>
-    <div class="center-page">
+    <div class="cen ter-page">
       <Top :safety-stats="safetyStats" />
       <Center :trace-stats="traceStats" :trace-cases="traceCases" :latest-events="latestEvents" />
       <Bottom :module-cards="moduleCards" @go-to="goTo" />
@@ -49,19 +49,19 @@ const router = useRouter()
 const moduleCards: ModuleCard[] = [
   {
     title: 'FTL 模板管理',
-    desc: '管理提示词模板与输出模版。',
+    desc: '管理提示词模板与输出模版',
     routeName: 'AdminTemplates',
     icon: FileSearchOutlined
   },
   {
     title: '敏感词治理',
-    desc: '维护敏感词策略与拦截规则。',
+    desc: '维护敏感词策略与拦截规则',
     routeName: 'AdminSecurity',
     icon: WarningOutlined
   },
   {
     title: '链路追踪',
-    desc: '查看请求链路与审计日志。',
+    desc: '查看请求链路与审计日志',
     routeName: 'AdminTracing',
     icon: DatabaseOutlined
   }
@@ -81,10 +81,10 @@ const traceStats = [
 ]
 
 const latestEvents = [
-  { title: '检测到疑似 Prompt 注入请求', level: 'high', levelText: '高危', source: '客服助手', time: '2 分钟前' },
-  { title: '命中敏感词策略并完成拦截', level: 'medium', levelText: '中危', source: '营销生成', time: '8 分钟前' },
-  { title: '模型输出触发合规复检规则', level: 'medium', levelText: '中危', source: '知识问答', time: '14 分钟前' },
-  { title: '审计链路追踪任务执行成功', level: 'low', levelText: '低危', source: '系统任务', time: '26 分钟前' }
+  { title: '检测到疑似 Prompt 注入请求', level: 'high', levelText: '高危', source: '客服助手', time: '2分钟前' },
+  { title: '命中敏感词策略并完成拦截', level: 'medium', levelText: '中危', source: '营销生成', time: '8分钟前' },
+  { title: '模型输出触发合规复检规则', level: 'medium', levelText: '中危', source: '知识问答', time: '14分钟前' },
+  { title: '审计链路追踪任务执行成功', level: 'low', levelText: '低危', source: '系统任务', time: '26分钟前' }
 ]
 
 const traceCases = [
@@ -103,18 +103,20 @@ const goTo = (routeName: string) => {
 .center-page {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .center-page {
-    gap: 14px;
+    gap: 20px;
+    padding: 0 16px;
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .center-page {
-    gap: 12px;
+    gap: 16px;
+    padding: 0 12px;
   }
 }
 </style>

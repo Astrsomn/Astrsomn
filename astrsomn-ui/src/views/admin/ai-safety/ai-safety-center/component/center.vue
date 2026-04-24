@@ -42,11 +42,11 @@ defineProps<{
 <style scoped>
 .main-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .main-grid {
     grid-template-columns: 1fr;
   }
