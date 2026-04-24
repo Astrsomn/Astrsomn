@@ -4,57 +4,69 @@
     :class="{ 'dock-active': shouldShowDock }"
   >
     <div
+      v-if="isAutoHideEnabled"
       class="dock-wake-zone"
       @mouseenter="handlePointerEnter"
       @mouseleave="handlePointerLeave"
     ></div>
 
-    <div class="dock-main" @mouseenter="handlePointerEnter" @mouseleave="handlePointerLeave">
+    <div class="dock-main">
       <div class="nav-group">
-        <div class="nav-item" @click="navigateTo('/admin/ai-config-center')">
+        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-config-center') }" @click="navigateTo('/admin/ai-config-center')">
           <div class="icon-wrapper"><RobotOutlined /></div>
           <span class="nav-text">AI 配置</span>
         </div>
 
-        <div class="nav-item" @click="navigateTo('/admin/vec-center')">
+        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/vec-center') }" @click="navigateTo('/admin/vec-center')">
           <div class="icon-wrapper"><DatabaseOutlined /></div>
           <span class="nav-text">向量中心</span>
         </div>
         
-        <div class="center-btn" @click="navigateTo('/admin/builder')">
+        <div class="center-btn" :class="{ 'center-btn-active': isActivePath('/admin/builder') }" @click="navigateTo('/admin/builder')">
           <div class="pulse-ring"></div>
-          <ExperimentOutlined />
+          <ToolOutlined />
           <span class="floating-label">Agent Studio</span>
         </div>
-        <div class="nav-item" @click="navigateTo('/admin/system-config-center')">
+        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/system-config-center') }" @click="navigateTo('/admin/system-config-center')">
           <div class="icon-wrapper"><SettingOutlined /></div>
           <span class="nav-text">系统管理</span>
         </div>
 
 
-        <div class="nav-item" @click="navigateTo('/admin/ai-safety-center')">
+        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-safety-center') }" @click="navigateTo('/admin/ai-safety-center')">
           <div class="icon-wrapper"><SafetyOutlined /></div>
           <span class="nav-text">安全治理</span>
         </div>
       </div>
     </div>
 
-    <div class="home-indicator" @mouseenter="handlePointerEnter" @mouseleave="handlePointerLeave"></div>
+    <div
+      class="home-indicator"
+      @mouseenter="isAutoHideEnabled ? handlePointerEnter() : undefined"
+      @mouseleave="isAutoHideEnabled ? handlePointerLeave() : undefined"
+    ></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, defineProps, onMounted, onUnmounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import {
   DatabaseOutlined,
   SettingOutlined,
-  ExperimentOutlined,
+  ToolOutlined,
   SafetyOutlined,
   RobotOutlined
 } from '@ant-design/icons-vue';
 
+const props = defineProps<{
+  fixed?: boolean;
+  autoHide?: boolean;
+}>();
+
 const router = useRouter();
+const route = useRoute();
+const isAutoHideEnabled = computed(() => props.autoHide ?? false);
 const isNavVisible = ref(false);
 const isAtBottom = ref(false);
 const AUTO_HIDE_DELAY = 200;
@@ -75,6 +87,7 @@ const startHideTimer = () => {
 };
 
 const handlePointerEnter = () => {
+  if (!isAutoHideEnabled.value) return;
   clearHideTimer();
   if (!isAtBottom.value) {
     isNavVisible.value = true;
@@ -82,15 +95,20 @@ const handlePointerEnter = () => {
 };
 
 const handlePointerLeave = () => {
+  if (!isAutoHideEnabled.value) return;
   startHideTimer();
 };
 
 const shouldShowDock = computed(() => {
+  if (!isAutoHideEnabled.value) return true;
+  if (props.fixed) return true;
   if (isAtBottom.value) return false;
   return isNavVisible.value;
 });
 
 const handleScroll = () => {
+  if (!isAutoHideEnabled.value || props.fixed) return;
+  
   const currentScrollY = window.scrollY;
   const documentHeight = Math.max(
     document.documentElement.scrollHeight,
@@ -115,15 +133,23 @@ const navigateTo = (path: string) => {
   router.push(path);
 };
 
+const isActivePath = (targetPath: string) => {
+  return route.path === targetPath || route.path.startsWith(`${targetPath}/`);
+};
+
 onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-  window.addEventListener('resize', handleScroll);
-  handleScroll();
+  if (isAutoHideEnabled.value) {
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    handleScroll();
+  }
 });
 
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-  window.removeEventListener('resize', handleScroll);
+  if (isAutoHideEnabled.value) {
+    window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('resize', handleScroll);
+  }
   clearHideTimer();
 });
 </script>
@@ -218,7 +244,7 @@ onUnmounted(() => {
   position: relative;
   width: 56px;
   height: 56px;
-  background: #6366f1;
+  background: var(--primary, #1677ff);
   color: white;
   border-radius: 18px;
   display: flex;
@@ -227,13 +253,13 @@ onUnmounted(() => {
   font-size: 24px;
   margin: 0 12px;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 20px rgba(22, 119, 255, 0.35);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .center-btn:hover {
   transform: scale(1.1) translateY(-8px);
-  background: #4f46e5;
+  background: #0958d9;
 }
 
 .center-btn .floating-label {
@@ -261,7 +287,7 @@ onUnmounted(() => {
   position: relative;
   width: 120px;
   height: 16px;
-  margin-top: 14px;
+
   cursor: pointer;
   transition: transform 0.3s ease;
 }
@@ -300,7 +326,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   border-radius: 18px;
-  background: #6366f1;
+  background: var(--primary, #1677ff);
   opacity: 0.4;
   z-index: -1;
   animation: pulse 2s infinite;
@@ -346,12 +372,12 @@ onUnmounted(() => {
   }
   
   .center-btn {
-    background: #6366f1;
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    background: var(--primary, #1677ff);
+    box-shadow: 0 8px 20px rgba(22, 119, 255, 0.42);
   }
   
   .center-btn:hover {
-    background: #4f46e5;
+    background: #0958d9;
   }
   
   .center-btn .floating-label {
@@ -387,12 +413,12 @@ onUnmounted(() => {
 }
 
 :root.dark .center-btn {
-  background: #6366f1;
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+  background: var(--primary, #1677ff);
+  box-shadow: 0 8px 20px rgba(22, 119, 255, 0.42);
 }
 
 :root.dark .center-btn:hover {
-  background: #4f46e5;
+  background: #0958d9;
 }
 
 :root.dark .center-btn .floating-label {
@@ -427,12 +453,12 @@ onUnmounted(() => {
 }
 
 :root.light .center-btn {
-  background: #6366f1;
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  background: var(--primary, #1677ff);
+  box-shadow: 0 8px 20px rgba(22, 119, 255, 0.35);
 }
 
 :root.light .center-btn:hover {
-  background: #4f46e5;
+  background: #0958d9;
 }
 
 :root.light .center-btn .floating-label {

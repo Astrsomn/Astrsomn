@@ -28,14 +28,14 @@ body {
 
 .global-footer {
   position: fixed;
-  bottom: 0;
+  bottom: 6px;
   left: 0;
   right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding:  0;
+
   background: transparent;
   z-index: 1000;
 }

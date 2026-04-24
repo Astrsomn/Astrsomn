@@ -7,7 +7,7 @@
     <div class="config-page">
       <AdminListToolbar>
         <template #left>
-       
+        
             <AstrsomnSearchPill
               v-model="query.configGroup"
               placeholder="配置分组"
@@ -64,18 +64,6 @@
               {{ record.isSystem ? '系统内置' : '自定义' }}
             </a-tag>
           </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="openEdit(record)">编辑</a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger>删除</a-button>
-            </a-popconfirm>
-          </template>
         </template>
       </a-table>
 
@@ -88,26 +76,15 @@
           @change="onPageChange"
         />
       </div>
-
-      <ConfigFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
-      />
     </div>
   </AdminPageShell>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
+import { computed, reactive, ref, onMounted } from 'vue'
 import {
   AppstoreOutlined,
   CheckCircleOutlined,
-  DeleteOutlined,
-  PlusOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
@@ -116,8 +93,22 @@ import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
-import ConfigFormModal from './ConfigFormModal.vue'
-import { systemConfigApi, type PageResponse, type SystemConfig } from '@/api/systemConfig.ts'
+
+// 系统配置类型定义
+type SystemConfig = {
+  id: number | string
+  configKey: string
+  configGroup: string
+  configValue: string
+  status: 'ENABLED' | 'DISABLED'
+  isSystem: boolean
+  description: string
+}
+
+type PageResponse<T> = {
+  list: T[]
+  total: number
+}
 
 type QueryState = {
   configKey?: string
@@ -131,8 +122,7 @@ const columns = [
   { title: '配置值', key: 'configValue', width: 320, ellipsis: true },
   { title: '状态', key: 'status', width: 100 },
   { title: '属性', key: 'isSystem', width: 110 },
-  { title: '描述', dataIndex: 'description', key: 'description', width: 220, ellipsis: true },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  { title: '描述', dataIndex: 'description', key: 'description', width: 220, ellipsis: true }
 ]
 
 const query = reactive<QueryState>({})
@@ -154,22 +144,9 @@ const selectedRowKeys = ref<Array<number | string>>([])
 
 const actionButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '批量删除',
-    type: 'danger',
-    icon: DeleteOutlined,
-    disabled: selectedRowKeys.value.length === 0,
-    onClick: handleBatchDelete
-  },
-  {
     label: '重置',
     type: 'default',
     onClick: resetFilters
-  },
-  {
-    label: '新增',
-    type: 'default',
-    icon: PlusOutlined,
-    onClick: openCreate
   }
 ])
 
@@ -218,14 +195,6 @@ const resetFilters = () => {
   void fetchList()
 }
 
-const modal = reactive({
-  open: false,
-  mode: 'create' as 'create' | 'edit',
-  submitting: false
-})
-
-const modalInitial = ref<SystemConfig | null>(null)
-
 const preview = (raw: string | undefined) => {
   if (!raw) return '—'
   const text = raw.replace(/\s+/g, ' ').trim()
@@ -238,99 +207,71 @@ const statusLabel = (value: string | undefined) => {
   return value ?? '—'
 }
 
-const fetchList = async () => {
-  const payload = {
-    pageNo: page.pageNum,
-    pageSize: page.pageSize,
-    param: {
-      configKey: query.configKey || undefined,
-      configGroup: query.configGroup || undefined,
-      status: query.status || undefined
-    }
-  }
+// 初始化默认配置数据
+const initDefaultConfig = (): SystemConfig[] => {
+  const defaultConfigs: SystemConfig[] = [
+    // AI 配置域
+    { id: 1, configKey: 'ai.model.default', configGroup: 'AI', configValue: 'gpt-4', status: 'ENABLED', isSystem: true, description: '默认 AI 模型' },
+    { id: 2, configKey: 'ai.temperature', configGroup: 'AI', configValue: '0.7', status: 'ENABLED', isSystem: true, description: 'AI 生成温度参数' },
+    // 向量中心域
+    { id: 3, configKey: 'vec.index.default', configGroup: 'VECTOR', configValue: 'default-index', status: 'ENABLED', isSystem: true, description: '默认向量索引' },
+    { id: 4, configKey: 'vec.dimensions', configGroup: 'VECTOR', configValue: '1536', status: 'ENABLED', isSystem: true, description: '向量维度' },
+    // 系统管理域
+    { id: 5, configKey: 'system.log.level', configGroup: 'SYSTEM', configValue: 'INFO', status: 'ENABLED', isSystem: true, description: '系统日志级别' },
+    { id: 6, configKey: 'system.timezone', configGroup: 'SYSTEM', configValue: 'Asia/Shanghai', status: 'ENABLED', isSystem: true, description: '系统时区' },
+    // 安全治理域
+    { id: 7, configKey: 'security.cors.enabled', configGroup: 'SECURITY', configValue: 'true', status: 'ENABLED', isSystem: true, description: '是否启用 CORS' },
+    { id: 8, configKey: 'security.rate.limit', configGroup: 'SECURITY', configValue: '100', status: 'ENABLED', isSystem: true, description: '速率限制' }
+  ]
+  localStorage.setItem('systemConfigs', JSON.stringify(defaultConfigs))
+  return defaultConfigs
+}
 
-  const resp: PageResponse<SystemConfig> = await systemConfigApi.queryPage(payload)
-  list.value = resp.list || []
-  page.total = resp.total || 0
+const fetchList = () => {
+  // 从 localStorage 获取数据
+  const storedConfigs = localStorage.getItem('systemConfigs')
+  let allConfigs: SystemConfig[] = []
+  
+  if (storedConfigs) {
+    try {
+      allConfigs = JSON.parse(storedConfigs)
+    } catch {
+      allConfigs = initDefaultConfig()
+    }
+  } else {
+    allConfigs = initDefaultConfig()
+  }
+  
+  // 应用筛选条件
+  let filteredConfigs = [...allConfigs]
+  
+  if (query.configGroup) {
+    filteredConfigs = filteredConfigs.filter(config => 
+      config.configGroup.toLowerCase().includes(query.configGroup!.toLowerCase())
+    )
+  }
+  
+  if (query.status) {
+    filteredConfigs = filteredConfigs.filter(config => config.status === query.status)
+  }
+  
+  // 计算分页
+  const start = (page.pageNum - 1) * page.pageSize
+  const end = start + page.pageSize
+  
+  list.value = filteredConfigs.slice(start, end)
+  page.total = filteredConfigs.length
 }
 
 const onPageChange = (p: number) => {
   page.pageNum = p
-  void fetchList()
+  fetchList()
 }
 
-const openCreate = () => {
-  modal.mode = 'create'
-  modalInitial.value = null
-  modal.open = true
-}
-
-const openEdit = async (record: SystemConfig) => {
-  modal.mode = 'edit'
-  const id = record.id
-  if (id == null) return
-
-  const detail = await systemConfigApi.detail(id)
-  modalInitial.value = detail
-  modal.open = true
-}
-
-const handleDeleteOne = async (id: number | string | undefined) => {
-  if (id == null) return
-  const msg = await systemConfigApi.delete([id])
-  message.success(msg)
-  selectedRowKeys.value = []
-  void fetchList()
-}
-
-const handleBatchDelete = async () => {
-  const ids = [...selectedRowKeys.value]
-  if (ids.length === 0) return
-  
-  try {
-    await new Promise<void>((resolve, reject) => {
-      const modal = Modal.confirm({
-        title: '确定批量删除选中的配置项吗？',
-        okText: '确认',
-        cancelText: '取消',
-        onOk: () => resolve(),
-        onCancel: () => reject(new Error('取消删除'))
-      })
-    })
-    
-    const msg = await systemConfigApi.delete(ids)
-    message.success(msg)
-    selectedRowKeys.value = []
-    void fetchList()
-  } catch (error) {
-    // 用户取消删除，不执行任何操作
-  }
-}
-
-const handleFormSubmit = async (form: SystemConfig) => {
-  modal.submitting = true
-  try {
-    const payload: SystemConfig = { ...form }
-    let msg: string
-    if (modal.mode === 'create') {
-      delete (payload as { id?: unknown }).id
-      msg = await systemConfigApi.create(payload)
-    } else {
-      msg = await systemConfigApi.update(payload)
-    }
-
-    message.success(msg)
-    modal.open = false
-    void fetchList()
-  } catch (e: unknown) {
-    const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
-  } finally {
-    modal.submitting = false
-  }
-}
-
-void fetchList()
+// 页面加载时获取数据
+onMounted(() => {
+  fetchList()
+})
 </script>
 
 <style scoped>

@@ -43,9 +43,9 @@
     <div class="compact-stat-card amber">
       <div class="card-inner">
         <div class="info-side">
-          <p class="label">平均响应时间</p>
+          <p class="label">任务成功率</p>
           <div class="value-row">
-            <span class="value font-mono">842</span>
+            <span class="value font-mono">80%</span>
             <span class="unit">ms</span>
           </div>
           <div class="status-text">

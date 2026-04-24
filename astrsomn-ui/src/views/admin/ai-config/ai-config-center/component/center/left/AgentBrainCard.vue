@@ -61,6 +61,15 @@
           <div :class="['status-indicator', item.status === 'enabled' ? 'is-active' : 'is-inactive']">
             {{ item.status === 'enabled' ? 'ON' : 'OFF' }}
           </div>
+          <div class="status-toggle" @click.stop>
+            <a-switch
+              size="small"
+              :checked="item.status === 'enabled'"
+              :loading="item.id ? switchingIds.has(item.id) : false"
+              @change="(checked: boolean) => onToggleStatus(item, checked)"
+            />
+            <span class="status-text">{{ item.status === 'enabled' ? '已启用' : '已禁用' }}</span>
+          </div>
           <span class="timestamp">{{ formatTime(item.createTime) }}</span>
         </div>
       </div>
@@ -76,6 +85,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { message } from 'ant-design-vue'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
 import { 
   SecurityScanOutlined, 
@@ -86,6 +96,7 @@ import {
 const router = useRouter()
 const loading = ref(false)
 const list = ref<AiAgent[]>([])
+const switchingIds = ref<Set<string | number>>(new Set())
 
 const navigateToAgents = () => {
   router.push('/admin/agents')
@@ -117,6 +128,31 @@ const fetchList = async () => {
   }
 }
 
+const onToggleStatus = async (item: AiAgent, checked: boolean) => {
+  if (!item.id) {
+    message.warning('该智能体缺少 ID，无法更新状态')
+    return
+  }
+  if (switchingIds.value.has(item.id)) return
+
+  const nextStatus = checked ? 'enabled' : 'disabled'
+  if (item.status === nextStatus) return
+
+  switchingIds.value.add(item.id)
+  try {
+    await aiAgentApi.update({
+      ...item,
+      status: nextStatus
+    })
+    item.status = nextStatus
+    message.success(checked ? '已启用' : '已禁用')
+  } catch {
+    message.error('状态更新失败，请稍后重试')
+  } finally {
+    switchingIds.value.delete(item.id)
+  }
+}
+
 onMounted(() => {
   void fetchList()
 })
@@ -131,7 +167,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid #0c1521;
+  border: 1px solid var(--border-default);
   height: 100%;
 }
 
@@ -170,7 +206,7 @@ onMounted(() => {
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  border: none;
+  border: 1px solid var(--border-default);
   background: var(--bg-elevated);
   color: var(--text-secondary);
   display: flex;
@@ -188,6 +224,7 @@ onMounted(() => {
 
 .btn-primary-icon {
   background: var(--primary);
+  border-color: var(--primary);
   color: #ffffff;
 }
 
@@ -212,13 +249,14 @@ onMounted(() => {
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid #0f766e;
+  border: 1px solid var(--border-default);
+  background: color-mix(in srgb, var(--bg-elevated) 45%, transparent);
 }
 
 .agent-item-premium:hover {
 
   background: var(--bg-elevated);
-  border-color: var(--border-default);
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border-default));
 }
 
 /* 身份信息 */
@@ -235,6 +273,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   flex-shrink: 0;
   display: flex;
@@ -356,7 +395,7 @@ onMounted(() => {
 }
 
 .status-indicator.is-inactive {
-  background: var(--bg-elevated);
+  background: color-mix(in srgb, var(--bg-elevated) 82%, var(--border-default));
   color: var(--text-muted);
 }
 
@@ -394,5 +433,29 @@ onMounted(() => {
 .empty-placeholder p {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.item-meta-status {
+  gap: 8px;
+}
+
+.status-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+:global(.dark) .agent-item-premium {
+  background: color-mix(in srgb, var(--bg-card) 88%, #000);
+}
+
+:global(.dark) .icon-btn {
+  background: color-mix(in srgb, var(--bg-elevated) 85%, #000);
 }
 </style>
