@@ -10,7 +10,7 @@
       switchTarget="chat"
     />
 
-    <main class="shell-content">
+    <main class="shell-content" @scroll="handleScroll">
       <div class="content-wrapper">
         <router-view v-slot="{ Component }">
           <transition name="page-fade" mode="out-in">
@@ -19,6 +19,9 @@
         </router-view>
       </div>
     </main>
+
+    <!-- 底部导航栏组件 -->
+    <BottomNav />
   </div>
 </template>
 
@@ -26,11 +29,16 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import AppHeader from '@/components/top/AppHeader.vue';
+import BottomNav from '@/components/bottom/BottomNav.vue';
 
 const route = useRoute();
 
 const isHome = computed(() => route.path === '/admin');
 const pageTitle = computed(() => (route.meta.title as string) || '管理后台');
+
+const handleScroll = () => {
+  // 滚动时的处理逻辑
+};
 </script>
 
 <style scoped>
@@ -76,16 +84,16 @@ const pageTitle = computed(() => (route.meta.title as string) || '管理后台')
 
 
 
-/* 响应式适配 */
-@media (max-width: 768px) {
-  .content-wrapper { padding: 0 16px; }
-}
-
 /* 让顶部 Header 覆盖在内容上方，这样 Header 透明时能看到底下页面内容 */
 :deep(.app-header) {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .content-wrapper { padding: 0 16px; }
 }
 </style>

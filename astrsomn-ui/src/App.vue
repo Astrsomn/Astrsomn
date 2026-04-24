@@ -35,7 +35,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 12px 0;
+  padding:  0;
   background: transparent;
   z-index: 1000;
 }
