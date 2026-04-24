@@ -7,10 +7,13 @@
     <template #overlay>
       <a-menu class="custom-dropdown" @click="handleMenuClick">
         <a-menu-item key="home">
-          <home-outlined /> <span>回到首页</span>
+          <home-outlined /> <span>立即聊天</span>
         </a-menu-item>
         <a-menu-item key="admin">
           <setting-outlined /> <span>管理后台</span>
+        </a-menu-item>
+        <a-menu-item key="config">
+          <setting-outlined /> <span>配置中心</span>
         </a-menu-item>
         <a-menu-divider />
         <a-menu-item key="logout" class="logout-item">
@@ -54,6 +57,7 @@ const handleMenuClick = ({ key }: { key: string }) => {
   switch (key) {
     case 'home': router.push('/'); break;
     case 'admin': router.push('/admin'); break;
+    case 'config': router.push('/admin/system-config'); break;
     case 'logout':
       localStorage.clear();
       message.success('已安全退出');
