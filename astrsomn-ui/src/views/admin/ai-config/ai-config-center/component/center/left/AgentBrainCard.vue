@@ -28,7 +28,7 @@
       >
         <div class="item-identity">
           <div class="icon-container">
-            <img class="agent-avatar" src="@/assets/dashboard-icons/agents-color.svg" alt="agent" />
+            <img class="agent-avatar" src="../../../../../../../assets/dashboard-icons/agents-color.svg" alt="agent" />
             <div v-if="item.status === 'enabled'" class="alive-indicator"></div>
           </div>
           

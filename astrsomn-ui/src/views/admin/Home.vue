@@ -33,7 +33,7 @@ import BottomNav from '@/components/bottom/BottomNav.vue';
 
 const route = useRoute();
 
-const isHome = computed(() => route.path === '/admin');
+const isHome = computed(() => route.path === '/admin/ai-config-center');
 const pageTitle = computed(() => (route.meta.title as string) || '管理后台');
 
 const handleScroll = () => {

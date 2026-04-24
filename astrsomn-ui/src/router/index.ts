@@ -27,8 +27,12 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
+        redirect: '/admin/ai-config-center'
+      },
+      {
+        path: 'ai-config-center',
         name: 'Admin',
-        component: () => import('@/views/admin/home-dashboard/Index.vue'),
+        component: () => import('@/views/admin/ai-config/ai-config-center/Index.vue'),
         meta: { title: '管理后台', requiresAuth: true }
       },
       {
@@ -36,12 +40,6 @@ const routes: RouteRecordRaw[] = [
         name: 'AdminAgents',
         component: () => import('@/views/admin/ai-config/ai-agent/AgentList.vue'),
         meta: { title: '智能体管理', requiresAuth: true }
-      },
-      {
-        path: 'agents/model-assembly',
-        name: 'AdminModelAssembly',
-        component: () => import('@/views/admin/ai-config/ai-agent/AgentForm.vue'),
-        meta: { title: 'Agent组装', requiresAuth: true }
       },
       {
         path: 'mcp',
@@ -80,9 +78,15 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '提示词管理', requiresAuth: true }
       },
       {
+        path: 'ai-safety-center',
+        name: 'AdminAiSafetyCenter',
+        component: () => import('@/views/admin/ai-safety/ai-safety-center/Index.vue'),
+        meta: { title: '安全治理中心', requiresAuth: true }
+      },
+      {
         path: 'templates',
         name: 'AdminTemplates',
-        component: () => import('@/views/admin/ai-modules/ai-template/TemplateList.vue'),
+        component: () => import('@/views/admin/ai-safety/ai-template/TemplateList.vue'),
         meta: { title: 'FTL 模板管理', requiresAuth: true }
       },
       {
@@ -95,13 +99,13 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'security',
         name: 'AdminSecurity',
-        component: () => import('@/views/admin/ai-modules/ai-sensitive-word/SensitiveWordList.vue'),
+        component: () => import('@/views/admin/ai-safety/ai-sensitive-word/SensitiveWordList.vue'),
         meta: { title: '安全治理', requiresAuth: true }
       },
       {
         path: 'tracing',
         name: 'AdminTracing',
-        component: () => import('@/views/admin/ai-modules/ai-trace-log/TraceList.vue'),
+        component: () => import('@/views/admin/ai-safety/ai-trace-log/TraceList.vue'),
         meta: { title: '链路追踪', requiresAuth: true }
       },
       {
@@ -141,16 +145,22 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '向量驱动', requiresAuth: true }
       },
       {
-        path: 'vec-builder',
+        path: 'vec-center',
         name: 'AdminVectorBuilder',
-        component: () => import('@/views/admin/ai-vector/builder/Index.vue'),
+        component: () => import('@/views/admin/ai-vector/vector-center/Index.vue'),
         meta: { title: '向量知识库管理', requiresAuth: true }
       },
       {
         path: 'resource-library',
         name: 'AdminResourceLibrary',
-        component: () => import('@/views/admin/home-dashboard/resource-library/Index.vue'),
+        component: () => import('@/views/resource-library/Index.vue'),
         meta: { title: '资源库', requiresAuth: true }
+      },
+      {
+        path: 'system-config-center',
+        name: 'AdminSystemConfigCenter',
+        component: () => import('@/views/admin/system-config/system-config-center/Index.vue'),
+        meta: { title: '系统管理中心', requiresAuth: true }
       },
       {
         path: 'users',

@@ -24,10 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import StatsGrid from './dashboard-component/top/StatsGrid.vue'
-import AgentBrainCard from './dashboard-component/center/left/AgentBrainCard.vue'
-import SmallCards from './dashboard-component/center/right/SmallCards.vue'
-import ExtensionGrid from './dashboard-component/bottom/ExtensionGrid.vue'
+import StatsGrid from '@/views/admin/ai-config/ai-config-center/component/top/StatsGrid.vue'
+import AgentBrainCard from '@/views/admin/ai-config/ai-config-center/component/center/left/AgentBrainCard.vue'
+import SmallCards from '@/views/admin/ai-config/ai-config-center/component/center/right/SmallCards.vue'
+import ExtensionGrid from './component/bottom/ExtensionGrid.vue'
 </script>
 
 <style scoped>

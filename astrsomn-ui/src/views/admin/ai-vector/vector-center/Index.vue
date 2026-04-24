@@ -22,10 +22,10 @@
 import { defineComponent } from 'vue';
 import { RobotOutlined } from '@ant-design/icons-vue';
 import { Layout, Badge } from 'ant-design-vue';
-import Left from './component/Left.vue';
-import RightTop from './component/RightTop.vue';
-import RightCenter from './component/RightCenter.vue';
-import RightBottom from './component/RightBottom.vue';
+import Left from '@/views/admin/ai-vector/vector-center/component/Left.vue';
+import RightTop from '@/views/admin/ai-vector/vector-center/component/RightTop.vue';
+import RightCenter from '@/views/admin/ai-vector/vector-center/component/RightCenter.vue';
+import RightBottom from '@/views/admin/ai-vector/vector-center/component/RightBottom.vue';
 
 const { Header, Sider, Content } = Layout;
 </script>

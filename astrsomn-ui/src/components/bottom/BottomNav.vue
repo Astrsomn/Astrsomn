@@ -11,30 +11,30 @@
 
     <div class="dock-main" @mouseenter="handlePointerEnter" @mouseleave="handlePointerLeave">
       <div class="nav-group">
-        <div class="nav-item" @click="navigateTo('/admin/vector')">
-          <div class="icon-wrapper"><DatabaseOutlined /></div>
-          <span class="nav-text">向量库</span>
-        </div>
-        
-        <div class="nav-item" @click="navigateTo('/admin/system')">
-          <div class="icon-wrapper"><SettingOutlined /></div>
-          <span class="nav-text">系统管理</span>
+        <div class="nav-item" @click="navigateTo('/admin/ai-config-center')">
+          <div class="icon-wrapper"><RobotOutlined /></div>
+          <span class="nav-text">AI 配置</span>
         </div>
 
+        <div class="nav-item" @click="navigateTo('/admin/vec-center')">
+          <div class="icon-wrapper"><DatabaseOutlined /></div>
+          <span class="nav-text">向量中心</span>
+        </div>
+        
         <div class="center-btn" @click="navigateTo('/admin/builder')">
           <div class="pulse-ring"></div>
           <ExperimentOutlined />
           <span class="floating-label">Agent Studio</span>
         </div>
-
-        <div class="nav-item" @click="navigateTo('/admin/audit')">
-          <div class="icon-wrapper"><SafetyOutlined /></div>
-          <span class="nav-text">安全审计</span>
+        <div class="nav-item" @click="navigateTo('/admin/system-config-center')">
+          <div class="icon-wrapper"><SettingOutlined /></div>
+          <span class="nav-text">系统管理</span>
         </div>
 
-        <div class="nav-item" @click="navigateTo('/admin/agent')">
-          <div class="icon-wrapper"><RobotOutlined /></div>
-          <span class="nav-text">智能体</span>
+
+        <div class="nav-item" @click="navigateTo('/admin/ai-safety-center')">
+          <div class="icon-wrapper"><SafetyOutlined /></div>
+          <span class="nav-text">安全治理</span>
         </div>
       </div>
     </div>

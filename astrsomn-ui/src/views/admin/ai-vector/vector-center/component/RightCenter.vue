@@ -32,7 +32,7 @@
 import { ref } from 'vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
 // 确保路径指向你刚才保存 FileCard 的位置
-import FileCard from './right-center/FileCard.vue'; 
+import FileCard from '@/views/admin/ai-vector/vector-center/component/right-center/FileCard.vue';
 
 const files = ref([
   { name: "产品功能矩阵.pdf", segments: 156, size: "3.2MB", status: "已向量化", uploadTime: "2024-03-15" },
