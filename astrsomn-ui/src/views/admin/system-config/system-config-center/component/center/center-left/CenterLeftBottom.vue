@@ -8,22 +8,11 @@
       <span>用户即业务系统，展示实时在线状态</span>
     </div>
     <div class="online-grid">
-      <div v-for="system in pagedOnlineSystems" :key="system.name" class="online-item">
-        <div class="online-top">
-          <div class="online-name">
-            <component :is="system.icon" />
-            <span>{{ system.name }}</span>
-          </div>
-          <span class="online-status" :class="`status-${system.status}`">
-            <span class="status-dot"></span>
-            {{ system.statusText }}
-          </span>
-        </div>
-        <div class="online-meta">
-          <span><ClockCircleOutlined /> 最后心跳 {{ system.lastHeartbeat }}</span>
-          <span><DatabaseOutlined /> 活跃会话 {{ system.sessions }}</span>
-        </div>
-      </div>
+      <OnlineSystemItem
+        v-for="system in pagedOnlineSystems"
+        :key="system.name"
+        :system="system"
+      />
     </div>
     <div class="pager-wrap">
       <button type="button" class="pager-btn" :disabled="currentPage === 1" @click="emit('prev-page')">
@@ -38,12 +27,8 @@
 </template>
 
 <script setup lang="ts">
-import {
-  TeamOutlined,
-  ClockCircleOutlined,
-  DatabaseOutlined
-} from '@ant-design/icons-vue'
-import type { Component } from 'vue'
+import { TeamOutlined } from '@ant-design/icons-vue'
+import OnlineSystemItem from './OnlineSystemItem.vue'
 
 type OnlineStatus = 'online' | 'degraded' | 'offline'
 
@@ -53,7 +38,8 @@ type OnlineSystem = {
   statusText: string
   sessions: number
   lastHeartbeat: string
-  icon: Component
+  icon: any
+  extraInfo?: Record<string, string>
 }
 
 defineProps<{
@@ -109,87 +95,11 @@ const emit = defineEmits<{
 .online-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
   overflow-y: auto;
   padding-right: 4px;
   min-height: 0;
-}
-
-.online-item {
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  background: var(--bg-card);
-  padding: 10px 12px;
-  flex: 1 1 calc(50% - 5px);
-  min-width: 200px;
-  max-width: calc(50% - 5px);
-}
-
-.online-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.online-name {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--text-heading);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.online-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
-  border-radius: 999px;
-  font-size: 11px;
-  border: 1px solid transparent;
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: currentColor;
-}
-
-.status-online {
-  color: #2e9f5d;
-  background: color-mix(in srgb, #2e9f5d 12%, transparent);
-  border-color: color-mix(in srgb, #2e9f5d 26%, transparent);
-}
-
-.status-degraded {
-  color: #f39c12;
-  background: color-mix(in srgb, #f39c12 12%, transparent);
-  border-color: color-mix(in srgb, #f39c12 24%, transparent);
-}
-
-.status-offline {
-  color: #dd4b39;
-  background: color-mix(in srgb, #dd4b39 12%, transparent);
-  border-color: color-mix(in srgb, #dd4b39 24%, transparent);
-}
-
-.online-meta {
-  margin-top: 6px;
-  display: flex;
-  justify-content: space-between;
-  gap: 6px;
-  color: var(--text-secondary);
-  font-size: 10px;
-}
-
-.online-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
 }
 
 .pager-wrap {

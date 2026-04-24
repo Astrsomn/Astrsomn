@@ -1,29 +1,22 @@
 <template>
-  <div class="demo-dashboard-wrapper">
-    <main class="main-content">
-      <div class="animate-fade-in" style="animation-delay: 0ms">
-        <StatsGrid />
-      </div>
+  <DashboardWrapper>
+    <div class="animate-fade-in" style="animation-delay: 0ms">
+      <StatsGrid />
+    </div>
 
-      <div class="center-grid">
-        <div class="animate-fade-in" style="animation-delay: 100ms">
-          <AgentBrainCard />
-        </div>
-        <div class="animate-fade-in" style="animation-delay: 200ms">
-          <SmallCards />
-        </div>
+    <div class="center-grid">
+      <div class="animate-fade-in" style="animation-delay: 100ms">
+        <AgentBrainCard />
       </div>
-
-<!--      <div class="bottom-section">-->
-<!--        <div class="animate-fade-in" style="animation-delay: 300ms">-->
-<!--          <ExtensionGrid />-->
-<!--        </div>-->
-<!--      </div>-->
-    </main>
-  </div>
+      <div class="animate-fade-in" style="animation-delay: 200ms">
+        <SmallCards />
+      </div>
+    </div>
+  </DashboardWrapper>
 </template>
 
 <script setup lang="ts">
+import DashboardWrapper from '@/components/home/DashboardWrapper.vue'
 import StatsGrid from '@/views/admin/ai-config/ai-config-center/component/top/StatsGrid.vue'
 import AgentBrainCard from '@/views/admin/ai-config/ai-config-center/component/center/left/AgentBrainCard.vue'
 import SmallCards from '@/views/admin/ai-config/ai-config-center/component/center/right/SmallCards.vue'
@@ -31,37 +24,6 @@ import ExtensionGrid from './component/bottom/ExtensionGrid.vue'
 </script>
 
 <style scoped>
-.demo-dashboard-wrapper {
-  position: relative;
-  background: var(--bg-base);
-  min-height: calc(100vh - 70px);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 14px;
-  color: var(--text-primary);
-}
-
-/* 统一字体样式 */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-weight: 600;
-  color: var(--text-heading);
-}
-
-p, span, div {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
-
-.main-content {
-  max-width: 1600px;
-  height: auto;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 24px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
 .center-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -77,7 +39,6 @@ p, span, div {
   min-height: 140px;
 }
 
-/* 页面进入动画 */
 .animate-fade-in {
   opacity: 0;
   transform: translateY(20px);

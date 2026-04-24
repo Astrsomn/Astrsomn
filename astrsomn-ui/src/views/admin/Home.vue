@@ -38,7 +38,8 @@ const isHome = computed(() => {
     '/admin/ai-config-center',
     '/admin/ai-safety-center',
     '/admin/vec-center',
-    '/admin/system-config-center'
+    '/admin/system-config-center',
+      '/admin/builder'
   ];
   return homePaths.includes(route.path);
 });

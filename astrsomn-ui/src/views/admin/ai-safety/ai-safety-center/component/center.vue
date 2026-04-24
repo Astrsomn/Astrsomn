@@ -6,8 +6,8 @@
 </template>
 
 <script setup lang="ts">
-import CenterLeft from './center-left.vue'
-import CenterRight from './center-right.vue'
+import CenterLeft from './center/center-left.vue'
+import CenterRight from './center/center-right.vue'
 
 type TraceStat = {
   label: string

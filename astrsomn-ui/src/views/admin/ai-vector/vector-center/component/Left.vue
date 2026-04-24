@@ -1,60 +1,80 @@
 <template>
   <div class="sidebar-container">
     <div class="sidebar-header">
-      <div class="header-main">
-        <database-filled class="header-icon" />
+      <div class="header-left">
+        <div class="header-icon-box">
+          <DatabaseFilled class="header-icon" />
+        </div>
         <span class="header-title">资产目录</span>
       </div>
-      <plus-outlined class="add-icon" />
+      <PlusOutlined class="add-icon" @click="handleAddSource" />
     </div>
 
-    <div class="sidebar-menu-wrapper">
-      <a-menu
-        v-model:selectedKeys="selectedKeys"
-        v-model:openKeys="openKeys"
-        mode="inline"
-        :inline-indent="0" 
-        class="hierarchy-menu"
+    <div class="sidebar-content">
+      <div
+        v-for="source in sources"
+        :key="source.id"
+        class="source-section"
       >
-        <a-sub-menu v-for="source in sources" :key="source.id" class="level-1-group">
-          <template #title>
-            <div class="source-card">
-              <div class="source-main">
-                <div class="source-title">
-                  <cluster-outlined class="p-icon" />
-                  <span class="p-title">数据源</span>
-                </div>
-                <div class="source-connection">
-                  <span class="p-conn">{{ source.ip }}:{{ source.port }}</span>
-                  <span class="p-user">({{ source.user }})</span>
-                  <span class="p-tag">{{ source.tag }}</span>
-                </div>
-              </div>
-              <edit-outlined class="edit-icon" />
-            </div>
+        <a-dropdown :trigger="['contextmenu']">
+          <SourceCard
+            :ip="source.ip"
+            :port="source.port"
+            :tag="source.tag"
+            :is-open="openKeys.includes(source.id)"
+            @toggle="toggleSource(source.id)"
+          />
+          <template #overlay>
+            <a-menu @click="({ key }) => handleSourceMenuClick(key, source)">
+              <a-menu-item key="addDb">
+                <template #icon><PlusOutlined /></template>
+                新增数据库
+              </a-menu-item>
+              <a-menu-item key="edit">
+                <template #icon><EditOutlined /></template>
+                编辑数据源
+              </a-menu-item>
+              <a-menu-divider />
+              <a-menu-item key="delete" class="danger-item">
+                <template #icon><DeleteOutlined /></template>
+                删除数据源
+              </a-menu-item>
+            </a-menu>
           </template>
+        </a-dropdown>
 
-          <a-menu-item v-for="db in source.dbs" :key="db.id" class="level-2-item">
-            <div class="asset-tree">
-              <div class="vertical-guide"></div>
-              
-              <div class="asset-content">
-                <div class="db-node">
-                  <div class="db-label">
-                    <component :is="getVdbIcon(db.type)" class="v-icon" />
-                    <span class="v-name">{{ db.dbName }}</span>
-                  </div>
-                  <div v-if="db.active" class="active-pulse"></div>
-                  <div class="model-info">
-                    <div class="model-name">{{ db.modelName }}</div>
-                    <div class="model-dim">{{ db.dim }}维</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </a-menu-item>
-        </a-sub-menu>
-      </a-menu>
+        <transition name="expand">
+          <div v-if="openKeys.includes(source.id)" class="db-container">
+            <a-dropdown
+              v-for="db in source.dbs"
+              :key="db.id"
+              :trigger="['contextmenu']"
+            >
+              <DbNode
+                :db-name="db.dbName"
+                :model-name="db.modelName"
+                :dim="db.dim"
+                :active="db.active"
+                :is-selected="selectedKeys.includes(db.id)"
+                @select="selectDb(db.id)"
+              />
+              <template #overlay>
+                <a-menu @click="({ key }) => handleDbMenuClick(key, source.id, db)">
+                  <a-menu-item key="edit">
+                    <template #icon><EditOutlined /></template>
+                    编辑数据库
+                  </a-menu-item>
+                  <a-menu-divider />
+                  <a-menu-item key="delete" class="danger-item">
+                    <template #icon><DeleteOutlined /></template>
+                    删除数据库
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown>
+          </div>
+        </transition>
+      </div>
     </div>
 
     <div class="sidebar-footer">
@@ -66,199 +86,276 @@
           </div>
           <span class="s-text">驱动就绪</span>
         </div>
-        <appstore-outlined class="m-btn" />
+        <AppstoreOutlined class="m-btn" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { 
-  PlusOutlined, DatabaseFilled, ClusterOutlined, 
-  AppstoreOutlined, DeploymentUnitOutlined, 
-  NodeIndexOutlined, BlockOutlined, EditOutlined 
-} from '@ant-design/icons-vue';
+import { ref } from 'vue'
+import { message } from 'ant-design-vue'
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  DatabaseFilled,
+  AppstoreOutlined
+} from '@ant-design/icons-vue'
+import SourceCard from './SourceCard.vue'
+import DbNode from './DbNode.vue'
 
-const selectedKeys = ref(['db-1']);
-const openKeys = ref(['src-1']);
+const selectedKeys = ref<string[]>(['db-1'])
+const openKeys = ref<string[]>(['src-1'])
 
-const sources = ref([
+type Db = {
+  id: string
+  dbName: string
+  type: string
+  modelName: string
+  dim: number
+  active: boolean
+}
+
+type Source = {
+  id: string
+  ip: string
+  port: string
+  user: string
+  tag: string
+  dbs: Db[]
+}
+
+const sources = ref<Source[]>([
   {
-    id: 'src-1', ip: '10.0.4.12', port: '19530', user: 'admin', tag: '生产',
+    id: 'src-1',
+    ip: '10.0.4.12',
+    port: '19530',
+    user: 'admin',
+    tag: '生产',
     dbs: [
-      { id: 'db-1', dbName: '用户行为库', type: 'milvus', modelName: '语义增强-V3', dim: 1536, active: true },
-      { id: 'db-2', dbName: '日志特征库', type: 'milvus', modelName: '多语言-L', dim: 1024, active: false }
+      { id: 'db-1', dbName: '用户行为分析库', type: 'milvus', modelName: '语义增强·V3', dim: 1536, active: true },
+      { id: 'db-2', dbName: '全局日志特征库', type: 'milvus', modelName: '多语言·Large', dim: 1024, active: false }
     ]
   },
   {
-    id: 'src-2', ip: '127.0.0.1', port: '6333', user: 'default', tag: '测试',
+    id: 'src-2',
+    ip: '127.0.0.1',
+    port: '6333',
+    user: 'default',
+    tag: '测试',
     dbs: [
-      { id: 'db-3', dbName: '本地测试集', type: 'qdrant', modelName: '轻量嵌入', dim: 768, active: false }
+      { id: 'db-3', dbName: 'QA验证临时库', type: 'qdrant', modelName: '轻量嵌入', dim: 768, active: false }
     ]
   }
-]);
+])
 
-const getVdbIcon = (type: string) => type === 'milvus' ? NodeIndexOutlined : BlockOutlined;
+const toggleSource = (id: string) => {
+  const index = openKeys.value.indexOf(id)
+  if (index > -1) {
+    openKeys.value.splice(index, 1)
+  } else {
+    openKeys.value.push(id)
+  }
+}
+
+const selectDb = (id: string) => {
+  selectedKeys.value = [id]
+}
+
+const handleAddSource = () => {
+  message.info('新增数据源 - 待对接接口')
+}
+
+const handleSourceMenuClick = (key: string, source: Source) => {
+  switch (key) {
+    case 'addDb':
+      message.info(`新增数据库到数据源 ${source.ip}:${source.port} - 待对接接口`)
+      break
+    case 'edit':
+      message.info(`编辑数据源 ${source.ip}:${source.port} - 待对接接口`)
+      break
+    case 'delete':
+      message.warning(`删除数据源 ${source.id} - 待对接接口`)
+      break
+  }
+}
+
+const handleDbMenuClick = (key: string, sourceId: string, db: Db) => {
+  switch (key) {
+    case 'edit':
+      message.info(`编辑数据库 ${db.dbName} - 待对接接口`)
+      break
+    case 'delete':
+      message.warning(`从数据源 ${sourceId} 删除数据库 ${db.id} - 待对接接口`)
+      break
+  }
+}
 </script>
 
 <style lang="less" scoped>
-@primary-blue: #1890ff;
-@text-main: #262626;
-@text-sub: #8c8c8c;
-@line-color: #e8e8e8;
+@primary-blue: #2563eb;
+@bg-main: #fcfdfe;
+@border-subtle: rgba(226, 232, 240, 0.6);
+@text-main: #1e293b;
+@text-sub: #64748b;
+@text-muted: #94a3b8;
 
 .sidebar-container {
-  height: calc(100vh - 70px);
+  height: calc(100vh - 74px);
   width: 250px;
   background: #fff;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #f0f0f0;
+  border: 1px solid @border-subtle;
+  border-radius: 12px;
+  margin: 0 0 4px 2px;
+  overflow: hidden;
 }
 
 .sidebar-header {
-  padding: 20px 16px;
-  display: flex; justify-content: space-between; align-items: center;
-  .header-main {
-    display: flex; align-items: center; gap: 8px;
-    .header-icon { color: @primary-blue; font-size: 16px; }
-    .header-title { font-size: 14px; font-weight: 600; color: #002766; }
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, #ffffff, #fafafa);
+  border-bottom: 1px solid #f1f5f9;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .header-icon-box {
+      width: 32px;
+      height: 32px;
+      background: @primary-blue;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+
+      .header-icon {
+        color: #fff;
+        font-size: 14px;
+      }
+    }
+
+    .header-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: @text-main;
+      letter-spacing: -0.01em;
+    }
   }
-  .add-icon { color: #ccc; cursor: pointer; }
+
+  .add-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: @text-muted;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #f1f5f9;
+      color: @primary-blue;
+    }
+  }
 }
 
-.sidebar-menu-wrapper {
+.sidebar-content {
   flex: 1;
   overflow-y: auto;
-  
-  .hierarchy-menu {
-    border: none !important;
-
-    // 调整展开按钮位置到左边
-    :deep(.ant-menu-submenu-arrow) {
-      left: 12px !important;
-      right: auto !important;
-      top: 50% !important;
-      transform: translateY(-50%) !important;
-    }
-
-    // 调整标题区域的padding，避免与展开按钮重叠
-    :deep(.ant-menu-submenu-title .source-card) {
-      padding-left: 24px !important;
-    }
-
-    // 第一层：标题行，增加背景色拉开档次
-    :deep(.ant-menu-submenu-title) {
-      margin: 4px 12px !important;
-      width: calc(100% - 24px) !important;
-      height: auto !important;
-      line-height: normal !important;
-      padding: 12px !important;
-      background: #f8f9fb;
-      border-radius: 6px;
-
-      .source-card {
-        position: relative;
-        display: flex; justify-content: space-between; align-items: flex-start;
-        .source-main {
-          display: flex; flex-direction: column; gap: 4px; flex: 1;
-          .source-title {
-            display: flex; align-items: center; gap: 6px;
-            .p-icon { color: @primary-blue; font-size: 16px; }
-            .p-title { font-size: 14px; font-weight: 700; color: @text-main; }
-          }
-          .source-connection {
-            display: flex; align-items: center; gap: 6px;
-            .p-conn { font-size: 12px; color: #666; font-family: monospace; }
-            .p-user { font-size: 11px; color: #999; }
-            .p-tag { font-size: 9px; background: #fff; color: #bfbfbf; border: 1px solid #eee; padding: 0 4px; border-radius: 4px; }
-          }
-        }
-        .edit-icon { 
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #ccc; 
-          font-size: 14px; 
-          cursor: pointer; 
-          &:hover { color: @primary-blue; }
-        }
-      }
-    }
-
-    // 第二层：关键缩进
-    :deep(.ant-menu-item) {
-      height: auto !important;
-      line-height: normal !important;
-      margin-left: 28px !important; // 核心：通过大缩进产生视觉层级
-      padding: 0 !important;
-      width: calc(100% - 44px) !important;
-      background: transparent !important;
-
-      &.ant-menu-item-selected {
-        .v-name { color: @primary-blue; font-weight: 700; }
-        .vertical-guide, .h-connector { border-color: @primary-blue; }
-      }
-    }
-  }
+  padding: 8px 0;
 }
 
-.asset-tree {
-  position: relative;
-  padding: 10px 0 10px 16px;
-  
-  // 垂直导引线：从第一层下方垂直拉出
-  .vertical-guide {
-    position: absolute;
-    left: 0; top: -10px; bottom: 10px;
-    border-left: 1px solid @line-color;
-  }
+.source-section {
+  margin: 0 8px;
+}
 
-  .asset-content {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.db-container {
+  margin: 0 8px 8px 20px;
+  padding-left: 16px;
+  border-left: 1.5px solid #f1f5f9;
+  overflow: hidden;
+}
 
-    .db-node {
-      display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-      .db-label {
-        display: flex; align-items: center; gap: 8px;
-        .v-icon { font-size: 14px; color: @text-sub; }
-        .v-name { font-size: 13px; color: @text-main; }
-      }
-      .active-pulse { 
-        position: absolute;
-        right: 0;
-        top: 12px;
-        width: 5px; height: 5px; background: #52c41a; border-radius: 50%; box-shadow: 0 0 5px rgba(82,196,26,0.3); 
-      }
-      .model-info {
-        display: flex; align-items: center; gap: 8px;
-        margin-left: 22px; // 与图标对齐
-        .model-name { font-size: 11px; color: #999; }
-        .model-dim { font-size: 10px; color: @primary-blue; font-weight: 700; }
-      }
-    }
-  }
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  max-height: 500px;
+  opacity: 1;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
 }
 
 .sidebar-footer {
-  padding: 16px; border-top: 1px solid #f5f5f5;
+  padding: 14px 16px;
+  border-top: 1px solid #f5f5f5;
+
   .footer-row {
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
     .driver-info {
-      display: flex; align-items: center; gap: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
       .s-avatars {
         display: flex;
-        .s-av { width: 18px; height: 18px; border-radius: 50%; background: #e6f7ff; color: @primary-blue; 
-                font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center;
-                border: 1px solid #fff; margin-right: -4px; }
+
+        .s-av {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #e6f7ff;
+          color: @primary-blue;
+          font-size: 9px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #fff;
+          margin-right: -4px;
+        }
       }
-      .s-text { font-size: 11px; color: #bfbfbf; }
+
+      .s-text {
+        font-size: 11px;
+        color: @text-muted;
+      }
     }
-    .m-btn { color: #ddd; &:hover { color: @primary-blue; } }
+
+    .m-btn {
+      color: #ddd;
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: @primary-blue;
+      }
+    }
+  }
+}
+
+:deep(.danger-item) {
+  color: #ff4d4f;
+  
+  &:hover {
+    color: #ff4d4f !important;
+    background: #fff1f0 !important;
   }
 }
 </style>

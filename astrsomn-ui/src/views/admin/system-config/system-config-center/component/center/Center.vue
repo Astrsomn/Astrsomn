@@ -88,7 +88,7 @@ const emit = defineEmits<{
 
 .center-right {
   display: grid;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 1fr 2fr;
   gap: 16px;
   min-height: 0;
 }

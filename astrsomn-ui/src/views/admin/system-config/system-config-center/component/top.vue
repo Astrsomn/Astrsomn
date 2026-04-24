@@ -42,36 +42,36 @@ defineProps<{
   border: 1px solid var(--border-default);
   border-radius: 14px;
   background: var(--bg-card);
-  padding: 16px 18px;
+  padding: 12px 14px;
 }
 
 .stat-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .stat-icon {
   color: var(--primary);
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .stat-label {
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .stat-value {
-  margin-top: 8px;
-  font-size: 28px;
+  margin-top: 6px;
+  font-size: 24px;
   line-height: 1;
   font-weight: 700;
   color: var(--text-heading);
 }
 
 .stat-trend {
-  margin-top: 10px;
-  font-size: 12px;
+  margin-top: 8px;
+  font-size: 11px;
 }
 
 .trend-up {

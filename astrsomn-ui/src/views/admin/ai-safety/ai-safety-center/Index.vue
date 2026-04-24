@@ -1,15 +1,11 @@
 <template>
-  <AdminPageShell
-    title="AI 安全治理中心"
-    description="统一管理提示词安全、敏感词治理、审计追踪与风险响应流程。"
-    empty-text="暂无可配置的安全能力。"
-  >
+  <DashboardWrapper>
     <div class="center-page">
       <Top :safety-stats="safetyStats" />
       <Center :trace-stats="traceStats" :trace-cases="traceCases" :latest-events="latestEvents" />
       <Bottom :module-cards="moduleCards" @go-to="goTo" />
     </div>
-  </AdminPageShell>
+  </DashboardWrapper>
 </template>
 
 <script setup lang="ts">
@@ -26,7 +22,7 @@ import {
 } from '@ant-design/icons-vue'
 import type { Component } from 'vue'
 import { useRouter } from 'vue-router'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import DashboardWrapper from '@/components/home/DashboardWrapper.vue'
 import Top from './component/top.vue'
 import Center from './component/center.vue'
 import Bottom from './component/bottom.vue'
@@ -105,7 +101,6 @@ const goTo = (routeName: string) => {
 
 <style scoped>
 .center-page {
-  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;

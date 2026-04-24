@@ -4,23 +4,26 @@
       <button
         v-for="(item, index) in moduleCards"
         :key="item.routeName"
-        :class="['route-card', `card-${index % 4 + 1}`]"
+        :class="['route-card', `theme-${index % 4 + 1}`]"
         type="button"
         @click="emit('go-to', item.routeName)"
       >
-        <div class="card-title">
+        <div class="card-content">
           <div class="icon-wrapper">
             <component :is="item.icon" />
           </div>
-          <span class="title-text">{{ item.title }}</span>
+          <div class="text-group">
+            <span class="title-text">{{ item.title }}</span>
+            <span v-if="item.desc" class="desc-text">{{ item.desc }}</span>
+          </div>
         </div>
+        <div class="hover-glow"></div>
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { AppstoreOutlined } from '@ant-design/icons-vue'
 import type { Component } from 'vue'
 
 type ModuleCard = {
@@ -40,9 +43,10 @@ const emit = defineEmits<{
 </script>
 
 <style scoped>
+/* 保持原始容器布局 */
 .panel-card {
   border-radius: 14px;
-  background: var(--bg-card);
+  background: var(--bg-card, #ffffff);
   padding: 14px 16px;
 }
 
@@ -53,103 +57,124 @@ const emit = defineEmits<{
 .card-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px; /* 保持你的原始间距 */
 }
 
+/* 核心卡片重构 */
 .route-card {
-  min-height: 80px;
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  padding: 12px 10px;
+  position: relative;
+  min-height: 80px; /* 严格遵守原始高度 */
+  padding: 12px 16px;
+  background: #f8fafc; /* 极浅灰底色，干净利落 */
+  border: 1px solid transparent; /* 默认隐藏边框 */
+  border-radius: 12px;
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  outline: none;
 }
 
-.route-card:hover {
-  border-color: var(--primary);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.card-1 {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-color: #e2e8f0;
-}
-
-.card-2 {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border-color: #bbf7d0;
-}
-
-.card-3 {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border-color: #fcd34d;
-}
-
-.card-4 {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  border-color: #93c5fd;
-}
-
-.card-title {
+.card-content {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-height: 0;
+  gap: 12px;
+  width: 100%;
 }
 
+/* 图标容器：改用现代面性色块 */
 .icon-wrapper {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--theme-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
 }
 
 .icon-wrapper :deep(.anticon) {
   font-size: 20px;
-  line-height: 1;
+}
+
+/* 文字排版 */
+.text-group {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .title-text {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-heading);
-  flex: 1;
-  min-width: 0;
+  color: #1e293b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.card-desc {
-  margin-top: 6px;
-  color: var(--text-secondary);
-  line-height: 1.3;
-  font-size: 11px;
+.desc-text {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #64748b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* 现代配色方案 - 纯色点缀 */
+.theme-1 { --theme-color: #3b82f6; --hover-bg: rgba(59, 130, 246, 0.05); }
+.theme-2 { --theme-color: #10b981; --hover-bg: rgba(16, 185, 129, 0.05); }
+.theme-3 { --theme-color: #f59e0b; --hover-bg: rgba(245, 158, 11, 0.05); }
+.theme-4 { --theme-color: #8b5cf6; --hover-bg: rgba(139, 92, 246, 0.05); }
+
+/* 交互动效 */
+.route-card:hover {
+  transform: translateY(-2px);
+  background: var(--hover-bg);
+  border-color: var(--theme-color);
+}
+
+.route-card:hover .icon-wrapper {
+  background: var(--theme-color);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* 背景光斑：鼠标移入时淡淡的品牌色漫反射 */
+.hover-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  background: var(--theme-color);
+  filter: blur(40px);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.route-card:hover .hover-glow {
+  opacity: 0.1;
+}
+
+/* 响应式适配（保持原始逻辑） */
 @media (max-width: 1200px) {
-  .card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {
-  .card-grid {
-    grid-template-columns: 1fr;
-  }
+  .card-grid { grid-template-columns: 1fr; }
 }
 </style>

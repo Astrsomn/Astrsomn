@@ -1,9 +1,5 @@
 <template>
-  <AdminPageShell
-    title="系统管理中心"
-    description="统一管理系统用户、环境、配置与扩展模块，提升配置效率与运维可视化能力。"
-    empty-text="暂无可管理模块。"
-  >
+  <DashboardWrapper>
     <div class="center-page">
       <Top :overview-stats="overviewStats" />
 
@@ -20,7 +16,7 @@
         @go-to="goTo"
       />
     </div>
-  </AdminPageShell>
+  </DashboardWrapper>
 </template>
 
 <script setup lang="ts">
@@ -41,7 +37,7 @@ import {
 } from '@ant-design/icons-vue'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import DashboardWrapper from '@/components/home/DashboardWrapper.vue'
 import type { Component } from 'vue'
 import Top from './component/top.vue'
 import Center from './component/center/Center.vue'
@@ -170,12 +166,9 @@ const goTo = (routeName: string) => {
 
 <style scoped>
 .center-page {
-  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: calc(100vh - 70px);
-  overflow: hidden;
 }
 
 @media (max-width: 900px) {
