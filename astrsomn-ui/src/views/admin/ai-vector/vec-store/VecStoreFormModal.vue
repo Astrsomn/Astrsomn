@@ -123,7 +123,7 @@ import {
 } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiVecStore } from '@/api/aiVecStore.ts'
-import InstanceSelectDialog from '@/components/ai/InstanceSelectDialog.vue'
+import InstanceSelectDialog from '@/components/ai-config/InstanceSelectDialog.vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import type { AiInstance } from '@/api/aiInstance.ts'
 

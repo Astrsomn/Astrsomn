@@ -5,7 +5,7 @@ import {
   aiModelProviderDictionary as aiModelProviderEn,
   aiModelStatusDictionary as aiModelStatusEn,
   aiModelSourceTypeDictionary as aiModelSourceTypeEn
-} from '../en-US/dictionary/ai-model'
+} from '../en-US/dictionary/ai-config/ai-model.ts'
 import {
   aiModelCapabilitiesDictionary as aiModelCapabilitiesZh,
   aiModelProviderDictionary as aiModelProviderZh,

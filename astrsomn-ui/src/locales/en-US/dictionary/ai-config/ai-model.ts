@@ -1,13 +1,11 @@
-/**
- * Same codes as `AiModelEnum`; English labels for UI (aligned with backend desc where applicable).
- */
-import { createEnumDictionary } from '@/locales/dictionary/core'
+
+import { createEnumDictionary } from '@/locales/dictionary/core.ts'
 import {
   AI_MODEL_CAPABILITY_ORDER,
   AI_MODEL_PROVIDER_ORDER,
   AI_MODEL_STATUS_ORDER,
   AI_MODEL_SOURCE_TYPE_ORDER
-} from '@/locales/dictionary/ai-model-orders'
+} from '@/locales/dictionary/ai-model-orders.ts'
 
 const providerLabels = {
   openai: 'OpenAI (GPT)',

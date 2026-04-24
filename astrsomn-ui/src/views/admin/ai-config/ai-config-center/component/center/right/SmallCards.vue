@@ -40,12 +40,12 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import DiscoveryHub from '@/components/dashboard/DiscoveryHub.vue'
-import CredentialManagementCard from '@/components/dashboard/CredentialManagementCard.vue'
-import ModelAccessCard from '@/components/dashboard/ModelAccessCard.vue'
-import McpCard from '@/components/dashboard/McpCard.vue'
-import InferenceConfigCard from '@/components/dashboard/InferenceConfigCard.vue'
-import ToolPluginCard from '@/components/dashboard/ToolPluginCard.vue'
+import DiscoveryHub from '@/views/admin/ai-config/ai-config-center/card/DiscoveryHub.vue'
+import CredentialManagementCard from '@/views/admin/ai-config/ai-config-center/card/CredentialManagementCard.vue'
+import ModelAccessCard from '@/views/admin/ai-config/ai-config-center/card/ModelAccessCard.vue'
+import McpCard from '@/views/admin/ai-config/ai-config-center/card/McpCard.vue'
+import InferenceConfigCard from '@/views/admin/ai-config/ai-config-center/card/InferenceConfigCard.vue'
+import ToolPluginCard from '@/views/admin/ai-config/ai-config-center/card/ToolPluginCard.vue'
 
 const router = useRouter()
 
