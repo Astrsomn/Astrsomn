@@ -21,7 +21,7 @@
     </main>
 
     <!-- 底部导航栏组件 -->
-    <BottomNav />
+    <BottomNav :auto-hide="true" />
   </div>
 </template>
 

@@ -5,140 +5,28 @@
     empty-text="暂无可管理模块。"
   >
     <div class="center-page">
-      <section class="stats-grid">
-        <article v-for="item in overviewStats" :key="item.label" class="stat-card">
-          <div class="stat-head">
-            <component :is="item.icon" class="stat-icon" />
-            <div class="stat-label">{{ item.label }}</div>
-          </div>
-          <div class="stat-value">{{ item.value }}</div>
-          <div class="stat-trend" :class="`trend-${item.trend}`">
-            {{ item.hint }}
-          </div>
-        </article>
-      </section>
+      <Top :overview-stats="overviewStats" />
 
-      <section class="main-grid">
-        <div class="left-column">
-          <div class="panel-card">
-            <div class="panel-head">
-              <h3>
-                <AppstoreOutlined />
-                核心模块
-              </h3>
-              <span>快速进入系统管理能力</span>
-            </div>
-            <div class="card-grid">
-              <button
-                v-for="item in moduleCards"
-                :key="item.routeName"
-                class="route-card"
-                type="button"
-                @click="goTo(item.routeName)"
-              >
-                <div class="card-title">
-                  <component :is="item.icon" />
-                  {{ item.title }}
-                </div>
-                <div class="card-desc">{{ item.desc }}</div>
-              </button>
-            </div>
-          </div>
+      <Center
+        :paged-online-systems="pagedOnlineSystems"
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        :total-systems="onlineSystems.length"
+        :todo-items="todoItems"
+        :extension-cards="extensionCards"
+        @prev-page="prevPage"
+        @next-page="nextPage"
+      />
 
-          <div class="panel-card">
-            <div class="panel-head">
-              <h3>
-                <ApiOutlined />
-                系统扩展能力
-              </h3>
-              <span>支持多类型扩展：插件、向量库、模型等</span>
-            </div>
-            <div class="extension-grid">
-              <article v-for="item in extensionCards" :key="item.name" class="extension-item">
-                <div class="extension-top">
-                  <div class="extension-name">
-                    <component :is="item.icon" />
-                    <span>{{ item.name }}</span>
-                  </div>
-                  <strong>{{ item.count }}</strong>
-                </div>
-                <p class="extension-desc">{{ item.desc }}</p>
-                <div class="extension-tags">
-                  <span v-for="tag in item.tags" :key="tag" class="extension-tag">{{ tag }}</span>
-                </div>
-              </article>
-            </div>
-          </div>
-        </div>
-
-        <div class="right-column">
-          <div class="panel-card">
-            <div class="panel-head">
-              <h3>
-                <TeamOutlined />
-                在线业务系统
-              </h3>
-              <span>用户即业务系统，展示实时在线状态</span>
-            </div>
-            <div class="online-grid">
-              <div v-for="system in pagedOnlineSystems" :key="system.name" class="online-item">
-                <div class="online-top">
-                  <div class="online-name">
-                    <component :is="system.icon" />
-                    <span>{{ system.name }}</span>
-                  </div>
-                  <span class="online-status" :class="`status-${system.status}`">
-                    <span class="status-dot"></span>
-                    {{ system.statusText }}
-                  </span>
-                </div>
-                <div class="online-meta">
-                  <span><ClockCircleOutlined /> 最后心跳 {{ system.lastHeartbeat }}</span>
-                  <span><DatabaseOutlined /> 活跃会话 {{ system.sessions }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="pager-wrap">
-              <button type="button" class="pager-btn" :disabled="currentPage === 1" @click="prevPage">
-                上一页
-              </button>
-              <span class="pager-text">第 {{ currentPage }} / {{ totalPages }} 页，共 {{ onlineSystems.length }} 个系统</span>
-              <button
-                type="button"
-                class="pager-btn"
-                :disabled="currentPage === totalPages"
-                @click="nextPage"
-              >
-                下一页
-              </button>
-            </div>
-          </div>
-
-          <div class="panel-card">
-            <div class="panel-head">
-              <h3>
-                <AlertOutlined />
-                待处理事项
-              </h3>
-              <span>建议优先处理项</span>
-            </div>
-            <ul class="todo-list">
-              <li v-for="task in todoItems" :key="task">{{ task }}</li>
-            </ul>
-          </div>
-        </div>
-      </section>
+      <Bottom :module-cards="moduleCards" @go-to="goTo" />
     </div>
-  
   </AdminPageShell>
 </template>
 
 <script setup lang="ts">
 import {
-  AlertOutlined,
   ApiOutlined,
   AppstoreOutlined,
-  ClockCircleOutlined,
   ClusterOutlined,
   DatabaseOutlined,
   DeploymentUnitOutlined,
@@ -146,14 +34,18 @@ import {
   HddOutlined,
   SafetyCertificateOutlined,
   SettingOutlined,
-  TeamOutlined,
   UserOutlined,
+  TeamOutlined,
+  AlertOutlined,
   RobotOutlined
 } from '@ant-design/icons-vue'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import type { Component } from 'vue'
+import Top from './component/top.vue'
+import Center from './component/center.vue'
+import Bottom from './component/bottom.vue'
 
 type ModuleCard = {
   title: string
@@ -283,351 +175,13 @@ const goTo = (routeName: string) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.stat-card {
-  border: 1px solid var(--border-default);
-  border-radius: 14px;
-  background: var(--bg-card);
-  padding: 16px 18px;
-}
-
-.stat-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.stat-icon {
-  color: var(--primary);
-  font-size: 16px;
-}
-
-.stat-label {
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-.stat-value {
-  margin-top: 8px;
-  font-size: 28px;
-  line-height: 1;
-  font-weight: 700;
-  color: var(--text-heading);
-}
-
-.stat-trend {
-  margin-top: 10px;
-  font-size: 12px;
-}
-
-.trend-up {
-  color: var(--success, #2e9f5d);
-}
-
-.trend-down {
-  color: var(--warning, #dd4b39);
-}
-
-.trend-flat {
-  color: var(--text-secondary);
-}
-
-.main-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
-}
-
-.left-column,
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.panel-card {
-  border: 1px solid var(--border-default);
-  border-radius: 14px;
-  background: var(--bg-card);
-  padding: 20px;
-}
-
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.panel-head h3 {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 16px;
-  color: var(--text-heading);
-}
-
-.panel-head span {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.route-card {
-  min-height: 124px;
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  background: var(--bg-card);
-  padding: 16px;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.route-card:hover {
-  border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-}
-
-.card-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-heading);
-}
-
-.card-desc {
-  margin-top: 8px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  font-size: 13px;
-}
-
-.extension-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.extension-item {
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  padding: 12px;
-  background: color-mix(in srgb, var(--bg-card) 88%, var(--bg-base));
-}
-
-.extension-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--text-heading);
-}
-
-.extension-name {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
-}
-
-.extension-top strong {
-  font-size: 18px;
-  color: var(--text-heading);
-}
-
-.extension-desc {
-  margin: 8px 0;
-  color: var(--text-secondary);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.extension-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.extension-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  color: var(--text-secondary);
-  border: 1px solid color-mix(in srgb, var(--border-default) 80%, transparent);
-  background: color-mix(in srgb, var(--bg-card) 90%, var(--bg-base));
-}
-
-.online-grid {
-  display: grid;
-  gap: 10px;
-}
-
-.online-item {
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  background: var(--bg-card);
-  padding: 12px 14px;
-}
-
-.online-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.online-name {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-heading);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.online-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  border: 1px solid transparent;
-}
-
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: currentColor;
-}
-
-.status-online {
-  color: #2e9f5d;
-  background: color-mix(in srgb, #2e9f5d 12%, transparent);
-  border-color: color-mix(in srgb, #2e9f5d 26%, transparent);
-}
-
-.status-degraded {
-  color: #f39c12;
-  background: color-mix(in srgb, #f39c12 12%, transparent);
-  border-color: color-mix(in srgb, #f39c12 24%, transparent);
-}
-
-.status-offline {
-  color: #dd4b39;
-  background: color-mix(in srgb, #dd4b39 12%, transparent);
-  border-color: color-mix(in srgb, #dd4b39 24%, transparent);
-}
-
-.online-meta {
-  margin-top: 8px;
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-
-.online-meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.pager-wrap {
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.pager-btn {
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  font-size: 12px;
-  padding: 4px 10px;
-  cursor: pointer;
-}
-
-.pager-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.pager-text {
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-
-.todo-list {
-  margin: 0;
-  padding: 0 0 0 16px;
-  display: grid;
-  gap: 8px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  font-size: 13px;
-}
-
-.todo-list li::marker {
-  color: var(--primary);
-}
-
-@media (max-width: 1200px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .main-grid {
-    grid-template-columns: 1fr;
-  }
+  height: calc(100vh - 70px);
+  overflow: hidden;
 }
 
 @media (max-width: 900px) {
-  .card-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .extension-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .pager-wrap {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .pager-text {
-    text-align: center;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .center-page {
+    gap: 12px;
   }
 }
 </style>

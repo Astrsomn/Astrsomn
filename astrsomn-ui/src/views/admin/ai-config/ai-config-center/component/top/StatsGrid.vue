@@ -106,7 +106,6 @@ import {
   border-radius: 16px;
   padding: 20px 24px;
   border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-card);
   overflow: hidden;
   transition: all 0.3s ease;
   min-height: 120px;

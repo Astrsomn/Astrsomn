@@ -2,12 +2,13 @@
   <div 
     class="dock-container" 
     :class="{ 'dock-active': shouldShowDock }"
+    @mouseenter="isAutoHideEnabled ? handlePointerEnter() : undefined"
+    @mouseleave="isAutoHideEnabled ? handlePointerLeave($event) : undefined"
   >
     <div
       v-if="isAutoHideEnabled"
       class="dock-wake-zone"
       @mouseenter="handlePointerEnter"
-      @mouseleave="handlePointerLeave"
     ></div>
 
     <div class="dock-main">
@@ -42,8 +43,6 @@
 
     <div
       class="home-indicator"
-      @mouseenter="isAutoHideEnabled ? handlePointerEnter() : undefined"
-      @mouseleave="isAutoHideEnabled ? handlePointerLeave() : undefined"
     ></div>
   </div>
 </template>
@@ -66,7 +65,7 @@ const props = defineProps<{
 
 const router = useRouter();
 const route = useRoute();
-const isAutoHideEnabled = computed(() => props.autoHide ?? false);
+const isAutoHideEnabled = computed(() => props.autoHide ?? true);
 const isNavVisible = ref(false);
 const isAtBottom = ref(false);
 const AUTO_HIDE_DELAY = 200;
@@ -94,8 +93,12 @@ const handlePointerEnter = () => {
   }
 };
 
-const handlePointerLeave = () => {
+const handlePointerLeave = (event?: MouseEvent) => {
   if (!isAutoHideEnabled.value) return;
+  // Ignore pointer transitions inside dock container to avoid flicker.
+  if (event?.currentTarget instanceof HTMLElement && event.relatedTarget instanceof Node) {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+  }
   startHideTimer();
 };
 
@@ -134,7 +137,9 @@ const navigateTo = (path: string) => {
 };
 
 const isActivePath = (targetPath: string) => {
-  return route.path === targetPath || route.path.startsWith(`${targetPath}/`);
+  const normalizedTargetPath = router.resolve(targetPath).path.replace(/\/+$/, '');
+  const currentPath = route.path.replace(/\/+$/, '');
+  return currentPath === normalizedTargetPath || currentPath.startsWith(`${normalizedTargetPath}/`);
 };
 
 onMounted(() => {
@@ -223,9 +228,14 @@ onUnmounted(() => {
 }
 
 .nav-item:hover {
-  background: rgba(99, 102, 241, 0.08);
-  color: #6366f1;
+  background: rgba(22, 119, 255, 0.12);
+  color: #1677ff;
   transform: translateY(-4px);
+}
+
+.nav-item-active {
+  background: rgba(22, 119, 255, 0.12);
+  color: #1677ff;
 }
 
 .icon-wrapper {
@@ -260,6 +270,11 @@ onUnmounted(() => {
 .center-btn:hover {
   transform: scale(1.1) translateY(-8px);
   background: #0958d9;
+}
+
+.center-btn-active {
+  background: #1677ff;
+  box-shadow: 0 10px 24px rgba(22, 119, 255, 0.45);
 }
 
 .center-btn .floating-label {
@@ -359,8 +374,8 @@ onUnmounted(() => {
   }
   
   .nav-item:hover {
-    background: rgba(99, 102, 241, 0.15);
-    color: #818cf8;
+    background: rgba(22, 119, 255, 0.15);
+    color: #4096ff;
   }
   
   .home-indicator::before { 
@@ -400,8 +415,8 @@ onUnmounted(() => {
 }
 
 :root.dark .nav-item:hover {
-  background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
+  background: rgba(22, 119, 255, 0.15);
+  color: #4096ff;
 }
 
 :root.dark .home-indicator::before { 
@@ -440,8 +455,8 @@ onUnmounted(() => {
 }
 
 :root.light .nav-item:hover {
-  background: rgba(99, 102, 241, 0.08);
-  color: #6366f1;
+  background: rgba(22, 119, 255, 0.08);
+  color: #1677ff;
 }
 
 :root.light .home-indicator::before { 
