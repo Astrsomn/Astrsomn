@@ -1,29 +1,44 @@
 <template>
-  <section class="panel-card">
-    <div class="panel-head">
-      <h3><SafetyCertificateOutlined /> 安全治理模块</h3>
-      <span>进入核心治理能力</span>
+  <section class="main-grid">
+    <div class="left-cards">
+      <div class="card-grid">
+        <button
+          v-for="item in leftModuleCards"
+          :key="item.routeName"
+          class="route-card"
+          type="button"
+          @click="emit('go-to', item.routeName)"
+        >
+          <div class="card-title">
+            <component :is="item.icon" />
+            {{ item.title }}
+          </div>
+          <div class="card-desc">{{ item.desc }}</div>
+        </button>
+      </div>
     </div>
-    <div class="card-grid">
-      <button
-        v-for="item in moduleCards"
-        :key="item.routeName"
-        class="route-card"
-        type="button"
-        @click="emit('go-to', item.routeName)"
-      >
-        <div class="card-title">
-          <component :is="item.icon" />
-          {{ item.title }}
-        </div>
-        <div class="card-desc">{{ item.desc }}</div>
-      </button>
+    <div class="nav-area"></div>
+    <div class="right-cards">
+      <div class="card-grid">
+        <button
+          v-for="item in rightModuleCards"
+          :key="item.routeName"
+          class="route-card"
+          type="button"
+          @click="emit('go-to', item.routeName)"
+        >
+          <div class="card-title">
+            <component :is="item.icon" />
+            {{ item.title }}
+          </div>
+          <div class="card-desc">{{ item.desc }}</div>
+        </button>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { SafetyCertificateOutlined } from '@ant-design/icons-vue'
 import type { Component } from 'vue'
 
 type ModuleCard = {
@@ -33,48 +48,34 @@ type ModuleCard = {
   icon: Component
 }
 
-defineProps<{
+const props = defineProps<{
   moduleCards: ModuleCard[]
 }>()
 
 const emit = defineEmits<{
   (e: 'go-to', routeName: string): void
 }>()
+
+// 分割卡片数据
+const leftModuleCards = props.moduleCards.slice(0, Math.ceil(props.moduleCards.length / 2))
+const rightModuleCards = props.moduleCards.slice(Math.ceil(props.moduleCards.length / 2))
 </script>
 
 <style scoped>
-.panel-card {
-  border: 1px solid var(--border-default);
-  border-radius: 14px;
-  background: var(--bg-card);
-  padding: 14px 16px;
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 14px 0;
 }
 
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.panel-head h3 {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 16px;
-  color: var(--text-heading);
-}
-
-.panel-head span {
-  font-size: 12px;
-  color: var(--text-secondary);
+.nav-area {
+  /* 中间导航栏区域 */
 }
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -115,6 +116,14 @@ const emit = defineEmits<{
 }
 
 @media (max-width: 1100px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .nav-area {
+    display: none;
+  }
+  
   .card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

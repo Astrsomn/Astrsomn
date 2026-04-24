@@ -14,11 +14,11 @@
         :total-systems="onlineSystems.length"
         :todo-items="todoItems"
         :extension-cards="extensionCards"
+        :module-cards="moduleCards"
         @prev-page="prevPage"
         @next-page="nextPage"
+        @go-to="goTo"
       />
-
-      <Bottom :module-cards="moduleCards" @go-to="goTo" />
     </div>
   </AdminPageShell>
 </template>
@@ -44,8 +44,7 @@ import { useRouter } from 'vue-router'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import type { Component } from 'vue'
 import Top from './component/top.vue'
-import Center from './component/center.vue'
-import Bottom from './component/bottom.vue'
+import Center from './component/center/Center.vue'
 
 type ModuleCard = {
   title: string

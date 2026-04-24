@@ -14,15 +14,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { aiAgentApi } from '@/api/aiAgent.ts'
 
 import LeftTop from './component/LeftTop.vue'
 import LeftCenter from './component/LeftCenter.vue'
 import Right from './component/Right.vue'
 
+const route = useRoute()
 const agentName = ref('未命名的智能体')
 const description = ref('')
+
+const fetchAgent = async (id: string) => {
+  try {
+    const agent = await aiAgentApi.detail(id)
+    if (agent) {
+      agentName.value = agent.agentName || '未命名的智能体'
+      description.value = agent.description || ''
+    }
+  } catch (e) {
+    console.error('Failed to fetch agent:', e)
+  }
+}
+
+onMounted(() => {
+  const id = route.query.id as string
+  if (id) {
+    void fetchAgent(id)
+  }
+})
 </script>
 
 <style scoped>

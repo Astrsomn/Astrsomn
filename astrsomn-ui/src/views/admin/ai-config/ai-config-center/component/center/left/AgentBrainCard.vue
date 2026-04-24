@@ -20,59 +20,15 @@
     </div>
 
     <div v-else-if="list.length > 0" class="agent-list-wrapper custom-scrollbar">
-      <div
+      <AgentListItem
         v-for="item in list"
         :key="item.id ?? item.agentKey ?? item.agentName"
-        class="agent-item-premium"
+        :item="item"
+        :loading="item.id ? switchingIds.has(item.id) : false"
         @click="navigateToAgents"
-      >
-        <div class="item-identity">
-          <div class="icon-container">
-            <img class="agent-avatar" src="../../../../../../../assets/dashboard-icons/agents-color.svg" alt="agent" />
-            <div v-if="item.status === 'enabled'" class="alive-indicator"></div>
-          </div>
-          
-          <div class="info-cluster">
-            <div class="top-line">
-              <span class="name">{{ item.agentName }}</span>
-              <span v-if="item.envCode" :class="['premium-tag', item.envCode]">
-                {{ item.envCode }}
-              </span>
-            </div>
-            <div class="bottom-line">
-              <span class="meta-info">{{ getAgentMeta(item) }}</span>
-              <span class="dot-split"></span>
-              <span class="key-display">{{ item.agentKey || 'NO_KEY' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="item-visual-density">
-          <div class="mini-sparkline">
-            <div class="spark-bar" style="height: 40%"></div>
-            <div class="spark-bar" style="height: 70%"></div>
-            <div class="spark-bar" style="height: 50%"></div>
-            <div class="spark-bar active" style="height: 90%"></div>
-            <div class="spark-bar" style="height: 60%"></div>
-          </div>
-        </div>
-
-        <div class="item-meta-status">
-          <div :class="['status-indicator', item.status === 'enabled' ? 'is-active' : 'is-inactive']">
-            {{ item.status === 'enabled' ? 'ON' : 'OFF' }}
-          </div>
-          <div class="status-toggle" @click.stop>
-            <a-switch
-              size="small"
-              :checked="item.status === 'enabled'"
-              :loading="item.id ? switchingIds.has(item.id) : false"
-              @change="(checked: boolean) => onToggleStatus(item, checked)"
-            />
-            <span class="status-text">{{ item.status === 'enabled' ? '已启用' : '已禁用' }}</span>
-          </div>
-          <span class="timestamp">{{ formatTime(item.createTime) }}</span>
-        </div>
-      </div>
+        @status-change="onToggleStatus"
+        @edit="onEditAgent"
+      />
     </div>
 
     <div v-else class="empty-placeholder">
@@ -87,10 +43,11 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
-import { 
-  SecurityScanOutlined, 
-  PlusOutlined, 
-  TeamOutlined 
+import AgentListItem from './AgentListItem.vue'
+import {
+  SecurityScanOutlined,
+  PlusOutlined,
+  TeamOutlined
 } from '@ant-design/icons-vue'
 
 const router = useRouter()
@@ -102,16 +59,12 @@ const navigateToAgents = () => {
   router.push('/admin/agents')
 }
 
-const getAgentMeta = (item: AiAgent) => {
-  if (item.modelName) return item.modelName
-  if (item.chatInstanceName) return item.chatInstanceName
-  return '未配模型'
-}
-
-const formatTime = (raw?: string) => {
-  if (!raw) return ''
-  // 仅提取 HH:mm 增强极简感，如果需要日期可自行修改
-  return raw.includes('T') ? raw.split('T')[1].slice(0, 5) : raw.slice(11, 16)
+const onEditAgent = (item: AiAgent) => {
+  if (!item.id) {
+    message.warning('该智能体缺少 ID，无法编辑')
+    return
+  }
+  router.push({ path: '/admin/ai-config/builder', query: { id: item.id.toString() } })
 }
 
 const fetchList = async () => {
@@ -241,170 +194,6 @@ onMounted(() => {
   flex: 1;
 }
 
-.agent-item-premium {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid var(--border-default);
-  background: color-mix(in srgb, var(--bg-elevated) 45%, transparent);
-}
-
-.agent-item-premium:hover {
-
-  background: var(--bg-elevated);
-  border-color: color-mix(in srgb, var(--primary) 40%, var(--border-default));
-}
-
-/* 身份信息 */
-.item-identity {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 3;
-  min-width: 0;
-}
-
-.icon-container {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.agent-avatar {
-  width: 24px;
-  height: 24px;
-}
-
-.alive-indicator {
-  position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 8px;
-  height: 8px;
-  background: #22c55e;
-  border: 1.5px solid var(--bg-card);
-  border-radius: 50%;
-}
-
-.info-cluster {
-  min-width: 0;
-}
-
-.top-line {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 2px;
-}
-
-.name {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.premium-tag {
-  font-size: 9px;
-  font-weight: 800;
-  padding: 1px 4px;
-  border-radius: 5px;
-  text-transform: uppercase;
-  background: var(--bg-elevated);
-  color: var(--text-secondary);
-}
-
-.premium-tag.prod { background: rgba(82, 196, 26, 0.15); color: #52c41a; }
-
-.bottom-line {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.dot-split {
-  width: 3px;
-  height: 3px;
-  background: var(--border-default);
-  border-radius: 50%;
-}
-
-.key-display {
-  font-family: ui-monospace, monospace;
-  opacity: 0.6;
-}
-
-/* 视觉密度图 (Sparkline) */
-.item-visual-density {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-}
-
-.mini-sparkline {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 16px;
-}
-
-.spark-bar {
-  width: 2px;
-  background: var(--border-default);
-  border-radius: 4px;
-}
-
-.spark-bar.active {
-  background: var(--primary);
-}
-
-/* 状态与时间 */
-.item-meta-status {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.status-indicator {
-  font-size: 10px;
-  font-weight: 900;
-  padding: 2px 6px;
-  border-radius: 6px;
-}
-
-.status-indicator.is-active {
-  background: rgba(82, 196, 26, 0.12);
-  color: #52c41a;
-}
-
-.status-indicator.is-inactive {
-  background: color-mix(in srgb, var(--bg-elevated) 82%, var(--border-default));
-  color: var(--text-muted);
-}
-
-.timestamp {
-  font-size: 10px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
 /* 滚动条优化 */
 .custom-scrollbar::-webkit-scrollbar {
   width: 3px;
@@ -433,26 +222,6 @@ onMounted(() => {
 .empty-placeholder p {
   font-size: 12px;
   color: var(--text-muted);
-}
-
-.item-meta-status {
-  gap: 8px;
-}
-
-.status-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.status-text {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
-
-:global(.dark) .agent-item-premium {
-  background: color-mix(in srgb, var(--bg-card) 88%, #000);
 }
 
 :global(.dark) .icon-btn {

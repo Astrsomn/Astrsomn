@@ -1,12 +1,5 @@
 <template>
   <div class="panel-card">
-    <div class="panel-head">
-      <h3>
-        <AppstoreOutlined />
-        核心模块
-      </h3>
-      <span>快速进入系统管理能力</span>
-    </div>
     <div class="card-grid">
       <button
         v-for="item in moduleCards"
@@ -26,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import { AppstoreOutlined } from '@ant-design/icons-vue'
 import type { Component } from 'vue'
 
 type ModuleCard = {
@@ -51,34 +43,11 @@ const emit = defineEmits<{
   border-radius: 14px;
   background: var(--bg-card);
   padding: 14px 16px;
-  width: calc((100% - 16px) * 2 / 3);
-}
-
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.panel-head h3 {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 16px;
-  color: var(--text-heading);
-}
-
-.panel-head span {
-  font-size: 12px;
-  color: var(--text-secondary);
 }
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -118,17 +87,7 @@ const emit = defineEmits<{
   text-overflow: ellipsis;
 }
 
-@media (max-width: 1200px) {
-  .panel-card {
-    width: 100%;
-  }
-
-  .card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .card-grid {
     grid-template-columns: 1fr;
   }

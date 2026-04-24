@@ -162,7 +162,7 @@ onUnmounted(() => {
 <style scoped>
 .dock-container {
   position: fixed;
-  bottom: 0;
+  bottom: 3px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;

@@ -28,12 +28,12 @@ body {
 
 .global-footer {
   position: fixed;
-  bottom: 6px;
-  left: 0;
+  bottom: 0px;
+  left: 5px;
   right: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
   gap: 12px;
 
   background: transparent;
