@@ -233,6 +233,39 @@ const adminChildren: RouteRecordRaw[] = [
           showAdminDock: false,
           showModuleSidebar: false
         }
+      },
+      {
+        path: 'messages',
+        name: 'AdminSystemMessage',
+        component: () => import('@/views/admin/system-config/system-message/SystemMessageList.vue'),
+        meta: {
+          title: '系统消息',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'messages/new',
+        name: 'AdminSystemMessageNew',
+        component: () => import('@/views/admin/system-config/system-message/SystemMessageFormPage.vue'),
+        meta: {
+          title: '新建系统消息',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
+        }
+      },
+      {
+        path: 'messages/:id/edit',
+        name: 'AdminSystemMessageEdit',
+        component: () => import('@/views/admin/system-config/system-message/SystemMessageFormPage.vue'),
+        meta: {
+          title: '编辑系统消息',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
+        }
       }
     ]
   },
@@ -300,6 +333,7 @@ const adminChildren: RouteRecordRaw[] = [
   { path: 'users', redirect: { path: '/admin/system/users' } },
   { path: 'env', redirect: { path: '/admin/system/env' } },
   { path: 'system-config', redirect: { path: '/admin/system/config' } },
+  { path: 'system-messages', redirect: { path: '/admin/system/messages' } },
   { path: 'system-config/system-extension', redirect: { path: '/admin/system/extensions' } },
   { path: 'system-config/system-extension/marketplace', redirect: { path: '/admin/system/extensions' } },
   { path: 'system-config/system-extension/installed', redirect: { path: '/admin/system/extensions' } }

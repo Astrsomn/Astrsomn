@@ -4,7 +4,7 @@
     description="同一 Prompt Key 共用一个逻辑提示词；每次保存生成新版本，列表按 Key 聚合展示当前最新版本。"
     empty-text="暂无提示词，请先创建。"
   >
-    <div class="prompt-page">
+    <div ref="pageRef" class="prompt-page">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
@@ -31,12 +31,15 @@
             :all-current-selected="allCurrentSelected"
             :part-current-selected="partCurrentSelected"
             :show-actions="list.length > 0"
+            :view-mode="viewMode"
+            :summary-text="`当前页 ${list.length} 条提示词，已选 ${selectedRowKeys.length} 条。`"
             @toggle-select-all="toggleSelectAllCurrentPage"
+            @update:view-mode="onViewModeChange"
           />
         </template>
 
         <AstrsomnDataView
-          mode="table"
+          :mode="dataViewMode"
           :data-source="list"
           :loading="loading"
           :columns="columns"
@@ -44,7 +47,20 @@
           :scroll="{ x: 1180 }"
           row-key="id"
           empty-text="暂无匹配的提示词"
+          :card-columns="currentGridColumns"
+          :card-min-width="promptCardMinWidth"
+          :card-gap="promptCardGap"
         >
+          <template #card="{ record }">
+            <PromptCard
+              :record="record"
+              :selected="record.id != null && selectedKeySet.has(record.id)"
+              @select-change="onPromptCardSelectChange.bind(null, record.id)"
+              @history="openHistory"
+              @edit="openEdit"
+              @delete="handleDeleteOne"
+            />
+          </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
               <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
@@ -94,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   DeleteOutlined,
@@ -111,7 +127,13 @@ import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import PromptCard from './PromptCard.vue'
 import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt.ts'
+
+const PROMPT_CARD_MIN_WIDTH_PX = 320
+const PROMPT_CARD_GAP_PX = 12
+const promptCardMinWidth = `${PROMPT_CARD_MIN_WIDTH_PX}px`
+const promptCardGap = `${PROMPT_CARD_GAP_PX}px`
 
 type QueryState = {
   promptTitle?: string
@@ -137,11 +159,16 @@ const columns = [
 
 const page = reactive({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 8,
   total: 0
 })
 
+const pageRef = ref<HTMLElement | null>(null)
+const viewMode = ref<'grid' | 'list'>('list')
+const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
+const currentGridColumns = ref(3)
 const selectedRowKeys = ref<Array<number | string>>([])
+const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 
 const currentPageIds = computed(() =>
   list.value
@@ -172,6 +199,21 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
     return
   }
   selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
+}
+
+const onViewModeChange = (mode: 'grid' | 'list') => {
+  viewMode.value = mode
+}
+
+const onPromptCardSelectChange = (id: number | string | undefined, checked: boolean) => {
+  if (id == null) return
+  if (checked) {
+    if (!selectedRowKeys.value.includes(id)) {
+      selectedRowKeys.value = [...selectedRowKeys.value, id]
+    }
+    return
+  }
+  selectedRowKeys.value = selectedRowKeys.value.filter((k) => k !== id)
 }
 
 const resetFilters = () => {
@@ -322,7 +364,34 @@ const handleFormSubmit = async (form: AiPrompt) => {
   }
 }
 
-void fetchList()
+const resolveGridColumns = () => {
+  if (typeof window === 'undefined') return 3
+  const width = pageRef.value?.clientWidth ?? window.innerWidth
+  const n = Math.floor((width + PROMPT_CARD_GAP_PX) / (PROMPT_CARD_MIN_WIDTH_PX + PROMPT_CARD_GAP_PX))
+  return Math.max(1, Math.min(3, n))
+}
+
+const syncGridColumns = () => {
+  currentGridColumns.value = resolveGridColumns()
+}
+
+let resizeObserver: ResizeObserver | null = null
+
+onMounted(() => {
+  syncGridColumns()
+  if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
+    resizeObserver = new ResizeObserver(syncGridColumns)
+    resizeObserver.observe(pageRef.value)
+  } else {
+    window.addEventListener('resize', syncGridColumns)
+  }
+  void fetchList()
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  window.removeEventListener('resize', syncGridColumns)
+})
 </script>
 
 <style scoped>

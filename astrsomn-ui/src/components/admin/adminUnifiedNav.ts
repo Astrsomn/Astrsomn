@@ -61,6 +61,7 @@ export const adminUnifiedNav: AdminModuleNavGroup[] = [
       { to: `${baseSystem}/users`, label: '用户管理', icon: UserOutlined },
       { to: `${baseSystem}/env`, label: '环境管理', icon: GlobalOutlined },
       { to: `${baseSystem}/config`, label: '系统配置', icon: ControlOutlined },
+      { to: `${baseSystem}/messages`, label: '系统消息', icon: MessageOutlined },
       { to: `${baseSystem}/extensions`, label: '系统扩展', icon: AppstoreAddOutlined }
     ]
   }

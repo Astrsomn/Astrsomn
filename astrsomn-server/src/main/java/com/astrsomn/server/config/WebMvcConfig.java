@@ -79,7 +79,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/v1/astro/ai-instance/**",
                         "/v1/astro/ai-account/**",
                         "/v1/astro/system-user/**",
-                        "/v1/astro/system-env/**"
+                        "/v1/astro/system-env/**",
+                        "/v1/astro/system-message/**",
+                        "/v1/astro/sse/**"
                 )
                 .order(4);
         
