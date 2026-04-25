@@ -275,7 +275,7 @@ import {
   IMAGE_CAPABILITIES_SET,
   IMAGE_PARAM_CODES,
   MODEL_CONFIG_MAP
-} from '@/constants/aiModelCapabilityCodes'
+} from '@/constants/aiModelEnums'
 
 const props = withDefaults(
     defineProps<{

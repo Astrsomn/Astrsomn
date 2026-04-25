@@ -1,8 +1,9 @@
 <template>
   <div class="admin-shell">
     <AppHeader 
-      :showBrand="true"
-      :showBack="false"
+      :showBrand="!showExtensionBackHeader"
+      :showBack="showExtensionBackHeader"
+      :page-title="headerPageTitle"
       :showDoc="true"
       :showSwitch="true"
       :show-workspace-env="true"
@@ -35,6 +36,15 @@ const leafMeta = () => {
   const m = route.matched[route.matched.length - 1];
   return m?.meta;
 };
+
+const showExtensionBackHeader = computed(() => {
+  return route.name === 'AdminSystemExtension';
+});
+
+const headerPageTitle = computed(() => {
+  const title = leafMeta()?.title;
+  return typeof title === 'string' && title.trim() ? title : '管理后台';
+});
 
 /** Dock 根页：始终展开底部栏；二级页：用 auto-hide 收起，悬停底部区域唤醒 */
 const showAdminDock = computed(() => leafMeta()?.showAdminDock === true);

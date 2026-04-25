@@ -4,10 +4,8 @@
       description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
   >
     <div class="model-page-container">
-      <div class="model-page-layout">
-        <ModelProviderSidebar v-model:selected-key="providerSidebarSelected" />
-
-        <div class="model-page-main">
+      <AstrsomnDataSection>
+        <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
               <AstrsomnSearchPill
@@ -16,37 +14,43 @@
                 placeholder="搜索端点名称"
                 @search="fetchList"
               />
-
+              <ModelProviderSelect
+                v-model:value="query.provider"
+                class="toolbar-provider-select"
+                allow-clear
+                @update:value="handleProviderChange"
+              />
               <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
-
             </div>
-
             <div class="toolbar-right">
               <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
             </div>
           </div>
+        </template>
 
+        <template #overview>
           <AstrsomnOverview
-              :list-length="list.length"
-              :selected-count="selectedRowKeys.length"
-              :all-current-selected="allCurrentSelected"
-              :part-current-selected="partCurrentSelected"
-              :show-actions="list.length > 0"
-              :summary-text="`当前共有 ${list.length} 条端点记录，已选 ${selectedRowKeys.length} 条。`"
-              @toggle-select-all="toggleSelectAllCurrentPage"
+            :list-length="list.length"
+            :selected-count="selectedRowKeys.length"
+            :all-current-selected="allCurrentSelected"
+            :part-current-selected="partCurrentSelected"
+            :show-actions="list.length > 0"
+            :summary-text="`当前共有 ${list.length} 条端点记录，已选 ${selectedRowKeys.length} 条。`"
+            @toggle-select-all="toggleSelectAllCurrentPage"
           />
+        </template>
 
-          <div class="table-card">
-            <div class="table-card-scroll">
-            <a-table
-                :columns="columns"
-                :data-source="list"
-                :pagination="false"
-                row-key="id"
-                :row-selection="rowSelection"
-                :scroll="{ x: 1200 }"
-            >
-              <template #bodyCell="{ column, record }">
+        <AstrsomnDataView
+          mode="table"
+          :data-source="list"
+          :loading="loading"
+          :columns="columns"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1200 }"
+          row-key="id"
+          empty-text="暂无匹配的接入端点"
+        >
+          <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'modelType'">
                   <div class="model-icon" :class="record.modelType">
                     <template v-if="record.modelType === 'chat'"><MessageOutlined /></template>
@@ -155,24 +159,18 @@
                     </a-popconfirm>
                   </div>
                 </template>
-              </template>
-            </a-table>
-            </div>
+          </template>
+        </AstrsomnDataView>
 
-            <div class="pagination-container">
-              <span class="total-text">共 {{ page.total }} 个端点节点</span>
-              <a-pagination
-                  v-model:current="page.pageNum"
-                  :page-size="page.pageSize"
-                  :total="page.total"
-                  size="small"
-                  show-less-items
-                  @change="onPageChange"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+        <template #pagination>
+          <AstrsomnPagination
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :total="page.total"
+            @change="onPageChange"
+          />
+        </template>
+      </AstrsomnDataSection>
 
       <ModelFormModal
           v-model:open="modal.open"
@@ -206,12 +204,15 @@ import {
   UserOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
+import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import ModelFormModal from './ModelFormModal.vue'
-import ModelProviderSidebar from './ModelProviderSidebar.vue'
+import ModelProviderSelect from './ModelProviderSelect.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
 import { useDictionary } from '@/locales/dictionary'
 import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
@@ -268,17 +269,14 @@ const providerAvatarCell = (record: AiModel) => {
 
 const query = reactive<{ modelName?: string; provider?: string; status?: string }>({})
 const list = ref<AiModel[]>([])
+const loading = ref(false)
 const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
 const selectedRowKeys = ref<Array<number | string>>([])
 
-const providerSidebarSelected = computed({
-  get: () => query.provider,
-  set: (v: string | undefined) => {
-    query.provider = v
-    page.pageNum = 1
-    void fetchList()
-  }
-})
+const handleProviderChange = () => {
+  page.pageNum = 1
+  void fetchList()
+}
 
 const rowSelection = computed(() => ({
   fixed: true,
@@ -306,19 +304,24 @@ const partCurrentSelected = computed(() => {
 })
 
 const fetchList = async () => {
-  await ensureWorkspaceEnvInStorage()
-  const payload = {
-    pageNo: page.pageNum,
-    pageSize: page.pageSize,
-    param: {
-      supplier: query.provider || undefined,
-      modelName: query.modelName || undefined,
-      status: query.status || undefined
+  loading.value = true
+  try {
+    await ensureWorkspaceEnvInStorage()
+    const payload = {
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: {
+        supplier: query.provider || undefined,
+        modelName: query.modelName || undefined,
+        status: query.status || undefined
+      }
     }
+    const resp: any = await aiModelApi.queryPage(payload)
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
   }
-  const resp: any = await aiModelApi.queryPage(payload)
-  list.value = resp.list || []
-  page.total = resp.total || 0
 }
 
 const onPageChange = (p: number) => {
@@ -444,24 +447,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 0 10px;
-}
-
-.model-page-layout {
-  /* 与 AdminPageShell min-height(100vh-70px) 对齐：预留顶栏、工具栏、AstrsomnOverview 与间距 */
-  --model-list-panel-max-height: calc(100vh - 240px);
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  min-width: 0;
-}
-
-.model-page-main {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
+  padding: 20px;
+  margin-top: -8px;
 }
 
 .toolbar {
@@ -469,10 +456,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 6px;
   flex-wrap: wrap;
-  padding: 16px 0;
-
 }
 
 .toolbar-left {
@@ -488,6 +472,11 @@ onMounted(() => {
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.toolbar-provider-select {
+  width: 280px;
+  min-width: 220px;
 }
 
 .status-switch {

@@ -45,7 +45,7 @@
       </div>
 
       <div class="module-sider-foot">
-        <a href="https://www.astrsomn.com" target="_blank" class="official-btn">
+        <a href="https://www.astrsomn.com/home.html" target="_blank" class="official-btn">
           <GlobalOutlined class="btn-icon" />
           <span>访问官方网站</span>
         </a>

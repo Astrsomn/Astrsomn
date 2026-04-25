@@ -5,8 +5,10 @@
     empty-text="暂无系统配置。"
   >
     <div class="config-page">
-      <AdminListToolbar>
-        <template #left>
+      <AstrsomnDataSection>
+        <template #toolbar>
+          <div class="toolbar">
+            <div class="toolbar-left">
         
             <AstrsomnSearchPill
               v-model="query.configGroup"
@@ -22,14 +24,16 @@
             :options="statusOptions"
             @change="handleStatusChange"
           />
-        </template>
+            </div>
 
-        <template #right>
+            <div class="toolbar-right">
           <AstrsomnSegmentedButton :buttons="actionButtons" />
+            </div>
+          </div>
         </template>
-      </AdminListToolbar>
 
-      <AstrsomnOverview
+        <template #overview>
+          <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -38,16 +42,18 @@
         :summary-text="`当前页 ${list.length} 条系统配置，已选 ${selectedRowKeys.length} 条。`"
         @toggle-select-all="toggleSelectAllCurrentPage"
       />
+        </template>
 
-      <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1360 }"
-      >
-        <template #bodyCell="{ column, record }">
+        <AstrsomnDataView
+          mode="table"
+          :data-source="list"
+          :columns="columns"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1360 }"
+          row-key="id"
+          empty-text="暂无匹配的系统配置"
+        >
+          <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'configKey'">
             <code class="config-key">{{ record.configKey }}</code>
           </template>
@@ -64,18 +70,18 @@
               {{ record.isSystem ? '系统内置' : '自定义' }}
             </a-tag>
           </template>
-        </template>
-      </a-table>
+          </template>
+        </AstrsomnDataView>
 
-      <div class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+        <template #pagination>
+          <AstrsomnPagination
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :total="page.total"
+            @change="onPageChange"
+          />
+        </template>
+      </AstrsomnDataSection>
     </div>
   </AdminPageShell>
 </template>
@@ -88,8 +94,10 @@ import {
   StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
+import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -279,6 +287,29 @@ onMounted(() => {
   padding: 20px;
 }
 
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .search-cluster {
   display: flex;
   gap: 8px;
@@ -358,15 +389,6 @@ onMounted(() => {
   background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
 }
 
-.pagination-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
 .config-key {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
@@ -399,8 +421,9 @@ onMounted(() => {
     flex: 1;
   }
 
-  .pagination-wrap {
-    justify-content: center;
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
   }
 }
 </style>

@@ -115,7 +115,7 @@ function onUpdate(v: string | undefined) {
 <style scoped>
 .model-provider-select {
   width: 100%;
-  box-shadow: var(--shadow-overview);
+
   border-radius: var(--radius-pro);
 }
 
@@ -124,7 +124,7 @@ function onUpdate(v: string | undefined) {
   height: 50px !important;
   background: var(--bg-surface, #ffffff) !important;
   border-radius: var(--radius-pro);
-  border: 1px solid var(--border-default, #e2e8f0) !important;
+  border: 1px solid var(--border-default) !important;
   padding: 0 16px !important;
   display: flex !important;
   align-items: center !important;

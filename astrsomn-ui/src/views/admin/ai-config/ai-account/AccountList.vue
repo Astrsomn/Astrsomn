@@ -5,55 +5,71 @@
     empty-text="暂无账号。"
   >
     <div class="account-page">
-      <AdminListToolbar>
-        <template #left>
-          <div class="account-toolbar-searches">
-
-            <AstrsomnSearchPill
-              v-model="query.accountName"
-              layout="toolbar"
-              placeholder="账号名称"
-              button-label="查询"
-              @search="fetchList"
-            />
+      <AstrsomnDataSection>
+        <template #toolbar>
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <AstrsomnSearchPill
+                v-model="query.accountName"
+                layout="toolbar"
+                placeholder="账号名称"
+                button-label="查询"
+                @search="fetchList"
+              />
+            </div>
+            <div class="toolbar-right">
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+            </div>
           </div>
         </template>
 
-        <template #right>
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+        <template #overview>
+          <AstrsomnOverview
+            :list-length="list.length"
+            :selected-count="selectedRowKeys.length"
+            :all-current-selected="allCurrentSelected"
+            :part-current-selected="partCurrentSelected"
+            :show-actions="list.length > 0"
+            :summary-text="`当前页 ${list.length} 条账号，已选 ${selectedRowKeys.length} 条。`"
+            @toggle-select-all="toggleSelectAllCurrentPage"
+          />
         </template>
-      </AdminListToolbar>
 
-      <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条账号，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
+        <AstrsomnDataView
+          mode="table"
+          :data-source="list"
+          :loading="loading"
+          :columns="columns"
+          :row-selection="rowSelection"
+          row-key="id"
+          :scroll="{ x: 1180 }"
+          empty-text="暂无匹配的账号"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'apiKey'">
+              <span class="secret-mask">{{ maskSecret(record.apiKey) }}</span>
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-button type="link" size="small" @click="goEdit(record)">编辑</a-button>
+              <a-divider type="vertical" />
+              <a-button type="link" size="small" @click="openModelsDrawer(record)">关联模型</a-button>
+              <a-divider type="vertical" />
+              <a-popconfirm title="确定删除吗？" @confirm="() => handleDeleteOne(record.id)">
+                <a-button type="link" size="small" danger>删除</a-button>
+              </a-popconfirm>
+            </template>
+          </template>
+        </AstrsomnDataView>
 
-      <div class="account-grid">
-        <AccountCard
-          v-for="account in list"
-          :key="account.id"
-          :account="account"
-          @edit="goEdit"
-          @delete="handleDeleteOne"
-          @show-models="openModelsDrawer"
-        />
-      </div>
-
-      <div class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+        <template #pagination>
+          <AstrsomnPagination
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :total="page.total"
+            @change="onPageChange"
+          />
+        </template>
+      </AstrsomnDataSection>
 
       <AccountForm
         v-model:visible="formVisible"
@@ -76,16 +92,16 @@ import { message, Modal } from 'ant-design-vue'
 import {
   DeleteOutlined,
   PlusOutlined,
-  ReloadOutlined,
-  SearchOutlined
+  ReloadOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
+import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AccountForm from './AccountForm.vue'
-import AccountCard from './AccountCard.vue'
 import AccountModelsDrawer from './AccountModelsDrawer.vue'
 import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount'
 import type { AiModel } from '@/api/aiModel'
@@ -98,10 +114,18 @@ type QueryState = {
   accountName?: string
 }
 
-// 卡片布局不需要表格列定义
+const columns = [
+  { title: '账号名称', dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true },
+  { title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true },
+  { title: '供应商', dataIndex: 'provider', key: 'provider', width: 120, ellipsis: true },
+  { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
+  { title: 'API Key', dataIndex: 'apiKey', key: 'apiKey', width: 240, ellipsis: true },
+  { title: '操作', key: 'actions', width: 220, fixed: 'right' as const }
+]
 
 const query = reactive<QueryState>({})
 const list = ref<AiAccount[]>([])
+const loading = ref(false)
 const page = reactive({
   pageNum: 1,
   pageSize: 10,
@@ -178,18 +202,29 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   }
 ])
 
+const maskSecret = (raw?: string) => {
+  if (!raw) return '—'
+  if (raw.length <= 10) return `${raw.slice(0, 2)}***${raw.slice(-2)}`
+  return `${raw.slice(0, 4)}****${raw.slice(-4)}`
+}
+
 const fetchList = async () => {
-  const payload = {
-    pageNo: page.pageNum,
-    pageSize: page.pageSize,
-    param: {
-      accountKey: query.accountKey || undefined,
-      accountName: query.accountName || undefined
+  loading.value = true
+  try {
+    const payload = {
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: {
+        accountKey: query.accountKey || undefined,
+        accountName: query.accountName || undefined
+      }
     }
+    const resp: PageResponse<AiAccount> = await aiAccountApi.queryPage(payload)
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
   }
-  const resp: PageResponse<AiAccount> = await aiAccountApi.queryPage(payload)
-  list.value = resp.list || []
-  page.total = resp.total || 0
 }
 
 const onPageChange = (p: number) => {
@@ -267,55 +302,30 @@ const openModelsDrawer = async (account: AiAccount) => {
 
 <style scoped>
 .account-page {
-  padding: 0 20px;
+  padding: 20px;
 }
 
-.account-toolbar-searches {
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
   flex: 1;
-  min-width: 0;
 }
 
-.account-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.pagination-wrap {
+.toolbar-right {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   gap: 12px;
-  margin-top: 20px;
+  align-items: center;
   flex-wrap: wrap;
-}
-
-@media (max-width: 768px) {
-  .account-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1200px) {
-  .account-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  }
-}
-
-@media (min-width: 1201px) {
-  .account-grid {
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  }
-}
-
-.code-text {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 12px;
 }
 
 .secret-mask {
@@ -325,12 +335,9 @@ const openModelsDrawer = async (account: AiAccount) => {
 }
 
 @media (max-width: 720px) {
-  .account-toolbar-searches {
+  .toolbar-left,
+  .toolbar-right {
     width: 100%;
-  }
-
-  .pagination-wrap {
-    justify-content: center;
   }
 }
 

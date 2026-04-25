@@ -358,4 +358,66 @@ const handleDbMenuClick = (key: string, sourceId: string, db: Db) => {
     background: #fff1f0 !important;
   }
 }
+
+/* Unified style: align with AdminModuleShell */
+.sidebar-container {
+  border: 1px solid #f1f5f9;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.sidebar-header {
+  padding: 14px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.sidebar-header .header-left .header-icon-box {
+  width: 30px;
+  height: 30px;
+  background: #1a73e8;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.sidebar-header .header-left .header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.sidebar-header .add-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.sidebar-header .add-icon:hover {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+
+.sidebar-content {
+  padding: 10px 8px;
+}
+
+.source-section {
+  margin: 0 4px;
+}
+
+.db-container {
+  margin: 0 6px 8px 18px;
+  padding-left: 12px;
+  border-left: 1px solid #f1f5f9;
+}
+
+.sidebar-footer {
+  padding: 12px 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.sidebar-footer .footer-row .driver-info .s-avatars .s-av {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
 </style>

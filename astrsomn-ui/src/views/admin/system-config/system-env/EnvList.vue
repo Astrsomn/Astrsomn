@@ -5,8 +5,10 @@
     empty-text="暂无环境配置。"
   >
     <div class="env-page">
-      <AdminListToolbar>
-        <template #left>
+      <AstrsomnDataSection>
+        <template #toolbar>
+          <div class="toolbar">
+            <div class="toolbar-left">
   
             <AstrsomnSearchPill
               v-model="query.envName"
@@ -15,16 +17,16 @@
               layout="toolbar"
               @search="fetchList"
             />
-       
+            </div>
 
-        </template>
-
-        <template #right>
+            <div class="toolbar-right">
           <AstrsomnSegmentedButton :buttons="actionButtons" />
+            </div>
+          </div>
         </template>
-      </AdminListToolbar>
 
-      <AstrsomnOverview
+        <template #overview>
+          <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -33,16 +35,19 @@
         :summary-text="`当前页 ${list.length} 条环境记录，已选 ${selectedRowKeys.length} 条。`"
         @toggle-select-all="toggleSelectAllCurrentPage"
       />
+        </template>
 
-      <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 800 }"
-      >
-        <template #bodyCell="{ column, record }">
+        <AstrsomnDataView
+          mode="table"
+          :data-source="list"
+          :loading="loading"
+          :columns="columns"
+          :row-selection="rowSelection"
+          :scroll="{ x: 800 }"
+          row-key="id"
+          empty-text="暂无匹配的环境"
+        >
+          <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'description'">
             <span class="desc-preview">{{ preview(record.description) }}</span>
           </template>
@@ -58,18 +63,18 @@
               <a-button type="link" danger>删除</a-button>
             </a-popconfirm>
           </template>
-        </template>
-      </a-table>
+          </template>
+        </AstrsomnDataView>
 
-      <div class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+        <template #pagination>
+          <AstrsomnPagination
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :total="page.total"
+            @change="onPageChange"
+          />
+        </template>
+      </AstrsomnDataSection>
 
       <EnvFormModal
         v-model:open="modal.open"
@@ -90,8 +95,10 @@ import {
   PlusOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
+import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import EnvFormModal from './EnvFormModal.vue'
@@ -118,6 +125,7 @@ const columns = [
 
 const query = reactive<QueryState>({})
 const list = ref<SystemEnv[]>([])
+const loading = ref(false)
 
 const page = reactive({
   pageNum: 1,
@@ -200,18 +208,22 @@ const modal = reactive({
 const modalInitial = ref<SystemEnv | null>(null)
 
 const fetchList = async () => {
-  const payload = {
-    pageNo: page.pageNum,
-    pageSize: page.pageSize,
-    param: {
-      envName: query.envName || undefined,
-      envCode: query.envCode || undefined
+  loading.value = true
+  try {
+    const payload = {
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: {
+        envName: query.envName || undefined,
+        envCode: query.envCode || undefined
+      }
     }
+    const resp: PageResponse<SystemEnv> = await systemEnvApi.queryPage(payload)
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
   }
-
-  const resp: PageResponse<SystemEnv> = await systemEnvApi.queryPage(payload)
-  list.value = resp.list || []
-  page.total = resp.total || 0
 }
 
 const onPageChange = (p: number) => {
@@ -299,6 +311,29 @@ void fetchList()
   padding: 20px;
 }
 
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .search-cluster {
   display: flex;
   gap: 8px;
@@ -354,15 +389,6 @@ void fetchList()
   background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
 }
 
-.pagination-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
 .desc-preview {
   color: rgba(0, 0, 0, 0.45);
   font-size: 12px;
@@ -380,8 +406,9 @@ void fetchList()
     padding: 8px;
   }
 
-  .pagination-wrap {
-    justify-content: center;
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
   }
 }
 </style>

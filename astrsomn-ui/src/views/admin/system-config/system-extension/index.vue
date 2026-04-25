@@ -94,6 +94,7 @@ function openMarketplace() {
   padding: 0 12px;
   height: calc(100vh - 70px);
   overflow: hidden;
+  background: #f8fafc;
 }
 
 .extension-layout {
@@ -106,8 +107,8 @@ function openMarketplace() {
 /* 侧边栏主体 */
 .extension-sider {
   background: #ffffff !important;
-  border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+  border-radius: 14px;
   overflow: hidden;
   height: 100%;
 }
@@ -120,53 +121,51 @@ function openMarketplace() {
 
 /* 顶部品牌区 */
 .sider-header {
-  padding: 24px 20px;
+  padding: 20px 16px 12px;
 }
 
 .brand-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .brand-logo {
-  width: 32px;
-  height: 32px;
-  background: var(--primary);
+  width: 30px;
+  height: 30px;
+  background: #1a73e8;
   color: white;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 18px;
+  font-weight: 700;
+  font-size: 15px;
 }
 
 .sider-title {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #1e293b;
   line-height: 1.2;
 }
 
 .sider-version {
-  font-size: 11px;
-  color: #999;
+  font-size: 10px;
+  color: #94a3b8;
 }
 
 /* 菜单区 */
 .sider-menu-container {
   flex: 1;
-  padding: 0 10px;
-  overflow: hidden;
+  padding: 0 10px 8px;
+  overflow-y: auto;
 }
 
 .custom-menu {
   border: none !important;
   background: transparent !important;
-  height: 100%;
-  overflow: hidden;
 }
 
 :deep(.ant-menu-item) {
@@ -289,5 +288,97 @@ function openMarketplace() {
 
 .content-card::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
+}
+
+/* Unified style: align with AdminModuleShell */
+.sider-menu-container {
+  padding: 0 10px 8px;
+  overflow-y: auto;
+}
+
+:deep(.custom-menu .ant-menu-item) {
+  height: 38px !important;
+  line-height: 38px !important;
+  margin: 3px 0 !important;
+  border-radius: 10px !important;
+  color: #64748b !important;
+  transition: all 0.2s;
+}
+
+:deep(.custom-menu .ant-menu-item:hover) {
+  background: #f8fafc !important;
+  color: #1a73e8 !important;
+}
+
+:deep(.custom-menu .ant-menu-item-selected) {
+  background: #e8f0fe !important;
+  color: #1a73e8 !important;
+  font-weight: 600;
+  position: relative;
+}
+
+:deep(.custom-menu .ant-menu-item-selected)::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 999px;
+  background: #1a73e8;
+}
+
+.sider-footer {
+  padding: 14px 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.promo-card {
+  background: #e8f0fe;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: none;
+}
+
+.promo-card:hover {
+  background: #dbeafe;
+  box-shadow: none;
+}
+
+.promo-card::before {
+  display: none;
+}
+
+.promo-content {
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.promo-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #1a73e8;
+  background: #ffffff;
+}
+
+.promo-title {
+  color: #1e293b;
+  font-size: 13px;
+}
+
+.promo-slogan {
+  color: #64748b;
+  font-size: 10px;
+}
+
+.promo-action {
+  color: #1a73e8;
+  background: #ffffff;
+  font-size: 11px;
+  padding: 6px 8px;
 }
 </style>

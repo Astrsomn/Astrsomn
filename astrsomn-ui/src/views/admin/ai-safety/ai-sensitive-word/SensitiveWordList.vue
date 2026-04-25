@@ -5,8 +5,10 @@
     empty-text="暂无安全策略。"
   >
     <div class="sensitive-page">
-      <AdminListToolbar>
-        <template #left>
+      <AstrsomnDataSection>
+        <template #toolbar>
+          <div class="toolbar">
+            <div class="toolbar-left">
           <div class="search-cluster">
             <a-input
               v-model:value="query.word"
@@ -51,9 +53,9 @@
             <template #icon><filter-outlined /></template>
             {{ showAdvanced ? '收起筛选' : '更多筛选' }}
           </a-button>
-        </template>
+            </div>
 
-        <template #right>
+            <div class="toolbar-right">
           <a-button type="primary" class="primary-btn" @click="fetchList">
             <template #icon><search-outlined /></template>
             查询
@@ -75,9 +77,11 @@
             <template #icon><plus-outlined /></template>
             新增
           </a-button>
+            </div>
+          </div>
         </template>
 
-        <template v-if="showAdvanced" #extra>
+        <template v-if="showAdvanced" #toolbar-extra>
           <a-select
             v-model:value="query.matchType"
             :options="matchTypeOptions"
@@ -102,9 +106,9 @@
             <template #prefix><tags-outlined /></template>
           </a-input>
         </template>
-      </AdminListToolbar>
 
-      <AstrsomnOverview
+        <template #overview>
+          <AstrsomnOverview
         :list-length="list.length"
         :selected-count="selectedRowKeys.length"
         :all-current-selected="allCurrentSelected"
@@ -113,16 +117,19 @@
         :summary-text="`当前页 ${list.length} 条敏感词规则，已选 ${selectedRowKeys.length} 条。`"
         @toggle-select-all="toggleSelectAllCurrentPage"
       />
+        </template>
 
-      <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1320 }"
-      >
-        <template #bodyCell="{ column, record }">
+        <AstrsomnDataView
+          mode="table"
+          :data-source="list"
+          :loading="loading"
+          :columns="columns"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1320 }"
+          row-key="id"
+          empty-text="暂无匹配的安全规则"
+        >
+          <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'word'">
             <code class="word-text">{{ record.word }}</code>
           </template>
@@ -156,18 +163,18 @@
               <a-button type="link" danger>删除</a-button>
             </a-popconfirm>
           </template>
-        </template>
-      </a-table>
+          </template>
+        </AstrsomnDataView>
 
-      <div class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+        <template #pagination>
+          <AstrsomnPagination
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :total="page.total"
+            @change="onPageChange"
+          />
+        </template>
+      </AstrsomnDataSection>
 
       <SensitiveWordFormModal
         v-model:open="modal.open"
@@ -194,8 +201,10 @@ import {
   TagsOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
+import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import SensitiveWordFormModal from './SensitiveWordFormModal.vue'
 import { aiSensitiveWordApi, type AiSensitiveWord, type PageResponse } from '@/api/aiSensitiveWord.ts'
 
@@ -246,6 +255,7 @@ const actionColorMap: Record<string, string> = {
 const query = reactive<QueryState>({})
 const showAdvanced = ref(false)
 const list = ref<AiSensitiveWord[]>([])
+const loading = ref(false)
 
 const page = reactive({
   pageNum: 1,
@@ -326,22 +336,26 @@ const statusLabel = (value: string | undefined) => {
 }
 
 const fetchList = async () => {
-  const payload = {
-    pageNo: page.pageNum,
-    pageSize: page.pageSize,
-    param: {
-      word: query.word || undefined,
-      matchType: query.matchType || undefined,
-      scopeKey: query.scopeKey || undefined,
-      action: query.action || undefined,
-      status: query.status || undefined,
-      category: query.category || undefined
+  loading.value = true
+  try {
+    const payload = {
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: {
+        word: query.word || undefined,
+        matchType: query.matchType || undefined,
+        scopeKey: query.scopeKey || undefined,
+        action: query.action || undefined,
+        status: query.status || undefined,
+        category: query.category || undefined
+      }
     }
+    const resp: PageResponse<AiSensitiveWord> = await aiSensitiveWordApi.queryPage(payload)
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
   }
-
-  const resp: PageResponse<AiSensitiveWord> = await aiSensitiveWordApi.queryPage(payload)
-  list.value = resp.list || []
-  page.total = resp.total || 0
 }
 
 const onPageChange = (p: number) => {
@@ -411,6 +425,29 @@ void fetchList()
 <style scoped>
 .sensitive-page {
   padding: 20px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .search-cluster {
@@ -504,15 +541,6 @@ void fetchList()
   color: var(--text-secondary);
 }
 
-.pagination-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
 .word-text {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
@@ -543,8 +571,9 @@ void fetchList()
     flex: 1;
   }
 
-  .pagination-wrap {
-    justify-content: center;
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
   }
 }
 </style>
