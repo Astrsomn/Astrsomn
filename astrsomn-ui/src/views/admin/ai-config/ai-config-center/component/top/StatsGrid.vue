@@ -96,29 +96,32 @@ import {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 24px;
+  gap: 16px;
+  margin: 10px 0;
 }
 
 .compact-stat-card {
   position: relative;
-  background: var(--bg-card);
-  border-radius: 16px;
-  padding: 20px 24px;
-  border: 1px solid var(--border-default);
+  box-sizing: border-box;
+  min-height: 100px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   overflow: hidden;
-  transition: all 0.3s ease;
-  min-height: 120px;
+  transition: all 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-card);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   }
 
   .card-inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    min-height: 100%;
     position: relative;
     z-index: 2;
   }
@@ -139,10 +142,10 @@ import {
     }
 
     .value {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
-      color: var(--text-heading);
-      line-height: 1.2;
+      color: #1e293b;
+      line-height: 1.15;
     }
 
     .unit {
@@ -159,9 +162,10 @@ import {
   /* 图标侧 */
   .icon-side {
     .icon-box {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -169,17 +173,17 @@ import {
     }
   }
 
-  /* 各色卡片细节 */
-  &.blue .icon-box { background: var(--primary-hover); color: var(--primary); }
-  &.purple .icon-box { background: rgba(114, 46, 209, 0.15); color: #a855f7; }
-  &.amber .icon-box { background: rgba(250, 204, 21, 0.15); color: #f59e0b; }
+  /* 与 system-config 快捷入口 icon-1 ~ 4 色板一致 */
+  &.blue .icon-box { background: #dbeafe; color: #3b82f6; }
+  &.purple .icon-box { background: #ede9fe; color: #8b5cf6; }
+  &.amber .icon-box { background: #fef3c7; color: #f59e0b; }
   
   &.dark {
-    background: var(--bg-base);
-    border: 1px solid var(--border-default);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     .label { color: var(--text-muted); }
-    .value { color: var(--text-heading); }
-    .icon-box { background: var(--bg-elevated); color: var(--text-primary); }
+    .value { color: #1e293b; }
+    .icon-box { background: #f1f5f9; color: #1e293b; }
   }
 }
 

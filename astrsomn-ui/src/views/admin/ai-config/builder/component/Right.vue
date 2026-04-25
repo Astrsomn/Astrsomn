@@ -26,14 +26,22 @@ const toggleMode = () => {
 
 <style scoped>
 .right-panel {
-  width: 420px;
-  background: var(--bg-card);
-  border-left: 1px solid var(--border-default);
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 520px;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-card);
   z-index: 10;
   position: relative;
+  min-height: 0;
+  height: 100%;
+  background: var(--ab-glass-bg, rgba(255, 255, 255, 0.8));
+  backdrop-filter: blur(var(--ab-glass-haze, 10px));
+  -webkit-backdrop-filter: blur(var(--ab-glass-haze, 10px));
+  border: 1px solid var(--ab-glass-border, rgba(255, 255, 255, 0.6));
+  border-radius: var(--ab-glass-radius, 16px);
+  box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
+  overflow: hidden;
 }
 
 .float-toolbar {

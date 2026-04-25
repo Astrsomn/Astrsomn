@@ -14,17 +14,19 @@
         <button class="action-btn primary" title="选择提示词" @click.stop="emit('select')">
           <AppstoreOutlined />
         </button>
-        <button class="action-btn" title="新建提示词" @click.stop="emit('create')">
+        <button class="action-btn secondary" title="新建提示词" @click.stop="emit('create')">
           <PlusOutlined />
         </button>
       </div>
     </div>
-    <textarea
-      class="prompt-textarea custom-scrollbar"
-      v-model="promptContent"
-      rows="6"
-      placeholder="给你的 Agent 一个酷炫的人设..."
-    ></textarea>
+    <div class="dashed-frame">
+      <textarea
+        class="prompt-textarea custom-scrollbar"
+        v-model="promptContent"
+        rows="6"
+        placeholder="给你的智能体配置一个清晰的角色定位和任务指令..."
+      ></textarea>
+    </div>
   </div>
 </template>
 
@@ -53,17 +55,26 @@ const promptContent = computed({
 
 <style scoped>
 .prompt-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 16px;
+  background: var(--ab-glass-bg, rgba(255, 255, 255, 0.8));
+  backdrop-filter: blur(var(--ab-glass-haze, 10px));
+  -webkit-backdrop-filter: blur(var(--ab-glass-haze, 10px));
+  border: 1px solid var(--ab-glass-border, rgba(255, 255, 255, 0.6));
+  border-radius: var(--ab-glass-radius, 16px);
+  box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
   padding: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .prompt-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-card);
-  border-color: var(--primary);
+  border-color: var(--ab-hover-line, #3b82f6);
+  box-shadow: var(--ab-hover-shadow, 0 0 15px rgba(59, 130, 246, 0.15));
 }
 
 .card-header {
@@ -80,19 +91,20 @@ const promptContent = computed({
 }
 
 .icon-badge {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  border-radius: var(--radius-md);
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: #f3e8ff;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+  color: #9333ea;
+  box-shadow: none;
 }
 
 .icon-badge .anticon {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .header-info {
@@ -102,9 +114,9 @@ const promptContent = computed({
 }
 
 .card-title {
-  font-weight: bold;
+  font-weight: 700;
   font-size: 14px;
-  color: var(--text-primary);
+  color: #334155;
   margin: 0;
 }
 
@@ -120,64 +132,75 @@ const promptContent = computed({
 }
 
 .action-btn {
-  width: 36px;
-  height: 36px;
-  background: var(--bg-elevated);
-  color: var(--text-secondary);
-  border-radius: var(--radius-md);
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-default);
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
-}
-
-.action-btn:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-.action-btn.primary {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-}
-
-.action-btn.primary:hover {
-  background: var(--primary-light);
-  border-color: var(--primary-light);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: none;
 }
 
 .action-btn .anticon {
-  font-size: 16px;
+  font-size: 12px;
+}
+
+.action-btn.primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.action-btn.primary:hover {
+  background: #1d4ed8;
+}
+
+.action-btn.secondary {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.action-btn.secondary:hover {
+  background: #dbeafe;
+}
+
+.dashed-frame {
+  border: 1px dashed #e2e8f0;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.3);
+  padding: 16px;
+  min-height: 160px;
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 .prompt-textarea {
   width: 100%;
-  min-height: 160px;
-  background: #ffffff;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
+  min-height: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: #64748b;
   outline: none;
-  transition: all 0.3s;
-  resize: vertical;
+  transition: all 0.2s;
+  resize: none;
   font-family: inherit;
-  line-height: 1.6;
+  line-height: 1.625;
 }
 
 .prompt-textarea::placeholder {
-  color: var(--text-tertiary);
+  color: #94a3b8;
 }
 
 .prompt-textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-  background: #ffffff;
+  outline: none;
 }
 
 .custom-scrollbar::-webkit-scrollbar {

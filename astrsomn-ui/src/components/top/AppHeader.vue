@@ -125,13 +125,12 @@ const handleLogin = () => {
   z-index: 1000;
   height: 60px;
   width: 100%;
-
   box-sizing: border-box;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   display: flex;
   align-items: center;
-
+  border-bottom: 1px solid var(--border-default);
 }
 
 .header-container {
@@ -290,20 +289,6 @@ const handleLogin = () => {
   color: var(--text-heading);
 }
 
-/* --- 核心动画 --- */
-.fade-slide-enter-active, .fade-slide-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateX(-15px);
-}
-
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateX(15px);
-}
 
 .actions-group {
   display: flex;

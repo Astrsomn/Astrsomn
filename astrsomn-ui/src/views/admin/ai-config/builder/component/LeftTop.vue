@@ -151,7 +151,8 @@ const handleDescriptionUpdate = (value: string) => {
 
 <style scoped>
 .left-top {
-  padding: 32px 32px 16px;
+  flex-shrink: 0;
+  padding: 0 8px 0 0;
 }
 
 .section-header {
@@ -170,29 +171,37 @@ const handleDescriptionUpdate = (value: string) => {
 .title-indicator {
   width: 6px;
   height: 16px;
-  background: var(--primary);
-  border-radius: 3px;
+  background: #2563eb;
+  border-radius: 4px;
 }
 
 .title-text {
-  font-weight: bold;
+  font-weight: 700;
   font-size: 14px;
-  color: var(--text-heading);
+  color: #1e293b;
   margin: 0;
 }
 
 .section-badge {
   font-size: 10px;
-  color: var(--primary);
-  background: var(--primary-hover);
-  padding: 2px 8px;
-  border-radius: var(--radius-max);
-  font-weight: bold;
+  color: #2563eb;
+  background: #dbeafe;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
 }
 
 .card-chain {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
+  align-items: stretch;
+}
+
+.card-chain > :deep(.node-connector) {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
 }
 </style>
