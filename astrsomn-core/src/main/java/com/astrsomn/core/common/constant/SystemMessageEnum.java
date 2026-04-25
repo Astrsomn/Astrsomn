@@ -2,7 +2,7 @@ package com.astrsomn.core.common.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.core.common.base.BaseEnum;
+import com.astrsomn.commn.base.BaseEnum;
 
 /**
  * 系统消息/站内通知相关枚举：插件安装、上下线、调用失败等见 {@link MessageTypeEnum}。

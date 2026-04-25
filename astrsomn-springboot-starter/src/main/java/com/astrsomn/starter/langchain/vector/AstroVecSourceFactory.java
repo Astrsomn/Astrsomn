@@ -5,9 +5,9 @@ import com.astrsomn.core.common.constant.AiVecSourceEnum;
 import com.astrsomn.core.common.entity.AiVecSourceEntity;
 import com.astrsomn.core.common.langchain.extension.vector.VecDriver;
 import com.astrsomn.core.common.langchain.extension.vector.VecSource;
-import com.astrsomn.core.common.utils.StringUtils;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AstVecSourceErrorEnum;
+import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AstVecSourceErrorEnum;
 import org.springframework.stereotype.Component;
 
 

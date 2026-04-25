@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.dto.extension.SystemExtensionMetaData;
 import com.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.core.common.langchain.extension.model.ModelProviderHandler;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 
 import java.io.File;
 import java.io.InputStream;

@@ -3,7 +3,7 @@ package com.astrsomn.starter.langchain.runtime.chain;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import com.astrsomn.core.common.entity.AiModelEntity;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.starter.mapper.AiModelMapper;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;

@@ -3,7 +3,7 @@ package com.astrsomn.starter.langchain.aop.processor;
 
 import lombok.RequiredArgsConstructor;
 import com.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.starter.config.AstrsomnProperties;
 import com.astrsomn.starter.context.EnvRuntime;
 import com.astrsomn.starter.langchain.aop.annotation.Astro;

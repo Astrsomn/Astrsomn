@@ -1,20 +1,20 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.prompt.AiPromptCreateRequestDTO;
 import com.astrsomn.core.common.dto.prompt.AiPromptQueryRequestDTO;
 import com.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
 import com.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiPromptEntity;
-import com.astrsomn.core.common.utils.StringUtils;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AiPromptErrorEnum;
+import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AiPromptErrorEnum;
 import com.astrsomn.starter.mapper.AiPromptMapper;
 import com.astrsomn.server.service.AiPromptService;
 import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEntity> implements AiPromptService {
@@ -137,14 +137,14 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
 
     @Override
     public PageResponse<AiPromptResponseDTO> queryPage(BasePageRequest<AiPromptQueryRequestDTO> request) {
-        IPage<AiPromptResponseDTO> page = request.buildPage();
+        IPage<AiPromptResponseDTO> page = PageUtils.buildPage(request);
         AiPromptQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiPromptQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiPromptResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.astrsomn.vector.qdrant.internal;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 
 import java.util.Map;
 

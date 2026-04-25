@@ -1,19 +1,19 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.agent.AiAgentCreateRequestDTO;
 import com.astrsomn.core.common.dto.agent.AiAgentQueryRequestDTO;
 import com.astrsomn.core.common.dto.agent.AiAgentResponseDTO;
 import com.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiAgentEntity;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AiAgentErrorEnum;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AiAgentErrorEnum;
 import com.astrsomn.starter.mapper.AiAgentMapper;
 import com.astrsomn.server.service.AiAgentService;
 import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
@@ -22,7 +22,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity> implements AiAgentService {
@@ -83,13 +83,13 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
 
     @Override
     public PageResponse<AiAgentResponseDTO> queryPage(BasePageRequest<AiAgentQueryRequestDTO> request) {
-        IPage<AiAgentResponseDTO> page = request.buildPage();
+        IPage<AiAgentResponseDTO> page = PageUtils.buildPage(request);
         AiAgentQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiAgentQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiAgentResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 }

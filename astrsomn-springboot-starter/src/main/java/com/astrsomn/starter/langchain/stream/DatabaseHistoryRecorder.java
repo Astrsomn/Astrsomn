@@ -6,7 +6,7 @@ import com.astrsomn.core.common.entity.AiConversationEntity;
 import com.astrsomn.core.common.langchain.AstroHistoryRecorder;
 import com.astrsomn.core.common.langchain.ChatStreamEnum;
 import com.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.starter.mapper.AiAgentMapper;
 import com.astrsomn.starter.mapper.AiConversationMapper;
 import com.astrsomn.starter.mapper.AiModelMapper;

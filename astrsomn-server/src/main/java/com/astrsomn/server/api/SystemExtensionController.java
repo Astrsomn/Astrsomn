@@ -2,11 +2,11 @@ package com.astrsomn.server.api;
 
 import com.astrsomn.core.common.dto.extension.*;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BaseController;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.base.BaseController;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
+import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.server.service.extension.base.SystemExtensionMarketService;
 import com.astrsomn.server.service.extension.base.SystemExtensionModelSyncService;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;

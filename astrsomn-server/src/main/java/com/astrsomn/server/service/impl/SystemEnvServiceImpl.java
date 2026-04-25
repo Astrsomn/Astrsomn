@@ -1,24 +1,24 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.env.SystemEnvCreateRequestDTO;
 import com.astrsomn.core.common.dto.env.SystemEnvQueryRequestDTO;
 import com.astrsomn.core.common.dto.env.SystemEnvResponseDTO;
 import com.astrsomn.core.common.dto.env.SystemEnvUpdateRequestDTO;
 import com.astrsomn.core.common.entity.SystemEnvEntity;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.SystemEnvErrorEnum;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.SystemEnvErrorEnum;
 import com.astrsomn.starter.mapper.SystemEnvMapper;
 import com.astrsomn.server.service.SystemEnvService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 public class SystemEnvServiceImpl extends ServiceImpl<SystemEnvMapper, SystemEnvEntity> implements SystemEnvService {
     @Override
@@ -72,8 +72,8 @@ public class SystemEnvServiceImpl extends ServiceImpl<SystemEnvMapper, SystemEnv
 
     @Override
     public PageResponse<SystemEnvResponseDTO> queryPage(BasePageRequest<SystemEnvQueryRequestDTO> request) {
-        IPage<SystemEnvResponseDTO> page = request.buildPage();
+        IPage<SystemEnvResponseDTO> page = PageUtils.buildPage(request);
         IPage<SystemEnvResponseDTO> result = baseMapper.queryPage(page, request.getParam());
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 }

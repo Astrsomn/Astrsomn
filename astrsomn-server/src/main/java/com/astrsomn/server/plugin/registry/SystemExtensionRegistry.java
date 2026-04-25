@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.constant.SystemExtensionEnum;
 import com.astrsomn.core.common.entity.SystemExtensionEntity;
 import com.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.starter.mapper.SystemExtensionMapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;

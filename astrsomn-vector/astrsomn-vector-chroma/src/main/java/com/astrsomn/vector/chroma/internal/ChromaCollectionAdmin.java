@@ -3,7 +3,7 @@ package com.astrsomn.vector.chroma.internal;
 import dev.langchain4j.store.embedding.chroma.ChromaApiVersion;
 import com.astrsomn.core.common.entity.AiVecSourceEntity;
 import com.astrsomn.core.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 
 import java.net.URI;
 import java.net.URLEncoder;

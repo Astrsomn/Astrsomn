@@ -1,6 +1,6 @@
 package com.astrsomn.server.config;
 
-import com.astrsomn.core.common.base.BaseEntity;
+import com.astrsomn.commn.base.BaseEntity;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.constant.SystemUserEnum.AdminEnum;

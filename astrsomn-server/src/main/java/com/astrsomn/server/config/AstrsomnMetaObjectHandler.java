@@ -1,10 +1,10 @@
 package com.astrsomn.server.config;
 
-import com.astrsomn.core.common.base.BaseEntity;
+import com.astrsomn.commn.base.BaseEntity;
 import com.astrsomn.starter.config.MybatisPlusConfig;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.server.util.UserContext;
 import com.astrsomn.starter.config.AstrsomnProperties;
 import com.astrsomn.starter.context.EnvRuntime;

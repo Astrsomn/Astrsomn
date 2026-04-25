@@ -3,7 +3,7 @@ package com.astrsomn.starter.message;
 import com.astrsomn.core.common.constant.SystemMessageEnum;
 import com.astrsomn.core.common.dto.systemmessage.SystemMessageRecordCommand;
 import com.astrsomn.core.common.entity.SystemMessageEntity;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.starter.mapper.SystemMessageMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;

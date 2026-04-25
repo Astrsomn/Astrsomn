@@ -2,7 +2,7 @@ package com.astrsomn.core.common.langchain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.core.common.base.BaseEnum;
+import com.astrsomn.commn.base.BaseEnum;
 
 public interface ChatStreamEnum {
 

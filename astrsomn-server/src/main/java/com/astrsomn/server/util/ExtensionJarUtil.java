@@ -3,7 +3,7 @@ package com.astrsomn.server.util;
 import com.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.entity.SystemExtensionEntity;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.core.common.dto.extension.SystemExtensionMetaData;
 
 import java.io.File;

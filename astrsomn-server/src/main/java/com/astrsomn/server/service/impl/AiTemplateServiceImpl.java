@@ -1,18 +1,18 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.template.AiTemplateCreateRequestDTO;
 import com.astrsomn.core.common.dto.template.AiTemplateQueryRequestDTO;
 import com.astrsomn.core.common.dto.template.AiTemplateResponseDTO;
 import com.astrsomn.core.common.dto.template.AiTemplateUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiTemplateEntity;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AiTemplateErrorEnum;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AiTemplateErrorEnum;
 import com.astrsomn.starter.mapper.AiTemplateMapper;
 import com.astrsomn.server.service.AiTemplateService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
@@ -20,7 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTemplateEntity> implements AiTemplateService {
@@ -77,13 +77,13 @@ public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTempl
 
     @Override
     public PageResponse<AiTemplateResponseDTO> queryPage(BasePageRequest<AiTemplateQueryRequestDTO> request) {
-        IPage<AiTemplateResponseDTO> page = request.buildPage();
+        IPage<AiTemplateResponseDTO> page = PageUtils.buildPage(request);
         AiTemplateQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiTemplateQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiTemplateResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 }

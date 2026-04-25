@@ -1,18 +1,19 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
+import com.astrsomn.core.common.utils.PageUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentCreateRequestDTO;
 import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentQueryRequestDTO;
 import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentResponseDTO;
 import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiVecSegmentEntity;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AstVecSegmentErrorEnum;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AstVecSegmentErrorEnum;
 import com.astrsomn.starter.mapper.AiVecSegmentMapper;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
@@ -67,14 +68,14 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
 
     @Override
     public PageResponse<AiVecSegmentResponseDTO> queryPage(BasePageRequest<AiVecSegmentQueryRequestDTO> request) {
-        IPage<AiVecSegmentResponseDTO> page = request.buildPage();
+        IPage<AiVecSegmentResponseDTO> page = PageUtils.buildPage(request);
         AiVecSegmentQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiVecSegmentQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiVecSegmentResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 
     @Override

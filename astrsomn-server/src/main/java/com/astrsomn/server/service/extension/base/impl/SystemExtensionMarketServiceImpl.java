@@ -1,8 +1,8 @@
 package com.astrsomn.server.service.extension.base.impl;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.extension.ExtensionMarketplaceItemDTO;
 import com.astrsomn.server.service.extension.base.SystemExtensionMarketService;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;

@@ -30,6 +30,9 @@
         <module>astrsomn-springboot-starter</module>
         <module>astrsomn-providers</module>
         <module>astrsomn-vector</module>
+        <module>astrsomn-commn</module>
+        <module>astrsomn-workflow-core</module>
+        <module>astrsomn-workflow-springboot-starter</module>
     </modules>
 
     <dependencyManagement>

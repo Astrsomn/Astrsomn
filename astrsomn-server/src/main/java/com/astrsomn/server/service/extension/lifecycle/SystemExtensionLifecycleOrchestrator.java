@@ -2,12 +2,12 @@ package com.astrsomn.server.service.extension.lifecycle;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.core.common.base.BaseResponse;
+import com.astrsomn.commn.base.BaseResponse;
 import com.astrsomn.core.common.constant.SystemExtensionEnum;
 import com.astrsomn.core.common.entity.SystemExtensionEntity;
-import com.astrsomn.core.common.utils.StringUtils;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
+import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.SystemExtensionErrorEnum;
 import com.astrsomn.starter.mapper.SystemExtensionMapper;
 import com.astrsomn.server.service.extension.support.SystemExtensionSourceHelper;
 import com.astrsomn.server.service.extension.capability.ExtensionCapabilityResolver;

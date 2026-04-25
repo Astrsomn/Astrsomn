@@ -2,8 +2,8 @@ package com.astrsomn.core.common.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.core.common.base.BaseEnum;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.base.BaseEnum;
+import com.astrsomn.commn.utils.StringUtils;
 
 import java.util.Optional;
 

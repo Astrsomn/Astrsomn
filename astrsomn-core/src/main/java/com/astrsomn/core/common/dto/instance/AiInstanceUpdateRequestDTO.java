@@ -1,6 +1,6 @@
 package com.astrsomn.core.common.dto.instance;
 
-import com.astrsomn.core.common.base.BaseEntity;
+import com.astrsomn.commn.base.BaseEntity;
 import com.astrsomn.core.common.entity.AiInstanceEntity;
 import lombok.Data;
 

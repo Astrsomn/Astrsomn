@@ -1,6 +1,6 @@
 package com.astrsomn.core.common.entity;
 
-import com.astrsomn.core.common.base.BaseEntity;
+import com.astrsomn.commn.base.BaseEntity;
 import com.astrsomn.core.common.constant.SystemMessageEnum;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

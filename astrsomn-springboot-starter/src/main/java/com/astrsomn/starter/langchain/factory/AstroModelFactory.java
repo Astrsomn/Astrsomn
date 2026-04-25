@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.constant.AiModelEnum;
 import com.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.core.common.langchain.extension.model.ModelProviderHandler;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

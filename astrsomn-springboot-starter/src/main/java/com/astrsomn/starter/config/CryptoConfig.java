@@ -1,6 +1,6 @@
 package com.astrsomn.starter.config;
 
-import com.astrsomn.core.common.utils.CryptoUtil;
+import com.astrsomn.commn.utils.CryptoUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;

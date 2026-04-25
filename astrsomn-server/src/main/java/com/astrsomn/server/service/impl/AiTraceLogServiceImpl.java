@@ -1,24 +1,24 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.tracelog.AiTraceLogCreateRequestDTO;
 import com.astrsomn.core.common.dto.tracelog.AiTraceLogQueryRequestDTO;
 import com.astrsomn.core.common.dto.tracelog.AiTraceLogResponseDTO;
 import com.astrsomn.core.common.dto.tracelog.AiTraceLogUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiTraceLogEntity;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AiTraceLogErrorEnum;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AiTraceLogErrorEnum;
 import com.astrsomn.starter.mapper.AiTraceLogMapper;
 import com.astrsomn.server.service.AiTraceLogService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class AiTraceLogServiceImpl extends ServiceImpl<AiTraceLogMapper, AiTraceLogEntity> implements AiTraceLogService {
@@ -67,14 +67,14 @@ public class AiTraceLogServiceImpl extends ServiceImpl<AiTraceLogMapper, AiTrace
 
     @Override
     public PageResponse<AiTraceLogResponseDTO> queryPage(BasePageRequest<AiTraceLogQueryRequestDTO> request) {
-        IPage<AiTraceLogResponseDTO> page = request.buildPage();
+        IPage<AiTraceLogResponseDTO> page = PageUtils.buildPage(request);
         AiTraceLogQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiTraceLogQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiTraceLogResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 
     @Override

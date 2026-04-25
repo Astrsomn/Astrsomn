@@ -3,9 +3,9 @@ package com.astrsomn.server.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.vecdriver.AiVecDriverCreateRequestDTO;
 import com.astrsomn.core.common.dto.vecdriver.AiVecDriverQueryRequestDTO;
 import com.astrsomn.core.common.dto.vecdriver.AiVecDriverResponseDTO;
@@ -14,10 +14,10 @@ import com.astrsomn.core.common.entity.AiVecDriverEntity;
 import com.astrsomn.starter.mapper.AiVecDriverMapper;
 import com.astrsomn.server.service.AiVecDriverService;
 import org.springframework.stereotype.Service;
-
+import com.astrsomn.core.common.utils.PageUtils;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import com.astrsomn.core.common.utils.PageConverter;
 @Service
 public class AiVecDriverServiceImpl extends ServiceImpl<AiVecDriverMapper, AiVecDriverEntity> implements AiVecDriverService {
 
@@ -64,13 +64,13 @@ public class AiVecDriverServiceImpl extends ServiceImpl<AiVecDriverMapper, AiVec
 
     @Override
     public PageResponse<AiVecDriverResponseDTO> queryPage(BasePageRequest<AiVecDriverQueryRequestDTO> request) {
-        IPage<AiVecDriverResponseDTO> page = request.buildPage();
+        IPage<AiVecDriverResponseDTO> page = PageUtils.buildPage(request);
         AiVecDriverQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiVecDriverQueryRequestDTO();
         }
         IPage<AiVecDriverResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 
     @Override

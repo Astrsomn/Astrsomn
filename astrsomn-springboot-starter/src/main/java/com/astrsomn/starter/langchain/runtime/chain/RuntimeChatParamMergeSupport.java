@@ -9,8 +9,8 @@ import com.astrsomn.core.common.langchain.buildParam.setting.ChatSetting;
 import com.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
 import com.astrsomn.core.common.langchain.buildParam.setting.PromptSetting;
 import com.astrsomn.core.common.langchain.buildParam.setting.ToolSetting;
-import com.astrsomn.core.common.utils.JsonUtil;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.JsonUtil;
+import com.astrsomn.commn.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

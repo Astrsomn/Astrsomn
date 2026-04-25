@@ -1,26 +1,26 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.constant.SystemMessageEnum;
 import com.astrsomn.core.common.dto.systemmessage.SystemMessageCreateRequestDTO;
 import com.astrsomn.core.common.dto.systemmessage.SystemMessageQueryRequestDTO;
 import com.astrsomn.core.common.dto.systemmessage.SystemMessageResponseDTO;
 import com.astrsomn.core.common.dto.systemmessage.SystemMessageUpdateRequestDTO;
 import com.astrsomn.core.common.entity.SystemMessageEntity;
-import com.astrsomn.core.common.utils.StringUtils;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.SystemMessageErrorEnum;
+import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.SystemMessageErrorEnum;
 import com.astrsomn.starter.mapper.SystemMessageMapper;
 import com.astrsomn.server.service.SystemMessageService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class SystemMessageServiceImpl extends ServiceImpl<SystemMessageMapper, SystemMessageEntity> implements
@@ -73,14 +73,14 @@ public class SystemMessageServiceImpl extends ServiceImpl<SystemMessageMapper, S
 
     @Override
     public PageResponse<SystemMessageResponseDTO> queryPage(BasePageRequest<SystemMessageQueryRequestDTO> request) {
-        IPage<SystemMessageResponseDTO> page = request.buildPage();
+        IPage<SystemMessageResponseDTO> page = PageUtils.buildPage(request);
         SystemMessageQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new SystemMessageQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<SystemMessageResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 
     @Override
