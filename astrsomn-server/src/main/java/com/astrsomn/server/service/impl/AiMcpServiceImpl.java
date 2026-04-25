@@ -13,7 +13,7 @@ import com.astrsomn.core.common.dto.mcp.AiMcpUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiMcpEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AiMcpErrorEnum;
-import com.astrsomn.core.mapper.AiMcpMapper;
+import com.astrsomn.starter.mapper.AiMcpMapper;
 import com.astrsomn.server.service.AiMcpService;
 import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;

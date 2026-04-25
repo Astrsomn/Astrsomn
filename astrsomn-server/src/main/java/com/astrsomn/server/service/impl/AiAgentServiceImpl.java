@@ -14,7 +14,7 @@ import com.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiAgentEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AiAgentErrorEnum;
-import com.astrsomn.core.mapper.AiAgentMapper;
+import com.astrsomn.starter.mapper.AiAgentMapper;
 import com.astrsomn.server.service.AiAgentService;
 import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;

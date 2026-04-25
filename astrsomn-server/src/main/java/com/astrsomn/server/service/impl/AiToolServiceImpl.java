@@ -13,7 +13,7 @@ import com.astrsomn.core.common.dto.tool.AiToolUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiToolEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AiToolErrorEnum;
-import com.astrsomn.core.mapper.AiToolMapper;
+import com.astrsomn.starter.mapper.AiToolMapper;
 import com.astrsomn.server.service.AiToolService;
 import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;

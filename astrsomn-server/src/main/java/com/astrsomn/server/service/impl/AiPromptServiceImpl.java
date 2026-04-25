@@ -15,7 +15,7 @@ import com.astrsomn.core.common.entity.AiPromptEntity;
 import com.astrsomn.core.common.utils.StringUtils;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AiPromptErrorEnum;
-import com.astrsomn.core.mapper.AiPromptMapper;
+import com.astrsomn.starter.mapper.AiPromptMapper;
 import com.astrsomn.server.service.AiPromptService;
 import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;

@@ -26,7 +26,7 @@
 
         <dependency>
             <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-spring-boot-starter</artifactId>
+            <artifactId>astrsomn-springboot-starter</artifactId>
         </dependency>
 
 
@@ -81,26 +81,7 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- JJWT API -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.12.3</version>
-        </dependency>
-        <!-- JJWT 实现 -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>0.12.3</version>
-            <scope>runtime</scope>
-        </dependency>
-        <!-- JJWT Jackson 序列化支持 -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>0.12.3</version>
-            <scope>runtime</scope>
-        </dependency>
+
 
         <dependency>
             <groupId>com.astrsomn</groupId>

@@ -27,7 +27,7 @@
     <modules>
         <module>astrsomn-core</module>
         <module>astrsomn-server</module>
-        <module>astrsomn-spring-boot-starter</module>
+        <module>astrsomn-springboot-starter</module>
         <module>astrsomn-providers</module>
         <module>astrsomn-vector</module>
     </modules>
@@ -42,7 +42,7 @@
 
             <dependency>
                 <groupId>com.astrsomn</groupId>
-                <artifactId>astrsomn-spring-boot-starter</artifactId>
+                <artifactId>astrsomn-springboot-starter</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>
 
@@ -76,21 +76,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>com.alibaba.cloud</groupId>
-                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
-                <version>${spring-cloud-alibaba.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -104,11 +89,6 @@
                 <version>${slf4j.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.junit.jupiter</groupId>

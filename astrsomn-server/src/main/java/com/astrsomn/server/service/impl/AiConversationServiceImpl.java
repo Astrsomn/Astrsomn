@@ -13,7 +13,7 @@ import com.astrsomn.core.common.dto.conversation.AiConversationUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiConversationEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AiConversationErrorEnum;
-import com.astrsomn.core.mapper.AiConversationMapper;
+import com.astrsomn.starter.mapper.AiConversationMapper;
 import com.astrsomn.server.service.AiConversationService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;

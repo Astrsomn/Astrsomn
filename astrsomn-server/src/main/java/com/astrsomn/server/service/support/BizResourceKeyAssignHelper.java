@@ -1,7 +1,7 @@
 package com.astrsomn.server.service.support;
 
 import com.astrsomn.core.common.entity.*;
-import com.astrsomn.core.mapper.*;
+import com.astrsomn.starter.mapper.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import com.astrsomn.core.common.base.BaseEntity;

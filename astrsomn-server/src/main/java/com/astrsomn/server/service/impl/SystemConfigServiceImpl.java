@@ -13,7 +13,7 @@ import com.astrsomn.core.common.dto.config.SystemConfigUpdateRequestDTO;
 import com.astrsomn.core.common.entity.SystemConfigEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.SystemConfigErrorEnum;
-import com.astrsomn.core.mapper.SystemConfigMapper;
+import com.astrsomn.starter.mapper.SystemConfigMapper;
 import com.astrsomn.server.service.SystemConfigService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;

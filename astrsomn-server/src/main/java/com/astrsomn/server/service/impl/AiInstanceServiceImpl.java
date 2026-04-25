@@ -14,7 +14,7 @@ import com.astrsomn.core.common.entity.AiInstanceEntity;
 import com.astrsomn.core.common.utils.StringUtils;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AiInstanceErrorEnum;
-import com.astrsomn.core.mapper.AiInstanceMapper;
+import com.astrsomn.starter.mapper.AiInstanceMapper;
 import com.astrsomn.server.service.AiInstanceService;
 import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;

@@ -11,7 +11,7 @@ import com.astrsomn.core.common.dto.vecdriver.AiVecDriverQueryRequestDTO;
 import com.astrsomn.core.common.dto.vecdriver.AiVecDriverResponseDTO;
 import com.astrsomn.core.common.dto.vecdriver.AiVecDriverUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiVecDriverEntity;
-import com.astrsomn.core.mapper.AiVecDriverMapper;
+import com.astrsomn.starter.mapper.AiVecDriverMapper;
 import com.astrsomn.server.service.AiVecDriverService;
 import org.springframework.stereotype.Service;
 

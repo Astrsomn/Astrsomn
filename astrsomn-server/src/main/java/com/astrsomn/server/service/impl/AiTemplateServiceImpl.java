@@ -13,7 +13,7 @@ import com.astrsomn.core.common.dto.template.AiTemplateUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiTemplateEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AiTemplateErrorEnum;
-import com.astrsomn.core.mapper.AiTemplateMapper;
+import com.astrsomn.starter.mapper.AiTemplateMapper;
 import com.astrsomn.server.service.AiTemplateService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;

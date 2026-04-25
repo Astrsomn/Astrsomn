@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.starter.mapper.AiToolMapper">
+    <select id="queryPage" resultType="com.astrsomn.core.common.dto.tool.AiToolResponseDTO">
+        SELECT
+        AT.*
+        FROM
+        `AI_TOOL` AT
+        WHERE
+        1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND AT.ENV_CODE = #{req.envCode}
+        </if>
+        <if test="req != null and req.toolKey != null and req.toolKey != ''">
+            AND AT.TOOL_KEY = #{req.toolKey}
+        </if>
+        <if test="req != null and req.toolName != null and req.toolName != ''">
+            AND AT.TOOL_NAME LIKE CONCAT('%', #{req.toolName}, '%')
+        </if>
+        <if test="req != null and req.type != null and req.type != ''">
+            AND AT.TYPE = #{req.type}
+        </if>
+        <if test="req != null and req.enableFlag != null and req.enableFlag != ''">
+            AND AT.ENABLE_FLAG = #{req.enableFlag}
+        </if>
+        ORDER BY
+        AT.CREATE_TIME DESC
+    </select>
+
+</mapper>

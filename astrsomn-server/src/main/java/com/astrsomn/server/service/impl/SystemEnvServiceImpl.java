@@ -12,7 +12,7 @@ import com.astrsomn.core.common.dto.env.SystemEnvUpdateRequestDTO;
 import com.astrsomn.core.common.entity.SystemEnvEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.SystemEnvErrorEnum;
-import com.astrsomn.core.mapper.SystemEnvMapper;
+import com.astrsomn.starter.mapper.SystemEnvMapper;
 import com.astrsomn.server.service.SystemEnvService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

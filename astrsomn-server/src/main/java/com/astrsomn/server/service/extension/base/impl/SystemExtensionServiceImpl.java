@@ -16,7 +16,7 @@ import com.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.core.common.utils.StringUtils;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
-import com.astrsomn.core.mapper.SystemExtensionMapper;
+import com.astrsomn.starter.mapper.SystemExtensionMapper;
 import com.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
 import com.astrsomn.server.plugin.registry.SystemExtensionRegistry;
 import com.astrsomn.server.plugin.registry.PluginDirectoryExtensionSyncService;

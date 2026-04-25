@@ -13,7 +13,7 @@ import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiVecSegmentEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AstVecSegmentErrorEnum;
-import com.astrsomn.core.mapper.AiVecSegmentMapper;
+import com.astrsomn.starter.mapper.AiVecSegmentMapper;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;

@@ -8,7 +8,7 @@ import com.astrsomn.core.common.langchain.extension.vector.VecDriver;
 import com.astrsomn.core.common.utils.StringUtils;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
-import com.astrsomn.core.mapper.AiVecDriverMapper;
+import com.astrsomn.starter.mapper.AiVecDriverMapper;
 import com.astrsomn.server.service.extension.base.SystemExtensionVecDriverSyncService;
 import com.astrsomn.starter.plugin.AstrsomnPluginManager;
 import org.springframework.stereotype.Service;

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.entity.SystemUserEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AuthErrorEnum;
-import com.astrsomn.core.mapper.SystemUserMapper;
+import com.astrsomn.starter.mapper.SystemUserMapper;
 import com.astrsomn.core.common.dto.auth.LoginRequest;
 import com.astrsomn.core.common.dto.auth.RefreshTokenRequest;
 import com.astrsomn.core.common.dto.auth.LoginResponse;

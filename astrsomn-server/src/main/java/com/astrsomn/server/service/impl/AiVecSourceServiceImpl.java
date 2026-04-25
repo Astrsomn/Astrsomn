@@ -18,7 +18,7 @@ import com.astrsomn.core.common.entity.AiVecSourceEntity;
 import com.astrsomn.core.common.utils.StringUtils;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AstVecSourceErrorEnum;
-import com.astrsomn.core.mapper.AiVecSourceMapper;
+import com.astrsomn.starter.mapper.AiVecSourceMapper;
 import com.astrsomn.server.service.AiVecSourceService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.langchain.vector.AstroVecSourceFactory;

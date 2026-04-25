@@ -13,7 +13,7 @@ import com.astrsomn.core.common.dto.tracelog.AiTraceLogUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiTraceLogEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AiTraceLogErrorEnum;
-import com.astrsomn.core.mapper.AiTraceLogMapper;
+import com.astrsomn.starter.mapper.AiTraceLogMapper;
 import com.astrsomn.server.service.AiTraceLogService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;

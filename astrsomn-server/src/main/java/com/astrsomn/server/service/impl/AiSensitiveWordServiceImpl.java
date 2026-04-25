@@ -13,7 +13,7 @@ import com.astrsomn.core.common.dto.sensitiveword.AiSensitiveWordUpdateRequestDT
 import com.astrsomn.core.common.entity.AiSensitiveWordEntity;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AiSensitiveWordErrorEnum;
-import com.astrsomn.core.mapper.AiSensitiveWordMapper;
+import com.astrsomn.starter.mapper.AiSensitiveWordMapper;
 import com.astrsomn.server.service.AiSensitiveWordService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;

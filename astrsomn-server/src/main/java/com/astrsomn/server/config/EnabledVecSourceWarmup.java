@@ -8,7 +8,7 @@ import com.astrsomn.core.common.constant.AiVecDriverEnum;
 import com.astrsomn.core.common.constant.AiVecSourceEnum;
 import com.astrsomn.core.common.entity.AiVecSourceEntity;
 import com.astrsomn.core.common.langchain.extension.vector.VecSource;
-import com.astrsomn.core.mapper.AiVecSourceMapper;
+import com.astrsomn.starter.mapper.AiVecSourceMapper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.langchain.vector.AstroVecSourceFactory;
 import org.springframework.boot.ApplicationArguments;

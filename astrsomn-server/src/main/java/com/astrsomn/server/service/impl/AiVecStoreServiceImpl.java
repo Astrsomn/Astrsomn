@@ -16,7 +16,7 @@ import com.astrsomn.core.common.entity.AiVecStoreEntity;
 import com.astrsomn.core.common.utils.StringUtils;
 import com.astrsomn.core.exception.base.BusinessException;
 import com.astrsomn.core.exception.constant.AstVecStoreErrorEnum;
-import com.astrsomn.core.mapper.AiVecStoreMapper;
+import com.astrsomn.starter.mapper.AiVecStoreMapper;
 import com.astrsomn.server.service.AiVecSourceService;
 import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.vector.VectorStorePhysicalHandler;
