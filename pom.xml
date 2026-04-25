@@ -49,6 +49,18 @@
                 <version>${astrsomn.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.astrsomn</groupId>
+                <artifactId>astrsomn-workflow-core</artifactId>
+                <version>${astrsomn.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.astrsomn</groupId>
+                <artifactId>astrsomn-workflow-springboot-starter</artifactId>
+                <version>${astrsomn.version}</version>
+            </dependency>
+
 
 
             <dependency>

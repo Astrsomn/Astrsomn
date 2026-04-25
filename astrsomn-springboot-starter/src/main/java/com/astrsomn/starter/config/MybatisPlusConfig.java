@@ -15,9 +15,13 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @MapperScan("com.astrsomn.starter.mapper")
@@ -46,7 +50,7 @@ public class MybatisPlusConfig {
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         
-        String defaultMapperLocations = "classpath:mapper/*.xml";
+        String defaultMapperLocations = "classpath*:mapper/*.xml";
         String defaultTypeAliasesPackage = "com.astrsomn.core.common.entity";
         
         String mapperLocations = defaultMapperLocations;
@@ -64,7 +68,18 @@ public class MybatisPlusConfig {
             }
         }
         
-        factoryBean.setMapperLocations(resolver.getResources(mapperLocations));
+        List<Resource> mapperResources = new ArrayList<>();
+        Arrays.stream(mapperLocations.split(","))
+                .map(String::trim)
+                .filter(location -> !location.isEmpty())
+                .forEach(location -> {
+                    try {
+                        mapperResources.addAll(Arrays.asList(resolver.getResources(location)));
+                    } catch (Exception e) {
+                        throw new IllegalStateException("Failed to load mapper location: " + location, e);
+                    }
+                });
+        factoryBean.setMapperLocations(mapperResources.toArray(new Resource[0]));
         factoryBean.setTypeAliasesPackage(typeAliasesPackage);
         factoryBean.setPlugins(mybatisPlusInterceptor);
         
