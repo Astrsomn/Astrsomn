@@ -316,8 +316,9 @@ const fetchList = async () => {
   page.total = resp.total || 0
 }
 
-const onPageChange = (p: number) => {
+const onPageChange = (p: number, size: number) => {
   page.pageNum = p
+  page.pageSize = size
   void fetchList()
 }
 

@@ -132,8 +132,8 @@ import ModelProviderSelect from '../ai-model/ModelProviderSelect.vue'
 import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount'
 import type { AiModel } from '@/api/aiModel'
 
-const ACCOUNT_CARD_MIN_WIDTH_PX = 360
-const ACCOUNT_CARD_GAP_PX = 12
+const ACCOUNT_CARD_MIN_WIDTH_PX = 340
+const ACCOUNT_CARD_GAP_PX = 8
 const accountCardMinWidth = `${ACCOUNT_CARD_MIN_WIDTH_PX}px`
 const accountCardGap = `${ACCOUNT_CARD_GAP_PX}px`
 
@@ -258,8 +258,9 @@ const fetchList = async () => {
   }
 }
 
-const onPageChange = (p: number) => {
+const onPageChange = (p: number, size: number) => {
   page.pageNum = p
+  page.pageSize = size
   void fetchList()
 }
 

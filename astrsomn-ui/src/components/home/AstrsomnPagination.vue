@@ -18,15 +18,15 @@ const props = withDefaults(defineProps<{
   total: number
   showSizeChanger?: boolean
 }>(), {
-  showSizeChanger: false
+  showSizeChanger: true
 })
 
 const emit = defineEmits<{
-  change: [page: number]
+  change: [page: number, pageSize: number]
 }>()
 
-const onChange = (page: number) => {
-  emit('change', page)
+const onChange = (page: number, pageSize: number) => {
+  emit('change', page, pageSize)
 }
 </script>
 

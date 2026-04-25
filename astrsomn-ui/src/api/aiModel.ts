@@ -18,6 +18,9 @@ export type AiModel = {
   topVariance?: number
   isDefault?: number
   capabilities?: string
+  /** model parameter schema JSON (preferred) */
+  params?: string
+  /** backward compatibility field */
   param?: string
   maxQuotaTokens?: number
   sourceType?: string

@@ -18,300 +18,91 @@
           </div>
         </div>
         <div class="header-actions">
-          <div class="header-action-pair">
-            <a-button class="header-action-btn header-action-btn-cancel" @click="handleCancel">取消</a-button>
-            <a-button
-              type="primary"
-              class="header-action-btn header-action-btn-save"
-              :loading="submitting"
-              @click="onSubmit"
-            >
-              保存预设
-            </a-button>
-          </div>
+          <a-button class="header-action-btn header-action-btn-cancel" @click="handleCancel">取消</a-button>
+          <a-button
+            type="primary"
+            class="header-action-btn header-action-btn-save"
+            :loading="submitting"
+            @click="onSubmit"
+          >
+            保存预设
+          </a-button>
         </div>
       </header>
 
       <div class="main-content">
-        <!-- 左侧：基础定义 -->
-        <aside class="basic-pane">
-          <div class="pane-card glass-card scroll-y">
-            <a-form ref="formRef" layout="vertical" :model="form">
-              <div class="config-section">
-                <h3 class="section-title"><InfoCircleOutlined /> 基础定义</h3>
-                <a-form-item label="预设名称" name="instanceName" :rules="[{ required: true, message: '请输入名称' }]">
-                  <a-input
-                    v-model:value="form.instanceName"
-                    placeholder="默认与端点名称一致，可改为任意展示名"
-                    size="large"
-                    @update:value="onPresetNameUserInput"
-                  />
-                </a-form-item>
+        <BasicPane
+          :form="form"
+          :status-options="statusOptions"
+          :instance-key-rules="instanceKeyRules"
+          @preset-name-input="onPresetNameUserInput"
+        />
 
-                <a-form-item label="实例标识 (instanceKey)" name="instanceKey" :rules="instanceKeyRules">
-                  <a-input
-                    v-model:value="form.instanceKey"
-                    placeholder="留空可由系统自动分配；自定义时请使用英文标识"
-                    size="large"
-                    allow-clear
-                  />
-                </a-form-item>
-                
-                <a-form-item label="运行状态">
-                  <a-segmented v-model:value="form.status" :options="statusOptions" block size="large" />
-                </a-form-item>
-              </div>
-            </a-form>
-          </div>
-        </aside>
+        <ParamsPane
+          :form="form"
+          :param-section-title="paramSectionTitle"
+          :capability-hint="capabilityHint"
+          :has-param-schema="hasParamSchema"
+          :unsupported-param-codes="unsupportedParamCodes"
+          :model-kind="modelKind"
+          :show-chat-temperature="showChatTemperature"
+          :show-chat-max-tokens="showChatMaxTokens"
+          :show-chat-top-p="showChatTopP"
+          :show-chat-top-k="showChatTopK"
+          :show-chat-seed="showChatSeed"
+          :show-chat-stop-sequences="showChatStopSequences"
+          :show-chat-penalties="showChatPenalties"
+          :show-chat-frequency-penalty="showChatFrequencyPenalty"
+          :show-chat-presence-penalty="showChatPresencePenalty"
+          :show-embedding-dimensions="showEmbeddingDimensions"
+          :show-image-size="showImageSize"
+          :show-image-style="showImageStyle"
+          :embedding-has-any-control="embeddingHasAnyControl"
+          :image-has-any-control="imageHasAnyControl"
+          :get-temp-info="getTempInfo"
+        />
 
-        <!-- 中间：参数设定 -->
-        <section class="params-pane">
-          <div class="pane-card glass-card scroll-y">
-            <div class="config-section">
-              <div class="section-header-flex">
-                <h3 class="section-title"><ControlOutlined /> {{ paramSectionTitle }}</h3>
-                <a-tag v-if="form.modelKey" color="blue" class="model-key-tag">{{ form.modelKey }}</a-tag>
-              </div>
-
-              <div v-if="!form.modelKey" class="empty-state">
-                <div class="empty-icon"><SelectOutlined /></div>
-                <p>请在最右侧表格中选中一个接入端点</p>
-              </div>
-
-              <div v-else class="params-list">
-                <p v-if="capabilityHint" class="cap-hint">{{ capabilityHint }}</p>
-
-                <!-- 对话：按 capabilities / InferenceParamEnum 与后端 containedIn 对齐 -->
-                <template v-if="modelKind === 'chat'">
-                  <div v-if="showChatTemperature" class="param-group-card">
-                    <div class="p-header">
-                      <a-tooltip placement="left">
-                        <template #title>
-                          控制生成内容的随机性。较低值使输出更聚焦严谨，较高值使输出更具创意和不可预测。
-                        </template>
-                        <span class="p-label">采样温度 (Temperature) <QuestionCircleOutlined /></span>
-                      </a-tooltip>
-                      <a-input-number v-model:value="form.temperature" :min="0" :max="2" :step="0.1" size="small" />
-                    </div>
-                    <div class="slider-box">
-                      <a-slider
-                        v-model:value="form.temperature"
-                        :min="0"
-                        :max="2"
-                        :step="0.1"
-                        :marks="{ 0: '严谨', 0.7: '平衡', 1.5: '创意', 2: '随机' }"
-                      />
-                    </div>
-                    <div class="p-desc-bar" :class="getTempInfo(form.temperature ?? 0.7).color">
-                      {{ getTempInfo(form.temperature ?? 0.7).text }}
-                    </div>
-                  </div>
-
-                  <div v-if="showChatMaxTokens" class="param-group-card">
-                    <div class="p-header">
-                      <a-tooltip placement="left">
-                        <template #title>设置生成内容的最大长度限制。1000 tokens 约为 750 个英文单词。</template>
-                        <span class="p-label">响应上限 (Max Tokens) <QuestionCircleOutlined /></span>
-                      </a-tooltip>
-                      <a-input-number v-model:value="form.maxTokens" :min="1" :max="128000" size="small" />
-                    </div>
-                    <div class="slider-box">
-                      <a-slider
-                        v-model:value="form.maxTokens"
-                        :min="0"
-                        :max="8192"
-                        :step="256"
-                        :marks="{ 0: '短', 2048: '中等', 4096: '长', 8192: '超长' }"
-                      />
-                    </div>
-                  </div>
-
-                  <div v-if="showChatTopP" class="param-group-card">
-                    <div class="p-header">
-                      <a-tooltip placement="left" title="核心采样。模型仅考虑概率累积达到此比例的候选词。建议不与 Temperature 同时大幅调整。">
-                        <span class="p-label">核采样 (Top P) <QuestionCircleOutlined /></span>
-                      </a-tooltip>
-                      <a-input-number v-model:value="form.topP" :min="0" :max="1" :step="0.01" size="small" />
-                    </div>
-                    <div class="slider-box">
-                      <a-slider v-model:value="form.topP" :min="0" :max="1" :step="0.05" :marks="{ 0: '极窄', 0.5: '标准', 1: '完整' }" />
-                    </div>
-                  </div>
-
-                  <div v-if="showChatTopK" class="param-group-card">
-                    <div class="p-header">
-                      <a-tooltip placement="left" title="仅从每步概率最高的 K 个 token 中采样；与部分厂商对话模型对齐。">
-                        <span class="p-label">Top K <QuestionCircleOutlined /></span>
-                      </a-tooltip>
-                      <a-input-number v-model:value="form.topK" :min="0" :max="100" :step="1" size="small" />
-                    </div>
-                    <p class="p-inline-hint">0 表示不启用（由服务端/模型默认处理）</p>
-                  </div>
-
-                  <div v-if="showChatSeed" class="param-group-card">
-                    <div class="p-header">
-                      <a-tooltip placement="left" title="固定种子可在支持该能力的模型上复现输出。">
-                        <span class="p-label">随机种子 (Seed) <QuestionCircleOutlined /></span>
-                      </a-tooltip>
-                      <a-input-number v-model:value="form.seed" :min="0" :max="2147483647" :step="1" size="small" />
-                    </div>
-                  </div>
-
-                  <div v-if="showChatStopSequences" class="param-group-card">
-                    <div class="p-header">
-                      <span class="p-label">停止序列 (Stop)</span>
-                    </div>
-                    <a-textarea
-                      v-model:value="form.stopSequences"
-                      placeholder="多个序列用英文逗号分隔"
-                      :rows="3"
-                      class="stop-seq-input"
-                    />
-                  </div>
-
-                  <div v-if="showChatPenalties" class="penalty-row">
-                    <div v-if="showChatFrequencyPenalty" class="mini-param-card">
-                      <span class="mini-label">重复惩罚 (Frequency)</span>
-                      <a-slider v-model:value="form.frequencyPenalty" :min="-2" :max="2" :step="0.1" />
-                    </div>
-                    <div v-if="showChatPresencePenalty" class="mini-param-card">
-                      <span class="mini-label">新鲜度 (Presence)</span>
-                      <a-slider v-model:value="form.presencePenalty" :min="-2" :max="2" :step="0.1" />
-                    </div>
-                  </div>
-                </template>
-
-                <!-- 向量：EmbeddingInferenceParamEnum -->
-                <template v-else-if="modelKind === 'embedding'">
-                  <div v-if="showEmbeddingDimensions" class="param-group-card">
-                    <div class="p-header">
-                      <a-tooltip placement="left" title="与 OpenAiEmbeddingModel.dimensions() 等对齐；请与模型实际输出维度一致。">
-                        <span class="p-label">向量维度 (Dimensions) <QuestionCircleOutlined /></span>
-                      </a-tooltip>
-                      <a-input-number v-model:value="form.dimensions" :min="1" :max="8192" :step="1" size="small" placeholder="如 1536" />
-                    </div>
-                  </div>
-                  <p v-if="!embeddingHasAnyControl" class="cap-hint muted">
-                    当前端点 capabilities 未包含可映射到实例的向量参数；可在模型管理中勾选「向量维度」等能力。
-                  </p>
-                </template>
-
-                <!-- 图像：ImageGenParamEnum -->
-                <template v-else-if="modelKind === 'image'">
-                  <div v-if="showImageSize" class="param-group-card">
-                    <div class="p-header">
-                      <span class="p-label">画幅尺寸 (Size)</span>
-                    </div>
-                    <a-input v-model:value="form.size" placeholder="例如 1024x1024" size="large" allow-clear />
-                  </div>
-                  <div v-if="showImageStyle" class="param-group-card">
-                    <div class="p-header">
-                      <span class="p-label">风格 (Style)</span>
-                    </div>
-                    <a-input v-model:value="form.style" placeholder="例如 vivid / natural" size="large" allow-clear />
-                  </div>
-                  <p v-if="!imageHasAnyControl" class="cap-hint muted">
-                    当前端点 capabilities 未包含尺寸或风格等图像参数；可在模型管理中勾选对应能力。
-                  </p>
-                </template>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 右侧：模型选择 -->
-        <section class="selection-pane">
-          <div class="pane-card glass-card">
-            <div class="pane-header">
-              <div class="pane-toolbar-row">
-                <div class="provider-field">
-                  <span class="field-label">模型提供商</span>
-                  <ModelProviderSelect
-                    :value="providerFilter"
-                    class="instance-provider-select"
-                    placeholder="全部提供商"
-                    size="middle"
-                    :allow-clear="true"
-                    @update:value="onProviderFilterChange"
-                  />
-                </div>
-                <AstrsomnSearchPill
-                  v-model="searchDraft"
-                  layout="pane"
-                  placeholder="名称、Model Key..."
-                  @search="applyModelSearch"
-                />
-              </div>
-              <a-tabs v-model:activeKey="typeFilter" class="model-type-tabs">
-                <a-tab-pane key="all" tab="全部类型" />
-                <a-tab-pane key="chat" tab="对话" />
-                <a-tab-pane key="embedding" tab="向量" />
-                <a-tab-pane key="image" tab="图像" />
-              </a-tabs>
-            </div>
-
-            <div ref="tableWrapRef" class="table-container">
-              <a-table
-                :columns="columns"
-                :data-source="filteredModels"
-                :loading="modelsLoading"
-                :pagination="{ pageSize: 12, showTotal: (t: number) => `共 ${t} 个可用端点`, showSizeChanger: false }"
-                :scroll="{ y: tableScrollY }"
-                :row-selection="{ selectedRowKeys: selectedKeys, onChange: onRowSelectChange, type: 'radio' }"
-                :custom-row="customRow"
-                row-key="modelKey"
-                size="middle"
-              >
-                <template #bodyCell="{ column, record }">
-                  <template v-if="column.key === 'providerAvatar'">
-                    <span
-                      v-if="providerAvatarCell(record)"
-                      class="inst-provider-avatar-cell"
-                      v-html="providerAvatarCell(record)"
-                      aria-hidden="true"
-                    />
-                    <span v-else class="text-muted">—</span>
-                  </template>
-                  <template v-else-if="column.key === 'modelType'">
-                    <div class="inst-model-type-cell">
-                      <div class="inst-model-type-icon" :class="record.modelType">
-                        <template v-if="record.modelType === 'chat'"><MessageOutlined /></template>
-                        <template v-else-if="record.modelType === 'embedding'"><PartitionOutlined /></template>
-                        <template v-else-if="record.modelType === 'image'"><PictureOutlined /></template>
-                        <template v-else><MessageOutlined /></template>
-                      </div>
-                      <span class="inst-model-type-label">{{ modelTypeLabel(record.modelType) }}</span>
-                    </div>
-                  </template>
-                  <template v-else-if="column.key === 'provider'">
-                    <span class="provider-tag" :data-type="record.provider">{{ record.provider || 'Local' }}</span>
-                  </template>
-                </template>
-              </a-table>
-            </div>
-          </div>
-        </section>
+        <ModelSelectorPane
+          :provider-filter="providerFilter"
+          :search-draft="searchDraft"
+          :type-filter="typeFilter"
+          :model-list="modelList"
+          :selected-keys="selectedKeys"
+          :models-loading="modelsLoading"
+          :models-loading-more="modelsLoadingMore"
+          :total="modelPager.total"
+          :has-next="modelPager.hasNext"
+          :current-page="modelPager.pageNo"
+          :page-size="modelPager.pageSize"
+          :page-size-options="pageSizeOptions"
+          :provider-avatar-cell="providerAvatarCell"
+          :model-type-label="modelTypeLabel"
+          @provider-change="onProviderFilterChange"
+          @update:search-draft="searchDraft = $event"
+          @search="applyModelSearch"
+          @update:type-filter="typeFilter = $event"
+          @page-change="onModelPageChange"
+          @page-size-change="onModelPageSizeChange"
+          @panel-scroll="onModelPanelScroll"
+          @select-model="onSelectModelCard"
+        />
       </div>
     </div>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, reactive, computed, watch, nextTick } from 'vue';
 import { message } from 'ant-design-vue';
 import {
-  ThunderboltFilled, InfoCircleOutlined, QuestionCircleOutlined,
-  ControlOutlined, SelectOutlined,
-  MessageOutlined, PartitionOutlined, PictureOutlined
+  ThunderboltFilled
 } from '@ant-design/icons-vue';
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue';
-import ModelProviderSelect from '@/views/admin/ai-config/ai-model/ModelProviderSelect.vue';
+import BasicPane from './instance-form/BasicPane.vue';
+import ParamsPane from './instance-form/ParamsPane.vue';
+import ModelSelectorPane from './instance-form/ModelSelectorPane.vue';
 import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage';
 import { aiModelApi, type AiModel } from '@/api/aiModel';
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance';
-import dayjs from 'dayjs';
-import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv';
 
 function parseCapabilitiesRaw(raw?: string): string[] {
   if (!raw) return [];
@@ -323,6 +114,25 @@ function parseCapabilitiesRaw(raw?: string): string[] {
   }
 }
 
+type ModelParamDef = {
+  id?: string
+  mapping?: string
+  active?: boolean
+}
+
+function parseModelParamsRaw(raw?: string): ModelParamDef[] {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed
+      .filter((item) => item && typeof item === 'object')
+      .map((item) => item as ModelParamDef)
+  } catch {
+    return []
+  }
+}
+
 interface Props { visible: boolean; record?: AiInstance }
 const props = defineProps<Props>();
 const emit = defineEmits(['update:visible', 'success']);
@@ -330,10 +140,9 @@ const emit = defineEmits(['update:visible', 'success']);
 const editId = computed(() => props.record?.id);
 const isEdit = computed(() => editId.value != null && String(editId.value) !== '');
 
-const formRef = ref();
-const tableWrapRef = ref<HTMLElement | null>(null);
 const submitting = ref(false);
 const modelsLoading = ref(false);
+const modelsLoadingMore = ref(false);
 const modelList = ref<AiModel[]>([]);
 const selectedKeys = ref<string[]>([]);
 const searchDraft = ref('');
@@ -341,6 +150,17 @@ const searchQuery = ref('');
 const typeFilter = ref('all');
 /** 与模型列表一致：按 AI_MODEL.supplier（扩展 key）筛选 */
 const providerFilter = ref<string | undefined>(undefined);
+const pageSizeOptions = [
+  { label: '每页 12', value: 12 },
+  { label: '每页 24', value: 24 },
+  { label: '每页 36', value: 36 }
+];
+const modelPager = reactive({
+  pageNo: 1,
+  pageSize: 12,
+  total: 0,
+  hasNext: false
+});
 
 function providerAvatarCell(record: AiModel): string {
   const raw = record.providerAvatar;
@@ -356,7 +176,7 @@ function modelTypeLabel(t?: string) {
 async function onProviderFilterChange(v: string | undefined) {
   providerFilter.value = v;
   if (!props.visible) return;
-  await fetchModels();
+  await fetchModels(true);
   await nextTick();
   const mk = form.modelKey;
   if (mk && !modelList.value.some((m) => m.modelKey === mk)) {
@@ -367,9 +187,8 @@ async function onProviderFilterChange(v: string | undefined) {
 
 function applyModelSearch() {
   searchQuery.value = String(searchDraft.value ?? '').trim();
+  void fetchModels(true);
 }
-
-const tableScrollY = ref(320);
 
 const form = reactive<AiInstance>({ 
   status: 'enabled', 
@@ -378,23 +197,6 @@ const form = reactive<AiInstance>({
   topP: 1.0,
   frequencyPenalty: 0,
   presencePenalty: 0
-});
-
-const createTimeDisplay = computed(() => {
-  if (!isEdit.value) return '保存后生成';
-  const t = form.createTime;
-  if (!t) return '—';
-  const d = dayjs(t);
-  return d.isValid() ? d.format('YYYY-MM-DD HH:mm:ss') : String(t);
-});
-
-const envDisplay = computed(() => {
-  if (isEdit.value) {
-    return form.envCode?.trim() || '默认';
-  }
-  if (typeof localStorage === 'undefined') return '跟随当前工作区';
-  const v = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY);
-  return v?.trim() || '跟随当前工作区';
 });
 
 /** 新建时跟随所选 modelName；用户改过预设名称后不再自动覆盖 */
@@ -423,6 +225,37 @@ function applyModelSelection(record: AiModel) {
 
 const selectedModel = computed(() => modelList.value.find((m) => m.modelKey === form.modelKey));
 const selectedCaps = computed(() => parseCapabilitiesRaw(selectedModel.value?.capabilities));
+const selectedModelParams = computed(() => {
+  const model = selectedModel.value
+  const raw = model?.params || model?.param
+  return parseModelParamsRaw(raw)
+})
+const hasParamSchema = computed(() => selectedModelParams.value.length > 0)
+const supportedParamCodes = new Set<string>([
+  'temperature',
+  'max_tokens',
+  'top_p',
+  'top_k',
+  'seed',
+  'stop_sequences',
+  'frequency_penalty',
+  'presence_penalty',
+  'dimensions',
+  'size',
+  'style'
+])
+const activeParamCodes = computed(() => {
+  if (!hasParamSchema.value) return new Set<string>()
+  const codes = selectedModelParams.value
+    .filter((item) => item.active !== false)
+    .map((item) => String(item.mapping || item.id || '').trim().toLowerCase())
+    .filter(Boolean)
+  return new Set(codes)
+})
+const unsupportedParamCodes = computed(() => {
+  if (!hasParamSchema.value) return []
+  return Array.from(activeParamCodes.value).filter((code) => !supportedParamCodes.has(code))
+})
 
 const modelKind = computed<'chat' | 'embedding' | 'image'>(() => {
   const t = selectedModel.value?.modelType;
@@ -436,6 +269,7 @@ const legacyImagePanel = computed(() => modelKind.value === 'image' && selectedC
 
 const showChatTemperature = computed(() => {
   if (modelKind.value !== 'chat') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('temperature')
   const c = selectedCaps.value;
   if (legacyChatFullPanel.value) return true;
   return c.includes('temperature') || c.includes('temperature_setting') || c.includes('text_generation');
@@ -443,6 +277,7 @@ const showChatTemperature = computed(() => {
 
 const showChatMaxTokens = computed(() => {
   if (modelKind.value !== 'chat') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('max_tokens')
   const c = selectedCaps.value;
   if (legacyChatFullPanel.value) return true;
   return c.includes('max_tokens') || c.includes('max_token_setting');
@@ -450,6 +285,7 @@ const showChatMaxTokens = computed(() => {
 
 const showChatTopP = computed(() => {
   if (modelKind.value !== 'chat') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('top_p')
   const c = selectedCaps.value;
   if (legacyChatFullPanel.value) return true;
   return c.includes('top_p') || c.includes('top_p_setting');
@@ -457,6 +293,7 @@ const showChatTopP = computed(() => {
 
 const showChatTopK = computed(() => {
   if (modelKind.value !== 'chat') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('top_k')
   const c = selectedCaps.value;
   if (legacyChatFullPanel.value) return false;
   return c.includes('top_k') || c.includes('top_k_setting');
@@ -464,6 +301,7 @@ const showChatTopK = computed(() => {
 
 const showChatSeed = computed(() => {
   if (modelKind.value !== 'chat') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('seed')
   const c = selectedCaps.value;
   if (legacyChatFullPanel.value) return false;
   return c.includes('seed') || c.includes('seed_setting');
@@ -471,6 +309,7 @@ const showChatSeed = computed(() => {
 
 const showChatStopSequences = computed(() => {
   if (modelKind.value !== 'chat') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('stop_sequences')
   const c = selectedCaps.value;
   if (legacyChatFullPanel.value) return false;
   return c.includes('stop_sequences_setting');
@@ -478,6 +317,7 @@ const showChatStopSequences = computed(() => {
 
 const showChatFrequencyPenalty = computed(() => {
   if (modelKind.value !== 'chat') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('frequency_penalty')
   const c = selectedCaps.value;
   if (legacyChatFullPanel.value) return true;
   return c.includes('frequency_penalty') || c.includes('frequency_penalty_setting');
@@ -485,6 +325,7 @@ const showChatFrequencyPenalty = computed(() => {
 
 const showChatPresencePenalty = computed(() => {
   if (modelKind.value !== 'chat') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('presence_penalty')
   const c = selectedCaps.value;
   if (legacyChatFullPanel.value) return true;
   return c.includes('presence_penalty') || c.includes('presence_penalty_setting');
@@ -496,6 +337,7 @@ const showChatPenalties = computed(
 
 const showEmbeddingDimensions = computed(() => {
   if (modelKind.value !== 'embedding') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('dimensions')
   const c = selectedCaps.value;
   if (legacyEmbeddingPanel.value) return true;
   return c.includes('embedding_dimensions');
@@ -503,6 +345,7 @@ const showEmbeddingDimensions = computed(() => {
 
 const showImageSize = computed(() => {
   if (modelKind.value !== 'image') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('size')
   const c = selectedCaps.value;
   if (legacyImagePanel.value) return true;
   return c.includes('image_size') || c.includes('size_setting');
@@ -510,6 +353,7 @@ const showImageSize = computed(() => {
 
 const showImageStyle = computed(() => {
   if (modelKind.value !== 'image') return false;
+  if (hasParamSchema.value) return activeParamCodes.value.has('style')
   const c = selectedCaps.value;
   if (legacyImagePanel.value) return true;
   return c.includes('image_style') || c.includes('style_setting');
@@ -571,15 +415,6 @@ function resetForm() {
   selectedKeys.value = [];
 }
 
-function updateTableScrollY() {
-  const el = tableWrapRef.value;
-  if (el && el.clientHeight > 160) {
-    // 预留表头、分页与间距，仅表体区域滚动
-    tableScrollY.value = Math.max(160, el.clientHeight - 140);
-    return;
-  }
-  tableScrollY.value = Math.max(200, window.innerHeight - 380);
-}
 const statusOptions = [{ label: '立即激活', value: 'enabled' }, { label: '暂存停用', value: 'disabled' }];
 
 const instanceKeyRules = [
@@ -593,26 +428,6 @@ const instanceKeyRules = [
   }
 ];
 
-const columns = [
-  { title: '', dataIndex: 'providerAvatar', key: 'providerAvatar', width: 52 },
-  { title: '类型', dataIndex: 'modelType', key: 'modelType', width: 100 },
-  { title: '端点名称', dataIndex: 'modelName', key: 'modelName', width: 200 },
-  { title: 'Model Key', dataIndex: 'modelKey', key: 'modelKey', ellipsis: true },
-  { title: '云供应商', dataIndex: 'provider', key: 'provider', width: 120 },
-];
-
-const filteredModels = computed(() => {
-  return modelList.value.filter(m => {
-    const matchType = typeFilter.value === 'all' || m.modelType === typeFilter.value;
-    const q = searchQuery.value.toLowerCase();
-    const matchSearch = !searchQuery.value ||
-      m.modelName?.toLowerCase().includes(q) ||
-      m.modelKey?.toLowerCase().includes(q) ||
-      (m.provider && m.provider.toLowerCase().includes(q));
-    return matchType && matchSearch;
-  });
-});
-
 const getTempInfo = (v: number) => {
   if (v <= 0.3) return { text: '🎯 适合：代码编写、数学逻辑、事实问答', color: 'c-blue' };
   if (v <= 0.8) return { text: '⚖️ 适合：通用对话、周报草拟、翻译', color: 'c-purple' };
@@ -620,49 +435,70 @@ const getTempInfo = (v: number) => {
   return { text: '🎲 适合：极高随机性的发散性内容', color: 'c-red' };
 };
 
-const fetchModels = async () => {
-  modelsLoading.value = true;
+const fetchModels = async (reset = false) => {
+  if (reset) {
+    modelPager.pageNo = 1;
+    modelPager.total = 0;
+    modelPager.hasNext = false;
+    modelList.value = [];
+  }
+  const loadingState = reset || modelPager.pageNo === 1;
+  if (loadingState) modelsLoading.value = true;
+  else modelsLoadingMore.value = true;
   try {
     await ensureWorkspaceEnvInStorage();
     const res = await aiModelApi.queryPage({
-      pageNo: 1,
-      pageSize: 1000,
+      pageNo: modelPager.pageNo,
+      pageSize: modelPager.pageSize,
       param: {
+        modelType: typeFilter.value === 'all' ? undefined : typeFilter.value,
+        modelName: searchQuery.value || undefined,
         supplier: providerFilter.value?.trim() || undefined,
         status: 'enabled'
       }
     });
-    modelList.value = res.list || [];
-  } finally { modelsLoading.value = false; }
+    const rows = (res.list || []).filter((item: AiModel) => item.modelKey);
+    const merged = reset ? rows : [...modelList.value, ...rows];
+    const uniq = new Map<string, AiModel>();
+    merged.forEach((item: AiModel) => {
+      const key = String(item.modelKey || '').trim();
+      if (key) uniq.set(key, item);
+    });
+    modelList.value = Array.from(uniq.values());
+    modelPager.total = Number(res.total || 0);
+    modelPager.hasNext = Boolean(res.hasNext);
+  } finally {
+    modelsLoading.value = false;
+    modelsLoadingMore.value = false;
+  }
 };
 
-const customRow = (record: AiModel) => ({
-  onClick: () => {
-    selectedKeys.value = [record.modelKey!];
-    applyModelSelection(record);
-  },
-  class: selectedKeys.value.includes(record.modelKey!) ? 'selected-row' : ''
-});
+const onModelPanelScroll = (event?: Event) => {
+  void event;
+};
 
-const onRowSelectChange = (keys: string[]) => {
-  selectedKeys.value = keys;
-  const key = keys[0];
-  if (!key) {
-    form.modelKey = undefined;
-    return;
-  }
-  const record = modelList.value.find((m) => m.modelKey === key);
-  if (record) applyModelSelection(record);
-  else form.modelKey = key;
+const onModelPageSizeChange = async (size: number) => {
+  modelPager.pageNo = 1;
+  modelPager.pageSize = Number(size || 12);
+  await fetchModels(true);
+};
+
+const onModelPageChange = async (page: number) => {
+  modelPager.pageNo = Number(page || 1);
+  await fetchModels(true);
+};
+
+const onSelectModelCard = (record: AiModel) => {
+  selectedKeys.value = [String(record.modelKey || '')];
+  applyModelSelection(record);
 };
 
 const handleCancel = () => emit('update:visible', false);
 
 const onSubmit = async () => {
-  try {
-    await formRef.value?.validate();
-  } catch {
-    return;
+  if (!String(form.instanceName || '').trim()) return message.warning('请输入名称');
+  if (form.instanceKey && !/^[a-zA-Z0-9_-]+$/.test(String(form.instanceKey).trim())) {
+    return message.warning('实例标识仅支持字母、数字、下划线、连字符');
   }
   if (!form.modelKey) return message.warning('请先选择一个模型端点');
   submitting.value = true;
@@ -677,33 +513,45 @@ const onSubmit = async () => {
 
 watch(() => props.visible, async (val) => {
   if (!val) return;
+  modelPager.pageNo = 1;
+  modelPager.pageSize = 12;
   providerFilter.value = undefined;
   searchDraft.value = '';
   searchQuery.value = '';
-  await fetchModels();
+  typeFilter.value = 'all';
+  await fetchModels(true);
   if (isEdit.value && editId.value != null) {
     presetNameUserEdited.value = true;
     const detail = await aiInstanceApi.detail(editId.value);
     resetForm();
     Object.assign(form, detail);
-    if (detail.modelKey) selectedKeys.value = [detail.modelKey];
+    if (detail.modelKey) {
+      const key = String(detail.modelKey);
+      selectedKeys.value = [key];
+      if (!modelList.value.some((m) => m.modelKey === key)) {
+        const extra = await aiModelApi.queryPage({
+          pageNo: 1,
+          pageSize: 1,
+          param: { modelKey: key }
+        });
+        const hit = extra.list?.[0];
+        if (hit?.modelKey) {
+          modelList.value = [hit, ...modelList.value];
+        }
+      }
+    }
   } else {
     presetNameUserEdited.value = false;
     resetForm();
   }
   await nextTick();
-  requestAnimationFrame(() => {
-    updateTableScrollY();
-  });
 });
 
-onMounted(() => {
-  updateTableScrollY();
-  window.addEventListener('resize', updateTableScrollY);
+watch(typeFilter, () => {
+  if (!props.visible) return;
+  void fetchModels(true);
 });
-onUnmounted(() => {
-  window.removeEventListener('resize', updateTableScrollY);
-});
+
 </script>
 
 <style scoped>
@@ -749,73 +597,63 @@ onUnmounted(() => {
 
 /* Header */
 .modal-header {
-  height: 72px; background: var(--bg-card, #fff); padding: 0 32px;
-  display: flex; justify-content: space-between; align-items: center;
-  border-bottom: 1px solid var(--border-default, #e2e8f0); flex-shrink: 0;
+  height: 74px;
+  background: #fff;
+  padding: 0 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 .header-left { display: flex; align-items: center; gap: 16px; }
 .logo-box {
-  width: 42px; height: 42px; border-radius: 10px;
-  background: var(--logo-gradient);
+  width: 40px; height: 40px; border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px;
 }
-.main-title { display: block; font-size: 18px; font-weight: 800; color: var(--text-heading, #0f172a); }
-.sub-title { font-size: 12px; color: var(--text-muted, #94a3b8); }
+.main-title { display: block; font-size: 17px; font-weight: 700; color: #0f172a; }
+.sub-title { font-size: 12px; color: #64748b; }
 
-.header-actions { display: flex; align-items: center; }
-.header-action-pair {
-  display: inline-flex;
-  align-items: stretch;
-}
+.header-actions { display: flex; align-items: center; gap: 10px; }
 .header-action-btn {
-  height: 40px;
-  min-width: 120px;
-  padding: 0 22px;
+  height: 38px;
+  min-width: 110px;
+  border-radius: 10px;
+  padding: 0 20px;
   font-weight: 600;
 }
-.header-action-pair :deep(.header-action-btn-cancel.ant-btn) {
-  border-top-left-radius: 14px;
-  border-bottom-left-radius: 14px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+.header-actions :deep(.header-action-btn-cancel.ant-btn-default) {
+  color: #475569;
+  border-color: #cbd5e1;
+  background: #fff;
 }
-.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default) {
-  color: var(--text-secondary, #475569);
-  border-color: var(--border-default, #cbd5e1);
-  background: var(--bg-card, #fff);
-  border-right: none;
-}
-.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default:hover) {
-  color: var(--text-primary, #334155);
-  border-color: var(--border-default, #94a3b8);
-  background: var(--bg-surface, #f8fafc);
-}
-.header-action-pair :deep(.header-action-btn-save.ant-btn) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: 14px;
-  border-bottom-right-radius: 14px;
-}
-.header-action-pair :deep(.header-action-btn-save.ant-btn-primary) {
-  margin-left: -1px;
+.header-actions :deep(.header-action-btn-save.ant-btn-primary) {
   box-shadow: none;
 }
 
 /* 布局主体 - 三栏布局 */
-.main-content { flex: 1; display: flex; padding: 20px; gap: 20px; overflow: hidden; background: var(--bg-base, #f8fafc); }
+.main-content {
+  flex: 1;
+  display: flex;
+  padding: 20px;
+  gap: 16px;
+  overflow: hidden;
+  background: #f8fafc;
+}
 
 /* 通用卡片样式 */
 /* 本弹层为浅色底，左右面板固定白底 + 主题变量阴影（避免深色 :root 下 --bg-card 发灰） */
 .glass-card {
-  background: var(--bg-card, #ffffff);
-  border-radius: 20px;
-  border: 1px solid var(--border-default, #e2e8f0);
-  box-shadow: var(--shadow-pane-elevated, 0 6px 24px rgba(15, 23, 42, 0.08));
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
 }
-.pane-card { height: 100%; display: flex; flex-direction: column; padding: 20px; }
+.pane-card { height: 100%; display: flex; flex-direction: column; padding: 18px; }
 
 /* 左侧：基础定义 */
-.basic-pane { width: 280px; flex-shrink: 0; }
+.basic-pane { width: 320px; flex-shrink: 0; }
 .basic-pane .pane-card { overflow-y: auto; }
 
 /* 中间：参数设定 */
@@ -829,7 +667,7 @@ onUnmounted(() => {
 .pane-toolbar-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   align-items: flex-end;
 }
 .provider-field {
@@ -852,11 +690,19 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   vertical-align: middle;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 .inst-provider-avatar-cell :deep(svg) {
   width: 22px;
   height: 22px;
   display: block;
+}
+.inst-provider-avatar-cell--empty {
+  color: #cbd5e1;
+  background: #f8fafc;
+  border-radius: 6px;
 }
 .inst-model-type-cell {
   display: inline-flex;
@@ -891,8 +737,41 @@ onUnmounted(() => {
   color: var(--text-muted, #94a3b8);
 }
 
+.endpoint-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.endpoint-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.endpoint-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.endpoint-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .model-type-tabs :deep(.ant-tabs-nav) {
   margin-bottom: 0;
+}
+.model-type-tabs :deep(.ant-tabs-tab) {
+  padding-top: 2px;
+  padding-bottom: 8px;
 }
 .model-type-tabs :deep(.ant-tabs-content-holder) {
   display: none;
@@ -929,20 +808,90 @@ onUnmounted(() => {
   background: var(--border-default, #e2e8f0);
 }
 
-.table-container {
+.model-list-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.meta-count {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.model-card-scroll {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  padding-right: 2px;
 }
-.table-container :deep(.ant-pagination) {
-  margin: 12px 0 0;
+
+.model-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.model-select-card {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.model-select-card:hover {
+  border-color: #93c5fd;
+  background: #f8fbff;
+}
+
+.model-select-card.is-active {
+  border-color: #60a5fa;
+  background: #eff6ff;
+}
+
+.model-select-radio {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.model-select-radio .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.model-select-card.is-active .model-select-radio {
+  border-color: #3b82f6;
+}
+
+.model-select-card.is-active .model-select-radio .dot {
+  background: #3b82f6;
+}
+
+.model-list-empty,
+.model-list-loading-more {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 12px;
+  padding: 12px 0;
 }
 .selection-pane .pane-card { min-height: 0; }
-:deep(.selected-row td) {
-  background-color: color-mix(in srgb, var(--primary) 12%, var(--bg-card, #ffffff)) !important;
-  color: var(--primary) !important;
-  font-weight: 600;
-}
 
 /* 滚动容器 */
 .scroll-y { overflow-y: auto; }
@@ -958,6 +907,56 @@ onUnmounted(() => {
 
 .section-title { font-size: 15px; font-weight: 700; color: var(--text-heading, #1e293b); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .section-title .anticon { color: var(--primary); }
+
+.basic-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 12px;
+}
+.basic-form-grid .span-2 {
+  grid-column: span 2;
+}
+
+.instance-key-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+}
+
+.instance-key-display :deep(.instance-key-input.ant-input-affix-wrapper),
+.instance-key-display :deep(.instance-key-input.ant-input) {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.instance-key-clear-btn {
+  color: #94a3b8;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 6px;
+}
+
+.basic-form-grid :deep(.ant-segmented) {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.basic-form-grid :deep(.ant-segmented-item-selected) {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+}
 
 .cap-hint {
   font-size: 12px;
@@ -975,13 +974,17 @@ onUnmounted(() => {
 
 /* 参数卡片 */
 .param-group-card {
-  background: var(--bg-surface, #f8fafc); border: 1px solid var(--border-default, #f1f5f9); border-radius: 16px;
-  padding: 16px; margin-bottom: 16px; transition: all 0.3s;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+  transition: all 0.2s;
 }
-.param-group-card:hover { background: var(--bg-card, #fff); border-color: var(--border-default, #e2e8f0); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+.param-group-card:hover { background: #fff; border-color: #cbd5e1; box-shadow: 0 4px 10px rgba(15,23,42,0.06); }
 
 .p-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.p-label { font-size: 13px; font-weight: 700; color: var(--text-secondary, #475569); cursor: help; display: flex; align-items: center; gap: 4px; }
+.p-label { font-size: 13px; font-weight: 600; color: #334155; cursor: help; display: flex; align-items: center; gap: 4px; }
 .slider-box { padding: 0 8px 16px 8px; }
 
 /* 状态描述条 */
@@ -996,7 +999,44 @@ onUnmounted(() => {
 .mini-param-card { background: var(--bg-surface, #f8fafc); padding: 12px; border-radius: 12px; border: 1px solid var(--border-default, #f1f5f9); }
 .mini-label { font-size: 11px; font-weight: 700; color: var(--text-secondary, #64748b); margin-bottom: 8px; display: block; }
 .empty-state { text-align: center; padding: 100px 0; color: var(--text-muted, #cbd5e1); }
+.empty-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  color: #4f46e5;
+}
 
 :deep(.ant-slider-mark-text) { font-size: 10px; color: var(--text-muted, #94a3b8); }
 :deep(.ant-slider-mark-text-active) { color: var(--primary); font-weight: 700; }
+
+@media (max-width: 1480px) {
+  .basic-pane {
+    width: 280px;
+  }
+  .selection-pane {
+    width: 360px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .main-content {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .basic-pane,
+  .selection-pane,
+  .params-pane {
+    width: 100%;
+  }
+  .basic-pane .pane-card,
+  .params-pane .pane-card,
+  .selection-pane .pane-card {
+    max-height: none;
+  }
+}
 </style>

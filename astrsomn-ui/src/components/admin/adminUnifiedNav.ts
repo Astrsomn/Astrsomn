@@ -34,11 +34,11 @@ export const adminUnifiedNav: AdminModuleNavGroup[] = [
     icon: RobotOutlined,
     children: [
       { to: `${baseAi}/agents`, label: '智能体', icon: TeamOutlined },
+      { to: `${baseAi}/ai-instance`, label: '推理配置', icon: CloudServerOutlined },
+      { to: `${baseAi}/models`, label: '模型接入', icon: DatabaseOutlined },
+      { to: `${baseAi}/ai-account`, label: 'AI 账号', icon: KeyOutlined },
       { to: `${baseAi}/mcp`, label: 'MCP', icon: ApiOutlined },
       { to: `${baseAi}/tools`, label: 'Tools', icon: ToolOutlined },
-      { to: `${baseAi}/models`, label: '模型接入', icon: DatabaseOutlined },
-      { to: `${baseAi}/ai-instance`, label: '推理配置', icon: CloudServerOutlined },
-      { to: `${baseAi}/ai-account`, label: 'AI 账号', icon: KeyOutlined },
       { to: `${baseAi}/prompts`, label: '提示词', icon: FileTextOutlined },
       { to: `${baseAi}/conversations`, label: '对话管理', icon: MessageOutlined }
     ]
