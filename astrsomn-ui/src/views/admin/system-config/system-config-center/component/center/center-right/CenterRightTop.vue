@@ -25,6 +25,7 @@ defineProps<{
 
 <style scoped>
 .todo-panel {
+  margin-top: 10px;
   background: white;
   border-radius: 24px;
   border: 1px solid #e2e8f0;

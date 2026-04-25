@@ -1,6 +1,7 @@
 <template>
   <DashboardWrapper>
-    <div class="animate-fade-in" style="animation-delay: 0ms">
+
+      <div class="animate-fade-in" style="animation-delay: 0ms">
       <StatsGrid />
     </div>
 
@@ -12,6 +13,7 @@
         <SmallCards />
       </div>
     </div>
+
   </DashboardWrapper>
 </template>
 

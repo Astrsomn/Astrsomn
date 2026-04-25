@@ -91,7 +91,7 @@ const emit = defineEmits<{
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 24px;
+
   height: calc(100vh - 70px);
   display: flex;
   flex-direction: column;
@@ -104,6 +104,7 @@ const emit = defineEmits<{
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  margin-top: 10px;
 }
 
 .quick-access-card {
