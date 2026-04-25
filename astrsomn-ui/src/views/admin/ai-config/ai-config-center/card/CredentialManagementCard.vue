@@ -1,5 +1,5 @@
 <template>
-  <div class="credential-card clickable" @click="navigateTo('/admin/ai-account')">
+  <div class="credential-card clickable" @click="navigateTo('/admin/ai-config/ai-account')">
     <div class="card-header">
       <div class="card-icon sky-icon">
         <KeyOutlined />

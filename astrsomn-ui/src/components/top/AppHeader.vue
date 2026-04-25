@@ -289,7 +289,6 @@ const handleLogin = () => {
   color: var(--text-heading);
 }
 
-
 .actions-group {
   display: flex;
   align-items: center;

@@ -1,9 +1,8 @@
 <template>
   <div class="admin-shell">
     <AppHeader 
-      :showBrand="isHome" 
-      :showBack="!isHome"
-      :pageTitle="pageTitle"
+      :showBrand="true"
+      :showBack="false"
       :showDoc="true"
       :showSwitch="true"
       :show-workspace-env="true"
@@ -20,8 +19,7 @@
       </div>
     </main>
 
-    <!-- 底部导航栏组件 -->
-    <BottomNav :auto-hide="false" />
+    <BottomNav :auto-hide="bottomNavAutoHide" />
   </div>
 </template>
 
@@ -33,18 +31,14 @@ import BottomNav from '@/components/bottom/BottomNav.vue';
 
 const route = useRoute();
 
-const isHome = computed(() => {
-  const homePaths = [
-    '/admin/ai-config-center',
-    '/admin/ai-safety-center',
-    '/admin/vec-center',
-    '/admin/system-config-center',
-      '/admin/builder'
-  ];
-  return homePaths.includes(route.path);
-});
+const leafMeta = () => {
+  const m = route.matched[route.matched.length - 1];
+  return m?.meta;
+};
 
-const pageTitle = computed(() => (route.meta.title as string) || '管理后台');
+/** Dock 根页：始终展开底部栏；二级页：用 auto-hide 收起，悬停底部区域唤醒 */
+const showAdminDock = computed(() => leafMeta()?.showAdminDock === true);
+const bottomNavAutoHide = computed(() => !showAdminDock.value);
 
 const handleScroll = () => {
   // 滚动时的处理逻辑

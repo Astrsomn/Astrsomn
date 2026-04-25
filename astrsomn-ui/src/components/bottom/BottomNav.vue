@@ -13,16 +13,16 @@
 
     <div class="dock-main">
       <div class="nav-group">
-        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-config-center') }" @click="navigateTo('/admin/ai-config-center')">
+        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-config') }" @click="navigateTo('/admin/ai-config')">
           <div class="icon-wrapper"><RobotOutlined /></div>
           <span class="nav-text">AI 配置</span>
         </div>
 
-                <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/system-config-center') }" @click="navigateTo('/admin/system-config-center')">
+                <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/system') }" @click="navigateTo('/admin/system')">
           <div class="icon-wrapper"><SettingOutlined /></div>
           <span class="nav-text">系统管理</span>
         </div>
-        <div class="center-btn" :class="{ 'center-btn-active': isActivePath('/admin/builder') }" @click="navigateTo('/admin/builder')">
+        <div class="center-btn" :class="{ 'center-btn-active': isActivePath('/admin/ai-config/builder') }" @click="navigateTo('/admin/ai-config/builder')">
           <div class="pulse-ring"></div>
           <ToolOutlined />
           <span class="floating-label">Agent Studio</span>
@@ -30,7 +30,7 @@
 
 
 
-        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-safety-center') }" @click="navigateTo('/admin/ai-safety-center')">
+        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-safety') }" @click="navigateTo('/admin/ai-safety')">
           <div class="icon-wrapper"><SafetyOutlined /></div>
           <span class="nav-text">安全治理</span>
         </div>

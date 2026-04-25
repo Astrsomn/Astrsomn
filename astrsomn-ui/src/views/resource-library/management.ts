@@ -74,7 +74,7 @@ export function getCurrentUserRole(): string | undefined {
 function entryVisibleForRole(entry: ManagementEntry, isSuper: boolean): boolean {
     if (isSuper) return true
     // 普通管理员不可见用户管理与环境配置
-    return entry.route !== '/admin/users' && entry.route !== '/admin/env'
+    return entry.route !== '/admin/system/users' && entry.route !== '/admin/system/env'
 }
 
 /**
@@ -91,7 +91,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '智能体 (Agents)',
                 description: '多模态大脑封装，关联工作流与工具链路',
                 icon: markRaw(TeamOutlined),
-                route: '/admin/agents',
+                route: '/admin/ai-config/agents',
                 accent: 'brand', // 核心入口使用品牌色
             },
             {
@@ -99,7 +99,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '推理配置 (Profiles)',
                 description: '定义模型运行参数（温度、采样、Token 限制等）',
                 icon: markRaw(ControlOutlined),
-                route: '/admin/ai-instance',
+                route: '/admin/ai-config/ai-instance',
                 accent: 'indigo', // 逻辑配置使用深色靛蓝
             },
             {
@@ -107,7 +107,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '模型接入 (Endpoints)',
                 description: '定义供应商 API 路径、模型类型与能力映射',
                 icon: markRaw(NodeIndexOutlined),
-                route: '/admin/models',
+                route: '/admin/ai-config/models',
                 accent: 'blue', // 连接层使用标准蓝
             },
             {
@@ -115,7 +115,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '凭证管理 (Credentials)',
                 description: '维护供应商 API_KEY、密钥凭证与账户额度',
                 icon: markRaw(SafetyOutlined),
-                route: '/admin/ai-account',
+                route: '/admin/ai-config/ai-account',
                 accent: 'sky', // 权限层使用天蓝色，显轻盈
             },
             {
@@ -123,7 +123,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: 'AI MCP',
                 description: '管理 Model Context Protocol 服务连接与健康度',
                 icon: markRaw(ContainerOutlined),
-                route: '/admin/mcp',
+                route: '/admin/ai-config/mcp',
                 accent: 'ocean', // 协议层使用深邃海蓝
             },
             {
@@ -131,7 +131,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '工具插件 (Tools)',
                 description: '维护函数调用定义、API 工具与权限策略',
                 icon: markRaw(BuildOutlined),
-                route: '/admin/tools',
+                route: '/admin/ai-config/tools',
                 accent: 'cyan', // 扩展工具使用青色
             },
             {
@@ -139,7 +139,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '提示词库 (Prompts)',
                 description: '系统级提示词编排、版本快照与预设模板',
                 icon: markRaw(FileTextOutlined),
-                route: '/admin/prompts',
+                route: '/admin/ai-config/prompts',
                 accent: 'mint', // 内容输入使用清新薄荷色
                 highlight: true,
             },
@@ -148,7 +148,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: 'FTL 模板',
                 description: 'Freemarker / StringTemplate 模板（AI_TEMPLATE）',
                 icon: markRaw(CodeOutlined),
-                route: '/admin/templates',
+                route: '/admin/ai-safety/templates',
                 accent: 'primary-light',
             },
             {
@@ -156,7 +156,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '对话管理',
                 description: '管理 AI 对话记录，按 memoryKey 聚合展示',
                 icon: markRaw(FileTextOutlined),
-                route: '/admin/conversations',
+                route: '/admin/ai-config/conversations',
                 accent: 'violet',
             }
         ],
@@ -219,7 +219,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '安全治理',
                 description: '配置敏感词、注入检测与风控策略',
                 icon: markRaw(SecurityScanOutlined),
-                route: '/admin/security',
+                route: '/admin/ai-safety/security',
                 accent: 'coral', // 唯一警示色：珊瑚红
             },
             {
@@ -227,7 +227,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '链路追踪',
                 description: '监控大模型调用链路与日志输出',
                 icon: markRaw(LineChartOutlined),
-                route: '/admin/tracing',
+                route: '/admin/ai-safety/tracing',
                 accent: 'violet', // 分析监控使用紫罗兰
             },
 
@@ -243,7 +243,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '用户管理',
                 description: '管理系统用户、角色与权限分配',
                 icon: markRaw(UserOutlined),
-                route: '/admin/users',
+                route: '/admin/system/users',
                 accent: 'blue',
             },
             {
@@ -251,7 +251,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '环境管理',
                 description: '管理运行环境、服务实例与部署配置',
                 icon: markRaw(CloudServerOutlined),
-                route: '/admin/env',
+                route: '/admin/system/env',
                 accent: 'frost',
             },
             {
@@ -259,7 +259,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '系统配置',
                 description: '管理系统配置、参数与日志',
                 icon: markRaw(SettingOutlined),
-                route: '/admin/system-config',
+                route: '/admin/system/config',
                 accent: 'sky',
             },
             {
@@ -267,7 +267,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 label: '系统扩展',
                 description: '管理系统插件扩展包 (jarName) 及应用/卸载状态',
                 icon: markRaw(BuildOutlined),
-                route: '/admin/system-config/system-extension',
+                route: '/admin/system/extensions',
                 accent: 'ocean',
             },
         ],

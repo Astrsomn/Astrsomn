@@ -56,7 +56,7 @@ const list = ref<AiAgent[]>([])
 const switchingIds = ref<Set<string | number>>(new Set())
 
 const navigateToAgents = () => {
-  router.push('/admin/agents')
+  router.push('/admin/ai-config/agents')
 }
 
 const onEditAgent = (item: AiAgent) => {

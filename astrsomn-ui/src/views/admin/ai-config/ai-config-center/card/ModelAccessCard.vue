@@ -1,5 +1,5 @@
 <template>
-  <div class="model-access-card clickable" @click="navigateTo('/admin/models')">
+  <div class="model-access-card clickable" @click="navigateTo('/admin/ai-config/models')">
     <div class="card-header">
       <div class="card-icon blue-icon">
         <DatabaseOutlined />
