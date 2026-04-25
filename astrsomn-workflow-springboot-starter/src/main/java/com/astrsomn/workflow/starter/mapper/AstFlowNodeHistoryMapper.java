@@ -1,9 +1,19 @@
 package com.astrsomn.workflow.starter.mapper;
 
 import com.astrsomn.workflow.core.domain.entity.AstFlowNodeHistoryEntity;
+import com.astrsomn.workflow.core.domain.dto.nodehistory.AstFlowNodeHistoryQueryRequestDTO;
+import com.astrsomn.workflow.core.domain.dto.nodehistory.AstFlowNodeHistoryResponseDTO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface AstFlowNodeHistoryMapper extends BaseMapper<AstFlowNodeHistoryEntity> {
+
+    IPage<AstFlowNodeHistoryResponseDTO> queryPage(
+            IPage<AstFlowNodeHistoryResponseDTO> page,
+            @Param("req") AstFlowNodeHistoryQueryRequestDTO param);
+
+    AstFlowNodeHistoryResponseDTO detail(@Param("id") Long id, @Param("envCode") String envCode);
 }
