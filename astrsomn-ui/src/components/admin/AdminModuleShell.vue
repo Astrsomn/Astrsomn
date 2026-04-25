@@ -5,34 +5,36 @@
         <nav class="module-sider-inner">
           <div class="module-sider-title">管理导航</div>
           <a-menu
-            mode="inline"
-            :inline-indent="20"
-            :open-keys="openKeys"
-            :selected-keys="selectedKeys"
-            class="module-sider-menu"
-            @openChange="onOpenChange"
+              mode="inline"
+              :inline-indent="12"
+              :open-keys="openKeys"
+              :selected-keys="selectedKeys"
+              class="module-sider-menu"
+              @openChange="onOpenChange"
           >
             <a-sub-menu v-for="g in groups" :key="g.key" class="module-sider-group">
               <template #title>
                 <span class="module-sider-group-title">
                   <component
-                    v-if="g.icon"
-                    :is="g.icon"
-                    class="anticon module-sider-group-icon"
+                      v-if="g.icon"
+                      :is="g.icon"
+                      class="anticon module-sider-group-icon"
                   />
                   <span>{{ g.label }}</span>
                 </span>
               </template>
+
               <a-menu-item
-                v-for="it in g.children"
-                :key="it.to"
-                @click="() => go(it.to)"
+                  v-for="it in g.children"
+                  :key="it.to"
+                  @click="() => go(it.to)"
+                  class="module-sider-item"
               >
                 <span class="module-sider-item-inner">
                   <component
-                    v-if="it.icon"
-                    :is="it.icon"
-                    class="anticon module-sider-item-icon"
+                      v-if="it.icon"
+                      :is="it.icon"
+                      class="anticon module-sider-item-icon"
                   />
                   <span>{{ it.label }}</span>
                 </span>
@@ -41,14 +43,26 @@
           </a-menu>
         </nav>
       </div>
-      <div class="module-sider-foot" role="contentinfo" aria-label="环境信息">
-        <div class="module-sider-foot-line app-name">{{ appMeta.name }}</div>
-        <div class="module-sider-foot-line">v{{ appMeta.version }}</div>
-        <div class="module-sider-foot-line text-muted">
-          {{ appMeta.envLabel }}
+
+      <div class="module-sider-foot">
+        <a href="https://www.astrsomn.com" target="_blank" class="official-btn">
+          <GlobalOutlined class="btn-icon" />
+          <span>访问官方网站</span>
+        </a>
+
+        <div class="version-info">
+          <div class="version-row">
+            <span class="app-name">{{ appMeta.name }}</span>
+            <span class="version-tag">v{{ appMeta.version }}</span>
+          </div>
+          <div class="status-row">
+            <div class="status-dot"></div>
+            <span class="env-label">{{ appMeta.envLabel }}</span>
+          </div>
         </div>
       </div>
     </aside>
+
     <div class="module-content">
       <slot />
     </div>
@@ -56,8 +70,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide, ref } from 'vue';
+import { computed, provide, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { GlobalOutlined } from '@ant-design/icons-vue'; // 确保安装了 antd-icons
 import { appPkgName, appPkgVersion } from '@/config/appMeta';
 import type { AdminModuleNavGroup } from './adminModuleTypes';
 
@@ -68,14 +83,28 @@ const props = defineProps<{
 const route = useRoute();
 const router = useRouter();
 
-/** 子页面可注入以收紧 min-height，适配侧栏布局 */
 provide('adminInModuleLayout', true);
 
-const openKeys = ref<string[]>([...props.groups.map((g) => g.key)]);
+const normalizePath = (path: string) => path.replace(/\/+$/, '') || '/';
 
-/** 默认全部分组展开 */
+const findMatchedGroupKey = (path: string) => {
+  const currentPath = normalizePath(path);
+  for (const g of props.groups) {
+    for (const it of g.children) {
+      const targetPath = normalizePath(it.to);
+      if (currentPath === targetPath || currentPath.startsWith(`${targetPath}/`)) {
+        return g.key;
+      }
+    }
+  }
+  return null;
+};
+
+const openKeys = ref<string[]>([]);
+
 const onOpenChange = (next: (string | number)[]) => {
-  openKeys.value = next as string[];
+  const keys = (next as string[]).filter(Boolean);
+  openKeys.value = keys.length ? [keys[keys.length - 1]] : [];
 };
 
 const showModuleSidebar = computed(() => {
@@ -84,174 +113,248 @@ const showModuleSidebar = computed(() => {
 });
 
 const selectedKeys = computed(() => {
-  const p = route.path.replace(/\/+$/, '') || '/';
+  const p = normalizePath(route.path);
   for (const g of props.groups) {
     for (const it of g.children) {
-      const t = it.to.replace(/\/+$/, '') || '/';
-      if (p === t || p.startsWith(`${t}/`)) {
-        return [it.to];
-      }
+      const t = normalizePath(it.to);
+      if (p === t || p.startsWith(`${t}/`)) return [it.to];
     }
   }
   return [p];
 });
 
+watch(
+  () => route.path,
+  (path) => {
+    const groupKey = findMatchedGroupKey(path);
+    if (groupKey) openKeys.value = [groupKey];
+  },
+  { immediate: true }
+);
+
 const appMeta = computed(() => {
   const mode = import.meta.env.MODE;
-  const isProd = import.meta.env.PROD;
   return {
     name: appPkgName,
     version: appPkgVersion,
-    envLabel: isProd ? 'production' : mode
+    envLabel: import.meta.env.PROD ? 'Production' : mode.toUpperCase()
   };
 });
 
-const go = (to: string) => {
-  void router.push(to);
-};
+const go = (to: string) => { void router.push(to); };
 </script>
 
 <style scoped>
+/* 1. 基础容器：干净、稳定 */
 .module-shell {
   display: flex;
   width: 100%;
   height: calc(100vh - 60px);
-  max-height: calc(100vh - 60px);
-  min-height: 0;
+  background-color: #f8fafc;
   overflow: hidden;
-  box-sizing: border-box;
 }
 
 .module-sider {
   display: flex;
   flex-direction: column;
-  flex: 0 0 240px;
-  max-width: 240px;
-  width: 240px;
-  min-height: 0;
-  align-self: stretch;
-  border-right: 1px solid color-mix(in srgb, var(--text-muted) 20%, transparent);
-  background: color-mix(in srgb, var(--bg-base) 86%, #fff 14%);
-  overflow: hidden;
-  z-index: 1;
+  width: 260px;
+  background: #ffffff;
+  border-right: 1px solid #f1f5f9;
+  transition: all 0.3s;
 }
 
 .module-sider-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
+/* 隐藏滚动条但保留功能 */
+.module-sider-scroll::-webkit-scrollbar { width: 4px; }
+.module-sider-scroll::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
+.module-sider-scroll:hover::-webkit-scrollbar-thumb { background: #e2e8f0; }
+
 .module-sider-inner {
-  padding: 16px 6px 12px;
+  padding: 20px 12px;
 }
 
 .module-sider-title {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  color: #94a3b8;
+  padding: 0 16px 12px;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--text-muted);
-  padding: 0 12px 10px;
+}
+
+/* 2. Menu 样式重塑：扁平化、去叠色 */
+.module-sider-menu {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* 一级菜单样式 */
+:deep(.ant-menu-submenu-title) {
+  margin: 2px 0 !important;
+  height: 42px !important;
+  line-height: 42px !important;
+  border-radius: 12px !important;
+  color: #475569 !important;
+  transition: all 0.2s;
+}
+
+:deep(.ant-menu-submenu-title:hover) {
+  background-color: #f8fafc !important;
+  color: #1a73e8 !important;
 }
 
 .module-sider-group-title {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  width: 100%;
+  font-weight: 600;
 }
 
 .module-sider-group-icon {
-  flex-shrink: 0;
-  font-size: 15px;
-  opacity: 0.9;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+/* 3. 二级菜单：取消背景色，改为引导线风格 */
+:deep(.ant-menu-sub) {
+  background: transparent !important;
+  position: relative;
+  padding-left: 10px !important; /* 缩进产生层级感 */
+}
+
+/* 引导线：模拟飞书/大厂设计 */
+:deep(.ant-menu-sub)::before {
+  content: "";
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 12px;
+  width: 1px;
+  background: #f1f5f9;
+}
+
+:deep(.ant-menu-item) {
+  height: 38px !important;
+  line-height: 38px !important;
+  margin: 2px 0 !important;
+  border-radius: 10px !important;
+  width: 100% !important;
+  padding-left: 32px !important; /* 给图标留空间 */
+  color: #64748b !important;
+}
+
+/* 选中项态 */
+:deep(.ant-menu-item-selected) {
+  background-color: #e8f0fe !important; /* 极浅蓝 */
+  color: #1a73e8 !important;
+  font-weight: 600;
+  position: relative;
+}
+
+/* 选中提示条：显示在右侧 */
+:deep(.ant-menu-item-selected)::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 999px;
+  background-color: #1a73e8;
 }
 
 .module-sider-item-inner {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-width: 0;
 }
 
 .module-sider-item-icon {
-  flex-shrink: 0;
   font-size: 14px;
-  opacity: 0.85;
+  margin-right: 8px;
+  opacity: 0.7;
 }
 
-.module-sider-menu {
-  border-inline-end: none !important;
-  background: transparent !important;
-}
-
-.module-sider :deep(.ant-menu-submenu) {
-  margin: 0 0 2px;
-}
-
-.module-sider :deep(.ant-menu-submenu-title) {
-  width: 100% !important;
-  margin: 0 !important;
-  padding-inline: 10px 12px !important;
-  border-radius: 10px;
-  height: 38px;
-  line-height: 38px;
-}
-
-.module-sider :deep(.ant-menu-item) {
-  border-radius: 8px;
-  margin: 2px 0 2px 2px;
-  width: auto;
-  height: 36px;
-  line-height: 36px;
-  padding-inline: 8px 10px !important;
-}
-
-.module-sider :deep(.ant-menu-item-only-child) {
-  padding-inline: 8px 10px !important;
-}
-
-.module-sider :deep(.ant-menu-submenu .ant-menu-sub) {
-  background: transparent !important;
-  padding: 0 0 2px 4px;
-}
-
+/* 4. 底部重新设计：官网入口 + 极简信息 */
 .module-sider-foot {
-  flex-shrink: 0;
-  padding: 10px 14px 14px;
-  border-top: 1px solid color-mix(in srgb, var(--text-muted) 14%, transparent);
-  font-size: 10px;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-  color: var(--text-muted);
-  font-feature-settings: 'tnum' 1;
+  padding: 16px;
+  border-top: 1px solid #f1f5f9;
 }
 
-.module-sider-foot-line {
-  font-variant-numeric: tabular-nums;
+.official-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background: #e8f0fe;
+  color: #1a73e8;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  transition: all 0.2s;
+}
+
+.official-btn:hover {
+  background: #dbeafe;
+  transform: translateY(-1px);
+}
+
+.version-info {
+  padding: 0 4px;
+}
+
+.version-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
 }
 
 .app-name {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 10.5px;
-  margin-bottom: 1px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
 }
 
-.text-muted {
-  color: var(--text-muted);
-  font-size: 9.5px;
-  margin-top: 1px;
+.version-tag {
+  font-size: 10px;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 1px 6px;
+  border-radius: 4px;
 }
 
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+
+.env-label {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 内容区 */
 .module-content {
-  flex: 1 1 0;
-  min-width: 0;
-  min-height: 0;
-  padding: 0;
+  flex: 1;
+  background: #ffffff;
   overflow-y: auto;
-  overflow-x: hidden;
 }
 </style>

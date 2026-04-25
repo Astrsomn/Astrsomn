@@ -4,65 +4,91 @@
     description="管理 Agent 配置、执行策略与发布状态。"
   >
     <div ref="pageRef" class="agent-page">
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <AstrsomnSearchPill
-            v-model="query.agentName"
-            layout="toolbar"
-            placeholder="搜索智能体名称"
-            @search="fetchList"
+      <AstrsomnDataSection>
+        <template #toolbar>
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <AstrsomnSearchPill
+                v-model="query.agentName"
+                layout="toolbar"
+                placeholder="搜索智能体名称"
+                @search="fetchList"
+              />
+              <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
+            </div>
+            <div class="toolbar-right">
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+            </div>
+          </div>
+        </template>
+
+        <template #overview>
+          <AstrsomnOverview
+            :list-length="list.length"
+            :selected-count="selectedCount"
+            :all-current-selected="allCurrentSelected"
+            :part-current-selected="partCurrentSelected"
+            :show-actions="true"
+            :view-mode="viewMode"
+            @toggle-select-all="onToggleSelectAll"
+            @update:view-mode="onViewModeChange"
           />
+        </template>
 
-          <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
-
-        </div>
-
-        <div class="toolbar-right">
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
-        </div>
-      </div>
-
-      <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedCount"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="true"
-        @toggle-select-all="onToggleSelectAll"
-      />
-
-      <a-spin :spinning="loading">
-        <div v-if="list.length > 0" class="agent-grid">
-          <div
-            v-for="item in list"
-            :key="item.id ?? item.agentKey ?? item.agentName ?? 'agent'"
-            class="agent-grid-item"
-          >
+        <AstrsomnDataView
+          :mode="dataViewMode"
+          :data-source="list"
+          :loading="loading"
+          :columns="tableColumns"
+          :row-selection="tableRowSelection"
+          :scroll="{ x: 980 }"
+          row-key="id"
+          empty-text="暂无匹配的智能体"
+          :card-columns="currentGridColumns"
+          :card-gap="agentGridGap"
+          :card-min-width="agentCardMinWidth"
+        >
+          <template #card="{ record }">
             <AgentCard
-              :record="item"
-              :selected="selectedKeys.has(item.id!)"
+              :record="record"
+              :selected="record.id != null && selectedKeys.has(record.id)"
               @edit="openEdit"
               @delete="handleDeleteOne"
               @toggle="onToggleSelect"
             />
-          </div>
-        </div>
+          </template>
 
-        <div v-else class="empty-wrap">
-          <a-empty description="暂无匹配的智能体卡片" />
-        </div>
-      </a-spin>
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'status'">
+              <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
+                {{ record.status === 'enabled' ? '启用' : '禁用' }}
+              </a-tag>
+            </template>
 
-      <div class="pagination-wrap">
-        <span class="pagination-total">共 {{ page.total }} 条</span>
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+            <template v-else-if="column.key === 'createTime'">
+              {{ formatCreateTime(record.createTime) }}
+            </template>
+
+            <template v-else-if="column.key === 'actions'">
+              <a-space>
+                <a-button type="link" size="small" @click="openEdit(record)">编辑</a-button>
+                <a-popconfirm title="确定删除该智能体吗？" @confirm="handleDeleteFromRecord(record)">
+                  <a-button type="link" danger size="small">删除</a-button>
+                </a-popconfirm>
+              </a-space>
+            </template>
+          </template>
+        </AstrsomnDataView>
+
+        <template #pagination>
+          <AstrsomnPagination
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :total="page.total"
+            @change="onPageChange"
+          />
+        </template>
+      </AstrsomnDataSection>
 
       <AgentForm
         v-model:visible="assemblyVisible"
@@ -78,7 +104,10 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { CheckCircleOutlined, PlusOutlined, ReloadOutlined, StopOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
+import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
@@ -110,13 +139,32 @@ const assemblyVisible = ref(false)
 const editingId = ref<string | number | undefined>(undefined)
 const query = reactive<{ agentName?: string; status?: string }>({})
 const list = ref<AiAgent[]>([])
+const viewMode = ref<'grid' | 'list'>('grid')
 const selectedKeys = ref<Set<string | number>>(new Set())
 const currentGridColumns = ref(resolveGridColumns())
-const agentGridTemplateColumns = computed(() => `repeat(${currentGridColumns.value}, minmax(0, 1fr))`)
+const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 
 const selectedCount = computed(() => selectedKeys.value.size)
 const allCurrentSelected = computed(() => list.value.length > 0 && selectedKeys.value.size === list.value.length)
 const partCurrentSelected = computed(() => selectedKeys.value.size > 0 && selectedKeys.value.size < list.value.length)
+const tableSelectedRowKeys = computed<Array<string | number>>(() => Array.from(selectedKeys.value))
+
+const tableColumns = [
+  { title: '智能体名称', dataIndex: 'agentName', key: 'agentName', ellipsis: true, width: 200 },
+  { title: 'Agent Key', dataIndex: 'agentKey', key: 'agentKey', ellipsis: true, width: 220 },
+  { title: '模型实例', dataIndex: 'chatInstanceName', key: 'chatInstanceName', ellipsis: true, width: 180 },
+  { title: '提示词策略', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true, width: 180 },
+  { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
+  { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170 },
+  { title: '操作', key: 'actions', width: 120, fixed: 'right' as const }
+]
+
+const tableRowSelection = computed(() => ({
+  selectedRowKeys: tableSelectedRowKeys.value,
+  onChange: (keys: Array<string | number>) => {
+    selectedKeys.value = new Set(keys)
+  }
+}))
 
 const page = reactive({
   pageNum: 1,
@@ -219,6 +267,21 @@ const onToggleSelect = (id: number | string, checked: boolean) => {
   }
 }
 
+const formatCreateTime = (raw?: string) => {
+  if (!raw) return '--'
+  return raw.replace('T', ' ').slice(0, 16)
+}
+
+const handleDeleteFromRecord = async (record: AiAgent) => {
+  const id = record.id
+  if (id == null) return
+  await handleDeleteOne(id)
+}
+
+const onViewModeChange = (mode: 'grid' | 'list') => {
+  viewMode.value = mode
+}
+
 let resizeObserver: ResizeObserver | null = null
 
 const voidSyncPageSizeWithGrid = () => {
@@ -256,9 +319,9 @@ void fetchList()
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 6px;
+
   flex-wrap: wrap;
-  padding: 16px 0;
+
   border-radius: var(--radius-pro);
 
 }
@@ -322,36 +385,6 @@ void fetchList()
   background: #eff6ff;
 }
 
-.agent-grid {
-  display: grid;
-  grid-template-columns: v-bind(agentGridTemplateColumns);
-  gap: v-bind(agentGridGap);
-}
-
-.agent-grid-item {
-  min-width: v-bind(agentCardMinWidth);
-}
-
-.empty-wrap {
-  display: flex;
-  justify-content: center;
-  padding: 32px 0 12px;
-}
-
-.pagination-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-.pagination-total {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
 @media (max-width: 720px) {
   .toolbar {
     padding: 14px;
@@ -383,23 +416,5 @@ void fetchList()
     flex: 1;
   }
 
-  .agent-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .agent-grid-item {
-    min-width: 0;
-  }
-
-  .pagination-wrap {
-    justify-content: center;
-  }
-}
-
-@media (max-width: 560px) {
-  .pagination-total {
-    width: 100%;
-    text-align: center;
-  }
 }
 </style>

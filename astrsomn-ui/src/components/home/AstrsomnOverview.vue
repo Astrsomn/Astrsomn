@@ -1,9 +1,16 @@
 <template>
   <div class="list-overview">
     <div class="overview-main">
-      <div class="overview-icon">
-        <appstore-outlined />
-      </div>
+      <button
+        type="button"
+        class="overview-icon overview-view-toggle"
+        :aria-label="viewMode === 'grid' ? '切换为列表展示' : '切换为方块展示'"
+        :title="viewMode === 'grid' ? '切换为列表展示' : '切换为方块展示'"
+        @click="toggleViewMode"
+      >
+        <UnorderedListOutlined v-if="viewMode === 'grid'" />
+        <AppstoreOutlined v-else />
+      </button>
       <div>
         <div class="overview-desc">
           {{ summaryText || `当前页 ${listLength} 条，已选 ${selectedCount} 条` }}
@@ -24,23 +31,31 @@
 </template>
 
 <script setup lang="ts">
-import { AppstoreOutlined } from '@ant-design/icons-vue'
+import { AppstoreOutlined, UnorderedListOutlined } from '@ant-design/icons-vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   listLength: number
   selectedCount: number
   allCurrentSelected: boolean
   partCurrentSelected: boolean
   showActions: boolean
   summaryText?: string
-}>()
+  viewMode?: 'grid' | 'list'
+}>(), {
+  viewMode: 'grid'
+})
 
 const emit = defineEmits<{
   'toggle-select-all': [checked: boolean]
+  'update:viewMode': [mode: 'grid' | 'list']
 }>()
 
 const onToggleSelectAll = (e: { target?: { checked?: boolean } }) => {
   emit('toggle-select-all', Boolean(e?.target?.checked))
+}
+
+const toggleViewMode = () => {
+  emit('update:viewMode', props.viewMode === 'grid' ? 'list' : 'grid')
 }
 </script>
 
@@ -77,6 +92,11 @@ const onToggleSelectAll = (e: { target?: { checked?: boolean } }) => {
   color: #fff;
   font-size: 15px;
   background: var(--primary-gradient);
+}
+
+.overview-view-toggle {
+  border: 0;
+  cursor: pointer;
 }
 
 .overview-desc {
