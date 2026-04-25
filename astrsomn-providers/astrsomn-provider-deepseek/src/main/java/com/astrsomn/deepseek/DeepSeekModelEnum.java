@@ -2,11 +2,11 @@ package com.astrsomn.deepseek;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import com.astrsomn.core.common.base.BaseEnum;
+import com.astrsomn.commn.base.BaseEnum;
 import com.astrsomn.core.common.constant.AiModelEnum;
 import com.astrsomn.core.common.constant.AiModelParamEnum;
 import com.astrsomn.core.common.entity.AiModelEntity;
-import com.astrsomn.core.common.utils.EnumUtils;
+import com.astrsomn.commn.utils.EnumUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

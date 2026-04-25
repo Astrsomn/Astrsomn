@@ -1,18 +1,18 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import jakarta.annotation.Resource;
 import com.astrsomn.core.common.langchain.AstroChatAssistant;
 import com.astrsomn.core.common.langchain.AstroChatRequest;
 import com.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.core.common.langchain.buildParam.setting.ConversationSetting;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AstroChatErrorEnum;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AstroChatErrorEnum;
 import com.astrsomn.server.service.AstroChatService;
 import com.astrsomn.starter.langchain.factory.AstroAssistantFactory;
 import com.astrsomn.starter.langchain.stream.AstroChatStreamUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-
+import com.astrsomn.core.common.utils.PageUtils;
 
 @Service
 

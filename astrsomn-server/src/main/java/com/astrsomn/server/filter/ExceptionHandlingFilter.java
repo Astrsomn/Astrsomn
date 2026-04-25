@@ -1,6 +1,6 @@
 package com.astrsomn.server.filter;
 
-import com.astrsomn.core.exception.base.BusinessException;
+import com.astrsomn.commn.base.BusinessException;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;

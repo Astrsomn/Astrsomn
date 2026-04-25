@@ -1,11 +1,17 @@
 <template>
-  <a-card :bordered="false" class="c-side-card">
+  <a-card :bordered="false" class="c-side-card" :class="{ 'is-selected': selected }">
     <div class="deco-bubble bubble-1"></div>
     <div class="deco-bubble bubble-2"></div>
 
     <div class="card-inner">
       <div class="card-header">
         <div class="title-group">
+          <a-checkbox
+            class="card-check"
+            :checked="selected"
+            @change="onCheckboxChange"
+            @click.stop
+          />
           <div class="robot-icon">
             <CustomerServiceOutlined />
           </div>
@@ -100,9 +106,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import {
-  UserOutlined, KeyOutlined, LockOutlined, TransactionOutlined,
-  HistoryOutlined, EditOutlined, DeleteOutlined, RobotOutlined,
-  CustomerServiceOutlined, RightOutlined
+  KeyOutlined, LockOutlined, TransactionOutlined,
+  EditOutlined, DeleteOutlined, CustomerServiceOutlined, RightOutlined
 } from '@ant-design/icons-vue'
 
 interface AiAccount {
@@ -111,8 +116,10 @@ interface AiAccount {
   createTime?: string; createUser?: string; usedModelNames?: string; usedModelKeys?: string;
 }
 
-const props = defineProps<{ account: AiAccount }>()
-const emit = defineEmits(['edit', 'delete', 'show-models'])
+const props = withDefaults(defineProps<{ account: AiAccount; selected?: boolean }>(), {
+  selected: false
+})
+const emit = defineEmits(['edit', 'delete', 'show-models', 'toggle'])
 
 const maskSecret = (v?: string) => v ? `${v.slice(0, 6)}***${v.slice(-4)}` : '••••-••••'
 const formatTokens = (t?: number | null) => {
@@ -129,6 +136,13 @@ const usedModels = computed(() => {
 const onEdit = () => emit('edit', props.account)
 const onDelete = () => props.account.id && emit('delete', props.account.id)
 const emitShowModels = () => emit('show-models', props.account)
+const onToggle = (checked: boolean) => {
+  if (props.account.id == null) return
+  emit('toggle', props.account.id, checked)
+}
+const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
+  onToggle(Boolean(e?.target?.checked))
+}
 </script>
 
 <style scoped>
@@ -143,13 +157,21 @@ const emitShowModels = () => emit('show-models', props.account)
   box-shadow: var(--shadow-card);
   transition: var(--transition-pop); /* 带有弹性的过渡 */
   overflow: hidden;
-  margin-bottom: 20px;
+  width: 100%;
+  max-width: 360px;
+  height: 300px;
+  margin-bottom: 12px;
 }
 
 .c-side-card:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-overview);
   border-color: var(--primary);
+}
+
+.c-side-card.is-selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
 /* 背景装饰球 */
@@ -174,7 +196,7 @@ const emitShowModels = () => emit('show-models', props.account)
 .card-inner {
   position: relative;
   z-index: 2; /* 确保内容在装饰球上方 */
-  padding: 24px;
+  padding: 12px;
 }
 
 /* 头部：更丰富、更有趣 */
@@ -182,42 +204,46 @@ const emitShowModels = () => emit('show-models', props.account)
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .title-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+}
+
+.card-check {
+  margin-right: 2px;
 }
 
 .robot-icon {
-  width: 44px; height: 44px;
-  border-radius: 14px;
+  width: 34px; height: 34px;
+  border-radius: 12px;
   background: var(--primary-gradient);
   color: white;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
+  font-size: 16px;
   box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
 }
 
 .text-info { display: flex; flex-direction: column; gap: 2px; }
 
 .account-title {
-  margin: 0; font-size: 18px; font-weight: 700; color: var(--text-primary);
-  max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  margin: 0; font-size: 14px; font-weight: 700; color: var(--text-primary);
+  max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 .meta-under-title {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: var(--text-secondary);
+  font-size: 11px; color: var(--text-secondary);
 }
 .meta-under-title .divider { color: var(--border-default); }
 
 .status-tags { display: flex; align-items: center; gap: 8px; }
 
 .c-env-tag {
-  font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 99px;
+  font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 99px;
   text-transform: uppercase; letter-spacing: 0.5px;
 }
 /* PROD 使用清爽的紫色，DEV 使用柔和的蓝色 */
@@ -226,7 +252,7 @@ const emitShowModels = () => emit('show-models', props.account)
 .c-env-tag:not(.prod):not(.dev) { background: var(--bg-elevated); color: var(--text-secondary); }
 
 .c-live-dot {
-  width: 10px; height: 10px;
+  width: 8px; height: 8px;
   background: var(--success); /* 绿宝石色 */
   border-radius: 50%;
   border: 2px solid var(--bg-card);
@@ -238,28 +264,28 @@ const emitShowModels = () => emit('show-models', props.account)
 .token-section {
 
   border-radius: 16px;
-  padding: 16px 20px;
-  margin-bottom: 20px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
   border: 1px solid var(--border-default);
 }
 
 .token-label {
-  font-size: 12px; color: var(--primary);
+  font-size: 11px; color: var(--primary);
   font-weight: 600; display: flex; align-items: center; gap: 5px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .token-value-wrapper {
   display: flex; align-items: baseline;
   color: var(--text-primary);
 }
-.token-num { font-size: 36px; font-weight: 800; line-height: 1; font-family: 'Poppins', sans-serif; }
-.token-decimal { font-size: 20px; font-weight: 700; opacity: 0.8; }
-.token-unit { font-size: 14px; font-weight: 600; margin-left: 6px; color: var(--text-secondary); }
+.token-num { font-size: 24px; font-weight: 800; line-height: 1; font-family: 'Poppins', sans-serif; }
+.token-decimal { font-size: 14px; font-weight: 700; opacity: 0.8; }
+.token-unit { font-size: 11px; font-weight: 600; margin-left: 4px; color: var(--text-secondary); }
 
 .token-progress {
-  height: 6px; background: var(--border-default); border-radius: 99px;
-  margin-top: 10px; overflow: hidden;
+  height: 5px; background: var(--border-default); border-radius: 99px;
+  margin-top: 8px; overflow: hidden;
 }
 .progress-bar {
   height: 100%;
@@ -269,44 +295,44 @@ const emitShowModels = () => emit('show-models', props.account)
 
 /* 详情区：模块化、干净 */
 .details-section {
-  display: flex; flex-direction: column; gap: 16px;
+  display: flex; flex-direction: column; gap: 10px;
 
   border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 24px;
+  padding: 8px;
+  margin-bottom: 6px;
 }
 
-.detail-item { display: flex; flex-direction: column; gap: 8px; }
+.detail-item { display: flex; flex-direction: column; gap: 6px; }
 
 .item-label {
-  font-size: 12px; font-weight: 600; color: var(--text-secondary);
+  font-size: 11px; font-weight: 600; color: var(--text-secondary);
   text-transform: uppercase; letter-spacing: 0.5px;
 }
 
 /* 模型标签：莫兰迪色系/冰淇淋色系 */
-.model-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.model-tags { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .pastel-tag {
   background: var(--primary-hover); color: var(--primary);
-  padding: 3px 10px; border-radius: 8px; font-size: 12px;
+  padding: 2px 8px; border-radius: 8px; font-size: 11px;
   font-weight: 500; border: 1px solid var(--primary);
 }
-.more-text { font-size: 12px; color: var(--text-secondary); cursor: pointer; font-weight: 600; }
-.manage-btn { padding: 0; height: auto; font-size: 12px; margin-left: auto; color: var(--primary); }
+.more-text { font-size: 11px; color: var(--text-secondary); cursor: pointer; font-weight: 600; }
+.manage-btn { padding: 0; height: auto; font-size: 11px; margin-left: auto; color: var(--primary); }
 
 /* 密钥：单色、代码感 */
-.key-rows { display: flex; flex-direction: column; gap: 6px; }
+.key-rows { display: flex; flex-direction: column; gap: 4px; }
 .key-mono {
   display: flex; align-items: center; gap: 8px;
-  background: var(--bg-card); padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border-default);
+  background: var(--bg-card); padding: 3px 8px; border-radius: 8px; border: 1px solid var(--border-default);
 }
-.k-icon { color: var(--text-secondary); font-size: 12px; }
-.key-mono code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); letter-spacing: 0.5px; }
+.k-icon { color: var(--text-secondary); font-size: 11px; }
+.key-mono code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-secondary); letter-spacing: 0.5px; }
 
 /* 操作按钮：悬浮流式设计 */
 .card-actions {
   position: absolute;
-  top: 24px; right: 24px;
-  display: flex; gap: 6px;
+  top: 14px; right: 14px;
+  display: flex; gap: 4px;
   opacity: 0; /* 默认隐藏 */
   transform: translateX(10px);
   transition: all 0.3s ease;
@@ -318,9 +344,9 @@ const emitShowModels = () => emit('show-models', props.account)
 }
 
 .action-btn {
-  width: 32px; height: 32px;
+  width: 28px; height: 28px;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--bg-elevated);
   box-shadow: var(--shadow-card);
   color: var(--text-secondary);

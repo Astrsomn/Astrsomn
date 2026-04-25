@@ -59,7 +59,10 @@ const emit = defineEmits<{
 .online-systems-container {
   display: flex;
   flex-direction: column;
+  margin-top: 10px;
   height: calc(100vh - 300px);
+  border: 1px solid var(--border-default);
+  border-radius: 24px;
   overflow: hidden;
 }
 

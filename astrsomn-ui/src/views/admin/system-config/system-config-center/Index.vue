@@ -63,6 +63,7 @@ const moduleCards: ModuleCard[] = [
   { title: '用户管理', desc: '维护系统用户与权限角色', routeName: 'AdminUsers', icon: UserOutlined },
   { title: '环境管理', desc: '维护系统运行环境与配置', routeName: 'AdminEnv', icon: ClusterOutlined },
   { title: '系统配置', desc: '管理系统参数与配置项', routeName: 'AdminSystemConfig', icon: SettingOutlined },
+  { title: '系统消息', desc: '查看并维护系统通知记录', routeName: 'AdminSystemMessage', icon: AlertOutlined },
   { title: '系统扩展', desc: '管理扩展安装与市场模块', routeName: 'AdminSystemExtension', icon: ApiOutlined }
 ]
 

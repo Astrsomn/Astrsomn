@@ -1,11 +1,11 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.constant.AiVecDriverEnum;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreCreateRequestDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreQueryRequestDTO;
@@ -13,10 +13,10 @@ import com.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiVecSourceEntity;
 import com.astrsomn.core.common.entity.AiVecStoreEntity;
-import com.astrsomn.core.common.utils.StringUtils;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AstVecStoreErrorEnum;
-import com.astrsomn.core.mapper.AiVecStoreMapper;
+import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AstVecStoreErrorEnum;
+import com.astrsomn.starter.mapper.AiVecStoreMapper;
 import com.astrsomn.server.service.AiVecSourceService;
 import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.vector.VectorStorePhysicalHandler;
@@ -25,7 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecStoreEntity> implements AiVecStoreService {
@@ -158,14 +158,14 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
 
     @Override
     public PageResponse<AiVecStoreResponseDTO> queryPage(BasePageRequest<AiVecStoreQueryRequestDTO> request) {
-        IPage<AiVecStoreResponseDTO> page = request.buildPage();
+        IPage<AiVecStoreResponseDTO> page = PageUtils.buildPage(request);
         AiVecStoreQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiVecStoreQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiVecStoreResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 
     @Override

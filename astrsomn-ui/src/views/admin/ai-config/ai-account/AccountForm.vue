@@ -13,12 +13,7 @@
     <template #header-logo>
       <component :is="isEdit ? FormOutlined : PlusCircleOutlined" />
     </template>
-    <template #header-title>
-      {{ isEdit ? '编辑凭证节点' : '部署新凭证' }}
-    </template>
-    <template #header-subtitle>
-      {{ isEdit ? '正在更新现有资产的安全配置' : '配置一个新的 AI 模型接入点' }}
-    </template>
+    <template #header-title>{{ isEdit ? '编辑账号' : '新建账号' }}</template>
 
     <div class="account-form-shell">
     <div class="account-form-spin-wrap">
@@ -32,22 +27,20 @@
         </div>
 
         <a-form layout="vertical" :model="form" class="refined-form">
-          <div class="form-section">
-            <div class="section-tag"><IdcardOutlined /> 基础身份</div>
-            <a-row :gutter="24">
-              <a-col :span="12">
+          <div class="form-layout">
+            <div class="form-column">
+              <div class="form-section">
                 <a-form-item name="accountKey">
-                  <template #label><span class="field-label">凭证唯一标识 <small>(Key)</small></span></template>
+                  <template #label><span class="field-label">账号 Key</span></template>
                   <a-input
                     v-model:value="form.accountKey"
                     :placeholder="accountKeyImmutable ? '' : '系统自动生成'"
                     :disabled="accountKeyImmutable"
                     class="premium-input mono"
                   />
-                  <div class="field-hint">建议：UPPER_SNAKE_CASE</div>
                 </a-form-item>
-              </a-col>
-              <a-col :span="12">
+              </div>
+              <div class="form-section">
                 <a-form-item
                   name="accountName"
                   :rules="[{ required: true, message: '请定义凭证展示名称' }]"
@@ -55,20 +48,41 @@
                   <template #label><span class="field-label">展示名称</span></template>
                   <a-input
                     v-model:value="form.accountName"
-                    placeholder="例如：OpenAI 生产环境"
+                    placeholder="请输入账号名称"
                     class="premium-input"
                     allow-clear
                   />
-                  <div class="field-hint">仅用于管理界面的识别名称</div>
                 </a-form-item>
-              </a-col>
-            </a-row>
-          </div>
+              </div>
+              <div class="form-section">
+                <a-form-item
+                  name="provider"
+                  :rules="[{ required: true, message: '请选择供应商' }]"
+                >
+                  <template #label><span class="field-label">Provider</span></template>
+                  <ModelProviderSelect
+                    v-model:value="form.provider"
+                    placeholder="请选择供应商"
+                    :allow-clear="true"
+                    size="middle"
+                  />
+                </a-form-item>
+              </div>
+            </div>
 
-          <div class="form-section">
-            <div class="section-tag security"><SafetyOutlined /> 安全鉴权</div>
-            <a-row :gutter="24">
-              <a-col :span="12">
+            <div class="form-column">
+              <div class="form-section">
+                <a-form-item name="apiUrl">
+                  <template #label><span class="field-label">API URL</span></template>
+                  <a-input
+                    v-model:value="form.apiUrl"
+                    placeholder="例如：https://api.openai.com/v1"
+                    class="premium-input mono"
+                    allow-clear
+                  />
+                </a-form-item>
+              </div>
+              <div class="form-section">
                 <a-form-item name="apiKey">
                   <template #label><span class="field-label">API Key</span></template>
                   <a-input-password
@@ -77,36 +91,29 @@
                     class="premium-input mono"
                   />
                 </a-form-item>
-              </a-col>
-              <a-col :span="12">
+              </div>
+              <div class="form-section">
                 <a-form-item name="apiSecret">
-                  <template #label><span class="field-label">API Secret <small>(可选)</small></span></template>
+                  <template #label><span class="field-label">API Secret</span></template>
                   <a-input-password
                     v-model:value="form.apiSecret"
                     placeholder="请输入 Secret 密钥"
                     class="premium-input mono"
                   />
                 </a-form-item>
-              </a-col>
-            </a-row>
-          </div>
-
-          <div class="form-section">
-            <div class="section-tag quota"><ControlOutlined /> 配额熔断</div>
-            <a-row :gutter="24">
-              <a-col :span="12">
+              </div>
+              <div class="form-section">
                 <a-form-item name="accountTokens">
-                  <template #label><span class="field-label">消耗上限 <small>(Tokens)</small></span></template>
+                  <template #label><span class="field-label">消耗上限 (Tokens)</span></template>
                   <a-input-number
                     v-model:value="form.accountTokens"
                     :min="0"
                     placeholder="无限制"
                     class="premium-input-number w-full mono"
                   />
-                  <div class="field-hint">达到上限后，关联服务将自动进入熔断状态</div>
                 </a-form-item>
-              </a-col>
-            </a-row>
+              </div>
+            </div>
           </div>
         </a-form>
       </div>
@@ -134,10 +141,11 @@
 import { reactive, ref, watch, computed } from 'vue'
 import { message } from 'ant-design-vue'
 import {
-  LockFilled, IdcardOutlined, SafetyOutlined, ControlOutlined,
+  LockFilled,
   FormOutlined, PlusCircleOutlined, SyncOutlined, ArrowRightOutlined
 } from '@ant-design/icons-vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
+import ModelProviderSelect from '@/views/admin/ai-config/ai-model/ModelProviderSelect.vue'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 
 interface Props {
@@ -156,6 +164,8 @@ const isEdit = computed(() => !!props.record?.id)
 const form = reactive<AiAccount>({
   accountKey: '',
   accountName: '',
+  provider: undefined,
+  apiUrl: '',
   apiKey: '',
   apiSecret: '',
   accountTokens: undefined
@@ -167,7 +177,10 @@ const loadDetail = async (id: string | number) => {
   loading.value = true
   try {
     const detail = await aiAccountApi.detail(id)
-    Object.assign(form, detail)
+    Object.assign(form, detail, {
+      provider: detail.provider || undefined,
+      apiUrl: detail.apiUrl || ''
+    })
     accountKeyImmutable.value = detail.accountKeyImmutable === true
   } catch (e: any) {
     message.error(e?.message || '详情加载失败')
@@ -199,7 +212,16 @@ const onSubmit = async () => {
 watch(() => props.visible, (val) => {
   if (val) {
     // 先清空表单，避免数据残留
-    Object.assign(form, { id: undefined, accountKey: '', accountName: '', apiKey: '', apiSecret: '', accountTokens: undefined })
+    Object.assign(form, {
+      id: undefined,
+      accountKey: '',
+      accountName: '',
+      provider: undefined,
+      apiUrl: '',
+      apiKey: '',
+      apiSecret: '',
+      accountTokens: undefined
+    })
     accountKeyImmutable.value = false
     
     if (props.record?.id) {
@@ -295,15 +317,17 @@ watch(() => props.visible, (val) => {
   box-shadow: 0 4px 12px rgba(0,0,0,0.02);
 }
 
-.section-tag {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 700; color: var(--primary-color);
-  padding: 4px 12px; background: #eff6ff;
-  border-radius: 20px; margin-bottom: 18px;
-  text-transform: uppercase;
+.form-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
 }
-.section-tag.security { color: #f59e0b; background: #fffbeb; }
-.section-tag.quota { color: #8b5cf6; background: #f5f3ff; }
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
 
 /* 输入控件优化 */
 .field-label {
@@ -325,10 +349,6 @@ watch(() => props.visible, (val) => {
 
 .mono {
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
-}
-
-.field-hint {
-  font-size: 11px; color: #94a3b8; margin-top: 6px;
 }
 
 /* Footer 优化 */
@@ -362,4 +382,10 @@ watch(() => props.visible, (val) => {
 :deep(.ant-form-item) { margin-bottom: 0; } /* 卡片已经有间距 */
 :deep(.ant-form-item-label) { padding-bottom: 8px; }
 .w-full { width: 100%; }
+
+@media (max-width: 900px) {
+  .form-layout {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

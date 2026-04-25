@@ -1,5 +1,5 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -13,9 +13,9 @@ import dev.langchain4j.model.output.Response;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.constant.AiModelEnum;
 import com.astrsomn.core.common.constant.AiVecDocEnum;
 import com.astrsomn.core.common.constant.VecDocMetadataKeys;
@@ -33,13 +33,13 @@ import com.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
 import com.astrsomn.core.common.langchain.extension.vector.VecSource;
 import com.astrsomn.core.common.langchain.extension.vector.VecStore;
-import com.astrsomn.core.common.utils.StringUtils;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AstVecDocErrorEnum;
-import com.astrsomn.core.mapper.AiAccountMapper;
-import com.astrsomn.core.mapper.AiInstanceMapper;
-import com.astrsomn.core.mapper.AiModelMapper;
-import com.astrsomn.core.mapper.AiVecDocMapper;
+import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AstVecDocErrorEnum;
+import com.astrsomn.starter.mapper.AiAccountMapper;
+import com.astrsomn.starter.mapper.AiInstanceMapper;
+import com.astrsomn.starter.mapper.AiModelMapper;
+import com.astrsomn.starter.mapper.AiVecDocMapper;
 import com.astrsomn.server.service.AiVecDocService;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.AiVecStoreService;
@@ -66,7 +66,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -391,14 +391,14 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
     @Override
     public PageResponse<AiVecDocResponseDTO> queryPage(BasePageRequest<AiVecDocQueryRequestDTO> request) {
-        IPage<AiVecDocResponseDTO> page = request.buildPage();
+        IPage<AiVecDocResponseDTO> page = PageUtils.buildPage(request);
         AiVecDocQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiVecDocQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiVecDocResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 
     @Override

@@ -1,24 +1,26 @@
 package com.astrsomn.server.service.impl;
 
+import com.astrsomn.core.common.utils.PageConverter;
+import com.astrsomn.core.common.utils.PageUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.account.AiAccountCreateRequestDTO;
 import com.astrsomn.core.common.dto.account.AiAccountQueryRequestDTO;
 import com.astrsomn.core.common.dto.account.AiAccountResponseDTO;
 import com.astrsomn.core.common.dto.account.AiAccountUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiAccountEntity;
 import com.astrsomn.core.common.entity.AiModelEntity;
-import com.astrsomn.core.common.utils.StringUtils;
-import com.astrsomn.core.common.util.CryptoUtil;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AiAccountErrorEnum;
-import com.astrsomn.core.mapper.AiAccountMapper;
-import com.astrsomn.core.mapper.AiModelMapper;
+import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.utils.CryptoUtil;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AiAccountErrorEnum;
+import com.astrsomn.starter.mapper.AiAccountMapper;
+import com.astrsomn.starter.mapper.AiModelMapper;
 import com.astrsomn.server.service.AiAccountService;
 import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
@@ -71,6 +73,12 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         }
         AiAccountResponseDTO dto = new AiAccountResponseDTO();
         BeanUtils.copyProperties(entity, dto);
+        if (entity.getApiKey() != null) {
+            dto.setApiKey(CryptoUtil.decrypt(entity.getApiKey()));
+        }
+        if (entity.getApiSecret() != null) {
+            dto.setApiSecret(CryptoUtil.decrypt(entity.getApiSecret()));
+        }
         dto.setAccountKeyImmutable(isAccountKeyReferencedByModel(entity.getAccountKey(), entity.getEnvCode()));
         return BaseResponse.success(dto);
     }
@@ -107,14 +115,14 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
 
     @Override
     public PageResponse<AiAccountResponseDTO> queryPage(BasePageRequest<AiAccountQueryRequestDTO> request) {
-        IPage<AiAccountResponseDTO> page = request.buildPage();
+        IPage<AiAccountResponseDTO> page = PageUtils.buildPage(request);
         AiAccountQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiAccountQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiAccountResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 
     /**

@@ -13,7 +13,7 @@ astrsomn:
   env-code: PRO
 logging:
   level:
-    com.astrsomn.core.mapper: debug
+    com.astrsomn.starter.mapper: debug
     root: info
   logback:
     rollingpolicy:

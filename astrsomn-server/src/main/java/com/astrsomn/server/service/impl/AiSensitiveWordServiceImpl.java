@@ -1,26 +1,26 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.sensitiveword.AiSensitiveWordCreateRequestDTO;
 import com.astrsomn.core.common.dto.sensitiveword.AiSensitiveWordQueryRequestDTO;
 import com.astrsomn.core.common.dto.sensitiveword.AiSensitiveWordResponseDTO;
 import com.astrsomn.core.common.dto.sensitiveword.AiSensitiveWordUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiSensitiveWordEntity;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AiSensitiveWordErrorEnum;
-import com.astrsomn.core.mapper.AiSensitiveWordMapper;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AiSensitiveWordErrorEnum;
+import com.astrsomn.starter.mapper.AiSensitiveWordMapper;
 import com.astrsomn.server.service.AiSensitiveWordService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class AiSensitiveWordServiceImpl extends ServiceImpl<AiSensitiveWordMapper, AiSensitiveWordEntity>
@@ -79,13 +79,13 @@ public class AiSensitiveWordServiceImpl extends ServiceImpl<AiSensitiveWordMappe
 
     @Override
     public PageResponse<AiSensitiveWordResponseDTO> queryPage(BasePageRequest<AiSensitiveWordQueryRequestDTO> request) {
-        IPage<AiSensitiveWordResponseDTO> page = request.buildPage();
+        IPage<AiSensitiveWordResponseDTO> page = PageUtils.buildPage(request);
         AiSensitiveWordQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiSensitiveWordQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiSensitiveWordResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 }

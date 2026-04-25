@@ -1,11 +1,11 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.constant.SystemUserEnum.AdminEnum;
 import com.astrsomn.core.common.constant.SystemUserEnum.UserRoleEnum;
 import com.astrsomn.core.common.dto.user.SystemUserCreateRequestDTO;
@@ -13,10 +13,10 @@ import com.astrsomn.core.common.dto.user.SystemUserQueryRequestDTO;
 import com.astrsomn.core.common.dto.user.SystemUserResponseDTO;
 import com.astrsomn.core.common.dto.user.SystemUserUpdateRequestDTO;
 import com.astrsomn.core.common.entity.SystemUserEntity;
-import com.astrsomn.core.common.utils.StringUtils;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.SystemUserErrorEnum;
-import com.astrsomn.core.mapper.SystemUserMapper;
+import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.SystemUserErrorEnum;
+import com.astrsomn.starter.mapper.SystemUserMapper;
 import com.astrsomn.server.service.SystemUserService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
@@ -24,7 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemUserEntity> implements SystemUserService {
@@ -104,13 +104,13 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
 
     @Override
     public PageResponse<SystemUserResponseDTO> queryPage(BasePageRequest<SystemUserQueryRequestDTO> request) {
-        IPage<SystemUserResponseDTO> page = request.buildPage();
+        IPage<SystemUserResponseDTO> page = PageUtils.buildPage(request);
         SystemUserQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new SystemUserQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<SystemUserResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 }

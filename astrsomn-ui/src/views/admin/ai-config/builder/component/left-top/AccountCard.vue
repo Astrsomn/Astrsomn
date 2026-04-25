@@ -59,34 +59,43 @@ const emit = defineEmits<{
 .node-connector {
   flex: 1;
   position: relative;
+  width: 100%;
+  min-height: 0;
 }
 
 .account-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-left: 4px solid #f97316;
-  border-radius: var(--radius-xl);
+  width: 100%;
+  height: 100%;
+  min-height: 100px;
+  background: var(--ab-glass-bg, rgba(255, 255, 255, 0.8));
+  backdrop-filter: blur(var(--ab-glass-haze, 10px));
+  -webkit-backdrop-filter: blur(var(--ab-glass-haze, 10px));
+  border: 1px solid var(--ab-glass-border, rgba(255, 255, 255, 0.6));
+  border-radius: var(--ab-glass-radius, 16px);
+  box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
   padding: 16px;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 100px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
   display: flex;
   flex-direction: column;
 }
 
 .account-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-card);
-
+  border-color: var(--ab-hover-line, #3b82f6);
+  box-shadow: var(--ab-hover-shadow, 0 0 15px rgba(59, 130, 246, 0.15));
+  transform: translateY(-1px);
 }
 
 .account-card.has-account {
-  border-left-color: #f97316;
+  /* 设计稿无左侧色条，保留数据态 */
 }
 
 .account-card:not(.has-account) {
-  border-left-color: var(--border-default);
+  /* 占位 */
 }
 
 .card-header {
@@ -103,19 +112,20 @@ const emit = defineEmits<{
 }
 
 .icon-badge {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
-  border-radius: var(--radius-md);
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  background: #ffedd5;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+  color: #f97316;
+  font-size: 18px;
 }
 
 .icon-badge .anticon {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .header-info {
@@ -126,9 +136,10 @@ const emit = defineEmits<{
 
 .card-label {
   font-size: 10px;
-  font-weight: bold;
+  font-weight: 700;
   color: #f97316;
   text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .account-key-display {
@@ -165,9 +176,10 @@ const emit = defineEmits<{
 }
 
 .card-placeholder {
-  font-size: 13px;
-  color: var(--text-hint);
-  padding: 8px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #94a3b8;
+  padding: 0;
 }
 
 .card-overlay {

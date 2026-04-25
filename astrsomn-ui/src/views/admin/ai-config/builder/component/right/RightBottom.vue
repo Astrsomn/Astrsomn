@@ -4,8 +4,8 @@
       <textarea
         class="input-area custom-scrollbar"
         rows="2"
-        placeholder="发送指令给 Agent..."
-      ></textarea>
+        placeholder="发送指令测试 Agent..."
+      />
       <div class="input-actions">
         <div class="action-icons">
           <PaperClipOutlined class="action-icon" />
@@ -25,22 +25,26 @@ import { PaperClipOutlined, AudioOutlined, SendOutlined } from '@ant-design/icon
 
 <style scoped>
 .right-bottom {
-  padding: 24px;
-  background: var(--bg-card);
+  flex-shrink: 0;
+  padding: 16px;
+  border-top: 1px solid color-mix(in srgb, #e2e8f0 50%, transparent);
+  background: transparent;
 }
 
 .input-wrapper {
   position: relative;
-  background: #ffffff;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-default);
-  padding: 8px;
-  transition: all 0.3s;
+  background: color-mix(in srgb, #fff 60%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, #e2e8f0 80%, transparent);
+  padding: 10px 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s;
 }
 
 .input-wrapper:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  border-color: #93c5fd;
 }
 
 .input-area {
@@ -48,11 +52,11 @@ import { PaperClipOutlined, AudioOutlined, SendOutlined } from '@ant-design/icon
   background: transparent;
   border: none;
   outline: none;
-  font-size: 12px;
-  padding: 12px;
+  font-size: 14px;
+  padding: 4px 8px;
   resize: none;
-  font-weight: 500;
-  color: var(--text-primary);
+  font-weight: 400;
+  color: #1e293b;
   font-family: inherit;
 }
 
@@ -69,8 +73,8 @@ import { PaperClipOutlined, AudioOutlined, SendOutlined } from '@ant-design/icon
 
 .action-icons {
   display: flex;
-  gap: 16px;
-  color: var(--text-secondary);
+  gap: 12px;
+  color: #94a3b8;
 }
 
 .action-icon {
@@ -80,26 +84,28 @@ import { PaperClipOutlined, AudioOutlined, SendOutlined } from '@ant-design/icon
 }
 
 .action-icon:hover {
-  color: var(--primary);
+  color: #2563eb;
 }
 
 .send-btn {
-  background: var(--primary-gradient);
+  background: var(--ab-blue-grad, linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%));
   color: white;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-lg);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s;
-  box-shadow: var(--shadow-card);
+  transition:
+    transform 0.15s,
+    box-shadow 0.2s;
+  box-shadow: var(--ab-btn-glow, 0 4px 15px rgba(59, 130, 246, 0.3));
   border: none;
   cursor: pointer;
 }
 
 .send-btn:hover {
-  opacity: 0.9;
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.4);
 }
 
 .send-btn:active {

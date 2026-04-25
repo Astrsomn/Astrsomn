@@ -1,9 +1,9 @@
 package com.astrsomn.server.service.extension.base;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.extension.SystemExtensionCreateRequestDTO;
 import com.astrsomn.core.common.dto.extension.SystemExtensionQueryRequestDTO;
 import com.astrsomn.core.common.dto.extension.SystemExtensionResponseDTO;

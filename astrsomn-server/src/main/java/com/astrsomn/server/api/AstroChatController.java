@@ -1,7 +1,7 @@
 package com.astrsomn.server.api;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BaseController;
+import com.astrsomn.commn.base.BaseController;
 import com.astrsomn.core.common.langchain.AstroChatRequest;
 import com.astrsomn.server.service.AstroChatService;
 import org.springframework.http.MediaType;

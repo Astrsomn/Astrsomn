@@ -1,7 +1,7 @@
 package com.astrsomn.server.api;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BaseController;
+import com.astrsomn.commn.base.BaseController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

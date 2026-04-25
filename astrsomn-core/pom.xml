@@ -43,11 +43,7 @@
             <version>2.3.33</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <scope>provided</scope>
-        </dependency>
+
 
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -61,6 +57,7 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -77,6 +74,12 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-commn</artifactId>
+            <version>0.1.0-alpha.1</version>
         </dependency>
 
     </dependencies>

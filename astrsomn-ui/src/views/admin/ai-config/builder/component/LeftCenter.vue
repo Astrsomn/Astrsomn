@@ -8,18 +8,20 @@
     </div>
 
     <div class="card-grid">
-      <div class="card-column">
+      <div class="cell-prompt">
         <PromptCard
           :prompt="currentPrompt"
           @select="handleSelectPrompt"
           @create="handleCreatePrompt"
           @update:promptContent="handlePromptContentUpdate"
         />
-        <ImageModelCard :current-image-instance="currentImageInstance" @select:image-instance="handleSelectImageInstance" />
       </div>
-      <div class="card-column">
+      <div class="cell-tools-rag">
         <ToolCard />
         <RagCard />
+      </div>
+      <div class="cell-multimodal">
+        <ImageModelCard :current-image-instance="currentImageInstance" @select:image-instance="handleSelectImageInstance" />
       </div>
     </div>
 
@@ -79,50 +81,70 @@ const handlePromptSubmit = async (form: AiPrompt) => {
 }
 
 const handleSelectImageInstance = (instance: AiInstance) => {
-  console.log('Received image instance in LeftCenter:', instance)
   currentImageInstance.value = instance
-  console.log('Updated currentImageInstance in LeftCenter:', currentImageInstance.value)
 }
 </script>
 
 <style scoped>
 .left-center {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 16px 32px 32px;
+  padding: 0 8px 8px 0;
 }
 
 .section-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 
 .title-indicator {
   width: 6px;
   height: 16px;
-  background: var(--border-default);
-  border-radius: 3px;
+  background: #d1d5db;
+  border-radius: 4px;
 }
 
 .title-text {
-  font-weight: bold;
+  font-weight: 700;
   font-size: 14px;
-  color: var(--text-heading);
+  color: #1e293b;
   margin: 0;
 }
 
 .card-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  grid-template-rows: auto auto;
+  gap: 16px;
+  align-items: stretch;
+  padding-bottom: 24px;
 }
 
-.card-column {
+.cell-prompt {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+}
+
+.cell-tools-rag {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-self: stretch;
+}
+
+.cell-multimodal {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-width: 0;
 }
 
 .custom-scrollbar::-webkit-scrollbar {

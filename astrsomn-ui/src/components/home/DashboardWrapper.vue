@@ -19,8 +19,7 @@
 .dashboard-main {
   max-width: 1600px;
   height: auto;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 24px;
   display: flex;
   flex-direction: column;
 

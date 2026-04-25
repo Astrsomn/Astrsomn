@@ -2,8 +2,8 @@ package com.astrsomn.server.api;
 
 
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.core.common.base.BaseController;
-import com.astrsomn.core.common.base.BaseResponse;
+import com.astrsomn.commn.base.BaseController;
+import com.astrsomn.commn.base.BaseResponse;
 import com.astrsomn.core.common.constant.SystemUserEnum.UserRoleEnum;
 import com.astrsomn.core.common.dto.auth.LoginRequest;
 import com.astrsomn.core.common.dto.auth.RefreshTokenRequest;

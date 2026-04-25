@@ -63,7 +63,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:selectedRowKeys', value: string[]): void
   (e: 'recover', memoryKey: string): void
-  (e: 'pageChange', page: number): void
+  (e: 'pageChange', page: number, pageSize: number): void
   (e: 'fetchList'): void
 }>()
 
@@ -121,8 +121,8 @@ const handleDeleteOne = async (memoryKey: string) => {
   emit('fetchList')
 }
 
-const onPageChange = (p: number) => {
-  emit('pageChange', p)
+const onPageChange = (p: number, size: number) => {
+  emit('pageChange', p, size)
 }
 </script>
 

@@ -73,26 +73,32 @@ const handleDescriptionInput = (event: Event) => {
 .node-connector {
   flex: 1;
   position: relative;
+  width: 100%;
+  min-height: 0;
 }
 
 .agent-card {
-  background: var(--primary-gradient);
-  border-radius: var(--radius-xl);
+  width: 100%;
+  height: 100%;
+  min-height: 100px;
+  background: var(--ab-blue-grad, linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%));
+  border-radius: var(--ab-glass-radius, 16px);
   padding: 16px;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-overview);
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
+  box-shadow: var(--ab-btn-glow, 0 4px 15px rgba(59, 130, 246, 0.3));
   color: white;
   cursor: pointer;
-  min-height: 100px;
   display: flex;
   flex-direction: column;
 }
 
 .agent-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
 }
 
 .card-header {
@@ -109,10 +115,11 @@ const handleDescriptionInput = (event: Event) => {
 }
 
 .icon-badge {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
   background: rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,7 +128,7 @@ const handleDescriptionInput = (event: Event) => {
 }
 
 .icon-badge .anticon {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .header-info {

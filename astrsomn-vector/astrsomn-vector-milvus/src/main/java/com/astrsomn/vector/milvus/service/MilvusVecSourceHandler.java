@@ -9,7 +9,7 @@ import com.astrsomn.core.common.entity.AiVecStoreEntity;
 import com.astrsomn.core.common.langchain.extension.vector.AbstractVecSource;
 import com.astrsomn.core.common.langchain.extension.vector.AbstractVecStore;
 import com.astrsomn.core.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 
 public final class MilvusVecSourceHandler extends AbstractVecSource {
 

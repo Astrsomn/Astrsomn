@@ -1,13 +1,18 @@
 <template>
-  <router-view />
-  <footer class="global-footer">
-    <span class="copyright">© 2026 Astrsomn. All rights reserved.</span>
-    <span class="divider">|</span>
-    <span class="version">版本 0.1.0-alpha.1</span>
-  </footer>
+  <div class="app-root">
+    <router-view />
+    <SystemMessageNoticeCenter />
+    <footer class="global-footer">
+      <span class="copyright">© 2026 Astrsomn. All rights reserved.</span>
+      <span class="divider">|</span>
+      <span class="version">版本 {{ appPkgVersion }}</span>
+    </footer>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { appPkgVersion } from '@/config/appMeta'
+import SystemMessageNoticeCenter from '@/components/global/SystemMessageNoticeCenter.vue'
 </script>
 
 <style>
@@ -26,14 +31,19 @@ body {
   height: 100vh;
 }
 
+.app-root {
+  width: 100%;
+  height: 100%;
+}
+
 .global-footer {
   position: fixed;
   bottom: 0px;
-  left: 5px;
+  left: 0;
   right: 0;
   display: flex;
   align-items: center;
-  justify-content: left;
+  justify-content: right;
   gap: 12px;
 
   background: transparent;

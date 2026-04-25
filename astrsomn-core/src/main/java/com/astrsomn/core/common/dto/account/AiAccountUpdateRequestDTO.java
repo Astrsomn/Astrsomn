@@ -1,6 +1,6 @@
 package com.astrsomn.core.common.dto.account;
 
-import com.astrsomn.core.common.base.BaseEntity;
+import com.astrsomn.commn.base.BaseEntity;
 import com.astrsomn.core.common.entity.AiAccountEntity;
 import lombok.Data;
 
@@ -18,6 +18,8 @@ public class AiAccountUpdateRequestDTO implements Serializable {
     private Long id;
     private String accountKey;
     private String accountName;
+    private String provider;
+    private String apiUrl;
     private String apiKey;
     private String apiSecret;
     private Long accountTokens;

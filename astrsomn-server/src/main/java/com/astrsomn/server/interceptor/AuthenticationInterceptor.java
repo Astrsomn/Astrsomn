@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.entity.SystemUserEntity;
-import com.astrsomn.core.mapper.SystemUserMapper;
+import com.astrsomn.starter.mapper.SystemUserMapper;
 import com.astrsomn.server.util.JwtUtil;
 import com.astrsomn.server.util.UserContext;
 import org.springframework.stereotype.Component;

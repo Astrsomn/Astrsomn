@@ -1,19 +1,19 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.mcp.AiMcpCreateRequestDTO;
 import com.astrsomn.core.common.dto.mcp.AiMcpQueryRequestDTO;
 import com.astrsomn.core.common.dto.mcp.AiMcpResponseDTO;
 import com.astrsomn.core.common.dto.mcp.AiMcpUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiMcpEntity;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AiMcpErrorEnum;
-import com.astrsomn.core.mapper.AiMcpMapper;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AiMcpErrorEnum;
+import com.astrsomn.starter.mapper.AiMcpMapper;
 import com.astrsomn.server.service.AiMcpService;
 import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
@@ -21,7 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> implements AiMcpService {
@@ -82,13 +82,13 @@ public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> impl
 
     @Override
     public PageResponse<AiMcpResponseDTO> queryPage(BasePageRequest<AiMcpQueryRequestDTO> request) {
-        IPage<AiMcpResponseDTO> page = request.buildPage();
+        IPage<AiMcpResponseDTO> page = PageUtils.buildPage(request);
         AiMcpQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiMcpQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiMcpResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 }

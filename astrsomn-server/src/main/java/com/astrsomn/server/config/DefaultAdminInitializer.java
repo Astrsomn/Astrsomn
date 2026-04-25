@@ -1,14 +1,14 @@
 package com.astrsomn.server.config;
 
-import com.astrsomn.core.common.base.BaseEntity;
+import com.astrsomn.commn.base.BaseEntity;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.constant.SystemUserEnum.AdminEnum;
 import com.astrsomn.core.common.constant.SystemUserEnum.UserRoleEnum;
 import com.astrsomn.core.common.entity.SystemEnvEntity;
 import com.astrsomn.core.common.entity.SystemUserEntity;
-import com.astrsomn.core.mapper.SystemEnvMapper;
-import com.astrsomn.core.mapper.SystemUserMapper;
+import com.astrsomn.starter.mapper.SystemEnvMapper;
+import com.astrsomn.starter.mapper.SystemUserMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

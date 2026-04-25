@@ -1,6 +1,12 @@
 <template>
   <div class="main-content">
-    <!-- 1. 顶部快捷入口 (保持截图4列布局) -->
+
+
+    <!-- 2. 主体布局 (严格遵循原图左右结构) -->
+    <main class="main-layout">
+      <!-- 左侧：在线业务系统 -->
+      <div class="online-systems-panel">
+            <!-- 1. 顶部快捷入口 (保持截图4列布局) -->
     <section class="quick-access-grid">
       <div v-for="(item, index) in moduleCards" :key="item.routeName" class="quick-access-card card-hover" @click="emit('go-to', item.routeName)">
         <div class="icon-container" :class="`icon-${index % 4 + 1}`">
@@ -12,11 +18,6 @@
         </div>
       </div>
     </section>
-
-    <!-- 2. 主体布局 (严格遵循原图左右结构) -->
-    <main class="main-layout">
-      <!-- 左侧：在线业务系统 -->
-      <div class="online-systems-panel">
         <CenterLeftBottom
           :paged-online-systems="pagedOnlineSystems"
           :current-page="currentPage"
@@ -90,7 +91,7 @@ const emit = defineEmits<{
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 24px;
+
   height: calc(100vh - 70px);
   display: flex;
   flex-direction: column;
@@ -98,15 +99,18 @@ const emit = defineEmits<{
   box-sizing: border-box;
 }
 
-/* 顶部快捷入口 */
+/* 顶部快捷入口（各中心页顶栏与此前保持一致：统一高度与卡片样式） */
 .quick-access-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  margin-top: 10px;
 }
 
 .quick-access-card {
-  background: white;
+  box-sizing: border-box;
+  min-height: 100px;
+  background: #ffffff;
   padding: 20px;
   border-radius: 20px;
   border: 1px solid #e2e8f0;
@@ -124,12 +128,14 @@ const emit = defineEmits<{
 }
 
 .icon-container {
+  flex-shrink: 0;
   width: 48px;
   height: 48px;
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 22px;
 }
 
 .icon-1 {
@@ -177,8 +183,6 @@ const emit = defineEmits<{
 
 .online-systems-panel {
   background: white;
-  border-radius: 24px;
-  border: 1px solid #e2e8f0;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;

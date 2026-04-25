@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.astrsomn.core.common.base.BaseEntity;
+import com.astrsomn.commn.base.BaseEntity;
 
 @Data
 @TableName("SYS_CONFIG")

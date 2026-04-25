@@ -1,5 +1,5 @@
 <template>
-  <div class="mcp-card clickable" @click="navigateTo('/admin/mcp')">
+  <div class="mcp-card clickable" @click="navigateTo('/admin/ai-config/mcp')">
     <div class="card-header">
       <div class="card-icon indigo-icon">
         <ApiOutlined />

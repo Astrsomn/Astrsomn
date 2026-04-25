@@ -10,9 +10,10 @@
     root-class-name="instance-select-drawer"
   >
     <div class="select-drawer-content">
-      <div class="search-bar">
+      <div class="toolbar">
         <a-input
           v-model:value="keyword"
+          class="toolbar-search"
           placeholder="搜索预设名称"
           allow-clear
           @pressEnter="handleSearch"
@@ -23,9 +24,9 @@
         </a-input>
         <a-select
           v-model:value="queryStatus"
+          class="toolbar-status"
           placeholder="状态筛选"
           allow-clear
-          style="width: 120px"
           @change="handleSearch"
         >
           <a-select-option value="enabled">启用</a-select-option>
@@ -34,45 +35,43 @@
         <a-button type="primary" @click="handleSearch">查询</a-button>
       </div>
 
-      <a-spin :spinning="loading">
-        <div class="instance-list">
-          <div
-            v-for="instance in list"
-            :key="instance.id"
-            class="instance-item"
-            :class="{ selected: selectedId === instance.id }"
-            @click="handleSelect(instance)"
-          >
-            <div class="instance-icon" :class="instance.modelType">
-              <MessageOutlined v-if="instance.modelType === 'chat'" />
-              <PartitionOutlined v-else-if="instance.modelType === 'embedding'" />
-              <PictureOutlined v-else />
-            </div>
-            <div class="instance-info">
-              <div class="instance-name">{{ instance.instanceName }}</div>
-              <div class="instance-key">
-                <KeyOutlined /> {{ instance.instanceKey }}
-              </div>
-            </div>
-            <div class="instance-meta">
-              <span class="model-tag">{{ instance.modelKey }}</span>
-              <span class="status-badge" :class="instance.status">
-                {{ instance.status === 'enabled' ? '启用' : '禁用' }}
-              </span>
-            </div>
-          </div>
-
-          <a-empty v-if="!loading && list.length === 0" description="暂无推理配置" />
-        </div>
-      </a-spin>
+      <a-table
+        class="instance-table"
+        :columns="columns"
+        :data-source="list"
+        :loading="loading"
+        :pagination="false"
+        row-key="id"
+        :row-selection="rowSelection"
+        :scroll="{ x: 620 }"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'instanceName'">
+            <a-button type="link" class="instance-name-link" @click="handleSelect(record)">
+              {{ record.instanceName || '未命名配置' }}
+            </a-button>
+          </template>
+          <template v-else-if="column.key === 'instanceKey'">
+            <span class="mono-text">{{ record.instanceKey || '-' }}</span>
+          </template>
+          <template v-else-if="column.key === 'modelType'">
+            <span>{{ record.modelType || '-' }}</span>
+          </template>
+          <template v-else-if="column.key === 'status'">
+            <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
+              {{ record.status === 'enabled' ? '启用' : '禁用' }}
+            </a-tag>
+          </template>
+        </template>
+      </a-table>
 
       <div class="drawer-footer">
         <a-pagination
-          v-model:current="page.pageNum"
+          :current="page.pageNum"
           :page-size="page.pageSize"
           :total="page.total"
           :show-size-changer="false"
-          @change="fetchList"
+          @change="onPageChange"
         />
       </div>
     </div>
@@ -80,8 +79,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
-import { SearchOutlined, KeyOutlined, MessageOutlined, PartitionOutlined, PictureOutlined } from '@ant-design/icons-vue'
+import { computed, reactive, ref, watch } from 'vue'
+import { SearchOutlined } from '@ant-design/icons-vue'
 import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance'
 
 const props = defineProps<{
@@ -99,11 +98,28 @@ const queryStatus = ref<string | undefined>()
 const loading = ref(false)
 const list = ref<AiInstance[]>([])
 const selectedId = ref<number | string | undefined>()
+const columns = [
+  { title: '名称', dataIndex: 'instanceName', key: 'instanceName', width: 190, ellipsis: true },
+  { title: '实例 Key', dataIndex: 'instanceKey', key: 'instanceKey', width: 170, ellipsis: true },
+  { title: '模型类型', dataIndex: 'modelType', key: 'modelType', width: 110 },
+  { title: '模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 120, ellipsis: true },
+  { title: '状态', dataIndex: 'status', key: 'status', width: 90 }
+]
 const page = reactive({
   pageNum: 1,
   pageSize: 10,
   total: 0
 })
+const rowSelection = computed(() => ({
+  type: 'radio' as const,
+  selectedRowKeys: selectedId.value != null ? [selectedId.value] : [],
+  onChange: (keys: Array<number | string>, rows: AiInstance[]) => {
+    selectedId.value = keys[0]
+    if (rows[0]) {
+      emit('select', rows[0])
+    }
+  }
+}))
 
 const fetchList = async () => {
   loading.value = true
@@ -134,6 +150,12 @@ const handleSelect = (instance: AiInstance) => {
   emit('select', instance)
 }
 
+const onPageChange = (p: number, size: number) => {
+  page.pageNum = p
+  page.pageSize = size
+  void fetchList()
+}
+
 const handleClose = () => {
   emit('update:open', false)
 }
@@ -157,123 +179,33 @@ watch(() => props.open, (val) => {
   min-height: 0;
 }
 
-.search-bar {
+.toolbar {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
-.instance-list {
+.toolbar-search {
+  flex: 1;
+  min-width: 220px;
+}
+
+.toolbar-status {
+  width: 120px;
+}
+
+.instance-table {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
-.instance-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
+.instance-name-link {
+  padding: 0;
 }
 
-.instance-item:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-card);
-}
-
-.instance-item.selected {
-  border-color: var(--primary);
-  background: var(--primary-hover);
-}
-
-.instance-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
-
-.instance-icon.chat {
-  background: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
-  color: white;
-}
-
-.instance-icon.embedding {
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  color: white;
-}
-
-.instance-icon.image {
-  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-  color: white;
-}
-
-.instance-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.instance-name {
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.instance-key {
-  font-size: 12px;
-  color: var(--text-secondary);
+.mono-text {
   font-family: 'JetBrains Mono', monospace;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.instance-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.model-tag {
-  font-size: 11px;
-  padding: 2px 8px;
-  background: var(--bg-secondary);
-  border-radius: 4px;
-  color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.status-badge {
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-.status-badge.enabled {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.status-badge.disabled {
-  background: #fee2e2;
-  color: #ef4444;
 }
 
 .drawer-footer {

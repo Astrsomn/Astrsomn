@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.workflow.starter.mapper.AstFlowHumanTaskMapper">
+
+    <select id="queryPage" resultType="com.astrsomn.workflow.core.domain.dto.humantask.AstFlowHumanTaskResponseDTO">
+        SELECT
+        t.ID AS id,
+        t.INSTANCE_ID AS instanceId,
+        t.NODE_ID AS nodeId,
+        t.TASK_STATUS AS taskStatus,
+        t.PAYLOAD AS payload,
+        t.ACTION_DATA AS actionData,
+        t.ENV_CODE AS envCode,
+        t.DELETED AS deleted,
+        t.CREATE_USER AS createUser,
+        t.CREATE_TIME AS createTime,
+        t.UPDATE_USER AS updateUser,
+        t.UPDATE_TIME AS updateTime
+        FROM AST_FLOW_HUMAN_TASK t
+        WHERE (t.DELETED = 0 OR t.DELETED IS NULL)
+        <if test="req != null and req.instanceId != null">
+            AND t.INSTANCE_ID = #{req.instanceId}
+        </if>
+        <if test="req != null and req.nodeId != null and req.nodeId != ''">
+            AND t.NODE_ID LIKE CONCAT('%', #{req.nodeId}, '%')
+        </if>
+        <if test="req != null and req.taskStatus != null and req.taskStatus != ''">
+            AND t.TASK_STATUS = #{req.taskStatus}
+        </if>
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND t.ENV_CODE = #{req.envCode}
+        </if>
+        ORDER BY t.UPDATE_TIME DESC, t.ID DESC
+    </select>
+
+    <select id="detail" resultType="com.astrsomn.workflow.core.domain.dto.humantask.AstFlowHumanTaskResponseDTO">
+        SELECT
+        t.ID AS id,
+        t.INSTANCE_ID AS instanceId,
+        t.NODE_ID AS nodeId,
+        t.TASK_STATUS AS taskStatus,
+        t.PAYLOAD AS payload,
+        t.ACTION_DATA AS actionData,
+        t.ENV_CODE AS envCode,
+        t.DELETED AS deleted,
+        t.CREATE_USER AS createUser,
+        t.CREATE_TIME AS createTime,
+        t.UPDATE_USER AS updateUser,
+        t.UPDATE_TIME AS updateTime
+        FROM AST_FLOW_HUMAN_TASK t
+        WHERE t.ID = #{id}
+        AND (t.DELETED = 0 OR t.DELETED IS NULL)
+        <if test="envCode != null and envCode != ''">
+            AND t.ENV_CODE = #{envCode}
+        </if>
+    </select>
+
+</mapper>

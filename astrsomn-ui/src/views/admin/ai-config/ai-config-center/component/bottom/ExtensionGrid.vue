@@ -1,55 +1,55 @@
 <template>
   <div class="extension-grid">
-    <div class="extension-card" @click="navigateTo('/admin/prompts')" @mouseenter="showDescription['prompts'] = true" @mouseleave="showDescription['prompts'] = false">
+    <div class="extension-card" @click="navigateTo('/admin/ai-config/prompts')" @mouseenter="showDescription['prompts'] = true" @mouseleave="showDescription['prompts'] = false">
       <FileTextOutlined class="extension-icon extension-icon--blue" />
       <div class="card-content">
         <span class="card-title">提示词库</span>
         <span v-if="showDescription['prompts']" class="card-description">管理和维护AI提示词</span>
       </div>
     </div>
-    <div class="extension-card" @click="navigateTo('/admin/builder')" @mouseenter="showDescription['builder'] = true" @mouseleave="showDescription['builder'] = false">
+    <div class="extension-card" @click="navigateTo('/admin/ai-config/builder')" @mouseenter="showDescription['builder'] = true" @mouseleave="showDescription['builder'] = false">
       <LinkOutlined class="extension-icon extension-icon--purple" />
       <div class="card-content">
         <span class="card-title">Agent Studio</span>
         <span v-if="showDescription['builder']" class="card-description">构建和配置AI代理</span>
       </div>
     </div>
-    <div class="extension-card" @click="navigateTo('/admin/conversations')" @mouseenter="showDescription['conversations'] = true" @mouseleave="showDescription['conversations'] = false">
+    <div class="extension-card" @click="navigateTo('/admin/ai-config/conversations')" @mouseenter="showDescription['conversations'] = true" @mouseleave="showDescription['conversations'] = false">
       <MessageOutlined class="extension-icon extension-icon--cyan" />
       <div class="card-content">
         <span class="card-title">对话管理</span>
         <span v-if="showDescription['conversations']" class="card-description">查看和管理用户对话</span>
       </div>
     </div>
-    <div class="extension-card" @click="navigateTo('/admin/mcp')" @mouseenter="showDescription['mcp'] = true" @mouseleave="showDescription['mcp'] = false">
+    <div class="extension-card" @click="navigateTo('/admin/ai-config/mcp')" @mouseenter="showDescription['mcp'] = true" @mouseleave="showDescription['mcp'] = false">
       <ApiOutlined class="extension-icon extension-icon--indigo" />
       <div class="card-content">
         <span class="card-title">AI MCP</span>
         <span v-if="showDescription['mcp']" class="card-description">AI模型控制平台</span>
       </div>
     </div>
-    <div class="extension-card" @click="navigateTo('/admin/system-config/system-extension')" @mouseenter="showDescription['system'] = true" @mouseleave="showDescription['system'] = false">
+    <div class="extension-card" @click="navigateTo('/admin/system/extensions')" @mouseenter="showDescription['system'] = true" @mouseleave="showDescription['system'] = false">
       <SettingOutlined class="extension-icon extension-icon--violet" />
       <div class="card-content">
         <span class="card-title">系统扩展</span>
         <span v-if="showDescription['system']" class="card-description">系统功能扩展配置</span>
       </div>
     </div>
-    <div class="extension-card" @click="navigateTo('/admin/vec-builder')" @mouseenter="showDescription['vec'] = true" @mouseleave="showDescription['vec'] = false">
+    <div class="extension-card" @click="navigateTo('/admin/vec-center')" @mouseenter="showDescription['vec'] = true" @mouseleave="showDescription['vec'] = false">
       <KeyOutlined class="extension-icon extension-icon--sky" />
       <div class="card-content">
         <span class="card-title">向量知识库管理</span>
         <span v-if="showDescription['vec']" class="card-description">管理向量知识库</span>
       </div>
     </div>
-    <div class="extension-card" @click="navigateTo('/admin/security')" @mouseenter="showDescription['security'] = true" @mouseleave="showDescription['security'] = false">
+    <div class="extension-card" @click="navigateTo('/admin/ai-safety/security')" @mouseenter="showDescription['security'] = true" @mouseleave="showDescription['security'] = false">
       <SecurityScanOutlined class="extension-icon extension-icon--red" />
       <div class="card-content">
         <span class="card-title">安全治理</span>
         <span v-if="showDescription['security']" class="card-description">系统安全管理</span>
       </div>
     </div>
-    <div class="extension-card" @click="navigateTo('/admin/templates')" @mouseenter="showDescription['templates'] = true" @mouseleave="showDescription['templates'] = false">
+    <div class="extension-card" @click="navigateTo('/admin/ai-safety/templates')" @mouseenter="showDescription['templates'] = true" @mouseleave="showDescription['templates'] = false">
       <CheckCircleOutlined class="extension-icon extension-icon--teal" />
       <div class="card-content">
         <span class="card-title">FTL 模板</span>

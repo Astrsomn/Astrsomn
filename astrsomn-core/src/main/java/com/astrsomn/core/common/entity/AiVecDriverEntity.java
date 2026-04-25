@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.astrsomn.core.common.base.BaseEntity;
+import com.astrsomn.commn.base.BaseEntity;
 
 
 @Data

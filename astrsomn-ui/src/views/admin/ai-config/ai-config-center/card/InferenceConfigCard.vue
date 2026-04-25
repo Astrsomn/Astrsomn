@@ -1,5 +1,5 @@
 <template>
-  <div class="inference-card clickable" @click="navigateTo('/admin/ai-instance')">
+  <div class="inference-card clickable" @click="navigateTo('/admin/ai-config/ai-instance')">
     <div class="card-header">
       <div class="card-icon purple-icon">
         <SettingOutlined />

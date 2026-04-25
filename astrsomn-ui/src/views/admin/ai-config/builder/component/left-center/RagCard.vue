@@ -11,14 +11,15 @@
         <button class="action-btn">
           <SearchOutlined />
         </button>
-        <button class="action-btn primary">
+        <button class="action-btn primary" type="button" aria-label="上传">
           <CloudUploadOutlined />
         </button>
       </div>
     </div>
     <div class="upload-area">
-      <p class="upload-text">拖拽或点击上传文档数据</p>
-      <span class="upload-hint">支持 PDF, Markdown, Notion</span>
+      <CloudUploadOutlined class="upload-ico" />
+      <p class="upload-text">拖拽或点击上传本地文档</p>
+      <span class="upload-hint">PDF, Markdown, Docx…</span>
     </div>
   </div>
 </template>
@@ -29,17 +30,25 @@ import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-desi
 
 <style scoped>
 .rag-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--ab-glass-bg, rgba(255, 255, 255, 0.8));
+  backdrop-filter: blur(var(--ab-glass-haze, 10px));
+  -webkit-backdrop-filter: blur(var(--ab-glass-haze, 10px));
+  border: 1px solid var(--ab-glass-border, rgba(255, 255, 255, 0.6));
+  border-radius: var(--ab-glass-radius, 16px);
+  box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
   padding: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .rag-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-card);
-  border-color: var(--primary);
+  border-color: var(--ab-hover-line, #3b82f6);
+  box-shadow: var(--ab-hover-shadow, 0 0 15px rgba(59, 130, 246, 0.15));
 }
 
 .card-header {
@@ -58,22 +67,23 @@ import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-desi
 .icon-badge {
   width: 32px;
   height: 32px;
-  background: rgba(16, 185, 129, 0.1);
-  border-radius: var(--radius-md);
+  background: #d1fae5;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #10b981;
-  box-shadow: var(--shadow-sm);
+  color: #059669;
+  box-shadow: none;
 }
 
 .icon-badge .anticon {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .card-title {
-  font-weight: bold;
-  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 14px;
+  color: #334155;
   margin: 0;
 }
 
@@ -83,31 +93,32 @@ import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-desi
 }
 
 .action-btn {
-  width: 28px;
-  height: 28px;
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border-radius: var(--radius-md);
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  color: #94a3b8;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: color 0.2s;
 }
 
 .action-btn:hover {
-  background: rgba(16, 185, 129, 0.2);
+  color: #2563eb;
 }
 
 .action-btn.primary {
   background: #10b981;
-  color: white;
-  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.35);
 }
 
 .action-btn.primary:hover {
-  transform: scale(1.05);
+  color: #fff;
+  background: #059669;
 }
 
 .action-btn .anticon {
@@ -115,30 +126,44 @@ import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-desi
 }
 
 .upload-area {
-  padding: 24px;
-  border: 2px dashed var(--border-default);
-  border-radius: var(--radius-lg);
+  flex: 1;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 1px dashed #e2e8f0;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.2);
   text-align: center;
-  transition: all 0.3s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
   cursor: pointer;
 }
 
+.upload-ico {
+  font-size: 22px;
+  color: #cbd5e1;
+}
+
 .upload-area:hover {
-  border-color: rgba(16, 185, 129, 0.5);
-  background: rgba(16, 185, 129, 0.05);
+  border-color: #cbd5e1;
+  background: rgba(248, 250, 252, 0.5);
 }
 
 .upload-text {
-  font-size: 11px;
-  color: var(--text-secondary);
+  font-size: 10px;
+  color: #94a3b8;
   font-weight: 500;
   margin: 0;
 }
 
 .upload-hint {
-  font-size: 9px;
-  color: var(--text-tertiary);
-  margin-top: 4px;
+  font-size: 8px;
+  color: #cbd5e1;
   display: block;
 }
 </style>

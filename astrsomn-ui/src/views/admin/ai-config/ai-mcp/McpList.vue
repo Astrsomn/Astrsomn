@@ -5,55 +5,56 @@
     empty-text="暂无 MCP 服务。"
   >
     <div class="mcp-page">
-      <AdminListToolbar>
-        <template #left>
+      <AstrsomnDataSection>
+        <template #toolbar>
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <AstrsomnSearchPill
+                v-model="query.mcpKey"
+                placeholder="搜索 MCP Key"
+                button-label="搜索"
+                layout="toolbar"
+                @search="fetchList"
+              />
+              <AstrsomnStateSwitch
+                v-model="query.enabled"
+                @change="fetchList"
+                :options="[
+                  { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
+                  { label: '启用', value: 1, color: '#10b981', icon: CheckCircleOutlined },
+                  { label: '禁用', value: 0, color: '#f43f5e', icon: StopOutlined }
+                ]"
+              />
+            </div>
+            <div class="toolbar-right">
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+            </div>
+          </div>
+        </template>
 
-            <AstrsomnSearchPill
-              v-model="query.mcpKey"
-              placeholder="搜索 MCP Key"
-              button-label="搜索"
-              layout="toolbar"
-              @search="fetchList"
-            />
-      
-     
-
-          <AstrsomnStateSwitch
-            v-model="query.enabled" 
-            @change="fetchList"
-            :options="[
-              { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
-              { label: '启用', value: 1, color: '#10b981', icon: CheckCircleOutlined },
-              { label: '禁用', value: 0, color: '#f43f5e', icon: StopOutlined }
-            ]"
+        <template #overview>
+          <AstrsomnOverview
+            :list-length="list.length"
+            :selected-count="selectedRowKeys.length"
+            :all-current-selected="allCurrentSelected"
+            :part-current-selected="partCurrentSelected"
+            :show-actions="list.length > 0"
+            :summary-text="`当前页 ${list.length} 条 MCP 服务，已选 ${selectedRowKeys.length} 条。`"
+            @toggle-select-all="toggleSelectAllCurrentPage"
           />
-
         </template>
 
-        <template #right>
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
-        </template>
-      </AdminListToolbar>
-
-      <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条 MCP 服务，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-
-      <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1280 }"
-      >
-        <template #bodyCell="{ column, record }">
+        <AstrsomnDataView
+          mode="table"
+          :data-source="list"
+          :loading="loading"
+          :columns="columns"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1280 }"
+          row-key="id"
+          empty-text="暂无匹配的 MCP 服务"
+        >
+          <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'server'">
             <div class="cell-stack">
               <span class="cell-title">{{ record.serverName || '未命名服务' }}</span>
@@ -117,18 +118,18 @@
               </a-button>
             </a-popconfirm>
           </template>
-        </template>
-      </a-table>
+          </template>
+        </AstrsomnDataView>
 
-      <div class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+        <template #pagination>
+          <AstrsomnPagination
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :total="page.total"
+            @change="onPageChange"
+          />
+        </template>
+      </AstrsomnDataSection>
 
       <McpFormModal
         v-model:open="modal.open"
@@ -154,8 +155,10 @@ import {
   StopOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
+import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
@@ -261,6 +264,7 @@ const copyMcpKey = async (value?: string) => {
 
 const query = reactive<QueryState>({})
 const list = ref<AiMcp[]>([])
+const loading = ref(false)
 
 const page = reactive({
   pageNum: 1,
@@ -355,23 +359,28 @@ const modal = reactive({
 const modalInitial = ref<AiMcp | null>(null)
 
 const fetchList = async () => {
-  const payload = {
-    pageNo: page.pageNum,
-    pageSize: page.pageSize,
-    param: {
-      mcpKey: query.mcpKey || undefined,
-      type: query.type || undefined,
-      enabled: query.enabled !== undefined && query.enabled !== null ? query.enabled : undefined
+  loading.value = true
+  try {
+    const payload = {
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: {
+        mcpKey: query.mcpKey || undefined,
+        type: query.type || undefined,
+        enabled: query.enabled !== undefined && query.enabled !== null ? query.enabled : undefined
+      }
     }
+    const resp: PageResponse<AiMcp> = await aiMcpApi.queryPage(payload)
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
   }
-
-  const resp: PageResponse<AiMcp> = await aiMcpApi.queryPage(payload)
-  list.value = resp.list || []
-  page.total = resp.total || 0
 }
 
-const onPageChange = (p: number) => {
+const onPageChange = (p: number, size: number) => {
   page.pageNum = p
+  page.pageSize = size
   void fetchList()
 }
 
@@ -441,6 +450,29 @@ void fetchList()
 <style scoped>
 .mcp-page {
   padding: 20px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .search-cluster {
@@ -525,15 +557,6 @@ void fetchList()
 .status-btn.active {
   color: var(--primary);
   background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
-}
-
-.pagination-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  flex-wrap: wrap;
 }
 
 .ellipsis {
@@ -688,8 +711,9 @@ void fetchList()
     flex: 1;
   }
 
-  .pagination-wrap {
-    justify-content: center;
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
   }
 }
 </style>

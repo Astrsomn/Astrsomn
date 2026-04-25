@@ -1,6 +1,6 @@
 package com.astrsomn.server.service.extension.base;
 
-import com.astrsomn.core.common.base.BaseResponse;
+import com.astrsomn.commn.base.BaseResponse;
 import com.astrsomn.core.common.dto.extension.ExtensionModelLoadPreviewDTO;
 import com.astrsomn.core.common.dto.extension.ExtensionModelUnloadPreviewDTO;
 import com.astrsomn.core.common.langchain.extension.model.ModelProviderHandler;

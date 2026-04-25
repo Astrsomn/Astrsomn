@@ -57,7 +57,7 @@ const handleMenuClick = ({ key }: { key: string }) => {
   switch (key) {
     case 'home': router.push('/'); break;
     case 'admin': router.push('/admin'); break;
-    case 'config': router.push('/admin/system-config'); break;
+    case 'config': router.push('/admin/system/config'); break;
     case 'logout':
       localStorage.clear();
       message.success('已安全退出');

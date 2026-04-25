@@ -5,9 +5,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.constant.AiVecDriverEnum;
 import com.astrsomn.core.common.dto.vecsource.AiVecSourceCreateRequestDTO;
 import com.astrsomn.core.common.dto.vecsource.AiVecSourceQueryRequestDTO;
@@ -15,16 +15,17 @@ import com.astrsomn.core.common.dto.vecsource.AiVecSourceResponseDTO;
 import com.astrsomn.core.common.dto.vecsource.AiVecSourceSetStatusRequestDTO;
 import com.astrsomn.core.common.dto.vecsource.AiVecSourceUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiVecSourceEntity;
-import com.astrsomn.core.common.utils.StringUtils;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AstVecSourceErrorEnum;
-import com.astrsomn.core.mapper.AiVecSourceMapper;
+import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AstVecSourceErrorEnum;
+import com.astrsomn.starter.mapper.AiVecSourceMapper;
 import com.astrsomn.server.service.AiVecSourceService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.langchain.vector.AstroVecSourceFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-
+import com.astrsomn.core.common.utils.PageUtils;
+import com.astrsomn.core.common.utils.PageConverter;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -98,14 +99,14 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
 
     @Override
     public PageResponse<AiVecSourceResponseDTO> queryPage(BasePageRequest<AiVecSourceQueryRequestDTO> request) {
-        IPage<AiVecSourceResponseDTO> page = request.buildPage();
+        IPage<AiVecSourceResponseDTO> page = PageUtils.buildPage(request);
         AiVecSourceQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiVecSourceQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiVecSourceResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 
     @Override

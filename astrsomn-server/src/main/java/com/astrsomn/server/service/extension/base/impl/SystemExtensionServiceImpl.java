@@ -1,22 +1,24 @@
 package com.astrsomn.server.service.extension.base.impl;
 
 import com.astrsomn.core.common.dto.extension.*;
+import com.astrsomn.core.common.utils.PageConverter;
+import com.astrsomn.core.common.utils.PageUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.constant.SystemExtensionEnum;
 import com.astrsomn.core.common.entity.SystemExtensionEntity;
 import com.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
-import com.astrsomn.core.common.utils.StringUtils;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.SystemExtensionErrorEnum;
-import com.astrsomn.core.mapper.SystemExtensionMapper;
+import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.SystemExtensionErrorEnum;
+import com.astrsomn.starter.mapper.SystemExtensionMapper;
 import com.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
 import com.astrsomn.server.plugin.registry.SystemExtensionRegistry;
 import com.astrsomn.server.plugin.registry.PluginDirectoryExtensionSyncService;
@@ -110,7 +112,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
 
     @Override
     public PageResponse<SystemExtensionResponseDTO> queryPage(BasePageRequest<SystemExtensionQueryRequestDTO> request) {
-        IPage<SystemExtensionResponseDTO> page = request.buildPage();
+        IPage<SystemExtensionResponseDTO> page = PageUtils.buildPage(request);
         SystemExtensionQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new SystemExtensionQueryRequestDTO();
@@ -124,7 +126,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
                 fillAvatarFromDescriptors(row, descriptorsByKey);
             }
         }
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 
     private void fillAvatarFromDescriptors(SystemExtensionResponseDTO dto) {

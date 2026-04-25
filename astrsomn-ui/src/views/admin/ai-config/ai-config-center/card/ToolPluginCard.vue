@@ -1,5 +1,5 @@
 <template>
-  <div class="tool-card clickable" @click="navigateTo('/admin/tools')">
+  <div class="tool-card clickable" @click="navigateTo('/admin/ai-config/tools')">
     <div class="card-header">
       <div class="card-icon teal-icon">
         <ToolOutlined />

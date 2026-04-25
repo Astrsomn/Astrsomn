@@ -2,10 +2,10 @@ package com.astrsomn.server.api;
 
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BaseController;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BaseController;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.account.AiAccountCreateRequestDTO;
 import com.astrsomn.core.common.dto.account.AiAccountQueryRequestDTO;
 import com.astrsomn.core.common.dto.account.AiAccountResponseDTO;

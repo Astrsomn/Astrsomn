@@ -21,7 +21,7 @@
       {{ mode === 'create' ? '注册接入端点' : mode === 'view' ? '查看端点配置' : '编辑端点配置' }}
     </template>
     <template #header-subtitle>
-      左侧填写基本信息，右侧配置能力位与推理参数
+      左侧填写基础信息，右侧配置能力与推理参数
     </template>
 
     <div class="model-form-shell">
@@ -35,16 +35,16 @@
       <div class="model-form-split">
         <div class="model-form-pane model-form-pane--left">
           <div class="form-section">
-            <h3 class="section-headline"><IdcardOutlined /> 端点身份识别</h3>
+            <h3 class="section-headline"><IdcardOutlined /> 基础信息</h3>
             <div class="form-grid">
-              <a-form-item label="来源类型" name="sourceType">
+              <a-form-item label="模型来源" name="sourceType">
                 <a-select v-model:value="form.sourceType" size="large" :disabled="props.mode === 'view'">
                   <a-select-option value="user_custom">用户自定义模型</a-select-option>
                   <a-select-option value="plugin">插件模型</a-select-option>
                 </a-select>
               </a-form-item>
 
-              <a-form-item label="供应商" name="provider">
+              <a-form-item label="Provider" name="provider">
                 <ModelProviderSelect
                   v-model:value="form.provider"
                   placeholder="请选择端点所属服务商"
@@ -53,22 +53,22 @@
                 />
               </a-form-item>
 
-              <a-form-item label="状态" name="status">
+              <a-form-item label="启用状态" name="status">
                 <a-select v-model:value="form.status" size="large" :disabled="props.mode === 'view'">
                   <a-select-option value="enabled">已启用</a-select-option>
                   <a-select-option value="disabled">已禁用</a-select-option>
                 </a-select>
               </a-form-item>
 
-              <a-form-item label="端点类型" name="modelType">
+              <a-form-item label="模型类型" name="modelType">
                 <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}]" block size="large" :disabled="props.mode === 'view' || isPluginModel" />
               </a-form-item>
 
-              <a-form-item label="展示名称" name="modelName">
+              <a-form-item label="模型名称" name="modelName">
                 <a-input v-model:value="form.modelName" placeholder="例如：OpenAI 官方端点 或 私有部署 Llama3" size="large" :disabled="props.mode === 'view' || isPluginModel" />
               </a-form-item>
 
-              <a-form-item label="识别码 (Model Key)" name="modelKey">
+              <a-form-item label="模型 Key" name="modelKey">
                 <a-tooltip
                   v-if="modelKeyImmutable || props.mode === 'view' || isPluginModel"
                   :title="isPluginModel ? '插件模型不可修改' : (modelKeyImmutable ? '已有推理实例在同环境下引用该端点 Key，不可修改' : '查看模式下不可修改')"
@@ -89,7 +89,7 @@
                 </a-input>
               </a-form-item>
 
-              <a-form-item label="关联凭证" name="accountKey">
+              <a-form-item label="关联账号" name="accountKey">
                 <a-select
                   v-model:value="form.accountKey"
                   :options="accountSelectOptions"
@@ -97,15 +97,15 @@
                   allow-clear
                   show-search
                   :filter-option="filterAccountOption"
-                  placeholder="请关联对应的 API 凭证资产"
+                  placeholder="请选择关联账号"
                   size="large"
                   option-filter-prop="label"
                   :disabled="props.mode === 'view'"
                 />
               </a-form-item>
 
-              <a-form-item label="API 地址" name="apiUrl" class="span-2">
-                <a-input v-model:value="form.apiUrl" placeholder="供应商 Base URL，如 https://api.openai.com/v1" size="large" :disabled="props.mode === 'view'">
+              <a-form-item label="API URL" name="apiUrl" class="span-2">
+                <a-input v-model:value="form.apiUrl" placeholder="例如：https://api.openai.com/v1" size="large" :disabled="props.mode === 'view'">
                   <template #prefix><GlobalOutlined style="color: #bfbfbf" /></template>
                 </a-input>
               </a-form-item>
@@ -117,7 +117,7 @@
 
         <div class="model-form-pane model-form-pane--right">
           <div class="form-section">
-            <h3 class="section-headline"><ThunderboltOutlined /> 协议能力位 (Capabilities)</h3>
+            <h3 class="section-headline"><ThunderboltOutlined /> 能力配置 (Capabilities)</h3>
 
             <div v-if="form.modelType === 'chat'" class="capability-panel-section">
               <div class="cap-tag-grid">
@@ -180,19 +180,19 @@
             </div>
 
             <div class="param-schema-section">
-              <h3 class="section-headline"><SettingOutlined /> 推理参数架构 (Parameter Schema)</h3>
+              <h3 class="section-headline"><SettingOutlined /> 推理参数配置 (Parameter Schema)</h3>
               <p class="section-desc">控制实例层可填写的参数范围。未启用的参数在实例层将被禁用或忽略。</p>
               
               <div class="param-table">
                 <div class="param-table-header">
-                  <div class="param-col param-col--id">参数标识</div>
-                  <div class="param-col param-col--desc">说明/映射字段</div>
+                  <div class="param-col param-col--id">参数名</div>
+                  <div class="param-col param-col--desc">说明与映射</div>
                  
                
                   <div class="param-col param-col--toggle">启用</div>
                 </div>
                 <div class="param-table-body">
-                  <div v-for="(param, idx) in currentParams" :key="param.id" class="param-row">
+                  <div v-for="param in currentParams" :key="param.id" class="param-row">
                     <div class="param-col param-col--id">
                       <span class="param-id">{{ param.id }}</span>
                     </div>
@@ -212,14 +212,14 @@
             </div>
 
             <div class="runtime-params-box">
-              <div class="box-title"><ControlOutlined /> 端点资源约束</div>
+              <div class="box-title"><ControlOutlined /> 资源限制</div>
               <div class="param-grid">
                 <div class="param-item">
-                  <span class="pl">单次响应上限 (Tokens)</span>
+                  <span class="pl">单次响应上限 (Token)</span>
                   <a-input-number v-model:value="form.responseLimit" :min="0" placeholder="默认 4096" block :disabled="props.mode === 'view' || isPluginModel" />
                 </div>
                 <div class="param-item">
-                  <span class="pl">累计消耗配额 (Tokens)</span>
+                  <span class="pl">累计配额上限 (Token)</span>
                   <a-input-number v-model:value="form.maxQuotaTokens" :min="0" placeholder="0 表示无限制" block :disabled="props.mode === 'view' || isPluginModel" />
                 </div>
               </div>
@@ -275,7 +275,7 @@ import {
   IMAGE_CAPABILITIES_SET,
   IMAGE_PARAM_CODES,
   MODEL_CONFIG_MAP
-} from '@/constants/aiModelCapabilityCodes'
+} from '@/constants/aiModelEnums'
 
 const props = withDefaults(
     defineProps<{
@@ -355,7 +355,8 @@ async function fetchAccountOptions() {
       pageSize: 500,
       param: {
         createUser,
-        envCode: resolveQueryEnvCode()
+        envCode: resolveQueryEnvCode(),
+        provider: form.provider?.trim() || undefined
       }
     })
     accountList.value = resp.list || []
@@ -380,6 +381,15 @@ const accountSelectOptions = computed(() => {
     opts.unshift({ value: key, label: `${key}（当前值，不在可选列表）` })
   }
   return opts
+})
+
+const accountMapByKey = computed(() => {
+  const map = new Map<string, AiAccount>()
+  accountList.value.forEach((item) => {
+    const key = item.accountKey?.trim()
+    if (key) map.set(key, item)
+  })
+  return map
 })
 
 const filterAccountOption = (input: string, option: { label?: string }) => {
@@ -543,6 +553,36 @@ watch(
   () => {
     if (props.open) {
       syncForm()
+    }
+  }
+)
+
+watch(
+  () => form.provider,
+  (provider, prevProvider) => {
+    if (!props.open) return
+    if (provider === prevProvider) return
+
+    const currentKey = form.accountKey?.trim()
+    if (currentKey) {
+      const selectedAccount = accountMapByKey.value.get(currentKey)
+      if (selectedAccount && selectedAccount.provider !== provider) {
+        form.accountKey = ''
+      }
+    }
+
+    void fetchAccountOptions()
+  }
+)
+
+watch(
+  () => form.accountKey,
+  (accountKey) => {
+    const key = accountKey?.trim()
+    if (!key) return
+    const account = accountMapByKey.value.get(key)
+    if (account?.apiUrl?.trim()) {
+      form.apiUrl = account.apiUrl
     }
   }
 )

@@ -69,7 +69,9 @@ public class AuthorizationInterceptor extends AbstractSecurityInterceptor implem
                 || path.startsWith("/v1/astro/ai-template")
                 || path.startsWith("/v1/astro/ai-workflow")
                 || path.startsWith("/v1/astro/ai-instance")
-                || path.startsWith("/v1/astro/ai-account");
+                || path.startsWith("/v1/astro/ai-account")
+                || path.startsWith("/v1/astro/system-message")
+                || path.startsWith("/v1/astro/sse");
     }
 
 }

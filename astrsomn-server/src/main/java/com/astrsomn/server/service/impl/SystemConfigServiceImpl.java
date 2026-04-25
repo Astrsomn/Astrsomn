@@ -1,26 +1,26 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.config.SystemConfigCreateRequestDTO;
 import com.astrsomn.core.common.dto.config.SystemConfigQueryRequestDTO;
 import com.astrsomn.core.common.dto.config.SystemConfigResponseDTO;
 import com.astrsomn.core.common.dto.config.SystemConfigUpdateRequestDTO;
 import com.astrsomn.core.common.entity.SystemConfigEntity;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.SystemConfigErrorEnum;
-import com.astrsomn.core.mapper.SystemConfigMapper;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.SystemConfigErrorEnum;
+import com.astrsomn.starter.mapper.SystemConfigMapper;
 import com.astrsomn.server.service.SystemConfigService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, SystemConfigEntity>
@@ -79,13 +79,13 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
 
     @Override
     public PageResponse<SystemConfigResponseDTO> queryPage(BasePageRequest<SystemConfigQueryRequestDTO> request) {
-        IPage<SystemConfigResponseDTO> page = request.buildPage();
+        IPage<SystemConfigResponseDTO> page = PageUtils.buildPage(request);
         SystemConfigQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new SystemConfigQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<SystemConfigResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 }

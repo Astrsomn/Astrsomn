@@ -1,19 +1,19 @@
 package com.astrsomn.server.service.impl;
-
+import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.base.BasePageRequest;
-import com.astrsomn.core.common.base.BaseResponse;
-import com.astrsomn.core.common.base.PageResponse;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.tool.AiToolCreateRequestDTO;
 import com.astrsomn.core.common.dto.tool.AiToolQueryRequestDTO;
 import com.astrsomn.core.common.dto.tool.AiToolResponseDTO;
 import com.astrsomn.core.common.dto.tool.AiToolUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiToolEntity;
-import com.astrsomn.core.exception.base.BusinessException;
-import com.astrsomn.core.exception.constant.AiToolErrorEnum;
-import com.astrsomn.core.mapper.AiToolMapper;
+import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AiToolErrorEnum;
+import com.astrsomn.starter.mapper.AiToolMapper;
 import com.astrsomn.server.service.AiToolService;
 import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
@@ -21,7 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-
+import com.astrsomn.core.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> implements AiToolService {
@@ -81,13 +81,13 @@ public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> i
 
     @Override
     public PageResponse<AiToolResponseDTO> queryPage(BasePageRequest<AiToolQueryRequestDTO> request) {
-        IPage<AiToolResponseDTO> page = request.buildPage();
+        IPage<AiToolResponseDTO> page = PageUtils.buildPage(request);
         AiToolQueryRequestDTO param = request.getParam();
         if (param == null) {
             param = new AiToolQueryRequestDTO();
         }
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiToolResponseDTO> result = baseMapper.queryPage(page, param);
-        return PageResponse.buildResponse(result);
+        return PageConverter.toResponse(result);
     }
 }

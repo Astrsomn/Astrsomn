@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.astrsomn.core.common.base.BaseEntity;
+import com.astrsomn.commn.base.BaseEntity;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -34,4 +34,10 @@ public class AiAccountEntity extends BaseEntity<Long> {
 
     @TableField("ACCOUNT_TOKENS")
     private Long accountTokens;
+
+    @TableField("API_URL")
+    private String apiUrl;
+
+    @TableField("provider")
+    private String provider;
 }

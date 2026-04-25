@@ -10,8 +10,8 @@ import com.astrsomn.core.common.constant.AiModelEnum;
 import com.astrsomn.core.common.entity.AiModelEntity;
 import com.astrsomn.core.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.core.common.langchain.extension.model.AbstractModelProviderHandler;
-import com.astrsomn.core.common.utils.CollectionUtils;
-import com.astrsomn.core.exception.UnknowModelException;
+import com.astrsomn.commn.utils.CollectionUtils;
+import com.astrsomn.commn.UnknowModelException;
 
 import java.util.Arrays;
 import java.util.List;

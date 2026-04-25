@@ -1,4 +1,7 @@
 astrsomn:
+  mybatis-plus:
+    # workflow-starter 默认会自动补这个包；这里显式写出便于排查与覆盖
+    additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
   data-base:
     database-type: mysql
     host: 127.0.0.1

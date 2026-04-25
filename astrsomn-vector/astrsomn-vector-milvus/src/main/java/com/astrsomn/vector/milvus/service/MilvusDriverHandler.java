@@ -5,7 +5,7 @@ import com.astrsomn.core.common.entity.AiVecDriverEntity;
 import com.astrsomn.core.common.entity.AiVecSourceEntity;
 import com.astrsomn.core.common.langchain.extension.vector.AbstractVecDriver;
 import com.astrsomn.core.common.langchain.extension.vector.VecSource;
-import com.astrsomn.core.common.utils.EnumUtils;
+import com.astrsomn.commn.utils.EnumUtils;
 
 import java.util.List;
 

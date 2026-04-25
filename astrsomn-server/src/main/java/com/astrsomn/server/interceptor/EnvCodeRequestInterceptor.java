@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.constant.SystemUserEnum.UserRoleEnum;
-import com.astrsomn.core.common.utils.StringUtils;
+import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.server.util.UserContext;
 import com.astrsomn.starter.config.AstrsomnProperties;
 import com.astrsomn.starter.context.EnvScope;
