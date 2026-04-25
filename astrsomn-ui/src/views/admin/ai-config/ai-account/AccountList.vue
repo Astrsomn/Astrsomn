@@ -4,7 +4,7 @@
     description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
     empty-text="暂无账号。"
   >
-    <div class="account-page">
+    <div ref="pageRef" class="account-page">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
@@ -16,6 +16,15 @@
                 button-label="查询"
                 @search="fetchList"
               />
+              <div class="provider-filter">
+                <ModelProviderSelect
+                  v-model:value="query.provider"
+                  placeholder="按 provider 筛选"
+                  :allow-clear="true"
+                  size="middle"
+                  @update:value="onProviderChange"
+                />
+              </div>
             </div>
             <div class="toolbar-right">
               <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
@@ -30,13 +39,15 @@
             :all-current-selected="allCurrentSelected"
             :part-current-selected="partCurrentSelected"
             :show-actions="list.length > 0"
+            :view-mode="viewMode"
             :summary-text="`当前页 ${list.length} 条账号，已选 ${selectedRowKeys.length} 条。`"
             @toggle-select-all="toggleSelectAllCurrentPage"
+            @update:view-mode="onViewModeChange"
           />
         </template>
 
         <AstrsomnDataView
-          mode="table"
+          :mode="dataViewMode"
           :data-source="list"
           :loading="loading"
           :columns="columns"
@@ -44,7 +55,21 @@
           row-key="id"
           :scroll="{ x: 1180 }"
           empty-text="暂无匹配的账号"
+          :card-columns="currentGridColumns"
+          :card-min-width="accountCardMinWidth"
+          :card-gap="accountCardGap"
         >
+          <template #card="{ record }">
+            <AccountCard
+              :account="record"
+              :selected="record.id != null && selectedKeySet.has(record.id)"
+              @edit="goEdit"
+              @delete="handleDeleteOne"
+              @show-models="openModelsDrawer"
+              @toggle="onToggleSelect"
+            />
+          </template>
+
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'apiKey'">
               <span class="secret-mask">{{ maskSecret(record.apiKey) }}</span>
@@ -87,12 +112,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   DeleteOutlined,
-  PlusOutlined,
-  ReloadOutlined
+  PlusOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
@@ -103,15 +127,27 @@ import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AccountForm from './AccountForm.vue'
 import AccountModelsDrawer from './AccountModelsDrawer.vue'
+import AccountCard from './AccountCard.vue'
+import ModelProviderSelect from '../ai-model/ModelProviderSelect.vue'
 import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount'
 import type { AiModel } from '@/api/aiModel'
 
+const ACCOUNT_CARD_MIN_WIDTH_PX = 360
+const ACCOUNT_CARD_GAP_PX = 12
+const accountCardMinWidth = `${ACCOUNT_CARD_MIN_WIDTH_PX}px`
+const accountCardGap = `${ACCOUNT_CARD_GAP_PX}px`
+
+const pageRef = ref<HTMLElement | null>(null)
 const formVisible = ref(false)
 const currentRecord = ref<AiAccount | undefined>(undefined)
+const viewMode = ref<'grid' | 'list'>('list')
+const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
+const currentGridColumns = ref(3)
 
 type QueryState = {
   accountKey?: string
   accountName?: string
+  provider?: string
 }
 
 const columns = [
@@ -119,7 +155,8 @@ const columns = [
   { title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true },
   { title: '供应商', dataIndex: 'provider', key: 'provider', width: 120, ellipsis: true },
   { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
-  { title: 'API Key', dataIndex: 'apiKey', key: 'apiKey', width: 240, ellipsis: true },
+  { title: '请求路径', dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true },
+  { title: '额度', dataIndex: 'accountTokens', key: 'accountTokens', width: 120, ellipsis: true },
   { title: '操作', key: 'actions', width: 220, fixed: 'right' as const }
 ]
 
@@ -132,6 +169,7 @@ const page = reactive({
   total: 0
 })
 const selectedRowKeys = ref<Array<number | string>>([])
+const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 
 // maskSecret 函数已在 AccountCard 组件中实现
 
@@ -167,14 +205,6 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
     return
   }
   selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
-}
-
-const resetFilters = () => {
-  query.accountKey = undefined
-  query.accountName = undefined
-  page.pageNum = 1
-  selectedRowKeys.value = []
-  void fetchList()
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
@@ -216,7 +246,8 @@ const fetchList = async () => {
       pageSize: page.pageSize,
       param: {
         accountKey: query.accountKey || undefined,
-        accountName: query.accountName || undefined
+        accountName: query.accountName || undefined,
+        provider: query.provider || undefined
       }
     }
     const resp: PageResponse<AiAccount> = await aiAccountApi.queryPage(payload)
@@ -230,6 +261,42 @@ const fetchList = async () => {
 const onPageChange = (p: number) => {
   page.pageNum = p
   void fetchList()
+}
+
+const onProviderChange = () => {
+  page.pageNum = 1
+  void fetchList()
+}
+
+const onViewModeChange = (mode: 'grid' | 'list') => {
+  viewMode.value = mode
+}
+
+const onToggleSelect = (id: number | string, checked: boolean) => {
+  if (checked) {
+    if (!selectedRowKeys.value.includes(id)) {
+      selectedRowKeys.value = [...selectedRowKeys.value, id]
+    }
+    return
+  }
+  selectedRowKeys.value = selectedRowKeys.value.filter((item) => item !== id)
+}
+
+const resolveGridColumns = () => {
+  if (typeof window === 'undefined') return 3
+  const width = pageRef.value?.clientWidth ?? window.innerWidth
+  const columns = Math.floor((width + ACCOUNT_CARD_GAP_PX) / (ACCOUNT_CARD_MIN_WIDTH_PX + ACCOUNT_CARD_GAP_PX))
+  return Math.max(1, Math.min(3, columns))
+}
+
+const syncGridColumns = () => {
+  currentGridColumns.value = resolveGridColumns()
+}
+
+let resizeObserver: ResizeObserver | null = null
+
+const onResize = () => {
+  syncGridColumns()
 }
 
 const goCreate = () => {
@@ -264,6 +331,22 @@ const handleBatchDelete = async () => {
 }
 
 void fetchList()
+syncGridColumns()
+
+onMounted(() => {
+  onResize()
+  if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
+    resizeObserver = new ResizeObserver(onResize)
+    resizeObserver.observe(pageRef.value)
+    return
+  }
+  window.addEventListener('resize', onResize)
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  window.removeEventListener('resize', onResize)
+})
 
 const modelsDrawer = reactive({
   open: false,
@@ -319,6 +402,11 @@ const openModelsDrawer = async (account: AiAccount) => {
   gap: 12px;
   align-items: center;
   flex: 1;
+}
+
+.provider-filter {
+  width: 260px;
+  min-width: 220px;
 }
 
 .toolbar-right {

@@ -34,4 +34,10 @@ public class AiAccountEntity extends BaseEntity<Long> {
 
     @TableField("ACCOUNT_TOKENS")
     private Long accountTokens;
+
+    @TableField("API_URL")
+    private String apiUrl;
+
+    @TableField("provider")
+    private String provider;
 }

@@ -1,11 +1,17 @@
 <template>
-  <a-card :bordered="false" class="c-side-card">
+  <a-card :bordered="false" class="c-side-card" :class="{ 'is-selected': selected }">
     <div class="deco-bubble bubble-1"></div>
     <div class="deco-bubble bubble-2"></div>
 
     <div class="card-inner">
       <div class="card-header">
         <div class="title-group">
+          <a-checkbox
+            class="card-check"
+            :checked="selected"
+            @change="onCheckboxChange"
+            @click.stop
+          />
           <div class="robot-icon">
             <CustomerServiceOutlined />
           </div>
@@ -100,9 +106,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import {
-  UserOutlined, KeyOutlined, LockOutlined, TransactionOutlined,
-  HistoryOutlined, EditOutlined, DeleteOutlined, RobotOutlined,
-  CustomerServiceOutlined, RightOutlined
+  KeyOutlined, LockOutlined, TransactionOutlined,
+  EditOutlined, DeleteOutlined, CustomerServiceOutlined, RightOutlined
 } from '@ant-design/icons-vue'
 
 interface AiAccount {
@@ -111,8 +116,10 @@ interface AiAccount {
   createTime?: string; createUser?: string; usedModelNames?: string; usedModelKeys?: string;
 }
 
-const props = defineProps<{ account: AiAccount }>()
-const emit = defineEmits(['edit', 'delete', 'show-models'])
+const props = withDefaults(defineProps<{ account: AiAccount; selected?: boolean }>(), {
+  selected: false
+})
+const emit = defineEmits(['edit', 'delete', 'show-models', 'toggle'])
 
 const maskSecret = (v?: string) => v ? `${v.slice(0, 6)}***${v.slice(-4)}` : '••••-••••'
 const formatTokens = (t?: number | null) => {
@@ -129,6 +136,13 @@ const usedModels = computed(() => {
 const onEdit = () => emit('edit', props.account)
 const onDelete = () => props.account.id && emit('delete', props.account.id)
 const emitShowModels = () => emit('show-models', props.account)
+const onToggle = (checked: boolean) => {
+  if (props.account.id == null) return
+  emit('toggle', props.account.id, checked)
+}
+const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
+  onToggle(Boolean(e?.target?.checked))
+}
 </script>
 
 <style scoped>
@@ -150,6 +164,11 @@ const emitShowModels = () => emit('show-models', props.account)
   transform: translateY(-5px);
   box-shadow: var(--shadow-overview);
   border-color: var(--primary);
+}
+
+.c-side-card.is-selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
 /* 背景装饰球 */
@@ -189,6 +208,10 @@ const emitShowModels = () => emit('show-models', props.account)
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.card-check {
+  margin-right: 2px;
 }
 
 .robot-icon {

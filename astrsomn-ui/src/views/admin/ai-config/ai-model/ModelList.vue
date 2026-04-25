@@ -78,19 +78,29 @@
                 </template>
 
                 <template v-else-if="column.key === 'status'">
-                  <a-button
-                      type="text"
+                  <div class="status-cell">
+                    <a-button
+                        type="text"
+                        size="small"
+                        class="status-indicator"
+                        @click="handleStatusChange(record.id, record.status !== 'enabled')"
+                    >
+                      <template #icon>
+                        <check-circle-outlined v-if="record.status === 'enabled'" style="color: #52c41a" />
+                        <close-circle-outlined v-else style="color: #ff4d4f" />
+                      </template>
+                      <span :style="{ color: record.status === 'enabled' ? '#52c41a' : '#ff4d4f' }">
+                        {{ record.status === 'enabled' ? '启用' : '禁用' }}
+                      </span>
+                    </a-button>
+                    <a-switch
                       size="small"
-                      @click="handleStatusChange(record.id, record.status !== 'enabled')"
-                  >
-                    <template #icon>
-                      <check-circle-outlined v-if="record.status === 'enabled'" style="color: #52c41a" />
-                      <close-circle-outlined v-else style="color: #ff4d4f" />
-                    </template>
-                    <span :style="{ color: record.status === 'enabled' ? '#52c41a' : '#ff4d4f' }">
-                      {{ record.status === 'enabled' ? '启用' : '禁用' }}
-                    </span>
-                  </a-button>
+                      :checked="record.status === 'enabled'"
+                      :loading="statusUpdatingId === record.id"
+                      :disabled="statusUpdatingId === record.id"
+                      @change="handleStatusSwitchChange(record.id, $event)"
+                    />
+                  </div>
                 </template>
 
                 <template v-else-if="column.key === 'isDefault'">
@@ -272,6 +282,7 @@ const list = ref<AiModel[]>([])
 const loading = ref(false)
 const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
 const selectedRowKeys = ref<Array<number | string>>([])
+const statusUpdatingId = ref<number | string | null>(null)
 
 const handleProviderChange = () => {
   page.pageNum = 1
@@ -416,13 +427,20 @@ const handleBatchDelete = async () => {
 }
 
 const handleStatusChange = async (id: number | string, checked: boolean) => {
+  statusUpdatingId.value = id
   try {
     await aiModelApi.update({ id, status: checked ? 'enabled' : 'disabled' })
     message.success('状态更新成功')
     fetchList()
   } catch (e) {
     message.error('状态更新失败')
+  } finally {
+    statusUpdatingId.value = null
   }
+}
+
+const handleStatusSwitchChange = (id: number | string, checked: boolean) => {
+  void handleStatusChange(id, checked)
 }
 
 const handleFormSubmit = async (payload: AiModel) => {
@@ -670,6 +688,16 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+}
+
+.status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-indicator {
+  padding-inline: 0;
 }
 
 .table-actions :deep(.ant-btn-link) {

@@ -71,6 +71,12 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         }
         AiAccountResponseDTO dto = new AiAccountResponseDTO();
         BeanUtils.copyProperties(entity, dto);
+        if (entity.getApiKey() != null) {
+            dto.setApiKey(CryptoUtil.decrypt(entity.getApiKey()));
+        }
+        if (entity.getApiSecret() != null) {
+            dto.setApiSecret(CryptoUtil.decrypt(entity.getApiSecret()));
+        }
         dto.setAccountKeyImmutable(isAccountKeyReferencedByModel(entity.getAccountKey(), entity.getEnvCode()));
         return BaseResponse.success(dto);
     }
