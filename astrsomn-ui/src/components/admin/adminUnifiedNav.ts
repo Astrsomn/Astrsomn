@@ -22,6 +22,7 @@ import {
 
 const baseAi = '/admin/ai-config';
 const baseSafety = '/admin/ai-safety';
+const baseWorkflow = '/admin/ai-workflow';
 const baseSystem = '/admin/system';
 
 /**
@@ -51,6 +52,18 @@ export const adminUnifiedNav: AdminModuleNavGroup[] = [
       { to: `${baseSafety}/templates`, label: 'FTL 模板', icon: CodeOutlined },
       { to: `${baseSafety}/security`, label: '敏感词', icon: SafetyCertificateOutlined },
       { to: `${baseSafety}/tracing`, label: '链路追踪', icon: BranchesOutlined }
+    ]
+  },
+  {
+    key: 'ai-workflow',
+    label: '工作流',
+    icon: BranchesOutlined,
+    children: [
+      { to: `${baseWorkflow}/definitions`, label: '流程定义', icon: AppstoreAddOutlined },
+      { to: `${baseWorkflow}/deployments`, label: '流程发布', icon: CloudServerOutlined },
+      { to: `${baseWorkflow}/instances`, label: '流程实例', icon: DatabaseOutlined },
+      { to: `${baseWorkflow}/node-history`, label: '节点历史', icon: FileTextOutlined },
+      { to: `${baseWorkflow}/human-tasks`, label: '人工任务', icon: TeamOutlined }
     ]
   },
   {

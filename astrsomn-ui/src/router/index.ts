@@ -176,6 +176,79 @@ const adminChildren: RouteRecordRaw[] = [
   },
 
   {
+    path: 'ai-workflow',
+    component: () => import('@/views/admin/AdminModuleLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'AdminAiWorkflowCenter',
+        component: () => import('@/views/admin/ai-workflow/ai-workflow-center/Index.vue'),
+        meta: {
+          title: '工作流中心',
+          requiresAuth: true,
+          showAdminDock: true,
+          showModuleSidebar: false
+        }
+      },
+      {
+        path: 'definitions',
+        name: 'AdminWorkflowDefinitions',
+        component: () => import('@/views/admin/ai-workflow/definition/DefinitionList.vue'),
+        meta: {
+          title: '流程定义',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'deployments',
+        name: 'AdminWorkflowDeployments',
+        component: () => import('@/views/admin/ai-workflow/deployment/DeploymentList.vue'),
+        meta: {
+          title: '流程发布',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'instances',
+        name: 'AdminWorkflowInstances',
+        component: () => import('@/views/admin/ai-workflow/instance/InstanceList.vue'),
+        meta: {
+          title: '流程实例',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'node-history',
+        name: 'AdminWorkflowNodeHistory',
+        component: () => import('@/views/admin/ai-workflow/node-history/NodeHistoryList.vue'),
+        meta: {
+          title: '节点历史',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'human-tasks',
+        name: 'AdminWorkflowHumanTasks',
+        component: () => import('@/views/admin/ai-workflow/human-task/HumanTaskList.vue'),
+        meta: {
+          title: '人工任务',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      }
+    ]
+  },
+
+  {
     path: 'system',
     component: () => import('@/views/admin/AdminModuleLayout.vue'),
     children: [
@@ -328,6 +401,12 @@ const adminChildren: RouteRecordRaw[] = [
   { path: 'templates', redirect: { path: '/admin/ai-safety/templates' } },
   { path: 'security', redirect: { path: '/admin/ai-safety/security' } },
   { path: 'tracing', redirect: { path: '/admin/ai-safety/tracing' } },
+  { path: 'ai-workflow-center', redirect: { path: '/admin/ai-workflow' } },
+  { path: 'workflow-definitions', redirect: { path: '/admin/ai-workflow/definitions' } },
+  { path: 'workflow-deployments', redirect: { path: '/admin/ai-workflow/deployments' } },
+  { path: 'workflow-instances', redirect: { path: '/admin/ai-workflow/instances' } },
+  { path: 'workflow-node-history', redirect: { path: '/admin/ai-workflow/node-history' } },
+  { path: 'workflow-human-tasks', redirect: { path: '/admin/ai-workflow/human-tasks' } },
 
   { path: 'system-config-center', redirect: { path: '/admin/system' } },
   { path: 'users', redirect: { path: '/admin/system/users' } },

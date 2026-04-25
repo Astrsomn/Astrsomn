@@ -17,9 +17,14 @@
     <packaging>jar</packaging>
 
     <dependencies>
+
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-commn</artifactId>
+            <version>0.1.0-alpha.1</version>
+            <scope>compile</scope>
         </dependency>
+
+
     </dependencies>
 </project>
