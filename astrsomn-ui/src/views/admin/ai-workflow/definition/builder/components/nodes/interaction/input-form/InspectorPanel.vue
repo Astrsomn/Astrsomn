@@ -3,7 +3,7 @@
 </template>
 <script setup lang="ts">
 import BaseInspectorPanel from '../../shared/BaseInspectorPanel.vue'
-import type { WorkflowNode } from '../../../../types'
+import type { WorkflowNode } from '../../../../domain/types.ts'
 defineProps<{ selectedNode: WorkflowNode; allNodes: WorkflowNode[] }>()
 defineEmits<{ 'update-node': [payload: { label?: string; description?: string; config?: Record<string, unknown> }] }>()
 </script>

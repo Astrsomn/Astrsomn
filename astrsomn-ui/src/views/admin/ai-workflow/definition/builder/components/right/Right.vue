@@ -50,9 +50,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { WorkflowEdge, WorkflowMeta, WorkflowNode } from '../types'
-import type { WorkflowNodeType } from '../types'
-import { nodeInspectorMap } from './nodes/registry'
+import type { WorkflowEdge, WorkflowMeta, WorkflowNode } from '../../domain/types.ts'
+import type { WorkflowNodeType } from '../../domain/types.ts'
+import { nodeInspectorMap } from '../nodes/registry.ts'
 
 const props = defineProps<{
   workflowMeta: WorkflowMeta

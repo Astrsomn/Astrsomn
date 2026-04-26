@@ -139,7 +139,7 @@ const assemblyVisible = ref(false)
 const editingId = ref<string | number | undefined>(undefined)
 const query = reactive<{ agentName?: string; status?: string }>({})
 const list = ref<AiAgent[]>([])
-const viewMode = ref<'grid' | 'list'>('grid')
+const viewMode = ref<'grid' | 'list'>('list')
 const selectedKeys = ref<Set<string | number>>(new Set())
 const currentGridColumns = ref(resolveGridColumns())
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
@@ -150,8 +150,8 @@ const partCurrentSelected = computed(() => selectedKeys.value.size > 0 && select
 const tableSelectedRowKeys = computed<Array<string | number>>(() => Array.from(selectedKeys.value))
 
 const tableColumns = [
+{ title: 'Agent Key', dataIndex: 'agentKey', key: 'agentKey', ellipsis: true, width: 120 },
   { title: '智能体名称', dataIndex: 'agentName', key: 'agentName', ellipsis: true, width: 200 },
-  { title: 'Agent Key', dataIndex: 'agentKey', key: 'agentKey', ellipsis: true, width: 220 },
   { title: '模型实例', dataIndex: 'chatInstanceName', key: 'chatInstanceName', ellipsis: true, width: 180 },
   { title: '提示词策略', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true, width: 180 },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },

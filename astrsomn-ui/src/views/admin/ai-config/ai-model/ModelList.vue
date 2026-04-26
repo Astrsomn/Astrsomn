@@ -238,7 +238,7 @@ const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }
 
 const columns = [
   { title: '类型', key: 'modelType', width: 60 },
-  { title: '', key: 'providerAvatar', width: 44, align: 'center' },
+  { title: '供应商', key: 'providerAvatar', width: 60, align: 'center' },
   { title: '模型信息', key: 'modelName', width: 180 },
   { title: '标识 Key', key: 'modelKey', width: 150 },
   { title: '来源', key: 'sourceType', width: 100 },

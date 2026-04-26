@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import BaseInspectorPanel from '../../shared/BaseInspectorPanel.vue'
-import type { WorkflowNode } from '../../../../types'
+import type { WorkflowNode } from '../../../../domain/types.ts'
 
 defineProps<{
   selectedNode: WorkflowNode

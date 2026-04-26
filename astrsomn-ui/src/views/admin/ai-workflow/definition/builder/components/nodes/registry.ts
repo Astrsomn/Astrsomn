@@ -1,5 +1,5 @@
 import type { Component } from 'vue'
-import type { WorkflowNodeType } from '../../types'
+import type { WorkflowNodeType } from '../../domain/types.ts'
 
 import StartCanvasNode from './control/start/CanvasNode.vue'
 import EndCanvasNode from './control/end/CanvasNode.vue'

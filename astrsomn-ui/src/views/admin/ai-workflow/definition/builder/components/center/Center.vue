@@ -9,7 +9,7 @@
     @mouseup.capture="onCanvasMouseUp"
     @contextmenu.capture="onNativeContextmenu"
   >
-    <PaletteDock :items="paletteIcons" />
+    <LeftCenter :items="paletteIcons" />
     <VueFlow
       :nodes="nodes"
       :edges="edges"
@@ -38,9 +38,9 @@
       <Background pattern-color="#e2e8f0" :gap="18" />
   
     </VueFlow>
-    <TopTools :interaction-mode="interactionMode" @set-mode="setInteractionMode" @clear-selection="clearSelection" @placeholder="notifyPlaceholder" />
-    <RightActions :saving="saving" @save="$emit('save')" />
-    <BottomRightZoom :zoom-percent="zoomPercent" @fit-view="onFitView" @zoom-in="onZoomIn" @zoom-out="onZoomOut" />
+    <LeftTop :interaction-mode="interactionMode" @set-mode="setInteractionMode" @clear-selection="clearSelection" @placeholder="notifyPlaceholder" />
+    <RightTop :saving="saving" @save="$emit('save')" />
+    <RightBottom :zoom-percent="zoomPercent" @fit-view="onFitView" @zoom-in="onZoomIn" @zoom-out="onZoomOut" />
   </section>
 </template>
 
@@ -49,13 +49,13 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { VueFlow, type Connection, type EdgeMouseEvent, type NodeMouseEvent, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
-import { nodeCanvasTypes } from './nodes/registry'
-import PaletteDock from './flow-canvas/PaletteDock.vue'
-import TopTools from './flow-canvas/controls/TopTools.vue'
-import RightActions from './flow-canvas/controls/RightActions.vue'
-import BottomRightZoom from './flow-canvas/controls/BottomRightZoom.vue'
-import { useNodeDnD } from '../composables/useNodeDnD'
-import type { CanvasContextMenuPayload, CanvasPaletteIconItem, NodeDropPayload, WorkflowEdge, WorkflowNode } from '../types'
+import { nodeCanvasTypes } from '../nodes/registry.ts'
+import LeftCenter from '@/views/admin/ai-workflow/definition/builder/components/center/components/Left-Center.vue'
+import LeftTop from '@/views/admin/ai-workflow/definition/builder/components/center/components/Left-Top.vue'
+import RightTop from '@/views/admin/ai-workflow/definition/builder/components/center/components/Right-Top.vue'
+import RightBottom from '@/views/admin/ai-workflow/definition/builder/components/center/components/Right-Bottom.vue'
+import { useNodeDnD } from '@/views/admin/ai-workflow/definition/builder/composables/useNodeDnD.ts'
+import type { CanvasContextMenuPayload, CanvasPaletteIconItem, NodeDropPayload, WorkflowEdge, WorkflowNode } from '../../domain/types.ts'
 
 const props = withDefaults(
   defineProps<{

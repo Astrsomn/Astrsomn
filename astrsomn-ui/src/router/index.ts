@@ -193,7 +193,7 @@ const adminChildren: RouteRecordRaw[] = [
       {
         path: 'definitions/new',
         name: 'AdminWorkflowDefinitionBuilder',
-        component: () => import('@/views/admin/ai-workflow/definition/builder/WorkflowDefinitionBuilder.vue'),
+        component: () => import('@/views/admin/ai-workflow/definition/builder/Index.vue'),
         meta: {
           title: '流程搭建',
           requiresAuth: true,
@@ -204,7 +204,7 @@ const adminChildren: RouteRecordRaw[] = [
       {
         path: 'definitions/:id/edit',
         name: 'AdminWorkflowDefinitionEditBuilder',
-        component: () => import('@/views/admin/ai-workflow/definition/builder/WorkflowDefinitionBuilder.vue'),
+        component: () => import('@/views/admin/ai-workflow/definition/builder/Index.vue'),
         meta: {
           title: '编辑流程',
           requiresAuth: true,

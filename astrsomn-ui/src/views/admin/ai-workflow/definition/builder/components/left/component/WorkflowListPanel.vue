@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import type { WorkflowListItem } from '../../types'
+import type { WorkflowListItem } from '../../../domain/types.ts'
 
 defineProps<{
   items: WorkflowListItem[]

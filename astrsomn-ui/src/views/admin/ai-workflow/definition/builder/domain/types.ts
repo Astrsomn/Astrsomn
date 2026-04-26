@@ -1,4 +1,9 @@
-import type { Edge, Node, XYPosition } from '@vue-flow/core'
+/**
+ * TODO 这是类型中心。定义了整个工作流编辑器的数据契约：节点类型、端口类型、节点数据、边数据、图结构、菜单 payload 等。
+ *      其他 3 个文件都依赖这里的类型，保证调用时有统一约束。
+ */
+
+import type { XYPosition } from '@vue-flow/core'
 
 export type WorkflowNodeType =
   | 'start'
@@ -45,8 +50,24 @@ export type WorkflowNodeData = {
   outputs?: NodePort[]
 }
 
-export type WorkflowNode = Node<WorkflowNodeData>
-export type WorkflowEdge = Edge
+export type WorkflowNode = {
+  id: string
+  type?: WorkflowNodeType | string
+  position: XYPosition
+  data: WorkflowNodeData
+  selected?: boolean
+  [key: string]: unknown
+}
+export type WorkflowEdge = {
+  id?: string
+  source: string
+  target: string
+  sourceHandle?: string | null
+  targetHandle?: string | null
+  label?: string
+  type?: string
+  [key: string]: unknown
+}
 
 export type WorkflowMeta = {
   id?: number | string

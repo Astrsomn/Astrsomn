@@ -5,13 +5,7 @@
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <a-input
-                v-model="query.workflowName"
-                allow-clear
-                class="toolbar-input"
-                placeholder="搜索流程名称"
-                @pressEnter="fetchList"
-              />
+              <AstrsomnSearchPill v-model="query.workflowName" placeholder="搜索流程名称" @search="fetchList" />
               <a-input
                 v-model="query.workflowKey"
                 allow-clear
@@ -28,11 +22,20 @@
               />
             </div>
             <div class="toolbar-right">
-              <a-button type="primary" ghost @click="fetchList">查询</a-button>
-              <a-button @click="resetFilters">重置</a-button>
-              <a-button type="primary" @click="openCreate">新建流程</a-button>
+              <AstrsomnSegmentedButton :buttons="segmentedButtons" />
             </div>
           </div>
+        </template>
+
+        <template #overview>
+          <AstrsomnOverview
+            :list-length="list.length"
+            :selected-count="0"
+            :all-current-selected="false"
+            :part-current-selected="false"
+            :show-actions="false"
+            :summary-text="`当前页 ${list.length} 条流程定义。`"
+          />
         </template>
 
         <AstrsomnDataView :data-source="list" :columns="columns" row-key="id" mode="table" :pagination="false" :loading="loading">
@@ -74,10 +77,14 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { FilterOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
 import { aiWorkflowApi, type AiWorkflow, type PageResponse } from '@/api/aiWorkflow'
 
 type WorkflowQuery = {
@@ -178,6 +185,29 @@ const handleDeleteOne = async (id?: number | string) => {
   message.success(msg || '删除成功')
   void fetchList()
 }
+
+const segmentedButtons = [
+  {
+    label: '查询',
+    icon: SearchOutlined,
+    type: 'primary' as const,
+    ghost: true,
+    onClick: () => {
+      void fetchList()
+    }
+  },
+  {
+    label: '重置',
+    icon: FilterOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: '新建流程',
+    icon: PlusOutlined,
+    type: 'primary' as const,
+    onClick: openCreate
+  }
+]
 
 onMounted(() => {
   void fetchList()

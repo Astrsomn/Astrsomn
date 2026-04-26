@@ -1,7 +1,26 @@
+/**
+ * TODO 这是核心状态与行为层（最核心）：
+ *      管理响应式状态：nodes、edges、viewport、选中节点/边
+ *      图编辑动作：增删节点、删边、复制节点、批量禁用/删除、更新节点/边属性
+ *      连线规则：防自连、防重复、条件节点 true/false 约束、并行分支数量约束
+ *      校验与序列化：validateGraph、loadGraph、toGraphJson
+ *      可以把它看作 builder 的“store + service”（只是用 composable 实现）。
+ */
+
 import { computed, ref } from 'vue'
-import { addEdge, MarkerType, type Connection, type Edge, type Node } from '@vue-flow/core'
-import { createNodeData, defaultGraph } from '../constants'
-import type { WorkflowEdge, WorkflowGraph, WorkflowNode, WorkflowNodeType } from '../types'
+import { addEdge, MarkerType, type Connection, type Edge } from '@vue-flow/core'
+import { defaultGraph } from '../domain/graph-default'
+import { validateConnection, validateGraphState } from '../domain/graph-rules'
+import { parseGraphJson, stringifyGraphJson } from '../domain/graph-serializer'
+import { createNodeData } from '../domain/node-data-factory'
+import type { WorkflowEdge, WorkflowGraph, WorkflowNode, WorkflowNodeData, WorkflowNodeType } from '../domain/types.ts'
+
+const ensureNodeData = (node: WorkflowNode): WorkflowNodeData => {
+  return {
+    ...(node.data ?? {}),
+    label: node.data?.label ?? node.id
+  }
+}
 
 export function useWorkflowGraph() {
   const nodes = ref<WorkflowNode[]>([...defaultGraph.nodes])
@@ -11,18 +30,34 @@ export function useWorkflowGraph() {
   const selectedEdgeId = ref<string>()
   const nodeCounter = ref(nodes.value.length + 1)
 
-  const selectedNode = computed(() => nodes.value.find((node) => node.id === selectedNodeId.value))
-  const selectedEdge = computed(() => edges.value.find((edge) => edge.id === selectedEdgeId.value))
+  const selectedNode = computed((): WorkflowNode | undefined => {
+    const targetId = selectedNodeId.value
+    if (!targetId) return undefined
+    const nodeList = nodes.value as unknown as WorkflowNode[]
+    for (const node of nodeList) {
+      if ((node as { id: string }).id === targetId) return node
+    }
+    return undefined
+  })
+  const selectedEdge = computed((): WorkflowEdge | undefined => {
+    const targetId = selectedEdgeId.value
+    if (!targetId) return undefined
+    const edgeList = edges.value as unknown as WorkflowEdge[]
+    for (const edge of edgeList) {
+      if ((edge as { id?: string }).id === targetId) return edge
+    }
+    return undefined
+  })
 
   const createNode = (nodeType: WorkflowNodeType, position: { x: number; y: number }) => {
     const id = `${nodeType}-${nodeCounter.value++}`
-    const node: Node = {
+    const node: WorkflowNode = {
       id,
       type: nodeType,
       position,
       data: createNodeData(nodeType)
     }
-    nodes.value = [...nodes.value, node as WorkflowNode]
+    nodes.value = ([...(nodes.value as unknown[]), node] as unknown) as WorkflowNode[]
     selectedNodeId.value = id
     selectedEdgeId.value = undefined
   }
@@ -30,7 +65,7 @@ export function useWorkflowGraph() {
   const removeSelection = () => {
     if (selectedNodeId.value) {
       const targetNodeId = selectedNodeId.value
-      nodes.value = nodes.value.filter((node) => node.id !== targetNodeId)
+      nodes.value = (nodes.value as unknown as WorkflowNode[]).filter((node) => node.id !== targetNodeId)
       edges.value = edges.value.filter((edge) => edge.source !== targetNodeId && edge.target !== targetNodeId)
       selectedNodeId.value = undefined
     } else if (selectedEdgeId.value) {
@@ -41,7 +76,7 @@ export function useWorkflowGraph() {
   }
 
   const removeNodeById = (nodeId: string) => {
-    nodes.value = nodes.value.filter((node) => node.id !== nodeId)
+    nodes.value = (nodes.value as unknown as WorkflowNode[]).filter((node) => node.id !== nodeId)
     edges.value = edges.value.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
     if (selectedNodeId.value === nodeId) selectedNodeId.value = undefined
   }
@@ -75,16 +110,17 @@ export function useWorkflowGraph() {
   }
 
   const toggleNodeDisabled = (nodeId: string) => {
-    nodes.value = nodes.value.map((node) => {
+    nodes.value = (nodes.value as unknown as WorkflowNode[]).map((node) => {
       if (node.id !== nodeId) return node
       const current = Boolean(node.data?.config?.disabled)
       const nextDisabled = !current
+      const baseData = ensureNodeData(node)
       return {
         ...node,
         data: {
-          ...node.data,
+          ...baseData,
           config: {
-            ...(node.data?.config ?? {}),
+            ...(baseData.config ?? {}),
             disabled: nextDisabled
           }
         }
@@ -94,21 +130,22 @@ export function useWorkflowGraph() {
 
   const batchRemoveNodes = (nodeIds: string[]) => {
     const nodeSet = new Set(nodeIds)
-    nodes.value = nodes.value.filter((node) => !nodeSet.has(node.id))
+    nodes.value = (nodes.value as unknown as WorkflowNode[]).filter((node) => !nodeSet.has(node.id))
     edges.value = edges.value.filter((edge) => !nodeSet.has(edge.source) && !nodeSet.has(edge.target))
     if (selectedNodeId.value && nodeSet.has(selectedNodeId.value)) selectedNodeId.value = undefined
   }
 
   const batchDisableNodes = (nodeIds: string[]) => {
     const nodeSet = new Set(nodeIds)
-    nodes.value = nodes.value.map((node) => {
+    nodes.value = (nodes.value as unknown as WorkflowNode[]).map((node) => {
       if (!nodeSet.has(node.id)) return node
+      const baseData = ensureNodeData(node)
       return {
         ...node,
         data: {
-          ...node.data,
+          ...baseData,
           config: {
-            ...(node.data?.config ?? {}),
+            ...(baseData.config ?? {}),
             disabled: true
           }
         }
@@ -118,15 +155,16 @@ export function useWorkflowGraph() {
 
   const updateSelectedNode = (payload: { label?: string; description?: string; config?: Record<string, unknown> }) => {
     if (!selectedNodeId.value) return
-    nodes.value = nodes.value.map((node) => {
+    nodes.value = (nodes.value as unknown as WorkflowNode[]).map((node) => {
       if (node.id !== selectedNodeId.value) return node
+      const baseData = ensureNodeData(node)
       return {
         ...node,
         data: {
-          ...node.data,
+          ...baseData,
           ...(payload.label != null ? { label: payload.label } : {}),
           ...(payload.description != null ? { description: payload.description } : {}),
-          ...(payload.config != null ? { config: { ...(node.data?.config ?? {}), ...payload.config } } : {})
+          ...(payload.config != null ? { config: { ...(baseData.config ?? {}), ...payload.config } } : {})
         }
       }
     })
@@ -152,38 +190,8 @@ export function useWorkflowGraph() {
   }
 
   const onConnect = (connection: Connection) => {
-    if (!connection.source || !connection.target) {
-      return { ok: false, message: '连线缺少源节点或目标节点' }
-    }
-    if (connection.source === connection.target) {
-      return { ok: false, message: '不支持节点自连接' }
-    }
-
-    const duplicated = edges.value.some(
-      (edge) =>
-        edge.source === connection.source &&
-        edge.target === connection.target &&
-        (edge.sourceHandle || '') === (connection.sourceHandle || '') &&
-        (edge.targetHandle || '') === (connection.targetHandle || '')
-    )
-    if (duplicated) {
-      return { ok: false, message: '相同连线已存在' }
-    }
-
-    const sourceNode = nodes.value.find((node) => node.id === connection.source)
-    if (sourceNode?.type === 'condition') {
-      if (!connection.sourceHandle || (connection.sourceHandle !== 'true' && connection.sourceHandle !== 'false')) {
-        return { ok: false, message: '条件节点必须从 true/false 分支发出连线' }
-      }
-    }
-
-    if (sourceNode?.type === 'parallel') {
-      const branchCount = Number(sourceNode.data?.config?.branchCount ?? 2)
-      const outgoing = edges.value.filter((edge) => edge.source === sourceNode.id).length
-      if (outgoing >= branchCount) {
-        return { ok: false, message: `并行节点最多允许 ${branchCount} 条分支` }
-      }
-    }
+    const result = validateConnection(connection, nodes.value, edges.value)
+    if (!result.ok) return result
 
     const next = addEdge(
       {
@@ -198,60 +206,27 @@ export function useWorkflowGraph() {
   }
 
   const validateGraph = () => {
-    const errors: string[] = []
-    const startCount = nodes.value.filter((node) => node.type === 'start').length
-    const endCount = nodes.value.filter((node) => node.type === 'end').length
-
-    if (startCount !== 1) errors.push('流程必须且仅能有一个开始节点')
-    if (endCount < 1) errors.push('流程至少需要一个结束节点')
-
-    nodes.value.forEach((node) => {
-      if (node.type === 'condition') {
-        const outgoing = edges.value.filter((edge) => edge.source === node.id)
-        const hasTrue = outgoing.some((edge) => edge.sourceHandle === 'true')
-        const hasFalse = outgoing.some((edge) => edge.sourceHandle === 'false')
-        if (!hasTrue || !hasFalse) {
-          errors.push(`条件节点 ${node.data?.label || node.id} 需要 true/false 两条分支`)
-        }
-      }
-      if (node.type === 'parallel') {
-        const outgoingCount = edges.value.filter((edge) => edge.source === node.id).length
-        const branchCount = Number(node.data?.config?.branchCount ?? 2)
-        if (outgoingCount < branchCount) {
-          errors.push(`并行节点 ${node.data?.label || node.id} 分支不足，期望 ${branchCount} 条`)
-        }
-      }
-    })
-
-    return { ok: errors.length === 0, errors }
+    return validateGraphState(nodes.value, edges.value)
   }
 
   const loadGraph = (graphJson?: string) => {
-    if (!graphJson) return
-    try {
-      const parsed = JSON.parse(graphJson) as WorkflowGraph
-      if (Array.isArray(parsed.nodes)) nodes.value = parsed.nodes
-      if (Array.isArray(parsed.edges)) edges.value = parsed.edges
-      if (parsed.viewport) viewport.value = parsed.viewport
-      nodeCounter.value = nodes.value.length + 1
-      selectedNodeId.value = undefined
-      selectedEdgeId.value = undefined
-    } catch {
-      // ignore invalid graph content for initial scaffold stage
-    }
+    const parsed = parseGraphJson(graphJson)
+    if (!parsed) return
+    if (Array.isArray(parsed.nodes)) nodes.value = parsed.nodes
+    if (Array.isArray(parsed.edges)) edges.value = parsed.edges
+    if (parsed.viewport) viewport.value = parsed.viewport
+    nodeCounter.value = nodes.value.length + 1
+    selectedNodeId.value = undefined
+    selectedEdgeId.value = undefined
   }
 
   const toGraphJson = (meta?: WorkflowGraph['meta']) => {
-    return JSON.stringify(
-      {
-        nodes: nodes.value,
-        edges: edges.value,
-        viewport: viewport.value,
-        meta: meta ?? {}
-      },
-      null,
-      2
-    )
+    return stringifyGraphJson({
+      nodes: nodes.value,
+      edges: edges.value,
+      viewport: viewport.value,
+      meta
+    })
   }
 
   return {

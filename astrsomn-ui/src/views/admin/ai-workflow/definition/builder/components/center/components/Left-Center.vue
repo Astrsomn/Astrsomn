@@ -42,8 +42,8 @@ import {
   ToolOutlined,
   MessageOutlined
 } from '@ant-design/icons-vue'
-import { useNodeDnD } from '../../composables/useNodeDnD'
-import type { CanvasPaletteIconItem, WorkflowNodeType } from '../../types'
+import { useNodeDnD } from '@/views/admin/ai-workflow/definition/builder/composables/useNodeDnD.ts'
+import type { CanvasPaletteIconItem, WorkflowNodeType } from '../../../domain/types.ts'
 
 defineProps<{
   items: CanvasPaletteIconItem[]

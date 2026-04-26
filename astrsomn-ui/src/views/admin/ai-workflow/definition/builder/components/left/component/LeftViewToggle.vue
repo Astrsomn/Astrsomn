@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import type { LeftViewMode } from '../../types'
+import type { LeftViewMode } from '../../../domain/types.ts'
 
 defineProps<{
   modelValue: LeftViewMode

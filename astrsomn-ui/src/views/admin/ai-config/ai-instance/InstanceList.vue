@@ -138,8 +138,8 @@ const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid'
 const currentGridColumns = ref(3)
 
 const columns = [
+{ title: '实例 Key', dataIndex: 'instanceKey', key: 'instanceKey', width: 120, ellipsis: true },
   { title: '名称', dataIndex: 'instanceName', key: 'instanceName', width: 180, ellipsis: true },
-  { title: '实例 Key', dataIndex: 'instanceKey', key: 'instanceKey', width: 180, ellipsis: true },
   { title: '模型类型', dataIndex: 'modelType', key: 'modelType', width: 110 },
   { title: '关联模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },

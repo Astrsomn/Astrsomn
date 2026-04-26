@@ -1,5 +1,13 @@
-import { NODE_DRAG_MIME } from '../constants'
-import type { WorkflowNodeType } from '../types'
+/**
+ * TODO 这是拖拽桥接层（DnD 小工具）：
+    startDrag：开始拖拽时把节点类型写进 dataTransfer
+    parseDropType：在 drop 时读取并校验类型是否合法
+    它不管业务状态，只负责拖拽数据在“面板 ↔ 画布”间传递。
+ */
+
+
+import { NODE_DRAG_MIME } from '../domain/dnd-constants'
+import type { WorkflowNodeType } from '../domain/types.ts'
 
 const workflowNodeTypes: WorkflowNodeType[] = [
   'start',

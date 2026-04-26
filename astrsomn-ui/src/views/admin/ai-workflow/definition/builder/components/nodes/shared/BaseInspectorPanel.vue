@@ -84,8 +84,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { getNodeDefinition } from '../../../constants'
-import type { WorkflowNode } from '../../../types'
+import { getNodeDefinition } from '../../../domain/node-data-factory'
+import type { WorkflowNode } from '../../../domain/types'
 
 const props = defineProps<{
   selectedNode: WorkflowNode
