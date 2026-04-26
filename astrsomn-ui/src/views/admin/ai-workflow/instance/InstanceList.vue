@@ -15,25 +15,28 @@
 
         <template #overview>
           <AstrsomnOverview
-            :list-length="pagedList.length"
+            :list-length="list.length"
             :selected-count="0"
             :all-current-selected="false"
             :part-current-selected="false"
             :show-actions="false"
-            :summary-text="`当前页 ${pagedList.length} 条流程实例。`"
+            :summary-text="`当前页 ${list.length} 条流程实例。`"
           />
         </template>
 
-        <AstrsomnDataView :data-source="pagedList" :columns="columns" row-key="id" mode="table" :pagination="false">
+        <AstrsomnDataView :data-source="list" :columns="columns" row-key="id" mode="table" :pagination="false" :loading="loading">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'executionStatus'">
               <a-tag :color="statusColor[record.executionStatus] || 'default'">{{ record.executionStatus }}</a-tag>
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-button type="link" size="small" @click="goDetail(record.id)">详情</a-button>
             </template>
           </template>
         </AstrsomnDataView>
 
         <template #pagination>
-          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="filteredList.length" @change="onPageChange" />
+          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total" @change="onPageChange" />
         </template>
       </AstrsomnDataSection>
     </div>
@@ -41,8 +44,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { FilterOutlined } from '@ant-design/icons-vue'
+import { useRouter } from 'vue-router'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
@@ -50,6 +54,7 @@ import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
+import { aiWorkflowRuntimeApi, type WorkflowRuntimeRecord } from '@/api/aiWorkflowRuntime'
 
 const statusColor: Record<string, string> = {
   RUNNING: 'processing',
@@ -64,27 +69,13 @@ const columns = [
   { title: '业务主键', dataIndex: 'businessKey', key: 'businessKey', width: 180 },
   { title: '执行状态', key: 'executionStatus', width: 130 },
   { title: '当前节点', dataIndex: 'currentNodeId', key: 'currentNodeId', width: 160 },
-  { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180 }
+  { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180 },
+  { title: '操作', key: 'actions', width: 100, fixed: 'right' as const }
 ]
 
-const list = [
-  {
-    id: 9001,
-    deploymentId: 1001,
-    businessKey: 'ORDER_001',
-    executionStatus: 'RUNNING',
-    currentNodeId: 'NODE_APPROVAL',
-    updateTime: '2026-04-25 20:56:10'
-  },
-  {
-    id: 9000,
-    deploymentId: 1000,
-    businessKey: 'ORDER_000',
-    executionStatus: 'COMPLETED',
-    currentNodeId: 'NODE_END',
-    updateTime: '2026-04-24 16:42:35'
-  }
-]
+const router = useRouter()
+const list = ref<WorkflowRuntimeRecord[]>([])
+const loading = ref(false)
 
 const query = reactive({
   keyword: ''
@@ -92,34 +83,45 @@ const query = reactive({
 
 const page = reactive({
   pageNum: 1,
-  pageSize: 10
+  pageSize: 10,
+  total: 0
 })
 
-const filteredList = computed(() => {
-  const keyword = query.keyword.trim().toLowerCase()
-  if (!keyword) return list
-  return list.filter((item) => {
-    return item.businessKey.toLowerCase().includes(keyword) || item.currentNodeId.toLowerCase().includes(keyword)
-  })
-})
-
-const pagedList = computed(() => {
-  const start = (page.pageNum - 1) * page.pageSize
-  return filteredList.value.slice(start, start + page.pageSize)
-})
+const fetchList = async () => {
+  loading.value = true
+  try {
+    const resp = await aiWorkflowRuntimeApi.instanceQueryPage({
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: { keyword: query.keyword || undefined }
+    })
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
+  }
+}
 
 const onSearch = () => {
   page.pageNum = 1
+  void fetchList()
 }
 
 const resetFilters = () => {
   query.keyword = ''
   page.pageNum = 1
+  void fetchList()
 }
 
 const onPageChange = (pageNum: number, pageSize: number) => {
   page.pageNum = pageNum
   page.pageSize = pageSize
+  void fetchList()
+}
+
+const goDetail = (id: unknown) => {
+  if (id == null) return
+  void router.push({ name: 'AdminWorkflowInstanceDetail', params: { id: String(id) } })
 }
 
 const segmentedButtons = computed(() => [
@@ -129,6 +131,8 @@ const segmentedButtons = computed(() => [
     onClick: resetFilters
   }
 ])
+
+void fetchList()
 </script>
 
 <style scoped>
