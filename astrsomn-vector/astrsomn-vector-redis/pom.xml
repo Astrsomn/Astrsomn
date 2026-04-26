@@ -14,12 +14,4 @@
     <artifactId>astrsomn-vector-redis</artifactId>
     <name>astrsomn-vector-redis</name>
     <description>astrsomn-vector-redis</description>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-core</artifactId>
-        </dependency>
-    </dependencies>
-
 </project>

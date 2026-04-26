@@ -3,6 +3,7 @@ package com.astrsomn.workflow.core.domain.dto.runtime;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @Data
 public class AstFlowTestRunRequestDTO implements Serializable {
@@ -13,4 +14,5 @@ public class AstFlowTestRunRequestDTO implements Serializable {
     private String workflowKey;
     private String userMessage;
     private String memoryKey;
+    private Map<String, Object> variables;
 }
