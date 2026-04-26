@@ -62,8 +62,11 @@ export const adminUnifiedNav: AdminModuleNavGroup[] = [
       { to: `${baseWorkflow}/definitions`, label: '流程定义', icon: AppstoreAddOutlined },
       { to: `${baseWorkflow}/deployments`, label: '流程发布', icon: CloudServerOutlined },
       { to: `${baseWorkflow}/instances`, label: '流程实例', icon: DatabaseOutlined },
+      { to: `${baseWorkflow}/node-configs`, label: '节点配置', icon: ControlOutlined },
       { to: `${baseWorkflow}/node-history`, label: '节点历史', icon: FileTextOutlined },
-      { to: `${baseWorkflow}/human-tasks`, label: '人工任务', icon: TeamOutlined }
+      { to: `${baseWorkflow}/human-tasks`, label: '人工任务', icon: TeamOutlined },
+      { to: `${baseWorkflow}/publish`, label: '发布接口', icon: CloudServerOutlined },
+      { to: `${baseWorkflow}/test-run`, label: '测试运行', icon: ApiOutlined }
     ]
   },
   {

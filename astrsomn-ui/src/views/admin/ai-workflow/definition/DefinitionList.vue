@@ -5,13 +5,7 @@
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <a-input
-                v-model="query.workflowName"
-                allow-clear
-                class="toolbar-input"
-                placeholder="搜索流程名称"
-                @pressEnter="fetchList"
-              />
+              <AstrsomnSearchPill v-model="query.workflowName" placeholder="搜索流程名称" @search="fetchList" />
               <a-input
                 v-model="query.workflowKey"
                 allow-clear
@@ -28,11 +22,20 @@
               />
             </div>
             <div class="toolbar-right">
-              <a-button type="primary" ghost @click="fetchList">查询</a-button>
-              <a-button @click="resetFilters">重置</a-button>
-              <a-button type="primary" @click="openCreate">新建流程</a-button>
+              <AstrsomnSegmentedButton :buttons="segmentedButtons" />
             </div>
           </div>
+        </template>
+
+        <template #overview>
+          <AstrsomnOverview
+            :list-length="list.length"
+            :selected-count="0"
+            :all-current-selected="false"
+            :part-current-selected="false"
+            :show-actions="false"
+            :summary-text="`当前页 ${list.length} 条流程定义。`"
+          />
         </template>
 
         <AstrsomnDataView :data-source="list" :columns="columns" row-key="id" mode="table" :pagination="false" :loading="loading">
@@ -52,6 +55,8 @@
             <template v-else-if="column.key === 'actions'">
               <a-button type="link" @click="openEdit(record)">编辑</a-button>
               <a-divider type="vertical" />
+              <a-button type="link" @click="openCopy(record)">复制</a-button>
+              <a-divider type="vertical" />
               <a-popconfirm title="确定删除吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
                 <a-button type="link" danger>删除</a-button>
               </a-popconfirm>
@@ -65,39 +70,21 @@
       </AstrsomnDataSection>
     </div>
 
-    <a-modal
-      :open="modal.open"
-      :title="modal.mode === 'create' ? '新建流程定义' : '编辑流程定义'"
-      :confirm-loading="modal.submitting"
-      destroy-on-close
-      @update:open="(value) => (modal.open = value)"
-      @ok="handleSubmit"
-    >
-      <a-form layout="vertical">
-        <a-form-item label="流程名称" required>
-          <a-input v-model="form.workflowName" maxlength="128" />
-        </a-form-item>
-        <a-form-item label="Flow Key" required>
-          <a-input v-model="form.workflowKey" maxlength="128" />
-        </a-form-item>
-        <a-form-item label="业务分类">
-          <a-input v-model="form.description" maxlength="128" />
-        </a-form-item>
-        <a-form-item label="流程图 JSON">
-          <a-textarea v-model="form.graphJson" :rows="8" />
-        </a-form-item>
-      </a-form>
-    </a-modal>
   </AdminPageShell>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { FilterOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
+import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
 import { aiWorkflowApi, type AiWorkflow, type PageResponse } from '@/api/aiWorkflow'
 
 type WorkflowQuery = {
@@ -124,6 +111,7 @@ const columns = [
 
 const loading = ref(false)
 const list = ref<AiWorkflow[]>([])
+const router = useRouter()
 
 const page = reactive({
   pageNum: 1,
@@ -136,28 +124,6 @@ const query = reactive<WorkflowQuery>({
   workflowKey: undefined,
   description: undefined
 })
-
-const modal = reactive({
-  open: false,
-  mode: 'create' as 'create' | 'edit',
-  submitting: false
-})
-
-const form = reactive<AiWorkflow>({
-  id: undefined,
-  workflowName: '',
-  workflowKey: '',
-  description: '',
-  graphJson: ''
-})
-
-const resetForm = () => {
-  form.id = undefined
-  form.workflowName = ''
-  form.workflowKey = ''
-  form.description = ''
-  form.graphJson = ''
-}
 
 const fetchList = async () => {
   loading.value = true
@@ -194,21 +160,23 @@ const resetFilters = () => {
 }
 
 const openCreate = () => {
-  modal.mode = 'create'
-  resetForm()
-  modal.open = true
+  void router.push({ name: 'AdminWorkflowDefinitionBuilder' })
 }
 
-const openEdit = async (record: AiWorkflow) => {
+const openEdit = (record: AiWorkflow) => {
   if (record.id == null) return
-  modal.mode = 'edit'
-  const detail = await aiWorkflowApi.detail(record.id)
-  form.id = detail.id
-  form.workflowName = detail.workflowName || ''
-  form.workflowKey = detail.workflowKey || ''
-  form.description = detail.description || ''
-  form.graphJson = detail.graphJson || ''
-  modal.open = true
+  void router.push({
+    name: 'AdminWorkflowDefinitionEditBuilder',
+    params: { id: String(record.id) }
+  })
+}
+
+const openCopy = (record: AiWorkflow) => {
+  if (record.id == null) return
+  void router.push({
+    name: 'AdminWorkflowDefinitionBuilder',
+    query: { cloneId: String(record.id) }
+  })
 }
 
 const handleDeleteOne = async (id?: number | string) => {
@@ -218,34 +186,28 @@ const handleDeleteOne = async (id?: number | string) => {
   void fetchList()
 }
 
-const handleSubmit = async () => {
-  if (!form.workflowName || !form.workflowKey) {
-    message.warning('请填写流程名称与 Flow Key')
-    return
-  }
-  modal.submitting = true
-  try {
-    const payload: AiWorkflow = {
-      id: form.id,
-      workflowName: form.workflowName,
-      workflowKey: form.workflowKey,
-      description: form.description,
-      graphJson: form.graphJson
+const segmentedButtons = [
+  {
+    label: '查询',
+    icon: SearchOutlined,
+    type: 'primary' as const,
+    ghost: true,
+    onClick: () => {
+      void fetchList()
     }
-    let msg = ''
-    if (modal.mode === 'create') {
-      delete payload.id
-      msg = await aiWorkflowApi.create(payload)
-    } else {
-      msg = await aiWorkflowApi.update(payload)
-    }
-    message.success(msg || '保存成功')
-    modal.open = false
-    void fetchList()
-  } finally {
-    modal.submitting = false
+  },
+  {
+    label: '重置',
+    icon: FilterOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: '新建流程',
+    icon: PlusOutlined,
+    type: 'primary' as const,
+    onClick: openCreate
   }
-}
+]
 
 onMounted(() => {
   void fetchList()

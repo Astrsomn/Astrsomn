@@ -38,7 +38,11 @@ const leafMeta = () => {
 };
 
 const showExtensionBackHeader = computed(() => {
-  return route.name === 'AdminSystemExtension';
+  return (
+    route.name === 'AdminSystemExtension' ||
+    route.name === 'AdminWorkflowDefinitionBuilder' ||
+    route.name === 'AdminWorkflowDefinitionEditBuilder'
+  );
 });
 
 const headerPageTitle = computed(() => {

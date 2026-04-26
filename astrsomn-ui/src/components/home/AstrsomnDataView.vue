@@ -100,7 +100,7 @@ const resolveKey = (record: any) => {
 
 .data-view-table {
   margin-top: 6px;
-  border-radius: 12px;
+
   overflow: hidden;
 }
 

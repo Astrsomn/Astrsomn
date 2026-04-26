@@ -191,6 +191,28 @@ const adminChildren: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'definitions/new',
+        name: 'AdminWorkflowDefinitionBuilder',
+        component: () => import('@/views/admin/ai-workflow/definition/builder/Index.vue'),
+        meta: {
+          title: '流程搭建',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
+        }
+      },
+      {
+        path: 'definitions/:id/edit',
+        name: 'AdminWorkflowDefinitionEditBuilder',
+        component: () => import('@/views/admin/ai-workflow/definition/builder/Index.vue'),
+        meta: {
+          title: '编辑流程',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
+        }
+      },
+      {
         path: 'definitions',
         name: 'AdminWorkflowDefinitions',
         component: () => import('@/views/admin/ai-workflow/definition/DefinitionList.vue'),
@@ -213,6 +235,17 @@ const adminChildren: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'deployments/:id',
+        name: 'AdminWorkflowDeploymentDetail',
+        component: () => import('@/views/admin/ai-workflow/deployment/DeploymentDetailFormPage.vue'),
+        meta: {
+          title: '发布详情',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
+        }
+      },
+      {
         path: 'instances',
         name: 'AdminWorkflowInstances',
         component: () => import('@/views/admin/ai-workflow/instance/InstanceList.vue'),
@@ -221,6 +254,39 @@ const adminChildren: RouteRecordRaw[] = [
           requiresAuth: true,
           showAdminDock: false,
           showModuleSidebar: true
+        }
+      },
+      {
+        path: 'instances/:id',
+        name: 'AdminWorkflowInstanceDetail',
+        component: () => import('@/views/admin/ai-workflow/instance/InstanceDetailFormPage.vue'),
+        meta: {
+          title: '实例详情',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
+        }
+      },
+      {
+        path: 'node-configs',
+        name: 'AdminWorkflowNodeConfigs',
+        component: () => import('@/views/admin/ai-workflow/node-config/NodeConfigList.vue'),
+        meta: {
+          title: '节点配置',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'node-configs/:id',
+        name: 'AdminWorkflowNodeConfigDetail',
+        component: () => import('@/views/admin/ai-workflow/node-config/NodeConfigDetailFormPage.vue'),
+        meta: {
+          title: '节点配置详情',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
         }
       },
       {
@@ -235,11 +301,55 @@ const adminChildren: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'node-history/:id',
+        name: 'AdminWorkflowNodeHistoryDetail',
+        component: () => import('@/views/admin/ai-workflow/node-history/NodeHistoryDetailFormPage.vue'),
+        meta: {
+          title: '节点历史详情',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
+        }
+      },
+      {
         path: 'human-tasks',
         name: 'AdminWorkflowHumanTasks',
         component: () => import('@/views/admin/ai-workflow/human-task/HumanTaskList.vue'),
         meta: {
           title: '人工任务',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'human-tasks/:id',
+        name: 'AdminWorkflowHumanTaskDetail',
+        component: () => import('@/views/admin/ai-workflow/human-task/HumanTaskDetailFormPage.vue'),
+        meta: {
+          title: '人工任务详情',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
+        }
+      },
+      {
+        path: 'publish',
+        name: 'AdminWorkflowPublish',
+        component: () => import('@/views/admin/ai-workflow/publish/PublishFormPage.vue'),
+        meta: {
+          title: '发布流程',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'test-run',
+        name: 'AdminWorkflowTestRun',
+        component: () => import('@/views/admin/ai-workflow/test-run/TestRunFormPage.vue'),
+        meta: {
+          title: '测试运行',
           requiresAuth: true,
           showAdminDock: false,
           showModuleSidebar: true
@@ -403,10 +513,15 @@ const adminChildren: RouteRecordRaw[] = [
   { path: 'tracing', redirect: { path: '/admin/ai-safety/tracing' } },
   { path: 'ai-workflow-center', redirect: { path: '/admin/ai-workflow' } },
   { path: 'workflow-definitions', redirect: { path: '/admin/ai-workflow/definitions' } },
+  { path: 'workflow-definition-builder', redirect: { path: '/admin/ai-workflow/definitions/new' } },
+  { path: 'workflow-definition-builder/:id', redirect: (to) => ({ path: `/admin/ai-workflow/definitions/${String(to.params.id)}/edit` }) },
   { path: 'workflow-deployments', redirect: { path: '/admin/ai-workflow/deployments' } },
   { path: 'workflow-instances', redirect: { path: '/admin/ai-workflow/instances' } },
   { path: 'workflow-node-history', redirect: { path: '/admin/ai-workflow/node-history' } },
   { path: 'workflow-human-tasks', redirect: { path: '/admin/ai-workflow/human-tasks' } },
+  { path: 'workflow-node-configs', redirect: { path: '/admin/ai-workflow/node-configs' } },
+  { path: 'workflow-publish', redirect: { path: '/admin/ai-workflow/publish' } },
+  { path: 'workflow-test-run', redirect: { path: '/admin/ai-workflow/test-run' } },
 
   { path: 'system-config-center', redirect: { path: '/admin/system' } },
   { path: 'users', redirect: { path: '/admin/system/users' } },
