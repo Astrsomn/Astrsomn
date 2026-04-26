@@ -51,9 +51,9 @@ defineEmits<{
   display: flex;
   flex-direction: row;
   gap: 10px;
-  padding: 6px;
+  padding: 6px 10px;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 30px;
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
 }

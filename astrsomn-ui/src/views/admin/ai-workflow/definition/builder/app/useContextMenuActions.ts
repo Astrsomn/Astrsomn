@@ -10,7 +10,7 @@ type GraphActions = {
   batchDisableNodes: (nodeIds: string[]) => void
   removeEdgeById: (edgeId: string) => void
   setEdgeLabelById: (edgeId: string, label: string) => void
-  updateEdgeStyleById: (edgeId: string, edgeType: 'smoothstep' | 'straight') => void
+  updateEdgeStyleById: (edgeId: string, edgeType: 'default' | 'straight' | 'step') => void
 }
 
 export function useContextMenuActions(deps: {
@@ -115,7 +115,7 @@ export function useContextMenuActions(deps: {
     } else if (key === 'edge-style-straight' && contextMenu.edgeId) {
       graphActions.updateEdgeStyleById(contextMenu.edgeId, 'straight')
     } else if (key === 'edge-style-smooth' && contextMenu.edgeId) {
-      graphActions.updateEdgeStyleById(contextMenu.edgeId, 'smoothstep')
+      graphActions.updateEdgeStyleById(contextMenu.edgeId, 'default')
     }
     closeContextMenu()
   }

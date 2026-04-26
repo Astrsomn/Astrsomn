@@ -22,13 +22,14 @@ instance.interceptors.request.use(
       delete (h as Record<string, unknown>)['Content-Type']
     }
 
+    const ws = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY)
+    if (ws != null && String(ws).trim() !== '') {
+      config.headers[WORKSPACE_ENV_HEADER] = String(ws).trim()
+    }
+
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
-      const ws = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY)
-      if (ws != null && String(ws).trim() !== '') {
-        config.headers[WORKSPACE_ENV_HEADER] = String(ws).trim()
-      }
     }
     return config
   },

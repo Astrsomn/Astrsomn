@@ -2,6 +2,7 @@
   <section
     class="flow-canvas"
     :class="{ 'compact-node': compactNode }"
+    :style="canvasInlineStyle"
     @dragover="onDragOver"
     @drop="onDropToCanvas"
     @mousedown.capture="onCanvasMouseDown"
@@ -9,7 +10,7 @@
     @mouseup.capture="onCanvasMouseUp"
     @contextmenu.capture="onNativeContextmenu"
   >
-    <LeftCenter :items="paletteIcons" />
+   
     <VueFlow
       :nodes="nodes"
       :edges="edges"
@@ -34,13 +35,32 @@
       @selection-change="onSelectionChange"
       @nodes-delete="$emit('nodes-delete')"
       @edges-delete="$emit('edges-delete')"
+      @move="onViewportMove"
     >
-      <Background pattern-color="#e2e8f0" :gap="18" />
+      <div v-if="canvasConfig.backgroundVariant !== 'none'" class="canvas-pattern-overlay" :style="patternOverlayStyle"></div>
   
     </VueFlow>
+    <div
+      v-if="canvasConfig.showOriginMarker"
+      class="origin-marker"
+      :style="{
+        left: `${originPoint.x}px`,
+        top: `${originPoint.y}px`
+      }"
+    >
+      <span class="origin-dot" />
+      <span class="origin-label">(0,0)</span>
+    </div>
+    <LeftCenter :items="paletteIcons" />
     <LeftTop :interaction-mode="interactionMode" @set-mode="setInteractionMode" @clear-selection="clearSelection" @placeholder="notifyPlaceholder" />
     <RightTop :saving="saving" @save="$emit('save')" />
-    <RightBottom :zoom-percent="zoomPercent" @fit-view="onFitView" @zoom-in="onZoomIn" @zoom-out="onZoomOut" />
+    <RightBottom
+      :zoom-percent="zoomPercent"
+      @fit-view="onFitView"
+      @zoom-in="onZoomIn"
+      @zoom-out="onZoomOut"
+      @set-zoom-percent="onSetZoomPercent"
+    />
   </section>
 </template>
 
@@ -48,20 +68,27 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { VueFlow, type Connection, type EdgeMouseEvent, type NodeMouseEvent, useVueFlow } from '@vue-flow/core'
-import { Background } from '@vue-flow/background'
-import { nodeCanvasTypes } from '../nodes/registry.ts'
+import { nodeCanvasTypes } from '../nodes/registry'
 import LeftCenter from '@/views/admin/ai-workflow/definition/builder/components/center/components/Left-Center.vue'
 import LeftTop from '@/views/admin/ai-workflow/definition/builder/components/center/components/Left-Top.vue'
 import RightTop from '@/views/admin/ai-workflow/definition/builder/components/center/components/Right-Top.vue'
 import RightBottom from '@/views/admin/ai-workflow/definition/builder/components/center/components/Right-Bottom.vue'
-import { useNodeDnD } from '@/views/admin/ai-workflow/definition/builder/composables/useNodeDnD.ts'
-import type { CanvasContextMenuPayload, CanvasPaletteIconItem, NodeDropPayload, WorkflowEdge, WorkflowNode } from '../../domain/types.ts'
+import { useNodeDnD } from '@/views/admin/ai-workflow/definition/builder/composables/useNodeDnD'
+import type {
+  CanvasConfig,
+  CanvasContextMenuPayload,
+  CanvasPaletteIconItem,
+  NodeDropPayload,
+  WorkflowEdge,
+  WorkflowNode
+} from '../../domain/types'
 
 const props = withDefaults(
   defineProps<{
     nodes: WorkflowNode[]
     edges: WorkflowEdge[]
     paletteIcons: CanvasPaletteIconItem[]
+    canvasConfig: CanvasConfig
     saving?: boolean
     compactNode?: boolean
     initialZoomMode?: 'fit-compact' | 'normal'
@@ -92,6 +119,7 @@ const { project, zoomIn, zoomOut, fitView, getViewport, setViewport } = useVueFl
 const flowRef = ref<InstanceType<typeof VueFlow> | null>(null)
 const interactionMode = ref<'box' | 'pan'>('box')
 const zoomPercent = ref(100)
+const originPoint = ref({ x: 0, y: 0 })
 const rightPanState = ref<{
   active: boolean
   startClientX: number
@@ -110,6 +138,38 @@ const nodeTypes = nodeCanvasTypes
 
 const nodes = computed(() => props.nodes)
 const edges = computed(() => props.edges)
+const canvasInlineStyle = computed(() => ({
+  backgroundColor: props.canvasConfig.backgroundColor
+}))
+const patternOverlayStyle = computed(() => {
+  const gap = Math.max(8, Number(props.canvasConfig.patternGap || 22))
+  const stroke = Math.max(1, Number(props.canvasConfig.patternSize || 1.2))
+  const color = props.canvasConfig.patternColor || '#94a3b8'
+  if (props.canvasConfig.backgroundVariant === 'dots') {
+    return {
+      backgroundImage: `radial-gradient(${color} ${stroke}px, transparent ${Math.max(stroke + 0.6, stroke * 1.3)}px)`,
+      backgroundSize: `${gap}px ${gap}px`,
+      opacity: 0.45
+    }
+  }
+  if (props.canvasConfig.backgroundVariant === 'lines') {
+    return {
+      backgroundImage: `repeating-linear-gradient(0deg, transparent 0, transparent ${gap - stroke}px, ${color} ${gap - stroke}px, ${color} ${gap}px)`,
+      backgroundSize: `${gap}px ${gap}px`,
+      opacity: 0.32
+    }
+  }
+  const crossLen = Math.max(stroke * 3.2, 3)
+  const half = gap / 2
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${gap}' height='${gap}' viewBox='0 0 ${gap} ${gap}'><line x1='${half - crossLen / 2}' y1='${half}' x2='${half + crossLen / 2}' y2='${half}' stroke='${color}' stroke-width='${stroke}' stroke-linecap='round'/><line x1='${half}' y1='${half - crossLen / 2}' x2='${half}' y2='${half + crossLen / 2}' stroke='${color}' stroke-width='${stroke}' stroke-linecap='round'/></svg>`
+  const encoded = encodeURIComponent(svg)
+  return {
+    backgroundImage: `url("data:image/svg+xml,${encoded}")`,
+    backgroundSize: `${gap}px ${gap}px`,
+    backgroundRepeat: 'repeat',
+    opacity: 0.85
+  }
+})
 
 const onConnect = (connection: Connection) => {
   emit('connect', connection)
@@ -154,11 +214,28 @@ const onZoomOut = () => {
   syncZoomPercent()
 }
 
+const onSetZoomPercent = (value: number) => {
+  const current = getViewport()
+  const nextZoom = Math.min(1.5, Math.max(0.3, value / 100))
+  setViewport({
+    x: current.x,
+    y: current.y,
+    zoom: nextZoom
+  })
+  syncZoomPercent()
+}
+
 const onSelectionChange = (payload: { nodes?: Array<{ id: string }> }) => {
   emit(
     'selection-change',
     (payload.nodes || []).map((node) => node.id)
   )
+}
+
+const onViewportMove = () => {
+  syncZoomPercent()
+  const viewport = getViewport()
+  originPoint.value = { x: viewport.x, y: viewport.y }
 }
 
 const onDragOver = (ev: DragEvent) => {
@@ -253,7 +330,9 @@ const onNativeContextmenu = (ev: MouseEvent) => {
 }
 
 const syncZoomPercent = () => {
-  zoomPercent.value = Math.round(getViewport().zoom * 100)
+  const viewport = getViewport()
+  zoomPercent.value = Math.round(viewport.zoom * 100)
+  originPoint.value = { x: viewport.x, y: viewport.y }
 }
 
 onMounted(() => {
@@ -290,6 +369,43 @@ onMounted(() => {
 .canvas-inner {
   width: 100%;
   height: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.canvas-pattern-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.origin-marker {
+  position: absolute;
+  z-index: 6;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.origin-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #ef4444;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.4);
+}
+
+.origin-label {
+  font-size: 11px;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 2px 6px;
 }
 
 .canvas-tip {

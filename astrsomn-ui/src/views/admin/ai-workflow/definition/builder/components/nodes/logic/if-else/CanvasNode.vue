@@ -1,11 +1,11 @@
 <template>
   <BaseCanvasNode
     :data="data"
-    fallback-label="条件分支"
-    fallback-description="根据表达式进行路由"
+    fallback-label="条件分支 (If/Else)"
+    fallback-description="按表达式结果选择路径"
     :source-handles="[{ id: 'true', style: { top: '35%' } }, { id: 'false', style: { top: '70%' } }]"
-    subtitle="Condition"
-    icon-text="C"
+    subtitle="If Else"
+    icon-text="IF"
     icon-background="#fff7ed"
     icon-color="#ea580c"
     :theme="{
@@ -15,8 +15,8 @@
       descColor: '#475569'
     }"
   >
-    <div class="route-item">包含 \"投诉\"</div>
-    <div class="route-item">默认路径</div>
+    <div class="route-item">满足条件 -> true</div>
+    <div class="route-item">不满足 -> false</div>
   </BaseCanvasNode>
 </template>
 <script setup lang="ts">

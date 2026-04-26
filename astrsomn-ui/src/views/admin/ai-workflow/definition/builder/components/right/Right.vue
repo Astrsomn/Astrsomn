@@ -1,24 +1,5 @@
 <template>
   <aside class="node-inspector">
-    <div class="panel-head">
-      <h3>属性面板</h3>
-      <a-button size="small" danger :disabled="!selectedNode && !selectedEdge" @click="$emit('remove-selection')">
-        删除所选
-      </a-button>
-    </div>
-
-    <a-form layout="vertical" class="meta-form fixed-meta-form">
-      <a-form-item label="流程名称" required>
-        <a-input v-model="workflowMeta.workflowName" maxlength="128" />
-      </a-form-item>
-      <a-form-item label="Flow Key" required>
-        <a-input v-model="workflowMeta.workflowKey" maxlength="128" />
-      </a-form-item>
-      <a-form-item label="业务分类">
-        <a-input v-model="workflowMeta.description" maxlength="128" />
-      </a-form-item>
-    </a-form>
-
     <div v-if="selectedNode" class="selection-block">
       <h4>节点配置</h4>
       <component
@@ -42,20 +23,25 @@
       </a-form>
     </div>
 
-    <div v-else class="empty-hint">
-      未选择节点或连线。可在画布中点击元素后在此配置。
-    </div>
+    <CanvasPaneConfig
+      v-else
+      :canvas-config="canvasConfig"
+      @update-canvas-config="emit('update-canvas-config', $event)"
+      @apply-edge-style-all="emit('apply-edge-style-all', $event)"
+    />
   </aside>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { WorkflowEdge, WorkflowMeta, WorkflowNode } from '../../domain/types.ts'
-import type { WorkflowNodeType } from '../../domain/types.ts'
-import { nodeInspectorMap } from '../nodes/registry.ts'
+import type { CanvasConfig, CanvasEdgeStyle, WorkflowEdge, WorkflowMeta, WorkflowNode } from '../../domain/types'
+import type { WorkflowNodeType } from '../../domain/types'
+import { nodeInspectorMap } from '../nodes/registry'
+import CanvasPaneConfig from './component/CanvasPaneConfig.vue'
 
 const props = defineProps<{
   workflowMeta: WorkflowMeta
+  canvasConfig: CanvasConfig
   allNodes?: WorkflowNode[]
   selectedNode?: WorkflowNode
   selectedEdge?: WorkflowEdge
@@ -64,6 +50,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update-node': [payload: { label?: string; description?: string; config?: Record<string, unknown> }]
   'update-edge': [payload: { label?: string }]
+  'update-canvas-config': [payload: Partial<CanvasConfig>]
+  'apply-edge-style-all': [edgeStyle: CanvasEdgeStyle]
   'remove-selection': []
 }>()
 
@@ -122,9 +110,4 @@ const forwardEdgeLabelUpdate = (value: string) => {
   margin-top: 10px;
 }
 
-.empty-hint {
-  color: #64748b;
-  font-size: 12px;
-  padding: 8px 0;
-}
 </style>

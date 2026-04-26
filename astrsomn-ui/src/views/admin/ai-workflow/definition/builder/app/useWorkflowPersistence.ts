@@ -1,5 +1,6 @@
 import { computed } from 'vue'
 import { aiWorkflowApi } from '@/api/aiWorkflow'
+import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
 import type { WorkflowListItem, WorkflowMeta } from '../domain/types'
 
 type UseWorkflowPersistenceDeps = {
@@ -16,6 +17,14 @@ type UseWorkflowPersistenceDeps = {
 }
 
 export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
+  let envReady = false
+
+  const ensureEnvReady = async () => {
+    if (envReady) return
+    await ensureWorkspaceEnvInStorage()
+    envReady = true
+  }
+
   const submitPayload = computed(() => ({
     id: deps.workflowMeta.id,
     workflowName: deps.workflowMeta.workflowName,
@@ -31,23 +40,84 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
 
   const fetchWorkflowList = async () => {
     try {
-      const resp = await aiWorkflowApi.queryPage({ pageNo: 1, pageSize: 20, param: {} })
+      await ensureEnvReady()
+      const resp = await aiWorkflowApi.queryPage({ pageNo: 1, pageSize: 100, param: {} })
       const list = (resp.list || []).map((item) => ({
         id: String(item.id || item.workflowKey || item.workflowName || Math.random()),
+        recordId: item.id,
         workflowName: item.workflowName || '未命名流程',
         workflowKey: item.workflowKey || '',
-        description: item.description || ''
+        description: item.description || '',
+        category: item.category || item.description || '未分类'
       }))
       deps.workflowItems.value = list
       if (!deps.activeWorkflowId.value && list.length > 0) {
         deps.activeWorkflowId.value = list[0].id
+        try {
+          const detail = await aiWorkflowApi.detail(String(list[0].id))
+          applyWorkflowDetail(detail)
+        } catch {
+          // 列表可展示优先，详情失败不影响左侧导航呈现
+        }
       }
     } catch {
       deps.workflowItems.value = []
     }
   }
 
+  const applyWorkflowDetail = (detail: Awaited<ReturnType<typeof aiWorkflowApi.detail>>) => {
+    deps.workflowMeta.id = detail.id
+    deps.workflowMeta.workflowName = detail.workflowName || deps.workflowMeta.workflowName
+    deps.workflowMeta.workflowKey = detail.workflowKey || ''
+    deps.workflowMeta.description = detail.description || ''
+    deps.loadGraph(detail.graphJson)
+  }
+
+  const fetchWorkflowDetail = async (id: string) => {
+    await ensureEnvReady()
+    const detail = await aiWorkflowApi.detail(id)
+    applyWorkflowDetail(detail)
+  }
+
+  const createWorkflow = async (payload: { workflowName: string; workflowKey: string; category: string }) => {
+    await ensureEnvReady()
+    await aiWorkflowApi.create({
+      workflowName: payload.workflowName,
+      workflowKey: payload.workflowKey,
+      description: payload.category,
+      category: payload.category,
+      graphJson: deps.toGraphJson({
+        workflowName: payload.workflowName,
+        workflowKey: payload.workflowKey,
+        description: payload.category
+      })
+    })
+    await fetchWorkflowList()
+    const created = deps.workflowItems.value.find(
+      (item) => item.workflowKey === payload.workflowKey || item.workflowName === payload.workflowName
+    )
+    if (!created) {
+      const optimisticItem: WorkflowListItem = {
+        id: `${payload.workflowKey}-${Date.now()}`,
+        workflowName: payload.workflowName,
+        workflowKey: payload.workflowKey,
+        description: payload.category,
+        category: payload.category
+      }
+      deps.workflowItems.value = [optimisticItem, ...deps.workflowItems.value]
+      deps.activeWorkflowId.value = optimisticItem.id
+      deps.workflowMeta.id = undefined
+      deps.workflowMeta.workflowName = payload.workflowName
+      deps.workflowMeta.workflowKey = payload.workflowKey
+      deps.workflowMeta.description = payload.category
+      return
+    }
+    deps.activeWorkflowId.value = created.id
+    await fetchWorkflowDetail(created.id)
+  }
+
   const handleSaveDraft = async () => {
+    await ensureEnvReady()
     if (!deps.workflowMeta.workflowName || !deps.workflowMeta.workflowKey) {
       deps.notifyWarning('请先填写流程名称和 Flow Key')
       return
@@ -75,18 +145,64 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
     }
   }
 
+  const updateWorkflowMeta = async (
+    item: WorkflowListItem,
+    payload: { workflowName: string; workflowKey: string; category: string }
+  ) => {
+    await ensureEnvReady()
+    if (item.recordId == null) {
+      deps.notifyWarning('当前流程缺少ID，无法编辑')
+      return
+    }
+    const detail = await aiWorkflowApi.detail(item.recordId)
+    await aiWorkflowApi.update({
+      id: item.recordId,
+      workflowName: payload.workflowName,
+      workflowKey: payload.workflowKey,
+      description: payload.category,
+      category: payload.category,
+      graphJson: detail.graphJson || ''
+    })
+    await fetchWorkflowList()
+    const updated = deps.workflowItems.value.find((x) => x.recordId === item.recordId)
+    if (!updated) return
+    deps.activeWorkflowId.value = updated.id
+    await fetchWorkflowDetail(updated.id)
+  }
+
+  const deleteWorkflow = async (item: WorkflowListItem) => {
+    await ensureEnvReady()
+    if (item.recordId == null) {
+      deps.notifyWarning('当前流程缺少ID，无法删除')
+      return
+    }
+    await aiWorkflowApi.delete([item.recordId])
+    const deletingActive = deps.activeWorkflowId.value === item.id
+    await fetchWorkflowList()
+    if (!deletingActive) return
+    const first = deps.workflowItems.value[0]
+    if (!first) {
+      deps.activeWorkflowId.value = undefined
+      deps.workflowMeta.id = undefined
+      deps.workflowMeta.workflowName = '未命名流程'
+      deps.workflowMeta.workflowKey = ''
+      deps.workflowMeta.description = ''
+      deps.loadGraph(undefined)
+      return
+    }
+    deps.activeWorkflowId.value = first.id
+    await fetchWorkflowDetail(first.id)
+  }
+
   const fetchDetailIfNeeded = async () => {
+    await ensureEnvReady()
     const routeId = deps.route.params.id ?? deps.route.query.id
     const cloneId = deps.route.query.cloneId
     const targetId = routeId ?? cloneId
     if (!targetId) return
 
     const detail = await aiWorkflowApi.detail(String(targetId))
-    deps.workflowMeta.id = detail.id
-    deps.workflowMeta.workflowName = detail.workflowName || deps.workflowMeta.workflowName
-    deps.workflowMeta.workflowKey = detail.workflowKey || ''
-    deps.workflowMeta.description = detail.description || ''
-    deps.loadGraph(detail.graphJson)
+    applyWorkflowDetail(detail)
 
     if (!routeId && cloneId) {
       deps.workflowMeta.id = undefined
@@ -98,6 +214,10 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
   return {
     submitPayload,
     fetchWorkflowList,
+    fetchWorkflowDetail,
+    createWorkflow,
+    updateWorkflowMeta,
+    deleteWorkflow,
     handleSaveDraft,
     fetchDetailIfNeeded
   }

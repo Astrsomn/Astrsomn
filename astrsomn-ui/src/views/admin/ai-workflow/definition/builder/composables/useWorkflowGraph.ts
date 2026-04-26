@@ -13,7 +13,16 @@ import { defaultGraph } from '../domain/graph-default'
 import { validateConnection, validateGraphState } from '../domain/graph-rules'
 import { parseGraphJson, stringifyGraphJson } from '../domain/graph-serializer'
 import { createNodeData } from '../domain/node-data-factory'
-import type { WorkflowEdge, WorkflowGraph, WorkflowNode, WorkflowNodeData, WorkflowNodeType } from '../domain/types.ts'
+import {
+  defaultCanvasConfig,
+  type CanvasConfig,
+  type CanvasEdgeStyle,
+  type WorkflowEdge,
+  type WorkflowGraph,
+  type WorkflowNode,
+  type WorkflowNodeData,
+  type WorkflowNodeType
+} from '../domain/types.ts'
 
 const ensureNodeData = (node: WorkflowNode): WorkflowNodeData => {
   return {
@@ -26,6 +35,7 @@ export function useWorkflowGraph() {
   const nodes = ref<WorkflowNode[]>([...defaultGraph.nodes])
   const edges = ref<WorkflowEdge[]>([...defaultGraph.edges])
   const viewport = ref(defaultGraph.viewport ?? { x: 0, y: 0, zoom: 1 })
+  const canvasConfig = ref<CanvasConfig>({ ...defaultCanvasConfig })
   const selectedNodeId = ref<string>()
   const selectedEdgeId = ref<string>()
   const nodeCounter = ref(nodes.value.length + 1)
@@ -185,8 +195,19 @@ export function useWorkflowGraph() {
     edges.value = edges.value.map((edge) => (edge.id === edgeId ? { ...edge, label } : edge))
   }
 
-  const updateEdgeStyleById = (edgeId: string, edgeType: 'smoothstep' | 'straight') => {
+  const updateEdgeStyleById = (edgeId: string, edgeType: CanvasEdgeStyle) => {
     edges.value = edges.value.map((edge) => (edge.id === edgeId ? { ...edge, type: edgeType } : edge))
+  }
+
+  const applyEdgeTypeToAll = (edgeType: CanvasEdgeStyle) => {
+    edges.value = edges.value.map((edge) => ({ ...edge, type: edgeType }))
+  }
+
+  const updateCanvasConfig = (payload: Partial<CanvasConfig>) => {
+    canvasConfig.value = {
+      ...canvasConfig.value,
+      ...payload
+    }
   }
 
   const onConnect = (connection: Connection) => {
@@ -196,7 +217,7 @@ export function useWorkflowGraph() {
     const next = addEdge(
       {
         ...connection,
-        type: 'smoothstep',
+        type: canvasConfig.value.edgeStyleDefault,
         markerEnd: MarkerType.ArrowClosed
       },
       edges.value as Edge[]
@@ -212,9 +233,40 @@ export function useWorkflowGraph() {
   const loadGraph = (graphJson?: string) => {
     const parsed = parseGraphJson(graphJson)
     if (!parsed) return
-    if (Array.isArray(parsed.nodes)) nodes.value = parsed.nodes
+    if (Array.isArray(parsed.nodes)) {
+      const legacyTypeMap: Record<string, WorkflowNodeType> = {
+        knowledge: 'retrieval',
+        vision: 'tools',
+        condition: 'if-else',
+        'exclusive-gateway': 'if-else',
+        template: 'merge',
+        iterator: 'merge',
+        'loop-gateway': 'merge',
+        search: 'tools',
+        'parallel-gateway': 'parallel',
+        'human-audit': 'tools',
+        'input-form': 'tools'
+      }
+      nodes.value = parsed.nodes.map((node) => {
+        const rawType = String(node.type || '')
+        const mappedType = legacyTypeMap[rawType]
+        if (!mappedType) return node
+        return {
+          ...node,
+          type: mappedType
+        }
+      })
+    }
     if (Array.isArray(parsed.edges)) edges.value = parsed.edges
     if (parsed.viewport) viewport.value = parsed.viewport
+    const rawCanvasConfig = (parsed.meta?.canvasConfig || {}) as Partial<CanvasConfig> & { edgeStyleDefault?: unknown }
+    const edgeStyleRaw = String(rawCanvasConfig.edgeStyleDefault || '')
+    const normalizedEdgeStyle = edgeStyleRaw === 'smoothstep' ? 'default' : edgeStyleRaw
+    canvasConfig.value = {
+      ...defaultCanvasConfig,
+      ...rawCanvasConfig,
+      ...(normalizedEdgeStyle ? { edgeStyleDefault: normalizedEdgeStyle as CanvasEdgeStyle } : {})
+    }
     nodeCounter.value = nodes.value.length + 1
     selectedNodeId.value = undefined
     selectedEdgeId.value = undefined
@@ -225,7 +277,10 @@ export function useWorkflowGraph() {
       nodes: nodes.value,
       edges: edges.value,
       viewport: viewport.value,
-      meta
+      meta: {
+        ...(meta || {}),
+        canvasConfig: canvasConfig.value
+      }
     })
   }
 
@@ -233,6 +288,7 @@ export function useWorkflowGraph() {
     nodes,
     edges,
     viewport,
+    canvasConfig,
     selectedNodeId,
     selectedEdgeId,
     selectedNode,
@@ -249,6 +305,8 @@ export function useWorkflowGraph() {
     updateSelectedEdge,
     setEdgeLabelById,
     updateEdgeStyleById,
+    applyEdgeTypeToAll,
+    updateCanvasConfig,
     onConnect,
     validateGraph,
     loadGraph,

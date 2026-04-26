@@ -24,9 +24,9 @@ export const nodeDefinitionMap: Record<WorkflowNodeType, WorkflowNodeDefinition>
   },
   parallel: {
     type: 'parallel',
-    category: 'control',
-    title: '并行/汇聚',
-    description: '触发多个分支并等待汇聚。',
+    category: 'logic',
+    title: '并行 (Parallel)',
+    description: '同时触发多个下游分支并在后续汇聚。',
     inputs: [{ handleId: 'input', valueType: 'Any' }],
     outputs: [{ handleId: 'branchA', valueType: 'Any' }, { handleId: 'branchB', valueType: 'Any' }],
     configSchema: [{ key: 'branchCount', label: '分支数量', component: 'number', defaultValue: 2 }]
@@ -44,11 +44,11 @@ export const nodeDefinitionMap: Record<WorkflowNodeType, WorkflowNodeDefinition>
       { key: 'maxTokens', label: '最大 Token', component: 'number', defaultValue: 1024 }
     ]
   },
-  knowledge: {
-    type: 'knowledge',
+  retrieval: {
+    type: 'retrieval',
     category: 'ai',
-    title: '知识库检索',
-    description: 'RAG 检索相关上下文片段。',
+    title: '知识库 (Retrieval)',
+    description: '向量数据库检索背景知识（RAG）。',
     inputs: [{ handleId: 'query', valueType: 'String' }],
     outputs: [{ handleId: 'chunks', valueType: 'Array' }, { handleId: 'references', valueType: 'Array' }],
     configSchema: [
@@ -57,20 +57,11 @@ export const nodeDefinitionMap: Record<WorkflowNodeType, WorkflowNodeDefinition>
       { key: 'scoreThreshold', label: '相似度阈值', component: 'number', defaultValue: 0.5 }
     ]
   },
-  vision: {
-    type: 'vision',
-    category: 'ai',
-    title: '多模态识别',
-    description: '图像识别与结构化提取。',
-    inputs: [{ handleId: 'image', valueType: 'Any' }, { handleId: 'prompt', valueType: 'String' }],
-    outputs: [{ handleId: 'description', valueType: 'String' }, { handleId: 'structured_data', valueType: 'Object' }],
-    configSchema: [{ key: 'visionModel', label: '视觉模型', component: 'input', defaultValue: 'gpt-4o-mini' }]
-  },
-  condition: {
-    type: 'condition',
+  'if-else': {
+    type: 'if-else',
     category: 'logic',
-    title: '条件分支',
-    description: '根据表达式进行路由。',
+    title: '条件分支 (If/Else)',
+    description: '根据表达式结果决定执行路径。',
     inputs: [{ handleId: 'target_variable', valueType: 'Any' }],
     outputs: [{ handleId: 'true', valueType: 'Boolean' }, { handleId: 'false', valueType: 'Boolean' }],
     configSchema: [
@@ -79,23 +70,26 @@ export const nodeDefinitionMap: Record<WorkflowNodeType, WorkflowNodeDefinition>
       { key: 'falseLabel', label: 'False 分支标签', component: 'input', defaultValue: '不通过' }
     ]
   },
-  iterator: {
-    type: 'iterator',
+  'intent-classifier': {
+    type: 'intent-classifier',
     category: 'logic',
-    title: '迭代器',
-    description: '对数组进行循环处理。',
-    inputs: [{ handleId: 'list', valueType: 'Array' }],
-    outputs: [{ handleId: 'item', valueType: 'Any' }, { handleId: 'index', valueType: 'Number' }],
-    configSchema: [{ key: 'maxLoop', label: '最大循环次数', component: 'number', defaultValue: 20 }]
+    title: '问题分类器',
+    description: '使用 LLM 对意图进行分类并路由。',
+    inputs: [{ handleId: 'query', valueType: 'String' }],
+    outputs: [{ handleId: 'classA', valueType: 'String' }, { handleId: 'classB', valueType: 'String' }],
+    configSchema: [
+      { key: 'labels', label: '分类标签(逗号分隔)', component: 'input', defaultValue: '问候,售后,投诉' },
+      { key: 'prompt', label: '分类提示词', component: 'textarea', defaultValue: '请将用户意图分类到给定标签之一。' }
+    ]
   },
-  template: {
-    type: 'template',
+  merge: {
+    type: 'merge',
     category: 'logic',
-    title: '变量聚合',
-    description: '将多个变量模板拼接为结果文本。',
-    inputs: [{ handleId: 'variables', valueType: 'Object' }],
+    title: '变量聚合 (Merge)',
+    description: '汇聚多个分支变量形成统一输出。',
+    inputs: [{ handleId: 'left', valueType: 'Any' }, { handleId: 'right', valueType: 'Any' }],
     outputs: [{ handleId: 'result', valueType: 'String' }],
-    configSchema: [{ key: 'template', label: '模板内容', component: 'textarea', required: true, defaultValue: '根据{{var1}}处理{{var2}}' }]
+    configSchema: [{ key: 'strategy', label: '聚合策略', component: 'select', defaultValue: 'concat', options: [{ label: '拼接', value: 'concat' }, { label: 'JSON 合并', value: 'json-merge' }] }]
   },
   http: {
     type: 'http',
@@ -121,32 +115,17 @@ export const nodeDefinitionMap: Record<WorkflowNodeType, WorkflowNodeDefinition>
       { key: 'script', label: '脚本', component: 'textarea', defaultValue: 'return inputs' }
     ]
   },
-  search: {
-    type: 'search',
+  tools: {
+    type: 'tools',
     category: 'tool',
-    title: '搜索',
-    description: '联网检索实时信息。',
-    inputs: [{ handleId: 'query', valueType: 'String' }],
-    outputs: [{ handleId: 'search_results', valueType: 'Array' }],
-    configSchema: [{ key: 'provider', label: '搜索提供方', component: 'select', defaultValue: 'bing', options: [{ label: 'Bing', value: 'bing' }, { label: 'Google', value: 'google' }] }]
-  },
-  'human-audit': {
-    type: 'human-audit',
-    category: 'interaction',
-    title: '人工审核',
-    description: '流程挂起等待人工确认。',
-    inputs: [{ handleId: 'wait_for_review', valueType: 'Any' }],
-    outputs: [{ handleId: 'is_approved', valueType: 'Boolean' }, { handleId: 'comment', valueType: 'String' }],
-    configSchema: [{ key: 'timeoutAction', label: '超时动作', component: 'select', defaultValue: 'reject', options: [{ label: '驳回', value: 'reject' }, { label: '继续', value: 'continue' }] }]
-  },
-  'input-form': {
-    type: 'input-form',
-    category: 'interaction',
-    title: '输入增强',
-    description: '中间态表单采集补充信息。',
-    inputs: [{ handleId: 'fields', valueType: 'Array' }],
-    outputs: [{ handleId: 'form_data', valueType: 'Object' }],
-    configSchema: [{ key: 'formSchema', label: '表单 Schema', component: 'textarea', defaultValue: '[{\"key\":\"email\",\"type\":\"input\"}]' }]
+    title: '工具 (Tools)',
+    description: '调用预定义工具或插件能力。',
+    inputs: [{ handleId: 'tool_input', valueType: 'Object' }],
+    outputs: [{ handleId: 'tool_output', valueType: 'Object' }],
+    configSchema: [
+      { key: 'toolName', label: '工具名称', component: 'input', required: true, defaultValue: 'web-search' },
+      { key: 'timeoutMs', label: '超时(ms)', component: 'number', defaultValue: 8000 }
+    ]
   }
 }
 

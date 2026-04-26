@@ -1,6 +1,18 @@
 <template>
   <div class="zoom-controls">
-    <span class="zoom-percent">{{ zoomPercent }}%</span>
+    <a-input-number
+      class="zoom-percent-input"
+      size="small"
+      :value="zoomPercent"
+      :min="30"
+      :max="150"
+      :step="10"
+      :controls="false"
+      :formatter="zoomFormatter"
+      :parser="zoomParser"
+      @update:value="onInputZoom"
+      @wheel.prevent="onWheelZoom"
+    />
     <a-tooltip title="适配视图">
       <a-button class="tool-btn" shape="circle" @click="$emit('fit-view')">
         <template #icon><AimOutlined /></template>
@@ -22,19 +34,35 @@
 <script setup lang="ts">
 import { AimOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons-vue'
 
-defineProps<{
+const props = defineProps<{
   zoomPercent: number
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   'fit-view': []
   'zoom-in': []
   'zoom-out': []
+  'set-zoom-percent': [value: number]
 }>()
+
+const normalizePercent = (value: number) => Math.min(150, Math.max(30, value))
+const zoomFormatter = (value: number | string | undefined) => `${value ?? 0}%`
+const zoomParser = (value: string | undefined) => String(value ?? '').replace('%', '')
+
+const onInputZoom = (value: number | null) => {
+  if (value == null || Number.isNaN(value)) return
+  emit('set-zoom-percent', normalizePercent(Number(value)))
+}
+
+const onWheelZoom = (event: WheelEvent) => {
+  const delta = event.deltaY < 0 ? 10 : -10
+  emit('set-zoom-percent', normalizePercent(props.zoomPercent + delta))
+}
 </script>
 
 <style scoped>
 .zoom-controls {
+
   position: absolute;
   right: 16px;
   bottom: 16px;
@@ -42,23 +70,28 @@ defineEmits<{
   display: flex;
   flex-direction: row;
   gap: 10px;
-  padding: 6px;
+  padding: 6px 10px;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 30px;
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
 }
 
-.zoom-percent {
-  min-width: 52px;
+.zoom-percent-input {
+  width: 76px;
+  border-radius: 30px;
+}
+
+.zoom-percent-input :deep(.ant-input-number-input-wrap) {
+  height: 38px;
+  
+}
+
+.zoom-percent-input :deep(.ant-input-number-input) {
   height: 38px;
   line-height: 38px;
+  padding: 0;
   text-align: center;
-  border-radius: 999px;
-  background: #f8fafc;
-  border: 1px solid #d9e1ec;
-  color: #475569;
-  font-size: 12px;
   font-weight: 600;
 }
 

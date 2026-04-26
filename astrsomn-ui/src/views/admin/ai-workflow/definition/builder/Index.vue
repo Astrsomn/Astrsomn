@@ -8,6 +8,9 @@
           :workflow-items="workflowItems"
           :active-workflow-id="activeWorkflowId"
           @select-workflow="onSelectWorkflow"
+          @create-workflow="onCreateWorkflow"
+          @edit-workflow="onEditWorkflow"
+          @delete-workflow="onDeleteWorkflow"
         />
 
         <div class="center-wrap">
@@ -17,6 +20,7 @@
             :nodes="nodes"
             :edges="edges"
             :palette-icons="canvasPaletteIcons"
+            :canvas-config="canvasConfig"
             :compact-node="compactNode"
             :initial-zoom-mode="initialZoomMode"
             @update:nodes="onNodesUpdate"
@@ -38,11 +42,14 @@
         <Right
           class="right-panel"
           :workflow-meta="workflowMeta"
+          :canvas-config="canvasConfig"
           :all-nodes="nodes"
           :selected-node="selectedNode"
           :selected-edge="selectedEdge"
           @update-node="updateSelectedNode"
           @update-edge="updateSelectedEdge"
+          @update-canvas-config="updateCanvasConfig"
+          @apply-edge-style-all="applyEdgeTypeToAll"
           @remove-selection="removeSelection"
         />
       </main>
@@ -91,6 +98,7 @@ const workflowMeta = reactive<WorkflowMeta>({
 const {
   nodes,
   edges,
+  canvasConfig,
   selectedNodeId,
   selectedEdgeId,
   selectedNode,
@@ -107,6 +115,8 @@ const {
   updateSelectedEdge,
   setEdgeLabelById,
   updateEdgeStyleById,
+  applyEdgeTypeToAll,
+  updateCanvasConfig,
   onConnect,
   validateGraph,
   loadGraph,
@@ -170,14 +180,20 @@ const { contextMenu, closeContextMenu, onCanvasContextmenu, onContextMenuAction 
   notifyInfo: (content) => message.info(content)
 })
 
-const onSelectWorkflow = (item: WorkflowListItem) => {
+const onSelectWorkflow = async (item: WorkflowListItem) => {
   activeWorkflowId.value = item.id
-  workflowMeta.workflowName = item.workflowName
-  workflowMeta.workflowKey = item.workflowKey || ''
-  workflowMeta.description = item.description || ''
+  await fetchWorkflowDetail(item.id)
 }
 
-const { fetchWorkflowList, handleSaveDraft, fetchDetailIfNeeded } = useWorkflowPersistence({
+const {
+  fetchWorkflowList,
+  fetchWorkflowDetail,
+  createWorkflow,
+  updateWorkflowMeta,
+  deleteWorkflow,
+  handleSaveDraft,
+  fetchDetailIfNeeded
+} = useWorkflowPersistence({
   workflowMeta,
   activeWorkflowId,
   workflowItems,
@@ -189,6 +205,24 @@ const { fetchWorkflowList, handleSaveDraft, fetchDetailIfNeeded } = useWorkflowP
   notifySuccess: (content) => message.success(content),
   notifyWarning: (content) => message.warning(content)
 })
+
+const onCreateWorkflow = async (payload: { workflowName: string; workflowKey: string; category: string }) => {
+  await createWorkflow(payload)
+  message.success('流程已创建并进入编辑')
+}
+
+const onEditWorkflow = async (
+  item: WorkflowListItem,
+  payload: { workflowName: string; workflowKey: string; category: string }
+) => {
+  await updateWorkflowMeta(item, payload)
+  message.success('流程信息已更新')
+}
+
+const onDeleteWorkflow = async (item: WorkflowListItem) => {
+  await deleteWorkflow(item)
+  message.success('流程已删除')
+}
 
 onMounted(() => {
   void fetchWorkflowList()

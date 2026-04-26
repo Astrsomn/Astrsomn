@@ -6,6 +6,7 @@ export type AiWorkflow = {
   workflowName?: string
   versionNo?: number
   description?: string
+  category?: string
   graphJson?: string
   status?: string
 }

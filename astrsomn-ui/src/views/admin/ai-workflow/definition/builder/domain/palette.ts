@@ -12,62 +12,72 @@ function toPaletteItem(type: WorkflowNodeType) {
 
 export const paletteGroups: NodePaletteGroup[] = [
   {
-    key: 'control',
-    title: '控制类节点',
-    items: [toPaletteItem('start'), toPaletteItem('end'), toPaletteItem('parallel')]
+    key: 'base',
+    title: '基础/入口',
+    items: [toPaletteItem('start')]
   },
   {
     key: 'ai',
-    title: 'AI 核心类节点',
-    items: [toPaletteItem('llm'), toPaletteItem('knowledge'), toPaletteItem('vision')]
+    title: 'AI 核心',
+    items: [toPaletteItem('llm')]
+  },
+  {
+    key: 'retrieval',
+    title: '知识检索',
+    items: [toPaletteItem('retrieval')]
   },
   {
     key: 'logic',
-    title: '逻辑处理类节点',
-    items: [toPaletteItem('condition'), toPaletteItem('iterator'), toPaletteItem('template')]
+    title: '逻辑控制',
+    items: [toPaletteItem('if-else'), toPaletteItem('intent-classifier'), toPaletteItem('parallel')]
   },
   {
-    key: 'tool',
-    title: '工具与扩展节点',
-    items: [toPaletteItem('http'), toPaletteItem('code'), toPaletteItem('search')]
+    key: 'data',
+    title: '数据加工',
+    items: [toPaletteItem('code'), toPaletteItem('merge')]
   },
   {
-    key: 'interaction',
-    title: '前端交互节点',
-    items: [toPaletteItem('human-audit'), toPaletteItem('input-form')]
+    key: 'ext',
+    title: '外部扩展',
+    items: [toPaletteItem('http'), toPaletteItem('tools')]
+  },
+  {
+    key: 'end',
+    title: '结束/输出',
+    items: [toPaletteItem('end')]
   }
 ]
 
 export const canvasPaletteIcons: CanvasPaletteIconItem[] = [
   {
     key: 'control',
-    label: '控制',
-    description: '开始、结束、并行等流程控制节点',
-    children: [toPaletteItem('start'), toPaletteItem('end'), toPaletteItem('parallel')]
+    label: '基础',
+    description: '开始与结束节点',
+    children: [toPaletteItem('start'), toPaletteItem('end')]
   },
   {
     key: 'ai',
     label: 'AI',
-    description: 'LLM、知识库与视觉识别节点',
-    children: [toPaletteItem('llm'), toPaletteItem('knowledge'), toPaletteItem('vision')]
+    description: 'LLM 与知识检索节点',
+    children: [toPaletteItem('llm'), toPaletteItem('retrieval')]
   },
   {
     key: 'logic',
     label: '逻辑',
-    description: '条件、迭代、模板拼接节点',
-    children: [toPaletteItem('condition'), toPaletteItem('iterator'), toPaletteItem('template')]
+    description: '条件分支、意图分类与并行控制',
+    children: [toPaletteItem('if-else'), toPaletteItem('intent-classifier'), toPaletteItem('parallel')]
   },
   {
     key: 'tool',
-    label: '工具',
-    description: 'HTTP、代码执行与搜索节点',
-    children: [toPaletteItem('http'), toPaletteItem('code'), toPaletteItem('search')]
+    label: '加工',
+    description: '代码执行与变量聚合',
+    children: [toPaletteItem('code'), toPaletteItem('merge')]
   },
   {
     key: 'interaction',
-    label: '交互',
-    description: '人工审核和输入增强节点',
-    children: [toPaletteItem('human-audit'), toPaletteItem('input-form')]
+    label: '扩展',
+    description: 'HTTP 与工具调用节点',
+    children: [toPaletteItem('http'), toPaletteItem('tools')]
   }
 ]
 

@@ -10,16 +10,13 @@ export type WorkflowNodeType =
   | 'end'
   | 'parallel'
   | 'llm'
-  | 'knowledge'
-  | 'vision'
-  | 'condition'
-  | 'iterator'
-  | 'template'
+  | 'retrieval'
+  | 'if-else'
+  | 'intent-classifier'
+  | 'merge'
   | 'http'
   | 'code'
-  | 'search'
-  | 'human-audit'
-  | 'input-form'
+  | 'tools'
 
 export type WorkflowValueType = 'String' | 'Number' | 'Boolean' | 'Array' | 'Object' | 'Any'
 
@@ -76,6 +73,30 @@ export type WorkflowMeta = {
   description: string
 }
 
+export type CanvasEdgeStyle = 'default' | 'straight' | 'step'
+
+export type CanvasBackgroundVariant = 'dots' | 'lines' | 'cross' | 'none'
+
+export type CanvasConfig = {
+  edgeStyleDefault: CanvasEdgeStyle
+  backgroundVariant: CanvasBackgroundVariant
+  backgroundColor: string
+  patternColor: string
+  patternGap: number
+  patternSize: number
+  showOriginMarker: boolean
+}
+
+export const defaultCanvasConfig: CanvasConfig = {
+  edgeStyleDefault: 'default',
+  backgroundVariant: 'dots',
+  backgroundColor: '#f8fafc',
+  patternColor: '#94a3b8',
+  patternGap: 22,
+  patternSize: 1.8,
+  showOriginMarker: true
+}
+
 export type WorkflowGraph = {
   nodes: WorkflowNode[]
   edges: WorkflowEdge[]
@@ -84,7 +105,9 @@ export type WorkflowGraph = {
     y: number
     zoom: number
   }
-  meta?: Partial<WorkflowMeta>
+  meta?: Partial<WorkflowMeta> & {
+    canvasConfig?: Partial<CanvasConfig>
+  }
 }
 
 export type NodePaletteItem = {
@@ -103,9 +126,11 @@ export type LeftViewMode = 'workflow-list' | 'model-chat'
 
 export type WorkflowListItem = {
   id: string
+  recordId?: number | string
   workflowName: string
   workflowKey?: string
   description?: string
+  category?: string
 }
 
 export type CanvasPaletteIconItem = {

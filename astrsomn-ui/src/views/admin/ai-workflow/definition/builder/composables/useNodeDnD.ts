@@ -14,16 +14,13 @@ const workflowNodeTypes: WorkflowNodeType[] = [
   'end',
   'parallel',
   'llm',
-  'knowledge',
-  'vision',
-  'condition',
-  'iterator',
-  'template',
+  'retrieval',
+  'if-else',
+  'intent-classifier',
+  'merge',
   'http',
   'code',
-  'search',
-  'human-audit',
-  'input-form'
+  'tools'
 ]
 
 export function useNodeDnD() {

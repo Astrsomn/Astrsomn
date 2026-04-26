@@ -21,7 +21,7 @@ export const validateConnection = (connection: Connection, nodes: WorkflowNode[]
   }
 
   const sourceNode = nodes.find((node) => node.id === connection.source)
-  if (sourceNode?.type === 'condition') {
+  if (sourceNode?.type === 'if-else') {
     if (!connection.sourceHandle || (connection.sourceHandle !== 'true' && connection.sourceHandle !== 'false')) {
       return { ok: false, message: '条件节点必须从 true/false 分支发出连线' as const }
     }
@@ -47,7 +47,7 @@ export const validateGraphState = (nodes: WorkflowNode[], edges: WorkflowEdge[])
   if (endCount < 1) errors.push('流程至少需要一个结束节点')
 
   nodes.forEach((node) => {
-    if (node.type === 'condition') {
+    if (node.type === 'if-else') {
       const outgoing = edges.filter((edge) => edge.source === node.id)
       const hasTrue = outgoing.some((edge) => edge.sourceHandle === 'true')
       const hasFalse = outgoing.some((edge) => edge.sourceHandle === 'false')

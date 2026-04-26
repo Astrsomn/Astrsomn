@@ -1,22 +1,23 @@
 <template>
   <BaseCanvasNode
     :data="data"
-    fallback-label="输入增强"
-    fallback-description="采集中间态补充信息"
-    subtitle="Form Input"
-    icon-text="F"
-    icon-background="#dcfce7"
-    icon-color="#15803d"
+    fallback-label="知识库 (Retrieval)"
+    fallback-description="向量检索相关知识片段"
+    subtitle="Retrieval"
+    icon-text="R"
+    icon-background="#eef2ff"
+    icon-color="#4f46e5"
     :theme="{
-      borderColor: '#bbf7d0',
+      borderColor: '#c7d2fe',
       background: '#ffffff',
       titleColor: '#0f172a',
       descColor: '#475569'
     }"
   >
-    <div class="fields">fields: email, phone, remark</div>
+    <div class="retrieval-tip">RAG: TopK + 相似度阈值</div>
   </BaseCanvasNode>
 </template>
+
 <script setup lang="ts">
 import BaseCanvasNode from '../../shared/BaseCanvasNode.vue'
 import type { WorkflowNodeViewData } from '../../shared/node-props'
@@ -24,11 +25,11 @@ defineProps<{ data?: WorkflowNodeViewData }>()
 </script>
 
 <style scoped>
-.fields {
+.retrieval-tip {
   font-size: 11px;
-  color: #166534;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  color: #4f46e5;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
   border-radius: 10px;
   padding: 8px;
 }
