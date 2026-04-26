@@ -191,6 +191,28 @@ const adminChildren: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'definitions/new',
+        name: 'AdminWorkflowDefinitionBuilder',
+        component: () => import('@/views/admin/ai-workflow/definition/builder/WorkflowDefinitionBuilder.vue'),
+        meta: {
+          title: '流程搭建',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
+        }
+      },
+      {
+        path: 'definitions/:id/edit',
+        name: 'AdminWorkflowDefinitionEditBuilder',
+        component: () => import('@/views/admin/ai-workflow/definition/builder/WorkflowDefinitionBuilder.vue'),
+        meta: {
+          title: '编辑流程',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: false
+        }
+      },
+      {
         path: 'definitions',
         name: 'AdminWorkflowDefinitions',
         component: () => import('@/views/admin/ai-workflow/definition/DefinitionList.vue'),
@@ -403,6 +425,8 @@ const adminChildren: RouteRecordRaw[] = [
   { path: 'tracing', redirect: { path: '/admin/ai-safety/tracing' } },
   { path: 'ai-workflow-center', redirect: { path: '/admin/ai-workflow' } },
   { path: 'workflow-definitions', redirect: { path: '/admin/ai-workflow/definitions' } },
+  { path: 'workflow-definition-builder', redirect: { path: '/admin/ai-workflow/definitions/new' } },
+  { path: 'workflow-definition-builder/:id', redirect: (to) => ({ path: `/admin/ai-workflow/definitions/${String(to.params.id)}/edit` }) },
   { path: 'workflow-deployments', redirect: { path: '/admin/ai-workflow/deployments' } },
   { path: 'workflow-instances', redirect: { path: '/admin/ai-workflow/instances' } },
   { path: 'workflow-node-history', redirect: { path: '/admin/ai-workflow/node-history' } },

@@ -52,6 +52,8 @@
             <template v-else-if="column.key === 'actions'">
               <a-button type="link" @click="openEdit(record)">编辑</a-button>
               <a-divider type="vertical" />
+              <a-button type="link" @click="openCopy(record)">复制</a-button>
+              <a-divider type="vertical" />
               <a-popconfirm title="确定删除吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
                 <a-button type="link" danger>删除</a-button>
               </a-popconfirm>
@@ -65,34 +67,12 @@
       </AstrsomnDataSection>
     </div>
 
-    <a-modal
-      :open="modal.open"
-      :title="modal.mode === 'create' ? '新建流程定义' : '编辑流程定义'"
-      :confirm-loading="modal.submitting"
-      destroy-on-close
-      @update:open="(value) => (modal.open = value)"
-      @ok="handleSubmit"
-    >
-      <a-form layout="vertical">
-        <a-form-item label="流程名称" required>
-          <a-input v-model="form.workflowName" maxlength="128" />
-        </a-form-item>
-        <a-form-item label="Flow Key" required>
-          <a-input v-model="form.workflowKey" maxlength="128" />
-        </a-form-item>
-        <a-form-item label="业务分类">
-          <a-input v-model="form.description" maxlength="128" />
-        </a-form-item>
-        <a-form-item label="流程图 JSON">
-          <a-textarea v-model="form.graphJson" :rows="8" />
-        </a-form-item>
-      </a-form>
-    </a-modal>
   </AdminPageShell>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
@@ -124,6 +104,7 @@ const columns = [
 
 const loading = ref(false)
 const list = ref<AiWorkflow[]>([])
+const router = useRouter()
 
 const page = reactive({
   pageNum: 1,
@@ -136,28 +117,6 @@ const query = reactive<WorkflowQuery>({
   workflowKey: undefined,
   description: undefined
 })
-
-const modal = reactive({
-  open: false,
-  mode: 'create' as 'create' | 'edit',
-  submitting: false
-})
-
-const form = reactive<AiWorkflow>({
-  id: undefined,
-  workflowName: '',
-  workflowKey: '',
-  description: '',
-  graphJson: ''
-})
-
-const resetForm = () => {
-  form.id = undefined
-  form.workflowName = ''
-  form.workflowKey = ''
-  form.description = ''
-  form.graphJson = ''
-}
 
 const fetchList = async () => {
   loading.value = true
@@ -194,21 +153,23 @@ const resetFilters = () => {
 }
 
 const openCreate = () => {
-  modal.mode = 'create'
-  resetForm()
-  modal.open = true
+  void router.push({ name: 'AdminWorkflowDefinitionBuilder' })
 }
 
-const openEdit = async (record: AiWorkflow) => {
+const openEdit = (record: AiWorkflow) => {
   if (record.id == null) return
-  modal.mode = 'edit'
-  const detail = await aiWorkflowApi.detail(record.id)
-  form.id = detail.id
-  form.workflowName = detail.workflowName || ''
-  form.workflowKey = detail.workflowKey || ''
-  form.description = detail.description || ''
-  form.graphJson = detail.graphJson || ''
-  modal.open = true
+  void router.push({
+    name: 'AdminWorkflowDefinitionEditBuilder',
+    params: { id: String(record.id) }
+  })
+}
+
+const openCopy = (record: AiWorkflow) => {
+  if (record.id == null) return
+  void router.push({
+    name: 'AdminWorkflowDefinitionBuilder',
+    query: { cloneId: String(record.id) }
+  })
 }
 
 const handleDeleteOne = async (id?: number | string) => {
@@ -216,35 +177,6 @@ const handleDeleteOne = async (id?: number | string) => {
   const msg = await aiWorkflowApi.delete([id])
   message.success(msg || '删除成功')
   void fetchList()
-}
-
-const handleSubmit = async () => {
-  if (!form.workflowName || !form.workflowKey) {
-    message.warning('请填写流程名称与 Flow Key')
-    return
-  }
-  modal.submitting = true
-  try {
-    const payload: AiWorkflow = {
-      id: form.id,
-      workflowName: form.workflowName,
-      workflowKey: form.workflowKey,
-      description: form.description,
-      graphJson: form.graphJson
-    }
-    let msg = ''
-    if (modal.mode === 'create') {
-      delete payload.id
-      msg = await aiWorkflowApi.create(payload)
-    } else {
-      msg = await aiWorkflowApi.update(payload)
-    }
-    message.success(msg || '保存成功')
-    modal.open = false
-    void fetchList()
-  } finally {
-    modal.submitting = false
-  }
 }
 
 onMounted(() => {
