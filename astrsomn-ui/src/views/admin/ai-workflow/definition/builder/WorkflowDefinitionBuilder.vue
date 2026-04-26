@@ -11,19 +11,14 @@
         />
 
         <div class="center-wrap">
-          <a-tooltip :title="leftCollapsed ? '展开侧栏' : '收起侧栏'">
-            <a-button class="canvas-left-toggle" shape="circle" @click="leftCollapsed = !leftCollapsed">
-              <span class="toggle-icon" :class="{ collapsed: leftCollapsed }">
-                <MenuUnfoldOutlined v-if="leftCollapsed" />
-                <MenuFoldOutlined v-else />
-              </span>
-            </a-button>
-          </a-tooltip>
+          <BottomLeftToggle :collapsed="leftCollapsed" @toggle="leftCollapsed = !leftCollapsed" />
           <CenterFlowCanvas
             class="center-panel"
             :nodes="nodes"
             :edges="edges"
             :palette-icons="canvasPaletteIcons"
+            :compact-node="compactNode"
+            :initial-zoom-mode="initialZoomMode"
             @update:nodes="onNodesUpdate"
             @update:edges="onEdgesUpdate"
             @connect="handleConnect"
@@ -66,13 +61,13 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons-vue'
 import { useRoute } from 'vue-router'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import { aiWorkflowApi } from '@/api/aiWorkflow'
 import Left from './components/Left.vue'
 import CenterFlowCanvas from './components/Center-FlowCanvas.vue'
 import Right from './components/Right.vue'
+import BottomLeftToggle from './components/flow-canvas/controls/BottomLeftToggle.vue'
 import ContextMenu from './components/context-menu/ContextMenu.vue'
 import { canvasPaletteIcons } from './constants'
 import { useWorkflowGraph } from './composables/useWorkflowGraph'
@@ -82,6 +77,8 @@ import type { CanvasContextMenuPayload, NodeDropPayload, WorkflowListItem, Workf
 const route = useRoute()
 const saving = ref(false)
 const leftCollapsed = ref(false)
+const compactNode = true
+const initialZoomMode: 'fit-compact' | 'normal' = 'fit-compact'
 const activeWorkflowId = ref<string>()
 const workflowItems = ref<WorkflowListItem[]>([])
 const layoutColumns = computed(() => (leftCollapsed.value ? '0px minmax(680px, 1fr) 320px' : '360px minmax(680px, 1fr) 320px'))
@@ -396,38 +393,6 @@ onMounted(() => {
 .center-panel {
   height: 100%;
   min-height: 0;
-}
-
-.canvas-left-toggle {
-  position: absolute;
-  bottom: 14px;
-  left: 14px;
-  top: auto;
-  z-index: 12;
-  width: 36px;
-  height: 36px;
-  border-color: #d7dee8;
-  color: #8a94a6;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.1);
-  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.canvas-left-toggle:hover {
-  border-color: #c5cedb;
-  color: #64748b;
-  transform: translateY(-1px);
-}
-
-.toggle-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.24s ease, opacity 0.24s ease;
-}
-
-.toggle-icon.collapsed {
-  transform: rotate(180deg) scale(1.06);
 }
 
 @media (max-width: 1500px) {

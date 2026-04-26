@@ -1,6 +1,7 @@
 <template>
   <section
     class="flow-canvas"
+    :class="{ 'compact-node': compactNode }"
     @dragover="onDragOver"
     @drop="onDropToCanvas"
     @mousedown.capture="onCanvasMouseDown"
@@ -14,7 +15,6 @@
       :edges="edges"
       ref="flowRef"
       class="canvas-inner"
-      fit-view-on-init
       :min-zoom="0.3"
       :max-zoom="1.5"
       :node-types="nodeTypes"
@@ -38,100 +38,39 @@
       <Background pattern-color="#e2e8f0" :gap="18" />
   
     </VueFlow>
-    <div class="canvas-tools">
-      <a-tooltip title="框选模式">
-        <a-button class="tool-btn" :class="{ active: interactionMode === 'box' }" shape="circle" @click="setInteractionMode('box')">
-          <template #icon><BorderOutlined /></template>
-        </a-button>
-      </a-tooltip>
-      <a-tooltip title="平移模式">
-        <a-button class="tool-btn" :class="{ active: interactionMode === 'pan' }" shape="circle" @click="setInteractionMode('pan')">
-          <template #icon><DragOutlined /></template>
-        </a-button>
-      </a-tooltip>
-
-      <a-tooltip title="清空选择">
-        <a-button class="tool-btn" shape="circle" @click="clearSelection">
-          <template #icon><CloseCircleOutlined /></template>
-        </a-button>
-      </a-tooltip>
-      <a-tooltip title="撤销（占位）">
-        <a-button class="tool-btn" shape="circle" @click="notifyPlaceholder('撤销')">
-          <template #icon><UndoOutlined /></template>
-        </a-button>
-      </a-tooltip>
-      <a-tooltip title="重做（占位）">
-        <a-button class="tool-btn" shape="circle" @click="notifyPlaceholder('重做')">
-          <template #icon><RedoOutlined /></template>
-        </a-button>
-      </a-tooltip>
-    </div>
-    <div class="canvas-actions">
-      <a-tooltip title="保存草稿">
-        <a-button class="action-btn save-btn" shape="circle" :loading="saving" @click="$emit('save')">
-          <template #icon><SaveOutlined /></template>
-        </a-button>
-      </a-tooltip>
-      <a-tooltip title="调试运行">
-        <a-button class="action-btn debug-btn" shape="circle" disabled>
-          <template #icon><BugOutlined /></template>
-        </a-button>
-      </a-tooltip>
-      <a-tooltip title="发布流程">
-        <a-button class="action-btn publish-btn" shape="circle" disabled>
-          <template #icon><RocketOutlined /></template>
-        </a-button>
-      </a-tooltip>
-    </div>
-    <div class="zoom-controls">
-      <a-tooltip title="适配视图">
-        <a-button class="tool-btn" shape="circle" @click="onFitView">
-          <template #icon><AimOutlined /></template>
-        </a-button>
-      </a-tooltip>
-      <a-tooltip title="放大">
-        <button type="button" class="zoom-btn" @click="onZoomIn">
-          <PlusOutlined />
-        </button>
-      </a-tooltip>
-      <a-tooltip title="缩小">
-        <button type="button" class="zoom-btn" @click="onZoomOut">
-          <MinusOutlined />
-        </button>
-      </a-tooltip>
-    </div>
+    <TopTools :interaction-mode="interactionMode" @set-mode="setInteractionMode" @clear-selection="clearSelection" @placeholder="notifyPlaceholder" />
+    <RightActions :saving="saving" @save="$emit('save')" />
+    <BottomRightZoom :zoom-percent="zoomPercent" @fit-view="onFitView" @zoom-in="onZoomIn" @zoom-out="onZoomOut" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import {
-  AimOutlined,
-  BorderOutlined,
-  BugOutlined,
-  CloseCircleOutlined,
-  DragOutlined,
-  MinusOutlined,
-  PlusOutlined,
-  RedoOutlined,
-  RocketOutlined,
-  SaveOutlined,
-  UndoOutlined
-} from '@ant-design/icons-vue'
 import { VueFlow, type Connection, type EdgeMouseEvent, type NodeMouseEvent, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { nodeCanvasTypes } from './nodes/registry'
 import PaletteDock from './flow-canvas/PaletteDock.vue'
+import TopTools from './flow-canvas/controls/TopTools.vue'
+import RightActions from './flow-canvas/controls/RightActions.vue'
+import BottomRightZoom from './flow-canvas/controls/BottomRightZoom.vue'
 import { useNodeDnD } from '../composables/useNodeDnD'
 import type { CanvasContextMenuPayload, CanvasPaletteIconItem, NodeDropPayload, WorkflowEdge, WorkflowNode } from '../types'
 
-const props = defineProps<{
-  nodes: WorkflowNode[]
-  edges: WorkflowEdge[]
-  paletteIcons: CanvasPaletteIconItem[]
-  saving?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    nodes: WorkflowNode[]
+    edges: WorkflowEdge[]
+    paletteIcons: CanvasPaletteIconItem[]
+    saving?: boolean
+    compactNode?: boolean
+    initialZoomMode?: 'fit-compact' | 'normal'
+  }>(),
+  {
+    compactNode: false,
+    initialZoomMode: 'normal'
+  }
+)
 
 const emit = defineEmits<{
   'update:nodes': [value: WorkflowNode[]]
@@ -152,6 +91,7 @@ const { parseDropType } = useNodeDnD()
 const { project, zoomIn, zoomOut, fitView, getViewport, setViewport } = useVueFlow()
 const flowRef = ref<InstanceType<typeof VueFlow> | null>(null)
 const interactionMode = ref<'box' | 'pan'>('box')
+const zoomPercent = ref(100)
 const rightPanState = ref<{
   active: boolean
   startClientX: number
@@ -196,15 +136,22 @@ const notifyPlaceholder = (action: string) => {
 }
 
 const onFitView = () => {
-  fitView({ padding: 0.24, duration: 300 })
+  fitView({
+    padding: props.initialZoomMode === 'fit-compact' ? 0.34 : 0.24,
+    duration: 300,
+    maxZoom: props.initialZoomMode === 'fit-compact' ? 0.85 : 1.2
+  })
+  syncZoomPercent()
 }
 
 const onZoomIn = () => {
   zoomIn()
+  syncZoomPercent()
 }
 
 const onZoomOut = () => {
   zoomOut()
+  syncZoomPercent()
 }
 
 const onSelectionChange = (payload: { nodes?: Array<{ id: string }> }) => {
@@ -262,12 +209,14 @@ const onCanvasMouseMove = (ev: MouseEvent) => {
     y: rightPanState.value.startViewportY + deltaY,
     zoom: getViewport().zoom
   })
+  syncZoomPercent()
 }
 
 const onCanvasMouseUp = (ev: MouseEvent) => {
   if (ev.button === 2 && rightPanState.value.active) {
     rightPanState.value.active = false
   }
+  syncZoomPercent()
 }
 
 const onNativeContextmenu = (ev: MouseEvent) => {
@@ -302,6 +251,17 @@ const onNativeContextmenu = (ev: MouseEvent) => {
     }
   }
 }
+
+const syncZoomPercent = () => {
+  zoomPercent.value = Math.round(getViewport().zoom * 100)
+}
+
+onMounted(() => {
+  nextTick(() => {
+    onFitView()
+    syncZoomPercent()
+  })
+})
 </script>
 
 <style scoped>
@@ -312,6 +272,19 @@ const onNativeContextmenu = (ev: MouseEvent) => {
   overflow: hidden;
   background: #fff;
   position: relative;
+}
+
+.flow-canvas.compact-node {
+  --wf-node-min-width: 220px;
+  --wf-node-header-padding: 10px 12px 8px;
+  --wf-node-content-padding: 0 12px 12px;
+  --wf-node-icon-size: 28px;
+  --wf-node-icon-font-size: 12px;
+  --wf-node-title-font-size: 12px;
+  --wf-node-subtitle-font-size: 9px;
+  --wf-node-desc-font-size: 11px;
+  --wf-node-badge-padding: 3px 7px;
+  --wf-node-handle-size: 8px;
 }
 
 .canvas-inner {
@@ -332,108 +305,4 @@ const onNativeContextmenu = (ev: MouseEvent) => {
   color: #475569;
 }
 
-.canvas-tools {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 6;
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  padding: 6px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-}
-
-.tool-btn {
-  width: 38px;
-  height: 38px;
-  border: 1px solid #d9e1ec;
-  color: #334155;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.tool-btn:hover {
-  transform: translateY(-2px);
-  border-color: #91caff;
-  color: #1677ff;
-  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
-}
-
-.tool-btn.active {
-  border-color: #1677ff;
-  color: #1677ff;
-  background: #eff6ff;
-}
-
-.canvas-actions {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 6;
-  display: flex;
-  gap: 10px;
-}
-
-.action-btn {
-  border: none;
-  color: #fff;
-}
-
-.save-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-}
-
-.debug-btn {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-}
-
-.publish-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.action-btn:disabled {
-  opacity: 0.55;
-}
-
-.zoom-controls {
-  position: absolute;
-  right: 16px;
-  bottom: 16px;
-  z-index: 7;
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  padding: 6px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-}
-
-.zoom-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 999px;
-  border: 1px solid #d9e1ec;
-  background: #fff;
-  color: #1e293b;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.zoom-btn:hover {
-  transform: translateY(-2px) scale(1.04);
-  border-color: #60a5fa;
-  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.24);
-}
 </style>

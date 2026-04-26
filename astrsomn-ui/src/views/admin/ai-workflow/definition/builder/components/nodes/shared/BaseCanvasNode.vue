@@ -91,7 +91,7 @@ const props = withDefaults(
     badgeBackground: '#eff6ff',
     badgeColor: '#1d4ed8',
     active: false,
-    minWidth: '260px'
+    minWidth: '240px'
   }
 )
 
@@ -120,7 +120,7 @@ const themeStyles = computed(() => ({
 
 <style scoped>
 .wf-node {
-  min-width: var(--wf-node-min-width);
+  min-width: var(--wf-node-min-width, 240px);
   border-radius: 16px;
   border: 1px solid var(--wf-node-border);
   background: var(--wf-node-bg);
@@ -142,7 +142,7 @@ const themeStyles = computed(() => ({
 }
 
 .wf-node-header {
-  padding: 14px 16px 10px;
+  padding: var(--wf-node-header-padding, 12px 14px 9px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -155,13 +155,13 @@ const themeStyles = computed(() => ({
 }
 
 .wf-icon-box {
-  width: 34px;
-  height: 34px;
+  width: var(--wf-node-icon-size, 30px);
+  height: var(--wf-node-icon-size, 30px);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--wf-node-icon-font-size, 13px);
   font-weight: 700;
 }
 
@@ -170,14 +170,14 @@ const themeStyles = computed(() => ({
 }
 
 .wf-node-title {
-  font-size: 13px;
+  font-size: var(--wf-node-title-font-size, 12px);
   font-weight: 700;
   color: var(--wf-node-title);
 }
 
 .wf-node-subtitle {
   margin-top: 2px;
-  font-size: 10px;
+  font-size: var(--wf-node-subtitle-font-size, 9px);
   color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -187,24 +187,24 @@ const themeStyles = computed(() => ({
   font-size: 10px;
   line-height: 1;
   font-weight: 700;
-  padding: 4px 8px;
+  padding: var(--wf-node-badge-padding, 4px 8px);
   border-radius: 8px;
 }
 
 .wf-node-content {
-  padding: 0 16px 16px;
+  padding: var(--wf-node-content-padding, 0 14px 14px);
 }
 
 .wf-node-desc {
   margin-top: 2px;
   color: var(--wf-node-desc);
-  font-size: 12px;
+  font-size: var(--wf-node-desc-font-size, 11px);
   line-height: 1.45;
 }
 
 :deep(.wf-handle) {
-  width: 10px;
-  height: 10px;
+  width: var(--wf-node-handle-size, 9px);
+  height: var(--wf-node-handle-size, 9px);
   border-radius: 4px;
   border: 1px solid var(--wf-node-border);
   background: #fff;
