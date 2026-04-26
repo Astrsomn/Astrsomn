@@ -2,26 +2,43 @@
   <AdminPageShell title="流程搭建" description="通过拖拽节点快速编排工作流骨架。" empty-text="暂无流程数据。">
     <div class="workflow-builder-page">
       <main class="builder-layout">
-        <Left class="left-panel" :pin-refresh-token="palettePinRefreshToken" @palette-contextmenu="onPaletteContextmenu" />
-
-        <CenterFlowCanvas
-          class="center-panel"
-          :nodes="nodes"
-          :edges="edges"
-          @update:nodes="onNodesUpdate"
-          @update:edges="onEdgesUpdate"
-          @connect="handleConnect"
-          @drop-node="onDropNode"
-          @select-node="onSelectNode"
-          @select-edge="onSelectEdge"
-          @clear-selection="clearSelection"
-          @contextmenu="onCanvasContextmenu"
-          @selection-change="onSelectionChange"
-          :saving="saving"
-          @save="handleSaveDraft"
-          @nodes-delete="clearSelection"
-          @edges-delete="clearSelection"
+        <Left
+          class="left-panel"
+          :class="{ collapsed: leftCollapsed }"
+          :workflow-items="workflowItems"
+          :active-workflow-id="activeWorkflowId"
+          @select-workflow="onSelectWorkflow"
         />
+
+        <div class="center-wrap">
+          <a-tooltip :title="leftCollapsed ? '展开侧栏' : '收起侧栏'">
+            <a-button class="canvas-left-toggle" shape="circle" @click="leftCollapsed = !leftCollapsed">
+              <span class="toggle-icon" :class="{ collapsed: leftCollapsed }">
+                <MenuUnfoldOutlined v-if="leftCollapsed" />
+                <MenuFoldOutlined v-else />
+              </span>
+            </a-button>
+          </a-tooltip>
+          <CenterFlowCanvas
+            class="center-panel"
+            :nodes="nodes"
+            :edges="edges"
+            :palette-icons="canvasPaletteIcons"
+            @update:nodes="onNodesUpdate"
+            @update:edges="onEdgesUpdate"
+            @connect="handleConnect"
+            @drop-node="onDropNode"
+            @select-node="onSelectNode"
+            @select-edge="onSelectEdge"
+            @clear-selection="clearSelection"
+            @contextmenu="onCanvasContextmenu"
+            @selection-change="onSelectionChange"
+            :saving="saving"
+            @save="handleSaveDraft"
+            @nodes-delete="clearSelection"
+            @edges-delete="clearSelection"
+          />
+        </div>
 
         <Right
           class="right-panel"
@@ -49,23 +66,26 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { useRoute, useRouter } from 'vue-router'
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons-vue'
+import { useRoute } from 'vue-router'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import { aiWorkflowApi } from '@/api/aiWorkflow'
 import Left from './components/Left.vue'
 import CenterFlowCanvas from './components/Center-FlowCanvas.vue'
 import Right from './components/Right.vue'
 import ContextMenu from './components/context-menu/ContextMenu.vue'
+import { canvasPaletteIcons } from './constants'
 import { useWorkflowGraph } from './composables/useWorkflowGraph'
 import type { ContextMenuAction, ContextMenuPosition } from './components/context-menu/types'
-import type { CanvasContextMenuPayload, NodeDropPayload, PaletteContextMenuPayload, WorkflowMeta } from './types'
+import type { CanvasContextMenuPayload, NodeDropPayload, WorkflowListItem, WorkflowMeta } from './types'
 
 const route = useRoute()
 const saving = ref(false)
-const isEditMode = computed(() => route.name === 'AdminWorkflowDefinitionEditBuilder')
-const pageSubtitle = computed(() =>
-  isEditMode.value ? '修改已有流程的画布与节点配置' : '左侧拖拽节点到画布，右侧配置节点参数'
-)
+const leftCollapsed = ref(false)
+const activeWorkflowId = ref<string>()
+const workflowItems = ref<WorkflowListItem[]>([])
+const layoutColumns = computed(() => (leftCollapsed.value ? '0px minmax(680px, 1fr) 320px' : '360px minmax(680px, 1fr) 320px'))
+const layoutColumnsSmall = computed(() => (leftCollapsed.value ? '0px minmax(520px, 1fr) 300px' : '320px minmax(520px, 1fr) 300px'))
 
 const workflowMeta = reactive<WorkflowMeta>({
   id: undefined,
@@ -99,19 +119,14 @@ const {
   toGraphJson
 } = useWorkflowGraph()
 
-const PIN_STORAGE_KEY = 'workflow-node-pins-v1'
 const selectedNodeIds = ref<string[]>([])
-const palettePinRefreshToken = ref(0)
 const contextMenu = reactive<{
   visible: boolean
   position: ContextMenuPosition
   items: ContextMenuAction[]
-  source: 'node' | 'edge' | 'pane' | 'palette' | undefined
+  source: 'node' | 'edge' | 'pane' | undefined
   nodeId?: string
   edgeId?: string
-  paletteType?: NodeDropPayload['type']
-  paletteLabel?: string
-  paletteDescription?: string
 }>({
   visible: false,
   position: { x: 0, y: 0 },
@@ -163,14 +178,11 @@ const closeContextMenu = () => {
 }
 
 const openContextMenu = (payload: {
-  source: 'node' | 'edge' | 'pane' | 'palette'
+  source: 'node' | 'edge' | 'pane'
   position: ContextMenuPosition
   items: ContextMenuAction[]
   nodeId?: string
   edgeId?: string
-  paletteType?: NodeDropPayload['type']
-  paletteLabel?: string
-  paletteDescription?: string
 }) => {
   contextMenu.visible = true
   contextMenu.source = payload.source
@@ -178,9 +190,6 @@ const openContextMenu = (payload: {
   contextMenu.items = payload.items
   contextMenu.nodeId = payload.nodeId
   contextMenu.edgeId = payload.edgeId
-  contextMenu.paletteType = payload.paletteType
-  contextMenu.paletteLabel = payload.paletteLabel
-  contextMenu.paletteDescription = payload.paletteDescription
 }
 
 const onCanvasContextmenu = (payload: CanvasContextMenuPayload) => {
@@ -220,52 +229,18 @@ const onCanvasContextmenu = (payload: CanvasContextMenuPayload) => {
         { key: 'edge-style-smooth', label: '样式: 曲线', icon: '〰' }
       ]
     })
-  } else {
-    openContextMenu({
-      source: 'pane',
-      position: { x: payload.x, y: payload.y },
-      items: [{ key: 'pane-clear-selection', label: '清空选择', icon: '✖' }]
-    })
   }
 }
 
-const onPaletteContextmenu = (payload: PaletteContextMenuPayload) => {
-  const pinned = getPinnedTypes().includes(payload.type)
-  openContextMenu({
-    source: 'palette',
-    position: { x: payload.x, y: payload.y },
-    paletteType: payload.type,
-    paletteLabel: payload.label,
-    paletteDescription: payload.description,
-    items: [
-      { key: 'palette-pin', label: pinned ? '取消置顶' : '置顶节点', icon: '📌' },
-      { key: 'palette-insert', label: '插入到画布中心', icon: '➕' },
-      { key: 'palette-doc', label: '查看节点说明', icon: 'ℹ' }
-    ]
-  })
-}
-
-const getPinnedTypes = () => {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(PIN_STORAGE_KEY) || '[]') as string[]
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
-  }
-}
-
-const togglePinType = (type: string) => {
-  const current = getPinnedTypes()
-  const exists = current.includes(type)
-  const next = exists ? current.filter((item) => item !== type) : [type, ...current]
-  localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(next))
-  palettePinRefreshToken.value += 1
+const onSelectWorkflow = (item: WorkflowListItem) => {
+  activeWorkflowId.value = item.id
+  workflowMeta.workflowName = item.workflowName
+  workflowMeta.workflowKey = item.workflowKey || ''
+  workflowMeta.description = item.description || ''
 }
 
 const onContextMenuAction = (key: string) => {
-  if (key === 'pane-clear-selection') {
-    clearSelection()
-  } else if (key === 'node-delete' && contextMenu.nodeId) {
+  if (key === 'node-delete' && contextMenu.nodeId) {
     removeNodeById(contextMenu.nodeId)
   } else if (key === 'node-copy' && contextMenu.nodeId) {
     duplicateNodeById(contextMenu.nodeId)
@@ -287,14 +262,26 @@ const onContextMenuAction = (key: string) => {
     updateEdgeStyleById(contextMenu.edgeId, 'straight')
   } else if (key === 'edge-style-smooth' && contextMenu.edgeId) {
     updateEdgeStyleById(contextMenu.edgeId, 'smoothstep')
-  } else if (key === 'palette-pin' && contextMenu.paletteType) {
-    togglePinType(contextMenu.paletteType)
-  } else if (key === 'palette-insert' && contextMenu.paletteType) {
-    createNode(contextMenu.paletteType, { x: 480, y: 240 })
-  } else if (key === 'palette-doc') {
-    message.info(contextMenu.paletteDescription || '暂无节点说明')
   }
   closeContextMenu()
+}
+
+const fetchWorkflowList = async () => {
+  try {
+    const resp = await aiWorkflowApi.queryPage({ pageNo: 1, pageSize: 20, param: {} })
+    const list = (resp.list || []).map((item) => ({
+      id: String(item.id || item.workflowKey || item.workflowName || Math.random()),
+      workflowName: item.workflowName || '未命名流程',
+      workflowKey: item.workflowKey || '',
+      description: item.description || ''
+    }))
+    workflowItems.value = list
+    if (!activeWorkflowId.value && list.length > 0) {
+      activeWorkflowId.value = list[0].id
+    }
+  } catch {
+    workflowItems.value = []
+  }
 }
 
 const submitPayload = computed(() => ({
@@ -359,6 +346,7 @@ const fetchDetailIfNeeded = async () => {
 }
 
 onMounted(() => {
+  void fetchWorkflowList()
   void fetchDetailIfNeeded()
 })
 </script>
@@ -376,19 +364,75 @@ onMounted(() => {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 280px minmax(640px, 1fr) 320px;
+  grid-template-columns: v-bind(layoutColumns);
   gap: 12px;
+  transition: grid-template-columns 0.28s ease;
 }
 
 .left-panel,
-.center-panel,
 .right-panel {
   min-height: 0;
 }
 
+.left-panel {
+  min-width: 0;
+  overflow: hidden;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.left-panel.collapsed {
+  opacity: 0;
+  transform: translateX(-10px);
+  pointer-events: none;
+}
+
+.center-wrap {
+  position: relative;
+  min-height: 0;
+}
+
+.center-panel {
+  height: 100%;
+  min-height: 0;
+}
+
+.canvas-left-toggle {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  top: auto;
+  z-index: 12;
+  width: 36px;
+  height: 36px;
+  border-color: #d7dee8;
+  color: #8a94a6;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.1);
+  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.canvas-left-toggle:hover {
+  border-color: #c5cedb;
+  color: #64748b;
+  transform: translateY(-1px);
+}
+
+.toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.24s ease, opacity 0.24s ease;
+}
+
+.toggle-icon.collapsed {
+  transform: rotate(180deg) scale(1.06);
+}
+
 @media (max-width: 1500px) {
   .builder-layout {
-    grid-template-columns: 240px minmax(540px, 1fr) 300px;
+    grid-template-columns: v-bind(layoutColumnsSmall);
   }
 }
 </style>

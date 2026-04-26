@@ -127,11 +127,13 @@ const themeStyles = computed(() => ({
   box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.04), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
   transition: all 0.25s ease;
   overflow: visible;
+  cursor: pointer;
 }
 
 .wf-node:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 22px -8px rgba(15, 23, 42, 0.16);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18), 0 12px 26px -8px rgba(37, 99, 235, 0.22);
 }
 
 .wf-node-active {

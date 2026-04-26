@@ -3,7 +3,8 @@ import type {
   WorkflowNodeType,
   NodePaletteGroup,
   WorkflowNodeDefinition,
-  NodeConfigField
+  NodeConfigField,
+  CanvasPaletteIconItem
 } from './types'
 
 export const NODE_DRAG_MIME = 'application/astrsomn-workflow-node'
@@ -185,6 +186,39 @@ export const paletteGroups: NodePaletteGroup[] = [
     key: 'interaction',
     title: '前端交互节点',
     items: [toPaletteItem('human-audit'), toPaletteItem('input-form')]
+  }
+]
+
+export const canvasPaletteIcons: CanvasPaletteIconItem[] = [
+  {
+    key: 'control',
+    label: '控制',
+    description: '开始、结束、并行等流程控制节点',
+    children: [toPaletteItem('start'), toPaletteItem('end'), toPaletteItem('parallel')]
+  },
+  {
+    key: 'ai',
+    label: 'AI',
+    description: 'LLM、知识库与视觉识别节点',
+    children: [toPaletteItem('llm'), toPaletteItem('knowledge'), toPaletteItem('vision')]
+  },
+  {
+    key: 'logic',
+    label: '逻辑',
+    description: '条件、迭代、模板拼接节点',
+    children: [toPaletteItem('condition'), toPaletteItem('iterator'), toPaletteItem('template')]
+  },
+  {
+    key: 'tool',
+    label: '工具',
+    description: 'HTTP、代码执行与搜索节点',
+    children: [toPaletteItem('http'), toPaletteItem('code'), toPaletteItem('search')]
+  },
+  {
+    key: 'interaction',
+    label: '交互',
+    description: '人工审核和输入增强节点',
+    children: [toPaletteItem('human-audit'), toPaletteItem('input-form')]
   }
 ]
 

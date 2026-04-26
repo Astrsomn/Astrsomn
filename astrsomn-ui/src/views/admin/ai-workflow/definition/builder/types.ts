@@ -78,6 +78,22 @@ export type NodePaletteGroup = {
   items: NodePaletteItem[]
 }
 
+export type LeftViewMode = 'workflow-list' | 'model-chat'
+
+export type WorkflowListItem = {
+  id: string
+  workflowName: string
+  workflowKey?: string
+  description?: string
+}
+
+export type CanvasPaletteIconItem = {
+  key: string
+  label: string
+  description: string
+  children: NodePaletteItem[]
+}
+
 export type NodeDropPayload = {
   type: WorkflowNodeType
   position: XYPosition
