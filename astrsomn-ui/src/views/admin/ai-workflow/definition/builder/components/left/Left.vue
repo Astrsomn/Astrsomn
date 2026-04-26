@@ -29,6 +29,7 @@
         v-if="currentMode === 'workflow-list'"
         :items="workflowItems"
         :active-workflow-id="activeWorkflowId"
+        :open-create-dialog-tick="openCreateDialogTick"
         @select="$emit('select-workflow', $event)"
         @create="$emit('create-workflow', $event)"
         @edit="$emit('edit-workflow', $event.item, $event.payload)"
@@ -46,15 +47,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { MessageOutlined, UnorderedListOutlined } from '@ant-design/icons-vue'
 import WorkflowListPanel from '@/views/admin/ai-workflow/definition/builder/components/left/component/WorkflowListPanel.vue'
 import ModelChatPanel from '@/views/admin/ai-workflow/definition/builder/components/left/component/ModelChatPanel.vue'
 import type { LeftViewMode, WorkflowListItem } from '../../domain/types'
 
-defineProps<{
+const props = defineProps<{
   workflowItems: WorkflowListItem[]
   activeWorkflowId?: string
+  openCreateDialogTick?: number
 }>()
 
 defineEmits<{
@@ -84,6 +86,13 @@ const onSendMessage = () => {
   })
   chatDraft.value = ''
 }
+
+watch(
+  () => props.openCreateDialogTick,
+  () => {
+    currentMode.value = 'workflow-list'
+  }
+)
 </script>
 
 <style scoped>

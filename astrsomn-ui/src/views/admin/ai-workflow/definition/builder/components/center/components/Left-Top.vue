@@ -15,13 +15,13 @@
         <template #icon><CloseCircleOutlined /></template>
       </a-button>
     </a-tooltip>
-    <a-tooltip title="撤销（占位）">
-      <a-button class="tool-btn" shape="circle" @click="$emit('placeholder', '撤销')">
+    <a-tooltip title="撤销">
+      <a-button class="tool-btn" shape="circle" :disabled="!canUndo" @click="$emit('undo')">
         <template #icon><UndoOutlined /></template>
       </a-button>
     </a-tooltip>
-    <a-tooltip title="重做（占位）">
-      <a-button class="tool-btn" shape="circle" @click="$emit('placeholder', '重做')">
+    <a-tooltip title="重做">
+      <a-button class="tool-btn" shape="circle" :disabled="!canRedo" @click="$emit('redo')">
         <template #icon><RedoOutlined /></template>
       </a-button>
     </a-tooltip>
@@ -33,12 +33,15 @@ import { BorderOutlined, CloseCircleOutlined, DragOutlined, RedoOutlined, UndoOu
 
 defineProps<{
   interactionMode: 'box' | 'pan'
+  canUndo: boolean
+  canRedo: boolean
 }>()
 
 defineEmits<{
   'set-mode': [mode: 'box' | 'pan']
   'clear-selection': []
-  placeholder: [action: string]
+  undo: []
+  redo: []
 }>()
 </script>
 

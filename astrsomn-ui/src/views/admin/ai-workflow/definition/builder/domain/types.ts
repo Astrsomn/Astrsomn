@@ -114,6 +114,12 @@ export type WorkflowGraph = {
   }
 }
 
+export type CanvasGraphState = {
+  nodes: WorkflowNode[]
+  edges: WorkflowEdge[]
+  canvasConfig: CanvasConfig
+}
+
 export type NodePaletteItem = {
   type: WorkflowNodeType
   label: string

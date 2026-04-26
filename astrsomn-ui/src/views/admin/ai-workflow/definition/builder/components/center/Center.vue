@@ -12,8 +12,8 @@
   >
    
     <VueFlow
-      :nodes="nodes"
-      :edges="edges"
+      :nodes="flowNodes"
+      :edges="flowEdges"
       ref="flowRef"
       class="canvas-inner"
       :min-zoom="0.3"
@@ -25,11 +25,12 @@
       :edges-updatable="true"
       :connect-on-click="false"
       :selection-on-drag="interactionMode === 'box'"
+      :selection-key-code="interactionMode === 'box' ? true : null"
       :pan-on-drag="interactionMode === 'pan'"
       :snap-to-grid="canvasConfig.snapToGridEnabled"
       :snap-grid="[canvasConfig.snapGridSize, canvasConfig.snapGridSize]"
-      @update:nodes="(value) => emit('update:nodes', value)"
-      @update:edges="(value) => emit('update:edges', value)"
+      @update:nodes="onNodesUpdate"
+      @update:edges="onEdgesUpdate"
       @connect="onConnect"
       @node-click="onNodeClick"
       @edge-click="onEdgeClick"
@@ -54,7 +55,15 @@
       <span class="origin-label">(0,0)</span>
     </div>
     <LeftCenter :items="paletteIcons" />
-    <LeftTop :interaction-mode="interactionMode" @set-mode="setInteractionMode" @clear-selection="clearSelection" @placeholder="notifyPlaceholder" />
+    <LeftTop
+      :interaction-mode="interactionMode"
+      :can-undo="canUndo"
+      :can-redo="canRedo"
+      @set-mode="setInteractionMode"
+      @clear-selection="clearSelection"
+      @undo="onUndo"
+      @redo="onRedo"
+    />
     <RightTop :saving="saving" @save="$emit('save')" />
     <RightBottom
       :zoom-percent="zoomPercent"
@@ -67,16 +76,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
-import { message } from 'ant-design-vue'
-import { VueFlow, type Connection, type EdgeMouseEvent, type NodeMouseEvent, useVueFlow } from '@vue-flow/core'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { VueFlow, type Connection, type Edge, type EdgeMouseEvent, type Node, type NodeMouseEvent, useVueFlow } from '@vue-flow/core'
 import { nodeCanvasTypes } from '../nodes/registry'
 import LeftCenter from '@/views/admin/ai-workflow/definition/builder/components/center/components/Left-Center.vue'
 import LeftTop from '@/views/admin/ai-workflow/definition/builder/components/center/components/Left-Top.vue'
 import RightTop from '@/views/admin/ai-workflow/definition/builder/components/center/components/Right-Top.vue'
 import RightBottom from '@/views/admin/ai-workflow/definition/builder/components/center/components/Right-Bottom.vue'
 import { useNodeDnD } from '@/views/admin/ai-workflow/definition/builder/composables/useNodeDnD'
+import { useCanvasHistory } from '@/views/admin/ai-workflow/definition/builder/components/center/composables/useCanvasHistory'
+import { useCanvasTools } from '@/views/admin/ai-workflow/definition/builder/components/center/composables/useCanvasTools'
 import type {
+  CanvasGraphState,
   CanvasConfig,
   CanvasContextMenuPayload,
   CanvasPaletteIconItem,
@@ -91,12 +102,14 @@ const props = withDefaults(
     edges: WorkflowEdge[]
     paletteIcons: CanvasPaletteIconItem[]
     canvasConfig: CanvasConfig
+    historySeed?: string
     saving?: boolean
     compactNode?: boolean
     initialZoomMode?: 'fit-compact' | 'normal'
   }>(),
   {
     compactNode: false,
+    historySeed: '',
     initialZoomMode: 'normal'
   }
 )
@@ -113,13 +126,46 @@ const emit = defineEmits<{
   'edges-delete': []
   'contextmenu': [payload: CanvasContextMenuPayload]
   'selection-change': [nodeIds: string[]]
+  'restore-graph-state': [snapshot: CanvasGraphState]
   save: []
 }>()
 
 const { parseDropType } = useNodeDnD()
+const history = useCanvasHistory()
+const isRestoringHistory = ref(false)
+const {
+  interactionMode,
+  canUndo,
+  canRedo,
+  setInteractionMode,
+  clearSelection: triggerClearSelection,
+  undo,
+  redo
+} = useCanvasTools({
+  canUndo: () => history.canUndo.value,
+  canRedo: () => history.canRedo.value,
+  onClearSelection: () => emit('clear-selection'),
+  onUndo: () => {
+    const snapshot = history.undo()
+    if (!snapshot) return
+    isRestoringHistory.value = true
+    emit('restore-graph-state', snapshot)
+    window.setTimeout(() => {
+      isRestoringHistory.value = false
+    }, 0)
+  },
+  onRedo: () => {
+    const snapshot = history.redo()
+    if (!snapshot) return
+    isRestoringHistory.value = true
+    emit('restore-graph-state', snapshot)
+    window.setTimeout(() => {
+      isRestoringHistory.value = false
+    }, 0)
+  }
+})
 const { project, zoomIn, zoomOut, fitView, getViewport, setViewport } = useVueFlow()
 const flowRef = ref<InstanceType<typeof VueFlow> | null>(null)
-const interactionMode = ref<'box' | 'pan'>('box')
 const zoomPercent = ref(100)
 const originPoint = ref({ x: 0, y: 0 })
 const rightPanState = ref<{
@@ -138,8 +184,8 @@ const rightPanState = ref<{
 
 const nodeTypes = nodeCanvasTypes
 
-const nodes = computed(() => props.nodes)
-const edges = computed(() => props.edges)
+const flowNodes = computed(() => props.nodes as unknown as Node[])
+const flowEdges = computed(() => props.edges as unknown as Edge[])
 const canvasInlineStyle = computed(() => ({
   backgroundColor: props.canvasConfig.backgroundColor
 }))
@@ -178,23 +224,19 @@ const onConnect = (connection: Connection) => {
 }
 
 const onNodeClick = ({ node }: NodeMouseEvent) => {
-  emit('select-node', (node as WorkflowNode).id)
+  const nodeId = (node as { id?: string }).id
+  if (!nodeId) return
+  emit('select-node', nodeId)
 }
 
 const onEdgeClick = ({ edge }: EdgeMouseEvent) => {
-  emit('select-edge', (edge as WorkflowEdge).id)
+  const edgeId = (edge as { id?: string }).id
+  if (!edgeId) return
+  emit('select-edge', edgeId)
 }
 
 const clearSelection = () => {
-  emit('clear-selection')
-}
-
-const setInteractionMode = (mode: 'box' | 'pan') => {
-  interactionMode.value = mode
-}
-
-const notifyPlaceholder = (action: string) => {
-  message.info(`${action}功能待接入`)
+  triggerClearSelection()
 }
 
 const onFitView = () => {
@@ -243,6 +285,44 @@ const onViewportMove = () => {
 const onDragOver = (ev: DragEvent) => {
   ev.preventDefault()
   if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'copy'
+}
+
+const buildSnapshot = (): CanvasGraphState => {
+  return {
+    nodes: JSON.parse(JSON.stringify(props.nodes)),
+    edges: JSON.parse(JSON.stringify(props.edges)),
+    canvasConfig: JSON.parse(JSON.stringify(props.canvasConfig))
+  }
+}
+
+const onNodesUpdate = (value: unknown[]) => {
+  const nextNodes = value as WorkflowNode[]
+  emit('update:nodes', nextNodes)
+  if (isRestoringHistory.value) return
+  history.queuePushSnapshot({
+    nodes: nextNodes,
+    edges: props.edges,
+    canvasConfig: props.canvasConfig
+  })
+}
+
+const onEdgesUpdate = (value: unknown[]) => {
+  const nextEdges = value as WorkflowEdge[]
+  emit('update:edges', nextEdges)
+  if (isRestoringHistory.value) return
+  history.queuePushSnapshot({
+    nodes: props.nodes,
+    edges: nextEdges,
+    canvasConfig: props.canvasConfig
+  })
+}
+
+const onUndo = () => {
+  undo()
+}
+
+const onRedo = () => {
+  redo()
 }
 
 const onDropToCanvas = (ev: DragEvent) => {
@@ -339,10 +419,31 @@ const syncZoomPercent = () => {
 
 onMounted(() => {
   nextTick(() => {
+    history.resetHistory(buildSnapshot())
     onFitView()
     syncZoomPercent()
   })
 })
+
+watch(
+  () => props.historySeed,
+  () => {
+    history.resetHistory(buildSnapshot())
+  }
+)
+
+watch(
+  () => props.canvasConfig,
+  (value) => {
+    if (isRestoringHistory.value) return
+    history.queuePushSnapshot({
+      nodes: props.nodes,
+      edges: props.edges,
+      canvasConfig: value
+    })
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>

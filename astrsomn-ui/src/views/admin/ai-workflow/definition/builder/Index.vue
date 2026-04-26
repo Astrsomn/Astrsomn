@@ -7,6 +7,7 @@
           :class="{ collapsed: leftCollapsed }"
           :workflow-items="workflowItems"
           :active-workflow-id="activeWorkflowId"
+          :open-create-dialog-tick="openCreateDialogTick"
           @select-workflow="onSelectWorkflow"
           @create-workflow="onCreateWorkflow"
           @edit-workflow="onEditWorkflow"
@@ -21,6 +22,7 @@
             :edges="edges"
             :palette-icons="canvasPaletteIcons"
             :canvas-config="canvasConfig"
+            :history-seed="activeWorkflowId || 'draft-workflow'"
             :compact-node="compactNode"
             :initial-zoom-mode="initialZoomMode"
             @update:nodes="onNodesUpdate"
@@ -32,6 +34,7 @@
             @clear-selection="clearSelection"
             @contextmenu="onCanvasContextmenu"
             @selection-change="onSelectionChange"
+            @restore-graph-state="onRestoreGraphState"
             :saving="saving"
             @save="handleSaveAction"
             @nodes-delete="clearSelection"
@@ -80,7 +83,9 @@ import LeftBottom from '@/views/admin/ai-workflow/definition/builder/components/
 import ContextMenu from './components/context-menu/ContextMenu.vue'
 import { canvasPaletteIcons } from './domain/palette'
 import { useWorkflowGraph } from '@/views/admin/ai-workflow/definition/builder/composables/useWorkflowGraph'
-import type { NodeDropPayload, WorkflowListItem, WorkflowMeta } from './domain/types'
+import { aiWorkflowApi } from '@/api/aiWorkflow'
+import { defaultCanvasConfig } from './domain/types'
+import type { CanvasGraphState, NodeDropPayload, WorkflowListItem, WorkflowMeta } from './domain/types'
 
 const route = useRoute()
 const saving = ref(false)
@@ -88,6 +93,7 @@ const activeWorkflowId = ref<string>()
 const workflowItems = ref<WorkflowListItem[]>([])
 const savedGraphSnapshot = ref('')
 const switchingWorkflow = ref(false)
+const openCreateDialogTick = ref(0)
 const { leftCollapsed, compactNode, initialZoomMode, layoutColumns, layoutColumnsSmall } = useBuilderPage()
 
 const workflowMeta = reactive<WorkflowMeta>({
@@ -119,6 +125,7 @@ const {
   updateEdgeStyleById,
   applyEdgeTypeToAll,
   updateCanvasConfig,
+  replaceGraphState,
   onConnect,
   validateGraph,
   loadGraph,
@@ -127,7 +134,43 @@ const {
 
 const selectedNodeIds = ref<string[]>([])
 
-const buildGraphSnapshot = () => toGraphJson()
+const stripTransientNodeState = (node: Record<string, unknown>) => {
+  const { selected, dragging, resizing, positionAbsolute, dimensions, events, ...rest } = node
+  return rest
+}
+
+const stripTransientEdgeState = (edge: Record<string, unknown>) => {
+  const { selected, updating, events, ...rest } = edge
+  return rest
+}
+
+const normalizeGraphSnapshot = (graphJson?: string) => {
+  if (!graphJson) return ''
+  try {
+    const parsed = JSON.parse(graphJson) as {
+      nodes?: Array<Record<string, unknown>>
+      edges?: Array<Record<string, unknown>>
+      viewport?: Record<string, unknown>
+      meta?: Record<string, unknown>
+    }
+    const normalized = {
+      nodes: (parsed.nodes || []).map(stripTransientNodeState).sort((a, b) => String(a.id).localeCompare(String(b.id))),
+      edges: (parsed.edges || []).map(stripTransientEdgeState).sort((a, b) => String(a.id).localeCompare(String(b.id))),
+      viewport: parsed.viewport || { x: 0, y: 0, zoom: 1 },
+      meta: {
+        canvasConfig: {
+          ...defaultCanvasConfig,
+          ...(((parsed.meta?.canvasConfig as Record<string, unknown>) || {}) as Record<string, unknown>)
+        }
+      }
+    }
+    return JSON.stringify(normalized)
+  } catch {
+    return ''
+  }
+}
+
+const buildGraphSnapshot = () => normalizeGraphSnapshot(toGraphJson())
 const refreshSavedGraphSnapshot = () => {
   savedGraphSnapshot.value = buildGraphSnapshot()
 }
@@ -136,10 +179,22 @@ const hasActiveWorkflow = computed(() => {
   const workflowKey = (workflowMeta.workflowKey || '').trim()
   return Boolean(activeId && workflowKey)
 })
-const graphDirty = computed(() => {
-  if (!savedGraphSnapshot.value) return false
-  return buildGraphSnapshot() !== savedGraphSnapshot.value
-})
+const graphDirty = computed(() => (savedGraphSnapshot.value ? buildGraphSnapshot() !== savedGraphSnapshot.value : false))
+
+const isGraphDirtyAgainstBackend = async () => {
+  if (!activeWorkflowId.value) return graphDirty.value
+  if (workflowMeta.id == null) return graphDirty.value
+  try {
+    const detail = await aiWorkflowApi.detail(workflowMeta.id)
+    const serverSnapshot = normalizeGraphSnapshot(detail.graphJson || '')
+    if (serverSnapshot) {
+      savedGraphSnapshot.value = serverSnapshot
+    }
+    return buildGraphSnapshot() !== savedGraphSnapshot.value
+  } catch {
+    return graphDirty.value
+  }
+}
 
 const handleConnect = (connection: Parameters<typeof onConnect>[0]) => {
   const result = onConnect(connection)
@@ -150,7 +205,8 @@ const handleConnect = (connection: Parameters<typeof onConnect>[0]) => {
 
 const onDropNode = (payload: NodeDropPayload) => {
   if (!hasActiveWorkflow.value) {
-    message.warning('请先新建或选择流程，再编辑画布')
+    openCreateDialogTick.value += 1
+    message.info('先完善流程信息，再继续拖拽搭建')
     return
   }
   createNode(payload.type, payload.position)
@@ -182,6 +238,11 @@ const clearSelection = () => {
 
 const onSelectionChange = (nodeIds: string[]) => {
   selectedNodeIds.value = nodeIds
+}
+
+const onRestoreGraphState = (snapshot: CanvasGraphState) => {
+  replaceGraphState(snapshot)
+  clearSelection()
 }
 
 const { contextMenu, closeContextMenu, onCanvasContextmenu, onContextMenuAction } = useContextMenuActions({
@@ -238,7 +299,8 @@ const onSelectWorkflow = async (item: WorkflowListItem) => {
   if (item.id === activeWorkflowId.value) return
   if (switchingWorkflow.value) return
 
-  if (!graphDirty.value) {
+  const dirty = await isGraphDirtyAgainstBackend()
+  if (!dirty) {
     await switchToWorkflow(item)
     return
   }

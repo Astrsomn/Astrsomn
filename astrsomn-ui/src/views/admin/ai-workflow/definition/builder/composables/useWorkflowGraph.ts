@@ -14,6 +14,7 @@ import { validateConnection, validateGraphState } from '../domain/graph-rules'
 import { parseGraphJson, stringifyGraphJson } from '../domain/graph-serializer'
 import { createNodeData } from '../domain/node-data-factory'
 import {
+  type CanvasGraphState,
   defaultCanvasConfig,
   type CanvasConfig,
   type CanvasEdgeStyle,
@@ -210,6 +211,25 @@ export function useWorkflowGraph() {
     }
   }
 
+  const exportGraphState = (): CanvasGraphState => {
+    return {
+      nodes: JSON.parse(JSON.stringify(nodes.value)),
+      edges: JSON.parse(JSON.stringify(edges.value)),
+      canvasConfig: JSON.parse(JSON.stringify(canvasConfig.value))
+    }
+  }
+
+  const replaceGraphState = (snapshot: CanvasGraphState) => {
+    nodes.value = JSON.parse(JSON.stringify(snapshot.nodes))
+    edges.value = JSON.parse(JSON.stringify(snapshot.edges))
+    canvasConfig.value = {
+      ...defaultCanvasConfig,
+      ...JSON.parse(JSON.stringify(snapshot.canvasConfig))
+    }
+    selectedNodeId.value = undefined
+    selectedEdgeId.value = undefined
+  }
+
   const onConnect = (connection: Connection) => {
     const result = validateConnection(connection, nodes.value, edges.value)
     if (!result.ok) return result
@@ -310,6 +330,8 @@ export function useWorkflowGraph() {
     updateEdgeStyleById,
     applyEdgeTypeToAll,
     updateCanvasConfig,
+    exportGraphState,
+    replaceGraphState,
     onConnect,
     validateGraph,
     loadGraph,

@@ -121,6 +121,7 @@ import type { WorkflowListItem } from '../../../domain/types'
 const props = defineProps<{
   items: WorkflowListItem[]
   activeWorkflowId?: string
+  openCreateDialogTick?: number
 }>()
 
 const emit = defineEmits<{
@@ -182,6 +183,14 @@ watch(
     expandedCategories.value = next
   },
   { immediate: true }
+)
+
+watch(
+  () => props.openCreateDialogTick,
+  (tick) => {
+    if (!tick) return
+    dialogVisible.value = true
+  }
 )
 
 const toggleCategory = (category: string) => {
