@@ -7,60 +7,27 @@
       </a-button>
     </div>
 
-    <a-form layout="vertical" class="meta-form">
+    <a-form layout="vertical" class="meta-form fixed-meta-form">
       <a-form-item label="流程名称" required>
-        <a-input v-model:value="workflowMeta.workflowName" maxlength="128" />
+        <a-input v-model="workflowMeta.workflowName" maxlength="128" />
       </a-form-item>
       <a-form-item label="Flow Key" required>
-        <a-input v-model:value="workflowMeta.workflowKey" maxlength="128" />
+        <a-input v-model="workflowMeta.workflowKey" maxlength="128" />
       </a-form-item>
       <a-form-item label="业务分类">
-        <a-input v-model:value="workflowMeta.description" maxlength="128" />
+        <a-input v-model="workflowMeta.description" maxlength="128" />
       </a-form-item>
     </a-form>
 
     <div v-if="selectedNode" class="selection-block">
       <h4>节点配置</h4>
-      <a-form layout="vertical">
-        <a-form-item label="节点名称">
-          <a-input
-            :value="selectedNode.data?.label || ''"
-            @update:value="(value) => $emit('update-node', { label: value })"
-          />
-        </a-form-item>
-        <a-form-item label="节点说明">
-          <a-textarea
-            :value="selectedNode.data?.description || ''"
-            :rows="4"
-            @update:value="(value) => $emit('update-node', { description: value })"
-          />
-        </a-form-item>
-        <a-form-item v-if="selectedNodeType === 'llm'" label="模型 Key">
-          <a-input :value="getConfigValue('modelKey')" @update:value="(value) => updateNodeConfig('modelKey', value)" />
-        </a-form-item>
-        <a-form-item v-if="selectedNodeType === 'llm'" label="温度">
-          <a-input :value="getConfigValue('temperature')" @update:value="(value) => updateNodeConfig('temperature', value)" />
-        </a-form-item>
-        <a-form-item v-if="selectedNodeType === 'tool'" label="工具 Key">
-          <a-input :value="getConfigValue('toolKey')" @update:value="(value) => updateNodeConfig('toolKey', value)" />
-        </a-form-item>
-        <a-form-item v-if="selectedNodeType === 'tool'" label="超时时间(ms)">
-          <a-input :value="getConfigValue('timeoutMs')" @update:value="(value) => updateNodeConfig('timeoutMs', value)" />
-        </a-form-item>
-        <a-form-item v-if="selectedNodeType === 'condition'" label="条件表达式">
-          <a-textarea
-            :rows="3"
-            :value="getConfigValue('expression')"
-            @update:value="(value) => updateNodeConfig('expression', value)"
-          />
-        </a-form-item>
-        <a-form-item v-if="selectedNodeType === 'condition'" label="true 分支标签">
-          <a-input :value="getConfigValue('trueLabel')" @update:value="(value) => updateNodeConfig('trueLabel', value)" />
-        </a-form-item>
-        <a-form-item v-if="selectedNodeType === 'condition'" label="false 分支标签">
-          <a-input :value="getConfigValue('falseLabel')" @update:value="(value) => updateNodeConfig('falseLabel', value)" />
-        </a-form-item>
-      </a-form>
+      <component
+        :is="selectedNodeInspector"
+        v-if="selectedNodeInspector"
+        :selected-node="selectedNode"
+        :all-nodes="allNodes || []"
+        @update-node="forwardNodeUpdate"
+      />
     </div>
 
     <div v-else-if="selectedEdge" class="selection-block">
@@ -69,7 +36,7 @@
         <a-form-item label="连线标签">
           <a-input
             :value="String(selectedEdge.label || '')"
-            @update:value="(value) => $emit('update-edge', { label: value })"
+            @update:value="forwardEdgeLabelUpdate"
           />
         </a-form-item>
       </a-form>
@@ -84,9 +51,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { WorkflowEdge, WorkflowMeta, WorkflowNode } from '../types'
+import type { WorkflowNodeType } from '../types'
+import { nodeInspectorMap } from './nodes/registry'
 
 const props = defineProps<{
   workflowMeta: WorkflowMeta
+  allNodes?: WorkflowNode[]
   selectedNode?: WorkflowNode
   selectedEdge?: WorkflowEdge
 }>()
@@ -97,15 +67,18 @@ const emit = defineEmits<{
   'remove-selection': []
 }>()
 
-const selectedNodeType = computed(() => props.selectedNode?.type)
+const selectedNodeInspector = computed(() => {
+  const nodeType = props.selectedNode?.type
+  if (!nodeType) return undefined
+  return nodeInspectorMap[nodeType as WorkflowNodeType]
+})
 
-const getConfigValue = (key: string) => {
-  const config = props.selectedNode?.data?.config
-  return config && typeof config === 'object' ? String((config as Record<string, unknown>)[key] ?? '') : ''
+const forwardNodeUpdate = (payload: { label?: string; description?: string; config?: Record<string, unknown> }) => {
+  emit('update-node', payload)
 }
 
-const updateNodeConfig = (key: string, value: string) => {
-  emit('update-node', { config: { [key]: value } })
+const forwardEdgeLabelUpdate = (value: string) => {
+  emit('update-edge', { label: value })
 }
 </script>
 
@@ -135,6 +108,14 @@ const updateNodeConfig = (key: string, value: string) => {
 .meta-form {
   border-bottom: 1px solid #f1f5f9;
   margin-bottom: 12px;
+}
+
+.fixed-meta-form {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+  padding-bottom: 6px;
 }
 
 .selection-block {

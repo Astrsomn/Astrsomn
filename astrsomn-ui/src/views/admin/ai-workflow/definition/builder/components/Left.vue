@@ -2,7 +2,7 @@
   <aside class="node-palette">
     <div class="palette-head">
       <h3>节点库</h3>
-      <a-input v-model:value="keyword" allow-clear size="small" placeholder="搜索节点" />
+      <a-input v-model="keyword" allow-clear size="small" placeholder="搜索节点" />
     </div>
 
     <div class="palette-body">
@@ -14,8 +14,10 @@
             :key="item.type"
             type="button"
             class="node-item"
+            :class="{ pinned: pinnedTypes.includes(item.type) }"
             draggable="true"
             @dragstart="onDragStart($event, item.type)"
+            @contextmenu.prevent="onItemContextmenu($event, item)"
           >
             <span class="item-title">{{ item.label }}</span>
             <span class="item-desc">{{ item.description }}</span>
@@ -27,30 +29,72 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { paletteGroups } from '../constants'
 import { useNodeDnD } from '../composables/useNodeDnD'
-import type { WorkflowNodeType } from '../types'
+import type { NodePaletteItem, PaletteContextMenuPayload, WorkflowNodeType } from '../types'
 
 const keyword = ref('')
 const { startDrag } = useNodeDnD()
+const pinnedTypes = ref<WorkflowNodeType[]>([])
+const PIN_STORAGE_KEY = 'workflow-node-pins-v1'
+
+const emit = defineEmits<{
+  'palette-contextmenu': [payload: PaletteContextMenuPayload]
+}>()
+
+const props = defineProps<{
+  pinRefreshToken?: number
+}>()
 
 const filteredGroups = computed(() => {
   const text = keyword.value.trim().toLowerCase()
-  if (!text) return paletteGroups
-  return paletteGroups
-    .map((group) => ({
-      ...group,
-      items: group.items.filter(
-        (item) => item.label.toLowerCase().includes(text) || item.description.toLowerCase().includes(text)
-      )
-    }))
-    .filter((group) => group.items.length > 0)
+  const groups = !text
+    ? paletteGroups
+    : paletteGroups
+        .map((group) => ({
+          ...group,
+          items: group.items.filter(
+            (item) => item.label.toLowerCase().includes(text) || item.description.toLowerCase().includes(text)
+          )
+        }))
+        .filter((group) => group.items.length > 0)
+
+  return groups.map((group) => ({
+    ...group,
+    items: [...group.items].sort((a, b) => Number(pinnedTypes.value.includes(b.type)) - Number(pinnedTypes.value.includes(a.type)))
+  }))
 })
 
 const onDragStart = (ev: DragEvent, type: WorkflowNodeType) => {
   startDrag(ev, type)
 }
+
+const onItemContextmenu = (ev: MouseEvent, item: NodePaletteItem) => {
+  emit('palette-contextmenu', {
+    x: ev.clientX,
+    y: ev.clientY,
+    type: item.type,
+    label: item.label,
+    description: item.description
+  })
+}
+
+const loadPinned = () => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PIN_STORAGE_KEY) || '[]') as WorkflowNodeType[]
+    pinnedTypes.value = Array.isArray(parsed) ? parsed : []
+  } catch {
+    pinnedTypes.value = []
+  }
+}
+
+loadPinned()
+
+watch(
+  () => props.pinRefreshToken,
+  () => loadPinned()
+)
 </script>
 
 <style scoped>
@@ -110,6 +154,11 @@ const onDragStart = (ev: DragEvent, type: WorkflowNodeType) => {
 .node-item:hover {
   border-color: #91caff;
   background: #f8fbff;
+}
+
+.node-item.pinned {
+  border-color: #93c5fd;
+  background: #eff6ff;
 }
 
 .item-title {
