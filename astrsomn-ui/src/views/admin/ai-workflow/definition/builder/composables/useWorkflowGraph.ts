@@ -267,6 +267,9 @@ export function useWorkflowGraph() {
       ...rawCanvasConfig,
       ...(normalizedEdgeStyle ? { edgeStyleDefault: normalizedEdgeStyle as CanvasEdgeStyle } : {})
     }
+    if (!canvasConfig.value.snapGridSize) {
+      canvasConfig.value.snapGridSize = canvasConfig.value.patternGap || defaultCanvasConfig.snapGridSize
+    }
     nodeCounter.value = nodes.value.length + 1
     selectedNodeId.value = undefined
     selectedEdgeId.value = undefined

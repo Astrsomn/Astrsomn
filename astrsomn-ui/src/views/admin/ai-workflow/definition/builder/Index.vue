@@ -33,7 +33,7 @@
             @contextmenu="onCanvasContextmenu"
             @selection-change="onSelectionChange"
             :saving="saving"
-            @save="handleSaveDraft"
+            @save="handleSaveAction"
             @nodes-delete="clearSelection"
             @edges-delete="clearSelection"
           />
@@ -66,8 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { message, Modal } from 'ant-design-vue'
 import { useRoute } from 'vue-router'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import { useBuilderPage } from './app/useBuilderPage'
@@ -86,6 +86,8 @@ const route = useRoute()
 const saving = ref(false)
 const activeWorkflowId = ref<string>()
 const workflowItems = ref<WorkflowListItem[]>([])
+const savedGraphSnapshot = ref('')
+const switchingWorkflow = ref(false)
 const { leftCollapsed, compactNode, initialZoomMode, layoutColumns, layoutColumnsSmall } = useBuilderPage()
 
 const workflowMeta = reactive<WorkflowMeta>({
@@ -125,6 +127,20 @@ const {
 
 const selectedNodeIds = ref<string[]>([])
 
+const buildGraphSnapshot = () => toGraphJson()
+const refreshSavedGraphSnapshot = () => {
+  savedGraphSnapshot.value = buildGraphSnapshot()
+}
+const hasActiveWorkflow = computed(() => {
+  const activeId = (activeWorkflowId.value || '').trim()
+  const workflowKey = (workflowMeta.workflowKey || '').trim()
+  return Boolean(activeId && workflowKey)
+})
+const graphDirty = computed(() => {
+  if (!savedGraphSnapshot.value) return false
+  return buildGraphSnapshot() !== savedGraphSnapshot.value
+})
+
 const handleConnect = (connection: Parameters<typeof onConnect>[0]) => {
   const result = onConnect(connection)
   if (!result.ok) {
@@ -133,6 +149,10 @@ const handleConnect = (connection: Parameters<typeof onConnect>[0]) => {
 }
 
 const onDropNode = (payload: NodeDropPayload) => {
+  if (!hasActiveWorkflow.value) {
+    message.warning('请先新建或选择流程，再编辑画布')
+    return
+  }
   createNode(payload.type, payload.position)
 }
 
@@ -180,9 +200,63 @@ const { contextMenu, closeContextMenu, onCanvasContextmenu, onContextMenuAction 
   notifyInfo: (content) => message.info(content)
 })
 
+const switchToWorkflow = async (item: WorkflowListItem) => {
+  if (switchingWorkflow.value) return
+  switchingWorkflow.value = true
+  try {
+    await fetchWorkflowDetail(item.id)
+    activeWorkflowId.value = item.id
+    refreshSavedGraphSnapshot()
+  } catch {
+    message.warning('流程加载失败，请稍后重试')
+  } finally {
+    switchingWorkflow.value = false
+  }
+}
+
+const confirmSaveBeforeSwitch = (target: WorkflowListItem) =>
+  new Promise<boolean>((resolve) => {
+    Modal.confirm({
+      title: '检测到未保存更改，是否先保存？',
+      content: `保存当前流程后切换到「${target.workflowName}」`,
+      okText: '保存并切换',
+      cancelText: '取消',
+      onOk: async () => {
+        const saved = await handleSaveDraft()
+        if (!saved) {
+          resolve(false)
+          return
+        }
+        refreshSavedGraphSnapshot()
+        resolve(true)
+      },
+      onCancel: () => resolve(false)
+    })
+  })
+
 const onSelectWorkflow = async (item: WorkflowListItem) => {
-  activeWorkflowId.value = item.id
-  await fetchWorkflowDetail(item.id)
+  if (item.id === activeWorkflowId.value) return
+  if (switchingWorkflow.value) return
+
+  if (!graphDirty.value) {
+    await switchToWorkflow(item)
+    return
+  }
+
+  const confirmed = await confirmSaveBeforeSwitch(item)
+  if (!confirmed) return
+  await switchToWorkflow(item)
+}
+
+const handleSaveAction = async () => {
+  if (!hasActiveWorkflow.value) {
+    message.warning('请先新建或选择流程，再执行保存')
+    return
+  }
+  const saved = await handleSaveDraft()
+  if (saved) {
+    refreshSavedGraphSnapshot()
+  }
 }
 
 const {
@@ -208,6 +282,7 @@ const {
 
 const onCreateWorkflow = async (payload: { workflowName: string; workflowKey: string; category: string }) => {
   await createWorkflow(payload)
+  refreshSavedGraphSnapshot()
   message.success('流程已创建并进入编辑')
 }
 
@@ -216,17 +291,29 @@ const onEditWorkflow = async (
   payload: { workflowName: string; workflowKey: string; category: string }
 ) => {
   await updateWorkflowMeta(item, payload)
+  refreshSavedGraphSnapshot()
   message.success('流程信息已更新')
 }
 
 const onDeleteWorkflow = async (item: WorkflowListItem) => {
   await deleteWorkflow(item)
+  refreshSavedGraphSnapshot()
   message.success('流程已删除')
 }
 
 onMounted(() => {
-  void fetchWorkflowList()
-  void fetchDetailIfNeeded()
+  void (async () => {
+    await fetchWorkflowList()
+    await fetchDetailIfNeeded()
+    if (!activeWorkflowId.value) {
+      workflowMeta.id = undefined
+      workflowMeta.workflowName = '未命名流程'
+      workflowMeta.workflowKey = ''
+      workflowMeta.description = ''
+      loadGraph(undefined)
+    }
+    refreshSavedGraphSnapshot()
+  })()
 })
 </script>
 

@@ -26,6 +26,8 @@
       :connect-on-click="false"
       :selection-on-drag="interactionMode === 'box'"
       :pan-on-drag="interactionMode === 'pan'"
+      :snap-to-grid="canvasConfig.snapToGridEnabled"
+      :snap-grid="[canvasConfig.snapGridSize, canvasConfig.snapGridSize]"
       @update:nodes="(value) => emit('update:nodes', value)"
       @update:edges="(value) => emit('update:edges', value)"
       @connect="onConnect"
@@ -154,9 +156,9 @@ const patternOverlayStyle = computed(() => {
   }
   if (props.canvasConfig.backgroundVariant === 'lines') {
     return {
-      backgroundImage: `repeating-linear-gradient(0deg, transparent 0, transparent ${gap - stroke}px, ${color} ${gap - stroke}px, ${color} ${gap}px)`,
+      backgroundImage: `repeating-linear-gradient(0deg, transparent 0, transparent ${gap - stroke}px, ${color} ${gap - stroke}px, ${color} ${gap}px), repeating-linear-gradient(90deg, transparent 0, transparent ${gap - stroke}px, ${color} ${gap - stroke}px, ${color} ${gap}px)`,
       backgroundSize: `${gap}px ${gap}px`,
-      opacity: 0.32
+      opacity: 0.28
     }
   }
   const crossLen = Math.max(stroke * 3.2, 3)

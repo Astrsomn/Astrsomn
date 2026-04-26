@@ -63,9 +63,20 @@
           <div class="slider-wrap">
             <div class="slider-head">
               <label class="section-label">网格间距</label>
-              <span class="slider-value">{{ canvasConfig.patternGap }}px</span>
+              <span class="slider-value">{{ canvasConfig.patternGap }}px（固定档位）</span>
             </div>
-            <a-slider :min="8" :max="48" :value="canvasConfig.patternGap" @change="onPatternGapChange" />
+            <div class="option-grid option-grid-5">
+              <button
+                v-for="gap in fixedGapOptions"
+                :key="gap"
+                type="button"
+                class="option-card"
+                :class="{ active: canvasConfig.patternGap === gap }"
+                @click="onSelectFixedGap(gap)"
+              >
+                {{ gap }}
+              </button>
+            </div>
           </div>
 
           <div class="slider-wrap">
@@ -79,6 +90,14 @@
           <div class="switch-row">
             <label class="section-label">显示坐标原点</label>
             <a-switch :checked="canvasConfig.showOriginMarker" @change="onShowOriginChange" />
+          </div>
+
+          <div class="snap-block">
+            <div class="switch-row">
+              <label class="section-label">节点磁吸</label>
+              <a-switch :checked="canvasConfig.snapToGridEnabled" @change="onSnapEnabledChange" />
+            </div>
+            <div class="snap-hint">当前磁吸网格：{{ canvasConfig.snapGridSize }}px</div>
           </div>
         </div>
 
@@ -129,6 +148,7 @@ const backgroundOptions: Array<{ label: string; value: CanvasBackgroundVariant }
   { label: '十字', value: 'cross' },
   { label: '无', value: 'none' }
 ]
+const fixedGapOptions = [8, 16, 24, 32, 48]
 
 type LocalPreset = {
   key: string
@@ -150,7 +170,9 @@ const builtinPresets: LocalPreset[] = [
       patternColor: '#94a3b8',
       patternGap: 22,
       patternSize: 1.8,
-      showOriginMarker: true
+      showOriginMarker: true,
+      snapToGridEnabled: true,
+      snapGridSize: 24
     }
   },
   {
@@ -163,7 +185,9 @@ const builtinPresets: LocalPreset[] = [
       patternColor: '#cbd5e1',
       patternGap: 26,
       patternSize: 1.2,
-      showOriginMarker: true
+      showOriginMarker: true,
+      snapToGridEnabled: true,
+      snapGridSize: 24
     }
   },
   {
@@ -176,7 +200,9 @@ const builtinPresets: LocalPreset[] = [
       patternColor: '#e2e8f0',
       patternGap: 20,
       patternSize: 1.2,
-      showOriginMarker: false
+      showOriginMarker: false,
+      snapToGridEnabled: true,
+      snapGridSize: 24
     }
   }
 ]
@@ -227,8 +253,8 @@ const onPatternColorPick = (event: Event) => {
   emit('update-canvas-config', { patternColor: value || '#94a3b8' })
 }
 
-const onPatternGapChange = (value: number | [number, number]) => {
-  emit('update-canvas-config', { patternGap: Array.isArray(value) ? Number(value[0]) : Number(value) })
+const onSelectFixedGap = (gap: number) => {
+  emit('update-canvas-config', { patternGap: gap, snapGridSize: gap })
 }
 
 const onPatternSizeChange = (value: number | [number, number]) => {
@@ -237,6 +263,10 @@ const onPatternSizeChange = (value: number | [number, number]) => {
 
 const onShowOriginChange = (checked: boolean) => {
   emit('update-canvas-config', { showOriginMarker: checked })
+}
+
+const onSnapEnabledChange = (checked: boolean) => {
+  emit('update-canvas-config', { snapToGridEnabled: checked })
 }
 
 const onPresetDraftChange = (value: string) => {
@@ -350,6 +380,10 @@ const removeCustomPreset = (presetKey: string) => {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.option-grid-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .option-card {
   border: 1px solid #dbe3ee;
   border-radius: 8px;
@@ -440,6 +474,19 @@ const removeCustomPreset = (presetKey: string) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.snap-block {
+  margin-top: 2px;
+  padding: 8px 10px;
+  border: 1px dashed #dbe3ee;
+  border-radius: 8px;
+}
+
+.snap-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #64748b;
 }
 
 .preset-head {

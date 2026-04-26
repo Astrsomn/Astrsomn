@@ -85,6 +85,8 @@ export type CanvasConfig = {
   patternGap: number
   patternSize: number
   showOriginMarker: boolean
+  snapToGridEnabled: boolean
+  snapGridSize: number
 }
 
 export const defaultCanvasConfig: CanvasConfig = {
@@ -94,7 +96,9 @@ export const defaultCanvasConfig: CanvasConfig = {
   patternColor: '#94a3b8',
   patternGap: 22,
   patternSize: 1.8,
-  showOriginMarker: true
+  showOriginMarker: true,
+  snapToGridEnabled: true,
+  snapGridSize: 24
 }
 
 export type WorkflowGraph = {

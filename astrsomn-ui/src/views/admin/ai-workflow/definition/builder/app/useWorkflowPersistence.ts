@@ -51,15 +51,6 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
         category: item.category || item.description || '未分类'
       }))
       deps.workflowItems.value = list
-      if (!deps.activeWorkflowId.value && list.length > 0) {
-        deps.activeWorkflowId.value = list[0].id
-        try {
-          const detail = await aiWorkflowApi.detail(String(list[0].id))
-          applyWorkflowDetail(detail)
-        } catch {
-          // 列表可展示优先，详情失败不影响左侧导航呈现
-        }
-      }
     } catch {
       deps.workflowItems.value = []
     }
@@ -67,7 +58,7 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
 
   const applyWorkflowDetail = (detail: Awaited<ReturnType<typeof aiWorkflowApi.detail>>) => {
     deps.workflowMeta.id = detail.id
-    deps.workflowMeta.workflowName = detail.workflowName || deps.workflowMeta.workflowName
+    deps.workflowMeta.workflowName = detail.workflowName || '未命名流程'
     deps.workflowMeta.workflowKey = detail.workflowKey || ''
     deps.workflowMeta.description = detail.description || ''
     deps.loadGraph(detail.graphJson)
@@ -81,7 +72,7 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
 
   const createWorkflow = async (payload: { workflowName: string; workflowKey: string; category: string }) => {
     await ensureEnvReady()
-    await aiWorkflowApi.create({
+    const createResp = await aiWorkflowApi.create({
       workflowName: payload.workflowName,
       workflowKey: payload.workflowKey,
       description: payload.category,
@@ -97,19 +88,8 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
       (item) => item.workflowKey === payload.workflowKey || item.workflowName === payload.workflowName
     )
     if (!created) {
-      const optimisticItem: WorkflowListItem = {
-        id: `${payload.workflowKey}-${Date.now()}`,
-        workflowName: payload.workflowName,
-        workflowKey: payload.workflowKey,
-        description: payload.category,
-        category: payload.category
-      }
-      deps.workflowItems.value = [optimisticItem, ...deps.workflowItems.value]
-      deps.activeWorkflowId.value = optimisticItem.id
-      deps.workflowMeta.id = undefined
-      deps.workflowMeta.workflowName = payload.workflowName
-      deps.workflowMeta.workflowKey = payload.workflowKey
-      deps.workflowMeta.description = payload.category
+      deps.activeWorkflowId.value = undefined
+      deps.notifyWarning(typeof createResp === 'string' ? '流程已创建，请在左侧列表中选择后编辑' : '流程已创建，请在左侧列表中选择后编辑')
       return
     }
     deps.activeWorkflowId.value = created.id
@@ -118,14 +98,18 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
 
   const handleSaveDraft = async () => {
     await ensureEnvReady()
+    if (!deps.activeWorkflowId.value) {
+      deps.notifyWarning('请先新建或选择流程')
+      return false
+    }
     if (!deps.workflowMeta.workflowName || !deps.workflowMeta.workflowKey) {
       deps.notifyWarning('请先填写流程名称和 Flow Key')
-      return
+      return false
     }
     const graphValidation = deps.validateGraph()
     if (!graphValidation.ok) {
       deps.notifyWarning(graphValidation.errors[0] || '流程校验未通过')
-      return
+      return false
     }
 
     deps.saving.value = true
@@ -138,8 +122,10 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
         tip = await aiWorkflowApi.update(submitPayload.value)
         deps.notifySuccess(tip || '草稿已更新')
       }
+      return true
     } catch {
       deps.notifyWarning('当前阶段以页面搭建为主，保存接口可后续联调')
+      return false
     } finally {
       deps.saving.value = false
     }

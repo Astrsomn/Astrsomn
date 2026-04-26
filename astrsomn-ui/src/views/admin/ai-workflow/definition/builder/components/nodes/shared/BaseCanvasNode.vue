@@ -121,7 +121,7 @@ const themeStyles = computed(() => ({
 <style scoped>
 .wf-node {
   min-width: var(--wf-node-min-width, 240px);
-  border-radius: 16px;
+  border-radius: 10px;
   border: 1px solid var(--wf-node-border);
   background: var(--wf-node-bg);
   box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.04), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
