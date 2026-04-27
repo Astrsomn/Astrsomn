@@ -3,8 +3,8 @@ package com.astrsomn.starter.langchain.quota;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.dto.conversation.AiConversationUsageDTO;
-import com.astrsomn.starter.mapper.AiConversationMapper;
+import com.astrsomn.core.common.dto.chat.message.AiChatUsageDTO;
+import com.astrsomn.starter.mapper.AiChatMessageMapper;
 import com.astrsomn.starter.config.AstrsomnProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ModelQuotaManager {
 
     private final AstrsomnProperties astrsomnProperties;
-    private final AiConversationMapper conversationMapper;
+    private final AiChatMessageMapper conversationMapper;
 
     private final Map<String, Long> dailyUsageCache = new ConcurrentHashMap<>();
 
@@ -31,7 +31,7 @@ public class ModelQuotaManager {
     @Scheduled(fixedRate = 60000)
     public void refreshUsage() {
         String env = astrsomnProperties.getEnvCode();
-        List<AiConversationUsageDTO> stats = conversationMapper.selectTodayUsage(env);
+        List<AiChatUsageDTO> stats = conversationMapper.selectTodayUsage(env);
         stats.forEach(dto -> {
             dailyUsageCache.put(dto.getModelKey(), dto.getTotal());
         });

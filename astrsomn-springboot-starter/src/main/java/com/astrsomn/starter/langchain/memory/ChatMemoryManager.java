@@ -7,9 +7,9 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.core.common.entity.AiConversationEntity;
+import com.astrsomn.core.common.entity.AiChatMessageEntity;
 import com.astrsomn.core.common.langchain.ChatStreamEnum;
-import com.astrsomn.starter.mapper.AiConversationMapper;
+import com.astrsomn.starter.mapper.AiChatMessageMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 @Service
 public class ChatMemoryManager {
 
-    private final AiConversationMapper aiConversationMapper;
+    private final AiChatMessageMapper aiChatMessageMapper;
     private final Map<Object, ChatMemory> memoryCache = new ConcurrentHashMap<>();
-    public ChatMemoryManager(AiConversationMapper aiConversationMapper) {
-        this.aiConversationMapper = aiConversationMapper;
+    public ChatMemoryManager(AiChatMessageMapper aiChatMessageMapper) {
+        this.aiChatMessageMapper = aiChatMessageMapper;
     }
 
     public ChatMemory getOrCreateMemory(Object memoryId, int maxMessages) {
@@ -44,7 +44,7 @@ public class ChatMemoryManager {
 
 
     public void saveMessage(String memoryKey, ChatMessage message) {
-        AiConversationEntity entity = new AiConversationEntity();
+        AiChatMessageEntity entity = new AiChatMessageEntity();
         entity.setMemoryKey(memoryKey);
         entity.setContent(message.toString());
 
@@ -55,14 +55,14 @@ public class ChatMemoryManager {
             entity.setRole(ChatStreamEnum.AstroChatRole.ASSISTANT.getCode());
         }
 
-        aiConversationMapper.insert(entity);
+        aiChatMessageMapper.insert(entity);
     }
 
     private List<ChatMessage> loadHistoryFromDb(String memoryKey) {
-        List<AiConversationEntity> entities = aiConversationMapper.selectList(
-                new LambdaQueryWrapper<AiConversationEntity>()
-                        .eq(AiConversationEntity::getMemoryKey, memoryKey)
-                        .orderByAsc(AiConversationEntity::getCreateTime)
+        List<AiChatMessageEntity> entities = aiChatMessageMapper.selectList(
+                new LambdaQueryWrapper<AiChatMessageEntity>()
+                        .eq(AiChatMessageEntity::getMemoryKey, memoryKey)
+                        .orderByAsc(AiChatMessageEntity::getCreateTime)
         );
 
         return entities.stream()
@@ -71,7 +71,7 @@ public class ChatMemoryManager {
                 .collect(Collectors.toList());
     }
 
-    private ChatMessage mapToChatMessage(AiConversationEntity entity) {
+    private ChatMessage mapToChatMessage(AiChatMessageEntity entity) {
         String role = entity.getRole().toLowerCase();
         if (ChatStreamEnum.AstroChatRole.USER.getCode().equalsIgnoreCase(role)) {
             return UserMessage.from(entity.getContent());

@@ -290,6 +290,17 @@ public enum DeepSeekModelEnum {
             AiModelParamEnum.ChatParamEnum.TOP_P,
             AiModelParamEnum.ChatParamEnum.MAX_TOKENS
         )
+    ),
+
+    DEEPSEEK_V4("deepseek-v4", "DeepSeek V4", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     );
 
     private final String modelName;

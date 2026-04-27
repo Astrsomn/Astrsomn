@@ -12,16 +12,15 @@
 
     <a-spin :spinning="loading">
       <div class="conversation-cards">
-        <ConversationCard
-          v-for="item in list"
-          :key="item.memoryKey || item.id"
-          :conversation="item"
-          :conversation-count="1"
-          :latest-time="item.updateTime || item.createTime || ''"
-          :is-selected="selectedRowKeys.includes(item.memoryKey || '')"
-          @select="(memoryKey) => handleCardSelect(memoryKey)"
-          @recover="(memoryKey) => handleRecoverConversation(memoryKey)"
-          @delete="(memoryKey) => handleDeleteOne(memoryKey)"
+        <SessionList
+          :loading="loading"
+          :items="sessionItems"
+          :selected-keys="selectedRowKeys"
+          :selectable="true"
+          :deletable="true"
+          @toggle-select="handleCardSelect"
+          @open="handleRecoverConversation"
+          @delete="handleDeleteOne"
         />
       </div>
 
@@ -43,11 +42,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, defineProps, defineEmits } from 'vue'
-import { message } from 'ant-design-vue'
+import { computed, defineProps, defineEmits } from 'vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
-import ConversationCard from './ConversationCard.vue'
-import { aiConversationApi, type AiConversation } from '@/api/aiConversation'
+import SessionList from '@/components/chat-session/SessionList.vue'
+import { adaptConversationToSessionItem, type AiConversation } from '@/api/aiConversation'
 
 const props = defineProps<{
   loading: boolean
@@ -63,8 +61,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:selectedRowKeys', value: string[]): void
   (e: 'recover', memoryKey: string): void
+  (e: 'delete', memoryKey: string): void
   (e: 'pageChange', page: number, pageSize: number): void
-  (e: 'fetchList'): void
 }>()
 
 const currentPageIds = computed(() =>
@@ -110,20 +108,18 @@ const handleRecoverConversation = async (memoryKey: string) => {
 }
 
 const handleDeleteOne = async (memoryKey: string) => {
-  const conversations = props.list.filter(c => c.memoryKey === memoryKey)
-  const ids = conversations.map(c => c.id).filter((id): id is number | string => id !== undefined && id !== null)
-  
-  if (ids.length === 0) return
-  const msg = await aiConversationApi.delete(ids)
-  message.success(msg)
-  const newSelected = props.selectedRowKeys.filter(key => key !== memoryKey)
-  emit('update:selectedRowKeys', newSelected)
-  emit('fetchList')
+  emit('delete', memoryKey)
 }
 
 const onPageChange = (p: number, size: number) => {
   emit('pageChange', p, size)
 }
+
+const sessionItems = computed(() =>
+  props.list
+    .filter((item) => !!item.memoryKey)
+    .map((item) => adaptConversationToSessionItem(item))
+)
 </script>
 
 <style scoped>
