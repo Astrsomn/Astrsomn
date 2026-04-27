@@ -11,7 +11,7 @@ export const defaultGraph: WorkflowGraph = {
     {
       id: 'end-1',
       type: 'end',
-      position: { x: 420, y: 180 },
+      position: { x: 820, y: 180 },
       data: { label: '结束', description: '工作流出口' }
     }
   ],

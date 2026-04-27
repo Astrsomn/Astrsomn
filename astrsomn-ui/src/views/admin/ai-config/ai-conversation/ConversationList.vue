@@ -39,8 +39,8 @@
           v-model:selectedRowKeys="selectedRowKeys"
           :page="page"
           @recover="handleRecoverConversation"
+          @delete="handleDeleteByMemoryKey"
           @pageChange="onPageChange"
-          @fetchList="fetchList"
         />
 
         <!-- 右侧对话内容区域 -->
@@ -193,6 +193,21 @@ const handleBatchDelete = async () => {
   message.success(msg)
   selectedRowKeys.value = []
   selectedConversation.value = null
+  void fetchList()
+}
+
+const handleDeleteByMemoryKey = async (memoryKey: string) => {
+  const ids: Array<number | string> = list.value
+    .filter((item) => item.memoryKey === memoryKey && item.id !== undefined && item.id !== null)
+    .map((item) => item.id as number | string)
+  if (ids.length === 0) return
+  const msg = await aiConversationApi.delete(ids)
+  message.success(msg)
+  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== memoryKey)
+  if (selectedConversation.value?.memoryKey === memoryKey) {
+    selectedConversation.value = null
+    selectedConversationList.value = []
+  }
   void fetchList()
 }
 

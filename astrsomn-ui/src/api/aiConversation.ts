@@ -1,14 +1,21 @@
 import request from '@/utils/request'
+import type { ChatSessionItem } from '@/components/chat-session/types'
 
 export type AiConversation = {
   id?: number | string
   memoryKey?: string
+  role?: string
+  content?: string
   conversationContent?: string
+  sessionTitle?: string
+  lastMessagePreview?: string
+  messageCount?: number
   createTime?: string
   updateTime?: string
   createUser?: string
   updateUser?: string
   status?: string
+  sessionStatus?: string
 }
 
 export type AiConversationCreateRequestDTO = {
@@ -44,7 +51,7 @@ export type PageResponse<T> = {
 export const aiConversationApi = {
   queryPage: (payload: unknown): Promise<PageResponse<AiConversation>> => {
     return request({
-      url: '/v1/astro/ai-conversation/queryPage',
+      url: '/v1/astro/ai-chat-message/queryPage',
       method: 'post',
       data: payload
     })
@@ -52,7 +59,7 @@ export const aiConversationApi = {
 
   queryGroups: (payload: unknown): Promise<PageResponse<AiConversation>> => {
     return request({
-      url: '/v1/astro/ai-conversation/queryGroups',
+      url: '/v1/astro/ai-chat-message/queryGroups',
       method: 'post',
       data: payload
     })
@@ -60,21 +67,21 @@ export const aiConversationApi = {
 
   detail: (id: number | string): Promise<AiConversation> => {
     return request({
-      url: `/v1/astro/ai-conversation/detail?id=${encodeURIComponent(String(id))}`,
+      url: `/v1/astro/ai-chat-message/detail?id=${encodeURIComponent(String(id))}`,
       method: 'get'
     })
   },
 
   recoverByMemoryKey: (memoryKey: string): Promise<AiConversation[]> => {
     return request({
-      url: `/v1/astro/ai-conversation/recoverByMemoryKey?memoryKey=${encodeURIComponent(memoryKey)}`,
+      url: `/v1/astro/ai-chat-message/recoverByMemoryKey?memoryKey=${encodeURIComponent(memoryKey)}`,
       method: 'get'
     })
   },
 
   create: (payload: AiConversationCreateRequestDTO): Promise<string> => {
     return request({
-      url: '/v1/astro/ai-conversation/create',
+      url: '/v1/astro/ai-chat-message/create',
       method: 'post',
       data: payload
     })
@@ -82,7 +89,7 @@ export const aiConversationApi = {
 
   update: (payload: AiConversationUpdateRequestDTO): Promise<string> => {
     return request({
-      url: '/v1/astro/ai-conversation/update',
+      url: '/v1/astro/ai-chat-message/update',
       method: 'post',
       data: payload
     })
@@ -91,8 +98,23 @@ export const aiConversationApi = {
   delete: (ids: Array<number | string>): Promise<string> => {
     const joined = ids.map((x) => String(x)).join(',')
     return request({
-      url: `/v1/astro/ai-conversation/delete/${joined}`,
+      url: `/v1/astro/ai-chat-message/delete/${joined}`,
       method: 'delete'
     })
+  }
+}
+
+export const adaptConversationToSessionItem = (conversation: AiConversation): ChatSessionItem => {
+  const title = conversation.sessionTitle || conversation.content || conversation.conversationContent || '无内容对话'
+  const preview = conversation.lastMessagePreview || conversation.content || conversation.conversationContent || ''
+  return {
+    id: conversation.id,
+    memoryKey: conversation.memoryKey || '',
+    title,
+    preview,
+    messageCount: conversation.messageCount,
+    createTime: conversation.createTime,
+    updateTime: conversation.updateTime,
+    raw: conversation as unknown as Record<string, unknown>
   }
 }
