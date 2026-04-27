@@ -78,15 +78,7 @@ export function useContextMenuActions(deps: {
         edgeId: payload.edgeId,
         items: [
           { key: 'edge-delete', label: '删除连线', icon: '🗑', danger: true },
-          { key: 'edge-label', label: '编辑连线标签', icon: '🏷' },
-          {
-            key: 'edge-style',
-            label: '切换连线样式',
-            icon: '🔀',
-            children: [{ key: 'edge-style-straight', label: '直线' }, { key: 'edge-style-smooth', label: '曲线' }]
-          },
-          { key: 'edge-style-straight', label: '样式: 直线', icon: '⎯' },
-          { key: 'edge-style-smooth', label: '样式: 曲线', icon: '〰' }
+          { key: 'edge-label', label: '编辑连线标签', icon: '🏷' }
         ]
       })
     }
