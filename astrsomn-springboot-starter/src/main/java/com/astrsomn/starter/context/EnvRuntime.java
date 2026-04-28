@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * 解析「当前生效」的环境编码：优先 {@link EnvScope}（请求头切换），否则回退实例配置。
  * <p>
- * 只有配置的管理员用户可以通过请求头切换环境。
+ * 是否允许写入 {@link EnvScope} 由业务侧认证/鉴权拦截器控制。
  */
 public final class EnvRuntime {
 
@@ -21,17 +21,15 @@ public final class EnvRuntime {
      * 解析当前生效的环境编码。
      * <p>
      * 优先级：
-     * 1. 如果当前用户是管理员，优先使用 EnvScope（请求头切换）
+     * 1. 优先使用 EnvScope（请求级切换）
      * 2. 否则使用配置文件中的 envCode
      * 3. 最后兜底为 "default"
      */
     public static String resolveEffectiveEnvCode(AstrsomnProperties properties) {
-        // 只有管理员可以通过请求头切换环境
-        if (canSwitchEnv(properties)) {
-            String fromScope = StringUtils.trimToNull(EnvScope.get());
-            if (fromScope != null) {
-                return fromScope;
-            }
+        // 请求级环境（由网关/拦截器按权限写入 EnvScope）优先级最高。
+        String fromScope = StringUtils.trimToNull(EnvScope.get());
+        if (fromScope != null) {
+            return fromScope;
         }
         String fromConfig = StringUtils.trimToNull(properties != null ? properties.getEnvCode() : null);
         return fromConfig != null ? fromConfig : "default";

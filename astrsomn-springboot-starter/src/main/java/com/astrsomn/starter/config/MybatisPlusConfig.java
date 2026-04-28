@@ -15,9 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,13 +33,18 @@ import java.util.List;
 public class MybatisPlusConfig {
 
     @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnProperties properties) {
+    public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnProperties properties, TenantLineHandler tenantLineHandler) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
         String dbTypeStr = (properties.getDataBase() != null) ? properties.getDataBase().getDatabaseType() : "mysql";
         DbType dbType = DataSourceConfig.getDbType(dbTypeStr);
 
+        interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(tenantLineHandler));
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(dbType));
+
+        if (tenantLineHandler instanceof EnvCodeTenantHandler envHandler) {
+            log.info("[Astrsomn Starter] 环境隔离插件已激活，作用表: {}", envHandler.getPrivateTables());
+        }
 
         return interceptor;
     }
@@ -53,40 +56,6 @@ public class MybatisPlusConfig {
     @ConditionalOnMissingBean(TenantLineHandler.class)
     public TenantLineHandler astrsomnEnvCodeTenantHandler() {
         return new EnvCodeTenantHandler();
-    }
-
-    /**
-     * 租户拦截器注入器
-     */
-    @Bean
-    public BeanPostProcessor astrsomnTenantInterceptorInjector(TenantLineHandler handler) {
-        return new BeanPostProcessor() {
-            @Override
-            public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-                if (bean instanceof MybatisPlusInterceptor) {
-                    MybatisPlusInterceptor interceptor = (MybatisPlusInterceptor) bean;
-
-                    // 检查是否已经存在租户拦截器，避免重复添加
-                    boolean hasTenantInterceptor = interceptor.getInterceptors().stream()
-                            .anyMatch(i -> i instanceof TenantLineInnerInterceptor);
-
-                    if (!hasTenantInterceptor) {
-                        // 创建环境隔离拦截器
-                        TenantLineInnerInterceptor tenantInterceptor = new TenantLineInnerInterceptor();
-                        tenantInterceptor.setTenantLineHandler(handler);
-
-                        // 多租户拦截器通常需要放在插件链的最前面
-                        interceptor.addInnerInterceptor(tenantInterceptor);
-
-                        if (handler instanceof EnvCodeTenantHandler envHandler) {
-                            log.info("[Astrsomn Starter] 环境隔离插件已激活，作用表: {}",
-                                    envHandler.getPrivateTables());
-                        }
-                    }
-                }
-                return bean;
-            }
-        };
     }
 
     @Bean

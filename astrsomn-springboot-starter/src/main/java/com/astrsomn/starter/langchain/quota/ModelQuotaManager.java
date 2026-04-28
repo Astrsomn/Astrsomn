@@ -3,9 +3,11 @@ package com.astrsomn.starter.langchain.quota;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.dto.chat.message.AiChatUsageDTO;
 import com.astrsomn.starter.mapper.AiChatMessageMapper;
 import com.astrsomn.starter.config.AstrsomnProperties;
+import com.astrsomn.starter.context.EnvRuntime;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ModelQuotaManager {
@@ -30,11 +33,14 @@ public class ModelQuotaManager {
 
     @Scheduled(fixedRate = 60000)
     public void refreshUsage() {
-        String env = astrsomnProperties.getEnvCode();
-        List<AiChatUsageDTO> stats = conversationMapper.selectTodayUsage(env);
-        stats.forEach(dto -> {
-            dailyUsageCache.put(dto.getModelKey(), dto.getTotal());
-        });
+        String env = EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties);
+        try {
+            List<AiChatUsageDTO> stats = conversationMapper.selectTodayUsage(env);
+            stats.forEach(dto -> dailyUsageCache.put(dto.getModelKey(), dto.getTotal()));
+        } catch (Exception ex) {
+            // Keep the server bootable even when schema/data are not initialized yet.
+            log.warn("Skip quota refresh because usage table is unavailable (env={}): {}", env, ex.getMessage());
+        }
     }
 
     public boolean isExceeded(String modelKey, Long limit) {
