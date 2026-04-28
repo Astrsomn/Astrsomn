@@ -66,7 +66,11 @@ export const adminUnifiedNav: AdminModuleNavGroup[] = [
       { to: `${baseWorkflow}/node-history`, label: '节点历史', icon: FileTextOutlined },
       { to: `${baseWorkflow}/human-tasks`, label: '人工任务', icon: TeamOutlined },
       { to: `${baseWorkflow}/publish`, label: '发布接口', icon: CloudServerOutlined },
-      { to: `${baseWorkflow}/test-run`, label: '测试运行', icon: ApiOutlined }
+      { to: `${baseWorkflow}/test-run`, label: '测试运行', icon: ApiOutlined },
+      { to: `${baseWorkflow}/biz-idempotent`, label: '业务幂等', icon: KeyOutlined },
+      { to: `${baseWorkflow}/instance-events`, label: '实例事件', icon: FileTextOutlined },
+      { to: `${baseWorkflow}/msg-outbox`, label: '消息 Outbox', icon: MessageOutlined },
+      { to: `${baseWorkflow}/timer-jobs`, label: '定时任务', icon: ControlOutlined }
     ]
   },
   {
