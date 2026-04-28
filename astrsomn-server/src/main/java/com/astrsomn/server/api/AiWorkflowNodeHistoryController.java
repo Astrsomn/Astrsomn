@@ -45,6 +45,20 @@ public class AiWorkflowNodeHistoryController extends BaseController {
         return aiWorkflowNodeHistoryService.queryPage(request);
     }
 
+    @PostMapping("/queryPublishHistory")
+    public PageResponse<AstFlowNodeHistoryResponseDTO> queryPublishHistory(
+            @RequestBody BasePageRequest<AstFlowNodeHistoryQueryRequestDTO> request) {
+        AstFlowNodeHistoryQueryRequestDTO param = request.getParam();
+        if (param == null) {
+            param = new AstFlowNodeHistoryQueryRequestDTO();
+            request.setParam(param);
+        }
+        if (param.getHistoryType() == null || param.getHistoryType().isBlank()) {
+            param.setHistoryType("PUBLISH");
+        }
+        return aiWorkflowNodeHistoryService.queryPage(request);
+    }
+
     @GetMapping("/detail")
     public BaseResponse<AstFlowNodeHistoryResponseDTO> detail(@RequestParam("id") Long id) {
         try {
