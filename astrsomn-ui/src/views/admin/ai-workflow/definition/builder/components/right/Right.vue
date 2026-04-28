@@ -1,6 +1,6 @@
 <template>
   <aside class="node-inspector">
-    <div v-if="selectedNode" class="selection-block">
+    <div v-if="selectedNode" class="selection-block selection-scroll app-scrollbar">
       <h4>节点配置</h4>
       <component
         :is="selectedNodeInspector"
@@ -11,7 +11,7 @@
       />
     </div>
 
-    <div v-else-if="selectedEdge" class="selection-block">
+    <div v-else-if="selectedEdge" class="selection-block selection-scroll app-scrollbar">
       <h4>连线配置</h4>
       <a-form layout="vertical">
         <a-form-item label="连线标签">
@@ -26,15 +26,17 @@
     <CanvasPaneConfig
       v-else
       :canvas-config="canvasConfig"
+      :auto-save-enabled="autoSaveEnabled"
       @update-canvas-config="emit('update-canvas-config', $event)"
       @apply-edge-style-all="emit('apply-edge-style-all', $event)"
+      @update-auto-save-enabled="emit('update-auto-save-enabled', $event)"
     />
   </aside>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CanvasConfig, CanvasEdgeStyle, WorkflowEdge, WorkflowMeta, WorkflowNode } from '../../domain/types'
+import type { CanvasConfig, CanvasEdgeApplyPayload, WorkflowEdge, WorkflowMeta, WorkflowNode } from '../../domain/types'
 import type { WorkflowNodeType } from '../../domain/types'
 import { nodeInspectorMap } from '../nodes/registry'
 import CanvasPaneConfig from './component/CanvasPaneConfig.vue'
@@ -42,6 +44,7 @@ import CanvasPaneConfig from './component/CanvasPaneConfig.vue'
 const props = defineProps<{
   workflowMeta: WorkflowMeta
   canvasConfig: CanvasConfig
+  autoSaveEnabled: boolean
   allNodes?: WorkflowNode[]
   selectedNode?: WorkflowNode
   selectedEdge?: WorkflowEdge
@@ -51,7 +54,8 @@ const emit = defineEmits<{
   'update-node': [payload: { label?: string; description?: string; config?: Record<string, unknown> }]
   'update-edge': [payload: { label?: string }]
   'update-canvas-config': [payload: Partial<CanvasConfig>]
-  'apply-edge-style-all': [edgeStyle: CanvasEdgeStyle]
+  'apply-edge-style-all': [payload: CanvasEdgeApplyPayload]
+  'update-auto-save-enabled': [enabled: boolean]
   'remove-selection': []
 }>()
 
@@ -73,11 +77,14 @@ const forwardEdgeLabelUpdate = (value: string) => {
 <style scoped>
 .node-inspector {
   height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #edf1f6;
   border-radius: 12px;
   background: #fff;
   padding: 12px;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .panel-head {
@@ -108,6 +115,12 @@ const forwardEdgeLabelUpdate = (value: string) => {
 
 .selection-block {
   margin-top: 10px;
+}
+
+.selection-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 </style>

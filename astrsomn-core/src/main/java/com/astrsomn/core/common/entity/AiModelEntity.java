@@ -1,14 +1,13 @@
 package com.astrsomn.core.common.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.astrsomn.commn.base.BaseEntity;
+
+import java.time.LocalDateTime;
 
 /**
  * AI model configuration entity
@@ -92,4 +91,18 @@ public class AiModelEntity extends BaseEntity<Long> {
 
     @TableField("SOURCE_TYPE")
     private String sourceType;
+
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
+    @TableField(fill = FieldFill.INSERT)
+    private String createUser;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateUser;
+    @TableField(fill = FieldFill.INSERT)
+    private Boolean deleted = false;
+    @TableField(fill = FieldFill.INSERT)
+    private String envCode;
 }

@@ -14,6 +14,8 @@ import { validateConnection, validateGraphState } from '../domain/graph-rules'
 import { parseGraphJson, stringifyGraphJson } from '../domain/graph-serializer'
 import { createNodeData } from '../domain/node-data-factory'
 import {
+  type CanvasEdgeApplyPayload,
+  type CanvasEdgeLinePattern,
   type CanvasGraphState,
   defaultCanvasConfig,
   type CanvasConfig,
@@ -29,6 +31,14 @@ const ensureNodeData = (node: WorkflowNode): WorkflowNodeData => {
   return {
     ...(node.data ?? {}),
     label: node.data?.label ?? node.id
+  }
+}
+
+const buildEdgeLineStyle = (edgeLinePattern: CanvasEdgeLinePattern, edgeLineWidth: number) => {
+  const width = Math.max(1, Number(edgeLineWidth || 1))
+  return {
+    strokeWidth: width,
+    strokeDasharray: edgeLinePattern === 'dashed' ? `${Math.max(4, width * 3)} ${Math.max(3, width * 2)}` : undefined
   }
 }
 
@@ -197,11 +207,31 @@ export function useWorkflowGraph() {
   }
 
   const updateEdgeStyleById = (edgeId: string, edgeType: CanvasEdgeStyle) => {
-    edges.value = edges.value.map((edge) => (edge.id === edgeId ? { ...edge, type: edgeType } : edge))
+    const style = buildEdgeLineStyle(canvasConfig.value.edgeLinePatternDefault, canvasConfig.value.edgeLineWidthDefault)
+    edges.value = edges.value.map((edge) =>
+      edge.id === edgeId
+        ? {
+            ...edge,
+            type: edgeType,
+            style: {
+              ...((edge.style as Record<string, unknown>) || {}),
+              ...style
+            }
+          }
+        : edge
+    )
   }
 
-  const applyEdgeTypeToAll = (edgeType: CanvasEdgeStyle) => {
-    edges.value = edges.value.map((edge) => ({ ...edge, type: edgeType }))
+  const applyEdgeTypeToAll = (payload: CanvasEdgeApplyPayload) => {
+    const style = buildEdgeLineStyle(payload.edgeLinePattern, payload.edgeLineWidth)
+    edges.value = edges.value.map((edge) => ({
+      ...edge,
+      type: payload.edgeStyle,
+      style: {
+        ...((edge.style as Record<string, unknown>) || {}),
+        ...style
+      }
+    }))
   }
 
   const updateCanvasConfig = (payload: Partial<CanvasConfig>) => {
@@ -238,6 +268,7 @@ export function useWorkflowGraph() {
       {
         ...connection,
         type: canvasConfig.value.edgeStyleDefault,
+        style: buildEdgeLineStyle(canvasConfig.value.edgeLinePatternDefault, canvasConfig.value.edgeLineWidthDefault),
         markerEnd: MarkerType.ArrowClosed
       },
       edges.value as Edge[]

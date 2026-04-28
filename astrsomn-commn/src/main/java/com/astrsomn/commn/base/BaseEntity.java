@@ -1,6 +1,5 @@
 package com.astrsomn.commn.base;
 
-
 import lombok.Data;
 
 import java.io.Serializable;
@@ -24,37 +23,31 @@ public class BaseEntity<T extends Serializable> implements Serializable {
     /**
      * The timestamp when the record was created.
      */
-
     private LocalDateTime createTime;
 
     /**
      * The timestamp when the record was last updated.
      */
-
     private LocalDateTime updateTime;
 
     /**
      * The identifier or name of the user who created the record.
      */
-
     private String createUser;
 
     /**
      * The identifier or name of the user who last modified the record.
      */
-
     private String updateUser;
 
     /**
      * Logical deletion flag.
      * False indicates active, True indicates deleted.
      */
-
     private Boolean deleted = false;
 
     /**
      * The environment code (e.g., DEV, TEST, PROD).
      */
-
     private String envCode;
 }

@@ -24,31 +24,25 @@ public class DataSourceConfig {
         String dbTypeStr = dataBase.getDatabaseType() != null ? dataBase.getDatabaseType().toLowerCase() : "mysql";
 
         if (url == null || url.isEmpty()) {
-                if ("mysql".equals(dbTypeStr)) {
-                    url = String.format("jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=%s&serverTimezone=%s&useSSL=%s",
-                            defaultIfNull(dataBase.getHost(), "localhost"),
-                            defaultIfNull(dataBase.getPort(), 3306),
-                            dataBase.getDatabaseName(),
-                            defaultIfNull(dataBase.getCharset(), "utf8"),
-                            defaultIfNull(dataBase.getTimezone(), "Asia/Shanghai"),
-                            defaultIfNull(dataBase.getUseSsl(), false));
-                    dataSource.setDriverClassName(defaultIfNull(dataBase.getDriver(), "com.mysql.cj.jdbc.Driver"));
-                } else if ("oracle".equals(dbTypeStr)) {
-                    url = dataBase.getSchema() != null
-                            ? String.format("jdbc:oracle:thin:@%s:%d:%s?currentSchema=%s",
-                            defaultIfNull(dataBase.getHost(), "localhost"), defaultIfNull(dataBase.getPort(), 1521), dataBase.getDatabaseName(), dataBase.getSchema())
-                            : String.format("jdbc:oracle:thin:@%s:%d:%s",
-                            defaultIfNull(dataBase.getHost(), "localhost"), defaultIfNull(dataBase.getPort(), 1521), dataBase.getDatabaseName());
-                    dataSource.setDriverClassName(defaultIfNull(dataBase.getDriver(), "oracle.jdbc.OracleDriver"));
-                } else if ("sqlite".equals(dbTypeStr)) {
-                    String dbPath = dataBase.getDatabaseName() != null ? dataBase.getDatabaseName() : "astrsomn.db";
-                    url = String.format("jdbc:sqlite:%s", dbPath);
-                    dataSource.setDriverClassName(defaultIfNull(dataBase.getDriver(), "org.sqlite.JDBC"));
-                }
-            } else {
-                // 如果用户直接写了 URL，也顺便设一下 Driver
-                dataSource.setDriverClassName(dataBase.getDriver());
+            if ("mysql".equals(dbTypeStr)) {
+                url = String.format("jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=%s&serverTimezone=%s&useSSL=%s",
+                        defaultIfNull(dataBase.getHost(), "localhost"),
+                        defaultIfNull(dataBase.getPort(), 3306),
+                        dataBase.getDatabaseName(),
+                        defaultIfNull(dataBase.getCharset(), "utf8"),
+                        defaultIfNull(dataBase.getTimezone(), "Asia/Shanghai"),
+                        defaultIfNull(dataBase.getUseSsl(), false));
+                dataSource.setDriverClassName(defaultIfNull(dataBase.getDriver(), "com.mysql.cj.jdbc.Driver"));
+            } else if ("h2".equals(dbTypeStr)) {
+                // H2 文件模式
+                url = String.format("jdbc:h2:file:%s;MODE=MySQL;DATABASE_TO_UPPER=FALSE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+                        defaultIfNull(dataBase.getDatabaseName(), "astrsomn"));
+                dataSource.setDriverClassName(defaultIfNull(dataBase.getDriver(), "org.h2.Driver"));
             }
+        } else {
+            // 如果用户直接写了 URL，也顺便设一下 Driver
+            dataSource.setDriverClassName(dataBase.getDriver());
+        }
 
         // 2. 公共基础配置
         dataSource.setJdbcUrl(url);
@@ -69,8 +63,7 @@ public class DataSourceConfig {
     }
 
     public static DbType getDbType(String databaseType) {
-        if ("oracle".equalsIgnoreCase(databaseType)) return DbType.ORACLE;
-        if ("sqlite".equalsIgnoreCase(databaseType)) return DbType.SQLITE;
+        if ("h2".equalsIgnoreCase(databaseType)) return DbType.H2;
         return DbType.MYSQL; // 默认 MySQL
     }
 }

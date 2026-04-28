@@ -55,10 +55,7 @@ public class AiChatMessageController extends BaseController {
         }
     }
 
-    @PostMapping("/queryGroups")
-    public PageResponse<AiChatMessageResponseDTO> queryGroups(@RequestBody BasePageRequest<AiChatMessageQueryRequestDTO> request) {
-        return aiChatMessageService.queryGroups(request);
-    }
+
 
     @GetMapping("/recoverByMemoryKey")
     public BaseResponse<List<AiChatMessageResponseDTO>> recoverByMemoryKey(@RequestParam("memoryKey") String memoryKey) {

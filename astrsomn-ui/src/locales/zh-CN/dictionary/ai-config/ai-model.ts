@@ -93,15 +93,12 @@ const capabilityLabels = {
   quality: '质量 (standard/hd)',
   style: '风格 (vivid/natural)',
   response_format: '响应格式 (url/b64_json)',
-  user: '终端用户标识',
-  max_retries: '最大重试次数',
-  timeout_seconds: '超时时间 (秒)',
+  // user / max_retries / timeout_seconds 与向量/系统配置共用同一 code，这里不重复定义
 
   // === 系统与 HTTP 级配置 (SystemConfigParam) ===
   base_url: '接口基础地址',
   api_key: '令牌/密钥',
-  timeout_seconds: '超时时间 (秒)',
-  max_retries: '最大重试次数',
+  // timeout_seconds / max_retries 与向量/图像配置共用同一 code，这里不重复定义
   log_requests: '启用请求日志',
   log_responses: '启用响应日志',
   proxy_url: '代理服务器地址'

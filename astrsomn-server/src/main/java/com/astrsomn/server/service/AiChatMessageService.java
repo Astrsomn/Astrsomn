@@ -23,7 +23,7 @@ public interface AiChatMessageService extends IService<AiChatMessageEntity> {
 
     PageResponse<AiChatMessageResponseDTO> queryPage(BasePageRequest<AiChatMessageQueryRequestDTO> request);
 
-    PageResponse<AiChatMessageResponseDTO> queryGroups(BasePageRequest<AiChatMessageQueryRequestDTO> request);
+
 
     BaseResponse<List<AiChatMessageResponseDTO>> recoverByMemoryKey(String memoryKey);
 }

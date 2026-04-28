@@ -292,7 +292,7 @@ public enum DeepSeekModelEnum {
         )
     ),
 
-    DEEPSEEK_V4("deepseek-v4", "DeepSeek V4", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+    DEEPSEEK_V4("deepseek-V4", "DeepSeek V4", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING
             ),

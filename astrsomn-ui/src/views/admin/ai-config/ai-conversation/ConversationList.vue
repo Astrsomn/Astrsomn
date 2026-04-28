@@ -69,7 +69,8 @@ import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ConversationListPanel from './ConversationListPanel.vue'
 import ConversationDetailPanel from './ConversationDetailPanel.vue'
-import { aiConversationApi, type AiConversation, type PageResponse } from '@/api/aiConversation'
+import { aiConversationApi, type AiConversation } from '@/api/aiConversation'
+import { aiChatSessionApi, type AiChatSession, type PageResponse } from '@/api/aiChatSession'
 
 type QueryState = {
   memoryKey?: string
@@ -81,7 +82,7 @@ type QueryState = {
 
 const query = reactive<QueryState>({})
 const loading = ref(false)
-const list = ref<AiConversation[]>([])
+const list = ref<AiChatSession[]>([])
 const selectedRowKeys = ref<Array<string>>([])
 
 const page = reactive({
@@ -163,7 +164,14 @@ const fetchList = async () => {
       }
     }
 
-    const resp: PageResponse<AiConversation> = await aiConversationApi.queryGroups(payload)
+    const resp: PageResponse<AiChatSession> = await aiChatSessionApi.queryPage({
+      pageNo: payload.pageNo,
+      pageSize: payload.pageSize,
+      param: {
+        memoryKey: payload.param.memoryKey,
+        sessionStatus: payload.param.status
+      }
+    })
     list.value = resp.list || []
     page.total = resp.total || 0
   } finally {
@@ -189,7 +197,7 @@ const handleBatchDelete = async () => {
   })
   
   if (ids.length === 0) return
-  const msg = await aiConversationApi.delete(ids)
+  const msg = await aiChatSessionApi.delete(ids)
   message.success(msg)
   selectedRowKeys.value = []
   selectedConversation.value = null
@@ -201,7 +209,7 @@ const handleDeleteByMemoryKey = async (memoryKey: string) => {
     .filter((item) => item.memoryKey === memoryKey && item.id !== undefined && item.id !== null)
     .map((item) => item.id as number | string)
   if (ids.length === 0) return
-  const msg = await aiConversationApi.delete(ids)
+  const msg = await aiChatSessionApi.delete(ids)
   message.success(msg)
   selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== memoryKey)
   if (selectedConversation.value?.memoryKey === memoryKey) {

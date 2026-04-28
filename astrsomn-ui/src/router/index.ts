@@ -354,6 +354,50 @@ const adminChildren: RouteRecordRaw[] = [
           showAdminDock: false,
           showModuleSidebar: true
         }
+      },
+      {
+        path: 'biz-idempotent',
+        name: 'AdminWorkflowBizIdempotent',
+        component: () => import('@/views/admin/ai-workflow/biz-idempotent/BizIdempotentList.vue'),
+        meta: {
+          title: '业务幂等',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'instance-events',
+        name: 'AdminWorkflowInstanceEvents',
+        component: () => import('@/views/admin/ai-workflow/instance-event/InstanceEventList.vue'),
+        meta: {
+          title: '实例事件',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'msg-outbox',
+        name: 'AdminWorkflowMsgOutbox',
+        component: () => import('@/views/admin/ai-workflow/msg-outbox/MsgOutboxList.vue'),
+        meta: {
+          title: '消息 Outbox',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'timer-jobs',
+        name: 'AdminWorkflowTimerJobs',
+        component: () => import('@/views/admin/ai-workflow/timer-job/TimerJobList.vue'),
+        meta: {
+          title: '定时任务',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
       }
     ]
   },
@@ -522,6 +566,10 @@ const adminChildren: RouteRecordRaw[] = [
   { path: 'workflow-node-configs', redirect: { path: '/admin/ai-workflow/node-configs' } },
   { path: 'workflow-publish', redirect: { path: '/admin/ai-workflow/publish' } },
   { path: 'workflow-test-run', redirect: { path: '/admin/ai-workflow/test-run' } },
+  { path: 'workflow-biz-idempotent', redirect: { path: '/admin/ai-workflow/biz-idempotent' } },
+  { path: 'workflow-instance-events', redirect: { path: '/admin/ai-workflow/instance-events' } },
+  { path: 'workflow-msg-outbox', redirect: { path: '/admin/ai-workflow/msg-outbox' } },
+  { path: 'workflow-timer-jobs', redirect: { path: '/admin/ai-workflow/timer-jobs' } },
 
   { path: 'system-config-center', redirect: { path: '/admin/system' } },
   { path: 'users', redirect: { path: '/admin/system/users' } },

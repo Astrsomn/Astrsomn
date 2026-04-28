@@ -22,6 +22,10 @@
             :edges="edges"
             :palette-icons="canvasPaletteIcons"
             :canvas-config="canvasConfig"
+            :disabled="!hasActiveWorkflow"
+            :auto-save-enabled="autoSaveEnabled"
+            :auto-save-status="autoSaveStatus"
+            :auto-save-display-time="autoSaveDisplayTime"
             :history-seed="activeWorkflowId || 'draft-workflow'"
             :compact-node="compactNode"
             :initial-zoom-mode="initialZoomMode"
@@ -46,6 +50,7 @@
           class="right-panel"
           :workflow-meta="workflowMeta"
           :canvas-config="canvasConfig"
+          :auto-save-enabled="autoSaveEnabled"
           :all-nodes="nodes"
           :selected-node="selectedNode"
           :selected-edge="selectedEdge"
@@ -53,6 +58,7 @@
           @update-edge="updateSelectedEdge"
           @update-canvas-config="updateCanvasConfig"
           @apply-edge-style-all="applyEdgeTypeToAll"
+          @update-auto-save-enabled="onAutoSaveEnabledChange"
           @remove-selection="removeSelection"
         />
       </main>
@@ -69,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { useRoute } from 'vue-router'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
@@ -83,7 +89,6 @@ import LeftBottom from '@/views/admin/ai-workflow/definition/builder/components/
 import ContextMenu from './components/context-menu/ContextMenu.vue'
 import { canvasPaletteIcons } from './domain/palette'
 import { useWorkflowGraph } from '@/views/admin/ai-workflow/definition/builder/composables/useWorkflowGraph'
-import { aiWorkflowApi } from '@/api/aiWorkflow'
 import { defaultCanvasConfig } from './domain/types'
 import type { CanvasGraphState, NodeDropPayload, WorkflowListItem, WorkflowMeta } from './domain/types'
 
@@ -94,7 +99,13 @@ const workflowItems = ref<WorkflowListItem[]>([])
 const savedGraphSnapshot = ref('')
 const switchingWorkflow = ref(false)
 const openCreateDialogTick = ref(0)
+const AUTO_SAVE_SETTING_KEY = 'astrsomn-workflow-auto-save-enabled'
+const AUTO_SAVE_INTERVAL_MS = 30_000
 const { leftCollapsed, compactNode, initialZoomMode, layoutColumns, layoutColumnsSmall } = useBuilderPage()
+const autoSaveEnabled = ref(true)
+const autoSaveStatus = ref<'idle' | 'saving' | 'success' | 'failed'>('idle')
+const autoSaveDisplayTime = ref('')
+let autoSaveTimer: ReturnType<typeof window.setInterval> | undefined
 
 const workflowMeta = reactive<WorkflowMeta>({
   id: undefined,
@@ -135,13 +146,40 @@ const {
 const selectedNodeIds = ref<string[]>([])
 
 const stripTransientNodeState = (node: Record<string, unknown>) => {
-  const { selected, dragging, resizing, positionAbsolute, dimensions, events, ...rest } = node
+  const {
+    selected,
+    dragging,
+    resizing,
+    positionAbsolute,
+    dimensions,
+    events,
+    width,
+    height,
+    dragHandle,
+    targetPosition,
+    sourcePosition,
+    handleBounds,
+    computedPosition,
+    isParent,
+    ...rest
+  } = node
   return rest
 }
 
 const stripTransientEdgeState = (edge: Record<string, unknown>) => {
-  const { selected, updating, events, ...rest } = edge
+  const { selected, updating, events, sourceX, sourceY, targetX, targetY, ...rest } = edge
   return rest
+}
+
+const normalizeCanvasConfigSnapshot = (raw?: Record<string, unknown>) => {
+  const merged = {
+    ...defaultCanvasConfig,
+    ...(raw || {})
+  } as Record<string, unknown>
+  if (String(merged.edgeStyleDefault || '') === 'smoothstep') {
+    merged.edgeStyleDefault = 'default'
+  }
+  return merged
 }
 
 const normalizeGraphSnapshot = (graphJson?: string) => {
@@ -156,12 +194,10 @@ const normalizeGraphSnapshot = (graphJson?: string) => {
     const normalized = {
       nodes: (parsed.nodes || []).map(stripTransientNodeState).sort((a, b) => String(a.id).localeCompare(String(b.id))),
       edges: (parsed.edges || []).map(stripTransientEdgeState).sort((a, b) => String(a.id).localeCompare(String(b.id))),
-      viewport: parsed.viewport || { x: 0, y: 0, zoom: 1 },
+      // Viewport is runtime interaction state (pan/zoom), not a semantic graph change.
+      viewport: { x: 0, y: 0, zoom: 1 },
       meta: {
-        canvasConfig: {
-          ...defaultCanvasConfig,
-          ...(((parsed.meta?.canvasConfig as Record<string, unknown>) || {}) as Record<string, unknown>)
-        }
+        canvasConfig: normalizeCanvasConfigSnapshot((parsed.meta?.canvasConfig as Record<string, unknown>) || {})
       }
     }
     return JSON.stringify(normalized)
@@ -181,19 +217,12 @@ const hasActiveWorkflow = computed(() => {
 })
 const graphDirty = computed(() => (savedGraphSnapshot.value ? buildGraphSnapshot() !== savedGraphSnapshot.value : false))
 
-const isGraphDirtyAgainstBackend = async () => {
-  if (!activeWorkflowId.value) return graphDirty.value
-  if (workflowMeta.id == null) return graphDirty.value
-  try {
-    const detail = await aiWorkflowApi.detail(workflowMeta.id)
-    const serverSnapshot = normalizeGraphSnapshot(detail.graphJson || '')
-    if (serverSnapshot) {
-      savedGraphSnapshot.value = serverSnapshot
-    }
-    return buildGraphSnapshot() !== savedGraphSnapshot.value
-  } catch {
-    return graphDirty.value
-  }
+const openCreateGuideDialog = () => {
+  Modal.info({
+    title: '请先创建流程',
+    content: '当前为新建状态，画布已禁用。请先在左侧点击“新建流程”并填写基础信息后再开始搭建。',
+    okText: '知道了'
+  })
 }
 
 const handleConnect = (connection: Parameters<typeof onConnect>[0]) => {
@@ -206,7 +235,7 @@ const handleConnect = (connection: Parameters<typeof onConnect>[0]) => {
 const onDropNode = (payload: NodeDropPayload) => {
   if (!hasActiveWorkflow.value) {
     openCreateDialogTick.value += 1
-    message.info('先完善流程信息，再继续拖拽搭建')
+    openCreateGuideDialog()
     return
   }
   createNode(payload.type, payload.position)
@@ -275,38 +304,78 @@ const switchToWorkflow = async (item: WorkflowListItem) => {
   }
 }
 
-const confirmSaveBeforeSwitch = (target: WorkflowListItem) =>
-  new Promise<boolean>((resolve) => {
-    Modal.confirm({
-      title: '检测到未保存更改，是否先保存？',
-      content: `保存当前流程后切换到「${target.workflowName}」`,
-      okText: '保存并切换',
-      cancelText: '取消',
-      onOk: async () => {
-        const saved = await handleSaveDraft()
-        if (!saved) {
-          resolve(false)
-          return
-        }
-        refreshSavedGraphSnapshot()
-        resolve(true)
-      },
-      onCancel: () => resolve(false)
-    })
-  })
+const loadAutoSaveEnabledSetting = () => {
+  try {
+    const raw = localStorage.getItem(AUTO_SAVE_SETTING_KEY)
+    if (raw == null) {
+      autoSaveEnabled.value = true
+      return
+    }
+    autoSaveEnabled.value = raw === '1'
+  } catch {
+    autoSaveEnabled.value = true
+  }
+}
+
+const persistAutoSaveEnabledSetting = () => {
+  try {
+    localStorage.setItem(AUTO_SAVE_SETTING_KEY, autoSaveEnabled.value ? '1' : '0')
+  } catch {
+    // ignore persistence failures
+  }
+}
+
+const formatNowTime = () => {
+  const now = new Date()
+  const hh = String(now.getHours()).padStart(2, '0')
+  const mm = String(now.getMinutes()).padStart(2, '0')
+  const ss = String(now.getSeconds()).padStart(2, '0')
+  return `${hh}:${mm}:${ss}`
+}
+
+const runAutoSave = async (source: 'switch' | 'timer') => {
+  if (!autoSaveEnabled.value) return false
+  if (!hasActiveWorkflow.value) return false
+  if (!graphDirty.value) return true
+  autoSaveStatus.value = 'saving'
+  const saved = await handleSaveDraft({ skipValidation: true, silent: true })
+  if (saved) {
+    refreshSavedGraphSnapshot()
+    autoSaveStatus.value = 'success'
+    autoSaveDisplayTime.value = formatNowTime()
+    if (source === 'switch') {
+      message.success('已自动保存当前流程')
+    }
+    return true
+  }
+  autoSaveStatus.value = 'failed'
+  if (source === 'switch') {
+    message.warning('自动保存失败，已继续切换流程')
+  }
+  return false
+}
+
+const startAutoSaveTimer = () => {
+  if (autoSaveTimer) window.clearInterval(autoSaveTimer)
+  autoSaveTimer = window.setInterval(() => {
+    void runAutoSave('timer')
+  }, AUTO_SAVE_INTERVAL_MS)
+}
+
+const onAutoSaveEnabledChange = (enabled: boolean) => {
+  autoSaveEnabled.value = enabled
+  persistAutoSaveEnabledSetting()
+  autoSaveStatus.value = 'idle'
+  if (!enabled) {
+    autoSaveDisplayTime.value = ''
+  }
+  message.success(enabled ? '已开启自动保存' : '已关闭自动保存')
+}
 
 const onSelectWorkflow = async (item: WorkflowListItem) => {
   if (item.id === activeWorkflowId.value) return
   if (switchingWorkflow.value) return
-
-  const dirty = await isGraphDirtyAgainstBackend()
-  if (!dirty) {
-    await switchToWorkflow(item)
-    return
-  }
-
-  const confirmed = await confirmSaveBeforeSwitch(item)
-  if (!confirmed) return
+  await runAutoSave('switch')
   await switchToWorkflow(item)
 }
 
@@ -365,6 +434,8 @@ const onDeleteWorkflow = async (item: WorkflowListItem) => {
 
 onMounted(() => {
   void (async () => {
+    loadAutoSaveEnabledSetting()
+    startAutoSaveTimer()
     await fetchWorkflowList()
     await fetchDetailIfNeeded()
     if (!activeWorkflowId.value) {
@@ -377,11 +448,18 @@ onMounted(() => {
     refreshSavedGraphSnapshot()
   })()
 })
+
+onUnmounted(() => {
+  if (autoSaveTimer) {
+    window.clearInterval(autoSaveTimer)
+    autoSaveTimer = undefined
+  }
+})
 </script>
 
 <style scoped>
 .workflow-builder-page {
-  padding: 12px;
+
   display: flex;
   flex-direction: column;
   gap: 12px;

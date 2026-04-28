@@ -9,5 +9,8 @@ import lombok.EqualsAndHashCode;
 public class AstFlowNodeHistoryQueryRequestDTO extends BaseEntity<Long> {
 
     private Long instanceId;
+    private Long flowDefinitionId;
+    private Integer version;
+    private String historyType;
     private String nodeId;
 }

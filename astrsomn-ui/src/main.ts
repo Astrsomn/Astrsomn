@@ -6,6 +6,7 @@ import 'ant-design-vue/dist/reset.css'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import './styles/theme.css'
+import './styles/scrollbar.css'
 
 const app = createApp(App)
 

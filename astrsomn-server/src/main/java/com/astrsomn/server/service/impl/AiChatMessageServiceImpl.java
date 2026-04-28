@@ -88,17 +88,7 @@ public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, A
         return PageConverter.toResponse(result);
     }
 
-    @Override
-    public PageResponse<AiChatMessageResponseDTO> queryGroups(BasePageRequest<AiChatMessageQueryRequestDTO> request) {
-        IPage<AiChatMessageResponseDTO> page = PageUtils.buildPage(request);
-        AiChatMessageQueryRequestDTO param = request.getParam();
-        if (param == null) {
-            param = new AiChatMessageQueryRequestDTO();
-        }
-        queryEnvParamHelper.stampEffectiveEnv(param);
-        IPage<AiChatMessageResponseDTO> result = baseMapper.queryGroups(page, param);
-        return PageConverter.toResponse(result);
-    }
+
 
     @Override
     public BaseResponse<List<AiChatMessageResponseDTO>> recoverByMemoryKey(String memoryKey) {

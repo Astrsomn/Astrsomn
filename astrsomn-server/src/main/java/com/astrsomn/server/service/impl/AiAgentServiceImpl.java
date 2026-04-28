@@ -88,7 +88,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         if (param == null) {
             param = new AiAgentQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
+//        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiAgentResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

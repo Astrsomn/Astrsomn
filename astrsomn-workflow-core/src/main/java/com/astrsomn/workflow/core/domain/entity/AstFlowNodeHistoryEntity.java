@@ -22,14 +22,29 @@ public class AstFlowNodeHistoryEntity extends BaseEntity<Long> {
     @TableField("INSTANCE_ID")
     private Long instanceId;
 
+    @TableField("FLOW_DEFINITION_ID")
+    private Long flowDefinitionId;
+
+    @TableField("VERSION")
+    private Integer version;
+
+    @TableField("HISTORY_TYPE")
+    private String historyType;
+
     @TableField("NODE_ID")
     private String nodeId;
+
+    @TableField("NODE_NAME")
+    private String nodeName;
 
     @TableField("INPUT_DATA")
     private String inputData;
 
     @TableField("OUTPUT_DATA")
     private String outputData;
+
+    @TableField("SNAPSHOT_JSON")
+    private String snapshotJson;
 
     @TableField("EXECUTION_MS")
     private Long executionMs;

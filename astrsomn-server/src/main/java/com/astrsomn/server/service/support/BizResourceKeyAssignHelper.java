@@ -1,13 +1,11 @@
 package com.astrsomn.server.service.support;
 
 import com.astrsomn.core.common.entity.*;
-import com.astrsomn.starter.mapper.*;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import lombok.RequiredArgsConstructor;
 import com.astrsomn.commn.base.BaseEntity;
 import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.starter.config.AstrsomnProperties;
 import com.astrsomn.starter.context.EnvRuntime;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,182 +17,137 @@ public class BizResourceKeyAssignHelper {
 
     private final BizResourceKeyGenerator bizResourceKeyGenerator;
     private final AstrsomnProperties astrsomnProperties;
-    private final AiAgentMapper aiAgentMapper;
-    private final AiPromptMapper aiPromptMapper;
-    private final AiToolMapper aiToolMapper;
-    private final AiMcpMapper aiMcpMapper;
-    private final AiInstanceMapper aiInstanceMapper;
-    private final AiAccountMapper aiAccountMapper;
-    private final AiModelMapper aiModelMapper;
 
+    /**
+     * 为 Agent 分配业务键（如果为空）
+     */
     public void assignAgentKeyIfBlank(AiAgentEntity entity) {
-        String trimmed = StringUtils.trimToNull(entity.getAgentKey());
-        if (trimmed != null) {
-            entity.setAgentKey(trimmed);
-            return;
-        }
-        fillEnv(entity);
-        final String envCode = entity.getEnvCode();
-        entity.setAgentKey(
-                bizResourceKeyGenerator.generateDateBasedBizKey(
-                        BizKeyNamespace.AGENT,
-                        candidate ->
-                                aiAgentMapper.selectCount(
-                                        new LambdaQueryWrapper<AiAgentEntity>()
-                                                .eq(AiAgentEntity::getEnvCode, envCode)
-                                                .eq(AiAgentEntity::getAgentKey, candidate))));
-    }
-
-    public void assignPromptKeyIfBlank(AiPromptEntity entity) {
-        String trimmed = StringUtils.trimToNull(entity.getPromptKey());
-        if (trimmed != null) {
-            entity.setPromptKey(trimmed);
-            return;
-        }
-        fillEnv(entity);
-        final String envCode = entity.getEnvCode();
-        entity.setPromptKey(
-                bizResourceKeyGenerator.generateDateBasedBizKey(
-                        BizKeyNamespace.PROMPT,
-                        candidate ->
-                                aiPromptMapper.selectCount(
-                                        new LambdaQueryWrapper<AiPromptEntity>()
-                                                .eq(AiPromptEntity::getEnvCode, envCode)
-                                                .eq(AiPromptEntity::getPromptKey, candidate))));
-    }
-
-    public void assignToolKeyIfBlank(AiToolEntity entity) {
-        String trimmed = StringUtils.trimToNull(entity.getToolKey());
-        if (trimmed != null) {
-            entity.setToolKey(trimmed);
-            return;
-        }
-        fillEnv(entity);
-        final String envCode = entity.getEnvCode();
-        entity.setToolKey(
-                bizResourceKeyGenerator.generateDateBasedBizKey(
-                        BizKeyNamespace.TOOL,
-                        candidate ->
-                                aiToolMapper.selectCount(
-                                        new LambdaQueryWrapper<AiToolEntity>()
-                                                .eq(AiToolEntity::getEnvCode, envCode)
-                                                .eq(AiToolEntity::getToolKey, candidate))));
-    }
-
-    public void assignInstanceKeyIfBlank(AiInstanceEntity entity) {
-        String trimmed = StringUtils.trimToNull(entity.getInstanceKey());
-        if (trimmed != null) {
-            entity.setInstanceKey(trimmed);
-            return;
-        }
-        fillEnv(entity);
-        final String envCode = entity.getEnvCode();
-        entity.setInstanceKey(
-                bizResourceKeyGenerator.generateDateBasedBizKey(
-                        BizKeyNamespace.INSTANCE,
-                        candidate ->
-                                aiInstanceMapper.selectCount(
-                                        new LambdaQueryWrapper<AiInstanceEntity>()
-                                                .eq(AiInstanceEntity::getEnvCode, envCode)
-                                                .eq(AiInstanceEntity::getInstanceKey, candidate))));
+        assignKeyIfBlank(BizKeyNamespace.AGENT, entity, entity::getAgentKey, entity::setAgentKey);
     }
 
     /**
-     * 创建账号时：accountKey 为空则生成；同一 {@code env_code} 下 {@code account_key} 唯一。
+     * 为 Prompt 分配业务键（如果为空）
+     */
+    public void assignPromptKeyIfBlank(AiPromptEntity entity) {
+        assignKeyIfBlank(BizKeyNamespace.PROMPT, entity, entity::getPromptKey, entity::setPromptKey);
+    }
+
+    /**
+     * 为 Tool 分配业务键（如果为空）
+     */
+    public void assignToolKeyIfBlank(AiToolEntity entity) {
+        assignKeyIfBlank(BizKeyNamespace.TOOL, entity, entity::getToolKey, entity::setToolKey);
+    }
+
+    /**
+     * 为 Instance 分配业务键（如果为空）
+     */
+    public void assignInstanceKeyIfBlank(AiInstanceEntity entity) {
+        assignKeyIfBlank(BizKeyNamespace.INSTANCE, entity, entity::getInstanceKey, entity::setInstanceKey);
+    }
+
+    /**
+     * 为 Account 分配业务键（如果为空）
      */
     public void assignAccountKeyIfBlank(AiAccountEntity entity) {
-        assignAccountKeyIfBlank(entity, null);
+        assignKeyIfBlank(BizKeyNamespace.ACCOUNT, entity, entity::getAccountKey, entity::setAccountKey);
     }
 
     /**
-     * @param excludeIdForRegen 更新场景下重新生成 key 时需排除当前行，避免误把自己算作已占用
+     * 为 Account 分配业务键（更新场景，排除当前记录）
      */
-    public void assignAccountKeyIfBlank(AiAccountEntity entity, Long excludeIdForRegen) {
-        String trimmed = StringUtils.trimToNull(entity.getAccountKey());
-        if (trimmed != null) {
-            entity.setAccountKey(trimmed);
-            fillEnv(entity);
-            assertAccountKeyUniqueInEnv(entity, excludeIdForRegen);
-            return;
-        }
-        fillEnv(entity);
-        final Long excludeId = excludeIdForRegen;
-        final String envCode = entity.getEnvCode();
-        entity.setAccountKey(
-                bizResourceKeyGenerator.generateDateBasedBizKey(
-                        BizKeyNamespace.ACCOUNT,
-                        candidate -> {
-                            LambdaQueryWrapper<AiAccountEntity> w =
-                                    new LambdaQueryWrapper<AiAccountEntity>()
-                                            .eq(AiAccountEntity::getEnvCode, envCode)
-                                            .eq(AiAccountEntity::getAccountKey, candidate);
-                            if (excludeId != null) {
-                                w.ne(AiAccountEntity::getId, excludeId);
-                            }
-                            return aiAccountMapper.selectCount(w);
-                        }));
+    public void assignAccountKeyIfBlank(AiAccountEntity entity, Long excludeId) {
+        assignKeyIfBlank(BizKeyNamespace.ACCOUNT, entity, excludeId, entity::getAccountKey, entity::setAccountKey);
     }
 
-    private void assertAccountKeyUniqueInEnv(AiAccountEntity entity, Long excludeId) {
+    /**
+     * 为 MCP 分配业务键（如果为空）
+     */
+    public void assignMcpKeyIfBlank(AiMcpEntity entity) {
+        assignKeyIfBlank(BizKeyNamespace.MCP, entity, entity::getMcpKey, entity::setMcpKey);
+    }
+
+    /**
+     * 为 Model 分配业务键（如果为空）
+     */
+    public void assignModelKeyIfBlank(AiModelEntity entity) {
+        assignKeyIfBlank(BizKeyNamespace.MODEL, entity, entity::getModelKey, entity::setModelKey);
+    }
+
+    /**
+     * 通用方法：为实体分配业务键（如果为空）
+     */
+    private <T extends BaseEntity<?>> void assignKeyIfBlank(
+            BizKeyNamespace namespace,
+            T entity,
+            java.util.function.Supplier<String> getter,
+            java.util.function.Consumer<String> setter) {
+        
+        String trimmed = StringUtils.trimToNull(getter.get());
+        if (trimmed != null) {
+            setter.accept(trimmed);
+            fillEnv(entity);
+            return;
+        }
+        
+        String key = bizResourceKeyGenerator.generateKey(namespace, entity);
+        setter.accept(key);
+    }
+
+    /**
+     * 通用方法：为实体分配业务键（更新场景）
+     */
+    private <T extends BaseEntity<?>> void assignKeyIfBlank(
+            BizKeyNamespace namespace,
+            T entity,
+            Long excludeId,
+            java.util.function.Supplier<String> getter,
+            java.util.function.Consumer<String> setter) {
+        
+        String trimmed = StringUtils.trimToNull(getter.get());
+        if (trimmed != null) {
+            setter.accept(trimmed);
+            fillEnv(entity);
+            // 更新场景下如果用户提供了 key，需要检查唯一性
+            if (namespace == BizKeyNamespace.ACCOUNT) {
+                assertKeyUniqueInEnv(namespace, entity, excludeId, getter.get());
+            }
+            return;
+        }
+        
+        String key = bizResourceKeyGenerator.generateKey(namespace, entity, excludeId);
+        setter.accept(key);
+    }
+
+    /**
+     * 检查 key 在环境内是否唯一
+     */
+    private <T extends BaseEntity<?>> void assertKeyUniqueInEnv(
+            BizKeyNamespace namespace,
+            T entity,
+            Long excludeId,
+            String key) {
+        
         String env = StringUtils.trimToNull(entity.getEnvCode());
         if (env == null) {
             fillEnv(entity);
             env = entity.getEnvCode();
         }
-        String key = StringUtils.trimToNull(entity.getAccountKey());
+        
         if (key == null || env == null) {
             return;
         }
-        LambdaQueryWrapper<AiAccountEntity> w =
-                new LambdaQueryWrapper<AiAccountEntity>()
-                        .eq(AiAccountEntity::getEnvCode, env)
-                        .eq(AiAccountEntity::getAccountKey, key);
-        if (excludeId != null) {
-            w.ne(AiAccountEntity::getId, excludeId);
-        }
-        if (aiAccountMapper.selectCount(w) > 0) {
-            throw new IllegalArgumentException("该环境下 Account Key 已存在，请更换后重试");
+        
+        // 调用 generateKey 但不使用结果，仅检查唯一性
+        String generated = bizResourceKeyGenerator.generateKey(namespace, entity, excludeId);
+        if (generated == null) {
+            throw new IllegalArgumentException("该环境下 " + namespace.getPrefix() + " Key 已存在，请更换后重试");
         }
     }
 
-    public void assignMcpKeyIfBlank(AiMcpEntity entity) {
-        String trimmed = StringUtils.trimToNull(entity.getMcpKey());
-        if (trimmed != null) {
-            entity.setMcpKey(trimmed);
-            return;
-        }
-        fillEnv(entity);
-        final String envCode = entity.getEnvCode();
-        entity.setMcpKey(
-                bizResourceKeyGenerator.generateDateBasedBizKey(
-                        BizKeyNamespace.MCP,
-                        candidate ->
-                                aiMcpMapper.selectCount(
-                                        new LambdaQueryWrapper<AiMcpEntity>()
-                                                .eq(AiMcpEntity::getEnvCode, envCode)
-                                                .eq(AiMcpEntity::getMcpKey, candidate))));
-    }
-
-    public void assignModelKeyIfBlank(AiModelEntity entity) {
-        String trimmed = StringUtils.trimToNull(entity.getModelKey());
-        if (trimmed != null) {
-            entity.setModelKey(trimmed);
-            return;
-        }
-        fillEnv(entity);
-        final String envCode = entity.getEnvCode();
-        entity.setModelKey(
-                bizResourceKeyGenerator.generateDateBasedBizKey(BizKeyNamespace.MODEL,
-                        candidateKey ->
-                                aiModelMapper.selectCount(
-                                        new LambdaQueryWrapper<AiModelEntity>()
-                                                .eq(AiModelEntity::getEnvCode, envCode)
-                                                .eq(AiModelEntity::getModelKey, candidateKey)
-                                )
-                )
-        );
-    }
-
+    /**
+     * 设置环境编码
+     */
     private void fillEnv(BaseEntity<?> entity) {
         if (StringUtils.isBlank(entity.getEnvCode())) {
             entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));

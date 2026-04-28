@@ -83,3 +83,4 @@ build.xml
 /deploy/windows/output/
 /deploy/windows/run/.runtime/
 /log/
+/astrsomn-server/log/file

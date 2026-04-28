@@ -56,6 +56,8 @@ export const aiWorkflowRuntimeApi = {
 
   nodeHistoryQueryPage: (payload: RuntimeQueryPayload): Promise<RuntimePageResponse<WorkflowRuntimeRecord>> =>
     queryPage('/v1/astro/ai-workflow/node-history/queryPage', payload),
+  nodePublishHistoryQueryPage: (payload: RuntimeQueryPayload): Promise<RuntimePageResponse<WorkflowRuntimeRecord>> =>
+    queryPage('/v1/astro/ai-workflow/node-history/queryPublishHistory', payload),
   nodeHistoryDetail: (id: number | string): Promise<WorkflowRuntimeRecord> =>
     detail('/v1/astro/ai-workflow/node-history/detail', id),
 

@@ -33,9 +33,14 @@ public class AiWorkflowNodeHistoryServiceImpl extends ServiceImpl<AstFlowNodeHis
     public BaseResponse<String> create(AstFlowNodeHistoryCreateRequestDTO request) {
         AstFlowNodeHistoryEntity entity = new AstFlowNodeHistoryEntity();
         entity.setInstanceId(request.getInstanceId());
+        entity.setFlowDefinitionId(request.getFlowDefinitionId());
+        entity.setVersion(request.getVersion());
+        entity.setHistoryType(request.getHistoryType());
         entity.setNodeId(request.getNodeId());
+        entity.setNodeName(request.getNodeName());
         entity.setInputData(request.getInputData());
         entity.setOutputData(request.getOutputData());
+        entity.setSnapshotJson(request.getSnapshotJson());
         entity.setExecutionMs(request.getExecutionMs());
         boolean result = save(entity);
         if (!result) throw new BusinessException(ErrorEnum.BUSINESS_ERROR, "节点历史创建失败");
@@ -57,9 +62,14 @@ public class AiWorkflowNodeHistoryServiceImpl extends ServiceImpl<AstFlowNodeHis
         AstFlowNodeHistoryEntity entity = new AstFlowNodeHistoryEntity();
         entity.setId(request.getId());
         entity.setInstanceId(request.getInstanceId());
+        entity.setFlowDefinitionId(request.getFlowDefinitionId());
+        entity.setVersion(request.getVersion());
+        entity.setHistoryType(request.getHistoryType());
         entity.setNodeId(request.getNodeId());
+        entity.setNodeName(request.getNodeName());
         entity.setInputData(request.getInputData());
         entity.setOutputData(request.getOutputData());
+        entity.setSnapshotJson(request.getSnapshotJson());
         entity.setExecutionMs(request.getExecutionMs());
         boolean result = updateById(entity);
         if (!result) throw new BusinessException(ErrorEnum.BUSINESS_ERROR, "节点历史更新失败");

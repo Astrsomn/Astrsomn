@@ -8,11 +8,15 @@ import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -23,20 +27,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Configuration
 @MapperScan("com.astrsomn.starter.mapper")
 public class MybatisPlusConfig {
 
     @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnProperties properties) {
+    public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnProperties properties, TenantLineHandler tenantLineHandler) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
         String dbTypeStr = (properties.getDataBase() != null) ? properties.getDataBase().getDatabaseType() : "mysql";
         DbType dbType = DataSourceConfig.getDbType(dbTypeStr);
 
+        interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(tenantLineHandler));
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(dbType));
 
+        if (tenantLineHandler instanceof EnvCodeTenantHandler envHandler) {
+            log.info("[Astrsomn Starter] 环境隔离插件已激活，作用表: {}", envHandler.getPrivateTables());
+        }
+
         return interceptor;
+    }
+
+    /**
+     * 环境隔离租户处理器
+     */
+    @Bean
+    @ConditionalOnMissingBean(TenantLineHandler.class)
+    public TenantLineHandler astrsomnEnvCodeTenantHandler() {
+        return new EnvCodeTenantHandler();
     }
 
     @Bean

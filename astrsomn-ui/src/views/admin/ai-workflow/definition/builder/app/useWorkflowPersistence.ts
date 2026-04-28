@@ -96,20 +96,24 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
     await fetchWorkflowDetail(created.id)
   }
 
-  const handleSaveDraft = async () => {
+  const handleSaveDraft = async (options?: { skipValidation?: boolean; silent?: boolean }) => {
+    const skipValidation = Boolean(options?.skipValidation)
+    const silent = Boolean(options?.silent)
     await ensureEnvReady()
     if (!deps.activeWorkflowId.value) {
-      deps.notifyWarning('请先新建或选择流程')
+      if (!silent) deps.notifyWarning('请先新建或选择流程')
       return false
     }
     if (!deps.workflowMeta.workflowName || !deps.workflowMeta.workflowKey) {
-      deps.notifyWarning('请先填写流程名称和 Flow Key')
+      if (!silent) deps.notifyWarning('请先填写流程名称和 Flow Key')
       return false
     }
-    const graphValidation = deps.validateGraph()
-    if (!graphValidation.ok) {
-      deps.notifyWarning(graphValidation.errors[0] || '流程校验未通过')
-      return false
+    if (!skipValidation) {
+      const graphValidation = deps.validateGraph()
+      if (!graphValidation.ok) {
+        if (!silent) deps.notifyWarning(graphValidation.errors[0] || '流程校验未通过')
+        return false
+      }
     }
 
     deps.saving.value = true
@@ -117,14 +121,14 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
       let tip = ''
       if (deps.workflowMeta.id == null) {
         tip = await aiWorkflowApi.create({ ...submitPayload.value, id: undefined })
-        deps.notifySuccess(tip || '草稿已保存')
+        if (!silent) deps.notifySuccess(tip || '草稿已保存')
       } else {
         tip = await aiWorkflowApi.update(submitPayload.value)
-        deps.notifySuccess(tip || '草稿已更新')
+        if (!silent) deps.notifySuccess(tip || '草稿已更新')
       }
       return true
     } catch {
-      deps.notifyWarning('当前阶段以页面搭建为主，保存接口可后续联调')
+      if (!silent) deps.notifyWarning('当前阶段以页面搭建为主，保存接口可后续联调')
       return false
     } finally {
       deps.saving.value = false
@@ -189,8 +193,10 @@ export function useWorkflowPersistence(deps: UseWorkflowPersistenceDeps) {
 
     const detail = await aiWorkflowApi.detail(String(targetId))
     applyWorkflowDetail(detail)
+    deps.activeWorkflowId.value = detail.id != null ? String(detail.id) : String(targetId)
 
     if (!routeId && cloneId) {
+      deps.activeWorkflowId.value = undefined
       deps.workflowMeta.id = undefined
       deps.workflowMeta.workflowName = `${deps.workflowMeta.workflowName}-副本`
       deps.workflowMeta.workflowKey = ''
