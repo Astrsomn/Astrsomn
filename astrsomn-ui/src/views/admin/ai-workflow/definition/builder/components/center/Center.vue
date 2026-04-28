@@ -1,7 +1,7 @@
 <template>
   <section
     class="flow-canvas"
-    :class="{ 'compact-node': compactNode }"
+    :class="{ 'compact-node': compactNode, disabled: disabled }"
     :style="canvasInlineStyle"
     @dragover="onDragOver"
     @drop="onDropToCanvas"
@@ -72,6 +72,12 @@
       @zoom-out="onZoomOut"
       @set-zoom-percent="onSetZoomPercent"
     />
+    <div class="autosave-tip">
+      {{ autoSaveHint }}
+    </div>
+    <div v-if="disabled" class="canvas-disabled-mask">
+      <div class="canvas-disabled-tip">请先在左侧新建或选择流程后再开始搭建</div>
+    </div>
   </section>
 </template>
 
@@ -106,11 +112,19 @@ const props = withDefaults(
     saving?: boolean
     compactNode?: boolean
     initialZoomMode?: 'fit-compact' | 'normal'
+    disabled?: boolean
+    autoSaveEnabled?: boolean
+    autoSaveStatus?: 'idle' | 'saving' | 'success' | 'failed'
+    autoSaveDisplayTime?: string
   }>(),
   {
     compactNode: false,
     historySeed: '',
-    initialZoomMode: 'normal'
+    initialZoomMode: 'normal',
+    disabled: false,
+    autoSaveEnabled: true,
+    autoSaveStatus: 'idle',
+    autoSaveDisplayTime: ''
   }
 )
 
@@ -217,6 +231,14 @@ const patternOverlayStyle = computed(() => {
     backgroundRepeat: 'repeat',
     opacity: 0.85
   }
+})
+
+const autoSaveHint = computed(() => {
+  if (!props.autoSaveEnabled) return '自动保存已关闭'
+  if (props.autoSaveStatus === 'saving') return '自动保存中...'
+  if (props.autoSaveStatus === 'failed') return '自动保存失败（可手动保存）'
+  if (props.autoSaveDisplayTime) return `自动保存已开启，上次保存 ${props.autoSaveDisplayTime}`
+  return '自动保存已开启，每 30 秒保存一次'
 })
 
 const onConnect = (connection: Connection) => {
@@ -456,6 +478,10 @@ watch(
   position: relative;
 }
 
+.flow-canvas.disabled {
+  background: #f5f7fb;
+}
+
 .flow-canvas.compact-node {
   --wf-node-min-width: 220px;
   --wf-node-header-padding: 10px 12px 8px;
@@ -474,6 +500,12 @@ watch(
   height: 100%;
   position: relative;
   z-index: 2;
+}
+
+.flow-canvas.disabled :deep(.vue-flow) {
+  pointer-events: none;
+  filter: grayscale(0.6);
+  opacity: 0.66;
 }
 
 .canvas-pattern-overlay {
@@ -522,6 +554,38 @@ watch(
   padding: 6px 10px;
   font-size: 12px;
   color: #475569;
+}
+
+.canvas-disabled-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(245, 247, 251, 0.62);
+}
+
+.canvas-disabled-tip {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #dbe3ee;
+  background: #fff;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.autosave-tip {
+  position: absolute;
+  left: 84px;
+  bottom: 12px;
+  z-index: 9;
+  font-size: 12px;
+  color: #64748b;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 4px 10px;
 }
 
 </style>

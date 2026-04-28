@@ -11,6 +11,15 @@
     />
 
     <a-spin :spinning="loading">
+          <div class="pagination-wrap">
+        <a-pagination
+          :current="page.pageNum"
+          :page-size="page.pageSize"
+          :total="page.total"
+          :show-size-changer="false"
+          @change="onPageChange"
+        />
+      </div>
       <div class="conversation-cards">
         <SessionList
           :loading="loading"
@@ -24,19 +33,7 @@
         />
       </div>
 
-      <div v-if="list.length === 0" class="empty-wrap">
-        <a-empty description="暂无匹配的对话组" />
-      </div>
 
-      <div class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
     </a-spin>
   </div>
 </template>
@@ -45,11 +42,11 @@
 import { computed, defineProps, defineEmits } from 'vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import SessionList from '@/components/chat-session/SessionList.vue'
-import { adaptConversationToSessionItem, type AiConversation } from '@/api/aiConversation'
+import { adaptSessionToSessionItem, type AiChatSession } from '@/api/aiChatSession'
 
 const props = defineProps<{
   loading: boolean
-  list: AiConversation[]
+  list: AiChatSession[]
   selectedRowKeys: string[]
   page: {
     pageNum: number
@@ -118,7 +115,7 @@ const onPageChange = (p: number, size: number) => {
 const sessionItems = computed(() =>
   props.list
     .filter((item) => !!item.memoryKey)
-    .map((item) => adaptConversationToSessionItem(item))
+    .map((item) => adaptSessionToSessionItem(item))
 )
 </script>
 
@@ -153,12 +150,6 @@ const sessionItems = computed(() =>
 
 .conversation-cards::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
-}
-
-.empty-wrap {
-  display: flex;
-  justify-content: center;
-  padding: 32px 0;
 }
 
 .pagination-wrap {

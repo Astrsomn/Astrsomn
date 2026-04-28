@@ -7,7 +7,7 @@
       </div>
     </div>
 
-    <div class="config-body">
+    <div class="config-body app-scrollbar">
       <a-form layout="vertical" size="small">
         <div class="section">
           <label class="section-label">默认连线样式</label>
@@ -23,7 +23,38 @@
               {{ item.label }}
             </button>
           </div>
-          <a-button class="apply-btn" block @click="emit('apply-edge-style-all', canvasConfig.edgeStyleDefault)">应用到现有连线</a-button>
+          <div class="option-grid option-grid-2">
+            <button
+              v-for="item in edgeLinePatternOptions"
+              :key="item.value"
+              type="button"
+              class="option-card"
+              :class="{ active: canvasConfig.edgeLinePatternDefault === item.value }"
+              @click="onChangeEdgeLinePattern(item.value)"
+            >
+              {{ item.label }}
+            </button>
+          </div>
+          <div class="slider-wrap">
+            <div class="slider-head">
+              <label class="section-label">连线粗细</label>
+              <span class="slider-value">{{ canvasConfig.edgeLineWidthDefault.toFixed(1) }}</span>
+            </div>
+            <a-slider :min="1" :max="8" :step="0.2" :value="canvasConfig.edgeLineWidthDefault" @change="onEdgeLineWidthChange" />
+          </div>
+          <a-button
+            class="apply-btn"
+            block
+            @click="
+              emit('apply-edge-style-all', {
+                edgeStyle: canvasConfig.edgeStyleDefault,
+                edgeLinePattern: canvasConfig.edgeLinePatternDefault,
+                edgeLineWidth: canvasConfig.edgeLineWidthDefault
+              })
+            "
+          >
+            应用到现有连线
+          </a-button>
         </div>
 
         <a-divider class="section-divider" />
@@ -104,6 +135,16 @@
         <a-divider class="section-divider" />
 
         <div class="section">
+          <div class="switch-row">
+            <label class="section-label">自动保存</label>
+            <a-switch :checked="autoSaveEnabled" @change="onAutoSaveEnabledChange" />
+          </div>
+          <div class="snap-hint">开启后切换流程前会自动保存，并每 30 秒自动保存一次</div>
+        </div>
+
+        <a-divider class="section-divider" />
+
+        <div class="section">
           <div class="preset-head">
             <label class="section-label">快速预设（本地）</label>
             <a-button size="small" @click="saveCurrentAsPreset">保存当前</a-button>
@@ -125,21 +166,27 @@
 import { computed, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { SettingOutlined } from '@ant-design/icons-vue'
-import type { CanvasBackgroundVariant, CanvasConfig, CanvasEdgeStyle } from '../../../domain/types'
+import type { CanvasBackgroundVariant, CanvasConfig, CanvasEdgeApplyPayload, CanvasEdgeLinePattern, CanvasEdgeStyle } from '../../../domain/types'
 
 const props = defineProps<{
   canvasConfig: CanvasConfig
+  autoSaveEnabled: boolean
 }>()
 
 const emit = defineEmits<{
   'update-canvas-config': [payload: Partial<CanvasConfig>]
-  'apply-edge-style-all': [edgeStyle: CanvasEdgeStyle]
+  'apply-edge-style-all': [payload: CanvasEdgeApplyPayload]
+  'update-auto-save-enabled': [enabled: boolean]
 }>()
 
 const edgeStyleOptions: Array<{ label: string; value: CanvasEdgeStyle }> = [
   { label: '曲线', value: 'default' },
   { label: '直线', value: 'straight' },
   { label: '折线', value: 'step' }
+]
+const edgeLinePatternOptions: Array<{ label: string; value: CanvasEdgeLinePattern }> = [
+  { label: '实线', value: 'solid' },
+  { label: '虚线', value: 'dashed' }
 ]
 
 const backgroundOptions: Array<{ label: string; value: CanvasBackgroundVariant }> = [
@@ -165,6 +212,8 @@ const builtinPresets: LocalPreset[] = [
     label: '经典',
     config: {
       edgeStyleDefault: 'default',
+      edgeLinePatternDefault: 'solid',
+      edgeLineWidthDefault: 2,
       backgroundVariant: 'dots',
       backgroundColor: '#f8fafc',
       patternColor: '#94a3b8',
@@ -180,6 +229,8 @@ const builtinPresets: LocalPreset[] = [
     label: '聚焦',
     config: {
       edgeStyleDefault: 'step',
+      edgeLinePatternDefault: 'solid',
+      edgeLineWidthDefault: 2.4,
       backgroundVariant: 'lines',
       backgroundColor: '#f7fafc',
       patternColor: '#cbd5e1',
@@ -195,6 +246,8 @@ const builtinPresets: LocalPreset[] = [
     label: '极简',
     config: {
       edgeStyleDefault: 'straight',
+      edgeLinePatternDefault: 'solid',
+      edgeLineWidthDefault: 1.8,
       backgroundVariant: 'none',
       backgroundColor: '#ffffff',
       patternColor: '#e2e8f0',
@@ -228,7 +281,30 @@ function persistCustomPresets() {
 
 const onChangeEdgeDefault = (value: CanvasEdgeStyle) => {
   emit('update-canvas-config', { edgeStyleDefault: value })
-  emit('apply-edge-style-all', value)
+  emit('apply-edge-style-all', {
+    edgeStyle: value,
+    edgeLinePattern: props.canvasConfig.edgeLinePatternDefault,
+    edgeLineWidth: props.canvasConfig.edgeLineWidthDefault
+  })
+}
+
+const onChangeEdgeLinePattern = (value: CanvasEdgeLinePattern) => {
+  emit('update-canvas-config', { edgeLinePatternDefault: value })
+  emit('apply-edge-style-all', {
+    edgeStyle: props.canvasConfig.edgeStyleDefault,
+    edgeLinePattern: value,
+    edgeLineWidth: props.canvasConfig.edgeLineWidthDefault
+  })
+}
+
+const onEdgeLineWidthChange = (value: number | [number, number]) => {
+  const next = Array.isArray(value) ? Number(value[0]) : Number(value)
+  emit('update-canvas-config', { edgeLineWidthDefault: next })
+  emit('apply-edge-style-all', {
+    edgeStyle: props.canvasConfig.edgeStyleDefault,
+    edgeLinePattern: props.canvasConfig.edgeLinePatternDefault,
+    edgeLineWidth: next
+  })
 }
 
 const onChangeBackgroundVariant = (value: CanvasBackgroundVariant) => {
@@ -269,6 +345,10 @@ const onSnapEnabledChange = (checked: boolean) => {
   emit('update-canvas-config', { snapToGridEnabled: checked })
 }
 
+const onAutoSaveEnabledChange = (checked: boolean) => {
+  emit('update-auto-save-enabled', checked)
+}
+
 const onPresetDraftChange = (value: string) => {
   presetNameDraft.value = value || ''
 }
@@ -304,7 +384,11 @@ const applyPreset = (presetKey: string) => {
   const target = allPresets.value.find((x) => x.key === presetKey)
   if (!target) return
   emit('update-canvas-config', { ...target.config })
-  emit('apply-edge-style-all', target.config.edgeStyleDefault)
+  emit('apply-edge-style-all', {
+    edgeStyle: target.config.edgeStyleDefault,
+    edgeLinePattern: target.config.edgeLinePatternDefault,
+    edgeLineWidth: target.config.edgeLineWidthDefault
+  })
 }
 
 const removeCustomPreset = (presetKey: string) => {
@@ -374,6 +458,10 @@ const removeCustomPreset = (presetKey: string) => {
 
 .option-grid-3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.option-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .option-grid-4 {

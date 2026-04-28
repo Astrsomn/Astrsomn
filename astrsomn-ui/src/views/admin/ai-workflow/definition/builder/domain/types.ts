@@ -74,11 +74,19 @@ export type WorkflowMeta = {
 }
 
 export type CanvasEdgeStyle = 'default' | 'straight' | 'step'
+export type CanvasEdgeLinePattern = 'solid' | 'dashed'
+export type CanvasEdgeApplyPayload = {
+  edgeStyle: CanvasEdgeStyle
+  edgeLinePattern: CanvasEdgeLinePattern
+  edgeLineWidth: number
+}
 
 export type CanvasBackgroundVariant = 'dots' | 'lines' | 'cross' | 'none'
 
 export type CanvasConfig = {
   edgeStyleDefault: CanvasEdgeStyle
+  edgeLinePatternDefault: CanvasEdgeLinePattern
+  edgeLineWidthDefault: number
   backgroundVariant: CanvasBackgroundVariant
   backgroundColor: string
   patternColor: string
@@ -91,6 +99,8 @@ export type CanvasConfig = {
 
 export const defaultCanvasConfig: CanvasConfig = {
   edgeStyleDefault: 'default',
+  edgeLinePatternDefault: 'solid',
+  edgeLineWidthDefault: 2,
   backgroundVariant: 'dots',
   backgroundColor: '#f8fafc',
   patternColor: '#94a3b8',

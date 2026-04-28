@@ -20,7 +20,6 @@ public interface AiChatMessageMapper extends BaseMapper<AiChatMessageEntity> {
 
     List<AiChatUsageDTO> selectTodayUsage(@Param("envCode") String envCode);
 
-    IPage<AiChatMessageResponseDTO> queryGroups(IPage<AiChatMessageResponseDTO> page, @Param("req") AiChatMessageQueryRequestDTO param);
 
     List<AiChatMessageResponseDTO> recoverByMemoryKey(@Param("memoryKey") String memoryKey);
 }
