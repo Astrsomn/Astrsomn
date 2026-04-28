@@ -11,6 +11,8 @@ server:
   port: 4481
 astrsomn:
   env-code: PRO
+  username: admin
+  admin-users: admin
 logging:
   level:
     com.astrsomn.starter.mapper: debug

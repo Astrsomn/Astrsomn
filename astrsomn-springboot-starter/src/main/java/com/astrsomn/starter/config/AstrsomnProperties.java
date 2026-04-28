@@ -15,6 +15,22 @@ public class AstrsomnProperties {
     private String envCode;
 
     /**
+     * 默认用户名，用于 BaseEntity 的 createUser 和 updateUser 字段。
+     * 当 UserContext 中获取不到用户信息时，使用此值作为默认值。
+     * <p>
+     * 配置此值时，必须确保该用户已存在于 SYS_USER 表中。
+     */
+    private String username;
+
+    /**
+     * 管理员用户名列表，用逗号分隔。
+     * 这些用户具有环境切换权限，可以通过请求头切换工作空间。
+     * <p>
+     * 示例：admin,superadmin
+     */
+    private String adminUsers;
+
+    /**
      * 加密密钥，用于加密 API Key 和 Secret。
      */
     private String accountKey = "astrsomn-account-key";
@@ -55,9 +71,9 @@ public class AstrsomnProperties {
     public static class DataBase {
 
         /**
-         * 数据库类型。可选值：mysql, oracle, sqlite。
+         * 数据库类型。可选值：mysql, h2。
          */
-        private String databaseType = "sqlite";
+        private String databaseType = "mysql";
 
         /**
          * 数据库主机地址，默认为 localhost。
@@ -65,12 +81,12 @@ public class AstrsomnProperties {
         private String host = "localhost";
 
         /**
-         * 数据库端口。MySQL 默认为 3306，Oracle 默认为 1521。
+         * 数据库端口。MySQL 默认为 3306。
          */
         private Integer port;
 
         /**
-         * 数据库名称（SID 或 Service Name）。
+         * 数据库名称或文件路径。
          */
         private String databaseName;
 
@@ -90,14 +106,9 @@ public class AstrsomnProperties {
         private String driver;
 
         /**
-         * 完整 JDBC URL。如果配置此项，host/port/databaseName 将被忽略。
+         * 完整 JDBC URL。如果配置此项，其他连接参数将被忽略。
          */
         private String url;
-
-        /**
-         * Oracle 专用的 Schema 名称。
-         */
-        private String schema;
 
         /**
          * 是否启用 SSL 连接，默认为 false。
