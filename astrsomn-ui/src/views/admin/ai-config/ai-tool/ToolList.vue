@@ -153,7 +153,9 @@ const columns = [
   { title: '方法', dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true },
   { title: '描述', key: 'description', width: 200, ellipsis: true },
   { title: '状态', key: 'enableFlag', width: 80 },
-    { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
   { title: '操作', key: 'actions', width: 100, fixed: 'right' as const }
 ]
 

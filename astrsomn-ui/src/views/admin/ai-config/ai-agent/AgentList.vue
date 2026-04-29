@@ -93,7 +93,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, ClockCircleOutlined, UserOutlined, ClusterOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
@@ -162,7 +162,9 @@ const tableColumns = [
   { title: '模型实例', dataIndex: 'chatInstanceName', key: 'chatInstanceName', ellipsis: true, width: 180 },
   { title: '提示词策略', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true, width: 180 },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue', icon: ClusterOutlined},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 200, dateFormat: true, icon: ClockCircleOutlined},
+  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150, icon: UserOutlined},
   { title: '操作', key: 'actions', width: 120, fixed: 'right' as const }
 ]
 

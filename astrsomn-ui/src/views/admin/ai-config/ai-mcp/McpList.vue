@@ -46,52 +46,15 @@
           empty-text="暂无匹配的 MCP 服务"
         >
           <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'server'">
-            <div class="cell-stack">
-              <span class="cell-title">{{ record.serverName || '未命名服务' }}</span>
-              <span class="cell-subtitle multiline-2">{{ record.description || '暂无服务描述' }}</span>
-            </div>
-          </template>
-          <template v-else-if="column.key === 'mcpKey'">
-            <div class="copyable-key">
-              <span class="mono-chip">{{ record.mcpKey || '—' }}</span>
-              <a-tooltip title="复制 MCP Key">
-                <a-button
-                  type="text"
-                  class="copy-btn"
-                  :disabled="!record.mcpKey"
-                  @click="copyMcpKey(record.mcpKey)"
-                >
-                  <template #icon><copy-outlined /></template>
-                </a-button>
-              </a-tooltip>
-            </div>
-          </template>
-          <template v-else-if="column.key === 'type'">
-            <span class="type-pill" :class="`type-pill-${String(record.type || '').toLowerCase()}`">
-              {{ getTypeLabel(record.type) }}
-            </span>
-          </template>
-          <template v-else-if="column.key === 'connection'">
-            <div class="cell-stack">
-              <span class="cell-title mono-text-inline multiline-2">{{ getConnectionPrimary(record) }}</span>
-              <div class="detail-pills">
-                <span
-                  v-for="item in getConnectionDetails(record)"
-                  :key="item"
-                  class="detail-pill"
-                >
-                  {{ item }}
-                </span>
-              </div>
-            </div>
-          </template>
-          <template v-else-if="column.key === 'enabled'">
+
+      
+     
+          <template v-if="column.key === 'enabled'">
             <span class="status-pill" :class="{ off: record.enabled !== 1 }">
               {{ record.enabled === 1 ? '启用' : '停用' }}
             </span>
           </template>
-          <template v-else-if="column.key === 'actions'">
+          <template v-if="column.key === 'actions'">
             <a-button type="link" class="action-link" @click="openEdit(record)">
               <template #icon><edit-outlined /></template>
 
@@ -173,10 +136,9 @@ const typeFilterOptions = [
 ]
 
 const columns = [
-  { title: '服务名称', key: 'server', width: 240 },
-  { title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 220, ellipsis: true, copyable: true },
+    { title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 180, ellipsis: true, copyable: true },
+  { title: '服务名称', dataIndex: 'serverName', key: 'serverName', width: 240 },
   { title: '类型', dataIndex: 'type', key: 'type', width: 120 },
-  { title: '连接配置', key: 'connection', width: 380 },
   { title: '启用', key: 'enabled', width: 90 },
     { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }

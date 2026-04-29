@@ -152,13 +152,15 @@ const query = reactive<QueryState>({})
 const loading = ref(false)
 const list = ref<AiPrompt[]>([])
 const columns = [
+    { title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 180, ellipsis: true, copyable: true },
   { title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', width: 220, ellipsis: true },
-  { title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 200, ellipsis: true, copyable: true },
   { title: '场景', dataIndex: 'scene', key: 'scene', width: 140, ellipsis: true },
   { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
   { title: '版本', dataIndex: 'version', key: 'version', width: 90 },
-    { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
   { title: '操作', key: 'actions', width: 150, fixed: 'right' as const }
 ]
 

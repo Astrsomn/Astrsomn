@@ -103,23 +103,7 @@
                   <code class="code-text">{{ record.modelKey }}</code>
                 </template>
 
-                <template v-else-if="column.key === 'sourceType'">
-                  <a-tag v-if="record.sourceType" :color="record.sourceType === 'plugin' ? 'purple' : 'blue'">
-                    {{ sourceTypeDict.getLabel(String(record.sourceType || '')) }}
-                  </a-tag>
-                  <span v-else class="text-secondary">-</span>
-                </template>
 
-                <template v-else-if="column.key === 'apiUrl'">
-                  <a-tag :color="record.apiUrl ? 'green' : 'default'">
-                    {{ record.apiUrl ? '已配置' : '未配置' }}
-                  </a-tag>
-                </template>
-
-                <template v-else-if="column.key === 'envCode'">
-                  <a-tag v-if="record.envCode" color="blue">{{ record.envCode }}</a-tag>
-                  <span v-else class="text-secondary">-</span>
-                </template>
 
                 <template v-else-if="column.key === 'runtime'">
                   <div class="runtime-meta">
@@ -222,14 +206,32 @@ const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }
 
 const columns = [
   { title: '类型', key: 'modelType', width: 60 },
-  { title: '供应商', key: 'providerAvatar', width: 60, align: 'center' },
+  { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' },
   { title: '模型信息', key: 'modelName', width: 180 },
   { title: '模型Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true },
-  { title: '来源', key: 'sourceType', width: 100 },
+  { 
+    title: '来源', 
+    dataIndex: 'sourceType', 
+    key: 'sourceType', 
+    width: 100, 
+    enum: [
+      { value: 'plugin', label: '插件', color: 'purple' },
+      { value: 'api', label: 'API', color: 'blue' }
+    ] 
+  },
   { title: '状态', key: 'status', width: 100 },
-  { title: '接口地址', key: 'apiUrl', width: 100 },
-  { title: "环境", key: "envCode", width: 100},
-  { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
+  { 
+    title: '接口地址', 
+    dataIndex: 'apiUrl', 
+    key: 'apiUrl', 
+    width: 100, 
+    tag: true,
+    tagColor: (value: string) => value ? 'green' : 'default',
+    tagText: (value: string) => value ? '已配置' : '未配置'
+  },
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
   { title: '操作', key: 'actions', width: 140 }
 ]
 

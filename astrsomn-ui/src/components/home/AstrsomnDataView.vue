@@ -44,8 +44,23 @@
                 <CopyOutlined class="copy-icon" />
               </span>
             </template>
+            <template v-else-if="column.tag || column.enum">
+              <a-tag :color="resolveTagColor(column, text)">
+                <component v-if="column.icon" :is="column.icon"  />
+                {{ resolveTagText(column, text) }}
+              </a-tag>
+            </template>
             <template v-else-if="column.dateFormat && text">
-              {{ props.dateFormatter(text) }}
+              <span class="icon-cell">
+                <component v-if="column.icon" :is="column.icon" class="cell-icon" />
+                {{ props.dateFormatter(text) }}
+              </span>
+            </template>
+            <template v-else-if="column.icon">
+              <span class="icon-cell">
+                <component :is="column.icon" class="cell-icon" />
+                {{ text }}
+              </span>
             </template>
             <template v-else>
               {{ text }}
@@ -135,6 +150,58 @@ const resolveKey = (record: any) => {
   return record?.[key] ?? record?.id ?? record?.agentKey ?? record?.agentName ?? Math.random()
 }
 
+const defaultEnumColors: Record<string, string> = {
+  success: 'green',
+  success1: 'green',
+  success2: 'cyan',
+  warning: 'orange',
+  warning1: 'orange',
+  error: 'red',
+  error1: 'red',
+  info: 'blue',
+  info1: 'blue',
+  default: 'gray'
+}
+
+const resolveTagColor = (column: any, value: string | number): string => {
+  if (column.tagColor) {
+    if (typeof column.tagColor === 'function') {
+      return column.tagColor(value)
+    }
+    return column.tagColor
+  }
+  
+  if (column.enum) {
+    const enumItem = column.enum.find((item: any) => String(item.value) === String(value))
+    if (enumItem && enumItem.color) {
+      return enumItem.color
+    }
+    if (enumItem && enumItem.status) {
+      return defaultEnumColors[enumItem.status] || defaultEnumColors.default
+    }
+  }
+  
+  return defaultEnumColors.default
+}
+
+const resolveTagText = (column: any, value: string | number): string => {
+  if (column.enum) {
+    const enumItem = column.enum.find((item: any) => String(item.value) === String(value))
+    if (enumItem) {
+      return enumItem.label ?? String(value)
+    }
+  }
+  
+  if (column.tagText) {
+    if (typeof column.tagText === 'function') {
+      return column.tagText(value)
+    }
+    return column.tagText
+  }
+  
+  return String(value)
+}
+
 const handleCopy = async (text: string) => {
   if (!text) return
   try {
@@ -220,6 +287,17 @@ const handleCopy = async (text: string) => {
 
 .copyable-cell:hover .copy-icon {
   opacity: 1;
+}
+
+.icon-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cell-icon {
+  font-size: 12px;
+  color: #9ca3af;
 }
 
 .data-view-empty {

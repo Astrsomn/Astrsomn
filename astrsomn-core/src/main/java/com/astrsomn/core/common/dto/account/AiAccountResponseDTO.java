@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class AiAccountResponseDTO {
 
@@ -23,4 +25,7 @@ public class AiAccountResponseDTO {
     private String usedModelNames;
     private String extensionName;
     private String providerAvatar;
+    private LocalDateTime createTime;
+    private String createUser;
+
 }
