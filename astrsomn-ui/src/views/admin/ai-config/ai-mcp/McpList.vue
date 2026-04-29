@@ -3,6 +3,7 @@
     title="AI MCP"
     description="管理 MCP 服务接入（SSE / STDIO / STEAMABLE），对接 AiMcpController。"
     empty-text="暂无 MCP 服务。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="mcp-page">
       <AstrsomnDataSection>
@@ -32,17 +33,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前页 ${list.length} 条 MCP 服务，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
-          />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -157,7 +148,6 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -171,6 +161,11 @@ type QueryState = {
   enabled?: number
 }
 
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: 'AI MCP' },
+]
+
 const typeFilterOptions = [
   { label: 'SSE', value: 'SSE' },
   { label: 'STDIO', value: 'STDIO' },
@@ -179,7 +174,7 @@ const typeFilterOptions = [
 
 const columns = [
   { title: '服务名称', key: 'server', width: 240 },
-  { title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 220, ellipsis: true },
+  { title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 220, ellipsis: true, copyable: true },
   { title: '类型', dataIndex: 'type', key: 'type', width: 120 },
   { title: '连接配置', key: 'connection', width: 380 },
   { title: '启用', key: 'enabled', width: 90 },
@@ -319,9 +314,15 @@ const resetFilters = () => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-
   {
-    label: '批量删除',
+    label: '重置',
+    type: 'primary',
+    plain: true,
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     type: 'danger',
     plain: true,
     icon: DeleteOutlined,
@@ -334,13 +335,6 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
         onOk: () => handleBatchDelete()
       })
     }
-  },
-  {
-    label: '重置',
-    type: 'primary',
-    plain: true,
-    icon: ReloadOutlined,
-    onClick: resetFilters
   },
   {
     label: '新增',

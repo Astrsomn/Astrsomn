@@ -3,6 +3,10 @@
     title="凭证管理"
     description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
     empty-text="暂无账号。"
+    :breadcrumbs="breadcrumbs"
+    :show-view-toggle="true"
+    :view-mode="viewMode"
+    :view-toggle-handler="handleViewToggle"
   >
     <div ref="pageRef" class="account-page">
       <AstrsomnDataSection>
@@ -32,19 +36,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :view-mode="viewMode"
-            :summary-text="`当前页 ${list.length} 条账号，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
-            @update:view-mode="onViewModeChange"
-          />
-        </template>
+
 
         <AstrsomnDataView
           :mode="dataViewMode"
@@ -116,12 +108,12 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   DeleteOutlined,
-  PlusOutlined
+  PlusOutlined,
+  ReloadOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -136,6 +128,11 @@ const ACCOUNT_CARD_MIN_WIDTH_PX = 340
 const ACCOUNT_CARD_GAP_PX = 8
 const accountCardMinWidth = `${ACCOUNT_CARD_MIN_WIDTH_PX}px`
 const accountCardGap = `${ACCOUNT_CARD_GAP_PX}px`
+
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: '凭证管理' },
+]
 
 const pageRef = ref<HTMLElement | null>(null)
 const formVisible = ref(false)
@@ -152,7 +149,7 @@ type QueryState = {
 
 const columns = [
   { title: '账号名称', dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true },
-  { title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true },
+  { title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true },
   { title: '供应商', dataIndex: 'provider', key: 'provider', width: 120, ellipsis: true },
   { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
   { title: '请求路径', dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true },
@@ -208,22 +205,25 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-
   {
-    label: '批量删除',
+    label: '重置',
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
       if (selectedRowKeys.value.length === 0) return
       Modal.confirm({
-        title: '确定批量删除选中的账号吗？',
+        title: `确定批量删除选中的 ${selectedRowKeys.value.length} 个账号吗？`,
         okText: '确认',
         cancelText: '取消',
         onOk: () => handleBatchDelete()
       })
     }
   },
-
   {
     label: '新增',
     type: 'primary',
@@ -231,6 +231,13 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
     onClick: goCreate
   }
 ])
+
+const resetFilters = () => {
+  query.accountName = undefined
+  query.provider = undefined
+  page.pageNum = 1
+  void fetchList()
+}
 
 const maskSecret = (raw?: string) => {
   if (!raw) return '—'
@@ -269,8 +276,8 @@ const onProviderChange = () => {
   void fetchList()
 }
 
-const onViewModeChange = (mode: 'grid' | 'list') => {
-  viewMode.value = mode
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
 }
 
 const onToggleSelect = (id: number | string, checked: boolean) => {

@@ -3,6 +3,7 @@
     title="系统配置"
     description="管理系统配置项（SYSTEM_CONFIG），支持按分组维护运行时参数。"
     empty-text="暂无系统配置。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="config-page">
       <AstrsomnDataSection>
@@ -32,17 +33,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条系统配置，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -96,7 +87,6 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
@@ -118,6 +108,11 @@ type PageResponse<T> = {
   total: number
 }
 
+const breadcrumbs = [
+  { title: '系统配置', href: '/admin/system-config' },
+  { title: '系统配置' },
+]
+
 type QueryState = {
   configKey?: string
   configGroup?: string
@@ -125,7 +120,7 @@ type QueryState = {
 }
 
 const columns = [
-  { title: '配置 Key', key: 'configKey', width: 260, ellipsis: true },
+  { title: '配置 Key', dataIndex: 'configKey', key: 'configKey', width: 260, ellipsis: true, copyable: true },
   { title: '配置分组', dataIndex: 'configGroup', key: 'configGroup', width: 160, ellipsis: true },
   { title: '配置值', key: 'configValue', width: 320, ellipsis: true },
   { title: '状态', key: 'status', width: 100 },

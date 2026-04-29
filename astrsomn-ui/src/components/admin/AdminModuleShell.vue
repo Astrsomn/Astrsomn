@@ -3,7 +3,6 @@
     <aside v-if="showModuleSidebar" class="module-sider" aria-label="模块导航">
       <div class="module-sider-scroll">
         <nav class="module-sider-inner">
-          <div class="module-sider-title">管理导航</div>
           <a-menu
               mode="inline"
               :inline-indent="12"
@@ -175,7 +174,7 @@ const go = (to: string) => { void router.push(to); };
 .module-sider-scroll:hover::-webkit-scrollbar-thumb { background: #e2e8f0; }
 
 .module-sider-inner {
-  padding: 20px 12px;
+  padding: 0px 12px;
 }
 
 .module-sider-title {

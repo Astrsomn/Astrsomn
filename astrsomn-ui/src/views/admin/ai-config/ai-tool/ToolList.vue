@@ -3,6 +3,7 @@
     title="AI Tools"
     description="管理本地工具与调用配置（AI_TOOL），对接 AiToolController。"
     empty-text="暂无可用工具。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="tool-page">
       <AstrsomnDataSection>
@@ -32,17 +33,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前页 ${list.length} 条工具记录，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
-          />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -111,7 +102,6 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -125,6 +115,11 @@ type QueryState = {
   type?: string
   enableFlag?: string
 }
+
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: 'AI Tools' },
+]
 
 const typeFilterOptions = [
   { label: 'HTML', value: 'html' },
@@ -145,7 +140,7 @@ const preview = (raw: string | undefined) => {
 }
 
 const columns = [
-  { title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 180, ellipsis: true },
+  { title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 180, ellipsis: true, copyable: true },
   { title: '名称', dataIndex: 'toolName', key: 'toolName', width: 140, ellipsis: true },
   { title: '类型', dataIndex: 'type', key: 'type', width: 90 },
   { title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 140, ellipsis: true },
@@ -213,9 +208,13 @@ const resetFilters = () => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-
   {
-    label: '批量删除',
+    label: '重置',
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     type: 'danger',
     plain: true,
     icon: DeleteOutlined,
@@ -228,11 +227,6 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
         onOk: () => handleBatchDelete()
       })
     }
-  },
-  {
-    label: '重置',
-    icon: ReloadOutlined,
-    onClick: resetFilters
   },
   {
     label: '新增',

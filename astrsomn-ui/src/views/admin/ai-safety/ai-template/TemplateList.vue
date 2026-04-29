@@ -3,6 +3,7 @@
     title="FTL 模板管理"
     description="维护 Freemarker / StringTemplate 模板（AI_TEMPLATE），与 AiTemplateController 对应。"
     empty-text="暂无模板，请先创建。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="template-page">
       <AstrsomnDataSection>
@@ -41,17 +42,7 @@
           />
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条模板记录，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -125,13 +116,17 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import TemplateFormModal from './TemplateFormModal.vue'
 import { aiTemplateApi, type AiTemplate, type PageResponse } from '@/api/aiTemplate.ts'
+
+const breadcrumbs = [
+  { title: 'AI 安全', href: '/admin/ai-safety' },
+  { title: 'FTL 模板管理' },
+]
 
 type QueryState = {
   templateTitle?: string
@@ -252,20 +247,18 @@ const segmentedButtons = computed(() => {
       onClick: resetFilters
     },
     {
+      label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+      icon: DeleteOutlined,
+      disabled: selectedRowKeys.value.length === 0,
+      onClick: handleBatchDelete
+    },
+    {
       label: '新增',
       icon: PlusOutlined,
       type: 'primary',
       onClick: openCreate
     }
   ]
-  
-  if (selectedRowKeys.value.length > 0) {
-    buttons.unshift({
-      label: '批量删除',
-      icon: DeleteOutlined,
-      onClick: handleBatchDelete
-    })
-  }
   
   return buttons
 })

@@ -2,6 +2,7 @@
   <AdminPageShell
       title="接入端点管理"
       description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
+      :breadcrumbs="breadcrumbs"
   >
     <div class="model-page-container">
       <AstrsomnDataSection>
@@ -28,17 +29,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前共有 ${list.length} 条端点记录，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
-          />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -216,7 +207,6 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -229,6 +219,11 @@ import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
 
 // ... (逻辑部分基本保持与原代码一致，新增工具函数)
 
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: '接入端点管理' },
+]
+
 const providerDict = useDictionary('ai-model.provider')
 const statusDict = useDictionary('ai-model.status')
 const sourceTypeDict = useDictionary('ai-model.sourceType')
@@ -240,7 +235,7 @@ const columns = [
   { title: '类型', key: 'modelType', width: 60 },
   { title: '供应商', key: 'providerAvatar', width: 60, align: 'center' },
   { title: '模型信息', key: 'modelName', width: 180 },
-  { title: '标识 Key', key: 'modelKey', width: 150 },
+  { title: '标识 Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true },
   { title: '来源', key: 'sourceType', width: 100 },
   { title: '状态', key: 'status', width: 100 },
   { title: '接口地址', key: 'apiUrl', width: 100 },
@@ -372,10 +367,11 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
     label: '搜索',
     type: 'primary',
     icon: SearchOutlined,
+    plain: true,
     onClick: () => void fetchList()
   },
   {
-    label: '批量删除',
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
@@ -391,7 +387,8 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
     label: '创建',
     type: 'primary',
     icon: PlusOutlined,
-    onClick: openCreate
+    onClick: openCreate,
+    plain: true
   }
 ])
 

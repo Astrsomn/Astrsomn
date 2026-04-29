@@ -3,6 +3,7 @@
     title="环境管理"
     description="管理运行环境（SYSTEM_ENV），对接 SystemEnvController。"
     empty-text="暂无环境配置。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="env-page">
       <AstrsomnDataSection>
@@ -25,17 +26,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条环境记录，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -97,12 +88,16 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import EnvFormModal from './EnvFormModal.vue'
 import { systemEnvApi, type SystemEnv, type PageResponse } from '@/api/systemEnv.ts'
+
+const breadcrumbs = [
+  { title: '系统配置', href: '/admin/system-config' },
+  { title: '环境管理' },
+]
 
 type QueryState = {
   envName?: string
@@ -118,7 +113,7 @@ const preview = (raw: string | undefined) => {
 
 const columns = [
   { title: '环境名称', dataIndex: 'envName', key: 'envName', width: 180, ellipsis: true },
-  { title: '环境 Key', dataIndex: 'envKey', key: 'envKey', width: 140, ellipsis: true },
+  { title: '环境 Key', dataIndex: 'envKey', key: 'envKey', width: 140, ellipsis: true, copyable: true },
   { title: '描述', key: 'description', width: 260, ellipsis: true },
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
@@ -136,19 +131,18 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const actionButtons = computed<SegmentedButton[]>(() => [
-
-  {
-    label: '批量删除',
-    type: 'danger',
-    icon: DeleteOutlined,
-    disabled: selectedRowKeys.value.length === 0,
-    onClick: handleBatchDelete,
-    plain: true
-  },
   {
     label: '重置',
     type: 'primary',
     onClick: resetFilters,
+    plain: true
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    type: 'danger',
+    icon: DeleteOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: handleBatchDelete,
     plain: true
   },
   {

@@ -3,6 +3,10 @@
     title="提示词管理"
     description="同一 Prompt Key 共用一个逻辑提示词；每次保存生成新版本，列表按 Key 聚合展示当前最新版本。"
     empty-text="暂无提示词，请先创建。"
+    :breadcrumbs="breadcrumbs"
+    :show-view-toggle="true"
+    :view-mode="viewMode"
+    :view-toggle-handler="handleViewToggle"
   >
     <div ref="pageRef" class="prompt-page">
       <AstrsomnDataSection>
@@ -24,19 +28,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :view-mode="viewMode"
-            :summary-text="`当前页 ${list.length} 条提示词，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
-            @update:view-mode="onViewModeChange"
-          />
-        </template>
+
 
         <AstrsomnDataView
           :mode="dataViewMode"
@@ -126,7 +118,6 @@ import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import PromptCard from './PromptCard.vue'
 import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt.ts'
 
@@ -134,6 +125,11 @@ const PROMPT_CARD_MIN_WIDTH_PX = 320
 const PROMPT_CARD_GAP_PX = 12
 const promptCardMinWidth = `${PROMPT_CARD_MIN_WIDTH_PX}px`
 const promptCardGap = `${PROMPT_CARD_GAP_PX}px`
+
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: '提示词管理' },
+]
 
 type QueryState = {
   promptTitle?: string
@@ -149,7 +145,7 @@ const loading = ref(false)
 const list = ref<AiPrompt[]>([])
 const columns = [
   { title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', width: 220, ellipsis: true },
-  { title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 200, ellipsis: true },
+  { title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 200, ellipsis: true, copyable: true },
   { title: '场景', dataIndex: 'scene', key: 'scene', width: 140, ellipsis: true },
   { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
@@ -201,8 +197,8 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
   selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
 }
 
-const onViewModeChange = (mode: 'grid' | 'list') => {
-  viewMode.value = mode
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
 }
 
 const onPromptCardSelectChange = (id: number | string | undefined, checked: boolean) => {
@@ -228,9 +224,13 @@ const resetFilters = () => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-
   {
-    label: '批量删除',
+    label: '重置',
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
@@ -242,11 +242,6 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
         onOk: () => handleBatchDelete()
       })
     }
-  },
-  {
-    label: '重置',
-    icon: ReloadOutlined,
-    onClick: resetFilters
   },
   {
     label: '新增',

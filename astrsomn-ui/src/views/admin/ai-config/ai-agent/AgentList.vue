@@ -231,14 +231,16 @@ const openCreate = () => {
 }
 
 const toolbarSegmentButtons = computed(() => [
-  { label: '重置', icon: ReloadOutlined, onClick: resetFilters },
+  { label: '重置', plain: true, icon: ReloadOutlined, onClick: resetFilters },
   { 
     label: selectedCount.value > 0 ? `删除 (${selectedCount.value})` : '删除', 
     icon: DeleteOutlined, 
     onClick: () => handleBatchDelete(Array.from(selectedKeys.value)),
-    disabled: selectedCount.value === 0
+    disabled: selectedCount.value === 0,
+    type: 'danger',
+    plain: true
   },
-  { label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate },
+  { label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate, plain: true },
 ])
 
 const openEdit = async (record: AiAgent) => {

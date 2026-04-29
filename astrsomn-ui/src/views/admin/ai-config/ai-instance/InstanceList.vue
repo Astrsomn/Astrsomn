@@ -218,7 +218,7 @@ const handleBatchDelete = async () => {
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: selectedRowKeys.value.length > 0 ? `批量删除 (${selectedRowKeys.value.length})` : '批量删除',
+    label: selectedRowKeys.value.length > 0 ? `批量删除 (${selectedRowKeys.value.length})` : '删除',
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
@@ -229,13 +229,16 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
         cancelText: '取消',
         onOk: () => handleBatchDelete()
       })
-    }
+    },
+    type: 'danger',
+    plain: true
   },
   {
-    label: '新增配置',
+    label: '新增',
     type: 'primary',
     icon: PlusOutlined,
-    onClick: goCreate
+    onClick: goCreate,
+    plain: true
   }
 ])
 

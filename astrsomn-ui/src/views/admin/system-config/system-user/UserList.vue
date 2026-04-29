@@ -3,6 +3,7 @@
     title="用户管理"
     description="SYSTEM_USER：角色分超级管理员 / 环境管理员 / 普通用户（USER_ROLE）。"
     empty-text="暂无用户数据。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="user-page">
       <AstrsomnDataSection>
@@ -52,9 +53,13 @@
           >
             <a-button danger class="ghost-btn danger-btn">
               <template #icon><delete-outlined /></template>
-              批量删除
+              删除 ({{ selectedRowKeys.length }})
             </a-button>
           </a-popconfirm>
+          <a-button danger class="ghost-btn danger-btn" disabled v-else>
+            <template #icon><delete-outlined /></template>
+            删除
+          </a-button>
           <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
           <a-button class="ghost-btn" @click="openCreate">
             <template #icon><plus-outlined /></template>
@@ -64,17 +69,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条用户记录，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -139,11 +134,15 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import UserFormModal from './UserFormModal.vue'
 import { systemUserApi, type SystemUser, type PageResponse } from '@/api/systemUser.ts'
+
+const breadcrumbs = [
+  { title: '系统配置', href: '/admin/system-config' },
+  { title: '用户管理' },
+]
 
 type QueryState = {
   username?: string

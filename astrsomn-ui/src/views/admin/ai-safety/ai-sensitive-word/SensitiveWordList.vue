@@ -3,6 +3,7 @@
     title="安全治理"
     description="配置敏感词、注入检测与风控策略。"
     empty-text="暂无安全策略。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="sensitive-page">
       <AstrsomnDataSection>
@@ -69,9 +70,13 @@
           >
             <a-button danger class="ghost-btn danger-btn">
               <template #icon><delete-outlined /></template>
-              批量删除
+              删除 ({{ selectedRowKeys.length }})
             </a-button>
           </a-popconfirm>
+          <a-button danger class="ghost-btn danger-btn" disabled v-else>
+            <template #icon><delete-outlined /></template>
+            删除
+          </a-button>
           <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
           <a-button class="ghost-btn" @click="openCreate">
             <template #icon><plus-outlined /></template>
@@ -107,17 +112,7 @@
           </a-input>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条敏感词规则，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -203,10 +198,14 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import SensitiveWordFormModal from './SensitiveWordFormModal.vue'
 import { aiSensitiveWordApi, type AiSensitiveWord, type PageResponse } from '@/api/aiSensitiveWord.ts'
+
+const breadcrumbs = [
+  { title: 'AI 安全', href: '/admin/ai-safety' },
+  { title: '安全治理' },
+]
 
 type QueryState = {
   word?: string
