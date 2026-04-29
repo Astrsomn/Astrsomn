@@ -63,17 +63,32 @@
           </template>
 
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'apiKey'">
+            <template v-if="column.key === 'providerAvatar'">
+              <span
+                v-if="providerAvatarCell(record)"
+                class="provider-avatar-cell"
+                v-html="providerAvatarCell(record)"
+                aria-hidden="true"
+              />
+              <span v-else class="text-secondary">—</span>
+            </template>
+            <template v-else-if="column.key === 'apiKey'">
               <span class="secret-mask">{{ maskSecret(record.apiKey) }}</span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" size="small" @click="goEdit(record)">编辑</a-button>
-              <a-divider type="vertical" />
-              <a-button type="link" size="small" @click="openModelsDrawer(record)">关联模型</a-button>
-              <a-divider type="vertical" />
-              <a-popconfirm title="确定删除吗？" @confirm="() => handleDeleteOne(record.id)">
-                <a-button type="link" size="small" danger>删除</a-button>
-              </a-popconfirm>
+              <a-space>
+                <a-button type="link" size="small" @click="goEdit(record)">
+                  <EditOutlined />
+                </a-button>
+                <a-button type="link" size="small" @click="openModelsDrawer(record)">
+                  <LinkOutlined />
+                </a-button>
+                <a-popconfirm title="确定删除吗？" @confirm="() => handleDeleteOne(record.id)">
+                  <a-button type="link" danger size="small">
+                    <DeleteOutlined />
+                  </a-button>
+                </a-popconfirm>
+              </a-space>
             </template>
           </template>
         </AstrsomnDataView>
@@ -108,6 +123,8 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   DeleteOutlined,
+  EditOutlined,
+  LinkOutlined,
   PlusOutlined,
   ReloadOutlined
 } from '@ant-design/icons-vue'
@@ -150,6 +167,7 @@ type QueryState = {
 const columns = [
   { title: '账号名称', dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true },
   { title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true },
+  { title: '供应商', key: 'providerAvatar', width: 60, align: 'center' },
   { title: '扩展名称', dataIndex: 'extensionName', key: 'extensionName', width: 120, ellipsis: true },
   { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
   { title: '请求路径', dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true },
@@ -363,6 +381,11 @@ const modelsDrawer = reactive({
   models: [] as AiModel[]
 })
 
+const providerAvatarCell = (record: AiAccount) => {
+  const raw = record?.providerAvatar
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+}
+
 const openModelsDrawer = async (account: AiAccount) => {
   if (!account.accountKey) {
     message.error('accountKey 不能为空，无法加载关联模型')
@@ -435,6 +458,23 @@ const openModelsDrawer = async (account: AiAccount) => {
   .toolbar-right {
     width: 100%;
   }
+}
+
+.provider-avatar-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.provider-avatar-cell :deep(svg) {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.text-secondary { 
+  color: var(--text-muted, #bfbfbf); 
 }
 
 /* drawer styles moved to AccountModelsDrawer.vue */

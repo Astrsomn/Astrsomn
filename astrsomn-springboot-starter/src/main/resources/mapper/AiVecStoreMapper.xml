@@ -17,7 +17,7 @@
             s.UPDATE_USER,
             s.ENV_CODE,
             src.NAME AS SOURCE_NAME,
-            src.PROVIDER AS SOURCE_PROVIDER,
+            src.EXTENSION_CODE AS SOURCE_PROVIDER,
             inst.INSTANCE_NAME
         FROM
             `AI_VEC_STORE` s
@@ -59,7 +59,7 @@
             s.UPDATE_USER,
             s.ENV_CODE,
             src.NAME AS SOURCE_NAME,
-            src.PROVIDER AS SOURCE_PROVIDER,
+            src.EXTENSION_CODE AS SOURCE_PROVIDER,
             inst.INSTANCE_NAME
         FROM
             AI_VEC_STORE s
