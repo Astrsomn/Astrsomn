@@ -76,8 +76,9 @@
                 </a-row>
 
                 <a-form-item label="Tool Key (逻辑标识)" name="toolKey">
-                  <a-input
-                    v-model:value="form.toolKey"
+                  <AstrsomnKeyGenerator
+                    v-model="form.toolKey"
+                    :prefix="AI_TOOL_KEY_PREFIX"
                     :disabled="mode === 'edit'"
                     placeholder="留空则由系统自动生成"
                     size="large"
@@ -145,6 +146,8 @@ import {
 import type { FormInstance } from 'ant-design-vue'
 import type { AiTool } from '@/api/aiTool.ts'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
+import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
+import { AI_TOOL_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
 
 const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiTool | null }>()
 const emit = defineEmits<{ submit: [payload: AiTool] }>()

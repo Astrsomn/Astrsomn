@@ -10,8 +10,4 @@ import java.io.Serializable;
 @Data
 public class AiModelQueryRequestDTO extends AiModelEntity implements Serializable {
 
-    /**
-     * 供应商
-     */
-    private String supplier;
 }

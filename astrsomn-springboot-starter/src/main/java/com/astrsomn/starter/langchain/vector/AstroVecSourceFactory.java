@@ -113,8 +113,8 @@ public class AstroVecSourceFactory {
     /**
      * 解析驱动：优先插件，后本地
      */
-    public Optional<VecDriver> resolveDriver(String providerCode) {
-        return Optional.ofNullable(StringUtils.trimToNull(providerCode))
+    public Optional<VecDriver> resolveDriver(String extensionCode) {
+        return Optional.ofNullable(StringUtils.trimToNull(extensionCode))
                 .map(p -> Optional.ofNullable(pluginDriverOverrides.get(p))
                         .orElseGet(() -> classpathDrivers.get(p)));
     }

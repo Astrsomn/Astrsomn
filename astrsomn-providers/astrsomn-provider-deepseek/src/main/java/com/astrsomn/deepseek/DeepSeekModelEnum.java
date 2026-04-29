@@ -357,7 +357,7 @@ public enum DeepSeekModelEnum {
         entity.setModelType(this.modelType);
         entity.setCapabilities(this.getCapabilities());
         entity.setParams(this.getParams());
-        entity.setProvider(provider);
+        entity.setExtensionCode(provider);
         entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
         entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
         return entity;

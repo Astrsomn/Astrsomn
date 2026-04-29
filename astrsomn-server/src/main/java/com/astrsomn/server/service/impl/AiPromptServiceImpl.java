@@ -17,7 +17,6 @@ import com.astrsomn.commn.base.BusinessException;
 import com.astrsomn.core.exception.AiPromptErrorEnum;
 import com.astrsomn.starter.mapper.AiPromptMapper;
 import com.astrsomn.server.service.AiPromptService;
-import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -30,14 +29,14 @@ import com.astrsomn.core.common.utils.PageUtils;
 @RequiredArgsConstructor
 public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEntity> implements AiPromptService {
 
-    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
     private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiPromptCreateRequestDTO request) {
         AiPromptEntity entity = new AiPromptEntity();
         BeanUtils.copyProperties(request, entity);
-        bizResourceKeyAssignHelper.assignPromptKeyIfBlank(entity);
+
         String env = StringUtils.defaultIfBlank(entity.getEnvCode(), queryEnvParamHelper.effectiveEnvCode());
         entity.setEnvCode(env);
         if (entity.getVersion() == null) {

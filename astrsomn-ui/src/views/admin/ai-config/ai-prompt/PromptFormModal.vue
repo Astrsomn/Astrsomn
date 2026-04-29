@@ -48,10 +48,10 @@
             </a-form-item>
 
             <a-form-item label="Prompt Key" name="promptKey">
-              <a-input
-                v-model:value="form.promptKey"
+              <AstrsomnKeyGenerator
+                v-model="form.promptKey"
+                :prefix="AI_PROMPT_KEY_PREFIX"
                 placeholder="唯一标识（选填）"
-                allow-clear
               />
             </a-form-item>
 
@@ -95,6 +95,8 @@ import { reactive, ref, watch } from "vue";
 import type { FormInstance } from "ant-design-vue";
 import { FormOutlined, PlusCircleOutlined } from "@ant-design/icons-vue";
 import AstrsomnModal from "@/components/home/AstrsomnModal.vue";
+import AstrsomnKeyGenerator from "@/components/home/AstrsomnKeyGenerator.vue";
+import { AI_PROMPT_KEY_PREFIX } from "@/constants/aiConfigKeyPrefixes";
 
 const props = defineProps<{
   mode: "create" | "edit";

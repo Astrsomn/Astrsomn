@@ -22,7 +22,7 @@ import com.astrsomn.core.exception.AiAccountErrorEnum;
 import com.astrsomn.starter.mapper.AiAccountMapper;
 import com.astrsomn.starter.mapper.AiModelMapper;
 import com.astrsomn.server.service.AiAccountService;
-import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
+
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccountEntity> implements AiAccountService {
 
-    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
     private final AiModelMapper aiModelMapper;
     private final QueryEnvParamHelper queryEnvParamHelper;
 
@@ -48,7 +48,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         if (request.getApiSecret() != null) {
             entity.setApiSecret(CryptoUtil.encrypt(request.getApiSecret()));
         }
-        bizResourceKeyAssignHelper.assignAccountKeyIfBlank(entity);
+
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AiAccountErrorEnum.ACCOUNT_CREATE_FAILED);
@@ -103,8 +103,6 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         }
         if (isAccountKeyReferencedByModel(existing.getAccountKey(), existing.getEnvCode())) {
             entity.setAccountKey(existing.getAccountKey());
-        } else {
-            bizResourceKeyAssignHelper.assignAccountKeyIfBlank(entity, entity.getId());
         }
         boolean result = updateById(entity);
         if (!result) {
@@ -120,7 +118,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         if (param == null) {
             param = new AiAccountQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
+
         IPage<AiAccountResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

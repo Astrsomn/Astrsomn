@@ -56,6 +56,9 @@ public class AuthenticationInterceptor extends AbstractSecurityInterceptor imple
         UserContext.set("envCode", user.getEnvCode());
         UserContext.setToken(token);
         UserContext.setClientIp(request.getRemoteAddr());
+        // 同步到 starter 上下文，供 MetaObjectHandler 自动填充读取
+        com.astrsomn.starter.context.UserContext.setUserId(user.getId());
+        com.astrsomn.starter.context.UserContext.setUsername(user.getUsername());
 
         log.info("用户认证成功 - URI: {}, Username: {}, UserId: {}",
                 request.getRequestURI(), username, userId);
@@ -66,6 +69,7 @@ public class AuthenticationInterceptor extends AbstractSecurityInterceptor imple
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         UserContext.clear();
+        com.astrsomn.starter.context.UserContext.clear();
     }
 
     private String extractToken(HttpServletRequest request) {

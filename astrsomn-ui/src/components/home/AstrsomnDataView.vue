@@ -20,9 +20,11 @@
         v-else-if="dataSource.length > 0"
         key="table"
         class="data-view-table"
+        :class="{ dense: dense }"
+        :style="tableStyle"
         :row-key="rowKey"
         :data-source="dataSource"
-        :columns="columns"
+        :columns="processedColumns"
         :pagination="false"
         :row-selection="rowSelection"
         :scroll="scroll"
@@ -36,7 +38,33 @@
             :text="text"
             :index="index"
           >
-            {{ text }}
+            <template v-if="column.copyable && text">
+              <span class="copyable-cell" @click="handleCopy(text)" title="点击复制">
+                {{ text }}
+                <CopyOutlined class="copy-icon" />
+              </span>
+            </template>
+            <template v-else-if="column.tag || column.enum">
+              <a-tag :color="resolveTagColor(column, text)">
+                <component v-if="column.icon" :is="column.icon"  />
+                {{ resolveTagText(column, text) }}
+              </a-tag>
+            </template>
+            <template v-else-if="column.dateFormat && text">
+              <span class="icon-cell">
+                <component v-if="column.icon" :is="column.icon" class="cell-icon" />
+                {{ props.dateFormatter(text) }}
+              </span>
+            </template>
+            <template v-else-if="column.icon">
+              <span class="icon-cell">
+                <component :is="column.icon" class="cell-icon" />
+                {{ text }}
+              </span>
+            </template>
+            <template v-else>
+              {{ text }}
+            </template>
           </slot>
         </template>
       </a-table>
@@ -50,6 +78,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { message } from 'ant-design-vue'
+import { CopyOutlined } from '@ant-design/icons-vue'
 
 const props = withDefaults(defineProps<{
   mode: 'card' | 'table'
@@ -64,6 +94,10 @@ const props = withDefaults(defineProps<{
   cardMinWidth?: string
   cardGap?: string
   cardColumns?: number
+  dense?: boolean
+  tableRowHeight?: string
+  tableHeaderHeight?: string
+  dateFormatter?: (value: string) => string
 }>(), {
   columns: () => [],
   rowKey: 'id',
@@ -74,7 +108,14 @@ const props = withDefaults(defineProps<{
   bordered: true,
   cardMinWidth: '320px',
   cardGap: '12px',
-  cardColumns: 3
+  cardColumns: 3,
+  dense: false,
+  tableRowHeight: '',
+  tableHeaderHeight: '',
+  dateFormatter: (value: string) => {
+    if (!value) return '--'
+    return value.replace('T', ' ').slice(0, 16)
+  }
 })
 
 const gridStyle = computed(() => ({
@@ -82,10 +123,93 @@ const gridStyle = computed(() => ({
   gap: props.cardGap
 }))
 
+const tableStyle = computed(() => {
+  const style: Record<string, string> = {}
+  if (props.dense) {
+    style['--dense-header-height'] = props.tableHeaderHeight || '32px'
+    style['--dense-row-height'] = props.tableRowHeight || '28px'
+  }
+  return style
+})
+
+const processedColumns = computed(() => {
+  return props.columns.map(col => {
+    if (col.copyable) {
+      return {
+        ...col,
+        customRender: undefined
+      }
+    }
+    return col
+  })
+})
+
 const resolveKey = (record: any) => {
   if (typeof props.rowKey === 'function') return props.rowKey(record)
   const key = props.rowKey
   return record?.[key] ?? record?.id ?? record?.agentKey ?? record?.agentName ?? Math.random()
+}
+
+const defaultEnumColors: Record<string, string> = {
+  success: 'green',
+  success1: 'green',
+  success2: 'cyan',
+  warning: 'orange',
+  warning1: 'orange',
+  error: 'red',
+  error1: 'red',
+  info: 'blue',
+  info1: 'blue',
+  default: 'gray'
+}
+
+const resolveTagColor = (column: any, value: string | number): string => {
+  if (column.tagColor) {
+    if (typeof column.tagColor === 'function') {
+      return column.tagColor(value)
+    }
+    return column.tagColor
+  }
+  
+  if (column.enum) {
+    const enumItem = column.enum.find((item: any) => String(item.value) === String(value))
+    if (enumItem && enumItem.color) {
+      return enumItem.color
+    }
+    if (enumItem && enumItem.status) {
+      return defaultEnumColors[enumItem.status] || defaultEnumColors.default
+    }
+  }
+  
+  return defaultEnumColors.default
+}
+
+const resolveTagText = (column: any, value: string | number): string => {
+  if (column.enum) {
+    const enumItem = column.enum.find((item: any) => String(item.value) === String(value))
+    if (enumItem) {
+      return enumItem.label ?? String(value)
+    }
+  }
+  
+  if (column.tagText) {
+    if (typeof column.tagText === 'function') {
+      return column.tagText(value)
+    }
+    return column.tagText
+  }
+  
+  return String(value)
+}
+
+const handleCopy = async (text: string) => {
+  if (!text) return
+  try {
+    await navigator.clipboard.writeText(text)
+    message.success('已复制到剪贴板')
+  } catch {
+    message.error('复制失败，请手动复制')
+  }
 }
 </script>
 
@@ -121,6 +245,18 @@ const resolveKey = (record: any) => {
   color: #1f2937;
 }
 
+.data-view-table.dense :deep(.ant-table-thead > tr > th) {
+  padding: 4px 12px;
+  line-height: var(--dense-header-height);
+  font-size: 12px;
+}
+
+.data-view-table.dense :deep(.ant-table-tbody > tr > td) {
+  padding: 4px 12px;
+  line-height: var(--dense-row-height);
+  font-size: 12px;
+}
+
 .data-view-table :deep(.ant-table-tbody > tr:hover > td) {
   background: #f8fbff;
 }
@@ -128,6 +264,40 @@ const resolveKey = (record: any) => {
 .data-view-table :deep(.ant-table-cell-fix-right),
 .data-view-table :deep(.ant-table-cell-fix-left) {
   background: inherit;
+}
+
+.copyable-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--primary);
+  transition: color 0.2s;
+}
+
+.copyable-cell:hover {
+  color: var(--primary-hover);
+}
+
+.copy-icon {
+  font-size: 12px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.copyable-cell:hover .copy-icon {
+  opacity: 1;
+}
+
+.icon-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cell-icon {
+  font-size: 12px;
+  color: #9ca3af;
 }
 
 .data-view-empty {

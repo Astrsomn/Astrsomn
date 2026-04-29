@@ -2,6 +2,10 @@
   <AdminPageShell
     title="智能体管理"
     description="管理 Agent 配置、执行策略与发布状态。"
+    :breadcrumbs="breadcrumbs"
+    :show-view-toggle="true"
+    :view-mode="viewMode"
+    :view-toggle-handler="handleViewToggle"
   >
     <div ref="pageRef" class="agent-page">
       <AstrsomnDataSection>
@@ -20,19 +24,6 @@
               <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
             </div>
           </div>
-        </template>
-
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedCount"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="true"
-            :view-mode="viewMode"
-            @toggle-select-all="onToggleSelectAll"
-            @update:view-mode="onViewModeChange"
-          />
         </template>
 
         <AstrsomnDataView
@@ -65,15 +56,15 @@
               </a-tag>
             </template>
 
-            <template v-else-if="column.key === 'createTime'">
-              {{ formatCreateTime(record.createTime) }}
-            </template>
-
             <template v-else-if="column.key === 'actions'">
               <a-space>
-                <a-button type="link" size="small" @click="openEdit(record)">编辑</a-button>
+                <a-button type="link" size="small" @click="openEdit(record)">
+                  <EditOutlined />
+                </a-button>
                 <a-popconfirm title="确定删除该智能体吗？" @confirm="handleDeleteFromRecord(record)">
-                  <a-button type="link" danger size="small">删除</a-button>
+                  <a-button type="link" danger size="small">
+                    <DeleteOutlined />
+                  </a-button>
                 </a-popconfirm>
               </a-space>
             </template>
@@ -102,11 +93,11 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { CheckCircleOutlined, PlusOutlined, ReloadOutlined, StopOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, ClockCircleOutlined, UserOutlined, ClusterOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -144,18 +135,36 @@ const selectedKeys = ref<Set<string | number>>(new Set())
 const currentGridColumns = ref(resolveGridColumns())
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: '智能体管理' },
+]
+
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
+}
+
 const selectedCount = computed(() => selectedKeys.value.size)
 const allCurrentSelected = computed(() => list.value.length > 0 && selectedKeys.value.size === list.value.length)
 const partCurrentSelected = computed(() => selectedKeys.value.size > 0 && selectedKeys.value.size < list.value.length)
 const tableSelectedRowKeys = computed<Array<string | number>>(() => Array.from(selectedKeys.value))
 
 const tableColumns = [
-{ title: 'Agent Key', dataIndex: 'agentKey', key: 'agentKey', ellipsis: true, width: 120 },
+  { 
+    title: 'Agent Key', 
+    dataIndex: 'agentKey', 
+    key: 'agentKey', 
+    ellipsis: true, 
+    width: 140,
+    copyable: true
+  },
   { title: '智能体名称', dataIndex: 'agentName', key: 'agentName', ellipsis: true, width: 200 },
   { title: '模型实例', dataIndex: 'chatInstanceName', key: 'chatInstanceName', ellipsis: true, width: 180 },
   { title: '提示词策略', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true, width: 180 },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170 },
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue', icon: ClusterOutlined},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 200, dateFormat: true, icon: ClockCircleOutlined},
+  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150, icon: UserOutlined},
   { title: '操作', key: 'actions', width: 120, fixed: 'right' as const }
 ]
 
@@ -223,10 +232,18 @@ const openCreate = () => {
   assemblyVisible.value = true
 }
 
-const toolbarSegmentButtons: SegmentedButton[] = [
-  { label: '重置', icon: ReloadOutlined, onClick: resetFilters },
-  { label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate },
-]
+const toolbarSegmentButtons = computed(() => [
+  { label: '重置', plain: true, icon: ReloadOutlined, onClick: resetFilters },
+  { 
+    label: selectedCount.value > 0 ? `删除 (${selectedCount.value})` : '删除', 
+    icon: DeleteOutlined, 
+    onClick: () => handleBatchDelete(Array.from(selectedKeys.value)),
+    disabled: selectedCount.value === 0,
+    type: 'danger',
+    plain: true
+  },
+  { label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate, plain: true },
+])
 
 const openEdit = async (record: AiAgent) => {
   const id = record.id
@@ -266,11 +283,6 @@ const onToggleSelect = (id: number | string, checked: boolean) => {
   } else {
     selectedKeys.value.delete(id)
   }
-}
-
-const formatCreateTime = (raw?: string) => {
-  if (!raw) return '--'
-  return raw.replace('T', ' ').slice(0, 16)
 }
 
 const handleDeleteFromRecord = async (record: AiAgent) => {

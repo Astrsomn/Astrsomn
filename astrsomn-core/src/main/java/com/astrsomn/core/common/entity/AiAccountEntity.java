@@ -38,6 +38,6 @@ public class AiAccountEntity extends BaseEntity<Long> {
     @TableField("API_URL")
     private String apiUrl;
 
-    @TableField("provider")
-    private String provider;
+    @TableField("EXTENSION_CODE")
+    private String extensionCode;
 }

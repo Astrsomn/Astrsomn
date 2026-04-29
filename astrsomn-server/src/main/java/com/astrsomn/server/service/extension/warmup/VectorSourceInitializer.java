@@ -33,8 +33,8 @@ public class VectorSourceInitializer {
     /**
      * 为指定的厂商定向预热已启用的向量源
      */
-    public void warmupEnabledSourcesByProvider(String providerCode) {
-        Optional.ofNullable(StringUtils.trimToNull(providerCode))
+    public void warmupEnabledSourcesByProvider(String extensionCode) {
+        Optional.ofNullable(StringUtils.trimToNull(extensionCode))
                 .ifPresent(provider -> {
                     String env = envParamHelper.effectiveEnvCode();
                     List<AiVecSourceEntity> sources = fetchSourcesByProvider(provider, env);

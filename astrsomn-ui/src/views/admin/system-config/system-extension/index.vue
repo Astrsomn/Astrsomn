@@ -1,7 +1,6 @@
 <template>
   <AdminPageShell
-    title="系统扩展"
-    description="管理系统扩展包"
+
     empty-text="暂无系统扩展。"
   >
     <div class="extension-page">
@@ -53,8 +52,7 @@
 
         <a-layout-content class="extension-main">
           <div class="content-card">
-            <MarketplacePage v-if="activePanel === 'marketplace'" />
-            <InstalledPage v-else />
+            <ExtensionCenterPage :active-tab="activePanel" @update:active-tab="onPanelSync" />
           </div>
         </a-layout-content>
       </a-layout>
@@ -71,8 +69,7 @@ import {
   RightOutlined 
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import MarketplacePage from './marketplace/MarketplacePage.vue'
-import InstalledPage from './installed/InstalledPage.vue'
+import ExtensionCenterPage from './ExtensionCenterPage.vue'
 
 type ExtensionPanel = 'marketplace' | 'installed'
 const activePanel = ref<ExtensionPanel>('installed')
@@ -82,6 +79,10 @@ function onMenuClick({ key }: { key: string }) {
   if (key === 'marketplace' || key === 'installed') {
     activePanel.value = key
   }
+}
+
+function onPanelSync(tab: ExtensionPanel) {
+  activePanel.value = tab
 }
 
 function openMarketplace() {

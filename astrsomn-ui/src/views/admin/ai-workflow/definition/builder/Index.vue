@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell title="流程搭建" description="通过拖拽节点快速编排工作流骨架。" empty-text="暂无流程数据。">
+  <AdminPageShell      empty-text="暂无流程数据。">
     <div class="workflow-builder-page">
       <main class="builder-layout">
         <Left
@@ -205,7 +205,10 @@ const normalizeGraphSnapshot = (graphJson?: string) => {
     return ''
   }
 }
-
+const breadcrumbs = [
+  { title: 'AI 流程', href: '/admin/ai-config' },
+  { title: '编辑流程' },
+]
 const buildGraphSnapshot = () => normalizeGraphSnapshot(toGraphJson())
 const refreshSavedGraphSnapshot = () => {
   savedGraphSnapshot.value = buildGraphSnapshot()

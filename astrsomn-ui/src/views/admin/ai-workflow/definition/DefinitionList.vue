@@ -1,30 +1,18 @@
 <template>
-  <AdminPageShell title="流程定义" description="维护工作流主定义与草稿图配置。" empty-text="暂无流程定义。">
+  <AdminPageShell  empty-text="暂无流程定义。">
     <div class="definition-list-page">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
               <AstrsomnSearchPill v-model="query.workflowName" placeholder="搜索流程名称" @search="fetchList" />
-              <a-input
-                v-model="query.workflowKey"
-                allow-clear
-                class="toolbar-input"
-                placeholder="搜索 Flow Key"
-                @pressEnter="fetchList"
-              />
-              <a-select
-                v-model="query.description"
-                allow-clear
-                class="toolbar-select"
-                placeholder="业务分类"
-                :options="categoryOptions"
-              />
+
             </div>
             <div class="toolbar-right">
               <AstrsomnSegmentedButton :buttons="segmentedButtons" />
             </div>
           </div>
+
         </template>
 
         <template #overview>
@@ -53,19 +41,27 @@
               <a-tag :color="record.status === '已发布' ? 'processing' : 'default'">{{ record.status || '-' }}</a-tag>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" @click="openEdit(record)">编辑</a-button>
-              <a-divider type="vertical" />
-              <a-button type="link" @click="openCopy(record)">复制</a-button>
-              <a-divider type="vertical" />
-              <a-popconfirm title="确定发布该流程吗？" ok-text="确认" cancel-text="取消" @confirm="() => handlePublish(record)">
-                <a-button type="link">发布</a-button>
-              </a-popconfirm>
-              <a-divider type="vertical" />
-              <a-button type="link" @click="openHistory(record)">历史</a-button>
-              <a-divider type="vertical" />
-              <a-popconfirm title="确定删除吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
-                <a-button type="link" danger>删除</a-button>
-              </a-popconfirm>
+              <a-space>
+                <a-button type="link" size="small" @click="openEdit(record)">
+                  <EditOutlined />
+                </a-button>
+                <a-button type="link" size="small" @click="openCopy(record)">
+                  <CopyOutlined />
+                </a-button>
+                <a-popconfirm title="确定发布该流程吗？" ok-text="确认" cancel-text="取消" @confirm="() => handlePublish(record)">
+                  <a-button type="link" size="small">
+                    <RocketOutlined />
+                  </a-button>
+                </a-popconfirm>
+                <a-button type="link" size="small" @click="openHistory(record)">
+                  <HistoryOutlined />
+                </a-button>
+                <a-popconfirm title="确定删除吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
+                  <a-button type="link" danger size="small">
+                    <DeleteOutlined />
+                  </a-button>
+                </a-popconfirm>
+              </a-space>
             </template>
           </template>
         </AstrsomnDataView>
@@ -110,7 +106,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
-import { FilterOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
+import { CopyOutlined, DeleteOutlined, EditOutlined, FilterOutlined, HistoryOutlined, PlusOutlined, RocketOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
@@ -305,7 +301,7 @@ const segmentedButtons = [
     onClick: resetFilters
   },
   {
-    label: '新建流程',
+    label: '新建',
     icon: PlusOutlined,
     type: 'primary' as const,
     onClick: openCreate

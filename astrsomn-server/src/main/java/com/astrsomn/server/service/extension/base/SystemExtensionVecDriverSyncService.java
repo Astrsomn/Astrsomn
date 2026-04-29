@@ -14,5 +14,5 @@ public interface SystemExtensionVecDriverSyncService {
     /**
      * 撤销应用或卸载时删除该 provider 对应的驱动元数据行（调用方已做引用校验）。
      */
-    void removeDriverRowForProvider(String providerCode);
+    void removeDriverRowForProvider(String extensionCode);
 }

@@ -31,7 +31,7 @@
 
     <div class="main-content">
       <section class="info-pane">
-        <div class="pane-card glass-card">
+        <div class="pane-card ">
           <a-form
             ref="formRef"
             :model="form"
@@ -137,8 +137,8 @@ const open = defineModel<boolean>('open', { required: true })
 const formRef = ref<FormInstance | null>(null)
 
 const statusOptions = [
-  { label: 'Enabled', value: 'enabled' },
-  { label: 'Disabled', value: 'disabled' }
+  { label: '启用', value: 'enabled' },
+  { label: '禁用', value: 'disabled' }
 ]
 
 const templateTypeOptions = [
@@ -301,13 +301,7 @@ function onCancel() {
   overflow: hidden;
 }
 
-/* 通用卡片样式 */
-.glass-card {
-  background: #ffffff;
-  border-radius: 20px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
-}
+
 
 .pane-card {
   height: 100%;

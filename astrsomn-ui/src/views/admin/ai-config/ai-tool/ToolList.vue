@@ -3,6 +3,7 @@
     title="AI Tools"
     description="管理本地工具与调用配置（AI_TOOL），对接 AiToolController。"
     empty-text="暂无可用工具。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="tool-page">
       <AstrsomnDataSection>
@@ -32,17 +33,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前页 ${list.length} 条工具记录，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
-          />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -62,16 +53,21 @@
             <span class="desc-preview">{{ preview(record.description) }}</span>
           </template>
           <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="openEdit(record)">编辑</a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger>删除</a-button>
-            </a-popconfirm>
+            <a-space>
+              <a-button type="link" size="small" @click="openEdit(record)">
+                <EditOutlined />
+              </a-button>
+              <a-popconfirm
+                title="确定删除吗？"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="() => handleDeleteOne(record.id)"
+              >
+                <a-button type="link" danger size="small">
+                  <DeleteOutlined />
+                </a-button>
+              </a-popconfirm>
+            </a-space>
           </template>
           </template>
         </AstrsomnDataView>
@@ -103,6 +99,7 @@ import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
   DeleteOutlined,
+  EditOutlined,
   KeyOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -111,7 +108,6 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -125,6 +121,11 @@ type QueryState = {
   type?: string
   enableFlag?: string
 }
+
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: 'AI Tools' },
+]
 
 const typeFilterOptions = [
   { label: 'HTML', value: 'html' },
@@ -145,14 +146,17 @@ const preview = (raw: string | undefined) => {
 }
 
 const columns = [
-  { title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 180, ellipsis: true },
+  { title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 180, ellipsis: true, copyable: true },
   { title: '名称', dataIndex: 'toolName', key: 'toolName', width: 140, ellipsis: true },
   { title: '类型', dataIndex: 'type', key: 'type', width: 90 },
   { title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 140, ellipsis: true },
   { title: '方法', dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true },
   { title: '描述', key: 'description', width: 200, ellipsis: true },
   { title: '状态', key: 'enableFlag', width: 80 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
+  { title: '操作', key: 'actions', width: 100, fixed: 'right' as const }
 ]
 
 const query = reactive<QueryState>({})
@@ -213,9 +217,13 @@ const resetFilters = () => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-
   {
-    label: '批量删除',
+    label: '重置',
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     type: 'danger',
     plain: true,
     icon: DeleteOutlined,
@@ -228,11 +236,6 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
         onOk: () => handleBatchDelete()
       })
     }
-  },
-  {
-    label: '重置',
-    icon: ReloadOutlined,
-    onClick: resetFilters
   },
   {
     label: '新增',

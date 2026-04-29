@@ -1,8 +1,9 @@
-﻿<template>
+<template>
   <AdminPageShell
     title="系统消息"
     description="管理 SYS_MESSAGE，支持创建通知、更新已读状态、查看来源与错误码。"
     empty-text="暂无系统消息。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="message-page">
       <AstrsomnDataSection>
@@ -50,17 +51,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前页 ${list.length} 条消息，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
-          />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -121,13 +112,17 @@ import { DeleteOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons-
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import { systemMessageApi, type PageResponse, type SystemMessage } from '@/api/systemMessage'
 
 const router = useRouter()
+
+const breadcrumbs = [
+  { title: '系统配置', href: '/admin/system-config' },
+  { title: '系统消息' },
+]
 
 type QueryState = {
   title?: string
@@ -186,19 +181,19 @@ const selectedRowKeys = ref<Array<number | string>>([])
 
 const actionButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '批量删除',
-    type: 'danger',
-    icon: DeleteOutlined,
-    disabled: selectedRowKeys.value.length === 0,
-    plain: true,
-    onClick: handleBatchDelete
-  },
-  {
     label: '重置',
     type: 'primary',
     icon: ReloadOutlined,
     plain: true,
     onClick: resetFilters
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    type: 'danger',
+    icon: DeleteOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    plain: true,
+    onClick: handleBatchDelete
   },
   {
     label: '新增',

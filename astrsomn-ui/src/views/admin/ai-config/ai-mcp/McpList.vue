@@ -3,6 +3,7 @@
     title="AI MCP"
     description="管理 MCP 服务接入（SSE / STDIO / STEAMABLE），对接 AiMcpController。"
     empty-text="暂无 MCP 服务。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="mcp-page">
       <AstrsomnDataSection>
@@ -32,17 +33,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前页 ${list.length} 条 MCP 服务，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
-          />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -55,55 +46,18 @@
           empty-text="暂无匹配的 MCP 服务"
         >
           <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'server'">
-            <div class="cell-stack">
-              <span class="cell-title">{{ record.serverName || '未命名服务' }}</span>
-              <span class="cell-subtitle multiline-2">{{ record.description || '暂无服务描述' }}</span>
-            </div>
-          </template>
-          <template v-else-if="column.key === 'mcpKey'">
-            <div class="copyable-key">
-              <span class="mono-chip">{{ record.mcpKey || '—' }}</span>
-              <a-tooltip title="复制 MCP Key">
-                <a-button
-                  type="text"
-                  class="copy-btn"
-                  :disabled="!record.mcpKey"
-                  @click="copyMcpKey(record.mcpKey)"
-                >
-                  <template #icon><copy-outlined /></template>
-                </a-button>
-              </a-tooltip>
-            </div>
-          </template>
-          <template v-else-if="column.key === 'type'">
-            <span class="type-pill" :class="`type-pill-${String(record.type || '').toLowerCase()}`">
-              {{ getTypeLabel(record.type) }}
-            </span>
-          </template>
-          <template v-else-if="column.key === 'connection'">
-            <div class="cell-stack">
-              <span class="cell-title mono-text-inline multiline-2">{{ getConnectionPrimary(record) }}</span>
-              <div class="detail-pills">
-                <span
-                  v-for="item in getConnectionDetails(record)"
-                  :key="item"
-                  class="detail-pill"
-                >
-                  {{ item }}
-                </span>
-              </div>
-            </div>
-          </template>
-          <template v-else-if="column.key === 'enabled'">
+
+      
+     
+          <template v-if="column.key === 'enabled'">
             <span class="status-pill" :class="{ off: record.enabled !== 1 }">
               {{ record.enabled === 1 ? '启用' : '停用' }}
             </span>
           </template>
-          <template v-else-if="column.key === 'actions'">
+          <template v-if="column.key === 'actions'">
             <a-button type="link" class="action-link" @click="openEdit(record)">
               <template #icon><edit-outlined /></template>
-              编辑
+
             </a-button>
             <a-divider type="vertical" />
             <a-popconfirm
@@ -114,7 +68,7 @@
             >
               <a-button type="link" danger class="action-link">
                 <template #icon><delete-outlined /></template>
-                删除
+
               </a-button>
             </a-popconfirm>
           </template>
@@ -157,7 +111,6 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -171,6 +124,11 @@ type QueryState = {
   enabled?: number
 }
 
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: 'AI MCP' },
+]
+
 const typeFilterOptions = [
   { label: 'SSE', value: 'SSE' },
   { label: 'STDIO', value: 'STDIO' },
@@ -178,11 +136,11 @@ const typeFilterOptions = [
 ]
 
 const columns = [
-  { title: '服务名称', key: 'server', width: 240 },
-  { title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 220, ellipsis: true },
+    { title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 180, ellipsis: true, copyable: true },
+  { title: '服务名称', dataIndex: 'serverName', key: 'serverName', width: 240 },
   { title: '类型', dataIndex: 'type', key: 'type', width: 120 },
-  { title: '连接配置', key: 'connection', width: 380 },
   { title: '启用', key: 'enabled', width: 90 },
+    { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
 
@@ -319,9 +277,15 @@ const resetFilters = () => {
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-
   {
-    label: '批量删除',
+    label: '重置',
+    type: 'primary',
+    plain: true,
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     type: 'danger',
     plain: true,
     icon: DeleteOutlined,
@@ -334,13 +298,6 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
         onOk: () => handleBatchDelete()
       })
     }
-  },
-  {
-    label: '重置',
-    type: 'primary',
-    plain: true,
-    icon: ReloadOutlined,
-    onClick: resetFilters
   },
   {
     label: '新增',

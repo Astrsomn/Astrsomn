@@ -22,7 +22,7 @@ export const AI_MODEL_PROVIDER_ORDER = [
   'qianfan'
 ] as const
 
-export type AiModelProviderCode = (typeof AI_MODEL_PROVIDER_ORDER)[number]
+export type AiModelExtensionCode = (typeof AI_MODEL_PROVIDER_ORDER)[number]
 
 // === 模型状态顺序 ===
 export const AI_MODEL_STATUS_ORDER = ['enabled', 'disabled'] as const

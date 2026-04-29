@@ -60,8 +60,8 @@ public final class RuntimeChatParamMergeSupport {
         if (StringUtils.isBlank(target.getApiUrl())) {
             target.setApiUrl(StringUtils.trimToNull(model.getApiUrl()));
         }
-        if (StringUtils.isBlank(target.getProvider())) {
-            target.setProvider(StringUtils.trimToNull(model.getProvider()));
+        if (StringUtils.isBlank(target.getExtensionCode())) {
+            target.setExtensionCode(StringUtils.trimToNull(model.getExtensionCode()));
         }
         if (StringUtils.isBlank(target.getApiKey())) {
             target.setAccountKey(StringUtils.trimToNull(model.getAccountKey()));

@@ -111,7 +111,7 @@ public class SystemExtensionRegistry {
             entity.setApplied(existing.getApplied());
             entity.setStatus(existing.getStatus());
             entity.setJarName(existing.getJarName());
-            entity.setProviderCode(existing.getProviderCode());
+            entity.setExtensionCode(existing.getExtensionCode());
             entity.setInstallSource(Optional.ofNullable(StringUtils.trimToNull(existing.getInstallSource()))
                     .orElse(entity.getInstallSource()));
             entity.setDiscoveryMechanism(Optional.ofNullable(StringUtils.trimToNull(existing.getDiscoveryMechanism()))

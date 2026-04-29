@@ -2,6 +2,7 @@
   <AdminPageShell
       title="接入端点管理"
       description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
+      :breadcrumbs="breadcrumbs"
   >
     <div class="model-page-container">
       <AstrsomnDataSection>
@@ -28,17 +29,7 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前共有 ${list.length} 条端点记录，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
-          />
-        </template>
+
 
         <AstrsomnDataView
           mode="table"
@@ -112,23 +103,7 @@
                   <code class="code-text">{{ record.modelKey }}</code>
                 </template>
 
-                <template v-else-if="column.key === 'sourceType'">
-                  <a-tag v-if="record.sourceType" :color="record.sourceType === 'plugin' ? 'purple' : 'blue'">
-                    {{ sourceTypeDict.getLabel(String(record.sourceType || '')) }}
-                  </a-tag>
-                  <span v-else class="text-secondary">-</span>
-                </template>
 
-                <template v-else-if="column.key === 'apiUrl'">
-                  <a-tag :color="record.apiUrl ? 'green' : 'default'">
-                    {{ record.apiUrl ? '已配置' : '未配置' }}
-                  </a-tag>
-                </template>
-
-                <template v-else-if="column.key === 'envCode'">
-                  <a-tag v-if="record.envCode" color="blue">{{ record.envCode }}</a-tag>
-                  <span v-else class="text-secondary">-</span>
-                </template>
 
                 <template v-else-if="column.key === 'runtime'">
                   <div class="runtime-meta">
@@ -141,33 +116,22 @@
                   </div>
                 </template>
 
-                <template v-else-if="column.key === 'createdMeta'">
-                  <div class="created-meta">
-                    <span class="created-line">
-                      <calendar-outlined class="cell-icon subtle" />
-                      {{ formatTime(record.createTime) }}
-                    </span>
-                  </div>
-                </template>
+       
 
                 <template v-else-if="column.key === 'actions'">
-                  <div class="table-actions">
+                  <a-space>
                     <a-button type="link" size="small" @click="openView(record)">
-                      <template #icon><eye-outlined /></template>
-                      详情
+                      <eye-outlined />
                     </a-button>
-                    <a-divider type="vertical" />
                     <a-button type="link" size="small" @click="openEdit(record)">
-                      <template #icon><edit-outlined /></template>
-                      配置
+                      <edit-outlined />
                     </a-button>
-                    <a-divider type="vertical" />
                     <a-popconfirm title="移除端点将影响下游关联实例，确定吗？" @confirm="() => handleDeleteOne(record.id)">
                       <a-button type="link" size="small" danger>
-                        <template #icon><delete-outlined /></template>
+                        <delete-outlined />
                       </a-button>
                     </a-popconfirm>
-                  </div>
+                  </a-space>
                 </template>
           </template>
         </AstrsomnDataView>
@@ -216,7 +180,6 @@ import {
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -229,6 +192,11 @@ import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
 
 // ... (逻辑部分基本保持与原代码一致，新增工具函数)
 
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: '接入端点管理' },
+]
+
 const providerDict = useDictionary('ai-model.provider')
 const statusDict = useDictionary('ai-model.status')
 const sourceTypeDict = useDictionary('ai-model.sourceType')
@@ -238,14 +206,32 @@ const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }
 
 const columns = [
   { title: '类型', key: 'modelType', width: 60 },
-  { title: '供应商', key: 'providerAvatar', width: 60, align: 'center' },
+  { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' },
   { title: '模型信息', key: 'modelName', width: 180 },
-  { title: '标识 Key', key: 'modelKey', width: 150 },
-  { title: '来源', key: 'sourceType', width: 100 },
+  { title: '模型Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true },
+  { 
+    title: '来源', 
+    dataIndex: 'sourceType', 
+    key: 'sourceType', 
+    width: 100, 
+    enum: [
+      { value: 'plugin', label: '插件', color: 'purple' },
+      { value: 'api', label: 'API', color: 'blue' }
+    ] 
+  },
   { title: '状态', key: 'status', width: 100 },
-  { title: '接口地址', key: 'apiUrl', width: 100 },
-  { title: "环境", key: "envCode", width: 100},
-  { title: '创建信息', key: 'createdMeta', width: 150 },
+  { 
+    title: '接口地址', 
+    dataIndex: 'apiUrl', 
+    key: 'apiUrl', 
+    width: 100, 
+    tag: true,
+    tagColor: (value: string) => value ? 'green' : 'default',
+    tagText: (value: string) => value ? '已配置' : '未配置'
+  },
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
   { title: '操作', key: 'actions', width: 140 }
 ]
 
@@ -372,10 +358,11 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
     label: '搜索',
     type: 'primary',
     icon: SearchOutlined,
+    plain: true,
     onClick: () => void fetchList()
   },
   {
-    label: '批量删除',
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
@@ -391,7 +378,8 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
     label: '创建',
     type: 'primary',
     icon: PlusOutlined,
-    onClick: openCreate
+    onClick: openCreate,
+    plain: true
   }
 ])
 

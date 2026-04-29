@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class AiAccountResponseDTO {
 
@@ -12,7 +14,7 @@ public class AiAccountResponseDTO {
     private String envCode;
     private String accountKey;
     private String accountName;
-    private String provider;
+    private String extensionCode;
     private String apiUrl;
     private String apiKey;
     private String apiSecret;
@@ -21,4 +23,9 @@ public class AiAccountResponseDTO {
     private Long usedModelCount;
     private String usedModelKeys;
     private String usedModelNames;
+    private String extensionName;
+    private String providerAvatar;
+    private LocalDateTime createTime;
+    private String createUser;
+
 }

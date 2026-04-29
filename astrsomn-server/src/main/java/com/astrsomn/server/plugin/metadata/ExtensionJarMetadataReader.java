@@ -37,10 +37,10 @@ public final class ExtensionJarMetadataReader {
              JarFile jarFile = new JarFile(jar)) {
             return findFirstSpiInJar(AstroExtensionDescriptor.class, cl, jarFile, jar.getName())
                     .map(d -> {
-                        String providerCode = findFirstSpiInJar(ModelProviderHandler.class, cl, jarFile, jar.getName())
-                                .map(ExtensionJarMetadataReader::extractProviderCode)
+                        String extensionCode = findFirstSpiInJar(ModelProviderHandler.class, cl, jarFile, jar.getName())
+                                .map(ExtensionJarMetadataReader::extractExtensionCode)
                                 .orElse(null);
-                        return buildMetaData(d, providerCode);
+                        return buildMetaData(d, extensionCode);
                     });
         } catch (Throwable t) {
             log.warn("{} 解析扩展元数据失败 | Jar: {} | 异常: {}", LOG_PREFIX, jar.getName(), t.getMessage());
@@ -104,7 +104,7 @@ public final class ExtensionJarMetadataReader {
         }
     }
 
-    private static String extractProviderCode(ModelProviderHandler handler) {
+    private static String extractExtensionCode(ModelProviderHandler handler) {
         try {
             return handler.getProvider().getCode();
         } catch (Exception e) {
@@ -116,7 +116,7 @@ public final class ExtensionJarMetadataReader {
     /**
      * 清洗数据并构建元数据实体
      */
-    private static SystemExtensionMetaData buildMetaData(AstroExtensionDescriptor d, String providerCode) {
+    private static SystemExtensionMetaData buildMetaData(AstroExtensionDescriptor d, String extensionCode) {
         return new SystemExtensionMetaData(
                 StringUtils.trimToNull(d.getExtensionKey()),
                 StringUtils.trimToNull(d.getName()),
@@ -125,7 +125,7 @@ public final class ExtensionJarMetadataReader {
                 StringUtils.trimToNull(d.getAuthor()),
                 StringUtils.trimToNull(d.getDescription()),
                 StringUtils.trimToNull(d.getAvatar()),
-                StringUtils.trimToNull(providerCode),
+                StringUtils.trimToNull(extensionCode),
                 StringUtils.trimToNull(d.getChangelog()),
                 StringUtils.trimToNull(d.getMinServerVersion())
         );

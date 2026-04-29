@@ -6,11 +6,7 @@ import {
   AI_MODEL_CAPABILITY_ORDER,
   AI_MODEL_PROVIDER_ORDER,
   AI_MODEL_STATUS_ORDER,
-  AI_MODEL_SOURCE_TYPE_ORDER,
-  AiModelCapabilityCode,
-  AiModelProviderCode,
-  AiModelStatusCode,
-  AiModelSourceTypeCode
+  AI_MODEL_SOURCE_TYPE_ORDER
 } from '@/constants/aiModelEnums.ts'
 
 const providerLabels = {
