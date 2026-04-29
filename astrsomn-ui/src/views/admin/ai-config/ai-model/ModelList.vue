@@ -132,33 +132,22 @@
                   </div>
                 </template>
 
-                <template v-else-if="column.key === 'createdMeta'">
-                  <div class="created-meta">
-                    <span class="created-line">
-                      <calendar-outlined class="cell-icon subtle" />
-                      {{ formatTime(record.createTime) }}
-                    </span>
-                  </div>
-                </template>
+       
 
                 <template v-else-if="column.key === 'actions'">
-                  <div class="table-actions">
+                  <a-space>
                     <a-button type="link" size="small" @click="openView(record)">
-                      <template #icon><eye-outlined /></template>
-                      详情
+                      <eye-outlined />
                     </a-button>
-                    <a-divider type="vertical" />
                     <a-button type="link" size="small" @click="openEdit(record)">
-                      <template #icon><edit-outlined /></template>
-                      配置
+                      <edit-outlined />
                     </a-button>
-                    <a-divider type="vertical" />
                     <a-popconfirm title="移除端点将影响下游关联实例，确定吗？" @confirm="() => handleDeleteOne(record.id)">
                       <a-button type="link" size="small" danger>
-                        <template #icon><delete-outlined /></template>
+                        <delete-outlined />
                       </a-button>
                     </a-popconfirm>
-                  </div>
+                  </a-space>
                 </template>
           </template>
         </AstrsomnDataView>
@@ -240,7 +229,7 @@ const columns = [
   { title: '状态', key: 'status', width: 100 },
   { title: '接口地址', key: 'apiUrl', width: 100 },
   { title: "环境", key: "envCode", width: 100},
-  { title: '创建信息', key: 'createdMeta', width: 150 },
+  { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
   { title: '操作', key: 'actions', width: 140 }
 ]
 

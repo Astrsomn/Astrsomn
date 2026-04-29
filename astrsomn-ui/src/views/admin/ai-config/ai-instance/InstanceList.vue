@@ -65,11 +65,16 @@
               <span class="mono-text">{{ record.instanceKey || '-' }}</span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" size="small" @click="goEdit(record)">编辑</a-button>
-              <a-divider type="vertical" />
-              <a-popconfirm title="确定删除该配置吗？" @confirm="() => handleDeleteOne(record.id)">
-                <a-button type="link" size="small" danger>删除</a-button>
-              </a-popconfirm>
+              <a-space>
+                <a-button type="link" size="small" @click="goEdit(record)">
+                  <EditOutlined />
+                </a-button>
+                <a-popconfirm title="确定删除该配置吗？" @confirm="() => handleDeleteOne(record.id)">
+                  <a-button type="link" danger size="small">
+                    <DeleteOutlined />
+                  </a-button>
+                </a-popconfirm>
+              </a-space>
             </template>
           </template>
         </AstrsomnDataView>
@@ -96,7 +101,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
@@ -147,7 +152,7 @@ const columns = [
   { title: '模型类型', dataIndex: 'modelType', key: 'modelType', width: 110 },
   { title: '关联模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true, copyable: true },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 170, ellipsis: true },
+  { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
   { title: '操作', key: 'actions', width: 140, fixed: 'right' as const }
 ]
 

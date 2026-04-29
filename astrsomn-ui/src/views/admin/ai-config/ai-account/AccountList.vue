@@ -167,11 +167,12 @@ type QueryState = {
 const columns = [
   { title: '账号名称', dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true },
   { title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true },
-  { title: '供应商', key: 'providerAvatar', width: 60, align: 'center' },
+  { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' },
   { title: '扩展名称', dataIndex: 'extensionName', key: 'extensionName', width: 120, ellipsis: true },
   { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
   { title: '请求路径', dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true },
   { title: '额度', dataIndex: 'accountTokens', key: 'accountTokens', width: 120, ellipsis: true },
+    { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
   { title: '操作', key: 'actions', width: 220, fixed: 'right' as const }
 ]
 

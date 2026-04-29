@@ -63,13 +63,19 @@
               v{{ record.version || 1 }}
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" size="small" @click="openHistory(record)">历史</a-button>
-              <a-divider type="vertical" />
-              <a-button type="link" size="small" @click="openEdit(record)">编辑</a-button>
-              <a-divider type="vertical" />
-              <a-popconfirm title="确定删除吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
-                <a-button type="link" danger size="small">删除</a-button>
-              </a-popconfirm>
+              <a-space>
+                <a-button type="link" size="small" @click="openHistory(record)">
+                  <HistoryOutlined />
+                </a-button>
+                <a-button type="link" size="small" @click="openEdit(record)">
+                  <EditOutlined />
+                </a-button>
+                <a-popconfirm title="确定删除吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
+                  <a-button type="link" danger size="small">
+                    <DeleteOutlined />
+                  </a-button>
+                </a-popconfirm>
+              </a-space>
             </template>
           </template>
         </AstrsomnDataView>
@@ -106,6 +112,8 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   DeleteOutlined,
+  EditOutlined,
+  HistoryOutlined,
   PlusOutlined,
   ReloadOutlined,
 } from '@ant-design/icons-vue'
@@ -150,7 +158,8 @@ const columns = [
   { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
   { title: '版本', dataIndex: 'version', key: 'version', width: 90 },
-  { title: '操作', key: 'actions', width: 180, fixed: 'right' as const }
+    { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
+  { title: '操作', key: 'actions', width: 150, fixed: 'right' as const }
 ]
 
 const page = reactive({

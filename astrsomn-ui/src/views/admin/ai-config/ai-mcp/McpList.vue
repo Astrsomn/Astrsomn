@@ -94,7 +94,7 @@
           <template v-else-if="column.key === 'actions'">
             <a-button type="link" class="action-link" @click="openEdit(record)">
               <template #icon><edit-outlined /></template>
-              编辑
+
             </a-button>
             <a-divider type="vertical" />
             <a-popconfirm
@@ -105,7 +105,7 @@
             >
               <a-button type="link" danger class="action-link">
                 <template #icon><delete-outlined /></template>
-                删除
+
               </a-button>
             </a-popconfirm>
           </template>
@@ -178,6 +178,7 @@ const columns = [
   { title: '类型', dataIndex: 'type', key: 'type', width: 120 },
   { title: '连接配置', key: 'connection', width: 380 },
   { title: '启用', key: 'enabled', width: 90 },
+    { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
 

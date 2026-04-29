@@ -41,8 +41,8 @@ interface BreadcrumbItem {
 
 withDefaults(
   defineProps<{
-    title: string;
-    description: string;
+    title?: string;
+    description?: string;
     emptyText?: string;
     breadcrumbs?: BreadcrumbItem[];
     showViewToggle?: boolean;

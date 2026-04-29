@@ -53,16 +53,21 @@
             <span class="desc-preview">{{ preview(record.description) }}</span>
           </template>
           <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="openEdit(record)">编辑</a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger>删除</a-button>
-            </a-popconfirm>
+            <a-space>
+              <a-button type="link" size="small" @click="openEdit(record)">
+                <EditOutlined />
+              </a-button>
+              <a-popconfirm
+                title="确定删除吗？"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="() => handleDeleteOne(record.id)"
+              >
+                <a-button type="link" danger size="small">
+                  <DeleteOutlined />
+                </a-button>
+              </a-popconfirm>
+            </a-space>
           </template>
           </template>
         </AstrsomnDataView>
@@ -94,6 +99,7 @@ import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
   DeleteOutlined,
+  EditOutlined,
   KeyOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -147,7 +153,8 @@ const columns = [
   { title: '方法', dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true },
   { title: '描述', key: 'description', width: 200, ellipsis: true },
   { title: '状态', key: 'enableFlag', width: 80 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+    { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
+  { title: '操作', key: 'actions', width: 100, fixed: 'right' as const }
 ]
 
 const query = reactive<QueryState>({})

@@ -7,7 +7,7 @@
         SELECT
         AA.*,
         AM_CHAT.`MODEL_NAME` AS modelName,
-        AM_CHAT.`PROVIDER` AS modelProvider,
+        AM_CHAT.`EXTENSION_CODE` AS modelProvider,
         CI_CHAT.`INSTANCE_NAME` AS chatInstanceName,
         CI_EMBED.`INSTANCE_NAME` AS embeddingInstanceName,
         CI_IMAGE.`INSTANCE_NAME` AS imageInstanceName,

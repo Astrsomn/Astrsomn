@@ -22,4 +22,5 @@ public class AiAccountResponseDTO {
     private String usedModelKeys;
     private String usedModelNames;
     private String extensionName;
+    private String providerAvatar;
 }

@@ -1,7 +1,6 @@
 <template>
   <AdminPageShell
-    title="系统扩展"
-    description="管理系统扩展包"
+
     empty-text="暂无系统扩展。"
   >
     <div class="extension-page">
