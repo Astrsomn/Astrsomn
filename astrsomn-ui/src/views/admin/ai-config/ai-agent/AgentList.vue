@@ -2,6 +2,10 @@
   <AdminPageShell
     title="智能体管理"
     description="管理 Agent 配置、执行策略与发布状态。"
+    :breadcrumbs="breadcrumbs"
+    :show-view-toggle="true"
+    :view-mode="viewMode"
+    :view-toggle-handler="handleViewToggle"
   >
     <div ref="pageRef" class="agent-page">
       <AstrsomnDataSection>
@@ -20,19 +24,6 @@
               <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
             </div>
           </div>
-        </template>
-
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedCount"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="true"
-            :view-mode="viewMode"
-            @toggle-select-all="onToggleSelectAll"
-            @update:view-mode="onViewModeChange"
-          />
         </template>
 
         <AstrsomnDataView
@@ -102,11 +93,11 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { CheckCircleOutlined, PlusOutlined, ReloadOutlined, StopOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -144,13 +135,29 @@ const selectedKeys = ref<Set<string | number>>(new Set())
 const currentGridColumns = ref(resolveGridColumns())
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: '智能体管理' },
+]
+
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
+}
+
 const selectedCount = computed(() => selectedKeys.value.size)
 const allCurrentSelected = computed(() => list.value.length > 0 && selectedKeys.value.size === list.value.length)
 const partCurrentSelected = computed(() => selectedKeys.value.size > 0 && selectedKeys.value.size < list.value.length)
 const tableSelectedRowKeys = computed<Array<string | number>>(() => Array.from(selectedKeys.value))
 
 const tableColumns = [
-{ title: 'Agent Key', dataIndex: 'agentKey', key: 'agentKey', ellipsis: true, width: 120 },
+  { 
+    title: 'Agent Key', 
+    dataIndex: 'agentKey', 
+    key: 'agentKey', 
+    ellipsis: true, 
+    width: 140,
+    copyable: true
+  },
   { title: '智能体名称', dataIndex: 'agentName', key: 'agentName', ellipsis: true, width: 200 },
   { title: '模型实例', dataIndex: 'chatInstanceName', key: 'chatInstanceName', ellipsis: true, width: 180 },
   { title: '提示词策略', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true, width: 180 },
@@ -223,10 +230,16 @@ const openCreate = () => {
   assemblyVisible.value = true
 }
 
-const toolbarSegmentButtons: SegmentedButton[] = [
+const toolbarSegmentButtons = computed(() => [
   { label: '重置', icon: ReloadOutlined, onClick: resetFilters },
+  { 
+    label: selectedCount.value > 0 ? `删除 (${selectedCount.value})` : '删除', 
+    icon: DeleteOutlined, 
+    onClick: () => handleBatchDelete(Array.from(selectedKeys.value)),
+    disabled: selectedCount.value === 0
+  },
   { label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate },
-]
+])
 
 const openEdit = async (record: AiAgent) => {
   const id = record.id

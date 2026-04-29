@@ -3,6 +3,10 @@
     title="推理参数配置"
     description="管理 AI 运行预设：定义采样温度、长度限制及生成策略，供智能体直接引用。"
     empty-text="暂无推理预设实例。"
+    :breadcrumbs="breadcrumbs"
+    :show-view-toggle="true"
+    :view-mode="viewMode"
+    :view-toggle-handler="handleViewToggle"
   >
     <div ref="pageRef" class="instance-page">
       <AstrsomnDataSection>
@@ -23,20 +27,6 @@
           </div>
         </template>
 
-        <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :view-mode="viewMode"
-            :summary-text="`当前页 ${list.length} 条配置，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
-            @update:view-mode="onViewModeChange"
-          />
-        </template>
-
         <AstrsomnDataView
           :mode="dataViewMode"
           :data-source="list"
@@ -55,7 +45,6 @@
               :record="record"
               :index="list.findIndex((item) => item.id === record.id)"
               :selected="record.id != null && selectedKeySet.has(record.id)"
-              @toggle-select="onToggleSelect(record.id)"
               @edit="goEdit(record)"
               @delete="handleDeleteOne(record.id)"
             />
@@ -111,7 +100,6 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
@@ -137,26 +125,31 @@ const viewMode = ref<'grid' | 'list'>('list')
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 const currentGridColumns = ref(3)
 
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: '推理参数配置' },
+]
+
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
+}
+
 const columns = [
-{ title: '实例 Key', dataIndex: 'instanceKey', key: 'instanceKey', width: 120, ellipsis: true },
+  { 
+    title: '实例 Key', 
+    dataIndex: 'instanceKey', 
+    key: 'instanceKey', 
+    width: 120, 
+    ellipsis: true,
+    copyable: true
+  },
   { title: '名称', dataIndex: 'instanceName', key: 'instanceName', width: 180, ellipsis: true },
   { title: '模型类型', dataIndex: 'modelType', key: 'modelType', width: 110 },
-  { title: '关联模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true },
+  { title: '关联模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true, copyable: true },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
   { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 170, ellipsis: true },
   { title: '操作', key: 'actions', width: 140, fixed: 'right' as const }
 ]
-
-const currentPageIds = computed(() =>
-  list.value.map((item) => item.id).filter((id): id is number | string => id != null)
-)
-const allCurrentSelected = computed(() =>
-  currentPageIds.value.length > 0 && currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
-)
-const partCurrentSelected = computed(() => {
-  const count = currentPageIds.value.filter((id) => selectedRowKeys.value.includes(id)).length
-  return count > 0 && count < currentPageIds.value.length
-})
 
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
@@ -164,23 +157,6 @@ const rowSelection = computed(() => ({
     selectedRowKeys.value = keys
   }
 }))
-
-const toggleSelectAllCurrentPage = (checked: boolean) => {
-  if (checked) {
-    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...currentPageIds.value]))
-    return
-  }
-  selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
-}
-
-const onToggleSelect = (id: number | string | undefined) => {
-  if (id == null) return
-  if (selectedRowKeys.value.includes(id)) {
-    selectedRowKeys.value = selectedRowKeys.value.filter((item) => item !== id)
-    return
-  }
-  selectedRowKeys.value = [...selectedRowKeys.value, id]
-}
 
 const modelTypeLabel = (type?: string) => {
   if (type === 'embedding') return '向量'
@@ -208,10 +184,6 @@ const onPageChange = (p: number, size: number) => {
   page.pageNum = p
   page.pageSize = size
   void fetchList()
-}
-
-const onViewModeChange = (mode: 'grid' | 'list') => {
-  viewMode.value = mode
 }
 
 const goCreate = () => {
@@ -246,7 +218,7 @@ const handleBatchDelete = async () => {
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '批量删除',
+    label: selectedRowKeys.value.length > 0 ? `批量删除 (${selectedRowKeys.value.length})` : '批量删除',
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
@@ -305,7 +277,7 @@ onBeforeUnmount(() => {
 .toolbar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
   flex-wrap: wrap;
 }

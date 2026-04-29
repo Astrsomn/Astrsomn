@@ -22,7 +22,7 @@
         class="data-view-table"
         :row-key="rowKey"
         :data-source="dataSource"
-        :columns="columns"
+        :columns="processedColumns"
         :pagination="false"
         :row-selection="rowSelection"
         :scroll="scroll"
@@ -36,7 +36,15 @@
             :text="text"
             :index="index"
           >
-            {{ text }}
+            <template v-if="column.copyable && text">
+              <span class="copyable-cell" @click="handleCopy(text)" title="点击复制">
+                {{ text }}
+                <CopyOutlined class="copy-icon" />
+              </span>
+            </template>
+            <template v-else>
+              {{ text }}
+            </template>
           </slot>
         </template>
       </a-table>
@@ -50,6 +58,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { message } from 'ant-design-vue'
+import { CopyOutlined } from '@ant-design/icons-vue'
 
 const props = withDefaults(defineProps<{
   mode: 'card' | 'table'
@@ -82,10 +92,32 @@ const gridStyle = computed(() => ({
   gap: props.cardGap
 }))
 
+const processedColumns = computed(() => {
+  return props.columns.map(col => {
+    if (col.copyable) {
+      return {
+        ...col,
+        customRender: undefined
+      }
+    }
+    return col
+  })
+})
+
 const resolveKey = (record: any) => {
   if (typeof props.rowKey === 'function') return props.rowKey(record)
   const key = props.rowKey
   return record?.[key] ?? record?.id ?? record?.agentKey ?? record?.agentName ?? Math.random()
+}
+
+const handleCopy = async (text: string) => {
+  if (!text) return
+  try {
+    await navigator.clipboard.writeText(text)
+    message.success('已复制到剪贴板')
+  } catch {
+    message.error('复制失败，请手动复制')
+  }
 }
 </script>
 
@@ -128,6 +160,29 @@ const resolveKey = (record: any) => {
 .data-view-table :deep(.ant-table-cell-fix-right),
 .data-view-table :deep(.ant-table-cell-fix-left) {
   background: inherit;
+}
+
+.copyable-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--primary);
+  transition: color 0.2s;
+}
+
+.copyable-cell:hover {
+  color: var(--primary-hover);
+}
+
+.copy-icon {
+  font-size: 12px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.copyable-cell:hover .copy-icon {
+  opacity: 1;
 }
 
 .data-view-empty {
