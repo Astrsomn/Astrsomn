@@ -1,0 +1,6 @@
+export const AI_MODEL_KEY_PREFIX = 'model_'
+export const AI_ACCOUNT_KEY_PREFIX = 'account_'
+export const AI_AGENT_KEY_PREFIX = 'agent_'
+export const AI_MCP_KEY_PREFIX = 'mcp_'
+export const AI_PROMPT_KEY_PREFIX = 'prompt_'
+export const AI_TOOL_KEY_PREFIX = 'tool_'

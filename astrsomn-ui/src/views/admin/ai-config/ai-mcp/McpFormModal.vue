@@ -77,8 +77,9 @@
                 </a-row>
 
                 <a-form-item label="MCP Key (识别码)" name="mcpKey">
-                  <a-input
-                    v-model:value="form.mcpKey"
+                  <AstrsomnKeyGenerator
+                    v-model="form.mcpKey"
+                    :prefix="AI_MCP_KEY_PREFIX"
                     :disabled="mode === 'edit'"
                     placeholder="留空则服务端自动生成"
                     size="large"
@@ -195,6 +196,8 @@ import {
 import type { FormInstance } from 'ant-design-vue'
 import type { AiMcp } from '@/api/aiMcp.ts'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
+import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
+import { AI_MCP_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
 
 const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiMcp | null }>()
 const emit = defineEmits<{ submit: [payload: AiMcp] }>()

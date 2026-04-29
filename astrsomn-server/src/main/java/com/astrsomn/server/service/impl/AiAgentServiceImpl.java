@@ -16,7 +16,6 @@ import com.astrsomn.commn.base.BusinessException;
 import com.astrsomn.core.exception.AiAgentErrorEnum;
 import com.astrsomn.starter.mapper.AiAgentMapper;
 import com.astrsomn.server.service.AiAgentService;
-import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -27,14 +26,14 @@ import com.astrsomn.core.common.utils.PageUtils;
 @RequiredArgsConstructor
 public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity> implements AiAgentService {
 
-    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
     private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiAgentCreateRequestDTO request) {
         AiAgentEntity aiAgent = new AiAgentEntity();
         BeanUtils.copyProperties(request, aiAgent);
-        bizResourceKeyAssignHelper.assignAgentKeyIfBlank(aiAgent);
+
         boolean result = save(aiAgent);
         if (!result) {
             throw new BusinessException(AiAgentErrorEnum.AGENT_CREATE_FAILED);
@@ -73,7 +72,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         }
         AiAgentEntity aiAgent = new AiAgentEntity();
         BeanUtils.copyProperties(request, aiAgent);
-        bizResourceKeyAssignHelper.assignAgentKeyIfBlank(aiAgent);
+
         boolean result = updateById(aiAgent);
         if (!result) {
             throw new BusinessException(AiAgentErrorEnum.AGENT_UPDATE_FAILED);

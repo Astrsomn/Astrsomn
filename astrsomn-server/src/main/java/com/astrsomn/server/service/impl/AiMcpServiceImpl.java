@@ -15,7 +15,6 @@ import com.astrsomn.commn.base.BusinessException;
 import com.astrsomn.core.exception.AiMcpErrorEnum;
 import com.astrsomn.starter.mapper.AiMcpMapper;
 import com.astrsomn.server.service.AiMcpService;
-import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -26,14 +25,14 @@ import com.astrsomn.core.common.utils.PageUtils;
 @RequiredArgsConstructor
 public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> implements AiMcpService {
 
-    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
     private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiMcpCreateRequestDTO request) {
         AiMcpEntity entity = new AiMcpEntity();
         BeanUtils.copyProperties(request, entity);
-        bizResourceKeyAssignHelper.assignMcpKeyIfBlank(entity);
+
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AiMcpErrorEnum.MCP_CREATE_FAILED);
@@ -72,7 +71,7 @@ public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> impl
         }
         AiMcpEntity entity = new AiMcpEntity();
         BeanUtils.copyProperties(request, entity);
-        bizResourceKeyAssignHelper.assignMcpKeyIfBlank(entity);
+
         boolean result = updateById(entity);
         if (!result) {
             throw new BusinessException(AiMcpErrorEnum.MCP_UPDATE_FAILED);

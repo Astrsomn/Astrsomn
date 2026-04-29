@@ -46,7 +46,7 @@
 
               <a-form-item label="Provider" name="provider">
                 <ModelProviderSelect
-                  v-model:value="form.provider"
+                  v-model:value="form.extensionCode"
                   placeholder="请选择端点所属服务商"
                   size="large"
                   :disabled="props.mode === 'view' || isPluginModel"
@@ -75,18 +75,13 @@
                 >
                   <a-input v-model:value="form.modelKey" placeholder="建议留空，系统将自动生成唯一索引" size="large" disabled />
                 </a-tooltip>
-                <a-input
+                <AstrsomnKeyGenerator
                   v-else
-                  v-model:value="form.modelKey"
+                  v-model="form.modelKey"
+                  :prefix="AI_MODEL_KEY_PREFIX"
                   placeholder="建议留空，系统将自动生成唯一索引"
                   size="large"
-                >
-                  <template #suffix>
-                    <a-tooltip title="重置识别码">
-                      <ReloadOutlined v-if="form.modelKey" @click="form.modelKey = ''" class="input-action-icon" />
-                    </a-tooltip>
-                  </template>
-                </a-input>
+                />
               </a-form-item>
 
               <a-form-item label="关联账号" name="accountKey">
@@ -252,16 +247,18 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import {
-  IdcardOutlined, ReloadOutlined, MessageOutlined,
+  IdcardOutlined, MessageOutlined,
   PartitionOutlined, LockOutlined, ThunderboltOutlined,
   CheckCircleFilled, ControlOutlined, PictureOutlined, GlobalOutlined,
   SettingOutlined
 } from '@ant-design/icons-vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
+import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
 import ModelProviderSelect from './ModelProviderSelect.vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiModel } from '@/api/aiModel'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
+import { AI_MODEL_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
 import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
 import { aiModelCapabilitiesDictionary, aiModelSourceTypeDictionary } from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'
 import {
@@ -981,8 +978,4 @@ const onCancel = () => emit('update:open', false)
   height: 38px;
 }
 
-.input-action-icon:hover {
-  color: #ff4d4f;
-  cursor: pointer;
-}
 </style>

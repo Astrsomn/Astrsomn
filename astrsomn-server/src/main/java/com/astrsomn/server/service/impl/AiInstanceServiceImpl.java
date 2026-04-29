@@ -16,7 +16,6 @@ import com.astrsomn.commn.base.BusinessException;
 import com.astrsomn.core.exception.AiInstanceErrorEnum;
 import com.astrsomn.starter.mapper.AiInstanceMapper;
 import com.astrsomn.server.service.AiInstanceService;
-import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ import com.astrsomn.core.common.utils.PageConverter;
 @RequiredArgsConstructor
 public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInstanceEntity> implements AiInstanceService {
 
-    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
     private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
@@ -37,7 +36,7 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
         }
         AiInstanceEntity entity = new AiInstanceEntity();
         BeanUtils.copyProperties(request, entity);
-        bizResourceKeyAssignHelper.assignInstanceKeyIfBlank(entity);
+
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AiInstanceErrorEnum.INSTANCE_CREATE_FAILED);
@@ -74,7 +73,7 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
         }
         AiInstanceEntity entity = new AiInstanceEntity();
         BeanUtils.copyProperties(request, entity);
-        bizResourceKeyAssignHelper.assignInstanceKeyIfBlank(entity);
+
         entity.setModelKey(existing.getModelKey());
         boolean result = updateById(entity);
         if (!result) {

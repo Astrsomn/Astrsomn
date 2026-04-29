@@ -7,13 +7,14 @@ import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
+import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -59,12 +60,18 @@ public class MybatisPlusConfig {
     }
 
     @Bean
+    public Interceptor reflectiveAuditAutoFillInterceptor(AstrsomnProperties properties) {
+        return new ReflectiveAuditAutoFillInterceptor(properties);
+    }
+
+    @Bean
     public SqlSessionFactory sqlSessionFactory(
             DataSource dataSource,
             AstrsomnProperties properties,
             MybatisPlusInterceptor mybatisPlusInterceptor,
+            Interceptor reflectiveAuditAutoFillInterceptor,
             ObjectProvider<MetaObjectHandler> metaObjectHandlerProvider) throws Exception {
-        SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
+        MybatisSqlSessionFactoryBean factoryBean = new MybatisSqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource);
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
@@ -100,7 +107,7 @@ public class MybatisPlusConfig {
                 });
         factoryBean.setMapperLocations(mapperResources.toArray(new Resource[0]));
         factoryBean.setTypeAliasesPackage(typeAliasesPackage);
-        factoryBean.setPlugins(mybatisPlusInterceptor);
+        factoryBean.setPlugins(mybatisPlusInterceptor, reflectiveAuditAutoFillInterceptor);
         
         // 关键：显式设置 MyBatis-Plus SqlInjector，确保 BaseMapper 默认方法
         // （如 selectList/selectById/insert 等）能够被注入到 mapped statements 中

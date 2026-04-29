@@ -19,7 +19,6 @@ import com.astrsomn.core.exception.AiModelErrorEnum;
 import com.astrsomn.starter.mapper.AiInstanceMapper;
 import com.astrsomn.starter.mapper.AiModelMapper;
 import com.astrsomn.server.service.AiModelService;
-import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.config.AstrsomnProperties;
 import com.astrsomn.starter.context.EnvRuntime;
@@ -35,7 +34,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     private final AstrsomnProperties astrsomnProperties;
     private final AiInstanceMapper aiInstanceMapper;
     private final QueryEnvParamHelper queryEnvParamHelper;
-    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
 
     @Override
     public BaseResponse<String> delete(long[] longIds) {
@@ -81,15 +80,13 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         if (StringUtils.isBlank(entity.getEnvCode())) {
             entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
-        bizResourceKeyAssignHelper.assignModelKeyIfBlank(entity);
+
 
         if (aiInstanceMapper.selectCount(
                 new LambdaQueryWrapper<AiInstanceEntity>()
                         .eq(AiInstanceEntity::getModelKey, existing.getModelKey().trim())
                         .eq(AiInstanceEntity::getEnvCode, existing.getEnvCode().trim())) > 0) {
             entity.setModelKey(existing.getModelKey());
-        } else {
-            bizResourceKeyAssignHelper.assignModelKeyIfBlank(entity);
         }
         boolean result = updateById(entity);
         if (!result) {
@@ -105,7 +102,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         if (StringUtils.isBlank(entity.getEnvCode())) {
             entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
-        bizResourceKeyAssignHelper.assignModelKeyIfBlank(entity);
+
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AiModelErrorEnum.MODEL_CREATE_FAILED);

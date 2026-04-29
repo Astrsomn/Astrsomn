@@ -15,7 +15,6 @@ import com.astrsomn.commn.base.BusinessException;
 import com.astrsomn.core.exception.AiToolErrorEnum;
 import com.astrsomn.starter.mapper.AiToolMapper;
 import com.astrsomn.server.service.AiToolService;
-import com.astrsomn.server.service.support.BizResourceKeyAssignHelper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -26,14 +25,14 @@ import com.astrsomn.core.common.utils.PageUtils;
 @RequiredArgsConstructor
 public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> implements AiToolService {
 
-    private final BizResourceKeyAssignHelper bizResourceKeyAssignHelper;
+
     private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiToolCreateRequestDTO request) {
         AiToolEntity entity = new AiToolEntity();
         BeanUtils.copyProperties(request, entity);
-        bizResourceKeyAssignHelper.assignToolKeyIfBlank(entity);
+
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AiToolErrorEnum.TOOL_CREATE_FAILED);
