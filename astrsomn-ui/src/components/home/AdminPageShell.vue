@@ -4,11 +4,11 @@
       <a-breadcrumb>
         <a-breadcrumb-item v-for="(crumb, index) in breadcrumbs" :key="index">
           <a v-if="crumb.href" :href="crumb.href">{{ crumb.title }}</a>
-          <span v-else>{{ crumb.title }}</span>
+          <span v-else style="color: gray; font-weight: 600;">{{ crumb.title }}</span>
         </a-breadcrumb-item>
       </a-breadcrumb>
     </div>
-    <div v-else class="page-header">
+    <div v-else-if="title || description" class="page-header">
       <h1 class="page-title">{{ title }}</h1>
       <p class="page-description">{{ description }}</p>
     </div>
@@ -19,17 +19,20 @@
       <a-button
         type="primary"
         shape="circle"
-        :icon="viewMode === 'grid' ? AppstoreOutlined : AppstoreOutlined"
         @click="viewToggleHandler"
         :title="viewMode === 'grid' ? '切换为列表视图' : '切换为卡片视图'"
-      />
+      >
+  
+        <BarsOutlined  v-if="viewMode === 'grid'"/>
+        <AppstoreOutlined v-else />
+      </a-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { inject } from 'vue';
-import {  AppstoreOutlined } from '@ant-design/icons-vue';
+import { AppstoreOutlined, BarsOutlined } from '@ant-design/icons-vue';
 
 interface BreadcrumbItem {
   title: string;
@@ -78,7 +81,7 @@ const inModuleLayout = inject('adminInModuleLayout', false);
 .page-title {
   margin: 0 0 8px 0;
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 200;
   color: var(--text-primary);
 }
 

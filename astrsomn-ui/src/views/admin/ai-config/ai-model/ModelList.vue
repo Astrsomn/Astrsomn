@@ -235,7 +235,7 @@ const columns = [
   { title: '类型', key: 'modelType', width: 60 },
   { title: '供应商', key: 'providerAvatar', width: 60, align: 'center' },
   { title: '模型信息', key: 'modelName', width: 180 },
-  { title: '标识 Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true },
+  { title: '模型Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true },
   { title: '来源', key: 'sourceType', width: 100 },
   { title: '状态', key: 'status', width: 100 },
   { title: '接口地址', key: 'apiUrl', width: 100 },

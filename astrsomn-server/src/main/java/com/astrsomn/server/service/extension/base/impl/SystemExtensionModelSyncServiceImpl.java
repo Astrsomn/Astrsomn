@@ -42,9 +42,9 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstrsomnProperties astrsomnProperties;
 
-    private record ProviderEnv(String providerCode, String envCode) {}
+    private record ProviderEnv(String extensionCode, String envCode) {}
 
-    private record LoadSyncContext(String providerCode, String envCode, ModelProviderHandler handler) {}
+    private record LoadSyncContext(String extensionCode, String envCode, ModelProviderHandler handler) {}
 
     @Override
     public BaseResponse<String> loadModels(Long extensionId, String modelKeys) {
@@ -75,15 +75,15 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 continue;
             }
             
-            String rowProvider = StringUtils.trimToNull(src.getProvider());
+            String rowProvider = StringUtils.trimToNull(src.getExtensionCode());
             if (rowProvider == null) {
-                rowProvider = ctx.providerCode();
+                rowProvider = ctx.extensionCode();
             }
 
             long exists = aiModelMapper.selectCount(
                     new LambdaQueryWrapper<AiModelEntity>()
                             .eq(AiModelEntity::getModelKey, modelKey)
-                            .eq(AiModelEntity::getProvider, rowProvider)
+                            .eq(AiModelEntity::getExtensionCode, rowProvider)
                             .eq(AiModelEntity::getEnvCode, ctx.envCode())
                             .eq(AiModelEntity::getDeleted, false));
             if (exists > 0) {
@@ -95,7 +95,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             BeanUtils.copyProperties(src, dto);
             dto.setId(null);
             dto.setModelKey(modelKey);
-            dto.setProvider(rowProvider);
+            dto.setExtensionCode(rowProvider);
             dto.setEnvCode(ctx.envCode());
 
             boolean result = aiModelService.save(dto);
@@ -116,7 +116,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
 
         List<AiModelEntity> rows = aiModelMapper.selectList(
                 new LambdaQueryWrapper<AiModelEntity>()
-                        .eq(AiModelEntity::getProvider, pe.providerCode())
+                        .eq(AiModelEntity::getExtensionCode, pe.extensionCode())
                         .eq(AiModelEntity::getEnvCode, pe.envCode())
                         .eq(AiModelEntity::getDeleted, false));
 
@@ -180,15 +180,15 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 dto.setSkippedInvalidCount(dto.getSkippedInvalidCount() + 1);
                 continue;
             }
-            String rowProvider = StringUtils.trimToNull(src.getProvider());
+            String rowProvider = StringUtils.trimToNull(src.getExtensionCode());
             if (rowProvider == null) {
-                rowProvider = ctx.providerCode();
+                rowProvider = ctx.extensionCode();
             }
 
             long exists = aiModelMapper.selectCount(
                     new LambdaQueryWrapper<AiModelEntity>()
                             .eq(AiModelEntity::getModelKey, modelKey)
-                            .eq(AiModelEntity::getProvider, rowProvider)
+                            .eq(AiModelEntity::getExtensionCode, rowProvider)
                             .eq(AiModelEntity::getEnvCode, ctx.envCode())
                             .eq(AiModelEntity::getDeleted, false));
             ExtensionModelSyncPreviewRowDTO row = toPreviewRow(src, rowProvider);
@@ -208,7 +208,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
         ExtensionModelUnloadPreviewDTO dto = new ExtensionModelUnloadPreviewDTO();
         List<AiModelEntity> rows = aiModelMapper.selectList(
                 new LambdaQueryWrapper<AiModelEntity>()
-                        .eq(AiModelEntity::getProvider, pe.providerCode())
+                        .eq(AiModelEntity::getExtensionCode, pe.extensionCode())
                         .eq(AiModelEntity::getEnvCode, pe.envCode())
                         .eq(AiModelEntity::getDeleted, false));
 
@@ -216,7 +216,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             if (row.getId() == null) {
                 continue;
             }
-            ExtensionModelSyncPreviewRowDTO previewRow = toPreviewRow(row, pe.providerCode());
+            ExtensionModelSyncPreviewRowDTO previewRow = toPreviewRow(row, pe.extensionCode());
             String mk = StringUtils.trimToNull(row.getModelKey());
             if (mk != null && isModelKeyReferencedByInstance(mk, pe.envCode())) {
                 dto.getKeptReferenced().add(previewRow);
@@ -239,11 +239,11 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_PARAM_ERROR);
         }
 
-        String providerCode = resolveProviderCode(ext);
-        if (providerCode == null) {
+        String extensionCode = resolveExtensionCode(ext);
+        if (extensionCode == null) {
             throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_PARAM_ERROR);
         }
-        if (findProviderEnum(providerCode).isEmpty()) {
+        if (findProviderEnum(extensionCode).isEmpty()) {
             throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_PARAM_ERROR);
         }
 
@@ -252,17 +252,17 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_PARAM_ERROR);
         }
 
-        return new ProviderEnv(providerCode, envCode);
+        return new ProviderEnv(extensionCode, envCode);
     }
 
     private LoadSyncContext resolveLoadSyncContext(Long extensionId) {
         ProviderEnv pe = resolveExtensionProviderEnv(extensionId);
 
-        Optional<ModelProviderHandler> handlerOpt = astroModelFactory.getHandler(pe.providerCode());
+        Optional<ModelProviderHandler> handlerOpt = astroModelFactory.getHandler(pe.extensionCode());
         if (!handlerOpt.isPresent()) {
-            throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_FAILED, "当前运行时未加载该厂商的 ModelProviderHandler（SPI）: " + pe.providerCode());
+            throw new BusinessException(SystemExtensionModelSyncErrorEnum.SYNC_FAILED, "当前运行时未加载该厂商的 ModelProviderHandler（SPI）: " + pe.extensionCode());
         }
-        return new LoadSyncContext(pe.providerCode(), pe.envCode(), handlerOpt.get());
+        return new LoadSyncContext(pe.extensionCode(), pe.envCode(), handlerOpt.get());
     }
 
     private static ExtensionModelSyncPreviewRowDTO toPreviewRow(AiModelEntity src, String fallbackProvider) {
@@ -270,13 +270,13 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
         row.setModelKey(src.getModelKey());
         row.setModelName(src.getModelName());
         row.setModelType(src.getModelType());
-        String p = StringUtils.trimToNull(src.getProvider());
+        String p = StringUtils.trimToNull(src.getExtensionCode());
         row.setProvider(p != null ? p : fallbackProvider);
         return row;
     }
 
-    private static String resolveProviderCode(SystemExtensionEntity ext) {
-        String fromCol = StringUtils.trimToNull(ext.getProviderCode());
+    private static String resolveExtensionCode(SystemExtensionEntity ext) {
+        String fromCol = StringUtils.trimToNull(ext.getExtensionCode());
         if (fromCol != null) {
             return fromCol;
         }

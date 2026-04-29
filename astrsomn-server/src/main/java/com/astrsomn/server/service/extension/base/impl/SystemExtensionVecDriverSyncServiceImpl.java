@@ -57,8 +57,8 @@ public class SystemExtensionVecDriverSyncServiceImpl implements SystemExtensionV
     }
 
     @Override
-    public void removeDriverRowForProvider(String providerCode) {
-        String p = StringUtils.trimToNull(providerCode);
+    public void removeDriverRowForProvider(String extensionCode) {
+        String p = StringUtils.trimToNull(extensionCode);
         if (p == null) {
             return;
         }

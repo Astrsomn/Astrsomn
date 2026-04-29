@@ -44,8 +44,8 @@ public class SystemExtensionEntity extends BaseEntity<Long> {
     @TableField("STATUS")
     private String status;
 
-    @TableField("PROVIDER_CODE")
-    private String providerCode;
+    @TableField("EXTENSION_CODE")
+    private String extensionCode;
 
     @TableField("AVATAR")
     private String avatar;

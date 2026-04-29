@@ -36,7 +36,7 @@ public class SystemExtensionModelGuard {
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstrsomnProperties astrsomnProperties;
 
-    private record ProviderEnv(String providerCode, String envCode) {}
+    private record ProviderEnv(String extensionCode, String envCode) {}
 
     /**
      * 将当前环境下该扩展对应厂商的全部模型状态设为 disabled。
@@ -49,7 +49,7 @@ public class SystemExtensionModelGuard {
         ProviderEnv pe = resolved.getData();
 
         LambdaUpdateWrapper<AiModelEntity> uw = new LambdaUpdateWrapper<AiModelEntity>()
-                .eq(AiModelEntity::getProvider, pe.providerCode())
+                .eq(AiModelEntity::getExtensionCode, pe.extensionCode())
                 .eq(AiModelEntity::getEnvCode, pe.envCode())
                 .eq(AiModelEntity::getDeleted, false)
                 .set(AiModelEntity::getStatus, AiModelEnum.StatusEnum.DISABLED.getCode());
@@ -70,9 +70,9 @@ public class SystemExtensionModelGuard {
             return BaseResponse.success(null);
         }
 
-        String providerCode = resolveProviderCode(ext);
-        if (StringUtils.isBlank(providerCode)) {
-            return BaseResponse.fail("无法解析 providerCode / extensionKey，无法校验模型表", null);
+        String extensionCode = resolveExtensionCode(ext);
+        if (StringUtils.isBlank(extensionCode)) {
+            return BaseResponse.fail("无法解析 extensionCode / extensionKey，无法校验模型表", null);
         }
         String envCode = effectiveEnvCode();
         if (StringUtils.isBlank(envCode)) {
@@ -82,7 +82,7 @@ public class SystemExtensionModelGuard {
         Long count =
                 aiModelMapper.selectCount(
                         new LambdaQueryWrapper<AiModelEntity>()
-                                .eq(AiModelEntity::getProvider, providerCode.trim())
+                                .eq(AiModelEntity::getExtensionCode, extensionCode.trim())
                                 .eq(AiModelEntity::getEnvCode, envCode.trim())
                                 .eq(AiModelEntity::getDeleted, false));
         if (count != null && count > 0) {
@@ -115,7 +115,7 @@ public class SystemExtensionModelGuard {
 
         List<AiModelEntity> models = aiModelMapper.selectList(
                 new LambdaQueryWrapper<AiModelEntity>()
-                        .eq(AiModelEntity::getProvider, pe.providerCode())
+                        .eq(AiModelEntity::getExtensionCode, pe.extensionCode())
                         .eq(AiModelEntity::getEnvCode, pe.envCode())
                         .eq(AiModelEntity::getDeleted, false));
 
@@ -145,12 +145,12 @@ public class SystemExtensionModelGuard {
             return BaseResponse.fail("仅模型类扩展支持该操作", null);
         }
 
-        String providerCode = resolveProviderCode(ext);
-        if (providerCode == null) {
-            return BaseResponse.fail("无法解析 providerCode / extensionKey", null);
+        String extensionCode = resolveExtensionCode(ext);
+        if (extensionCode == null) {
+            return BaseResponse.fail("无法解析 extensionCode / extensionKey", null);
         }
-        if (findProviderEnum(providerCode).isEmpty()) {
-            return BaseResponse.fail("非法的厂商代码: " + providerCode, null);
+        if (findProviderEnum(extensionCode).isEmpty()) {
+            return BaseResponse.fail("非法的厂商代码: " + extensionCode, null);
         }
 
         String envCode = effectiveEnvCode();
@@ -158,11 +158,11 @@ public class SystemExtensionModelGuard {
             return BaseResponse.fail("无法解析当前环境 envCode", null);
         }
 
-        return BaseResponse.success(new ProviderEnv(providerCode, envCode));
+        return BaseResponse.success(new ProviderEnv(extensionCode, envCode));
     }
 
-    private static String resolveProviderCode(SystemExtensionEntity ext) {
-        String fromCol = StringUtils.trimToNull(ext.getProviderCode());
+    private static String resolveExtensionCode(SystemExtensionEntity ext) {
+        String fromCol = StringUtils.trimToNull(ext.getExtensionCode());
         if (fromCol != null) {
             return fromCol;
         }

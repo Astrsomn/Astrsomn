@@ -18,20 +18,20 @@ public class ExtensionCapabilityResolver {
 
 
     public boolean hasModelProviderCapability(SystemExtensionEntity extension) {
-        String provider = resolveProviderCode(extension);
+        String provider = resolveExtensionCode(extension);
         return provider != null && astroModelFactory.getHandler(provider).isPresent();
     }
 
     public boolean hasVectorDriverCapability(SystemExtensionEntity extension) {
-        String provider = resolveProviderCode(extension);
+        String provider = resolveExtensionCode(extension);
         return provider != null && astroVecSourceFactory.resolveDriver(provider).isPresent();
     }
 
-    private static String resolveProviderCode(SystemExtensionEntity extension) {
+    private static String resolveExtensionCode(SystemExtensionEntity extension) {
         if (extension == null) {
             return null;
         }
-        String provider = StringUtils.trimToNull(extension.getProviderCode());
+        String provider = StringUtils.trimToNull(extension.getExtensionCode());
         return provider != null ? provider : StringUtils.trimToNull(extension.getExtensionKey());
     }
 }

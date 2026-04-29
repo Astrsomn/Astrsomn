@@ -67,7 +67,7 @@ public class PluginDirectoryExtensionSyncService {
             entity.setApplied(existing.getApplied());
             entity.setStatus(existing.getStatus());
             entity.setJarName(Optional.ofNullable(StringUtils.trimToNull(existing.getJarName())).orElse(entity.getJarName()));
-            entity.setProviderCode(Optional.ofNullable(StringUtils.trimToNull(existing.getProviderCode())).orElse(entity.getProviderCode()));
+            entity.setExtensionCode(Optional.ofNullable(StringUtils.trimToNull(existing.getExtensionCode())).orElse(entity.getExtensionCode()));
             entity.setInstallSource(Optional.ofNullable(StringUtils.trimToNull(existing.getInstallSource())).orElse(entity.getInstallSource()));
             entity.setDiscoveryMechanism(Optional.ofNullable(StringUtils.trimToNull(existing.getDiscoveryMechanism()))
                     .orElse(entity.getDiscoveryMechanism()));
@@ -90,7 +90,7 @@ public class PluginDirectoryExtensionSyncService {
         entity.setAuthor(StringUtils.trimToNull(meta.author()));
         entity.setDescription(StringUtils.trimToNull(meta.description()));
         entity.setAvatar(StringUtils.trimToNull(meta.avatar()));
-        entity.setProviderCode(StringUtils.trimToNull(meta.providerCode()));
+        entity.setExtensionCode(StringUtils.trimToNull(meta.extensionCode()));
         entity.setJarName(StringUtils.trimToNull(jarName));
         entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
         entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());

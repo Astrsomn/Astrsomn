@@ -48,7 +48,7 @@ const catalog = ref<SystemExtension[]>([])
 
 // 数据转换逻辑保持不变
 function rowKey(it: SystemExtension): string {
-  return String(it.providerCode?.trim() || it.extensionKey?.trim() || '')
+  return String(it.extensionCode?.trim() || it.extensionKey?.trim() || '')
 }
 
 function displayName(it: SystemExtension): string {

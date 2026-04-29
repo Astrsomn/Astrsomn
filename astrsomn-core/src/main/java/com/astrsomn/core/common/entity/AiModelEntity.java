@@ -43,8 +43,8 @@ public class AiModelEntity extends BaseEntity<Long> {
     /**
      * Provider
      */
-    @TableField("PROVIDER")
-    private String provider;
+    @TableField("EXTENSION_CODE")
+    private String extensionCode;
 
     /**
      * AccountKey

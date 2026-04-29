@@ -32,18 +32,18 @@ public class AstroModelFactory {
         ServiceLoader<ModelProviderHandler> loader = ServiceLoader.load(ModelProviderHandler.class);
 
         for (ModelProviderHandler handler : loader) {
-            String providerCode = handler.getProvider().getCode();
-            if (handlerMap.containsKey(providerCode)) {
-                log.warn("[Astro] Duplicate provider detected and skipped: {}", providerCode);
+            String extensionCode = handler.getProvider().getCode();
+            if (handlerMap.containsKey(extensionCode)) {
+                log.warn("[Astro] Duplicate provider detected and skipped: {}", extensionCode);
                 continue;
             }
-            handlerMap.put(providerCode, handler);
-            log.info("[Astro] Loaded SPI Provider: {}", providerCode);
+            handlerMap.put(extensionCode, handler);
+            log.info("[Astro] Loaded SPI Provider: {}", extensionCode);
         }
     }
 
     public <T> T createModel(AstroChatParam<?> param, Class<T> modelClass) {
-        String modelProvider = param.getModelSetting().getProvider();
+        String modelProvider = param.getModelSetting().getExtensionCode();
         ModelProviderHandler handler = handlerMap.get(modelProvider);
         if (handler == null) {
             throw new RuntimeException("Unsupported provider: " + modelProvider);
@@ -54,11 +54,11 @@ public class AstroModelFactory {
     /**
      * 按厂商 code（与 {@link AiModelEnum.ProviderEnum#getCode()} 一致）解析 SPI 注册的处理器。
      */
-    public Optional<ModelProviderHandler> getHandler(String providerCode) {
-        if (StringUtils.isEmpty(providerCode)) {
+    public Optional<ModelProviderHandler> getHandler(String extensionCode) {
+        if (StringUtils.isEmpty(extensionCode)) {
             return Optional.empty();
         }
-        return Optional.ofNullable(handlerMap.get(providerCode.trim()));
+        return Optional.ofNullable(handlerMap.get(extensionCode.trim()));
     }
 
     // TODO 安装模型拓展插件

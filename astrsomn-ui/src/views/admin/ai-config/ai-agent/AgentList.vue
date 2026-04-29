@@ -56,15 +56,15 @@
               </a-tag>
             </template>
 
-            <template v-else-if="column.key === 'createTime'">
-              {{ formatCreateTime(record.createTime) }}
-            </template>
-
             <template v-else-if="column.key === 'actions'">
               <a-space>
-                <a-button type="link" size="small" @click="openEdit(record)">编辑</a-button>
+                <a-button type="link" size="small" @click="openEdit(record)">
+                  <EditOutlined />
+                </a-button>
                 <a-popconfirm title="确定删除该智能体吗？" @confirm="handleDeleteFromRecord(record)">
-                  <a-button type="link" danger size="small">删除</a-button>
+                  <a-button type="link" danger size="small">
+                    <DeleteOutlined />
+                  </a-button>
                 </a-popconfirm>
               </a-space>
             </template>
@@ -93,7 +93,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import { DeleteOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
@@ -162,7 +162,7 @@ const tableColumns = [
   { title: '模型实例', dataIndex: 'chatInstanceName', key: 'chatInstanceName', ellipsis: true, width: 180 },
   { title: '提示词策略', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true, width: 180 },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170 },
+  { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
   { title: '操作', key: 'actions', width: 120, fixed: 'right' as const }
 ]
 
@@ -281,11 +281,6 @@ const onToggleSelect = (id: number | string, checked: boolean) => {
   } else {
     selectedKeys.value.delete(id)
   }
-}
-
-const formatCreateTime = (raw?: string) => {
-  if (!raw) return '--'
-  return raw.replace('T', ' ').slice(0, 16)
 }
 
 const handleDeleteFromRecord = async (record: AiAgent) => {

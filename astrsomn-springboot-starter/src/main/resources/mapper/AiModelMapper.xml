@@ -11,8 +11,8 @@
         AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
         AND AM.PROVIDER IS NOT NULL
         AND AM.PROVIDER != ''
-        AND (SE.PROVIDER_CODE = AM.PROVIDER OR SE.EXTENSION_KEY = AM.PROVIDER)
-        ORDER BY CASE WHEN SE.PROVIDER_CODE = AM.PROVIDER THEN 0 ELSE 1 END
+        AND (SE.EXTENSION_CODE = AM.EXTENSION_CODE OR SE.EXTENSION_KEY = AM.PROVIDER)
+        ORDER BY CASE WHEN SE.EXTENSION_CODE = AM.PROVIDER THEN 0 ELSE 1 END
         LIMIT 1
         ) AS providerAvatar
         FROM
@@ -22,8 +22,8 @@
         <if test="req != null and req.envCode != null and req.envCode != ''">
             AND AM.ENV_CODE = #{req.envCode}
         </if>
-        <if test="req != null and req.supplier != null and req.supplier != ''">
-            AND AM.PROVIDER = #{req.supplier}
+        <if test="req != null and req.extensionCode != null and req.extensionCode != ''">
+            AND AM.EXTENSION_CODE = #{req.extensionCode}
         </if>
         <if test="req != null and req.modelName != null and req.modelName != ''">
             AND AM.MODEL_NAME LIKE CONCAT('%', #{req.modelName}, '%')

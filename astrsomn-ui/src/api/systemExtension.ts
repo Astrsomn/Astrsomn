@@ -14,7 +14,7 @@ export type SystemExtension = {
   discoveryMechanism?: string
   installSource?: string
   /** 公用：厂商/提供方 code（模型扩展时与 AiModelEnum.ProviderEnum 一致） */
-  providerCode?: string
+  extensionCode?: string
   /** SVG 等展示用头像 */
   avatar?: string
   createTime?: string
@@ -30,7 +30,7 @@ export type ExtensionMarketplaceItem = {
   author?: string
   description?: string
   jarName?: string
-  providerCode?: string
+  extensionCode?: string
   avatar?: string
 }
 
@@ -206,7 +206,7 @@ export const systemExtensionApi = {
     meta?: Partial<
       Pick<
         SystemExtension,
-        'extensionKey' | 'extensionName' | 'type' | 'version' | 'author' | 'description' | 'providerCode'
+        'extensionKey' | 'extensionName' | 'type' | 'version' | 'author' | 'description' | 'extensionCode'
       >
     >
   ): Promise<string> => {
@@ -218,7 +218,7 @@ export const systemExtensionApi = {
     if (meta?.version) fd.append('version', meta.version)
     if (meta?.author) fd.append('author', meta.author)
     if (meta?.description) fd.append('description', meta.description)
-    if (meta?.providerCode) fd.append('providerCode', meta.providerCode)
+    if (meta?.extensionCode) fd.append('extensionCode', meta.extensionCode)
     return request({
       url: '/v1/astro/system-extension/upload-jar',
       method: 'post',

@@ -31,7 +31,7 @@ public class ExtensionMarketplaceItemDTO implements Serializable {
     /**
      * 公用厂商 code；模型类扩展时与 {@link AiModelEnum.ProviderEnum#getCode()} 一致。
      */
-    private String providerCode;
+    private String extensionCode;
 
     /** SVG 等展示用头像（可选） */
     private String avatar;

@@ -120,7 +120,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         if (param == null) {
             param = new AiAccountQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
+
         IPage<AiAccountResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

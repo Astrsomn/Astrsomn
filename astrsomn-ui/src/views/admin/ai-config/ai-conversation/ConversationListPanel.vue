@@ -11,15 +11,7 @@
     />
 
     <a-spin :spinning="loading">
-          <div class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+
       <div class="conversation-cards">
         <SessionList
           :loading="loading"

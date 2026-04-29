@@ -22,8 +22,8 @@
               />
               <div class="provider-filter">
                 <ModelProviderSelect
-                  v-model:value="query.provider"
-                  placeholder="按 provider 筛选"
+                  v-model:value="query.extensionCode"
+                  placeholder="根据插件编码筛选"
                   :allow-clear="true"
                   size="middle"
                   @update:value="onProviderChange"
@@ -144,13 +144,13 @@ const currentGridColumns = ref(3)
 type QueryState = {
   accountKey?: string
   accountName?: string
-  provider?: string
+  extensionCode?: string
 }
 
 const columns = [
   { title: '账号名称', dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true },
   { title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true },
-  { title: '供应商', dataIndex: 'provider', key: 'provider', width: 120, ellipsis: true },
+  { title: '扩展名称', dataIndex: 'extensionName', key: 'extensionName', width: 120, ellipsis: true },
   { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
   { title: '请求路径', dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true },
   { title: '额度', dataIndex: 'accountTokens', key: 'accountTokens', width: 120, ellipsis: true },
@@ -234,7 +234,7 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
 
 const resetFilters = () => {
   query.accountName = undefined
-  query.provider = undefined
+  query.extensionCode = undefined
   page.pageNum = 1
   void fetchList()
 }
@@ -254,7 +254,7 @@ const fetchList = async () => {
       param: {
         accountKey: query.accountKey || undefined,
         accountName: query.accountName || undefined,
-        provider: query.provider || undefined
+        extensionCode: query.extensionCode || undefined
       }
     }
     const resp: PageResponse<AiAccount> = await aiAccountApi.queryPage(payload)

@@ -98,7 +98,7 @@ const installFromCatalog = async (item: ExtensionRow) => {
     author: item.author,
     description: item.description,
     jarName: item.jarName,
-    providerCode: item.providerCode,
+    extensionCode: item.extensionCode,
     avatar: item.avatar,
     applied: 'N',
     status: 'INSTALLED'

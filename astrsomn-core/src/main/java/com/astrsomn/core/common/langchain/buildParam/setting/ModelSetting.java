@@ -33,7 +33,7 @@ public class ModelSetting {
     /**
      *
      */
-    private String provider;
+    private String extensionCode;
 
     /**
      * 账号Key

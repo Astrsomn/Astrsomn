@@ -242,7 +242,7 @@ public enum QwenModelEnum {
         entity.setModelKey(this.modelKey);
         entity.setModelName(this.modelName);
         entity.setModelType(this.modelType);
-        entity.setProvider(provider);
+        entity.setExtensionCode(provider);
         entity.setCapabilities(this.getCapabilities());
         entity.setParams(this.getParams());
         entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());

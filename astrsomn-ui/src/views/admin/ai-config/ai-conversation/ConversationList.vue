@@ -1,7 +1,6 @@
 <template>
   <AdminPageShell
-    title="AI 对话管理"
-    description="管理 AI 对话记录，按 memoryKey 聚合展示，右侧查看详细对话内容。"
+
     empty-text="暂无对话记录。"
   >
     <div class="conversation-page">

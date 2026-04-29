@@ -58,9 +58,9 @@
           <a-input v-model:value="form.jarName" placeholder="插件 jar 文件名，例如 xxx-extension.jar" :disabled="isApplied" autocomplete="off" />
         </a-form-item>
 
-        <a-form-item label="厂商 code" name="providerCode">
+        <a-form-item label="厂商 code" name="extensionCode">
           <a-input
-            v-model:value="form.providerCode"
+            v-model:value="form.extensionCode"
             placeholder="公用：如 deepseek（模型扩展用于同步 AI_MODEL；可选，默认同 extensionKey）"
             autocomplete="off"
           />
@@ -106,7 +106,7 @@ function emptyForm(): SystemExtension {
     author: '',
     description: '',
     jarName: '',
-    providerCode: '',
+    extensionCode: '',
     applied: '',
     status: ''
   }

@@ -20,6 +20,8 @@
         v-else-if="dataSource.length > 0"
         key="table"
         class="data-view-table"
+        :class="{ dense: dense }"
+        :style="tableStyle"
         :row-key="rowKey"
         :data-source="dataSource"
         :columns="processedColumns"
@@ -41,6 +43,9 @@
                 {{ text }}
                 <CopyOutlined class="copy-icon" />
               </span>
+            </template>
+            <template v-else-if="column.dateFormat && text">
+              {{ props.dateFormatter(text) }}
             </template>
             <template v-else>
               {{ text }}
@@ -74,6 +79,10 @@ const props = withDefaults(defineProps<{
   cardMinWidth?: string
   cardGap?: string
   cardColumns?: number
+  dense?: boolean
+  tableRowHeight?: string
+  tableHeaderHeight?: string
+  dateFormatter?: (value: string) => string
 }>(), {
   columns: () => [],
   rowKey: 'id',
@@ -84,13 +93,29 @@ const props = withDefaults(defineProps<{
   bordered: true,
   cardMinWidth: '320px',
   cardGap: '12px',
-  cardColumns: 3
+  cardColumns: 3,
+  dense: false,
+  tableRowHeight: '',
+  tableHeaderHeight: '',
+  dateFormatter: (value: string) => {
+    if (!value) return '--'
+    return value.replace('T', ' ').slice(0, 16)
+  }
 })
 
 const gridStyle = computed(() => ({
   gridTemplateColumns: `repeat(${props.cardColumns}, minmax(0, 1fr))`,
   gap: props.cardGap
 }))
+
+const tableStyle = computed(() => {
+  const style: Record<string, string> = {}
+  if (props.dense) {
+    style['--dense-header-height'] = props.tableHeaderHeight || '32px'
+    style['--dense-row-height'] = props.tableRowHeight || '28px'
+  }
+  return style
+})
 
 const processedColumns = computed(() => {
   return props.columns.map(col => {
@@ -151,6 +176,18 @@ const handleCopy = async (text: string) => {
 .data-view-table :deep(.ant-table-tbody > tr > td) {
   border-bottom: 1px solid #e2e8f0;
   color: #1f2937;
+}
+
+.data-view-table.dense :deep(.ant-table-thead > tr > th) {
+  padding: 4px 12px;
+  line-height: var(--dense-header-height);
+  font-size: 12px;
+}
+
+.data-view-table.dense :deep(.ant-table-tbody > tr > td) {
+  padding: 4px 12px;
+  line-height: var(--dense-row-height);
+  font-size: 12px;
 }
 
 .data-view-table :deep(.ant-table-tbody > tr:hover > td) {
