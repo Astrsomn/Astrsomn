@@ -31,12 +31,12 @@ public class MilvusExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getName() {
-        return EXTENSION_PROPERTIES.getProperty("name", DEFAULT_NAME);
+        return getSafeProperty(EXTENSION_PROPERTIES, "name", DEFAULT_NAME);
     }
 
     @Override
     public String getVersion() {
-        return EXTENSION_PROPERTIES.getProperty("version", DEFAULT_VERSION);
+        return getSafeProperty(EXTENSION_PROPERTIES, "version", DEFAULT_VERSION);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class MilvusExtensionDescriptor extends AstroExtensionDescriptor {
     }
 
     private static Properties loadExtensionProperties() {
-        try (InputStream inputStream = MilvusExtensionDescriptor.class.getResourceAsStream("/extension.properties")) {
+        try (InputStream inputStream = MilvusExtensionDescriptor.class.getResourceAsStream("/extension-milvus.properties")) {
             if (inputStream == null) {
                 return new Properties();
             }
@@ -68,7 +68,7 @@ public class MilvusExtensionDescriptor extends AstroExtensionDescriptor {
             properties.load(inputStream);
             return properties;
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to load /extension.properties", e);
+            throw new UncheckedIOException("Failed to load /extension-milvus.properties", e);
         }
     }
 }
