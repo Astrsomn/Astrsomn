@@ -28,7 +28,7 @@
                 :auto-size="{ minRows: 2, maxRows: 4 }"
               />
               <div class="sync-meta">
-                上次同步: 2分钟前 • <span class="node-text">Cluster-AWS-01</span>
+                上次同步: {{ lastSyncText }} • <span class="node-text">{{ sourceNodeText }}</span>
               </div>
             </div>
 
@@ -40,6 +40,7 @@
                   @update:value="(v) => (selectedModel = v)"
                   class="model-select"
                   :options="modelOptions"
+                  :loading="instanceLoading"
                   placeholder="选择模型"
                 />
               </div>
@@ -70,9 +71,9 @@
                 <span class="unit">个向量片段</span>
               </div>
               <div class="stats-footer">
-                <span class="footer-item">~ 2.4M Tokens</span>
+                <span class="footer-item">文档 {{ stats.docCount }} 个</span>
                 <span class="footer-dot"></span>
-                <span class="footer-item">85.2 MB 占用</span>
+                <span class="footer-item">字符 {{ stats.totalWordCount }}</span>
               </div>
             </div>
             <div class="stats-icon-box">
@@ -86,12 +87,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { message } from 'ant-design-vue'
 import { BarChartOutlined, SyncOutlined } from '@ant-design/icons-vue';
-import type { AiVecStore } from '@/api/aiVecStore.ts'
-import type { AiVecSource } from '@/api/aiVecSource.ts'
-import { aiVecStoreApi } from '@/api/aiVecStore.ts'
+import type { AiVecStore } from '@/api/aiVecStore'
+import type { AiVecSource } from '@/api/aiVecSource'
+import { aiVecStoreApi } from '@/api/aiVecStore'
+import { aiInstanceApi } from '@/api/aiInstance'
 
 const props = defineProps<{
   store?: AiVecStore
@@ -105,30 +107,75 @@ const emit = defineEmits<{
 const libraryName = ref('');
 const description = ref('');
 const selectedModel = ref('');
+const instanceLoading = ref(false)
+const stats = reactive({
+  docCount: 0,
+  segmentCount: 0,
+  totalWordCount: 0,
+  lastSyncTime: ''
+})
 
-const modelOptions = [
-  { value: 'text-embedding-3-large', label: 'text-embedding-3-large (1536维)' },
-  { value: 'text-embedding-3-small', label: 'text-embedding-3-small (1536维)' },
-  { value: 'text-embedding-ada-002', label: 'text-embedding-ada-002 (1538维)' },
-  { value: 'm3e-base', label: 'm3e-base (768维)' },
-  { value: 'm3e-large', label: 'm3e-large (1024维)' }
-];
+const modelOptions = ref<Array<{ value: string; label: string }>>([])
 
 watch(
   () => props.store,
-  (store) => {
+  async (store) => {
     libraryName.value = store?.collectionName || ''
     description.value = store?.metadataSchema || ''
     selectedModel.value = store?.instanceKey || ''
+    if (store?.id) {
+      await Promise.all([fetchStoreStats(store.id), fetchInstanceOptions()])
+    } else {
+      stats.docCount = 0
+      stats.segmentCount = 0
+      stats.totalWordCount = 0
+      stats.lastSyncTime = ''
+      modelOptions.value = []
+    }
   },
   { immediate: true }
 )
 
-const vectorCount = computed(() => Number(props.store?.dimension || 0) * 8)
+const vectorCount = computed(() => stats.segmentCount)
+const lastSyncText = computed(() => stats.lastSyncTime || '暂无')
+const sourceNodeText = computed(() => props.source?.name || props.source?.extensionCode || '未命名节点')
+
+const fetchStoreStats = async (id: number | string) => {
+  const resp = await aiVecStoreApi.stats(id)
+  stats.docCount = Number(resp.docCount || 0)
+  stats.segmentCount = Number(resp.segmentCount || 0)
+  stats.totalWordCount = Number(resp.totalWordCount || 0)
+  stats.lastSyncTime = resp.lastSyncTime || ''
+}
+
+const fetchInstanceOptions = async () => {
+  instanceLoading.value = true
+  try {
+    const resp = await aiInstanceApi.queryPage({
+      pageNo: 1,
+      pageSize: 200,
+      param: {}
+    })
+    const list = resp.list || []
+    modelOptions.value = list
+      .filter((x) => String(x.modelType || '').toLowerCase().includes('embedding'))
+      .map((x) => ({
+        value: String(x.instanceKey || ''),
+        label: `${x.instanceName || x.instanceKey} (${x.instanceKey})`
+      }))
+      .filter((x) => x.value)
+  } finally {
+    instanceLoading.value = false
+  }
+}
 
 const handleSave = async () => {
   if (!props.store?.id) {
     message.warning('请先在左侧选择数据库')
+    return
+  }
+  if (!selectedModel.value) {
+    message.warning('请选择 Embedding 实例')
     return
   }
   try {
@@ -139,6 +186,7 @@ const handleSave = async () => {
       instanceKey: selectedModel.value
     })
     message.success(msg || '保存成功')
+    await fetchStoreStats(props.store.id)
     emit('updated')
   } catch (error) {
     const err = error as { message?: string }

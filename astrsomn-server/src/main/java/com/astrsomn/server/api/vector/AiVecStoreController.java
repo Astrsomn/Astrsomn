@@ -8,6 +8,7 @@ import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreCreateRequestDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreQueryRequestDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO;
+import com.astrsomn.core.common.dto.vecstore.AiVecStoreStatsResponseDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreUpdateRequestDTO;
 import com.astrsomn.server.service.AiVecStoreService;
 import org.springframework.web.bind.annotation.*;
@@ -47,5 +48,10 @@ public class AiVecStoreController extends BaseController {
     @GetMapping("/detail")
     public BaseResponse<AiVecStoreResponseDTO> detail(@RequestParam("id") Long id) {
         return aiVecStoreService.detail(id);
+    }
+
+    @GetMapping("/stats")
+    public BaseResponse<AiVecStoreStatsResponseDTO> stats(@RequestParam("id") Long id) {
+        return aiVecStoreService.stats(id);
     }
 }

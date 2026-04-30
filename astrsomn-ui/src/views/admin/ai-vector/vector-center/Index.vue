@@ -86,7 +86,11 @@ const handleSelectStore = async (storeId: number | string) => {
 }
 
 const handleSelectDoc = async (docId: number | string) => {
-  selectedDocId.value = docId
+  selectedDocId.value = docId || undefined
+  if (!selectedDocId.value) {
+    segments.value = []
+    return
+  }
   await fetchSegments()
 }
 

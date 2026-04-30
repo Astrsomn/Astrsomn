@@ -1,5 +1,5 @@
 <template>
-  <a-card :bordered="false" class="custom-file-card" :body-style="{ padding: 0 }">
+  <a-card :bordered="false" class="custom-file-card" :class="{ active }" :body-style="{ padding: 0 }" @click="$emit('select', file)">
     <div class="square-container">
       <div class="inner-content">
         
@@ -46,9 +46,11 @@ defineProps<{
     status: string;
     uploadTime?: string;
   };
+  active?: boolean;
 }>();
 
 defineEmits<{
+  select: [file: any]
   edit: [file: any]
   vectorize: [file: any]
   delete: [file: any]
@@ -87,6 +89,11 @@ const getFileExtension = (name: string) => {
     
     .action-group { opacity: 1; transform: translateY(0); }
     .icon-box { transform: scale(1.1); }
+  }
+
+  &.active {
+    border-color: #1677ff !important;
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
   }
 
   // 核心：强制正方形方案

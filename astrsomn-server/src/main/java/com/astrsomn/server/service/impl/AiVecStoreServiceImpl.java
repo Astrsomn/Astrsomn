@@ -10,6 +10,7 @@ import com.astrsomn.core.common.constant.AiVecDriverEnum;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreCreateRequestDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreQueryRequestDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO;
+import com.astrsomn.core.common.dto.vecstore.AiVecStoreStatsResponseDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiVecSourceEntity;
 import com.astrsomn.core.common.entity.AiVecStoreEntity;
@@ -175,5 +176,27 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
             throw new BusinessException(AstVecStoreErrorEnum.STORE_NOT_FOUND);
         }
         return BaseResponse.success(responseDTO);
+    }
+
+    @Override
+    public BaseResponse<AiVecStoreStatsResponseDTO> stats(Long id) {
+        if (id == null) {
+            throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR);
+        }
+        String envCode = queryEnvParamHelper.effectiveEnvCode();
+        AiVecStoreStatsResponseDTO stats = baseMapper.selectStoreStats(id, envCode);
+        if (stats == null) {
+            throw new BusinessException(AstVecStoreErrorEnum.STORE_NOT_FOUND);
+        }
+        if (stats.getDocCount() == null) {
+            stats.setDocCount(0L);
+        }
+        if (stats.getSegmentCount() == null) {
+            stats.setSegmentCount(0L);
+        }
+        if (stats.getTotalWordCount() == null) {
+            stats.setTotalWordCount(0L);
+        }
+        return BaseResponse.success(stats);
     }
 }

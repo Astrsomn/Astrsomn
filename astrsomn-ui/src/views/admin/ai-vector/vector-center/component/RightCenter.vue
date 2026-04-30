@@ -9,7 +9,7 @@
       <div class="toolbar-right">
         <a-select
           :value="uploadCollectionId"
-          @update:value="(v) => (uploadCollectionId = v)"
+          @update:value="setUploadCollectionId"
           :options="storeOptions"
           placeholder="选择集合"
           style="width: 180px"
@@ -18,7 +18,7 @@
           placeholder="搜索文件名..." 
           class="subtle-search"
           :value="keyword"
-          @update:value="(v) => (keyword = v)"
+          @update:value="setKeyword"
         />
         <a-upload :custom-request="handleUpload" :show-upload-list="false">
         <a-button type="primary" class="import-btn">
@@ -35,6 +35,8 @@
         v-for="file in filteredFiles" 
         :key="file.id || file.name" 
         :file="file" 
+        :active="String(file.id) === String(props.selectedDocId ?? '')"
+        @select="handleSelectDoc"
         @edit="openEdit"
         @vectorize="handleVectorize"
         @delete="handleDelete"
@@ -53,7 +55,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import type { UploadProps } from 'ant-design-vue'
 import { PlusOutlined } from '@ant-design/icons-vue';
 // 确保路径指向你刚才保存 FileCard 的位置
@@ -78,6 +80,14 @@ const modalOpen = ref(false)
 const modalMode = ref<'create' | 'edit'>('create')
 const modalInitial = ref<AiVecDoc | null>(null)
 const modalSubmitting = ref(false)
+
+const setUploadCollectionId = (value: number | string | undefined) => {
+  uploadCollectionId.value = value
+}
+
+const setKeyword = (value: string) => {
+  keyword.value = value
+}
 
 watch(
   () => props.storeId,
@@ -151,14 +161,38 @@ const handleSubmit = async (payload: AiVecDoc) => {
 
 const handleVectorize = async (file: any) => {
   if (file?.id == null) return
-  await aiVecDocApi.vectorize(file.id)
-  emit('changed')
+  Modal.confirm({
+    title: '确认执行向量化',
+    content: `将对文档 ${file.name || file.id} 执行向量化并写入向量库。`,
+    async onOk() {
+      await aiVecDocApi.vectorize(file.id)
+      message.success('向量化任务已完成')
+      emit('changed')
+      emit('select-doc', file.id)
+    }
+  })
 }
 
 const handleDelete = async (file: any) => {
   if (file?.id == null) return
-  await aiVecDocApi.delete([file.id])
-  emit('changed')
+  Modal.confirm({
+    title: '确认删除文档',
+    content: `删除后将同步清理切片与向量数据：${file.name || file.id}`,
+    okButtonProps: { danger: true },
+    async onOk() {
+      await aiVecDocApi.delete([file.id])
+      message.success('文档删除成功')
+      emit('changed')
+      if (String(props.selectedDocId ?? '') === String(file.id)) {
+        emit('select-doc', '')
+      }
+    }
+  })
+}
+
+const handleSelectDoc = (file: any) => {
+  if (file?.id == null) return
+  emit('select-doc', file.id)
 }
 
 const handleUpload: UploadProps['customRequest'] = async (options) => {
@@ -170,8 +204,11 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
   try {
     await aiVecDocApi.upload(options.file as File, uploadCollectionId.value)
     options.onSuccess?.({})
+    message.success('上传成功')
     emit('changed')
   } catch (error) {
+    const err = error as { message?: string }
+    message.error(err?.message || '上传失败')
     options.onError?.(error as Error)
   }
 }

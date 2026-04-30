@@ -18,6 +18,10 @@ export function useVectorCenterState() {
   const stores = ref<AiVecStore[]>([])
   const docs = ref<AiVecDoc[]>([])
   const segments = ref<AiVecSegment[]>([])
+  const pageState = reactive({
+    docs: { pageNo: 1, pageSize: 200 },
+    segments: { pageNo: 1, pageSize: 300 }
+  })
 
   const selectedSourceId = ref<number | string | undefined>()
   const selectedStoreId = ref<number | string | undefined>()
@@ -66,8 +70,8 @@ export function useVectorCenterState() {
     loading.docs = true
     try {
       const resp = await aiVecDocApi.queryPage({
-        pageNo: 1,
-        pageSize: 200,
+        pageNo: pageState.docs.pageNo,
+        pageSize: pageState.docs.pageSize,
         param: {
           collectionId: selectedStoreId.value
         }
@@ -79,11 +83,15 @@ export function useVectorCenterState() {
   }
 
   const fetchSegments = async () => {
+    if (!selectedDocId.value || !selectedStoreId.value) {
+      segments.value = []
+      return
+    }
     loading.segments = true
     try {
       const resp = await aiVecSegmentApi.queryPage({
-        pageNo: 1,
-        pageSize: 300,
+        pageNo: pageState.segments.pageNo,
+        pageSize: pageState.segments.pageSize,
         param: {
           docId: selectedDocId.value ? Number(selectedDocId.value) : undefined,
           collectionId: selectedStoreId.value ? Number(selectedStoreId.value) : undefined
@@ -137,6 +145,7 @@ export function useVectorCenterState() {
     selectedStore,
     selectedSource,
     selectedDoc,
+    pageState,
     fetchSources,
     fetchStores,
     fetchDocs,

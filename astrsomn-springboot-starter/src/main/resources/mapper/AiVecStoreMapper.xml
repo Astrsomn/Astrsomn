@@ -70,4 +70,24 @@
             AND s.deleted = 0
     </select>
 
+    <select id="selectStoreStats" resultType="com.astrsomn.core.common.dto.vecstore.AiVecStoreStatsResponseDTO">
+        SELECT
+            s.ID AS STORE_ID,
+            COUNT(DISTINCT d.ID) AS DOC_COUNT,
+            COUNT(seg.ID) AS SEGMENT_COUNT,
+            COALESCE(SUM(seg.WORD_COUNT), 0) AS TOTAL_WORD_COUNT,
+            MAX(COALESCE(seg.UPDATE_TIME, seg.CREATE_TIME, d.UPDATE_TIME, d.CREATE_TIME)) AS LAST_SYNC_TIME
+        FROM AI_VEC_STORE s
+        LEFT JOIN AI_VEC_DOC d ON d.COLLECTION_ID = s.ID
+            AND d.DELETED = 0
+            AND d.ENV_CODE = #{envCode}
+        LEFT JOIN AI_VEC_SEGMENT seg ON seg.DOC_ID = d.ID
+            AND seg.DELETED = 0
+            AND seg.ENV_CODE = #{envCode}
+        WHERE s.ID = #{storeId}
+            AND s.DELETED = 0
+            AND s.ENV_CODE = #{envCode}
+        GROUP BY s.ID
+    </select>
+
 </mapper>
