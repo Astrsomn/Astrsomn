@@ -187,7 +187,7 @@ const setCurrentMemoryKey = (memoryKey: string) => {
 }
 
 const resetWelcomeMessage = () => {
-  messages.value = [{ id: 'welcome', role: 'ai', content: '你好，我是 Astrsomn AI 助手。今天有什么我可以帮你的？' }]
+  messages.value = []
 }
 
 const isChatNotFoundError = (error: unknown) => {
@@ -234,7 +234,7 @@ const openSession = async (memoryKey: string) => {
     const restored = mapConversationMessages(history || [])
     messages.value = restored.length
       ? restored
-      : [{ id: 'welcome', role: 'ai', content: '你好，我是 Astrsomn AI 助手。今天有什么我可以帮你的？' }]
+      : []
     await scrollToBottom()
   } catch (error: any) {
     if (isChatNotFoundError(error)) {

@@ -20,7 +20,7 @@ public class SystemPromptProviderAssembler {
         return Optional.ofNullable(param)
                 .map(AstroChatParam::getPromptSetting)
                 .map(setting -> StringUtils.trimToNull(setting.getPromptKey()))
-                .map(promptKey -> aiPromptMapper.getLatestPromptContentByPromptKey(promptKey, astrsomnProperties.getEnvCode()))
+                .map(aiPromptMapper::getLatestPromptContentByPromptKey)
                 .map(StringUtils::trimToNull)
                 .orElse(null);
     }

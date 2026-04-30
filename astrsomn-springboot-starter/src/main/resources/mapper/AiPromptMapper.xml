@@ -71,7 +71,7 @@
         WHERE
             AP.DELETED = 0
           AND AP.PROMPT_KEY = #{promptKey}
-          AND AP.ENV_CODE = #{envCode}
+
         ORDER BY
             AP.VERSION DESC,
             AP.ID DESC
