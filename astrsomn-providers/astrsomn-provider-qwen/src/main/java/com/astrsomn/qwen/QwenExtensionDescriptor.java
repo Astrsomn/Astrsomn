@@ -15,8 +15,8 @@ public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
 
     private static final String DEFAULT_NAME = "Qwen Model Provider";
     private static final String DEFAULT_VERSION = "0.1.0-alpha.1";
-    private static final String AVATAR_SVG =
-            loadClasspathUtf8(QwenExtensionDescriptor.class, "/avatar/qwen-color.svg");
+    private static final String AVATAR_BASE64 =
+            loadClasspathUtf8(QwenExtensionDescriptor.class, "/avatar/qwen-avatar.base64");
     private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
 
     @Override
@@ -31,7 +31,7 @@ public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getAvatar() {
-        return AVATAR_SVG;
+        return AVATAR_BASE64;
     }
 
     @Override

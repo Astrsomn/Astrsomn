@@ -58,8 +58,7 @@
       <article v-for="item in activeList" :key="rowKey(item)" class="plugin-card">
         <div class="plugin-main">
           <div class="plugin-icon">
-            <span v-if="item.avatar?.trim() && isInstalledTab" class="avatar-svg" v-html="item.avatar" aria-hidden="true" />
-            <img v-else-if="item.avatar?.trim()" class="avatar-img" :src="item.avatar" :alt="item.extensionName" />
+            <img v-if="item.avatar?.trim()" class="avatar-img" :src="item.avatar" :alt="item.extensionName" />
             <component :is="getAntdIcon(item.type)" v-else />
           </div>
           <div class="plugin-info">

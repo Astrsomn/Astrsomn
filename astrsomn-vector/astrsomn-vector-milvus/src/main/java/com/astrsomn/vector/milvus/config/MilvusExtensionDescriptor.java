@@ -12,6 +12,8 @@ public class MilvusExtensionDescriptor extends AstroExtensionDescriptor {
 
     private static final String DEFAULT_NAME = AiVecDriverEnum.Provider.MILVUS.getDesc();
     private static final String DEFAULT_VERSION = "0.1.0-alpha.1";
+    private static final String AVATAR_BASE64 =
+            loadClasspathUtf8(MilvusExtensionDescriptor.class, "/avatar/milvus-avatar.base64");
     private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
 
     @Override
@@ -26,7 +28,7 @@ public class MilvusExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getAvatar() {
-        return "";
+        return AVATAR_BASE64;
     }
 
     @Override

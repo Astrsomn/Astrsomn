@@ -51,10 +51,11 @@
                 </template>
 
                 <template v-else-if="column.key === 'providerAvatar'">
-                  <span
+                  <img
                     v-if="providerAvatarCell(record)"
                     class="provider-avatar-cell"
-                    v-html="providerAvatarCell(record)"
+                    :src="providerAvatarCell(record)"
+                    :alt="record.provider"
                     aria-hidden="true"
                   />
                   <span v-else class="text-secondary">—</span>

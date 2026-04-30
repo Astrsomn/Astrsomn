@@ -3,7 +3,7 @@
     option-filter-prop="label" :allow-clear="allowClear" class="model-provider-select" @update:value="onUpdate">
     <template #label="{ label, value: val }">
       <div class="selected-content" v-if="val">
-        <span v-if="getSelectedAvatar(val)" class="opt-avatar" v-html="getSelectedAvatar(val)" />
+        <img v-if="getSelectedAvatar(val)" class="opt-avatar" :src="getSelectedAvatar(val)" :alt="label" />
         <span v-else class="opt-avatar-placeholder"></span>
         <span class="opt-text">{{ label }}</span>
       </div>
@@ -11,7 +11,7 @@
 
     <a-select-option v-for="opt in optionsWithFallback" :key="opt.key" :value="opt.key" :label="opt.label">
       <div class="opt-row">
-        <span v-if="opt.avatar" class="opt-avatar" v-html="opt.avatar" aria-hidden="true" />
+        <img v-if="opt.avatar" class="opt-avatar" :src="opt.avatar" :alt="opt.label" aria-hidden="true" />
         <span v-else class="opt-avatar-placeholder"></span>
         <span class="opt-text">{{ opt.label }}</span>
       </div>

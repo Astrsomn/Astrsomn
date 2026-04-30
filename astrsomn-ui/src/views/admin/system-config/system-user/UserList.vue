@@ -165,6 +165,8 @@ const columns = [
   { title: '角色', key: 'userRole', width: 120 },
   { title: '环境', key: 'envCode', width: 88, ellipsis: true },
   { title: '邮箱', dataIndex: 'email', key: 'email', width: 200, ellipsis: true },
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
 
