@@ -3,7 +3,7 @@
     :open="open"
     width="80vw"
     max-width="80vw"
-    body-height="80vh"
+    body-height="90vh"
     :closable="true"
     main-padding="0"
     wrap-class-name="model-form-fsm-wrap"
@@ -45,7 +45,7 @@
               </a-form-item>
 
               <a-form-item label="Provider" name="provider">
-                <ModelProviderSelect
+                <ExtensionSelector
                   v-model:value="form.extensionCode"
                   placeholder="请选择端点所属服务商"
                   size="large"
@@ -54,10 +54,14 @@
               </a-form-item>
 
               <a-form-item label="启用状态" name="status">
-                <a-select v-model:value="form.status" size="large" :disabled="props.mode === 'view'">
-                  <a-select-option value="enabled">已启用</a-select-option>
-                  <a-select-option value="disabled">已禁用</a-select-option>
-                </a-select>
+                <a-segmented
+                  v-model:value="form.status"
+                  :options="[{label:'已启用', value:'enabled'}, {label:'已禁用', value:'disabled'}]"
+                  block
+                  size="large"
+                  :disabled="props.mode === 'view'"
+                  class="status-segmented"
+                />
               </a-form-item>
 
               <a-form-item label="模型类型" name="modelType">
@@ -85,18 +89,19 @@
               </a-form-item>
 
               <a-form-item label="关联账号" name="accountKey">
-                <a-select
-                  v-model:value="form.accountKey"
-                  :options="accountSelectOptions"
-                  :loading="accountOptionsLoading"
-                  allow-clear
-                  show-search
-                  :filter-option="filterAccountOption"
-                  placeholder="请选择关联账号"
-                  size="large"
-                  option-filter-prop="label"
-                  :disabled="props.mode === 'view'"
-                />
+                <a-space class="w-full">
+                  <a-input
+                    v-model:value="form.accountKey"
+                    :placeholder="form.accountKey ? form.accountKey : '请选择关联账号'"
+                    size="large"
+                    :disabled="true"
+                    class="cursor-pointer flex-1"
+                    @click="accountSelectorOpen = true"
+                  />
+                  <a-button type="primary" size="large" @click="accountSelectorOpen = true">
+                    选择账号
+                  </a-button>
+                </a-space>
               </a-form-item>
 
               <a-form-item label="API URL" name="apiUrl" class="span-2">
@@ -240,6 +245,11 @@
       </div>
     </div>
     </div>
+
+    <AccountSelectorTable
+      v-model:open="accountSelectorOpen"
+      @select="handleAccountSelect"
+    />
   </AstrsomnModal>
 </template>
 
@@ -254,12 +264,12 @@ import {
 } from '@ant-design/icons-vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
-import ModelProviderSelect from './ModelProviderSelect.vue'
+import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiModel } from '@/api/aiModel'
-import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
+import AccountSelectorTable from '../ai-account/selector/AccountSelectorTable.vue'
+import type { AiAccount } from '@/api/aiAccount'
 import { AI_MODEL_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
-import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
 import { aiModelCapabilitiesDictionary, aiModelSourceTypeDictionary } from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'
 import {
   CHAT_CAPABILITIES_CODES,
@@ -290,8 +300,7 @@ const emit = defineEmits(['update:open'])
 
 const formRef = ref<FormInstance | null>(null)
 
-const accountList = ref<AiAccount[]>([])
-const accountOptionsLoading = ref(false)
+const accountSelectorOpen = ref(false)
 const modelKeyImmutable = ref(false)
 
 const PARAM_TEMPLATES = {
@@ -319,80 +328,14 @@ const PARAM_TEMPLATES = {
   ]
 }
 
-function resolveQueryCreateUser(): string | undefined {
-  try {
-    const raw = localStorage.getItem('userInfo')
-    if (!raw) return undefined
-    const u = JSON.parse(raw) as { username?: string; id?: string }
-    const name = u.username?.trim()
-    if (name) return name
-    if (u.id) return String(u.id)
-  } catch {
-    /* ignore */
+function handleAccountSelect(account: AiAccount) {
+  if (account.accountKey) {
+    form.accountKey = account.accountKey
   }
-  return undefined
-}
-
-function resolveQueryEnvCode(): string | undefined {
-  const v = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY)
-  return v?.trim() || undefined
-}
-
-async function fetchAccountOptions() {
-  const createUser = resolveQueryCreateUser()
-  if (!createUser) {
-    accountList.value = []
-    message.warning('未获取到登录用户，无法加载账号列表')
-    return
+  if (account.apiUrl?.trim()) {
+    form.apiUrl = account.apiUrl
   }
-  accountOptionsLoading.value = true
-  try {
-    const resp = await aiAccountApi.queryPage({
-      pageNo: 1,
-      pageSize: 500,
-      param: {
-        createUser,
-        envCode: resolveQueryEnvCode(),
-        provider: form.provider?.trim() || undefined
-      }
-    })
-    accountList.value = resp.list || []
-  } catch (e: unknown) {
-    const err = e as { message?: string }
-    message.error(err?.message || '加载 AI 账号失败')
-    accountList.value = []
-  } finally {
-    accountOptionsLoading.value = false
-  }
-}
-
-const accountSelectOptions = computed(() => {
-  const opts = accountList.value
-    .filter((a) => a.accountKey)
-    .map((a) => ({
-      value: a.accountKey as string,
-      label: `${a.accountName || a.accountKey} (${a.accountKey})`
-    }))
-  const key = form.accountKey?.trim()
-  if (key && !opts.some((o) => o.value === key)) {
-    opts.unshift({ value: key, label: `${key}（当前值，不在可选列表）` })
-  }
-  return opts
-})
-
-const accountMapByKey = computed(() => {
-  const map = new Map<string, AiAccount>()
-  accountList.value.forEach((item) => {
-    const key = item.accountKey?.trim()
-    if (key) map.set(key, item)
-  })
-  return map
-})
-
-const filterAccountOption = (input: string, option: { label?: string }) => {
-  const q = input.trim().toLowerCase()
-  if (!q) return true
-  return String(option?.label ?? '').toLowerCase().includes(q)
+  accountSelectorOpen.value = false
 }
 
 function capOptionRow(code: string) {
@@ -425,7 +368,7 @@ const form = reactive<AiModel>({
 
 const rules = {
   modelName: [{ required: true, message: '请输入模型名称' }],
-  provider: [{ required: true, message: '请选择供应商' }],
+  extensionCode: [{ required: true, message: '请选择供应商' }],
   apiUrl: [],
 }
 
@@ -541,7 +484,6 @@ watch(
   (v) => {
     if (!v) return
     syncForm()
-    void fetchAccountOptions()
   }
 )
 
@@ -550,36 +492,6 @@ watch(
   () => {
     if (props.open) {
       syncForm()
-    }
-  }
-)
-
-watch(
-  () => form.provider,
-  (provider, prevProvider) => {
-    if (!props.open) return
-    if (provider === prevProvider) return
-
-    const currentKey = form.accountKey?.trim()
-    if (currentKey) {
-      const selectedAccount = accountMapByKey.value.get(currentKey)
-      if (selectedAccount && selectedAccount.provider !== provider) {
-        form.accountKey = ''
-      }
-    }
-
-    void fetchAccountOptions()
-  }
-)
-
-watch(
-  () => form.accountKey,
-  (accountKey) => {
-    const key = accountKey?.trim()
-    if (!key) return
-    const account = accountMapByKey.value.get(key)
-    if (account?.apiUrl?.trim()) {
-      form.apiUrl = account.apiUrl
     }
   }
 )
@@ -733,6 +645,22 @@ const onCancel = () => emit('update:open', false)
 :deep(.ant-segmented-item-selected:hover) {
   background-color: var(--primary, #40a9ff) !important;
   color: white !important;
+}
+
+.status-segmented :deep(.ant-segmented-item:nth-child(1).ant-segmented-item-selected) {
+  background-color: #52c41a !important;
+}
+
+.status-segmented :deep(.ant-segmented-item:nth-child(1).ant-segmented-item-selected:hover) {
+  background-color: #73d13d !important;
+}
+
+.status-segmented :deep(.ant-segmented-item:nth-child(2).ant-segmented-item-selected) {
+  background-color: #ff4d4f !important;
+}
+
+.status-segmented :deep(.ant-segmented-item:nth-child(2).ant-segmented-item-selected:hover) {
+  background-color: #ff7875 !important;
 }
 
 .capability-panel-section {

@@ -24,10 +24,11 @@
             <div class="v-divider"></div>
 
             <div class="instance-select-with-avatar">
-              <span
+              <img
                 v-if="selectedChatInstanceAvatarHtml"
                 class="inst-select-inline-avatar"
-                v-html="selectedChatInstanceAvatarHtml"
+                :src="selectedChatInstanceAvatarHtml"
+                :alt="selectedChatInstanceKey"
                 aria-hidden="true"
               />
               <a-select
@@ -47,10 +48,11 @@
                   :label="inst.instanceName || inst.instanceKey"
                 >
                   <span class="inst-opt-row">
-                    <span
+                    <img
                       v-if="instanceAvatarHtml(inst)"
                       class="inst-opt-avatar"
-                      v-html="instanceAvatarHtml(inst)"
+                      :src="instanceAvatarHtml(inst)"
+                      :alt="inst.instanceKey"
                       aria-hidden="true"
                     />
                     <span class="inst-opt-text">{{ inst.instanceName || inst.instanceKey }}</span>

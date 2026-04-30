@@ -18,9 +18,11 @@ public class AiAccountUpdateRequestDTO implements Serializable {
     private Long id;
     private String accountKey;
     private String accountName;
-    private String provider;
+    private String extensionCode;
     private String apiUrl;
     private String apiKey;
     private String apiSecret;
     private Long accountTokens;
+    private String status;
+
 }

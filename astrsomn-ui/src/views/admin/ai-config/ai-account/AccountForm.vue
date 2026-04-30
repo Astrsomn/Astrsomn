@@ -36,15 +36,16 @@
           </a-form-item>
 
           <a-form-item
-            label="Provider"
-            name="provider"
+            label="extensionCode"
+            name="extensionCode"
             :rules="[{ required: true, message: '请选择供应商' }]"
           >
-            <ModelProviderSelect
-              v-model:value="form.provider"
+            <ExtensionSelector
+              v-model:value="form.extensionCode"
               placeholder="请选择供应商"
               :allow-clear="true"
               size="middle"
+              :only-applied="true"
             />
           </a-form-item>
 
@@ -67,6 +68,13 @@
           <a-form-item label="消耗上限 (Tokens)" name="accountTokens">
             <a-input-number v-model:value="form.accountTokens" :min="0" placeholder="无限制" class="w-full" />
           </a-form-item>
+
+          <a-form-item label="状态" name="status">
+            <a-radio-group v-model:value="form.status">
+              <a-radio value="enabled">启用</a-radio>
+              <a-radio value="disabled">禁用</a-radio>
+            </a-radio-group>
+          </a-form-item>
         </a-form>
       </div>
     </a-spin>
@@ -85,7 +93,7 @@ import { reactive, ref, watch, computed } from 'vue'
 import { message } from 'ant-design-vue'
 import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
-import ModelProviderSelect from '@/views/admin/ai-config/ai-model/ModelProviderSelect.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 import { AI_ACCOUNT_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
 
@@ -105,11 +113,12 @@ const isEdit = computed(() => !!props.record?.id)
 const form = reactive<AiAccount>({
   accountKey: '',
   accountName: '',
-  provider: undefined,
+  extensionCode: undefined,
   apiUrl: '',
   apiKey: '',
   apiSecret: '',
-  accountTokens: undefined
+  accountTokens: undefined,
+  status: 'enabled'
 })
 
 const handleCancel = () => emit('update:visible', false)
@@ -120,7 +129,8 @@ const loadDetail = async (id: string | number) => {
     const detail = await aiAccountApi.detail(id)
     Object.assign(form, detail, {
       provider: detail.provider || undefined,
-      apiUrl: detail.apiUrl || ''
+      apiUrl: detail.apiUrl || '',
+      status: detail.status || 'enabled'
     })
     accountKeyImmutable.value = detail.accountKeyImmutable === true
   } catch (e: any) {
@@ -161,7 +171,8 @@ watch(() => props.visible, (val) => {
       apiUrl: '',
       apiKey: '',
       apiSecret: '',
-      accountTokens: undefined
+      accountTokens: undefined,
+      status: 'enabled'
     })
     accountKeyImmutable.value = false
     

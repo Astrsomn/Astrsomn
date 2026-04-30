@@ -26,7 +26,7 @@
           />
         </template>
 
-        <AstrsomnDataView :data-source="list" :columns="columns" row-key="id" mode="table" :pagination="false" :loading="loading">
+        <AstrsomnDataView :data-source="list" :columns="columns" row-key="id" mode="table" :pagination="false" :loading="loading" :row-selection="rowSelection">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'workflowName'">
               <span>{{ record.workflowName || '-' }}</span>
@@ -103,9 +103,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import { CopyOutlined, DeleteOutlined, EditOutlined, FilterOutlined, HistoryOutlined, PlusOutlined, RocketOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
@@ -166,6 +166,43 @@ const page = reactive({
   pageSize: 10,
   total: 0
 })
+
+const selectedRowKeys = ref<Array<number | string>>([])
+const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
+
+const currentPageIds = computed(() =>
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
+)
+
+const allCurrentSelected = computed(() => {
+  return (
+      currentPageIds.value.length > 0 &&
+      currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
+  )
+})
+
+const partCurrentSelected = computed(() => {
+  if (currentPageIds.value.length === 0) return false
+  const count = currentPageIds.value.filter((id) => selectedRowKeys.value.includes(id)).length
+  return count > 0 && count < currentPageIds.value.length
+})
+
+const rowSelection = computed(() => ({
+  selectedRowKeys: selectedRowKeys.value,
+  onChange: (keys: Array<number | string>) => {
+    selectedRowKeys.value = keys
+  }
+}))
+
+const toggleSelectAllCurrentPage = (checked: boolean) => {
+  if (checked) {
+    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...currentPageIds.value]))
+    return
+  }
+  selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
+}
 
 const query = reactive<WorkflowQuery>({
   workflowName: undefined,
@@ -285,28 +322,55 @@ const closeHistoryModal = () => {
   historyList.value = []
 }
 
-const segmentedButtons = [
+const handleBatchDelete = async () => {
+  const ids = [...selectedRowKeys.value]
+  if (ids.length === 0) return
+  const msg = await aiWorkflowApi.delete(ids)
+  message.success(msg || '删除成功')
+  selectedRowKeys.value = []
+  void fetchList()
+}
+
+const segmentedButtons = computed(() => [
   {
     label: '查询',
     icon: SearchOutlined,
-    type: 'primary' as const,
+    type: 'default' as const,
     ghost: true,
     onClick: () => {
       void fetchList()
-    }
+    },
+    plain: true
   },
   {
     label: '重置',
     icon: FilterOutlined,
-    onClick: resetFilters
+    onClick: resetFilters,
+    plain: true
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    icon: DeleteOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: () => {
+      if (selectedRowKeys.value.length === 0) return
+      Modal.confirm({
+        title: `确定批量删除选中的 ${selectedRowKeys.value.length} 条流程定义吗？`,
+        okText: '确认',
+        cancelText: '取消',
+        onOk: () => handleBatchDelete()
+      })
+    },
+    plain: true
   },
   {
     label: '新建',
     icon: PlusOutlined,
     type: 'primary' as const,
-    onClick: openCreate
+    onClick: openCreate,
+    plain: true
   }
-]
+])
 
 onMounted(() => {
   void fetchList()

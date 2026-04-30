@@ -15,6 +15,14 @@ export interface AiVecStore {
   updateTime?: string
 }
 
+export interface AiVecStoreStats {
+  storeId: number | string
+  docCount: number
+  segmentCount: number
+  totalWordCount: number
+  lastSyncTime?: string
+}
+
 export interface PageResponse<T> {
   list: T[]
   total: number
@@ -57,5 +65,10 @@ export const aiVecStoreApi = {
   }): Promise<PageResponse<AiVecStore>> {
     const res = await request.post<PageResponse<AiVecStore>>('/v1/astro/ai-vec-store/queryPage', params)
     return res
+  },
+
+  async stats(id: number | string): Promise<AiVecStoreStats> {
+    const res = await request.get<{ data: AiVecStoreStats }>(`/v1/astro/ai-vec-store/stats?id=${id}`)
+    return res.data
   }
 }

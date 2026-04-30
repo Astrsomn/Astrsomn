@@ -109,7 +109,7 @@ import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import InstanceForm from './InstanceForm.vue'
-import InstanceCard from './InstanceCard.vue'
+import InstanceCard from './component/InstanceCard.vue'
 import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance'
 
 const INSTANCE_CARD_MIN_WIDTH_PX = 360

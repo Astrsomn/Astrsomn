@@ -13,12 +13,14 @@
                 </a-tag>
               </div>
               <a-input
-                v-model:value="libraryName"
+                :value="libraryName"
+                @update:value="(v) => (libraryName = v)"
                 class="main-title-input"
                 placeholder="请输入知识库名称"
               />
               <a-input
-                v-model:value="description"
+                :value="description"
+                @update:value="(v) => (description = v)"
                 type="textarea"
                 class="description-input"
                 placeholder="请输入描述信息（可选）"
@@ -26,7 +28,7 @@
                 :auto-size="{ minRows: 2, maxRows: 4 }"
               />
               <div class="sync-meta">
-                上次同步: 2分钟前 • <span class="node-text">Cluster-AWS-01</span>
+                上次同步: {{ lastSyncText }} • <span class="node-text">{{ sourceNodeText }}</span>
               </div>
             </div>
 
@@ -34,9 +36,11 @@
               <div class="config-item">
                 <span class="config-label">Embedding 模型</span>
                 <a-select
-                  v-model:value="selectedModel"
+                  :value="selectedModel"
+                  @update:value="(v) => (selectedModel = v)"
                   class="model-select"
                   :options="modelOptions"
+                  :loading="instanceLoading"
                   placeholder="选择模型"
                 />
               </div>
@@ -46,6 +50,9 @@
                 <div class="config-value">HNSW / 余弦相似度</div>
                 <div class="config-sub">M:16 • ef:200</div>
               </div>
+            </div>
+            <div class="action-area">
+              <a-button type="primary" size="small" @click="handleSave">保存</a-button>
             </div>
           </div>
         </a-card>
@@ -58,15 +65,15 @@
               <span class="stats-label">存储统计 / STORAGE</span>
               <div class="main-number">
                 <a-statistic
-                  :value="12408"
+                  :value="vectorCount"
                   :value-style="{ color: '#fff', fontSize: '28px', fontWeight: '700' }"
                 />
                 <span class="unit">个向量片段</span>
               </div>
               <div class="stats-footer">
-                <span class="footer-item">~ 2.4M Tokens</span>
+                <span class="footer-item">文档 {{ stats.docCount }} 个</span>
                 <span class="footer-dot"></span>
-                <span class="footer-item">85.2 MB 占用</span>
+                <span class="footer-item">字符 {{ stats.totalWordCount }}</span>
               </div>
             </div>
             <div class="stats-icon-box">
@@ -80,20 +87,112 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
+import { message } from 'ant-design-vue'
 import { BarChartOutlined, SyncOutlined } from '@ant-design/icons-vue';
+import type { AiVecStore } from '@/api/aiVecStore'
+import type { AiVecSource } from '@/api/aiVecSource'
+import { aiVecStoreApi } from '@/api/aiVecStore'
+import { aiInstanceApi } from '@/api/aiInstance'
 
-const libraryName = ref('核心产品知识库');
+const props = defineProps<{
+  store?: AiVecStore
+  source?: AiVecSource
+}>()
+
+const emit = defineEmits<{
+  updated: []
+}>()
+
+const libraryName = ref('');
 const description = ref('');
-const selectedModel = ref('text-embedding-3-large');
+const selectedModel = ref('');
+const instanceLoading = ref(false)
+const stats = reactive({
+  docCount: 0,
+  segmentCount: 0,
+  totalWordCount: 0,
+  lastSyncTime: ''
+})
 
-const modelOptions = [
-  { value: 'text-embedding-3-large', label: 'text-embedding-3-large (1536维)' },
-  { value: 'text-embedding-3-small', label: 'text-embedding-3-small (1536维)' },
-  { value: 'text-embedding-ada-002', label: 'text-embedding-ada-002 (1538维)' },
-  { value: 'm3e-base', label: 'm3e-base (768维)' },
-  { value: 'm3e-large', label: 'm3e-large (1024维)' }
-];
+const modelOptions = ref<Array<{ value: string; label: string }>>([])
+
+watch(
+  () => props.store,
+  async (store) => {
+    libraryName.value = store?.collectionName || ''
+    description.value = store?.metadataSchema || ''
+    selectedModel.value = store?.instanceKey || ''
+    if (store?.id) {
+      await Promise.all([fetchStoreStats(store.id), fetchInstanceOptions()])
+    } else {
+      stats.docCount = 0
+      stats.segmentCount = 0
+      stats.totalWordCount = 0
+      stats.lastSyncTime = ''
+      modelOptions.value = []
+    }
+  },
+  { immediate: true }
+)
+
+const vectorCount = computed(() => stats.segmentCount)
+const lastSyncText = computed(() => stats.lastSyncTime || '暂无')
+const sourceNodeText = computed(() => props.source?.name || props.source?.extensionCode || '未命名节点')
+
+const fetchStoreStats = async (id: number | string) => {
+  const resp = await aiVecStoreApi.stats(id)
+  stats.docCount = Number(resp.docCount || 0)
+  stats.segmentCount = Number(resp.segmentCount || 0)
+  stats.totalWordCount = Number(resp.totalWordCount || 0)
+  stats.lastSyncTime = resp.lastSyncTime || ''
+}
+
+const fetchInstanceOptions = async () => {
+  instanceLoading.value = true
+  try {
+    const resp = await aiInstanceApi.queryPage({
+      pageNo: 1,
+      pageSize: 200,
+      param: {}
+    })
+    const list = resp.list || []
+    modelOptions.value = list
+      .filter((x) => String(x.modelType || '').toLowerCase().includes('embedding'))
+      .map((x) => ({
+        value: String(x.instanceKey || ''),
+        label: `${x.instanceName || x.instanceKey} (${x.instanceKey})`
+      }))
+      .filter((x) => x.value)
+  } finally {
+    instanceLoading.value = false
+  }
+}
+
+const handleSave = async () => {
+  if (!props.store?.id) {
+    message.warning('请先在左侧选择数据库')
+    return
+  }
+  if (!selectedModel.value) {
+    message.warning('请选择 Embedding 实例')
+    return
+  }
+  try {
+    const msg = await aiVecStoreApi.update({
+      ...props.store,
+      collectionName: libraryName.value,
+      metadataSchema: description.value,
+      instanceKey: selectedModel.value
+    })
+    message.success(msg || '保存成功')
+    await fetchStoreStats(props.store.id)
+    emit('updated')
+  } catch (error) {
+    const err = error as { message?: string }
+    message.error(err?.message || '保存失败')
+  }
+}
 </script>
 
 <style lang="less" scoped>

@@ -7,6 +7,7 @@ import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreCreateRequestDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreQueryRequestDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO;
+import com.astrsomn.core.common.dto.vecstore.AiVecStoreStatsResponseDTO;
 import com.astrsomn.core.common.dto.vecstore.AiVecStoreUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiVecStoreEntity;
 
@@ -21,4 +22,6 @@ public interface AiVecStoreService extends IService<AiVecStoreEntity> {
     PageResponse<AiVecStoreResponseDTO> queryPage(BasePageRequest<AiVecStoreQueryRequestDTO> request);
 
     BaseResponse<AiVecStoreResponseDTO> detail(Long id);
+
+    BaseResponse<AiVecStoreStatsResponseDTO> stats(Long id);
 }

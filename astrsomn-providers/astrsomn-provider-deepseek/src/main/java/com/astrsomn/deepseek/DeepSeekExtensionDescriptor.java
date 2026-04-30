@@ -14,13 +14,18 @@ public class DeepSeekExtensionDescriptor extends AstroExtensionDescriptor {
     private static final String DEFAULT_VERSION = "0.1.0-alpha.1";
     private static final String DEFAULT_CHANGELOG = "";
     private static final String DEFAULT_MIN_SERVER_VERSION = "";
-    private static final String AVATAR_SVG =
-            loadClasspathUtf8(DeepSeekExtensionDescriptor.class, "/avatar/deepseek-color.svg");
+    private static final String AVATAR_BASE64 =
+            loadClasspathUtf8(DeepSeekExtensionDescriptor.class, "/avatar/deepseek-avatar.base64");
     private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
 
     @Override
     public String getExtensionKey() {
         return AiModelEnum.ProviderEnum.DEEPSEEK.getCode();
+    }
+
+    @Override
+    public String getExtensionCode() {
+        return getExtensionKey();
     }
 
     @Override
@@ -60,7 +65,7 @@ public class DeepSeekExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getAvatar() {
-        return AVATAR_SVG;
+        return AVATAR_BASE64;
     }
 
     private static Properties loadExtensionProperties() {

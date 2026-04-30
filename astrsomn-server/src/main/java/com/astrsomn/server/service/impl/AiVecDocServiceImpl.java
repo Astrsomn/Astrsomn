@@ -361,11 +361,30 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> delete(long[] ids) {
         if (ids == null || ids.length == 0) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR);
         }
         for (long id : ids) {
+            AiVecDocEntity doc = getById(id);
+            if (doc == null) {
+                continue;
+            }
+            List<AiVecSegmentEntity> segments =
+                    aiVecSegmentService.list(
+                            new LambdaQueryWrapper<AiVecSegmentEntity>()
+                                    .eq(AiVecSegmentEntity::getDocId, id));
+            if (segments != null && !segments.isEmpty()) {
+                long[] segmentIds = segments.stream()
+                        .map(AiVecSegmentEntity::getId)
+                        .filter(java.util.Objects::nonNull)
+                        .mapToLong(Long::longValue)
+                        .toArray();
+                if (segmentIds.length > 0) {
+                    aiVecSegmentService.delete(segmentIds);
+                }
+            }
             removeById(id);
         }
         return BaseResponse.success("删除成功");

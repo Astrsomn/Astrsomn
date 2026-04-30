@@ -11,6 +11,8 @@ public abstract class AstroExtensionDescriptor {
 
     public abstract String getExtensionKey();
 
+    public abstract String getExtensionCode();
+
     public abstract SystemExtensionEnum.ExtensionTypeEnum getExtensionType();
 
     public abstract String getAvatar();

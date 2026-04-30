@@ -23,8 +23,7 @@ public interface AiPromptService extends IService<AiPromptEntity> {
 
     PageResponse<AiPromptResponseDTO> queryPage(BasePageRequest<AiPromptQueryRequestDTO> request);
 
-    /**
-     * 按 promptKey + env 查询全部历史版本（版本号倒序）。
-     */
     BaseResponse<List<AiPromptResponseDTO>> history(String promptKey, String envCode);
+
+    BaseResponse<String> improvePrompt(AiPromptUpdateRequestDTO request);
 }

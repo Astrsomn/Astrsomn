@@ -13,11 +13,13 @@ public class PageConverter {
         if (page == null) {
             return new PageResponse<>(0, 10, 1, Collections.emptyList());
         }
-        return new PageResponse<>(
+        PageResponse<R> response = new PageResponse<>(
                 page.getTotal(),
                 page.getSize(),
                 (int) page.getCurrent(),
                 page.getRecords()
         );
+        response.setHasNext(page.getCurrent() < page.getPages());
+        return response;
     }
 }

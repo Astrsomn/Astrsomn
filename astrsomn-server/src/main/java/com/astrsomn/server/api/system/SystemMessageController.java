@@ -1,0 +1,52 @@
+package com.astrsomn.server.api.system;
+
+import lombok.RequiredArgsConstructor;
+import com.astrsomn.commn.base.BaseController;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
+import com.astrsomn.core.common.dto.systemmessage.SystemMessageCreateRequestDTO;
+import com.astrsomn.core.common.dto.systemmessage.SystemMessageQueryRequestDTO;
+import com.astrsomn.core.common.dto.systemmessage.SystemMessageResponseDTO;
+import com.astrsomn.core.common.dto.systemmessage.SystemMessageUpdateRequestDTO;
+import com.astrsomn.server.service.SystemMessageService;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/v1/astro/system-message")
+@RequiredArgsConstructor
+public class SystemMessageController extends BaseController {
+
+    private final SystemMessageService systemMessageService;
+
+    @PostMapping("/create")
+    public BaseResponse<String> create(@RequestBody SystemMessageCreateRequestDTO request) {
+        return systemMessageService.create(request);
+    }
+
+    @DeleteMapping("/delete/{ids}")
+    public BaseResponse<String> delete(@PathVariable("ids") String ids) {
+        try {
+            long[] longIds = parseLongIds(ids, ",");
+            return systemMessageService.delete(longIds);
+        } catch (NumberFormatException e) {
+            return BaseResponse.fail("ID格式错误", null);
+        }
+    }
+
+    @PostMapping("/update")
+    public BaseResponse<String> update(@RequestBody SystemMessageUpdateRequestDTO request) {
+        return systemMessageService.update(request);
+    }
+
+    @PostMapping("/queryPage")
+    public PageResponse<SystemMessageResponseDTO> queryPage(
+            @RequestBody BasePageRequest<SystemMessageQueryRequestDTO> request) {
+        return systemMessageService.queryPage(request);
+    }
+
+    @GetMapping("/detail")
+    public BaseResponse<SystemMessageResponseDTO> detail(@RequestParam("id") Long id) {
+        return systemMessageService.detail(id);
+    }
+}

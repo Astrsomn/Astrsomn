@@ -74,7 +74,7 @@ function onSuffixChange(value: string) {
 
 function generateRandomKey() {
   if (props.disabled) return
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
   const random = Array.from({ length: Math.max(4, props.randomLength) }, () => {
     const index = Math.floor(Math.random() * chars.length)
     return chars[index]

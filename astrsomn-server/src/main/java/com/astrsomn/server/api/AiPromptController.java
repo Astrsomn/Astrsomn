@@ -55,13 +55,18 @@ public class AiPromptController extends BaseController {
         }
     }
 
-    /**
-     * 同一 promptKey 下全部历史版本（按版本倒序）。
-     */
     @GetMapping("/history")
     public BaseResponse<List<AiPromptResponseDTO>> history(
             @RequestParam("promptKey") String promptKey,
             @RequestParam(value = "envCode", required = false) String envCode) {
         return aiPromptService.history(promptKey, envCode);
     }
+
+
+    @PostMapping("/improvePrompt")
+    public BaseResponse<String> improvePrompt(@RequestBody AiPromptUpdateRequestDTO request) {
+        return aiPromptService.improvePrompt(request);
+    }
+
+
 }

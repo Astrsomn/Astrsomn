@@ -104,6 +104,13 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         if (isAccountKeyReferencedByModel(existing.getAccountKey(), existing.getEnvCode())) {
             entity.setAccountKey(existing.getAccountKey());
         }
+        if (request.getStatus() != null) {
+            entity.setStatus(request.getStatus());
+        }
+        if (StringUtils.isNotBlank(request.getExtensionCode())) {
+            entity.setExtensionCode(request.getExtensionCode());
+        }
+
         boolean result = updateById(entity);
         if (!result) {
             throw new BusinessException(AiAccountErrorEnum.ACCOUNT_UPDATE_FAILED);

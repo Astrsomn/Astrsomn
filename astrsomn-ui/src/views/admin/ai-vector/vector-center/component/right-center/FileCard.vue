@@ -1,12 +1,12 @@
 <template>
-  <a-card :bordered="false" class="custom-file-card" :body-style="{ padding: 0 }">
+  <a-card :bordered="false" class="custom-file-card" :class="{ active }" :body-style="{ padding: 0 }" @click="$emit('select', file)">
     <div class="square-container">
       <div class="inner-content">
         
         <div class="action-group">
-          <div class="action-btn" title="编辑"><edit-outlined /></div>
-          <div class="action-btn vectorize" title="向量化"><experiment-outlined /></div>
-          <div class="action-btn delete" title="删除"><delete-outlined /></div>
+          <div class="action-btn" title="编辑" @click.stop="$emit('edit', file)"><edit-outlined /></div>
+          <div class="action-btn vectorize" title="向量化" @click.stop="$emit('vectorize', file)"><experiment-outlined /></div>
+          <div class="action-btn delete" title="删除" @click.stop="$emit('delete', file)"><delete-outlined /></div>
         </div>
 
         <div class="main-body">
@@ -37,15 +37,24 @@ import {
   ExperimentOutlined
 } from '@ant-design/icons-vue';
 
-const props = defineProps<{
+defineProps<{
   file: {
+    id?: number | string;
     name: string;
     segments: number;
     size: string;
     status: string;
     uploadTime?: string;
   };
+  active?: boolean;
 }>();
+
+defineEmits<{
+  select: [file: any]
+  edit: [file: any]
+  vectorize: [file: any]
+  delete: [file: any]
+}>()
 
 const getFileIcon = (name: string) => {
   const ext = name.split('.').pop()?.toLowerCase();
@@ -80,6 +89,11 @@ const getFileExtension = (name: string) => {
     
     .action-group { opacity: 1; transform: translateY(0); }
     .icon-box { transform: scale(1.1); }
+  }
+
+  &.active {
+    border-color: #1677ff !important;
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
   }
 
   // 核心：强制正方形方案

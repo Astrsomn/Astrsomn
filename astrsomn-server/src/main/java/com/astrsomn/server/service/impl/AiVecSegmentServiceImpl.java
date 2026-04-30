@@ -3,6 +3,8 @@ import com.astrsomn.core.common.utils.PageConverter;
 import com.astrsomn.core.common.utils.PageUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingStore;
 import lombok.RequiredArgsConstructor;
 import com.astrsomn.commn.base.BasePageRequest;
 import com.astrsomn.commn.base.BaseResponse;
@@ -12,19 +14,28 @@ import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentQueryRequestDTO;
 import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentResponseDTO;
 import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiVecSegmentEntity;
+import com.astrsomn.core.common.entity.AiVecStoreEntity;
+import com.astrsomn.core.common.langchain.extension.vector.VecSource;
+import com.astrsomn.core.common.langchain.extension.vector.VecStore;
 import com.astrsomn.commn.base.BusinessException;
+import com.astrsomn.core.exception.AstVecDocErrorEnum;
 import com.astrsomn.core.exception.AstVecSegmentErrorEnum;
 import com.astrsomn.starter.mapper.AiVecSegmentMapper;
+import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.astrsomn.starter.langchain.vector.AstroVecSourceFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiVecSegmentEntity> implements AiVecSegmentService {
 
     private final QueryEnvParamHelper queryEnvParamHelper;
+    private final AiVecStoreService aiVecStoreService;
+    private final AstroVecSourceFactory astroVecSourceFactory;
 
     @Override
     public BaseResponse<String> create(AiVecSegmentCreateRequestDTO request) {
@@ -38,14 +49,39 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> delete(long[] ids) {
         if (ids == null || ids.length == 0) {
             throw new BusinessException(AstVecSegmentErrorEnum.SEGMENT_PARAM_ERROR);
         }
         for (long id : ids) {
+            AiVecSegmentEntity segment = getById(id);
+            if (segment == null) {
+                continue;
+            }
+            deleteVectorBySegment(segment);
             removeById(id);
         }
         return BaseResponse.success("删除成功");
+    }
+
+    private void deleteVectorBySegment(AiVecSegmentEntity segment) {
+        if (segment.getCollectionId() == null || segment.getVectorId() == null || segment.getVectorId().isBlank()) {
+            return;
+        }
+        AiVecStoreEntity store = aiVecStoreService.getById(segment.getCollectionId());
+        if (store == null || store.getSourceId() == null) {
+            return;
+        }
+        VecSource vecSource = astroVecSourceFactory.tryGetActiveSource(store.getSourceId())
+                .orElseThrow(() -> new BusinessException(AstVecDocErrorEnum.DOC_SOURCE_NOT_READY));
+        VecStore vecStore = vecSource.openStore(store);
+        EmbeddingStore<TextSegment> embeddingStore = vecStore.getEmbeddingStore();
+        try {
+            embeddingStore.remove(segment.getVectorId());
+        } catch (RuntimeException e) {
+            throw new BusinessException(AstVecSegmentErrorEnum.SEGMENT_DELETE_FAILED, e.getMessage());
+        }
     }
 
     @Override

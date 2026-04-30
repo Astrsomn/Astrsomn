@@ -7,7 +7,7 @@ export type AiAccount = {
   /** 详情接口返回：有模型引用该 Key 时为 true，前端应禁止改 accountKey */
   accountKeyImmutable?: boolean
   accountName?: string
-  provider?: string
+    extensionCode?: string
   apiUrl?: string
   apiKey?: string
   apiSecret?: string

@@ -4,28 +4,32 @@
 
     <select id="queryPage" resultType="com.astrsomn.core.common.dto.vecsource.AiVecSourceResponseDTO">
         SELECT
-            *
+            s.*,
+            e.AVATAR AS providerAvatar,
+            e.EXTENSION_NAME AS extensionName,
+            e.TYPE AS extensionType
         FROM
-            `AI_VEC_SOURCE`
+            `AI_VEC_SOURCE` s
+            LEFT JOIN `SYS_EXTENSION` e ON s.EXTENSION_CODE = e.EXTENSION_CODE AND e.deleted = 0
         WHERE
-            deleted = 0
+            s.deleted = 0
         <if test="req != null and req.name != null and req.name != ''">
-            AND NAME LIKE CONCAT('%', #{req.name}, '%')
+            AND s.NAME LIKE CONCAT('%', #{req.name}, '%')
         </if>
-        <if test="req != null and req.provider != null and req.provider != ''">
-            AND PROVIDER = #{req.provider}
+        <if test="req != null and req.extensionCode != null and req.extensionCode != ''">
+            AND s.EXTENSION_CODE = #{req.extensionCode}
         </if>
         <if test="req != null and req.status != null and req.status != ''">
-            AND STATUS = #{req.status}
+            AND s.STATUS = #{req.status}
         </if>
         <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND ENV_CODE = #{req.envCode}
+            AND s.ENV_CODE = #{req.envCode}
         </if>
         <if test="req != null and req.createUser != null and req.createUser != ''">
-            AND CREATE_USER = #{req.createUser}
+            AND s.CREATE_USER = #{req.createUser}
         </if>
         ORDER BY
-            CREATE_TIME DESC
+            s.CREATE_TIME DESC
     </select>
 
 </mapper>

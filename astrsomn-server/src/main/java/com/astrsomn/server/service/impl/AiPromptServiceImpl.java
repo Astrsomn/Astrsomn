@@ -1,5 +1,7 @@
 package com.astrsomn.server.service.impl;
 import com.astrsomn.core.common.utils.PageConverter;
+import com.astrsomn.server.astrsomn.PromptAssistant;
+import com.astrsomn.starter.langchain.aop.annotation.Astro;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -19,12 +21,15 @@ import com.astrsomn.starter.mapper.AiPromptMapper;
 import com.astrsomn.server.service.AiPromptService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+
 import com.astrsomn.core.common.utils.PageUtils;
+import org.springframework.stereotype.Service;
+
 @Service
 @RequiredArgsConstructor
 public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEntity> implements AiPromptService {
@@ -32,8 +37,12 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
 
     private final QueryEnvParamHelper queryEnvParamHelper;
 
+    @Astro(agentKey = "AG-ASTRSOMN-PROMPT", envCode = "PRO")
+    private PromptAssistant promptAssistant;
+
     @Override
     public BaseResponse<String> create(AiPromptCreateRequestDTO request) {
+
         AiPromptEntity entity = new AiPromptEntity();
         BeanUtils.copyProperties(request, entity);
 
@@ -156,5 +165,11 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         }
         List<AiPromptResponseDTO> list = baseMapper.listHistoryByPromptKey(promptKey.trim(), envCode);
         return BaseResponse.success(list);
+    }
+
+    @Override
+    public BaseResponse<String> improvePrompt(AiPromptUpdateRequestDTO request) {
+        String data = promptAssistant.improvePrompt(request.getPromptContent(), UUID.randomUUID().toString());
+        return BaseResponse.success(data);
     }
 }

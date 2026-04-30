@@ -4,6 +4,9 @@ export type AiVecSource = {
   id?: number | string
   name?: string
   provider?: string
+  extensionCode?: string
+  extensionName?: string
+  providerAvatar?: string
   host?: string
   port?: string
   username?: string
@@ -68,11 +71,12 @@ export const aiVecSourceApi = {
     })
   },
 
-  testConnection: (data: AiVecSource): Promise<string> => {
+  testConnection: (data: AiVecSource, timeoutMs: number = 20000): Promise<string> => {
     return request({
       url: '/v1/astro/ai-vec-source/test-connection',
       method: 'post',
-      data
+      data,
+      timeout: timeoutMs
     })
   },
 

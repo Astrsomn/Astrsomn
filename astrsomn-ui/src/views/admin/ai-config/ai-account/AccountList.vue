@@ -21,11 +21,12 @@
                   @search="fetchList"
               />
               <div class="provider-filter">
-                <ModelProviderSelect
+                <ExtensionSelector
                     v-model:value="query.extensionCode"
                     placeholder="根据插件编码筛选"
                     :allow-clear="true"
                     size="middle"
+                    :only-applied="true"
                     @update:value="onProviderChange"
                 />
               </div>
@@ -62,16 +63,8 @@
           </template>
 
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'providerAvatar'">
-              <span
-                  v-if="providerAvatarCell(record)"
-                  class="provider-avatar-cell"
-                  v-html="providerAvatarCell(record)"
-                  aria-hidden="true"
-              />
-              <span v-else class="text-secondary">—</span>
-            </template>
-            <template v-else-if="column.key === 'apiKey'">
+     
+            <template v-if="column.key === 'apiKey'">
               <span class="secret-mask">{{ maskSecret(record.apiKey) }}</span>
             </template>
     
@@ -137,7 +130,7 @@ import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/A
 import AccountForm from './AccountForm.vue'
 import AccountModelsDrawer from './AccountModelsDrawer.vue'
 import AccountCard from './AccountCard.vue'
-import ModelProviderSelect from '../ai-model/ModelProviderSelect.vue'
+import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
 import {aiAccountApi, type AiAccount, type PageResponse} from '@/api/aiAccount'
 import type {AiModel} from '@/api/aiModel'
 
@@ -167,10 +160,11 @@ type QueryState = {
 const columns = [
   {title: '账号名称', dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true},
   {title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true},
-  {title: '供应商', key: 'providerAvatar', width: 80, align: 'center'},
+  {title: '供应商', key: 'providerAvatar', dataIndex: 'providerAvatar', width: 80, align: 'center', enableBase64Render: true},
   {title: '扩展名称', dataIndex: 'extensionName', key: 'extensionName', width: 120, ellipsis: true},
   {title: '请求路径', dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true},
   {title: '额度', dataIndex: 'accountTokens', key: 'accountTokens', width: 120, ellipsis: true},
+  {title: '状态', dataIndex: 'status', key: 'status', width: 120, ellipsis: true, tag: true, tagColor: (status: string) => status === 'enabled' ? 'green' : 'red'},
   {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},

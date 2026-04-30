@@ -20,8 +20,10 @@ public class AiVecSourceEntity extends BaseEntity<Long> {
     @TableField("NAME")
     private String name;
 
-    @TableField("PROVIDER")
-    private String provider;
+    @TableField("EXTENSION_CODE")
+    private String extensionCode;
+
+
 
     @TableField("HOST")
     private String host;

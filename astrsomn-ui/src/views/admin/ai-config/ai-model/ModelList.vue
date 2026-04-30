@@ -15,7 +15,7 @@
                 placeholder="搜索端点名称"
                 @search="fetchList"
               />
-              <ModelProviderSelect
+              <ExtensionSelector
                 v-model:value="query.provider"
                 class="toolbar-provider-select"
                 allow-clear
@@ -51,10 +51,11 @@
                 </template>
 
                 <template v-else-if="column.key === 'providerAvatar'">
-                  <span
+                  <img
                     v-if="providerAvatarCell(record)"
                     class="provider-avatar-cell"
-                    v-html="providerAvatarCell(record)"
+                    :src="providerAvatarCell(record)"
+                    :alt="record.provider"
                     aria-hidden="true"
                   />
                   <span v-else class="text-secondary">—</span>
@@ -84,13 +85,7 @@
                         {{ record.status === 'enabled' ? '启用' : '禁用' }}
                       </span>
                     </a-button>
-                    <a-switch
-                      size="small"
-                      :checked="record.status === 'enabled'"
-                      :loading="statusUpdatingId === record.id"
-                      :disabled="statusUpdatingId === record.id"
-                      @change="handleStatusSwitchChange(record.id, $event)"
-                    />
+                
                   </div>
                 </template>
 
@@ -99,9 +94,7 @@
                   <span v-else class="text-secondary">-</span>
                 </template>
 
-                <template v-else-if="column.key === 'modelKey'">
-                  <code class="code-text">{{ record.modelKey }}</code>
-                </template>
+
 
 
 
@@ -185,7 +178,7 @@ import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import ModelFormModal from './ModelFormModal.vue'
-import ModelProviderSelect from './ModelProviderSelect.vue'
+import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
 import { useDictionary } from '@/locales/dictionary'
 import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
@@ -229,10 +222,10 @@ const columns = [
     tagColor: (value: string) => value ? 'green' : 'default',
     tagText: (value: string) => value ? '已配置' : '未配置'
   },
-  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  { title: '操作', key: 'actions', width: 140 }
+  { title: '操作', key: 'actions', width: 140, fixed: 'right' }
 ]
 
 // 简单的颜色映射逻辑

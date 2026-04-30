@@ -50,10 +50,7 @@ public class AiAccountController extends BaseController {
         return aiAccountService.queryPage(request);
     }
 
-    /**
-     * 按 accountKey 获取该账号在当前环境下关联使用的模型列表。
-     * 前端用于「账号卡片 - 侧边栏模型列表」。
-     */
+
     @PostMapping("/queryModelsByAccountKey")
     public PageResponse<AiModelResponseDTO> queryModelsByAccountKey(
             @RequestBody BasePageRequest<AiModelQueryRequestDTO> request) {

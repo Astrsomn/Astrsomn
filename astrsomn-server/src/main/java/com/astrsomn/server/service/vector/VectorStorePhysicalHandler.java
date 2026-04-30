@@ -105,7 +105,7 @@ public class VectorStorePhysicalHandler {
     }
 
     private void validateDimension(AiVecStoreEntity store, AiVecSourceEntity src) {
-        if (AiVecDriverEnum.Provider.QDRANT.getCode().equalsIgnoreCase(src.getProvider())) {
+        if (AiVecDriverEnum.Provider.QDRANT.getCode().equalsIgnoreCase(src.getExtensionCode())) {
             if (Objects.isNull(store.getDimension()) || store.getDimension() <= 0) {
                 throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR, "Qdrant 向量库需要有效的 dimension");
             }

@@ -36,7 +36,7 @@ public class SystemExtensionVecGuard {
 
         Long count =
                 aiVecSourceMapper.selectCount(
-                        new LambdaQueryWrapper<AiVecSourceEntity>().eq(AiVecSourceEntity::getProvider, provider));
+                        new LambdaQueryWrapper<AiVecSourceEntity>().eq(AiVecSourceEntity::getExtensionCode, provider));
         if (count != null && count > 0) {
             return BaseResponse.fail(
                     "仍存在引用该驱动的向量源（共 " + count + " 条），请先删除或调整向量源后再操作。", null);

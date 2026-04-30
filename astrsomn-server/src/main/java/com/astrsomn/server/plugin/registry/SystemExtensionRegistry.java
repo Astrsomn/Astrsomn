@@ -138,6 +138,7 @@ public class SystemExtensionRegistry {
         SystemExtensionEntity entity = new SystemExtensionEntity();
         entity.setExtensionKey(key);
         entity.setExtensionName(StringUtils.trimToNull(d.getName()));
+        entity.setExtensionCode(StringUtils.trimToNull(d.getExtensionCode()));
         entity.setType(Optional.ofNullable(d.getExtensionType()).map(SystemExtensionEnum.ExtensionTypeEnum::getCode).orElse(null));
         entity.setVersion(StringUtils.trimToNull(d.getVersion()));
         entity.setAuthor(StringUtils.trimToNull(d.getAuthor()));
