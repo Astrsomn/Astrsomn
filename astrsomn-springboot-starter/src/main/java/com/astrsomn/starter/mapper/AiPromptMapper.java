@@ -21,4 +21,6 @@ public interface AiPromptMapper extends BaseMapper<AiPromptEntity> {
      * 同一 promptKey（及环境）下全部历史版本，按版本号倒序。
      */
     List<AiPromptResponseDTO> listHistoryByPromptKey(@Param("promptKey") String promptKey, @Param("envCode") String envCode);
+
+    String getLatestPromptContentByPromptKey(@Param("promptKey") String promptKey, @Param("envCode") String envCode);
 }

@@ -12,6 +12,7 @@ import com.astrsomn.starter.langchain.memory.ChatMemoryManager;
 import com.astrsomn.starter.langchain.memory.DynamicMemoryProvider;
 import com.astrsomn.starter.langchain.quota.AstroModelListener;
 import com.astrsomn.starter.langchain.runtime.AgentRuntimeConfigLoader;
+import com.astrsomn.starter.langchain.prompt.SystemPromptProviderAssembler;
 import com.astrsomn.starter.langchain.tool.ToolProviderAssembler;
 import com.astrsomn.starter.langchain.tool.rag.DynamicRagProvider;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class AstroAssistantFactory {
     private final AssistantCacheManager cacheManager;
     private final AgentRuntimeConfigLoader agentRuntimeConfigLoader;
     private final ToolProviderAssembler toolProviderAssembler;
+    private final SystemPromptProviderAssembler systemPromptProviderAssembler;
     private final DynamicRagProvider ragComponentAssembler;
     private final AstroModelFactory astroModelFactory;
     private final AstroModelListener  astroModelListener;
@@ -69,5 +71,11 @@ public class AstroAssistantFactory {
                 .filter(RagSetting::isEnabled)
                 .map(setting -> ragComponentAssembler.createRetriever(param))
                 .ifPresent(builder::contentRetriever);
+
+
+        // TODO 组装系统提示词
+        Optional.ofNullable(systemPromptProviderAssembler.assemble(param))
+                .ifPresent(systemPrompt ->
+                        builder.systemMessageProvider(ignored -> systemPrompt));
     }
 }

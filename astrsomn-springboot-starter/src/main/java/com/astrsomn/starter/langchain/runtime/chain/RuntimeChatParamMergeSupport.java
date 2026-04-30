@@ -90,7 +90,12 @@ public final class RuntimeChatParamMergeSupport {
         PromptSetting prompt = param.getPromptSetting();
         if (prompt != null && StringUtils.isBlank(prompt.getPromptKey())) {
             prompt.setPromptKey(StringUtils.trimToNull(agent.getPromptKey()));
+        } else if (prompt == null) {
+            prompt = new PromptSetting(){{
+                setPromptKey(StringUtils.trimToNull(agent.getPromptKey()));
+            }};
         }
+        param.setPromptSetting(prompt);
         ToolSetting tool = param.getToolSetting();
         if (tool != null) {
             if (isEmpty(tool.getToolKeys())) {
@@ -103,6 +108,7 @@ public final class RuntimeChatParamMergeSupport {
                 tool.setRagKeys(parseStringList(agent.getKnowledgeBaseKeys()));
             }
         }
+        param.setToolSetting(tool);
     }
 
     private static boolean isEmpty(List<?> list) {
