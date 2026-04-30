@@ -1,43 +1,31 @@
 <template>
-  <a-drawer
+  <AstrsomnDrawerShell
     :open="props.open"
-    placement="right"
     :width="500"
-    :maskClosable="false"
-    :closable="false" 
-    @close="emit('update:open', false)"
     root-class-name="c-models-drawer"
+    @update:open="(value) => emit('update:open', value)"
   >
+    <template #icon>
+      <DeploymentUnitOutlined />
+    </template>
     <template #title>
-      <div class="custom-drawer-header">
-        <div class="header-main">
-          <div class="avatar-circle">
-            <DeploymentUnitOutlined />
-          </div>
-          <div class="title-content">
-            <div class="title-row">
-              <span class="main-name">{{ props.account?.accountName || '关联模型库' }}</span>
-              <a-tag v-if="props.account?.envCode" :class="['env-tag', props.account.envCode.toLowerCase()]">
-                {{ props.account.envCode }}
-              </a-tag>
-            </div>
-            <div class="sub-key">
-              <KeyOutlined /> {{ props.account?.accountKey || 'NO_KEY_INDEX' }}
-            </div>
-          </div>
-        </div>
-        <a-button type="text" class="close-btn" @click="emit('update:open', false)">
-          <CloseOutlined />
-        </a-button>
-      </div>
+      {{ props.account?.accountName || '关联模型库' }}
+    </template>
+    <template #title-extra>
+      <a-tag v-if="props.account?.envCode" :class="['env-tag', props.account.envCode.toLowerCase()]">
+        {{ props.account.envCode }}
+      </a-tag>
+    </template>
+    <template #subtitle>
+      <KeyOutlined /> {{ props.account?.accountKey || 'NO_KEY_INDEX' }}
     </template>
 
     <a-spin :spinning="props.loading">
       <div class="card-list-container">
         <template v-if="props.models.length > 0">
-          <div 
-            v-for="(item, index) in props.models" 
-            :key="item.id || index" 
+          <div
+            v-for="(item, index) in props.models"
+            :key="item.id || index"
             class="model-card-item"
           >
             <div class="m-card-head">
@@ -59,8 +47,8 @@
               <div class="info-row">
                 <span class="info-label">供应商</span>
                 <div class="provider-wrapper">
-                  <span class="provider-tag" :data-provider="item.provider?.toLowerCase()">
-                    {{ item.provider }}
+                  <span class="provider-tag" :data-provider="item.extensionCode?.toLowerCase()">
+                    {{ item.extensionCode }}
                   </span>
                 </div>
               </div>
@@ -80,21 +68,23 @@
         </div>
       </div>
     </a-spin>
-  </a-drawer>
+    <template v-if="$slots.footer" #footer>
+      <slot name="footer" />
+    </template>
+  </AstrsomnDrawerShell>
 </template>
 
 <script setup lang="ts">
-import { Empty } from 'ant-design-vue';
-import { 
-  DeploymentUnitOutlined, 
-  KeyOutlined, 
-  CloseOutlined,
-  DeploymentUnitOutlined as ModelIcon
+import { Empty } from 'ant-design-vue'
+import {
+  DeploymentUnitOutlined,
+  KeyOutlined
 } from '@ant-design/icons-vue'
+import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
 import type { AiAccount } from '@/api/aiAccount'
 import type { AiModel } from '@/api/aiModel'
 
-const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
+const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
 
 const props = defineProps<{
   open: boolean
@@ -109,91 +99,22 @@ const emit = defineEmits<{
 </script>
 
 <style scoped>
-/* 抽屉整体容器微调 */
-:deep(.ant-drawer-header) {
-  padding: 24px;
-  border-bottom: 1px solid #f1f5f9;
-  background: linear-gradient(to bottom, #ffffff, #fcfdff);
-}
-
-:deep(.ant-drawer-body) {
-  padding: 20px;
-  background-color: #f8fafc; /* 给背景一点点灰度，衬托白色的卡片 */
-}
-
-/* 自定义头部样式 */
-.custom-drawer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.header-main {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.avatar-circle {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 24px;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
-}
-
-.title-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.main-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.sub-key {
-  font-size: 12px;
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-/* 环境标签 C端配色 */
 .env-tag {
   border-radius: 6px;
   font-size: 10px;
   font-weight: 800;
   border: none;
 }
+
 .env-tag.prod { background: #fee2e2; color: #ef4444; }
 .env-tag.dev { background: #e0f2fe; color: #0ea5e9; }
 
-.close-btn { color: #94a3b8; font-size: 18px; }
-
-/* 卡片列表容器 */
 .card-list-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* 单个模型卡片样式 */
 .model-card-item {
   background: #ffffff;
   border-radius: 20px;
@@ -210,7 +131,6 @@ const emit = defineEmits<{
   border-color: #e2e8f0;
 }
 
-/* 卡片头部：名称与状态 */
 .m-card-head {
   display: flex;
   justify-content: space-between;
@@ -239,7 +159,6 @@ const emit = defineEmits<{
   width: fit-content;
 }
 
-/* 状态呼吸灯 */
 .status-indicator {
   display: flex;
   align-items: center;
@@ -252,7 +171,8 @@ const emit = defineEmits<{
 .status-indicator.disabled { color: #94a3b8; }
 
 .status-indicator .dot {
-  width: 6px; height: 6px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: currentColor;
 }
@@ -262,7 +182,6 @@ const emit = defineEmits<{
   animation: pulse 2s infinite;
 }
 
-/* 卡片内容行 */
 .m-card-body {
   display: flex;
   flex-direction: column;
@@ -289,7 +208,6 @@ const emit = defineEmits<{
   color: #475569;
 }
 
-/* 供应商标签样式 */
 .provider-tag {
   padding: 3px 10px;
   border-radius: 8px;
@@ -301,24 +219,25 @@ const emit = defineEmits<{
   color: #475569;
 }
 
-/* 为常见供应商定制颜色 */
 .provider-tag[data-provider*="openai"] { background: #dcfce7; color: #15803d; }
 .provider-tag[data-provider*="claude"] { background: #ffedd5; color: #c2410c; }
 .provider-tag[data-provider*="azure"] { background: #e0f2fe; color: #0369a1; }
 
 .m-card-footer-line {
   position: absolute;
-  bottom: 0; left: 20px; right: 20px;
+  bottom: 0;
+  left: 20px;
+  right: 20px;
   height: 2px;
   background: #f8fafc;
 }
 
-/* 空状态 */
 .empty-wrapper {
   padding: 60px 0;
   background: white;
   border-radius: 20px;
 }
+
 .empty-text { color: #cbd5e1; font-size: 13px; }
 
 @keyframes pulse {

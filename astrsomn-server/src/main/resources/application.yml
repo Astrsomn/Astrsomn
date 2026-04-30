@@ -1,61 +1,30 @@
-logging:
-  level:
-    # MyBatis Mapper：DEBUG 时会在控制台打印 SQL 与参数（本地开发常用；生产可改为 info 或关闭）
-    org.astrsomn.core.mapper: debug
-
 spring:
   application:
     name: astrsomn-server
+  profiles:
+    active: h2
   servlet:
     multipart:
       max-file-size: 128MB
       max-request-size: 130MB
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-      config:
-        server-addr: localhost:8848
-        file-extension: yml
-
 server:
   port: 4481
-
 astrsomn:
-  env-code: pro
-  # 首次启动写入 SYSTEM_ENV（env_key = env-code）；默认管理员同此环境
-  # default-env:
-  #   name: 生产环境
-  #   description: 可选说明
-  # 默认智能体/模型：在库中为当前 env-code 各维护一条 AI_AGENT.IS_DEFAULT=1、AI_MODEL(IS_DEFAULT=1 AND MODEL_TYPE=chat)，无需 refs
-  data-base:
-    database-type: mysql
-    host: 127.0.0.1
-    port: 3306
-    database-name: astro_ai
-    username: astro_ai
-    password: k7NHzMP7ErRZ4SFC
-    driver: com.mysql.cj.jdbc.Driver
-    use-ssl: false
-    charset: utf8
-    timezone: Asia/Shanghai
-    connection-timeout: 30000
-    maximum-pool-size: 10
-    minimum-idle: 5
-
-# Oracle配置示例
-# astrsomn:
-#   env-code: pro
-#   data-base:
-#     database-type: oracle
-#     host: localhost
-#     port: 1521
-#     database-name: ORCL
-#     schema: astrsomn
-#     username: system
-#     password: oracle
-#     driver: oracle.jdbc.OracleDriver
-#     connection-timeout: 30000
-#     maximum-pool-size: 10
-#     minimum-idle: 5
-
+  env-code: PRO
+  username: admin
+  admin-users: admin
+logging:
+  level:
+    com.astrsomn.starter.mapper: debug
+    root: info
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+  file:
+    name: ./log/file
+cookie:
+  default-path: "/"
+  default-max-age: 604800
+jwt:
+  secret: MIIBtzCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9E
+  expiration: 86400000

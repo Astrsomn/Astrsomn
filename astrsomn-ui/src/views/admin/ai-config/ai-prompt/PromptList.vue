@@ -3,76 +3,92 @@
     title="提示词管理"
     description="同一 Prompt Key 共用一个逻辑提示词；每次保存生成新版本，列表按 Key 聚合展示当前最新版本。"
     empty-text="暂无提示词，请先创建。"
+    :breadcrumbs="breadcrumbs"
+    :show-view-toggle="true"
+    :view-mode="viewMode"
+    :view-toggle-handler="handleViewToggle"
   >
     <div ref="pageRef" class="prompt-page">
-      <AdminListToolbar>
-        <template #left>
-          <div class="prompt-toolbar-searches">
-            <AstrsomnSearchPill
-              v-model="query.promptTitle"
-              layout="toolbar"
-              placeholder="搜索标题"
-              button-label="查询"
-              @search="fetchList"
-            />
-      
+      <AstrsomnDataSection>
+        <template #toolbar>
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <AstrsomnSearchPill
+                v-model="query.promptTitle"
+                layout="toolbar"
+                placeholder="搜索标题"
+                button-label="查询"
+                @search="fetchList"
+              />
+              <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
+            </div>
+            <div class="toolbar-right">
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+            </div>
           </div>
-
-          <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
-
-
-      
-        </template>
-
-        <template #right>
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
 
 
-      </AdminListToolbar>
 
-      <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-
-      <a-spin :spinning="loading">
-        <div v-if="list.length > 0" class="prompt-grid">
-          <div
-            v-for="item in list"
-            :key="item.id ?? `${item.promptKey ?? 'prompt'}-${item.version ?? 0}`"
-            class="prompt-grid-item"
-          >
+        <AstrsomnDataView
+          :mode="dataViewMode"
+          :data-source="list"
+          :loading="loading"
+          :columns="columns"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1180 }"
+          row-key="id"
+          empty-text="暂无匹配的提示词"
+          :card-columns="currentGridColumns"
+          :card-min-width="promptCardMinWidth"
+          :card-gap="promptCardGap"
+        >
+          <template #card="{ record }">
             <PromptCard
-              :record="item"
-              :selected="isSelected(item.id)"
-              @select-change="(checked) => toggleSelect(item.id, checked)"
+              :record="record"
+              :selected="record.id != null && selectedKeySet.has(record.id)"
+              @select-change="onPromptCardSelectChange.bind(null, record.id)"
               @history="openHistory"
               @edit="openEdit"
               @delete="handleDeleteOne"
             />
-          </div>
-        </div>
+          </template>
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'status'">
+              <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
+                {{ record.status === 'enabled' ? '启用' : '禁用' }}
+              </a-tag>
+            </template>
+            <template v-else-if="column.key === 'version'">
+              v{{ record.version || 1 }}
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-space>
+                <a-button type="link" size="small" @click="openHistory(record)">
+                  <HistoryOutlined />
+                </a-button>
+                <a-button type="link" size="small" @click="openEdit(record)">
+                  <EditOutlined />
+                </a-button>
+                <a-popconfirm title="确定删除吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
+                  <a-button type="link" danger size="small">
+                    <DeleteOutlined />
+                  </a-button>
+                </a-popconfirm>
+              </a-space>
+            </template>
+          </template>
+        </AstrsomnDataView>
 
-        <div v-else class="empty-wrap">
-          <a-empty description="暂无匹配的提示词卡片" />
-        </div>
-      </a-spin>
-
-      <div class="pagination-wrap">
-        <span class="pagination-total">共 {{ page.total }} 条</span>
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+        <template #pagination>
+          <AstrsomnPagination
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :total="page.total"
+            @change="onPageChange"
+          />
+        </template>
+      </AstrsomnDataSection>
 
       <PromptFormModal
         v-model:open="modal.open"
@@ -95,27 +111,33 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
-  CheckCircleOutlined,
-  CloudOutlined,
   DeleteOutlined,
-  FilterOutlined,
+  EditOutlined,
+  HistoryOutlined,
   PlusOutlined,
   ReloadOutlined,
-  SearchOutlined,
-  StopOutlined,
-  TagsOutlined,
-  UserOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
+import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import PromptCard from './PromptCard.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
-import AstrsomnOverview from '../../../../components/home/AstrsomnOverview.vue'
+import PromptCard from './PromptCard.vue'
 import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt.ts'
+
+const PROMPT_CARD_MIN_WIDTH_PX = 320
+const PROMPT_CARD_GAP_PX = 12
+const promptCardMinWidth = `${PROMPT_CARD_MIN_WIDTH_PX}px`
+const promptCardGap = `${PROMPT_CARD_GAP_PX}px`
+
+const breadcrumbs = [
+  { title: 'AI 配置', href: '/admin/ai-config' },
+  { title: '提示词管理' },
+]
 
 type QueryState = {
   promptTitle?: string
@@ -126,40 +148,34 @@ type QueryState = {
   status?: string
 }
 
-const PROMPT_CARD_MIN_WIDTH_PX = 280
-const PROMPT_GRID_GAP_PX = 12
-const promptCardMinWidth = `${PROMPT_CARD_MIN_WIDTH_PX}px`
-const promptGridGap = `${PROMPT_GRID_GAP_PX}px`
-
-const resolveGridColumns = () => {
-  if (typeof window === 'undefined') return 4
-  const width = pageRef.value?.clientWidth ?? window.innerWidth
-  const columns = Math.floor((width + PROMPT_GRID_GAP_PX) / (PROMPT_CARD_MIN_WIDTH_PX + PROMPT_GRID_GAP_PX))
-  return Math.max(1, Math.min(4, columns))
-}
-
-const resolvePageSize = (columns: number) => {
-  if (columns >= 4) return 12
-  if (columns === 3) return 9
-  if (columns === 2) return 8
-  return 6
-}
-
 const query = reactive<QueryState>({})
-const showAdvanced = ref(false)
 const loading = ref(false)
 const list = ref<AiPrompt[]>([])
-const pageRef = ref<HTMLElement | null>(null)
-const currentGridColumns = ref(resolveGridColumns())
-const promptGridTemplateColumns = computed(() => `repeat(${currentGridColumns.value}, minmax(0, 1fr))`)
+const columns = [
+    { title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 180, ellipsis: true, copyable: true },
+  { title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', width: 220, ellipsis: true },
+  { title: '场景', dataIndex: 'scene', key: 'scene', width: 140, ellipsis: true },
+  { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
+  { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
+  { title: '版本', dataIndex: 'version', key: 'version', width: 90 },
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
+  { title: '操作', key: 'actions', width: 150, fixed: 'right' as const }
+]
 
 const page = reactive({
   pageNum: 1,
-  pageSize: resolvePageSize(currentGridColumns.value),
+  pageSize: 8,
   total: 0
 })
 
+const pageRef = ref<HTMLElement | null>(null)
+const viewMode = ref<'grid' | 'list'>('list')
+const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
+const currentGridColumns = ref(3)
 const selectedRowKeys = ref<Array<number | string>>([])
+const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 
 const currentPageIds = computed(() =>
   list.value
@@ -177,21 +193,12 @@ const partCurrentSelected = computed(() => {
   return count > 0 && count < currentPageIds.value.length
 })
 
-const isSelected = (id: number | string | undefined) => {
-  if (id == null) return false
-  return selectedRowKeys.value.includes(id)
-}
-
-const toggleSelect = (id: number | string | undefined, checked: boolean) => {
-  if (id == null) return
-  if (checked) {
-    if (!selectedRowKeys.value.includes(id)) {
-      selectedRowKeys.value = [...selectedRowKeys.value, id]
-    }
-    return
+const rowSelection = computed(() => ({
+  selectedRowKeys: selectedRowKeys.value,
+  onChange: (keys: Array<number | string>) => {
+    selectedRowKeys.value = keys
   }
-  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== id)
-}
+}))
 
 const toggleSelectAllCurrentPage = (checked: boolean) => {
   if (checked) {
@@ -201,18 +208,19 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
   selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
 }
 
-const toggleEnabledFilter = (value: 'enabled' | 'disabled') => {
-  query.status = query.status === value ? undefined : value
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
 }
 
-const syncPageSizeWithGrid = async () => {
-  const nextColumns = resolveGridColumns()
-  currentGridColumns.value = nextColumns
-  const nextPageSize = resolvePageSize(nextColumns)
-  if (page.pageSize === nextPageSize) return
-  page.pageSize = nextPageSize
-  page.pageNum = 1
-  await fetchList()
+const onPromptCardSelectChange = (id: number | string | undefined, checked: boolean) => {
+  if (id == null) return
+  if (checked) {
+    if (!selectedRowKeys.value.includes(id)) {
+      selectedRowKeys.value = [...selectedRowKeys.value, id]
+    }
+    return
+  }
+  selectedRowKeys.value = selectedRowKeys.value.filter((k) => k !== id)
 }
 
 const resetFilters = () => {
@@ -222,15 +230,18 @@ const resetFilters = () => {
   query.envCode = undefined
   query.createUser = undefined
   query.status = undefined
-  showAdvanced.value = false
   page.pageNum = 1
   void fetchList()
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-
   {
-    label: '批量删除',
+    label: '重置',
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
@@ -242,11 +253,6 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
         onOk: () => handleBatchDelete()
       })
     }
-  },
-  {
-    label: '重置',
-    icon: ReloadOutlined,
-    onClick: resetFilters
   },
   {
     label: '新增',
@@ -300,8 +306,9 @@ const fetchList = async () => {
   }
 }
 
-const onPageChange = (p: number) => {
+const onPageChange = (p: number, size: number) => {
   page.pageNum = p
+  page.pageSize = size
   void fetchList()
 }
 
@@ -363,151 +370,69 @@ const handleFormSubmit = async (form: AiPrompt) => {
   }
 }
 
-let resizeObserver: ResizeObserver | null = null
-
-const voidSyncPageSizeWithGrid = () => {
-  void syncPageSizeWithGrid()
+const resolveGridColumns = () => {
+  if (typeof window === 'undefined') return 3
+  const width = pageRef.value?.clientWidth ?? window.innerWidth
+  const n = Math.floor((width + PROMPT_CARD_GAP_PX) / (PROMPT_CARD_MIN_WIDTH_PX + PROMPT_CARD_GAP_PX))
+  return Math.max(1, Math.min(3, n))
 }
 
+const syncGridColumns = () => {
+  currentGridColumns.value = resolveGridColumns()
+}
+
+let resizeObserver: ResizeObserver | null = null
+
 onMounted(() => {
-  voidSyncPageSizeWithGrid()
+  syncGridColumns()
   if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
-    resizeObserver = new ResizeObserver(() => {
-      voidSyncPageSizeWithGrid()
-    })
+    resizeObserver = new ResizeObserver(syncGridColumns)
     resizeObserver.observe(pageRef.value)
-    return
+  } else {
+    window.addEventListener('resize', syncGridColumns)
   }
-  window.addEventListener('resize', voidSyncPageSizeWithGrid)
+  void fetchList()
 })
 
 onBeforeUnmount(() => {
   resizeObserver?.disconnect()
-  window.removeEventListener('resize', voidSyncPageSizeWithGrid)
+  window.removeEventListener('resize', syncGridColumns)
 })
-
-void fetchList()
 </script>
 
 <style scoped>
 .prompt-page {
-  padding: 0 20px;
+  padding: 20px;
   margin-top: -8px;
 }
 
-.prompt-toolbar-searches {
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
   flex: 1;
-  min-width: 0;
 }
 
-.toolbar-input {
-  width: 200px;
-}
-
-.toolbar-input.narrow {
-  width: 160px;
-}
-
-.status-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-}
-
-.status-btn {
-  height: 36px;
-  border: none;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  background: transparent;
-  box-shadow: none;
-}
-
-.status-btn.active {
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
-}
-
-.filter-toggle-btn {
-  height: 40px;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-}
-
-.prompt-grid {
-  display: grid;
-  grid-template-columns: v-bind(promptGridTemplateColumns);
-  gap: v-bind(promptGridGap);
-}
-
-.prompt-grid-item {
-  min-width: v-bind(promptCardMinWidth);
-}
-
-.empty-wrap {
+.toolbar-right {
   display: flex;
-  justify-content: center;
-  padding: 32px 0 12px;
-}
-
-.pagination-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   gap: 12px;
-  margin-top: 20px;
+  align-items: center;
   flex-wrap: wrap;
 }
 
-.pagination-total {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
 @media (max-width: 720px) {
-  .toolbar-input,
-  .toolbar-input.narrow {
+  .toolbar-left,
+  .toolbar-right {
     width: 100%;
-  }
-
-  .prompt-toolbar-searches,
-  .status-switch {
-    width: 100%;
-  }
-
-  .status-switch {
-    justify-content: space-between;
-  }
-
-  .status-btn {
-    flex: 1;
-  }
-
-  .prompt-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .prompt-grid-item {
-    min-width: 0;
-  }
-
-  .pagination-wrap {
-    justify-content: center;
-  }
-}
-
-@media (max-width: 560px) {
-  .pagination-total {
-    width: 100%;
-    text-align: center;
   }
 }
 </style>

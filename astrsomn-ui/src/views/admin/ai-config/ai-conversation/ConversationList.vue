@@ -1,7 +1,6 @@
 <template>
   <AdminPageShell
-    title="AI 对话管理"
-    description="管理 AI 对话记录，按 memoryKey 聚合展示，右侧查看详细对话内容。"
+
     empty-text="暂无对话记录。"
   >
     <div class="conversation-page">
@@ -39,8 +38,8 @@
           v-model:selectedRowKeys="selectedRowKeys"
           :page="page"
           @recover="handleRecoverConversation"
+          @delete="handleDeleteByMemoryKey"
           @pageChange="onPageChange"
-          @fetchList="fetchList"
         />
 
         <!-- 右侧对话内容区域 -->
@@ -69,7 +68,8 @@ import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ConversationListPanel from './ConversationListPanel.vue'
 import ConversationDetailPanel from './ConversationDetailPanel.vue'
-import { aiConversationApi, type AiConversation, type PageResponse } from '@/api/aiConversation'
+import { aiConversationApi, type AiConversation } from '@/api/aiConversation'
+import { aiChatSessionApi, type AiChatSession, type PageResponse } from '@/api/aiChatSession'
 
 type QueryState = {
   memoryKey?: string
@@ -81,7 +81,7 @@ type QueryState = {
 
 const query = reactive<QueryState>({})
 const loading = ref(false)
-const list = ref<AiConversation[]>([])
+const list = ref<AiChatSession[]>([])
 const selectedRowKeys = ref<Array<string>>([])
 
 const page = reactive({
@@ -163,7 +163,14 @@ const fetchList = async () => {
       }
     }
 
-    const resp: PageResponse<AiConversation> = await aiConversationApi.queryGroups(payload)
+    const resp: PageResponse<AiChatSession> = await aiChatSessionApi.queryPage({
+      pageNo: payload.pageNo,
+      pageSize: payload.pageSize,
+      param: {
+        memoryKey: payload.param.memoryKey,
+        sessionStatus: payload.param.status
+      }
+    })
     list.value = resp.list || []
     page.total = resp.total || 0
   } finally {
@@ -171,8 +178,9 @@ const fetchList = async () => {
   }
 }
 
-const onPageChange = (p: number) => {
+const onPageChange = (p: number, size: number) => {
   page.pageNum = p
+  page.pageSize = size
   void fetchList()
 }
 
@@ -188,10 +196,25 @@ const handleBatchDelete = async () => {
   })
   
   if (ids.length === 0) return
-  const msg = await aiConversationApi.delete(ids)
+  const msg = await aiChatSessionApi.delete(ids)
   message.success(msg)
   selectedRowKeys.value = []
   selectedConversation.value = null
+  void fetchList()
+}
+
+const handleDeleteByMemoryKey = async (memoryKey: string) => {
+  const ids: Array<number | string> = list.value
+    .filter((item) => item.memoryKey === memoryKey && item.id !== undefined && item.id !== null)
+    .map((item) => item.id as number | string)
+  if (ids.length === 0) return
+  const msg = await aiChatSessionApi.delete(ids)
+  message.success(msg)
+  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== memoryKey)
+  if (selectedConversation.value?.memoryKey === memoryKey) {
+    selectedConversation.value = null
+    selectedConversationList.value = []
+  }
   void fetchList()
 }
 

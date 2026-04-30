@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.workflow.starter.mapper.AstFlowDefinitionMapper">
+
+    <select id="queryPage" resultType="com.astrsomn.workflow.core.domain.dto.definition.AstFlowDefinitionResponseDTO">
+        SELECT
+        d.ID AS id,
+        d.FLOW_KEY AS workflowKey,
+        d.NAME AS workflowName,
+        d.CATEGORY AS description,
+        d.DRAFT_GRAPH_JSON AS graphJson,
+        COALESCE((
+          SELECT MAX(dp.VERSION)
+          FROM AST_FLOW_DEPLOYMENT dp
+          WHERE dp.FLOW_DEFINITION_ID = d.ID
+            AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
+            AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
+        ), 0) AS versionNo,
+        CASE
+          WHEN EXISTS (
+            SELECT 1
+            FROM AST_FLOW_DEPLOYMENT dp
+            WHERE dp.FLOW_DEFINITION_ID = d.ID
+              AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
+              AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
+          ) THEN '已发布'
+          ELSE '未发布'
+        END AS status,
+        d.ENV_CODE AS envCode,
+        d.DELETED AS deleted,
+        d.CREATE_USER AS createUser,
+        d.CREATE_TIME AS createTime,
+        d.UPDATE_USER AS updateUser,
+        d.UPDATE_TIME AS updateTime
+        FROM AST_FLOW_DEFINITION d
+        WHERE (d.DELETED = 0 OR d.DELETED IS NULL)
+        <if test="req != null and req.workflowKey != null and req.workflowKey != ''">
+            AND d.FLOW_KEY LIKE CONCAT('%', #{req.workflowKey}, '%')
+        </if>
+        <if test="req != null and req.workflowName != null and req.workflowName != ''">
+            AND d.NAME LIKE CONCAT('%', #{req.workflowName}, '%')
+        </if>
+        <if test="req != null and req.description != null and req.description != ''">
+            AND d.CATEGORY = #{req.description}
+        </if>
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND d.ENV_CODE = #{req.envCode}
+        </if>
+        ORDER BY d.UPDATE_TIME DESC, d.ID DESC
+    </select>
+
+    <select id="detail" resultType="com.astrsomn.workflow.core.domain.dto.definition.AstFlowDefinitionResponseDTO">
+        SELECT
+        d.ID AS id,
+        d.FLOW_KEY AS workflowKey,
+        d.NAME AS workflowName,
+        d.CATEGORY AS description,
+        d.DRAFT_GRAPH_JSON AS graphJson,
+        COALESCE((
+          SELECT MAX(dp.VERSION)
+          FROM AST_FLOW_DEPLOYMENT dp
+          WHERE dp.FLOW_DEFINITION_ID = d.ID
+            AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
+            AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
+        ), 0) AS versionNo,
+        CASE
+          WHEN EXISTS (
+            SELECT 1
+            FROM AST_FLOW_DEPLOYMENT dp
+            WHERE dp.FLOW_DEFINITION_ID = d.ID
+              AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
+              AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
+          ) THEN '已发布'
+          ELSE '未发布'
+        END AS status,
+        d.ENV_CODE AS envCode,
+        d.DELETED AS deleted,
+        d.CREATE_USER AS createUser,
+        d.CREATE_TIME AS createTime,
+        d.UPDATE_USER AS updateUser,
+        d.UPDATE_TIME AS updateTime
+        FROM AST_FLOW_DEFINITION d
+        WHERE d.ID = #{id}
+        AND (d.DELETED = 0 OR d.DELETED IS NULL)
+        <if test="envCode != null and envCode != ''">
+            AND d.ENV_CODE = #{envCode}
+        </if>
+    </select>
+
+</mapper>

@@ -10,49 +10,90 @@
     />
 
     <main class="chat-main">
-      <div ref="messagesContainerRef" class="chat-messages-container">
-        <div class="message-scroll-area">
-          <transition-group name="message-fade">
-            <ChatMessageItem
-              v-for="item in messages"
-              :key="item.id"
-              :role="item.role"
-              :content="item.content"
-              :segments="item.segments"
-              :streaming="item.streaming"
-              :error="item.error"
-            />
-          </transition-group>
-          <div ref="messagesBottomRef" class="messages-bottom-spacer"></div>
-        </div>
-      </div>
-
-      <ChatInputPanel
-        v-model:selected-agent="selectedAgent"
-        v-model:selected-chat-instance-key="selectedChatInstanceKey"
-        v-model:user-input="userInput"
-        v-model:is-deep-thinking="isDeepThinking"
-        v-model:is-web-search="isWebSearch"
-        :is-streaming="isStreaming"
-        :options-loading="optionsLoading"
-        :send-disabled="sendDisabled"
-        :agent-options="agentOptions"
-        :chat-instance-options="chatInstanceOptions"
-        @submit="submitQuestion"
-        @stop="stopStreaming"
+      <ChatSessionSidebar
+        :loading="sessionLoading"
+        :items="sessionItems"
+        :selected-memory-key="currentMemoryKey"
+        :collapsed="sidebarCollapsed"
+        @update:collapsed="sidebarCollapsed = $event"
+        @open="openSession"
+        @create="createNewSession"
+        @delete="deleteSession"
       />
+
+      <section class="chat-content">
+        <div v-if="isNewSessionView" class="new-session-stage">
+          <div class="new-session-intro">
+            <h2>今天想聊点什么？</h2>
+            <p>输入问题即可开启新会话，你可以选择不同 Agent 与模型实例。</p>
+          </div>
+          <ChatInputPanel
+            layout="centered"
+            v-model:selected-agent="selectedAgent"
+            v-model:selected-chat-instance-key="selectedChatInstanceKey"
+            v-model:user-input="userInput"
+            v-model:is-deep-thinking="isDeepThinking"
+            v-model:is-web-search="isWebSearch"
+            :is-streaming="isStreaming"
+            :options-loading="optionsLoading"
+            :send-disabled="sendDisabled"
+            :agent-options="agentOptions"
+            :chat-instance-options="chatInstanceOptions"
+            @submit="submitQuestion"
+            @stop="stopStreaming"
+          />
+        </div>
+
+        <div v-else ref="messagesContainerRef" class="chat-messages-container">
+          <div class="message-scroll-area">
+            <transition-group name="message-fade">
+              <ChatMessageItem
+                v-for="item in messages"
+                :key="item.id"
+                :role="item.role"
+                :content="item.content"
+                :segments="item.segments"
+                :streaming="item.streaming"
+                :error="item.error"
+              />
+            </transition-group>
+            <div ref="messagesBottomRef" class="messages-bottom-spacer"></div>
+          </div>
+        </div>
+
+        <ChatInputPanel
+          v-if="!isNewSessionView"
+          layout="bottom"
+          v-model:selected-agent="selectedAgent"
+          v-model:selected-chat-instance-key="selectedChatInstanceKey"
+          v-model:user-input="userInput"
+          v-model:is-deep-thinking="isDeepThinking"
+          v-model:is-web-search="isWebSearch"
+          :is-streaming="isStreaming"
+          :options-loading="optionsLoading"
+          :send-disabled="sendDisabled"
+          :agent-options="agentOptions"
+          :chat-instance-options="chatInstanceOptions"
+          @submit="submitQuestion"
+          @stop="stopStreaming"
+        />
+      </section>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import AppHeader from '@/components/top/AppHeader.vue'
 import ChatInputPanel from '@/views/chat-index/ChatInputPanel.vue'
 import ChatMessageItem from '@/views/chat-index/ChatMessageItem.vue'
+import ChatSessionSidebar from '@/views/chat-index/ChatSessionSidebar.vue'
+import { adaptSessionToSessionItem, aiChatSessionApi } from '@/api/aiChatSession'
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance.ts'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
+import { aiConversationApi, type AiConversation } from '@/api/aiConversation'
+import type { ChatSessionItem } from '@/components/chat-session/types'
 import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
 
 type ChatMessage = {
@@ -91,13 +132,11 @@ const chatInstanceOptions = ref<AiInstance[]>([])
 const agentOptions = ref<AiAgent[]>([])
 const messagesContainerRef = ref<HTMLElement | null>(null)
 const messagesBottomRef = ref<HTMLElement | null>(null)
-const messages = ref<ChatMessage[]>([
-  {
-    id: 'welcome',
-    role: 'ai',
-    content: '你好，我是 Astrsomn AI 助手。今天有什么我可以帮你的？'
-  }
-])
+const sessionLoading = ref(false)
+const sessionItems = ref<ChatSessionItem[]>([])
+const currentMemoryKey = ref('')
+const sidebarCollapsed = ref(false)
+const messages = ref<ChatMessage[]>([])
 
 let abortController: AbortController | null = null
 
@@ -106,6 +145,10 @@ const sendDisabled = computed(() => {
     return false
   }
   return !userInput.value.trim() || !selectedChatInstanceKey.value || !selectedAgent.value
+})
+
+const isNewSessionView = computed(() => {
+  return messages.value.length === 1 && messages.value[0]?.id === 'welcome'
 })
 
 const getAgentPreferredChatInstanceKey = (agentKey?: string) => {
@@ -128,12 +171,112 @@ const syncChatInstanceWithAgent = (agentKey?: string) => {
 }
 
 const getMemoryKey = () => {
-  let memoryKey = sessionStorage.getItem(CHAT_MEMORY_KEY)
+  if (currentMemoryKey.value) return currentMemoryKey.value
+  let memoryKey = sessionStorage.getItem(CHAT_MEMORY_KEY) || ''
   if (!memoryKey) {
     memoryKey = `web:${Date.now()}`
     sessionStorage.setItem(CHAT_MEMORY_KEY, memoryKey)
   }
+  currentMemoryKey.value = memoryKey
   return memoryKey
+}
+
+const setCurrentMemoryKey = (memoryKey: string) => {
+  currentMemoryKey.value = memoryKey
+  sessionStorage.setItem(CHAT_MEMORY_KEY, memoryKey)
+}
+
+const resetWelcomeMessage = () => {
+  messages.value = []
+}
+
+const isChatNotFoundError = (error: unknown) => {
+  const text = String((error as { message?: unknown })?.message ?? '').toLowerCase()
+  return (
+    text.includes('chat_not_found') ||
+    text.includes('not found') ||
+    text.includes('不存在') ||
+    text.includes('未找到')
+  )
+}
+
+const mapConversationMessages = (conversationList: AiConversation[]): ChatMessage[] =>
+  conversationList.map((item, index) => ({
+    id: `${item.id ?? item.memoryKey ?? 'msg'}-${index}`,
+    role: item.role === 'user' ? 'user' : 'ai',
+    content: item.content || item.conversationContent || ''
+  }))
+
+const loadSessionGroups = async () => {
+  sessionLoading.value = true
+  try {
+    const resp = await aiChatSessionApi.queryPage({
+      pageNo: 1,
+      pageSize: 50,
+      param: {
+        sessionStatus: 'active'
+      }
+    })
+    sessionItems.value = (resp.list || [])
+      .filter((item) => !!item.memoryKey)
+      .map((item) => adaptSessionToSessionItem(item))
+  } finally {
+    sessionLoading.value = false
+  }
+}
+
+const openSession = async (memoryKey: string) => {
+  if (!memoryKey) return
+  setCurrentMemoryKey(memoryKey)
+  sessionLoading.value = true
+  try {
+    const history = await aiConversationApi.recoverByMemoryKey(memoryKey)
+    const restored = mapConversationMessages(history || [])
+    messages.value = restored.length
+      ? restored
+      : []
+    await scrollToBottom()
+  } catch (error: any) {
+    if (isChatNotFoundError(error)) {
+      resetWelcomeMessage()
+      await scrollToBottom()
+      return
+    }
+    message.error(error?.message || '加载会话失败')
+  } finally {
+    sessionLoading.value = false
+  }
+}
+
+const createNewSession = () => {
+  const key = `web:${Date.now()}`
+  setCurrentMemoryKey(key)
+  resetWelcomeMessage()
+}
+
+const deleteSession = (session: ChatSessionItem) => {
+  if (!session.memoryKey) {
+    return
+  }
+  Modal.confirm({
+    title: '删除此会话？',
+    content: '删除后无法恢复',
+    okType: 'danger',
+    onOk: async () => {
+      try {
+        if (session.id !== undefined && session.id !== null && `${session.id}`.trim() !== '') {
+          await aiChatSessionApi.delete([session.id])
+        }
+        sessionItems.value = sessionItems.value.filter((item) => item.memoryKey !== session.memoryKey)
+        if (currentMemoryKey.value === session.memoryKey) {
+          createNewSession()
+        }
+        message.success('会话已删除')
+      } catch (error: any) {
+        message.error(error?.message || '删除会话失败')
+      }
+    }
+  })
 }
 
 const scrollToBottom = async () => {
@@ -635,6 +778,7 @@ const submitQuestion = async (promptArg?: string) => {
     }
     isStreaming.value = false
     abortController = null
+    await loadSessionGroups()
     await scrollToBottom()
   }
 }
@@ -645,6 +789,13 @@ const stopStreaming = () => {
 
 onMounted(async () => {
   await loadOptions()
+  getMemoryKey()
+  await loadSessionGroups()
+  if (currentMemoryKey.value && sessionItems.value.some((item) => item.memoryKey === currentMemoryKey.value)) {
+    await openSession(currentMemoryKey.value)
+  } else {
+    resetWelcomeMessage()
+  }
   await scrollToBottom()
 })
 
@@ -672,8 +823,44 @@ onBeforeUnmount(() => {
   flex: 1;
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   overflow: hidden;
+}
+
+.chat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+}
+
+.new-session-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 0;
+  transform: translateY(-28px);
+}
+
+.new-session-intro {
+  text-align: center;
+  margin: 0 auto 18px;
+  max-width: 640px;
+  padding: 0 24px;
+}
+
+.new-session-intro h2 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.new-session-intro p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .chat-messages-container {
@@ -725,6 +912,9 @@ onBeforeUnmount(() => {
 
 /* 响应式调整 */
 @media (max-width: 640px) {
+  .chat-main {
+    flex-direction: column;
+  }
   .top-bar { padding: 0 16px; }
   .brand-name { display: none; }
 }

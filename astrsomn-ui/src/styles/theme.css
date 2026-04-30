@@ -395,3 +395,28 @@
     opacity: 0;
     transition: opacity 0.3s ease;
 }
+
+/* 管理模块内子页：较 page-fade 更轻，避免与侧栏同屏时动效过硬 */
+@keyframes moduleShellIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.module-shell-fade-enter-active {
+    animation: moduleShellIn 0.42s cubic-bezier(0.25, 0.85, 0.3, 1);
+}
+
+.module-shell-fade-leave-active {
+    transition: opacity 0.24s ease;
+}
+
+.module-shell-fade-enter-from,
+.module-shell-fade-leave-to {
+    opacity: 0;
+}

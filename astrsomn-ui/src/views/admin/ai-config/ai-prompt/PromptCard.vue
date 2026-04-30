@@ -126,36 +126,34 @@ const copyPromptKey = async (key?: string) => {
 
 <style scoped>
 .air-prompt-card-400 {
-  --primary-color: #3b82f6;
-  --text-main: #0f172a;
-  --text-muted: #94a3b8;
+  --primary-color: var(--primary);
+  --text-main: var(--text-primary);
+  --text-muted: var(--text-muted);
+  --bg-card: var(--bg-card);
+  --border-subtle: var(--border-subtle);
+  --border-default: var(--border-default);
   
   width: 100%;
   max-width: 320px;
-  min-height: 400px; /* 强制最小高度 */
-  background: #ffffff;
-  border: 1px solid #f1f5f9;
+  min-height: 400px;
+  background: var(--bg-card);
   border-radius: 32px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-default);
 }
 
 .air-prompt-card-400:hover {
   transform: translateY(-8px);
-  box-shadow: 0 30px 60px -12px rgba(15, 23, 42, 0.08);
-  border-color: #e2e8f0;
+  box-shadow: var(--shadow-card);
+  border-color: var(--primary);
 }
 
-.air-prompt-card-400.is-selected {
-  border-color: var(--primary-color);
-  background: #f8faff;
-}
 
-/* 顶部：状态与勾选并排 */
+
 .card-header-status {
   display: flex;
   justify-content: space-between;
@@ -168,30 +166,32 @@ const copyPromptKey = async (key?: string) => {
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  background: #f1f5f9;
+  background: var(--bg-elevated);
   border-radius: 100px;
 }
 
-.status-chip.enabled { background: #f0fdf4; }
-.status-chip.enabled .status-dot { background: #22c55e; }
-.status-chip.enabled .status-text { color: #16a34a; }
+.status-chip.enabled { 
+  background: rgba(34, 197, 94, 0.15); 
+}
+.status-chip.enabled .status-dot { background: var(--success); }
+.status-chip.enabled .status-text { color: var(--success); }
 
 .status-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #cbd5e1;
+  background: var(--text-muted);
 }
 
 .status-text {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
+  color: var(--text-muted);
 }
 
-/* 内容区：垂直分布 */
 .card-content {
-  flex: 1; /* 撑开中间 */
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -206,23 +206,23 @@ const copyPromptKey = async (key?: string) => {
 .avatar-glow {
   width: 64px;
   height: 64px;
-  background: #ffffff;
+  background: var(--bg-elevated);
   border-radius: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
   color: var(--primary-color);
-  box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.15);
-  border: 1px solid #f1f5f9;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-default);
 }
 
 .version-tag {
   position: absolute;
   top: -6px;
   right: -10px;
-  background: var(--text-main);
-  color: #fff;
+  background: var(--text-primary);
+  color: var(--bg-base);
   font-size: 9px;
   font-weight: 900;
   padding: 2px 6px;
@@ -242,16 +242,16 @@ const copyPromptKey = async (key?: string) => {
   align-items: center;
   gap: 8px;
   padding: 6px 16px;
-  background: #f8fafc;
+  background: var(--bg-elevated);
   border-radius: 100px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-default);
   cursor: pointer;
   transition: all 0.2s;
   margin-bottom: 24px;
 }
 
 .key-capsule-btn:hover {
-  background: #fff;
+  background: var(--bg-card);
   border-color: var(--primary-color);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
 }
@@ -259,7 +259,7 @@ const copyPromptKey = async (key?: string) => {
 .key-capsule-btn .label {
   font-size: 9px;
   font-weight: 900;
-  color: #cbd5e1;
+  color: var(--text-muted);
 }
 
 .key-capsule-btn .code {
@@ -270,10 +270,9 @@ const copyPromptKey = async (key?: string) => {
 
 .key-capsule-btn .icon {
   font-size: 11px;
-  color: #cbd5e1;
+  color: var(--text-muted);
 }
 
-/* 描述盒子：控制高度占比 */
 .description-box {
   flex: 1;
   display: flex;
@@ -282,7 +281,7 @@ const copyPromptKey = async (key?: string) => {
 
 .description-text {
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-placeholder);
   line-height: 1.8;
   font-style: italic;
   margin: 0;
@@ -292,11 +291,10 @@ const copyPromptKey = async (key?: string) => {
   overflow: hidden;
 }
 
-/* 底部：沉底对齐 */
 .card-footer-action {
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid #f8fafc;
+  border-top: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -311,17 +309,17 @@ const copyPromptKey = async (key?: string) => {
 
 .meta-icon {
   font-size: 12px;
-  color: #cbd5e1;
+  color: var(--text-muted);
 }
 
 .meta-info {
   font-size: 11px;
   font-weight: 600;
-  color: #cbd5e1;
+  color: var(--text-muted);
 }
 
 .divider {
-  color: #f1f5f9;
+  color: var(--border-default);
   font-size: 10px;
 }
 
@@ -335,9 +333,9 @@ const copyPromptKey = async (key?: string) => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-default);
   background: transparent;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
@@ -354,8 +352,8 @@ const copyPromptKey = async (key?: string) => {
 }
 
 .action-circle-btn.delete:hover {
-  background: #ef4444;
-  border-color: #ef4444;
+  background: var(--error);
+  border-color: var(--error);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 

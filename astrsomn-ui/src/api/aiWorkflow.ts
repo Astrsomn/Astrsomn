@@ -6,6 +6,7 @@ export type AiWorkflow = {
   workflowName?: string
   versionNo?: number
   description?: string
+  category?: string
   graphJson?: string
   status?: string
 }
@@ -68,8 +69,9 @@ export const aiWorkflowApi = {
 
   publish: (id: number | string): Promise<string> => {
     return request({
-      url: `/v1/astro/ai-workflow/publish?id=${encodeURIComponent(String(id))}`,
-      method: 'post'
+      url: '/v1/astro/ai-workflow/publish',
+      method: 'post',
+      data: { id }
     })
   },
 

@@ -1,0 +1,19 @@
+package com.astrsomn.workflow.starter.mapper;
+
+import com.astrsomn.workflow.core.domain.entity.AstFlowInstanceEntity;
+import com.astrsomn.workflow.core.domain.dto.instance.AstFlowInstanceQueryRequestDTO;
+import com.astrsomn.workflow.core.domain.dto.instance.AstFlowInstanceResponseDTO;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+@Mapper
+public interface AstFlowInstanceMapper extends BaseMapper<AstFlowInstanceEntity> {
+
+    IPage<AstFlowInstanceResponseDTO> queryPage(
+            IPage<AstFlowInstanceResponseDTO> page,
+            @Param("req") AstFlowInstanceQueryRequestDTO param);
+
+    AstFlowInstanceResponseDTO detail(@Param("id") Long id, @Param("envCode") String envCode);
+}

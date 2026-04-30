@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.astrsomn</groupId>
+        <groupId>com.astrsomn</groupId>
         <artifactId>astrsomn-providers</artifactId>
         <version>0.1.0-alpha.1</version>
         <relativePath>../pom.xml</relativePath>
@@ -17,7 +17,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-core</artifactId>
         </dependency>
 

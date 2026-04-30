@@ -1,16 +1,16 @@
 <template>
   <div class="toolbar-search-pill" :class="rootClass">
-    <SearchOutlined class="toolbar-search-pill__icon" />
+    <SearchOutlined class="toolbar-search-pill__left-icon" />
     <input
-      type="text"
-      class="toolbar-search-pill__input"
-      :value="displayValue"
-      :placeholder="placeholder"
-      @input="onInput"
-      @keyup.enter="emitSearch"
+        type="text"
+        class="toolbar-search-pill__input"
+        :value="displayValue"
+        :placeholder="placeholder"
+        @input="onInput"
+        @keyup.enter="emitSearch"
     />
     <button type="button" class="toolbar-search-pill__btn" @click="emitSearch">
-      {{ buttonLabel }}
+      <SearchOutlined />
     </button>
   </div>
 </template>
@@ -22,18 +22,16 @@ import { SearchOutlined } from '@ant-design/icons-vue'
 export type ToolbarSearchPillLayout = 'toolbar' | 'pane' | 'fluid'
 
 const props = withDefaults(
-  defineProps<{
-    modelValue?: string | null
-    placeholder?: string
-    buttonLabel?: string
-    layout?: ToolbarSearchPillLayout
-  }>(),
-  {
-    modelValue: '',
-    placeholder: '',
-    buttonLabel: '搜索',
-    layout: 'toolbar'
-  }
+    defineProps<{
+      modelValue?: string | null
+      placeholder?: string
+      layout?: ToolbarSearchPillLayout
+    }>(),
+    {
+      modelValue: '',
+      placeholder: '搜索内容...',
+      layout: 'toolbar'
+    }
 )
 
 const emit = defineEmits<{
@@ -42,7 +40,6 @@ const emit = defineEmits<{
 }>()
 
 const displayValue = computed(() => props.modelValue ?? '')
-
 const rootClass = computed(() => `toolbar-search-pill--${props.layout}`)
 
 function onInput(e: Event) {
@@ -55,41 +52,47 @@ function emitSearch() {
 </script>
 
 <style scoped>
+/* 容器基础样式：无背景，轻边框 */
 .toolbar-search-pill {
-  height: 50px;
-  background: var(--bg-surface);
-  border-radius: var(--radius-pro, 30px);
-  padding: 0 8px 0 20px;
+  height: 48px;
+  background: transparent;
+  border-radius: 24px;
+  padding: 0 6px 0 16px;
   display: flex;
   align-items: center;
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* 悬浮样式：不要白色，改用阴影和边框强化 */
+.toolbar-search-pill:hover {
+  border-color: var(--primary, #3b82f6);
+  /* 使用投影来营造“浮起来”的感觉，而不是靠背景填充 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05),
+  0 1px 2px rgba(0, 0, 0, 0.02);
+  transform: translateY(-1px); /* 轻微上移，增加灵动感 */
+}
+
+/* 聚焦状态：强化主色调呼吸感 */
 .toolbar-search-pill:focus-within {
-  border-color: #3b82f6;
-  box-shadow: var(--shadow-overview), 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
+  border-color: var(--primary, #3b82f6);
+  background: transparent;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary, #3b82f6) 10%, transparent);
 }
 
 .toolbar-search-pill--toolbar {
   flex: 1;
-  min-width: 0;
-  max-width: 460px;
+  max-width: 420px;
 }
 
-.toolbar-search-pill--pane {
-  width: 100%;
-  max-width: 460px;
-}
-
+.toolbar-search-pill--pane,
 .toolbar-search-pill--fluid {
   width: 100%;
-  padding-left: 16px;
 }
 
-.toolbar-search-pill__icon {
-  color: var(--primary);
-  font-size: 18px;
+.toolbar-search-pill__left-icon {
+  color: var(--text-placeholder, #9ca3af);
+  font-size: 17px;
   flex-shrink: 0;
 }
 
@@ -98,36 +101,39 @@ function emitSearch() {
   min-width: 0;
   border: none;
   outline: none;
-  font-size: 15px;
-  margin-left: 10px;
+  font-size: 14px;
+  margin-left: 12px;
   background: transparent;
-  color: var(--text-primary);
+  color: var(--text-primary, #1f2937);
 }
 
 .toolbar-search-pill__input::placeholder {
-  color: var(--text-placeholder);
+  color: var(--text-placeholder, #9ca3af);
 }
 
-.toolbar-search-pill--fluid .toolbar-search-pill__input {
-  font-size: 14px;
-  margin-left: 8px;
-}
-
+/* 按钮样式：保持主色，强调点击感 */
 .toolbar-search-pill__btn {
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
-  background: var(--primary-gradient);
-  color: white;
+  background: var(--primary, #3b82f6);
+  color: #fff;
   border: none;
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  box-shadow: var(--shadow-overview);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--primary, #3b82f6) 30%, transparent);
 }
 
-.toolbar-search-pill--fluid .toolbar-search-pill__btn {
-  padding: 8px 16px;
-  font-size: 13px;
+.toolbar-search-pill__btn:hover {
+  filter: brightness(1.1);
+  transform: scale(1.08);
+}
+
+.toolbar-search-pill__btn:active {
+  transform: scale(0.92);
 }
 </style>

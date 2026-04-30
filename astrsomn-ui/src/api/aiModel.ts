@@ -7,7 +7,7 @@ export type AiModel = {
   /** 详情返回：有推理实例引用该 modelKey 时为 true，前端应禁止改 modelKey */
   modelKeyImmutable?: boolean
   modelType?: string
-  provider?: string
+  extensionCode?: string
   /** queryPage 子查询：SYSTEM_EXTENSION 中与 PROVIDER 匹配的头像（SVG） */
   providerAvatar?: string
   accountKey?: string
@@ -18,6 +18,9 @@ export type AiModel = {
   topVariance?: number
   isDefault?: number
   capabilities?: string
+  /** model parameter schema JSON (preferred) */
+  params?: string
+  /** backward compatibility field */
   param?: string
   maxQuotaTokens?: number
   sourceType?: string

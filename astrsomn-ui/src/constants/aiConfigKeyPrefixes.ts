@@ -1,0 +1,7 @@
+export const AI_MODEL_KEY_PREFIX = 'AM-'
+export const AI_ACCOUNT_KEY_PREFIX = 'AC-'
+export const AI_INSTANCE_KEY_PREFIX = 'INS-'
+export const AI_AGENT_KEY_PREFIX = 'AG-'
+export const AI_MCP_KEY_PREFIX = 'MC-'
+export const AI_PROMPT_KEY_PREFIX = 'PT-'
+export const AI_TOOL_KEY_PREFIX = 'TO-'

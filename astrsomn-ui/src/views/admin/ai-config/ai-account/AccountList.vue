@@ -1,126 +1,199 @@
 <template>
   <AdminPageShell
-    title="凭证管理"
-    description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
-    empty-text="暂无账号。"
+      title="凭证管理"
+      description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
+      empty-text="暂无账号。"
+      :breadcrumbs="breadcrumbs"
+      :show-view-toggle="true"
+      :view-mode="viewMode"
+      :view-toggle-handler="handleViewToggle"
   >
-    <div class="account-page">
-      <AdminListToolbar>
-        <template #left>
-          <div class="account-toolbar-searches">
-
-            <AstrsomnSearchPill
-              v-model="query.accountName"
-              layout="toolbar"
-              placeholder="账号名称"
-              button-label="查询"
-              @search="fetchList"
-            />
+    <div ref="pageRef" class="account-page">
+      <AstrsomnDataSection>
+        <template #toolbar>
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <AstrsomnSearchPill
+                  v-model="query.accountName"
+                  layout="toolbar"
+                  placeholder="账号名称"
+                  button-label="查询"
+                  @search="fetchList"
+              />
+              <div class="provider-filter">
+                <ExtensionSelector
+                    v-model:value="query.extensionCode"
+                    placeholder="根据插件编码筛选"
+                    :allow-clear="true"
+                    size="middle"
+                    :only-applied="true"
+                    @update:value="onProviderChange"
+                />
+              </div>
+            </div>
+            <div class="toolbar-right">
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
+            </div>
           </div>
         </template>
 
-        <template #right>
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+
+        <AstrsomnDataView
+            :mode="dataViewMode"
+            :data-source="list"
+            :loading="loading"
+            :columns="columns"
+            :row-selection="rowSelection"
+            row-key="id"
+            :scroll="{ x: 1180 }"
+            empty-text="暂无匹配的账号"
+            :card-columns="currentGridColumns"
+            :card-min-width="accountCardMinWidth"
+            :card-gap="accountCardGap"
+        >
+          <template #card="{ record }">
+            <AccountCard
+                :account="record"
+                :selected="record.id != null && selectedKeySet.has(record.id)"
+                @edit="goEdit"
+                @delete="handleDeleteOne"
+                @show-models="openModelsDrawer"
+                @toggle="onToggleSelect"
+            />
+          </template>
+
+          <template #bodyCell="{ column, record }">
+     
+            <template v-if="column.key === 'apiKey'">
+              <span class="secret-mask">{{ maskSecret(record.apiKey) }}</span>
+            </template>
+    
+            <template v-else-if="column.key === 'actions'">
+              <a-space>
+                <a-button type="link" size="small" @click="goEdit(record)">
+                  <EditOutlined/>
+                </a-button>
+                <a-button type="link" size="small" @click="openModelsDrawer(record)">
+                  <LinkOutlined/>
+                </a-button>
+                <a-popconfirm title="确定删除吗？" @confirm="() => handleDeleteOne(record.id)">
+                  <a-button type="link" danger size="small">
+                    <DeleteOutlined/>
+                  </a-button>
+                </a-popconfirm>
+              </a-space>
+            </template>
+          </template>
+        </AstrsomnDataView>
+
+        <template #pagination>
+          <AstrsomnPagination
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
+          />
         </template>
-      </AdminListToolbar>
-
-      <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条账号，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
-
-      <div class="account-grid">
-        <AccountCard
-          v-for="account in list"
-          :key="account.id"
-          :account="account"
-          @edit="goEdit"
-          @delete="handleDeleteOne"
-          @show-models="openModelsDrawer"
-        />
-      </div>
-
-      <div class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+      </AstrsomnDataSection>
 
       <AccountForm
-        v-model:visible="formVisible"
-        :record="currentRecord"
-        @success="handleFormSuccess"
+          v-model:visible="formVisible"
+          :record="currentRecord"
+          @success="handleFormSuccess"
       />
     </div>
     <AccountModelsDrawer
-      v-model:open="modelsDrawer.open"
-      :account="modelsDrawer.account"
-      :loading="modelsDrawer.loading"
-      :models="modelsDrawer.models"
+        v-model:open="modelsDrawer.open"
+        :account="modelsDrawer.account"
+        :loading="modelsDrawer.loading"
+        :models="modelsDrawer.models"
     />
   </AdminPageShell>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
+import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
 import {
   DeleteOutlined,
+  EditOutlined,
+  LinkOutlined,
   PlusOutlined,
-  ReloadOutlined,
-  SearchOutlined
+  ReloadOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
+import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
 import AccountForm from './AccountForm.vue'
-import AccountCard from './AccountCard.vue'
 import AccountModelsDrawer from './AccountModelsDrawer.vue'
-import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount'
-import type { AiModel } from '@/api/aiModel'
+import AccountCard from './AccountCard.vue'
+import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
+import {aiAccountApi, type AiAccount, type PageResponse} from '@/api/aiAccount'
+import type {AiModel} from '@/api/aiModel'
 
+const ACCOUNT_CARD_MIN_WIDTH_PX = 340
+const ACCOUNT_CARD_GAP_PX = 8
+const accountCardMinWidth = `${ACCOUNT_CARD_MIN_WIDTH_PX}px`
+const accountCardGap = `${ACCOUNT_CARD_GAP_PX}px`
+
+const breadcrumbs = [
+  {title: 'AI 配置', href: '/admin/ai-config'},
+  {title: '凭证管理'},
+]
+
+const pageRef = ref<HTMLElement | null>(null)
 const formVisible = ref(false)
 const currentRecord = ref<AiAccount | undefined>(undefined)
+const viewMode = ref<'grid' | 'list'>('list')
+const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
+const currentGridColumns = ref(3)
 
 type QueryState = {
   accountKey?: string
   accountName?: string
+  extensionCode?: string
 }
 
-// 卡片布局不需要表格列定义
+const columns = [
+  {title: '账号名称', dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true},
+  {title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true},
+  {title: '供应商', key: 'providerAvatar', dataIndex: 'providerAvatar', width: 80, align: 'center', enableBase64Render: true},
+  {title: '扩展名称', dataIndex: 'extensionName', key: 'extensionName', width: 120, ellipsis: true},
+  {title: '请求路径', dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true},
+  {title: '额度', dataIndex: 'accountTokens', key: 'accountTokens', width: 120, ellipsis: true},
+  {title: '状态', dataIndex: 'status', key: 'status', width: 120, ellipsis: true, tag: true, tagColor: (status: string) => status === 'enabled' ? 'green' : 'red'},
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
+  {title: '操作', key: 'actions', width: 220, fixed: 'right' as const}
+]
 
 const query = reactive<QueryState>({})
 const list = ref<AiAccount[]>([])
+const loading = ref(false)
 const page = reactive({
   pageNum: 1,
   pageSize: 10,
   total: 0
 })
 const selectedRowKeys = ref<Array<number | string>>([])
+const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 
 // maskSecret 函数已在 AccountCard 组件中实现
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
   return (
-    currentPageIds.value.length > 0 &&
-    currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
+      currentPageIds.value.length > 0 &&
+      currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
   )
 })
 
@@ -145,31 +218,26 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
   selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
 }
 
-const resetFilters = () => {
-  query.accountKey = undefined
-  query.accountName = undefined
-  page.pageNum = 1
-  selectedRowKeys.value = []
-  void fetchList()
-}
-
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-
   {
-    label: '批量删除',
+    label: '重置',
+    icon: ReloadOutlined,
+    onClick: resetFilters
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
       if (selectedRowKeys.value.length === 0) return
       Modal.confirm({
-        title: '确定批量删除选中的账号吗？',
+        title: `确定批量删除选中的 ${selectedRowKeys.value.length} 个账号吗？`,
         okText: '确认',
         cancelText: '取消',
         onOk: () => handleBatchDelete()
       })
     }
   },
-
   {
     label: '新增',
     type: 'primary',
@@ -178,23 +246,79 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   }
 ])
 
-const fetchList = async () => {
-  const payload = {
-    pageNo: page.pageNum,
-    pageSize: page.pageSize,
-    param: {
-      accountKey: query.accountKey || undefined,
-      accountName: query.accountName || undefined
-    }
-  }
-  const resp: PageResponse<AiAccount> = await aiAccountApi.queryPage(payload)
-  list.value = resp.list || []
-  page.total = resp.total || 0
+const resetFilters = () => {
+  query.accountName = undefined
+  query.extensionCode = undefined
+  page.pageNum = 1
+  void fetchList()
 }
 
-const onPageChange = (p: number) => {
+const maskSecret = (raw?: string) => {
+  if (!raw) return '—'
+  if (raw.length <= 10) return `${raw.slice(0, 2)}***${raw.slice(-2)}`
+  return `${raw.slice(0, 4)}****${raw.slice(-4)}`
+}
+
+const fetchList = async () => {
+  loading.value = true
+  try {
+    const payload = {
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: {
+        accountKey: query.accountKey || undefined,
+        accountName: query.accountName || undefined,
+        extensionCode: query.extensionCode || undefined
+      }
+    }
+    const resp: PageResponse<AiAccount> = await aiAccountApi.queryPage(payload)
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
+  }
+}
+
+const onPageChange = (p: number, size: number) => {
   page.pageNum = p
+  page.pageSize = size
   void fetchList()
+}
+
+const onProviderChange = () => {
+  page.pageNum = 1
+  void fetchList()
+}
+
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
+}
+
+const onToggleSelect = (id: number | string, checked: boolean) => {
+  if (checked) {
+    if (!selectedRowKeys.value.includes(id)) {
+      selectedRowKeys.value = [...selectedRowKeys.value, id]
+    }
+    return
+  }
+  selectedRowKeys.value = selectedRowKeys.value.filter((item) => item !== id)
+}
+
+const resolveGridColumns = () => {
+  if (typeof window === 'undefined') return 3
+  const width = pageRef.value?.clientWidth ?? window.innerWidth
+  const columns = Math.floor((width + ACCOUNT_CARD_GAP_PX) / (ACCOUNT_CARD_MIN_WIDTH_PX + ACCOUNT_CARD_GAP_PX))
+  return Math.max(1, Math.min(3, columns))
+}
+
+const syncGridColumns = () => {
+  currentGridColumns.value = resolveGridColumns()
+}
+
+let resizeObserver: ResizeObserver | null = null
+
+const onResize = () => {
+  syncGridColumns()
 }
 
 const goCreate = () => {
@@ -229,6 +353,22 @@ const handleBatchDelete = async () => {
 }
 
 void fetchList()
+syncGridColumns()
+
+onMounted(() => {
+  onResize()
+  if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
+    resizeObserver = new ResizeObserver(onResize)
+    resizeObserver.observe(pageRef.value)
+    return
+  }
+  window.addEventListener('resize', onResize)
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  window.removeEventListener('resize', onResize)
+})
 
 const modelsDrawer = reactive({
   open: false,
@@ -236,6 +376,11 @@ const modelsDrawer = reactive({
   account: undefined as AiAccount | undefined,
   models: [] as AiModel[]
 })
+
+const providerAvatarCell = (record: AiAccount) => {
+  const raw = record?.providerAvatar
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+}
 
 const openModelsDrawer = async (account: AiAccount) => {
   if (!account.accountKey) {
@@ -267,55 +412,35 @@ const openModelsDrawer = async (account: AiAccount) => {
 
 <style scoped>
 .account-page {
-  padding: 0 20px;
+  padding: 20px;
 }
 
-.account-toolbar-searches {
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
   flex: 1;
-  min-width: 0;
 }
 
-.account-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
+.provider-filter {
+  width: 260px;
+  min-width: 220px;
 }
 
-.pagination-wrap {
+.toolbar-right {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   gap: 12px;
-  margin-top: 20px;
+  align-items: center;
   flex-wrap: wrap;
-}
-
-@media (max-width: 768px) {
-  .account-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1200px) {
-  .account-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  }
-}
-
-@media (min-width: 1201px) {
-  .account-grid {
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  }
-}
-
-.code-text {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 12px;
 }
 
 .secret-mask {
@@ -325,13 +450,27 @@ const openModelsDrawer = async (account: AiAccount) => {
 }
 
 @media (max-width: 720px) {
-  .account-toolbar-searches {
+  .toolbar-left,
+  .toolbar-right {
     width: 100%;
   }
+}
 
-  .pagination-wrap {
-    justify-content: center;
-  }
+.provider-avatar-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.provider-avatar-cell :deep(svg) {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.text-secondary {
+  color: var(--text-muted, #bfbfbf);
 }
 
 /* drawer styles moved to AccountModelsDrawer.vue */

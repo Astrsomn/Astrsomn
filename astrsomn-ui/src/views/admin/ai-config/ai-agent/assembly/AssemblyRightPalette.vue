@@ -267,7 +267,7 @@ defineExpose({ getKeywords })
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 0;
+  max-height: 70vh;
   padding: 0 12px 12px;
 }
 

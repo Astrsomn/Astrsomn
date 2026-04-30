@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.starter.mapper.AiModelMapper">
+    <select id="queryPage" resultType="com.astrsomn.core.common.dto.model.AiModelResponseDTO">
+        SELECT
+        AM.*,
+        (
+        SELECT SE.AVATAR
+        FROM SYS_EXTENSION SE
+        WHERE SE.ENV_CODE = AM.ENV_CODE
+        AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
+        AND AM.EXTENSION_CODE IS NOT NULL
+        AND AM.EXTENSION_CODE != ''
+        AND (SE.EXTENSION_CODE = AM.EXTENSION_CODE OR SE.EXTENSION_KEY = AM.EXTENSION_CODE)
+        ORDER BY CASE WHEN SE.EXTENSION_CODE = AM.EXTENSION_CODE THEN 0 ELSE 1 END
+        LIMIT 1
+        ) AS providerAvatar
+        FROM
+        `AI_MODEL` AM
+        WHERE
+        1=1
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND AM.ENV_CODE = #{req.envCode}
+        </if>
+        <if test="req != null and req.extensionCode != null and req.extensionCode != ''">
+            AND AM.EXTENSION_CODE = #{req.extensionCode}
+        </if>
+        <if test="req != null and req.modelName != null and req.modelName != ''">
+            AND AM.MODEL_NAME LIKE CONCAT('%', #{req.modelName}, '%')
+        </if>
+        <if test="req != null and req.modelKey != null and req.modelKey != ''">
+            AND AM.MODEL_KEY = #{req.modelKey}
+        </if>
+        <if test="req != null and req.accountKey != null and req.accountKey != ''">
+            AND AM.ACCOUNT_KEY = #{req.accountKey}
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND AM.STATUS = #{req.status}
+        </if>
+        <if test="req != null and req.modelType != null and req.modelType != ''">
+            AND AM.MODEL_TYPE = #{req.modelType}
+        </if>
+        <if test="req != null and req.extensionCode != null and req.extensionCode != ''">
+            AND AM.EXTENSION_CODE = #{req.extensionCode}
+        </if>
+        ORDER BY
+        AM.EXTENSION_CODE DESC,
+        AM.MODEL_TYPE DESC
+    </select>
+
+    <select id="selectModelWithReferenceStatus" resultType="com.astrsomn.core.common.dto.model.AiModelResponseDTO">
+        SELECT
+            AM.*,
+            (EXISTS (
+                SELECT 1
+                FROM `AI_INSTANCE` AI
+                WHERE AI.MODEL_KEY = AM.MODEL_KEY
+                  AND AI.ENV_CODE = AM.ENV_CODE
+                  AND (AI.DELETED = 0 OR AI.DELETED IS NULL)
+            )) AS modelKeyImmutable
+        FROM
+            `AI_MODEL` AM
+        WHERE
+            AM.ID = #{id}
+          AND (AM.DELETED = 0 OR AM.DELETED IS NULL)
+    </select>
+
+</mapper>

@@ -1,0 +1,18 @@
+astrsomn:
+  mybatis-plus:
+    # workflow-starter 默认会自动补这个包；这里显式写出便于排查与覆盖
+    additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
+  data-base:
+    database-type: mysql
+    host: 127.0.0.1
+    port: 3306
+    database-name: astro_ai
+    username: astro_ai
+    password: k7NHzMP7ErRZ4SFC
+    driver: com.mysql.cj.jdbc.Driver
+    use-ssl: false
+    charset: utf8
+    timezone: Asia/Shanghai
+    connection-timeout: 30000
+    maximum-pool-size: 10
+    minimum-idle: 5

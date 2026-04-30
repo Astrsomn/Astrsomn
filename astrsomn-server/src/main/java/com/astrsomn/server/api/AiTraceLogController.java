@@ -1,0 +1,51 @@
+package com.astrsomn.server.api;
+
+import lombok.RequiredArgsConstructor;
+import com.astrsomn.commn.base.BaseController;
+import com.astrsomn.commn.base.BasePageRequest;
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.commn.base.PageResponse;
+import com.astrsomn.core.common.dto.tracelog.AiTraceLogCreateRequestDTO;
+import com.astrsomn.core.common.dto.tracelog.AiTraceLogQueryRequestDTO;
+import com.astrsomn.core.common.dto.tracelog.AiTraceLogResponseDTO;
+import com.astrsomn.core.common.dto.tracelog.AiTraceLogUpdateRequestDTO;
+import com.astrsomn.server.service.AiTraceLogService;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/v1/astro/ai-trace-log")
+@RequiredArgsConstructor
+public class AiTraceLogController extends BaseController {
+
+    private final AiTraceLogService aiTraceLogService;
+
+    @PostMapping("/create")
+    public BaseResponse<String> create(@RequestBody AiTraceLogCreateRequestDTO request) {
+        return aiTraceLogService.create(request);
+    }
+
+    @DeleteMapping("/delete/{ids}")
+    public BaseResponse<String> delete(@PathVariable("ids") String ids) {
+        try {
+            long[] longIds = parseLongIds(ids, ",");
+            return aiTraceLogService.delete(longIds);
+        } catch (NumberFormatException e) {
+            return BaseResponse.fail("ID格式错误", null);
+        }
+    }
+
+    @PostMapping("/update")
+    public BaseResponse<String> update(@RequestBody AiTraceLogUpdateRequestDTO request) {
+        return aiTraceLogService.update(request);
+    }
+
+    @PostMapping("/queryPage")
+    public PageResponse<AiTraceLogResponseDTO> queryPage(@RequestBody BasePageRequest<AiTraceLogQueryRequestDTO> request) {
+        return aiTraceLogService.queryPage(request);
+    }
+
+    @GetMapping("/detail")
+    public BaseResponse<AiTraceLogResponseDTO> detail(@RequestParam("id") Long id) {
+        return aiTraceLogService.detail(id);
+    }
+}

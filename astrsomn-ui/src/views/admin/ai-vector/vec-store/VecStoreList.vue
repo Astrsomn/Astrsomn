@@ -137,7 +137,7 @@ import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import SourceSidebar from '@/components/ai/SourceSidebar.vue'
+import SourceSidebar from '@/components/ai-config/SourceSidebar.vue'
 import VecStoreFormModal from './VecStoreFormModal.vue'
 import { aiVecStoreApi, type AiVecStore, type PageResponse } from '@/api/aiVecStore.ts'
 import { aiVecSourceApi, type AiVecSource } from '@/api/aiVecSource.ts'
@@ -316,8 +316,9 @@ const fetchList = async () => {
   page.total = resp.total || 0
 }
 
-const onPageChange = (p: number) => {
+const onPageChange = (p: number, size: number) => {
   page.pageNum = p
+  page.pageSize = size
   void fetchList()
 }
 

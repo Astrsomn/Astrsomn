@@ -123,14 +123,14 @@ const handleLogin = () => {
   position: sticky;
   top: 0;
   z-index: 1000;
-  height: 64px;
+  height: 60px;
   width: 100%;
-
+  box-sizing: border-box;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   display: flex;
   align-items: center;
-
+  border-bottom: 1px solid var(--border-default);
 }
 
 .header-container {
@@ -289,25 +289,34 @@ const handleLogin = () => {
   color: var(--text-heading);
 }
 
-/* --- 核心动画 --- */
-.fade-slide-enter-active, .fade-slide-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateX(-15px);
-}
-
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateX(15px);
-}
-
 .actions-group {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+/* Header 左侧品牌/返回切换动画 */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateX(8px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-8px);
+}
+
+.fade-slide-enter-to,
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 @media (max-width: 768px) {

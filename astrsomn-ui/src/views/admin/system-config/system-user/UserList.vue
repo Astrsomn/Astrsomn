@@ -3,10 +3,13 @@
     title="用户管理"
     description="SYSTEM_USER：角色分超级管理员 / 环境管理员 / 普通用户（USER_ROLE）。"
     empty-text="暂无用户数据。"
+    :breadcrumbs="breadcrumbs"
   >
     <div class="user-page">
-      <AdminListToolbar>
-        <template #left>
+      <AstrsomnDataSection>
+        <template #toolbar>
+          <div class="toolbar">
+            <div class="toolbar-left">
           <AstrsomnSearchPill
             v-model="query.username"
             placeholder="搜索用户名"
@@ -37,9 +40,9 @@
               普通用户
             </a-button>
           </div>
-        </template>
+            </div>
 
-        <template #right>
+            <div class="toolbar-right">
     
           <a-popconfirm
             v-if="selectedRowKeys.length > 0"
@@ -50,36 +53,35 @@
           >
             <a-button danger class="ghost-btn danger-btn">
               <template #icon><delete-outlined /></template>
-              批量删除
+              删除 ({{ selectedRowKeys.length }})
             </a-button>
           </a-popconfirm>
+          <a-button danger class="ghost-btn danger-btn" disabled v-else>
+            <template #icon><delete-outlined /></template>
+            删除
+          </a-button>
           <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
           <a-button class="ghost-btn" @click="openCreate">
             <template #icon><plus-outlined /></template>
             新增
           </a-button>
+            </div>
+          </div>
         </template>
-      </AdminListToolbar>
 
-      <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条用户记录，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-      />
 
-      <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1020 }"
-      >
-        <template #bodyCell="{ column, record }">
+
+        <AstrsomnDataView
+          mode="table"
+          :data-source="list"
+          :loading="loading"
+          :columns="columns"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1020 }"
+          row-key="id"
+          empty-text="暂无匹配的用户"
+        >
+          <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'userRole'">
             <span>{{ roleLabel(record.userRole) }}</span>
           </template>
@@ -98,18 +100,18 @@
               <a-button type="link" danger>删除</a-button>
             </a-popconfirm>
           </template>
-        </template>
-      </a-table>
+          </template>
+        </AstrsomnDataView>
 
-      <div class="pagination-wrap">
-        <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
-        />
-      </div>
+        <template #pagination>
+          <AstrsomnPagination
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :total="page.total"
+            @change="onPageChange"
+          />
+        </template>
+      </AstrsomnDataSection>
 
       <UserFormModal
         v-model:open="modal.open"
@@ -127,16 +129,20 @@ import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import {
   DeleteOutlined,
-  MailOutlined,
   PlusOutlined,
-  SearchOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
+import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
+import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import UserFormModal from './UserFormModal.vue'
 import { systemUserApi, type SystemUser, type PageResponse } from '@/api/systemUser.ts'
+
+const breadcrumbs = [
+  { title: '系统配置', href: '/admin/system-config' },
+  { title: '用户管理' },
+]
 
 type QueryState = {
   username?: string
@@ -159,11 +165,14 @@ const columns = [
   { title: '角色', key: 'userRole', width: 120 },
   { title: '环境', key: 'envCode', width: 88, ellipsis: true },
   { title: '邮箱', dataIndex: 'email', key: 'email', width: 200, ellipsis: true },
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+
   { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
 ]
 
 const query = reactive<QueryState>({})
 const list = ref<SystemUser[]>([])
+const loading = ref(false)
 
 const page = reactive({
   pageNum: 1,
@@ -226,23 +235,28 @@ const modal = reactive({
 const modalInitial = ref<SystemUser | null>(null)
 
 const fetchList = async () => {
-  const payload = {
-    pageNo: page.pageNum,
-    pageSize: page.pageSize,
-    param: {
-      username: query.username || undefined,
-      email: query.email || undefined,
-      userRole: query.userRole || undefined
+  loading.value = true
+  try {
+    const payload = {
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: {
+        username: query.username || undefined,
+        email: query.email || undefined,
+        userRole: query.userRole || undefined
+      }
     }
+    const resp: PageResponse<SystemUser> = await systemUserApi.queryPage(payload)
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
   }
-
-  const resp: PageResponse<SystemUser> = await systemUserApi.queryPage(payload)
-  list.value = resp.list || []
-  page.total = resp.total || 0
 }
 
-const onPageChange = (p: number) => {
+const onPageChange = (p: number, size: number) => {
   page.pageNum = p
+  page.pageSize = size
   void fetchList()
 }
 
@@ -309,6 +323,29 @@ void fetchList()
 <style scoped>
 .user-page {
   padding: 20px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .search-cluster {
@@ -390,15 +427,6 @@ void fetchList()
   background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
 }
 
-.pagination-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
 @media (max-width: 720px) {
   .toolbar-input,
   .search-main-input,
@@ -423,8 +451,9 @@ void fetchList()
     flex: 1;
   }
 
-  .pagination-wrap {
-    justify-content: center;
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
   }
 }
 </style>

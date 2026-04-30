@@ -79,3 +79,8 @@ build.xml
 /plugins/
 /store/
 /deployment/
+/astrsomn-server/src/main/resources/static/
+/deploy/windows/output/
+/deploy/windows/run/.runtime/
+/log/
+/astrsomn-server/log/file

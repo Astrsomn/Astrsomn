@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.starter.mapper.AiChatMessageMapper">
+    <select id="queryPage" resultType="com.astrsomn.core.common.dto.chat.message.AiChatMessageResponseDTO">
+        SELECT
+        ACM.*
+        FROM
+        `AI_CHAT_MESSAGE` ACM
+        WHERE
+        ACM.DELETED = 0
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND ACM.ENV_CODE = #{req.envCode}
+        </if>
+        <if test="req != null and req.memoryKey != null and req.memoryKey != ''">
+            AND ACM.MEMORY_KEY = #{req.memoryKey}
+        </if>
+        <if test="req != null and req.role != null and req.role != ''">
+            AND ACM.ROLE = #{req.role}
+        </if>
+        ORDER BY
+        ACM.CREATE_TIME DESC
+    </select>
+
+    <select id="getMaxMessageOrder" resultType="java.lang.Integer">
+        SELECT COALESCE(MAX(MESSAGE_ORDER), -1) FROM `AI_CHAT_MESSAGE` WHERE DELETED = 0 AND MEMORY_KEY = #{messageKey}
+    </select>
+
+    <select id="recoverByMemoryKey" resultType="com.astrsomn.core.common.dto.chat.message.AiChatMessageResponseDTO">
+        SELECT
+            ACM.*
+        FROM
+            `AI_CHAT_MESSAGE` ACM
+        WHERE
+            ACM.DELETED = 0
+            AND ACM.MEMORY_KEY = #{memoryKey}
+        ORDER BY
+            ACM.UPDATE_TIME ASC
+    </select>
+
+    <select id="selectTodayUsage" resultType="com.astrsomn.core.common.dto.chat.message.AiChatUsageDTO">
+        SELECT
+            MODEL_KEY AS modelKey,
+            SUM(TOTAL_TOKENS) AS total
+        FROM
+            `AI_CHAT_MESSAGE`
+        WHERE
+            CREATE_TIME >= CURDATE()
+            AND DELETED = 0
+            AND ENV_CODE = #{envCode}
+        GROUP BY
+            MODEL_KEY
+    </select>
+
+</mapper>

@@ -1,6 +1,6 @@
 <template>
   <transition name="input-slide" appear>
-    <div class="chat-input-section">
+    <div class="chat-input-section" :class="[`is-${props.layout}`]">
       <div class="input-panel">
         <div class="input-toolbar">
           <div class="toolbar-left">
@@ -24,10 +24,11 @@
             <div class="v-divider"></div>
 
             <div class="instance-select-with-avatar">
-              <span
+              <img
                 v-if="selectedChatInstanceAvatarHtml"
                 class="inst-select-inline-avatar"
-                v-html="selectedChatInstanceAvatarHtml"
+                :src="selectedChatInstanceAvatarHtml"
+                :alt="selectedChatInstanceKey"
                 aria-hidden="true"
               />
               <a-select
@@ -47,10 +48,11 @@
                   :label="inst.instanceName || inst.instanceKey"
                 >
                   <span class="inst-opt-row">
-                    <span
+                    <img
                       v-if="instanceAvatarHtml(inst)"
                       class="inst-opt-avatar"
-                      v-html="instanceAvatarHtml(inst)"
+                      :src="instanceAvatarHtml(inst)"
+                      :alt="inst.instanceKey"
                       aria-hidden="true"
                     />
                     <span class="inst-opt-text">{{ inst.instanceName || inst.instanceKey }}</span>
@@ -135,7 +137,8 @@ import type { AiAgent } from '@/api/aiAgent.ts'
 import type { AiInstance } from '@/api/aiInstance.ts'
 import { computed, ref, watch } from 'vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
+  layout?: 'bottom' | 'centered'
   selectedAgent?: string
   selectedChatInstanceKey?: string
   userInput: string
@@ -146,7 +149,9 @@ const props = defineProps<{
   sendDisabled: boolean
   agentOptions: AiAgent[]
   chatInstanceOptions: AiInstance[]
-}>()
+}>(), {
+  layout: 'bottom'
+})
 
 const emit = defineEmits<{
   'update:selectedAgent': [value?: string]
@@ -212,6 +217,11 @@ const handleEnter = (e: KeyboardEvent) => {
 
 <style scoped>
 .chat-input-section {
+  pointer-events: auto;
+  width: 100%;
+}
+
+.chat-input-section.is-bottom {
   position: absolute;
   left: 0;
   right: 0;
@@ -220,6 +230,12 @@ const handleEnter = (e: KeyboardEvent) => {
   pointer-events: none;
   padding: 20px 20px 30px;
   background: transparent;
+}
+
+.chat-input-section.is-centered {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px 16px;
 }
 
 .input-panel {
@@ -232,6 +248,11 @@ const handleEnter = (e: KeyboardEvent) => {
   box-shadow: var(--shadow-card);
   transition: border-color 0.3s, box-shadow 0.3s;
   overflow: hidden;
+}
+
+.chat-input-section.is-centered .input-panel {
+  border-radius: 22px;
+  box-shadow: 0 14px 30px rgba(59, 130, 246, 0.12);
 }
 
 .input-panel:focus-within {

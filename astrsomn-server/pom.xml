@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.astrsomn</groupId>
+        <groupId>com.astrsomn</groupId>
         <artifactId>Astrsomn</artifactId>
         <version>0.1.0-alpha.1</version>
     </parent>
@@ -20,13 +20,13 @@
     <dependencies>
         <!-- 核心模块（显式依赖，保证单模块构建 testCompile 等场景下类路径完整） -->
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
-            <artifactId>astrsomn-spring-boot-starter</artifactId>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-workflow-springboot-starter</artifactId>
         </dependency>
 
 
@@ -59,14 +59,14 @@
 
         <!-- 数据库驱动 -->
         <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc11</artifactId>
-            <version>21.1.0.0</version>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
 
@@ -77,62 +77,67 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- JJWT API -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.12.3</version>
-        </dependency>
-        <!-- JJWT 实现 -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>0.12.3</version>
-            <scope>runtime</scope>
-        </dependency>
-        <!-- JJWT Jackson 序列化支持 -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>0.12.3</version>
-            <scope>runtime</scope>
-        </dependency>
+
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-deepseek</artifactId>
             <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-zhipu</artifactId>
             <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-provider-qianfan</artifactId>
+            <version>0.1.0-alpha.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-provider-qwen</artifactId>
+            <version>0.1.0-alpha.1</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-qdrant</artifactId>
             <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-milvus</artifactId>
             <version>0.1.0-alpha.1</version>
         </dependency>
 
         <dependency>
-            <groupId>org.astrsomn</groupId>
+            <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-chroma</artifactId>
             <version>0.1.0-alpha.1</version>
         </dependency>
 
-        <!-- 可选：classpath 引入 astrsomn-vector-*（如 astrsomn-vector-qdrant）；向量扩展通过 SPI 注册，与厂商 provider 模块一致，无需额外 @Configuration。 -->
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-vector-redis</artifactId>
+            <version>0.1.0-alpha.1</version>
+        </dependency>
+
 
     </dependencies>
 
@@ -148,7 +153,7 @@
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <mainClass>org.astrsomn.server.AstrsomnServerApplication</mainClass>
+                            <mainClass>com.astrsomn.server.AstrsomnServerApplication</mainClass>
                         </configuration>
                     </execution>
                 </executions>

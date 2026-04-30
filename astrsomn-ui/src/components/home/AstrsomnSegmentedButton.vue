@@ -8,8 +8,8 @@
       :class="[
         'seg-btn',
         btn.type ? `seg-btn-${btn.type}` : 'seg-btn-default',
-        { 
-          'seg-btn-first': index === 0, 
+        {
+          'seg-btn-first': index === 0,
           'seg-btn-last': index === buttons.length - 1,
           'seg-btn-plain': btn.plain
         }
@@ -48,7 +48,6 @@ defineProps<{
   align-items: center;
   gap: 0;
   border-radius: var(--radius-pro, 30px);
-  overflow: hidden;
   border: 1px solid var(--border-default);
 }
 
@@ -58,10 +57,9 @@ defineProps<{
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 50px;
-  padding: 0 22px;
-  font-size: 14px;
-  font-weight: 600;
+  height: 40px;
+  padding: 5px 14px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
@@ -171,6 +169,13 @@ defineProps<{
 
 .seg-btn-first {
   border-right: none;
+  border-top-left-radius: var(--radius-pro, 30px);
+  border-bottom-left-radius: var(--radius-pro, 30px);
+}
+
+.seg-btn-last {
+  border-top-right-radius: var(--radius-pro, 30px);
+  border-bottom-right-radius: var(--radius-pro, 30px);
 }
 
 .seg-btn:not(.seg-btn-first):not(.seg-btn-last) {
