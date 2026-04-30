@@ -2,6 +2,7 @@
   <a-modal
     :open="visible"
     width="80vw"
+    height="80vh"
     :footer="null"
     :closable="false"
     wrap-class-name="astrsomn-full-modal"
@@ -31,38 +32,13 @@
       </header>
 
       <div class="main-content">
-        <BasicPane
+        <Left
           :form="form"
           :status-options="statusOptions"
           :instance-key-rules="instanceKeyRules"
           @preset-name-input="onPresetNameUserInput"
         />
-
-        <ParamsPane
-          :form="form"
-          :param-section-title="paramSectionTitle"
-          :capability-hint="capabilityHint"
-          :has-param-schema="hasParamSchema"
-          :unsupported-param-codes="unsupportedParamCodes"
-          :model-kind="modelKind"
-          :show-chat-temperature="showChatTemperature"
-          :show-chat-max-tokens="showChatMaxTokens"
-          :show-chat-top-p="showChatTopP"
-          :show-chat-top-k="showChatTopK"
-          :show-chat-seed="showChatSeed"
-          :show-chat-stop-sequences="showChatStopSequences"
-          :show-chat-penalties="showChatPenalties"
-          :show-chat-frequency-penalty="showChatFrequencyPenalty"
-          :show-chat-presence-penalty="showChatPresencePenalty"
-          :show-embedding-dimensions="showEmbeddingDimensions"
-          :show-image-size="showImageSize"
-          :show-image-style="showImageStyle"
-          :embedding-has-any-control="embeddingHasAnyControl"
-          :image-has-any-control="imageHasAnyControl"
-          :get-temp-info="getTempInfo"
-        />
-
-        <ModelSelectorPane
+       <Right
           :provider-filter="providerFilter"
           :search-draft="searchDraft"
           :type-filter="typeFilter"
@@ -86,6 +62,31 @@
           @panel-scroll="onModelPanelScroll"
           @select-model="onSelectModelCard"
         />
+        <Center
+          :form="form"
+          :param-section-title="paramSectionTitle"
+          :capability-hint="capabilityHint"
+          :has-param-schema="hasParamSchema"
+          :unsupported-param-codes="unsupportedParamCodes"
+          :model-kind="modelKind"
+          :show-chat-temperature="showChatTemperature"
+          :show-chat-max-tokens="showChatMaxTokens"
+          :show-chat-top-p="showChatTopP"
+          :show-chat-top-k="showChatTopK"
+          :show-chat-seed="showChatSeed"
+          :show-chat-stop-sequences="showChatStopSequences"
+          :show-chat-penalties="showChatPenalties"
+          :show-chat-frequency-penalty="showChatFrequencyPenalty"
+          :show-chat-presence-penalty="showChatPresencePenalty"
+          :show-embedding-dimensions="showEmbeddingDimensions"
+          :show-image-size="showImageSize"
+          :show-image-style="showImageStyle"
+          :embedding-has-any-control="embeddingHasAnyControl"
+          :image-has-any-control="imageHasAnyControl"
+          :get-temp-info="getTempInfo"
+        />
+
+ 
       </div>
     </div>
   </a-modal>
@@ -97,9 +98,9 @@ import { message } from 'ant-design-vue';
 import {
   ThunderboltFilled
 } from '@ant-design/icons-vue';
-import BasicPane from './instance-form/BasicPane.vue';
-import ParamsPane from './instance-form/ParamsPane.vue';
-import ModelSelectorPane from './instance-form/ModelSelectorPane.vue';
+import Left from './instance-form/Left.vue';
+import Center from './instance-form/Center.vue';
+import Right from './instance-form/Right.vue';
 import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage';
 import { aiModelApi, type AiModel } from '@/api/aiModel';
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance';
@@ -148,7 +149,7 @@ const selectedKeys = ref<string[]>([]);
 const searchDraft = ref('');
 const searchQuery = ref('');
 const typeFilter = ref('all');
-/** 与模型列表一致：按 AI_MODEL.supplier（扩展 key）筛选 */
+/** 与模型列表一致：按 AI_MODEL.extensionCode（扩展 key）筛选 */
 const providerFilter = ref<string | undefined>(undefined);
 const pageSizeOptions = [
   { label: '每页 12', value: 12 },
@@ -453,7 +454,7 @@ const fetchModels = async (reset = false) => {
       param: {
         modelType: typeFilter.value === 'all' ? undefined : typeFilter.value,
         modelName: searchQuery.value || undefined,
-        supplier: providerFilter.value?.trim() || undefined,
+        extensionCode: providerFilter.value?.trim() || undefined,
         status: 'enabled'
       }
     });
@@ -636,9 +637,6 @@ watch(typeFilter, () => {
 .main-content {
   flex: 1;
   display: flex;
-  padding: 20px;
-  gap: 16px;
-  overflow: hidden;
   background: #f8fafc;
 }
 

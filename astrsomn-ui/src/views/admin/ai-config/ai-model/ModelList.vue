@@ -85,13 +85,7 @@
                         {{ record.status === 'enabled' ? '启用' : '禁用' }}
                       </span>
                     </a-button>
-                    <a-switch
-                      size="small"
-                      :checked="record.status === 'enabled'"
-                      :loading="statusUpdatingId === record.id"
-                      :disabled="statusUpdatingId === record.id"
-                      @change="handleStatusSwitchChange(record.id, $event)"
-                    />
+                
                   </div>
                 </template>
 

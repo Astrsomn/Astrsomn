@@ -37,7 +37,7 @@
       @success="handleFormSuccess"
     />
 
-    <AccountSelector
+    <AccountSelectorTable
       v-model:open="selectDrawerOpen"
       @select="handleAccountSelect"
     />
@@ -47,7 +47,7 @@
       @select="handleModelSelect"
     />
 
-    <InstanceSelectDrawer
+    <InstanceSelector
       v-model:open="instanceDrawerOpen"
       @select="handleInstanceSelect"
     />
@@ -67,9 +67,9 @@ import ModelCard from './left-top/ModelCard.vue'
 import InstanceCard from './left-top/InstanceCard.vue'
 import AgentCard from './left-top/AgentCard.vue'
 import AccountForm from '../../ai-account/AccountForm.vue'
-import AccountSelector from '../../ai-account/selector/AccountSelector.vue'
+import AccountSelectorTable from '../../ai-account/selector/AccountSelectorTable.vue'
 import ModelSelector from '../../ai-model/selector/ModelSelector.vue'
-import InstanceSelectDrawer from '../../ai-instance/InstanceSelectDrawer.vue'
+import InstanceSelector from '../../ai-instance/selector/InstanceSelector.vue'
 import InstanceForm from '../../ai-instance/InstanceForm.vue'
 import type { AiAccount } from '@/api/aiAccount'
 import type { AiModel } from '@/api/aiModel'

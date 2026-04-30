@@ -44,8 +44,7 @@
                 @click="emit('select-model', record)"
               >
                 <div class="model-select-radio"><span class="dot" /></div>
-                <span v-if="providerAvatarCell(record)" class="inst-provider-avatar-cell" v-html="providerAvatarCell(record)" aria-hidden="true" />
-                <span v-else class="inst-provider-avatar-cell inst-provider-avatar-cell--empty">—</span>
+   
                 <div class="endpoint-main">
                   <div class="endpoint-name" :title="record.modelName">{{ record.modelName || '未命名端点' }}</div>
                   <div class="endpoint-meta">

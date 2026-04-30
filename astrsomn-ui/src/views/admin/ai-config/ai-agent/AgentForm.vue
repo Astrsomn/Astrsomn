@@ -607,7 +607,7 @@ onMounted(async () => {
 .assembly-layout {
   display: grid;
   grid-template-columns: minmax(248px, 300px) minmax(380px, 1fr) minmax(248px, 300px);
-  gap: 14px;
+
   align-items: stretch;
   flex: 1;
   min-height: 0;

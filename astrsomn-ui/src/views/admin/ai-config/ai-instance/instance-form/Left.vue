@@ -15,23 +15,12 @@
             </a-form-item>
 
             <a-form-item class="span-2" label="实例标识 (instanceKey)" name="instanceKey" :rules="instanceKeyRules">
-              <div class="instance-key-display">
-                <a-input
-                  v-model:value="form.instanceKey"
-                  placeholder="留空可自动生成"
-                  size="large"
-                  class="instance-key-input"
-                />
-                <a-button
-                  type="text"
-                  size="small"
-                  class="instance-key-clear-btn"
-                  :disabled="!form.instanceKey"
-                  @click="form.instanceKey = undefined"
-                >
-                  ×
-                </a-button>
-              </div>
+              <AstrsomnKeyGenerator
+                v-model="form.instanceKey"
+                :prefix="AI_INSTANCE_KEY_PREFIX"
+                placeholder="留空可自动生成"
+                size="large"
+              />
             </a-form-item>
 
             <a-form-item class="span-2" label="运行状态">
@@ -46,6 +35,8 @@
 
 <script setup lang="ts">
 import { InfoCircleOutlined } from '@ant-design/icons-vue'
+import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
+import { AI_INSTANCE_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
 
 defineProps<{
   form: Record<string, any>
@@ -67,10 +58,6 @@ const emit = defineEmits<{
 .section-title .anticon { color: var(--primary); }
 .basic-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
 .basic-form-grid .span-2 { grid-column: span 2; }
-.instance-key-display { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: #f8fafc; border: 1px dashed #cbd5e1; }
-.instance-key-display :deep(.instance-key-input.ant-input-affix-wrapper),
-.instance-key-display :deep(.instance-key-input.ant-input) { border: none !important; background: transparent !important; box-shadow: none !important; padding-left: 4px; padding-right: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-.instance-key-clear-btn { color: #94a3b8; width: 24px; min-width: 24px; height: 24px; line-height: 24px; border-radius: 6px; }
 .basic-form-grid :deep(.ant-segmented) { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 3px; }
 .basic-form-grid :deep(.ant-segmented-item-selected) { background: #eff6ff !important; color: #1d4ed8 !important; }
 </style>

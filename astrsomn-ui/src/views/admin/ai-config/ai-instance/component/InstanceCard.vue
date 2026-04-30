@@ -145,7 +145,7 @@ import {
 } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import type { AiInstance } from '@/api/aiInstance'
+import type { AiInstance } from '@/api/aiInstance.ts'
 
 dayjs.extend(relativeTime)
 

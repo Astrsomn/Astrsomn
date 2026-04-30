@@ -81,7 +81,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { SearchOutlined } from '@ant-design/icons-vue'
-import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance'
+import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance.ts'
 
 const props = defineProps<{
   open: boolean

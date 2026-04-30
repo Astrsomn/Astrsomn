@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <InstanceSelectDrawer
+    <InstanceSelector
       v-model:open="selectDrawerOpen"
       :disable-ttl-edit="true"
       @select="handleInstanceSelect"
@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { PictureOutlined, PlusCircleOutlined, RightOutlined, AudioOutlined } from '@ant-design/icons-vue'
-import InstanceSelectDrawer from '../../../ai-instance/InstanceSelectDrawer.vue'
+import InstanceSelector from '../../../ai-instance/selector/InstanceSelector.vue'
 import type { AiInstance } from '@/api/aiInstance'
 
 defineProps<{
