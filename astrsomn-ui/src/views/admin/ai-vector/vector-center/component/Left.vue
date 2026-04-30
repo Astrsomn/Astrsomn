@@ -12,20 +12,23 @@
 
     <div class="sidebar-content">
       <div
-        v-for="source in sources"
+        v-for="source in sourceTree"
         :key="source.id"
         class="source-section"
       >
         <a-dropdown :trigger="['contextmenu']">
           <SourceCard
+            :source-name="source.name"
+            :source-type="source.type"
+            :provider-avatar="source.providerAvatar"
             :ip="source.ip"
             :port="source.port"
-            :tag="source.tag"
+            :is-connected="source.connected"
             :is-open="openKeys.includes(source.id)"
-            @toggle="toggleSource(source.id)"
+            @toggle="selectSource(source.id)"
           />
           <template #overlay>
-            <a-menu @click="({ key }) => handleSourceMenuClick(key, source)">
+            <a-menu @click="(payload) => handleSourceMenuClick(payload.key, source)">
               <a-menu-item key="addDb">
                 <template #icon><PlusOutlined /></template>
                 新增数据库
@@ -55,11 +58,11 @@
                 :model-name="db.modelName"
                 :dim="db.dim"
                 :active="db.active"
-                :is-selected="selectedKeys.includes(db.id)"
-                @select="selectDb(db.id)"
+                :is-selected="String(selectedStoreId) === String(db.id)"
+                @select="selectDb(source.id, db.id)"
               />
               <template #overlay>
-                <a-menu @click="({ key }) => handleDbMenuClick(key, source.id, db)">
+                <a-menu @click="(payload) => handleDbMenuClick(payload.key, source.id, db)">
                   <a-menu-item key="edit">
                     <template #icon><EditOutlined /></template>
                     编辑数据库
@@ -89,11 +92,28 @@
         <AppstoreOutlined class="m-btn" />
       </div>
     </div>
+    <VecSourceFormModal
+      :open="sourceModalOpen"
+      @update:open="(value) => { sourceModalOpen = value }"
+      :mode="sourceModalMode"
+      :confirm-loading="sourceModalSubmitting"
+      :initial="sourceModalInitial"
+      @submit="handleSourceSubmit"
+    />
+    <VecStoreFormModal
+      :open="storeModalOpen"
+      @update:open="(value) => { storeModalOpen = value }"
+      :mode="storeModalMode"
+      :confirm-loading="storeModalSubmitting"
+      :initial="storeModalInitial"
+      :default-source-id="storeModalSourceId"
+      @submit="handleStoreSubmit"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import {
   PlusOutlined,
@@ -104,12 +124,38 @@ import {
 } from '@ant-design/icons-vue'
 import SourceCard from './SourceCard.vue'
 import DbNode from './DbNode.vue'
+import VecSourceFormModal from '@/views/admin/ai-vector/vec-source/VecSourceFormModal.vue'
+import VecStoreFormModal from '@/views/admin/ai-vector/vec-store/VecStoreFormModal.vue'
+import { aiVecSourceApi, type AiVecSource } from '@/api/aiVecSource.ts'
+import { aiVecStoreApi, type AiVecStore } from '@/api/aiVecStore.ts'
 
-const selectedKeys = ref<string[]>(['db-1'])
-const openKeys = ref<string[]>(['src-1'])
+const props = defineProps<{
+  sources: AiVecSource[]
+  stores: AiVecStore[]
+  selectedStoreId?: number | string
+}>()
+
+const emit = defineEmits<{
+  'select-source': [id: number | string]
+  'select-store': [id: number | string]
+  changed: []
+}>()
+
+const openKeys = ref<Array<number | string>>([])
+
+const sourceModalOpen = ref(false)
+const sourceModalMode = ref<'create' | 'edit'>('create')
+const sourceModalSubmitting = ref(false)
+const sourceModalInitial = ref<AiVecSource | null>(null)
+
+const storeModalOpen = ref(false)
+const storeModalMode = ref<'create' | 'edit'>('create')
+const storeModalSubmitting = ref(false)
+const storeModalInitial = ref<AiVecStore | null>(null)
+const storeModalSourceId = ref<number | string | null>(null)
 
 type Db = {
-  id: string
+  id: number | string
   dbName: string
   type: string
   modelName: string
@@ -118,39 +164,47 @@ type Db = {
 }
 
 type Source = {
-  id: string
+  id: number | string
+  name: string
+  type: string
+  providerAvatar?: string
   ip: string
   port: string
   user: string
-  tag: string
+  connected: boolean
   dbs: Db[]
 }
 
-const sources = ref<Source[]>([
-  {
-    id: 'src-1',
-    ip: '10.0.4.12',
-    port: '19530',
-    user: 'admin',
-    tag: '生产',
-    dbs: [
-      { id: 'db-1', dbName: '用户行为分析库', type: 'milvus', modelName: '语义增强·V3', dim: 1536, active: true },
-      { id: 'db-2', dbName: '全局日志特征库', type: 'milvus', modelName: '多语言·Large', dim: 1024, active: false }
-    ]
-  },
-  {
-    id: 'src-2',
-    ip: '127.0.0.1',
-    port: '6333',
-    user: 'default',
-    tag: '测试',
-    dbs: [
-      { id: 'db-3', dbName: 'QA验证临时库', type: 'qdrant', modelName: '轻量嵌入', dim: 768, active: false }
-    ]
-  }
-])
+const sourceTree = computed<Source[]>(() =>
+  (props.sources || []).map((source) => {
+    const sourceStores = (props.stores || []).filter(
+      (store) => String(store.sourceId ?? '') === String(source.id ?? '')
+    )
+    const sourceType = String(source.provider || source.extensionCode || 'unknown').toLowerCase()
+    const sourceStatus = String(source.status || '').toLowerCase()
+    return {
+      id: source.id as number | string,
+      name: source.name || `Source-${source.id}`,
+      type: sourceType,
+      providerAvatar: source.providerAvatar,
+      ip: source.host || '-',
+      port: source.port || '-',
+      user: source.username || '-',
+      connected: sourceStatus === 'enabled',
+      dbs: sourceStores.map((store) => ({
+        id: store.id as number | string,
+        dbName: store.collectionName || `Store-${store.id}`,
+        type: source.provider || 'unknown',
+        modelName: store.instanceName || store.instanceKey || '-',
+        dim: Number(store.dimension || 0),
+        active: true
+      }))
+    }
+  })
+)
+const selectedStoreId = computed(() => props.selectedStoreId)
 
-const toggleSource = (id: string) => {
+const toggleSource = (id: number | string) => {
   const index = openKeys.value.indexOf(id)
   if (index > -1) {
     openKeys.value.splice(index, 1)
@@ -159,36 +213,134 @@ const toggleSource = (id: string) => {
   }
 }
 
-const selectDb = (id: string) => {
-  selectedKeys.value = [id]
+const selectSource = (id: number | string) => {
+  emit('select-source', id)
+  toggleSource(id)
+}
+
+const selectDb = (sourceId: number | string, id: number | string) => {
+  emit('select-source', sourceId)
+  emit('select-store', id)
 }
 
 const handleAddSource = () => {
-  message.info('新增数据源 - 待对接接口')
+  sourceModalMode.value = 'create'
+  sourceModalInitial.value = null
+  sourceModalOpen.value = true
 }
 
 const handleSourceMenuClick = (key: string, source: Source) => {
   switch (key) {
     case 'addDb':
-      message.info(`新增数据库到数据源 ${source.ip}:${source.port} - 待对接接口`)
+      storeModalMode.value = 'create'
+      storeModalInitial.value = {
+        sourceId: source.id,
+        collectionName: '',
+        dimension: 1536,
+        distanceMetric: 'cosine'
+      }
+      storeModalSourceId.value = source.id
+      storeModalOpen.value = true
       break
     case 'edit':
-      message.info(`编辑数据源 ${source.ip}:${source.port} - 待对接接口`)
+      openEditSource(source.id)
       break
     case 'delete':
-      message.warning(`删除数据源 ${source.id} - 待对接接口`)
+      void deleteSource(source.id)
       break
   }
 }
 
-const handleDbMenuClick = (key: string, sourceId: string, db: Db) => {
+const handleDbMenuClick = (key: string, _sourceId: number | string, db: Db) => {
   switch (key) {
     case 'edit':
-      message.info(`编辑数据库 ${db.dbName} - 待对接接口`)
+      openEditStore(db.id)
       break
     case 'delete':
-      message.warning(`从数据源 ${sourceId} 删除数据库 ${db.id} - 待对接接口`)
+      void deleteStore(db.id)
       break
+  }
+}
+
+const openEditSource = async (id: number | string) => {
+  const detail = await aiVecSourceApi.detail(id)
+  sourceModalMode.value = 'edit'
+  sourceModalInitial.value = detail
+  sourceModalOpen.value = true
+}
+
+const deleteSource = async (id: number | string) => {
+  try {
+    const msg = await aiVecSourceApi.delete([id])
+    message.success(msg)
+    emit('changed')
+  } catch (error) {
+    const err = error as { message?: string }
+    message.error(err?.message || '删除数据源失败')
+  }
+}
+
+const handleSourceSubmit = async (payload: AiVecSource) => {
+  sourceModalSubmitting.value = true
+  try {
+    const provider = String(payload.provider || '').toLowerCase()
+    if (provider !== 'qdrant' && provider !== 'chroma') {
+      message.warning('当前仅允许创建 qdrant/chroma 类型数据源')
+      return
+    }
+    if (sourceModalMode.value === 'create') {
+      await aiVecSourceApi.create(payload)
+    } else {
+      await aiVecSourceApi.update(payload)
+    }
+    sourceModalOpen.value = false
+    emit('changed')
+  } catch (error) {
+    const err = error as { message?: string }
+    message.error(err?.message || '保存数据源失败')
+  } finally {
+    sourceModalSubmitting.value = false
+  }
+}
+
+const openEditStore = async (id: number | string) => {
+  const detail = await aiVecStoreApi.detail(id)
+  storeModalMode.value = 'edit'
+  storeModalInitial.value = detail
+  storeModalSourceId.value = detail.sourceId || null
+  storeModalOpen.value = true
+}
+
+const deleteStore = async (id: number | string) => {
+  try {
+    const msg = await aiVecStoreApi.delete([id])
+    message.success(msg)
+    emit('changed')
+  } catch (error) {
+    const err = error as { message?: string }
+    message.error(err?.message || '删除数据库失败')
+  }
+}
+
+const handleStoreSubmit = async (payload: AiVecStore) => {
+  storeModalSubmitting.value = true
+  try {
+    const finalPayload: AiVecStore = {
+      ...payload,
+      sourceId: payload.sourceId || storeModalSourceId.value || undefined
+    }
+    if (storeModalMode.value === 'create') {
+      await aiVecStoreApi.create(finalPayload)
+    } else {
+      await aiVecStoreApi.update(finalPayload)
+    }
+    storeModalOpen.value = false
+    emit('changed')
+  } catch (error) {
+    const err = error as { message?: string }
+    message.error(err?.message || '保存数据库失败')
+  } finally {
+    storeModalSubmitting.value = false
   }
 }
 </script>

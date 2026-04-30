@@ -61,4 +61,5 @@ public class SystemExtensionEntity extends BaseEntity<Long> {
 
     @TableField("INSTALL_SOURCE")
     private String installSource;
+    
 }

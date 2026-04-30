@@ -124,16 +124,16 @@ public class AstroVecSourceFactory {
      */
     public VecSource bindSource(AiVecSourceEntity entity) {
         return Optional.ofNullable(entity)
-                .map(e -> StringUtils.trimToNull(e.getProvider()))
+                .map(e -> StringUtils.trimToNull(e.getExtensionCode()))
                 .flatMap(this::resolveDriver)
                 .map(driver -> {
-                    String provider = entity.getProvider();
+                    String provider = entity.getExtensionCode();
                     String jar = pluginDriverOwningJar.getOrDefault(provider, "classpath");
                     log.info("{} 绑定句柄 | 驱动: {} | 来源: {}", LOG_PREFIX, driver.getClass().getSimpleName(), jar);
                     return driver.bindSource(entity);
                 })
                 .orElseThrow(() -> new BusinessException(AstVecSourceErrorEnum.VEC_DRIVER_NOT_FOUND,
-                        "未找到对应的向量驱动: " + (entity != null ? entity.getProvider() : "null")));
+                        "未找到对应的向量驱动: " + (entity != null ? entity.getExtensionCode() : "null")));
     }
 
     /**
@@ -160,7 +160,7 @@ public class AstroVecSourceFactory {
         VecSource next = bindSource(entity);
         activeSources.put(id, next);
         activeSourceFingerprints.put(id, fingerprint);
-        log.info("{} 缓存已刷新 | ID: {} | Provider: {}", LOG_PREFIX, id, entity.getProvider());
+        log.info("{} 缓存已刷新 | ID: {} | Provider: {}", LOG_PREFIX, id, entity.getExtensionCode());
     }
 
     /**
@@ -195,10 +195,10 @@ public class AstroVecSourceFactory {
             tempSource = bindSource(entity);
             boolean healthy = tempSource.testConnection();
             log.info("{} 连接测试{} | 耗时: {}ms | Provider: {}",
-                    LOG_PREFIX, healthy ? "成功" : "失败", (System.currentTimeMillis() - start), entity.getProvider());
+                    LOG_PREFIX, healthy ? "成功" : "失败", (System.currentTimeMillis() - start), entity.getExtensionCode());
             return healthy;
         } catch (Exception e) {
-            log.error("{} 连接测试异常 | Provider: {} | 错误: {}", LOG_PREFIX, entity.getProvider(), e.getMessage());
+            log.error("{} 连接测试异常 | Provider: {} | 错误: {}", LOG_PREFIX, entity.getExtensionCode(), e.getMessage());
             return false;
         } finally {
             shutdownQuietly(tempSource);
@@ -216,7 +216,7 @@ public class AstroVecSourceFactory {
     }
 
     private String generateFingerprint(AiVecSourceEntity e) {
-        return StreamOf(e.getProvider(), e.getHost(), e.getPort(), e.getUsername(),
+        return StreamOf(e.getExtensionCode(), e.getHost(), e.getPort(), e.getUsername(),
                 e.getPassword(), e.getDatabaseName(), e.getToken(), e.getConfigJson())
                 .map(StringUtils::normalize)
                 .collect(Collectors.joining("\u0001"));

@@ -15,7 +15,7 @@
     </template>
 
     <template #header-subtitle>
-      选择驱动类型并配置连接参数
+      选择数据源类型并配置连接参数
     </template>
 
     <template #header-actions>
@@ -38,16 +38,16 @@
               <a-input v-model:value="form.name" placeholder="如：Milvus-Production" size="large" />
             </a-form-item>
 
-            <a-form-item label="驱动类型" name="provider">
+            <a-form-item label="数据源类型" name="provider">
               <a-select
                 v-model:value="form.provider"
-                placeholder="选择驱动"
+                placeholder="选择扩展数据源类型"
                 size="large"
                 allow-clear
-                :loading="driversLoading"
+                :loading="extensionsLoading"
                 show-search
                 option-filter-prop="label"
-                :options="driverSelectOptions"
+                :options="extensionSelectOptions"
                 @change="onProviderChange"
               />
             </a-form-item>
@@ -68,7 +68,7 @@
             v-if="!form.provider"
             type="info"
             show-icon
-            message="请先选择驱动类型"
+            message="请先选择数据源类型"
             class="span-2"
             style="margin-bottom: 12px"
           />
@@ -146,15 +146,15 @@ import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import type { AiVecSource } from '@/api/aiVecSource.ts'
 import { aiVecSourceApi } from '@/api/aiVecSource.ts'
-import { aiVecDriverApi, type AiVecDriver } from '@/api/aiVecDriver.ts'
+import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension.ts'
 
 const props = defineProps<{ mode: 'create' | 'edit'; confirmLoading: boolean; initial: AiVecSource | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecSource] }>()
 const open = defineModel<boolean>('open', { required: true })
 
 const formRef = ref<FormInstance | null>(null)
-const drivers = ref<AiVecDriver[]>([])
-const driversLoading = ref(false)
+const vectorExtensions = ref<SystemExtension[]>([])
+const extensionsLoading = ref(false)
 const syncingInitial = ref(false)
 const advancedKeys = ref<string | string[]>([])
 const testLoading = ref(false)
@@ -224,28 +224,23 @@ const headerButtons = computed<SegmentedButton[]>(() => [
   }
 ])
 
-const driverSelectOptions = computed(() =>
-  drivers.value
-    .filter((d) => d.provider)
+const extensionSelectOptions = computed(() =>
+  vectorExtensions.value
+    .filter((d) => d.extensionCode)
     .map((d) => ({
-      value: d.provider as string,
-      label: `${d.driverName ?? d.provider} (${d.provider})`
+      value: d.extensionCode as string,
+      label: `${d.extensionName ?? d.extensionCode} (${d.extensionCode})`
     }))
 )
 
-const selectedDriver = computed(() =>
-  drivers.value.find((d) => d.provider === form.provider)
-)
-
+const providerParamMap: Record<string, string[]> = {
+  qdrant: ['host', 'port', 'token'],
+  chroma: ['host', 'port'],
+  milvus: ['host', 'port', 'username', 'password', 'databaseName']
+}
 const paramCodes = computed(() => {
-  const raw = selectedDriver.value?.params
-  if (!raw || !String(raw).trim()) return []
-  try {
-    const j = JSON.parse(String(raw)) as unknown
-    return Array.isArray(j) ? (j as string[]).filter((c) => typeof c === 'string') : []
-  } catch {
-    return []
-  }
+  const provider = String(form.provider || '').toLowerCase()
+  return providerParamMap[provider] || ['host', 'port']
 })
 
 const visibleParamCodes = computed(() => paramCodes.value.filter((c) => Boolean(paramMeta[c])))
@@ -253,7 +248,7 @@ const visibleParamCodes = computed(() => paramCodes.value.filter((c) => Boolean(
 const formRules = computed<Record<string, Rule[]>>(() => {
   const r: Record<string, Rule[]> = {
     name: [{ required: true, message: '请输入向量源名称' }],
-    provider: [{ required: true, message: '请选择向量驱动' }]
+    provider: [{ required: true, message: '请选择数据源类型' }]
   }
   for (const code of paramCodes.value) {
     if (!paramMeta[code]) continue
@@ -279,14 +274,22 @@ function onProviderChange() {
   clearConnectionFields()
 }
 
-async function loadDrivers() {
-  driversLoading.value = true
+async function loadVectorExtensions() {
+  extensionsLoading.value = true
   try {
-    drivers.value = await aiVecDriverApi.list({ status: 'enabled' })
+    const resp = await systemExtensionApi.queryPage({
+      pageNo: 1,
+      pageSize: 200,
+      param: {
+        type: 'VECTOR_STORE',
+        status: 'INSTALLED'
+      }
+    })
+    vectorExtensions.value = resp.list || []
   } catch {
-    drivers.value = []
+    vectorExtensions.value = []
   } finally {
-    driversLoading.value = false
+    extensionsLoading.value = false
   }
 }
 
@@ -301,7 +304,7 @@ watch(
   () => [open.value, props.initial] as const,
   async ([isOpen, initial]) => {
     if (!isOpen) return
-    await loadDrivers()
+    await loadVectorExtensions()
     syncingInitial.value = true
     if (initial && Object.keys(initial).length > 0) assignFromInitial(initial)
     else Object.assign(form, emptyForm())
@@ -312,7 +315,7 @@ watch(
 
 async function handleOk() {
   await formRef.value?.validate()
-  const payload: AiVecSource = { ...form }
+  const payload: AiVecSource = { ...form, extensionCode: form.provider }
   emit('submit', payload)
 }
 
@@ -320,7 +323,7 @@ const testConnection = async () => {
   testLoading.value = true
   try {
     await formRef.value?.validate()
-    const payload: AiVecSource = { ...form }
+    const payload: AiVecSource = { ...form, extensionCode: form.provider }
     const msg = await aiVecSourceApi.testConnection(payload)
     message.success(msg)
   } catch (e: unknown) {

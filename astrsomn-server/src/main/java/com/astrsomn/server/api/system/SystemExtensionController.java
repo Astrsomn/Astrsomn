@@ -1,4 +1,4 @@
-package com.astrsomn.server.api;
+package com.astrsomn.server.api.system;
 
 import com.astrsomn.core.common.dto.extension.*;
 import lombok.RequiredArgsConstructor;

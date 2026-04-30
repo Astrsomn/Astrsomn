@@ -13,12 +13,14 @@
                 </a-tag>
               </div>
               <a-input
-                v-model:value="libraryName"
+                :value="libraryName"
+                @update:value="(v) => (libraryName = v)"
                 class="main-title-input"
                 placeholder="请输入知识库名称"
               />
               <a-input
-                v-model:value="description"
+                :value="description"
+                @update:value="(v) => (description = v)"
                 type="textarea"
                 class="description-input"
                 placeholder="请输入描述信息（可选）"
@@ -34,7 +36,8 @@
               <div class="config-item">
                 <span class="config-label">Embedding 模型</span>
                 <a-select
-                  v-model:value="selectedModel"
+                  :value="selectedModel"
+                  @update:value="(v) => (selectedModel = v)"
                   class="model-select"
                   :options="modelOptions"
                   placeholder="选择模型"
@@ -47,6 +50,9 @@
                 <div class="config-sub">M:16 • ef:200</div>
               </div>
             </div>
+            <div class="action-area">
+              <a-button type="primary" size="small" @click="handleSave">保存</a-button>
+            </div>
           </div>
         </a-card>
       </a-col>
@@ -58,7 +64,7 @@
               <span class="stats-label">存储统计 / STORAGE</span>
               <div class="main-number">
                 <a-statistic
-                  :value="12408"
+                  :value="vectorCount"
                   :value-style="{ color: '#fff', fontSize: '28px', fontWeight: '700' }"
                 />
                 <span class="unit">个向量片段</span>
@@ -80,12 +86,25 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { message } from 'ant-design-vue'
 import { BarChartOutlined, SyncOutlined } from '@ant-design/icons-vue';
+import type { AiVecStore } from '@/api/aiVecStore.ts'
+import type { AiVecSource } from '@/api/aiVecSource.ts'
+import { aiVecStoreApi } from '@/api/aiVecStore.ts'
 
-const libraryName = ref('核心产品知识库');
+const props = defineProps<{
+  store?: AiVecStore
+  source?: AiVecSource
+}>()
+
+const emit = defineEmits<{
+  updated: []
+}>()
+
+const libraryName = ref('');
 const description = ref('');
-const selectedModel = ref('text-embedding-3-large');
+const selectedModel = ref('');
 
 const modelOptions = [
   { value: 'text-embedding-3-large', label: 'text-embedding-3-large (1536维)' },
@@ -94,6 +113,38 @@ const modelOptions = [
   { value: 'm3e-base', label: 'm3e-base (768维)' },
   { value: 'm3e-large', label: 'm3e-large (1024维)' }
 ];
+
+watch(
+  () => props.store,
+  (store) => {
+    libraryName.value = store?.collectionName || ''
+    description.value = store?.metadataSchema || ''
+    selectedModel.value = store?.instanceKey || ''
+  },
+  { immediate: true }
+)
+
+const vectorCount = computed(() => Number(props.store?.dimension || 0) * 8)
+
+const handleSave = async () => {
+  if (!props.store?.id) {
+    message.warning('请先在左侧选择数据库')
+    return
+  }
+  try {
+    const msg = await aiVecStoreApi.update({
+      ...props.store,
+      collectionName: libraryName.value,
+      metadataSchema: description.value,
+      instanceKey: selectedModel.value
+    })
+    message.success(msg || '保存成功')
+    emit('updated')
+  } catch (error) {
+    const err = error as { message?: string }
+    message.error(err?.message || '保存失败')
+  }
+}
 </script>
 
 <style lang="less" scoped>

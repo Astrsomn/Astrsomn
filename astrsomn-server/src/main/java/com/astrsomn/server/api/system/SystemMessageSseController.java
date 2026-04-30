@@ -1,4 +1,4 @@
-package com.astrsomn.server.api;
+package com.astrsomn.server.api.system;
 
 import com.astrsomn.server.event.SystemMessageSseBroadcaster;
 import lombok.RequiredArgsConstructor;

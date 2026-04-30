@@ -1,4 +1,4 @@
-package com.astrsomn.server.api;
+package com.astrsomn.server.api.workflow;
 
 import com.astrsomn.commn.base.BaseController;
 import com.astrsomn.commn.base.BaseResponse;

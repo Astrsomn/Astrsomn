@@ -54,7 +54,7 @@ public class VectorSourceInitializer {
      */
     private List<AiVecSourceEntity> fetchSourcesByProvider(String provider, String env) {
         return vecSourceMapper.selectList(new LambdaQueryWrapper<AiVecSourceEntity>()
-                .eq(AiVecSourceEntity::getProvider, provider)
+                .eq(AiVecSourceEntity::getExtensionCode, provider)
                 .eq(AiVecSourceEntity::getDeleted, false)
                 .eq(AiVecSourceEntity::getStatus, STATUS_ENABLED)
                 .eq(Objects.nonNull(env), AiVecSourceEntity::getEnvCode, env));
@@ -68,7 +68,7 @@ public class VectorSourceInitializer {
             vecSourceFactory.registerOrRefresh(source);
         } catch (Exception e) {
             log.warn("{} 预热失败 | 厂商: {} | ID: {} | 异常: {}",
-                    LOG_PREFIX, source.getProvider(), source.getId(), e.getMessage());
+                    LOG_PREFIX, source.getExtensionCode(), source.getId(), e.getMessage());
         }
     }
 }

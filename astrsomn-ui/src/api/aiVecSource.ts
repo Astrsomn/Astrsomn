@@ -4,6 +4,9 @@ export type AiVecSource = {
   id?: number | string
   name?: string
   provider?: string
+  extensionCode?: string
+  extensionName?: string
+  providerAvatar?: string
   host?: string
   port?: string
   username?: string

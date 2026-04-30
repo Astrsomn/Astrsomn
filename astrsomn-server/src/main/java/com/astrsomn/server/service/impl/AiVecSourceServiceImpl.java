@@ -169,7 +169,7 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
             BeanUtils.copyProperties(request, entity);
             log.info(
                     "[AiVecSource] testConnection start: provider={}, host={}, port={}, envCode={}, sourceId={}, tokenConfigured={}",
-                    entity.getProvider(),
+                    entity.getExtensionCode(),
                     entity.getHost(),
                     entity.getPort(),
                     entity.getEnvCode(),
@@ -181,7 +181,7 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
                 log.info(
                         "[AiVecSource] testConnection success in {}ms: provider={}, host={}, port={}",
                         elapsedMs,
-                        entity.getProvider(),
+                        entity.getExtensionCode(),
                         entity.getHost(),
                         entity.getPort());
                 return BaseResponse.success("连接测试成功");
@@ -189,7 +189,7 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
             log.warn(
                     "[AiVecSource] testConnection failed in {}ms: provider={}, host={}, port={}",
                     elapsedMs,
-                    entity.getProvider(),
+                    entity.getExtensionCode(),
                     entity.getHost(),
                     entity.getPort());
             return BaseResponse.fail("连接测试失败");

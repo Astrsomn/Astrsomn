@@ -1,30 +1,67 @@
 <template>
-  <a-layout-footer class="bg-white border-t px-6 py-2">
-    <div class="flex items-center justify-between text-xs text-gray-500">
-      <div class="flex items-center gap-6">
-        <div class="flex items-center gap-2">
-          <a-badge status="success" size="small" />
-          服务节点: AWS-E1-NODE
+  <a-layout-footer class="bg-white border-t px-6 py-2 right-bottom">
+    <a-row :gutter="16">
+      <a-col :span="24">
+        <div class="panel-head">
+          <span>切片列表</span>
+          <span class="meta">doc={{ docId || '-' }} / store={{ storeId || '-' }}</span>
         </div>
-        <span>延迟: 124ms</span>
-      </div>
-      <span>版本: V2.4 Stable</span>
-    </div>
+        <a-table :data-source="segments" :pagination="false" :columns="segmentColumns" row-key="id" size="small">
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'actions'">
+              <a @click="removeSegment(record)">删除</a>
+            </template>
+          </template>
+        </a-table>
+      </a-col>
+    </a-row>
   </a-layout-footer>
 </template>
 
 <script lang="ts" setup>
-import { defineComponent } from 'vue';
-import { Layout, Badge } from 'ant-design-vue';
+import { message } from 'ant-design-vue'
+import { Layout } from 'ant-design-vue';
+import { aiVecSegmentApi, type AiVecSegment } from '@/api/aiVecSegment.ts'
 
 const { Footer } = Layout;
+
+const props = defineProps<{
+  segments: AiVecSegment[]
+  storeId?: number | string
+  docId?: number | string
+}>()
+
+const emit = defineEmits<{
+  changed: []
+}>()
+
+const segmentColumns = [
+  { title: 'ID', dataIndex: 'id' },
+  { title: 'chunk', dataIndex: 'chunkIndex' },
+  { title: 'vectorId', dataIndex: 'vectorId' },
+  { title: '操作', key: 'actions' }
+]
+
+const removeSegment = async (record: AiVecSegment) => {
+  if (record.id == null) return
+  await aiVecSegmentApi.delete([record.id])
+  emit('changed')
+}
 </script>
 
 <style scoped>
-/* 底部状态栏样式 */
 .ant-layout-footer {
-  padding: 8px 24px;
-  height: 40px;
-  line-height: 40px;
+  padding: 12px 24px;
+  min-height: 260px;
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.meta {
+  color: #999;
+  font-size: 12px;
 }
 </style>

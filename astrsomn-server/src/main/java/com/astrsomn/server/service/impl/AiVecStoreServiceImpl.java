@@ -139,7 +139,7 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         }
         String p =
                 afterSource != null
-                        ? StringUtils.defaultIfBlank(StringUtils.trimToNull(afterSource.getProvider()), "")
+                        ? StringUtils.defaultIfBlank(StringUtils.trimToNull(afterSource.getExtensionCode()), "")
                         : "";
         if (AiVecDriverEnum.Provider.QDRANT.getCode().equalsIgnoreCase(p)) {
             if (!Objects.equals(before.getDimension(), after.getDimension())) {

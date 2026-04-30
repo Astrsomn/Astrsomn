@@ -5,17 +5,18 @@
     @click="$emit('toggle')"
   >
     <div class="source-icon-box">
-      <ClusterOutlined class="source-icon" />
+      <img v-if="providerAvatar" :src="providerAvatar" alt="provider-avatar" class="source-avatar" />
+      <ClusterOutlined v-else class="source-icon" />
     </div>
     <div class="source-info">
       <div class="source-header-row">
-        <span class="source-title">数据源</span>
-        <span class="env-badge" :class="tag === '生产' ? 'badge-prod' : 'badge-test'">
-          {{ tag === '生产' ? 'PROD' : 'TEST' }}
+        <span class="source-title">{{ sourceName || '数据源' }}</span>
+        <span class="status-badge" :class="isConnected ? 'badge-up' : 'badge-down'">
+          {{ isConnected ? '已连接' : '未连接' }}
         </span>
       </div>
       <div class="source-conn-row">
-        <span class="source-conn">{{ ip }}:{{ port }}</span>
+        <span class="source-conn">{{ sourceType }} · {{ ip }}:{{ port }}</span>
         <UpOutlined class="arrow-icon" :class="{ rotated: isOpen }" />
       </div>
     </div>
@@ -26,9 +27,12 @@
 import { ClusterOutlined, UpOutlined } from '@ant-design/icons-vue'
 
 defineProps<{
+  sourceName: string
+  sourceType: string
+  providerAvatar?: string
   ip: string
   port: string
-  tag: string
+  isConnected: boolean
   isOpen: boolean
 }>()
 
@@ -80,6 +84,13 @@ defineEmits<{
       font-size: 14px;
       color: @text-sub;
     }
+
+    .source-avatar {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
   }
 
   .source-info {
@@ -98,24 +109,23 @@ defineEmits<{
         color: @text-main;
       }
 
-      .env-badge {
+      .status-badge {
         font-size: 10px;
         font-weight: 600;
         padding: 2px 8px;
         border-radius: 6px;
-        text-transform: uppercase;
         letter-spacing: 0.02em;
 
-        &.badge-prod {
+        &.badge-up {
+          background: #ecfdf3;
+          color: #16a34a;
+          border: 1px solid #d1fadf;
+        }
+
+        &.badge-down {
           background: #fef2f2;
           color: #ef4444;
           border: 1px solid #fee2e2;
-        }
-
-        &.badge-test {
-          background: #f0f9ff;
-          color: #0ea5e9;
-          border: 1px solid #e0f2fe;
         }
       }
     }

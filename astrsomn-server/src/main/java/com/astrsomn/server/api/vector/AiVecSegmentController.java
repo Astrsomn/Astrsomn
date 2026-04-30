@@ -1,4 +1,4 @@
-package com.astrsomn.server.api;
+package com.astrsomn.server.api.vector;
 
 import lombok.RequiredArgsConstructor;
 import com.astrsomn.commn.base.BaseController;

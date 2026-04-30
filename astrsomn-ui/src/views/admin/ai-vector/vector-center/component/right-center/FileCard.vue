@@ -4,9 +4,9 @@
       <div class="inner-content">
         
         <div class="action-group">
-          <div class="action-btn" title="编辑"><edit-outlined /></div>
-          <div class="action-btn vectorize" title="向量化"><experiment-outlined /></div>
-          <div class="action-btn delete" title="删除"><delete-outlined /></div>
+          <div class="action-btn" title="编辑" @click.stop="$emit('edit', file)"><edit-outlined /></div>
+          <div class="action-btn vectorize" title="向量化" @click.stop="$emit('vectorize', file)"><experiment-outlined /></div>
+          <div class="action-btn delete" title="删除" @click.stop="$emit('delete', file)"><delete-outlined /></div>
         </div>
 
         <div class="main-body">
@@ -37,8 +37,9 @@ import {
   ExperimentOutlined
 } from '@ant-design/icons-vue';
 
-const props = defineProps<{
+defineProps<{
   file: {
+    id?: number | string;
     name: string;
     segments: number;
     size: string;
@@ -46,6 +47,12 @@ const props = defineProps<{
     uploadTime?: string;
   };
 }>();
+
+defineEmits<{
+  edit: [file: any]
+  vectorize: [file: any]
+  delete: [file: any]
+}>()
 
 const getFileIcon = (name: string) => {
   const ext = name.split('.').pop()?.toLowerCase();

@@ -7,7 +7,6 @@ import com.astrsomn.core.common.entity.SystemExtensionEntity;
 import com.astrsomn.commn.utils.StringUtils;
 import com.astrsomn.commn.base.BusinessException;
 import com.astrsomn.core.exception.SystemExtensionErrorEnum;
-import com.astrsomn.server.service.extension.base.SystemExtensionVecDriverSyncService;
 import com.astrsomn.server.service.extension.guard.SystemExtensionVecGuard;
 import com.astrsomn.server.service.extension.lifecycle.ExtensionLifecycleStrategy;
 import com.astrsomn.server.service.extension.support.SystemExtensionSourceHelper;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component;
 public class VectorExtensionStrategy implements ExtensionLifecycleStrategy {
 
     private final AstrsomnPluginManager pluginManager;
-    private final SystemExtensionVecDriverSyncService vecDriverSyncService;
     private final SystemExtensionVecGuard vecGuard;
     private final VectorSourceInitializer vectorProviderWarmupService;
 
@@ -36,7 +34,6 @@ public class VectorExtensionStrategy implements ExtensionLifecycleStrategy {
             if (jarName != null && SystemExtensionSourceHelper.isPluginJarSource(extension)) {
                 pluginManager.applyPlugin(jarName);
             }
-            vecDriverSyncService.upsertFromExtension(extension);
             vectorProviderWarmupService.warmupEnabledSourcesByProvider(extension.getExtensionKey());
         } catch (BusinessException e) {
             throw e;
@@ -55,10 +52,6 @@ public class VectorExtensionStrategy implements ExtensionLifecycleStrategy {
         if (jarName != null && SystemExtensionSourceHelper.isPluginJarSource(extension)) {
             pluginManager.unloadPlugin(jarName);
         }
-        String provider = StringUtils.trimToNull(extension.getExtensionKey());
-        if (provider != null) {
-            vecDriverSyncService.removeDriverRowForProvider(provider);
-        }
     }
 
     @Override
@@ -66,10 +59,6 @@ public class VectorExtensionStrategy implements ExtensionLifecycleStrategy {
         BaseResponse<Void> guard = vecGuard.assertNoVecSourcesUseProvider(extension.getId());
         if (!guard.isSuccess()) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PERMISSION_DENIED, guard.getMessage());
-        }
-        String provider = StringUtils.trimToNull(extension.getExtensionKey());
-        if (provider != null) {
-            vecDriverSyncService.removeDriverRowForProvider(provider);
         }
         String jarName = StringUtils.trimToNull(extension.getJarName());
         if (jarName != null && SystemExtensionSourceHelper.isPluginJarSource(extension)) {
