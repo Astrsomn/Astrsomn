@@ -3,7 +3,7 @@
 
     <a-layout>
       <!-- 侧边栏 -->
-      <a-layout-sider width="256" class="bg-white border-r">
+      <a-layout-sider width="320" class="bg-white border-r">
         <Left
           :sources="sources"
           :stores="stores"
@@ -44,15 +44,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, watch } from 'vue'
-import { Layout } from 'ant-design-vue'
+import { onMounted } from 'vue'
 import Left from '@/views/admin/ai-vector/vector-center/component/Left.vue'
 import RightTop from '@/views/admin/ai-vector/vector-center/component/RightTop.vue'
 import RightCenter from '@/views/admin/ai-vector/vector-center/component/RightCenter.vue'
 import RightBottom from '@/views/admin/ai-vector/vector-center/component/RightBottom.vue'
 import { useVectorCenterState } from '@/views/admin/ai-vector/vector-center/hooks/useVectorCenterState.ts'
-
-const { Header, Sider, Content } = Layout;
 
 const {
   sources,
@@ -65,9 +62,8 @@ const {
   selectedDocId,
   selectedSourceId,
   bootstrap,
-  reloadBySource,
-  reloadByStore,
   reloadByDoc,
+  fetchSources,
   fetchStores,
   fetchDocs,
   fetchSegments

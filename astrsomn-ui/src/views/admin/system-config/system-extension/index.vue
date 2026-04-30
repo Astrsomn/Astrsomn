@@ -17,13 +17,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import ExtensionCenterPage from './component/ExtensionCenterPage.vue'
 import ExtensionSidebar from './component/ExtensionSidebar.vue'
+import { useRoute } from 'vue-router'
 
 type ExtensionPanel = 'marketplace' | 'installed'
-const activePanel = ref<ExtensionPanel>('installed')
+const route = useRoute()
+const panelFromQuery = String(route.query.panel || '')
+const activePanel = ref<ExtensionPanel>(panelFromQuery === 'marketplace' ? 'marketplace' : 'installed')
 const selectedMenuKeys = computed(() => [activePanel.value])
 
 function onMenuClick(key: string) {
@@ -35,6 +38,15 @@ function onMenuClick(key: string) {
 function onPanelSync(tab: ExtensionPanel) {
   activePanel.value = tab
 }
+
+watch(
+  () => route.query.panel,
+  (panel) => {
+    if (panel === 'marketplace' || panel === 'installed') {
+      activePanel.value = panel
+    }
+  }
+)
 </script>
 
 <style scoped>

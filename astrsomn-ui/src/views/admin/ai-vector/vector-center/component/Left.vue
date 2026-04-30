@@ -24,11 +24,12 @@
             :ip="source.ip"
             :port="source.port"
             :is-connected="source.connected"
+            :is-checking="checkingSourceMap[String(source.id)] === true"
             :is-open="openKeys.includes(source.id)"
             @toggle="selectSource(source.id)"
           />
           <template #overlay>
-            <a-menu @click="(payload) => handleSourceMenuClick(payload.key, source)">
+            <a-menu @click="onSourceMenuClick($event, source)">
               <a-menu-item key="addDb">
                 <template #icon><PlusOutlined /></template>
                 新增数据库
@@ -47,35 +48,55 @@
         </a-dropdown>
 
         <transition name="expand">
-          <div v-if="openKeys.includes(source.id)" class="db-container">
-            <a-dropdown
-              v-for="db in source.dbs"
-              :key="db.id"
-              :trigger="['contextmenu']"
-            >
-              <DbNode
-                :db-name="db.dbName"
-                :model-name="db.modelName"
-                :dim="db.dim"
-                :active="db.active"
-                :is-selected="String(selectedStoreId) === String(db.id)"
-                @select="selectDb(source.id, db.id)"
-              />
-              <template #overlay>
-                <a-menu @click="(payload) => handleDbMenuClick(payload.key, source.id, db)">
-                  <a-menu-item key="edit">
-                    <template #icon><EditOutlined /></template>
-                    编辑数据库
-                  </a-menu-item>
-                  <a-menu-divider />
-                  <a-menu-item key="delete" class="danger-item">
-                    <template #icon><DeleteOutlined /></template>
-                    删除数据库
-                  </a-menu-item>
-                </a-menu>
-              </template>
-            </a-dropdown>
-          </div>
+          <a-dropdown v-if="openKeys.includes(source.id)" :trigger="['contextmenu']">
+            <div class="db-container">
+              <a-dropdown
+                v-for="db in source.dbs"
+                :key="db.id"
+                :trigger="['contextmenu']"
+              >
+                <DbNode
+                  :db-name="db.dbName"
+                  :model-name="db.modelName"
+                  :dim="db.dim"
+                  :active="db.active"
+                  :is-selected="String(selectedStoreId) === String(db.id)"
+                  @select="selectDb(source.id, db.id)"
+                />
+                <template #overlay>
+                  <a-menu @click="onDbMenuClick($event, source.id, db)">
+                    <a-menu-item key="edit">
+                      <template #icon><EditOutlined /></template>
+                      编辑数据库
+                    </a-menu-item>
+                    <a-menu-divider />
+                    <a-menu-item key="delete" class="danger-item">
+                      <template #icon><DeleteOutlined /></template>
+                      删除数据库
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+              </a-dropdown>
+              <div v-if="!source.dbs.length" class="db-empty-hint">右键空白区域可新建数据库</div>
+            </div>
+            <template #overlay>
+              <a-menu @click="onDbBlankMenuClick($event, source)">
+                <a-menu-item key="addDb">
+                  <template #icon><PlusOutlined /></template>
+                  新建数据库
+                </a-menu-item>
+                <a-menu-item key="editSource">
+                  <template #icon><EditOutlined /></template>
+                  编辑数据源
+                </a-menu-item>
+                <a-menu-divider />
+                <a-menu-item key="deleteSource" class="danger-item">
+                  <template #icon><DeleteOutlined /></template>
+                  删除数据源
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
         </transition>
       </div>
     </div>
@@ -84,17 +105,29 @@
       <div class="footer-row">
         <div class="driver-info">
           <div class="s-avatars">
-            <span class="s-av">M</span>
-            <span class="s-av">Q</span>
+            <template v-if="enabledExtensions.length">
+              <span
+                v-for="item in enabledExtensions.slice(0, 4)"
+                :key="item.key"
+                class="s-av s-av-real"
+                :title="item.name"
+              >
+                <img v-if="item.avatar" :src="item.avatar" :alt="item.name" />
+                <span v-else>{{ item.initial }}</span>
+              </span>
+            </template>
+            <span v-else class="s-av">-</span>
           </div>
-          <span class="s-text">驱动就绪</span>
+          <span class="s-text">
+            {{ enabledExtensions.length ? `已启用扩展 ${enabledExtensions.length}` : '暂无已启用扩展' }}
+          </span>
         </div>
-        <AppstoreOutlined class="m-btn" />
+        <AppstoreOutlined class="m-btn" title="打开插件市场" @click="goPluginMarketplace" />
       </div>
     </div>
     <VecSourceFormModal
       :open="sourceModalOpen"
-      @update:open="(value) => { sourceModalOpen = value }"
+      @update:open="onSourceModalOpenChange"
       :mode="sourceModalMode"
       :confirm-loading="sourceModalSubmitting"
       :initial="sourceModalInitial"
@@ -102,7 +135,7 @@
     />
     <VecStoreFormModal
       :open="storeModalOpen"
-      @update:open="(value) => { storeModalOpen = value }"
+      @update:open="onStoreModalOpenChange"
       :mode="storeModalMode"
       :confirm-loading="storeModalSubmitting"
       :initial="storeModalInitial"
@@ -113,7 +146,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import {
   PlusOutlined,
@@ -128,6 +161,8 @@ import VecSourceFormModal from '@/views/admin/ai-vector/vec-source/VecSourceForm
 import VecStoreFormModal from '@/views/admin/ai-vector/vec-store/VecStoreFormModal.vue'
 import { aiVecSourceApi, type AiVecSource } from '@/api/aiVecSource.ts'
 import { aiVecStoreApi, type AiVecStore } from '@/api/aiVecStore.ts'
+import { systemExtensionApi } from '@/api/systemExtension.ts'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   sources: AiVecSource[]
@@ -153,6 +188,13 @@ const storeModalMode = ref<'create' | 'edit'>('create')
 const storeModalSubmitting = ref(false)
 const storeModalInitial = ref<AiVecStore | null>(null)
 const storeModalSourceId = ref<number | string | null>(null)
+const firstExpandCheckedMap = ref<Record<string, boolean>>({})
+const sourceConnectedOverride = ref<Record<string, boolean>>({})
+const checkingSourceMap = ref<Record<string, boolean>>({})
+const enabledExtensions = ref<Array<{ key: string; name: string; avatar: string; initial: string }>>([])
+const storesBySourceCache = ref<Record<string, AiVecStore[]>>({})
+const pendingStoreSyncSourceKey = ref<string>('')
+const router = useRouter()
 
 type Db = {
   id: number | string
@@ -177,11 +219,23 @@ type Source = {
 
 const sourceTree = computed<Source[]>(() =>
   (props.sources || []).map((source) => {
-    const sourceStores = (props.stores || []).filter(
-      (store) => String(store.sourceId ?? '') === String(source.id ?? '')
-    )
+    const sourceIdText = String(source.id ?? '')
+    const sourceNameText = String(source.name || '').trim()
+    const sourceStoresFromProps = (props.stores || []).filter((store) => {
+      const storeSourceIdText = String(store.sourceId ?? '')
+      const matchedById = sourceIdText && storeSourceIdText && storeSourceIdText === sourceIdText
+      if (matchedById) return true
+      const storeSourceNameText = String(store.sourceName || '').trim()
+      return !!sourceNameText && !!storeSourceNameText && storeSourceNameText === sourceNameText
+    })
+    const sourceStores = storesBySourceCache.value[sourceIdText] ?? sourceStoresFromProps
     const sourceType = String(source.provider || source.extensionCode || 'unknown').toLowerCase()
     const sourceStatus = String(source.status || '').toLowerCase()
+    const sourceKey = String(source.id ?? '')
+    const connected =
+      sourceConnectedOverride.value[sourceKey] !== undefined
+        ? sourceConnectedOverride.value[sourceKey]
+        : sourceStatus === 'enabled'
     return {
       id: source.id as number | string,
       name: source.name || `Source-${source.id}`,
@@ -190,7 +244,7 @@ const sourceTree = computed<Source[]>(() =>
       ip: source.host || '-',
       port: source.port || '-',
       user: source.username || '-',
-      connected: sourceStatus === 'enabled',
+      connected,
       dbs: sourceStores.map((store) => ({
         id: store.id as number | string,
         dbName: store.collectionName || `Store-${store.id}`,
@@ -213,12 +267,21 @@ const toggleSource = (id: number | string) => {
   }
 }
 
-const selectSource = (id: number | string) => {
+const selectSource = async (id: number | string) => {
+  const isOpening = !openKeys.value.includes(id)
+  pendingStoreSyncSourceKey.value = String(id)
   emit('select-source', id)
+  if (!isOpening) {
+    toggleSource(id)
+    return
+  }
+  const checked = await testConnectionOnFirstExpand(id)
+  if (!checked) return
   toggleSource(id)
 }
 
 const selectDb = (sourceId: number | string, id: number | string) => {
+  pendingStoreSyncSourceKey.value = String(sourceId)
   emit('select-source', sourceId)
   emit('select-store', id)
 }
@@ -343,6 +406,116 @@ const handleStoreSubmit = async (payload: AiVecStore) => {
     storeModalSubmitting.value = false
   }
 }
+
+const onSourceMenuClick = (payload: unknown, source: Source) => {
+  const key = String((payload as { key?: string | number })?.key ?? '')
+  handleSourceMenuClick(key, source)
+}
+
+const onDbMenuClick = (payload: unknown, sourceId: number | string, db: Db) => {
+  const key = String((payload as { key?: string | number })?.key ?? '')
+  handleDbMenuClick(key, sourceId, db)
+}
+
+const onDbBlankMenuClick = (payload: unknown, source: Source) => {
+  const key = String((payload as { key?: string | number })?.key ?? '')
+  handleDbBlankMenuClick(key, source)
+}
+
+const onSourceModalOpenChange = (value: unknown) => {
+  sourceModalOpen.value = Boolean(value)
+}
+
+const onStoreModalOpenChange = (value: unknown) => {
+  storeModalOpen.value = Boolean(value)
+}
+
+const handleDbBlankMenuClick = (key: string, source: Source) => {
+  switch (key) {
+    case 'addDb':
+      handleSourceMenuClick('addDb', source)
+      break
+    case 'editSource':
+      openEditSource(source.id)
+      break
+    case 'deleteSource':
+      void deleteSource(source.id)
+      break
+  }
+}
+
+const testConnectionOnFirstExpand = async (id: number | string): Promise<boolean> => {
+  const sourceKey = String(id)
+  if (firstExpandCheckedMap.value[sourceKey]) return true
+  checkingSourceMap.value[sourceKey] = true
+  try {
+    const detail = await aiVecSourceApi.detail(id)
+    await aiVecSourceApi.testConnection(detail, 25000)
+    firstExpandCheckedMap.value[sourceKey] = true
+    sourceConnectedOverride.value[sourceKey] = true
+    message.success('连接成功，已展开数据库列表')
+    return true
+  } catch (error) {
+    sourceConnectedOverride.value[sourceKey] = false
+    const err = error as { message?: string; code?: string }
+    const raw = String(err?.message || '')
+    const isTimeout = err?.code === 'ECONNABORTED' || raw.toLowerCase().includes('timeout')
+    message.warning(
+      isTimeout
+        ? '连接超时（25s），请检查数据源网络或服务状态后重试'
+        : (err?.message || '连接失败，已自动收起，请检查配置后重试')
+    )
+    return false
+  } finally {
+    checkingSourceMap.value[sourceKey] = false
+  }
+}
+
+const fetchEnabledExtensions = async () => {
+  try {
+    const resp = await systemExtensionApi.queryPage({
+      pageNo: 1,
+      pageSize: 50,
+      param: {
+        listScope: 'INSTALLED',
+        type: 'VECTOR_STORE'
+      }
+    })
+    const rows = (resp.list || []).filter((item) => String(item.applied || '').toUpperCase() === 'Y')
+    enabledExtensions.value = rows.map((item) => {
+      const name = String(item.extensionName || item.extensionKey || '扩展')
+      return {
+        key: String(item.id ?? item.extensionKey ?? name),
+        name,
+        avatar: String(item.avatar || ''),
+        initial: name.slice(0, 1).toUpperCase()
+      }
+    })
+  } catch {
+    enabledExtensions.value = []
+  }
+}
+
+const goPluginMarketplace = () => {
+  void router.push({
+    path: '/admin/system/extensions',
+    query: { panel: 'marketplace' }
+  })
+}
+
+onMounted(() => {
+  void fetchEnabledExtensions()
+})
+
+watch(
+  () => props.stores,
+  (stores) => {
+    const sourceKey = pendingStoreSyncSourceKey.value
+    if (!sourceKey) return
+    storesBySourceCache.value[sourceKey] = [...(stores || [])]
+  },
+  { deep: true }
+)
 </script>
 
 <style lang="less" scoped>
@@ -435,6 +608,15 @@ const handleStoreSubmit = async (payload: AiVecStore) => {
   padding-left: 16px;
   border-left: 1.5px solid #f1f5f9;
   overflow: hidden;
+}
+
+.db-empty-hint {
+  padding: 10px 12px;
+  margin-top: 6px;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+  background: #f8fafc;
 }
 
 .expand-enter-active,
@@ -571,5 +753,17 @@ const handleStoreSubmit = async (payload: AiVecStore) => {
 .sidebar-footer .footer-row .driver-info .s-avatars .s-av {
   background: #e8f0fe;
   color: #1a73e8;
+}
+
+.sidebar-footer .footer-row .driver-info .s-avatars .s-av.s-av-real {
+  overflow: hidden;
+  padding: 0;
+}
+
+.sidebar-footer .footer-row .driver-info .s-avatars .s-av.s-av-real img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 </style>

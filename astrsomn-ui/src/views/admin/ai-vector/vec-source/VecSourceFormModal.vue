@@ -38,9 +38,9 @@
               <a-input v-model:value="form.name" placeholder="如：Milvus-Production" size="large" />
             </a-form-item>
 
-            <a-form-item label="数据源类型" name="provider">
+            <a-form-item label="数据源类型" name="extensionCode">
               <a-select
-                v-model:value="form.provider"
+                v-model:value="form.extensionCode"
                 placeholder="选择扩展数据源类型"
                 size="large"
                 allow-clear
@@ -65,7 +65,7 @@
           <h3 class="section-headline"><LinkOutlined /> 连接配置</h3>
 
           <a-alert
-            v-if="!form.provider"
+            v-if="!form.extensionCode"
             type="info"
             show-icon
             message="请先选择数据源类型"
@@ -185,7 +185,7 @@ type FormRow = AiVecSource & Record<string, string | undefined>
 function emptyForm(): FormRow {
   return {
     name: '',
-    provider: undefined,
+    extensionCode: undefined,
     host: '',
     port: '',
     username: '',
@@ -248,7 +248,7 @@ const visibleParamCodes = computed(() => paramCodes.value.filter((c) => Boolean(
 const formRules = computed<Record<string, Rule[]>>(() => {
   const r: Record<string, Rule[]> = {
     name: [{ required: true, message: '请输入向量源名称' }],
-    provider: [{ required: true, message: '请选择数据源类型' }]
+    extensionCode: [{ required: true, message: '请选择数据源类型' }]
   }
   for (const code of paramCodes.value) {
     if (!paramMeta[code]) continue

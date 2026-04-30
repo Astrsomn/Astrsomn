@@ -17,14 +17,15 @@
       </div>
       <div class="source-conn-row">
         <span class="source-conn">{{ sourceType }} · {{ ip }}:{{ port }}</span>
-        <UpOutlined class="arrow-icon" :class="{ rotated: isOpen }" />
+        <LoadingOutlined v-if="isChecking" class="arrow-icon spinning" />
+        <UpOutlined v-else class="arrow-icon" :class="{ rotated: isOpen }" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ClusterOutlined, UpOutlined } from '@ant-design/icons-vue'
+import { ClusterOutlined, LoadingOutlined, UpOutlined } from '@ant-design/icons-vue'
 
 defineProps<{
   sourceName: string
@@ -34,6 +35,7 @@ defineProps<{
   port: string
   isConnected: boolean
   isOpen: boolean
+  isChecking?: boolean
 }>()
 
 defineEmits<{
@@ -149,8 +151,21 @@ defineEmits<{
         &.rotated {
           transform: rotate(180deg);
         }
+
+        &.spinning {
+          animation: icon-spin 0.9s linear infinite;
+        }
       }
     }
+  }
+}
+
+@keyframes icon-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

@@ -71,11 +71,12 @@ export const aiVecSourceApi = {
     })
   },
 
-  testConnection: (data: AiVecSource): Promise<string> => {
+  testConnection: (data: AiVecSource, timeoutMs: number = 20000): Promise<string> => {
     return request({
       url: '/v1/astro/ai-vec-source/test-connection',
       method: 'post',
-      data
+      data,
+      timeout: timeoutMs
     })
   },
 
