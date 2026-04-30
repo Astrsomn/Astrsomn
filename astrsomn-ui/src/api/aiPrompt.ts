@@ -73,5 +73,13 @@ export const aiPromptApi = {
       url: `/v1/astro/ai-promopt/history?${q.toString()}`,
       method: 'get'
     })
+  },
+
+  improvePrompt: (promptContent: string): Promise<string> => {
+    return request({
+      url: '/v1/astro/ai-promopt/improvePrompt',
+      method: 'post',
+      data: { promptContent }
+    })
   }
 }

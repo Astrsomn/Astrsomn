@@ -36,8 +36,8 @@
           </a-form-item>
 
           <a-form-item
-            label="Provider"
-            name="provider"
+            label="extensionCode"
+            name="extensionCode"
             :rules="[{ required: true, message: '请选择供应商' }]"
           >
             <ExtensionSelector

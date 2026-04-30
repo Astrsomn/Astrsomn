@@ -2,14 +2,16 @@ package com.astrsomn.starter.langchain.aop.processor;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import dev.langchain4j.agent.tool.Tool;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.core.common.constant.AiModelEnum;
 import com.astrsomn.core.common.entity.AiToolEntity;
 import com.astrsomn.starter.mapper.AiToolMapper;
 import com.astrsomn.starter.langchain.aop.annotation.AstroToolGroup;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
@@ -18,17 +20,16 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class AstroToolGroupInitializer implements BeanPostProcessor {
+public class AstroToolGroupInitializer implements BeanPostProcessor, BeanFactoryAware {
 
     private static final String LOG_PREFIX = "[Astrsomn] [工具组扫描器] ====> ";
     private static final String ENABLED = AiModelEnum.StatusEnum.ENABLED.getCode();
 
-    private final AiToolMapper aiToolMapper;
+    private BeanFactory beanFactory;
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
-        Class<?> beanClass = bean.getClass();
+        Class<?> beanClass = ClassUtils.getUserClass(bean);
 
         // 识别带有 @AstroToolGroup 注解的 Bean
         if (beanClass.isAnnotationPresent(AstroToolGroup.class)) {
@@ -43,7 +44,7 @@ public class AstroToolGroupInitializer implements BeanPostProcessor {
      * 扫描并注册工具组内的所有工具方法
      */
     private void scanAndRegisterTools(Object bean, String beanName, AstroToolGroup groupAnno) {
-        Class<?> beanClass = bean.getClass();
+        Class<?> beanClass = ClassUtils.getUserClass(bean);
 
         var toolMethods = Arrays.stream(beanClass.getMethods())
                 .filter(m -> m.isAnnotationPresent(Tool.class))
@@ -72,6 +73,7 @@ public class AstroToolGroupInitializer implements BeanPostProcessor {
         Tool toolAnno = method.getAnnotation(Tool.class);
         String toolKey = generateToolKey(groupAnno, beanName, method);
 
+        AiToolMapper aiToolMapper = beanFactory.getBean(AiToolMapper.class);
         Optional<AiToolEntity> existingOpt = Optional.ofNullable(aiToolMapper.selectOne(
                 new LambdaQueryWrapper<AiToolEntity>().eq(AiToolEntity::getToolKey, toolKey)));
 
@@ -118,5 +120,10 @@ public class AstroToolGroupInitializer implements BeanPostProcessor {
     private String generateToolKey(AstroToolGroup group, String beanName, Method method) {
         String prefix = StringUtils.hasText(group.value()) ? group.value() : beanName;
         return prefix + ":" + method.getName();
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 }

@@ -9,7 +9,7 @@
             <!-- 1. 顶部快捷入口 (保持截图4列布局) -->
     <section class="quick-access-grid">
       <div v-for="(item, index) in moduleCards" :key="item.routeName" class="quick-access-card card-hover" @click="emit('go-to', item.routeName)">
-        <div class="icon-container" :class="`icon-${index % 4 + 1}`">
+        <div class="icon-container" :class="`icon-${index % 3 + 1}`">
           <component :is="item.icon" />
         </div>
         <div>
@@ -102,7 +102,7 @@ const emit = defineEmits<{
 /* 顶部快捷入口（各中心页顶栏与此前保持一致：统一高度与卡片样式） */
 .quick-access-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   margin-top: 10px;
 }

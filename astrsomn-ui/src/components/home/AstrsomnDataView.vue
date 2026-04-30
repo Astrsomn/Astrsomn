@@ -245,10 +245,10 @@ const handleCopy = async (text: string) => {
 }
 
 .data-view-table :deep(.ant-table-thead > tr > th) {
-  background: #f8fafc;
-  color: #334155;
-  font-weight: 700;
-  border-bottom: 1px solid #e2e8f0;
+  background: #eff6ff;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 1px solid #dbeafe;
 }
 
 .data-view-table :deep(.ant-table-tbody > tr > td) {

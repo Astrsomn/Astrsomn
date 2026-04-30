@@ -137,13 +137,13 @@ const copyPromptKey = async (key?: string) => {
   max-width: 320px;
   min-height: 400px;
   background: var(--bg-card);
-  border: 1px solid var(--border-default);
   border-radius: 32px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  border: 1px solid var(--border-default);
 }
 
 .air-prompt-card-400:hover {
@@ -152,10 +152,7 @@ const copyPromptKey = async (key?: string) => {
   border-color: var(--primary);
 }
 
-.air-prompt-card-400.is-selected {
-  border-color: var(--primary-color);
-  background: var(--primary-hover);
-}
+
 
 .card-header-status {
   display: flex;
@@ -284,7 +281,7 @@ const copyPromptKey = async (key?: string) => {
 
 .description-text {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text-placeholder);
   line-height: 1.8;
   font-style: italic;
   margin: 0;
