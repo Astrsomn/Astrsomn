@@ -27,5 +27,6 @@ public class AiAccountResponseDTO {
     private String providerAvatar;
     private LocalDateTime createTime;
     private String createUser;
+    private String status;
 
 }

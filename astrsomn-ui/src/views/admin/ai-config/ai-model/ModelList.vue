@@ -100,9 +100,7 @@
                   <span v-else class="text-secondary">-</span>
                 </template>
 
-                <template v-else-if="column.key === 'modelKey'">
-                  <code class="code-text">{{ record.modelKey }}</code>
-                </template>
+
 
 
 
@@ -230,10 +228,10 @@ const columns = [
     tagColor: (value: string) => value ? 'green' : 'default',
     tagText: (value: string) => value ? '已配置' : '未配置'
   },
-  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  { title: '操作', key: 'actions', width: 140 }
+  { title: '操作', key: 'actions', width: 140, fixed: 'right' }
 ]
 
 // 简单的颜色映射逻辑

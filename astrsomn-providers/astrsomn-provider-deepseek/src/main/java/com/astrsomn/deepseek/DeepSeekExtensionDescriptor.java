@@ -24,6 +24,11 @@ public class DeepSeekExtensionDescriptor extends AstroExtensionDescriptor {
     }
 
     @Override
+    public String getExtensionCode() {
+        return getExtensionKey();
+    }
+
+    @Override
     public SystemExtensionEnum.ExtensionTypeEnum getExtensionType() {
         return SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER;
     }

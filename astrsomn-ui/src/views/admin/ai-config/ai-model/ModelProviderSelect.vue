@@ -1,5 +1,5 @@
 <template>
-  <a-select :value="value" :loading="loading" :disabled="disabled" :placeholder="placeholder" :size="size" show-search
+  <a-select :value="value" :loading="loading" :disabled="disabled" :placeholder="placeholder" :size="size"
     option-filter-prop="label" :allow-clear="allowClear" class="model-provider-select" @update:value="onUpdate">
     <template #label="{ label, value: val }">
       <div class="selected-content" v-if="val">
@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension'
 
@@ -31,11 +31,17 @@ const props = withDefaults(
     placeholder?: string
     size?: 'large' | 'middle' | 'small'
     allowClear?: boolean
+    /** 扩展类型：MODEL_PROVIDER 或 VECTOR_STORE */
+    extensionType?: 'MODEL_PROVIDER' | 'VECTOR_STORE'
+    /** 是否只查询已启用的扩展 */
+    onlyApplied?: boolean
   }>(),
   {
     placeholder: '请选择端点所属服务商',
     size: 'large',
-    allowClear: false
+    allowClear: false,
+    extensionType: 'MODEL_PROVIDER',
+    onlyApplied: true
   }
 )
 
@@ -89,8 +95,8 @@ async function load() {
       pageNo: 1,
       pageSize: 500,
       param: {
-        type: 'MODEL_PROVIDER',
-        listScope: 'INSTALLED'
+        type: props.extensionType,
+        listScope: props.onlyApplied ? 'APPLIED' : 'INSTALLED'
       }
     })
     catalog.value = resp?.list ?? []
@@ -106,6 +112,13 @@ async function load() {
 onMounted(() => {
   void load()
 })
+
+watch(
+  () => [props.extensionType, props.onlyApplied],
+  () => {
+    void load()
+  }
+)
 
 function onUpdate(v: string | undefined) {
   emit('update:value', v)
@@ -135,8 +148,10 @@ function onUpdate(v: string | undefined) {
 .selected-content {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   width: 100%;
+  padding: 0;
 }
 
 .opt-row {
@@ -186,5 +201,50 @@ function onUpdate(v: string | undefined) {
 
 .model-provider-select :deep(.ant-select-selection-placeholder) {
   line-height: 50px !important;
+}
+
+/* 搜索输入框样式调整，避免点击时闪烁 */
+.model-provider-select :deep(.ant-select-search__field) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  width: 100% !important;
+  height: 48px !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.model-provider-select :deep(.ant-select-search__field__wrap) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+.model-provider-select :deep(.ant-select-search) {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 确保下拉菜单中搜索框样式一致 */
+.model-provider-select :deep(.ant-select-dropdown .ant-select-search__field) {
+  text-align: left;
+  justify-content: flex-start;
+}
+
+.model-provider-select :deep(.ant-select-dropdown .ant-select-search__field__wrap) {
+  justify-content: flex-start !important;
 }
 </style>

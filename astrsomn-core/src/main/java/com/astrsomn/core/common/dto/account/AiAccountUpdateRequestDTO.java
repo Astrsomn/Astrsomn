@@ -23,4 +23,5 @@ public class AiAccountUpdateRequestDTO implements Serializable {
     private String apiKey;
     private String apiSecret;
     private Long accountTokens;
+    private String status;
 }

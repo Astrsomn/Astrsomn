@@ -70,9 +70,13 @@ import { reactive, ref, watch } from 'vue'
 import { SearchOutlined, KeyOutlined } from '@ant-design/icons-vue'
 import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   open: boolean
-}>()
+  /** 是否只查询已启用的账号 */
+  onlyEnabled?: boolean
+}>(), {
+  onlyEnabled: true
+})
 
 const emit = defineEmits<{
   (e: 'update:open', value: boolean): void
@@ -95,7 +99,8 @@ const fetchList = async () => {
       pageNo: page.pageNum,
       pageSize: page.pageSize,
       param: {
-        accountName: keyword.value || undefined
+        accountName: keyword.value || undefined,
+        status: props.onlyEnabled ? 'enabled' : undefined
       }
     }
     const resp: PageResponse<AiAccount> = await aiAccountApi.queryPage(payload)

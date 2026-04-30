@@ -15,4 +15,5 @@ public class AiAccountCreateRequestDTO implements Serializable {
     private String apiKey;
     private String apiSecret;
     private Long accountTokens;
+    private String status;
 }

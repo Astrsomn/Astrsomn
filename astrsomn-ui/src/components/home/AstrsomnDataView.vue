@@ -56,6 +56,14 @@
                 {{ props.dateFormatter(text) }}
               </span>
             </template>
+            <template v-else-if="column.image || column.enableBase64Render">
+              <img 
+                :src="text" 
+                :alt="column.imageAlt || ''"
+                :class="column.imageClass || 'base64-image'"
+                :style="column.imageStyle"
+              />
+            </template>
             <template v-else-if="column.icon">
               <span class="icon-cell">
                 <component :is="column.icon" class="cell-icon" />
@@ -98,6 +106,8 @@ const props = withDefaults(defineProps<{
   tableRowHeight?: string
   tableHeaderHeight?: string
   dateFormatter?: (value: string) => string
+  /** 是否支持 base64 图片渲染 */
+  enableBase64Render?: boolean
 }>(), {
   columns: () => [],
   rowKey: 'id',
@@ -115,7 +125,8 @@ const props = withDefaults(defineProps<{
   dateFormatter: (value: string) => {
     if (!value) return '--'
     return value.replace('T', ' ').slice(0, 16)
-  }
+  },
+  enableBase64Render: false
 })
 
 const gridStyle = computed(() => ({
@@ -263,7 +274,31 @@ const handleCopy = async (text: string) => {
 
 .data-view-table :deep(.ant-table-cell-fix-right),
 .data-view-table :deep(.ant-table-cell-fix-left) {
-  background: inherit;
+  background: #ffffff;
+  z-index: 1;
+}
+
+.data-view-table :deep(.ant-table-fixed-right),
+.data-view-table :deep(.ant-table-fixed-left) {
+  position: sticky;
+}
+
+.data-view-table :deep(.ant-table-fixed-right) {
+  right: 0;
+}
+
+.data-view-table :deep(.ant-table-fixed-left) {
+  left: 0;
+}
+
+.data-view-table :deep(.ant-table-tbody > tr:hover .ant-table-cell-fix-right),
+.data-view-table :deep(.ant-table-tbody > tr:hover .ant-table-cell-fix-left) {
+  background: #f8fbff;
+}
+
+.data-view-table :deep(.ant-table-row-selected .ant-table-cell-fix-right),
+.data-view-table :deep(.ant-table-row-selected .ant-table-cell-fix-left) {
+  background: #e8f0fe;
 }
 
 .copyable-cell {
@@ -298,6 +333,13 @@ const handleCopy = async (text: string) => {
 .cell-icon {
   font-size: 12px;
   color: #9ca3af;
+}
+
+.base64-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 .data-view-empty {

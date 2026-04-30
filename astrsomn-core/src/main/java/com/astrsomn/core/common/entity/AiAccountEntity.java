@@ -40,4 +40,7 @@ public class AiAccountEntity extends BaseEntity<Long> {
 
     @TableField("EXTENSION_CODE")
     private String extensionCode;
+
+    @TableField("STATUS")
+    private String status;
 }

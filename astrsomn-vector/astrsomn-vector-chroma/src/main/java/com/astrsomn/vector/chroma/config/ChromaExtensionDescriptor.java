@@ -22,6 +22,11 @@ public class ChromaExtensionDescriptor extends AstroExtensionDescriptor {
     }
 
     @Override
+    public String getExtensionCode() {
+        return getExtensionKey();
+    }
+
+    @Override
     public SystemExtensionEnum.ExtensionTypeEnum getExtensionType() {
         return SystemExtensionEnum.ExtensionTypeEnum.VECTOR_STORE;
     }

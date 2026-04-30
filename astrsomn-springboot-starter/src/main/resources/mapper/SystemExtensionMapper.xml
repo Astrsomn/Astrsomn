@@ -30,6 +30,9 @@
         <if test="req != null and req.listScope != null and req.listScope == 'INSTALLED'">
             AND SE.STATUS IN ('INSTALLED', 'APPLIED')
         </if>
+        <if test="req != null and req.listScope != null and req.listScope == 'APPLIED'">
+            AND SE.STATUS = 'APPLIED'
+        </if>
         ORDER BY
         SE.CREATE_TIME DESC
     </select>

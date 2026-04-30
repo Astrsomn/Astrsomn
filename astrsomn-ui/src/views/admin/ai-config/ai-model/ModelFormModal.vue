@@ -425,7 +425,7 @@ const form = reactive<AiModel>({
 
 const rules = {
   modelName: [{ required: true, message: '请输入模型名称' }],
-  provider: [{ required: true, message: '请选择供应商' }],
+  extensionCode: [{ required: true, message: '请选择供应商' }],
   apiUrl: [],
 }
 

@@ -48,7 +48,6 @@ defineProps<{
   align-items: center;
   gap: 0;
   border-radius: var(--radius-pro, 30px);
-  overflow: hidden;
   border: 1px solid var(--border-default);
 }
 
@@ -59,9 +58,8 @@ defineProps<{
   justify-content: center;
   gap: 8px;
   height: 40px;
-  padding: 0 12px;
-  font-size: 8px;
-
+  padding: 5px 14px;
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
@@ -171,6 +169,13 @@ defineProps<{
 
 .seg-btn-first {
   border-right: none;
+  border-top-left-radius: var(--radius-pro, 30px);
+  border-bottom-left-radius: var(--radius-pro, 30px);
+}
+
+.seg-btn-last {
+  border-top-right-radius: var(--radius-pro, 30px);
+  border-bottom-right-radius: var(--radius-pro, 30px);
 }
 
 .seg-btn:not(.seg-btn-first):not(.seg-btn-last) {
