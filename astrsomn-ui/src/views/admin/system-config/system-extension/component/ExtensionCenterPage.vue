@@ -55,99 +55,22 @@
     </div>
 
     <div v-if="activeList.length > 0" class="card-list">
-      <article v-for="item in activeList" :key="rowKey(item)" class="plugin-card">
-        <div class="plugin-main">
-          <div class="plugin-icon">
-            <img v-if="item.avatar?.trim()" class="avatar-img" :src="item.avatar" :alt="item.extensionName" />
-            <component :is="getAntdIcon(item.type)" v-else />
-          </div>
-          <div class="plugin-info">
-            <div class="status-row" v-if="isInstalledTab">
-              <span class="status-dot" :class="item.applied === 'Y' ? 'enabled' : 'disabled'" />
-              <span class="status-text" :class="item.applied === 'Y' ? 'enabled' : 'disabled'">
-                {{ item.applied === 'Y' ? '已启用' : '未启用' }}
-              </span>
-            </div>
-            <h3 class="plugin-title">{{ item.extensionName || '未命名扩展' }}</h3>
-            <div class="plugin-meta">By {{ item.author || 'Astrsomn' }} · {{ item.version || 'v1.0.0' }}</div>
-            <div class="plugin-tags">
-              <span class="tag">{{ extensionTypeLabel(item.type) }}</span>
-              <span class="tag">{{ item.extensionCode || 'Provider' }}</span>
-              <span class="tag soft">{{ item.jarName || 'classpath dependency' }}</span>
-            </div>
-          </div>
-          <div class="plugin-desc">
-            <p>{{ preview(item.description) }}</p>
-          </div>
-        </div>
-
-        <div class="action-row">
-          <template v-if="isInstalledTab">
-            <a-button
-              v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
-              type="default"
-              class="action-btn"
-              @click="openLoadModelsPreview(item)"
-            >
-              <template #icon><cloud-download-outlined /></template>
-              加载模型
-            </a-button>
-            <a-button
-              v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
-              danger
-              class="action-btn"
-              @click="openUnloadModelsPreview(item)"
-            >
-              <template #icon><rest-outlined /></template>
-              卸载模型
-            </a-button>
-            <a-popconfirm
-              v-if="item.applied === 'N'"
-              title="确定应用该插件吗？"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="handleApply(item.id)"
-            >
-              <a-button type="primary" class="action-btn">
-                <template #icon><caret-right-outlined /></template>
-                启用插件
-              </a-button>
-            </a-popconfirm>
-            <a-popconfirm
-              v-else
-              title="确定取消启用吗？插件将恢复为未启用状态。"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="handleRevokeApply(item.id)"
-            >
-              <a-button class="action-btn">
-                <template #icon><pause-outlined /></template>
-                禁用插件
-              </a-button>
-            </a-popconfirm>
-            <a-popconfirm
-              v-if="isUninstallableExtension(item)"
-              title="确定卸载该插件吗？"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="handleUninstall(item.id)"
-            >
-              <a-button danger class="action-btn icon-btn">
-                <template #icon><delete-outlined /></template>
-              </a-button>
-            </a-popconfirm>
-            <a-checkbox :checked="isRowSelected(item)" @change="(e) => onCardToggleSelect(item, e.target.checked)">
-              选择
-            </a-checkbox>
-          </template>
-          <template v-else>
-            <a-button type="primary" class="action-btn" @click="installFromCatalog(item)">
-              <template #icon><download-outlined /></template>
-              安装到环境
-            </a-button>
-          </template>
-        </div>
-      </article>
+      <transition-group name="card-list">
+        <ExtensionCard
+          v-for="item in activeList"
+          :key="rowKey(item)"
+          :item="item"
+          :show-actions="isInstalledTab"
+          :is-selected="isRowSelected(item)"
+          @load-models="openLoadModelsPreview"
+          @unload-models="openUnloadModelsPreview"
+          @apply="handleApply"
+          @revoke-apply="handleRevokeApply"
+          @uninstall="handleUninstall"
+          @install="installFromCatalog"
+          @toggle-select="onCardToggleSelect"
+        />
+      </transition-group>
     </div>
     <div v-else class="extension-empty">
       <a-empty :description="isInstalledTab ? '暂无已安装扩展' : '暂无市场插件'" />
@@ -180,15 +103,12 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
 import {
-  AppstoreOutlined,
-  BuildOutlined,
   CaretRightOutlined,
   CloudDownloadOutlined,
   DeleteOutlined,
   DownloadOutlined,
   PauseOutlined,
   RestOutlined,
-  RocketOutlined,
   UploadOutlined
 } from '@ant-design/icons-vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
@@ -199,15 +119,16 @@ import {
   type PageResponse,
   type SystemExtension,
   type SystemExtensionQueryPagePayload
-} from '@/api/systemExtension'
+} from '@/api/systemExtension.ts'
 import {
   extensionTypeLabel,
   isUninstallableExtension,
   preview,
   type ExtensionRow
-} from './shared/extensionDisplay'
-import ExtensionModelLoadDialog from './shared/ExtensionModelLoadDialog.vue'
-import ExtensionModelUnloadDialog from './shared/ExtensionModelUnloadDialog.vue'
+} from '@/views/admin/system-config/system-extension/model-dialog/extensionDisplay.ts'
+import ExtensionModelLoadDialog from '@/views/admin/system-config/system-extension/model-dialog/ExtensionModelLoadDialog.vue'
+import ExtensionModelUnloadDialog from '@/views/admin/system-config/system-extension/model-dialog/ExtensionModelUnloadDialog.vue'
+import ExtensionCard from './ExtensionCard.vue'
 
 type ExtensionPanel = 'marketplace' | 'installed'
 type QueryState = { keyword: string; type: string; pageNo: number; pageSize: number }
@@ -265,12 +186,6 @@ const unloadSyncModal = reactive({
 function rowKey(record: ExtensionRow) {
   const base = record.id != null ? String(record.id) : String(record.extensionKey ?? '')
   return `${record.type || 'UNKNOWN'}-${base}`
-}
-
-function getAntdIcon(type?: string) {
-  if (type === 'MODEL_PROVIDER') return RocketOutlined
-  if (type === 'VECTOR_STORE') return BuildOutlined
-  return AppstoreOutlined
 }
 
 function onSearch() {
@@ -584,156 +499,30 @@ void fetchActiveList()
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 200px;
 }
 
-.plugin-card {
-  border: 1px solid #f1f5f9;
-  border-radius: 14px;
-  padding: 18px;
-  transition: border-color 0.2s;
-  background: #fff;
+.card-list-enter-active,
+.card-list-leave-active {
+  transition: all 0.4s ease;
 }
 
-.plugin-card:hover {
-  border-color: #dbeafe;
+.card-list-enter-from {
+  opacity: 0;
+  transform: translateY(-20px);
 }
 
-.plugin-main {
-  display: grid;
-  grid-template-columns: 64px 1.2fr 1fr;
-  gap: 16px;
-  align-items: start;
+.card-list-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
-.plugin-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 10px;
-  background: #eff6ff;
-  color: #3b82f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-}
-
-.avatar-svg,
-.avatar-img {
-  width: 48px;
-  height: 48px;
-}
-
-.avatar-img {
-  border-radius: 8px;
-}
-
-.status-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-}
-
-.status-dot.enabled {
-  background: #3b82f6;
-}
-
-.status-dot.disabled {
-  background: #cbd5e1;
-}
-
-.status-text {
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.status-text.enabled {
-  color: #3b82f6;
-}
-
-.status-text.disabled {
-  color: #94a3b8;
-}
-
-.plugin-title {
-  margin: 0;
-  font-size: 18px;
-  color: #1f2937;
-}
-
-.plugin-meta {
-  font-size: 12px;
-  color: #94a3b8;
-  margin-top: 2px;
-}
-
-.plugin-tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-.tag {
-  padding: 2px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #2563eb;
-  background: #eff6ff;
-}
-
-.tag.soft {
-  color: #94a3b8;
-  background: #f8fafc;
-  border: 1px solid #f1f5f9;
-}
-
-.plugin-desc {
-  color: #64748b;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.plugin-desc p {
-  margin: 0;
-}
-
-.action-row {
-  margin-top: 14px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-.action-btn {
-  border-radius: 10px;
-}
-
-.icon-btn {
-  width: 40px;
-  padding-inline: 0;
+.card-list-move {
+  transition: transform 0.4s ease;
 }
 
 .extension-empty {
   margin-top: 40px;
-}
-
-@media (max-width: 1200px) {
-  .plugin-main {
-    grid-template-columns: 64px 1fr;
-  }
-
-  .plugin-desc {
-    grid-column: 1 / -1;
-  }
 }
 
 @media (max-width: 768px) {

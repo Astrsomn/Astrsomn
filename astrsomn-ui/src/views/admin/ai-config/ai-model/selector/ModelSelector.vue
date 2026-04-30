@@ -55,7 +55,7 @@
               </div>
             </div>
             <div class="model-meta">
-              <span class="provider-tag">{{ model.provider }}</span>
+              <span class="provider-tag">{{ model.extensionCode }}</span>
               <span class="status-badge" :class="model.status">
                 {{ model.status === 'enabled' ? '启用' : '禁用' }}
               </span>
@@ -82,8 +82,8 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
 import { SearchOutlined, KeyOutlined, MessageOutlined, PartitionOutlined, PictureOutlined } from '@ant-design/icons-vue'
-import { aiModelApi, type AiModel, type PageResponse } from '@/api/aiModel'
-import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
+import { aiModelApi, type AiModel, type PageResponse } from '@/api/aiModel.ts'
+import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
 
 const props = defineProps<{
   open: boolean

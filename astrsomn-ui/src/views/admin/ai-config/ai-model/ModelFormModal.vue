@@ -45,7 +45,7 @@
               </a-form-item>
 
               <a-form-item label="Provider" name="provider">
-                <ModelProviderSelect
+                <ExtensionSelector
                   v-model:value="form.extensionCode"
                   placeholder="请选择端点所属服务商"
                   size="large"
@@ -254,7 +254,7 @@ import {
 } from '@ant-design/icons-vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
-import ModelProviderSelect from './ModelProviderSelect.vue'
+import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
 import type { FormInstance } from 'ant-design-vue'
 import type { AiModel } from '@/api/aiModel'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'

@@ -4,7 +4,7 @@
       <div class="pane-header">
         <div class="pane-toolbar-row">
           <div class="provider-field">
-            <ModelProviderSelect
+            <ExtensionSelector
               :value="providerFilter"
               class="instance-provider-select"
               placeholder="全部提供商"
@@ -82,7 +82,7 @@
 import { MessageOutlined, PartitionOutlined, PictureOutlined } from '@ant-design/icons-vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import ModelProviderSelect from '@/views/admin/ai-config/ai-model/ModelProviderSelect.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
 
 const props = defineProps<{
   providerFilter?: string

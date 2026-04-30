@@ -21,7 +21,7 @@
                   @search="fetchList"
               />
               <div class="provider-filter">
-                <ModelProviderSelect
+                <ExtensionSelector
                     v-model:value="query.extensionCode"
                     placeholder="根据插件编码筛选"
                     :allow-clear="true"
@@ -130,7 +130,7 @@ import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/A
 import AccountForm from './AccountForm.vue'
 import AccountModelsDrawer from './AccountModelsDrawer.vue'
 import AccountCard from './AccountCard.vue'
-import ModelProviderSelect from '../ai-model/ModelProviderSelect.vue'
+import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
 import {aiAccountApi, type AiAccount, type PageResponse} from '@/api/aiAccount'
 import type {AiModel} from '@/api/aiModel'
 

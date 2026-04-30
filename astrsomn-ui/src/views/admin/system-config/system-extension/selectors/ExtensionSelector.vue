@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { message } from 'ant-design-vue'
-import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension'
+import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension.ts'
 
 const props = withDefaults(
   defineProps<{

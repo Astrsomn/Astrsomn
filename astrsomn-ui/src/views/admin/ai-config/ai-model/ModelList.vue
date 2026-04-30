@@ -15,7 +15,7 @@
                 placeholder="搜索端点名称"
                 @search="fetchList"
               />
-              <ModelProviderSelect
+              <ExtensionSelector
                 v-model:value="query.provider"
                 class="toolbar-provider-select"
                 allow-clear
@@ -184,7 +184,7 @@ import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import ModelFormModal from './ModelFormModal.vue'
-import ModelProviderSelect from './ModelProviderSelect.vue'
+import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
 import { useDictionary } from '@/locales/dictionary'
 import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'

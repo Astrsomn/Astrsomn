@@ -40,7 +40,7 @@
             name="provider"
             :rules="[{ required: true, message: '请选择供应商' }]"
           >
-            <ModelProviderSelect
+            <ExtensionSelector
               v-model:value="form.extensionCode"
               placeholder="请选择供应商"
               :allow-clear="true"
@@ -93,7 +93,7 @@ import { reactive, ref, watch, computed } from 'vue'
 import { message } from 'ant-design-vue'
 import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
-import ModelProviderSelect from '@/views/admin/ai-config/ai-model/ModelProviderSelect.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
 import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
 import { AI_ACCOUNT_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
 

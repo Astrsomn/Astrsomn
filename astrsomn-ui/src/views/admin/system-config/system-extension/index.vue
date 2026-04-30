@@ -19,8 +19,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import ExtensionCenterPage from './ExtensionCenterPage.vue'
-import ExtensionSidebar from './ExtensionSidebar.vue'
+import ExtensionCenterPage from './component/ExtensionCenterPage.vue'
+import ExtensionSidebar from './component/ExtensionSidebar.vue'
 
 type ExtensionPanel = 'marketplace' | 'installed'
 const activePanel = ref<ExtensionPanel>('installed')

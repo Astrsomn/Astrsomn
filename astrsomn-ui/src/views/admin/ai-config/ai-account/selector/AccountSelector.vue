@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
 import { SearchOutlined, KeyOutlined } from '@ant-design/icons-vue'
-import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount'
+import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount.ts'
 
 const props = withDefaults(defineProps<{
   open: boolean
