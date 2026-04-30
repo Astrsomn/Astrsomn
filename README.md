@@ -1,5 +1,9 @@
 # 🌟 Astrsomn 星梦
 
+<p align="center">
+  <img src="astrsomn-ui/src/assets/Astrsomn-logo.png" alt="Astrsomn Logo" width="200"/>
+</p>
+
 > **一行注解，即刻开启 AI 进化**  
 > 基于 LangChain4j 深度封装，面向 Java 的标准化、生产级 AI 集成底座
 
@@ -102,21 +106,35 @@ Astrsomn
 
 ### Maven 依赖
 
+**核心依赖（推荐）**：
+
 ```xml
-<!-- 核心依赖 -->
+<!-- Spring Boot Starter（已包含 core） -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-core</artifactId>
+    <artifactId>astrsomn-springboot-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 
-<!-- Spring Boot Starter -->
+<!-- 工作流 Starter（已包含 core 和 springboot-starter） -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-spring-boot-starter</artifactId>
+    <artifactId>astrsomn-workflow-springboot-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
+
+> **说明**：`astrsomn-springboot-starter` 已包含 `astrsomn-core`，`astrsomn-workflow-springboot-starter` 已包含前两者。根据业务需求选择对应的依赖即可。
+
+---
+
+## 📚 官方网站与文档
+
+| 类型 | 链接 |
+|------|------|
+| 🏠 官方网站 | [astrsomn.com](https://www.astrsomn.com/home.html) |
+| 📖 官方文档 | [doc.astrsomn.com](https://doc.astrsomn.com) |
+| 💻 GitHub 仓库 | [Astrsomn/Astrsomn](https://github.com/Astrsomn/Astrsomn) |
 
 ---
 
@@ -210,6 +228,8 @@ limitations under the License.
 </p>
 
 <p align="center">
+  <a href="https://www.astrsomn.com/home.html"><img src="https://img.shields.io/badge/Website-astrsomn.com-blue.svg" alt="Astrsomn Website"></a>
+  <a href="https://doc.astrsomn.com"><img src="https://img.shields.io/badge/Documentation-doc.astrsomn.com-green.svg" alt="Documentation"></a>
   <a href="https://github.com/Astrsomn/Astrsomn"><img src="https://img.shields.io/badge/GitHub-Astrsomn-blue.svg" alt="GitHub"></a>
   <a href="https://gitter.im/Astrsomn/community"><img src="https://img.shields.io/badge/Gitter-Join%20Chat-green.svg" alt="Gitter"></a>
 </p>
