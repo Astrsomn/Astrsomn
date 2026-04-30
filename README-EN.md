@@ -1,5 +1,9 @@
 # 🌟 Astrsomn
 
+<p align="center">
+  <img src="astrsomn-ui/src/assets/Astrsomn-logo.png" alt="Astrsomn Logo" width="200"/>
+</p>
+
 > **One annotation to unleash AI evolution**  
 > Built on LangChain4j, providing standardized, production-grade AI integration for Java
 
@@ -103,21 +107,36 @@ The framework evolves in the following direction (facilitating future SPI and cu
 
 ### Maven Dependencies
 
+**Core Dependencies (Recommended)**:
+
 ```xml
-<!-- Core dependency -->
+<!-- Spring Boot Starter (includes core) -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-core</artifactId>
+    <artifactId>astrsomn-springboot-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 
-<!-- Spring Boot Starter -->
+<!-- Workflow Starter (includes core and springboot-starter) -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-spring-boot-starter</artifactId>
+    <artifactId>astrsomn-workflow-springboot-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
+
+> **Note**: `astrsomn-springboot-starter` already includes `astrsomn-core`, and `astrsomn-workflow-springboot-starter` includes both. Choose the appropriate dependency based on your business needs.
+
+---
+
+## 🌐 Official Website & Documentation
+
+| Type | Link |
+|------|------|
+| 🏠 Official Website | [astrsomn.com](https://www.astrsomn.com/home.html) |
+| 📖 Documentation | [doc.astrsomn.com](https://doc.astrsomn.com) |
+| 🎯 Demo Server | [server.astrsomn.com](https://server.astrsomn.com) |
+| 💻 GitHub Repository | [Astrsomn/Astrsomn](https://github.com/Astrsomn/Astrsomn) |
 
 ---
 
@@ -211,6 +230,9 @@ limitations under the License.
 </p>
 
 <p align="center">
+  <a href="https://www.astrsomn.com/home.html"><img src="https://img.shields.io/badge/Website-astrsomn.com-blue.svg" alt="Astrsomn Website"></a>
+  <a href="https://doc.astrsomn.com"><img src="https://img.shields.io/badge/Documentation-doc.astrsomn.com-green.svg" alt="Documentation"></a>
+  <a href="https://server.astrsomn.com"><img src="https://img.shields.io/badge/Demo-server.astrsomn.com-orange.svg" alt="Demo Server"></a>
   <a href="https://github.com/Astrsomn/Astrsomn"><img src="https://img.shields.io/badge/GitHub-Astrsomn-blue.svg" alt="GitHub"></a>
   <a href="https://gitter.im/Astrsomn/community"><img src="https://img.shields.io/badge/Gitter-Join%20Chat-green.svg" alt="Gitter"></a>
 </p>
