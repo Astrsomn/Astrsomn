@@ -155,7 +155,7 @@ const tableColumns = [
     dataIndex: 'agentKey', 
     key: 'agentKey', 
     ellipsis: true, 
-    width: 140,
+    width: 200,
     copyable: true
   },
   { title: '智能体名称', dataIndex: 'agentName', key: 'agentName', ellipsis: true, width: 200 },

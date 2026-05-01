@@ -19,6 +19,9 @@ export type SystemExtension = {
   avatar?: string
   createTime?: string
   updateTime?: string
+  /** BaseEntity：运行环境 */
+  envCode?: string
+  createUser?: string
 }
 
 /** 插件市场目录项（GET marketplace/catalog） */

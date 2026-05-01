@@ -40,8 +40,8 @@
           >
             <template v-if="column.copyable && text">
               <span class="copyable-cell" @click="handleCopy(text)" title="点击复制">
-                {{ text }}
-                <CopyOutlined class="copy-icon" />
+               
+                <CopyOutlined class="copy-icon" /> {{ text }}
               </span>
             </template>
             <template v-else-if="column.tag || column.enum">

@@ -89,14 +89,14 @@ const toggleDescription = (key: string) => {
 .extension-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 16px;
+  gap: 10px;
 }
 
 .extension-card {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 10px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -106,8 +106,8 @@ const toggleDescription = (key: string) => {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
-  gap: 12px;
-  height: 80px;
+  gap: 10px;
+  height: 72px;
   overflow: hidden;
 }
 

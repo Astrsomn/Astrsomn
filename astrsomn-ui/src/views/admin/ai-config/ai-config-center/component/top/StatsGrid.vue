@@ -96,17 +96,17 @@ import {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin: 10px 0;
+  gap: 10px;
+  margin: 6px 0;
 }
 
 .compact-stat-card {
   position: relative;
   box-sizing: border-box;
-  min-height: 100px;
+  min-height: 88px;
   background: #ffffff;
-  border-radius: 20px;
-  padding: 20px;
+  border-radius: 10px;
+  padding: 14px 16px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   overflow: hidden;
@@ -165,7 +165,7 @@ import {
       flex-shrink: 0;
       width: 48px;
       height: 48px;
-      border-radius: 16px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -191,7 +191,7 @@ import {
 .mini-badge {
   font-size: 10px;
   padding: 0 6px;
-  border-radius: 4px;
+  border-radius: 10px;
   margin-left: 8px;
   font-weight: 700;
   
@@ -229,7 +229,7 @@ import {
   width: 100%;
   height: 3px;
   background: var(--border-default);
-  .progress-fill { height: 100%; background: #a855f7; border-radius: 0 2px 2px 0; }
+  .progress-fill { height: 100%; background: #a855f7; border-radius: 10px; }
 }
 
 .bg-watermark {

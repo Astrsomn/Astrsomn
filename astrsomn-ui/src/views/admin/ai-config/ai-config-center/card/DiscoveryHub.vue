@@ -24,8 +24,8 @@ const navigateTo = (path: string) => {
 .discovery-hub-card {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 10px;
   transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
   height: 100%;
   display: flex;
@@ -43,7 +43,7 @@ const navigateTo = (path: string) => {
 .card-header {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   position: relative;
   flex: 0 0 auto;
 }
