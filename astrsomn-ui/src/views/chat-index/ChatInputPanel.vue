@@ -14,10 +14,21 @@
 
           <div v-if="uploadedFiles.length" class="uploaded-preview">
             <div v-for="item in uploadedFiles" :key="item.id" class="preview-item">
-              <img v-if="item.isImage" class="preview-image" :src="item.url" :alt="item.name" />
+              <a-image
+                v-if="item.isImage"
+                class="preview-image"
+                :src="item.url"
+                :alt="item.name"
+                :preview="item.status === 'success'"
+              />
               <div v-else class="preview-file">{{ item.name }}</div>
               <div v-if="item.status === 'uploading'" class="preview-uploading">上传中...</div>
-              <button class="preview-remove" type="button" @click="removeUploadedFile(item.id)">×</button>
+              <div v-if="item.isImage && item.status === 'success'" class="preview-view-hint" title="点击查看大图">
+                <EyeOutlined />
+              </div>
+              <button class="preview-remove" type="button" title="移除图片" @click="removeUploadedFile(item.id)">
+                <CloseCircleFilled />
+              </button>
             </div>
           </div>
 
@@ -156,6 +167,8 @@
 import {
   ArrowUpOutlined,
   BulbOutlined,
+  CloseCircleFilled,
+  EyeOutlined,
   GlobalOutlined,
   PaperClipOutlined,
   StopOutlined
@@ -549,6 +562,18 @@ const handleEnter = (e: KeyboardEvent) => {
 .preview-image {
   width: 100%;
   height: 100%;
+  display: flex;
+}
+
+.preview-image :deep(.ant-image) {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.preview-image :deep(.ant-image-img) {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
 }
@@ -569,16 +594,35 @@ const handleEnter = (e: KeyboardEvent) => {
   position: absolute;
   right: 4px;
   top: 4px;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border: none;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  line-height: 18px;
+  background: transparent;
+  color: #ff4d4f;
+  line-height: 1;
   text-align: center;
   cursor: pointer;
   padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-remove:hover {
+  color: #ff7875;
+}
+
+.preview-view-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 18px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .preview-uploading {
