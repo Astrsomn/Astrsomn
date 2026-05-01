@@ -64,7 +64,35 @@
 
           <template #bodyCell="{ column, record }">
      
-            <template v-if="column.key === 'apiKey'">
+            <template v-if="column.key === 'callCount'">
+              <span class="metric-chip metric-chip--call">
+                <span class="metric-value">{{ Number(record.callCount ?? 0).toLocaleString() }}</span>
+                <span class="metric-unit">次</span>
+              </span>
+            </template>
+
+            <template v-else-if="column.key === 'totalTokens'">
+              <span class="metric-chip metric-chip--token">
+                <span class="metric-value">{{ Number(record.totalTokens ?? 0).toLocaleString() }}</span>
+                <span class="metric-unit">tokens</span>
+              </span>
+            </template>
+
+            <template v-else-if="column.key === 'accountTokens'">
+              <span class="metric-chip metric-chip--quota">
+                <span class="metric-value">{{ Number(record.accountTokens ?? 0).toLocaleString() }}</span>
+                <span class="metric-unit">tokens</span>
+              </span>
+            </template>
+
+            <template v-else-if="column.key === 'remainingTokens'">
+              <span class="metric-chip metric-chip--remain">
+                <span class="metric-value">{{ Number((record.accountTokens ?? 0) - (record.totalTokens ?? 0)).toLocaleString() }}</span>
+                <span class="metric-unit">tokens</span>
+              </span>
+            </template>
+
+            <template v-else-if="column.key === 'apiKey'">
               <span class="secret-mask">{{ maskSecret(record.apiKey) }}</span>
             </template>
     
@@ -158,12 +186,16 @@ type QueryState = {
 }
 
 const columns = [
+{title: '供应商', key: 'providerAvatar', dataIndex: 'providerAvatar', width: 80, align: 'center', enableBase64Render: true},
   {title: '账号名称', dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true},
   {title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true},
-  {title: '供应商', key: 'providerAvatar', dataIndex: 'providerAvatar', width: 80, align: 'center', enableBase64Render: true},
+  {title: '调用次数', dataIndex: 'callCount', key: 'callCount', width: 140, align: 'center'},
+  {title: '总消耗', dataIndex: 'totalTokens', key: 'totalTokens', width: 170, align: 'center'},
+  {title: '总限量', dataIndex: 'accountTokens', key: 'accountTokens', width: 170, align: 'center'},
+  {title: '剩余额度', key: 'remainingTokens', width: 170, align: 'center'},
+
   {title: '扩展名称', dataIndex: 'extensionName', key: 'extensionName', width: 120, ellipsis: true},
   {title: '请求路径', dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true},
-  {title: '额度', dataIndex: 'accountTokens', key: 'accountTokens', width: 120, ellipsis: true},
   {title: '状态', dataIndex: 'status', key: 'status', width: 120, ellipsis: true, tag: true, tagColor: (status: string) => status === 'enabled' ? 'green' : 'red'},
   {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
@@ -447,6 +479,49 @@ const openModelsDrawer = async (account: AiAccount) => {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+.metric-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+.metric-chip--call {
+  color: #166534;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.metric-chip--token {
+  color: #0f3a8c;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.metric-chip--quota {
+  color: #7c2d12;
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.metric-chip--remain {
+  color: #4c1d95;
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+}
+
+.metric-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-unit {
+  font-size: 12px;
+  opacity: 0.85;
 }
 
 @media (max-width: 720px) {

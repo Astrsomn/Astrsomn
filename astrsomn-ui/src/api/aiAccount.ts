@@ -12,6 +12,10 @@ export type AiAccount = {
   apiKey?: string
   apiSecret?: string
   accountTokens?: number
+  callCount?: number
+  promptTokens?: number
+  completionTokens?: number
+  totalTokens?: number
   envCode?: string
   /** 同环境下使用该 accountKey 的模型数量 */
   usedModelCount?: number

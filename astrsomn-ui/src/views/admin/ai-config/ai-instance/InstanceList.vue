@@ -69,7 +69,17 @@
           </template>
 
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'modelType'">
+            <template v-if="column.key === 'providerAvatar'">
+              <img
+                v-if="providerAvatarCell(record)"
+                class="provider-avatar-cell"
+                :src="providerAvatarCell(record)"
+                :alt="record.instanceName || 'provider'"
+                aria-hidden="true"
+              />
+              <span v-else class="text-secondary">—</span>
+            </template>
+            <template v-else-if="column.key === 'modelType'">
               <a-tag>
                 {{ modelTypeLabel(record.modelType) }}
               </a-tag>
@@ -165,6 +175,7 @@ const handleViewToggle = () => {
 }
 
 const columns = [
+  { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const },
   { 
     title: '实例 Key', 
     dataIndex: 'instanceKey', 
@@ -182,6 +193,11 @@ const columns = [
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
   { title: '操作', key: 'actions', width: 140, fixed: 'right' as const }
 ]
+
+const providerAvatarCell = (record: AiInstance) => {
+  const raw = record?.providerAvatar
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+}
 
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
@@ -369,6 +385,23 @@ onBeforeUnmount(() => {
 
 .mono-text {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.provider-avatar-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.provider-avatar-cell :deep(svg) {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.text-secondary {
+  color: var(--text-muted, #bfbfbf);
 }
 
 @media (max-width: 720px) {
