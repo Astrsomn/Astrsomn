@@ -26,4 +26,6 @@ public interface AiPromptService extends IService<AiPromptEntity> {
     BaseResponse<List<AiPromptResponseDTO>> history(String promptKey, String envCode);
 
     BaseResponse<String> improvePrompt(AiPromptUpdateRequestDTO request);
+
+    BaseResponse<List<String>> querySceneTags();
 }

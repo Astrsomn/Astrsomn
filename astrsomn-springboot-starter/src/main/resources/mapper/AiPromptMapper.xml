@@ -36,7 +36,7 @@
             AND AP.PROMPT_TITLE LIKE CONCAT('%', #{req.promptTitle}, '%')
         </if>
         <if test="req != null and req.scene != null and req.scene != ''">
-            AND AP.SCENE = #{req.scene}
+            AND JSON_CONTAINS(AP.SCENE, JSON_QUOTE(#{req.scene}))
         </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND AP.STATUS = #{req.status}
@@ -76,5 +76,32 @@
             AP.VERSION DESC,
             AP.ID DESC
         LIMIT 1
+    </select>
+
+    <select id="querySceneRawList" resultType="java.lang.String">
+        SELECT AP.SCENE
+        FROM
+            `AI_PROMPT` AP
+        INNER JOIN (
+            SELECT
+                ENV_CODE,
+                PROMPT_KEY,
+                MAX(VERSION) AS max_version
+            FROM
+                `AI_PROMPT`
+            WHERE
+                DELETED = 0
+            GROUP BY
+                ENV_CODE,
+                PROMPT_KEY
+        ) LATEST ON AP.ENV_CODE = LATEST.ENV_CODE
+            AND AP.PROMPT_KEY = LATEST.PROMPT_KEY
+            AND AP.VERSION = LATEST.max_version
+        WHERE
+            AP.DELETED = 0
+          AND AP.ENV_CODE = #{envCode}
+          AND AP.SCENE IS NOT NULL
+          AND AP.SCENE != ''
+        ORDER BY AP.CREATE_TIME DESC
     </select>
 </mapper>

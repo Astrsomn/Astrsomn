@@ -101,7 +101,7 @@
                 </template>
 
                 <template v-else-if="column.key === 'isDefault'">
-                  <a-tag v-if="record.isDefault === 1" color="blue">默认端点</a-tag>
+                  <a-tag v-if="record.isDefault === 'Y'" color="blue">默认端点</a-tag>
                   <span v-else class="text-secondary">-</span>
                 </template>
 
@@ -132,8 +132,12 @@
                     <a-button type="link" size="small" @click="openEdit(record)">
                       <edit-outlined />
                     </a-button>
-                    <a-popconfirm title="移除端点将影响下游关联实例，确定吗？" @confirm="() => handleDeleteOne(record.id)">
-                      <a-button type="link" size="small" danger>
+                    <a-popconfirm
+                      title="移除端点将影响下游关联实例，确定吗？"
+                      :disabled="record.isDefault === 'Y'"
+                      @confirm="() => handleDeleteOne(record)"
+                    >
+                      <a-button type="link" size="small" danger :disabled="record.isDefault === 'Y'">
                         <delete-outlined />
                       </a-button>
                     </a-popconfirm>
@@ -208,12 +212,13 @@ const statusDict = useDictionary('ai-model.status')
 const sourceTypeDict = useDictionary('ai-model.sourceType')
 
 const statusOptions = computed(() => statusDict.value.options())
-const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }]
+const isDefaultOptions = [{ label: '否', value: 'N' }, { label: '是', value: 'Y' }]
 
 const columns = [
   { title: '类型', key: 'modelType', width: 60 },
   { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' },
   { title: '模型信息', key: 'modelName', width: 180 },
+  { title: '默认', key: 'isDefault', width: 90, align: 'center' },
   { title: '模型Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true },
   { 
     title: '来源', 
@@ -437,14 +442,23 @@ const openEdit = async (record: AiModel) => {
   }
 }
 
-const handleDeleteOne = async (id: any) => {
-  const msg = await aiModelApi.delete([id])
+const handleDeleteOne = async (record: AiModel) => {
+  if (record.isDefault === 'Y') {
+    message.warning('默认模型不允许删除')
+    return
+  }
+  const msg = await aiModelApi.delete([record.id as number | string])
   message.success(msg)
-  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== id)
+  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== record.id)
   fetchList()
 }
 
 const handleBatchDelete = async () => {
+  const selectedModels = list.value.filter((item) => selectedRowKeys.value.includes(item.id as number | string))
+  if (selectedModels.some((item) => item.isDefault === 'Y')) {
+    message.warning('选中项中包含默认模型，无法删除')
+    return
+  }
   await aiModelApi.delete([...selectedRowKeys.value])
   message.success('删除成功')
   selectedRowKeys.value = []

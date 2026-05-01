@@ -62,6 +62,11 @@ public class AiPromptController extends BaseController {
         return aiPromptService.history(promptKey, envCode);
     }
 
+    @GetMapping("/scene-tags")
+    public BaseResponse<List<String>> querySceneTags() {
+        return aiPromptService.querySceneTags();
+    }
+
 
     @PostMapping("/improvePrompt")
     public BaseResponse<String> improvePrompt(@RequestBody AiPromptUpdateRequestDTO request) {

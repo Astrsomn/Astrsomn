@@ -16,7 +16,7 @@ export type AiModel = {
   responseLimit?: number
   randomIndex?: number
   topVariance?: number
-  isDefault?: number
+  isDefault?: string
   capabilities?: string
   /** model parameter schema JSON (preferred) */
   params?: string

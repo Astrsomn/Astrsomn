@@ -53,6 +53,15 @@
             AND (M.DELETED = 0 OR M.DELETED IS NULL)
             )
         </if>
+        <if test="req != null and req.extensionCode != null and req.extensionCode != ''">
+            AND EXISTS (
+            SELECT 1 FROM AI_MODEL M
+            WHERE M.MODEL_KEY = AI.MODEL_KEY
+            AND M.ENV_CODE = AI.ENV_CODE
+            AND M.EXTENSION_CODE = #{req.extensionCode}
+            AND (M.DELETED = 0 OR M.DELETED IS NULL)
+            )
+        </if>
         ORDER BY
         AI.CREATE_TIME DESC
     </select>

@@ -1,6 +1,7 @@
 package com.astrsomn.server.service.impl;
 import com.astrsomn.core.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,6 +38,8 @@ import com.astrsomn.core.common.utils.PageUtils;
 @RequiredArgsConstructor
 public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity> implements AiModelService {
 
+    private static final String DEFAULT_YES = "Y";
+    private static final String DEFAULT_NO = "N";
     private static final String INSTANCE_KEY_PREFIX = "INS-";
     private static final String RANDOM_KEY_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int RANDOM_KEY_LENGTH = 8;
@@ -48,7 +52,13 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
 
     @Override
     public BaseResponse<String> delete(long[] longIds) {
-        boolean result = removeByIds(Arrays.stream(longIds).boxed().toList());
+        List<Long> ids = Arrays.stream(longIds).boxed().toList();
+        List<AiModelEntity> models = listByIds(ids);
+        boolean hasDefaultModel = models.stream().anyMatch(model -> Objects.equals(model.getIsDefault(), DEFAULT_YES));
+        if (hasDefaultModel) {
+            throw new BusinessException(AiModelErrorEnum.MODEL_PERMISSION_DENIED, "默认模型不允许删除");
+        }
+        boolean result = removeByIds(ids);
         if (!result) {
             throw new BusinessException(AiModelErrorEnum.MODEL_DELETE_FAILED);
         }
@@ -121,8 +131,16 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         }
         AiModelEntity entity = new AiModelEntity();
         BeanUtils.copyProperties(request, entity);
+        if (StringUtils.isBlank(entity.getModelType())) {
+            entity.setModelType(existing.getModelType());
+        }
         if (StringUtils.isBlank(entity.getEnvCode())) {
-            entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
+            entity.setEnvCode(StringUtils.isBlank(existing.getEnvCode())
+                    ? EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties)
+                    : existing.getEnvCode());
+        }
+        if (entity.getIsDefault() == null) {
+            entity.setIsDefault(DEFAULT_NO);
         }
 
 
@@ -132,6 +150,8 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
                         .eq(AiInstanceEntity::getEnvCode, existing.getEnvCode().trim())) > 0) {
             entity.setModelKey(existing.getModelKey());
         }
+
+        ensureSingleDefaultModelPerType(entity.getEnvCode(), entity.getModelType(), entity.getIsDefault(), entity.getId());
         boolean result = updateById(entity);
         if (!result) {
             throw new BusinessException(AiModelErrorEnum.MODEL_UPDATE_FAILED);
@@ -146,6 +166,11 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         if (StringUtils.isBlank(entity.getEnvCode())) {
             entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
+        if (entity.getIsDefault() == null) {
+            entity.setIsDefault(DEFAULT_NO);
+        }
+
+        ensureSingleDefaultModelPerType(entity.getEnvCode(), entity.getModelType(), entity.getIsDefault(), null);
 
         boolean result = save(entity);
         if (!result) {
@@ -183,6 +208,27 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
             wrapper.eq(AiInstanceEntity::getEnvCode, envCode.trim());
         }
         return aiInstanceMapper.selectCount(wrapper) > 0;
+    }
+
+    private void ensureSingleDefaultModelPerType(String envCode, String modelType, String isDefault, Long excludeId) {
+        if (!Objects.equals(isDefault, DEFAULT_YES)) {
+            return;
+        }
+        if (StringUtils.isBlank(modelType)) {
+            throw new BusinessException(AiModelErrorEnum.MODEL_PARAM_ERROR, "默认模型必须指定模型类型");
+        }
+        if (StringUtils.isBlank(envCode)) {
+            throw new BusinessException(AiModelErrorEnum.MODEL_PARAM_ERROR, "默认模型必须指定环境编码");
+        }
+        LambdaUpdateWrapper<AiModelEntity> clearDefaultWrapper = new LambdaUpdateWrapper<AiModelEntity>()
+                .eq(AiModelEntity::getEnvCode, envCode.trim())
+                .eq(AiModelEntity::getModelType, modelType.trim())
+                .eq(AiModelEntity::getIsDefault, DEFAULT_YES)
+                .set(AiModelEntity::getIsDefault, DEFAULT_NO);
+        if (excludeId != null) {
+            clearDefaultWrapper.ne(AiModelEntity::getId, excludeId);
+        }
+        update(clearDefaultWrapper);
     }
 
 
