@@ -34,6 +34,18 @@ public class AiModelController extends BaseController {
         }
     }
 
+    @PostMapping("/generate-instances/{ids}")
+    public BaseResponse<String> generateInstances(@PathVariable("ids") String ids) {
+        log.debug("generate ai-instance by ai-model ids={}", ids);
+        try {
+            long[] longIds = parseLongIds(ids, ",");
+            return aiModelService.generateInstances(longIds);
+        } catch (NumberFormatException e) {
+            log.warn("generate ai-instance by ai-model: invalid id format, ids={}", ids, e);
+            return BaseResponse.fail("ID格式错误", null);
+        }
+    }
+
 
     @PostMapping("/queryPage")
     public PageResponse<AiModelResponseDTO> queryPage(@RequestBody BasePageRequest<AiModelQueryRequestDTO> request) {

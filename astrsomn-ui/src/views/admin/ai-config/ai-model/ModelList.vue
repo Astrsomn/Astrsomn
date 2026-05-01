@@ -16,11 +16,12 @@
                 @search="fetchList"
               />
               <ExtensionSelector
-                v-model:value="query.provider"
+                v-model:value="query.extensionCode"
                 class="toolbar-provider-select"
                 allow-clear
                 @update:value="handleProviderChange"
               />
+          
               <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
             </div>
             <div class="toolbar-right">
@@ -29,7 +30,17 @@
           </div>
         </template>
 
-
+        <a-tabs
+                :active-key="modelTypeTab"
+                class="toolbar-model-type-tabs"
+                size="small"
+                @change="handleModelTypeTabChange"
+              >
+                <a-tab-pane key="all" tab="全部" />
+                <a-tab-pane key="chat" tab="对话" />
+                <a-tab-pane key="embedding" tab="向量" />
+                <a-tab-pane key="image" tab="图片" />
+              </a-tabs>
 
         <AstrsomnDataView
           mode="table"
@@ -113,9 +124,11 @@
 
                 <template v-else-if="column.key === 'actions'">
                   <a-space>
-                    <a-button type="link" size="small" @click="openView(record)">
-                      <eye-outlined />
-                    </a-button>
+                    <a-popconfirm title="确定快速生成实例吗？" @confirm="() => handleGenerateInstances([record.id])">
+                      <a-button type="link" size="small">
+                        生成实例
+                      </a-button>
+                    </a-popconfirm>
                     <a-button type="link" size="small" @click="openEdit(record)">
                       <edit-outlined />
                     </a-button>
@@ -256,7 +269,12 @@ const providerAvatarCell = (record: AiModel) => {
   return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
 }
 
-const query = reactive<{ modelName?: string; provider?: string; status?: string }>({})
+const query = reactive<{
+  modelName?: string
+  extensionCode?: string
+  modelType?: 'chat' | 'embedding' | 'image'
+  status?: string
+}>({})
 const list = ref<AiModel[]>([])
 const loading = ref(false)
 const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
@@ -264,6 +282,14 @@ const selectedRowKeys = ref<Array<number | string>>([])
 const statusUpdatingId = ref<number | string | null>(null)
 
 const handleProviderChange = () => {
+  page.pageNum = 1
+  void fetchList()
+}
+
+const modelTypeTab = computed(() => query.modelType ?? 'all')
+
+const handleModelTypeTabChange = (key: string) => {
+  query.modelType = key === 'all' ? undefined : (key as 'chat' | 'embedding' | 'image')
   page.pageNum = 1
   void fetchList()
 }
@@ -301,8 +327,9 @@ const fetchList = async () => {
       pageNo: page.pageNum,
       pageSize: page.pageSize,
       param: {
-        supplier: query.provider || undefined,
+        extensionCode: query.extensionCode || undefined,
         modelName: query.modelName || undefined,
+        modelType: query.modelType || undefined,
         status: query.status || undefined
       }
     }
@@ -333,8 +360,9 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
 }
 
 const resetFilters = () => {
-  query.provider = undefined
+  query.extensionCode = undefined
   query.modelName = undefined
+  query.modelType = undefined
   query.status = undefined
   page.pageNum = 1
   fetchList()
@@ -366,6 +394,21 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
         onOk: () => handleBatchDelete()
       })
     }
+  },
+  {
+    label: selectedRowKeys.value.length > 0 ? `生成实例 (${selectedRowKeys.value.length})` : '生成实例',
+    type: 'primary',
+    icon: PlusOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: () => {
+      const n = selectedRowKeys.value.length
+      if (n === 0) return
+      Modal.confirm({
+        title: `确定为选中的 ${n} 个接入端点快速生成实例吗？`,
+        onOk: () => handleBatchGenerateInstances()
+      })
+    },
+    plain: true
   },
   {
     label: '创建',
@@ -406,6 +449,18 @@ const handleBatchDelete = async () => {
   message.success('删除成功')
   selectedRowKeys.value = []
   fetchList()
+}
+
+const handleGenerateInstances = async (ids: Array<number | string | undefined>) => {
+  const validIds = ids.filter((id): id is number | string => id !== undefined && id !== null)
+  if (validIds.length === 0) return
+  const msg = await aiModelApi.generateInstances(validIds)
+  message.success(msg || '实例生成成功')
+  fetchList()
+}
+
+const handleBatchGenerateInstances = async () => {
+  await handleGenerateInstances([...selectedRowKeys.value])
 }
 
 const handleStatusChange = async (id: number | string, checked: boolean) => {
@@ -477,6 +532,19 @@ onMounted(() => {
 .toolbar-provider-select {
   width: 280px;
   min-width: 220px;
+}
+
+.toolbar-model-type-tabs {
+  min-width: 240px;
+}
+
+.toolbar-model-type-tabs :deep(.ant-tabs-nav) {
+  margin: 0;
+}
+
+.toolbar-model-type-tabs :deep(.ant-tabs-tab) {
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 .status-switch {
