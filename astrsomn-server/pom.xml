@@ -23,6 +23,14 @@
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-storage-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-storage</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>

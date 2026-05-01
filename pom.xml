@@ -26,6 +26,8 @@
 
     <modules>
         <module>astrsomn-core</module>
+        <module>astrsomn-storage-core</module>
+        <module>astrsomn-storage</module>
         <module>astrsomn-server</module>
         <module>astrsomn-springboot-starter</module>
         <module>astrsomn-providers</module>
@@ -46,6 +48,18 @@
             <dependency>
                 <groupId>com.astrsomn</groupId>
                 <artifactId>astrsomn-springboot-starter</artifactId>
+                <version>${astrsomn.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.astrsomn</groupId>
+                <artifactId>astrsomn-storage</artifactId>
+                <version>${astrsomn.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.astrsomn</groupId>
+                <artifactId>astrsomn-storage-core</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>
 

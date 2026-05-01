@@ -13,6 +13,30 @@ astrsomn:
   env-code: PRO
   username: admin
   admin-users: admin
+  storage:
+    type: local
+    default-platform: local-plus
+    vec-doc-biz-type: vec-doc
+    base-path: astrsomn/
+dromara:
+  x-file-storage:
+    default-platform: local-plus
+    local-plus:
+      - platform: local-plus
+        enable-storage: true
+        domain: http://127.0.0.1:${server.port}/
+        base-path: ${astrsomn.storage.base-path}
+        path-patterns: /file/**
+        storage-path: ./storage/
+    s3:
+      - platform: minio-s3
+        enable-storage: false
+        access-key: ${MINIO_ACCESS_KEY:}
+        secret-key: ${MINIO_SECRET_KEY:}
+        end-point: ${MINIO_ENDPOINT:http://127.0.0.1:9000}
+        bucket-name: ${MINIO_BUCKET:astrsomn}
+        region: ${MINIO_REGION:us-east-1}
+        base-path: ${astrsomn.storage.base-path}
 logging:
   level:
     com.astrsomn.starter.mapper: debug
