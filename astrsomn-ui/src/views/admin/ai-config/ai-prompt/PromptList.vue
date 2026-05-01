@@ -20,6 +20,7 @@
                 button-label="查询"
                 @search="fetchList"
               />
+              <PromptSceneTagSelector v-model="query.sceneTags" @change="fetchList" />
               <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
             </div>
             <div class="toolbar-right">
@@ -61,6 +62,9 @@
             </template>
             <template v-else-if="column.key === 'version'">
               v{{ record.version || 1 }}
+            </template>
+            <template v-else-if="column.key === 'scene'">
+              {{ renderScene(record.scene) }}
             </template>
             <template v-else-if="column.key === 'actions'">
               <a-space>
@@ -127,7 +131,8 @@ import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
 import PromptCard from './PromptCard.vue'
-import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt.ts'
+import PromptSceneTagSelector from './component/PromptSceneTagSelector.vue'
+import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt'
 
 const PROMPT_CARD_MIN_WIDTH_PX = 320
 const PROMPT_CARD_GAP_PX = 12
@@ -142,7 +147,7 @@ const breadcrumbs = [
 type QueryState = {
   promptTitle?: string
   promptKey?: string
-  scene?: string
+  sceneTags?: string[]
   envCode?: string
   createUser?: string
   status?: string
@@ -226,7 +231,7 @@ const onPromptCardSelectChange = (id: number | string | undefined, checked: bool
 const resetFilters = () => {
   query.promptTitle = undefined
   query.promptKey = undefined
-  query.scene = undefined
+  query.sceneTags = undefined
   query.envCode = undefined
   query.createUser = undefined
   query.status = undefined
@@ -291,7 +296,7 @@ const fetchList = async () => {
       param: {
         promptTitle: query.promptTitle || undefined,
         promptKey: query.promptKey || undefined,
-        scene: query.scene || undefined,
+        scene: query.sceneTags?.[0] || undefined,
         envCode: query.envCode || undefined,
         createUser: query.createUser || undefined,
         status: query.status || undefined
@@ -368,6 +373,19 @@ const handleFormSubmit = async (form: AiPrompt) => {
   } finally {
     modal.submitting = false
   }
+}
+
+const renderScene = (scene?: string) => {
+  if (!scene) {
+    return '-'
+  }
+  try {
+    const parsed = JSON.parse(scene)
+    if (Array.isArray(parsed)) {
+      return parsed.join(', ')
+    }
+  } catch (err) {}
+  return scene
 }
 
 const resolveGridColumns = () => {

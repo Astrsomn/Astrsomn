@@ -20,12 +20,30 @@
                 button-label="查询"
                 @search="fetchList"
               />
+              <ExtensionSelector
+                :value="query.extensionCode"
+                class="toolbar-provider-select"
+                allow-clear
+                @update:value="handleProviderChange"
+              />
             </div>
             <div class="toolbar-right">
               <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
             </div>
           </div>
         </template>
+
+        <a-tabs
+                :active-key="modelTypeTab"
+                class="toolbar-model-type-tabs"
+                size="small"
+                @change="handleModelTypeTabChange"
+              >
+                <a-tab-pane key="all" tab="全部" />
+                <a-tab-pane key="chat" tab="对话" />
+                <a-tab-pane key="embedding" tab="向量" />
+                <a-tab-pane key="image" tab="图片" />
+              </a-tabs>
 
         <AstrsomnDataView
           :mode="dataViewMode"
@@ -51,7 +69,17 @@
           </template>
 
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'modelType'">
+            <template v-if="column.key === 'providerAvatar'">
+              <img
+                v-if="providerAvatarCell(record)"
+                class="provider-avatar-cell"
+                :src="providerAvatarCell(record)"
+                :alt="record.instanceName || 'provider'"
+                aria-hidden="true"
+              />
+              <span v-else class="text-secondary">—</span>
+            </template>
+            <template v-else-if="column.key === 'modelType'">
               <a-tag>
                 {{ modelTypeLabel(record.modelType) }}
               </a-tag>
@@ -108,6 +136,7 @@ import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
 import InstanceForm from './InstanceForm.vue'
 import InstanceCard from './component/InstanceCard.vue'
 import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance'
@@ -120,7 +149,12 @@ const instanceCardGap = `${INSTANCE_CARD_GAP_PX}px`
 const pageRef = ref<HTMLElement | null>(null)
 const formVisible = ref(false)
 const currentRecord = ref<AiInstance | undefined>(undefined)
-const query = reactive<{ instanceName?: string; status?: string }>({})
+const query = reactive<{
+  instanceName?: string
+  status?: string
+  extensionCode?: string
+  modelType?: 'chat' | 'embedding' | 'image'
+}>({})
 const list = ref<AiInstance[]>([])
 const loading = ref(false)
 const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
@@ -129,6 +163,7 @@ const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 const viewMode = ref<'grid' | 'list'>('list')
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 const currentGridColumns = ref(3)
+const modelTypeTab = computed(() => query.modelType ?? 'all')
 
 const breadcrumbs = [
   { title: 'AI 配置', href: '/admin/ai-config' },
@@ -140,6 +175,7 @@ const handleViewToggle = () => {
 }
 
 const columns = [
+  { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const },
   { 
     title: '实例 Key', 
     dataIndex: 'instanceKey', 
@@ -158,6 +194,11 @@ const columns = [
   { title: '操作', key: 'actions', width: 140, fixed: 'right' as const }
 ]
 
+const providerAvatarCell = (record: AiInstance) => {
+  const raw = record?.providerAvatar
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+}
+
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
   onChange: (keys: Array<number | string>) => {
@@ -172,13 +213,30 @@ const modelTypeLabel = (type?: string) => {
   return type || '-'
 }
 
+const handleProviderChange = (value?: string) => {
+  query.extensionCode = value || undefined
+  page.pageNum = 1
+  void fetchList()
+}
+
+const handleModelTypeTabChange = (key: string) => {
+  query.modelType = key === 'all' ? undefined : (key as 'chat' | 'embedding' | 'image')
+  page.pageNum = 1
+  void fetchList()
+}
+
 const fetchList = async () => {
   loading.value = true
   try {
     const resp: PageResponse<AiInstance> = await aiInstanceApi.queryPage({
       pageNo: page.pageNum,
       pageSize: page.pageSize,
-      param: { instanceName: query.instanceName || undefined, status: query.status || undefined }
+      param: {
+        instanceName: query.instanceName || undefined,
+        status: query.status || undefined,
+        extensionCode: query.extensionCode || undefined,
+        modelType: query.modelType || undefined
+      }
     })
     list.value = resp.list || []
     page.total = resp.total || 0
@@ -307,8 +365,43 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
 }
 
+.toolbar-provider-select {
+  width: 280px;
+  min-width: 220px;
+}
+
+.toolbar-model-type-tabs {
+  min-width: 240px;
+}
+
+.toolbar-model-type-tabs :deep(.ant-tabs-nav) {
+  margin: 0;
+}
+
+.toolbar-model-type-tabs :deep(.ant-tabs-tab) {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
 .mono-text {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.provider-avatar-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.provider-avatar-cell :deep(svg) {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.text-secondary {
+  color: var(--text-muted, #bfbfbf);
 }
 
 @media (max-width: 720px) {

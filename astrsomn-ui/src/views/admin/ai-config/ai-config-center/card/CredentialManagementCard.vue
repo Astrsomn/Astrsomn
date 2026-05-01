@@ -25,8 +25,8 @@ const navigateTo = (path: string) => {
 .credential-card {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 10px;
   transition: all 0.3s cubic-bezier(0.4, 0.2, 0.2, 1);
   height: 100%;
   display: flex;
@@ -44,8 +44,8 @@ const navigateTo = (path: string) => {
 .card-icon {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  border-radius: 10px;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -57,7 +57,7 @@ const navigateTo = (path: string) => {
 .card-header {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .card-title {

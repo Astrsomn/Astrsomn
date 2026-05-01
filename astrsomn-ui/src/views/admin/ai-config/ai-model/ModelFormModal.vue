@@ -64,6 +64,16 @@
                 />
               </a-form-item>
 
+              <a-form-item label="默认模型" name="isDefault">
+                <a-segmented
+                  v-model:value="form.isDefault"
+                  :options="isDefaultSegmentedOptions"
+                  block
+                  size="large"
+                  :disabled="props.mode === 'view'"
+                />
+              </a-form-item>
+
               <a-form-item label="模型类型" name="modelType">
                 <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}]" block size="large" :disabled="props.mode === 'view' || isPluginModel" />
               </a-form-item>
@@ -291,6 +301,7 @@ const props = withDefaults(
       confirmLoading?: boolean
       initialData?: AiModel | null
       statusOptions: { label: string; value: string }[]
+      isDefaultOptions?: { label: string; value: string }[]
       submitHandler: (payload: AiModel) => Promise<void>
     }>(),
     { confirmLoading: false, initialData: null }
@@ -302,6 +313,9 @@ const formRef = ref<FormInstance | null>(null)
 
 const accountSelectorOpen = ref(false)
 const modelKeyImmutable = ref(false)
+const isDefaultSegmentedOptions = computed(
+  () => props.isDefaultOptions ?? [{ label: '否', value: 'N' }, { label: '是', value: 'Y' }]
+)
 
 const PARAM_TEMPLATES = {
   chat: [
@@ -362,7 +376,7 @@ const isPluginModel = computed(() => form.sourceType === 'plugin')
 
 const form = reactive<AiModel>({
   modelName: '', modelKey: '', modelType: 'chat', provider: '',
-  accountKey: '', apiUrl: '', status: 'enabled', isDefault: 0, responseLimit: 4096,
+  accountKey: '', apiUrl: '', status: 'enabled', isDefault: 'N', responseLimit: 4096,
   capabilities: '', param: '', randomIndex: 0, topVariance: 0, maxQuotaTokens: 0, sourceType: 'user_custom'
 })
 
@@ -440,7 +454,7 @@ const syncForm = () => {
       accountKey: '',
       apiUrl: '',
       status: 'enabled',
-      isDefault: 0,
+      isDefault: 'N',
       capabilities: '',
       param: '',
       randomIndex: 0,

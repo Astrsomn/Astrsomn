@@ -16,11 +16,12 @@
                 @search="fetchList"
               />
               <ExtensionSelector
-                v-model:value="query.provider"
+                v-model:value="query.extensionCode"
                 class="toolbar-provider-select"
                 allow-clear
                 @update:value="handleProviderChange"
               />
+          
               <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
             </div>
             <div class="toolbar-right">
@@ -29,7 +30,17 @@
           </div>
         </template>
 
-
+        <a-tabs
+                :active-key="modelTypeTab"
+                class="toolbar-model-type-tabs"
+                size="small"
+                @change="handleModelTypeTabChange"
+              >
+                <a-tab-pane key="all" tab="全部" />
+                <a-tab-pane key="chat" tab="对话" />
+                <a-tab-pane key="embedding" tab="向量" />
+                <a-tab-pane key="image" tab="图片" />
+              </a-tabs>
 
         <AstrsomnDataView
           mode="table"
@@ -90,7 +101,7 @@
                 </template>
 
                 <template v-else-if="column.key === 'isDefault'">
-                  <a-tag v-if="record.isDefault === 1" color="blue">默认端点</a-tag>
+                  <a-tag v-if="record.isDefault === 'Y'" color="blue">默认端点</a-tag>
                   <span v-else class="text-secondary">-</span>
                 </template>
 
@@ -113,14 +124,20 @@
 
                 <template v-else-if="column.key === 'actions'">
                   <a-space>
-                    <a-button type="link" size="small" @click="openView(record)">
-                      <eye-outlined />
-                    </a-button>
+                    <a-popconfirm title="确定快速生成实例吗？" @confirm="() => handleGenerateInstances([record.id])">
+                      <a-button type="link" size="small">
+                        生成实例
+                      </a-button>
+                    </a-popconfirm>
                     <a-button type="link" size="small" @click="openEdit(record)">
                       <edit-outlined />
                     </a-button>
-                    <a-popconfirm title="移除端点将影响下游关联实例，确定吗？" @confirm="() => handleDeleteOne(record.id)">
-                      <a-button type="link" size="small" danger>
+                    <a-popconfirm
+                      title="移除端点将影响下游关联实例，确定吗？"
+                      :disabled="record.isDefault === 'Y'"
+                      @confirm="() => handleDeleteOne(record)"
+                    >
+                      <a-button type="link" size="small" danger :disabled="record.isDefault === 'Y'">
                         <delete-outlined />
                       </a-button>
                     </a-popconfirm>
@@ -195,12 +212,13 @@ const statusDict = useDictionary('ai-model.status')
 const sourceTypeDict = useDictionary('ai-model.sourceType')
 
 const statusOptions = computed(() => statusDict.value.options())
-const isDefaultOptions = [{ label: '否', value: 0 }, { label: '是', value: 1 }]
+const isDefaultOptions = [{ label: '否', value: 'N' }, { label: '是', value: 'Y' }]
 
 const columns = [
   { title: '类型', key: 'modelType', width: 60 },
   { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' },
   { title: '模型信息', key: 'modelName', width: 180 },
+  { title: '默认', key: 'isDefault', width: 90, align: 'center' },
   { title: '模型Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true },
   { 
     title: '来源', 
@@ -256,7 +274,12 @@ const providerAvatarCell = (record: AiModel) => {
   return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
 }
 
-const query = reactive<{ modelName?: string; provider?: string; status?: string }>({})
+const query = reactive<{
+  modelName?: string
+  extensionCode?: string
+  modelType?: 'chat' | 'embedding' | 'image'
+  status?: string
+}>({})
 const list = ref<AiModel[]>([])
 const loading = ref(false)
 const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
@@ -264,6 +287,14 @@ const selectedRowKeys = ref<Array<number | string>>([])
 const statusUpdatingId = ref<number | string | null>(null)
 
 const handleProviderChange = () => {
+  page.pageNum = 1
+  void fetchList()
+}
+
+const modelTypeTab = computed(() => query.modelType ?? 'all')
+
+const handleModelTypeTabChange = (key: string) => {
+  query.modelType = key === 'all' ? undefined : (key as 'chat' | 'embedding' | 'image')
   page.pageNum = 1
   void fetchList()
 }
@@ -301,8 +332,9 @@ const fetchList = async () => {
       pageNo: page.pageNum,
       pageSize: page.pageSize,
       param: {
-        supplier: query.provider || undefined,
+        extensionCode: query.extensionCode || undefined,
         modelName: query.modelName || undefined,
+        modelType: query.modelType || undefined,
         status: query.status || undefined
       }
     }
@@ -333,8 +365,9 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
 }
 
 const resetFilters = () => {
-  query.provider = undefined
+  query.extensionCode = undefined
   query.modelName = undefined
+  query.modelType = undefined
   query.status = undefined
   page.pageNum = 1
   fetchList()
@@ -368,6 +401,21 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
     }
   },
   {
+    label: selectedRowKeys.value.length > 0 ? `生成实例 (${selectedRowKeys.value.length})` : '生成实例',
+    type: 'primary',
+    icon: PlusOutlined,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: () => {
+      const n = selectedRowKeys.value.length
+      if (n === 0) return
+      Modal.confirm({
+        title: `确定为选中的 ${n} 个接入端点快速生成实例吗？`,
+        onOk: () => handleBatchGenerateInstances()
+      })
+    },
+    plain: true
+  },
+  {
     label: '创建',
     type: 'primary',
     icon: PlusOutlined,
@@ -394,18 +442,39 @@ const openEdit = async (record: AiModel) => {
   }
 }
 
-const handleDeleteOne = async (id: any) => {
-  const msg = await aiModelApi.delete([id])
+const handleDeleteOne = async (record: AiModel) => {
+  if (record.isDefault === 'Y') {
+    message.warning('默认模型不允许删除')
+    return
+  }
+  const msg = await aiModelApi.delete([record.id as number | string])
   message.success(msg)
-  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== id)
+  selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== record.id)
   fetchList()
 }
 
 const handleBatchDelete = async () => {
+  const selectedModels = list.value.filter((item) => selectedRowKeys.value.includes(item.id as number | string))
+  if (selectedModels.some((item) => item.isDefault === 'Y')) {
+    message.warning('选中项中包含默认模型，无法删除')
+    return
+  }
   await aiModelApi.delete([...selectedRowKeys.value])
   message.success('删除成功')
   selectedRowKeys.value = []
   fetchList()
+}
+
+const handleGenerateInstances = async (ids: Array<number | string | undefined>) => {
+  const validIds = ids.filter((id): id is number | string => id !== undefined && id !== null)
+  if (validIds.length === 0) return
+  const msg = await aiModelApi.generateInstances(validIds)
+  message.success(msg || '实例生成成功')
+  fetchList()
+}
+
+const handleBatchGenerateInstances = async () => {
+  await handleGenerateInstances([...selectedRowKeys.value])
 }
 
 const handleStatusChange = async (id: number | string, checked: boolean) => {
@@ -477,6 +546,19 @@ onMounted(() => {
 .toolbar-provider-select {
   width: 280px;
   min-width: 220px;
+}
+
+.toolbar-model-type-tabs {
+  min-width: 240px;
+}
+
+.toolbar-model-type-tabs :deep(.ant-tabs-nav) {
+  margin: 0;
+}
+
+.toolbar-model-type-tabs :deep(.ant-tabs-tab) {
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 .status-switch {

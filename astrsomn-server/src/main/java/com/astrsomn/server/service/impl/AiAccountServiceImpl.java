@@ -12,6 +12,7 @@ import com.astrsomn.commn.base.PageResponse;
 import com.astrsomn.core.common.dto.account.AiAccountCreateRequestDTO;
 import com.astrsomn.core.common.dto.account.AiAccountQueryRequestDTO;
 import com.astrsomn.core.common.dto.account.AiAccountResponseDTO;
+import com.astrsomn.core.common.dto.account.AiAccountUsageStatsDTO;
 import com.astrsomn.core.common.dto.account.AiAccountUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiAccountEntity;
 import com.astrsomn.core.common.entity.AiModelEntity;
@@ -20,6 +21,7 @@ import com.astrsomn.commn.utils.CryptoUtil;
 import com.astrsomn.commn.base.BusinessException;
 import com.astrsomn.core.exception.AiAccountErrorEnum;
 import com.astrsomn.starter.mapper.AiAccountMapper;
+import com.astrsomn.starter.mapper.AiChatMessageMapper;
 import com.astrsomn.starter.mapper.AiModelMapper;
 import com.astrsomn.server.service.AiAccountService;
 
@@ -28,6 +30,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +43,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
 
 
     private final AiModelMapper aiModelMapper;
+    private final AiChatMessageMapper aiChatMessageMapper;
     private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
@@ -127,7 +136,48 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         }
 
         IPage<AiAccountResponseDTO> result = baseMapper.queryPage(page, param);
+        fillAccountUsageStats(result.getRecords(), param.getEnvCode());
         return PageConverter.toResponse(result);
+    }
+
+    private void fillAccountUsageStats(List<AiAccountResponseDTO> records, String envCode) {
+        if (records == null || records.isEmpty()) {
+            return;
+        }
+
+        List<String> accountKeys = records.stream()
+                .map(AiAccountResponseDTO::getAccountKey)
+                .filter(StringUtils::isNotBlank)
+                .distinct()
+                .collect(Collectors.toList());
+        if (accountKeys.isEmpty()) {
+            return;
+        }
+
+        List<AiAccountUsageStatsDTO> statsList = aiChatMessageMapper.selectUsageByAccountKeys(envCode, accountKeys);
+        Map<String, AiAccountUsageStatsDTO> statsMap = (statsList == null ? Collections.<AiAccountUsageStatsDTO>emptyList() : statsList)
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(item -> StringUtils.isNotBlank(item.getAccountKey()))
+                .collect(Collectors.toMap(AiAccountUsageStatsDTO::getAccountKey, Function.identity(), (left, right) -> left));
+
+        for (AiAccountResponseDTO dto : records) {
+            if (dto == null || StringUtils.isBlank(dto.getAccountKey())) {
+                continue;
+            }
+            AiAccountUsageStatsDTO stats = statsMap.get(dto.getAccountKey());
+            if (stats == null) {
+                dto.setCallCount(0L);
+                dto.setPromptTokens(0L);
+                dto.setCompletionTokens(0L);
+                dto.setTotalTokens(0L);
+                continue;
+            }
+            dto.setCallCount(stats.getCallCount() == null ? 0L : stats.getCallCount());
+            dto.setPromptTokens(stats.getPromptTokens() == null ? 0L : stats.getPromptTokens());
+            dto.setCompletionTokens(stats.getCompletionTokens() == null ? 0L : stats.getCompletionTokens());
+            dto.setTotalTokens(stats.getTotalTokens() == null ? 0L : stats.getTotalTokens());
+        }
     }
 
     /**

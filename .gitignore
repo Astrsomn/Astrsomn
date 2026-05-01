@@ -84,3 +84,4 @@ build.xml
 /deploy/windows/run/.runtime/
 /log/
 /astrsomn-server/log/file
+/astrsomn-server/src/main/resources/application-private.yml

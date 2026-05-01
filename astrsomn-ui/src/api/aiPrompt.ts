@@ -81,5 +81,12 @@ export const aiPromptApi = {
       method: 'post',
       data: { promptContent }
     })
+  },
+
+  querySceneTags: (): Promise<string[]> => {
+    return request({
+      url: '/v1/astro/ai-promopt/scene-tags',
+      method: 'get'
+    })
   }
 }

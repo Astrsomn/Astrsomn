@@ -48,6 +48,12 @@ public class AiVecDocEntity extends BaseEntity<Long> {
     private String filePath;
 
     /**
+     * 对应文件记录 ID
+     */
+    @TableField("FILE_RECORD_ID")
+    private Long fileRecordId;
+
+    /**
      * 原始文件名
      */
     @TableField("ORIGINAL_FILE_NAME")

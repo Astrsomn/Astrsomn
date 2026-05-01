@@ -44,6 +44,7 @@
             AND AM.EXTENSION_CODE = #{req.extensionCode}
         </if>
         ORDER BY
+        CASE WHEN AM.IS_DEFAULT = 'Y' THEN 0 ELSE 1 END,
         AM.EXTENSION_CODE DESC,
         AM.MODEL_TYPE DESC
     </select>

@@ -1,0 +1,10 @@
+package com.astrsomn.server.service;
+
+import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.storage.core.dto.AstroFileUploadResponseDTO;
+import org.springframework.web.multipart.MultipartFile;
+
+public interface AstroFileService {
+
+    BaseResponse<AstroFileUploadResponseDTO> upload(MultipartFile file, String bizType, String bizId);
+}

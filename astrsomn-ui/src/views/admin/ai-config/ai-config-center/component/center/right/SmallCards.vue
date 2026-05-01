@@ -40,7 +40,7 @@ import ToolPluginCard from '@/views/admin/ai-config/ai-config-center/card/ToolPl
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 10px;
   height: 100%;
 }
 

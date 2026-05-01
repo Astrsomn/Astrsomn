@@ -13,6 +13,8 @@ import com.astrsomn.core.common.entity.AiModelEntity;
 public interface AiModelService extends IService<AiModelEntity> {
     BaseResponse<String> delete(long[] longIds);
 
+    BaseResponse<String> generateInstances(long[] modelIds);
+
     PageResponse<AiModelResponseDTO> queryPage(BasePageRequest<AiModelQueryRequestDTO> request);
 
     BaseResponse<AiModelResponseDTO> detail(Long longId);

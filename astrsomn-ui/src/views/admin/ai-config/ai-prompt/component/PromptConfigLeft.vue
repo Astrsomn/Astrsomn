@@ -24,12 +24,13 @@
     </a-form-item>
 
     <a-form-item label="场景" name="scene">
-      <a-textarea
-        minRows="4"
+      <a-select
+        mode="tags"
         v-model:value="form.scene"
-        placeholder="分类"
+        :options="sceneOptions"
+        :token-separators="[' ', '\n', '\t']"
+        placeholder="输入后按空格生成标签，可从下拉库多选"
         allow-clear
-        class="content-area"
         size="large"
       />
     </a-form-item>
@@ -42,6 +43,7 @@ import { AI_PROMPT_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
 
 defineProps<{
   form: Record<string, any>
+  sceneOptions?: Array<{ label: string; value: string }>
 }>()
 
 const statusOptions = [
@@ -57,17 +59,6 @@ const statusOptions = [
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.content-area {
-  font-family: "Fira Code", ui-monospace, monospace;
-  font-size: 13px;
-  background-color: var(--bg-input);
-  color: var(--text-primary);
-  padding: 12px;
-  border-radius: 8px;
-  line-height: 1.6;
-  resize: none;
 }
 
 </style>

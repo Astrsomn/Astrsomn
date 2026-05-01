@@ -115,8 +115,8 @@ onMounted(() => {
 /* 容器：去掉了厚重的边框，使用极浅的背景偏移 */
 .ultra-card {
   background: var(--bg-card);
-  border-radius: 24px;
-  padding: 24px 28px;
+  border-radius: 10px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -134,7 +134,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 }
 
 .card-title {
@@ -191,7 +191,7 @@ onMounted(() => {
 .agent-list-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   flex: 1;
 }
 

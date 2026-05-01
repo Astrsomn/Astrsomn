@@ -32,6 +32,7 @@
             v-model:selected-agent="selectedAgent"
             v-model:selected-chat-instance-key="selectedChatInstanceKey"
             v-model:user-input="userInput"
+            v-model:file-url-list="fileUrlList"
             v-model:is-deep-thinking="isDeepThinking"
             v-model:is-web-search="isWebSearch"
             :is-streaming="isStreaming"
@@ -67,6 +68,7 @@
           v-model:selected-agent="selectedAgent"
           v-model:selected-chat-instance-key="selectedChatInstanceKey"
           v-model:user-input="userInput"
+          v-model:file-url-list="fileUrlList"
           v-model:is-deep-thinking="isDeepThinking"
           v-model:is-web-search="isWebSearch"
           :is-streaming="isStreaming"
@@ -120,8 +122,19 @@ type StreamEvent = {
 }
 
 const CHAT_MEMORY_KEY = 'astrsomn-chat-memory-key'
+const CHAT_DRAFT_KEY_PREFIX = 'astrsomn-chat-draft:'
+
+type ChatDraftState = {
+  userInput: string
+  fileUrlList: string[]
+  isDeepThinking: boolean
+  isWebSearch: boolean
+  selectedAgent?: string
+  selectedChatInstanceKey?: string
+}
 
 const userInput = ref('')
+const fileUrlList = ref<string[]>([])
 const selectedChatInstanceKey = ref<string>()
 const selectedAgent = ref<string>()
 const isDeepThinking = ref(false)
@@ -144,7 +157,11 @@ const sendDisabled = computed(() => {
   if (isStreaming.value) {
     return false
   }
-  return !userInput.value.trim() || !selectedChatInstanceKey.value || !selectedAgent.value
+  return (
+    (!userInput.value.trim() && fileUrlList.value.length === 0) ||
+    !selectedChatInstanceKey.value ||
+    !selectedAgent.value
+  )
 })
 
 const isNewSessionView = computed(() => {
@@ -163,11 +180,79 @@ const getAgentPreferredChatInstanceKey = (agentKey?: string) => {
   return chatInstanceOptions.value.some((item) => item.instanceKey === ik) ? ik : undefined
 }
 
+const getDefaultChatInstanceKey = (agentKey?: string) => {
+  return (
+    getAgentPreferredChatInstanceKey(agentKey) ||
+    chatInstanceOptions.value.find((item) => item.isDefault === 1)?.instanceKey ||
+    chatInstanceOptions.value[0]?.instanceKey ||
+    undefined
+  )
+}
+
 const syncChatInstanceWithAgent = (agentKey?: string) => {
   const preferred = getAgentPreferredChatInstanceKey(agentKey)
   if (preferred) {
     selectedChatInstanceKey.value = preferred
   }
+}
+
+const getDraftStorageKey = (memoryKey: string) => `${CHAT_DRAFT_KEY_PREFIX}${memoryKey}`
+
+const clearDraftState = (memoryKey: string) => {
+  if (!memoryKey) return
+  sessionStorage.removeItem(getDraftStorageKey(memoryKey))
+}
+
+const saveDraftState = (memoryKey = currentMemoryKey.value) => {
+  if (!memoryKey) return
+  const draftState: ChatDraftState = {
+    userInput: userInput.value,
+    fileUrlList: [...fileUrlList.value],
+    isDeepThinking: isDeepThinking.value,
+    isWebSearch: isWebSearch.value,
+    selectedAgent: selectedAgent.value,
+    selectedChatInstanceKey: selectedChatInstanceKey.value
+  }
+  try {
+    sessionStorage.setItem(getDraftStorageKey(memoryKey), JSON.stringify(draftState))
+  } catch {
+    // Ignore storage write failures.
+  }
+}
+
+const restoreDraftState = (memoryKey: string) => {
+  if (!memoryKey) return false
+  const raw = sessionStorage.getItem(getDraftStorageKey(memoryKey))
+  if (!raw) return false
+  try {
+    const parsed = JSON.parse(raw) as Partial<ChatDraftState>
+    userInput.value = typeof parsed.userInput === 'string' ? parsed.userInput : ''
+    fileUrlList.value = Array.isArray(parsed.fileUrlList)
+      ? parsed.fileUrlList.filter((item): item is string => typeof item === 'string' && !!item.trim())
+      : []
+    isDeepThinking.value = parsed.isDeepThinking === true
+    isWebSearch.value = parsed.isWebSearch === true
+    selectedAgent.value = typeof parsed.selectedAgent === 'string' && parsed.selectedAgent.trim()
+      ? parsed.selectedAgent
+      : undefined
+    selectedChatInstanceKey.value =
+      typeof parsed.selectedChatInstanceKey === 'string' && parsed.selectedChatInstanceKey.trim()
+        ? parsed.selectedChatInstanceKey
+        : undefined
+    return true
+  } catch {
+    clearDraftState(memoryKey)
+    return false
+  }
+}
+
+const resetInputDraftState = () => {
+  userInput.value = ''
+  fileUrlList.value = []
+  isDeepThinking.value = false
+  isWebSearch.value = false
+  selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
+  selectedChatInstanceKey.value = getDefaultChatInstanceKey(selectedAgent.value)
 }
 
 const getMemoryKey = () => {
@@ -228,6 +313,7 @@ const loadSessionGroups = async () => {
 const openSession = async (memoryKey: string) => {
   if (!memoryKey) return
   setCurrentMemoryKey(memoryKey)
+  restoreDraftState(memoryKey)
   sessionLoading.value = true
   try {
     const history = await aiConversationApi.recoverByMemoryKey(memoryKey)
@@ -251,6 +337,8 @@ const openSession = async (memoryKey: string) => {
 const createNewSession = () => {
   const key = `web:${Date.now()}`
   setCurrentMemoryKey(key)
+  clearDraftState(key)
+  resetInputDraftState()
   resetWelcomeMessage()
 }
 
@@ -640,15 +728,14 @@ const loadOptions = async () => {
     console.log('Agent options loaded:', agentOptions.value)
     console.log('Chat instance options loaded:', chatInstanceOptions.value)
 
-    if (!selectedAgent.value) {
+    if (!selectedAgent.value || !agentOptions.value.some((item) => item.agentKey === selectedAgent.value)) {
       selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
     }
-    syncChatInstanceWithAgent(selectedAgent.value)
-    if (!selectedChatInstanceKey.value) {
-      selectedChatInstanceKey.value =
-        chatInstanceOptions.value.find((item) => item.isDefault === 1)?.instanceKey ||
-        chatInstanceOptions.value[0]?.instanceKey ||
-        undefined
+    if (
+      !selectedChatInstanceKey.value ||
+      !chatInstanceOptions.value.some((item) => item.instanceKey === selectedChatInstanceKey.value)
+    ) {
+      selectedChatInstanceKey.value = getDefaultChatInstanceKey(selectedAgent.value)
     }
   } catch (error: any) {
     console.error('Error loading options:', error)
@@ -666,10 +753,12 @@ watch(selectedAgent, (agentKey, previousAgentKey) => {
 
 const submitQuestion = async (promptArg?: string) => {
   const prompt = (typeof promptArg === 'string' ? promptArg : userInput.value).trim()
-  if (!prompt || !selectedChatInstanceKey.value || !selectedAgent.value || isStreaming.value) {
+  const currentFileUrlList = [...fileUrlList.value]
+  if ((!prompt && currentFileUrlList.length === 0) || !selectedChatInstanceKey.value || !selectedAgent.value || isStreaming.value) {
     return
   }
   userInput.value = ''
+  fileUrlList.value = []
 
   const userMessageId = `user-${Date.now()}`
   const assistantMessageId = `ai-${Date.now()}`
@@ -705,7 +794,7 @@ const submitQuestion = async (promptArg?: string) => {
         enableDeepThinking: isDeepThinking.value,
         enableNetwork: isWebSearch.value,
         enableStream: true,
-        fileUrlList: []
+        fileUrlList: currentFileUrlList
       }),
       signal: abortController.signal
     })
@@ -788,8 +877,9 @@ const stopStreaming = () => {
 }
 
 onMounted(async () => {
+  const memoryKey = getMemoryKey()
+  restoreDraftState(memoryKey)
   await loadOptions()
-  getMemoryKey()
   await loadSessionGroups()
   if (currentMemoryKey.value && sessionItems.value.some((item) => item.memoryKey === currentMemoryKey.value)) {
     await openSession(currentMemoryKey.value)
@@ -802,6 +892,15 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   abortController?.abort()
 })
+
+watch(
+  [userInput, fileUrlList, isDeepThinking, isWebSearch, selectedAgent, selectedChatInstanceKey],
+  () => {
+    if (!currentMemoryKey.value) return
+    saveDraftState(currentMemoryKey.value)
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>

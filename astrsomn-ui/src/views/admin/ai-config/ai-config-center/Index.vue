@@ -29,7 +29,7 @@ import SmallCards from '@/views/admin/ai-config/ai-config-center/component/cente
 .center-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 12px;
   flex: 1;
   min-height: 380px;
 }
@@ -37,7 +37,7 @@ import SmallCards from '@/views/admin/ai-config/ai-config-center/component/cente
 .bottom-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   min-height: 140px;
 }
 

@@ -15,6 +15,7 @@ import com.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
 import com.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
 import com.astrsomn.core.common.entity.AiPromptEntity;
 import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.commn.utils.JsonUtil;
 import com.astrsomn.commn.base.BusinessException;
 import com.astrsomn.core.exception.AiPromptErrorEnum;
 import com.astrsomn.starter.mapper.AiPromptMapper;
@@ -23,6 +24,7 @@ import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -171,5 +173,34 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     public BaseResponse<String> improvePrompt(AiPromptUpdateRequestDTO request) {
         String data = promptAssistant.improvePrompt(request.getPromptContent(), UUID.randomUUID().toString());
         return BaseResponse.success(data);
+    }
+
+    @Override
+    public BaseResponse<List<String>> querySceneTags() {
+        String envCode = queryEnvParamHelper.effectiveEnvCode();
+        List<String> rawScenes = baseMapper.querySceneRawList(envCode);
+        if (rawScenes == null || rawScenes.isEmpty()) {
+            return BaseResponse.success(new ArrayList<>());
+        }
+        Set<String> tags = new LinkedHashSet<>();
+        for (String rawScene : rawScenes) {
+            if (StringUtils.isBlank(rawScene)) {
+                continue;
+            }
+            try {
+                List<String> parsed = JsonUtil.parseArray(rawScene, String.class);
+                if (parsed == null || parsed.isEmpty()) {
+                    continue;
+                }
+                for (String tag : parsed) {
+                    String normalized = StringUtils.trimToNull(tag);
+                    if (normalized != null) {
+                        tags.add(normalized);
+                    }
+                }
+            } catch (RuntimeException ignore) {
+            }
+        }
+        return BaseResponse.success(new ArrayList<>(tags));
     }
 }

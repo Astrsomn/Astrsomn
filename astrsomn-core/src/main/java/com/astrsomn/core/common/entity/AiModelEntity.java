@@ -69,7 +69,7 @@ public class AiModelEntity extends BaseEntity<Long> {
      * Is default model
      */
     @TableField("IS_DEFAULT")
-    private Integer isDefault;
+    private String isDefault;
     
     /**
      * Capability classification (stored in JSON format)

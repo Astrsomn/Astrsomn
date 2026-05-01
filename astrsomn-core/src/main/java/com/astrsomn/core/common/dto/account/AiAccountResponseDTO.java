@@ -19,6 +19,10 @@ public class AiAccountResponseDTO {
     private String apiKey;
     private String apiSecret;
     private Long accountTokens;
+    private Long callCount;
+    private Long promptTokens;
+    private Long completionTokens;
+    private Long totalTokens;
     private Boolean accountKeyImmutable;
     private Long usedModelCount;
     private String usedModelKeys;

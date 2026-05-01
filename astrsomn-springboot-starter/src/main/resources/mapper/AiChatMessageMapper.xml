@@ -51,4 +51,28 @@
             MODEL_KEY
     </select>
 
+    <select id="selectUsageByAccountKeys" resultType="com.astrsomn.core.common.dto.account.AiAccountUsageStatsDTO">
+        SELECT
+            ACCOUNT_KEY AS accountKey,
+            COUNT(1) AS callCount,
+            COALESCE(SUM(PROMPT_TOKENS), 0) AS promptTokens,
+            COALESCE(SUM(COMPLETION_TOKENS), 0) AS completionTokens,
+            COALESCE(SUM(TOTAL_TOKENS), 0) AS totalTokens
+        FROM
+            `AI_CHAT_MESSAGE`
+        WHERE
+            DELETED = 0
+            <if test="envCode != null and envCode != ''">
+                AND ENV_CODE = #{envCode}
+            </if>
+            <if test="accountKeys != null and accountKeys.size() > 0">
+                AND ACCOUNT_KEY IN
+                <foreach collection="accountKeys" item="key" open="(" separator="," close=")">
+                    #{key}
+                </foreach>
+            </if>
+        GROUP BY
+            ACCOUNT_KEY
+    </select>
+
 </mapper>
