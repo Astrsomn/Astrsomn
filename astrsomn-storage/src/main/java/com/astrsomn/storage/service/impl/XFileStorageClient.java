@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.x.file.storage.core.FileInfo;
 import org.dromara.x.file.storage.core.FileStorageService;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Slf4j
@@ -26,8 +28,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class XFileStorageClient implements AstrsomnStorageClient {
 
+    private static final DateTimeFormatter DATE_PATH_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+
     private final FileStorageService fileStorageService;
     private final StorageProperties storageProperties;
+    private final Environment environment;
 
     @Override
     public StorageUploadResult upload(StorageUploadRequest request) {
@@ -45,12 +50,24 @@ public class XFileStorageClient implements AstrsomnStorageClient {
             bizType = "common";
         }
 
-        String objectKey = buildObjectKey(bizType, originalName, ext);
+        String datePath = buildDatePath();
+        String saveFilename = buildSaveFilename(originalName, ext, storageProperties.isRandomFilename());
+        String platform = storageProperties.getDefaultPlatform();
+        log.info(
+                "x-file-storage upload start bizType={} datePath={} filename={} platform={} astrsomn.default-platform={} dromara.default-platform={} activeProfiles={} fileStorageServiceClass={}",
+                bizType,
+                datePath,
+                saveFilename,
+                platform,
+                environment.getProperty("astrsomn.storage.default-platform"),
+                environment.getProperty("dromara.x-file-storage.default-platform"),
+                Arrays.toString(environment.getActiveProfiles()),
+                fileStorageService.getClass().getName());
         try {
             FileInfo fileInfo = fileStorageService.of(file)
-                    .setPlatform(storageProperties.getDefaultPlatform())
-                    .setPath(bizType + "/")
-                    .setSaveFilename(objectKey.substring(objectKey.lastIndexOf('/') + 1))
+                    .setPlatform(platform)
+                    .setPath(bizType + "/" + datePath + "/")
+                    .setSaveFilename(saveFilename)
                     .setObjectId(request.getObjectId())
                     .setObjectType(request.getObjectType())
                     .upload();
@@ -72,7 +89,17 @@ public class XFileStorageClient implements AstrsomnStorageClient {
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {
-            log.error("x-file-storage upload failed objectKey={}", objectKey, e);
+            log.error(
+                    "x-file-storage upload failed bizType={} datePath={} filename={} platform={} astrsomn.default-platform={} dromara.default-platform={} activeProfiles={} fileStorageServiceClass={}",
+                    bizType,
+                    datePath,
+                    saveFilename,
+                    platform,
+                    environment.getProperty("astrsomn.storage.default-platform"),
+                    environment.getProperty("dromara.x-file-storage.default-platform"),
+                    Arrays.toString(environment.getActiveProfiles()),
+                    fileStorageService.getClass().getName(),
+                    e);
             throw new BusinessException(AstroFileErrorEnum.FILE_UPLOAD_FAILED, e.getMessage());
         }
     }
@@ -125,16 +152,20 @@ public class XFileStorageClient implements AstrsomnStorageClient {
         return originalName.replaceAll("[^a-zA-Z0-9._-]", "_");
     }
 
-    private String buildObjectKey(String bizType, String originalName, String ext) {
+    private static String buildDatePath() {
         LocalDate now = LocalDate.now();
-        String datePath = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return now.format(DATE_PATH_FORMATTER);
+    }
+
+    private static String buildSaveFilename(String originalName, String ext, boolean randomFilename) {
         String safeName = sanitize(originalName);
         if (!ext.isEmpty() && !safeName.toLowerCase().endsWith("." + ext)) {
             safeName = safeName + "." + ext;
         }
-        String basePath = StringUtils.trimToNull(storageProperties.getBasePath());
-        String prefix = basePath == null ? "" : (basePath.endsWith("/") ? basePath : basePath + "/");
-        return prefix + bizType + "/" + datePath + "/" + uuid + "_" + safeName;
+        if (!randomFilename) {
+            return safeName;
+        }
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return uuid + "_" + safeName;
     }
 }

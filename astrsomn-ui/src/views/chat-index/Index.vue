@@ -32,6 +32,7 @@
             v-model:selected-agent="selectedAgent"
             v-model:selected-chat-instance-key="selectedChatInstanceKey"
             v-model:user-input="userInput"
+            v-model:file-url-list="fileUrlList"
             v-model:is-deep-thinking="isDeepThinking"
             v-model:is-web-search="isWebSearch"
             :is-streaming="isStreaming"
@@ -67,6 +68,7 @@
           v-model:selected-agent="selectedAgent"
           v-model:selected-chat-instance-key="selectedChatInstanceKey"
           v-model:user-input="userInput"
+          v-model:file-url-list="fileUrlList"
           v-model:is-deep-thinking="isDeepThinking"
           v-model:is-web-search="isWebSearch"
           :is-streaming="isStreaming"
@@ -122,6 +124,7 @@ type StreamEvent = {
 const CHAT_MEMORY_KEY = 'astrsomn-chat-memory-key'
 
 const userInput = ref('')
+const fileUrlList = ref<string[]>([])
 const selectedChatInstanceKey = ref<string>()
 const selectedAgent = ref<string>()
 const isDeepThinking = ref(false)
@@ -144,7 +147,11 @@ const sendDisabled = computed(() => {
   if (isStreaming.value) {
     return false
   }
-  return !userInput.value.trim() || !selectedChatInstanceKey.value || !selectedAgent.value
+  return (
+    (!userInput.value.trim() && fileUrlList.value.length === 0) ||
+    !selectedChatInstanceKey.value ||
+    !selectedAgent.value
+  )
 })
 
 const isNewSessionView = computed(() => {
@@ -666,10 +673,12 @@ watch(selectedAgent, (agentKey, previousAgentKey) => {
 
 const submitQuestion = async (promptArg?: string) => {
   const prompt = (typeof promptArg === 'string' ? promptArg : userInput.value).trim()
-  if (!prompt || !selectedChatInstanceKey.value || !selectedAgent.value || isStreaming.value) {
+  const currentFileUrlList = [...fileUrlList.value]
+  if ((!prompt && currentFileUrlList.length === 0) || !selectedChatInstanceKey.value || !selectedAgent.value || isStreaming.value) {
     return
   }
   userInput.value = ''
+  fileUrlList.value = []
 
   const userMessageId = `user-${Date.now()}`
   const assistantMessageId = `ai-${Date.now()}`
@@ -705,7 +714,7 @@ const submitQuestion = async (promptArg?: string) => {
         enableDeepThinking: isDeepThinking.value,
         enableNetwork: isWebSearch.value,
         enableStream: true,
-        fileUrlList: []
+        fileUrlList: currentFileUrlList
       }),
       signal: abortController.signal
     })

@@ -2,7 +2,9 @@ spring:
   application:
     name: astrsomn-server
   profiles:
-    active: h2
+    active: private
+    group:
+      private: private
   servlet:
     multipart:
       max-file-size: 128MB
@@ -28,14 +30,14 @@ dromara:
         base-path: ${astrsomn.storage.base-path}
         path-patterns: /file/**
         storage-path: ./storage/
-    s3:
-      - platform: minio-s3
-        enable-storage: false
-        access-key: ${MINIO_ACCESS_KEY:}
-        secret-key: ${MINIO_SECRET_KEY:}
-        end-point: ${MINIO_ENDPOINT:http://127.0.0.1:9000}
-        bucket-name: ${MINIO_BUCKET:astrsomn}
-        region: ${MINIO_REGION:us-east-1}
+    amazon-s3-v2:
+      - platform: cloudflare-r2
+        enable-storage: ${R2_ENABLE_STORAGE:false}
+        access-key: ${R2_ACCESS_KEY_ID:${MINIO_ACCESS_KEY:}}
+        secret-key: ${R2_SECRET_ACCESS_KEY:${MINIO_SECRET_KEY:}}
+        end-point: ${R2_ENDPOINT:${MINIO_ENDPOINT:http://127.0.0.1:9000}}
+        bucket-name: ${R2_BUCKET:${MINIO_BUCKET:astrsomn}}
+        region: ${R2_REGION:${MINIO_REGION:auto}}
         base-path: ${astrsomn.storage.base-path}
 logging:
   level:

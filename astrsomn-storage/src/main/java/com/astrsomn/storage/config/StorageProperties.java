@@ -13,4 +13,5 @@ public class StorageProperties {
     private String defaultPlatform = "local-plus";
     private String basePath = "astrsomn/";
     private String vecDocBizType = "vec-doc";
+    private boolean randomFilename = true;
 }
