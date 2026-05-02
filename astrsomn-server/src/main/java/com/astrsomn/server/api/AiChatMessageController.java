@@ -1,14 +1,14 @@
 package com.astrsomn.server.api;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.chat.message.AiChatMessageCreateRequestDTO;
-import com.astrsomn.core.common.dto.chat.message.AiChatMessageQueryRequestDTO;
-import com.astrsomn.core.common.dto.chat.message.AiChatMessageResponseDTO;
-import com.astrsomn.core.common.dto.chat.message.AiChatMessageUpdateRequestDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageResponseDTO;
+import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageUpdateRequestDTO;
 import com.astrsomn.server.service.AiChatMessageService;
 import org.springframework.web.bind.annotation.*;
 

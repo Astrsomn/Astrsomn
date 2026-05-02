@@ -4,7 +4,7 @@
   <img src="astrsomn-ui/src/assets/Astrsomn-logo.png" alt="Astrsomn Logo" width="200"/>
 </p>
 
-> **一行注解，即刻开启 AI 进化**  
+> **一行注解，即刻开启 AI 进化**\
 > 基于 LangChain4j 深度封装，面向 Java 的标准化、生产级 AI 集成底座
 
 <p align="center">
@@ -18,14 +18,15 @@
   <a href="https://github.com/Astrsomn/Astrsomn/network/members"><img src="https://img.shields.io/github/forks/Astrsomn/Astrsomn.svg" alt="GitHub Forks"></a>
 </p>
 
----
+***
 
 ## 📖 项目介绍
 
-**Astrsomn（星梦）** 致力于解决 Java 生态接入大模型时常见的工程问题：配置复杂、依赖耦合、能力扩展困难、运行治理不足。  
+**Astrsomn（星梦）** 致力于解决 Java 生态接入大模型时常见的工程问题：配置复杂、依赖耦合、能力扩展困难、运行治理不足。\
 框架通过分层模块化与标准化封装，让开发者既能快速上手，也能在企业场景中长期演进。
 
 你可以把 Astrsomn 理解为一套完整闭环：
+
 - `core`：统一抽象与通用能力
 - `starter`：Spring Boot 自动装配与接入层
 - `providers`：模型提供方能力实现
@@ -35,64 +36,97 @@
 
 **适用场景**：RAG 知识库、智能对话、Agent 编排、MCP 工具接入、企业 AI 中台等。
 
----
+***
 
 ## ✨ 核心特性
 
-| 特性 | 描述 |
-|------|------|
-| 🔧 **深度封装** | 完整封装 LangChain4j 能力（LLM / Embedding / Vector Database / Memory / RAG / Tools / Agent） |
-| 🚀 **零侵入接入** | SpringBoot Starter 自动配置，一行注解即可集成 |
-| 🔌 **可插拔设计** | Provider/Vector 可插拔架构，支持多模型与多向量库治理 |
-| 📡 **流式响应** | 支持流式响应、工具调用、记忆、RAG、编排等完整链路 |
-| 📊 **可观测能力** | 面向生产的可观测与可维护能力（配置、日志、成本、缓存） |
-| 🔒 **企业级特性** | 支持多模型、多租户、限流、监控、日志等企业级特性 |
-| 🔗 **原生兼容** | 完全兼容原生 LangChain4j，无缝扩展 |
+| 特性           | 描述                                                                                    |
+| ------------ | ------------------------------------------------------------------------------------- |
+| 🔧 **深度封装**  | 完整封装 LangChain4j 能力（LLM / Embedding / Vector Database / Memory / RAG / Tools / Agent） |
+| 🚀 **零侵入接入** | SpringBoot Starter 自动配置，一行注解即可集成                                                      |
+| 🔌 **可插拔设计** | Provider/Vector 可插拔架构，支持多模型与多向量库治理                                                    |
+| 📡 **流式响应**  | 支持流式响应、工具调用、记忆、RAG、编排等完整链路                                                            |
+| 📊 **可观测能力** | 面向生产的可观测与可维护能力（配置、日志、成本、缓存）                                                           |
+| 🔒 **企业级特性** | 支持多模型、多租户、限流、监控、日志等企业级特性                                                              |
+| 🔗 **原生兼容**  | 完全兼容原生 LangChain4j，无缝扩展                                                               |
 
----
+***
+
+## 🛠️ 技术栈
+
+| 类别    | 技术                               |
+| ----- | -------------------------------- |
+| 后端框架  | Spring Boot 3.3.0                |
+| 语言    | Java 17+                         |
+| AI 集成 | LangChain4j                      |
+| 前端框架  | Vue 3 + TypeScript               |
+| 构建工具  | Maven                            |
+| 数据库   | MySQL / H2                       |
+| 向量数据库 | Qdrant / Milvus / Chroma / Redis |
+
+***
 
 ## 🧩 模块结构
 
 ```text
 Astrsomn
-├── astrsomn-core                    # 核心能力封装（基础接口、工具、模型统一层）
-├── astrsomn-spring-boot-starter     # SpringBoot 快速启动器（自动配置、Starter 依赖）
-├── astrsomn-workflow-core           # 工作流核心引擎
-├── astrsomn-workflow-spring-boot-starter  # 工作流 Starter
-├── astrsomn-providers               # 模型提供方实现
-│   ├── astrsomn-provider-openai     # OpenAI 适配
-│   ├── astrsomn-provider-deepseek   # DeepSeek 适配
-│   ├── astrsomn-provider-qwen       # 通义千问适配
-│   ├── astrsomn-provider-qianfan    # 百度千帆适配
-│   └── astrsomn-provider-zhipu      # 智谱 AI 适配
-├── astrsomn-vector                  # 向量存储实现
-│   ├── astrsomn-vector-qdrant       # Qdrant 适配
-│   ├── astrsomn-vector-chroma       # Chroma 适配
-│   ├── astrsomn-vector-milvus       # Milvus 适配
-│   └── astrsomn-vector-redis        # Redis 适配
-├── astrsomn-server                  # 独立部署的 AI 服务（HTTP 接口、服务化运行）
-├── astrsomn-ui                      # 可视化控制台（配置、调试、监控）
-└── astrsomn-introduction            # 项目介绍站点源码
+├── astrsomn-common                    # 通用基础模块（工具类、基础实体、异常定义）
+├── astrsomn-api                       # API 接口定义层
+│   ├── astrsomn-api-runtime           # 运行时 API（异常枚举、错误码）
+│   ├── astrsomn-api-storage           # 存储 API（文件处理等）
+│   └── astrsomn-api-workflow          # 工作流 API
+├── astrsomn-integrations              # 集成层（Spring Boot Starter）
+│   ├── astrsomn-runtime-starter       # 运行时 Starter（AI 模型、工具、MCP 等）
+│   ├── astrsomn-workflow-starter      # 工作流 Starter
+│   └── astrsomn-internal-storage      # 内部存储实现
+├── astrsomn-plugins                   # 插件生态
+│   ├── astrsomn-providers             # 模型提供方实现
+│   │   ├── astrsomn-provider-openai   # OpenAI 适配
+│   │   ├── astrsomn-provider-deepseek # DeepSeek 适配
+│   │   ├── astrsomn-provider-qwen      # 通义千问适配
+│   │   ├── astrsomn-provider-qianfan   # 百度千帆适配
+│   │   └── astrsomn-provider-zhipu     # 智谱 AI 适配
+│   └── astrsomn-vector                # 向量存储实现
+│       ├── astrsomn-vector-qdrant     # Qdrant 适配
+│       ├── astrsomn-vector-chroma     # Chroma 适配
+│       ├── astrsomn-vector-milvus     # Milvus 适配
+│       └── astrsomn-vector-redis      # Redis 适配
+├── astrsomn-server                    # 服务端应用（HTTP 接口、服务化运行）
+└── astrsomn-ui                        # 前端控制台（Vue 3 + TypeScript）
 ```
 
----
+***
 
 ## 🔗 依赖分层
 
 当前按以下方向演进（便于后续 SPI 与自定义 ClassLoader 增强）：
 
-- `server` 依赖：`starter`、`providers`、`vector`
-- `starter` 依赖：`core`（及编排相关核心）
-- `providers` 依赖：`core`
-- `vector` 依赖：`core`
+- `server` 依赖：`integrations`、`plugins`
+- `integrations` 依赖：`api`、`common`
+- `plugins` 依赖：`api`
+- `api` 依赖：`common`
 
-> **说明**：为保证现阶段稳定性，`core` 中部分模型相关依赖暂时保留，后续会随代码拆分逐步迁移到对应子模块。
-
----
+***
 
 ## 🚀 快速开始
 
+### 一行注解，开启 Java AI 进化
+
+```java
+@Service
+public class MyService {
+    // 一行注解，注入 AI 能力
+    @Astro(agentKey = "MY-AGENT", envCode = "PRO")
+    private AstroChatAssistant assistant;
+
+    public void demo() {
+        String response = assistant.chat("你好，请介绍一下自己");
+    }
+}
+```
+
 ### 环境要求
+
 - JDK 21+
 - Spring Boot 3.2+
 - Maven 3.8+
@@ -106,57 +140,56 @@ Astrsomn
 
 ### Maven 依赖
 
-**核心依赖（推荐）**：
+**集成层依赖（推荐）**：
 
 ```xml
-<!-- Spring Boot Starter（已包含 core） -->
+<!-- 运行时 Starter（AI 模型、工具、MCP 等） -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-springboot-starter</artifactId>
+    <artifactId>astrsomn-runtime-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 
-<!-- 工作流 Starter（已包含 core 和 springboot-starter） -->
+<!-- 工作流 Starter（已包含 runtime-starter） -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-workflow-springboot-starter</artifactId>
+    <artifactId>astrsomn-workflow-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
 
-> **说明**：`astrsomn-springboot-starter` 已包含 `astrsomn-core`，`astrsomn-workflow-springboot-starter` 已包含前两者。根据业务需求选择对应的依赖即可。
-
----
+***
 
 ## 📚 官方网站与文档
 
-| 类型 | 链接 |
-|------|------|
-| 🏠 官方网站 | [astrsomn.com](https://www.astrsomn.com/home.html) |
-| 📖 官方文档 | [doc.astrsomn.com](https://doc.astrsomn.com) |
+| 类型           | 链接                                                        |
+| ------------ | --------------------------------------------------------- |
+| 🏠 官方网站      | [astrsomn.com](https://www.astrsomn.com/home.html)        |
+| 📖 官方文档      | [doc.astrsomn.com](https://doc.astrsomn.com)              |
 | 💻 GitHub 仓库 | [Astrsomn/Astrsomn](https://github.com/Astrsomn/Astrsomn) |
 
----
+***
 
 ## 📚 文档与资源
 
-| 文档类型 | 链接 |
-|----------|------|
-| 📖 系统设计文档 | [系统设计文档](document/系统设计文档.md) |
-| 🌐 中文介绍站点 | [astrsomn-introduction](astrsomn-introduction/) |
-| 📝 英文文档 | [README-EN.md](README-EN.md) |
-| 📋 版本路线规划 | [版本路线规划-1x到2x](document/2026-04-17/版本路线规划-1x到2x.md) |
+| 文档类型      | 链接                                                                        |
+| --------- | ------------------------------------------------------------------------- |
+| 📖 系统设计文档 | [系统设计文档](document/系统设计文档.md)                                              |
+| 🌐 中文介绍站点 | [astrsomn-introduction](astrsomn-introduction/)                           |
+| 📝 英文文档   | [README-EN.md](README-EN.md)                                              |
+| 📋 版本路线规划 | [版本路线规划-1x到2x](document/2026-04-17/版本路线规划-1x到2x.md)                       |
 | 🗂️ 工作流设计 | [AI工作流标准化路线图](document/2026-04-26/ai-workflow-standardization-roadmap.md) |
-| 📐 向量存储设计 | [向量存储扩展设计规范](document/2026-04-06/向量存储扩展设计规范.md) |
-| 📊 扩展系统架构 | [扩展系统架构分析](document/2026-04-15/扩展系统架构分析.md) |
+| 📐 向量存储设计 | [向量存储扩展设计规范](document/2026-04-06/向量存储扩展设计规范.md)                           |
+| 📊 扩展系统架构 | [扩展系统架构分析](document/2026-04-15/扩展系统架构分析.md)                               |
 
----
+***
 
 ## 🤝 贡献指南
 
 欢迎贡献代码！我们非常感谢任何形式的贡献，包括但不限于：
 
 ### 贡献方式
+
 - 💡 [提交 Issue](https://github.com/Astrsomn/Astrsomn/issues) - 报告 bug 或提出功能建议
 - 📝 [提交 Pull Request](https://github.com/Astrsomn/Astrsomn/pulls) - 贡献代码
 - 📖 完善文档 - 帮助改进项目文档
@@ -171,15 +204,17 @@ Astrsomn
 5. **创建 Pull Request** → [提交 PR](https://github.com/Astrsomn/Astrsomn/pulls)
 
 ### 贡献规范
+
 - 请遵循 [代码风格指南](document/2026-04-02/开源完善总方案.md)
 - 提交前请确保通过所有测试
 - 提供清晰的 commit 信息和 PR 描述
 
----
+***
 
 ## 📦 扩展生态
 
 ### 模型提供方
+
 - [OpenAI Provider](astrsomn-providers/astrsomn-provider-openai/)
 - [DeepSeek Provider](astrsomn-providers/astrsomn-provider-deepseek/)
 - [Qwen Provider](astrsomn-providers/astrsomn-provider-qwen/)
@@ -187,21 +222,29 @@ Astrsomn
 - [Zhipu Provider](astrsomn-providers/astrsomn-provider-zhipu/)
 
 ### 向量存储
+
 - [Qdrant Vector](astrsomn-vector/astrsomn-vector-qdrant/)
 - [Chroma Vector](astrsomn-vector/astrsomn-vector-chroma/)
 - [Milvus Vector](astrsomn-vector/astrsomn-vector-milvus/)
 - [Redis Vector](astrsomn-vector/astrsomn-vector-redis/)
 
----
+***
 
-## 📬 社区与支持
+## 💬 社区与交流
 
-- 💬 [GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - 社区讨论
-- 🐛 [Issue Tracker](https://github.com/Astrsomn/Astrsomn/issues) - Bug 报告
-- 🔧 [Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - 代码贡献
-- 📧 邮件列表：dev@astrsomn.io
+<p align="center">
+  <a href="https://github.com/Astrsomn/Astrsomn/discussions"><img src="https://img.shields.io/badge/Discussions-GitHub-blue?style=flat-square&logo=github" alt="GitHub Discussions"></a>
+  <a href="https://github.com/Astrsomn/Astrsomn/issues"><img src="https://img.shields.io/badge/Issues-GitHub-green?style=flat-square&logo=github" alt="GitHub Issues"></a>
+  <a href="https://github.com/Astrsomn/Astrsomn/pulls"><img src="https://img.shields.io/badge/PRs-Welcome-orange?style=flat-square&logo=github" alt="PRs Welcome"></a>
+  <a href="mailto:astrsomn@outlook.com"><img src="https://img.shields.io/badge/Email-astrsomn@outlook.com-red?style=flat-square&logo=gmail" alt="Email"></a>
+</p>
 
----
+- 💬 **讨论区**：[GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - 分享使用经验、交流想法
+- 🐛 **问题反馈**：[GitHub Issues](https://github.com/Astrsomn/Astrsomn/issues) - 报告 Bug、提出功能建议
+- 🔧 **贡献代码**：[Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - 欢迎提交 PR
+- 📧 **联系邮箱**：<astrsomn@outlook.com>
+
+***
 
 ## 📄 许可证
 
@@ -221,7 +264,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
----
+***
 
 <p align="center">
   Made with ❤️ by the Astrsomn Team

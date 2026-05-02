@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.astrsomn</groupId>
+        <artifactId>astrsomn-vector</artifactId>
+        <version>0.1.0-alpha.1</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>astrsomn-vector-qdrant</artifactId>
+    <name>astrsomn-vector-qdrant</name>
+    <description>astrsomn-vector-qdrant</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-api-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-qdrant</artifactId>
+            <version>${langchain4j.integration.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

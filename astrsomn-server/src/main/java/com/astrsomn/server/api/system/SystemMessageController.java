@@ -1,14 +1,14 @@
 package com.astrsomn.server.api.system;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.systemmessage.SystemMessageCreateRequestDTO;
-import com.astrsomn.core.common.dto.systemmessage.SystemMessageQueryRequestDTO;
-import com.astrsomn.core.common.dto.systemmessage.SystemMessageResponseDTO;
-import com.astrsomn.core.common.dto.systemmessage.SystemMessageUpdateRequestDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageResponseDTO;
+import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageUpdateRequestDTO;
 import com.astrsomn.server.service.SystemMessageService;
 import org.springframework.web.bind.annotation.*;
 

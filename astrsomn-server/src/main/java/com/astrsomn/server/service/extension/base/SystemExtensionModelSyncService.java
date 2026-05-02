@@ -1,9 +1,9 @@
 package com.astrsomn.server.service.extension.base;
 
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.core.common.dto.extension.ExtensionModelLoadPreviewDTO;
-import com.astrsomn.core.common.dto.extension.ExtensionModelUnloadPreviewDTO;
-import com.astrsomn.core.common.langchain.extension.model.ModelProviderHandler;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.api.runtime.common.dto.extension.ExtensionModelLoadPreviewDTO;
+import com.astrsomn.api.runtime.common.dto.extension.ExtensionModelUnloadPreviewDTO;
+import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
 
 public interface SystemExtensionModelSyncService {
 

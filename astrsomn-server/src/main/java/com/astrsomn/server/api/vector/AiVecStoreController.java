@@ -1,15 +1,15 @@
 package com.astrsomn.server.api.vector;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.vecstore.AiVecStoreCreateRequestDTO;
-import com.astrsomn.core.common.dto.vecstore.AiVecStoreQueryRequestDTO;
-import com.astrsomn.core.common.dto.vecstore.AiVecStoreResponseDTO;
-import com.astrsomn.core.common.dto.vecstore.AiVecStoreStatsResponseDTO;
-import com.astrsomn.core.common.dto.vecstore.AiVecStoreUpdateRequestDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreResponseDTO;
+import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreStatsResponseDTO;
+import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreUpdateRequestDTO;
 import com.astrsomn.server.service.AiVecStoreService;
 import org.springframework.web.bind.annotation.*;
 

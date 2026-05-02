@@ -1,13 +1,13 @@
 package com.astrsomn.server.service;
 
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.workflow.core.domain.dto.timerjob.AstFlowTimerJobCreateRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.timerjob.AstFlowTimerJobQueryRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.timerjob.AstFlowTimerJobResponseDTO;
-import com.astrsomn.workflow.core.domain.dto.timerjob.AstFlowTimerJobUpdateRequestDTO;
-import com.astrsomn.workflow.core.domain.entity.AstFlowTimerJobEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.workflow.domain.dto.timerjob.AstFlowTimerJobCreateRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.timerjob.AstFlowTimerJobQueryRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.timerjob.AstFlowTimerJobResponseDTO;
+import com.astrsomn.api.workflow.domain.dto.timerjob.AstFlowTimerJobUpdateRequestDTO;
+import com.astrsomn.api.workflow.domain.entity.AstFlowTimerJobEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface AiWorkflowTimerJobService extends IService<AstFlowTimerJobEntity> {

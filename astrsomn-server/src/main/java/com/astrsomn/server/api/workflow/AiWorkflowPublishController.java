@@ -1,9 +1,9 @@
 package com.astrsomn.server.api.workflow;
 
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.server.service.AiWorkflowPublishService;
-import com.astrsomn.workflow.core.domain.dto.runtime.AstFlowPublishRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.runtime.AstFlowPublishRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

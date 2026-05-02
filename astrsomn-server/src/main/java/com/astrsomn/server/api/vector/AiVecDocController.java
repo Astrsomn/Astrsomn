@@ -1,15 +1,15 @@
 package com.astrsomn.server.api.vector;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.vecdoc.AiVecDocCreateRequestDTO;
-import com.astrsomn.core.common.dto.vecdoc.AiVecDocQueryRequestDTO;
-import com.astrsomn.core.common.dto.vecdoc.AiVecDocResponseDTO;
-import com.astrsomn.core.common.dto.vecdoc.AiVecDocUpdateRequestDTO;
-import com.astrsomn.core.common.dto.vecdoc.AiVecDocVectorizeRequestDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocResponseDTO;
+import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocVectorizeRequestDTO;
 import com.astrsomn.server.service.AiVecDocService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

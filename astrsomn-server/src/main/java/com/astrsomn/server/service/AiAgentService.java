@@ -1,14 +1,14 @@
 package com.astrsomn.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.agent.AiAgentCreateRequestDTO;
-import com.astrsomn.core.common.dto.agent.AiAgentQueryRequestDTO;
-import com.astrsomn.core.common.dto.agent.AiAgentResponseDTO;
-import com.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
-import com.astrsomn.core.common.entity.AiAgentEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.agent.AiAgentCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.agent.AiAgentQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.agent.AiAgentResponseDTO;
+import com.astrsomn.api.runtime.common.dto.agent.AiAgentUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
 
 public interface AiAgentService extends IService<AiAgentEntity> {
     BaseResponse<String> create(AiAgentCreateRequestDTO request);

@@ -1,14 +1,14 @@
 package com.astrsomn.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.mcp.AiMcpCreateRequestDTO;
-import com.astrsomn.core.common.dto.mcp.AiMcpQueryRequestDTO;
-import com.astrsomn.core.common.dto.mcp.AiMcpResponseDTO;
-import com.astrsomn.core.common.dto.mcp.AiMcpUpdateRequestDTO;
-import com.astrsomn.core.common.entity.AiMcpEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.mcp.AiMcpCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.mcp.AiMcpQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.mcp.AiMcpResponseDTO;
+import com.astrsomn.api.runtime.common.dto.mcp.AiMcpUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiMcpEntity;
 
 public interface AiMcpService extends IService<AiMcpEntity> {
     BaseResponse<String> create(AiMcpCreateRequestDTO request);

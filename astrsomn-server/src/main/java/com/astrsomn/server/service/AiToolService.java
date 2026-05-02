@@ -1,14 +1,14 @@
 package com.astrsomn.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.tool.AiToolCreateRequestDTO;
-import com.astrsomn.core.common.dto.tool.AiToolQueryRequestDTO;
-import com.astrsomn.core.common.dto.tool.AiToolResponseDTO;
-import com.astrsomn.core.common.dto.tool.AiToolUpdateRequestDTO;
-import com.astrsomn.core.common.entity.AiToolEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.tool.AiToolCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.tool.AiToolQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.tool.AiToolResponseDTO;
+import com.astrsomn.api.runtime.common.dto.tool.AiToolUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiToolEntity;
 
 public interface AiToolService extends IService<AiToolEntity> {
     BaseResponse<String> create(AiToolCreateRequestDTO request);

@@ -52,28 +52,47 @@ Astrsomn consists of a complete ecosystem:
 
 ---
 
+## 🛠️ Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Backend Framework | Spring Boot 3.3.0 |
+| Language | Java 17+ |
+| AI Integration | LangChain4j |
+| Frontend Framework | Vue 3 + TypeScript |
+| Build Tool | Maven |
+| Database | MySQL / H2 |
+| Vector Database | Qdrant / Milvus / Chroma / Redis |
+
+---
+
 ## 🧩 Module Architecture
 
 ```text
 Astrsomn
-├── astrsomn-core                    # Core capability encapsulation (basic interfaces, tools, model unified layer)
-├── astrsomn-spring-boot-starter     # SpringBoot quick starter (auto-configuration, starter dependencies)
-├── astrsomn-workflow-core           # Workflow core engine
-├── astrsomn-workflow-spring-boot-starter  # Workflow Starter
-├── astrsomn-providers               # Model provider implementations
-│   ├── astrsomn-provider-openai     # OpenAI adapter
-│   ├── astrsomn-provider-deepseek   # DeepSeek adapter
-│   ├── astrsomn-provider-qwen       # Qwen adapter
-│   ├── astrsomn-provider-qianfan    # Qianfan adapter
-│   └── astrsomn-provider-zhipu      # Zhipu AI adapter
-├── astrsomn-vector                  # Vector storage implementations
-│   ├── astrsomn-vector-qdrant       # Qdrant adapter
-│   ├── astrsomn-vector-chroma       # Chroma adapter
-│   ├── astrsomn-vector-milvus       # Milvus adapter
-│   └── astrsomn-vector-redis        # Redis adapter
-├── astrsomn-server                  # Standalone deployable AI service (HTTP interface, service-oriented operation)
-├── astrsomn-ui                      # Visual console (configuration, debugging, monitoring)
-└── astrsomn-introduction            # Project introduction site source
+├── astrsomn-common                    # Common base module (utilities, base entities, exception definitions)
+├── astrsomn-api                       # API interface definition layer
+│   ├── astrsomn-api-runtime           # Runtime API (exception enums, error codes)
+│   ├── astrsomn-api-storage           # Storage API (file handling, etc.)
+│   └── astrsomn-api-workflow          # Workflow API
+├── astrsomn-integrations              # Integration layer (Spring Boot Starter)
+│   ├── astrsomn-runtime-starter       # Runtime Starter (AI models, tools, MCP, etc.)
+│   ├── astrsomn-workflow-starter      # Workflow Starter
+│   └── astrsomn-internal-storage      # Internal storage implementation
+├── astrsomn-plugins                   # Plugin ecosystem
+│   ├── astrsomn-providers             # Model provider implementations
+│   │   ├── astrsomn-provider-openai   # OpenAI adapter
+│   │   ├── astrsomn-provider-deepseek # DeepSeek adapter
+│   │   ├── astrsomn-provider-qwen      # Qwen adapter
+│   │   ├── astrsomn-provider-qianfan   # Qianfan adapter
+│   │   └── astrsomn-provider-zhipu     # Zhipu AI adapter
+│   └── astrsomn-vector                # Vector storage implementations
+│       ├── astrsomn-vector-qdrant     # Qdrant adapter
+│       ├── astrsomn-vector-chroma     # Chroma adapter
+│       ├── astrsomn-vector-milvus     # Milvus adapter
+│       └── astrsomn-vector-redis      # Redis adapter
+├── astrsomn-server                    # Server application (HTTP interface, service-oriented operation)
+└── astrsomn-ui                        # Frontend console (Vue 3 + TypeScript)
 ```
 
 ---
@@ -82,16 +101,29 @@ Astrsomn
 
 The framework evolves in the following direction (facilitating future SPI and custom ClassLoader enhancements):
 
-- `server` depends on: `starter`, `providers`, `vector`
-- `starter` depends on: `core` (and workflow-related core)
-- `providers` depends on: `core`
-- `vector` depends on: `core`
-
-> **Note**: To ensure stability at this stage, some model-related dependencies in `core` are temporarily retained and will be gradually migrated to corresponding sub-modules as code is split.
+- `server` depends on: `integrations`, `plugins`
+- `integrations` depends on: `api`, `common`
+- `plugins` depends on: `api`
+- `api` depends on: `common`
 
 ---
 
 ## 🚀 Quick Start
+
+### One Annotation, Enable Java AI Evolution
+
+```java
+@Service
+public class MyService {
+    // One annotation to inject AI capability
+    @Astro(agentKey = "MY-AGENT", envCode = "PRO")
+    private AstroChatAssistant assistant;
+
+    public void demo() {
+        String response = assistant.chat("Hello, please introduce yourself");
+    }
+}
+```
 
 ### Requirements
 - JDK 21+
@@ -107,25 +139,23 @@ The framework evolves in the following direction (facilitating future SPI and cu
 
 ### Maven Dependencies
 
-**Core Dependencies (Recommended)**:
+**Integration Layer Dependencies (Recommended)**:
 
 ```xml
-<!-- Spring Boot Starter (includes core) -->
+<!-- Runtime Starter (AI models, tools, MCP, etc.) -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-springboot-starter</artifactId>
+    <artifactId>astrsomn-runtime-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 
-<!-- Workflow Starter (includes core and springboot-starter) -->
+<!-- Workflow Starter (includes runtime-starter) -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-workflow-springboot-starter</artifactId>
+    <artifactId>astrsomn-workflow-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
-
-> **Note**: `astrsomn-springboot-starter` already includes `astrsomn-core`, and `astrsomn-workflow-springboot-starter` includes both. Choose the appropriate dependency based on your business needs.
 
 ---
 
@@ -196,12 +226,19 @@ We welcome contributions! We appreciate any form of contribution including but n
 
 ---
 
-## 📬 Community & Support
+## 💬 Community & Support
 
-- 💬 [GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - Community discussions
-- 🐛 [Issue Tracker](https://github.com/Astrsomn/Astrsomn/issues) - Bug reports
-- 🔧 [Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - Code contributions
-- 📧 Mailing List: dev@astrsomn.io
+<p align="center">
+  <a href="https://github.com/Astrsomn/Astrsomn/discussions"><img src="https://img.shields.io/badge/Discussions-GitHub-blue?style=flat-square&logo=github" alt="GitHub Discussions"></a>
+  <a href="https://github.com/Astrsomn/Astrsomn/issues"><img src="https://img.shields.io/badge/Issues-GitHub-green?style=flat-square&logo=github" alt="GitHub Issues"></a>
+  <a href="https://github.com/Astrsomn/Astrsomn/pulls"><img src="https://img.shields.io/badge/PRs-Welcome-orange?style=flat-square&logo=github" alt="PRs Welcome"></a>
+  <a href="mailto:astrsomn@outlook.com"><img src="https://img.shields.io/badge/Email-astrsomn@outlook.com-red?style=flat-square&logo=gmail" alt="Email"></a>
+</p>
+
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - Share experiences and ideas
+- 🐛 **Issues**: [GitHub Issues](https://github.com/Astrsomn/Astrsomn/issues) - Report bugs and suggest features
+- 🔧 **Contributions**: [Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - Welcome to submit PRs
+- 📧 **Email**: astrsomn@outlook.com
 
 ---
 

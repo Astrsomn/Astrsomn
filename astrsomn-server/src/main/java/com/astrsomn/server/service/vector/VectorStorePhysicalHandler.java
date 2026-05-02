@@ -2,16 +2,16 @@ package com.astrsomn.server.service.vector;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.core.common.constant.AiVecDriverEnum;
-import com.astrsomn.core.common.entity.AiVecSourceEntity;
-import com.astrsomn.core.common.entity.AiVecStoreEntity;
-import com.astrsomn.core.common.langchain.extension.vector.VecSource;
-import com.astrsomn.core.common.langchain.extension.vector.VecStore;
-import com.astrsomn.commn.utils.StringUtils;
-import com.astrsomn.commn.base.BusinessException;
-import com.astrsomn.core.exception.AstVecStoreErrorEnum;
+import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
+import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.exception.AstVecStoreErrorEnum;
 import com.astrsomn.server.service.AiVecSourceService;
-import com.astrsomn.starter.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

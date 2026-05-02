@@ -1,9 +1,9 @@
 package com.astrsomn.server.service.extension.base;
 
-import com.astrsomn.core.common.constant.SystemExtensionEnum;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.core.common.dto.extension.ExtensionMarketplaceItemDTO;
-import com.astrsomn.commn.base.PageResponse;
+import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.api.runtime.common.dto.extension.ExtensionMarketplaceItemDTO;
+import com.astrsomn.common.base.PageResponse;
 
 import java.util.Optional;
 

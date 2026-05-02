@@ -5,8 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.core.common.entity.SystemUserEntity;
-import com.astrsomn.starter.mapper.SystemUserMapper;
+import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import com.astrsomn.starter.runtime.mapper.SystemUserMapper;
 import com.astrsomn.server.util.JwtUtil;
 import com.astrsomn.server.util.UserContext;
 import org.springframework.stereotype.Component;
@@ -57,8 +57,8 @@ public class AuthenticationInterceptor extends AbstractSecurityInterceptor imple
         UserContext.setToken(token);
         UserContext.setClientIp(request.getRemoteAddr());
         // 同步到 starter 上下文，供 MetaObjectHandler 自动填充读取
-        com.astrsomn.starter.context.UserContext.setUserId(user.getId());
-        com.astrsomn.starter.context.UserContext.setUsername(user.getUsername());
+        com.astrsomn.starter.runtime.context.UserContext.setUserId(user.getId());
+        com.astrsomn.starter.runtime.context.UserContext.setUsername(user.getUsername());
 
         log.info("用户认证成功 - URI: {}, Username: {}, UserId: {}",
                 request.getRequestURI(), username, userId);
@@ -69,7 +69,7 @@ public class AuthenticationInterceptor extends AbstractSecurityInterceptor imple
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         UserContext.clear();
-        com.astrsomn.starter.context.UserContext.clear();
+        com.astrsomn.starter.runtime.context.UserContext.clear();
     }
 
     private String extractToken(HttpServletRequest request) {

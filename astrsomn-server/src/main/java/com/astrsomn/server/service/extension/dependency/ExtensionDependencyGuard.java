@@ -1,14 +1,14 @@
 package com.astrsomn.server.service.extension.dependency;
 
-import com.astrsomn.core.common.constant.SystemExtensionEnum;
+import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.core.common.entity.SystemExtensionEntity;
-import com.astrsomn.commn.utils.StringUtils;
-import com.astrsomn.commn.base.BusinessException;
-import com.astrsomn.core.exception.SystemExtensionErrorEnum;
-import com.astrsomn.starter.mapper.SystemExtensionMapper;
+import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.exception.SystemExtensionErrorEnum;
+import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

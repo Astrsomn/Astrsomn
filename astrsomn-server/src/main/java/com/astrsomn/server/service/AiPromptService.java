@@ -1,14 +1,14 @@
 package com.astrsomn.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.prompt.AiPromptCreateRequestDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptQueryRequestDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
-import com.astrsomn.core.common.entity.AiPromptEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptResponseDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiPromptEntity;
 
 import java.util.List;
 

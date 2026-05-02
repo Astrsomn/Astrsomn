@@ -1,16 +1,16 @@
 package com.astrsomn.server.api.file;
 
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.BusinessException;
-import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.AstroFileRecordService;
 import com.astrsomn.server.service.AstroFileService;
-import com.astrsomn.storage.core.entity.AstroFileRecordEntity;
-import com.astrsomn.storage.core.exception.AstroFileErrorEnum;
-import com.astrsomn.storage.core.dto.AstroFileUploadResponseDTO;
-import com.astrsomn.storage.service.AstrsomnStorageClient;
-import com.astrsomn.storage.service.model.StorageDownloadRequest;
+import com.astrsomn.api.storage.entity.AstroFileRecordEntity;
+import com.astrsomn.api.storage.exception.AstroFileErrorEnum;
+import com.astrsomn.api.storage.dto.AstroFileUploadResponseDTO;
+import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
+import com.astrsomn.internal.storage.service.model.StorageDownloadRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

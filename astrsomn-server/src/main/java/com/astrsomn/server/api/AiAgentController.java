@@ -1,14 +1,14 @@
 package com.astrsomn.server.api;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.agent.AiAgentCreateRequestDTO;
-import com.astrsomn.core.common.dto.agent.AiAgentQueryRequestDTO;
-import com.astrsomn.core.common.dto.agent.AiAgentResponseDTO;
-import com.astrsomn.core.common.dto.agent.AiAgentUpdateRequestDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.agent.AiAgentCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.agent.AiAgentQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.agent.AiAgentResponseDTO;
+import com.astrsomn.api.runtime.common.dto.agent.AiAgentUpdateRequestDTO;
 import com.astrsomn.server.service.AiAgentService;
 import org.springframework.web.bind.annotation.*;
 
