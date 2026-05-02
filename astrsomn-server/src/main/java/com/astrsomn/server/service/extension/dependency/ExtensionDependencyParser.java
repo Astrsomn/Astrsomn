@@ -1,6 +1,6 @@
 package com.astrsomn.server.service.extension.dependency;
 
-import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.common.utils.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

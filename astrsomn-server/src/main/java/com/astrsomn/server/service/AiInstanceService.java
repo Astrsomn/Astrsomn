@@ -1,14 +1,14 @@
 package com.astrsomn.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.instance.AiInstanceCreateRequestDTO;
-import com.astrsomn.core.common.dto.instance.AiInstanceQueryRequestDTO;
-import com.astrsomn.core.common.dto.instance.AiInstanceResponseDTO;
-import com.astrsomn.core.common.dto.instance.AiInstanceUpdateRequestDTO;
-import com.astrsomn.core.common.entity.AiInstanceEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.instance.AiInstanceCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.instance.AiInstanceQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO;
+import com.astrsomn.api.runtime.common.dto.instance.AiInstanceUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 
 public interface AiInstanceService extends IService<AiInstanceEntity> {
 

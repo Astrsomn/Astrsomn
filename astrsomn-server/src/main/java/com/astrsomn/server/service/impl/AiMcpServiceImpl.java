@@ -1,26 +1,26 @@
 package com.astrsomn.server.service.impl;
-import com.astrsomn.core.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.mcp.AiMcpCreateRequestDTO;
-import com.astrsomn.core.common.dto.mcp.AiMcpQueryRequestDTO;
-import com.astrsomn.core.common.dto.mcp.AiMcpResponseDTO;
-import com.astrsomn.core.common.dto.mcp.AiMcpUpdateRequestDTO;
-import com.astrsomn.core.common.entity.AiMcpEntity;
-import com.astrsomn.commn.base.BusinessException;
-import com.astrsomn.core.exception.AiMcpErrorEnum;
-import com.astrsomn.starter.mapper.AiMcpMapper;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.mcp.AiMcpCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.mcp.AiMcpQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.mcp.AiMcpResponseDTO;
+import com.astrsomn.api.runtime.common.dto.mcp.AiMcpUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiMcpEntity;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.exception.AiMcpErrorEnum;
+import com.astrsomn.starter.runtime.mapper.AiMcpMapper;
 import com.astrsomn.server.service.AiMcpService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import com.astrsomn.core.common.utils.PageUtils;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
 @Service
 @RequiredArgsConstructor
 public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> implements AiMcpService {

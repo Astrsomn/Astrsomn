@@ -2,16 +2,16 @@ package com.astrsomn.server.api;
 
 
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.core.common.constant.SystemUserEnum.UserRoleEnum;
-import com.astrsomn.core.common.dto.auth.LoginRequest;
-import com.astrsomn.core.common.dto.auth.RefreshTokenRequest;
-import com.astrsomn.core.common.dto.auth.LoginResponse;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
+import com.astrsomn.api.runtime.common.dto.auth.LoginRequest;
+import com.astrsomn.api.runtime.common.dto.auth.RefreshTokenRequest;
+import com.astrsomn.api.runtime.common.dto.auth.LoginResponse;
 import com.astrsomn.server.service.AuthService;
 import com.astrsomn.server.util.UserContext;
-import com.astrsomn.starter.config.AstrsomnProperties;
-import com.astrsomn.starter.context.EnvRuntime;
+import com.astrsomn.starter.runtime.config.AstrsomnProperties;
+import com.astrsomn.starter.runtime.context.EnvRuntime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

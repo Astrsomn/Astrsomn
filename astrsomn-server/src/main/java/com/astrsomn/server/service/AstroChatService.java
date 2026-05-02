@@ -1,6 +1,6 @@
 package com.astrsomn.server.service;
 
-import com.astrsomn.core.common.langchain.AstroChatRequest;
+import com.astrsomn.api.runtime.common.langchain.AstroChatRequest;
 import reactor.core.publisher.Flux;
 
 public interface AstroChatService {

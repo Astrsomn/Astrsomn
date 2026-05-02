@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.starter.workflow.mapper.AstFlowTimerJobMapper">
+
+    <select id="queryPage" resultType="com.astrsomn.api.workflow.domain.dto.timerjob.AstFlowTimerJobResponseDTO">
+        SELECT
+        j.ID AS id,
+        j.INSTANCE_ID AS instanceId,
+        j.NODE_ID AS nodeId,
+        j.JOB_TYPE AS jobType,
+        j.DUE_TIME_MS AS dueTimeMs,
+        j.JOB_STATUS AS jobStatus,
+        j.RETRY_COUNT AS retryCount,
+        j.MAX_RETRY AS maxRetry,
+        j.LAST_ERROR AS lastError,
+        j.PAYLOAD_JSON AS payloadJson,
+        j.ENV_CODE AS envCode,
+        j.DELETED AS deleted,
+        j.CREATE_USER AS createUser,
+        j.CREATE_TIME AS createTime,
+        j.UPDATE_USER AS updateUser,
+        j.UPDATE_TIME AS updateTime
+        FROM AST_FLOW_TIMER_JOB j
+        WHERE (j.DELETED = 0 OR j.DELETED IS NULL)
+        <if test="req != null and req.instanceId != null">
+            AND j.INSTANCE_ID = #{req.instanceId}
+        </if>
+        <if test="req != null and req.nodeId != null and req.nodeId != ''">
+            AND j.NODE_ID LIKE CONCAT('%', #{req.nodeId}, '%')
+        </if>
+        <if test="req != null and req.jobType != null and req.jobType != ''">
+            AND j.JOB_TYPE = #{req.jobType}
+        </if>
+        <if test="req != null and req.jobStatus != null and req.jobStatus != ''">
+            AND j.JOB_STATUS = #{req.jobStatus}
+        </if>
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND j.ENV_CODE = #{req.envCode}
+        </if>
+        ORDER BY j.UPDATE_TIME DESC, j.ID DESC
+    </select>
+
+    <select id="detail" resultType="com.astrsomn.api.workflow.domain.dto.timerjob.AstFlowTimerJobResponseDTO">
+        SELECT
+        j.ID AS id,
+        j.INSTANCE_ID AS instanceId,
+        j.NODE_ID AS nodeId,
+        j.JOB_TYPE AS jobType,
+        j.DUE_TIME_MS AS dueTimeMs,
+        j.JOB_STATUS AS jobStatus,
+        j.RETRY_COUNT AS retryCount,
+        j.MAX_RETRY AS maxRetry,
+        j.LAST_ERROR AS lastError,
+        j.PAYLOAD_JSON AS payloadJson,
+        j.ENV_CODE AS envCode,
+        j.DELETED AS deleted,
+        j.CREATE_USER AS createUser,
+        j.CREATE_TIME AS createTime,
+        j.UPDATE_USER AS updateUser,
+        j.UPDATE_TIME AS updateTime
+        FROM AST_FLOW_TIMER_JOB j
+        WHERE j.ID = #{id}
+        AND (j.DELETED = 0 OR j.DELETED IS NULL)
+        <if test="envCode != null and envCode != ''">
+            AND j.ENV_CODE = #{envCode}
+        </if>
+    </select>
+
+</mapper>

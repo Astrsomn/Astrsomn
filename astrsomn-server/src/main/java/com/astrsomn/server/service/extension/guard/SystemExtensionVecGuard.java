@@ -2,13 +2,13 @@ package com.astrsomn.server.service.extension.guard;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.core.common.constant.SystemExtensionEnum;
-import com.astrsomn.core.common.entity.AiVecSourceEntity;
-import com.astrsomn.core.common.entity.SystemExtensionEntity;
-import com.astrsomn.commn.utils.StringUtils;
-import com.astrsomn.starter.mapper.AiVecSourceMapper;
-import com.astrsomn.starter.mapper.SystemExtensionMapper;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
+import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.mapper.AiVecSourceMapper;
+import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
 import org.springframework.stereotype.Component;
 
 /**

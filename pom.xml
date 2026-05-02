@@ -25,53 +25,48 @@
     </properties>
 
     <modules>
-        <module>astrsomn-core</module>
-        <module>astrsomn-storage-core</module>
-        <module>astrsomn-storage</module>
+        <module>astrsomn-common</module>
+        <module>astrsomn-api</module>
+        <module>astrsomn-integrations</module>
+        <module>astrsomn-plugins</module>
         <module>astrsomn-server</module>
-        <module>astrsomn-springboot-starter</module>
-        <module>astrsomn-providers</module>
-        <module>astrsomn-vector</module>
-        <module>astrsomn-commn</module>
-        <module>astrsomn-workflow-core</module>
-        <module>astrsomn-workflow-springboot-starter</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.astrsomn</groupId>
-                <artifactId>astrsomn-core</artifactId>
+                <artifactId>astrsomn-api-runtime</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.astrsomn</groupId>
-                <artifactId>astrsomn-springboot-starter</artifactId>
+                <artifactId>astrsomn-runtime-starter</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.astrsomn</groupId>
-                <artifactId>astrsomn-storage</artifactId>
+                <artifactId>astrsomn-internal-storage</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.astrsomn</groupId>
-                <artifactId>astrsomn-storage-core</artifactId>
+                <artifactId>astrsomn-api-storage</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.astrsomn</groupId>
-                <artifactId>astrsomn-workflow-core</artifactId>
+                <artifactId>astrsomn-api-workflow</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.astrsomn</groupId>
-                <artifactId>astrsomn-workflow-springboot-starter</artifactId>
+                <artifactId>astrsomn-workflow-starter</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>
 

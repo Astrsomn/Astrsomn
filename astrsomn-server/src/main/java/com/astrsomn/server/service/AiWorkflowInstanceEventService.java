@@ -1,13 +1,13 @@
 package com.astrsomn.server.service;
 
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.workflow.core.domain.dto.instanceevent.AstFlowInstanceEventCreateRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.instanceevent.AstFlowInstanceEventQueryRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.instanceevent.AstFlowInstanceEventResponseDTO;
-import com.astrsomn.workflow.core.domain.dto.instanceevent.AstFlowInstanceEventUpdateRequestDTO;
-import com.astrsomn.workflow.core.domain.entity.AstFlowInstanceEventEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.workflow.domain.dto.instanceevent.AstFlowInstanceEventCreateRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.instanceevent.AstFlowInstanceEventQueryRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.instanceevent.AstFlowInstanceEventResponseDTO;
+import com.astrsomn.api.workflow.domain.dto.instanceevent.AstFlowInstanceEventUpdateRequestDTO;
+import com.astrsomn.api.workflow.domain.entity.AstFlowInstanceEventEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface AiWorkflowInstanceEventService extends IService<AstFlowInstanceEventEntity> {

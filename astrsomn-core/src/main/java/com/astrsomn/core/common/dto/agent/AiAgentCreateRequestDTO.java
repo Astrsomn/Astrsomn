@@ -1,9 +1,0 @@
-package com.astrsomn.core.common.dto.agent;
-
-import lombok.Data;
-import com.astrsomn.core.common.entity.AiAgentEntity;
-
-@Data
-public class AiAgentCreateRequestDTO extends AiAgentEntity {
-
-}

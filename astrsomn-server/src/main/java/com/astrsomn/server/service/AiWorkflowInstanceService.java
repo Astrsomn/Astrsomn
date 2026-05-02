@@ -1,13 +1,13 @@
 package com.astrsomn.server.service;
 
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.workflow.core.domain.dto.instance.AstFlowInstanceCreateRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.instance.AstFlowInstanceQueryRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.instance.AstFlowInstanceResponseDTO;
-import com.astrsomn.workflow.core.domain.dto.instance.AstFlowInstanceUpdateRequestDTO;
-import com.astrsomn.workflow.core.domain.entity.AstFlowInstanceEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceCreateRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceQueryRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceResponseDTO;
+import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceUpdateRequestDTO;
+import com.astrsomn.api.workflow.domain.entity.AstFlowInstanceEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface AiWorkflowInstanceService extends IService<AstFlowInstanceEntity> {

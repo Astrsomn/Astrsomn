@@ -1,24 +1,24 @@
 package com.astrsomn.server.service.impl;
-import com.astrsomn.core.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.server.astrsomn.PromptAssistant;
-import com.astrsomn.starter.langchain.aop.annotation.Astro;
+import com.astrsomn.starter.runtime.langchain.aop.annotation.Astro;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.prompt.AiPromptCreateRequestDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptQueryRequestDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
-import com.astrsomn.core.common.entity.AiPromptEntity;
-import com.astrsomn.commn.utils.StringUtils;
-import com.astrsomn.commn.utils.JsonUtil;
-import com.astrsomn.commn.base.BusinessException;
-import com.astrsomn.core.exception.AiPromptErrorEnum;
-import com.astrsomn.starter.mapper.AiPromptMapper;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptResponseDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiPromptEntity;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.common.utils.JsonUtil;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.exception.AiPromptErrorEnum;
+import com.astrsomn.starter.runtime.mapper.AiPromptMapper;
 import com.astrsomn.server.service.AiPromptService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.astrsomn.core.common.utils.PageUtils;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
 import org.springframework.stereotype.Service;
 
 @Service

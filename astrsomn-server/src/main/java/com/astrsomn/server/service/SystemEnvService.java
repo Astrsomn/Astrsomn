@@ -1,14 +1,14 @@
 package com.astrsomn.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.env.SystemEnvCreateRequestDTO;
-import com.astrsomn.core.common.dto.env.SystemEnvQueryRequestDTO;
-import com.astrsomn.core.common.dto.env.SystemEnvResponseDTO;
-import com.astrsomn.core.common.dto.env.SystemEnvUpdateRequestDTO;
-import com.astrsomn.core.common.entity.SystemEnvEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.env.SystemEnvCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.env.SystemEnvQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.env.SystemEnvResponseDTO;
+import com.astrsomn.api.runtime.common.dto.env.SystemEnvUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.SystemEnvEntity;
 
 public interface SystemEnvService extends IService<SystemEnvEntity> {
     BaseResponse<String> create(SystemEnvCreateRequestDTO request);

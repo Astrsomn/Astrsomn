@@ -1,10 +1,10 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.commn.base.BaseResponse;
+import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.server.service.AiWorkflowTestRunService;
-import com.astrsomn.workflow.core.domain.dto.runtime.AstFlowTestRunRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.runtime.AstFlowTestRunResponseDTO;
-import com.astrsomn.workflow.core.runtime.spi.AstFlowRuntimeEngine;
+import com.astrsomn.api.workflow.domain.dto.runtime.AstFlowTestRunRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.runtime.AstFlowTestRunResponseDTO;
+import com.astrsomn.api.workflow.runtime.spi.AstFlowRuntimeEngine;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

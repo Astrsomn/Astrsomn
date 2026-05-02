@@ -1,7 +1,7 @@
 package com.astrsomn.server.service;
 
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.storage.core.dto.AstroFileUploadResponseDTO;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.api.storage.dto.AstroFileUploadResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface AstroFileService {
