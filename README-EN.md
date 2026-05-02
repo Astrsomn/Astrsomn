@@ -110,6 +110,21 @@ The framework evolves in the following direction (facilitating future SPI and cu
 
 ## 🚀 Quick Start
 
+### One Annotation, Enable Java AI Evolution
+
+```java
+@Service
+public class MyService {
+    // One annotation to inject AI capability
+    @Astro(agentKey = "MY-AGENT", envCode = "PRO")
+    private AstroChatAssistant assistant;
+
+    public void demo() {
+        String response = assistant.chat("Hello, please introduce yourself");
+    }
+}
+```
+
 ### Requirements
 - JDK 21+
 - Spring Boot 3.2+

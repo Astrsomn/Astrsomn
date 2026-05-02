@@ -109,6 +109,21 @@ Astrsomn
 
 ## 🚀 快速开始
 
+### 一行注解，开启 Java AI 进化
+
+```java
+@Service
+public class MyService {
+    // 一行注解，注入 AI 能力
+    @Astro(agentKey = "MY-AGENT", envCode = "PRO")
+    private AstroChatAssistant assistant;
+
+    public void demo() {
+        String response = assistant.chat("你好，请介绍一下自己");
+    }
+}
+```
+
 ### 环境要求
 - JDK 21+
 - Spring Boot 3.2+
