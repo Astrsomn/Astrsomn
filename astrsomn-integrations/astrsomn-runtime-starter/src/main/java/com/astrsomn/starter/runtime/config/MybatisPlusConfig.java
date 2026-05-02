@@ -30,7 +30,10 @@ import java.util.List;
 
 @Slf4j
 @Configuration
-@MapperScan("com.astrsomn.starter.*")
+@MapperScan({
+        "com.astrsomn.starter.runtime.mapper",
+        "com.astrsomn.starter.workflow.mapper"
+})
 public class MybatisPlusConfig {
 
     @Bean

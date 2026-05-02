@@ -25,7 +25,6 @@ import com.astrsomn.starter.workflow.runtime.policy.NoopAstFlowRetryPolicy;
 import com.astrsomn.starter.workflow.runtime.policy.NoopAstFlowTimeoutPolicy;
 import com.astrsomn.starter.workflow.runtime.registry.DefaultAstFlowNodeExecutorRegistry;
 import com.astrsomn.starter.workflow.runtime.state.DefaultAstFlowExecutionStateMachine;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -41,7 +40,6 @@ import java.util.List;
  * 在不改业务方配置的情况下，将 workflow entity 包自动并入 typeAliasesPackage。
  */
 @AutoConfiguration
-@MapperScan("com.astrsomn.*")
 @ConditionalOnClass(AstrsomnProperties.class)
 @ConditionalOnProperty(prefix = "astrsomn.data-base", name = "database-type")
 @AutoConfigureBefore(name = "com.astrsomn.starter.runtime.config.AstrsomnAutoConfiguration")
