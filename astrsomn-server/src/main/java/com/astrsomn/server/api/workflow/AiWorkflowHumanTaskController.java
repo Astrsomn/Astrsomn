@@ -1,14 +1,14 @@
 package com.astrsomn.server.api.workflow;
 
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.AiWorkflowHumanTaskService;
-import com.astrsomn.workflow.core.domain.dto.humantask.AstFlowHumanTaskCreateRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.humantask.AstFlowHumanTaskQueryRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.humantask.AstFlowHumanTaskResponseDTO;
-import com.astrsomn.workflow.core.domain.dto.humantask.AstFlowHumanTaskUpdateRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.humantask.AstFlowHumanTaskCreateRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.humantask.AstFlowHumanTaskQueryRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.humantask.AstFlowHumanTaskResponseDTO;
+import com.astrsomn.api.workflow.domain.dto.humantask.AstFlowHumanTaskUpdateRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,9 +1,9 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.workflow.core.domain.dto.runtime.AstFlowTestRunRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.runtime.AstFlowTestRunResponseDTO;
-import com.astrsomn.workflow.core.runtime.spi.AstFlowRuntimeEngine;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.api.workflow.domain.dto.runtime.AstFlowTestRunRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.runtime.AstFlowTestRunResponseDTO;
+import com.astrsomn.api.workflow.runtime.spi.AstFlowRuntimeEngine;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;

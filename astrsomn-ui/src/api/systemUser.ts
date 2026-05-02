@@ -10,8 +10,36 @@ export type SystemUser = {
   userRole?: string
   envCode?: string
   email?: string
+  createUser?: string
+  updateUser?: string
+  deleted?: boolean
   createTime?: string
   updateTime?: string
+  /** SystemUserResponseDTO：业务系统展示名 */
+  systemDisplayName?: string
+  /** ONLINE | OFFLINE | MAINTENANCE */
+  systemStatus?: string
+  todayApiCalls?: number
+  errorRate?: number
+  lastAccessTime?: string
+}
+
+/** 与 SystemUserQueryRequestDTO 对齐 */
+export type SystemUserQueryParam = {
+  username?: string
+  adminFlag?: string
+  email?: string
+  userRole?: string
+  envCode?: string
+  deleted?: boolean
+  /** 预留，与 Mapper SYSTEM_STATUS 对接后生效 */
+  systemStatus?: string
+}
+
+export type SystemUserQueryPagePayload = {
+  pageNo: number
+  pageSize: number
+  param?: SystemUserQueryParam
 }
 
 export type PageResponse<T> = {
@@ -25,7 +53,7 @@ export type PageResponse<T> = {
 
 /** 对应 SystemUserController：`/v1/astro/system-user`（与 AiToolController 等同前缀风格） */
 export const systemUserApi = {
-  queryPage: (payload: unknown): Promise<PageResponse<SystemUser>> => {
+  queryPage: (payload: SystemUserQueryPagePayload): Promise<PageResponse<SystemUser>> => {
     return request({
       url: '/v1/astro/system-user/queryPage',
       method: 'post',

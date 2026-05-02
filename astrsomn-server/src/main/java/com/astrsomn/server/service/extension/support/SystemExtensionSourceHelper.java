@@ -1,8 +1,8 @@
 package com.astrsomn.server.service.extension.support;
 
-import com.astrsomn.core.common.constant.SystemExtensionEnum;
-import com.astrsomn.core.common.entity.SystemExtensionEntity;
-import com.astrsomn.commn.utils.StringUtils;
+import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
+import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.common.utils.StringUtils;
 
 public final class SystemExtensionSourceHelper {
 

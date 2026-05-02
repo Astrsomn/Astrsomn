@@ -1,14 +1,14 @@
 package com.astrsomn.server.api;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.prompt.AiPromptCreateRequestDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptQueryRequestDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptResponseDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptUpdateRequestDTO;
 import com.astrsomn.server.service.AiPromptService;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,6 +60,11 @@ public class AiPromptController extends BaseController {
             @RequestParam("promptKey") String promptKey,
             @RequestParam(value = "envCode", required = false) String envCode) {
         return aiPromptService.history(promptKey, envCode);
+    }
+
+    @GetMapping("/scene-tags")
+    public BaseResponse<List<String>> querySceneTags() {
+        return aiPromptService.querySceneTags();
     }
 
 

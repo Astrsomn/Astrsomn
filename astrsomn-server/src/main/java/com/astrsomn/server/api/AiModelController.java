@@ -2,14 +2,14 @@ package com.astrsomn.server.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.model.AiModelCreateRequestDTO;
-import com.astrsomn.core.common.dto.model.AiModelQueryRequestDTO;
-import com.astrsomn.core.common.dto.model.AiModelResponseDTO;
-import com.astrsomn.core.common.dto.model.AiModelUpdateRequestDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.model.AiModelCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.model.AiModelQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.model.AiModelResponseDTO;
+import com.astrsomn.api.runtime.common.dto.model.AiModelUpdateRequestDTO;
 import com.astrsomn.server.service.AiModelService;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +30,18 @@ public class AiModelController extends BaseController {
             return aiModelService.delete(longIds);
         } catch (NumberFormatException e) {
             log.warn("delete ai-model: invalid id format, ids={}", ids, e);
+            return BaseResponse.fail("ID格式错误", null);
+        }
+    }
+
+    @PostMapping("/generate-instances/{ids}")
+    public BaseResponse<String> generateInstances(@PathVariable("ids") String ids) {
+        log.debug("generate ai-instance by ai-model ids={}", ids);
+        try {
+            long[] longIds = parseLongIds(ids, ",");
+            return aiModelService.generateInstances(longIds);
+        } catch (NumberFormatException e) {
+            log.warn("generate ai-instance by ai-model: invalid id format, ids={}", ids, e);
             return BaseResponse.fail("ID格式错误", null);
         }
     }

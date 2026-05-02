@@ -102,8 +102,8 @@ const getBarColor = (height: number) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  border-radius: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid var(--border-default);
@@ -118,7 +118,7 @@ const getBarColor = (height: number) => {
 .item-identity {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex: 3;
   min-width: 0;
 }
@@ -129,7 +129,7 @@ const getBarColor = (height: number) => {
   height: 40px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-default);
-  border-radius: 12px;
+  border-radius: 10px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -194,7 +194,7 @@ const getBarColor = (height: number) => {
   font-size: 9px;
   font-weight: 800;
   padding: 1px 4px;
-  border-radius: 5px;
+  border-radius: 10px;
   text-transform: uppercase;
   background: var(--bg-elevated);
   color: var(--text-secondary);
@@ -240,7 +240,7 @@ const getBarColor = (height: number) => {
 
 .spark-bar {
   width: 2px;
-  border-radius: 4px;
+  border-radius: 10px;
   transition: background-color 0.2s;
 }
 
@@ -260,7 +260,7 @@ const getBarColor = (height: number) => {
   font-size: 10px;
   font-weight: 900;
   padding: 2px 6px;
-  border-radius: 6px;
+  border-radius: 10px;
 }
 
 .status-indicator.is-active {

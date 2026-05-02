@@ -1,14 +1,14 @@
 package com.astrsomn.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentCreateRequestDTO;
-import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentQueryRequestDTO;
-import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentResponseDTO;
-import com.astrsomn.core.common.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
-import com.astrsomn.core.common.entity.AiVecSegmentEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentResponseDTO;
+import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
 
 public interface AiVecSegmentService extends IService<AiVecSegmentEntity> {
 

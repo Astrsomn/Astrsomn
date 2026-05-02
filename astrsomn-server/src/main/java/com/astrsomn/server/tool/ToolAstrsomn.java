@@ -1,13 +1,14 @@
 package com.astrsomn.server.tool;
 
+import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
 import dev.langchain4j.agent.tool.Tool;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.utils.StringUtils;
-import com.astrsomn.core.common.constant.SystemUserEnum;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.api.runtime.common.constant.SystemUserEnum;
 import com.astrsomn.server.service.AiAccountService;
 import com.astrsomn.server.service.AiPromptService;
 import com.astrsomn.server.service.SystemUserService;
-import com.astrsomn.starter.langchain.aop.annotation.AstroToolGroup;
+import com.astrsomn.starter.runtime.langchain.aop.annotation.AstroToolGroup;
 import org.springframework.stereotype.Component;
 
 @AstroToolGroup(value = "toolAstrsomn", description = "系统查询工具组")
@@ -23,7 +24,7 @@ public class ToolAstrsomn {
     public String querySystemOverview() {
         long totalUsers = systemUserService.count();
         long adminUsers = systemUserService.lambdaQuery()
-                .ne(com.astrsomn.core.common.entity.SystemUserEntity::getUserRole, SystemUserEnum.UserRoleEnum.USER.getCode())
+                .ne(SystemUserEntity::getUserRole, SystemUserEnum.UserRoleEnum.USER.getCode())
                 .count();
         long totalPrompts = aiPromptService.count();
         long totalAiAccounts = aiAccountService.count();
@@ -42,7 +43,7 @@ public class ToolAstrsomn {
         String normalizedRoleCode = roleCode.trim().toUpperCase();
         SystemUserEnum.UserRoleEnum roleEnum = SystemUserEnum.UserRoleEnum.fromCode(normalizedRoleCode);
         long count = systemUserService.lambdaQuery()
-                .eq(com.astrsomn.core.common.entity.SystemUserEntity::getUserRole, roleEnum.getCode())
+                .eq(SystemUserEntity::getUserRole, roleEnum.getCode())
                 .count();
         return "角色 " + roleEnum.getCode() + " 的用户数量为: " + count;
     }
@@ -53,7 +54,7 @@ public class ToolAstrsomn {
             return "用户名不能为空";
         }
         long count = systemUserService.lambdaQuery()
-                .eq(com.astrsomn.core.common.entity.SystemUserEntity::getUsername, username.trim())
+                .eq(SystemUserEntity::getUsername, username.trim())
                 .count();
         return count > 0
                 ? "用户存在: " + username.trim()

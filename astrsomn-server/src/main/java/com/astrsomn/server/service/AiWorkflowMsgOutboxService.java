@@ -1,13 +1,13 @@
 package com.astrsomn.server.service;
 
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.workflow.core.domain.dto.msgoutbox.AstFlowMsgOutboxCreateRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.msgoutbox.AstFlowMsgOutboxQueryRequestDTO;
-import com.astrsomn.workflow.core.domain.dto.msgoutbox.AstFlowMsgOutboxResponseDTO;
-import com.astrsomn.workflow.core.domain.dto.msgoutbox.AstFlowMsgOutboxUpdateRequestDTO;
-import com.astrsomn.workflow.core.domain.entity.AstFlowMsgOutboxEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.workflow.domain.dto.msgoutbox.AstFlowMsgOutboxCreateRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.msgoutbox.AstFlowMsgOutboxQueryRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.msgoutbox.AstFlowMsgOutboxResponseDTO;
+import com.astrsomn.api.workflow.domain.dto.msgoutbox.AstFlowMsgOutboxUpdateRequestDTO;
+import com.astrsomn.api.workflow.domain.entity.AstFlowMsgOutboxEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface AiWorkflowMsgOutboxService extends IService<AstFlowMsgOutboxEntity> {

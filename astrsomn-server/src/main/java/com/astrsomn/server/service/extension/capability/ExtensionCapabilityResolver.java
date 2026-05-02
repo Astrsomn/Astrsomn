@@ -1,10 +1,10 @@
 package com.astrsomn.server.service.extension.capability;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.core.common.entity.SystemExtensionEntity;
-import com.astrsomn.commn.utils.StringUtils;
-import com.astrsomn.starter.langchain.factory.AstroModelFactory;
-import com.astrsomn.starter.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
+import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
 import org.springframework.stereotype.Component;
 
 @Component

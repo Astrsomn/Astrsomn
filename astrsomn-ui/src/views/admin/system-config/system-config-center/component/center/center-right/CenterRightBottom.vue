@@ -1,423 +1,411 @@
 <template>
-  <div class="extension-panel">
-    <div class="panel-header">
-      <div class="header-left">
-        <ApiOutlined />
-        <h3 class="panel-title">系统扩展能力</h3>
+  <div class="stack">
+    <section class="panel-card">
+      <div class="panel-head">
+        <DashboardOutlined class="head-icon" />
+        <h3 class="panel-title">资源使用概览</h3>
       </div>
-      <button class="import-btn" @click="handleImport">导入插件</button>
-      <input 
-        type="file" 
-        ref="fileInput" 
-        class="file-input" 
-        @change="handleFileImport"
-      />
-    </div>
-
-    <!-- 搜索框 -->
-    <div class="search-container">
-      <SearchOutlined class="search-icon" />
-      <input type="text" placeholder="搜索已安装插件..." class="search-input" />
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs-container">
-      <button 
-        class="tab-btn" 
-        :class="{ active: activeTab === 'installed' }"
-        @click="activeTab = 'installed'; currentPage = 1"
-      >
-        现有插件
-      </button>
-      <button 
-        class="tab-btn" 
-        :class="{ active: activeTab === 'market' }"
-        @click="activeTab = 'market'; currentPage = 1"
-      >
-        插件市场
-      </button>
-    </div>
-
-    <!-- 插件列表 -->
-    <div class="plugins-list" v-if="currentPlugins.length > 0">
-      <div 
-        v-for="item in currentPlugins" 
-        :key="item.id"
-        class="plugin-card"
-      >
-        <div class="plugin-header">
-          <div class="plugin-info">
-            <div class="icon-wrapper">
-              <component :is="item.icon" />
-            </div>
-            <div class="plugin-name">{{ item.name }}</div>
+      <div class="usage-rows">
+        <div class="usage-row">
+          <div class="usage-row-top">
+            <span class="usage-label-wrap">
+              <ApiOutlined class="usage-ico usage-ico--blue" />
+              <span class="usage-label">API 调用配额</span>
+            </span>
+            <span class="usage-numbers">
+              {{ fmtNum(resourceUsage.apiCalls.used) }} / {{ fmtNum(resourceUsage.apiCalls.limit) }}
+            </span>
+            <span class="usage-pct">{{ apiPct }}%</span>
           </div>
-          <div class="plugin-count">{{ item.count }}</div>
+          <div class="bar-track">
+            <div class="bar-fill bar-fill--blue" :style="{ width: `${apiPct}%` }" />
+          </div>
         </div>
-        <div class="plugin-actions">
-          <button class="action-btn uninstall-btn">卸载</button>
-          <button class="action-btn update-btn">更新</button>
+        <div class="usage-row">
+          <div class="usage-row-top">
+            <span class="usage-label-wrap">
+              <ThunderboltOutlined class="usage-ico usage-ico--violet" />
+              <span class="usage-label">并发连接数</span>
+            </span>
+            <span class="usage-numbers">
+              {{ fmtNum(resourceUsage.concurrency.used) }} / {{ fmtNum(resourceUsage.concurrency.limit) }}
+            </span>
+            <span class="usage-pct">{{ concPct }}%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill bar-fill--violet" :style="{ width: `${concPct}%` }" />
+          </div>
+        </div>
+        <div class="usage-row">
+          <div class="usage-row-top">
+            <span class="usage-label-wrap">
+              <HddOutlined class="usage-ico usage-ico--green" />
+              <span class="usage-label">存储空间</span>
+            </span>
+            <span class="usage-numbers">
+              {{ resourceUsage.storage.usedGB }} GB / {{ resourceUsage.storage.limitGB }} GB
+            </span>
+            <span class="usage-pct">{{ storagePct }}%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill bar-fill--green" :style="{ width: `${storagePct}%` }" />
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 空状态 -->
-    <div v-else class="empty-state">
-      <p class="empty-text">暂无插件</p>
-    </div>
-
-    <!-- 分页 -->
-    <div class="pagination">
-      <span class="pagination-text">Page {{ currentPage }} / {{ totalPages }}</span>
-    </div>
+    <section class="panel-card panel-card--grow">
+      <div class="panel-head panel-head--between">
+        <div class="panel-head-left">
+          <HistoryOutlined class="head-icon" />
+          <h3 class="panel-title">最近变更</h3>
+        </div>
+        <button type="button" class="link-btn" @click="emit('view-all-changes')">查看全部 →</button>
+      </div>
+      <ul class="change-list">
+        <li v-for="(row, i) in recentChanges.items" :key="i" class="change-row">
+          <div class="change-icon" :class="`change-icon--${(i % 4) + 1}`">
+            <component :is="row.icon" />
+          </div>
+          <div class="change-main">
+            <div class="change-title-line">
+              <span class="change-title">{{ row.title }}</span>
+              <span class="change-time">{{ row.timeText }}</span>
+            </div>
+            <span class="env-tag" :class="`env-tag--${row.env}`">{{ envLabel(row.env) }}</span>
+          </div>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { 
-  ApiOutlined, 
-  ImportOutlined,
-  SearchOutlined,
-  ShareAltOutlined,
-  DatabaseOutlined,
-  RobotOutlined,
-  SafetyOutlined
+import {
+  ApiOutlined,
+  DashboardOutlined,
+  HistoryOutlined,
+  HddOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
+import { computed } from 'vue'
+import type { Component } from 'vue'
 
-// 插件数据类型
-type ExtensionCard = {
-  id: number
-  name: string
-  count: number
-  desc: string
-  icon: any
-  tags: string[]
-  type: 'installed' | 'market'
+type SystemEnv = 'prod' | 'pre' | 'test' | 'dev'
+
+type ResourceUsagePanel = {
+  apiCalls: { used: number; limit: number }
+  concurrency: { used: number; limit: number }
+  storage: { usedGB: number; limitGB: number }
 }
 
-// 模拟数据
-const installedPlugins: ExtensionCard[] = [
-  {
-    id: 1,
-    icon: ShareAltOutlined,
-    name: '平台插件',
-    count: 24,
-    desc: '用于业务能力增强、流程编排与第三方集成。',
-    tags: ['工作流', '通知', '审计', '数据同步'],
-    type: 'installed'
-  },
-  {
-    id: 2,
-    icon: DatabaseOutlined,
-    name: '向量库接入',
-    count: 6,
-    desc: '支持多种向量引擎，满足检索增强与知识库场景。',
-    tags: ['Milvus', 'pgvector', 'Elastic', 'Chroma'],
-    type: 'installed'
+type RecentChangeItem = {
+  title: string
+  env: SystemEnv
+  timeText: string
+  icon: Component
+}
+
+type RecentChanges = {
+  items: RecentChangeItem[]
+}
+
+const props = defineProps<{
+  resourceUsage: ResourceUsagePanel
+  recentChanges: RecentChanges
+}>()
+
+const emit = defineEmits<{
+  (e: 'view-all-changes'): void
+}>()
+
+const pct = (used: number, limit: number) =>
+  limit <= 0 ? 0 : Math.min(100, Math.round((used / limit) * 1000) / 10)
+
+const apiPct = computed(() => pct(props.resourceUsage.apiCalls.used, props.resourceUsage.apiCalls.limit))
+const concPct = computed(() =>
+  pct(props.resourceUsage.concurrency.used, props.resourceUsage.concurrency.limit)
+)
+const storagePct = computed(() =>
+  pct(props.resourceUsage.storage.usedGB, props.resourceUsage.storage.limitGB)
+)
+
+const fmtNum = (n: number) => n.toLocaleString('zh-CN')
+
+const envLabel = (env: SystemEnv): string => {
+  switch (env) {
+    case 'prod':
+      return '生产环境'
+    case 'pre':
+      return '预生产环境'
+    case 'test':
+      return '测试环境'
+    case 'dev':
+      return '开发环境'
+    default:
+      return env
   }
-]
-
-const marketPlugins: ExtensionCard[] = [
-  {
-    id: 3,
-    icon: RobotOutlined,
-    name: '多模态模型集',
-    count: 12,
-    desc: '接入主流视觉与音频处理模型，扩展 AI 感知能力。',
-    tags: ['GPT-4V', 'Whisper', 'Stable Diffusion'],
-    type: 'market'
-  },
-  {
-    id: 4,
-    icon: SafetyOutlined,
-    name: '安全审计组件',
-    count: 3,
-    desc: '对大模型输入输出进行合规性检测与内容过滤。',
-    tags: ['敏感词过滤', '合规检测', '访问日志'],
-    type: 'market'
-  }
-]
-
-// 响应式数据
-const activeTab = ref('installed')
-const currentPage = ref(1)
-const pageSize = 2
-const fileInput = ref<HTMLInputElement>()
-
-// 计算属性
-const currentPlugins = computed(() => {
-  const data = activeTab.value === 'installed' ? installedPlugins : marketPlugins
-  const start = (currentPage.value - 1) * pageSize
-  return data.slice(start, start + pageSize)
-})
-
-const totalPages = computed(() => {
-  const data = activeTab.value === 'installed' ? installedPlugins : marketPlugins
-  return Math.max(1, Math.ceil(data.length / pageSize))
-})
-
-const totalItems = computed(() => {
-  const data = activeTab.value === 'installed' ? installedPlugins : marketPlugins
-  return data.length
-})
-
-// 方法
-const handleImport = () => {
-  fileInput.value?.click()
-}
-
-const handleFileImport = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    message.loading(`正在导入插件: ${file.name}...`)
-    setTimeout(() => {
-      message.success('导入并安装成功！')
-      // 重置文件输入
-      if (fileInput.value) {
-        fileInput.value.value = ''
-      }
-    }, 1500)
-  }
-}
-
-const handleAction = (action: string, name: string) => {
-  message.success(`${action} [${name}] 成功！`)
-}
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
-  }
-}
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-  }
-}
-
-// 监听标签切换，重置分页
-const handleTabChange = (key: string) => {
-  activeTab.value = key
-  currentPage.value = 1
 }
 </script>
 
 <style scoped>
-.extension-panel {
-  background: white;
-  border-radius: 24px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+.stack {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
 }
 
-.panel-header {
-  padding: 24px 24px 8px;
+.panel-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  padding: 14px;
+  flex-shrink: 0;
+}
+
+.panel-card--grow {
+  flex: 1;
+  min-height: 0;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.header-left {
+.panel-head {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 10px;
 }
 
-.header-left :deep(.anticon) {
-  width: 20px;
-  height: 20px;
+.panel-head--between {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panel-head-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.head-icon {
+  font-size: 18px;
   color: #94a3b8;
+  flex-shrink: 0;
 }
 
 .panel-title {
+  margin: 0;
   font-size: 16px;
   font-weight: 700;
   color: #1e293b;
-  margin: 0;
 }
 
-.import-btn {
-  font-size: 12px;
-  font-weight: 700;
-  color: #3b82f6;
-  background: none;
+.link-btn {
+  flex-shrink: 0;
   border: none;
-  cursor: pointer;
+  background: none;
   padding: 0;
-}
-
-.file-input {
-  display: none;
-}
-
-.search-container {
-  position: relative;
-  margin: 16px 24px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 14px;
-  height: 14px;
-  color: #94a3b8;
-}
-
-.search-input {
-  width: 100%;
-  padding: 6px 12px 6px 36px;
-  background: #f8fafc;
-  border: 1px solid #f1f5f9;
-  border-radius: 8px;
-  font-size: 11px;
-  color: #64748b;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.search-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-.tabs-container {
-  display: flex;
-  gap: 24px;
-  border-bottom: 1px solid #f1f5f9;
-  margin: 0 24px;
-}
-
-.tab-btn {
-  padding: 0 0 8px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
   font-size: 12px;
-  font-weight: 700;
-  color: #94a3b8;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tab-btn.active {
-  border-bottom-color: #3b82f6;
+  font-weight: 600;
   color: #3b82f6;
+  cursor: pointer;
 }
 
-.plugins-list {
-  padding: 24px;
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+.usage-rows {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.plugin-card {
-  padding: 16px;
-  border: 1px solid #f1f5f9;
-  border-radius: 16px;
-  background: #f8fafc;
-}
-
-.plugin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 8px;
-}
-
-.plugin-info {
-  display: flex;
-  align-items: center;
   gap: 12px;
 }
 
-.icon-wrapper {
+.usage-row-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.usage-label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.usage-ico {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.usage-ico--blue {
+  color: #3b82f6;
+}
+
+.usage-ico--violet {
+  color: #8b5cf6;
+}
+
+.usage-ico--green {
+  color: #10b981;
+}
+
+.usage-label {
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.usage-numbers {
+  color: #334155;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.usage-pct {
+  color: #94a3b8;
+  font-size: 11px;
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.bar-track {
+  height: 6px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.35s ease;
+}
+
+.bar-fill--blue {
+  background: linear-gradient(90deg, #60a5fa, #3b82f6);
+}
+
+.bar-fill--violet {
+  background: linear-gradient(90deg, #c4b5fd, #8b5cf6);
+}
+
+.bar-fill--green {
+  background: linear-gradient(90deg, #6ee7b7, #10b981);
+}
+
+.change-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.change-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.change-icon {
+  flex-shrink: 0;
   width: 36px;
   height: 36px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 16px;
 }
 
-.icon-wrapper :deep(.anticon) {
-  width: 20px;
-  height: 20px;
-  color: #64748b;
+.change-icon--1 {
+  background: #dbeafe;
+  color: #2563eb;
 }
 
-.plugin-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: #334155;
+.change-icon--2 {
+  background: #ede9fe;
+  color: #7c3aed;
 }
 
-.plugin-count {
-  font-size: 20px;
-  font-weight: 700;
-  color: #e2e8f0;
-  letter-spacing: -0.5px;
+.change-icon--3 {
+  background: #d1fae5;
+  color: #059669;
 }
 
-.plugin-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 12px;
+.change-icon--4 {
+  background: #ffedd5;
+  color: #ea580c;
 }
 
-.action-btn {
-  font-size: 10px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.uninstall-btn {
-  color: #ef4444;
-}
-
-.update-btn {
-  color: #1e293b;
-  font-weight: 700;
-}
-
-.empty-state {
+.change-main {
   flex: 1;
+  min-width: 0;
+}
+
+.change-title-line {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 24px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
-.empty-text {
-  font-size: 12px;
+.change-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.change-time {
+  font-size: 11px;
   color: #94a3b8;
-  margin: 0;
+  flex-shrink: 0;
 }
 
-.pagination {
-  padding: 16px 24px;
-  border-top: 1px solid #f1f5f9;
-  text-align: center;
+.env-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 10px;
 }
 
-.pagination-text {
-  font-size: 10px;
-  color: #94a3b8;
+.env-tag--prod {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.env-tag--pre {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.env-tag--test {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.env-tag--dev {
+  background: #ffedd5;
+  color: #c2410c;
 }
 </style>

@@ -21,12 +21,20 @@
         <!-- 核心模块（显式依赖，保证单模块构建 testCompile 等场景下类路径完整） -->
         <dependency>
             <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-core</artifactId>
+            <artifactId>astrsomn-api-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-api-storage</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-internal-storage</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-workflow-springboot-starter</artifactId>
+            <artifactId>astrsomn-workflow-starter</artifactId>
         </dependency>
 
 

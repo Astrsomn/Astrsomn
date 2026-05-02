@@ -1,14 +1,14 @@
 package com.astrsomn.server.api.system;
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.user.SystemUserCreateRequestDTO;
-import com.astrsomn.core.common.dto.user.SystemUserQueryRequestDTO;
-import com.astrsomn.core.common.dto.user.SystemUserResponseDTO;
-import com.astrsomn.core.common.dto.user.SystemUserUpdateRequestDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.user.SystemUserCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.user.SystemUserQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.user.SystemUserResponseDTO;
+import com.astrsomn.api.runtime.common.dto.user.SystemUserUpdateRequestDTO;
 import com.astrsomn.server.service.SystemUserService;
 import org.springframework.web.bind.annotation.*;
 

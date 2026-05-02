@@ -1,5 +1,49 @@
 package com.astrsomn.server.service.impl;
-import com.astrsomn.core.common.utils.PageConverter;
+
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.api.runtime.common.constant.AiModelEnum;
+import com.astrsomn.api.runtime.common.constant.AiVecDocEnum;
+import com.astrsomn.api.runtime.common.constant.VecDocMetadataKeys;
+import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocResponseDTO;
+import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
+import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
+import com.astrsomn.api.runtime.common.entity.AiModelEntity;
+import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
+import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
+import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
+import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.api.runtime.exception.AstVecDocErrorEnum;
+import com.astrsomn.server.service.AiVecDocService;
+import com.astrsomn.server.service.AiVecSegmentService;
+import com.astrsomn.server.service.AiVecStoreService;
+import com.astrsomn.server.service.AstroFileRecordService;
+import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.astrsomn.internal.storage.config.StorageProperties;
+import com.astrsomn.api.storage.entity.AstroFileRecordEntity;
+import com.astrsomn.api.storage.exception.AstroFileErrorEnum;
+import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
+import com.astrsomn.internal.storage.service.model.StorageDownloadRequest;
+import com.astrsomn.internal.storage.service.model.StorageUploadRequest;
+import com.astrsomn.internal.storage.service.model.StorageUploadResult;
+import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
+import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
+import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.mapper.AiAccountMapper;
+import com.astrsomn.starter.runtime.mapper.AiInstanceMapper;
+import com.astrsomn.starter.runtime.mapper.AiModelMapper;
+import com.astrsomn.starter.runtime.mapper.AiVecDocMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -13,60 +57,23 @@ import dev.langchain4j.model.output.Response;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.constant.AiModelEnum;
-import com.astrsomn.core.common.constant.AiVecDocEnum;
-import com.astrsomn.core.common.constant.VecDocMetadataKeys;
-import com.astrsomn.core.common.dto.vecdoc.AiVecDocCreateRequestDTO;
-import com.astrsomn.core.common.dto.vecdoc.AiVecDocQueryRequestDTO;
-import com.astrsomn.core.common.dto.vecdoc.AiVecDocResponseDTO;
-import com.astrsomn.core.common.dto.vecdoc.AiVecDocUpdateRequestDTO;
-import com.astrsomn.core.common.entity.AiAccountEntity;
-import com.astrsomn.core.common.entity.AiInstanceEntity;
-import com.astrsomn.core.common.entity.AiModelEntity;
-import com.astrsomn.core.common.entity.AiVecDocEntity;
-import com.astrsomn.core.common.entity.AiVecSegmentEntity;
-import com.astrsomn.core.common.entity.AiVecStoreEntity;
-import com.astrsomn.core.common.langchain.buildParam.AstroChatParam;
-import com.astrsomn.core.common.langchain.buildParam.setting.ModelSetting;
-import com.astrsomn.core.common.langchain.extension.vector.VecSource;
-import com.astrsomn.core.common.langchain.extension.vector.VecStore;
-import com.astrsomn.commn.utils.StringUtils;
-import com.astrsomn.commn.base.BusinessException;
-import com.astrsomn.core.exception.AstVecDocErrorEnum;
-import com.astrsomn.starter.mapper.AiAccountMapper;
-import com.astrsomn.starter.mapper.AiInstanceMapper;
-import com.astrsomn.starter.mapper.AiModelMapper;
-import com.astrsomn.starter.mapper.AiVecDocMapper;
-import com.astrsomn.server.service.AiVecDocService;
-import com.astrsomn.server.service.AiVecSegmentService;
-import com.astrsomn.server.service.AiVecStoreService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.starter.langchain.factory.AstroModelFactory;
-import com.astrsomn.starter.langchain.runtime.chain.RuntimeChatParamMergeSupport;
-import com.astrsomn.starter.langchain.vector.AstroVecSourceFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import com.astrsomn.core.common.utils.PageUtils;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -83,6 +90,9 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     private final AiModelMapper aiModelMapper;
     private final AiAccountMapper aiAccountMapper;
     private final AiVecSegmentService aiVecSegmentService;
+    private final AstrsomnStorageClient astrsomnStorageClient;
+    private final AstroFileRecordService astroFileRecordService;
+    private final StorageProperties storageProperties;
 
     @Override
     public BaseResponse<String> create(AiVecDocCreateRequestDTO request) {
@@ -117,30 +127,33 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_TEXT, "仅支持 .txt 文件");
         }
 
-        String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String uuid = UUID.randomUUID().toString().replace("-", "");
-        String extension = originalFileName.substring(originalFileName.lastIndexOf('.'));
-        String fileName = dateStr + "_" + uuid + extension;
-
-        String uploadDir = System.getProperty("user.dir") + "/vec/document/";
-        File directory = new File(uploadDir);
-        if (!directory.exists() && !directory.mkdirs()) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_CREATE_FAILED, "无法创建上传目录");
+        StorageUploadResult uploadResult = astrsomnStorageClient.upload(StorageUploadRequest.builder()
+                .file(file)
+                .bizType(storageProperties.getVecDocBizType())
+                .objectId(String.valueOf(collectionId))
+                .objectType("collection")
+                .build());
+        AstroFileRecordEntity fileRow = new AstroFileRecordEntity();
+        fileRow.setBizType(storageProperties.getVecDocBizType());
+        fileRow.setBizId(String.valueOf(collectionId));
+        fileRow.setPlatform(uploadResult.getPlatform());
+        fileRow.setBucket(uploadResult.getBucket());
+        fileRow.setObjectKey(uploadResult.getObjectKey());
+        fileRow.setOriginName(uploadResult.getOriginalFilename());
+        fileRow.setMimeType(uploadResult.getContentType());
+        fileRow.setFileSize(uploadResult.getSize());
+        fileRow.setEtag(uploadResult.getEtag());
+        fileRow.setFileUrl(uploadResult.getUrl());
+        fileRow.setStatus("ACTIVE");
+        queryEnvParamHelper.stampEffectiveEnv(fileRow);
+        if (!astroFileRecordService.save(fileRow)) {
+            throw new BusinessException(AstroFileErrorEnum.FILE_RECORD_CREATE_FAILED);
         }
-
-        File dest = new File(uploadDir + fileName);
-        try {
-            file.transferTo(dest);
-        } catch (IOException e) {
-            log.error("upload transfer failed", e);
-            throw new BusinessException(AstVecDocErrorEnum.DOC_CREATE_FAILED, "文件保存失败");
-        }
-
-        String relativePath = "/vec/document/" + fileName;
 
         AiVecDocEntity entity = new AiVecDocEntity();
         entity.setCollectionId(collectionId);
-        entity.setFilePath(relativePath);
+        entity.setFilePath(uploadResult.getObjectKey());
+        entity.setFileRecordId(fileRow.getId());
         entity.setOriginalFileName(originalFileName);
         entity.setContentSummary(originalFileName);
         entity.setSyncStatus(AiVecDocEnum.SyncStatus.PENDING.getCode());
@@ -202,18 +215,13 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
         EmbeddingModel embeddingModel = resolveEmbeddingModel(store, envCode);
 
-        Path filePath = resolveUploadedPath(doc.getFilePath());
-        if (!Files.isRegularFile(filePath)) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_READABLE);
-        }
-
         String fullText;
-        try {
-            fullText = readStrictUtf8Text(filePath);
+        try (InputStream inputStream = openDocInputStream(doc)) {
+            fullText = readStrictUtf8Text(inputStream);
         } catch (CharacterCodingException e) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_TEXT, "文件不是合法 UTF-8 文本");
         } catch (IOException e) {
-            log.error("read file failed {}", filePath, e);
+            log.error("read file failed key={}", doc.getFilePath(), e);
             throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_READABLE, e.getMessage());
         }
 
@@ -345,19 +353,42 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         return astroModelFactory.createModel(param, EmbeddingModel.class);
     }
 
-    private static Path resolveUploadedPath(String relativePath) {
-        String p = relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
-        return Path.of(System.getProperty("user.dir"), p).normalize();
+    private InputStream openDocInputStream(AiVecDocEntity doc) {
+        String key = StringUtils.trimToNull(doc.getFilePath());
+        if (key == null) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_READABLE, "文件路径为空");
+        }
+        String platform = storageProperties.getDefaultPlatform();
+        if (doc.getFileRecordId() != null) {
+            AstroFileRecordEntity fileRow = astroFileRecordService.getById(doc.getFileRecordId());
+            if (fileRow != null && StringUtils.isNotBlank(fileRow.getPlatform())) {
+                platform = fileRow.getPlatform();
+            }
+        }
+        return astrsomnStorageClient.openInputStream(StorageDownloadRequest.builder()
+                .platform(platform)
+                .objectKey(key)
+                .build());
     }
 
-    private static String readStrictUtf8Text(Path filePath) throws IOException, CharacterCodingException {
-        byte[] bytes = Files.readAllBytes(filePath);
+    private static String readStrictUtf8Text(InputStream inputStream) throws IOException, CharacterCodingException {
+        byte[] bytes = readAllBytes(inputStream);
         CharsetDecoder dec =
                 StandardCharsets.UTF_8
                         .newDecoder()
                         .onMalformedInput(CodingErrorAction.REPORT)
                         .onUnmappableCharacter(CodingErrorAction.REPORT);
         return dec.decode(ByteBuffer.wrap(bytes)).toString();
+    }
+
+    private static byte[] readAllBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int len;
+        while ((len = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, len);
+        }
+        return outputStream.toByteArray();
     }
 
     @Override
@@ -386,8 +417,30 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
                 }
             }
             removeById(id);
+            cleanupFileObject(doc);
         }
         return BaseResponse.success("删除成功");
+    }
+
+    private void cleanupFileObject(AiVecDocEntity doc) {
+        if (StringUtils.isBlank(doc.getFilePath())) {
+            return;
+        }
+        String platform = storageProperties.getDefaultPlatform();
+        if (doc.getFileRecordId() != null) {
+            AstroFileRecordEntity fileRow = astroFileRecordService.getById(doc.getFileRecordId());
+            if (fileRow != null) {
+                if (StringUtils.isNotBlank(fileRow.getPlatform())) {
+                    platform = fileRow.getPlatform();
+                }
+                fileRow.setStatus("DELETED");
+                astroFileRecordService.updateById(fileRow);
+            }
+        }
+        astrsomnStorageClient.delete(StorageDownloadRequest.builder()
+                .platform(platform)
+                .objectKey(doc.getFilePath())
+                .build());
     }
 
     @Override

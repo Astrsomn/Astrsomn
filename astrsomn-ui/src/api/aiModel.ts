@@ -16,7 +16,7 @@ export type AiModel = {
   responseLimit?: number
   randomIndex?: number
   topVariance?: number
-  isDefault?: number
+  isDefault?: string
   capabilities?: string
   /** model parameter schema JSON (preferred) */
   params?: string
@@ -76,6 +76,14 @@ export const aiModelApi = {
     return request({
       url: `/v1/astro/ai-model/delete/${joined}`,
       method: 'delete'
+    })
+  },
+
+  generateInstances: (ids: Array<number | string>): Promise<string> => {
+    const joined = ids.map((x) => String(x)).join(',')
+    return request({
+      url: `/v1/astro/ai-model/generate-instances/${joined}`,
+      method: 'post'
     })
   }
 }

@@ -2,16 +2,16 @@ package com.astrsomn.server.api;
 
 
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BaseController;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.account.AiAccountCreateRequestDTO;
-import com.astrsomn.core.common.dto.account.AiAccountQueryRequestDTO;
-import com.astrsomn.core.common.dto.account.AiAccountResponseDTO;
-import com.astrsomn.core.common.dto.account.AiAccountUpdateRequestDTO;
-import com.astrsomn.core.common.dto.model.AiModelQueryRequestDTO;
-import com.astrsomn.core.common.dto.model.AiModelResponseDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.account.AiAccountCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.account.AiAccountQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.account.AiAccountResponseDTO;
+import com.astrsomn.api.runtime.common.dto.account.AiAccountUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.model.AiModelQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.model.AiModelResponseDTO;
 import com.astrsomn.server.service.AiAccountService;
 import com.astrsomn.server.service.AiModelService;
 import org.springframework.web.bind.annotation.*;

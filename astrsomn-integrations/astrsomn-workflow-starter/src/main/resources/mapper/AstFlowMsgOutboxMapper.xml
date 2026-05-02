@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.starter.workflow.mapper.AstFlowMsgOutboxMapper">
+
+    <select id="queryPage" resultType="com.astrsomn.api.workflow.domain.dto.msgoutbox.AstFlowMsgOutboxResponseDTO">
+        SELECT
+        o.ID AS id,
+        o.BIZ_TYPE AS bizType,
+        o.BIZ_ID AS bizId,
+        o.TOPIC_OR_ENDPOINT AS topicOrEndpoint,
+        o.PAYLOAD_JSON AS payloadJson,
+        o.MSG_STATUS AS msgStatus,
+        o.RETRY_COUNT AS retryCount,
+        o.NEXT_RETRY_TIME_MS AS nextRetryTimeMs,
+        o.LAST_ERROR AS lastError,
+        o.IDEMPOTENT_KEY AS idempotentKey,
+        o.ENV_CODE AS envCode,
+        o.DELETED AS deleted,
+        o.CREATE_USER AS createUser,
+        o.CREATE_TIME AS createTime,
+        o.UPDATE_USER AS updateUser,
+        o.UPDATE_TIME AS updateTime
+        FROM AST_FLOW_MSG_OUTBOX o
+        WHERE (o.DELETED = 0 OR o.DELETED IS NULL)
+        <if test="req != null and req.bizType != null and req.bizType != ''">
+            AND o.BIZ_TYPE = #{req.bizType}
+        </if>
+        <if test="req != null and req.bizId != null and req.bizId != ''">
+            AND o.BIZ_ID = #{req.bizId}
+        </if>
+        <if test="req != null and req.msgStatus != null and req.msgStatus != ''">
+            AND o.MSG_STATUS = #{req.msgStatus}
+        </if>
+        <if test="req != null and req.idempotentKey != null and req.idempotentKey != ''">
+            AND o.IDEMPOTENT_KEY = #{req.idempotentKey}
+        </if>
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND o.ENV_CODE = #{req.envCode}
+        </if>
+        ORDER BY o.UPDATE_TIME DESC, o.ID DESC
+    </select>
+
+    <select id="detail" resultType="com.astrsomn.api.workflow.domain.dto.msgoutbox.AstFlowMsgOutboxResponseDTO">
+        SELECT
+        o.ID AS id,
+        o.BIZ_TYPE AS bizType,
+        o.BIZ_ID AS bizId,
+        o.TOPIC_OR_ENDPOINT AS topicOrEndpoint,
+        o.PAYLOAD_JSON AS payloadJson,
+        o.MSG_STATUS AS msgStatus,
+        o.RETRY_COUNT AS retryCount,
+        o.NEXT_RETRY_TIME_MS AS nextRetryTimeMs,
+        o.LAST_ERROR AS lastError,
+        o.IDEMPOTENT_KEY AS idempotentKey,
+        o.ENV_CODE AS envCode,
+        o.DELETED AS deleted,
+        o.CREATE_USER AS createUser,
+        o.CREATE_TIME AS createTime,
+        o.UPDATE_USER AS updateUser,
+        o.UPDATE_TIME AS updateTime
+        FROM AST_FLOW_MSG_OUTBOX o
+        WHERE o.ID = #{id}
+        AND (o.DELETED = 0 OR o.DELETED IS NULL)
+        <if test="envCode != null and envCode != ''">
+            AND o.ENV_CODE = #{envCode}
+        </if>
+    </select>
+
+</mapper>

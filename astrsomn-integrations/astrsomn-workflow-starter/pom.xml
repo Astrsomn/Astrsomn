@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.astrsomn</groupId>
+        <artifactId>astrsomn-integrations</artifactId>
+        <version>0.1.0-alpha.1</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>astrsomn-workflow-starter</artifactId>
+    <name>astrsomn-workflow-springboot-starter</name>
+    <description>Astrsomn workflow spring boot starter module</description>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-runtime-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-api-workflow</artifactId>
+        </dependency>
+
+        <!-- MyBatis-Plus - 使用provided scope，由使用方提供 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>3.5.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,33 +1,35 @@
 package com.astrsomn.server.service.impl;
-import com.astrsomn.core.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.server.astrsomn.PromptAssistant;
-import com.astrsomn.starter.langchain.aop.annotation.Astro;
+import com.astrsomn.starter.runtime.langchain.aop.annotation.Astro;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.commn.base.BasePageRequest;
-import com.astrsomn.commn.base.BaseResponse;
-import com.astrsomn.commn.base.PageResponse;
-import com.astrsomn.core.common.dto.prompt.AiPromptCreateRequestDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptQueryRequestDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptResponseDTO;
-import com.astrsomn.core.common.dto.prompt.AiPromptUpdateRequestDTO;
-import com.astrsomn.core.common.entity.AiPromptEntity;
-import com.astrsomn.commn.utils.StringUtils;
-import com.astrsomn.commn.base.BusinessException;
-import com.astrsomn.core.exception.AiPromptErrorEnum;
-import com.astrsomn.starter.mapper.AiPromptMapper;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptResponseDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiPromptEntity;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.common.utils.JsonUtil;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.exception.AiPromptErrorEnum;
+import com.astrsomn.starter.runtime.mapper.AiPromptMapper;
 import com.astrsomn.server.service.AiPromptService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.astrsomn.core.common.utils.PageUtils;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -171,5 +173,34 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     public BaseResponse<String> improvePrompt(AiPromptUpdateRequestDTO request) {
         String data = promptAssistant.improvePrompt(request.getPromptContent(), UUID.randomUUID().toString());
         return BaseResponse.success(data);
+    }
+
+    @Override
+    public BaseResponse<List<String>> querySceneTags() {
+        String envCode = queryEnvParamHelper.effectiveEnvCode();
+        List<String> rawScenes = baseMapper.querySceneRawList(envCode);
+        if (rawScenes == null || rawScenes.isEmpty()) {
+            return BaseResponse.success(new ArrayList<>());
+        }
+        Set<String> tags = new LinkedHashSet<>();
+        for (String rawScene : rawScenes) {
+            if (StringUtils.isBlank(rawScene)) {
+                continue;
+            }
+            try {
+                List<String> parsed = JsonUtil.parseArray(rawScene, String.class);
+                if (parsed == null || parsed.isEmpty()) {
+                    continue;
+                }
+                for (String tag : parsed) {
+                    String normalized = StringUtils.trimToNull(tag);
+                    if (normalized != null) {
+                        tags.add(normalized);
+                    }
+                }
+            } catch (RuntimeException ignore) {
+            }
+        }
+        return BaseResponse.success(new ArrayList<>(tags));
     }
 }

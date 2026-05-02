@@ -55,24 +55,29 @@
 
 ```text
 Astrsomn
-├── astrsomn-core                    # 核心能力封装（基础接口、工具、模型统一层）
-├── astrsomn-spring-boot-starter     # SpringBoot 快速启动器（自动配置、Starter 依赖）
-├── astrsomn-workflow-core           # 工作流核心引擎
-├── astrsomn-workflow-spring-boot-starter  # 工作流 Starter
-├── astrsomn-providers               # 模型提供方实现
-│   ├── astrsomn-provider-openai     # OpenAI 适配
-│   ├── astrsomn-provider-deepseek   # DeepSeek 适配
-│   ├── astrsomn-provider-qwen       # 通义千问适配
-│   ├── astrsomn-provider-qianfan    # 百度千帆适配
-│   └── astrsomn-provider-zhipu      # 智谱 AI 适配
-├── astrsomn-vector                  # 向量存储实现
-│   ├── astrsomn-vector-qdrant       # Qdrant 适配
-│   ├── astrsomn-vector-chroma       # Chroma 适配
-│   ├── astrsomn-vector-milvus       # Milvus 适配
-│   └── astrsomn-vector-redis        # Redis 适配
-├── astrsomn-server                  # 独立部署的 AI 服务（HTTP 接口、服务化运行）
-├── astrsomn-ui                      # 可视化控制台（配置、调试、监控）
-└── astrsomn-introduction            # 项目介绍站点源码
+├── astrsomn-common                    # 通用基础模块（工具类、基础实体、异常定义）
+├── astrsomn-api                       # API 接口定义层
+│   ├── astrsomn-api-runtime           # 运行时 API（异常枚举、错误码）
+│   ├── astrsomn-api-storage           # 存储 API（文件处理等）
+│   └── astrsomn-api-workflow          # 工作流 API
+├── astrsomn-integrations              # 集成层（Spring Boot Starter）
+│   ├── astrsomn-runtime-starter       # 运行时 Starter（AI 模型、工具、MCP 等）
+│   ├── astrsomn-workflow-starter      # 工作流 Starter
+│   └── astrsomn-internal-storage      # 内部存储实现
+├── astrsomn-plugins                   # 插件生态
+│   ├── astrsomn-providers             # 模型提供方实现
+│   │   ├── astrsomn-provider-openai   # OpenAI 适配
+│   │   ├── astrsomn-provider-deepseek # DeepSeek 适配
+│   │   ├── astrsomn-provider-qwen      # 通义千问适配
+│   │   ├── astrsomn-provider-qianfan   # 百度千帆适配
+│   │   └── astrsomn-provider-zhipu     # 智谱 AI 适配
+│   └── astrsomn-vector                # 向量存储实现
+│       ├── astrsomn-vector-qdrant     # Qdrant 适配
+│       ├── astrsomn-vector-chroma     # Chroma 适配
+│       ├── astrsomn-vector-milvus     # Milvus 适配
+│       └── astrsomn-vector-redis      # Redis 适配
+├── astrsomn-server                    # 服务端应用（HTTP 接口、服务化运行）
+└── astrsomn-ui                        # 前端控制台（Vue 3 + TypeScript）
 ```
 
 ---
@@ -81,12 +86,10 @@ Astrsomn
 
 当前按以下方向演进（便于后续 SPI 与自定义 ClassLoader 增强）：
 
-- `server` 依赖：`starter`、`providers`、`vector`
-- `starter` 依赖：`core`（及编排相关核心）
-- `providers` 依赖：`core`
-- `vector` 依赖：`core`
-
-> **说明**：为保证现阶段稳定性，`core` 中部分模型相关依赖暂时保留，后续会随代码拆分逐步迁移到对应子模块。
+- `server` 依赖：`integrations`、`plugins`
+- `integrations` 依赖：`api`、`common`
+- `plugins` 依赖：`api`
+- `api` 依赖：`common`
 
 ---
 
@@ -106,25 +109,23 @@ Astrsomn
 
 ### Maven 依赖
 
-**核心依赖（推荐）**：
+**集成层依赖（推荐）**：
 
 ```xml
-<!-- Spring Boot Starter（已包含 core） -->
+<!-- 运行时 Starter（AI 模型、工具、MCP 等） -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-springboot-starter</artifactId>
+    <artifactId>astrsomn-runtime-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 
-<!-- 工作流 Starter（已包含 core 和 springboot-starter） -->
+<!-- 工作流 Starter（已包含 runtime-starter） -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-workflow-springboot-starter</artifactId>
+    <artifactId>astrsomn-workflow-starter</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
-
-> **说明**：`astrsomn-springboot-starter` 已包含 `astrsomn-core`，`astrsomn-workflow-springboot-starter` 已包含前两者。根据业务需求选择对应的依赖即可。
 
 ---
 

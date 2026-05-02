@@ -50,7 +50,17 @@
           </template>
 
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
+            <template v-if="column.key === 'providerAvatar'">
+              <img
+                v-if="providerAvatarCell(record)"
+                class="provider-avatar-cell"
+                :src="providerAvatarCell(record)"
+                :alt="record.agentName || 'provider'"
+                aria-hidden="true"
+              />
+              <span v-else class="text-secondary">—</span>
+            </template>
+            <template v-else-if="column.key === 'status'">
               <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
                 {{ record.status === 'enabled' ? '启用' : '禁用' }}
               </a-tag>
@@ -150,12 +160,13 @@ const partCurrentSelected = computed(() => selectedKeys.value.size > 0 && select
 const tableSelectedRowKeys = computed<Array<string | number>>(() => Array.from(selectedKeys.value))
 
 const tableColumns = [
+  { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const },
   { 
     title: 'Agent Key', 
     dataIndex: 'agentKey', 
     key: 'agentKey', 
     ellipsis: true, 
-    width: 140,
+    width: 200,
     copyable: true
   },
   { title: '智能体名称', dataIndex: 'agentName', key: 'agentName', ellipsis: true, width: 200 },
@@ -167,6 +178,11 @@ const tableColumns = [
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150, icon: UserOutlined},
   { title: '操作', key: 'actions', width: 120, fixed: 'right' as const }
 ]
+
+const providerAvatarCell = (record: AiAgent) => {
+  const raw = record?.providerAvatar
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+}
 
 const tableRowSelection = computed(() => ({
   selectedRowKeys: tableSelectedRowKeys.value,
@@ -396,6 +412,23 @@ void fetchList()
 .status-switch :deep(.status-btn.active.ant-btn) {
   color: #1d4ed8;
   background: #eff6ff;
+}
+
+.provider-avatar-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.provider-avatar-cell :deep(svg) {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.text-secondary {
+  color: var(--text-muted, #bfbfbf);
 }
 
 @media (max-width: 720px) {

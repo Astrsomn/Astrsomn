@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.starter.runtime.mapper.AiAccountMapper">
+
+    <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.account.AiAccountResponseDTO">
+        SELECT
+        aa.ID,
+        aa.ACCOUNT_KEY,
+        aa.ACCOUNT_NAME,
+        aa.EXTENSION_CODE,
+        aa.API_URL,
+        aa.ACCOUNT_TOKENS,
+        aa.ENV_CODE,
+        aa.DELETED,
+        aa.CREATE_USER,
+        aa.CREATE_TIME,
+        aa.STATUS,
+        se.avatar AS PROVIDER_AVATAR,
+        se.EXTENSION_NAME,
+        -- 处理 NULL 值，确保计数不为 NULL 而是 0
+        COALESCE(am_summary.usedModelCount, 0) AS usedModelCount,
+        am_summary.usedModelKeys,
+        am_summary.usedModelNames
+        FROM
+        `AI_ACCOUNT` aa
+        LEFT JOIN
+        `SYS_EXTENSION` se ON aa.EXTENSION_CODE = se.EXTENSION_CODE
+        -- 改为连接一个聚合后的派生表
+        LEFT JOIN (
+        SELECT
+        ACCOUNT_KEY,
+        ENV_CODE,
+        COUNT(1) AS usedModelCount,
+        GROUP_CONCAT(DISTINCT MODEL_KEY ORDER BY MODEL_KEY SEPARATOR ',') AS usedModelKeys,
+        GROUP_CONCAT(DISTINCT MODEL_NAME ORDER BY MODEL_NAME SEPARATOR ',') AS usedModelNames
+        FROM
+        `AI_MODEL`
+        WHERE
+        (DELETED = 0 OR DELETED IS NULL)
+        GROUP BY
+        ACCOUNT_KEY,
+        ENV_CODE
+        ) am_summary ON aa.ACCOUNT_KEY = am_summary.ACCOUNT_KEY
+        AND aa.ENV_CODE = am_summary.ENV_CODE
+        WHERE
+        (aa.DELETED = 0 OR aa.DELETED IS NULL)
+        <if test="req != null and req.accountKey != null and req.accountKey != ''">
+            AND aa.ACCOUNT_KEY LIKE CONCAT('%', #{req.accountKey}, '%')
+        </if>
+        <if test="req != null and req.accountName != null and req.accountName != ''">
+            AND aa.ACCOUNT_NAME LIKE CONCAT('%', #{req.accountName}, '%')
+        </if>
+        <if test="req != null and req.extensionCode != null and req.extensionCode != ''">
+            AND aa.EXTENSION_CODE = #{req.extensionCode}
+        </if>
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND aa.ENV_CODE = #{req.envCode}
+        </if>
+        <if test="req != null and req.createUser != null and req.createUser != ''">
+            AND aa.CREATE_USER = #{req.createUser}
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND aa.STATUS = #{req.status}
+        </if>
+        ORDER BY
+        aa.CREATE_TIME DESC
+    </select>
+</mapper>

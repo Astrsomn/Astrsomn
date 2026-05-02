@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.core.common.constant.SystemExtensionEnum;
-import com.astrsomn.core.common.entity.SystemExtensionEntity;
-import com.astrsomn.core.common.langchain.extension.AstroExtensionDescriptor;
-import com.astrsomn.commn.utils.StringUtils;
-import com.astrsomn.starter.mapper.SystemExtensionMapper;
+import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
+import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
