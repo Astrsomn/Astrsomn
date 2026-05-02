@@ -52,6 +52,20 @@ Astrsomn consists of a complete ecosystem:
 
 ---
 
+## 🛠️ Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Backend Framework | Spring Boot 3.3.0 |
+| Language | Java 17+ |
+| AI Integration | LangChain4j |
+| Frontend Framework | Vue 3 + TypeScript |
+| Build Tool | Maven |
+| Database | MySQL / H2 |
+| Vector Database | Qdrant / Milvus / Chroma / Redis |
+
+---
+
 ## 🧩 Module Architecture
 
 ```text
@@ -197,12 +211,19 @@ We welcome contributions! We appreciate any form of contribution including but n
 
 ---
 
-## 📬 Community & Support
+## 💬 Community & Support
 
-- 💬 [GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - Community discussions
-- 🐛 [Issue Tracker](https://github.com/Astrsomn/Astrsomn/issues) - Bug reports
-- 🔧 [Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - Code contributions
-- 📧 Mailing List: dev@astrsomn.io
+<p align="center">
+  <a href="https://github.com/Astrsomn/Astrsomn/discussions"><img src="https://img.shields.io/badge/Discussions-GitHub-blue?style=flat-square&logo=github" alt="GitHub Discussions"></a>
+  <a href="https://github.com/Astrsomn/Astrsomn/issues"><img src="https://img.shields.io/badge/Issues-GitHub-green?style=flat-square&logo=github" alt="GitHub Issues"></a>
+  <a href="https://github.com/Astrsomn/Astrsomn/pulls"><img src="https://img.shields.io/badge/PRs-Welcome-orange?style=flat-square&logo=github" alt="PRs Welcome"></a>
+  <a href="mailto:dev@astrsomn.io"><img src="https://img.shields.io/badge/Email-dev@astrsomn.io-red?style=flat-square&logo=gmail" alt="Email"></a>
+</p>
+
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - Share experiences and ideas
+- 🐛 **Issues**: [GitHub Issues](https://github.com/Astrsomn/Astrsomn/issues) - Report bugs and suggest features
+- 🔧 **Contributions**: [Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - Welcome to submit PRs
+- 📧 **Email**: dev@astrsomn.io
 
 ---
 
