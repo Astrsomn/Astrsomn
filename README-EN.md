@@ -232,13 +232,13 @@ We welcome contributions! We appreciate any form of contribution including but n
   <a href="https://github.com/Astrsomn/Astrsomn/discussions"><img src="https://img.shields.io/badge/Discussions-GitHub-blue?style=flat-square&logo=github" alt="GitHub Discussions"></a>
   <a href="https://github.com/Astrsomn/Astrsomn/issues"><img src="https://img.shields.io/badge/Issues-GitHub-green?style=flat-square&logo=github" alt="GitHub Issues"></a>
   <a href="https://github.com/Astrsomn/Astrsomn/pulls"><img src="https://img.shields.io/badge/PRs-Welcome-orange?style=flat-square&logo=github" alt="PRs Welcome"></a>
-  <a href="mailto:dev@astrsomn.io"><img src="https://img.shields.io/badge/Email-dev@astrsomn.io-red?style=flat-square&logo=gmail" alt="Email"></a>
+  <a href="mailto:astrsomn@outlook.com"><img src="https://img.shields.io/badge/Email-astrsomn@outlook.com-red?style=flat-square&logo=gmail" alt="Email"></a>
 </p>
 
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - Share experiences and ideas
 - 🐛 **Issues**: [GitHub Issues](https://github.com/Astrsomn/Astrsomn/issues) - Report bugs and suggest features
 - 🔧 **Contributions**: [Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - Welcome to submit PRs
-- 📧 **Email**: dev@astrsomn.io
+- 📧 **Email**: astrsomn@outlook.com
 
 ---
 
