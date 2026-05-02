@@ -51,6 +51,20 @@
 
 ---
 
+## 🛠️ 技术栈
+
+| 类别 | 技术 |
+|------|------|
+| 后端框架 | Spring Boot 3.3.0 |
+| 语言 | Java 17+ |
+| AI 集成 | LangChain4j |
+| 前端框架 | Vue 3 + TypeScript |
+| 构建工具 | Maven |
+| 数据库 | MySQL / H2 |
+| 向量数据库 | Qdrant / Milvus / Chroma / Redis |
+
+---
+
 ## 🧩 模块结构
 
 ```text
@@ -195,12 +209,19 @@ Astrsomn
 
 ---
 
-## 📬 社区与支持
+## 💬 社区与交流
 
-- 💬 [GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - 社区讨论
-- 🐛 [Issue Tracker](https://github.com/Astrsomn/Astrsomn/issues) - Bug 报告
-- 🔧 [Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - 代码贡献
-- 📧 邮件列表：dev@astrsomn.io
+<p align="center">
+  <a href="https://github.com/Astrsomn/Astrsomn/discussions"><img src="https://img.shields.io/badge/Discussions-GitHub-blue?style=flat-square&logo=github" alt="GitHub Discussions"></a>
+  <a href="https://github.com/Astrsomn/Astrsomn/issues"><img src="https://img.shields.io/badge/Issues-GitHub-green?style=flat-square&logo=github" alt="GitHub Issues"></a>
+  <a href="https://github.com/Astrsomn/Astrsomn/pulls"><img src="https://img.shields.io/badge/PRs-Welcome-orange?style=flat-square&logo=github" alt="PRs Welcome"></a>
+  <a href="mailto:dev@astrsomn.io"><img src="https://img.shields.io/badge/Email-dev@astrsomn.io-red?style=flat-square&logo=gmail" alt="Email"></a>
+</p>
+
+- 💬 **讨论区**：[GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - 分享使用经验、交流想法
+- 🐛 **问题反馈**：[GitHub Issues](https://github.com/Astrsomn/Astrsomn/issues) - 报告 Bug、提出功能建议
+- 🔧 **贡献代码**：[Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - 欢迎提交 PR
+- 📧 **联系邮箱**：dev@astrsomn.io
 
 ---
 
