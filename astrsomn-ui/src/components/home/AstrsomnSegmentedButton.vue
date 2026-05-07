@@ -47,7 +47,7 @@ defineProps<{
   display: inline-flex;
   align-items: center;
   gap: 0;
-  border-radius: var(--radius-pro, 30px);
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-default);
 }
 
@@ -169,13 +169,13 @@ defineProps<{
 
 .seg-btn-first {
   border-right: none;
-  border-top-left-radius: var(--radius-pro, 30px);
-  border-bottom-left-radius: var(--radius-pro, 30px);
+  border-top-left-radius: var(--radius-md, 30px);
+  border-bottom-left-radius: var(--radius-md, 30px);
 }
 
 .seg-btn-last {
-  border-top-right-radius: var(--radius-pro, 30px);
-  border-bottom-right-radius: var(--radius-pro, 30px);
+  border-top-right-radius: var(--radius-md, 30px);
+  border-bottom-right-radius: var(--radius-md, 30px);
 }
 
 .seg-btn:not(.seg-btn-first):not(.seg-btn-last) {

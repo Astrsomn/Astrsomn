@@ -68,9 +68,9 @@ const conicGradient = computed(() => {
 
 <style scoped>
 .panel-card {
-  background: #fff;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   padding: 14px 14px 12px;
   flex-shrink: 0;
@@ -85,14 +85,14 @@ const conicGradient = computed(() => {
 
 .head-icon {
   font-size: 18px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .panel-title {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-heading);
 }
 
 .panel-body {
@@ -122,24 +122,24 @@ const conicGradient = computed(() => {
   width: 58%;
   height: 58%;
   border-radius: 50%;
-  background: #fff;
+  background: var(--bg-card);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 0 1px #f1f5f9;
+  box-shadow: inset 0 0 0 1px var(--border-default);
 }
 
 .donut-total {
   font-size: 22px;
   font-weight: 800;
-  color: #1e293b;
+  color: var(--text-heading);
   line-height: 1.1;
 }
 
 .donut-label {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
@@ -187,7 +187,7 @@ const conicGradient = computed(() => {
 .legend-name {
   flex: 1;
   min-width: 0;
-  color: #475569;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -202,11 +202,11 @@ const conicGradient = computed(() => {
 
 .legend-val {
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-heading);
 }
 
 .legend-pct {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 </style>

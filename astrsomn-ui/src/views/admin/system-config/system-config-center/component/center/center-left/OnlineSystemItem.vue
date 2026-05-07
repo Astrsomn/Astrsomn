@@ -121,8 +121,8 @@ const errorRateClass = (pct: number): string => {
 .biz-row td {
   padding: 10px 8px;
   vertical-align: middle;
-  border-bottom: 1px solid #f1f5f9;
-  color: #334155;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-primary);
 }
 
 .name-cell {
@@ -135,30 +135,30 @@ const errorRateClass = (pct: number): string => {
   flex-shrink: 0;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .icon-swatch--blue {
-  background: #dbeafe;
-  color: #2563eb;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--primary);
 }
 
 .icon-swatch--green {
-  background: #d1fae5;
-  color: #059669;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
 }
 
 .icon-swatch--cyan {
-  background: #cffafe;
-  color: #0891b2;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
 }
 
 .icon-swatch--amber {
-  background: #fef3c7;
-  color: #d97706;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fb923c;
 }
 
 .icon-swatch__ico {
@@ -167,11 +167,11 @@ const errorRateClass = (pct: number): string => {
 
 .name-text {
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-heading);
 }
 
 .slug-text {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -189,19 +189,19 @@ const errorRateClass = (pct: number): string => {
 }
 
 .owner-dot--blue {
-  background: #3b82f6;
+  background: var(--primary);
 }
 
 .owner-dot--green {
-  background: #10b981;
+  background: var(--success);
 }
 
 .owner-dot--violet {
-  background: #8b5cf6;
+  background: #a78bfa;
 }
 
 .owner-dot--orange {
-  background: #f97316;
+  background: #fb923c;
 }
 
 .env-tag {
@@ -213,23 +213,23 @@ const errorRateClass = (pct: number): string => {
 }
 
 .env-tag--prod {
-  background: #d1fae5;
-  color: #047857;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
 }
 
 .env-tag--pre {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--primary);
 }
 
 .env-tag--test {
-  background: #ede9fe;
-  color: #6d28d9;
+  background: rgba(139, 92, 246, 0.12);
+  color: #a78bfa;
 }
 
 .env-tag--dev {
-  background: #ffedd5;
-  color: #c2410c;
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
 }
 
 .status-line {
@@ -247,27 +247,27 @@ const errorRateClass = (pct: number): string => {
 }
 
 .status-line--online .status-dot {
-  background: #10b981;
+  background: var(--success);
 }
 
 .status-line--online {
-  color: #047857;
+  color: var(--success);
 }
 
 .status-line--offline .status-dot {
-  background: #94a3b8;
+  background: var(--text-muted);
 }
 
 .status-line--offline {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .status-line--maintenance .status-dot {
-  background: #f97316;
+  background: #fb923c;
 }
 
 .status-line--maintenance {
-  color: #c2410c;
+  color: #fb923c;
 }
 
 .err-rate {
@@ -275,15 +275,15 @@ const errorRateClass = (pct: number): string => {
 }
 
 .err-rate--ok {
-  color: #059669;
+  color: var(--success);
 }
 
 .err-rate--warn {
-  color: #ea580c;
+  color: #fb923c;
 }
 
 .last-text {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -306,16 +306,16 @@ const errorRateClass = (pct: number): string => {
   height: 32px;
   padding: 0;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: transparent;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .icon-action:hover {
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--bg-input);
+  color: var(--text-secondary);
 }
 
 .icon-action :deep(.anticon) {

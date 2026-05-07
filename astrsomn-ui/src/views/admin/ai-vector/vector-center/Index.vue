@@ -118,19 +118,20 @@ onMounted(async () => {
 <style scoped>
 /* 整体布局样式 */
 .ant-layout {
-  background-color: #ffffff;
+  background-color: var(--bg-surface);
 }
 
 /* 主内容区样式 */
 .ant-layout-content {
   padding: 0;
   overflow-y: auto;
-  background-color: #fff;
+  background-color: var(--bg-surface);
 }
 
 /* 侧边栏样式 */
 .ant-layout-sider {
-  background-color: #ffffff;
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-default);
 }
 
 .empty-state {
@@ -138,7 +139,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 15px;
 }
 </style>

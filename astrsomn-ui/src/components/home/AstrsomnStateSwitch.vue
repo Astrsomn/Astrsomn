@@ -91,7 +91,7 @@ const handleSelect = (value: string | number, index: number) => {
   display: flex;
   background: var(--bg-surface);
   padding: var(--gap);
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   position: relative;
   cursor: pointer;
   user-select: none;
@@ -134,7 +134,7 @@ const handleSelect = (value: string | number, index: number) => {
   width: var(--item-width);
   height: var(--item-height);
   background: var(--bg-card);
-  border-radius: 999px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
   
   /* 弹性反馈动画控制 */

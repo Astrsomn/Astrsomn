@@ -133,6 +133,8 @@ const removeSegment = async (record: AiVecSegment) => {
 .ant-layout-footer {
   padding: 12px 24px;
   min-height: 260px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-default);
 }
 .panel-head {
   display: flex;
@@ -141,7 +143,7 @@ const removeSegment = async (record: AiVecSegment) => {
   margin-bottom: 8px;
 }
 .meta {
-  color: #999;
+  color: var(--text-muted);
   font-size: 12px;
 }
 </style>

@@ -196,27 +196,22 @@ const handleSave = async () => {
 </script>
 
 <style lang="less" scoped>
-@text-main: #262626;
-@text-secondary: #8c8c8c;
-@border-color: #f0f0f0;
-@blue-base: #1677ff;
-
 .dashboard-header-container {
   padding: 20px;
-  background-color: #ffffff;
+  background-color: var(--bg-card);
 }
 
 /* 基础卡片美化 */
 .ant-card {
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   height: 100%;
   transition: all 0.3s;
 }
 
 /* 信息卡片样式 */
 .info-card {
-  background: #ffffff;
-  border: 1px solid @border-color !important;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default) !important;
 
   .content-wrapper {
     display: flex;
@@ -226,7 +221,7 @@ const handleSave = async () => {
 
   .brand-section {
     padding-right: 40px;
-    border-right: 1px solid @border-color;
+    border-right: 1px solid var(--border-default);
     flex-shrink: 0;
     min-width: 280px;
 
@@ -239,18 +234,18 @@ const handleSave = async () => {
       .label-text {
         font-size: 11px;
         font-weight: 700;
-        color: #1677ff;
+        color: var(--primary);
         text-transform: uppercase;
         letter-spacing: 1px;
       }
 
       .subtle-tag {
         border: none;
-        background: #f6ffed;
-        color: #52c41a;
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
         font-size: 10px;
         line-height: 18px;
-        border-radius: 4px;
+        border-radius: var(--radius-sm);
       }
     }
 
@@ -260,52 +255,52 @@ const handleSave = async () => {
       border: 1px solid transparent;
       padding: 4px 8px;
       background: transparent;
-      color: @text-main;
+      color: var(--text-heading);
       margin-bottom: 6px;
-      border-radius: 6px;
+      border-radius: var(--radius-md);
       transition: all 0.2s ease;
 
       &:hover {
-        border-color: @border-color;
-        background: #fafafa;
+        border-color: var(--border-default);
+        background: var(--bg-input);
       }
 
       &:focus {
-        border-color: @blue-base;
-        background: #fff;
-        box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+        border-color: var(--primary);
+        background: var(--bg-card);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
       }
     }
 
     .description-input {
       font-size: 12px;
-      color: @text-secondary;
+      color: var(--text-secondary);
       border: 1px solid transparent;
       padding: 4px 8px;
       background: transparent;
       margin-bottom: 8px;
-      border-radius: 6px;
+      border-radius: var(--radius-md);
       transition: all 0.2s ease;
       resize: none;
 
       &:hover {
-        border-color: @border-color;
-        background: #fafafa;
+        border-color: var(--border-default);
+        background: var(--bg-input);
       }
 
       &:focus {
-        border-color: @blue-base;
-        background: #fff;
-        box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
-        color: @text-main;
+        border-color: var(--primary);
+        background: var(--bg-card);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+        color: var(--text-primary);
       }
     }
 
     .sync-meta {
       font-size: 12px;
-      color: @text-secondary;
+      color: var(--text-secondary);
       margin-top: 4px;
-      .node-text { color: #bfbfbf; font-family: monospace; }
+      .node-text { color: var(--text-muted); font-family: monospace; }
     }
   }
 
@@ -318,7 +313,7 @@ const handleSave = async () => {
     .config-divider {
       width: 1px;
       height: 40px;
-      background: #f5f5f5;
+      background: var(--border-default);
       align-self: center;
     }
 
@@ -328,7 +323,7 @@ const handleSave = async () => {
       .config-label {
         font-size: 11px;
         font-weight: 600;
-        color: @text-secondary;
+        color: var(--text-secondary);
         display: block;
         margin-bottom: 4px;
       }
@@ -342,7 +337,7 @@ const handleSave = async () => {
           box-shadow: none !important;
           font-weight: 600;
           font-size: 14px;
-          color: @text-main;
+          color: var(--text-primary);
           padding: 0 !important;
           height: auto !important;
 
@@ -352,19 +347,19 @@ const handleSave = async () => {
         }
 
         :deep(.ant-select-arrow) {
-          color: @text-secondary;
+          color: var(--text-secondary);
         }
       }
 
       .config-value {
         font-size: 14px;
         font-weight: 700;
-        color: @text-main;
+        color: var(--text-heading);
       }
 
       .config-sub {
         font-size: 11px;
-        color: @text-secondary;
+        color: var(--text-secondary);
         margin-top: 2px;
       }
     }
@@ -373,21 +368,22 @@ const handleSave = async () => {
 
 /* 指标卡片样式（深色渐变） */
 .stats-card {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-default);
 
   .stats-wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
     height: 100px;
-    color: #fff;
+    color: var(--text-primary);
   }
 
   .stats-label {
     font-size: 10px;
     font-weight: 600;
-    color: #94a3b8;
+    color: var(--text-muted);
     letter-spacing: 1px;
   }
 
@@ -399,7 +395,7 @@ const handleSave = async () => {
 
     .unit {
       font-size: 12px;
-      color: #64748b;
+      color: var(--text-muted);
     }
   }
 
@@ -410,26 +406,26 @@ const handleSave = async () => {
     margin-top: 12px;
     font-size: 11px;
     font-weight: 600;
-    color: #cbd5e1;
+    color: var(--text-secondary);
 
     .footer-dot {
       width: 3px;
       height: 3px;
-      background: #475569;
+      background: var(--text-muted);
       border-radius: 50%;
     }
   }
 
   .stats-icon-box {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(59, 130, 246, 0.15);
     width: 44px;
     height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     font-size: 22px;
-    color: #38bdf8;
+    color: var(--accent-cyan);
     backdrop-filter: blur(4px);
   }
 }
