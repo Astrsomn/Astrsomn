@@ -122,7 +122,7 @@ onMounted(() => {
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   border: 1px solid var(--border-default);
 
-  height: calc(100vh - 300px);
+  height: 100%;
 }
 
 .ultra-card:hover {

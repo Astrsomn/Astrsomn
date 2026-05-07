@@ -158,9 +158,9 @@ const envLabel = (env: SystemEnv): string => {
 }
 
 .panel-card {
-  background: #fff;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   padding: 14px;
   flex-shrink: 0;
@@ -195,7 +195,7 @@ const envLabel = (env: SystemEnv): string => {
 
 .head-icon {
   font-size: 18px;
-  color: #94a3b8;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -203,7 +203,7 @@ const envLabel = (env: SystemEnv): string => {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-heading);
 }
 
 .link-btn {
@@ -213,7 +213,7 @@ const envLabel = (env: SystemEnv): string => {
   padding: 0;
   font-size: 12px;
   font-weight: 600;
-  color: #3b82f6;
+  color: var(--primary);
   cursor: pointer;
 }
 
@@ -249,33 +249,33 @@ const envLabel = (env: SystemEnv): string => {
 }
 
 .usage-ico--blue {
-  color: #3b82f6;
+  color: var(--primary);
 }
 
 .usage-ico--violet {
-  color: #8b5cf6;
+  color: #a78bfa;
 }
 
 .usage-ico--green {
-  color: #10b981;
+  color: var(--success);
 }
 
 .usage-label {
-  color: #64748b;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .usage-numbers {
-  color: #334155;
+  color: var(--text-primary);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
 .usage-pct {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 11px;
   width: 40px;
   text-align: right;
@@ -285,7 +285,7 @@ const envLabel = (env: SystemEnv): string => {
 .bar-track {
   height: 6px;
   border-radius: 10px;
-  background: #f1f5f9;
+  background: var(--bg-input);
   overflow: hidden;
 }
 
@@ -296,15 +296,15 @@ const envLabel = (env: SystemEnv): string => {
 }
 
 .bar-fill--blue {
-  background: linear-gradient(90deg, #60a5fa, #3b82f6);
+  background: linear-gradient(90deg, rgba(96, 165, 250, 0.8), var(--primary));
 }
 
 .bar-fill--violet {
-  background: linear-gradient(90deg, #c4b5fd, #8b5cf6);
+  background: linear-gradient(90deg, rgba(196, 181, 253, 0.8), #a78bfa);
 }
 
 .bar-fill--green {
-  background: linear-gradient(90deg, #6ee7b7, #10b981);
+  background: linear-gradient(90deg, rgba(110, 231, 183, 0.8), var(--success));
 }
 
 .change-list {
@@ -329,7 +329,7 @@ const envLabel = (env: SystemEnv): string => {
   flex-shrink: 0;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -337,23 +337,23 @@ const envLabel = (env: SystemEnv): string => {
 }
 
 .change-icon--1 {
-  background: #dbeafe;
-  color: #2563eb;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--primary);
 }
 
 .change-icon--2 {
-  background: #ede9fe;
-  color: #7c3aed;
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
 }
 
 .change-icon--3 {
-  background: #d1fae5;
-  color: #059669;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
 }
 
 .change-icon--4 {
-  background: #ffedd5;
-  color: #ea580c;
+  background: rgba(251, 146, 60, 0.15);
+  color: #fb923c;
 }
 
 .change-main {
@@ -372,12 +372,12 @@ const envLabel = (env: SystemEnv): string => {
 .change-title {
   font-size: 13px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-heading);
 }
 
 .change-time {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -390,22 +390,22 @@ const envLabel = (env: SystemEnv): string => {
 }
 
 .env-tag--prod {
-  background: #d1fae5;
-  color: #047857;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
 }
 
 .env-tag--pre {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--primary);
 }
 
 .env-tag--test {
-  background: #ede9fe;
-  color: #6d28d9;
+  background: rgba(139, 92, 246, 0.12);
+  color: #a78bfa;
 }
 
 .env-tag--dev {
-  background: #ffedd5;
-  color: #c2410c;
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
 }
 </style>

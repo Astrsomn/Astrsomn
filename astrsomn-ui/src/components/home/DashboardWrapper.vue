@@ -8,9 +8,13 @@
 
 <style scoped>
 .dashboard-wrapper {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   background: var(--bg-base);
-  min-height: calc(100vh - 70px);
+  border: 1px solid red;
+  height: calc(100vh - 60px);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 14px;
   color: var(--text-primary);
@@ -18,13 +22,14 @@
 
 .dashboard-main {
   max-width: 1600px;
-  max-height: calc(100vh - 120px);
+  /* 高度在 600px 到 800px 之间，理想高度是视口高度减去 60px */
+  height: clamp(600px, calc(100vh - 60px), 800px);
   width: 100%;
-  height: auto;
-  margin: 24px auto;
-  padding: 0 24px;
+  border: 1px solid rgb(71, 255, 10);
+  padding: 30px 30px 100px 30px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  /* 移除了 min-height, max-height 和 height: auto */
 }
 </style>

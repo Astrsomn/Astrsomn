@@ -44,39 +44,34 @@ defineEmits<{
 </script>
 
 <style lang="less" scoped>
-@primary-blue: #2563eb;
-@text-main: #1e293b;
-@text-sub: #64748b;
-@text-muted: #94a3b8;
-
 .source-card {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
   margin: 4px 0;
-  border-radius: 12px;
-  background: #fff;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    border-color: #e2e8f0;
-    background: #f8fafc;
+    border-color: var(--border-default);
+    background: var(--bg-input);
     transform: translateY(-1px);
   }
 
   &.active {
-    background: #f8fafc;
-    border-color: #e2e8f0;
+    background: var(--bg-input);
+    border-color: var(--border-default);
   }
 
   .source-icon-box {
     width: 36px;
     height: 36px;
-    border-radius: 10px;
-    background: #f1f5f9;
+    border-radius: var(--radius-md);
+    background: var(--bg-input);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -84,14 +79,14 @@ defineEmits<{
 
     .source-icon {
       font-size: 14px;
-      color: @text-sub;
+      color: var(--text-secondary);
     }
 
     .source-avatar {
       width: 22px;
       height: 22px;
       object-fit: contain;
-      border-radius: 6px;
+      border-radius: var(--radius-lg);
     }
   }
 
@@ -108,26 +103,26 @@ defineEmits<{
       .source-title {
         font-size: 14px;
         font-weight: 700;
-        color: @text-main;
+        color: var(--text-heading);
       }
 
       .status-badge {
         font-size: 10px;
         font-weight: 600;
         padding: 2px 8px;
-        border-radius: 6px;
+        border-radius: var(--radius-sm);
         letter-spacing: 0.02em;
 
         &.badge-up {
-          background: #ecfdf3;
-          color: #16a34a;
-          border: 1px solid #d1fadf;
+          background: rgba(16, 185, 129, 0.1);
+          color: var(--success);
+          border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
         &.badge-down {
-          background: #fef2f2;
-          color: #ef4444;
-          border: 1px solid #fee2e2;
+          background: rgba(239, 68, 68, 0.1);
+          color: var(--error);
+          border: 1px solid rgba(239, 68, 68, 0.2);
         }
       }
     }
@@ -140,12 +135,12 @@ defineEmits<{
       .source-conn {
         font-size: 12px;
         font-family: 'SF Mono', Consolas, monospace;
-        color: @text-muted;
+        color: var(--text-muted);
       }
 
       .arrow-icon {
         font-size: 10px;
-        color: @text-muted;
+        color: var(--text-muted);
         transition: transform 0.3s ease;
 
         &.rotated {

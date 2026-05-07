@@ -164,10 +164,10 @@ const onPageSizeChange = (value: number) => {
   margin-top: 6px;
   flex: 1;
   min-height: 0;
-  border: 1px solid var(--border-default, #e2e8f0);
-  border-radius: 10px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   overflow: hidden;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .biz-header-row {
@@ -182,7 +182,7 @@ const onPageSizeChange = (value: number) => {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-heading);
 }
 
 .biz-actions {
@@ -197,17 +197,17 @@ const onPageSizeChange = (value: number) => {
   gap: 6px;
   padding: 6px 12px;
   font-size: 13px;
-  color: #475569;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
 }
 
 .ghost-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--bg-input);
+  border-color: var(--primary);
 }
 
 .ghost-btn.icon-only {
@@ -216,7 +216,7 @@ const onPageSizeChange = (value: number) => {
 
 .ghost-btn :deep(.anticon) {
   font-size: 14px;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .biz-filter-row {
@@ -234,25 +234,25 @@ const onPageSizeChange = (value: number) => {
   padding: 6px 14px;
   font-size: 13px;
   font-weight: 500;
-  color: #475569;
-  background: #f1f5f9;
+  color: var(--text-secondary);
+  background: var(--bg-input);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .pill:hover {
-  background: #e2e8f0;
+  background: var(--bg-elevated);
 }
 
 .pill--active {
-  background: #3b82f6;
+  background: var(--primary);
   color: #fff;
 }
 
 .pill--active:hover {
-  background: #2563eb;
+  background: var(--primary-hover);
   color: #fff;
 }
 
@@ -272,9 +272,9 @@ const onPageSizeChange = (value: number) => {
 .biz-table thead th {
   text-align: left;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
   padding: 8px 8px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-default);
   white-space: nowrap;
 }
 
@@ -318,7 +318,7 @@ const onPageSizeChange = (value: number) => {
 .biz-empty {
   padding: 28px 16px;
   text-align: center;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -329,12 +329,12 @@ const onPageSizeChange = (value: number) => {
   gap: 10px;
   flex-shrink: 0;
   padding: 10px 16px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-default);
 }
 
 .footer-total {
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .page-size-select {
@@ -342,10 +342,10 @@ const onPageSizeChange = (value: number) => {
 }
 
 .biz-pagination :deep(.ant-pagination-item-active) {
-  border-color: #3b82f6;
+  border-color: var(--primary);
 }
 
 .biz-pagination :deep(.ant-pagination-item-active a) {
-  color: #3b82f6;
+  color: var(--primary);
 }
 </style>

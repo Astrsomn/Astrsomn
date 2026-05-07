@@ -56,7 +56,7 @@ function emitSearch() {
 .toolbar-search-pill {
   height: 48px;
   background: transparent;
-  border-radius: 24px;
+  border-radius: var(--radius-md);
   padding: 0 6px 0 16px;
   display: flex;
   align-items: center;
@@ -80,15 +80,7 @@ function emitSearch() {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary, #3b82f6) 10%, transparent);
 }
 
-.toolbar-search-pill--toolbar {
-  flex: 1;
-  max-width: 420px;
-}
 
-.toolbar-search-pill--pane,
-.toolbar-search-pill--fluid {
-  width: 100%;
-}
 
 .toolbar-search-pill__left-icon {
   color: var(--text-placeholder, #9ca3af);
@@ -104,11 +96,11 @@ function emitSearch() {
   font-size: 14px;
   margin-left: 12px;
   background: transparent;
-  color: var(--text-primary, #1f2937);
+  color: var(--text-primary);
 }
 
 .toolbar-search-pill__input::placeholder {
-  color: var(--text-placeholder, #9ca3af);
+  color: var(--text-placeholder);
 }
 
 /* 按钮样式：保持主色，强调点击感 */
@@ -119,7 +111,7 @@ function emitSearch() {
   background: var(--primary, #3b82f6);
   color: #fff;
   border: none;
-  border-radius: 50%;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;

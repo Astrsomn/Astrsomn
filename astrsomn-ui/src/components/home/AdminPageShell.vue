@@ -19,6 +19,7 @@
       <a-button
         type="primary"
         shape="circle"
+        size="large"
         @click="viewToggleHandler"
         :title="viewMode === 'grid' ? '切换为列表视图' : '切换为卡片视图'"
       >
@@ -96,6 +97,8 @@ const inModuleLayout = inject('adminInModuleLayout', false);
   right: 32px;
   bottom: 32px;
   z-index: 100;
+  border-radius: 50%;
+  border: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
 }
 
 .float-view-toggle :deep(.ant-btn) {

@@ -104,17 +104,17 @@ import {
   position: relative;
   box-sizing: border-box;
   min-height: 88px;
-  background: #ffffff;
-  border-radius: 10px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
   padding: 14px 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-default);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   overflow: hidden;
   transition: all 0.2s ease;
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-card);
   }
 
   .card-inner {
@@ -126,7 +126,6 @@ import {
     z-index: 2;
   }
 
-  /* 文字侧 */
   .info-side {
     .label {
       font-size: 12px;
@@ -144,7 +143,7 @@ import {
     .value {
       font-size: 22px;
       font-weight: 800;
-      color: #1e293b;
+      color: var(--text-heading);
       line-height: 1.15;
     }
 
@@ -159,13 +158,12 @@ import {
     }
   }
 
-  /* 图标侧 */
   .icon-side {
     .icon-box {
       flex-shrink: 0;
       width: 48px;
       height: 48px;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -173,21 +171,19 @@ import {
     }
   }
 
-  /* 与 system-config 快捷入口 icon-1 ~ 4 色板一致 */
-  &.blue .icon-box { background: #dbeafe; color: #3b82f6; }
-  &.purple .icon-box { background: #ede9fe; color: #8b5cf6; }
-  &.amber .icon-box { background: #fef3c7; color: #f59e0b; }
+  &.blue .icon-box { background: rgba(59, 130, 246, 0.15); color: var(--primary); }
+  &.purple .icon-box { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+  &.amber .icon-box { background: rgba(245, 158, 11, 0.15); color: #fb923c; }
   
   &.dark {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
     .label { color: var(--text-muted); }
-    .value { color: #1e293b; }
-    .icon-box { background: #f1f5f9; color: #1e293b; }
+    .value { color: var(--text-heading); }
+    .icon-box { background: var(--bg-elevated); color: var(--text-secondary); }
   }
 }
 
-/* 徽章与状态 */
 .mini-badge {
   font-size: 10px;
   padding: 0 6px;
@@ -195,7 +191,7 @@ import {
   margin-left: 8px;
   font-weight: 700;
   
-  &.positive { background: rgba(82, 196, 26, 0.12); color: #52c41a; border: 1px solid rgba(82, 196, 26, 0.3); }
+  &.positive { background: rgba(16, 185, 129, 0.12); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
   &.stable { background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border-default); }
 }
 
@@ -212,16 +208,15 @@ import {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    &.green { background: #52c41a; }
+    &.green { background: var(--success); }
     &.pulse { 
-      background: #52c41a; 
-      box-shadow: 0 0 0 rgba(82, 196, 26, 0.4);
+      background: var(--success); 
+      box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
       animation: pulse 2s infinite;
     }
   }
 }
 
-/* 装饰元素 */
 .progress-decor {
   position: absolute;
   bottom: 0;
@@ -229,7 +224,7 @@ import {
   width: 100%;
   height: 3px;
   background: var(--border-default);
-  .progress-fill { height: 100%; background: #a855f7; border-radius: 10px; }
+  .progress-fill { height: 100%; background: #a78bfa; border-radius: 10px; }
 }
 
 .bg-watermark {
@@ -242,9 +237,9 @@ import {
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.7); }
-  70% { box-shadow: 0 0 0 6px rgba(82, 196, 26, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(82, 196, 26, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
 @media (max-width: 1200px) {

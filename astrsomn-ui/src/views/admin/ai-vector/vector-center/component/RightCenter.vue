@@ -215,9 +215,6 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
 </script>
 
 <style lang="less" scoped>
-@text-main: #262626;
-@text-secondary: #8c8c8c;
-
 .document-list-container {
   padding: 0 24px 24px 24px;
   background: transparent;
@@ -234,8 +231,8 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
     display: flex;
     align-items: center;
     gap: 12px;
-    .section-title { font-size: 16px; font-weight: 600; color: @text-main; margin: 0; }
-    .count-badge { background: #f5f5f5; color: @text-secondary; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .section-title { font-size: 16px; font-weight: 600; color: var(--text-heading); margin: 0; }
+    .count-badge { background: var(--bg-input); color: var(--text-secondary); padding: 2px 10px; border-radius: var(--radius-max); font-size: 12px; font-weight: 600; }
   }
 
   .toolbar-right {
@@ -243,9 +240,10 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
     gap: 12px;
     .subtle-search {
       width: 240px;
-      :deep(.ant-input) { border-radius: 8px; border-color: #f0f0f0; background: #fcfcfc; }
+      :deep(.ant-input) { border-radius: var(--radius-md); border-color: var(--border-input); background: var(--bg-input); color: var(--text-primary); }
+      :deep(.ant-input::placeholder) { color: var(--text-placeholder); }
     }
-    .import-btn { border-radius: 8px; font-weight: 500; }
+    .import-btn { border-radius: var(--radius-md); font-weight: 500; }
   }
 }
 
