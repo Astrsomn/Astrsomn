@@ -18,6 +18,11 @@
   <a href="https://github.com/Astrsomn/Astrsomn/network/members"><img src="https://img.shields.io/github/forks/Astrsomn/Astrsomn.svg" alt="GitHub Forks"></a>
 </p>
 
+> [!WARNING]
+> ## Work in Progress (Not Production Ready)
+> This project is currently **incomplete** and under active development. Features, configuration, and APIs may change frequently.  
+> **Do not use in production**. It is currently intended for learning, evaluation, and feedback only.
+
 ---
 
 ## 📖 Project Introduction
@@ -25,6 +30,28 @@
 **Astrsomn** is designed to solve common engineering challenges when integrating large models into the Java ecosystem: complex configuration, dependency coupling, difficult capability extension, and insufficient runtime governance.
 
 Through layered modularization and standardized encapsulation, Astrsomn enables developers to quickly get started while supporting long-term evolution in enterprise scenarios.
+
+---
+
+## 🏗️ Under Construction 🏗️
+
+| Status | Feature Module | Description |
+|---|---|---|
+| ✅ | **Agent Lifecycle** | Creation, configuration, and management capabilities completed |
+| ✅ | **Environment Initialization** | Supports quick environment configuration and initialization |
+| ✅ | **Dependency Quick Import** | Maven Starter one-click integration |
+| ✅ | **Basic Configuration** | Core configuration management capabilities provided |
+| ❌ | **Workflow Module** | Not yet implemented |
+| ❌ | **Vector Database Integration** | Partial implementation, unstable |
+| ❌ | **Security & Governance** | Multi-tenant, rate limiting, monitoring and other features missing |
+| ⚠️ | **API Compatibility** | May change at any time, no backward compatibility guaranteed |
+
+**⚠️ NOT FOR PRODUCTION USE! ⚠️**
+
+This project is under active development. Welcome to join us and contribute!
+See [Contributing](#🤝-Contributing)
+
+---
 
 Astrsomn consists of a complete ecosystem:
 - `core`: Unified abstraction and common capabilities
@@ -129,13 +156,57 @@ public class MyService {
 - JDK 21+
 - Spring Boot 3.2+
 - Maven 3.8+
+- MySQL 8.0+ (recommended)
 
-### Steps
+### Step 1: Prepare the database
 
-1. **Start basic dependencies** (database, vector database, etc.).
-2. **Configure parameters**: Modify data source and model parameters in `astrsomn-server`.
-3. **Start the service**: Run `AstrsomnServerApplication.java`.
-4. **Visual management**: Start `astrsomn-ui` for configuration and debugging.
+1. Ensure your MySQL instance is reachable (local or remote).
+2. Create a database (example):
+
+```sql
+CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
+```
+
+### Step 2: Update MySQL settings (required)
+
+Edit `astrsomn-server/src/main/resources/application-mysql.yml`.  
+The `mysql` profile is active by default (configured in `application.yml`), so no extra profile switch is needed.
+
+**Required fields**:
+- `host`
+- `port`
+- `database-name`
+- `username`
+- `password`
+
+**Minimal working example**:
+
+```yml
+astrsomn:
+  data-base:
+    database-type: mysql
+    host: 127.0.0.1
+    port: 3306
+    database-name: astro_ai
+    username: root
+    password: your_password
+```
+
+### Step 3: Start the server
+
+- Run `AstrsomnServerApplication.java` in the `astrsomn-server` module from your IDE.
+- Flyway migration runs automatically on first startup (enabled by default).
+
+### Step 4: Verify startup
+
+Any of the following indicates successful startup:
+- You can see Spring Boot startup completion logs (Started ...).
+- No database connection errors appear and the process keeps running.
+- The service listens on port `4481` (default).
+
+### Step 5: Add dependency and use `@Astro`
+
+After the server is running, import the starter dependency below in your business project, then integrate AI capabilities via `@Astro`.
 
 ### Maven Dependencies
 

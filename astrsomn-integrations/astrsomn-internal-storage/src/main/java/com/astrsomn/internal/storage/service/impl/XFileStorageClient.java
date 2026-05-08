@@ -3,7 +3,7 @@ package com.astrsomn.internal.storage.service.impl;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.internal.storage.config.StorageProperties;
-import com.astrsomn.api.storage.exception.AstroFileErrorEnum;
+import com.astrsomn.api.storage.exception.AstFileErrorEnum;
 import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
 import com.astrsomn.internal.storage.service.model.StorageDownloadRequest;
 import com.astrsomn.internal.storage.service.model.StorageUploadRequest;
@@ -38,7 +38,7 @@ public class XFileStorageClient implements AstrsomnStorageClient {
     public StorageUploadResult upload(StorageUploadRequest request) {
         MultipartFile file = request.getFile();
         if (file == null || file.isEmpty()) {
-            throw new BusinessException(AstroFileErrorEnum.FILE_UPLOAD_FAILED, "文件不能为空");
+            throw new BusinessException(AstFileErrorEnum.FILE_UPLOAD_FAILED, "文件不能为空");
         }
         String originalName = file.getOriginalFilename();
         if (StringUtils.isBlank(originalName)) {
@@ -72,7 +72,7 @@ public class XFileStorageClient implements AstrsomnStorageClient {
                     .setObjectType(request.getObjectType())
                     .upload();
             if (fileInfo == null) {
-                throw new BusinessException(AstroFileErrorEnum.FILE_UPLOAD_FAILED, "上传失败，返回为空");
+                throw new BusinessException(AstFileErrorEnum.FILE_UPLOAD_FAILED, "上传失败，返回为空");
             }
             return StorageUploadResult.builder()
                     .platform(fileInfo.getPlatform())
@@ -100,7 +100,7 @@ public class XFileStorageClient implements AstrsomnStorageClient {
                     Arrays.toString(environment.getActiveProfiles()),
                     fileStorageService.getClass().getName(),
                     e);
-            throw new BusinessException(AstroFileErrorEnum.FILE_UPLOAD_FAILED, e.getMessage());
+            throw new BusinessException(AstFileErrorEnum.FILE_UPLOAD_FAILED, e.getMessage());
         }
     }
 
@@ -112,13 +112,13 @@ public class XFileStorageClient implements AstrsomnStorageClient {
         }
         String objectKey = StringUtils.trimToNull(request.getObjectKey());
         if (objectKey == null) {
-            throw new BusinessException(AstroFileErrorEnum.FILE_NOT_FOUND, "objectKey 不能为空");
+            throw new BusinessException(AstFileErrorEnum.FILE_NOT_FOUND, "objectKey 不能为空");
         }
         try {
             return new ByteArrayInputStream(fileStorageService.download(objectKey).bytes());
         } catch (Exception e) {
             log.error("x-file-storage open stream failed key={}", objectKey, e);
-            throw new BusinessException(AstroFileErrorEnum.FILE_NOT_FOUND, e.getMessage());
+            throw new BusinessException(AstFileErrorEnum.FILE_NOT_FOUND, e.getMessage());
         }
     }
 
@@ -136,7 +136,7 @@ public class XFileStorageClient implements AstrsomnStorageClient {
             fileStorageService.delete(objectKey);
         } catch (Exception e) {
             log.warn("x-file-storage delete failed key={} platform={}", objectKey, platform, e);
-            throw new BusinessException(AstroFileErrorEnum.FILE_DELETE_FAILED, e.getMessage());
+            throw new BusinessException(AstFileErrorEnum.FILE_DELETE_FAILED, e.getMessage());
         }
     }
 

@@ -6,9 +6,9 @@ import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.AstroFileRecordService;
 import com.astrsomn.server.service.AstroFileService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.api.storage.dto.AstroFileUploadResponseDTO;
-import com.astrsomn.api.storage.entity.AstroFileRecordEntity;
-import com.astrsomn.api.storage.exception.AstroFileErrorEnum;
+import com.astrsomn.api.storage.dto.AstFileUploadResponseDTO;
+import com.astrsomn.api.storage.entity.AstFileRecordEntity;
+import com.astrsomn.api.storage.exception.AstFileErrorEnum;
 import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
 import com.astrsomn.internal.storage.service.model.StorageUploadRequest;
 import com.astrsomn.internal.storage.service.model.StorageUploadResult;
@@ -26,9 +26,9 @@ public class AstroFileServiceImpl implements AstroFileService {
     private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
-    public BaseResponse<AstroFileUploadResponseDTO> upload(MultipartFile file, String bizType, String bizId) {
+    public BaseResponse<AstFileUploadResponseDTO> upload(MultipartFile file, String bizType, String bizId) {
         if (file == null || file.isEmpty()) {
-            throw new BusinessException(AstroFileErrorEnum.FILE_PARAM_ERROR, "文件不能为空");
+            throw new BusinessException(AstFileErrorEnum.FILE_PARAM_ERROR, "文件不能为空");
         }
         String normalizedBizType = StringUtils.trimToNull(bizType);
         if (normalizedBizType == null) {
@@ -40,7 +40,7 @@ public class AstroFileServiceImpl implements AstroFileService {
                 .objectId(StringUtils.trimToNull(bizId))
                 .objectType(normalizedBizType)
                 .build());
-        AstroFileRecordEntity row = new AstroFileRecordEntity();
+        AstFileRecordEntity row = new AstFileRecordEntity();
         row.setBizType(normalizedBizType);
         row.setBizId(StringUtils.trimToNull(bizId));
         row.setPlatform(uploadResult.getPlatform());
@@ -55,9 +55,9 @@ public class AstroFileServiceImpl implements AstroFileService {
         queryEnvParamHelper.stampEffectiveEnv(row);
         boolean saved = astroFileRecordService.save(row);
         if (!saved) {
-            throw new BusinessException(AstroFileErrorEnum.FILE_RECORD_CREATE_FAILED);
+            throw new BusinessException(AstFileErrorEnum.FILE_RECORD_CREATE_FAILED);
         }
-        AstroFileUploadResponseDTO dto = new AstroFileUploadResponseDTO();
+        AstFileUploadResponseDTO dto = new AstFileUploadResponseDTO();
         BeanUtils.copyProperties(row, dto);
         return BaseResponse.success(dto);
     }

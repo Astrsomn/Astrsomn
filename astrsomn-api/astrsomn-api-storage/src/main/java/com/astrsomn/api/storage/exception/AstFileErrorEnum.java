@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum AstroFileErrorEnum implements IError {
+public enum AstFileErrorEnum implements IError {
 
     FILE_NOT_FOUND(140001, "File not found"),
     FILE_UPLOAD_FAILED(140002, "File upload failed"),

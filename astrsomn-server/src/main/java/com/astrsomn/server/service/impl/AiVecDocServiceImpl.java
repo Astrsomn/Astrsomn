@@ -31,8 +31,8 @@ import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.AstroFileRecordService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.internal.storage.config.StorageProperties;
-import com.astrsomn.api.storage.entity.AstroFileRecordEntity;
-import com.astrsomn.api.storage.exception.AstroFileErrorEnum;
+import com.astrsomn.api.storage.entity.AstFileRecordEntity;
+import com.astrsomn.api.storage.exception.AstFileErrorEnum;
 import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
 import com.astrsomn.internal.storage.service.model.StorageDownloadRequest;
 import com.astrsomn.internal.storage.service.model.StorageUploadRequest;
@@ -133,7 +133,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
                 .objectId(String.valueOf(collectionId))
                 .objectType("collection")
                 .build());
-        AstroFileRecordEntity fileRow = new AstroFileRecordEntity();
+        AstFileRecordEntity fileRow = new AstFileRecordEntity();
         fileRow.setBizType(storageProperties.getVecDocBizType());
         fileRow.setBizId(String.valueOf(collectionId));
         fileRow.setPlatform(uploadResult.getPlatform());
@@ -147,7 +147,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         fileRow.setStatus("ACTIVE");
         queryEnvParamHelper.stampEffectiveEnv(fileRow);
         if (!astroFileRecordService.save(fileRow)) {
-            throw new BusinessException(AstroFileErrorEnum.FILE_RECORD_CREATE_FAILED);
+            throw new BusinessException(AstFileErrorEnum.FILE_RECORD_CREATE_FAILED);
         }
 
         AiVecDocEntity entity = new AiVecDocEntity();
@@ -360,7 +360,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         }
         String platform = storageProperties.getDefaultPlatform();
         if (doc.getFileRecordId() != null) {
-            AstroFileRecordEntity fileRow = astroFileRecordService.getById(doc.getFileRecordId());
+            AstFileRecordEntity fileRow = astroFileRecordService.getById(doc.getFileRecordId());
             if (fileRow != null && StringUtils.isNotBlank(fileRow.getPlatform())) {
                 platform = fileRow.getPlatform();
             }
@@ -428,7 +428,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         }
         String platform = storageProperties.getDefaultPlatform();
         if (doc.getFileRecordId() != null) {
-            AstroFileRecordEntity fileRow = astroFileRecordService.getById(doc.getFileRecordId());
+            AstFileRecordEntity fileRow = astroFileRecordService.getById(doc.getFileRecordId());
             if (fileRow != null) {
                 if (StringUtils.isNotBlank(fileRow.getPlatform())) {
                     platform = fileRow.getPlatform();
