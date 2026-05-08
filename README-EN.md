@@ -151,13 +151,57 @@ public class MyService {
 - JDK 21+
 - Spring Boot 3.2+
 - Maven 3.8+
+- MySQL 8.0+ (recommended)
 
-### Steps
+### Step 1: Prepare the database
 
-1. **Start basic dependencies** (database, vector database, etc.).
-2. **Configure parameters**: Modify data source and model parameters in `astrsomn-server`.
-3. **Start the service**: Run `AstrsomnServerApplication.java`.
-4. **Visual management**: Start `astrsomn-ui` for configuration and debugging.
+1. Ensure your MySQL instance is reachable (local or remote).
+2. Create a database (example):
+
+```sql
+CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
+```
+
+### Step 2: Update MySQL settings (required)
+
+Edit `astrsomn-server/src/main/resources/application-mysql.yml`.  
+The `mysql` profile is active by default (configured in `application.yml`), so no extra profile switch is needed.
+
+**Required fields**:
+- `host`
+- `port`
+- `database-name`
+- `username`
+- `password`
+
+**Minimal working example**:
+
+```yml
+astrsomn:
+  data-base:
+    database-type: mysql
+    host: 127.0.0.1
+    port: 3306
+    database-name: astro_ai
+    username: root
+    password: your_password
+```
+
+### Step 3: Start the server
+
+- Run `AstrsomnServerApplication.java` in the `astrsomn-server` module from your IDE.
+- Flyway migration runs automatically on first startup (enabled by default).
+
+### Step 4: Verify startup
+
+Any of the following indicates successful startup:
+- You can see Spring Boot startup completion logs (Started ...).
+- No database connection errors appear and the process keeps running.
+- The service listens on port `4481` (default).
+
+### Step 5: Add dependency and use `@Astro`
+
+After the server is running, import the starter dependency below in your business project, then integrate AI capabilities via `@Astro`.
 
 ### Maven Dependencies
 

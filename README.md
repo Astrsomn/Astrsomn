@@ -152,13 +152,57 @@ public class MyService {
 - JDK 21+
 - Spring Boot 3.2+
 - Maven 3.8+
+- MySQL 8.0+（推荐）
 
-### 步骤
+### 步骤 1：准备数据库
 
-1. **启动基础依赖**（数据库、向量库等）。
-2. **配置参数**：修改 `astrsomn-server` 的数据源与模型参数。
-3. **启动服务**：运行 `AstrsomnServerApplication.java`。
-4. **可视化管理**：启动 `astrsomn-ui` 进行配置与调试。
+1. 确保 MySQL 可访问（本机或远程均可）。
+2. 创建数据库（示例）：
+
+```sql
+CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
+```
+
+### 步骤 2：修改 MySQL 配置（必做）
+
+编辑 `astrsomn-server/src/main/resources/application-mysql.yml`。  
+项目默认已激活 `mysql` profile（`application.yml` 中已配置），无需手动切换环境。
+
+**必须修改项**：
+- `host`
+- `port`
+- `database-name`
+- `username`
+- `password`
+
+**最小可用示例**：
+
+```yml
+astrsomn:
+  data-base:
+    database-type: mysql
+    host: 127.0.0.1
+    port: 3306
+    database-name: astro_ai
+    username: root
+    password: your_password
+```
+
+### 步骤 3：启动服务
+
+- 在 IDE 中运行 `astrsomn-server` 模块的 `AstrsomnServerApplication.java`。
+- 首次启动会自动执行 Flyway 迁移（默认开启）。
+
+### 步骤 4：确认启动成功
+
+满足以下任一条件可判定后端已成功启动：
+- 日志中出现 Spring Boot 启动完成信息（Started ...）。
+- 控制台无数据库连接报错且应用持续运行。
+- 监听端口为 `4481`（默认配置）。
+
+### 步骤 5：在业务项目中引入依赖并使用 `@Astro`
+
+完成服务启动后，在你的业务项目中引入下方 starter 依赖，即可通过 `@Astro` 注解接入 AI 能力。
 
 ### Maven 依赖
 
