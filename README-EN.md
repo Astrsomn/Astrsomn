@@ -26,6 +26,28 @@
 
 Through layered modularization and standardized encapsulation, Astrsomn enables developers to quickly get started while supporting long-term evolution in enterprise scenarios.
 
+---
+
+## 🏗️ Under Construction 🏗️
+
+| Status | Feature Module | Description |
+|---|---|---|
+| ✅ | **Agent Lifecycle** | Creation, configuration, and management capabilities completed |
+| ✅ | **Environment Initialization** | Supports quick environment configuration and initialization |
+| ✅ | **Dependency Quick Import** | Maven Starter one-click integration |
+| ✅ | **Basic Configuration** | Core configuration management capabilities provided |
+| ❌ | **Workflow Module** | Not yet implemented |
+| ❌ | **Vector Database Integration** | Partial implementation, unstable |
+| ❌ | **Security & Governance** | Multi-tenant, rate limiting, monitoring and other features missing |
+| ⚠️ | **API Compatibility** | May change at any time, no backward compatibility guaranteed |
+
+**⚠️ NOT FOR PRODUCTION USE! ⚠️**
+
+This project is under active development. Welcome to join us and contribute!
+See [Contributing](#🤝-Contributing)
+
+---
+
 Astrsomn consists of a complete ecosystem:
 - `core`: Unified abstraction and common capabilities
 - `starter`: Spring Boot auto-configuration and access layer

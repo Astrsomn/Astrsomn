@@ -25,6 +25,28 @@
 **Astrsomn（星梦）** 致力于解决 Java 生态接入大模型时常见的工程问题：配置复杂、依赖耦合、能力扩展困难、运行治理不足。\
 框架通过分层模块化与标准化封装，让开发者既能快速上手，也能在企业场景中长期演进。
 
+***
+
+## 🏗️ 项目施工中 🏗️
+
+| 状态 | 功能模块           | 说明                 |
+| -- | -------------- | ------------------ |
+| ✅  | **Agent 生命周期** | 已完成创建、配置、管理能力      |
+| ✅  | **环境初始化**      | 支持快速环境配置与初始化       |
+| ✅  | **依赖快速引入**     | Maven Starter 一键集成 |
+| ✅  | **基本配置功能**     | 提供核心配置管理能力         |
+| ❌  | **工作流模块**      | 尚未实现               |
+| ❌  | **向量库集成**      | 部分实现，不稳定           |
+| ❌  | **安全与治理**      | 多租户、限流、监控等功能缺失     |
+| ⚠️ | **API 兼容性**    | 可能随时变更，不保证向后兼容     |
+
+**⚠️ 请勿用于生产环境！⚠️**
+
+本项目正在积极开发中，欢迎各位朋友一起参与完善！
+详见 [贡献指南](#🤝-贡献指南)
+
+***
+
 你可以把 Astrsomn 理解为一套完整闭环：
 
 - `core`：统一抽象与通用能力
@@ -147,14 +169,14 @@ public class MyService {
 <dependency>
     <groupId>com.astrsomn</groupId>
     <artifactId>astrsomn-runtime-starter</artifactId>
-    <version>1.0.0</version>
+    <version>0.1.0-aplha.1</version>
 </dependency>
 
 <!-- 工作流 Starter（已包含 runtime-starter） -->
 <dependency>
     <groupId>com.astrsomn</groupId>
     <artifactId>astrsomn-workflow-starter</artifactId>
-    <version>1.0.0</version>
+    <version>0.1.0-aplha.1</version>
 </dependency>
 ```
 
