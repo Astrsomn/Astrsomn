@@ -18,6 +18,11 @@
   <a href="https://github.com/Astrsomn/Astrsomn/network/members"><img src="https://img.shields.io/github/forks/Astrsomn/Astrsomn.svg" alt="GitHub Forks"></a>
 </p>
 
+> [!WARNING]
+> ## Work in Progress (Not Production Ready)
+> This project is currently **incomplete** and under active development. Features, configuration, and APIs may change frequently.  
+> **Do not use in production**. It is currently intended for learning, evaluation, and feedback only.
+
 ---
 
 ## 📖 Project Introduction

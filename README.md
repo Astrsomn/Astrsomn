@@ -18,6 +18,11 @@
   <a href="https://github.com/Astrsomn/Astrsomn/network/members"><img src="https://img.shields.io/github/forks/Astrsomn/Astrsomn.svg" alt="GitHub Forks"></a>
 </p>
 
+> [!WARNING]
+> ## 当前为半成品（开发中）
+> 这个项目目前**尚未完成**，仍在快速迭代阶段，功能、配置和 API 都可能发生变化。  
+> **请勿用于生产环境**，仅建议用于学习、体验与反馈。
+
 ***
 
 ## 📖 项目介绍
