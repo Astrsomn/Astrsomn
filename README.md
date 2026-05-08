@@ -18,12 +18,39 @@
   <a href="https://github.com/Astrsomn/Astrsomn/network/members"><img src="https://img.shields.io/github/forks/Astrsomn/Astrsomn.svg" alt="GitHub Forks"></a>
 </p>
 
+> [!WARNING]
+> ## 当前为半成品（开发中）
+> 这个项目目前**尚未完成**，仍在快速迭代阶段，功能、配置和 API 都可能发生变化。  
+> **请勿用于生产环境**，仅建议用于学习、体验与反馈。
+
 ***
 
 ## 📖 项目介绍
 
 **Astrsomn（星梦）** 致力于解决 Java 生态接入大模型时常见的工程问题：配置复杂、依赖耦合、能力扩展困难、运行治理不足。\
 框架通过分层模块化与标准化封装，让开发者既能快速上手，也能在企业场景中长期演进。
+
+***
+
+## 🏗️ 项目施工中 🏗️
+
+| 状态 | 功能模块           | 说明                 |
+| -- | -------------- | ------------------ |
+| ✅  | **Agent 生命周期** | 已完成创建、配置、管理能力      |
+| ✅  | **环境初始化**      | 支持快速环境配置与初始化       |
+| ✅  | **依赖快速引入**     | Maven Starter 一键集成 |
+| ✅  | **基本配置功能**     | 提供核心配置管理能力         |
+| ❌  | **工作流模块**      | 尚未实现               |
+| ❌  | **向量库集成**      | 部分实现，不稳定           |
+| ❌  | **安全与治理**      | 多租户、限流、监控等功能缺失     |
+| ⚠️ | **API 兼容性**    | 可能随时变更，不保证向后兼容     |
+
+**⚠️ 请勿用于生产环境！⚠️**
+
+本项目正在积极开发中，欢迎各位朋友一起参与完善！
+详见 [贡献指南](#🤝-贡献指南)
+
+***
 
 你可以把 Astrsomn 理解为一套完整闭环：
 
@@ -130,13 +157,57 @@ public class MyService {
 - JDK 21+
 - Spring Boot 3.2+
 - Maven 3.8+
+- MySQL 8.0+（推荐）
 
-### 步骤
+### 步骤 1：准备数据库
 
-1. **启动基础依赖**（数据库、向量库等）。
-2. **配置参数**：修改 `astrsomn-server` 的数据源与模型参数。
-3. **启动服务**：运行 `AstrsomnServerApplication.java`。
-4. **可视化管理**：启动 `astrsomn-ui` 进行配置与调试。
+1. 确保 MySQL 可访问（本机或远程均可）。
+2. 创建数据库（示例）：
+
+```sql
+CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
+```
+
+### 步骤 2：修改 MySQL 配置（必做）
+
+编辑 `astrsomn-server/src/main/resources/application-mysql.yml`。  
+项目默认已激活 `mysql` profile（`application.yml` 中已配置），无需手动切换环境。
+
+**必须修改项**：
+- `host`
+- `port`
+- `database-name`
+- `username`
+- `password`
+
+**最小可用示例**：
+
+```yml
+astrsomn:
+  data-base:
+    database-type: mysql
+    host: 127.0.0.1
+    port: 3306
+    database-name: astro_ai
+    username: root
+    password: your_password
+```
+
+### 步骤 3：启动服务
+
+- 在 IDE 中运行 `astrsomn-server` 模块的 `AstrsomnServerApplication.java`。
+- 首次启动会自动执行 Flyway 迁移（默认开启）。
+
+### 步骤 4：确认启动成功
+
+满足以下任一条件可判定后端已成功启动：
+- 日志中出现 Spring Boot 启动完成信息（Started ...）。
+- 控制台无数据库连接报错且应用持续运行。
+- 监听端口为 `4481`（默认配置）。
+
+### 步骤 5：在业务项目中引入依赖并使用 `@Astro`
+
+完成服务启动后，在你的业务项目中引入下方 starter 依赖，即可通过 `@Astro` 注解接入 AI 能力。
 
 ### Maven 依赖
 
@@ -147,14 +218,14 @@ public class MyService {
 <dependency>
     <groupId>com.astrsomn</groupId>
     <artifactId>astrsomn-runtime-starter</artifactId>
-    <version>1.0.0</version>
+    <version>0.1.0-aplha.1</version>
 </dependency>
 
 <!-- 工作流 Starter（已包含 runtime-starter） -->
 <dependency>
     <groupId>com.astrsomn</groupId>
     <artifactId>astrsomn-workflow-starter</artifactId>
-    <version>1.0.0</version>
+    <version>0.1.0-aplha.1</version>
 </dependency>
 ```
 

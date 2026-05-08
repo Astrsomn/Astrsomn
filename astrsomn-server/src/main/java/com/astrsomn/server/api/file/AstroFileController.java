@@ -6,9 +6,9 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.AstroFileRecordService;
 import com.astrsomn.server.service.AstroFileService;
-import com.astrsomn.api.storage.entity.AstroFileRecordEntity;
-import com.astrsomn.api.storage.exception.AstroFileErrorEnum;
-import com.astrsomn.api.storage.dto.AstroFileUploadResponseDTO;
+import com.astrsomn.api.storage.entity.AstFileRecordEntity;
+import com.astrsomn.api.storage.exception.AstFileErrorEnum;
+import com.astrsomn.api.storage.dto.AstFileUploadResponseDTO;
 import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
 import com.astrsomn.internal.storage.service.model.StorageDownloadRequest;
 import lombok.RequiredArgsConstructor;
@@ -37,17 +37,17 @@ public class AstroFileController extends BaseController {
     private final AstrsomnStorageClient astrsomnStorageClient;
 
     @PostMapping("/upload")
-    public BaseResponse<AstroFileUploadResponseDTO> upload(@RequestParam("file") MultipartFile file,
-                                                            @RequestParam(value = "bizType", required = false) String bizType,
-                                                            @RequestParam(value = "bizId", required = false) String bizId) {
+    public BaseResponse<AstFileUploadResponseDTO> upload(@RequestParam("file") MultipartFile file,
+                                                         @RequestParam(value = "bizType", required = false) String bizType,
+                                                         @RequestParam(value = "bizId", required = false) String bizId) {
         return astroFileService.upload(file, bizType, bizId);
     }
 
     @GetMapping("/view/{id}")
     public ResponseEntity<byte[]> view(@PathVariable("id") Long id) throws IOException {
-        AstroFileRecordEntity fileRow = astroFileRecordService.getById(id);
+        AstFileRecordEntity fileRow = astroFileRecordService.getById(id);
         if (fileRow == null || StringUtils.isBlank(fileRow.getObjectKey())) {
-            throw new BusinessException(AstroFileErrorEnum.FILE_NOT_FOUND);
+            throw new BusinessException(AstFileErrorEnum.FILE_NOT_FOUND);
         }
 
         byte[] body;

@@ -46,7 +46,7 @@ export const adminUnifiedNav: AdminModuleNavGroup[] = [
   },
   {
     key: 'ai-safety',
-    label: '安全与治理',
+    label: '安全与治理×',
     icon: SecurityScanOutlined,
     children: [
       { to: `${baseSafety}/templates`, label: 'FTL 模板', icon: CodeOutlined },
@@ -56,7 +56,7 @@ export const adminUnifiedNav: AdminModuleNavGroup[] = [
   },
   {
     key: 'ai-workflow',
-    label: '工作流',
+    label: '工作流×',
     icon: BranchesOutlined,
     children: [
       { to: `${baseWorkflow}/definitions`, label: '流程定义', icon: AppstoreAddOutlined },

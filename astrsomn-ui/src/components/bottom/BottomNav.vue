@@ -18,7 +18,7 @@
           <span class="nav-text">AI 配置</span>
         </div>
 
-                <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/system') }" @click="navigateTo('/admin/system')">
+                <div v-if="false" class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/system') }" @click="navigateTo('/admin/system')">
           <div class="icon-wrapper"><SettingOutlined /></div>
           <span class="nav-text">系统管理</span>
         </div>
@@ -30,7 +30,7 @@
 
 
 
-        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-safety') }" @click="navigateTo('/admin/ai-safety')">
+        <div v-if="false" class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-safety') }" @click="navigateTo('/admin/ai-safety')">
           <div class="icon-wrapper"><SafetyOutlined /></div>
           <span class="nav-text">安全治理</span>
         </div>
