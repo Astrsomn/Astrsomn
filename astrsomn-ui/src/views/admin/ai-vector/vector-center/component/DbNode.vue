@@ -36,15 +36,11 @@ defineEmits<{
 </script>
 
 <style lang="less" scoped>
-@primary-blue: #2563eb;
-@text-main: #1e293b;
-@text-muted: #94a3b8;
-
 .db-node {
   position: relative;
   padding: 10px 12px;
   margin: 4px 0;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
@@ -52,19 +48,19 @@ defineEmits<{
   align-items: center;
 
   &:hover {
-    background: #f1f5f9;
+    background: var(--bg-input);
   }
 
   &.selected {
-    background: #eff6ff;
+    background: var(--primary-hover);
 
     .db-name {
-      color: #1e40af;
+      color: var(--primary);
       font-weight: 600;
     }
 
     .db-type-icon {
-      color: #3b82f6;
+      color: var(--primary);
     }
   }
 
@@ -77,13 +73,13 @@ defineEmits<{
 
       .db-type-icon {
         font-size: 12px;
-        color: @text-muted;
+        color: var(--text-muted);
       }
 
       .db-name {
         font-size: 13px;
         font-weight: 600;
-        color: @text-main;
+        color: var(--text-primary);
       }
     }
 
@@ -95,20 +91,20 @@ defineEmits<{
 
       .model-name {
         font-size: 11px;
-        color: @text-muted;
+        color: var(--text-muted);
       }
 
       .dim-divider {
         width: 3px;
         height: 3px;
         border-radius: 50%;
-        background: @text-muted;
+        background: var(--text-muted);
       }
 
       .model-dim {
         font-size: 11px;
         font-weight: 700;
-        color: @primary-blue;
+        color: var(--primary);
         letter-spacing: 0.02em;
       }
     }
@@ -118,8 +114,8 @@ defineEmits<{
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #22c55e;
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    background: var(--success);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
     animation: pulse 2s infinite;
   }
 }
@@ -127,15 +123,15 @@ defineEmits<{
 @keyframes pulse {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
   }
 }
 </style>

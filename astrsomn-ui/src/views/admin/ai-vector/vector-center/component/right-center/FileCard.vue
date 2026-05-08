@@ -69,31 +69,26 @@ const getFileExtension = (name: string) => {
 </script>
 
 <style lang="less" scoped>
-@text-main: #262626;
-@text-secondary: #8c8c8c;
-@blue-base: #1677ff;
-
 .custom-file-card {
   cursor: pointer;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default) !important;
   transition: all 0.3s ease;
   overflow: hidden;
 
   &:hover {
-    background: #fff;
+    background: var(--bg-elevated);
     transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-card);
     
     .action-group { opacity: 1; transform: translateY(0); }
     .icon-box { transform: scale(1.1); }
   }
 
   &.active {
-    border-color: #1677ff !important;
-    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
   }
 
   // 核心：强制正方形方案
@@ -129,8 +124,8 @@ const getFileExtension = (name: string) => {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      &.ready { background: #52c41a; }
-      &.pending { background: #faad14; }
+      &.ready { background: var(--success); }
+      &.pending { background: #f59e0b; }
     }
 
     .icon-box {
@@ -140,25 +135,25 @@ const getFileExtension = (name: string) => {
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 12px;
-      background: #f5f5f5;
-      font-size: 30px; // 显式设置图标字体大小
+      border-radius: var(--radius-lg);
+      background: var(--bg-input);
+      font-size: 30px;
+      color: var(--text-secondary);
       transition: transform 0.3s ease;
       
-      // 这里的 .file-icon-svg 是针对 component 渲染出来的 svg 进行强制显示
       .file-icon-svg, span {
         display: inline-block !important;
         line-height: 1;
       }
 
-      &.pdf { background: #fff1f0; color: #f5222d; }
-      &.md { background: #e6f7ff; color: #096dd9; }
+      &.pdf { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+      &.md { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
     }
 
     .file-name {
       font-size: 14px;
       font-weight: 500;
-      color: @text-main;
+      color: var(--text-heading);
       margin: 0;
       max-width: 80%;
       overflow: hidden;
@@ -181,14 +176,15 @@ const getFileExtension = (name: string) => {
     .action-btn {
       width: 26px;
       height: 26px;
-      background: #eee;
-      border-radius: 6px;
+      background: var(--bg-input);
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      &:hover { background: @blue-base; color: #fff; }
-      &.delete:hover { background: #ff4d4f; }
+      color: var(--text-secondary);
+      &:hover { background: var(--primary); color: #fff; }
+      &.delete:hover { background: var(--error); }
     }
   }
 
@@ -201,8 +197,8 @@ const getFileExtension = (name: string) => {
     display: flex;
     justify-content: space-between;
     font-size: 11px;
-    color: @text-secondary;
-    opacity: 0.6;
+    color: var(--text-muted);
+    opacity: 0.7;
     z-index: 1;
   }
 }

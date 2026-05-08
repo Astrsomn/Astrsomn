@@ -53,10 +53,10 @@ const emit = defineEmits<{
 .quick-access-card {
   box-sizing: border-box;
   min-height: 88px;
-  background: #ffffff;
+  background: var(--bg-card);
   padding: 14px 16px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -68,15 +68,15 @@ const emit = defineEmits<{
 }
 
 .card-hover:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-overview);
 }
 
 .icon-container {
   flex-shrink: 0;
   width: 48px;
   height: 48px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,23 +84,23 @@ const emit = defineEmits<{
 }
 
 .icon-1 {
-  background: #dbeafe;
-  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--primary);
 }
 
 .icon-2 {
-  background: #d1fae5;
-  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
 }
 
 .icon-3 {
-  background: #fef3c7;
-  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fb923c;
 }
 
 .icon-4 {
-  background: #ede9fe;
-  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
 }
 
 .text-block {
@@ -109,14 +109,14 @@ const emit = defineEmits<{
 
 .card-title {
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-heading);
   font-size: 14px;
   margin: 0;
 }
 
 .card-desc {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin: 4px 0 0 0;
   line-height: 1.4;
   display: -webkit-box;

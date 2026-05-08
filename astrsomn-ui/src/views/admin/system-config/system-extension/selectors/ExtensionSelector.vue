@@ -129,15 +129,15 @@ function onUpdate(v: string | undefined) {
 .model-provider-select {
   width: 100%;
 
-  border-radius: var(--radius-pro);
+  border-radius: var(--radius-md);
 }
 
 /* 容器高度与圆角适配 Astrsomn 风格 */
 .model-provider-select :deep(.ant-select-selector) {
   height: 50px !important;
   background: var(--bg-surface, #ffffff) !important;
-  border-radius: var(--radius-pro);
-  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
   padding: 0 16px !important;
   display: flex !important;
   align-items: center !important;

@@ -5,7 +5,7 @@
         <div class="logo-dot">
           <img :src="logoUrl" class="logo-img" alt="Astrsomn" />
         </div>
-        <span class="logo-text">Astrsomn <small>星梦</small></span>
+        <span class="logo-text">Astrsomn</span>
       </div>
 
       <div class="header-right">

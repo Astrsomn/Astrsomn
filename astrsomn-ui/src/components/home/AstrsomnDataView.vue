@@ -235,25 +235,134 @@ const handleCopy = async (text: string) => {
 
 .data-view-table {
   margin-top: 6px;
-
   overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
 }
 
 .data-view-table :deep(.ant-table-container) {
-  border-start-start-radius: 12px;
-  border-start-end-radius: 12px;
+  border-radius: 0;
+  background: var(--bg-card);
+  border: none;
+}
+
+.data-view-table :deep(.ant-table) {
+  background: var(--bg-card);
+  border: none;
+}
+
+.data-view-table :deep(.ant-table-body) {
+  background: var(--bg-card);
+}
+
+.data-view-table :deep(.ant-table-thead) {
+  background: var(--bg-card);
+}
+
+.data-view-table :deep(.ant-table-tbody > tr) {
+  background: var(--bg-card);
+}
+
+.data-view-table :deep(.ant-table-tbody > tr:hover) {
+  background: var(--primary-hover);
+}
+
+.data-view-table :deep(.ant-table-footer) {
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-default);
 }
 
 .data-view-table :deep(.ant-table-thead > tr > th) {
-  background: #eff6ff;
-  color: #64748b;
+  background: var(--bg-card) !important;
+  color: var(--text-secondary);
   font-weight: 600;
-  border-bottom: 1px solid #dbeafe;
+  border-bottom: 1px solid var(--border-default);
+  border-right: 1px solid var(--border-default);
+}
+
+.data-view-table :deep(.ant-table-thead > tr > th:last-child) {
+  border-right: none;
 }
 
 .data-view-table :deep(.ant-table-tbody > tr > td) {
-  border-bottom: 1px solid #e2e8f0;
-  color: #1f2937;
+  border-bottom: 1px solid var(--border-default);
+  border-right: 1px solid var(--border-default);
+  color: var(--text-primary);
+  background: var(--bg-card) !important;
+}
+
+.data-view-table :deep(.ant-table-tbody > tr > td:last-child) {
+  border-right: none;
+}
+
+.data-view-table :deep(.ant-table-tbody > tr:hover > td) {
+  background: var(--primary-hover) !important;
+}
+
+.data-view-table :deep(.ant-table-row-selected) {
+  background: var(--primary-hover) !important;
+}
+
+.data-view-table :deep(.ant-table-row-selected > td) {
+  background: var(--primary-hover) !important;
+}
+
+.data-view-table :deep(.ant-table-cell-fix-right),
+.data-view-table :deep(.ant-table-cell-fix-left) {
+  background: var(--bg-card) !important;
+  z-index: 10;
+}
+
+.data-view-table :deep(.ant-table-tbody > tr:hover .ant-table-cell-fix-right),
+.data-view-table :deep(.ant-table-tbody > tr:hover .ant-table-cell-fix-left) {
+  background: var(--primary-hover) !important;
+}
+
+.data-view-table :deep(.ant-table-row-selected .ant-table-cell-fix-right),
+.data-view-table :deep(.ant-table-row-selected .ant-table-cell-fix-left) {
+  background: var(--primary-hover) !important;
+}
+
+.data-view-table :deep(.ant-table-fixed-right),
+.data-view-table :deep(.ant-table-fixed-left) {
+  z-index: 10;
+}
+
+.data-view-table :deep(.ant-table-fixed-right .ant-table-header),
+.data-view-table :deep(.ant-table-fixed-left .ant-table-header),
+.data-view-table :deep(.ant-table-fixed-right .ant-table-body),
+.data-view-table :deep(.ant-table-fixed-left .ant-table-body) {
+  background: var(--bg-card) !important;
+}
+
+.data-view-table :deep(.ant-table-fixed-right table),
+.data-view-table :deep(.ant-table-fixed-left table) {
+  background: var(--bg-card) !important;
+}
+
+.data-view-table :deep(.ant-table-fixed-right .ant-table-thead > tr > th),
+.data-view-table :deep(.ant-table-fixed-left .ant-table-thead > tr > th) {
+  background: var(--bg-card) !important;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-default);
+  border-right: 1px solid var(--border-default);
+}
+
+.data-view-table :deep(.ant-table-fixed-right .ant-table-tbody > tr > td),
+.data-view-table :deep(.ant-table-fixed-left .ant-table-tbody > tr > td) {
+  background: var(--bg-card) !important;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-default);
+  border-right: 1px solid var(--border-default);
+}
+
+.data-view-table :deep(.ant-table-fixed-right) {
+  right: 0;
+}
+
+.data-view-table :deep(.ant-table-fixed-left) {
+  left: 0;
 }
 
 .data-view-table.dense :deep(.ant-table-thead > tr > th) {
@@ -268,37 +377,12 @@ const handleCopy = async (text: string) => {
   font-size: 12px;
 }
 
-.data-view-table :deep(.ant-table-tbody > tr:hover > td) {
-  background: #f8fbff;
+.data-view-table :deep(.ant-table-scroll) {
+  border-bottom: 1px solid var(--border-default);
 }
 
-.data-view-table :deep(.ant-table-cell-fix-right),
-.data-view-table :deep(.ant-table-cell-fix-left) {
-  background: #ffffff;
-  z-index: 1;
-}
-
-.data-view-table :deep(.ant-table-fixed-right),
-.data-view-table :deep(.ant-table-fixed-left) {
-  position: sticky;
-}
-
-.data-view-table :deep(.ant-table-fixed-right) {
-  right: 0;
-}
-
-.data-view-table :deep(.ant-table-fixed-left) {
-  left: 0;
-}
-
-.data-view-table :deep(.ant-table-tbody > tr:hover .ant-table-cell-fix-right),
-.data-view-table :deep(.ant-table-tbody > tr:hover .ant-table-cell-fix-left) {
-  background: #f8fbff;
-}
-
-.data-view-table :deep(.ant-table-row-selected .ant-table-cell-fix-right),
-.data-view-table :deep(.ant-table-row-selected .ant-table-cell-fix-left) {
-  background: #e8f0fe;
+.data-view-table :deep(.ant-table-body-inner) {
+  border-bottom: 1px solid var(--border-default);
 }
 
 .copyable-cell {
@@ -311,7 +395,7 @@ const handleCopy = async (text: string) => {
 }
 
 .copyable-cell:hover {
-  color: var(--primary-hover);
+  color: var(--primary-light);
 }
 
 .copy-icon {
@@ -332,7 +416,7 @@ const handleCopy = async (text: string) => {
 
 .cell-icon {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .base64-image {

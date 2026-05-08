@@ -136,9 +136,10 @@ const emit = defineEmits<{
 }
 
 .online-systems-panel {
-  background: white;
-  border-radius: 10px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
   min-height: 0;

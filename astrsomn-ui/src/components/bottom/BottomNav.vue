@@ -193,7 +193,7 @@ onUnmounted(() => {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 32px;
+  border-radius: var(--radius-md);
   padding: 8px 16px;
   box-shadow: 
     0 4px 6px -1px rgba(0, 0, 0, 0.05),
@@ -223,7 +223,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   padding: 8px 16px;
-  border-radius: 18px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 72px;
@@ -259,7 +259,7 @@ onUnmounted(() => {
   height: 56px;
   background: var(--primary, #1677ff);
   color: white;
-  border-radius: 18px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -286,7 +286,7 @@ onUnmounted(() => {
   background: #1e293b;
   color: white;
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 10px;
   white-space: nowrap;
   opacity: 0;
@@ -319,7 +319,7 @@ onUnmounted(() => {
   height: 5px;
   transform: translate(-50%, -50%);
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.18);
   transition: all 0.3s ease;
 }
@@ -343,7 +343,7 @@ onUnmounted(() => {
   position: absolute;
   width: 100%;
   height: 100%;
-  border-radius: 18px;
+  border-radius: var(--radius-md);
   background: var(--primary, #1677ff);
   opacity: 0.4;
   z-index: -1;
@@ -359,7 +359,7 @@ onUnmounted(() => {
 @media (max-width: 640px) {
   .nav-text { display: none; }
   .nav-item { min-width: 48px; padding: 12px; }
-  .dock-main { padding: 6px; border-radius: 24px; }
+  .dock-main { padding: 6px; border-radius: var(--radius-md); }
 }
 
 /* 深色模式适配 - 使用CSS变量 */

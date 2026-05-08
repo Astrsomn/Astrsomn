@@ -136,7 +136,7 @@ const appMeta = computed(() => {
   return {
     name: appPkgName,
     version: appPkgVersion,
-    envLabel: import.meta.env.PROD ? 'Production' : mode.toUpperCase()
+    envLabel: import.meta.env.PROD ? 'PRO' : mode.toUpperCase()
   };
 });
 
@@ -149,7 +149,7 @@ const go = (to: string) => { void router.push(to); };
   display: flex;
   width: 100%;
   height: calc(100vh - 60px);
-  background-color: #f8fafc;
+  background-color: var(--bg-surface);
   overflow: hidden;
 }
 
@@ -157,8 +157,8 @@ const go = (to: string) => { void router.push(to); };
   display: flex;
   flex-direction: column;
   width: 260px;
-  background: #ffffff;
-  border-right: 1px solid #f1f5f9;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border-default);
   transition: all 0.3s;
 }
 
@@ -171,7 +171,7 @@ const go = (to: string) => { void router.push(to); };
 /* 隐藏滚动条但保留功能 */
 .module-sider-scroll::-webkit-scrollbar { width: 4px; }
 .module-sider-scroll::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
-.module-sider-scroll:hover::-webkit-scrollbar-thumb { background: #e2e8f0; }
+.module-sider-scroll:hover::-webkit-scrollbar-thumb { background: var(--border-default); }
 
 .module-sider-inner {
   padding: 0px 12px;
@@ -180,7 +180,7 @@ const go = (to: string) => { void router.push(to); };
 .module-sider-title {
   font-size: 11px;
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--text-muted);
   padding: 0 16px 12px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -197,14 +197,14 @@ const go = (to: string) => { void router.push(to); };
   margin: 2px 0 !important;
   height: 42px !important;
   line-height: 42px !important;
-  border-radius: 12px !important;
-  color: #475569 !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--text-secondary) !important;
   transition: all 0.2s;
 }
 
 :deep(.ant-menu-submenu-title:hover) {
-  background-color: #f8fafc !important;
-  color: #1a73e8 !important;
+  background-color: var(--primary-hover) !important;
+  color: var(--primary) !important;
 }
 
 .module-sider-group-title {
@@ -233,23 +233,23 @@ const go = (to: string) => { void router.push(to); };
   top: 0;
   bottom: 12px;
   width: 1px;
-  background: #f1f5f9;
+  background: var(--border-default);
 }
 
 :deep(.ant-menu-item) {
   height: 38px !important;
   line-height: 38px !important;
   margin: 2px 0 !important;
-  border-radius: 10px !important;
+  border-radius: var(--radius-md) !important;
   width: 100% !important;
   padding-left: 32px !important; /* 给图标留空间 */
-  color: #64748b !important;
+  color: var(--text-secondary) !important;
 }
 
 /* 选中项态 */
 :deep(.ant-menu-item-selected) {
-  background-color: #e8f0fe !important; /* 极浅蓝 */
-  color: #1a73e8 !important;
+  background-color: var(--primary-hover) !important;
+  color: var(--primary) !important;
   font-weight: 600;
   position: relative;
 }
@@ -263,7 +263,7 @@ const go = (to: string) => { void router.push(to); };
   bottom: 8px;
   width: 3px;
   border-radius: 999px;
-  background-color: #1a73e8;
+  background-color: var(--primary);
 }
 
 .module-sider-item-inner {
@@ -280,7 +280,7 @@ const go = (to: string) => { void router.push(to); };
 /* 4. 底部重新设计：官网入口 + 极简信息 */
 .module-sider-foot {
   padding: 16px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-default);
 }
 
 .official-btn {
@@ -289,18 +289,19 @@ const go = (to: string) => { void router.push(to); };
   justify-content: center;
   gap: 8px;
   padding: 10px;
-  background: #e8f0fe;
-  color: #1a73e8;
-  border-radius: 12px;
+  background: var(--primary-hover);
+  color: var(--primary);
   text-decoration: none;
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 16px;
   transition: all 0.2s;
+  border-radius: var(--radius-md);
 }
 
 .official-btn:hover {
-  background: #dbeafe;
+  background: var(--primary);
+  color: #fff;
   transform: translateY(-1px);
 }
 
@@ -318,13 +319,13 @@ const go = (to: string) => { void router.push(to); };
 .app-name {
   font-size: 11px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-heading);
 }
 
 .version-tag {
   font-size: 10px;
-  color: #94a3b8;
-  background: #f1f5f9;
+  color: var(--text-muted);
+  background: var(--bg-input);
   padding: 1px 6px;
   border-radius: 4px;
 }
@@ -345,7 +346,7 @@ const go = (to: string) => { void router.push(to); };
 
 .env-label {
   font-size: 10px;
-  color: #64748b;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -353,7 +354,7 @@ const go = (to: string) => { void router.push(to); };
 /* 内容区 */
 .module-content {
   flex: 1;
-  background: #ffffff;
+  background: var(--bg-card);
   overflow-y: auto;
 }
 </style>

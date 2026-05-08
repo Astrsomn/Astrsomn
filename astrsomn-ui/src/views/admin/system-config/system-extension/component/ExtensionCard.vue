@@ -135,10 +135,11 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 <style scoped>
 .plugin-card {
   border: 1px solid #f1f5f9;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 18px;
   transition: all 0.3s ease;
   background: #fff;
+  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
 }
 
 .plugin-card:hover {

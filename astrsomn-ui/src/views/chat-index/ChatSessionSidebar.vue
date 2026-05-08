@@ -62,7 +62,7 @@ const emit = defineEmits<{
 const collapsed = computed(() => Boolean(props.collapsed))
 
 const versionText = computed(() => {
-  const envVersion = (import.meta.env.VITE_APP_VERSION as string | undefined)?.trim()
+  const envVersion = (import.meta.env.VITE_APP_PKG_VERSION as string | undefined)?.trim()
   return envVersion ? `Astrsomn ${envVersion}` : 'Astrsomn v0.0.0'
 })
 
@@ -161,13 +161,13 @@ const toggleCollapsed = () => {
 .new-chat-btn {
   flex: 1;
   height: 32px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   border: 1px solid var(--border-default);
-  background: #fff;
+  background: var(--bg-card);
   color: var(--text-secondary);
   box-shadow: none;
 }
@@ -176,7 +176,7 @@ const toggleCollapsed = () => {
 .new-chat-btn:focus {
   color: var(--text-primary);
   border-color: var(--border-default);
-  background: #fafafa;
+  background: var(--bg-input);
 }
 
 .session-title {
