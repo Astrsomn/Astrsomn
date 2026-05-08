@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 @Data
-@TableName("ASTRO_FILE_RECORD")
-public class AstroFileRecordEntity extends BaseEntity<Long> {
+@TableName("AST_FILE_RECORD")
+public class AstFileRecordEntity extends BaseEntity<Long> {
 
     @TableId(value = "ID", type = IdType.ASSIGN_ID)
     @JsonSerialize(using = ToStringSerializer.class)

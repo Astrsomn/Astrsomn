@@ -9,6 +9,12 @@ spring:
     multipart:
       max-file-size: 128MB
       max-request-size: 130MB
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    encoding: UTF-8
+    locations: classpath:db/migration
 server:
   port: 4481
 astrsomn:
