@@ -42,6 +42,12 @@ public class AstrsomnPropertiesAutoConfiguration {
         return new AstrsomnProperties();
     }
 
+    @Bean
+    @ConfigurationProperties(prefix = "astrsomn.datasource")
+    public AstrsomnDatasourceProperties astrsomnDatasourceProperties() {
+        return new AstrsomnDatasourceProperties();
+    }
+
     /**
      * 初始化加密密钥配置（不依赖数据库，可立即执行）
      */

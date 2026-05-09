@@ -41,7 +41,7 @@ import java.util.List;
  */
 @AutoConfiguration
 @ConditionalOnClass(AstrsomnProperties.class)
-@ConditionalOnProperty(prefix = "astrsomn.data-base", name = "database-type")
+@ConditionalOnProperty(name = "astrsomn.datasource.url")
 @AutoConfigureBefore(name = "com.astrsomn.starter.runtime.config.AstrsomnAutoConfiguration")
 public class AstrsomnWorkflowAutoConfiguration {
 
