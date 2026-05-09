@@ -17,7 +17,7 @@ set PROJECT_ROOT=D:\Project\astrsomn\Astrsomn
 set MODULES_DIR=%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers
 
 REM List of modules to deploy
-set MODULES=astrsomn-provider-openai astrsomn-provider-qianfan astrsomn-provider-qwen astrsomn-provider-zhipu astrsomn-provider-deepseek
+set MODULES= astrsomn-provider-zhipu astrsomn-provider-deepseek
 
 echo [1/2] Installing all dependencies to local repository...
 cd /d %PROJECT_ROOT%

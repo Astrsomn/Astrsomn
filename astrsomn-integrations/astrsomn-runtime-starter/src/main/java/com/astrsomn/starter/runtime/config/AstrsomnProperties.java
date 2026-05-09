@@ -2,11 +2,39 @@ package com.astrsomn.starter.runtime.config;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 绑定前缀 {@code astrsomn}，由 {@link AstrsomnPropertiesAutoConfiguration#astrsomnProperties()} 注册为 Bean。
+ *
+ * <p>示例 — 关闭 starter 自带数据源与 MyBatis（由宿主自行提供 Bean）：
+ * <pre>{@code
+ * astrsomn:
+ *   enabled: false
+ * }</pre>
+ *
+ * <p>示例 — 数据源校验（默认校验失败仅 ERROR 日志，不中断启动）：
+ * <pre>{@code
+ * astrsomn:
+ *   enabled: true
+ *   data-base:
+ *     database-type: h2
+ *     validation:
+ *       enabled: true
+ *       fail-fast: false
+ *       required-tables:
+ *         - SYS_ENV
+ * }</pre>
  */
 @Data
 public class AstrsomnProperties {
+
+    /**
+     * 是否启用 runtime-starter 的数据源与 MyBatis 自动配置。
+     * 为 {@code false} 时不加载 {@link AstrsomnAutoConfiguration}；宿主需自行提供 {@link javax.sql.DataSource} 等。
+     */
+    private Boolean enabled = true;
 
     /**
      * 当前部署环境的代码。
@@ -139,5 +167,35 @@ public class AstrsomnProperties {
          * 连接池最小空闲连接数，默认 5。
          */
         private Integer minimumIdle = 5;
+
+        /**
+         * 启动时数据源 / Schema 就绪校验（在 {@link org.apache.ibatis.session.SqlSessionFactory} 构建完成之后执行）。
+         */
+        private Validation validation = new Validation();
+    }
+
+    @Data
+    public static class Validation {
+
+        /**
+         * 是否执行启动校验。
+         */
+        private Boolean enabled = true;
+
+        /**
+         * 用于判断 Schema 已就绪的表名（建议与 DDL 大写一致）。
+         * 为空则仅校验 JDBC 连通性（如 {@code SELECT 1}）。
+         */
+        private List<String> requiredTables = new ArrayList<>(List.of("SYS_ENV"));
+
+        /**
+         * 校验失败时是否抛出异常并阻止 Spring 上下文刷新。默认 {@code false}，仅输出 ERROR 日志。
+         */
+        private Boolean failFast = false;
+
+        /**
+         * 单次校验获取连接的超时时间（秒）。未设置则依赖连接池 / 驱动的默认行为。
+         */
+        private Integer connectionTimeoutSeconds;
     }
 }
