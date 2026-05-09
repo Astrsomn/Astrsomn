@@ -12,11 +12,13 @@ echo  Astrsomn Full Deploy Script
 echo ========================================
 echo.
 
-REM Set project root directory
-set PROJECT_ROOT=D:\Project\astrsomn\Astrsomn
+REM Repository root (parent of deploy/maven-deploy)
+pushd "%~dp0..\.."
+set "PROJECT_ROOT=%CD%"
+popd
 
 echo [1/2] Installing all dependencies to local repository...
-cd /d %PROJECT_ROOT%
+cd /d "%PROJECT_ROOT%"
 call mvn install -DskipTests -pl astrsomn-common,astrsomn-api,astrsomn-integrations,astrsomn-plugins -am
 if errorlevel 1 (
     echo.
@@ -32,7 +34,7 @@ REM Deploy providers modules
 echo ----------------------------------------
 echo Deploying providers modules...
 echo ----------------------------------------
-cd /d %PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-openai
+cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-openai"
 call mvn deploy -DskipTests
 if errorlevel 1 (
     echo.
@@ -40,7 +42,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-cd /d %PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-qianfan
+cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-qianfan"
 call mvn deploy -DskipTests
 if errorlevel 1 (
     echo.
@@ -48,7 +50,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-cd /d %PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-qwen
+cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-qwen"
 call mvn deploy -DskipTests
 if errorlevel 1 (
     echo.
@@ -56,7 +58,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-cd /d %PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-zhipu
+cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-zhipu"
 call mvn deploy -DskipTests
 if errorlevel 1 (
     echo.
@@ -64,7 +66,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-cd /d %PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-deepseek
+cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-deepseek"
 call mvn deploy -DskipTests
 if errorlevel 1 (
     echo.
@@ -77,7 +79,7 @@ echo.
 echo ----------------------------------------
 echo Deploying integrations modules...
 echo ----------------------------------------
-cd /d %PROJECT_ROOT%\astrsomn-integrations\astrsomn-internal-storage
+cd /d "%PROJECT_ROOT%\astrsomn-integrations\astrsomn-internal-storage"
 call mvn deploy -DskipTests
 if errorlevel 1 (
     echo.
@@ -85,7 +87,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-cd /d %PROJECT_ROOT%\astrsomn-integrations\astrsomn-runtime-starter
+cd /d "%PROJECT_ROOT%\astrsomn-integrations\astrsomn-runtime-starter"
 call mvn deploy -DskipTests
 if errorlevel 1 (
     echo.
@@ -93,7 +95,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-cd /d %PROJECT_ROOT%\astrsomn-integrations\astrsomn-workflow-starter
+cd /d "%PROJECT_ROOT%\astrsomn-integrations\astrsomn-workflow-starter"
 call mvn deploy -DskipTests
 if errorlevel 1 (
     echo.
