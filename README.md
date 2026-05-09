@@ -4,8 +4,6 @@
   <img src="astrsomn-ui/src/assets/Astrsomn-logo.png" alt="Astrsomn Logo" width="200"/>
 </p>
 
-> **一行注解，即刻开启 AI 进化**\
-> 基于 LangChain4j 深度封装，面向 Java 的标准化、生产级 AI 集成底座
 
 <p align="center">
   <a href="README-EN.md"><img src="https://img.shields.io/badge/Language-English-blue.svg" alt="English"></a>
@@ -18,6 +16,13 @@
   <a href="https://github.com/Astrsomn/Astrsomn/network/members"><img src="https://img.shields.io/github/forks/Astrsomn/Astrsomn.svg" alt="GitHub Forks"></a>
 </p>
 
+## ⚡ 30 秒快速了解
+
+- **这是什么**：一个基于 LangChain4j 封装的 Java AI Starter
+- **你能得到什么**：一行注解 `@Astro` 快速发起模型调用，支持多 Provider 可插拔切换
+- **它解决什么问题**：把 LangChain4j 的复杂配置收敛为标准化配置，并提供可视化管理能力
+- **怎么开始**：先引入 `astrsomn-runtime-starter` 和 Provider，再按 `快速开始` 完成 YAML 配置与启动
+
 > [!WARNING]
 > ## 当前为半成品（开发中）
 > 这个项目目前**尚未完成**，仍在快速迭代阶段，功能、配置和 API 都可能发生变化。  
@@ -27,10 +32,18 @@
 
 ## 📖 项目介绍
 
-**Astrsomn（星梦）** 致力于解决 Java 生态接入大模型时常见的工程问题：配置复杂、依赖耦合、能力扩展困难、运行治理不足。\
-框架通过分层模块化与标准化封装，让开发者既能快速上手，也能在企业场景中长期演进。
+**Astrsomn（星梦）** 是一个基于 LangChain4j 封装的 Java AI 集成框架：你只需引入一个 Starter 依赖，就能快速接入多模型能力。\
+框架把 LangChain4j 的复杂工程配置（模型接入、Provider 选择、运行参数等）标准化并可视化，降低上手门槛。
+
+你可以直接获得这些能力：
+
+- 一行注解 `@Astro` 即可在业务代码中发起模型调用
+- 通过 `runtime-starter + provider` 快速切换 DeepSeek、Zhipu 等模型
+- 把原本分散的 LangChain4j 配置收敛为统一配置项，并支持可视化管理
+- 保持对原生 LangChain4j 能力的兼容，便于渐进扩展到 Agent / RAG / Tools
 
 ***
+
 
 ## 🏗️ 项目施工中 🏗️
 
@@ -40,7 +53,7 @@
 | ✅  | **环境初始化**      | 支持快速环境配置与初始化       |
 | ✅  | **依赖快速引入**     | Maven Starter 一键集成 |
 | ✅  | **基本配置功能**     | 提供核心配置管理能力         |
-| ❌  | **工作流模块**      | 尚未实现               |
+| ❌  | **工作流模块**      | 规划中，尚未开放可用版本      |
 | ❌  | **向量库集成**      | 部分实现，不稳定           |
 | ❌  | **安全与治理**      | 多租户、限流、监控等功能缺失     |
 | ⚠️ | **API 兼容性**    | 可能随时变更，不保证向后兼容     |
@@ -61,9 +74,12 @@
 - `server`：服务化运行与治理
 - `ui`：可视化配置与运维
 
-**适用场景**：RAG 知识库、智能对话、Agent 编排、MCP 工具接入、企业 AI 中台等。
+**适用场景**：RAG 知识库、智能对话、MCP 工具接入、企业 AI 中台等。
 
 ***
+> **一行注解，即刻开启 AI 进化**\
+> 基于 LangChain4j 深度封装，面向 Java 的标准化、生产级 AI 集成底座
+
 
 ## ✨ 核心特性
 
@@ -85,11 +101,24 @@
 | ----- | -------------------------------- |
 | 后端框架  | Spring Boot 3.3.0                |
 | 语言    | Java 17+                         |
-| AI 集成 | LangChain4j                      |
+| AI 集成 | LangChain4j 1.11.x               |
 | 前端框架  | Vue 3 + TypeScript               |
 | 构建工具  | Maven                            |
 | 数据库   | MySQL / H2                       |
 | 向量数据库 | Qdrant / Milvus / Chroma / Redis |
+
+### 🔑 关键依赖与主版本（快速了解）
+
+| 依赖坐标 | 主版本 | 用途 |
+| --- | --- | --- |
+| `com.astrsomn:astrsomn-runtime-starter` | `0.1.x` | 一站式接入入口，提供注解注入与运行时能力 |
+| `dev.langchain4j:langchain4j-core` | `1.11.x` | LangChain4j 核心抽象与调用能力 |
+| `dev.langchain4j:langchain4j-open-ai` | `1.11.x` | OpenAI 协议模型接入（DeepSeek 等兼容场景） |
+| `dev.langchain4j:langchain4j-community-zhipu-ai` | `1.11.0-beta19` | 智谱模型接入能力 |
+| `org.springframework.boot:spring-boot-starter` | `3.3.x` | Spring Boot 运行与自动配置基础 |
+| `com.baomidou:mybatis-plus-spring-boot3-starter` | `3.5.x` | 数据访问与配置持久化基础能力 |
+
+> 说明：文档使用“主版本”帮助快速判断兼容范围；精确补丁版本以各模块 `pom.xml` 为准。
 
 ***
 
@@ -101,23 +130,14 @@ Astrsomn
 ├── astrsomn-api                       # API 接口定义层
 │   ├── astrsomn-api-runtime           # 运行时 API（异常枚举、错误码）
 │   ├── astrsomn-api-storage           # 存储 API（文件处理等）
-│   └── astrsomn-api-workflow          # 工作流 API
+│   └── astrsomn-api-workflow          # 工作流 API（规划中）
 ├── astrsomn-integrations              # 集成层（Spring Boot Starter）
 │   ├── astrsomn-runtime-starter       # 运行时 Starter（AI 模型、工具、MCP 等）
-│   ├── astrsomn-workflow-starter      # 工作流 Starter
+│   ├── astrsomn-workflow-starter      # 工作流 Starter（规划中）
 │   └── astrsomn-internal-storage      # 内部存储实现
 ├── astrsomn-plugins                   # 插件生态
-│   ├── astrsomn-providers             # 模型提供方实现
-│   │   ├── astrsomn-provider-openai   # OpenAI 适配
-│   │   ├── astrsomn-provider-deepseek # DeepSeek 适配
-│   │   ├── astrsomn-provider-qwen      # 通义千问适配
-│   │   ├── astrsomn-provider-qianfan   # 百度千帆适配
-│   │   └── astrsomn-provider-zhipu     # 智谱 AI 适配
-│   └── astrsomn-vector                # 向量存储实现
-│       ├── astrsomn-vector-qdrant     # Qdrant 适配
-│       ├── astrsomn-vector-chroma     # Chroma 适配
-│       ├── astrsomn-vector-milvus     # Milvus 适配
-│       └── astrsomn-vector-redis      # Redis 适配
+│   ├── astrsomn-providers             # 模型提供方实现（当前可用：DeepSeek / Zhipu）
+│   └── astrsomn-vector                # 向量存储实现（规划中）
 ├── astrsomn-server                    # 服务端应用（HTTP 接口、服务化运行）
 └── astrsomn-ui                        # 前端控制台（Vue 3 + TypeScript）
 ```
@@ -137,21 +157,6 @@ Astrsomn
 
 ## 🚀 快速开始
 
-### 一行注解，开启 Java AI 进化
-
-```java
-@Service
-public class MyService {
-    // 一行注解，注入 AI 能力
-    @Astro(agentKey = "MY-AGENT", envCode = "PRO")
-    private AstroChatAssistant assistant;
-
-    public void demo() {
-        String response = assistant.chat("你好，请介绍一下自己");
-    }
-}
-```
-
 ### 环境要求
 
 - JDK 21+
@@ -168,10 +173,96 @@ public class MyService {
 CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 ```
 
-### 步骤 2：修改 MySQL 配置（必做）
+### 步骤 2：引入 Maven 依赖（runtime-starter）
 
-编辑 `astrsomn-server/src/main/resources/application-mysql.yml`。  
-项目默认已激活 `mysql` profile（`application.yml` 中已配置），无需手动切换环境。
+建议先在你的业务项目中完成依赖引入，再统一进行配置并启动服务。
+
+**1) 引入 runtime-starter**：
+
+```xml
+<!-- 运行时 Starter（AI 模型、工具、MCP 等） -->
+<dependency>
+    <groupId>com.astrsomn</groupId>
+    <artifactId>astrsomn-runtime-starter</artifactId>
+    <version>0.1.0-alpha.1</version>
+</dependency>
+```
+
+**2) 选择并引入可用 Provider（至少一个）**：
+
+```xml
+<!-- DeepSeek Provider -->
+<dependency>
+    <groupId>com.astrsomn</groupId>
+    <artifactId>astrsomn-provider-deepseek</artifactId>
+    <version>0.1.0-alpha.1</version>
+</dependency>
+
+<!-- Zhipu Provider -->
+<dependency>
+    <groupId>com.astrsomn</groupId>
+    <artifactId>astrsomn-provider-zhipu</artifactId>
+    <version>0.1.0-alpha.1</version>
+</dependency>
+```
+
+> 当前“快速启动”仅验证并支持：`astrsomn-runtime-starter` + `astrsomn-provider-deepseek` / `astrsomn-provider-zhipu`。
+> 其他 Starter/Provider 将在后续版本逐步开放。
+
+**3) 以下依赖需要由使用方项目自行提供（runtime-starter 中为 provided）**：
+
+```xml
+<!-- Spring Boot 基础 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-autoconfigure</artifactId>
+</dependency>
+
+<!-- JDBC + MyBatis-Plus -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+    <version>3.5.5</version>
+</dependency>
+
+<!-- 数据库驱动（至少一个；MySQL 示例） -->
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+</dependency>
+
+<!-- 配置校验 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+
+<!-- 响应式流能力（按需） -->
+<dependency>
+    <groupId>io.projectreactor</groupId>
+    <artifactId>reactor-core</artifactId>
+</dependency>
+```
+
+### 步骤 3：配置 application-mysql.yml（必做）
+
+编辑 `astrsomn-server/src/main/resources/application-mysql.yml`。
+
+如果你是在自己的业务项目中直接接入 `astrsomn-runtime-starter`，同样请确保激活 `mysql` profile：
+
+```yml
+spring:
+  profiles:
+    active: mysql
+```
 
 **必须修改项**：
 - `host`
@@ -180,10 +271,16 @@ CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 - `username`
 - `password`
 
-**最小可用示例**：
+**最新可启动参考（runtime-starter）**：
 
 ```yml
 astrsomn:
+  enabled: true
+  env-code: PRO
+  username: admin
+  admin-users: admin
+  mybatis-plus:
+    additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
   data-base:
     database-type: mysql
     host: 127.0.0.1
@@ -191,42 +288,47 @@ astrsomn:
     database-name: astro_ai
     username: root
     password: your_password
+    driver: com.mysql.cj.jdbc.Driver
+    use-ssl: false
+    charset: utf8
+    timezone: Asia/Shanghai
+    connection-timeout: 30000
+    maximum-pool-size: 10
+    minimum-idle: 5
+    validation:
+      enabled: true
+      fail-fast: false
+      required-tables:
+        - SYS_ENV
 ```
 
-### 步骤 3：启动服务
+### 步骤 4：启动服务
 
 - 在 IDE 中运行 `astrsomn-server` 模块的 `AstrsomnServerApplication.java`。
 - 首次启动会自动执行 Flyway 迁移（默认开启）。
 
-### 步骤 4：确认启动成功
+### 步骤 5：确认启动成功
 
 满足以下任一条件可判定后端已成功启动：
 - 日志中出现 Spring Boot 启动完成信息（Started ...）。
 - 控制台无数据库连接报错且应用持续运行。
 - 监听端口为 `4481`（默认配置）。
 
-### 步骤 5：在业务项目中引入依赖并使用 `@Astro`
+### 步骤 6：在业务代码中使用 `@Astro`
 
-完成服务启动后，在你的业务项目中引入下方 starter 依赖，即可通过 `@Astro` 注解接入 AI 能力。
+完成依赖引入、配置和服务启动后，即可通过 `@Astro` 注解接入 AI 能力：
 
-### Maven 依赖
+```java
+@Service
+public class MyService {
+    // 一行注解，注入 AI 能力
+    @Astro(agentKey = "MY-AGENT", envCode = "PRO")
+    private AstroChatAssistant assistant;
 
-**集成层依赖（推荐）**：
-
-```xml
-<!-- 运行时 Starter（AI 模型、工具、MCP 等） -->
-<dependency>
-    <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-runtime-starter</artifactId>
-    <version>0.1.0-aplha.1</version>
-</dependency>
-
-<!-- 工作流 Starter（已包含 runtime-starter） -->
-<dependency>
-    <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-workflow-starter</artifactId>
-    <version>0.1.0-aplha.1</version>
-</dependency>
+    public void demo() {
+        String response = assistant.chat("你好，请介绍一下自己");
+    }
+}
 ```
 
 ***
@@ -286,11 +388,11 @@ astrsomn:
 
 ### 模型提供方
 
-- [OpenAI Provider](astrsomn-providers/astrsomn-provider-openai/)
-- [DeepSeek Provider](astrsomn-providers/astrsomn-provider-deepseek/)
-- [Qwen Provider](astrsomn-providers/astrsomn-provider-qwen/)
-- [Qianfan Provider](astrsomn-providers/astrsomn-provider-qianfan/)
-- [Zhipu Provider](astrsomn-providers/astrsomn-provider-zhipu/)
+- [DeepSeek Provider](astrsomn-plugins/astrsomn-providers/astrsomn-provider-deepseek/)
+- [Zhipu Provider](astrsomn-plugins/astrsomn-providers/astrsomn-provider-zhipu/)
+- OpenAI Provider（待开放）
+- Qwen Provider（待开放）
+- Qianfan Provider（待开放）
 
 ### 向量存储
 
@@ -317,25 +419,7 @@ astrsomn:
 
 ***
 
-## 📄 许可证
 
-```
-Copyright 2024 Astrsomn Authors
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
-
-***
 
 <p align="center">
   Made with ❤️ by the Astrsomn Team

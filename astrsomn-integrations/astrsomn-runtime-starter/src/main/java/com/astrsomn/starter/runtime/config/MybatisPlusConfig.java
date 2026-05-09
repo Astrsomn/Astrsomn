@@ -1,5 +1,6 @@
 package com.astrsomn.starter.runtime.config;
 
+import com.astrsomn.starter.runtime.schema.SchemaInitializer;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
@@ -17,6 +18,7 @@ import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,18 +32,19 @@ import java.util.List;
 
 @Slf4j
 @Configuration
-@MapperScan({
+@MapperScan(basePackages = {
         "com.astrsomn.starter.runtime.mapper",
         "com.astrsomn.starter.workflow.mapper"
-})
+}, sqlSessionFactoryRef = AstrsomnRuntimeBeans.SQL_SESSION_FACTORY)
 public class MybatisPlusConfig {
 
     @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnProperties properties, TenantLineHandler tenantLineHandler) {
+    public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnDatasourceProperties datasourceProperties,
+                                                           TenantLineHandler tenantLineHandler) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
-        String dbTypeStr = (properties.getDataBase() != null) ? properties.getDataBase().getDatabaseType() : "mysql";
-        DbType dbType = DataSourceConfig.getDbType(dbTypeStr);
+        String jdbcUrl = datasourceProperties != null ? datasourceProperties.getUrl() : null;
+        DbType dbType = JdbcUrlDbSupport.resolveMybatisDbType(jdbcUrl);
 
         interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(tenantLineHandler));
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(dbType));
@@ -67,13 +70,16 @@ public class MybatisPlusConfig {
         return new ReflectiveAuditAutoFillInterceptor(properties);
     }
 
-    @Bean
-    public SqlSessionFactory sqlSessionFactory(
-            DataSource dataSource,
+    @Bean(name = AstrsomnRuntimeBeans.SQL_SESSION_FACTORY)
+    public SqlSessionFactory astrsomnSqlSessionFactory(
+            @Qualifier(AstrsomnRuntimeBeans.DATA_SOURCE) DataSource dataSource,
+            ObjectProvider<SchemaInitializer> schemaInitializer,
             AstrsomnProperties properties,
             MybatisPlusInterceptor mybatisPlusInterceptor,
             Interceptor reflectiveAuditAutoFillInterceptor,
             ObjectProvider<MetaObjectHandler> metaObjectHandlerProvider) throws Exception {
+        schemaInitializer.ifAvailable(initializer -> initializer.initialize(dataSource));
+
         MybatisSqlSessionFactoryBean factoryBean = new MybatisSqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource);
 
@@ -117,6 +123,8 @@ public class MybatisPlusConfig {
         MybatisConfiguration mybatisConfiguration = new MybatisConfiguration();
         GlobalConfig globalConfig = GlobalConfigUtils.defaults()
                 .setSqlInjector(new DefaultSqlInjector());
+        // 与 Flyway 中大写列名/表名一致，避免 H2(DATABASE_TO_UPPER=FALSE) 等环境下列名大小写不匹配
+        globalConfig.getDbConfig().setCapitalMode(true);
         if (globalConfig.getIdentifierGenerator() == null) {
             globalConfig.setIdentifierGenerator(new DefaultIdentifierGenerator());
         }

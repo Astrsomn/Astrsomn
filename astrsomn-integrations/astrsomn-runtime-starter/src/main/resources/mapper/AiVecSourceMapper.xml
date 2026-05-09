@@ -10,9 +10,9 @@
             e.TYPE AS extensionType
         FROM
             `AI_VEC_SOURCE` s
-            LEFT JOIN `SYS_EXTENSION` e ON s.EXTENSION_CODE = e.EXTENSION_CODE AND e.deleted = 0
+            LEFT JOIN `SYS_EXTENSION` e ON s.EXTENSION_CODE = e.EXTENSION_CODE AND e.DELETED = 0
         WHERE
-            s.deleted = 0
+            s.DELETED = 0
         <if test="req != null and req.name != null and req.name != ''">
             AND s.NAME LIKE CONCAT('%', #{req.name}, '%')
         </if>

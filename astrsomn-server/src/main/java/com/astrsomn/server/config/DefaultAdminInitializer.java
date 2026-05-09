@@ -9,12 +9,15 @@ import com.astrsomn.api.runtime.common.entity.SystemEnvEntity;
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
 import com.astrsomn.starter.runtime.mapper.SystemEnvMapper;
 import com.astrsomn.starter.runtime.mapper.SystemUserMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 首次部署时初始化「默认运行环境」与「默认管理员」。
@@ -32,7 +35,7 @@ import java.time.LocalDateTime;
  */
 @Slf4j
 @Component
-public class DefaultAdminInitializer implements CommandLineRunner {
+public class DefaultAdminInitializer implements ApplicationListener<ApplicationReadyEvent> {
 
     @Value("${astrsomn.default-admin.username:admin}")
     private String defaultAdminUsername;
@@ -56,22 +59,54 @@ public class DefaultAdminInitializer implements CommandLineRunner {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private final SystemUserMapper systemUserMapper;
-    private final SystemEnvMapper systemEnvMapper;
+    private SystemUserMapper systemUserMapper;
+    private SystemEnvMapper systemEnvMapper;
 
-    public DefaultAdminInitializer(SystemUserMapper systemUserMapper, SystemEnvMapper systemEnvMapper) {
+    @Autowired(required = false)
+    public void setSystemUserMapper(SystemUserMapper systemUserMapper) {
         this.systemUserMapper = systemUserMapper;
+    }
+
+    @Autowired(required = false)
+    public void setSystemEnvMapper(SystemEnvMapper systemEnvMapper) {
         this.systemEnvMapper = systemEnvMapper;
     }
 
     @Override
-    public void run(String... args) {
-        try {
-            initializeDefaultEnv();
-            initializeDefaultAdmin();
-        } catch (Exception e) {
-            log.error("默认环境/管理员初始化失败: {}", e.getMessage(), e);
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        if (systemUserMapper == null || systemEnvMapper == null) {
+            log.warn("DefaultAdminInitializer: 必要依赖未注入，跳过初始化");
+            return;
         }
+        delayedInitialize();
+    }
+
+    /**
+     * 延迟初始化，等待数据库表创建完成
+     */
+    private void delayedInitialize() {
+        try {
+            doInitialize();
+        } catch (Exception e) {
+            log.warn("默认环境/管理员初始化失败，将在延迟后重试 | 异常: {}", e.getMessage());
+            try {
+                TimeUnit.SECONDS.sleep(2);
+                doInitialize();
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                log.error("默认环境/管理员初始化重试被中断");
+            } catch (Exception e2) {
+                log.error("默认环境/管理员初始化重试失败 | 异常: {}", e2.getMessage(), e2);
+            }
+        }
+    }
+
+    /**
+     * 执行初始化
+     */
+    private void doInitialize() {
+        initializeDefaultEnv();
+        initializeDefaultAdmin();
     }
 
     /**

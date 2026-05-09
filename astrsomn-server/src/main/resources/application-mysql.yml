@@ -1,27 +1,21 @@
 astrsomn:
+  enabled: true
+  datasource:
+    # 启动前请改成你的实例：单行 jdbc:mysql URL
+    url: jdbc:mysql://127.0.0.1:3306/astro_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5
   mybatis-plus:
     # workflow-starter 默认会自动补这个包；这里显式写出便于排查与覆盖
     additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
   data-base:
-    # 必须使用 mysql
-    database-type: mysql
-    # ===== 启动前必须修改 =====
-    # 数据库地址（示例：127.0.0.1）
-    host: 127.0.0.1
-    # 数据库端口（默认 3306）
-    port: 3306
-    # 数据库名（需提前创建）
-    database-name: astro_ai
-    # 登录用户名
-    username: root
-    # 登录密码
-    password: root
-
-    # ===== 通常无需修改（按需调整）=====
-    driver: com.mysql.cj.jdbc.Driver
-    use-ssl: false
-    charset: utf8
-    timezone: Asia/Shanghai
-    connection-timeout: 30000
-    maximum-pool-size: 10
-    minimum-idle: 5
+    validation:
+      enabled: true
+      fail-fast: false
+      required-tables:
+        - SYS_ENV

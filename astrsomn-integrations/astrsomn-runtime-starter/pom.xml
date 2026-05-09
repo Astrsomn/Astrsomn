@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.astrsomn</groupId>
         <artifactId>astrsomn-integrations</artifactId>
-        <version>0.1.0-alpha.1</version>
+        <version>0.2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>astrsomn-runtime-starter</artifactId>
@@ -24,16 +24,16 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- 核心模块 -->
+        <!-- 鏍稿績妯″潡 -->
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-api-runtime</artifactId>
         </dependency>
 
-        <!-- 工作流引擎：TASK 节点回调 {@link factory.langchain.com.astrsomn.starter.AstroAssistantFactory} -->
+        <!-- 宸ヤ綔娴佸紩鎿庯細TASK 鑺傜偣鍥炶皟 {@link factory.langchain.com.astrsomn.starter.AstroAssistantFactory} -->
 
 
-        <!-- Spring Boot - 使用provided scope，由使用方提供 -->
+        <!-- Spring Boot - 浣跨敤provided scope锛岀敱浣跨敤鏂规彁渚?-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -49,7 +49,7 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- MyBatis-Plus - 使用provided scope，由使用方提供 -->
+        <!-- MyBatis-Plus - 浣跨敤provided scope锛岀敱浣跨敤鏂规彁渚?-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
@@ -57,53 +57,28 @@
             <scope>provided</scope>
         </dependency>
 
-
-        <!-- 数据库驱动 - 使用provided scope，由使用方提供 -->
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc11</artifactId>
-            <version>21.9.0.0</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.46.1.1</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- Hutool - 只引入需要的模块，避免引入all -->
+        <!-- Hutool - 鍙紩鍏ラ渶瑕佺殑妯″潡锛岄伩鍏嶅紩鍏ll -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
             <version>5.8.26</version>
         </dependency>
 
-        <!-- Reactor - 使用provided scope，由使用方提供 -->
+        <!-- Reactor - 浣跨敤provided scope锛岀敱浣跨敤鏂规彁渚?-->
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- 配置处理器 - optional，不打包 -->
+        <!-- 閰嶇疆澶勭悊鍣?- optional锛屼笉鎵撳寘 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
         
-        <!-- 配置校验 -->
+        <!-- 閰嶇疆鏍￠獙 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -115,7 +90,7 @@
             <version>1.11.0</version>
         </dependency>
 
-        <!-- 测试 -->
+        <!-- 娴嬭瘯 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -131,5 +106,14 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>github-packages-release</id>
+            <properties>
+                <deploy.skip>false</deploy.skip>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

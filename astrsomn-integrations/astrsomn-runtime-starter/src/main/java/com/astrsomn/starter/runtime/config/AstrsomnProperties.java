@@ -2,11 +2,47 @@ package com.astrsomn.starter.runtime.config;
 
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 绑定前缀 {@code astrsomn}，由 {@link AstrsomnPropertiesAutoConfiguration#astrsomnProperties()} 注册为 Bean。
+ *
+ * <p>示例 — 关闭 starter 自带数据源与 MyBatis（由宿主自行提供 Bean）：
+ * <pre>{@code
+ * astrsomn:
+ *   enabled: false
+ * }</pre>
+ *
+ * <p>连接配置使用独立 Bean {@link AstrsomnDatasourceProperties}（前缀 {@code astrsomn.datasource}）。
+ * <pre>{@code
+ * astrsomn:
+ *   enabled: true
+ *   datasource:
+ *     url: jdbc:h2:file:./data/db;MODE=MySQL;DATABASE_TO_UPPER=FALSE
+ *     username: sa
+ *     password:
+ *     driver-class-name: org.h2.Driver
+ *     hikari:
+ *       connection-timeout: 30000
+ *       maximum-pool-size: 10
+ *       minimum-idle: 5
+ *   data-base:
+ *     validation:
+ *       enabled: true
+ *       fail-fast: false
+ *       required-tables:
+ *         - SYS_ENV
+ * }</pre>
  */
 @Data
 public class AstrsomnProperties {
+
+    /**
+     * 是否启用 runtime-starter 的数据源与 MyBatis 自动配置。
+     * 为 {@code false} 时不加载 {@link AstrsomnAutoConfiguration}；宿主需自行提供 {@link javax.sql.DataSource} 等。
+     */
+    private Boolean enabled = true;
 
     /**
      * 当前部署环境的代码。
@@ -41,7 +77,7 @@ public class AstrsomnProperties {
     private MybatisPlus mybatisPlus = new MybatisPlus();
 
     /**
-     * 数据库连接配置。
+     * Schema / 连通性校验等扩展。
      */
     private DataBase dataBase = new DataBase();
 
@@ -71,73 +107,33 @@ public class AstrsomnProperties {
     public static class DataBase {
 
         /**
-         * 数据库类型。可选值：mysql, h2。
+         * 启动时数据源 / Schema 就绪校验（在 {@link org.apache.ibatis.session.SqlSessionFactory} 构建完成之后执行）。
          */
-        private String databaseType = "mysql";
+        private Validation validation = new Validation();
+    }
+
+    @Data
+    public static class Validation {
 
         /**
-         * 数据库主机地址，默认为 localhost。
+         * 是否执行启动校验。
          */
-        private String host = "localhost";
+        private Boolean enabled = true;
 
         /**
-         * 数据库端口。MySQL 默认为 3306。
+         * 用于判断 Schema 已就绪的表名（建议与 DDL 大写一致）。
+         * 为空则仅校验 JDBC 连通性（如 {@code SELECT 1}）。
          */
-        private Integer port;
+        private List<String> requiredTables = new ArrayList<>(List.of("SYS_ENV"));
 
         /**
-         * 数据库名称或文件路径。
+         * 校验失败时是否抛出异常并阻止 Spring 上下文刷新。默认 {@code false}，仅输出 ERROR 日志。
          */
-        private String databaseName;
+        private Boolean failFast = false;
 
         /**
-         * 数据库用户名。
+         * 单次校验获取连接的超时时间（秒）。未设置则依赖连接池 / 驱动的默认行为。
          */
-        private String username;
-
-        /**
-         * 数据库密码。
-         */
-        private String password;
-
-        /**
-         * 驱动类名。如果不指定，将根据 databaseType 自动选择默认驱动。
-         */
-        private String driver;
-
-        /**
-         * 完整 JDBC URL。如果配置此项，其他连接参数将被忽略。
-         */
-        private String url;
-
-        /**
-         * 是否启用 SSL 连接，默认为 false。
-         */
-        private Boolean useSsl = false;
-
-        /**
-         * 字符集编码，默认为 utf8。
-         */
-        private String charset = "utf8";
-
-        /**
-         * 时区配置，默认为 Asia/Shanghai。
-         */
-        private String timezone = "Asia/Shanghai";
-
-        /**
-         * 连接超时时间（毫秒），默认 30000。
-         */
-        private Integer connectionTimeout = 30000;
-
-        /**
-         * 连接池最大连接数，默认 10。
-         */
-        private Integer maximumPoolSize = 10;
-
-        /**
-         * 连接池最小空闲连接数，默认 5。
-         */
-        private Integer minimumIdle = 5;
+        private Integer connectionTimeoutSeconds;
     }
 }

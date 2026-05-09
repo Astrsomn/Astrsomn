@@ -8,7 +8,7 @@
         FROM
             `AI_TRACE_LOG`
         WHERE
-            deleted = 0
+            DELETED = 0
         <if test="req != null and req.traceId != null and req.traceId != ''">
             AND TRACE_ID = #{req.traceId}
         </if>

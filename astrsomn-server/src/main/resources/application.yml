@@ -3,7 +3,7 @@ spring:
     name: astrsomn-server
   profiles:
     # 默认使用 mysql 环境，用户只需修改 application-mysql.yml 中数据库连接信息即可启动
-    active: mysql
+    active: h2
   servlet:
     multipart:
       max-file-size: 128MB
@@ -17,6 +17,8 @@ spring:
 server:
   port: 4481
 astrsomn:
+  # runtime-starter：数据源 + MyBatis 自动配置总开关（false 时需自行提供 DataSource 等 Bean）
+  enabled: true
   env-code: PRO
   username: admin
   admin-users: admin

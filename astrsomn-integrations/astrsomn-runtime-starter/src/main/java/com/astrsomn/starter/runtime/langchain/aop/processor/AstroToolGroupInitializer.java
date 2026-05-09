@@ -7,37 +7,74 @@ import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.entity.AiToolEntity;
 import com.astrsomn.starter.runtime.mapper.AiToolMapper;
 import com.astrsomn.starter.runtime.langchain.aop.annotation.AstroToolGroup;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class AstroToolGroupInitializer implements BeanPostProcessor, BeanFactoryAware {
+public class AstroToolGroupInitializer implements ApplicationListener<ApplicationReadyEvent> {
 
     private static final String LOG_PREFIX = "[Astrsomn] [工具组扫描器] ====> ";
     private static final String ENABLED = AiModelEnum.StatusEnum.ENABLED.getCode();
 
-    private BeanFactory beanFactory;
+    private AiToolMapper aiToolMapper;
+    
+    @Autowired(required = false)
+    public void setAiToolMapper(AiToolMapper aiToolMapper) {
+        this.aiToolMapper = aiToolMapper;
+    }
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) {
-        Class<?> beanClass = ClassUtils.getUserClass(bean);
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        if (aiToolMapper == null) {
+            log.warn("{} AiToolMapper 未注入，跳过工具组扫描", LOG_PREFIX);
+            return;
+        }
+        delayedScanAndRegisterTools(event.getApplicationContext());
+    }
 
-        // 识别带有 @AstroToolGroup 注解的 Bean
-        if (beanClass.isAnnotationPresent(AstroToolGroup.class)) {
+    /**
+     * 延迟扫描并注册工具组，等待数据库表创建完成
+     */
+    private void delayedScanAndRegisterTools(ConfigurableApplicationContext context) {
+        try {
+            doScanAndRegisterTools(context);
+        } catch (Exception e) {
+            log.warn("{} 工具组扫描失败，将在延迟后重试 | 异常: {}", LOG_PREFIX, e.getMessage());
+            try {
+                TimeUnit.SECONDS.sleep(2);
+                doScanAndRegisterTools(context);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                log.error("{} 工具组扫描重试被中断", LOG_PREFIX);
+            } catch (Exception e2) {
+                log.error("{} 工具组扫描重试失败 | 异常: {}", LOG_PREFIX, e2.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 执行工具组扫描和注册
+     */
+    private void doScanAndRegisterTools(ConfigurableApplicationContext context) {
+        Map<String, Object> beansWithAnnotation = context.getBeansWithAnnotation(AstroToolGroup.class);
+        
+        beansWithAnnotation.forEach((beanName, bean) -> {
+            Class<?> beanClass = ClassUtils.getUserClass(bean);
             AstroToolGroup groupAnno = beanClass.getAnnotation(AstroToolGroup.class);
             scanAndRegisterTools(bean, beanName, groupAnno);
-        }
-
-        return bean;
+        });
     }
 
     /**
@@ -73,7 +110,6 @@ public class AstroToolGroupInitializer implements BeanPostProcessor, BeanFactory
         Tool toolAnno = method.getAnnotation(Tool.class);
         String toolKey = generateToolKey(groupAnno, beanName, method);
 
-        AiToolMapper aiToolMapper = beanFactory.getBean(AiToolMapper.class);
         Optional<AiToolEntity> existingOpt = Optional.ofNullable(aiToolMapper.selectOne(
                 new LambdaQueryWrapper<AiToolEntity>().eq(AiToolEntity::getToolKey, toolKey)));
 
@@ -120,10 +156,5 @@ public class AstroToolGroupInitializer implements BeanPostProcessor, BeanFactory
     private String generateToolKey(AstroToolGroup group, String beanName, Method method) {
         String prefix = StringUtils.hasText(group.value()) ? group.value() : beanName;
         return prefix + ":" + method.getName();
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
     }
 }

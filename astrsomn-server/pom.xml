@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.astrsomn</groupId>
         <artifactId>Astrsomn</artifactId>
-        <version>0.1.0-alpha.1</version>
+        <version>0.2.0-SNAPSHOT</version>
     </parent>
     <artifactId>astrsomn-server</artifactId>
-    <version>0.1.0-alpha.1</version>
+    <version>0.2.0-SNAPSHOT</version>
     <name>astrsomn-server</name>
-    <description>AI分析服务</description>
+    <description>AI网关</description>
     <packaging>jar</packaging>
 
     <properties>
@@ -18,7 +18,7 @@
     </properties>
 
     <dependencies>
-        <!-- 核心模块（显式依赖，保证单模块构建 testCompile 等场景下类路径完整） -->
+        <!-- 鏍稿績妯″潡锛堟樉寮忎緷璧栵紝淇濊瘉鍗曟ā鍧楁瀯寤?testCompile 绛夊満鏅笅绫昏矾寰勫畬鏁达級 -->
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-api-runtime</artifactId>
@@ -65,23 +65,21 @@
             <version>3.5.5</version>
         </dependency>
 
-        <!-- 数据库驱动 -->
+        <!-- 鏁版嵁搴撻┍鍔?-->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Flyway 数据库迁移 -->
+        <!-- Flyway 鏁版嵁搴撹縼绉?-->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>9.22.4</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
-            <version>9.22.4</version>
         </dependency>
 
         <dependency>
@@ -90,7 +88,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- 测试 -->
+        <!-- 娴嬭瘯 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -112,50 +110,50 @@
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-deepseek</artifactId>
-            <version>0.1.0-alpha.1</version>
+            <version>0.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-zhipu</artifactId>
-            <version>0.1.0-alpha.1</version>
+            <version>0.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-qianfan</artifactId>
-            <version>0.1.0-alpha.1</version>
+            <version>0.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-qwen</artifactId>
-            <version>0.1.0-alpha.1</version>
+            <version>0.2.0-SNAPSHOT</version>
         </dependency>
 
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-qdrant</artifactId>
-            <version>0.1.0-alpha.1</version>
+            <version>0.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-milvus</artifactId>
-            <version>0.1.0-alpha.1</version>
+            <version>0.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-chroma</artifactId>
-            <version>0.1.0-alpha.1</version>
+            <version>0.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-redis</artifactId>
-            <version>0.1.0-alpha.1</version>
+            <version>0.2.0-SNAPSHOT</version>
         </dependency>
 
 
