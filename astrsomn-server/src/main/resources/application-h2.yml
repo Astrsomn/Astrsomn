@@ -1,4 +1,6 @@
 astrsomn:
+  # 与 application.yml 中 astrsomn.enabled 一致；此处可覆盖为 false 仅在不使用 starter 数据源时
+  enabled: true
   storage:
     type: local
     default-platform: local-plus
@@ -17,3 +19,9 @@ astrsomn:
     connection-timeout: 30000
     maximum-pool-size: 10
     minimum-idle: 5
+    # 启动后校验连通性及必选表；默认失败仅 ERROR 日志，不中断启动（fail-fast=true 时才会中止）
+    validation:
+      enabled: true
+      fail-fast: false
+      required-tables:
+        - SYS_ENV

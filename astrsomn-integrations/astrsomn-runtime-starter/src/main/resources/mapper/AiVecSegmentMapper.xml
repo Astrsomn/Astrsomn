@@ -8,7 +8,7 @@
         FROM
             `AI_VEC_SEGMENT`
         WHERE
-            deleted = 0
+            DELETED = 0
         <if test="req != null and req.docId != null">
             AND DOC_ID = #{req.docId}
         </if>

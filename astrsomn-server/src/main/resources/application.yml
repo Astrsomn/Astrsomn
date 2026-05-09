@@ -17,6 +17,8 @@ spring:
 server:
   port: 4481
 astrsomn:
+  # runtime-starter：数据源 + MyBatis 自动配置总开关（false 时需自行提供 DataSource 等 Bean）
+  enabled: true
   env-code: PRO
   username: admin
   admin-users: admin
