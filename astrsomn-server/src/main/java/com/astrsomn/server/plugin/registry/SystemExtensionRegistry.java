@@ -1,31 +1,42 @@
 package com.astrsomn.server.plugin.registry;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class SystemExtensionRegistry {
+public class SystemExtensionRegistry implements ApplicationListener<ApplicationReadyEvent> {
 
     private static final String LOG_PREFIX = "[Astrsomn] [扩展注册中心] ====> ";
 
-    private final ApplicationContext applicationContext;
-    private final SystemExtensionMapper systemExtensionMapper;
+    private ApplicationContext applicationContext;
+    private SystemExtensionMapper systemExtensionMapper;
+    
+    @Autowired(required = false)
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+    
+    @Autowired(required = false)
+    public void setSystemExtensionMapper(SystemExtensionMapper systemExtensionMapper) {
+        this.systemExtensionMapper = systemExtensionMapper;
+    }
 
     /**
      * 合并 Spring Bean 和 SPI 加载的扩展描述符（Bean 优先）
@@ -44,10 +55,41 @@ public class SystemExtensionRegistry {
     }
 
     /**
-     * 初始化注册逻辑
+     * ApplicationReadyEvent 触发后执行注册逻辑
      */
-    @PostConstruct
-    public void registerExtensions() {
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        if (applicationContext == null || systemExtensionMapper == null) {
+            log.warn("{} 必要依赖未注入，跳过扩展注册", LOG_PREFIX);
+            return;
+        }
+        delayedRegisterExtensions();
+    }
+
+    /**
+     * 延迟注册扩展，等待数据库表创建完成
+     */
+    private void delayedRegisterExtensions() {
+        try {
+            doRegisterExtensions();
+        } catch (Exception e) {
+            log.warn("{} 扩展注册失败，将在延迟后重试 | 异常: {}", LOG_PREFIX, e.getMessage());
+            try {
+                TimeUnit.SECONDS.sleep(2);
+                doRegisterExtensions();
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                log.error("{} 扩展注册重试被中断", LOG_PREFIX);
+            } catch (Exception e2) {
+                log.error("{} 扩展注册重试失败 | 异常: {}", LOG_PREFIX, e2.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 执行扩展注册
+     */
+    private void doRegisterExtensions() {
         // 注册 Spring Bean 扩展
         registerSpringBeanExtensions();
         // 注册 SPI 扩展

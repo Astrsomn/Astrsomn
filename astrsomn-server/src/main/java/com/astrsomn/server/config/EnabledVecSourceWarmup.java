@@ -2,7 +2,6 @@ package com.astrsomn.server.config;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
 import com.astrsomn.api.runtime.common.constant.AiVecSourceEnum;
@@ -11,33 +10,77 @@ import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
 import com.astrsomn.starter.runtime.mapper.AiVecSourceMapper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.core.annotation.Order;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 
 
 @Slf4j
 @Component
-@Order(20)
-@RequiredArgsConstructor
-public class EnabledVecSourceWarmup implements ApplicationRunner {
+public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationReadyEvent> {
 
     private static final String LOG_PREFIX = "[Astrsomn] [向量库连接池预热器] ====> ";
     private static final String STATUS_DISABLED = AiVecDriverEnum.StatusEnum.DISABLED.getCode();
     private static final String STATUS_ENABLED = AiVecSourceEnum.StatusEnum.ENABLED.getCode();
 
-    private final AiVecSourceMapper vecSourceMapper;
-    private final AstroVecSourceFactory vecSourceFactory;
-    private final QueryEnvParamHelper envParamHelper;
+    private AiVecSourceMapper vecSourceMapper;
+    private AstroVecSourceFactory vecSourceFactory;
+    private QueryEnvParamHelper envParamHelper;
+
+    @Autowired(required = false)
+    public void setVecSourceMapper(AiVecSourceMapper vecSourceMapper) {
+        this.vecSourceMapper = vecSourceMapper;
+    }
+
+    @Autowired(required = false)
+    public void setVecSourceFactory(AstroVecSourceFactory vecSourceFactory) {
+        this.vecSourceFactory = vecSourceFactory;
+    }
+
+    @Autowired(required = false)
+    public void setEnvParamHelper(QueryEnvParamHelper envParamHelper) {
+        this.envParamHelper = envParamHelper;
+    }
 
     @Override
-    public void run(ApplicationArguments args) {
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        if (vecSourceMapper == null || vecSourceFactory == null || envParamHelper == null) {
+            log.warn("{} 必要依赖未注入，跳过向量源预热", LOG_PREFIX);
+            return;
+        }
+        delayedWarmup();
+    }
+
+    /**
+     * 延迟预热，等待数据库表创建完成
+     */
+    private void delayedWarmup() {
+        try {
+            doWarmup();
+        } catch (Exception e) {
+            log.warn("{} 向量源预热失败，将在延迟后重试 | 异常: {}", LOG_PREFIX, e.getMessage());
+            try {
+                TimeUnit.SECONDS.sleep(2);
+                doWarmup();
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                log.error("{} 向量源预热重试被中断", LOG_PREFIX);
+            } catch (Exception e2) {
+                log.error("{} 向量源预热重试失败 | 异常: {}", LOG_PREFIX, e2.getMessage());
+            }
+        }
+    }
+
+    /**
+     * 执行向量源预热
+     */
+    private void doWarmup() {
         String env = envParamHelper.effectiveEnvCode();
         List<AiVecSourceEntity> sources = fetchEnabledSources(env);
 
