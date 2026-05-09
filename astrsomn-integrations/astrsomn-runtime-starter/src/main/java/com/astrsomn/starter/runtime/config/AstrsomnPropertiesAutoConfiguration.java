@@ -7,11 +7,17 @@ import com.astrsomn.starter.runtime.context.UserContext;
 import com.astrsomn.starter.runtime.mapper.SystemUserMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Astrsomn 配置自动配置类。
@@ -37,14 +43,10 @@ public class AstrsomnPropertiesAutoConfiguration {
     }
 
     /**
-     * 应用启动时初始化配置：
-     * 1. 校验 username 配置
-     * 2. 初始化加密密钥
-     * 3. 设置默认用户到 UserContext
+     * 初始化加密密钥配置（不依赖数据库，可立即执行）
      */
     @Bean
-    public Object astrsomnInitializer(AstrsomnProperties astrsomnProperties, SystemUserMapper systemUserMapper) {
-        validateUsername(astrsomnProperties, systemUserMapper);
+    public Object astrsomnCryptoInitializer(AstrsomnProperties astrsomnProperties) {
         initCrypto(astrsomnProperties);
         initDefaultUser(astrsomnProperties);
         return new Object();
@@ -64,35 +66,6 @@ public class AstrsomnPropertiesAutoConfiguration {
     }
 
     /**
-     * 校验配置的 username 是否存在于数据库中。
-     */
-    private void validateUsername(AstrsomnProperties astrsomnProperties, SystemUserMapper systemUserMapper) {
-        String username = astrsomnProperties.getUsername();
-        if (username == null || username.trim().isEmpty()) {
-            String errorMsg = "Astrsomn configuration error: astrsomn.username must be configured";
-            log.error(errorMsg);
-            throw new IllegalArgumentException(errorMsg);
-        }
-        
-        username = username.trim();
-        LambdaQueryWrapper<SystemUserEntity> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SystemUserEntity::getUsername, username);
-        
-        SystemUserEntity user = systemUserMapper.selectOne(queryWrapper);
-        
-        if (user == null) {
-            String errorMsg = String.format(
-                "Astrsomn configuration error: username '%s' does not exist in SYS_USER table.",
-                username
-            );
-            log.error(errorMsg);
-            throw new IllegalArgumentException(errorMsg);
-        }
-        
-        log.info("Astrsomn configuration validation passed: username '{}' exists in database.", username);
-    }
-
-    /**
      * 初始化加密密钥配置。
      */
     private void initCrypto(AstrsomnProperties astrsomnProperties) {
@@ -108,5 +81,85 @@ public class AstrsomnPropertiesAutoConfiguration {
             log.error("Failed to initialize crypto configuration", e);
             throw new RuntimeException("Crypto initialization failed", e);
         }
+    }
+}
+
+/**
+ * 延迟初始化配置，等待数据库表创建完成后执行
+ */
+@Slf4j
+@Component
+@ConditionalOnClass(SystemUserMapper.class)
+class AstrsomnDbInitializer implements ApplicationListener<ApplicationReadyEvent> {
+
+    private AstrsomnProperties astrsomnProperties;
+    private SystemUserMapper systemUserMapper;
+
+    @Autowired(required = false)
+    public void setAstrsomnProperties(AstrsomnProperties astrsomnProperties) {
+        this.astrsomnProperties = astrsomnProperties;
+    }
+
+    @Autowired(required = false)
+    public void setSystemUserMapper(SystemUserMapper systemUserMapper) {
+        this.systemUserMapper = systemUserMapper;
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        if (astrsomnProperties == null || systemUserMapper == null) {
+            log.warn("AstrsomnDbInitializer: 必要依赖未注入，跳过数据库校验");
+            return;
+        }
+        delayedValidate();
+    }
+
+    /**
+     * 延迟校验，等待数据库表创建完成
+     */
+    private void delayedValidate() {
+        try {
+            validateUsername(astrsomnProperties, systemUserMapper);
+        } catch (Exception e) {
+            log.warn("AstrsomnDbInitializer: 数据库校验失败，将在延迟后重试 | 异常: {}", e.getMessage());
+            try {
+                TimeUnit.SECONDS.sleep(2);
+                validateUsername(astrsomnProperties, systemUserMapper);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                log.error("AstrsomnDbInitializer: 数据库校验重试被中断");
+            } catch (Exception e2) {
+                log.error("AstrsomnDbInitializer: 数据库校验重试失败 | 异常: {}", e2.getMessage(), e2);
+            }
+        }
+    }
+
+    /**
+     * 校验配置的 username 是否存在于数据库中。
+     */
+    private void validateUsername(AstrsomnProperties astrsomnProperties, SystemUserMapper systemUserMapper) {
+        String username = astrsomnProperties.getUsername();
+        if (username == null || username.trim().isEmpty()) {
+            String errorMsg = "Astrsomn configuration error: astrsomn.username must be configured";
+            log.error(errorMsg);
+            throw new IllegalArgumentException(errorMsg);
+        }
+
+        username = username.trim();
+        LambdaQueryWrapper<SystemUserEntity> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SystemUserEntity::getUsername, username);
+
+        SystemUserEntity user = systemUserMapper.selectOne(queryWrapper);
+
+        if (user == null) {
+            String errorMsg = String.format(
+                "Astrsomn configuration error: username '%s' does not exist in SYS_USER table.",
+                username
+            );
+            log.error(errorMsg);
+            throw new IllegalArgumentException(errorMsg);
+        }
+
+        log.info("Astrsomn configuration validation passed: username '{}' exists in database.", username);
     }
 }

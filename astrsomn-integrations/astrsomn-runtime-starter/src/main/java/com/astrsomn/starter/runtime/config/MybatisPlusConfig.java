@@ -1,5 +1,6 @@
 package com.astrsomn.starter.runtime.config;
 
+import com.astrsomn.starter.runtime.schema.SchemaInitializer;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
@@ -70,10 +71,13 @@ public class MybatisPlusConfig {
     @Bean
     public SqlSessionFactory sqlSessionFactory(
             DataSource dataSource,
+            ObjectProvider<SchemaInitializer> schemaInitializer,
             AstrsomnProperties properties,
             MybatisPlusInterceptor mybatisPlusInterceptor,
             Interceptor reflectiveAuditAutoFillInterceptor,
             ObjectProvider<MetaObjectHandler> metaObjectHandlerProvider) throws Exception {
+        schemaInitializer.ifAvailable(initializer -> initializer.initialize(dataSource));
+
         MybatisSqlSessionFactoryBean factoryBean = new MybatisSqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource);
 
@@ -117,6 +121,8 @@ public class MybatisPlusConfig {
         MybatisConfiguration mybatisConfiguration = new MybatisConfiguration();
         GlobalConfig globalConfig = GlobalConfigUtils.defaults()
                 .setSqlInjector(new DefaultSqlInjector());
+        // 与 Flyway 中大写列名/表名一致，避免 H2(DATABASE_TO_UPPER=FALSE) 等环境下列名大小写不匹配
+        globalConfig.getDbConfig().setCapitalMode(true);
         if (globalConfig.getIdentifierGenerator() == null) {
             globalConfig.setIdentifierGenerator(new DefaultIdentifierGenerator());
         }

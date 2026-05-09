@@ -3,7 +3,7 @@ spring:
     name: astrsomn-server
   profiles:
     # 默认使用 mysql 环境，用户只需修改 application-mysql.yml 中数据库连接信息即可启动
-    active: mysql
+    active: h2
   servlet:
     multipart:
       max-file-size: 128MB
