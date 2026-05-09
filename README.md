@@ -40,7 +40,7 @@
 | ✅  | **环境初始化**      | 支持快速环境配置与初始化       |
 | ✅  | **依赖快速引入**     | Maven Starter 一键集成 |
 | ✅  | **基本配置功能**     | 提供核心配置管理能力         |
-| ❌  | **工作流模块**      | 尚未实现               |
+| ❌  | **工作流模块**      | 规划中，尚未开放可用版本      |
 | ❌  | **向量库集成**      | 部分实现，不稳定           |
 | ❌  | **安全与治理**      | 多租户、限流、监控等功能缺失     |
 | ⚠️ | **API 兼容性**    | 可能随时变更，不保证向后兼容     |
@@ -61,7 +61,7 @@
 - `server`：服务化运行与治理
 - `ui`：可视化配置与运维
 
-**适用场景**：RAG 知识库、智能对话、Agent 编排、MCP 工具接入、企业 AI 中台等。
+**适用场景**：RAG 知识库、智能对话、MCP 工具接入、企业 AI 中台等。
 
 ***
 
@@ -101,23 +101,14 @@ Astrsomn
 ├── astrsomn-api                       # API 接口定义层
 │   ├── astrsomn-api-runtime           # 运行时 API（异常枚举、错误码）
 │   ├── astrsomn-api-storage           # 存储 API（文件处理等）
-│   └── astrsomn-api-workflow          # 工作流 API
+│   └── astrsomn-api-workflow          # 工作流 API（规划中）
 ├── astrsomn-integrations              # 集成层（Spring Boot Starter）
 │   ├── astrsomn-runtime-starter       # 运行时 Starter（AI 模型、工具、MCP 等）
-│   ├── astrsomn-workflow-starter      # 工作流 Starter
+│   ├── astrsomn-workflow-starter      # 工作流 Starter（规划中）
 │   └── astrsomn-internal-storage      # 内部存储实现
 ├── astrsomn-plugins                   # 插件生态
-│   ├── astrsomn-providers             # 模型提供方实现
-│   │   ├── astrsomn-provider-openai   # OpenAI 适配
-│   │   ├── astrsomn-provider-deepseek # DeepSeek 适配
-│   │   ├── astrsomn-provider-qwen      # 通义千问适配
-│   │   ├── astrsomn-provider-qianfan   # 百度千帆适配
-│   │   └── astrsomn-provider-zhipu     # 智谱 AI 适配
-│   └── astrsomn-vector                # 向量存储实现
-│       ├── astrsomn-vector-qdrant     # Qdrant 适配
-│       ├── astrsomn-vector-chroma     # Chroma 适配
-│       ├── astrsomn-vector-milvus     # Milvus 适配
-│       └── astrsomn-vector-redis      # Redis 适配
+│   ├── astrsomn-providers             # 模型提供方实现（当前可用：DeepSeek / Zhipu）
+│   └── astrsomn-vector                # 向量存储实现（规划中）
 ├── astrsomn-server                    # 服务端应用（HTTP 接口、服务化运行）
 └── astrsomn-ui                        # 前端控制台（Vue 3 + TypeScript）
 ```
@@ -170,8 +161,15 @@ CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 
 ### 步骤 2：修改 MySQL 配置（必做）
 
-编辑 `astrsomn-server/src/main/resources/application-mysql.yml`。  
-项目默认已激活 `mysql` profile（`application.yml` 中已配置），无需手动切换环境。
+编辑 `astrsomn-server/src/main/resources/application-mysql.yml`。
+
+如果你是在自己的业务项目中直接接入 `astrsomn-runtime-starter`，请确保激活 `mysql` profile：
+
+```yml
+spring:
+  profiles:
+    active: mysql
+```
 
 **必须修改项**：
 - `host`
@@ -180,10 +178,16 @@ CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 - `username`
 - `password`
 
-**最小可用示例**：
+**最新可启动参考（runtime-starter）**：
 
 ```yml
 astrsomn:
+  enabled: true
+  env-code: PRO
+  username: admin
+  admin-users: admin
+  mybatis-plus:
+    additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
   data-base:
     database-type: mysql
     host: 127.0.0.1
@@ -191,6 +195,18 @@ astrsomn:
     database-name: astro_ai
     username: root
     password: your_password
+    driver: com.mysql.cj.jdbc.Driver
+    use-ssl: false
+    charset: utf8
+    timezone: Asia/Shanghai
+    connection-timeout: 30000
+    maximum-pool-size: 10
+    minimum-idle: 5
+    validation:
+      enabled: true
+      fail-fast: false
+      required-tables:
+        - SYS_ENV
 ```
 
 ### 步骤 3：启动服务
@@ -209,23 +225,80 @@ astrsomn:
 
 完成服务启动后，在你的业务项目中引入下方 starter 依赖，即可通过 `@Astro` 注解接入 AI 能力。
 
-### Maven 依赖
+### Maven 依赖（仅 runtime-starter）
 
-**集成层依赖（推荐）**：
+**1) 引入 runtime-starter**：
 
 ```xml
 <!-- 运行时 Starter（AI 模型、工具、MCP 等） -->
 <dependency>
     <groupId>com.astrsomn</groupId>
     <artifactId>astrsomn-runtime-starter</artifactId>
-    <version>0.1.0-aplha.1</version>
+    <version>0.1.0-alpha.1</version>
 </dependency>
+```
 
-<!-- 工作流 Starter（已包含 runtime-starter） -->
+**2) 选择并引入可用 Provider（至少一个）**：
+
+```xml
+<!-- DeepSeek Provider -->
 <dependency>
     <groupId>com.astrsomn</groupId>
-    <artifactId>astrsomn-workflow-starter</artifactId>
-    <version>0.1.0-aplha.1</version>
+    <artifactId>astrsomn-provider-deepseek</artifactId>
+    <version>0.1.0-alpha.1</version>
+</dependency>
+
+<!-- Zhipu Provider -->
+<dependency>
+    <groupId>com.astrsomn</groupId>
+    <artifactId>astrsomn-provider-zhipu</artifactId>
+    <version>0.1.0-alpha.1</version>
+</dependency>
+```
+
+> 当前“快速启动”仅验证并支持：`astrsomn-runtime-starter` + `astrsomn-provider-deepseek` / `astrsomn-provider-zhipu`。
+> 其他 Starter/Provider 将在后续版本逐步开放。
+
+**3) 以下依赖需要由使用方项目自行提供（runtime-starter 中为 provided）**：
+
+```xml
+<!-- Spring Boot 基础 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-autoconfigure</artifactId>
+</dependency>
+
+<!-- JDBC + MyBatis-Plus -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+    <version>3.5.5</version>
+</dependency>
+
+<!-- 数据库驱动（至少一个；MySQL 示例） -->
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+</dependency>
+
+<!-- 配置校验 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+
+<!-- 响应式流能力（按需） -->
+<dependency>
+    <groupId>io.projectreactor</groupId>
+    <artifactId>reactor-core</artifactId>
 </dependency>
 ```
 
@@ -286,11 +359,11 @@ astrsomn:
 
 ### 模型提供方
 
-- [OpenAI Provider](astrsomn-providers/astrsomn-provider-openai/)
-- [DeepSeek Provider](astrsomn-providers/astrsomn-provider-deepseek/)
-- [Qwen Provider](astrsomn-providers/astrsomn-provider-qwen/)
-- [Qianfan Provider](astrsomn-providers/astrsomn-provider-qianfan/)
-- [Zhipu Provider](astrsomn-providers/astrsomn-provider-zhipu/)
+- [DeepSeek Provider](astrsomn-plugins/astrsomn-providers/astrsomn-provider-deepseek/)
+- [Zhipu Provider](astrsomn-plugins/astrsomn-providers/astrsomn-provider-zhipu/)
+- OpenAI Provider（待开放）
+- Qwen Provider（待开放）
+- Qianfan Provider（待开放）
 
 ### 向量存储
 

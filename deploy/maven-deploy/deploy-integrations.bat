@@ -17,7 +17,7 @@ set PROJECT_ROOT=D:\Project\astrsomn\Astrsomn
 set MODULES_DIR=%PROJECT_ROOT%\astrsomn-integrations
 
 REM List of modules to deploy
-set MODULES=astrsomn-internal-storage astrsomn-runtime-starter astrsomn-workflow-starter
+set MODULES= astrsomn-runtime-starter
 
 echo [1/2] Installing all dependencies to local repository...
 cd /d %PROJECT_ROOT%
