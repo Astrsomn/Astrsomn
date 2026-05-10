@@ -82,9 +82,9 @@ const emit = defineEmits<{
 .empty-box {
   width: 100%;
   padding: 32px 12px;
-  border: 2px dashed #f3f4f6;
+  border: 2px dashed var(--border-default);
   border-radius: 16px;
-  background: rgba(249, 250, 251, 0.6);
+  background: var(--bg-card);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -102,7 +102,7 @@ const emit = defineEmits<{
 .empty-icon-main {
   width: 48px;
   height: 48px;
-  background: #e5e7eb;
+  background: var(--border-default);
   border-radius: 10px;
   margin: 8px auto 0;
 }
@@ -114,8 +114,8 @@ const emit = defineEmits<{
   width: 24px;
   height: 24px;
   border-radius: 9999px;
-  border: 2px solid #f3f4f6;
-  background: #fff;
+  border: 2px solid var(--border-default);
+  background: var(--bg-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,13 +125,13 @@ const emit = defineEmits<{
   width: 8px;
   height: 2px;
   border-radius: 9999px;
-  background: #d1d5db;
+  background: var(--text-muted);
 }
 
 .empty-text {
   margin: 0;
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 

@@ -370,15 +370,16 @@ onMounted(() => {
   display: flex;
   gap: 16px;
   overflow: hidden;
-  --ab-bg-page: #f8fafc;
-  --ab-glass-bg: rgba(255, 255, 255, 0.8);
-  --ab-glass-border: rgba(255, 255, 255, 0.6);
-  --ab-glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  --ab-bg-page: var(--builder-bg-page);
+  --ab-glass-bg: var(--builder-glass-bg);
+  --ab-glass-border: var(--builder-glass-border);
+  --ab-glass-shadow: var(--builder-glass-shadow);
   --ab-glass-radius: 16px;
   --ab-glass-haze: 10px;
-  --ab-hover-line: #3b82f6;
-  --ab-hover-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
-  background: var(--ab-bg-page);
+  --ab-hover-line: var(--builder-hover-line);
+  --ab-hover-shadow: var(--builder-hover-shadow);
+  --ab-btn-glow: var(--builder-glass-shadow);
+  background: var(--builder-bg-page);
   padding: 0 0 0 16px;
 }
 
@@ -406,7 +407,7 @@ onMounted(() => {
 .topbar-title {
   font-size: 15px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--builder-topbar-title);
   white-space: nowrap;
   margin-left: 8px;
 }
@@ -425,9 +426,9 @@ onMounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--border-default, #e2e8f0);
-  background: #fff;
-  color: #64748b;
+  border: 1px solid var(--builder-icon-btn-border);
+  background: var(--builder-icon-btn-bg);
+  color: var(--builder-icon-btn-color);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -438,9 +439,9 @@ onMounted(() => {
 }
 
 .topbar-icon-btn:hover {
-  color: #1e293b;
-  border-color: #94a3b8;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  color: var(--builder-icon-btn-hover-color);
+  border-color: var(--builder-icon-btn-hover-border);
+  box-shadow: var(--builder-icon-btn-hover-shadow);
 }
 
 .topbar-icon-btn:disabled {
@@ -449,14 +450,14 @@ onMounted(() => {
 }
 
 .topbar-icon-btn.primary {
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  background: var(--primary-gradient);
   color: #fff;
   border: none;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+  box-shadow: var(--assembly-btn-primary-shadow);
 }
 
 .topbar-icon-btn.primary:hover {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  filter: brightness(1.1);
   box-shadow: 0 2px 12px rgba(59, 130, 246, 0.45);
 }
 
