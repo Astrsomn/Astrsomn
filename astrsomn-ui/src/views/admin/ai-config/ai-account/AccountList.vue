@@ -23,7 +23,7 @@
               <div class="provider-filter">
                 <ExtensionSelector
                     v-model:value="query.extensionCode"
-                    placeholder="根据插件编码筛选"
+                    placeholder="根据供应商筛选"
                     :allow-clear="true"
                     size="middle"
                     :only-applied="true"

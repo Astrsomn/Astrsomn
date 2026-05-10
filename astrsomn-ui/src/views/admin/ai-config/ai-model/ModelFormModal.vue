@@ -2,8 +2,9 @@
   <AstrsomnModal
     :open="open"
     width="80vw"
-    max-width="80vw"
+    :max-width="maxWidth"
     body-height="90vh"
+    max-body-height="800px"
     :closable="true"
     main-padding="0"
     wrap-class-name="model-form-fsm-wrap"
@@ -316,6 +317,7 @@ const modelKeyImmutable = ref(false)
 const isDefaultSegmentedOptions = computed(
   () => props.isDefaultOptions ?? [{ label: '否', value: 'N' }, { label: '是', value: 'Y' }]
 )
+const maxWidth = computed(() => 'min(80vw, 1600px)')
 
 const PARAM_TEMPLATES = {
   chat: [

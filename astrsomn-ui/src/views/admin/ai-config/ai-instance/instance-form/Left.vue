@@ -50,10 +50,9 @@ const emit = defineEmits<{
 </script>
 
 <style scoped>
-.basic-pane { width: 320px; flex-shrink: 0; }
-.pane-card { height: 100%; display: flex; flex-direction: column; padding: 18px; }
-.glass-card { background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04); }
-.scroll-y { overflow-y: auto; }
+.basic-pane { width: 320px; flex-shrink: 0; min-height: 0; display: flex; flex-direction: column; }
+.pane-card { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 18px; overflow-y: auto; }
+.glass-card { background: #fff; border-radius: var(--radius-md); border: 1px solid #e2e8f0;  }
 .section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .section-title .anticon { color: var(--primary); }
 .basic-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }

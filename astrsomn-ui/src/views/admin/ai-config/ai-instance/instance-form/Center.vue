@@ -124,9 +124,8 @@ defineProps<{
 
 <style scoped>
 .params-pane { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-.pane-card { height: 100%; display: flex; flex-direction: column; padding: 18px; }
-.glass-card { background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04); }
-.scroll-y { overflow-y: auto; }
+.pane-card { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 18px; overflow-y: auto; }
+.glass-card { background: #fff; border-radius: var(--radius-md); border: 1px solid #e2e8f0; }
 .section-header-flex { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .model-key-tag { flex-shrink: 0; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
@@ -137,10 +136,7 @@ defineProps<{
 .p-label { font-size: 13px; font-weight: 600; color: #334155; cursor: help; display: flex; align-items: center; gap: 4px; }
 .slider-box { padding: 0 8px 16px 8px; }
 .p-desc-bar { margin-top: 8px; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; border-left: 4px solid transparent; }
-.c-blue { background: #eff6ff; color: #1d4ed8; border-left-color: #3b82f6; }
-.c-purple { background: #faf5ff; color: #7e22ce; border-left-color: #a855f7; }
-.c-orange { background: #fff7ed; color: #c2410c; border-left-color: #f97316; }
-.c-red { background: #fef2f2; color: #b91c1c; border-left-color: #ef4444; }
+
 .penalty-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .mini-param-card { background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9; }
 .mini-label { font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 8px; display: block; }

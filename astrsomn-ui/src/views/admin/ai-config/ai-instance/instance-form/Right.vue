@@ -121,9 +121,9 @@ const onPaginationChange = (page: number, size: number) => {
 </script>
 
 <style scoped>
-.selection-pane { width: 420px; flex-shrink: 0; min-height: 0; display: flex; flex-direction: column; }
-.pane-card { height: 100%; min-height: 0; display: flex; flex-direction: column; padding: 18px; }
-.glass-card { background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04); }
+.selection-pane { width: 520px; flex-shrink: 0; min-height: 0; display: flex; flex-direction: column; }
+.pane-card { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 18px; }
+.glass-card { background: #fff; border-radius: var(--radius-md); border: 1px solid #e2e8f0; }
 .pane-header { flex-shrink: 0; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; }
 .pane-toolbar-row { display: flex; flex-wrap: nowrap; gap: 10px; align-items: center; min-width: 0; }
 .provider-field { display: flex; flex-direction: row; align-items: center; gap: 8px; width: 100%; min-width: 0; }
@@ -135,8 +135,8 @@ const onPaginationChange = (page: number, size: number) => {
 .model-type-tabs :deep(.ant-tabs-content-holder) { display: none; }
 .model-list-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .meta-count { font-size: 12px; color: #64748b; }
-.model-list-body { flex: 1;  overflow: hidden; }
-.model-card-scroll { height: 350px; min-height: 0; overflow-y: auto; padding-right: 2px; }
+.model-list-body { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.model-card-scroll { flex: 1; min-height: 0; overflow-y: auto; padding-right: 2px; }
 .model-card-list { display: flex; flex-direction: column; gap: 8px; }
 .model-select-card { width: 100%; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; padding: 10px 12px; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer; transition: all 0.2s ease; }
 .model-select-card.is-active { border-color: #60a5fa; background: #eff6ff; }

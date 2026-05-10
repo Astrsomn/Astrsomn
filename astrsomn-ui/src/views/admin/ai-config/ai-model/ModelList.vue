@@ -18,6 +18,7 @@
               <ExtensionSelector
                 v-model:value="query.extensionCode"
                 class="toolbar-provider-select"
+                placeholder="根据供应商筛选"
                 allow-clear
                 @update:value="handleProviderChange"
               />
