@@ -24,6 +24,7 @@ import com.astrsomn.common.utils.StringUtils;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
     @Override
@@ -81,6 +82,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
             builder.listeners(param.getChatModelListeners());
         }
         applyChatSetting(builder, param);
+
         return builder.build();
     }
 
@@ -163,6 +165,11 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
             return;
         }
         String modelKey = resolveModelKey(param);
+        System.out.println("====>  对话参数:{}"+ param.getConversationSetting());
+        if (Objects.nonNull(param.getConversationSetting()) && param.getConversationSetting().isEnableDeepThinking()) {
+            builder.sendThinking(true);
+            builder.returnThinking(true);
+        }
         if (cs.getTemperature() != null
                 && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
             builder.temperature(cs.getTemperature());
@@ -195,6 +202,11 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
             return;
         }
         String modelKey = resolveModelKey(param);
+        System.out.println("====>  对话参数:{}"+ param.getConversationSetting());
+        if (Objects.nonNull(param.getConversationSetting()) && param.getConversationSetting().isEnableDeepThinking()) {
+            builder.sendThinking(true);
+            builder.returnThinking(true);
+        }
         if (cs.getTemperature() != null
                 && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
             builder.temperature(cs.getTemperature());

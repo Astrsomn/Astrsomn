@@ -27,6 +27,7 @@ export type AiAccount = {
   createTime?: string
   updateUser?: string
   updateTime?: string
+    status?: string
 }
 
 export type PageResponse<T> = {

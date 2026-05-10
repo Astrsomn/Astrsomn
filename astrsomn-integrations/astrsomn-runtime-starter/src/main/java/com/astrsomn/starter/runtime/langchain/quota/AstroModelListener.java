@@ -7,7 +7,6 @@ import dev.langchain4j.model.output.TokenUsage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
-import com.astrsomn.starter.runtime.langchain.stream.DatabaseHistoryRecorder;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
@@ -19,7 +18,6 @@ import java.util.concurrent.Executor;
 public class AstroModelListener implements ChatModelListener {
     private final SensitiveWordProvider sensitiveWordProvider;
     private final ModelQuotaManager quotaManager;
-    private final DatabaseHistoryRecorder historyRecorder;
     private final Executor taskExecutor;
 
     public ChatModelListener createBindingListener(AstroChatParam<?> param) {
@@ -44,17 +42,11 @@ public class AstroModelListener implements ChatModelListener {
         CompletableFuture.runAsync(() -> {
             try {
                 TokenUsage usage = context.chatResponse().tokenUsage();
-                String rawContent = context.chatResponse().aiMessage().text();
-
-
-                String cleanedContent = sensitiveWordProvider.filter(rawContent);
 
                 if (usage != null) {
-                    // 计费使用原始 Token
                     quotaManager.addUsage(param.getModelKey(), usage.totalTokenCount());
-                    // 存档使用清洗后的内容
-                    historyRecorder.savePair(param, cleanedContent, usage);
                 }
+                // 历史由 AstroChatStreamUtil + StreamTurnPersistenceHelper 在流式生命周期内落库（含思考、工具、错误）
             } catch (Exception e) {
                 log.error("====> [Astrsomn] 审计归档失败", e);
             }

@@ -10,7 +10,7 @@
       <PlusOutlined class="add-icon" @click="handleAddSource" />
     </div>
 
-    <div class="sidebar-content">
+    <div class="sidebar-content" @contextmenu="onSidebarBlankContextMenu">
       <div
         v-for="source in sourceTree"
         :key="source.id"
@@ -125,6 +125,30 @@
         <AppstoreOutlined class="m-btn" title="打开插件市场" @click="goPluginMarketplace" />
       </div>
     </div>
+    <Teleport to="body">
+      <div
+        v-if="blankContextMenuVisible"
+        class="blank-context-menu-overlay"
+        @click="closeBlankContextMenu"
+        @contextmenu.prevent="closeBlankContextMenu"
+      >
+        <div
+          class="blank-context-menu"
+          :style="{ left: blankContextMenuX + 'px', top: blankContextMenuY + 'px' }"
+          @click.stop
+        >
+          <div class="blank-context-menu-item" @click="onBlankMenuAction('addSource')">
+            <PlusOutlined />
+            <span>新建数据源</span>
+          </div>
+          <div class="blank-context-menu-divider" />
+          <div class="blank-context-menu-item" @click="onBlankMenuAction('refresh')">
+            <ReloadOutlined />
+            <span>刷新</span>
+          </div>
+        </div>
+      </div>
+    </Teleport>
     <VecSourceFormModal
       :open="sourceModalOpen"
       @update:open="onSourceModalOpenChange"
@@ -153,7 +177,8 @@ import {
   EditOutlined,
   DeleteOutlined,
   DatabaseFilled,
-  AppstoreOutlined
+  AppstoreOutlined,
+  ReloadOutlined
 } from '@ant-design/icons-vue'
 import SourceCard from './SourceCard.vue'
 import DbNode from './DbNode.vue'
@@ -194,6 +219,9 @@ const checkingSourceMap = ref<Record<string, boolean>>({})
 const enabledExtensions = ref<Array<{ key: string; name: string; avatar: string; initial: string }>>([])
 const storesBySourceCache = ref<Record<string, AiVecStore[]>>({})
 const pendingStoreSyncSourceKey = ref<string>('')
+const blankContextMenuVisible = ref(false)
+const blankContextMenuX = ref(0)
+const blankContextMenuY = ref(0)
 const router = useRouter()
 
 type Db = {
@@ -290,6 +318,35 @@ const handleAddSource = () => {
   sourceModalMode.value = 'create'
   sourceModalInitial.value = null
   sourceModalOpen.value = true
+}
+
+const onSidebarBlankContextMenu = (e: MouseEvent) => {
+  const target = e.target as HTMLElement
+  if (
+    target.closest('.source-section') ||
+    target.closest('.sidebar-header') ||
+    target.closest('.sidebar-footer') ||
+    target.closest('.blank-context-menu')
+  ) {
+    return
+  }
+  e.preventDefault()
+  blankContextMenuX.value = e.clientX
+  blankContextMenuY.value = e.clientY
+  blankContextMenuVisible.value = true
+}
+
+const closeBlankContextMenu = () => {
+  blankContextMenuVisible.value = false
+}
+
+const onBlankMenuAction = (action: string) => {
+  closeBlankContextMenu()
+  if (action === 'addSource') {
+    handleAddSource()
+  } else if (action === 'refresh') {
+    emit('changed')
+  }
 }
 
 const handleSourceMenuClick = (key: string, source: Source) => {
@@ -694,5 +751,47 @@ watch(
     color: var(--error) !important;
     background: rgba(239, 68, 68, 0.1) !important;
   }
+}
+</style>
+
+<style lang="less">
+.blank-context-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.blank-context-menu {
+  position: fixed;
+  min-width: 160px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12), 0 3px 6px rgba(0, 0, 0, 0.08);
+  z-index: 1001;
+}
+
+.blank-context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-primary, #334155);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--primary-hover, #eff6ff);
+    color: var(--primary, #2563eb);
+  }
+}
+
+.blank-context-menu-divider {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--border-default, #e2e8f0);
 }
 </style>

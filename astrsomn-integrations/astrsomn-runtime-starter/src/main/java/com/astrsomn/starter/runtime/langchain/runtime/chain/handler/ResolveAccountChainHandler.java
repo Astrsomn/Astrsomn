@@ -27,8 +27,8 @@ public class ResolveAccountChainHandler implements AgentRuntimeChainHandler {
     @Override
     public void handle(AgentRuntimeContext ctx) {
         String accountKey = null;
-        if (ctx.getModel() != null) {
-            accountKey = StringUtils.trimToNull(ctx.getModel().getAccountKey());
+        if (ctx.getInstance() != null) {
+            accountKey = StringUtils.trimToNull(ctx.getInstance().getAccountKey());
         }
         if (accountKey == null) {
             return;

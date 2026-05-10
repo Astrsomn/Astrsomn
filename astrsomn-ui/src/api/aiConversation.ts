@@ -1,6 +1,38 @@
 import request from '@/utils/request'
 import type { ChatSessionItem } from '@/components/chat-session/types'
 
+/** 与后端 AiChatMessageResponseDTO / 实体对齐的单条消息行（camelCase JSON）。 */
+export type AiChatMessageRow = {
+  id?: number | string
+  memoryKey?: string
+  turnNo?: number
+  messageOrder?: number
+  role?: string
+  messageType?: string
+  content?: string
+  extJson?: string
+  responseStatus?: string
+  finishReason?: string
+  traceId?: string
+  errorCode?: string
+  promptTokens?: number
+  completionTokens?: number
+  totalTokens?: number
+  agentKey?: string
+  instanceKey?: string
+  modelKey?: string
+  accountKey?: string
+  promptKey?: string
+  createTime?: string
+  updateTime?: string
+}
+
+/** 与后端 AiChatTurnBundleDTO 对齐。 */
+export type AiChatTurnBundle = {
+  turnNo?: number
+  orderedRows?: AiChatMessageRow[]
+}
+
 export type AiConversation = {
   id?: number | string
   memoryKey?: string
@@ -75,6 +107,13 @@ export const aiConversationApi = {
   recoverByMemoryKey: (memoryKey: string): Promise<AiConversation[]> => {
     return request({
       url: `/v1/astro/ai-chat-message/recoverByMemoryKey?memoryKey=${encodeURIComponent(memoryKey)}`,
+      method: 'get'
+    })
+  },
+
+  recoverTurnsByMemoryKey: (memoryKey: string): Promise<AiChatTurnBundle[]> => {
+    return request({
+      url: `/v1/astro/ai-chat-message/recoverTurnsByMemoryKey?memoryKey=${encodeURIComponent(memoryKey)}`,
       method: 'get'
     })
   },

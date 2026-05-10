@@ -192,6 +192,26 @@ const toggleCollapsed = () => {
   min-height: 0;
   overflow-y: auto;
   padding: 0 4px 0 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(127, 143, 170, 0.25) transparent;
+}
+
+.session-list-wrap::-webkit-scrollbar {
+  width: 5px;
+}
+
+.session-list-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.session-list-wrap::-webkit-scrollbar-thumb {
+  background: rgba(127, 143, 170, 0.3);
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+
+.session-list-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(127, 143, 170, 0.5);
 }
 
 .sidebar-footer {

@@ -31,7 +31,15 @@
     <InstanceSelector
       v-model:open="selectDrawerOpen"
       :disable-ttl-edit="true"
+      default-model-type="image"
       @select="handleInstanceSelect"
+      @edit="handleInstanceEdit"
+    />
+
+    <InstanceForm
+      v-model:visible="instanceFormVisible"
+      :record="editInstance"
+      @success="handleInstanceFormSuccess"
     />
   </div>
 </template>
@@ -40,6 +48,7 @@
 import { ref } from 'vue'
 import { PictureOutlined, PlusCircleOutlined, RightOutlined, AudioOutlined } from '@ant-design/icons-vue'
 import InstanceSelector from '../../../ai-instance/selector/InstanceSelector.vue'
+import InstanceForm from '../../../ai-instance/InstanceForm.vue'
 import type { AiInstance } from '@/api/aiInstance'
 
 defineProps<{
@@ -47,6 +56,8 @@ defineProps<{
 }>()
 
 const selectDrawerOpen = ref(false)
+const instanceFormVisible = ref(false)
+const editInstance = ref<AiInstance | undefined>(undefined)
 
 const emit = defineEmits<{
   (e: 'select:image-instance', instance: AiInstance): void
@@ -69,6 +80,16 @@ const handleInstanceSelect = (instance: AiInstance) => {
     emit('select:image-instance', instance)
   }
   selectDrawerOpen.value = false
+}
+
+const handleInstanceEdit = (instance: AiInstance) => {
+  selectDrawerOpen.value = false
+  editInstance.value = instance
+  instanceFormVisible.value = true
+}
+
+const handleInstanceFormSuccess = () => {
+  instanceFormVisible.value = false
 }
 </script>
 

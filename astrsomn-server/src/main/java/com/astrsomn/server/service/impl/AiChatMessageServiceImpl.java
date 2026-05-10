@@ -10,7 +10,9 @@ import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageCreateReque
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageResponseDTO;
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.chat.message.restore.AiChatTurnBundleDTO;
 import com.astrsomn.api.runtime.common.entity.AiChatMessageEntity;
+import com.astrsomn.api.runtime.common.utils.AiChatMessageRestoreUtil;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AiChatErrorEnum;
 import com.astrsomn.starter.runtime.mapper.AiChatMessageMapper;
@@ -102,5 +104,17 @@ public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, A
         }
         
         return BaseResponse.success(responseDTOs);
+    }
+
+    @Override
+    public BaseResponse<List<AiChatTurnBundleDTO>> recoverTurnsByMemoryKey(String memoryKey) {
+        if (memoryKey == null || memoryKey.isEmpty()) {
+            throw new BusinessException(AiChatErrorEnum.CHAT_PARAM_ERROR);
+        }
+        List<AiChatMessageResponseDTO> rows = baseMapper.recoverByMemoryKey(memoryKey);
+        if (rows == null || rows.isEmpty()) {
+            throw new BusinessException(AiChatErrorEnum.CHAT_NOT_FOUND);
+        }
+        return BaseResponse.success(AiChatMessageRestoreUtil.bundleByTurn(rows));
     }
 }

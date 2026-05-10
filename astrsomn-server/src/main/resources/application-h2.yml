@@ -1,6 +1,16 @@
 astrsomn:
   # 与 application.yml 中 astrsomn.enabled 一致；此处可覆盖为 false 仅在不使用 starter 数据源时
   enabled: true
+  datasource:
+    # 单行 JDBC URL；DATABASE_TO_UPPER=FALSE + MODE=MySQL 与 Flyway/实体大写表名一致
+    url: jdbc:h2:file:D:/astrsomn/database/astro_ai;MODE=MySQL;DATABASE_TO_UPPER=FALSE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5
   storage:
     type: local
     default-platform: local-plus
@@ -8,17 +18,6 @@ astrsomn:
     # workflow-starter 默认会自动补这个包；这里显式写出便于排查与覆盖
     additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
   data-base:
-    database-type: h2
-    driver: org.h2.Driver
-    # 修改说明：
-    # 1. 设置 DATABASE_TO_UPPER=FALSE 以避免大小写和关键字问题
-    # 2. 保持 MODE=MySQL 兼容模式
-    url: jdbc:h2:file:D:/astrsomn/database/astro_ai;MODE=MySQL;DATABASE_TO_UPPER=FALSE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password:
-    connection-timeout: 30000
-    maximum-pool-size: 10
-    minimum-idle: 5
     # 启动后校验连通性及必选表；默认失败仅 ERROR 日志，不中断启动（fail-fast=true 时才会中止）
     validation:
       enabled: true

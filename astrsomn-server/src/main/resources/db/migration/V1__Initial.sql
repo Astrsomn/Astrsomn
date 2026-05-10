@@ -49,7 +49,6 @@ CREATE TABLE IF NOT EXISTS AI_AGENT (
                             WORKFLOW_KEY VARCHAR(128) DEFAULT NULL,
                             PROMPT_KEY VARCHAR(255) DEFAULT NULL,
                             CHAT_INSTANCE_KEY VARCHAR(100) DEFAULT NULL,
-                            EMBEDDING_INSTANCE_KEY VARCHAR(100) DEFAULT NULL,
                             IMAGE_INSTANCE_KEY VARCHAR(100) DEFAULT NULL,
                             AGENT_NAME VARCHAR(255) DEFAULT NULL,
                             KNOWLEDGE_BASE_KEYS TEXT,
@@ -189,6 +188,8 @@ CREATE TABLE IF NOT EXISTS AI_INSTANCE (
                                STATUS VARCHAR(100) DEFAULT NULL,
                                INSTANCE_NAME VARCHAR(100) DEFAULT NULL,
                                MODEL_KEY VARCHAR(100) DEFAULT NULL,
+                               IS_DEFAULT VARCHAR(100) DEFAULT NULL,
+                               ACCOUNT_KEY VARCHAR(100) DEFAULT NULL,
                                PRIMARY KEY (ID)
 );
 
@@ -225,10 +226,10 @@ CREATE INDEX IDX_AI_MCP_DELETED_AI_MCP ON AI_MCP (DELETED);
 CREATE TABLE IF NOT EXISTS AI_MODEL (
                             ID BIGINT NOT NULL,
                             MODEL_NAME VARCHAR(255) DEFAULT NULL,
+                            DESCRIPTION TEXT DEFAULT NULL,
                             MODEL_KEY VARCHAR(255) DEFAULT NULL,
                             MODEL_TYPE VARCHAR(100) DEFAULT NULL,
                             EXTENSION_CODE VARCHAR(100) DEFAULT NULL,
-                            API_URL VARCHAR(500) DEFAULT NULL,
                             STATUS VARCHAR(50) DEFAULT NULL,
                             RESPONSE_LIMIT INT DEFAULT NULL,
                             IS_DEFAULT VARCHAR(50) DEFAULT NULL,
@@ -240,7 +241,6 @@ CREATE TABLE IF NOT EXISTS AI_MODEL (
                             DELETED TINYINT DEFAULT '0',
                             ENV_CODE VARCHAR(50) DEFAULT NULL,
                             MAX_QUOTA_TOKENS BIGINT DEFAULT NULL,
-                            ACCOUNT_KEY VARCHAR(100) DEFAULT NULL,
                             PARAMS TEXT,
                             SOURCE_TYPE VARCHAR(100) DEFAULT NULL,
                             PRIMARY KEY (ID)

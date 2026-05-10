@@ -13,9 +13,6 @@ export type AiAgent = {
   chatInstanceKey?: string
   /** 前端展示用（列表联表或本地缓存，不必提交） */
   chatInstanceName?: string
-  /** 向量 / 嵌入实例 */
-  embeddingInstanceKey?: string
-  embeddingInstanceName?: string
   /** 图像模型实例 */
   imageInstanceKey?: string
   imageInstanceName?: string

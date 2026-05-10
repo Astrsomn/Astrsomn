@@ -17,7 +17,9 @@ public interface AiChatMessageMapper extends BaseMapper<AiChatMessageEntity> {
 
     IPage<AiChatMessageResponseDTO> queryPage(IPage<AiChatMessageResponseDTO> page, @Param("req") AiChatMessageQueryRequestDTO param);
 
-    int getMaxMessageOrder(@Param("messageKey") String messageKey);
+    int getMaxMessageOrder(@Param("messageKey") String messageKey, @Param("envCode") String envCode);
+
+    int getMaxTurnNo(@Param("messageKey") String messageKey, @Param("envCode") String envCode);
 
     List<AiChatUsageDTO> selectTodayUsage(@Param("envCode") String envCode);
 

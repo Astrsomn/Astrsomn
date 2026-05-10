@@ -105,7 +105,16 @@ public class AiInstanceEntity extends BaseEntity<Long> {
     @TableField("STATUS")
     private String status;
 
+    /**
+     * 是否为默认预设 (Y/N)
+     */
+    @TableField("IS_DEFAULT")
+    private String isDefault;
 
-
+    /**
+     * 关联的账号 key，用于动态配置账号信息
+     */
+    @TableField("ACCOUNT_KEY")
+    private String accountKey;
 
 }

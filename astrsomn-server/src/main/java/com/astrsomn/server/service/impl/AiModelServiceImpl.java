@@ -54,10 +54,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     public BaseResponse<String> delete(long[] longIds) {
         List<Long> ids = Arrays.stream(longIds).boxed().toList();
         List<AiModelEntity> models = listByIds(ids);
-        boolean hasDefaultModel = models.stream().anyMatch(model -> Objects.equals(model.getIsDefault(), DEFAULT_YES));
-        if (hasDefaultModel) {
-            throw new BusinessException(AiModelErrorEnum.MODEL_PERMISSION_DENIED, "默认模型不允许删除");
-        }
+
         boolean result = removeByIds(ids);
         if (!result) {
             throw new BusinessException(AiModelErrorEnum.MODEL_DELETE_FAILED);

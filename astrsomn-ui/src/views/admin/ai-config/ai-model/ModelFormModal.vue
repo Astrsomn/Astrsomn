@@ -2,8 +2,9 @@
   <AstrsomnModal
     :open="open"
     width="80vw"
-    max-width="80vw"
+    :max-width="maxWidth"
     body-height="90vh"
+    max-body-height="800px"
     :closable="true"
     main-padding="0"
     wrap-class-name="model-form-fsm-wrap"
@@ -37,6 +38,21 @@
           <div class="form-section">
             <h3 class="section-headline"><IdcardOutlined /> 基础信息</h3>
             <div class="form-grid">
+              <a-form-item label="模型 Key" name="modelKey">
+                <a-tooltip
+                    v-if="modelKeyImmutable || props.mode === 'view' || isPluginModel"
+                    :title="isPluginModel ? '插件模型不可修改' : (modelKeyImmutable ? '已有推理实例在同环境下引用该端点 Key，不可修改' : '查看模式下不可修改')"
+                >
+                  <a-input v-model:value="form.modelKey" placeholder="生成模型Key" size="large" disabled />
+                </a-tooltip>
+                <AstrsomnKeyGenerator
+                    v-else
+                    v-model="form.modelKey"
+                    :prefix="AI_MODEL_KEY_PREFIX"
+                    placeholder="建议留空，系统将自动生成唯一索引"
+                    size="large"
+                />
+              </a-form-item>
               <a-form-item label="模型来源" name="sourceType">
                 <a-select v-model:value="form.sourceType" size="large" :disabled="props.mode === 'view'">
                   <a-select-option value="user_custom">用户自定义模型</a-select-option>
@@ -64,16 +80,6 @@
                 />
               </a-form-item>
 
-              <a-form-item label="默认模型" name="isDefault">
-                <a-segmented
-                  v-model:value="form.isDefault"
-                  :options="isDefaultSegmentedOptions"
-                  block
-                  size="large"
-                  :disabled="props.mode === 'view'"
-                />
-              </a-form-item>
-
               <a-form-item label="模型类型" name="modelType">
                 <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}]" block size="large" :disabled="props.mode === 'view' || isPluginModel" />
               </a-form-item>
@@ -82,61 +88,18 @@
                 <a-input v-model:value="form.modelName" placeholder="例如：OpenAI 官方端点 或 私有部署 Llama3" size="large" :disabled="props.mode === 'view' || isPluginModel" />
               </a-form-item>
 
-              <a-form-item label="模型 Key" name="modelKey">
-                <a-tooltip
-                  v-if="modelKeyImmutable || props.mode === 'view' || isPluginModel"
-                  :title="isPluginModel ? '插件模型不可修改' : (modelKeyImmutable ? '已有推理实例在同环境下引用该端点 Key，不可修改' : '查看模式下不可修改')"
-                >
-                  <a-input v-model:value="form.modelKey" placeholder="建议留空，系统将自动生成唯一索引" size="large" disabled />
-                </a-tooltip>
-                <AstrsomnKeyGenerator
-                  v-else
-                  v-model="form.modelKey"
-                  :prefix="AI_MODEL_KEY_PREFIX"
-                  placeholder="建议留空，系统将自动生成唯一索引"
-                  size="large"
-                />
-              </a-form-item>
 
-              <a-form-item label="关联账号" name="accountKey">
-                <a-space class="w-full">
-                  <a-input
-                    v-model:value="form.accountKey"
-                    :placeholder="form.accountKey ? form.accountKey : '请选择关联账号'"
-                    size="large"
-                    :disabled="true"
-                    class="cursor-pointer flex-1"
-                    @click="accountSelectorOpen = true"
-                  />
-                  <a-button type="primary" size="large" @click="accountSelectorOpen = true">
-                    选择账号
-                  </a-button>
-                </a-space>
-              </a-form-item>
-
-              <a-form-item label="API URL" name="apiUrl" class="span-2">
-                <a-input v-model:value="form.apiUrl" placeholder="例如：https://api.openai.com/v1" size="large" :disabled="props.mode === 'view'">
-                  <template #prefix><GlobalOutlined style="color: #bfbfbf" /></template>
-                </a-input>
-              </a-form-item>
             </div>
-          </div>
-        </div>
-
-        <div class="model-form-divider" aria-hidden="true" />
-
-        <div class="model-form-pane model-form-pane--right">
-          <div class="form-section">
             <h3 class="section-headline"><ThunderboltOutlined /> 能力配置 (Capabilities)</h3>
 
             <div v-if="form.modelType === 'chat'" class="capability-panel-section">
               <div class="cap-tag-grid">
                 <div
-                  v-for="opt in chatCapabilitiesOptions"
-                  :key="opt.value"
-                  :class="['custom-cap-tag', { active: chatCapabilities.includes(opt.value) }]"
-                  @click="props.mode !== 'view' && !isPluginModel && toggleChatCapability(opt.value)"
-                  :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
+                    v-for="opt in chatCapabilitiesOptions"
+                    :key="opt.value"
+                    :class="['custom-cap-tag', { active: chatCapabilities.includes(opt.value) }]"
+                    @click="props.mode !== 'view' && !isPluginModel && toggleChatCapability(opt.value)"
+                    :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
                 >
                   <div class="custom-cap-tag__body">
                     <CheckCircleFilled v-if="chatCapabilities.includes(opt.value)" class="custom-cap-tag__check" />
@@ -148,6 +111,14 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="model-form-divider" aria-hidden="true" />
+
+        <div class="model-form-pane model-form-pane--right">
+          <div class="form-section">
+
 
             <div v-if="form.modelType === 'embedding'" class="capability-panel-section">
               <div class="cap-tag-grid">
@@ -255,11 +226,6 @@
       </div>
     </div>
     </div>
-
-    <AccountSelectorTable
-      v-model:open="accountSelectorOpen"
-      @select="handleAccountSelect"
-    />
   </AstrsomnModal>
 </template>
 
@@ -269,7 +235,7 @@ import { message } from 'ant-design-vue'
 import {
   IdcardOutlined, MessageOutlined,
   PartitionOutlined, LockOutlined, ThunderboltOutlined,
-  CheckCircleFilled, ControlOutlined, PictureOutlined, GlobalOutlined,
+  CheckCircleFilled, ControlOutlined, PictureOutlined,
   SettingOutlined
 } from '@ant-design/icons-vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
@@ -301,7 +267,6 @@ const props = withDefaults(
       confirmLoading?: boolean
       initialData?: AiModel | null
       statusOptions: { label: string; value: string }[]
-      isDefaultOptions?: { label: string; value: string }[]
       submitHandler: (payload: AiModel) => Promise<void>
     }>(),
     { confirmLoading: false, initialData: null }
@@ -311,11 +276,8 @@ const emit = defineEmits(['update:open'])
 
 const formRef = ref<FormInstance | null>(null)
 
-const accountSelectorOpen = ref(false)
 const modelKeyImmutable = ref(false)
-const isDefaultSegmentedOptions = computed(
-  () => props.isDefaultOptions ?? [{ label: '否', value: 'N' }, { label: '是', value: 'Y' }]
-)
+const maxWidth = computed(() => 'min(80vw, 1600px)')
 
 const PARAM_TEMPLATES = {
   chat: [
@@ -342,16 +304,6 @@ const PARAM_TEMPLATES = {
   ]
 }
 
-function handleAccountSelect(account: AiAccount) {
-  if (account.accountKey) {
-    form.accountKey = account.accountKey
-  }
-  if (account.apiUrl?.trim()) {
-    form.apiUrl = account.apiUrl
-  }
-  accountSelectorOpen.value = false
-}
-
 function capOptionRow(code: string) {
   const titleZh = aiModelCapabilitiesDictionary.getLabel(code) ?? code
   return { value: code, titleZh, fieldCode: code }
@@ -376,14 +328,13 @@ const isPluginModel = computed(() => form.sourceType === 'plugin')
 
 const form = reactive<AiModel>({
   modelName: '', modelKey: '', modelType: 'chat', provider: '',
-  accountKey: '', apiUrl: '', status: 'enabled', isDefault: 'N', responseLimit: 4096,
+  status: 'enabled', responseLimit: 4096,
   capabilities: '', param: '', randomIndex: 0, topVariance: 0, maxQuotaTokens: 0, sourceType: 'user_custom'
 })
 
 const rules = {
   modelName: [{ required: true, message: '请输入模型名称' }],
   extensionCode: [{ required: true, message: '请选择供应商' }],
-  apiUrl: [],
 }
 
 function toggleInList(list: string[], val: string) {
@@ -451,10 +402,7 @@ const syncForm = () => {
       modelKey: '',
       modelType: 'chat',
       provider: '',
-      accountKey: '',
-      apiUrl: '',
       status: 'enabled',
-      isDefault: 'N',
       capabilities: '',
       param: '',
       randomIndex: 0,

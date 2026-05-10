@@ -6,14 +6,21 @@
 
     <groupId>com.astrsomn</groupId>
     <artifactId>Astrsomn</artifactId>
-    <version>0.1.0-alpha.1</version>
+    <version>0.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <scm>
+        <connection>scm:git:https://github.com/Astrsomn/Astrsomn.git</connection>
+        <developerConnection>scm:git:https://github.com/Astrsomn/Astrsomn.git</developerConnection>
+        <url>https://github.com/Astrsomn/Astrsomn</url>
+    </scm>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <astrsomn.version>0.1.0-alpha.1</astrsomn.version>
+        <deploy.skip>${project.packaging == 'pom'}</deploy.skip>
+        <astrsomn.version>${project.version}</astrsomn.version>
         <spring-boot.version>3.3.0</spring-boot.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.1.2</spring-cloud-alibaba.version>
@@ -194,8 +201,30 @@
                         </execution>
                     </executions>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>3.1.4</version>
+                    <configuration>
+                        <skip>${deploy.skip}</skip>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <scmCommentPrefix>[maven-release-plugin] </scmCommentPrefix>
+                    <arguments>-DskipTests -Pgithub-packages-release</arguments>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <distributionManagement>
@@ -237,21 +266,21 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <properties>
-                <deploy.skip>${project.packaging == 'pom'}</deploy.skip>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
-                        <version>3.1.1</version>
-                        <configuration>
-                            <skip>${deploy.skip}</skip>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+
+        <profile>
+            <id>github-packages-release</id>
+            <properties>
+                <deploy.skip>true</deploy.skip>
+            </properties>
         </profile>
     </profiles>
 

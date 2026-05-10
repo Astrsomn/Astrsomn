@@ -17,6 +17,9 @@
         <button class="action-btn secondary" title="新建提示词" @click.stop="emit('create')">
           <PlusOutlined />
         </button>
+        <button class="action-btn history" title="历史版本" @click.stop="emit('history')" :disabled="!prompt?.promptKey">
+          <HistoryOutlined />
+        </button>
       </div>
     </div>
     <div class="dashed-frame">
@@ -26,17 +29,22 @@
         rows="6"
         placeholder="给你的智能体配置一个清晰的角色定位和任务指令..."
       ></textarea>
+      <button class="improve-btn" title="美化提示词" @click.stop="emit('improve')" :disabled="improveLoading">
+        <ThunderboltOutlined :spin="improveLoading" />
+        <span class="improve-btn-text">美化</span>
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { FileTextOutlined, AppstoreOutlined, PlusOutlined } from '@ant-design/icons-vue'
+import { FileTextOutlined, AppstoreOutlined, PlusOutlined, HistoryOutlined, ThunderboltOutlined } from '@ant-design/icons-vue'
 import type { AiPrompt } from '@/api/aiPrompt'
 
 interface Props {
   prompt?: AiPrompt
+  improveLoading?: boolean
 }
 
 const props = defineProps<Props>()
@@ -44,6 +52,8 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   (e: 'select'): void
   (e: 'create'): void
+  (e: 'history'): void
+  (e: 'improve'): void
   (e: 'update:promptContent', value: string): void
 }>()
 
@@ -167,6 +177,21 @@ const promptContent = computed({
   background: #dbeafe;
 }
 
+.action-btn.history {
+  background: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fde68a;
+}
+
+.action-btn.history:hover {
+  background: #fef9c3;
+}
+
+.action-btn.history:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .dashed-frame {
   border: 1px dashed #e2e8f0;
   border-radius: 12px;
@@ -176,6 +201,47 @@ const promptContent = computed({
   display: flex;
   flex: 1;
   min-height: 0;
+  position: relative;
+}
+
+.improve-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.improve-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.improve-btn:active {
+  transform: translateY(0);
+}
+
+.improve-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+.improve-btn-text {
+  font-weight: 600;
+  line-height: 1;
 }
 
 .prompt-textarea {

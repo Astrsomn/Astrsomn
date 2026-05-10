@@ -34,9 +34,6 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("CHAT_INSTANCE_KEY")
     private String chatInstanceKey;
 
-    @TableField("EMBEDDING_INSTANCE_KEY")
-    private String embeddingInstanceKey;
-
     @TableField("IMAGE_INSTANCE_KEY")
     private String imageInstanceKey;
 

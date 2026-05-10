@@ -14,12 +14,20 @@ import java.util.List;
  *   enabled: false
  * }</pre>
  *
- * <p>示例 — 数据源校验（默认校验失败仅 ERROR 日志，不中断启动）：
+ * <p>连接配置使用独立 Bean {@link AstrsomnDatasourceProperties}（前缀 {@code astrsomn.datasource}）。
  * <pre>{@code
  * astrsomn:
  *   enabled: true
+ *   datasource:
+ *     url: jdbc:h2:file:./data/db;MODE=MySQL;DATABASE_TO_UPPER=FALSE
+ *     username: sa
+ *     password:
+ *     driver-class-name: org.h2.Driver
+ *     hikari:
+ *       connection-timeout: 30000
+ *       maximum-pool-size: 10
+ *       minimum-idle: 5
  *   data-base:
- *     database-type: h2
  *     validation:
  *       enabled: true
  *       fail-fast: false
@@ -69,7 +77,7 @@ public class AstrsomnProperties {
     private MybatisPlus mybatisPlus = new MybatisPlus();
 
     /**
-     * 数据库连接配置。
+     * Schema / 连通性校验等扩展。
      */
     private DataBase dataBase = new DataBase();
 
@@ -97,76 +105,6 @@ public class AstrsomnProperties {
 
     @Data
     public static class DataBase {
-
-        /**
-         * 数据库类型。可选值：mysql, h2。
-         */
-        private String databaseType = "mysql";
-
-        /**
-         * 数据库主机地址，默认为 localhost。
-         */
-        private String host = "localhost";
-
-        /**
-         * 数据库端口。MySQL 默认为 3306。
-         */
-        private Integer port;
-
-        /**
-         * 数据库名称或文件路径。
-         */
-        private String databaseName;
-
-        /**
-         * 数据库用户名。
-         */
-        private String username;
-
-        /**
-         * 数据库密码。
-         */
-        private String password;
-
-        /**
-         * 驱动类名。如果不指定，将根据 databaseType 自动选择默认驱动。
-         */
-        private String driver;
-
-        /**
-         * 完整 JDBC URL。如果配置此项，其他连接参数将被忽略。
-         */
-        private String url;
-
-        /**
-         * 是否启用 SSL 连接，默认为 false。
-         */
-        private Boolean useSsl = false;
-
-        /**
-         * 字符集编码，默认为 utf8。
-         */
-        private String charset = "utf8";
-
-        /**
-         * 时区配置，默认为 Asia/Shanghai。
-         */
-        private String timezone = "Asia/Shanghai";
-
-        /**
-         * 连接超时时间（毫秒），默认 30000。
-         */
-        private Integer connectionTimeout = 30000;
-
-        /**
-         * 连接池最大连接数，默认 10。
-         */
-        private Integer maximumPoolSize = 10;
-
-        /**
-         * 连接池最小空闲连接数，默认 5。
-         */
-        private Integer minimumIdle = 5;
 
         /**
          * 启动时数据源 / Schema 就绪校验（在 {@link org.apache.ibatis.session.SqlSessionFactory} 构建完成之后执行）。

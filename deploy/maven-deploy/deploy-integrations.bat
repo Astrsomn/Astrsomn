@@ -12,15 +12,17 @@ echo  Astrsomn Integrations Deploy Script
 echo ========================================
 echo.
 
-REM Set project root directory
-set PROJECT_ROOT=D:\Project\astrsomn\Astrsomn
-set MODULES_DIR=%PROJECT_ROOT%\astrsomn-integrations
+pushd "%~dp0..\.."
+set "PROJECT_ROOT=%CD%"
+popd
+
+set "MODULES_DIR=%PROJECT_ROOT%\astrsomn-integrations"
 
 REM List of modules to deploy
 set MODULES= astrsomn-runtime-starter
 
 echo [1/2] Installing all dependencies to local repository...
-cd /d %PROJECT_ROOT%
+cd /d "%PROJECT_ROOT%"
 call mvn install -DskipTests -pl astrsomn-common,astrsomn-api,astrsomn-integrations -am
 if errorlevel 1 (
     echo.
@@ -36,7 +38,7 @@ for %%m in (%MODULES%) do (
     echo ----------------------------------------
     echo Deploying module: %%m
     echo ----------------------------------------
-    cd /d %MODULES_DIR%\%%m
+    cd /d "%MODULES_DIR%\%%m"
     call mvn deploy -DskipTests
     if errorlevel 1 (
         echo.

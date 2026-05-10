@@ -31,15 +31,16 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
     public void savePair(AstroChatParam param, String content, TokenUsage usage) {
         ensureSession(param);
 
-        int baseOrder = mapper.getMaxMessageOrder(param.getMemoryKey());
+        String envKey = blankToNull(astrsomnProperties.getEnvCode());
+        int baseOrder = mapper.getMaxMessageOrder(param.getMemoryKey(), envKey);
         int inputTokens = usage != null ? usage.inputTokenCount() : 0;
         int outputTokens = usage != null ? usage.outputTokenCount() : 0;
-        int turnNo = (baseOrder < 0 ? 0 : (baseOrder / 2)) + 1;
+        int turnNo = mapper.getMaxTurnNo(param.getMemoryKey(), envKey) + 1;
 
         AiChatMessageEntity user = createEntity(
                 param,
                 ChatStreamEnum.AstroChatRole.USER,
-                param.getUserMessage(),
+                previewUserInput(param),
                 turnNo,
                 baseOrder + 1,
                 inputTokens,
@@ -77,9 +78,9 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
 
         AiChatSessionEntity session = new AiChatSessionEntity();
         session.setMemoryKey(memoryKey);
-        session.setSessionTitle(buildSessionTitle(param.getUserMessage()));
+        session.setSessionTitle(buildSessionTitle(previewUserInput(param)));
         session.setSessionStatus(AiChatEnum.SessionStatusEnum.ACTIVE.getCode());
-        session.setLastMessagePreview(buildSessionTitle(param.getUserMessage()));
+        session.setLastMessagePreview(buildSessionTitle(previewUserInput(param)));
         session.setLastMessageAt(System.currentTimeMillis());
         session.setMessageCount(0);
         session.setPromptTokens(0);
@@ -120,6 +121,10 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         sessionMapper.update(null, wrapper);
     }
 
+    private static String previewUserInput(AstroChatParam<?> param) {
+        return StringUtils.trimToNull(param.getUserMessageText());
+    }
+
     private String buildSessionTitle(String content) {
         if (StringUtils.isBlank(content)) {
             return "New Chat";
@@ -158,6 +163,10 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
             entity.setEnvCode(astrsomnProperties.getEnvCode());
         }
         return entity;
+    }
+
+    private static String blankToNull(String envCode) {
+        return StringUtils.isBlank(envCode) ? null : envCode;
     }
 
 }

@@ -17,9 +17,6 @@ public class AiAgentResponseDTO extends AiAgentEntity {
     /** 来自 AI_INSTANCE.INSTANCE_NAME（对话实例） */
     private String chatInstanceName;
 
-    /** 来自 AI_INSTANCE.INSTANCE_NAME（向量实例） */
-    private String embeddingInstanceName;
-
     /** 来自 AI_INSTANCE.INSTANCE_NAME（图像实例） */
     private String imageInstanceName;
 

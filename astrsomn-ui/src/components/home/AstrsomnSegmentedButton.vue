@@ -1,5 +1,5 @@
 <template>
-  <div class="toolbar-segmented-btn">
+  <div :class="['toolbar-segmented-btn', { 'toolbar-segmented-btn--block': block }]">
     <button
       v-for="(btn, index) in buttons"
       :key="index"
@@ -39,6 +39,7 @@ export interface SegmentedButton {
 
 defineProps<{
   buttons: SegmentedButton[]
+  block?: boolean
 }>()
 </script>
 
@@ -49,6 +50,15 @@ defineProps<{
   gap: 0;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-default);
+}
+
+.toolbar-segmented-btn--block {
+  display: flex;
+  width: 100%;
+}
+
+.toolbar-segmented-btn--block .seg-btn {
+  flex: 1;
 }
 
 .seg-btn {

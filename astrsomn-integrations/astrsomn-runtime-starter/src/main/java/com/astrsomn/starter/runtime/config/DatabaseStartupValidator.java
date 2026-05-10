@@ -30,6 +30,7 @@ import java.util.concurrent.TimeoutException;
 public class DatabaseStartupValidator implements InitializingBean {
 
     private final DataSource dataSource;
+    private final AstrsomnDatasourceProperties datasourceProperties;
     private final AstrsomnProperties astrsomnProperties;
     private final SqlSessionFactory sqlSessionFactory;
 
@@ -101,7 +102,7 @@ public class DatabaseStartupValidator implements InitializingBean {
                 throw new SQLException("连接 isValid(5) 为 false");
             }
             try (Statement st = conn.createStatement();
-                 ResultSet rs = st.executeQuery(simplePingSql(astrsomnProperties.getDataBase()))) {
+                 ResultSet rs = st.executeQuery("SELECT 1")) {
                 if (!rs.next()) {
                     throw new SQLException("连通性检测无结果行");
                 }
@@ -128,14 +129,6 @@ public class DatabaseStartupValidator implements InitializingBean {
             }
             log.info("[Astrsomn] 数据源校验通过（连通性 + 表存在）");
         }
-    }
-
-    private static String simplePingSql(AstrsomnProperties.DataBase db) {
-        String type = db != null && db.getDatabaseType() != null ? db.getDatabaseType().toLowerCase(Locale.ROOT) : "mysql";
-        if ("h2".equals(type)) {
-            return "SELECT 1";
-        }
-        return "SELECT 1";
     }
 
     private static boolean tableExists(Connection conn, String tableName) throws SQLException {
@@ -165,18 +158,30 @@ public class DatabaseStartupValidator implements InitializingBean {
     }
 
     private void logFailure(AstrsomnProperties.Validation cfg, Exception e) {
-        AstrsomnProperties.DataBase db = astrsomnProperties.getDataBase();
-        String hint = "请检查 astrsomn.data-base.url / 账号密码、网络、以及是否已执行数据库迁移（Flyway 等）。"
+        String jdbcUrl = datasourceProperties != null ? datasourceProperties.getUrl() : null;
+        String hint = "请检查 astrsomn.datasource.url / 账号密码、网络、以及是否已执行数据库迁移（Flyway 等）。"
                 + " 若缺表，请确认迁移已成功执行。";
-        String urlInfo = db != null ? sanitizeJdbcUrl(db.getUrl()) : "(未配置 url)";
+        String urlInfo = sanitizeJdbcUrl(jdbcUrl);
+        String dbLabel = describeJdbcUrl(jdbcUrl);
         log.error(
-                "[Astrsomn] 数据源启动校验未通过（fail-fast={}，默认应用继续启动）。database-type={} url={} | {}",
+                "[Astrsomn] 数据源启动校验未通过（fail-fast={}，默认应用继续启动）。jdbc={} url={} | {}",
                 Boolean.TRUE.equals(cfg.getFailFast()),
-                db != null ? db.getDatabaseType() : "?",
+                dbLabel,
                 urlInfo,
                 hint,
                 e
         );
+    }
+
+    private static String describeJdbcUrl(String jdbcUrl) {
+        if (jdbcUrl == null || jdbcUrl.isBlank()) {
+            return "(unknown)";
+        }
+        try {
+            return JdbcUrlDbSupport.resolveMybatisDbType(jdbcUrl).getDb();
+        } catch (IllegalArgumentException ex) {
+            return "(unsupported)";
+        }
     }
 
     private static String sanitizeJdbcUrl(String url) {

@@ -35,12 +35,12 @@ const toggleMode = () => {
   position: relative;
   min-height: 0;
   height: 100%;
-  background: var(--ab-glass-bg, rgba(255, 255, 255, 0.8));
+  background: var(--builder-right-bg);
   backdrop-filter: blur(var(--ab-glass-haze, 10px));
   -webkit-backdrop-filter: blur(var(--ab-glass-haze, 10px));
-  border: 1px solid var(--ab-glass-border, rgba(255, 255, 255, 0.6));
+  border: 1px solid var(--builder-right-border);
   border-radius: var(--ab-glass-radius, 16px);
-  box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
+  box-shadow: var(--builder-right-shadow);
   overflow: hidden;
 }
 

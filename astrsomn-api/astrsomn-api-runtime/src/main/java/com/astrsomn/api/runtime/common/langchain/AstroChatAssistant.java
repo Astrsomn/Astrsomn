@@ -2,28 +2,29 @@ package com.astrsomn.api.runtime.common.langchain;
 
 import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.TokenStream;
-import dev.langchain4j.service.UserMessage;
 
 public interface AstroChatAssistant {
 
+    /**
+     * 【文本流式】
+     */
+    TokenStream stream(@dev.langchain4j.service.UserMessage String userMessage, @MemoryId String memoryKey);
 
     /**
-     * 流式数据返回数据
-     * @param userMessage   用户输入的消息
-     * @param memoryKey 同一组对话的消息唯一值
-     * @return
+     * 【多模态流式】
+     * 修复方案：给 UserMessage 对象也加上 @UserMessage 注解
      */
-    TokenStream stream(@UserMessage String userMessage, @MemoryId String memoryKey);
-
+    TokenStream stream(@dev.langchain4j.service.UserMessage dev.langchain4j.data.message.UserMessage multiModalMessage, @MemoryId String memoryKey);
 
     /**
-     * 返回全文数据
-     * @param userMessage   用户输入的消息
-     * @param memoryKey 同一组对话的消息唯一值
-     * @return
+     * 【文本同步】
      */
-    String chat(@UserMessage String userMessage, @MemoryId String memoryKey);
+    String chat(@dev.langchain4j.service.UserMessage String userMessage, @MemoryId String memoryKey);
 
-
+    /**
+     * 【多模态同步】
+     * 修复方案：同上
+     */
+    String chat(@dev.langchain4j.service.UserMessage dev.langchain4j.data.message.UserMessage multiModalMessage, @MemoryId String memoryKey);
 
 }
