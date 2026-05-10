@@ -26,10 +26,35 @@
             <a-form-item class="span-2" label="运行状态">
               <a-segmented v-model:value="form.status" :options="statusOptions" block size="large" />
             </a-form-item>
+
+            <a-form-item class="span-2" label="默认预设">
+              <a-segmented v-model:value="form.isDefault" :options="[{label:'否', value:'N'}, {label:'是', value:'Y'}]" block size="large" />
+            </a-form-item>
+
+            <a-form-item class="span-2" label="关联账号" name="accountKey">
+              <a-space class="w-full">
+                <a-input
+                  v-model:value="form.accountKey"
+                  :placeholder="form.accountKey ? form.accountKey : '请选择关联账号'"
+                  size="large"
+                  :disabled="true"
+                  class="cursor-pointer flex-1"
+                  @click="emit('open-account-selector')"
+                />
+                <a-button type="primary" size="large" @click="emit('open-account-selector')">
+                  选择账号
+                </a-button>
+              </a-space>
+            </a-form-item>
           </div>
         </div>
       </a-form>
     </div>
+
+    <AccountSelectorTable
+      v-model:open="accountSelectorOpen"
+      @select="handleAccountSelect"
+    />
   </aside>
 </template>
 
@@ -37,8 +62,10 @@
 import { InfoCircleOutlined } from '@ant-design/icons-vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
 import { AI_INSTANCE_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
+import AccountSelectorTable from '@/views/admin/ai-config/ai-account/selector/AccountSelectorTable.vue'
+import type { AiAccount } from '@/api/aiAccount'
 
-defineProps<{
+const props = defineProps<{
   form: Record<string, any>
   statusOptions: Array<{ label: string; value: string }>
   instanceKeyRules: any[]
@@ -46,7 +73,19 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'preset-name-input'): void
+  (e: 'open-account-selector'): void
+  (e: 'select-account', account: AiAccount): void
 }>()
+
+const accountSelectorOpen = defineModel<boolean>('accountSelectorOpen', { default: false })
+
+function handleAccountSelect(account: AiAccount) {
+  if (account.accountKey) {
+    props.form.accountKey = account.accountKey
+  }
+  emit('select-account', account)
+  accountSelectorOpen.value = false
+}
 </script>
 
 <style scoped>

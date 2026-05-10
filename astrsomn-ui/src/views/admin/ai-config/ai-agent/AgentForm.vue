@@ -584,6 +584,7 @@ onMounted(async () => {
 
 <style scoped>
 .assembly-page {
+  padding: 5px;
   display: flex;
   flex-direction: column;
   flex: 1;

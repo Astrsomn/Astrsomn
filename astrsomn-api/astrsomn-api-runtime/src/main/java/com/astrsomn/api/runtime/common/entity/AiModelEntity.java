@@ -47,18 +47,6 @@ public class AiModelEntity extends BaseEntity<Long> {
     private String extensionCode;
 
     /**
-     * AccountKey
-     */
-    @TableField("ACCOUNT_KEY")
-    private String accountKey;
-
-    /**
-     * API URL
-     */
-    @TableField("API_URL")
-    private String apiUrl;
-
-    /**
      * Status (enabled-disabled)
      */
     @TableField("STATUS")
@@ -93,16 +81,4 @@ public class AiModelEntity extends BaseEntity<Long> {
     private String sourceType;
 
 
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
-    @TableField(fill = FieldFill.INSERT)
-    private String createUser;
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String updateUser;
-    @TableField(fill = FieldFill.INSERT)
-    private Boolean deleted = false;
-    @TableField(fill = FieldFill.INSERT)
-    private String envCode;
 }

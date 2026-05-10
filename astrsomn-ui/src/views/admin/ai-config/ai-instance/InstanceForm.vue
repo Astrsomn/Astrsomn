@@ -38,7 +38,10 @@
         :form="form"
         :status-options="statusOptions"
         :instance-key-rules="instanceKeyRules"
+        :account-selector-open="accountSelectorOpen"
         @preset-name-input="onPresetNameUserInput"
+        @open-account-selector="accountSelectorOpen = true"
+        @select-account="onAccountSelect"
       />
      <Right
         :provider-filter="providerFilter"
@@ -144,6 +147,7 @@ const isEdit = computed(() => editId.value != null && String(editId.value) !== '
 const maxWidth = computed(() => 'min(80vw, 1600px)');
 
 const submitting = ref(false);
+const accountSelectorOpen = ref(false);
 const modelsLoading = ref(false);
 const modelsLoadingMore = ref(false);
 const modelList = ref<AiModel[]>([]);
@@ -193,13 +197,15 @@ function applyModelSearch() {
   void fetchModels(true);
 }
 
-const form = reactive<AiInstance>({ 
-  status: 'enabled', 
-  temperature: 0.7, 
+const form = reactive<AiInstance>({
+  status: 'enabled',
+  isDefault: 'N',
+  temperature: 0.7,
   maxTokens: 2048,
   topP: 1.0,
   frequencyPenalty: 0,
-  presencePenalty: 0
+  presencePenalty: 0,
+  accountKey: ''
 });
 
 /** 新建时跟随所选 modelName；用户改过预设名称后不再自动覆盖 */
@@ -403,6 +409,7 @@ function resetForm() {
     instanceName: undefined,
     modelKey: undefined,
     status: 'enabled',
+    isDefault: 'N',
     temperature: 0.7,
     maxTokens: 2048,
     topP: 1.0,
@@ -413,7 +420,8 @@ function resetForm() {
     presencePenalty: 0,
     dimensions: undefined,
     size: undefined,
-    style: undefined
+    style: undefined,
+    accountKey: ''
   });
   selectedKeys.value = [];
 }
@@ -497,6 +505,12 @@ const onSelectModelCard = (record: AiModel) => {
 };
 
 const handleCancel = () => emit('update:visible', false);
+
+const onAccountSelect = (account: any) => {
+  if (account.accountKey) {
+    form.accountKey = account.accountKey;
+  }
+};
 
 const onSubmit = async () => {
   if (!String(form.instanceName || '').trim()) return message.warning('请输入名称');

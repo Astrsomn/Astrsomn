@@ -164,15 +164,15 @@ defineExpose({ getKeywords })
 
 <style scoped>
 .assembly-palette {
-  border-radius: 16px;
-  border: 1px solid var(--assembly-palette-border);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
   background: var(--assembly-palette-bg);
   display: flex;
   flex-direction: column;
   min-height: 0;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 80px);
   overflow: hidden;
-  padding-inline: 8px;
+  padding-inline: 10px;
 }
 
 .left-tabs {

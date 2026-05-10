@@ -24,9 +24,9 @@ public class AiAccountResponseDTO {
     private Long completionTokens;
     private Long totalTokens;
     private Boolean accountKeyImmutable;
-    private Long usedModelCount;
-    private String usedModelKeys;
-    private String usedModelNames;
+    private Long usedInstanceCount;
+    private String usedInstanceKeys;
+    private String usedInstanceNames;
     private String extensionName;
     private String providerAvatar;
     private LocalDateTime createTime;

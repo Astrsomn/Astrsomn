@@ -75,7 +75,7 @@ const props = withDefaults(defineProps<Props>(), {
   maxWidth: '100vw',
   headerHeight: '72px',
   contentBackground: 'var(--bg-card, #f8fafc)',
-  mainPadding: '20px',
+  mainPadding: '0px',
   mainBackground: 'var(--bg-surface, #f8fafc)',
   closable: false,
   destroyOnClose: true,

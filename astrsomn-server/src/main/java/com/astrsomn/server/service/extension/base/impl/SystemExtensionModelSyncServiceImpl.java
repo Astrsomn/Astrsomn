@@ -97,7 +97,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             dto.setModelKey(modelKey);
             dto.setExtensionCode(rowProvider);
             dto.setEnvCode(ctx.envCode());
-
+            dto.setStatus(AiModelEnum.StatusEnum.ENABLED.getCode());
             boolean result = aiModelService.save(dto);
 
             if (result) {

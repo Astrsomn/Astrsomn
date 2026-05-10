@@ -1,6 +1,6 @@
 <template>
   <AdminPageShell
-      title="接入端点管理"
+      title="模型管理"
       description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
       :breadcrumbs="breadcrumbs"
   >
@@ -12,7 +12,7 @@
               <AstrsomnSearchPill
                 v-model="query.modelName"
                 layout="toolbar"
-                placeholder="搜索端点名称"
+                placeholder="搜索模型名称"
                 @search="fetchList"
               />
               <ExtensionSelector
@@ -51,7 +51,7 @@
           :row-selection="rowSelection"
           :scroll="{ x: 1200 }"
           row-key="id"
-          empty-text="暂无匹配的接入端点"
+          empty-text="暂无匹配的接入模型"
         >
           <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'modelType'">
@@ -101,11 +101,6 @@
                   </div>
                 </template>
 
-                <template v-else-if="column.key === 'isDefault'">
-                  <a-tag v-if="record.isDefault === 'Y'" color="blue">默认端点</a-tag>
-                  <span v-else class="text-secondary">-</span>
-                </template>
-
 
 
 
@@ -127,18 +122,17 @@
                   <a-space>
                     <a-popconfirm title="确定快速生成实例吗？" @confirm="() => handleGenerateInstances([record.id])">
                       <a-button type="link" size="small">
-                        生成实例
+                        <swap-outlined />
                       </a-button>
                     </a-popconfirm>
                     <a-button type="link" size="small" @click="openEdit(record)">
                       <edit-outlined />
                     </a-button>
                     <a-popconfirm
-                      title="移除端点将影响下游关联实例，确定吗？"
-                      :disabled="record.isDefault === 'Y'"
+                      title="移除模型将影响下游关联实例，确定吗？"
                       @confirm="() => handleDeleteOne(record)"
                     >
-                      <a-button type="link" size="small" danger :disabled="record.isDefault === 'Y'">
+                      <a-button type="link" size="small" danger>
                         <delete-outlined />
                       </a-button>
                     </a-popconfirm>
@@ -163,7 +157,6 @@
           :confirm-loading="modal.submitting"
           :initial-data="modalInitialData"
           :status-options="statusOptions"
-          :is-default-options="isDefaultOptions"
           :submit-handler="handleFormSubmit"
       />
 
@@ -186,7 +179,7 @@ import {
   PictureOutlined,
   PlusOutlined,
   SearchOutlined,
-  UserOutlined
+  SwapOutlined
 } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
@@ -205,7 +198,7 @@ import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
 
 const breadcrumbs = [
   { title: 'AI 配置', href: '/admin/ai-config' },
-  { title: '接入端点管理' },
+  { title: '接入模型管理' },
 ]
 
 const providerDict = useDictionary('ai-model.provider')
@@ -219,7 +212,6 @@ const columns = [
   { title: '类型', key: 'modelType', width: 60 },
   { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' },
   { title: '模型信息', key: 'modelName', width: 180 },
-  { title: '默认', key: 'isDefault', width: 90, align: 'center' },
   { title: '模型Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true },
   { 
     title: '来源', 
@@ -232,15 +224,7 @@ const columns = [
     ] 
   },
   { title: '状态', key: 'status', width: 100 },
-  { 
-    title: '接口地址', 
-    dataIndex: 'apiUrl', 
-    key: 'apiUrl', 
-    width: 100, 
-    tag: true,
-    tagColor: (value: string) => value ? 'green' : 'default',
-    tagText: (value: string) => value ? '已配置' : '未配置'
-  },
+
   {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
@@ -391,12 +375,14 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
     label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
     icon: DeleteOutlined,
+    type: 'danger',
+    plain: true,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
       const n = selectedRowKeys.value.length
       if (n === 0) return
       Modal.confirm({
-        title: `确定删除选中的 ${n} 个接入端点吗？`,
+        title: `确定删除选中的 ${n} 个接入模型吗？`,
         onOk: () => handleBatchDelete()
       })
     }
@@ -404,13 +390,13 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
     label: selectedRowKeys.value.length > 0 ? `生成实例 (${selectedRowKeys.value.length})` : '生成实例',
     type: 'primary',
-    icon: PlusOutlined,
+    icon: SwapOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
       const n = selectedRowKeys.value.length
       if (n === 0) return
       Modal.confirm({
-        title: `确定为选中的 ${n} 个接入端点快速生成实例吗？`,
+        title: `确定为选中的 ${n} 个模型快速生成实例吗？`,
         onOk: () => handleBatchGenerateInstances()
       })
     },
@@ -444,10 +430,7 @@ const openEdit = async (record: AiModel) => {
 }
 
 const handleDeleteOne = async (record: AiModel) => {
-  if (record.isDefault === 'Y') {
-    message.warning('默认模型不允许删除')
-    return
-  }
+
   const msg = await aiModelApi.delete([record.id as number | string])
   message.success(msg)
   selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== record.id)
@@ -456,10 +439,6 @@ const handleDeleteOne = async (record: AiModel) => {
 
 const handleBatchDelete = async () => {
   const selectedModels = list.value.filter((item) => selectedRowKeys.value.includes(item.id as number | string))
-  if (selectedModels.some((item) => item.isDefault === 'Y')) {
-    message.warning('选中项中包含默认模型，无法删除')
-    return
-  }
   await aiModelApi.delete([...selectedRowKeys.value])
   message.success('删除成功')
   selectedRowKeys.value = []

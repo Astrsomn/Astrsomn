@@ -22,8 +22,8 @@ export type AiInstance = {
   dimensions?: number
   status?: string
   accountKey?: string
-  apiUrl?: string
-  isDefault?: number
+  accountName?: string
+  isDefault?: string
   maxQuotaTokens?: number
   envCode?: string
   createUser?: string

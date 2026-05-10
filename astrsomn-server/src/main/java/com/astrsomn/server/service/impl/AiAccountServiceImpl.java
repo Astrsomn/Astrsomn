@@ -1,7 +1,9 @@
 package com.astrsomn.server.service.impl;
 
+import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.starter.runtime.mapper.AiInstanceMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -42,7 +44,7 @@ import java.util.stream.Collectors;
 public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccountEntity> implements AiAccountService {
 
 
-    private final AiModelMapper aiModelMapper;
+    private final AiInstanceMapper aiInstanceMapper;
     private final AiChatMessageMapper aiChatMessageMapper;
     private final QueryEnvParamHelper queryEnvParamHelper;
 
@@ -215,16 +217,16 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
     }
 
     /**
-     * 同环境下是否存在 AI_MODEL 引用该 accountKey。
+     * 同环境下是否存在 AI_INSTANCE 引用该 accountKey。
      */
     private boolean isAccountKeyReferencedByModel(String accountKey, String envCode) {
         if (StringUtils.isBlank(accountKey) || StringUtils.isBlank(envCode)) {
             return false;
         }
-        return aiModelMapper.selectCount(
-                        new LambdaQueryWrapper<AiModelEntity>()
-                                .eq(AiModelEntity::getAccountKey, accountKey.trim())
-                                .eq(AiModelEntity::getEnvCode, envCode.trim()))
+        return aiInstanceMapper.selectCount(
+                        new LambdaQueryWrapper<AiInstanceEntity>()
+                                .eq(AiInstanceEntity::getAccountKey, accountKey.trim())
+                                .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
                 > 0;
     }
 }

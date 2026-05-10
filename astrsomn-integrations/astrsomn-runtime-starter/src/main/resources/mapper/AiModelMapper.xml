@@ -31,9 +31,7 @@
         <if test="req != null and req.modelKey != null and req.modelKey != ''">
             AND AM.MODEL_KEY = #{req.modelKey}
         </if>
-        <if test="req != null and req.accountKey != null and req.accountKey != ''">
-            AND AM.ACCOUNT_KEY = #{req.accountKey}
-        </if>
+
         <if test="req != null and req.status != null and req.status != ''">
             AND AM.STATUS = #{req.status}
         </if>
