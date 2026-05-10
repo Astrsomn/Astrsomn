@@ -20,6 +20,7 @@
                 :prefix="AI_INSTANCE_KEY_PREFIX"
                 placeholder="留空可自动生成"
                 size="large"
+                :disabled="isEdit"
               />
             </a-form-item>
 
@@ -67,6 +68,7 @@ import type { AiAccount } from '@/api/aiAccount'
 
 const props = defineProps<{
   form: Record<string, any>
+  isEdit: boolean
   statusOptions: Array<{ label: string; value: string }>
   instanceKeyRules: any[]
 }>()

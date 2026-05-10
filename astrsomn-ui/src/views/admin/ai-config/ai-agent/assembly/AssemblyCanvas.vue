@@ -101,28 +101,6 @@
 
       <div class="drop-grid drop-grid-secondary">
         <AssemblyDropZone
-          slot-key="embeddingInstance"
-          title="向量检索"
-          variant="emb"
-          :icon="PartitionOutlined"
-          :dragging-payload="draggingPayload"
-          :active-drop-key="activeDropKey"
-          :has-content="!!embeddingInstance"
-          class="canvas-slot"
-          @hover="$emit('hover', $event)"
-          @drop="$emit('drop', $event)"
-        >
-          <div v-if="embeddingInstance" class="placed-card-fill">
-            <div class="card-content">
-              <div class="p-title">{{ embeddingInstance.instanceName || embeddingInstance.instanceKey }}</div>
-              <div class="p-sub">{{ embeddingInstance.modelKey }}</div>
-            </div>
-            <a-button type="link" size="small" danger @click="$emit('clear', 'embeddingInstance')">移除</a-button>
-          </div>
-          <div v-else class="placeholder-minimal">未配置向量</div>
-        </AssemblyDropZone>
-
-        <AssemblyDropZone
           slot-key="imageInstance"
           title="多媒体支持"
           variant="img"
@@ -213,7 +191,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import {
-  ApiOutlined, BookOutlined, FileTextOutlined, MessageOutlined, PartitionOutlined, 
+  ApiOutlined, BookOutlined, FileTextOutlined, MessageOutlined,
   PictureOutlined, ToolOutlined
 } from '@ant-design/icons-vue'
 import type { AiInstance } from '@/api/aiInstance'
@@ -236,7 +214,6 @@ const props = defineProps<{
   draggingPayload: AssemblyDragPayload | null
   activeDropKey: AssemblySlotKey | null
   chatInstance: AiInstance | null
-  embeddingInstance: AiInstance | null
   imageInstance: AiInstance | null
   promptInstance: AiPrompt | null
   tools: AiTool[]
@@ -259,7 +236,7 @@ const memoryWindowNum = computed({
 const emit = defineEmits<{
   hover: [key: AssemblySlotKey | null]
   drop: [payload: AssemblyDragPayload]
-  clear: [key: 'chatInstance' | 'embeddingInstance' | 'imageInstance' | 'promptInstance']
+  clear: [key: 'chatInstance' | 'imageInstance' | 'promptInstance']
   removeTool: [toolKey: string]
   removeMcp: [mcpKey: string]
   removeKnowledgeKey: [key: string]

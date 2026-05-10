@@ -58,7 +58,19 @@
 
           <template v-else-if="modelKind === 'embedding'">
             <div v-if="showEmbeddingDimensions" class="param-group-card">
-              <div class="p-header"><span class="p-label">向量维度 (Dimensions) <QuestionCircleOutlined /></span><a-input-number v-model:value="form.dimensions" :min="1" :max="8192" :step="1" size="small" placeholder="如 1536" /></div>
+              <div class="p-header">
+                <a-tooltip placement="left"><template #title>控制输出向量的维度大小，维度越高信息越丰富但计算成本越大。</template><span class="p-label">向量维度 (Dimensions) <QuestionCircleOutlined /></span></a-tooltip>
+              </div>
+              <a-select
+                v-model:value="form.dimensions"
+                :options="dimensionOptions"
+                size="large"
+                placeholder="选择或输入维度"
+                show-search
+                allow-clear
+                :filter-option="filterDimensionOption"
+                style="width: 100%"
+              />
             </div>
             <p v-if="!embeddingHasAnyControl" class="cap-hint muted">当前端点未开放向量可调参数。</p>
           </template>
@@ -120,6 +132,22 @@ defineProps<{
   imageHasAnyControl: boolean
   getTempInfo: (v: number) => TempInfo
 }>()
+
+const dimensionOptions = [
+  { value: 256, label: '256 — 轻量级，适合简单检索' },
+  { value: 512, label: '512 — 紧凑型，平衡性能与精度' },
+  { value: 768, label: '768 — 常用基线（BGE / text-embedding-ada）' },
+  { value: 1024, label: '1024 — 中高维度，语义表达更丰富' },
+  { value: 1536, label: '1536 — 主流高维（OpenAI text-embedding-3）' },
+  { value: 2048, label: '2048 — 高精度场景' },
+  { value: 3072, label: '3072 — 超高精度，适合专业语义匹配' },
+  { value: 4096, label: '4096 — 最大常用档位' },
+  { value: 8192, label: '8192 — 极限维度，计算成本极高' }
+]
+
+function filterDimensionOption(input: string, option: { value: number; label: string }) {
+  return String(option.value).includes(input) || option.label.toLowerCase().includes(input.toLowerCase())
+}
 </script>
 
 <style scoped>

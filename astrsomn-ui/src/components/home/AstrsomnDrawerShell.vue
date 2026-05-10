@@ -62,7 +62,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   width: 500,
-  maskClosable: false,
+  maskClosable: true,
   destroyOnClose: true,
   showClose: true,
   rootClassName: '',
@@ -90,7 +90,7 @@ const closeDrawer = () => {
 
 :deep(.astrsomn-drawer-shell .ant-drawer-body) {
   padding: 20px;
-  background-color: #f8fafc;
+  background-color: #ffffff;
 }
 
 .drawer-header {
@@ -186,6 +186,6 @@ const closeDrawer = () => {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  background: #f8fafc;
+  background: #ffffff;
 }
 </style>

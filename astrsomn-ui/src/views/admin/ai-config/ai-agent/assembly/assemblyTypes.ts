@@ -17,7 +17,6 @@ export type AssemblyDragPayload =
 
 export type AssemblySlotKey =
   | 'chatInstance'
-  | 'embeddingInstance'
   | 'imageInstance'
   | 'promptInstance'
   | 'tools'

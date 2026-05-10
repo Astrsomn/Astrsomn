@@ -40,45 +40,6 @@
         </div>
       </a-tab-pane>
       
-      <a-tab-pane key="embedding" tab="向量">
-        <div class="search-input-wrapper">
-          <SearchOutlined class="search-icon" />
-          <input
-            v-model="keywords.embedding"
-            type="text"
-            placeholder="预设名称 / Instance Key"
-            @keyup.enter="$emit('search', 'embedding', keywords.embedding)"
-          />
-          <button type="button" class="search-submit-btn" @click="$emit('search', 'embedding', keywords.embedding)">搜索</button>
-        </div>
-        <a-pagination
-          v-if="embeddingPage.total > 0"
-          class="pane-pager-top"
-          size="small"
-          :current="embeddingPage.current"
-          :total="embeddingPage.total"
-          :page-size="pageSize"
-          :show-size-changer="false"
-          :hide-on-single-page="true"
-          @change="(p: number) => $emit('embedding-page', p)"
-        />
-        <div class="chip-scroll">
-          <template v-if="embeddingItems.length">
-            <AssemblyDragChip
-              v-for="row in embeddingItems"
-              :key="String(row.instanceKey ?? row.id)"
-              :payload="{ kind: 'instance', instanceModelType: 'embedding', data: row }"
-              :title="row.instanceName || row.instanceKey || ''"
-              :subtitle="row.instanceKey"
-              badge="Emb"
-              @drag-start="$emit('dragStart', $event)"
-              @drag-end="$emit('dragEnd')"
-            />
-          </template>
-          <div v-else class="palette-empty">暂无数据</div>
-        </div>
-      </a-tab-pane>
-      
       <a-tab-pane key="image" tab="图像">
         <div class="search-input-wrapper">
           <SearchOutlined class="search-icon" />
@@ -131,27 +92,23 @@ import AssemblyDragChip from './AssemblyDragChip.vue'
 defineProps<{
   pageSize: number
   chatItems: AiInstance[]
-  embeddingItems: AiInstance[]
   imageItems: AiInstance[]
   chatPage: { current: number; total: number }
-  embeddingPage: { current: number; total: number }
   imagePage: { current: number; total: number }
 }>()
 
 defineEmits<{
   search: [modelType: InstanceModelType, keyword: string]
   'chat-page': [page: number]
-  'embedding-page': [page: number]
   'image-page': [page: number]
   dragStart: [payload: AssemblyDragPayload]
   dragEnd: []
 }>()
 
-const activeTab = ref<'chat' | 'embedding' | 'image'>('chat')
+const activeTab = ref<'chat' | 'image'>('chat')
 
 const keywords = reactive<Record<InstanceModelType, string>>({
   chat: '',
-  embedding: '',
   image: ''
 })
 

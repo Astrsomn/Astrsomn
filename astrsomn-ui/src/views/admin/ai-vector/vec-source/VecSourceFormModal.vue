@@ -1,25 +1,21 @@
 <template>
-  <AstrsomnModal
-    v-model:open="open"
-    width="860px"
-    body-height="600px"
+  <AstrsomnDrawerShell
+    :open="open"
+    width="560px"
     :destroy-on-close="true"
-    @cancel="onCancel"
+    :mask-closable="true"
+    @update:open="onOpenChange"
   >
-    <template #header-logo>
+    <template #icon>
       <DatabaseOutlined />
     </template>
 
-    <template #header-title>
+    <template #title>
       {{ mode === 'create' ? '新建向量源' : '编辑向量源' }}
     </template>
 
-    <template #header-subtitle>
+    <template #subtitle>
       选择数据源类型并配置连接参数
-    </template>
-
-    <template #header-actions>
-      <AstrsomnSegmentedButton :buttons="headerButtons" />
     </template>
 
     <a-form
@@ -27,102 +23,107 @@
       :model="form"
       :rules="formRules"
       layout="vertical"
-      class="professional-form"
+      class="drawer-form"
     >
-      <div class="form-body-container">
-        <div class="form-section">
-          <h3 class="section-headline"><IdcardOutlined /> 基本信息</h3>
+      <div class="form-section">
+        <h3 class="section-headline"><IdcardOutlined /> 基本信息</h3>
 
-          <div class="form-grid">
-            <a-form-item label="名称" name="name">
-              <a-input v-model:value="form.name" placeholder="如：Milvus-Production" size="large" />
-            </a-form-item>
+        <a-form-item label="名称" name="name">
+          <a-input v-model:value="form.name" placeholder="如：Milvus-Production" size="large" />
+        </a-form-item>
 
-            <a-form-item label="数据源类型" name="extensionCode">
-              <a-select
-                v-model:value="form.extensionCode"
-                placeholder="选择扩展数据源类型"
-                size="large"
-                allow-clear
-                :loading="extensionsLoading"
-                show-search
-                option-filter-prop="label"
-                :options="extensionSelectOptions"
-                @change="onProviderChange"
-              />
-            </a-form-item>
-
-            <a-form-item label="状态" name="status" class="span-2">
-              <div class="status-card">
-                <span class="status-label">启用</span>
-                <a-switch v-model:checked="statusChecked" />
-              </div>
-            </a-form-item>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3 class="section-headline"><LinkOutlined /> 连接配置</h3>
-
-          <a-alert
-            v-if="!form.extensionCode"
-            type="info"
-            show-icon
-            message="请先选择数据源类型"
-            class="span-2"
-            style="margin-bottom: 12px"
+        <a-form-item label="数据源类型" name="extensionCode">
+          <ExtensionSelector
+            :value="form.extensionCode"
+            extension-type="VECTOR_STORE"
+            placeholder="选择扩展数据源类型"
+            size="large"
+            allow-clear
+            @update:value="onExtensionChange"
           />
+        </a-form-item>
 
-          <div v-else class="form-grid">
-            <a-form-item
-              v-for="code in visibleParamCodes"
-              :key="code"
-              :label="paramMeta[code].label"
-              :name="code"
-              :class="paramMeta[code].wide ? 'span-2' : ''"
-            >
-                <a-input-password
-                  v-if="paramMeta[code].password"
-                  v-model:value="formRow[code]"
-                  :placeholder="paramMeta[code].placeholder"
-                  size="large"
-                  autocomplete="off"
-                >
-                  <template v-if="paramMeta[code].prefix" #prefix>
-                    <component :is="paramMeta[code].prefix" style="color: #bfbfbf" />
-                  </template>
-                </a-input-password>
-                <a-input
-                  v-else
-                  v-model:value="formRow[code]"
-                  :placeholder="paramMeta[code].placeholder"
-                  size="large"
-                >
-                  <template v-if="paramMeta[code].prefix" #prefix>
-                    <component :is="paramMeta[code].prefix" style="color: #bfbfbf" />
-                  </template>
-                </a-input>
-            </a-form-item>
+        <a-form-item label="状态" name="status">
+          <a-segmented
+            v-model:value="form.status"
+            :options="statusOptions"
+            block
+            size="large"
+            class="status-segmented"
+          />
+        </a-form-item>
+      </div>
 
-            <a-collapse v-model:activeKey="advancedKeys" ghost class="span-2">
-              <a-collapse-panel key="adv" header="扩展配置">
-                <a-form-item name="configJson" :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
-                  <div class="json-editor-wrapper">
-                    <a-textarea
-                      v-model:value="form.configJson"
-                      :auto-size="{ minRows: 4, maxRows: 8 }"
-                      placeholder='{"useTls": true}'
-                      class="mono-text"
-                    />
-                  </div>
-                </a-form-item>
-              </a-collapse-panel>
-            </a-collapse>
-          </div>
-        </div>
+      <div class="form-section">
+        <h3 class="section-headline"><LinkOutlined /> 连接配置</h3>
+
+        <a-alert
+          v-if="!form.extensionCode"
+          type="info"
+          show-icon
+          message="请先选择数据源类型"
+          style="margin-bottom: 12px"
+        />
+
+        <template v-else>
+          <a-form-item
+            v-for="code in visibleParamCodes"
+            :key="code"
+            :label="paramMeta[code].label"
+            :name="code"
+          >
+              <a-input-password
+                v-if="paramMeta[code].password"
+                v-model:value="formRow[code]"
+                :placeholder="paramMeta[code].placeholder"
+                size="large"
+                autocomplete="off"
+              >
+                <template v-if="paramMeta[code].prefix" #prefix>
+                  <component :is="paramMeta[code].prefix" style="color: #bfbfbf" />
+                </template>
+              </a-input-password>
+              <a-input
+                v-else
+                v-model:value="formRow[code]"
+                :placeholder="paramMeta[code].placeholder"
+                size="large"
+              >
+                <template v-if="paramMeta[code].prefix" #prefix>
+                  <component :is="paramMeta[code].prefix" style="color: #bfbfbf" />
+                </template>
+              </a-input>
+          </a-form-item>
+
+          <a-collapse v-model:activeKey="advancedKeys" ghost>
+            <a-collapse-panel key="adv" header="扩展配置">
+              <a-form-item name="configJson" :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }">
+                <div class="json-editor-wrapper">
+                  <a-textarea
+                    v-model:value="form.configJson"
+                    :auto-size="{ minRows: 4, maxRows: 8 }"
+                    placeholder='{"useTls": true}'
+                    class="mono-text"
+                  />
+                </div>
+              </a-form-item>
+            </a-collapse-panel>
+          </a-collapse>
+        </template>
       </div>
     </a-form>
-  </AstrsomnModal>
+
+    <template #footer>
+      <a-button :loading="testLoading" @click="testConnection">
+        <template #icon><ApiTwoTone /></template>
+        测试连接
+      </a-button>
+      <a-button type="primary" :loading="confirmLoading" @click="handleOk">
+        <template #icon><CheckCircleOutlined /></template>
+        保存
+      </a-button>
+    </template>
+  </AstrsomnDrawerShell>
 </template>
 
 <script setup lang="ts">
@@ -142,22 +143,24 @@ import {
 } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue/es/form'
 import type { Rule } from 'ant-design-vue/es/form'
-import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
 import type { AiVecSource } from '@/api/aiVecSource.ts'
 import { aiVecSourceApi } from '@/api/aiVecSource.ts'
-import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension.ts'
 
 const props = defineProps<{ mode: 'create' | 'edit'; confirmLoading: boolean; initial: AiVecSource | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecSource] }>()
 const open = defineModel<boolean>('open', { required: true })
 
 const formRef = ref<FormInstance | null>(null)
-const vectorExtensions = ref<SystemExtension[]>([])
-const extensionsLoading = ref(false)
 const syncingInitial = ref(false)
 const advancedKeys = ref<string | string[]>([])
 const testLoading = ref(false)
+
+const statusOptions = [
+  { label: '启用', value: 'enabled' },
+  { label: '停用', value: 'disabled' }
+]
 
 type ParamMeta = {
   label: string
@@ -200,39 +203,6 @@ function emptyForm(): FormRow {
 const form = reactive<FormRow>(emptyForm())
 const formRow = form as Record<string, string | undefined>
 
-const statusChecked = computed({
-  get: () => form.status === 'enabled',
-  set: (v: boolean) => {
-    form.status = v ? 'enabled' : 'disabled'
-  }
-})
-
-const headerButtons = computed<SegmentedButton[]>(() => [
-  {
-    label: '测试',
-    type: 'default',
-    icon: ApiTwoTone,
-    loading: testLoading.value,
-    onClick: testConnection
-  },
-  {
-    label: '保存',
-    type: 'primary',
-    icon: CheckCircleOutlined,
-    loading: props.confirmLoading,
-    onClick: handleOk
-  }
-])
-
-const extensionSelectOptions = computed(() =>
-  vectorExtensions.value
-    .filter((d) => d.extensionCode)
-    .map((d) => ({
-      value: d.extensionCode as string,
-      label: `${d.extensionName ?? d.extensionCode} (${d.extensionCode})`
-    }))
-)
-
 const providerParamMap: Record<string, string[]> = {
   qdrant: ['host', 'port', 'token'],
   chroma: ['host', 'port'],
@@ -274,23 +244,9 @@ function onProviderChange() {
   clearConnectionFields()
 }
 
-async function loadVectorExtensions() {
-  extensionsLoading.value = true
-  try {
-    const resp = await systemExtensionApi.queryPage({
-      pageNo: 1,
-      pageSize: 200,
-      param: {
-        type: 'VECTOR_STORE',
-        status: 'INSTALLED'
-      }
-    })
-    vectorExtensions.value = resp.list || []
-  } catch {
-    vectorExtensions.value = []
-  } finally {
-    extensionsLoading.value = false
-  }
+function onExtensionChange(val: string | undefined) {
+  form.extensionCode = val as AiVecSource['extensionCode']
+  onProviderChange()
 }
 
 function assignFromInitial(src: AiVecSource) {
@@ -304,7 +260,6 @@ watch(
   () => [open.value, props.initial] as const,
   async ([isOpen, initial]) => {
     if (!isOpen) return
-    await loadVectorExtensions()
     syncingInitial.value = true
     if (initial && Object.keys(initial).length > 0) assignFromInitial(initial)
     else Object.assign(form, emptyForm())
@@ -315,7 +270,7 @@ watch(
 
 async function handleOk() {
   await formRef.value?.validate()
-  const payload: AiVecSource = { ...form, extensionCode: form.provider }
+  const payload: AiVecSource = { ...form }
   emit('submit', payload)
 }
 
@@ -323,7 +278,7 @@ const testConnection = async () => {
   testLoading.value = true
   try {
     await formRef.value?.validate()
-    const payload: AiVecSource = { ...form, extensionCode: form.provider }
+    const payload: AiVecSource = { ...form }
     const msg = await aiVecSourceApi.testConnection(payload)
     message.success(msg)
   } catch (e: unknown) {
@@ -334,66 +289,41 @@ const testConnection = async () => {
   }
 }
 
-const onCancel = () => {
-  open.value = false
+function onOpenChange(val: boolean) {
+  open.value = val
 }
 </script>
 
 <style scoped>
-.professional-form {
-  height: 100%;
+.drawer-form {
   display: flex;
   flex-direction: column;
+  gap: 24px;
 }
 
-.form-body-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px 40px;
-}
-
-.form-body-container::-webkit-scrollbar {
-  width: 4px;
-}
-
-.form-body-container::-webkit-scrollbar-thumb {
-  background: #eee;
-  border-radius: 4px;
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .section-headline {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
   color: #333;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 24px;
+.status-segmented {
+  width: 100%;
 }
 
-.span-2 {
-  grid-column: span 2;
-}
-
-.status-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f8f9fb;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid #eef1f6;
-}
-
-.status-label {
-  font-size: 13px;
-  font-weight: 600;
+.status-segmented :deep(.ant-segmented-item) {
+  flex: 1;
+  text-align: center;
 }
 
 .json-editor-wrapper {

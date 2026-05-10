@@ -2,7 +2,7 @@
   <section class="selection-pane">
     <div class="pane-card glass-card">
       <div class="pane-header">
-        <div class="pane-toolbar-row">
+        <div v-if="!isEdit" class="pane-toolbar-row">
           <div class="provider-field">
             <ExtensionSelector
               :value="providerFilter"
@@ -23,12 +23,15 @@
             </div>
           </div>
         </div>
-        <a-tabs :active-key="typeFilter" class="model-type-tabs" @update:activeKey="emit('update:typeFilter', $event)">
+        <a-tabs v-if="!isEdit" :active-key="typeFilter" class="model-type-tabs" @update:activeKey="emit('update:typeFilter', $event)">
           <a-tab-pane key="all" tab="全部类型" />
           <a-tab-pane key="chat" tab="对话" />
           <a-tab-pane key="embedding" tab="向量" />
           <a-tab-pane key="image" tab="图像" />
         </a-tabs>
+        <div v-if="isEdit" class="edit-locked-hint">
+          <LockOutlined /> 编辑模式下不可更换模型端点
+        </div>
       </div>
 
       <div class="model-list-body">
@@ -40,8 +43,12 @@
                 :key="record.modelKey"
                 type="button"
                 class="model-select-card"
-                :class="{ 'is-active': selectedKeys.includes(String(record.modelKey || '')) }"
-                @click="emit('select-model', record)"
+                :class="{
+                  'is-active': selectedKeys.includes(String(record.modelKey || '')),
+                  'is-locked': isEdit && !selectedKeys.includes(String(record.modelKey || ''))
+                }"
+                :disabled="isEdit"
+                @click="!isEdit && emit('select-model', record)"
               >
                 <div class="model-select-radio"><span class="dot" /></div>
    
@@ -67,6 +74,7 @@
       </div>
 
       <AstrsomnPagination
+        v-if="!isEdit"
         :current="currentPage"
         :page-size="pageSize"
         :total="total"
@@ -78,12 +86,13 @@
 </template>
 
 <script setup lang="ts">
-import { MessageOutlined, PartitionOutlined, PictureOutlined } from '@ant-design/icons-vue'
+import { LockOutlined, MessageOutlined, PartitionOutlined, PictureOutlined } from '@ant-design/icons-vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
 
 const props = defineProps<{
+  isEdit?: boolean
   providerFilter?: string
   searchDraft: string
   typeFilter: string
@@ -156,4 +165,7 @@ const onPaginationChange = (page: number, size: number) => {
 .inst-model-type-icon.image { background: linear-gradient(135deg, #ff6b6b, #ffd93d); }
 .inst-model-type-label { font-size: 12px; color: #475569; }
 .model-list-empty, .model-list-loading-more { text-align: center; color: #94a3b8; font-size: 12px; padding: 12px 0; }
+.model-select-card.is-locked { cursor: not-allowed; opacity: 0.35; pointer-events: none; }
+.model-select-card:disabled { cursor: not-allowed; }
+.edit-locked-hint { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #94a3b8; padding: 8px 0; }
 </style>

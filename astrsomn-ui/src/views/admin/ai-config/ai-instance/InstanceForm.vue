@@ -36,6 +36,7 @@
       <div class="main-content">
         <Left
         :form="form"
+        :is-edit="isEdit"
         :status-options="statusOptions"
         :instance-key-rules="instanceKeyRules"
         :account-selector-open="accountSelectorOpen"
@@ -44,6 +45,7 @@
         @select-account="onAccountSelect"
       />
      <Right
+        :is-edit="isEdit"
         :provider-filter="providerFilter"
         :search-draft="searchDraft"
         :type-filter="typeFilter"
@@ -530,6 +532,7 @@ const onSubmit = async () => {
 
 watch(() => props.visible, async (val) => {
   if (!val) return;
+  accountSelectorOpen.value = false;
   modelPager.pageNo = 1;
   modelPager.pageSize = 12;
   providerFilter.value = undefined;
