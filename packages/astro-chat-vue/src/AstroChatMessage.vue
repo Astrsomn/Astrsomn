@@ -1,5 +1,5 @@
 <template>
-  <div class="message-row" :class="[role, { 'is-streaming': streaming }]">
+  <div class="message-row" :class="[role, { 'is-streaming': streaming, compact: compact }]">
     <div class="avatar-box">
       <div v-if="role === 'ai'" class="avatar ai-avatar" aria-hidden="true">
         <svg viewBox="0 0 24 24" width="22" height="22">
@@ -83,7 +83,7 @@ import { message } from 'ant-design-vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.min.css'
-import { normalizeAiMarkdown } from '@/utils/aiMarkdownNormalize.ts'
+import { normalizeAiMarkdown } from './markdownNormalize'
 
 /** 与 demo/ChatArea.vue 一致：短语言名 → hljs 注册名 */
 const langAlias: Record<string, string> = {
@@ -96,13 +96,17 @@ const langAlias: Record<string, string> = {
   md: 'markdown'
 }
 
-const props = defineProps<{
-  role: 'user' | 'ai'
-  content: string
-  segments?: any[]
-  streaming?: boolean
-  error?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    role: 'user' | 'ai'
+    content: string
+    segments?: any[]
+    streaming?: boolean
+    error?: boolean
+    compact?: boolean
+  }>(),
+  { compact: false }
+)
 
 const THOUGHT_AUTO_COLLAPSE_CHARS = 180
 const isThoughtExpanded = ref(true)
@@ -306,6 +310,14 @@ const handleCodeCopy = (e: MouseEvent) => {
 
 .message-row.user {
   flex-direction: row-reverse;
+}
+
+.message-row.compact {
+  margin: 12px 0;
+}
+
+.message-row.compact .message-body {
+  max-width: calc(100% - 40px);
 }
 
 .avatar-box {

@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, provide } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { LeftOutlined, ReloadOutlined, RocketOutlined } from '@ant-design/icons-vue'
@@ -78,6 +78,7 @@ import { aiPromptApi } from '@/api/aiPrompt'
 import LeftTop from './component/LeftTop.vue'
 import LeftCenter from './component/LeftCenter.vue'
 import Right from './component/Right.vue'
+import { BUILDER_CHAT_CONTEXT } from './component/builderChatInjection'
 
 const route = useRoute()
 const router = useRouter()
@@ -105,6 +106,23 @@ const currentImageInstance = ref<AiInstance | undefined>(undefined)
 const placedTools = ref<AiTool[]>([])
 const placedMcps = ref<AiMcp[]>([])
 const knowledgeKeys = ref<string[]>([])
+
+const builderChatMemoryKey = ref(`builder-preview:${Date.now()}`)
+
+const builderChatSnapshot = computed(() => ({
+  currentAccount: currentAccount.value,
+  currentModel: currentModel.value,
+  currentInstance: currentInstance.value,
+  currentPrompt: currentPrompt.value,
+  placedTools: placedTools.value,
+  placedMcps: placedMcps.value,
+  knowledgeKeys: knowledgeKeys.value
+}))
+
+provide(BUILDER_CHAT_CONTEXT, {
+  snapshot: builderChatSnapshot,
+  memoryKey: builderChatMemoryKey
+})
 
 function onAccountUpdate(account: AiAccount | undefined) { currentAccount.value = account }
 function onModelUpdate(model: AiModel | undefined) { currentModel.value = model }

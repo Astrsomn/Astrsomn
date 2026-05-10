@@ -49,7 +49,7 @@
         <div v-else ref="messagesContainerRef" class="chat-messages-container">
           <div class="message-scroll-area">
             <transition-group name="message-fade">
-              <ChatMessageItem
+              <AstroChatMessage
                 v-for="item in messages"
                 :key="item.id"
                 :role="item.role"
@@ -91,8 +91,9 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import AppHeader from '@/components/top/AppHeader.vue'
 import ChatInputPanel from '@/views/chat-index/ChatInputPanel.vue'
-import ChatMessageItem from '@/views/chat-index/ChatMessageItem.vue'
+import { AstroChatMessage } from '@astrsomn/astro-chat-vue'
 import ChatSessionSidebar from '@/views/chat-index/ChatSessionSidebar.vue'
+import { readAstroStream, buildStreamError, type StreamEvent } from '@astrsomn/astro-chat-core'
 import { adaptSessionToSessionItem, aiChatSessionApi } from '@/api/aiChatSession'
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance.ts'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
@@ -113,13 +114,6 @@ type ChatSegmentType = 'text' | 'thought' | 'html'
 
 type ChatSegment = {
   type: ChatSegmentType
-  content: string
-}
-
-type StreamEventType = 'text' | 'thought' | 'html' | 'error' | 'done'
-
-type StreamEvent = {
-  type: StreamEventType
   content: string
 }
 
@@ -430,183 +424,6 @@ const appendAssistantContent = async (
   await scrollToBottom()
 }
 
-const parseSseEvent = (eventBlock: string) => {
-  return eventBlock
-    .split(/\r?\n/)
-    .filter((line) => line.startsWith('data:'))
-    .map((line) => line.slice(5).trimStart())
-    .join('\n')
-}
-
-const splitJsonObjects = (input: string) => {
-  const blocks: string[] = []
-  const fragments: string[] = []
-  let depth = 0
-  let start = -1
-  let cursor = 0
-  let inString = false
-  let escaped = false
-
-  for (let i = 0; i < input.length; i++) {
-    const char = input[i]
-    if (inString) {
-      if (escaped) {
-        escaped = false
-      } else if (char === '\\') {
-        escaped = true
-      } else if (char === '"') {
-        inString = false
-      }
-      continue
-    }
-
-    if (char === '"') {
-      inString = true
-      continue
-    }
-
-    if (char === '{') {
-      if (depth === 0) {
-        const fragment = input.slice(cursor, i).trim()
-        if (fragment) {
-          fragments.push(fragment)
-        }
-        start = i
-      }
-      depth++
-      continue
-    }
-
-    if (char === '}') {
-      depth--
-      if (depth === 0 && start >= 0) {
-        blocks.push(input.slice(start, i + 1))
-        cursor = i + 1
-        start = -1
-      }
-    }
-  }
-
-  if (depth === 0 && cursor < input.length) {
-    const fragment = input.slice(cursor).trim()
-    if (fragment) {
-      fragments.push(fragment)
-    }
-  }
-
-  return {
-    blocks,
-    trailing: fragments.join('\n'),
-    hasIncompleteBlock: depth > 0 || start >= 0
-  }
-}
-
-const toStreamEvent = (payload: unknown): StreamEvent | null => {
-  if (typeof payload === 'string') {
-    if (payload === '[DONE]') {
-      return { type: 'done', content: payload }
-    }
-    return { type: 'text', content: payload }
-  }
-
-  if (!payload || typeof payload !== 'object') {
-    return null
-  }
-
-  const record = payload as Record<string, unknown>
-  const rawType = typeof record.type === 'string' ? record.type.trim().toLowerCase() : 'text'
-  const type: StreamEventType =
-    rawType === 'thought' || rawType === 'html' || rawType === 'error' || rawType === 'done'
-      ? rawType
-      : 'text'
-  const content = typeof record.content === 'string' ? record.content : ''
-  if (type === 'done' || content || type === 'error') {
-    return { type, content }
-  }
-  return null
-}
-
-const normalizeStreamPayload = (raw: string): StreamEvent[] => {
-  const payload = raw.trim()
-  if (!payload) {
-    return []
-  }
-
-  if (payload === '[DONE]') {
-    return [{ type: 'done', content: payload }]
-  }
-
-  try {
-    const parsed = JSON.parse(payload)
-    const event = toStreamEvent(parsed)
-    return event ? [event] : []
-  } catch {
-    // ignore and try other stream formats
-  }
-
-  const { blocks, trailing } = splitJsonObjects(payload)
-  if (blocks.length > 0) {
-    const events = blocks
-      .map((block) => {
-        try {
-          return toStreamEvent(JSON.parse(block))
-        } catch {
-          return null
-        }
-      })
-      .filter((item): item is StreamEvent => item != null)
-
-    if (trailing) {
-      events.push({ type: 'text', content: trailing })
-    }
-    return events
-  }
-
-  return [{ type: 'text', content: raw }]
-}
-
-const extractJsonPayloads = (buffer: string) => {
-  const payload = buffer.trim()
-  if (!payload) {
-    return { events: [] as StreamEvent[], remaining: '' }
-  }
-
-  if (payload === '[DONE]') {
-    return {
-      events: [{ type: 'done', content: '[DONE]' } as StreamEvent],
-      remaining: ''
-    }
-  }
-
-  const { blocks, trailing, hasIncompleteBlock } = splitJsonObjects(buffer)
-  const events = blocks
-    .map((block) => {
-      try {
-        return toStreamEvent(JSON.parse(block))
-      } catch {
-        return null
-      }
-    })
-    .filter((item): item is StreamEvent => item != null)
-
-  if (!blocks.length) {
-    return {
-      events: [],
-      remaining: buffer
-    }
-  }
-
-  if (!hasIncompleteBlock && trailing) {
-    events.push(...normalizeStreamPayload(trailing))
-    return { events, remaining: '' }
-  }
-
-  return {
-    events,
-    remaining: hasIncompleteBlock ? buffer.slice(buffer.lastIndexOf('{')) : ''
-  }
-}
-
 const applyStreamEvent = async (messageId: string, event: StreamEvent) => {
   const target = messages.value.find((item) => item.id === messageId)
   if (!target) {
@@ -635,90 +452,7 @@ const applyStreamEvent = async (messageId: string, event: StreamEvent) => {
 }
 
 const readStreamText = async (response: Response, messageId: string) => {
-  const reader = response.body?.getReader()
-  if (!reader) {
-    throw new Error('未获取到流式响应体')
-  }
-
-  const decoder = new TextDecoder('utf-8')
-  const contentType = response.headers.get('content-type') || ''
-  const isSse = contentType.includes('text/event-stream')
-  let sseBuffer = ''
-  let rawBuffer = ''
-
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) {
-      break
-    }
-
-    const chunk = decoder.decode(value, { stream: true })
-    if (!chunk) {
-      continue
-    }
-
-    if (!isSse) {
-      rawBuffer += chunk
-      const { events, remaining } = extractJsonPayloads(rawBuffer)
-      rawBuffer = remaining
-      for (const event of events) {
-        const shouldContinue = await applyStreamEvent(messageId, event)
-        if (!shouldContinue) {
-          await reader.cancel()
-          return
-        }
-      }
-      continue
-    }
-
-    sseBuffer += chunk
-    const blocks = sseBuffer.split(/\r?\n\r?\n/)
-    sseBuffer = blocks.pop() || ''
-    for (const block of blocks) {
-      const data = parseSseEvent(block)
-      for (const event of normalizeStreamPayload(data)) {
-        const shouldContinue = await applyStreamEvent(messageId, event)
-        if (!shouldContinue) {
-          await reader.cancel()
-          return
-        }
-      }
-    }
-  }
-
-  if (!isSse && rawBuffer.trim()) {
-    for (const event of normalizeStreamPayload(rawBuffer)) {
-      const shouldContinue = await applyStreamEvent(messageId, event)
-      if (!shouldContinue) {
-        await reader.cancel()
-        return
-      }
-    }
-  }
-
-  if (isSse && sseBuffer.trim()) {
-    const data = parseSseEvent(sseBuffer)
-    for (const event of normalizeStreamPayload(data)) {
-      const shouldContinue = await applyStreamEvent(messageId, event)
-      if (!shouldContinue) {
-        await reader.cancel()
-        return
-      }
-    }
-  }
-}
-
-const buildStreamError = async (response: Response) => {
-  const raw = await response.text()
-  if (!raw) {
-    return `请求失败 (${response.status})`
-  }
-  try {
-    const parsed = JSON.parse(raw)
-    return parsed.message || raw
-  } catch {
-    return raw
-  }
+  await readAstroStream(response, (event) => applyStreamEvent(messageId, event))
 }
 
 const loadOptions = async () => {
@@ -838,7 +572,7 @@ const submitQuestion = async (promptArg?: string) => {
           target.segments = [{ type: 'text', content: stopText }]
         }
       } else {
-        // 解析错误响应（须同步 segments，否则 ChatMessageItem 在 segments 存在时会忽略 content）
+        // 解析错误响应（须同步 segments，否则 AstroChatMessage 在 segments 存在时会忽略 content）
         let errorMessage = '请求失败，请稍后重试'
         let errorDetail = ''
 

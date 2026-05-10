@@ -12,102 +12,101 @@
         >
           <div v-if="isDragging" class="drag-overlay">拖拽文件到这里上传</div>
 
-          <div v-if="uploadedFiles.length" class="uploaded-preview">
-            <div v-for="item in uploadedFiles" :key="item.id" class="preview-item">
-              <a-image
-                v-if="item.isImage"
-                class="preview-image"
-                :src="item.url"
-                :alt="item.name"
-                :preview="item.status === 'success'"
-              />
-              <div v-else class="preview-file">{{ item.name }}</div>
-              <div v-if="item.status === 'uploading'" class="preview-uploading">上传中...</div>
-              <div v-if="item.isImage && item.status === 'success'" class="preview-view-hint" title="点击查看大图">
-                <EyeOutlined />
+          <AstroChatComposer
+            variant="nested"
+            density="comfortable"
+            :model-value="draft"
+            placeholder="问点什么吧..."
+            :disabled="isStreaming"
+            :is-streaming="isStreaming"
+            :send-disabled="sendDisabled"
+            @update:model-value="onDraftInput"
+            @submit="handleSend"
+            @stop="emit('stop')"
+            @paste="handlePaste"
+          >
+            <template #preview>
+              <div v-if="uploadedFiles.length" class="uploaded-preview">
+                <div v-for="item in uploadedFiles" :key="item.id" class="preview-item">
+                  <a-image
+                    v-if="item.isImage"
+                    class="preview-image"
+                    :src="item.url"
+                    :alt="item.name"
+                    :preview="item.status === 'success'"
+                  />
+                  <div v-else class="preview-file">{{ item.name }}</div>
+                  <div v-if="item.status === 'uploading'" class="preview-uploading">上传中...</div>
+                  <div v-if="item.isImage && item.status === 'success'" class="preview-view-hint" title="点击查看大图">
+                    <EyeOutlined />
+                  </div>
+                  <button class="preview-remove" type="button" title="移除图片" @click="removeUploadedFile(item.id)">
+                    <CloseCircleFilled />
+                  </button>
+                </div>
               </div>
-              <button class="preview-remove" type="button" title="移除图片" @click="removeUploadedFile(item.id)">
-                <CloseCircleFilled />
-              </button>
-            </div>
-          </div>
-
-          <div class="input-toolbar">
-          <div class="toolbar-left">
-            <a-select
-              :value="selectedAgent"
-              class="panel-select"
-              placeholder="选择 Agent"
-              :bordered="false"
-              :loading="optionsLoading"
-              @update:value="emit('update:selectedAgent', $event)"
-            >
-              <a-select-option
-                v-for="agent in agentOptions"
-                :key="agent.agentKey"
-                :value="agent.agentKey"
-              >
-                {{ agent.agentName || agent.agentKey }}
-              </a-select-option>
-            </a-select>
-
-            <div class="v-divider"></div>
-
-            <div class="instance-select-with-avatar">
-              <img
-                v-if="selectedChatInstanceAvatarHtml"
-                class="inst-select-inline-avatar"
-                :src="selectedChatInstanceAvatarHtml"
-                :alt="selectedChatInstanceKey"
-                aria-hidden="true"
-              />
-              <a-select
-                :value="selectedChatInstanceKey"
-                class="panel-select instance-select-inner"
-                placeholder="选择对话实例"
-                :bordered="false"
-                dropdown-class-name="custom-dropdown"
-                option-label-prop="label"
-                :loading="optionsLoading"
-                @update:value="emit('update:selectedChatInstanceKey', $event)"
-              >
-                <a-select-option
-                  v-for="inst in chatInstanceOptions"
-                  :key="inst.instanceKey"
-                  :value="inst.instanceKey"
-                  :label="inst.instanceName || inst.instanceKey"
+            </template>
+            <template #toolbar>
+              <div class="toolbar-left">
+                <a-select
+                  :value="selectedAgent"
+                  class="panel-select"
+                  placeholder="选择 Agent"
+                  :bordered="false"
+                  :loading="optionsLoading"
+                  @update:value="emit('update:selectedAgent', $event)"
                 >
-                  <span class="inst-opt-row">
-                    <img
-                      v-if="instanceAvatarHtml(inst)"
-                      class="inst-opt-avatar"
-                      :src="instanceAvatarHtml(inst)"
-                      :alt="inst.instanceKey"
-                      aria-hidden="true"
-                    />
-                    <span class="inst-opt-text">{{ inst.instanceName || inst.instanceKey }}</span>
-                  </span>
-                </a-select-option>
-              </a-select>
-            </div>
-          </div>
-          </div>
+                  <a-select-option
+                    v-for="agent in agentOptions"
+                    :key="agent.agentKey"
+                    :value="agent.agentKey"
+                  >
+                    {{ agent.agentName || agent.agentKey }}
+                  </a-select-option>
+                </a-select>
 
-          <div class="input-body">
-            <a-textarea
-              :value="draft"
-              :auto-size="{ minRows: 1, maxRows: 6 }"
-              placeholder="问点什么吧..."
-              class="main-textarea"
-              :disabled="isStreaming"
-              @update:value="onDraftInput"
-              @pressEnter="handleEnter"
-              @paste="handlePaste"
-            />
-          </div>
+                <div class="v-divider"></div>
 
-          <div class="input-footer">
-            <div class="footer-left">
+                <div class="instance-select-with-avatar">
+                  <img
+                    v-if="selectedChatInstanceAvatarHtml"
+                    class="inst-select-inline-avatar"
+                    :src="selectedChatInstanceAvatarHtml"
+                    :alt="selectedChatInstanceKey"
+                    aria-hidden="true"
+                  />
+                  <a-select
+                    :value="selectedChatInstanceKey"
+                    class="panel-select instance-select-inner"
+                    placeholder="选择对话实例"
+                    :bordered="false"
+                    dropdown-class-name="custom-dropdown"
+                    option-label-prop="label"
+                    :loading="optionsLoading"
+                    @update:value="emit('update:selectedChatInstanceKey', $event)"
+                  >
+                    <a-select-option
+                      v-for="inst in chatInstanceOptions"
+                      :key="inst.instanceKey"
+                      :value="inst.instanceKey"
+                      :label="inst.instanceName || inst.instanceKey"
+                    >
+                      <span class="inst-opt-row">
+                        <img
+                          v-if="instanceAvatarHtml(inst)"
+                          class="inst-opt-avatar"
+                          :src="instanceAvatarHtml(inst)"
+                          :alt="inst.instanceKey"
+                          aria-hidden="true"
+                        />
+                        <span class="inst-opt-text">{{ inst.instanceName || inst.instanceKey }}</span>
+                      </span>
+                    </a-select-option>
+                  </a-select>
+                </div>
+              </div>
+            </template>
+            <template #footer-left>
               <a-upload
                 v-if="canUploadImage"
                 :show-upload-list="false"
@@ -121,43 +120,25 @@
                 </button>
               </a-upload>
 
-            <div class="feature-switches">
-              <div
-                v-if="canDeepThinking"
-                class="feature-tag"
-                :class="{ active: isDeepThinking }"
-                @click="emit('update:isDeepThinking', !isDeepThinking)"
-              >
-                <BulbOutlined /> 深度思考
+              <div class="feature-switches">
+                <div
+                  v-if="canDeepThinking"
+                  class="feature-tag"
+                  :class="{ active: isDeepThinking }"
+                  @click="emit('update:isDeepThinking', !isDeepThinking)"
+                >
+                  <BulbOutlined /> 深度思考
+                </div>
+                <div
+                  class="feature-tag"
+                  :class="{ active: isWebSearch }"
+                  @click="emit('update:isWebSearch', !isWebSearch)"
+                >
+                  <GlobalOutlined /> 联网搜索
+                </div>
               </div>
-              <div
-                class="feature-tag"
-                :class="{ active: isWebSearch }"
-                @click="emit('update:isWebSearch', !isWebSearch)"
-              >
-                <GlobalOutlined /> 联网搜索
-              </div>
-            </div>
-            </div>
-
-            <div class="footer-right">
-              <div v-if="draft.length > 0" class="char-count">
-                {{ draft.length }}
-              </div>
-              <div v-else-if="isStreaming" class="stream-status">流式回复中</div>
-              <a-button
-                type="primary"
-                class="send-btn"
-                :disabled="sendDisabled"
-                @click="isStreaming ? emit('stop') : handleSend()"
-              >
-                <template #icon>
-                  <StopOutlined v-if="isStreaming" />
-                  <ArrowUpOutlined v-else />
-                </template>
-              </a-button>
-            </div>
-          </div>
+            </template>
+          </AstroChatComposer>
         </div>
       </div>
 
@@ -167,15 +148,14 @@
 
 <script setup lang="ts">
 import {
-  ArrowUpOutlined,
   BulbOutlined,
   CloseCircleFilled,
   EyeOutlined,
   GlobalOutlined,
-  PaperClipOutlined,
-  StopOutlined
+  PaperClipOutlined
 } from '@ant-design/icons-vue'
 import request from '@/utils/request'
+import { AstroChatComposer } from '@astrsomn/astro-chat-vue'
 import type { AiAgent } from '@/api/aiAgent.ts'
 import type { AiInstance } from '@/api/aiInstance.ts'
 import { message } from 'ant-design-vue'
@@ -196,6 +176,8 @@ const props = withDefaults(defineProps<{
   agentOptions: AiAgent[]
   chatInstanceOptions: AiInstance[]
   modelCapabilities?: string[]
+  /** 自定义上传；默认走 /v1/astro/file/upload */
+  uploadFile?: (file: File) => Promise<string>
 }>(), {
   layout: 'bottom',
   modelCapabilities: () => []
@@ -353,6 +335,23 @@ const hasDuplicateFile = (file: File) => {
   return uploadedFiles.value.some((item) => item.sourceHash === fileHash)
 }
 
+async function defaultChatUpload(file: File): Promise<string> {
+  const fd = new FormData()
+  fd.append('file', file)
+  fd.append('bizType', 'chat')
+  const data = (await request({
+    url: '/v1/astro/file/upload',
+    method: 'post',
+    data: fd,
+    timeout: 60000
+  })) as UploadResponse
+  const fileUrl = data?.fileUrl?.trim()
+  if (!fileUrl) {
+    throw new Error('上传成功但未返回文件地址')
+  }
+  return fileUrl
+}
+
 const uploadSingleFile = async (file: File) => {
   if (!validateUploadFile(file)) return
   if (hasDuplicateFile(file)) {
@@ -371,20 +370,9 @@ const uploadSingleFile = async (file: File) => {
     sourceHash: fileHash,
     localPreviewUrl
   })
-  const fd = new FormData()
-  fd.append('file', file)
-  fd.append('bizType', 'chat')
   try {
-    const data = (await request({
-      url: '/v1/astro/file/upload',
-      method: 'post',
-      data: fd,
-      timeout: 60000
-    })) as UploadResponse
-    const fileUrl = data?.fileUrl?.trim()
-    if (!fileUrl) {
-      throw new Error('上传成功但未返回文件地址')
-    }
+    const uploadFn = props.uploadFile ?? defaultChatUpload
+    const fileUrl = await uploadFn(file)
     const target = uploadedFiles.value.find((item) => item.id === tempId)
     if (!target) return
     target.url = fileUrl
@@ -504,14 +492,6 @@ onBeforeUnmount(() => {
     }
   })
 })
-
-const handleEnter = (e: KeyboardEvent) => {
-  if (!e.shiftKey) {
-    e.preventDefault()
-    if (props.isStreaming) return
-    handleSend()
-  }
-}
 </script>
 
 <style scoped>
@@ -679,20 +659,6 @@ const handleEnter = (e: KeyboardEvent) => {
   box-shadow: 0 0 0 4px var(--primary-hover);
 }
 
-/* 覆盖 Ant Design 注入的 placeholder（含 webkit/moz），否则深色下对比度不足 */
-.input-panel :deep(textarea)::-webkit-input-placeholder,
-.input-panel :deep(textarea)::-moz-placeholder,
-.input-panel :deep(textarea)::placeholder {
-  color: var(--chat-input-placeholder) !important;
-  opacity: 1 !important;
-}
-
-.input-toolbar {
-  padding: 12px 16px 4px;
-  display: flex;
-  justify-content: space-between;
-}
-
 .toolbar-left {
   display: flex;
   align-items: center;
@@ -769,35 +735,8 @@ const handleEnter = (e: KeyboardEvent) => {
   white-space: nowrap;
 }
 
-.input-body {
-  padding: 4px 16px;
-}
-
-.main-textarea {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  font-size: 16px;
-  color: var(--text-primary);
-  padding: 8px 0;
-  resize: none;
-}
-
 .upload-trigger :deep(.ant-upload) {
   display: flex;
-}
-
-.input-footer {
-  padding: 8px 16px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.footer-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
 .icon-btn {
@@ -847,51 +786,6 @@ const handleEnter = (e: KeyboardEvent) => {
   background: var(--primary-hover);
   border-color: var(--primary);
   color: var(--primary);
-}
-
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.char-count {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.stream-status {
-  font-size: 12px;
-  color: var(--primary);
-}
-
-.send-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.send-btn.ant-btn-primary {
-  background: var(--chat-send-btn-bg) !important;
-  border-color: transparent !important;
-  color: #fff !important;
-  box-shadow: var(--chat-send-btn-shadow);
-}
-
-.send-btn.ant-btn-primary :deep(.anticon) {
-  color: #fff !important;
-}
-
-.send-btn.ant-btn-primary:not(:disabled):hover {
-  filter: brightness(1.08);
-}
-
-.send-btn.ant-btn-primary.ant-btn-disabled {
-  opacity: 0.5;
 }
 
 .input-hint {

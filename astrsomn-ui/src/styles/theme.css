@@ -57,7 +57,7 @@
     --chat-send-btn-bg: linear-gradient(135deg, #1677ff, #00b4ff);
     --chat-send-btn-shadow: 0 2px 12px rgba(0, 180, 255, 0.4);
 
-    /* ── Chat message (ChatMessageItem) ── */
+    /* ── Chat message (AstroChatMessage) ── */
     --chat-ai-card-bg: var(--bg-card);
     --chat-ai-card-border: var(--border-default);
     --chat-ai-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
