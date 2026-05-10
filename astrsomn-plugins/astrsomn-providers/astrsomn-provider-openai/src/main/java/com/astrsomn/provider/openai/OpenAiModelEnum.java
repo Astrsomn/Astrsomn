@@ -177,7 +177,7 @@ public enum OpenAiModelEnum {
             AiModelParamEnum.ChatParamEnum.SEED
         )
     ),
-    O1_MINI("o1-mini", "O1 Mini", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+    O1_MINI("o1-mini", "o1-mini", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
         List.of(
             AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
             AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
@@ -186,7 +186,7 @@ public enum OpenAiModelEnum {
             AiModelParamEnum.ChatParamEnum.MAX_TOKENS
         )
     ),
-    O1_PRO("o1-pro", "O1 Pro", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+    O1_PRO("o1-pro", "o1-pro", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
         List.of(
             AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
             AiModelParamEnum.ChatCapabilitiesEnum.VISION,
@@ -198,7 +198,7 @@ public enum OpenAiModelEnum {
             AiModelParamEnum.ChatParamEnum.SEED
         )
     ),
-    O3("o3", "O3", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+    O3("o3", "o3", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
         List.of(
             AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
             AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
@@ -211,7 +211,7 @@ public enum OpenAiModelEnum {
             AiModelParamEnum.ChatParamEnum.SEED
         )
     ),
-    O3_MINI("o3-mini", "O3 Mini", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+    O3_MINI("o3-mini", "o3-mini", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
         List.of(
             AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
             AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
@@ -222,7 +222,7 @@ public enum OpenAiModelEnum {
             AiModelParamEnum.ChatParamEnum.SEED
         )
     ),
-    O4_MINI("o4-mini", "O4 Mini", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+    O4_MINI("o4-mini", "o4-mini", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
         List.of(
             AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
             AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
@@ -296,21 +296,25 @@ public enum OpenAiModelEnum {
     );
 
     private final String modelName;
-    private final String modelKey;
+    private final String description;
     private final String modelType;
     private final List<? extends BaseEnum> capabilities;
     private final List<? extends BaseEnum> params;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    OpenAiModelEnum(String modelName, String modelKey, String modelType, 
+    OpenAiModelEnum(String modelName, String description, String modelType, 
                      List<? extends BaseEnum> capabilities, 
                      List<? extends BaseEnum> params) {
         this.modelName = modelName;
-        this.modelKey = modelKey;
+        this.description = description;
         this.modelType = modelType;
         this.capabilities = capabilities;
         this.params = params;
+    }
+
+    public String getModelKey() {
+        return modelName;
     }
 
     /**
@@ -344,8 +348,9 @@ public enum OpenAiModelEnum {
 
     public AiModelEntity toEntity(String provider) {
         AiModelEntity entity = new AiModelEntity();
-        entity.setModelKey(this.modelKey);
+        entity.setModelKey(this.getModelKey());
         entity.setModelName(this.modelName);
+        entity.setDescription(this.description);
         entity.setModelType(this.modelType);
         entity.setExtensionCode(provider);
         entity.setCapabilities(this.getCapabilities());

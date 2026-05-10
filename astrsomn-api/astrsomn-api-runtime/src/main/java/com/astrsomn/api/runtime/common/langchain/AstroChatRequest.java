@@ -1,6 +1,5 @@
 package com.astrsomn.api.runtime.common.langchain;
 
-
 import lombok.Data;
 
 import java.util.List;
@@ -45,4 +44,5 @@ public class AstroChatRequest {
      * 用户消息
      */
     private String userMessage;
+
 }

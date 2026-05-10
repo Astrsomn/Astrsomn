@@ -281,21 +281,25 @@ public enum ZhipuModelEnum {
     );
 
     private final String modelName;
-    private final String modelKey;
+    private final String description;
     private final String modelType;
     private final List<? extends BaseEnum> capabilities;
     private final List<? extends BaseEnum> params;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    ZhipuModelEnum(String modelName, String modelKey, String modelType, 
+    ZhipuModelEnum(String modelName, String description, String modelType, 
                    List<? extends BaseEnum> capabilities, 
                    List<? extends BaseEnum> params) {
         this.modelName = modelName;
-        this.modelKey = modelKey;
+        this.description = description;
         this.modelType = modelType;
         this.capabilities = capabilities;
         this.params = params;
+    }
+
+    public String getModelKey() {
+        return modelName;
     }
 
     /**
@@ -332,8 +336,9 @@ public enum ZhipuModelEnum {
      */
     public AiModelEntity toEntity(String provider) {
         AiModelEntity entity = new AiModelEntity();
-        entity.setModelKey(this.modelKey);
+        entity.setModelKey(this.getModelKey());
         entity.setModelName(this.modelName);
+        entity.setDescription(this.description);
         entity.setModelType(this.modelType);
         entity.setExtensionCode(provider);
         entity.setCapabilities(this.getCapabilities());
@@ -351,7 +356,7 @@ public enum ZhipuModelEnum {
             return false;
         }
         for (ZhipuModelEnum model : values()) {
-            if (!Objects.equals(model.getModelKey(), modelKey) && !Objects.equals(model.getModelName(), modelKey)) {
+            if (!Objects.equals(model.getModelName(), modelKey)) {
                 continue;
             }
             for (BaseEnum modelParam : model.params) {

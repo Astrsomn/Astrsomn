@@ -328,7 +328,7 @@ public enum DeepSeekModelEnum {
             )
     ),
 
-    DEEPSEEK_V4("deepseek-v4", "DeepSeek V4", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+    DEEPSEEK_V4("deepseek-v4-pro", "DeepSeek V4 Pro", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
                     AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
@@ -348,21 +348,25 @@ public enum DeepSeekModelEnum {
     );
 
     private final String modelName;
-    private final String modelKey;
+    private final String description;
     private final String modelType;
     private final List<? extends BaseEnum> capabilities;
     private final List<? extends BaseEnum> params;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    DeepSeekModelEnum(String modelKey, String modelName, String modelType, 
+    DeepSeekModelEnum(String modelName, String description, String modelType, 
                      List<? extends BaseEnum> capabilities, 
                      List<? extends BaseEnum> params) {
-        this.modelKey = modelKey;
         this.modelName = modelName;
+        this.description = description;
         this.modelType = modelType;
         this.capabilities = capabilities;
         this.params = params;
+    }
+
+    public String getModelKey() {
+        return modelName;
     }
 
     /**
@@ -396,8 +400,9 @@ public enum DeepSeekModelEnum {
 
     public AiModelEntity toEntity(String provider){
         AiModelEntity entity = new AiModelEntity();
-        entity.setModelKey(this.modelKey);
+        entity.setModelKey(this.getModelKey());
         entity.setModelName(this.modelName);
+        entity.setDescription(this.description);
         entity.setModelType(this.modelType);
         entity.setCapabilities(this.getCapabilities());
         entity.setParams(this.getParams());
@@ -415,7 +420,7 @@ public enum DeepSeekModelEnum {
             return false;
         }
         for (DeepSeekModelEnum model : values()) {
-            if (!modelKey.equals(model.getModelKey())) {
+            if (!modelKey.equals(model.getModelName())) {
                 continue;
             }
             for (BaseEnum modelParam : model.params) {

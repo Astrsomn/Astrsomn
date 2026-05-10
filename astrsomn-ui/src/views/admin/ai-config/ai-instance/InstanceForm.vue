@@ -37,7 +37,6 @@
         <Left
         :form="form"
         :is-edit="isEdit"
-        :status-options="statusOptions"
         :instance-key-rules="instanceKeyRules"
         :account-selector-open="accountSelectorOpen"
         @preset-name-input="onPresetNameUserInput"
@@ -428,8 +427,6 @@ function resetForm() {
   selectedKeys.value = [];
 }
 
-const statusOptions = [{ label: '立即激活', value: 'enabled' }, { label: '暂存停用', value: 'disabled' }];
-
 const instanceKeyRules = [
   {
     validator: (_rule: unknown, value: unknown) => {
@@ -516,6 +513,8 @@ const onAccountSelect = (account: any) => {
 
 const onSubmit = async () => {
   if (!String(form.instanceName || '').trim()) return message.warning('请输入名称');
+  if (!String(form.instanceKey || '').trim()) return message.warning('请输入实例标识');
+  if (!String(form.accountKey || '').trim()) return message.warning('请选择关联账号');
   if (form.instanceKey && !/^[a-zA-Z0-9_-]+$/.test(String(form.instanceKey).trim())) {
     return message.warning('实例标识仅支持字母、数字、下划线、连字符');
   }

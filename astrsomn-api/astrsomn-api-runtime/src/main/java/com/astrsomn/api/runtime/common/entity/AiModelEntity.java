@@ -35,6 +35,12 @@ public class AiModelEntity extends BaseEntity<Long> {
     private String modelName;
 
     /**
+     * Model description
+     */
+    @TableField("DESCRIPTION")
+    private String description;
+
+    /**
      * Model type (ChatModel ImageModel EmbeddingModel)
      */
     @TableField("MODEL_TYPE")

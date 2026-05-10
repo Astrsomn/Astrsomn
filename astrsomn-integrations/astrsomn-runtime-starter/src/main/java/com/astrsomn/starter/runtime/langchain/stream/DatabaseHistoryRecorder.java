@@ -39,7 +39,7 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         AiChatMessageEntity user = createEntity(
                 param,
                 ChatStreamEnum.AstroChatRole.USER,
-                param.getUserMessage(),
+                previewUserInput(param),
                 turnNo,
                 baseOrder + 1,
                 inputTokens,
@@ -77,9 +77,9 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
 
         AiChatSessionEntity session = new AiChatSessionEntity();
         session.setMemoryKey(memoryKey);
-        session.setSessionTitle(buildSessionTitle(param.getUserMessage()));
+        session.setSessionTitle(buildSessionTitle(previewUserInput(param)));
         session.setSessionStatus(AiChatEnum.SessionStatusEnum.ACTIVE.getCode());
-        session.setLastMessagePreview(buildSessionTitle(param.getUserMessage()));
+        session.setLastMessagePreview(buildSessionTitle(previewUserInput(param)));
         session.setLastMessageAt(System.currentTimeMillis());
         session.setMessageCount(0);
         session.setPromptTokens(0);
@@ -118,6 +118,10 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         wrapper.set(AiChatSessionEntity::getInstanceKey, param.getInstanceKey());
         wrapper.set(AiChatSessionEntity::getAccountKey, param.getModelSetting().getAccountKey());
         sessionMapper.update(null, wrapper);
+    }
+
+    private static String previewUserInput(AstroChatParam<?> param) {
+        return StringUtils.trimToNull(param.getUserMessageText());
     }
 
     private String buildSessionTitle(String content) {

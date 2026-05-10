@@ -201,7 +201,7 @@ const onPressEnter = (e: KeyboardEvent) => {
   pointer-events: auto;
   background: var(--bg-surface, #fff);
   border: 1px solid var(--border-default, #e5e7eb);
-  border-radius: 24px;
+  border-radius: 8px;
   box-shadow: var(--shadow-card, 0 4px 24px rgba(0, 0, 0, 0.06));
   transition:
     border-color 0.3s,
@@ -211,7 +211,7 @@ const onPressEnter = (e: KeyboardEvent) => {
 }
 
 .density-compact .input-panel {
-  border-radius: 18px;
+  border-radius: 8px;
 }
 
 .input-panel:focus-within {

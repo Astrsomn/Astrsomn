@@ -2,6 +2,7 @@ package com.astrsomn.api.runtime.common.langchain.buildParam;
 
 
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.*;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import lombok.Builder;
 import lombok.Data;
@@ -18,9 +19,19 @@ public class AstroChatParam<T> {
     // --- 1. 核心会话上下文 ---
 
     /**
-     * 用户当前输入的消息
+     * 接入层用户文本（与 {@link com.astrsomn.api.runtime.common.langchain.AstroChatRequest#getUserMessage()} 对应），用于落库预览等。
      */
-    private String userMessage;
+    private String userMessageText;
+
+    /**
+     * 图片等资源 URL 列表（与 {@link com.astrsomn.api.runtime.common.langchain.AstroChatRequest#getFileUrlList()} 对应）。
+     */
+    private List<String> fileUrlList;
+
+    /**
+     * LangChain4j 用户消息；运行时责任链从 {@link #userMessageText} 与 {@link #fileUrlList} 组装，也可由调用方直接传入。
+     */
+    private UserMessage userMessage;
     /**
      * 智能体Key
      */
