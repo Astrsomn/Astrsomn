@@ -93,12 +93,13 @@ export function toStreamEvent(payload: unknown): StreamEvent | null {
     rawType === 'thought' ||
     rawType === 'html' ||
     rawType === 'image' ||
+    rawType === 'tool' ||
     rawType === 'error' ||
     rawType === 'done'
       ? rawType
       : 'text'
   const content = typeof record.content === 'string' ? record.content : ''
-  if (type === 'done' || content || type === 'error' || type === 'image') {
+  if (type === 'done' || content || type === 'error' || type === 'image' || type === 'tool') {
     return { type, content }
   }
   return null

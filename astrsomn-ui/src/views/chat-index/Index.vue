@@ -102,6 +102,7 @@ import type { ChatSessionItem } from '@/components/chat-session/types'
 import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
 import {
   mapTurnBundlesToChatMessages,
+  mergeContentFromSegments,
   type ChatMessage,
   type ChatSegment,
   type ChatSegmentType
@@ -370,14 +371,7 @@ const scrollToBottom = async () => {
   }
 }
 
-const mergeMessageContent = (segments: ChatSegment[]) =>
-  segments
-    .map((segment) => {
-      if (segment.type === 'thought') return `[思考]\n${segment.content}`
-      if (segment.type === 'image') return `\n![image](${segment.content})\n`
-      return segment.content
-    })
-    .join('\n')
+const mergeMessageContent = (segments: ChatSegment[]) => mergeContentFromSegments(segments)
 
 const appendAssistantContent = async (
   messageId: string,
@@ -409,6 +403,55 @@ const appendAssistantContent = async (
   await scrollToBottom()
 }
 
+/** 后端 SSE type=tool，content 为 JSON：toolName / args / result */
+const appendToolStreamSegment = async (messageId: string, payloadJson: string) => {
+  const raw = (payloadJson || '').trim()
+  if (!raw) {
+    return
+  }
+  const target = messages.value.find((item) => item.id === messageId)
+  if (!target || target.role !== 'ai') {
+    return
+  }
+  if (!target.segments) {
+    target.segments = []
+  }
+
+  let toolName = 'tool'
+  let argsStr: string | undefined
+  let result = ''
+  try {
+    const o = JSON.parse(raw) as { toolName?: string; args?: unknown; result?: unknown }
+    if (typeof o.toolName === 'string' && o.toolName.trim()) {
+      toolName = o.toolName.trim()
+    }
+    if (o.args != null) {
+      argsStr = typeof o.args === 'string' ? o.args : JSON.stringify(o.args, null, 2)
+    }
+    if (o.result != null) {
+      result = String(o.result)
+    }
+  } catch {
+    result = raw
+  }
+
+  const capArgs =
+    argsStr && argsStr.length > 4000 ? `${argsStr.slice(0, 4000)}\n…` : argsStr
+  const capRes = result.length > 12000 ? `${result.slice(0, 12000)}\n…` : result
+
+  const seg: ChatSegment = {
+    type: 'tool',
+    content: capRes,
+    toolName,
+    args: capArgs?.trim() ? capArgs : undefined,
+    result: capRes,
+    title: `调用工具: ${toolName}`
+  }
+  target.segments.push(seg)
+  target.content = mergeMessageContent(target.segments)
+  await scrollToBottom()
+}
+
 const applyStreamEvent = async (messageId: string, event: StreamEvent) => {
   const target = messages.value.find((item) => item.id === messageId)
   if (!target) {
@@ -431,6 +474,9 @@ const applyStreamEvent = async (messageId: string, event: StreamEvent) => {
       return true
     case 'image':
       await appendAssistantContent(messageId, event.content, 'image')
+      return true
+    case 'tool':
+      await appendToolStreamSegment(messageId, event.content)
       return true
     case 'done':
       return false

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -125,17 +126,56 @@ public class AstroChatStreamUtil {
                 "timestamp", System.currentTimeMillis()
         )));
     }
-    // 处理工具调用时
+    /**
+     * 工具执行完成后的 SSE：与 {@link StreamTurnPersistenceHelper} 的 {@code classifyTool} 规则一致，
+     * 图片 / HTML 类工具仍走原 image、html 通道，其余走 {@code tool} JSON，供前端链式展示。
+     */
     private void handleToolOutput(FluxSink<String> sink, ToolExecution toolExecution) {
         if (toolExecution == null || toolExecution.request() == null) {
             return;
         }
         String toolName = toolExecution.request().name();
-        if (toolName.startsWith(ChatStreamEnum.AstroEventType.HTML.getPrefix())) {
-            sendEvent(sink, ChatStreamEnum.AstroEventType.HTML, toolExecution.result());
-        }else if (toolName.startsWith(ChatStreamEnum.AstroEventType.IMAGE.getPrefix())) {
-            sendEvent(sink, ChatStreamEnum.AstroEventType.IMAGE, toolExecution.result());
+        if (toolName == null) {
+            toolName = "";
         }
+        String args = toolExecution.request().arguments();
+        if (args == null) {
+            args = "";
+        }
+        Object rawResult = toolExecution.result();
+        String resultStr = rawResult != null ? String.valueOf(rawResult) : "";
+
+        ToolStreamKind kind = classifyToolForStream(toolName);
+        if (kind == ToolStreamKind.IMAGE) {
+            sendEvent(sink, ChatStreamEnum.AstroEventType.IMAGE, resultStr);
+        } else if (kind == ToolStreamKind.HTML) {
+            sendEvent(sink, ChatStreamEnum.AstroEventType.HTML, resultStr);
+        } else {
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("toolName", toolName);
+            payload.put("args", args);
+            payload.put("result", resultStr);
+            sendEvent(sink, ChatStreamEnum.AstroEventType.TOOL, JsonUtil.toJson(payload));
+        }
+    }
+
+    private enum ToolStreamKind {
+        IMAGE, HTML, GENERIC
+    }
+
+    /** 与 StreamTurnPersistenceHelper#classifyTool 保持一致 */
+    private static ToolStreamKind classifyToolForStream(String toolName) {
+        if (toolName == null) {
+            return ToolStreamKind.GENERIC;
+        }
+        String n = toolName.toLowerCase();
+        if (n.startsWith("image") || n.contains("_image") || n.contains("generateimage")) {
+            return ToolStreamKind.IMAGE;
+        }
+        if (n.contains("html")) {
+            return ToolStreamKind.HTML;
+        }
+        return ToolStreamKind.GENERIC;
     }
 
 
