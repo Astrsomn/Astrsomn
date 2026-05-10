@@ -72,7 +72,7 @@
 import { computed, provide, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { GlobalOutlined } from '@ant-design/icons-vue'; // 确保安装了 antd-icons
-import { appPkgName, appPkgVersion } from '@/config/appMeta';
+import { appConfig } from '@/config';
 import type { AdminModuleNavGroup } from './adminModuleTypes';
 
 const props = defineProps<{
@@ -134,8 +134,8 @@ watch(
 const appMeta = computed(() => {
   const mode = import.meta.env.MODE;
   return {
-    name: appPkgName,
-    version: appPkgVersion,
+    name: appConfig.name,
+    version: appConfig.version,
     envLabel: import.meta.env.PROD ? 'PRO' : mode.toUpperCase()
   };
 });

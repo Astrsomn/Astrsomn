@@ -49,15 +49,18 @@
         <div v-else ref="messagesContainerRef" class="chat-messages-container">
           <div class="message-scroll-area">
             <transition-group name="message-fade">
-              <AstroChatMessage
-                v-for="item in messages"
-                :key="item.id"
-                :role="item.role"
-                :content="item.content"
-                :segments="item.segments"
-                :streaming="item.streaming"
-                :error="item.error"
-              />
+              <div v-for="item in messages" :key="item.id" class="message-wrapper">
+                <AstroChatMessage
+                  :role="item.role"
+                  :content="item.content"
+                  :segments="item.segments"
+                  :streaming="item.streaming"
+                  :error="item.error"
+                />
+                <div v-if="item.timestamp" :class="['message-timestamp', `message-timestamp-${item.role}`]">
+                  {{ formatTimestamp(item.timestamp) }}
+                </div>
+              </div>
             </transition-group>
             <div ref="messagesBottomRef" class="messages-bottom-spacer"></div>
           </div>
@@ -152,7 +155,7 @@ const sendDisabled = computed(() => {
 })
 
 const isNewSessionView = computed(() => {
-  return messages.value.length === 1 && messages.value[0]?.id === 'welcome'
+  return messages.value.length === 0 || (messages.value.length === 1 && messages.value[0]?.id === 'welcome')
 })
 
 const currentInstanceCapabilities = computed<string[]>(() => {
@@ -255,6 +258,37 @@ const resetInputDraftState = () => {
   selectedChatInstanceKey.value = getDefaultChatInstanceKey(selectedAgent.value)
 }
 
+const formatTimestamp = (timestamp: string): string => {
+  try {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+
+    if (minutes < 1) {
+      return '刚刚'
+    } else if (minutes < 60) {
+      return `${minutes}分钟前`
+    } else if (hours < 24) {
+      return `${hours}小时前`
+    } else if (days < 7) {
+      return `${days}天前`
+    } else {
+      return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
+  } catch {
+    return timestamp
+  }
+}
+
 const getMemoryKey = () => {
   if (currentMemoryKey.value) return currentMemoryKey.value
   let memoryKey = sessionStorage.getItem(CHAT_MEMORY_KEY) || ''
@@ -331,6 +365,18 @@ const createNewSession = () => {
   clearDraftState(key)
   resetInputDraftState()
   resetWelcomeMessage()
+  scrollToTop()
+}
+
+const scrollToTop = async () => {
+  await nextTick()
+  const container = messagesContainerRef.value
+  if (container) {
+    container.scrollTop = 0
+    return
+  }
+  document.body.scrollTop = 0
+  document.documentElement.scrollTop = 0
 }
 
 const deleteSession = (session: ChatSessionItem) => {
@@ -545,13 +591,15 @@ const submitQuestion = async (promptArg?: string) => {
 
   const userMessageId = `user-${Date.now()}`
   const assistantMessageId = `ai-${Date.now()}`
-  messages.value.push({ id: userMessageId, role: 'user', content: prompt })
+  const now = new Date().toISOString()
+  messages.value.push({ id: userMessageId, role: 'user', content: prompt, timestamp: now })
   messages.value.push({
     id: assistantMessageId,
     role: 'ai',
     content: '',
     segments: [],
-    streaming: true
+    streaming: true,
+    timestamp: now
   })
   isStreaming.value = true
   await scrollToBottom()
@@ -790,6 +838,26 @@ watch(
 
 .message-fade-move {
   transition: transform 0.3s ease;
+}
+
+.message-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.message-timestamp {
+  font-size: 11px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: #9ca3af;
+  opacity: 0.8;
+  padding: 0 12px;
+  font-style: italic;
+  text-align: left;
+}
+
+.message-timestamp-user {
+  text-align: right;
 }
 
 /* 响应式调整 */

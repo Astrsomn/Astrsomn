@@ -6,7 +6,7 @@
           <div class="brand-logo">A</div>
           <div class="brand-text">
             <h2 class="sider-title">扩展中心</h2>
-            <span class="sider-version">v2.4.0</span>
+            <span class="sider-version">v{{ appConfig.version }}</span>
           </div>
         </div>
       </header>
@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import { InboxOutlined, AppstoreOutlined, RocketFilled, RightOutlined } from '@ant-design/icons-vue'
+import { appConfig } from '@/config'
 
 defineProps<{
   selectedMenuKeys: string[]
