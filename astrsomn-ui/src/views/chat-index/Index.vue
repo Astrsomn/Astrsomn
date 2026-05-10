@@ -40,6 +40,7 @@
             :send-disabled="sendDisabled"
             :agent-options="agentOptions"
             :chat-instance-options="chatInstanceOptions"
+            :model-capabilities="currentInstanceCapabilities"
             @submit="submitQuestion"
             @stop="stopStreaming"
           />
@@ -76,6 +77,7 @@
           :send-disabled="sendDisabled"
           :agent-options="agentOptions"
           :chat-instance-options="chatInstanceOptions"
+          :model-capabilities="currentInstanceCapabilities"
           @submit="submitQuestion"
           @stop="stopStreaming"
         />
@@ -166,6 +168,19 @@ const sendDisabled = computed(() => {
 
 const isNewSessionView = computed(() => {
   return messages.value.length === 1 && messages.value[0]?.id === 'welcome'
+})
+
+const currentInstanceCapabilities = computed<string[]>(() => {
+  const instance = chatInstanceOptions.value.find(
+    (i) => i.instanceKey === selectedChatInstanceKey.value
+  )
+  if (!instance?.capabilities) return []
+  try {
+    const parsed = JSON.parse(instance.capabilities)
+    return Array.isArray(parsed) ? parsed.map(String) : []
+  } catch {
+    return []
+  }
 })
 
 const getAgentPreferredChatInstanceKey = (agentKey?: string) => {

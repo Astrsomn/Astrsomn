@@ -67,7 +67,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { MessageOutlined, PartitionOutlined, PictureOutlined } from '@ant-design/icons-vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import { aiInstanceApi, type AiInstance } from '@/api/aiInstance'
+import { aiInstanceApi, type AiInstance } from '@/api/aiInstance.ts'
 
 const open = defineModel<boolean>('open', { required: true })
 const emit = defineEmits<{ select: [instance: AiInstance] }>()

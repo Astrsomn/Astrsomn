@@ -1,37 +1,21 @@
 <template>
-  <a-drawer
+  <AstrsomnDrawerShell
     :open="props.open"
-    placement="right"
     :width="560"
-    :maskClosable="true"
-    :closable="true"
-    title="选择提示词"
-    @close="handleClose"
-    root-class-name="prompt-select-drawer"
+    @update:open="handleClose"
   >
+    <template #title>选择提示词</template>
+    <template #subtitle>AI Prompt</template>
+
     <div class="select-drawer-content">
       <div class="search-bar">
-        <a-input
-          v-model:value="keyword"
+        <AstrsomnSearchPill
+          v-model="keyword"
           placeholder="搜索标题"
-          allow-clear
-          @pressEnter="handleSearch"
-        >
-          <template #prefix>
-            <SearchOutlined />
-          </template>
-        </a-input>
-        <a-select
-          v-model:value="queryStatus"
-          placeholder="状态筛选"
-          allow-clear
-          style="width: 120px"
-          @change="handleSearch"
-        >
-          <a-select-option value="enabled">启用</a-select-option>
-          <a-select-option value="disabled">禁用</a-select-option>
-        </a-select>
-        <a-button type="primary" @click="handleSearch">查询</a-button>
+          layout="fluid"
+          style="flex: 1"
+          @search="handleSearch"
+        />
       </div>
 
       <a-spin :spinning="loading">
@@ -47,40 +31,48 @@
               <EditOutlined />
             </div>
             <div class="prompt-info">
-              <div class="prompt-title">{{ prompt.promptTitle }}</div>
+              <div class="prompt-header">
+                <div class="prompt-title">{{ prompt.promptTitle }}</div>
+                <div class="prompt-meta">
+                  <span class="version-tag">v{{ prompt.version || 1 }}</span>
+                  <span class="status-badge" :class="prompt.status">
+                    {{ prompt.status === 'enabled' ? '启用' : '禁用' }}
+                  </span>
+                </div>
+              </div>
               <div class="prompt-key">
                 <KeyOutlined /> {{ prompt.promptKey || '自动生成' }}
               </div>
               <div class="prompt-scene" v-if="prompt.scene">{{ prompt.scene }}</div>
-            </div>
-            <div class="prompt-meta">
-              <span class="version-tag">v{{ prompt.version || 1 }}</span>
-              <span class="status-badge" :class="prompt.enabledFlag">
-                {{ prompt.enabledFlag === 'enabled' ? '启用' : '禁用' }}
-              </span>
+              <div class="prompt-content-preview" v-if="prompt.promptContent">
+                {{ truncateContent(prompt.promptContent) }}
+              </div>
             </div>
           </div>
 
           <a-empty v-if="!loading && list.length === 0" description="暂无提示词" />
         </div>
       </a-spin>
-
-      <div class="drawer-footer">
-        <a-pagination
-          v-model:current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="fetchList"
-        />
-      </div>
     </div>
-  </a-drawer>
+
+    <template #footer>
+      <AstrsomnPagination
+        :current="page.pageNum"
+        :page-size="page.pageSize"
+        :total="page.total"
+        :show-size-changer="true"
+        @change="onPageChange"
+      />
+    </template>
+  </AstrsomnDrawerShell>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
-import { SearchOutlined, EditOutlined, KeyOutlined } from '@ant-design/icons-vue'
+import { reactive, ref, watch, nextTick } from 'vue'
+import { EditOutlined, KeyOutlined } from '@ant-design/icons-vue'
+import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt'
 
 const props = defineProps<{
@@ -93,7 +85,6 @@ const emit = defineEmits<{
 }>()
 
 const keyword = ref('')
-const queryStatus = ref<string | undefined>()
 const loading = ref(false)
 const list = ref<AiPrompt[]>([])
 const selectedId = ref<number | string | undefined>()
@@ -103,6 +94,11 @@ const page = reactive({
   total: 0
 })
 
+const truncateContent = (raw: string) => {
+  const clean = raw.replace(/\s+/g, ' ').trim()
+  return clean.length > 80 ? `${clean.slice(0, 80)}...` : clean
+}
+
 const fetchList = async () => {
   loading.value = true
   try {
@@ -110,8 +106,7 @@ const fetchList = async () => {
       pageNo: page.pageNum,
       pageSize: page.pageSize,
       param: {
-        promptTitle: keyword.value || undefined,
-        status: queryStatus.value || undefined
+        promptTitle: keyword.value || undefined
       }
     }
     const resp: PageResponse<AiPrompt> = await aiPromptApi.queryPage(payload)
@@ -127,6 +122,12 @@ const handleSearch = () => {
   void fetchList()
 }
 
+const onPageChange = (p: number, size: number) => {
+  page.pageNum = p
+  page.pageSize = size
+  void fetchList()
+}
+
 const handleSelect = (prompt: AiPrompt) => {
   selectedId.value = prompt.id
   emit('select', prompt)
@@ -136,12 +137,12 @@ const handleClose = () => {
   emit('update:open', false)
 }
 
-watch(() => props.open, (val) => {
+watch(() => props.open, async (val) => {
   if (val) {
     keyword.value = ''
-    queryStatus.value = undefined
     selectedId.value = undefined
     page.pageNum = 1
+    await nextTick()
     void fetchList()
   }
 })
@@ -151,21 +152,17 @@ watch(() => props.open, (val) => {
 .select-drawer-content {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  gap: 16px;
   min-height: 0;
 }
 
 .search-bar {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
 .prompt-list {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -209,15 +206,31 @@ watch(() => props.open, (val) => {
 .prompt-info {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prompt-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .prompt-title {
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.prompt-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .prompt-key {
@@ -232,15 +245,17 @@ watch(() => props.open, (val) => {
 .prompt-scene {
   font-size: 12px;
   color: var(--text-hint);
-  margin-top: 4px;
 }
 
-.prompt-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  flex-shrink: 0;
+.prompt-content-preview {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
 }
 
 .version-tag {
@@ -269,11 +284,7 @@ watch(() => props.open, (val) => {
   color: #ef4444;
 }
 
-.drawer-footer {
-  flex-shrink: 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-default);
-  display: flex;
+:deep(.drawer-footer) {
   justify-content: center;
 }
 </style>

@@ -5,10 +5,10 @@
         <div
           class="input-body-wrap"
           :class="{ 'is-dragging': isDragging }"
-          @dragenter.prevent="onDragEnter"
-          @dragover.prevent="onDragOver"
-          @dragleave.prevent="onDragLeave"
-          @drop.prevent="onDrop"
+          @dragenter.prevent="canUploadImage && onDragEnter"
+          @dragover.prevent="canUploadImage && onDragOver"
+          @dragleave.prevent="canUploadImage && onDragLeave"
+          @drop.prevent="canUploadImage && onDrop"
         >
           <div v-if="isDragging" class="drag-overlay">拖拽文件到这里上传</div>
 
@@ -109,6 +109,7 @@
           <div class="input-footer">
             <div class="footer-left">
               <a-upload
+                v-if="canUploadImage"
                 :show-upload-list="false"
                 :before-upload="beforeUpload"
                 :custom-request="uploadRequest"
@@ -122,6 +123,7 @@
 
             <div class="feature-switches">
               <div
+                v-if="canDeepThinking"
                 class="feature-tag"
                 :class="{ active: isDeepThinking }"
                 @click="emit('update:isDeepThinking', !isDeepThinking)"
@@ -193,8 +195,10 @@ const props = withDefaults(defineProps<{
   fileUrlList?: string[]
   agentOptions: AiAgent[]
   chatInstanceOptions: AiInstance[]
+  modelCapabilities?: string[]
 }>(), {
-  layout: 'bottom'
+  layout: 'bottom',
+  modelCapabilities: () => []
 })
 
 const emit = defineEmits<{
@@ -245,6 +249,18 @@ const selectedChatInstanceAvatarHtml = computed(() => {
   return inst ? instanceAvatarHtml(inst) : ''
 })
 
+const hasCapability = (code: string): boolean => {
+  return props.modelCapabilities.includes(code)
+}
+
+const canUploadImage = computed(() =>
+  props.modelCapabilities.length === 0 || hasCapability('vision')
+)
+
+const canDeepThinking = computed(() =>
+  props.modelCapabilities.length === 0 || hasCapability('deep_reasoning')
+)
+
 /** 本地草稿：与父级 userInput 同步，但发送时先在此清空，避免仅依赖 v-model 时 a-textarea 不刷新 */
 const draft = ref('')
 
@@ -290,6 +306,22 @@ const emitFileUrlList = () => {
     uploadedFiles.value.filter((item) => item.status === 'success').map((item) => item.url)
   )
 }
+
+watch(
+  () => props.modelCapabilities,
+  () => {
+    if (!canUploadImage.value && uploadedFiles.value.length > 0) {
+      uploadedFiles.value.forEach((item) => {
+        if (item.localPreviewUrl) URL.revokeObjectURL(item.localPreviewUrl)
+      })
+      uploadedFiles.value = []
+      emitFileUrlList()
+    }
+    if (!canDeepThinking.value && props.isDeepThinking) {
+      emit('update:isDeepThinking', false)
+    }
+  }
+)
 
 const isAllowedFileType = (file: File) => {
   if (file.type && ALLOWED_FILE_TYPES.has(file.type)) return true
@@ -403,6 +435,7 @@ const removeUploadedFile = (id: string) => {
 
 const handlePaste = async (event: ClipboardEvent) => {
   if (props.isStreaming) return
+  if (!canUploadImage.value) return
   const files = Array.from(event.clipboardData?.files ?? [])
   if (!files.length) return
   event.preventDefault()

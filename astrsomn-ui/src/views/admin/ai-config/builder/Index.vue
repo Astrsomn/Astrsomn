@@ -1,21 +1,38 @@
 <template>
   <main class="builder-main">
     <div class="builder-body">
-      <section class="builder-left">
+      <div class="builder-left-viewport">
+        <div class="builder-topbar">
+          <a-tooltip title="返回">
+            <button class="topbar-icon-btn" @click="handleCancel">
+              <LeftOutlined />
+            </button>
+          </a-tooltip>
+          <span class="topbar-title">{{ isEdit ? '编辑智能体' : '新建智能体' }}</span>
+          <div class="topbar-actions">
+            <a-tooltip title="重置">
+              <button class="topbar-icon-btn" :disabled="submitting" @click="handleReset">
+                <ReloadOutlined />
+              </button>
+            </a-tooltip>
+            <a-tooltip :title="isEdit ? '保存' : '发布'">
+              <button class="topbar-icon-btn primary" :disabled="submitting" @click="handleSubmit">
+                <span v-if="submitting" class="spinner"></span>
+                <RocketOutlined v-else />
+              </button>
+            </a-tooltip>
+          </div>
+        </div>
+        <section class="builder-left">
         <LeftTop
           ref="leftTopRef"
           :agent-name="agentName"
           :description="description"
-          :is-edit="isEdit"
-          :submitting="submitting"
           @update:agentName="agentName = $event"
           @update:description="description = $event"
           @update:account="onAccountUpdate"
           @update:model="onModelUpdate"
           @update:instance="onInstanceUpdate"
-          @cancel="handleCancel"
-          @reset="handleReset"
-          @submit="handleSubmit"
         />
         <LeftCenter
           ref="leftCenterRef"
@@ -31,7 +48,8 @@
           @add:kb="onKbAdd"
           @remove:kb="onKbRemove"
         />
-      </section>
+        </section>
+      </div>
       <Right />
     </div>
   </main>
@@ -41,6 +59,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
+import { LeftOutlined, ReloadOutlined, RocketOutlined } from '@ant-design/icons-vue'
 import { aiAgentApi } from '@/api/aiAgent'
 import type { AiAgent } from '@/api/aiAgent'
 import type { AiAccount } from '@/api/aiAccount'
@@ -50,6 +69,8 @@ import type { AiPrompt } from '@/api/aiPrompt'
 import type { AiTool } from '@/api/aiTool'
 import type { AiMcp } from '@/api/aiMcp'
 import { aiInstanceApi } from '@/api/aiInstance'
+import { aiModelApi } from '@/api/aiModel'
+import { aiAccountApi } from '@/api/aiAccount'
 import { aiToolApi } from '@/api/aiTool'
 import { aiMcpApi } from '@/api/aiMcp'
 import { aiPromptApi } from '@/api/aiPrompt'
@@ -207,11 +228,38 @@ async function backfillFromDetail(detail: AiAgent) {
   if (detail.chatInstanceKey) {
     promises.push(
       aiInstanceApi.queryPage({ pageNo: 1, pageSize: 1, param: { instanceKey: detail.chatInstanceKey } })
-        .then((resp) => {
+        .then(async (resp) => {
           const inst = resp.list?.[0]
           if (inst) {
             currentInstance.value = inst
             leftTopRef.value?.setInstance(inst)
+
+            const subTasks: Promise<void>[] = []
+            if (inst.modelKey) {
+              subTasks.push(
+                aiModelApi.queryPage({ pageNo: 1, pageSize: 1, param: { modelKey: inst.modelKey } })
+                  .then((mResp) => {
+                    const model = mResp.list?.[0]
+                    if (model) {
+                      currentModel.value = model
+                      leftTopRef.value?.setModel(model)
+                    }
+                  })
+              )
+            }
+            if (inst.accountKey) {
+              subTasks.push(
+                aiAccountApi.queryPage({ pageNo: 1, pageSize: 1, param: { accountKey: inst.accountKey } })
+                  .then((aResp) => {
+                    const account = aResp.list?.[0]
+                    if (account) {
+                      currentAccount.value = account
+                      leftTopRef.value?.setAccount(account)
+                    }
+                  })
+              )
+            }
+            await Promise.allSettled(subTasks)
           }
         })
     )
@@ -294,6 +342,7 @@ onMounted(() => {
   width: 100%;
   height: calc(100vh - 60px);
   max-height: calc(100vh - 60px);
+
   overflow: hidden;
 }
 
@@ -312,15 +361,106 @@ onMounted(() => {
   --ab-hover-line: #3b82f6;
   --ab-hover-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
   background: var(--ab-bg-page);
-  padding: 16px;
+  padding: 0 0 0 16px;
+}
+
+.builder-left-viewport {
+  flex: 2.5 1 0;
+  min-width: 0;
+  position: relative;
+  overflow-y: auto;
+}
+
+.builder-topbar {
+  position: sticky;
+  top: 16px;
+  left: 0;
+  right: 0;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+  background: transparent;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.topbar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.topbar-actions {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default, #e2e8f0);
+  background: #fff;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 15px;
+  padding: 0;
+}
+
+.topbar-icon-btn:hover {
+  color: #1e293b;
+  border-color: #94a3b8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.topbar-icon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.topbar-icon-btn.primary {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+}
+
+.topbar-icon-btn.primary:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 2px 12px rgba(59, 130, 246, 0.45);
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .builder-left {
-  flex: 2.5 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  overflow: hidden;
+  padding-top: 4px;
 }
 </style>

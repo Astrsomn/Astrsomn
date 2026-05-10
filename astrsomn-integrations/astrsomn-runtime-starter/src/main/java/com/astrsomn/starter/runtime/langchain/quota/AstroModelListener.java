@@ -46,14 +46,13 @@ public class AstroModelListener implements ChatModelListener {
                 TokenUsage usage = context.chatResponse().tokenUsage();
                 String rawContent = context.chatResponse().aiMessage().text();
 
-
                 String cleanedContent = sensitiveWordProvider.filter(rawContent);
 
                 if (usage != null) {
-                    // 计费使用原始 Token
                     quotaManager.addUsage(param.getModelKey(), usage.totalTokenCount());
-                    // 存档使用清洗后的内容
-                    historyRecorder.savePair(param, cleanedContent, usage);
+                    if (param.isEnableHistorySave()) {
+                        historyRecorder.savePair(param, cleanedContent, usage);
+                    }
                 }
             } catch (Exception e) {
                 log.error("====> [Astrsomn] 审计归档失败", e);

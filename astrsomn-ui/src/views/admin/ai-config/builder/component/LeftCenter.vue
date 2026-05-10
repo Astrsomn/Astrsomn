@@ -11,8 +11,11 @@
       <div class="cell-prompt">
         <PromptCard
           :prompt="currentPrompt"
+          :improve-loading="improveLoading"
           @select="handleSelectPrompt"
           @create="handleCreatePrompt"
+          @history="handleHistoryPrompt"
+          @improve="handleImprovePrompt"
           @update:promptContent="handlePromptContentUpdate"
         />
       </div>
@@ -50,11 +53,47 @@
       :initial="null"
       @submit="handlePromptSubmit"
     />
+
+    <PromptHistoryModal
+      v-model:open="historyModalOpen"
+      :prompt-key="currentPrompt?.promptKey"
+      :env-code="currentPrompt?.envCode"
+    />
+
+    <a-modal
+      v-model:open="diffModalVisible"
+      title="提示词美化对比"
+      width="800px"
+      :footer="null"
+      destroy-on-close
+    >
+      <div class="diff-container">
+        <div class="diff-header">
+          <div class="diff-title original">原内容（已删除）</div>
+          <div class="diff-title improved">美化后</div>
+        </div>
+        <div class="diff-content">
+          <div class="diff-original">
+            <pre class="diff-text original-text">{{ originalContent }}</pre>
+          </div>
+          <div class="diff-improved">
+            <pre class="diff-text improved-text">{{ improvedContent }}</pre>
+          </div>
+        </div>
+      </div>
+      <div class="diff-footer">
+        <a-space>
+          <a-button @click="diffModalVisible = false">取消</a-button>
+          <a-button type="primary" @click="handleApplyImproved">使用美化后内容</a-button>
+        </a-space>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { message } from 'ant-design-vue'
 import PromptCard from './left-center/PromptCard.vue'
 import ImageModelCard from './left-center/ImageModelCard.vue'
 import ToolCard from './left-center/ToolCard.vue'
@@ -62,7 +101,8 @@ import McpCard from './left-center/McpCard.vue'
 import RagCard from './left-center/RagCard.vue'
 import PromptSelectDrawer from '../../ai-prompt/PromptSelectDrawer.vue'
 import PromptFormModal from '../../ai-prompt/PromptFormModal.vue'
-import type { AiPrompt } from '@/api/aiPrompt'
+import PromptHistoryModal from '../../ai-prompt/PromptHistoryModal.vue'
+import { aiPromptApi, type AiPrompt } from '@/api/aiPrompt'
 import type { AiInstance } from '@/api/aiInstance'
 import type { AiTool } from '@/api/aiTool'
 import type { AiMcp } from '@/api/aiMcp'
@@ -86,6 +126,11 @@ const emit = defineEmits<{
 
 const promptDrawerOpen = ref(false)
 const promptFormOpen = ref(false)
+const historyModalOpen = ref(false)
+const improveLoading = ref(false)
+const diffModalVisible = ref(false)
+const originalContent = ref('')
+const improvedContent = ref('')
 const currentPrompt = ref<AiPrompt | undefined>(undefined)
 const currentImageInstance = ref<AiInstance | undefined>(undefined)
 
@@ -105,6 +150,42 @@ const handleSelectPrompt = () => {
 
 const handleCreatePrompt = () => {
   promptFormOpen.value = true
+}
+
+const handleHistoryPrompt = () => {
+  if (!currentPrompt.value?.promptKey) {
+    message.warning('请先选择一个提示词')
+    return
+  }
+  historyModalOpen.value = true
+}
+
+const handleImprovePrompt = async () => {
+  const content = currentPrompt.value?.promptContent
+  if (!content?.trim()) {
+    message.warning('请先输入提示词内容')
+    return
+  }
+  originalContent.value = content
+  improveLoading.value = true
+  try {
+    const improved = await aiPromptApi.improvePrompt(content)
+    improvedContent.value = improved
+    diffModalVisible.value = true
+  } catch {
+    message.error('美化失败，请重试')
+  } finally {
+    improveLoading.value = false
+  }
+}
+
+const handleApplyImproved = () => {
+  if (currentPrompt.value) {
+    currentPrompt.value.promptContent = improvedContent.value
+    emit('update:prompt', currentPrompt.value)
+  }
+  diffModalVisible.value = false
+  message.success('已应用美化后的提示词')
 }
 
 const handlePromptSelect = (prompt: AiPrompt) => {
@@ -228,5 +309,80 @@ const handleKbRemove = (kbKey: string) => {
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: var(--border-default);
   border-radius: 10px;
+}
+
+.diff-container {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.diff-header {
+  display: flex;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.diff-title {
+  flex: 1;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.diff-title.original {
+  background: #fff1f0;
+  color: #ff4d4f;
+  border-right: 1px solid #e8e8e8;
+}
+
+.diff-title.improved {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.diff-content {
+  display: flex;
+  min-height: 300px;
+  max-height: 500px;
+}
+
+.diff-original,
+.diff-improved {
+  flex: 1;
+  padding: 16px;
+  overflow: auto;
+  background: #fff;
+}
+
+.diff-original {
+  background: #fffafafa;
+  border-right: 1px solid #e8e8e8;
+}
+
+.diff-text {
+  margin: 0;
+  font-family: 'Fira Code', ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.original-text {
+  color: #ff4d4f;
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.improved-text {
+  color: #52c41a;
+}
+
+.diff-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e8e8e8;
+  text-align: right;
 }
 </style>

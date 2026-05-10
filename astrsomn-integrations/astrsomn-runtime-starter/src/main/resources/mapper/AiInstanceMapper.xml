@@ -31,7 +31,15 @@
         WHERE AA.ACCOUNT_KEY = AI.ACCOUNT_KEY
         AND (AA.DELETED = 0 OR AA.DELETED IS NULL)
         LIMIT 1
-        ) AS account_name
+        ) AS account_name,
+        (
+        SELECT M.CAPABILITIES
+        FROM AI_MODEL M
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND M.ENV_CODE = AI.ENV_CODE
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        LIMIT 1
+        ) AS capabilities
         FROM
         `AI_INSTANCE` AI
         WHERE
@@ -105,7 +113,15 @@
         WHERE AA.ACCOUNT_KEY = AI.ACCOUNT_KEY
         AND (AA.DELETED = 0 OR AA.DELETED IS NULL)
         LIMIT 1
-        ) AS account_name
+        ) AS account_name,
+        (
+        SELECT M.CAPABILITIES
+        FROM AI_MODEL M
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND (M.ENV_CODE = AI.ENV_CODE OR (M.ENV_CODE IS NULL AND AI.ENV_CODE IS NULL))
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        LIMIT 1
+        ) AS capabilities
         FROM AI_INSTANCE AI
         WHERE AI.ID = #{id}
         AND (AI.DELETED = 0 OR AI.DELETED IS NULL)

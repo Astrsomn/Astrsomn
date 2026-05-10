@@ -102,6 +102,12 @@ public class AstroChatParam<T> {
      * 模型监听器
      */
     private List<ChatModelListener> chatModelListeners;
+
+    /**
+     * 是否持久化历史消息（Builder Playground 场景下可关闭）
+     */
+    @Builder.Default
+    private boolean enableHistorySave = true;
     
     /**
      * 最终执行接口

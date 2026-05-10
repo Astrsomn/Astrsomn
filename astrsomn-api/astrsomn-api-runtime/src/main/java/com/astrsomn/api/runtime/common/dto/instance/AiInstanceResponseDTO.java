@@ -15,4 +15,10 @@ public class AiInstanceResponseDTO extends AiInstanceEntity {
      * 关联账号名称，通过 ACCOUNT_KEY 关联查询 AI_ACCOUNT 表获取。
      */
     private String accountName;
+
+    /**
+     * 关联模型的能力列表 JSON，来自 {@code AI_MODEL.CAPABILITIES}。
+     * 例如：["streaming","vision","tools","deep_reasoning"]
+     */
+    private String capabilities;
 }
