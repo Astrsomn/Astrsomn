@@ -97,25 +97,15 @@ import { readAstroStream, buildStreamError, type StreamEvent } from '@astrsomn/a
 import { adaptSessionToSessionItem, aiChatSessionApi } from '@/api/aiChatSession'
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance.ts'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
-import { aiConversationApi, type AiConversation } from '@/api/aiConversation'
+import { aiConversationApi } from '@/api/aiConversation'
 import type { ChatSessionItem } from '@/components/chat-session/types'
 import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
-
-type ChatMessage = {
-  id: string
-  role: 'user' | 'ai'
-  content: string
-  segments?: ChatSegment[]
-  streaming?: boolean
-  error?: boolean
-}
-
-type ChatSegmentType = 'text' | 'thought' | 'html'
-
-type ChatSegment = {
-  type: ChatSegmentType
-  content: string
-}
+import {
+  mapTurnBundlesToChatMessages,
+  type ChatMessage,
+  type ChatSegment,
+  type ChatSegmentType
+} from '@/views/chat-index/historyMapper'
 
 const CHAT_MEMORY_KEY = 'astrsomn-chat-memory-key'
 const CHAT_DRAFT_KEY_PREFIX = 'astrsomn-chat-draft:'
@@ -294,13 +284,6 @@ const isChatNotFoundError = (error: unknown) => {
   )
 }
 
-const mapConversationMessages = (conversationList: AiConversation[]): ChatMessage[] =>
-  conversationList.map((item, index) => ({
-    id: `${item.id ?? item.memoryKey ?? 'msg'}-${index}`,
-    role: item.role === 'user' ? 'user' : 'ai',
-    content: item.content || item.conversationContent || ''
-  }))
-
 const loadSessionGroups = async () => {
   sessionLoading.value = true
   try {
@@ -325,11 +308,9 @@ const openSession = async (memoryKey: string) => {
   restoreDraftState(memoryKey)
   sessionLoading.value = true
   try {
-    const history = await aiConversationApi.recoverByMemoryKey(memoryKey)
-    const restored = mapConversationMessages(history || [])
-    messages.value = restored.length
-      ? restored
-      : []
+    const turns = await aiConversationApi.recoverTurnsByMemoryKey(memoryKey)
+    const restored = mapTurnBundlesToChatMessages(turns || [])
+    messages.value = restored.length ? restored : []
     await scrollToBottom()
   } catch (error: any) {
     if (isChatNotFoundError(error)) {
@@ -391,7 +372,11 @@ const scrollToBottom = async () => {
 
 const mergeMessageContent = (segments: ChatSegment[]) =>
   segments
-    .map((segment) => (segment.type === 'thought' ? `[思考]\n${segment.content}` : segment.content))
+    .map((segment) => {
+      if (segment.type === 'thought') return `[思考]\n${segment.content}`
+      if (segment.type === 'image') return `\n![image](${segment.content})\n`
+      return segment.content
+    })
     .join('\n')
 
 const appendAssistantContent = async (
@@ -443,6 +428,9 @@ const applyStreamEvent = async (messageId: string, event: StreamEvent) => {
       return false
     case 'thought':
       await appendAssistantContent(messageId, event.content, 'thought')
+      return true
+    case 'image':
+      await appendAssistantContent(messageId, event.content, 'image')
       return true
     case 'done':
       return false

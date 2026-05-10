@@ -35,7 +35,7 @@
         </section>
 
         <section class="answer-section">
-          <div v-if="!answerText && streaming" class="streaming-placeholder">
+          <div v-if="!answerBlocks.length && streaming && !error" class="streaming-placeholder">
             <div class="typing-loader" aria-hidden="true">
               <span /><span /><span />
             </div>
@@ -46,14 +46,26 @@
             {{ answerText }}
           </div>
 
-          <div
-            v-else-if="content || answerText"
-            class="markdown-renderer"
-            @click="handleCodeCopy"
-            v-html="renderedHtml"
-          />
+          <template v-else-if="answerBlocks.length > 0">
+            <div v-for="(block, bIdx) in answerBlocks" :key="bIdx" class="answer-block-wrap">
+              <div
+                v-if="block.kind === 'md'"
+                class="markdown-renderer"
+                @click="handleCodeCopy"
+                v-html="renderMarkdownBlock(block.content)"
+              />
+              <div
+                v-else-if="block.kind === 'html'"
+                class="markdown-renderer html-embed-block"
+                v-html="block.content"
+              />
+              <div v-else-if="block.kind === 'image'" class="image-embed-block">
+                <img :src="block.content" class="segment-image" alt="" />
+              </div>
+            </div>
+          </template>
 
-          <div v-if="!streaming && answerText && !error" class="answer-actions">
+          <div v-if="!streaming && (answerText || answerBlocks.length > 0) && !error" class="answer-actions">
             <button type="button" class="text-action" @click="copyFullContent">
               <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
                 <path
@@ -233,8 +245,19 @@ md.renderer.rules.fence = (tokens, idx) => {
   return `<div class="code-block-wrapper"><pre class="vscode-code-block hljs${langClass}"><code class="hljs">${codeHtml}</code></pre><button type="button" class="code-copy-btn">复制</button></div>`
 }
 
-const thoughtText = computed(() => props.segments?.find((s) => s.type === 'thought')?.content || '')
+type AnswerBlock = { kind: 'md' | 'html' | 'image'; content: string }
+
+const thoughtText = computed(() => {
+  if (!props.segments?.length) return ''
+  return props.segments
+    .filter((s) => s.type === 'thought')
+    .map((s) => (s.content != null ? String(s.content) : ''))
+    .filter(Boolean)
+    .join('\n\n')
+})
+
 const shouldShowThoughtToggle = computed(() => thoughtText.value.length > THOUGHT_AUTO_COLLAPSE_CHARS)
+
 const answerText = computed(() => {
   if (props.segments?.length) {
     const fromSegments = props.segments
@@ -245,14 +268,40 @@ const answerText = computed(() => {
       return fromSegments
     }
   }
-  return props.content
+  return props.content || ''
 })
 
-const renderedHtml = computed(() => {
-  if (props.role === 'user') return props.content
-  const src = normalizeAiMarkdown(answerText.value || props.content || '')
-  return md.render(src)
+const answerBlocks = computed((): AnswerBlock[] => {
+  if (props.role !== 'ai') return []
+  const segs = props.segments?.filter((s) => s.type !== 'thought') ?? []
+  if (!segs.length) {
+    const c = (props.content || '').trim()
+    if (!c) return []
+    return [{ kind: 'md', content: props.content || '' }]
+  }
+  const blocks: AnswerBlock[] = []
+  for (const s of segs) {
+    const t = s.type
+    if (t === 'text' || t === undefined || t === null) {
+      const text = s.content != null ? String(s.content) : ''
+      const last = blocks[blocks.length - 1]
+      if (last?.kind === 'md') {
+        last.content += text
+      } else {
+        blocks.push({ kind: 'md', content: text })
+      }
+    } else if (t === 'html') {
+      blocks.push({ kind: 'html', content: s.content != null ? String(s.content) : '' })
+    } else if (t === 'image') {
+      blocks.push({ kind: 'image', content: s.content != null ? String(s.content) : '' })
+    }
+  }
+  return blocks
 })
+
+function renderMarkdownBlock(src: string): string {
+  return md.render(normalizeAiMarkdown(src || ''))
+}
 
 watch(
   () => thoughtText.value,
@@ -496,6 +545,26 @@ const handleCodeCopy = (e: MouseEvent) => {
 }
 .typing-loader span:nth-child(3) {
   animation-delay: 0.3s;
+}
+
+.answer-block-wrap + .answer-block-wrap .markdown-renderer {
+  padding-top: 0;
+}
+
+.image-embed-block {
+  padding: 12px 18px;
+}
+
+.segment-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  display: block;
+  border: 1px solid var(--chat-ai-card-border, rgba(0, 0, 0, 0.08));
+}
+
+.html-embed-block {
+  padding: 12px 18px;
 }
 
 .markdown-renderer {

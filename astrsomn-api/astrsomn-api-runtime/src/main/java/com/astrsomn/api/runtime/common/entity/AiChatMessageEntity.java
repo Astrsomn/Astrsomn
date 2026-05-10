@@ -136,7 +136,9 @@ public class AiChatMessageEntity extends BaseEntity<Long> {
     private String promptKey;
 
     /**
-     * 扩展信息 JSON（工具参数、结构化输出、埋点等）。
+     * 扩展信息 JSON：结构见 {@link com.astrsomn.api.runtime.common.dto.chat.message.ext.AiChatMessageExtPayload}，
+     * 字段名见 {@link com.astrsomn.api.runtime.common.dto.chat.message.ext.AiChatMessageExtJsonKeys}；
+     * 复原工具 {@link com.astrsomn.api.runtime.common.utils.AiChatMessageRestoreUtil}。
      */
     @TableField("EXT_JSON")
     private String extJson;

@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Data
 @Accessors(chain = true)
@@ -119,13 +120,25 @@ public class AstroChatParam<T> {
      */
     @Builder.Default
     private boolean enableHistorySave = true;
-    
+
+    /**
+     * 流式一轮是否已由 {@link com.astrsomn.starter.runtime.langchain.stream.AstroChatStreamUtil} 落库。
+     */
+    @Builder.Default
+    private transient AtomicBoolean streamTurnPersisted = new AtomicBoolean(false);
+
     /**
      * 最终执行接口
      */
     private final Class<T> serviceClass;
 
+    public void markStreamTurnPersisted() {
+        streamTurnPersisted.set(true);
+    }
 
+    public boolean isStreamTurnPersisted() {
+        return streamTurnPersisted.get();
+    }
 
     public static <T> AstroChatParam<T> of(Class<T> serviceClass, String agentKey) {
         return AstroChatParam.<T>builder()

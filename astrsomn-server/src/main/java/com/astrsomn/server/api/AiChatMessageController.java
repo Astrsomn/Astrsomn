@@ -9,6 +9,7 @@ import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageCreateReque
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageResponseDTO;
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.chat.message.restore.AiChatTurnBundleDTO;
 import com.astrsomn.server.service.AiChatMessageService;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,5 +61,10 @@ public class AiChatMessageController extends BaseController {
     @GetMapping("/recoverByMemoryKey")
     public BaseResponse<List<AiChatMessageResponseDTO>> recoverByMemoryKey(@RequestParam("memoryKey") String memoryKey) {
         return aiChatMessageService.recoverByMemoryKey(memoryKey);
+    }
+
+    @GetMapping("/recoverTurnsByMemoryKey")
+    public BaseResponse<List<AiChatTurnBundleDTO>> recoverTurnsByMemoryKey(@RequestParam("memoryKey") String memoryKey) {
+        return aiChatMessageService.recoverTurnsByMemoryKey(memoryKey);
     }
 }

@@ -31,10 +31,11 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
     public void savePair(AstroChatParam param, String content, TokenUsage usage) {
         ensureSession(param);
 
-        int baseOrder = mapper.getMaxMessageOrder(param.getMemoryKey());
+        String envKey = blankToNull(astrsomnProperties.getEnvCode());
+        int baseOrder = mapper.getMaxMessageOrder(param.getMemoryKey(), envKey);
         int inputTokens = usage != null ? usage.inputTokenCount() : 0;
         int outputTokens = usage != null ? usage.outputTokenCount() : 0;
-        int turnNo = (baseOrder < 0 ? 0 : (baseOrder / 2)) + 1;
+        int turnNo = mapper.getMaxTurnNo(param.getMemoryKey(), envKey) + 1;
 
         AiChatMessageEntity user = createEntity(
                 param,
@@ -162,6 +163,10 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
             entity.setEnvCode(astrsomnProperties.getEnvCode());
         }
         return entity;
+    }
+
+    private static String blankToNull(String envCode) {
+        return StringUtils.isBlank(envCode) ? null : envCode;
     }
 
 }

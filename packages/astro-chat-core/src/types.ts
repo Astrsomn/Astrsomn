@@ -1,4 +1,4 @@
-export type StreamEventType = 'text' | 'thought' | 'html' | 'error' | 'done'
+export type StreamEventType = 'text' | 'thought' | 'html' | 'image' | 'error' | 'done'
 
 export type StreamEvent = {
   type: StreamEventType

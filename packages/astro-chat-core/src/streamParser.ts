@@ -90,11 +90,15 @@ export function toStreamEvent(payload: unknown): StreamEvent | null {
   const record = payload as Record<string, unknown>
   const rawType = typeof record.type === 'string' ? record.type.trim().toLowerCase() : 'text'
   const type: StreamEventType =
-    rawType === 'thought' || rawType === 'html' || rawType === 'error' || rawType === 'done'
+    rawType === 'thought' ||
+    rawType === 'html' ||
+    rawType === 'image' ||
+    rawType === 'error' ||
+    rawType === 'done'
       ? rawType
       : 'text'
   const content = typeof record.content === 'string' ? record.content : ''
-  if (type === 'done' || content || type === 'error') {
+  if (type === 'done' || content || type === 'error' || type === 'image') {
     return { type, content }
   }
   return null
