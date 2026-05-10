@@ -91,17 +91,13 @@
         </template>
       </AstrsomnDataSection>
 
-      <AgentForm
-        v-model:visible="assemblyVisible"
-        :record-id="editingId"
-        @success="fetchList"
-      />
     </div>
   </AdminPageShell>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, ClockCircleOutlined, UserOutlined, ClusterOutlined } from '@ant-design/icons-vue'
 import AdminPageShell from '@/components/home/AdminPageShell.vue'
@@ -113,7 +109,6 @@ import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AgentCard from './AgentCard.vue'
-import AgentForm from './AgentForm.vue'
 import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
 
 const AGENT_CARD_MIN_WIDTH_PX = 360
@@ -134,10 +129,10 @@ const resolvePageSize = (columns: number) => {
   return 6
 }
 
+const router = useRouter()
+
 const pageRef = ref<HTMLElement | null>(null)
 const loading = ref(false)
-const assemblyVisible = ref(false)
-const editingId = ref<string | number | undefined>(undefined)
 const query = reactive<{ agentName?: string; status?: string }>({})
 const list = ref<AiAgent[]>([])
 const viewMode = ref<'grid' | 'list'>('list')
@@ -244,8 +239,7 @@ const onPageChange = (p: number, size: number) => {
 }
 
 const openCreate = () => {
-  editingId.value = undefined
-  assemblyVisible.value = true
+  router.push('/admin/ai-config/builder')
 }
 
 const toolbarSegmentButtons = computed(() => [
@@ -261,11 +255,10 @@ const toolbarSegmentButtons = computed(() => [
   { label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate, plain: true },
 ])
 
-const openEdit = async (record: AiAgent) => {
+const openEdit = (record: AiAgent) => {
   const id = record.id
   if (id == null) return
-  editingId.value = id
-  assemblyVisible.value = true
+  router.push({ path: '/admin/ai-config/builder', query: { id: String(id) } })
 }
 
 const handleDeleteOne = async (id: number | string) => {

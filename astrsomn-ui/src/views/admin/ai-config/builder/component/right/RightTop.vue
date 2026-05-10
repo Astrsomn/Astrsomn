@@ -38,11 +38,11 @@ defineEmits<{
 .right-top {
   flex-shrink: 0;
   padding: 16px 20px;
-  border-bottom: 1px solid color-mix(in srgb, #e2e8f0 50%, transparent);
+  border-bottom: 1px solid var(--builder-right-header-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--builder-right-header-bg);
 }
 
 .status-info {
@@ -54,7 +54,7 @@ defineEmits<{
 .status-dot {
   width: 8px;
   height: 8px;
-  background: #10b981;
+  background: var(--success);
   border-radius: 50%;
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
   animation: agent-studio-pulse 2s infinite;
@@ -64,7 +64,7 @@ defineEmits<{
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.02em;
-  color: #334155;
+  color: var(--builder-right-status-text);
   text-transform: uppercase;
 }
 
@@ -78,7 +78,7 @@ defineEmits<{
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: var(--builder-right-action-color);
   padding: 4px 0;
   border-radius: 4px;
   background: transparent;
@@ -91,14 +91,14 @@ defineEmits<{
 }
 
 .action-btn:hover {
-  color: #2563eb;
+  color: var(--builder-right-action-hover-color);
 }
 
 .action-btn.active {
-  color: #2563eb;
+  color: var(--builder-right-action-hover-color);
 }
 
 .reset-btn:hover {
-  color: #ef4444;
+  color: var(--builder-right-reset-hover-color);
 }
 </style>

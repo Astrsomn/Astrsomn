@@ -89,9 +89,11 @@
                 {{ record.status === 'enabled' ? '启用' : '禁用' }}
               </a-tag>
             </template>
-            <template v-else-if="column.key === 'instanceKey'">
-              <span class="mono-text">{{ record.instanceKey || '-' }}</span>
+            <template v-else-if="column.key === 'isDefault'">
+              <a-tag v-if="record.isDefault === 'Y'" color="blue">默认预设</a-tag>
+              <span v-else class="text-secondary">-</span>
             </template>
+
             <template v-else-if="column.key === 'actions'">
               <a-space>
                 <a-button type="link" size="small" @click="goEdit(record)">
@@ -176,17 +178,20 @@ const handleViewToggle = () => {
 
 const columns = [
   { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const },
+  { title: '模型类型', dataIndex: 'modelType', key: 'modelType', width: 110 },
   { 
     title: '实例 Key', 
     dataIndex: 'instanceKey', 
     key: 'instanceKey', 
-    width: 120, 
+    width: 180,
     ellipsis: true,
     copyable: true
   },
   { title: '名称', dataIndex: 'instanceName', key: 'instanceName', width: 180, ellipsis: true },
-  { title: '模型类型', dataIndex: 'modelType', key: 'modelType', width: 110 },
-  { title: '关联模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true, copyable: true },
+
+  { title: '关联模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true},
+  { title: '关联账号', dataIndex: 'accountName', key: 'accountName', width: 150, ellipsis: true },
+  { title: '默认', key: 'isDefault', width: 90, align: 'center' },
   { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
   {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},

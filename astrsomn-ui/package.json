@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
+    "@astrsomn/astro-chat-core": "file:../packages/astro-chat-core",
+    "@astrsomn/astro-chat-vue": "file:../packages/astro-chat-vue",
     "@codemirror/lang-html": "^6.4.11",
     "@codemirror/lang-javascript": "^6.2.4",
     "@codemirror/theme-one-dark": "^6.1.3",

@@ -54,17 +54,18 @@ const emit = defineEmits<{
   padding: 10px 12px;
   border-radius: 12px;
   cursor: pointer;
-  color: #4b5563;
+  color: var(--text-secondary);
   transition: all 0.2s ease;
 }
 
 .conversation-item:hover {
-  background: #f9fafb;
+  background: var(--primary-hover);
+  color: var(--text-primary);
 }
 
 .conversation-item.selected {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: var(--primary-hover);
+  color: var(--primary-light);
 }
 
 .conversation-item.compact {
@@ -78,12 +79,12 @@ const emit = defineEmits<{
 
 .item-icon {
   font-size: 14px;
-  color: #9ca3af;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
 .conversation-item.selected .item-icon {
-  color: #60a5fa;
+  color: var(--primary-light);
 }
 
 .title-wrap {
@@ -106,7 +107,7 @@ const emit = defineEmits<{
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: #9ca3af;
+  color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -120,8 +121,8 @@ const emit = defineEmits<{
 }
 
 .delete-btn:hover {
-  color: #ef4444;
-  background: #fef2f2;
+  color: var(--error);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .conversation-item.compact .title-wrap,

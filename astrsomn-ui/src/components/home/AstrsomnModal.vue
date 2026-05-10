@@ -47,6 +47,8 @@ interface Props {
   width?: string | number
   /** 弹层内容区高度，如 `100vh`、`90vh`、`800px` */
   bodyHeight?: string
+  /** 弹层内容区最大高度，如 `800px`、`90vh` */
+  maxBodyHeight?: string
   /** .ant-modal 最大宽度，如 `100vw`、`min(100vw, 1400px)` */
   maxWidth?: string
   /** 顶栏最小高度，如 `72px` */
@@ -69,10 +71,11 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   width: '100%',
   bodyHeight: '100vh',
+  maxBodyHeight: '',
   maxWidth: '100vw',
   headerHeight: '72px',
   contentBackground: 'var(--bg-card, #f8fafc)',
-  mainPadding: '20px',
+  mainPadding: '0px',
   mainBackground: 'var(--bg-surface, #f8fafc)',
   closable: false,
   destroyOnClose: true,
@@ -92,6 +95,7 @@ const wrapClass = computed(() =>
 const mergedWrapStyle = computed(() => ({
   '--fsm-max-width': props.maxWidth,
   '--fsm-body-height': props.bodyHeight,
+  '--fsm-max-body-height': props.maxBodyHeight || 'none',
   '--fsm-header-height': props.headerHeight,
   '--fsm-modal-content-bg': props.contentBackground,
   ...(props.wrapStyle ?? {}),
@@ -120,6 +124,7 @@ const mainAreaStyle = computed(() => ({
 
 :global(.astrsomn-fullscreen-shell .ant-modal-content) {
   height: var(--fsm-body-height, 100vh);
+  max-height: var(--fsm-max-body-height, none);
   border-radius: 0;
   padding: 0;
   background: var(--fsm-modal-content-bg, var(--bg-card, #f8fafc));

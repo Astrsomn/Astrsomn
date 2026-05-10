@@ -1,36 +1,252 @@
 <template>
   <div class="chat-panel">
-    <div class="chat-messages custom-scrollbar">
-      <div class="message-item">
-        <div class="message-avatar">
-          <RobotOutlined />
-        </div>
-        <div class="message-bubble">
-          主链路已就绪！✨ 所有的配置改动都会在这里实时生效。框架已自动启用 <strong>Fallback</strong> 策略。
-        </div>
-      </div>
-      <div class="trace-block">
-        <div class="trace-line trace-item">
-          <SearchOutlined class="trace-ico blue" />
-          <span>检索知识库: 命中 2 个分片 (Score: 0.92)</span>
-        </div>
-        <div class="trace-line trace-item">
-          <SafetyOutlined class="trace-ico green" />
-          <span>安全规则校验: 无敏感词冲突</span>
-        </div>
-        <div class="trace-line trace-item">
-          <CodeOutlined class="trace-ico purple" />
-          <span>Tool Call: search_engine.v1</span>
-        </div>
-      </div>
+    <div ref="scrollRef" class="chat-messages custom-scrollbar">
+      <AstroChatMessage
+        v-for="item in messages"
+        :key="item.id"
+        :role="item.role"
+        :content="item.content"
+        :segments="item.segments"
+        :streaming="item.streaming"
+        :error="item.error"
+        compact
+      />
+      <div ref="bottomRef" class="messages-bottom-spacer" />
     </div>
-    <RightBottom />
+
+    <div class="chat-composer-wrap">
+      <AstroChatComposer
+        variant="full"
+        layout="embedded"
+        density="compact"
+        :model-value="draft"
+        placeholder="发送指令测试 Agent…"
+        :disabled="isStreaming"
+        :is-streaming="isStreaming"
+        :send-disabled="sendDisabled"
+        :show-char-count="false"
+        @update:model-value="draft = $event"
+        @submit="onSubmit"
+        @stop="stopStreaming"
+      >
+        <template #footer-left>
+          <div class="feature-switches">
+            <div
+              class="feature-tag"
+              :class="{ active: isDeepThinking }"
+              @click="isDeepThinking = !isDeepThinking"
+            >
+              <BulbOutlined /> 深度思考
+            </div>
+            <div
+              class="feature-tag"
+              :class="{ active: isWebSearch }"
+              @click="isWebSearch = !isWebSearch"
+            >
+              <GlobalOutlined /> 联网
+            </div>
+          </div>
+        </template>
+      </AstroChatComposer>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { RobotOutlined, SearchOutlined, SafetyOutlined, CodeOutlined } from '@ant-design/icons-vue'
-import RightBottom from './RightBottom.vue';
+import { BulbOutlined, GlobalOutlined } from '@ant-design/icons-vue'
+import { AstroChatComposer, AstroChatMessage } from '@astrsomn/astro-chat-vue'
+import { readAstroStream, buildStreamError, type StreamEvent } from '@astrsomn/astro-chat-core'
+import { computed, inject, nextTick, onBeforeUnmount, ref } from 'vue'
+import { message } from 'ant-design-vue'
+import { BUILDER_CHAT_CONTEXT } from '../builderChatInjection'
+import { buildAstroBuilderChatRequest } from '../buildAstroBuilderChatRequest'
+import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
+
+type ChatSegmentType = 'text' | 'thought' | 'html'
+
+type ChatSegment = {
+  type: ChatSegmentType
+  content: string
+}
+
+type ChatMessage = {
+  id: string
+  role: 'user' | 'ai'
+  content: string
+  segments?: ChatSegment[]
+  streaming?: boolean
+  error?: boolean
+}
+
+const ctx = inject(BUILDER_CHAT_CONTEXT)
+if (!ctx) {
+  throw new Error('BUILDER_CHAT_CONTEXT missing — wrap builder under Index.vue')
+}
+
+const STREAM_URL = '/v1/astro/chat/builder/stream'
+
+const messages = ref<ChatMessage[]>([])
+const draft = ref('')
+const isStreaming = ref(false)
+const isDeepThinking = ref(false)
+const isWebSearch = ref(false)
+const scrollRef = ref<HTMLElement | null>(null)
+const bottomRef = ref<HTMLElement | null>(null)
+let abortController: AbortController | null = null
+
+const sendDisabled = computed(() => {
+  if (isStreaming.value) return false
+  return !draft.value.trim()
+})
+
+const mergeMessageContent = (segments: ChatSegment[]) =>
+  segments
+    .map((segment) => (segment.type === 'thought' ? `[思考]\n${segment.content}` : segment.content))
+    .join('\n')
+
+const scrollToBottom = async () => {
+  await nextTick()
+  bottomRef.value?.scrollIntoView({ block: 'end' })
+}
+
+const appendAssistantContent = async (
+  messageId: string,
+  chunk: string,
+  type: ChatSegmentType = 'text'
+) => {
+  if (!chunk) return
+  const target = messages.value.find((item) => item.id === messageId)
+  if (!target || target.role !== 'ai') return
+  if (!target.segments) target.segments = []
+  const last = target.segments[target.segments.length - 1]
+  if (last && last.type === type) {
+    last.content += chunk
+  } else {
+    target.segments.push({ type, content: chunk })
+  }
+  target.content = mergeMessageContent(target.segments)
+  await scrollToBottom()
+}
+
+const applyStreamEvent = async (messageId: string, event: StreamEvent): Promise<boolean> => {
+  const target = messages.value.find((item) => item.id === messageId)
+  if (!target) return true
+  switch (event.type) {
+    case 'text':
+      await appendAssistantContent(messageId, event.content, 'text')
+      return true
+    case 'html':
+      await appendAssistantContent(messageId, event.content, 'html')
+      return true
+    case 'error':
+      target.error = true
+      await appendAssistantContent(messageId, event.content || '流式响应异常')
+      return false
+    case 'thought':
+      await appendAssistantContent(messageId, event.content, 'thought')
+      return true
+    case 'done':
+      return false
+    default:
+      return true
+  }
+}
+
+const stopStreaming = () => {
+  abortController?.abort()
+}
+
+const onSubmit = async () => {
+  const prompt = draft.value.trim()
+  if (!prompt || isStreaming.value) return
+
+  let body: Record<string, unknown>
+  try {
+    body = buildAstroBuilderChatRequest(ctx.snapshot.value, {
+      userMessage: prompt,
+      memoryKey: ctx.memoryKey.value,
+      enableDeepThinking: isDeepThinking.value,
+      enableNetwork: isWebSearch.value
+    })
+  } catch (e: unknown) {
+    message.warning((e as Error)?.message || '无法发起预览')
+    return
+  }
+
+  draft.value = ''
+  const userMessageId = `user-${Date.now()}`
+  const assistantMessageId = `ai-${Date.now()}`
+  messages.value.push({ id: userMessageId, role: 'user', content: prompt })
+  messages.value.push({
+    id: assistantMessageId,
+    role: 'ai',
+    content: '',
+    segments: [],
+    streaming: true
+  })
+  isStreaming.value = true
+  await scrollToBottom()
+
+  const token = localStorage.getItem('token')
+  const workspaceEnv = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY)
+  abortController = new AbortController()
+
+  try {
+    const response = await fetch(STREAM_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(workspaceEnv ? { [WORKSPACE_ENV_HEADER]: workspaceEnv.trim() } : {})
+      },
+      body: JSON.stringify(body),
+      signal: abortController.signal
+    })
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('token')
+        window.location.href = '/login'
+        return
+      }
+      throw new Error(await buildStreamError(response))
+    }
+
+    await readAstroStream(response, (event) => applyStreamEvent(assistantMessageId, event))
+    const target = messages.value.find((item) => item.id === assistantMessageId)
+    if (target && !target.content) {
+      target.content = '本次没有返回内容。'
+    }
+  } catch (error: unknown) {
+    const target = messages.value.find((item) => item.id === assistantMessageId)
+    if (target) {
+      if ((error as { name?: string })?.name === 'AbortError') {
+        const stopText = target.content || '已停止生成'
+        target.content = stopText
+        target.segments = [{ type: 'text', content: stopText }]
+      } else {
+        const msg = (error as Error)?.message || '请求失败'
+        target.content = msg
+        target.segments = [{ type: 'text', content: msg }]
+        target.error = true
+      }
+    }
+    if ((error as { name?: string })?.name !== 'AbortError') {
+      message.error((error as Error)?.message || '预览请求失败')
+    }
+  } finally {
+    const target = messages.value.find((item) => item.id === assistantMessageId)
+    if (target) target.streaming = false
+    isStreaming.value = false
+    abortController = null
+    await scrollToBottom()
+  }
+}
+
+onBeforeUnmount(() => {
+  abortController?.abort()
+})
 </script>
 
 <style scoped>
@@ -39,100 +255,60 @@ import RightBottom from './RightBottom.vue';
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .chat-messages {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 24px;
+  padding: 16px 16px 8px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 8px;
   background: transparent;
 }
 
-.message-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.message-avatar {
-  width: 32px;
-  height: 32px;
-  background: #2563eb;
-  border-radius: 8px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 12px;
-  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-}
-
-.message-bubble {
-  background: color-mix(in srgb, #eff6ff 80%, transparent);
-  padding: 12px 14px;
-  border-radius: 16px;
-  border-top-left-radius: 0;
-  font-size: 12px;
-  line-height: 1.625;
-  color: #1e40af;
-  border: 1px solid color-mix(in srgb, #bfdbfe 50%, transparent);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  max-width: 100%;
-}
-
-.message-bubble strong {
-  font-weight: 700;
-}
-
-.trace-block {
-  margin-left: 44px;
-  padding-left: 16px;
-  border-left: 2px dashed #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.trace-line {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 10px;
-  color: #94a3b8;
-}
-
-.trace-line::before {
-  content: '';
-  position: absolute;
-  left: -22px;
-  top: 4px;
-  width: 8px;
+.messages-bottom-spacer {
   height: 8px;
-  border-radius: 50%;
-  background: #cbd5e1;
-}
-
-.trace-ico {
-  font-size: 12px;
   flex-shrink: 0;
 }
 
-.trace-ico.blue {
-  color: #3b82f6;
+.chat-composer-wrap {
+  flex-shrink: 0;
+  padding: 12px 16px 16px;
+  border-top: 1px solid color-mix(in srgb, var(--border-default, #e2e8f0) 50%, transparent);
+  background: transparent;
 }
 
-.trace-ico.green {
-  color: #10b981;
+.feature-switches {
+  display: flex;
+  gap: 8px;
 }
 
-.trace-ico.purple {
-  color: #a855f7;
+.feature-tag {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  background: var(--bg-input, #f1f5f9);
+  border: 1px solid var(--border-default, #e2e8f0);
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.feature-tag:hover {
+  border-color: var(--text-muted, #64748b);
+}
+
+.feature-tag.active {
+  background: var(--primary-hover, rgba(59, 130, 246, 0.12));
+  border-color: var(--primary, #3b82f6);
+  color: var(--primary, #3b82f6);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -144,7 +320,7 @@ import RightBottom from './RightBottom.vue';
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--border-default);
+  background: var(--border-default, #e2e8f0);
   border-radius: 10px;
 }
 </style>

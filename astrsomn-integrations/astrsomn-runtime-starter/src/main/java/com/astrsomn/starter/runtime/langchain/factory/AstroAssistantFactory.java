@@ -35,6 +35,18 @@ public class AstroAssistantFactory {
 
     public <T> T createAssistant(AstroChatParam<T> param) {
         agentRuntimeConfigLoader.validateAndApplyAgent(param);
+        return doCreate(param);
+    }
+
+    /**
+     * 直接使用调用方传入的 Param 构建 Assistant，跳过 DB 责任链。
+     * 用于 Builder Playground 等前端直传全量参数的场景。
+     */
+    public <T> T createAssistantDirect(AstroChatParam<T> param) {
+        return doCreate(param);
+    }
+
+    private <T> T doCreate(AstroChatParam<T> param) {
         param.setChatModelListeners(List.of(astroModelListener.createBindingListener(param)));
 
         AiServices<T> builder = AiServices.builder(param.getServiceClass());

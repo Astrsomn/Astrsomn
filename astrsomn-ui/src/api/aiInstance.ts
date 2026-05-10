@@ -9,6 +9,8 @@ export type AiInstance = {
   modelType?: string
   /** queryPage 子查询：关联模型 PROVIDER 在 SYSTEM_EXTENSION 中的头像（SVG） */
   providerAvatar?: string
+  /** 关联模型的能力列表 JSON 字符串，例如 '["streaming","vision","tools"]' */
+  capabilities?: string
   maxTokens?: number
   temperature?: number
   presencePenalty?: number
@@ -22,8 +24,8 @@ export type AiInstance = {
   dimensions?: number
   status?: string
   accountKey?: string
-  apiUrl?: string
-  isDefault?: number
+  accountName?: string
+  isDefault?: string
   maxQuotaTokens?: number
   envCode?: string
   createUser?: string

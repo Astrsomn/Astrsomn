@@ -1,95 +1,99 @@
 <template>
-  <a-modal
+  <AstrsomnModal
     :open="visible"
     width="80vw"
-    height="80vh"
-    :footer="null"
+    :max-width="maxWidth"
+    body-height="90vh"
+    max-body-height="800px"
     :closable="false"
-    wrap-class-name="astrsomn-full-modal"
-    destroy-on-close
+    main-padding="0"
+    wrap-class-name="instance-form-fsm-wrap"
+    @update:open="emit('update:visible', $event)"
     @cancel="handleCancel"
   >
-    <div class="fullscreen-wrapper">
-      <header class="modal-header">
-        <div class="header-left">
-          <div class="logo-box"><ThunderboltFilled /></div>
-          <div class="title-group">
-            <span class="main-title">{{ isEdit ? '编辑推理预设' : '新建推理预设' }}</span>
-            <span class="sub-title">配置 Astrsomn 核心引擎的运行策略与端点映射</span>
-          </div>
-        </div>
-        <div class="header-actions">
-          <a-button class="header-action-btn header-action-btn-cancel" @click="handleCancel">取消</a-button>
-          <a-button
-            type="primary"
-            class="header-action-btn header-action-btn-save"
-            :loading="submitting"
-            @click="onSubmit"
-          >
-            保存预设
-          </a-button>
-        </div>
-      </header>
+    <template #header-logo>
+      <ThunderboltFilled />
+    </template>
+    <template #header-title>
+      {{ isEdit ? '编辑推理预设' : '新建推理预设' }}
+    </template>
+    <template #header-subtitle>
+      配置 Astrsomn 核心引擎的运行策略与端点映射
+    </template>
+    <template #header-actions>
+      <a-button class="header-action-btn header-action-btn-cancel" @click="handleCancel">取消</a-button>
+      <a-button
+        type="primary"
+        class="header-action-btn header-action-btn-save"
+        :loading="submitting"
+        @click="onSubmit"
+      >
+        保存预设
+      </a-button>
+    </template>
 
+    <div class="instance-form-shell">
       <div class="main-content">
         <Left
-          :form="form"
-          :status-options="statusOptions"
-          :instance-key-rules="instanceKeyRules"
-          @preset-name-input="onPresetNameUserInput"
+        :form="form"
+        :is-edit="isEdit"
+        :instance-key-rules="instanceKeyRules"
+        :account-selector-open="accountSelectorOpen"
+        @preset-name-input="onPresetNameUserInput"
+        @open-account-selector="accountSelectorOpen = true"
+        @select-account="onAccountSelect"
+      />
+     <Right
+        :is-edit="isEdit"
+        :provider-filter="providerFilter"
+        :search-draft="searchDraft"
+        :type-filter="typeFilter"
+        :model-list="modelList"
+        :selected-keys="selectedKeys"
+        :models-loading="modelsLoading"
+        :models-loading-more="modelsLoadingMore"
+        :total="modelPager.total"
+        :has-next="modelPager.hasNext"
+        :current-page="modelPager.pageNo"
+        :page-size="modelPager.pageSize"
+        :page-size-options="pageSizeOptions"
+        :provider-avatar-cell="providerAvatarCell"
+        :model-type-label="modelTypeLabel"
+        @provider-change="onProviderFilterChange"
+        @update:search-draft="searchDraft = $event"
+        @search="applyModelSearch"
+        @update:type-filter="typeFilter = $event"
+        @page-change="onModelPageChange"
+        @page-size-change="onModelPageSizeChange"
+        @panel-scroll="onModelPanelScroll"
+        @select-model="onSelectModelCard"
+      />
+      <Center
+        :form="form"
+        :param-section-title="paramSectionTitle"
+        :capability-hint="capabilityHint"
+        :has-param-schema="hasParamSchema"
+        :unsupported-param-codes="unsupportedParamCodes"
+        :model-kind="modelKind"
+        :show-chat-temperature="showChatTemperature"
+        :show-chat-max-tokens="showChatMaxTokens"
+        :show-chat-top-p="showChatTopP"
+        :show-chat-top-k="showChatTopK"
+        :show-chat-seed="showChatSeed"
+        :show-chat-stop-sequences="showChatStopSequences"
+        :show-chat-penalties="showChatPenalties"
+        :show-chat-frequency-penalty="showChatFrequencyPenalty"
+        :show-chat-presence-penalty="showChatPresencePenalty"
+        :show-embedding-dimensions="showEmbeddingDimensions"
+        :show-image-size="showImageSize"
+        :show-image-style="showImageStyle"
+        :embedding-has-any-control="embeddingHasAnyControl"
+        :image-has-any-control="imageHasAnyControl"
+        :get-temp-info="getTempInfo"
         />
-       <Right
-          :provider-filter="providerFilter"
-          :search-draft="searchDraft"
-          :type-filter="typeFilter"
-          :model-list="modelList"
-          :selected-keys="selectedKeys"
-          :models-loading="modelsLoading"
-          :models-loading-more="modelsLoadingMore"
-          :total="modelPager.total"
-          :has-next="modelPager.hasNext"
-          :current-page="modelPager.pageNo"
-          :page-size="modelPager.pageSize"
-          :page-size-options="pageSizeOptions"
-          :provider-avatar-cell="providerAvatarCell"
-          :model-type-label="modelTypeLabel"
-          @provider-change="onProviderFilterChange"
-          @update:search-draft="searchDraft = $event"
-          @search="applyModelSearch"
-          @update:type-filter="typeFilter = $event"
-          @page-change="onModelPageChange"
-          @page-size-change="onModelPageSizeChange"
-          @panel-scroll="onModelPanelScroll"
-          @select-model="onSelectModelCard"
-        />
-        <Center
-          :form="form"
-          :param-section-title="paramSectionTitle"
-          :capability-hint="capabilityHint"
-          :has-param-schema="hasParamSchema"
-          :unsupported-param-codes="unsupportedParamCodes"
-          :model-kind="modelKind"
-          :show-chat-temperature="showChatTemperature"
-          :show-chat-max-tokens="showChatMaxTokens"
-          :show-chat-top-p="showChatTopP"
-          :show-chat-top-k="showChatTopK"
-          :show-chat-seed="showChatSeed"
-          :show-chat-stop-sequences="showChatStopSequences"
-          :show-chat-penalties="showChatPenalties"
-          :show-chat-frequency-penalty="showChatFrequencyPenalty"
-          :show-chat-presence-penalty="showChatPresencePenalty"
-          :show-embedding-dimensions="showEmbeddingDimensions"
-          :show-image-size="showImageSize"
-          :show-image-style="showImageStyle"
-          :embedding-has-any-control="embeddingHasAnyControl"
-          :image-has-any-control="imageHasAnyControl"
-          :get-temp-info="getTempInfo"
-        />
-
- 
       </div>
     </div>
-  </a-modal>
+  </AstrsomnModal>
 </template>
 
 <script setup lang="ts">
@@ -98,6 +102,7 @@ import { message } from 'ant-design-vue';
 import {
   ThunderboltFilled
 } from '@ant-design/icons-vue';
+import AstrsomnModal from '@/components/home/AstrsomnModal.vue';
 import Left from './instance-form/Left.vue';
 import Center from './instance-form/Center.vue';
 import Right from './instance-form/Right.vue';
@@ -140,8 +145,10 @@ const emit = defineEmits(['update:visible', 'success']);
 
 const editId = computed(() => props.record?.id);
 const isEdit = computed(() => editId.value != null && String(editId.value) !== '');
+const maxWidth = computed(() => 'min(80vw, 1600px)');
 
 const submitting = ref(false);
+const accountSelectorOpen = ref(false);
 const modelsLoading = ref(false);
 const modelsLoadingMore = ref(false);
 const modelList = ref<AiModel[]>([]);
@@ -191,13 +198,15 @@ function applyModelSearch() {
   void fetchModels(true);
 }
 
-const form = reactive<AiInstance>({ 
-  status: 'enabled', 
-  temperature: 0.7, 
+const form = reactive<AiInstance>({
+  status: 'enabled',
+  isDefault: 'N',
+  temperature: 0.7,
   maxTokens: 2048,
   topP: 1.0,
   frequencyPenalty: 0,
-  presencePenalty: 0
+  presencePenalty: 0,
+  accountKey: ''
 });
 
 /** 新建时跟随所选 modelName；用户改过预设名称后不再自动覆盖 */
@@ -401,6 +410,7 @@ function resetForm() {
     instanceName: undefined,
     modelKey: undefined,
     status: 'enabled',
+    isDefault: 'N',
     temperature: 0.7,
     maxTokens: 2048,
     topP: 1.0,
@@ -411,12 +421,11 @@ function resetForm() {
     presencePenalty: 0,
     dimensions: undefined,
     size: undefined,
-    style: undefined
+    style: undefined,
+    accountKey: ''
   });
   selectedKeys.value = [];
 }
-
-const statusOptions = [{ label: '立即激活', value: 'enabled' }, { label: '暂存停用', value: 'disabled' }];
 
 const instanceKeyRules = [
   {
@@ -496,8 +505,16 @@ const onSelectModelCard = (record: AiModel) => {
 
 const handleCancel = () => emit('update:visible', false);
 
+const onAccountSelect = (account: any) => {
+  if (account.accountKey) {
+    form.accountKey = account.accountKey;
+  }
+};
+
 const onSubmit = async () => {
   if (!String(form.instanceName || '').trim()) return message.warning('请输入名称');
+  if (!String(form.instanceKey || '').trim()) return message.warning('请输入实例标识');
+  if (!String(form.accountKey || '').trim()) return message.warning('请选择关联账号');
   if (form.instanceKey && !/^[a-zA-Z0-9_-]+$/.test(String(form.instanceKey).trim())) {
     return message.warning('实例标识仅支持字母、数字、下划线、连字符');
   }
@@ -514,6 +531,7 @@ const onSubmit = async () => {
 
 watch(() => props.visible, async (val) => {
   if (!val) return;
+  accountSelectorOpen.value = false;
   modelPager.pageNo = 1;
   modelPager.pageSize = 12;
   providerFilter.value = undefined;
@@ -556,163 +574,50 @@ watch(typeFilter, () => {
 </script>
 
 <style scoped>
-/* 全屏容器 */
-:global(.astrsomn-full-modal.ant-modal-wrap) {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-height: 100vh !important;
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-:global(.astrsomn-full-modal .ant-modal) { 
-  max-width: 80vw !important; 
-  width: 80vw !important;
-  padding: 0 !important; 
-  margin: 0 !important; 
-  top: auto !important;
-  left: auto !important;
-  transform: none !important;
-  position: relative !important;
-}
-:global(.astrsomn-full-modal .ant-modal-content) { 
-  height: 80vh !important; 
-  border-radius: 20px !important; 
-  padding: 0 !important; 
-  background: var(--bg-surface, #f8fafc) !important;
-  overflow: hidden !important;
-}
-
-.fullscreen-wrapper { 
-  display: flex; 
-  flex-direction: column; 
-  height: 100%; 
-  overflow: hidden;
-}
-
-/* Header */
-.modal-header {
-  height: 74px;
-  background: #fff;
-  padding: 0 28px;
+:global(.instance-form-fsm-wrap.ant-modal-wrap) {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e2e8f0;
-  flex-shrink: 0;
+  justify-content: center;
 }
-.header-left { display: flex; align-items: center; gap: 16px; }
-.logo-box {
-  width: 40px; height: 40px; border-radius: 12px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px;
-}
-.main-title { display: block; font-size: 17px; font-weight: 700; color: #0f172a; }
-.sub-title { font-size: 12px; color: #64748b; }
 
-.header-actions { display: flex; align-items: center; gap: 10px; }
+:global(.instance-form-fsm-wrap .ant-modal) {
+  top: 0;
+  padding-bottom: 0;
+}
+
 .header-action-btn {
   height: 38px;
   min-width: 110px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 0 20px;
   font-weight: 600;
 }
-.header-actions :deep(.header-action-btn-cancel.ant-btn-default) {
+
+:deep(.header-action-btn-cancel.ant-btn-default) {
   color: #475569;
   border-color: #cbd5e1;
   background: #fff;
 }
-.header-actions :deep(.header-action-btn-save.ant-btn-primary) {
+
+:deep(.header-action-btn-save.ant-btn-primary) {
   box-shadow: none;
 }
 
-/* 布局主体 - 三栏布局 */
+.instance-form-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .main-content {
   flex: 1;
   display: flex;
   background: #f8fafc;
-}
-
-
-/* 左侧：基础定义 */
-.basic-pane { width: 320px; flex-shrink: 0; }
-.basic-pane .pane-card { overflow-y: auto; }
-
-
-.params-pane .pane-card { overflow-y: auto; }
-
-.inst-provider-avatar-cell :deep(svg) {
-  width: 22px;
-  height: 22px;
-  display: block;
-}
-
-
-.model-type-tabs :deep(.ant-tabs-nav) {
-  margin-bottom: 0;
-}
-.model-type-tabs :deep(.ant-tabs-tab) {
-  padding-top: 2px;
-  padding-bottom: 8px;
-}
-.model-type-tabs :deep(.ant-tabs-content-holder) {
-  display: none;
-}
-
-
-
-.model-select-radio .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: transparent;
-}
-
-.model-select-card.is-active .model-select-radio {
-  border-color: #3b82f6;
-}
-
-.model-select-card.is-active .model-select-radio .dot {
-  background: #3b82f6;
-}
-
-.section-header-flex .section-title { margin-bottom: 0; flex: 1; min-width: 0; }
-.model-key-tag { flex-shrink: 0; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
-
-
-.basic-form-grid .span-2 {
-  grid-column: span 2;
-}
-
-
-.instance-key-display :deep(.instance-key-input.ant-input-affix-wrapper),
-.instance-key-display :deep(.instance-key-input.ant-input) {
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  padding-left: 4px;
-  padding-right: 4px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-
-.basic-form-grid :deep(.ant-segmented) {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 3px;
-}
-
-.basic-form-grid :deep(.ant-segmented-item-selected) {
-  background: #eff6ff !important;
-  color: #1d4ed8 !important;
+  min-height: 0;
+  gap: 0;
+  align-items: stretch;
 }
 
 

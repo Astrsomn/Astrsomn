@@ -48,6 +48,7 @@ public final class RuntimeChatParamMergeSupport {
         if (target.getFrequencyPenalty() == null) {
             target.setFrequencyPenalty(instance.getFrequencyPenalty());
         }
+
     }
 
     public static void mergeModelSettingFromModel(ModelSetting target, AiModelEntity model) {
@@ -57,15 +58,11 @@ public final class RuntimeChatParamMergeSupport {
         if (StringUtils.isBlank(target.getModelName())) {
             target.setModelName(StringUtils.trimToNull(model.getModelName()));
         }
-        if (StringUtils.isBlank(target.getApiUrl())) {
-            target.setApiUrl(StringUtils.trimToNull(model.getApiUrl()));
-        }
+
         if (StringUtils.isBlank(target.getExtensionCode())) {
             target.setExtensionCode(StringUtils.trimToNull(model.getExtensionCode()));
         }
-        if (StringUtils.isBlank(target.getApiKey())) {
-            target.setAccountKey(StringUtils.trimToNull(model.getAccountKey()));
-        }
+
     }
 
     public static void mergeModelSettingFromAccount(ModelSetting target, AiAccountEntity account) {
@@ -77,6 +74,9 @@ public final class RuntimeChatParamMergeSupport {
         }
         if (StringUtils.isBlank(target.getApiSecret())) {
             target.setApiSecret(StringUtils.trimToNull(account.getApiSecret()));
+        }
+        if (StringUtils.isBlank(target.getApiUrl())) {
+            target.setApiUrl(StringUtils.trimToNull(account.getApiUrl()));
         }
     }
 

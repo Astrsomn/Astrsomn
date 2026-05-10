@@ -40,6 +40,7 @@
             :send-disabled="sendDisabled"
             :agent-options="agentOptions"
             :chat-instance-options="chatInstanceOptions"
+            :model-capabilities="currentInstanceCapabilities"
             @submit="submitQuestion"
             @stop="stopStreaming"
           />
@@ -48,15 +49,18 @@
         <div v-else ref="messagesContainerRef" class="chat-messages-container">
           <div class="message-scroll-area">
             <transition-group name="message-fade">
-              <ChatMessageItem
-                v-for="item in messages"
-                :key="item.id"
-                :role="item.role"
-                :content="item.content"
-                :segments="item.segments"
-                :streaming="item.streaming"
-                :error="item.error"
-              />
+              <div v-for="item in messages" :key="item.id" class="message-wrapper">
+                <AstroChatMessage
+                  :role="item.role"
+                  :content="item.content"
+                  :segments="item.segments"
+                  :streaming="item.streaming"
+                  :error="item.error"
+                />
+                <div v-if="item.timestamp" :class="['message-timestamp', `message-timestamp-${item.role}`]">
+                  {{ formatTimestamp(item.timestamp) }}
+                </div>
+              </div>
             </transition-group>
             <div ref="messagesBottomRef" class="messages-bottom-spacer"></div>
           </div>
@@ -76,6 +80,7 @@
           :send-disabled="sendDisabled"
           :agent-options="agentOptions"
           :chat-instance-options="chatInstanceOptions"
+          :model-capabilities="currentInstanceCapabilities"
           @submit="submitQuestion"
           @stop="stopStreaming"
         />
@@ -89,37 +94,22 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import AppHeader from '@/components/top/AppHeader.vue'
 import ChatInputPanel from '@/views/chat-index/ChatInputPanel.vue'
-import ChatMessageItem from '@/views/chat-index/ChatMessageItem.vue'
+import { AstroChatMessage } from '@astrsomn/astro-chat-vue'
 import ChatSessionSidebar from '@/views/chat-index/ChatSessionSidebar.vue'
+import { readAstroStream, buildStreamError, type StreamEvent } from '@astrsomn/astro-chat-core'
 import { adaptSessionToSessionItem, aiChatSessionApi } from '@/api/aiChatSession'
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance.ts'
 import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
-import { aiConversationApi, type AiConversation } from '@/api/aiConversation'
+import { aiConversationApi } from '@/api/aiConversation'
 import type { ChatSessionItem } from '@/components/chat-session/types'
 import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
-
-type ChatMessage = {
-  id: string
-  role: 'user' | 'ai'
-  content: string
-  segments?: ChatSegment[]
-  streaming?: boolean
-  error?: boolean
-}
-
-type ChatSegmentType = 'text' | 'thought' | 'html'
-
-type ChatSegment = {
-  type: ChatSegmentType
-  content: string
-}
-
-type StreamEventType = 'text' | 'thought' | 'html' | 'error' | 'done'
-
-type StreamEvent = {
-  type: StreamEventType
-  content: string
-}
+import {
+  mapTurnBundlesToChatMessages,
+  mergeContentFromSegments,
+  type ChatMessage,
+  type ChatSegment,
+  type ChatSegmentType
+} from '@/views/chat-index/historyMapper'
 
 const CHAT_MEMORY_KEY = 'astrsomn-chat-memory-key'
 const CHAT_DRAFT_KEY_PREFIX = 'astrsomn-chat-draft:'
@@ -165,7 +155,20 @@ const sendDisabled = computed(() => {
 })
 
 const isNewSessionView = computed(() => {
-  return messages.value.length === 1 && messages.value[0]?.id === 'welcome'
+  return messages.value.length === 0 || (messages.value.length === 1 && messages.value[0]?.id === 'welcome')
+})
+
+const currentInstanceCapabilities = computed<string[]>(() => {
+  const instance = chatInstanceOptions.value.find(
+    (i) => i.instanceKey === selectedChatInstanceKey.value
+  )
+  if (!instance?.capabilities) return []
+  try {
+    const parsed = JSON.parse(instance.capabilities)
+    return Array.isArray(parsed) ? parsed.map(String) : []
+  } catch {
+    return []
+  }
 })
 
 const getAgentPreferredChatInstanceKey = (agentKey?: string) => {
@@ -255,6 +258,37 @@ const resetInputDraftState = () => {
   selectedChatInstanceKey.value = getDefaultChatInstanceKey(selectedAgent.value)
 }
 
+const formatTimestamp = (timestamp: string): string => {
+  try {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+
+    if (minutes < 1) {
+      return '刚刚'
+    } else if (minutes < 60) {
+      return `${minutes}分钟前`
+    } else if (hours < 24) {
+      return `${hours}小时前`
+    } else if (days < 7) {
+      return `${days}天前`
+    } else {
+      return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
+  } catch {
+    return timestamp
+  }
+}
+
 const getMemoryKey = () => {
   if (currentMemoryKey.value) return currentMemoryKey.value
   let memoryKey = sessionStorage.getItem(CHAT_MEMORY_KEY) || ''
@@ -285,13 +319,6 @@ const isChatNotFoundError = (error: unknown) => {
   )
 }
 
-const mapConversationMessages = (conversationList: AiConversation[]): ChatMessage[] =>
-  conversationList.map((item, index) => ({
-    id: `${item.id ?? item.memoryKey ?? 'msg'}-${index}`,
-    role: item.role === 'user' ? 'user' : 'ai',
-    content: item.content || item.conversationContent || ''
-  }))
-
 const loadSessionGroups = async () => {
   sessionLoading.value = true
   try {
@@ -316,11 +343,9 @@ const openSession = async (memoryKey: string) => {
   restoreDraftState(memoryKey)
   sessionLoading.value = true
   try {
-    const history = await aiConversationApi.recoverByMemoryKey(memoryKey)
-    const restored = mapConversationMessages(history || [])
-    messages.value = restored.length
-      ? restored
-      : []
+    const turns = await aiConversationApi.recoverTurnsByMemoryKey(memoryKey)
+    const restored = mapTurnBundlesToChatMessages(turns || [])
+    messages.value = restored.length ? restored : []
     await scrollToBottom()
   } catch (error: any) {
     if (isChatNotFoundError(error)) {
@@ -340,6 +365,18 @@ const createNewSession = () => {
   clearDraftState(key)
   resetInputDraftState()
   resetWelcomeMessage()
+  scrollToTop()
+}
+
+const scrollToTop = async () => {
+  await nextTick()
+  const container = messagesContainerRef.value
+  if (container) {
+    container.scrollTop = 0
+    return
+  }
+  document.body.scrollTop = 0
+  document.documentElement.scrollTop = 0
 }
 
 const deleteSession = (session: ChatSessionItem) => {
@@ -380,10 +417,7 @@ const scrollToBottom = async () => {
   }
 }
 
-const mergeMessageContent = (segments: ChatSegment[]) =>
-  segments
-    .map((segment) => (segment.type === 'thought' ? `[思考]\n${segment.content}` : segment.content))
-    .join('\n')
+const mergeMessageContent = (segments: ChatSegment[]) => mergeContentFromSegments(segments)
 
 const appendAssistantContent = async (
   messageId: string,
@@ -415,181 +449,53 @@ const appendAssistantContent = async (
   await scrollToBottom()
 }
 
-const parseSseEvent = (eventBlock: string) => {
-  return eventBlock
-    .split(/\r?\n/)
-    .filter((line) => line.startsWith('data:'))
-    .map((line) => line.slice(5).trimStart())
-    .join('\n')
-}
-
-const splitJsonObjects = (input: string) => {
-  const blocks: string[] = []
-  const fragments: string[] = []
-  let depth = 0
-  let start = -1
-  let cursor = 0
-  let inString = false
-  let escaped = false
-
-  for (let i = 0; i < input.length; i++) {
-    const char = input[i]
-    if (inString) {
-      if (escaped) {
-        escaped = false
-      } else if (char === '\\') {
-        escaped = true
-      } else if (char === '"') {
-        inString = false
-      }
-      continue
-    }
-
-    if (char === '"') {
-      inString = true
-      continue
-    }
-
-    if (char === '{') {
-      if (depth === 0) {
-        const fragment = input.slice(cursor, i).trim()
-        if (fragment) {
-          fragments.push(fragment)
-        }
-        start = i
-      }
-      depth++
-      continue
-    }
-
-    if (char === '}') {
-      depth--
-      if (depth === 0 && start >= 0) {
-        blocks.push(input.slice(start, i + 1))
-        cursor = i + 1
-        start = -1
-      }
-    }
+/** 后端 SSE type=tool，content 为 JSON：toolName / args / result */
+const appendToolStreamSegment = async (messageId: string, payloadJson: string) => {
+  const raw = (payloadJson || '').trim()
+  if (!raw) {
+    return
+  }
+  const target = messages.value.find((item) => item.id === messageId)
+  if (!target || target.role !== 'ai') {
+    return
+  }
+  if (!target.segments) {
+    target.segments = []
   }
 
-  if (depth === 0 && cursor < input.length) {
-    const fragment = input.slice(cursor).trim()
-    if (fragment) {
-      fragments.push(fragment)
-    }
-  }
-
-  return {
-    blocks,
-    trailing: fragments.join('\n'),
-    hasIncompleteBlock: depth > 0 || start >= 0
-  }
-}
-
-const toStreamEvent = (payload: unknown): StreamEvent | null => {
-  if (typeof payload === 'string') {
-    if (payload === '[DONE]') {
-      return { type: 'done', content: payload }
-    }
-    return { type: 'text', content: payload }
-  }
-
-  if (!payload || typeof payload !== 'object') {
-    return null
-  }
-
-  const record = payload as Record<string, unknown>
-  const rawType = typeof record.type === 'string' ? record.type.trim().toLowerCase() : 'text'
-  const type: StreamEventType =
-    rawType === 'thought' || rawType === 'html' || rawType === 'error' || rawType === 'done'
-      ? rawType
-      : 'text'
-  const content = typeof record.content === 'string' ? record.content : ''
-  if (type === 'done' || content || type === 'error') {
-    return { type, content }
-  }
-  return null
-}
-
-const normalizeStreamPayload = (raw: string): StreamEvent[] => {
-  const payload = raw.trim()
-  if (!payload) {
-    return []
-  }
-
-  if (payload === '[DONE]') {
-    return [{ type: 'done', content: payload }]
-  }
-
+  let toolName = 'tool'
+  let argsStr: string | undefined
+  let result = ''
   try {
-    const parsed = JSON.parse(payload)
-    const event = toStreamEvent(parsed)
-    return event ? [event] : []
+    const o = JSON.parse(raw) as { toolName?: string; args?: unknown; result?: unknown }
+    if (typeof o.toolName === 'string' && o.toolName.trim()) {
+      toolName = o.toolName.trim()
+    }
+    if (o.args != null) {
+      argsStr = typeof o.args === 'string' ? o.args : JSON.stringify(o.args, null, 2)
+    }
+    if (o.result != null) {
+      result = String(o.result)
+    }
   } catch {
-    // ignore and try other stream formats
+    result = raw
   }
 
-  const { blocks, trailing } = splitJsonObjects(payload)
-  if (blocks.length > 0) {
-    const events = blocks
-      .map((block) => {
-        try {
-          return toStreamEvent(JSON.parse(block))
-        } catch {
-          return null
-        }
-      })
-      .filter((item): item is StreamEvent => item != null)
+  const capArgs =
+    argsStr && argsStr.length > 4000 ? `${argsStr.slice(0, 4000)}\n…` : argsStr
+  const capRes = result.length > 12000 ? `${result.slice(0, 12000)}\n…` : result
 
-    if (trailing) {
-      events.push({ type: 'text', content: trailing })
-    }
-    return events
+  const seg: ChatSegment = {
+    type: 'tool',
+    content: capRes,
+    toolName,
+    args: capArgs?.trim() ? capArgs : undefined,
+    result: capRes,
+    title: `调用工具: ${toolName}`
   }
-
-  return [{ type: 'text', content: raw }]
-}
-
-const extractJsonPayloads = (buffer: string) => {
-  const payload = buffer.trim()
-  if (!payload) {
-    return { events: [] as StreamEvent[], remaining: '' }
-  }
-
-  if (payload === '[DONE]') {
-    return {
-      events: [{ type: 'done', content: '[DONE]' } as StreamEvent],
-      remaining: ''
-    }
-  }
-
-  const { blocks, trailing, hasIncompleteBlock } = splitJsonObjects(buffer)
-  const events = blocks
-    .map((block) => {
-      try {
-        return toStreamEvent(JSON.parse(block))
-      } catch {
-        return null
-      }
-    })
-    .filter((item): item is StreamEvent => item != null)
-
-  if (!blocks.length) {
-    return {
-      events: [],
-      remaining: buffer
-    }
-  }
-
-  if (!hasIncompleteBlock && trailing) {
-    events.push(...normalizeStreamPayload(trailing))
-    return { events, remaining: '' }
-  }
-
-  return {
-    events,
-    remaining: hasIncompleteBlock ? buffer.slice(buffer.lastIndexOf('{')) : ''
-  }
+  target.segments.push(seg)
+  target.content = mergeMessageContent(target.segments)
+  await scrollToBottom()
 }
 
 const applyStreamEvent = async (messageId: string, event: StreamEvent) => {
@@ -612,6 +518,12 @@ const applyStreamEvent = async (messageId: string, event: StreamEvent) => {
     case 'thought':
       await appendAssistantContent(messageId, event.content, 'thought')
       return true
+    case 'image':
+      await appendAssistantContent(messageId, event.content, 'image')
+      return true
+    case 'tool':
+      await appendToolStreamSegment(messageId, event.content)
+      return true
     case 'done':
       return false
     default:
@@ -620,90 +532,7 @@ const applyStreamEvent = async (messageId: string, event: StreamEvent) => {
 }
 
 const readStreamText = async (response: Response, messageId: string) => {
-  const reader = response.body?.getReader()
-  if (!reader) {
-    throw new Error('未获取到流式响应体')
-  }
-
-  const decoder = new TextDecoder('utf-8')
-  const contentType = response.headers.get('content-type') || ''
-  const isSse = contentType.includes('text/event-stream')
-  let sseBuffer = ''
-  let rawBuffer = ''
-
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) {
-      break
-    }
-
-    const chunk = decoder.decode(value, { stream: true })
-    if (!chunk) {
-      continue
-    }
-
-    if (!isSse) {
-      rawBuffer += chunk
-      const { events, remaining } = extractJsonPayloads(rawBuffer)
-      rawBuffer = remaining
-      for (const event of events) {
-        const shouldContinue = await applyStreamEvent(messageId, event)
-        if (!shouldContinue) {
-          await reader.cancel()
-          return
-        }
-      }
-      continue
-    }
-
-    sseBuffer += chunk
-    const blocks = sseBuffer.split(/\r?\n\r?\n/)
-    sseBuffer = blocks.pop() || ''
-    for (const block of blocks) {
-      const data = parseSseEvent(block)
-      for (const event of normalizeStreamPayload(data)) {
-        const shouldContinue = await applyStreamEvent(messageId, event)
-        if (!shouldContinue) {
-          await reader.cancel()
-          return
-        }
-      }
-    }
-  }
-
-  if (!isSse && rawBuffer.trim()) {
-    for (const event of normalizeStreamPayload(rawBuffer)) {
-      const shouldContinue = await applyStreamEvent(messageId, event)
-      if (!shouldContinue) {
-        await reader.cancel()
-        return
-      }
-    }
-  }
-
-  if (isSse && sseBuffer.trim()) {
-    const data = parseSseEvent(sseBuffer)
-    for (const event of normalizeStreamPayload(data)) {
-      const shouldContinue = await applyStreamEvent(messageId, event)
-      if (!shouldContinue) {
-        await reader.cancel()
-        return
-      }
-    }
-  }
-}
-
-const buildStreamError = async (response: Response) => {
-  const raw = await response.text()
-  if (!raw) {
-    return `请求失败 (${response.status})`
-  }
-  try {
-    const parsed = JSON.parse(raw)
-    return parsed.message || raw
-  } catch {
-    return raw
-  }
+  await readAstroStream(response, (event) => applyStreamEvent(messageId, event))
 }
 
 const loadOptions = async () => {
@@ -762,13 +591,15 @@ const submitQuestion = async (promptArg?: string) => {
 
   const userMessageId = `user-${Date.now()}`
   const assistantMessageId = `ai-${Date.now()}`
-  messages.value.push({ id: userMessageId, role: 'user', content: prompt })
+  const now = new Date().toISOString()
+  messages.value.push({ id: userMessageId, role: 'user', content: prompt, timestamp: now })
   messages.value.push({
     id: assistantMessageId,
     role: 'ai',
     content: '',
     segments: [],
-    streaming: true
+    streaming: true,
+    timestamp: now
   })
   isStreaming.value = true
   await scrollToBottom()
@@ -823,7 +654,7 @@ const submitQuestion = async (promptArg?: string) => {
           target.segments = [{ type: 'text', content: stopText }]
         }
       } else {
-        // 解析错误响应（须同步 segments，否则 ChatMessageItem 在 segments 存在时会忽略 content）
+        // 解析错误响应（须同步 segments，否则 AstroChatMessage 在 segments 存在时会忽略 content）
         let errorMessage = '请求失败，请稍后重试'
         let errorDetail = ''
 
@@ -1007,6 +838,26 @@ watch(
 
 .message-fade-move {
   transition: transform 0.3s ease;
+}
+
+.message-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.message-timestamp {
+  font-size: 11px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: #9ca3af;
+  opacity: 0.8;
+  padding: 0 12px;
+  font-style: italic;
+  text-align: left;
+}
+
+.message-timestamp-user {
+  text-align: right;
 }
 
 /* 响应式调整 */

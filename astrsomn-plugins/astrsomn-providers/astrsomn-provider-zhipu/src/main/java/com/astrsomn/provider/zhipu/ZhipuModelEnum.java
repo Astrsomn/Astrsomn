@@ -20,15 +20,19 @@ import java.util.Objects;
 @Getter
 public enum ZhipuModelEnum {
 
-    GLM_4_FLASH("glm-4-flash", "GLM-4 Flash", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+    // --- GLM-4 系列对话模型 ---
+    GLM_4_PLUS("glm-4-plus", "GLM-4 Plus", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
         List.of(
             AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
         ),
         List.of(
             AiModelParamEnum.ChatParamEnum.TEMPERATURE,
             AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
+            AiModelParamEnum.ChatParamEnum.SEED
         )
     ),
     GLM_4("glm-4", "GLM-4", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
@@ -39,6 +43,99 @@ public enum ZhipuModelEnum {
         List.of(
             AiModelParamEnum.ChatParamEnum.TEMPERATURE,
             AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+    GLM_4_AIR("glm-4-air", "GLM-4 Air", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
+            AiModelParamEnum.ChatParamEnum.SEED
+        )
+    ),
+    GLM_4_AIRX("glm-4-airx", "GLM-4 AirX", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
+            AiModelParamEnum.ChatParamEnum.SEED
+        )
+    ),
+    GLM_4_LONG("glm-4-long", "GLM-4 Long", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+    GLM_4_FLASH("glm-4-flash", "GLM-4 Flash", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+    GLM_4_FLASHX("glm-4-flashx", "GLM-4 FlashX", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+    GLM_4_ALLTOOLS("glm-4-alltools", "GLM-4 AllTools", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+
+    // --- GLM-4V 系列多模态模型 ---
+    GLM_4V_PLUS("glm-4v-plus", "GLM-4V Plus", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.VISION,
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
             AiModelParamEnum.ChatParamEnum.MAX_TOKENS
         )
     ),
@@ -50,7 +147,98 @@ public enum ZhipuModelEnum {
         List.of(
             AiModelParamEnum.ChatParamEnum.TEMPERATURE,
             AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
             AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+    GLM_4V_FLASH("glm-4v-flash", "GLM-4V Flash", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.VISION,
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+
+    // --- GLM-Z1 系列推理模型 (Deep Thinking) ---
+    GLM_Z1_AIRX("glm-z1-airx", "GLM-Z1 AirX", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+            AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+    GLM_Z1_AIR("glm-z1-air", "GLM-Z1 Air", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+            AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+    GLM_Z1_FLASH("glm-z1-flash", "GLM-Z1 Flash", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+            AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+    GLM_Z1_FLASHX("glm-z1-flashx", "GLM-Z1 FlashX", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+            AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+
+    // --- 代码模型 ---
+    CODEGEEX_4("codegeex-4", "CodeGeeX-4", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+        ),
+        List.of(
+            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+            AiModelParamEnum.ChatParamEnum.TOP_P,
+            AiModelParamEnum.ChatParamEnum.TOP_K,
+            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+        )
+    ),
+
+    // --- 向量模型 ---
+    EMBEDDING_3("embedding-3", "Embedding-3", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
+        ),
+        List.of(
+            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
         )
     ),
     EMBEDDING_2("embedding-2", "Embedding-2", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(), 
@@ -60,24 +248,58 @@ public enum ZhipuModelEnum {
         List.of(
             AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
         )
+    ),
+
+    // --- CogView 系列图像模型 ---
+    COGVIEW_3_PLUS("cogview-3-plus", "CogView-3 Plus", AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE
+        ),
+        List.of(
+            AiModelParamEnum.ImageParamEnum.SIZE,
+            AiModelParamEnum.ImageParamEnum.QUALITY
+        )
+    ),
+    COGVIEW_3("cogview-3", "CogView-3", AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE
+        ),
+        List.of(
+            AiModelParamEnum.ImageParamEnum.SIZE
+        )
+    ),
+    COGVIEW_4("cogview-4", "CogView-4", AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(), 
+        List.of(
+            AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE,
+            AiModelParamEnum.ImageCapabilitiesEnum.IMAGE_EDITING
+        ),
+        List.of(
+            AiModelParamEnum.ImageParamEnum.SIZE,
+            AiModelParamEnum.ImageParamEnum.QUALITY,
+            AiModelParamEnum.ImageParamEnum.RESPONSE_FORMAT
+        )
     );
 
     private final String modelName;
-    private final String modelKey;
+    private final String description;
     private final String modelType;
     private final List<? extends BaseEnum> capabilities;
     private final List<? extends BaseEnum> params;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    ZhipuModelEnum(String modelName, String modelKey, String modelType, 
+    ZhipuModelEnum(String modelName, String description, String modelType, 
                    List<? extends BaseEnum> capabilities, 
                    List<? extends BaseEnum> params) {
         this.modelName = modelName;
-        this.modelKey = modelKey;
+        this.description = description;
         this.modelType = modelType;
         this.capabilities = capabilities;
         this.params = params;
+    }
+
+    public String getModelKey() {
+        return modelName;
     }
 
     /**
@@ -114,8 +336,9 @@ public enum ZhipuModelEnum {
      */
     public AiModelEntity toEntity(String provider) {
         AiModelEntity entity = new AiModelEntity();
-        entity.setModelKey(this.modelKey);
+        entity.setModelKey(this.getModelKey());
         entity.setModelName(this.modelName);
+        entity.setDescription(this.description);
         entity.setModelType(this.modelType);
         entity.setExtensionCode(provider);
         entity.setCapabilities(this.getCapabilities());
@@ -133,7 +356,7 @@ public enum ZhipuModelEnum {
             return false;
         }
         for (ZhipuModelEnum model : values()) {
-            if (!Objects.equals(model.getModelKey(), modelKey) && !Objects.equals(model.getModelName(), modelKey)) {
+            if (!Objects.equals(model.getModelName(), modelKey)) {
                 continue;
             }
             for (BaseEnum modelParam : model.params) {

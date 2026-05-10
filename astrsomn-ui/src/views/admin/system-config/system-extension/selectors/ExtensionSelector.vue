@@ -37,7 +37,7 @@ const props = withDefaults(
     onlyApplied?: boolean
   }>(),
   {
-    placeholder: '请选择端点所属服务商',
+    placeholder: '根据供应商筛选',
     size: 'large',
     allowClear: false,
     extensionType: 'MODEL_PROVIDER',

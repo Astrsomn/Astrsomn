@@ -85,3 +85,7 @@ build.xml
 /log/
 /astrsomn-server/log/file
 /astrsomn-server/src/main/resources/application-private.yml
+/packages/astro-chat-core/dist/
+/packages/astro-chat-core/package-lock.json
+/packages/astro-chat-vue/package-lock.json
+/package-lock.json

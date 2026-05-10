@@ -44,6 +44,7 @@ import { CodeOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PlusOutlined } from
 import { computed } from 'vue'
 import SessionList from '@/components/chat-session/SessionList.vue'
 import type { ChatSessionItem } from '@/components/chat-session/types'
+import { appConfig } from '@/config'
 
 const props = defineProps<{
   loading: boolean
@@ -61,15 +62,8 @@ const emit = defineEmits<{
 
 const collapsed = computed(() => Boolean(props.collapsed))
 
-const versionText = computed(() => {
-  const envVersion = (import.meta.env.VITE_APP_PKG_VERSION as string | undefined)?.trim()
-  return envVersion ? `Astrsomn ${envVersion}` : 'Astrsomn v0.0.0'
-})
-
-const buildTime = computed(() => {
-  const envBuildTime = (import.meta.env.VITE_APP_BUILD_TIME as string | undefined)?.trim()
-  return envBuildTime || ''
-})
+const versionText = computed(() => `Astrsomn v${appConfig.version}`)
+const buildTime = computed(() => appConfig.buildTime)
 
 const toggleCollapsed = () => {
   emit('update:collapsed', !collapsed.value)
@@ -192,6 +186,26 @@ const toggleCollapsed = () => {
   min-height: 0;
   overflow-y: auto;
   padding: 0 4px 0 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(127, 143, 170, 0.25) transparent;
+}
+
+.session-list-wrap::-webkit-scrollbar {
+  width: 5px;
+}
+
+.session-list-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.session-list-wrap::-webkit-scrollbar-thumb {
+  background: rgba(127, 143, 170, 0.3);
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+
+.session-list-wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(127, 143, 170, 0.5);
 }
 
 .sidebar-footer {

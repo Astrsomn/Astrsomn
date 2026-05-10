@@ -7,25 +7,132 @@
         </div>
         <h3 class="card-title">知识库 (RAG)</h3>
       </div>
-      <div class="header-actions">
-        <button class="action-btn">
-          <SearchOutlined />
-        </button>
-        <button class="action-btn primary" type="button" aria-label="上传">
-          <CloudUploadOutlined />
-        </button>
+      <button class="action-btn primary" title="选择知识库" @click.stop="drawerOpen = true">
+        <PlusOutlined />
+      </button>
+    </div>
+    <div class="kb-list">
+      <div v-for="k in knowledgeKeys" :key="k" class="kb-tag">
+        <span class="kb-name">{{ k }}</span>
+        <CloseOutlined class="kb-close" @click.stop="emit('remove', k)" />
       </div>
+      <div v-if="!knowledgeKeys.length" class="empty-hint">暂未关联知识库</div>
     </div>
-    <div class="upload-area">
-      <CloudUploadOutlined class="upload-ico" />
-      <p class="upload-text">拖拽或点击上传本地文档</p>
-      <span class="upload-hint">PDF, Markdown, Docx…</span>
-    </div>
+
+    <a-drawer
+      :open="drawerOpen"
+      placement="right"
+      :width="520"
+      title="选择向量存储（知识库）"
+      @close="drawerOpen = false"
+    >
+      <div class="selector-content">
+        <div class="search-bar">
+          <a-input
+            v-model:value="keyword"
+            placeholder="集合名称"
+            allow-clear
+            @pressEnter="fetchList"
+          >
+            <template #prefix><SearchOutlined /></template>
+          </a-input>
+          <a-button type="primary" @click="fetchList">搜索</a-button>
+        </div>
+        <a-spin :spinning="loading">
+          <div class="item-list">
+            <div
+              v-for="item in list"
+              :key="item.id"
+              class="item-row"
+              :class="{ selected: selectedKeys.has(String(item.id || '')) }"
+              @click="toggle(item)"
+            >
+              <div class="item-icon">
+                <DatabaseOutlined />
+              </div>
+              <div class="item-info">
+                <div class="item-name">{{ item.collectionName }}</div>
+                <div class="item-sub">{{ item.sourceProvider || '未知' }} · dim={{ item.dimension }} · {{ item.distanceMetric }}</div>
+              </div>
+              <CheckCircleOutlined v-if="selectedKeys.has(String(item.id || ''))" class="check-icon" />
+            </div>
+            <div v-if="!list.length && !loading" class="empty-list">暂无向量存储</div>
+          </div>
+        </a-spin>
+        <a-pagination
+          v-if="page.total > page.pageSize"
+          class="pager"
+          size="small"
+          :current="page.pageNum"
+          :total="page.total"
+          :page-size="page.pageSize"
+          :show-size-changer="false"
+          @change="onPageChange"
+        />
+      </div>
+    </a-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-design/icons-vue';
+import { computed, reactive, ref, watch } from 'vue'
+import { DatabaseOutlined, PlusOutlined, CloseOutlined, SearchOutlined, CheckCircleOutlined } from '@ant-design/icons-vue'
+import { aiVecStoreApi, type AiVecStore } from '@/api/aiVecStore'
+
+const props = defineProps<{
+  knowledgeKeys: string[]
+}>()
+
+const emit = defineEmits<{
+  (e: 'add', kbKey: string, title?: string): void
+  (e: 'remove', kbKey: string): void
+}>()
+
+const drawerOpen = ref(false)
+const keyword = ref('')
+const loading = ref(false)
+const list = ref<AiVecStore[]>([])
+const page = reactive({ pageNum: 1, pageSize: 20, total: 0 })
+
+const selectedKeys = computed(() => new Set(props.knowledgeKeys))
+
+async function fetchList() {
+  loading.value = true
+  try {
+    const resp = await aiVecStoreApi.queryPage({
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: { collectionName: keyword.value || undefined }
+    })
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
+  }
+}
+
+function toggle(item: AiVecStore) {
+  const key = String(item.id || '')
+  if (!key) return
+  if (selectedKeys.value.has(key)) {
+    emit('remove', key)
+  } else {
+    emit('add', key, item.collectionName)
+  }
+}
+
+function onPageChange(p: number) {
+  page.pageNum = p
+  void fetchList()
+}
+
+watch(drawerOpen, (open) => {
+  if (open) {
+    keyword.value = ''
+    page.pageNum = 1
+    void fetchList()
+  }
+})
 </script>
 
 <style scoped>
@@ -41,9 +148,7 @@ import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-desi
   border-radius: var(--ab-glass-radius, 16px);
   box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
   padding: 20px;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .rag-card:hover {
@@ -55,7 +160,7 @@ import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-desi
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .header-left {
@@ -73,12 +178,9 @@ import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-desi
   align-items: center;
   justify-content: center;
   color: #059669;
-  box-shadow: none;
 }
 
-.icon-badge .anticon {
-  font-size: 16px;
-}
+.icon-badge .anticon { font-size: 16px; }
 
 .card-title {
   font-weight: 700;
@@ -87,14 +189,9 @@ import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-desi
   margin: 0;
 }
 
-.header-actions {
-  display: flex;
-  gap: 4px;
-}
-
 .action-btn {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   background: transparent;
   color: #94a3b8;
   border-radius: 6px;
@@ -106,9 +203,7 @@ import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-desi
   transition: color 0.2s;
 }
 
-.action-btn:hover {
-  color: #2563eb;
-}
+.action-btn:hover { color: #2563eb; }
 
 .action-btn.primary {
   background: #10b981;
@@ -116,54 +211,109 @@ import { DatabaseOutlined, SearchOutlined, CloudUploadOutlined } from '@ant-desi
   box-shadow: 0 1px 3px rgba(16, 185, 129, 0.35);
 }
 
-.action-btn.primary:hover {
-  color: #fff;
-  background: #059669;
+.action-btn.primary:hover { color: #fff; background: #059669; }
+.action-btn .anticon { font-size: 12px; }
+
+.kb-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 28px;
 }
 
-.action-btn .anticon {
+.kb-tag {
+  padding: 4px 8px;
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.kb-name { font-size: 11px; }
+
+.kb-close {
+  font-size: 10px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.kb-close:hover { color: #ef4444; }
+
+.empty-hint {
   font-size: 12px;
+  color: #94a3b8;
+  padding: 4px 0;
 }
 
-.upload-area {
-  flex: 1;
-  min-height: 120px;
+.selector-content {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  gap: 12px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.item-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.item-row:hover {
+  border-color: #059669;
+  background: #ecfdf5;
+}
+
+.item-row.selected {
+  border-color: #059669;
+  background: #d1fae5;
+}
+
+.item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #d1fae5;
+  color: #059669;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 24px 16px;
-  border: 1px dashed #e2e8f0;
-  border-radius: 12px;
-  background: rgba(248, 250, 252, 0.2);
+  flex-shrink: 0;
+}
+
+.item-info { flex: 1; min-width: 0; }
+.item-name { font-size: 13px; font-weight: 600; color: #1e293b; }
+.item-sub { font-size: 11px; color: #94a3b8; }
+
+.check-icon { color: #059669; font-size: 16px; }
+
+.pager { text-align: center; flex-shrink: 0; }
+
+.empty-list {
   text-align: center;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-  cursor: pointer;
-}
-
-.upload-ico {
-  font-size: 22px;
-  color: #cbd5e1;
-}
-
-.upload-area:hover {
-  border-color: #cbd5e1;
-  background: rgba(248, 250, 252, 0.5);
-}
-
-.upload-text {
-  font-size: 10px;
   color: #94a3b8;
-  font-weight: 500;
-  margin: 0;
-}
-
-.upload-hint {
-  font-size: 8px;
-  color: #cbd5e1;
-  display: block;
+  padding: 24px;
 }
 </style>

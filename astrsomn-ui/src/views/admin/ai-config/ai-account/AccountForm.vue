@@ -8,14 +8,8 @@
     <template #subtitle>AI Account 配置</template>
 
     <a-spin :spinning="loading">
-      <div class="form-content">
-        <a-alert
-          v-if="accountKeyImmutable"
-          type="info"
-          show-icon
-          message="核心索引已锁定：该凭证正被活跃端点使用，无法修改 Key 标识。"
-          class="key-alert"
-        />
+
+
 
         <a-form layout="vertical" :model="form">
           <a-form-item label="账号 Key" name="accountKey">
@@ -28,6 +22,28 @@
           </a-form-item>
 
           <a-form-item
+              label="模型供应商"
+              name="extensionCode"
+              :rules="[{ required: true, message: '请选择供应商' }]"
+          >
+            <ExtensionSelector
+                v-model:value="form.extensionCode"
+                placeholder="请选择供应商"
+                :allow-clear="true"
+                size="middle"
+                :only-applied="true"
+            />
+          </a-form-item>
+          <a-form-item label="启用状态" name="status">
+            <a-segmented
+                v-model:value="form.status"
+                :options="[{label:'已启用', value:'enabled'}, {label:'已禁用', value:'disabled'}]"
+                block
+                size="large"
+                class="status-segmented"
+            />
+          </a-form-item>
+          <a-form-item
             label="展示名称"
             name="accountName"
             :rules="[{ required: true, message: '请定义凭证展示名称' }]"
@@ -35,19 +51,7 @@
             <a-input v-model:value="form.accountName" placeholder="请输入账号名称" allow-clear />
           </a-form-item>
 
-          <a-form-item
-            label="extensionCode"
-            name="extensionCode"
-            :rules="[{ required: true, message: '请选择供应商' }]"
-          >
-            <ExtensionSelector
-              v-model:value="form.extensionCode"
-              placeholder="请选择供应商"
-              :allow-clear="true"
-              size="middle"
-              :only-applied="true"
-            />
-          </a-form-item>
+
 
           <a-form-item label="API URL" name="apiUrl">
             <a-input
@@ -69,14 +73,9 @@
             <a-input-number v-model:value="form.accountTokens" :min="0" placeholder="无限制" class="w-full" />
           </a-form-item>
 
-          <a-form-item label="状态" name="status">
-            <a-radio-group v-model:value="form.status">
-              <a-radio value="enabled">启用</a-radio>
-              <a-radio value="disabled">禁用</a-radio>
-            </a-radio-group>
-          </a-form-item>
+
         </a-form>
-      </div>
+
     </a-spin>
 
     <template #footer>
@@ -184,9 +183,7 @@ watch(() => props.visible, (val) => {
 </script>
 
 <style scoped>
-.form-content {
-  padding: 4px 4px 0;
-}
+
 
 .key-alert {
   margin-bottom: 16px;

@@ -1,0 +1,19 @@
+{
+  "name": "astrsomn-workspace",
+  "private": true,
+  "description": "Monorepo root: use npm 9+ and run npm install from this directory to link workspaces.",
+  "engines": {
+    "npm": ">=9.0.0",
+    "node": ">=18"
+  },
+  "workspaces": [
+    "astrsomn-ui",
+    "packages/astro-chat-core",
+    "packages/astro-chat-vue"
+  ],
+  "scripts": {
+    "build:core": "npm run build -w @astrsomn/astro-chat-core",
+    "build:ui": "npm run build -w astrsomn-ui",
+    "build": "npm run build:core && npm run build:ui"
+  }
+}

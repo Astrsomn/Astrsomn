@@ -22,7 +22,19 @@
     </select>
 
     <select id="getMaxMessageOrder" resultType="java.lang.Integer">
-        SELECT COALESCE(MAX(MESSAGE_ORDER), -1) FROM `AI_CHAT_MESSAGE` WHERE DELETED = 0 AND MEMORY_KEY = #{messageKey}
+        SELECT COALESCE(MAX(MESSAGE_ORDER), -1) FROM `AI_CHAT_MESSAGE`
+        WHERE DELETED = 0 AND MEMORY_KEY = #{messageKey}
+        <if test="envCode != null and envCode != ''">
+            AND ENV_CODE = #{envCode}
+        </if>
+    </select>
+
+    <select id="getMaxTurnNo" resultType="java.lang.Integer">
+        SELECT COALESCE(MAX(TURN_NO), 0) FROM `AI_CHAT_MESSAGE`
+        WHERE DELETED = 0 AND MEMORY_KEY = #{messageKey}
+        <if test="envCode != null and envCode != ''">
+            AND ENV_CODE = #{envCode}
+        </if>
     </select>
 
     <select id="recoverByMemoryKey" resultType="com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageResponseDTO">
@@ -34,7 +46,8 @@
             ACM.DELETED = 0
             AND ACM.MEMORY_KEY = #{memoryKey}
         ORDER BY
-            ACM.UPDATE_TIME ASC
+            ACM.TURN_NO ASC,
+            ACM.MESSAGE_ORDER ASC
     </select>
 
     <select id="selectTodayUsage" resultType="com.astrsomn.api.runtime.common.dto.chat.message.AiChatUsageDTO">

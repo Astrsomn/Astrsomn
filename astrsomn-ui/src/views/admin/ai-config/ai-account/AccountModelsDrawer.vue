@@ -110,16 +110,18 @@ const emit = defineEmits<{
 .env-tag.dev { background: #e0f2fe; color: #0ea5e9; }
 
 .card-list-container {
+  padding-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
 .model-card-item {
+  cursor: pointer;
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   padding: 20px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-default) ;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;

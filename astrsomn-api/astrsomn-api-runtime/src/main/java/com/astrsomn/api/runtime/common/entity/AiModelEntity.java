@@ -35,6 +35,12 @@ public class AiModelEntity extends BaseEntity<Long> {
     private String modelName;
 
     /**
+     * Model description
+     */
+    @TableField("DESCRIPTION")
+    private String description;
+
+    /**
      * Model type (ChatModel ImageModel EmbeddingModel)
      */
     @TableField("MODEL_TYPE")
@@ -45,18 +51,6 @@ public class AiModelEntity extends BaseEntity<Long> {
      */
     @TableField("EXTENSION_CODE")
     private String extensionCode;
-
-    /**
-     * AccountKey
-     */
-    @TableField("ACCOUNT_KEY")
-    private String accountKey;
-
-    /**
-     * API URL
-     */
-    @TableField("API_URL")
-    private String apiUrl;
 
     /**
      * Status (enabled-disabled)
@@ -93,16 +87,4 @@ public class AiModelEntity extends BaseEntity<Long> {
     private String sourceType;
 
 
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
-    @TableField(fill = FieldFill.INSERT)
-    private String createUser;
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String updateUser;
-    @TableField(fill = FieldFill.INSERT)
-    private Boolean deleted = false;
-    @TableField(fill = FieldFill.INSERT)
-    private String envCode;
 }

@@ -335,7 +335,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         RuntimeChatParamMergeSupport.mergeChatSettingFromInstance(param.getChatSetting(), instance);
         RuntimeChatParamMergeSupport.mergeModelSettingFromModel(param.getModelSetting(), model);
 
-        String accountKey = StringUtils.trimToNull(model.getAccountKey());
+        String accountKey = StringUtils.trimToNull(instance.getAccountKey());
         if (accountKey != null) {
             AiAccountEntity account =
                     aiAccountMapper.selectOne(

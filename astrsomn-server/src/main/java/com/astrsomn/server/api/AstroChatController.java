@@ -2,6 +2,7 @@ package com.astrsomn.server.api;
 
 import lombok.RequiredArgsConstructor;
 import com.astrsomn.common.base.BaseController;
+import com.astrsomn.api.runtime.common.langchain.AstroBuilderChatRequest;
 import com.astrsomn.api.runtime.common.langchain.AstroChatRequest;
 import com.astrsomn.server.service.AstroChatService;
 import org.springframework.http.MediaType;
@@ -26,5 +27,11 @@ public class AstroChatController extends BaseController {
 
     }
 
+    @PostMapping(value = "/builder/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> builderStream(@RequestBody AstroBuilderChatRequest request) {
+
+        return astroChatService.builderStream(request);
+
+    }
 
 }

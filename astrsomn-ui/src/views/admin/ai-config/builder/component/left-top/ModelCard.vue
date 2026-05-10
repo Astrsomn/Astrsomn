@@ -20,12 +20,12 @@
         </div>
       </template>
       <template v-else>
-        <div class="card-placeholder">请选择模型</div>
+        <div class="card-placeholder">{{ readonly ? '随实例自动关联' : '请选择模型' }}</div>
       </template>
-      <div class="card-icon">
+      <div v-if="!readonly" class="card-icon">
         <DoubleRightOutlined />
       </div>
-      <div class="card-overlay">
+      <div v-if="!readonly" class="card-overlay">
         <button class="overlay-btn" title="选择模型" @click.stop="emit('select')">
           <UnorderedListOutlined />
         </button>
@@ -40,9 +40,12 @@ import type { AiModel } from '@/api/aiModel'
 
 interface Props {
   model?: AiModel
+  readonly?: boolean
 }
 
-defineProps<Props>()
+withDefaults(defineProps<Props>(), {
+  readonly: false
+})
 
 const emit = defineEmits<{
   (e: 'select'): void
