@@ -58,6 +58,9 @@
         <if test="req != null and req.status != null and req.status != ''">
             AND AA.STATUS = #{req.status}
         </if>
+        <if test="req != null and req.extensionCode != null and req.extensionCode != ''">
+            AND AM_CHAT.EXTENSION_CODE = #{req.extensionCode}
+        </if>
         ORDER BY
         AA.CREATE_TIME DESC
     </select>

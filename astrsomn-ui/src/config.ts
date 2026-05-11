@@ -4,6 +4,7 @@ export interface AppConfig {
   buildTime: string
   defaultLanguage: string
   defaultTheme: 'light' | 'dark'
+  bottomNavAutoHide: boolean
 }
 
 export const appConfig: AppConfig = {
@@ -11,7 +12,8 @@ export const appConfig: AppConfig = {
   version: '0.2.0-SNAPSHOT',
   buildTime: '2026-03-01',
   defaultLanguage: 'zh-CN',
-  defaultTheme: 'light'
+  defaultTheme: 'light',
+  bottomNavAutoHide: true
 }
 
 export const getVersionText = (): string => {

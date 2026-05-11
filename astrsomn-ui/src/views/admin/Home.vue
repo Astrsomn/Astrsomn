@@ -29,6 +29,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import AppHeader from '@/components/top/AppHeader.vue';
 import BottomNav from '@/components/bottom/BottomNav.vue';
+import { appConfig } from '@/config';
 
 const route = useRoute();
 
@@ -50,9 +51,7 @@ const headerPageTitle = computed(() => {
   return typeof title === 'string' && title.trim() ? title : '管理后台';
 });
 
-/** Dock 根页：始终展开底部栏；二级页：用 auto-hide 收起，悬停底部区域唤醒 */
-const showAdminDock = computed(() => leafMeta()?.showAdminDock === true);
-const bottomNavAutoHide = computed(() => !showAdminDock.value);
+const bottomNavAutoHide = computed(() => appConfig.bottomNavAutoHide);
 
 const handleScroll = () => {
   // 滚动时的处理逻辑

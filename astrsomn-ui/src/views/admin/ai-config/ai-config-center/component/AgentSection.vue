@@ -5,10 +5,6 @@
         <h2 class="list-title">所有 Agents</h2>
         <p class="list-subtitle">当前 Provider: {{ currentProviderName }}</p>
       </div>
-      <a-button type="primary" size="small" class="create-btn" @click="handleCreate">
-        <component :is="PlusOutlined" />
-        新建 Agent
-      </a-button>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -61,7 +57,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import {
   PlusOutlined,
   RightOutlined,
@@ -77,9 +72,7 @@ const props = defineProps<{
   providerKey?: string
 }>()
 
-const emit = defineEmits(['select'])
-
-const router = useRouter()
+const emit = defineEmits(['select', 'create'])
 
 const loading = ref(false)
 const agents = ref<AiAgent[]>([])
@@ -118,7 +111,7 @@ const fetchAgents = async () => {
       pageNo: 1,
       pageSize: 50,
       param: {
-        providerKey: props.providerKey && props.providerKey !== 'all' ? props.providerKey : undefined,
+        extensionCode: props.providerKey && props.providerKey !== 'all' ? props.providerKey : undefined,
       },
     })
     agents.value = resp.list || []
@@ -135,7 +128,7 @@ const handleSelect = (agent: AiAgent) => {
 }
 
 const handleCreate = () => {
-  router.push('/admin/ai-config/builder')
+  emit('create')
 }
 
 watch(
@@ -150,9 +143,8 @@ void fetchAgents()
 
 <style scoped>
 .agent-list-container {
-  padding: 32px;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 20px 30px;
+  flex: 1;
 }
 
 /* 头部 */

@@ -11,7 +11,7 @@
           </div>
           <div class="header-text">
             <a-input
-              v-model:value="agentName"
+              :value="agentName"
               class="name-input"
               :disabled="true"
             />
@@ -145,10 +145,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import {
   ArrowLeftOutlined,
-  LayoutOutlined ,
+  LayoutOutlined,
   LinkOutlined,
   SearchOutlined,
   CreditCardOutlined,
@@ -157,8 +156,6 @@ import {
 
 defineProps<{ agentName: string }>()
 const emit = defineEmits(['back'])
-
-const agentName = ref('智能翻译专家')
 </script>
 
 <style scoped>
@@ -166,6 +163,8 @@ const agentName = ref('智能翻译专家')
   padding: 32px;
   max-width: 1000px;
   margin: 0 auto;
+  overflow-y: auto;
+  height: 100%;
 }
 
 /* 头部 */
@@ -174,7 +173,7 @@ const agentName = ref('智能翻译专家')
   justify-content: space-between;
   align-items: center;
   padding-bottom: 24px;
-  border-bottom: 1px solid #1f2937;
+  border-bottom: 1px solid var(--border-default);
   margin-bottom: 32px;
 }
 
@@ -188,16 +187,16 @@ const agentName = ref('智能翻译专家')
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: #1f2937;
-  color: #9ca3af;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .back-btn:hover {
-  background: #374151;
-  color: #ffffff;
+  background: var(--primary-hover);
+  color: var(--primary);
 }
 
 .header-info {
@@ -209,17 +208,17 @@ const agentName = ref('智能翻译专家')
 .icon-wrapper {
   width: 48px;
   height: 48px;
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(59, 130, 246, 0.08);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.15);
 }
 
 .config-icon {
   font-size: 24px;
-  color: #60a5fa;
+  color: var(--primary);
 }
 
 .header-text {
@@ -231,7 +230,7 @@ const agentName = ref('智能翻译专家')
 .name-input {
   font-size: 20px;
   font-weight: bold;
-  color: #ffffff;
+  color: var(--text-primary);
   background: transparent;
   border: none;
   padding: 0;
@@ -240,7 +239,7 @@ const agentName = ref('智能翻译专家')
 
 .header-subtitle {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -251,18 +250,18 @@ const agentName = ref('智能翻译专家')
 
 .cancel-btn {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .cancel-btn:hover {
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .save-btn {
   font-size: 12px;
   font-weight: 600;
   padding: 6px 20px;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
 }
 
 /* 配置内容 */
@@ -288,8 +287,8 @@ const agentName = ref('智能翻译专家')
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #1e293b;
-  color: #94a3b8;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -300,7 +299,7 @@ const agentName = ref('智能翻译专家')
 .section-title {
   font-size: 12px;
   font-weight: bold;
-  color: #e5e7eb;
+  color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -313,9 +312,9 @@ const agentName = ref('智能翻译专家')
 }
 
 .config-card {
-  background: rgba(17, 24, 39, 0.6);
-  border-color: #1f2937;
-  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 16px;
 }
 
@@ -326,18 +325,15 @@ const agentName = ref('智能翻译专家')
 .card-label {
   font-size: 10px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-muted);
   text-transform: uppercase;
   margin-bottom: 12px;
   display: block;
 }
 
 .config-select {
-  background: #0b0f1a;
-  border-color: #1f2937;
   border-radius: 6px;
   font-size: 12px;
-  color: #3b82f6;
   font-weight: bold;
 }
 
@@ -352,8 +348,8 @@ const agentName = ref('智能翻译专家')
 .prompt-tag {
   font-size: 9px;
   padding: 2px 8px;
-  background: rgba(251, 191, 36, 0.1);
-  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+  color: #eab308;
   border-color: rgba(251, 191, 36, 0.2);
   border-radius: 4px;
 }
@@ -369,15 +365,15 @@ const agentName = ref('智能翻译专家')
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-surface);
   padding: 8px;
   border-radius: 6px;
-  border: 1px solid #1f2937;
+  border: 1px solid var(--border-default);
 }
 
 .tool-name {
   font-size: 11px;
-  color: #e5e7eb;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -385,14 +381,7 @@ const agentName = ref('智能翻译专家')
 
 .tool-icon {
   font-size: 12px;
-}
-
-.tool-name :deep(.icon-link) {
-  color: #10b981;
-}
-
-.tool-name :deep(.icon-search) {
-  color: #3b82f6;
+  color: var(--text-muted);
 }
 
 /* 实例配置 */
@@ -411,7 +400,7 @@ const agentName = ref('智能翻译专家')
 
 .item-label {
   font-size: 10px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .account-info {
@@ -419,16 +408,16 @@ const agentName = ref('智能翻译专家')
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #e5e7eb;
+  color: var(--text-secondary);
   padding: 6px 10px;
-  background: #0b0f1a;
+  background: var(--bg-surface);
   border-radius: 6px;
-  border: 1px solid #1f2937;
+  border: 1px solid var(--border-default);
 }
 
 .account-icon {
   font-size: 12px;
-  color: #6366f1;
+  color: var(--primary);
 }
 
 /* 参数配置 */
@@ -452,28 +441,26 @@ const agentName = ref('智能翻译专家')
 
 .param-label {
   font-size: 10px;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .param-value {
   font-size: 12px;
-  color: #3b82f6;
+  color: var(--primary);
   font-weight: bold;
 }
 
 .param-input {
-  background: #0b0f1a;
-  border-color: #1f2937;
   border-radius: 6px;
   font-size: 12px;
-  color: #e5e7eb;
+  color: var(--text-secondary);
 }
 
 /* 模型卡片 */
 .model-card {
-  background: rgba(37, 99, 235, 0.05);
-  border-color: rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.04);
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  border-radius: var(--radius-lg);
   padding: 20px;
   display: flex;
   justify-content: space-between;
@@ -489,12 +476,12 @@ const agentName = ref('智能翻译专家')
 .model-icon-wrapper {
   width: 32px;
   height: 32px;
-  background: rgba(147, 51, 234, 0.1);
+  background: rgba(147, 51, 234, 0.08);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(147, 51, 234, 0.2);
+  border: 1px solid rgba(147, 51, 234, 0.15);
 }
 
 .model-icon {
@@ -505,7 +492,7 @@ const agentName = ref('智能翻译专家')
 .model-name {
   font-size: 14px;
   font-weight: bold;
-  color: #e5e7eb;
+  color: var(--text-primary);
 }
 
 .model-stats {
@@ -522,14 +509,14 @@ const agentName = ref('智能翻译专家')
 
 .stat-label {
   font-size: 10px;
-  color: #6b7280;
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
 .stat-value {
   font-size: 12px;
   font-weight: bold;
-  color: #e5e7eb;
+  color: var(--text-primary);
 }
 
 .stat-value.yes {
