@@ -44,6 +44,7 @@ import { CodeOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PlusOutlined } from
 import { computed } from 'vue'
 import SessionList from '@/components/chat-session/SessionList.vue'
 import type { ChatSessionItem } from '@/components/chat-session/types'
+import { appConfig } from '@/config'
 
 const props = defineProps<{
   loading: boolean
@@ -61,15 +62,8 @@ const emit = defineEmits<{
 
 const collapsed = computed(() => Boolean(props.collapsed))
 
-const versionText = computed(() => {
-  const envVersion = (import.meta.env.VITE_APP_PKG_VERSION as string | undefined)?.trim()
-  return envVersion ? `Astrsomn ${envVersion}` : 'Astrsomn v0.0.0'
-})
-
-const buildTime = computed(() => {
-  const envBuildTime = (import.meta.env.VITE_APP_BUILD_TIME as string | undefined)?.trim()
-  return envBuildTime || ''
-})
+const versionText = computed(() => `Astrsomn v${appConfig.version}`)
+const buildTime = computed(() => appConfig.buildTime)
 
 const toggleCollapsed = () => {
   emit('update:collapsed', !collapsed.value)

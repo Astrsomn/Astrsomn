@@ -1,6 +1,6 @@
 {
   "name": "@astrsomn/astro-chat-vue",
-  "version": "0.1.0",
+  "version": "0.2.0-SNAPSHOT",
   "description": "Vue 3 chat composer and message UI for Astrsomn",
   "type": "module",
   "exports": {

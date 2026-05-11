@@ -31,6 +31,7 @@ export type ChatMessage = {
   segments?: ChatSegment[]
   streaming?: boolean
   error?: boolean
+  timestamp?: string
 }
 
 type ExtPayload = {
@@ -250,7 +251,8 @@ export function mapTurnBundlesToChatMessages(bundles: AiChatTurnBundle[]): ChatM
       out.push({
         id: `turn-${turn}-user`,
         role: 'user',
-        content: buildUserBubbleHtml(text, userRow)
+        content: buildUserBubbleHtml(text, userRow),
+        timestamp: userRow.createTime
       })
     }
 
@@ -263,11 +265,13 @@ export function mapTurnBundlesToChatMessages(bundles: AiChatTurnBundle[]): ChatM
     const mergedSegments = mergeAdjacentToolSegments(segments)
 
     if (replyRows.length > 0) {
+      const aiRow = replyRows[0]
       out.push({
         id: `turn-${turn}-ai`,
         role: 'ai',
         content: mergeContentFromSegments(mergedSegments),
-        segments: mergedSegments.length ? mergedSegments : undefined
+        segments: mergedSegments.length ? mergedSegments : undefined,
+        timestamp: aiRow.createTime
       })
     }
   }

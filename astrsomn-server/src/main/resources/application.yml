@@ -54,7 +54,7 @@ logging:
     rollingpolicy:
       max-file-size: 10MB
   file:
-    name: ./log/file
+    name: ./log/astrsomn.log
 cookie:
   default-path: "/"
   default-max-age: 604800

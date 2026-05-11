@@ -111,14 +111,14 @@
 
 | 依赖坐标 | 主版本 | 用途 |
 | --- | --- | --- |
-| `com.astrsomn:astrsomn-runtime-starter` | `0.1.x` | 一站式接入入口，提供注解注入与运行时能力 |
+| `com.astrsomn:astrsomn-runtime-starter` | `0.2.0-SNAPSHOT` | 一站式接入入口，提供注解注入与运行时能力 |
 | `dev.langchain4j:langchain4j-core` | `1.11.x` | LangChain4j 核心抽象与调用能力 |
 | `dev.langchain4j:langchain4j-open-ai` | `1.11.x` | OpenAI 协议模型接入（DeepSeek 等兼容场景） |
 | `dev.langchain4j:langchain4j-community-zhipu-ai` | `1.11.0-beta19` | 智谱模型接入能力 |
 | `org.springframework.boot:spring-boot-starter` | `3.3.x` | Spring Boot 运行与自动配置基础 |
 | `com.baomidou:mybatis-plus-spring-boot3-starter` | `3.5.x` | 数据访问与配置持久化基础能力 |
 
-> 说明：文档使用“主版本”帮助快速判断兼容范围；精确补丁版本以各模块 `pom.xml` 为准。
+> 说明：文档使用"主版本"帮助快速判断兼容范围；精确补丁版本以各模块 `pom.xml` 为准。
 
 ***
 
@@ -159,32 +159,107 @@ Astrsomn
 
 ### 环境要求
 
-- JDK 21+
-- Spring Boot 3.2+
-- Maven 3.8+
-- MySQL 8.0+（推荐）
+| 环境    | 版本要求       |
+| ------- | -------------- |
+| JDK     | 21+            |
+| Maven   | 3.8+           |
+| MySQL   | 8.0+（推荐）   |
+| Node.js | 18+（前端开发） |
 
-### 步骤 1：准备数据库
+---
 
-1. 确保 MySQL 可访问（本机或远程均可）。
-2. 创建数据库（示例）：
+### 一、项目启动
+
+克隆仓库后，在本地同时运行后端服务和前端控制台。
+
+#### 1. 后端
+
+##### 1.1 准备数据库
+
+确保 MySQL 可访问（本机或远程均可），创建数据库：
 
 ```sql
 CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 ```
 
-### 步骤 2：引入 Maven 依赖（runtime-starter）
+##### 1.2 修改配置
 
-建议先在你的业务项目中完成依赖引入，再统一进行配置并启动服务。
+编辑 `astrsomn-server/src/main/resources/application-mysql.yml`，修改数据库连接信息：
 
-**1) 引入 runtime-starter**：
+**必须修改项**：
+- `datasource.url` 中的 `host`、`port`、数据库名
+- `datasource.username`
+- `datasource.password`
+
+```yml
+astrsomn:
+  enabled: true
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/astro_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: your_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5
+  mybatis-plus:
+    additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
+  data-base:
+    validation:
+      enabled: true
+      fail-fast: false
+      required-tables:
+        - SYS_ENV
+```
+
+##### 1.3 启动后端
+
+在 IDE 中运行 `astrsomn-server` 模块的 `AstrsomnServerApplication.java`。
+
+- 首次启动会自动执行 Flyway 迁移（默认开启）。
+- 确认成功：日志中出现 `Started ...`，监听端口为 `4481`（默认）。
+
+#### 2. 前端
+
+前端分为基础组件包（`astrsomn-ui-packages`）和主应用（`astrsomn-ui`）。
+组件包需先手动构建，主应用通过 `file:` 协议引用它们。
+
+##### 2.1 构建基础组件包
+
+```bash
+cd astrsomn-ui-packages/astro-chat-core
+npm install
+npm run build
+```
+
+> `astro-chat-vue` 是纯源码导出（`exports` 直接指向 `./src/index.ts`），无需单独构建。
+
+##### 2.2 启动前端主应用
+
+```bash
+cd astrsomn-ui
+npm install
+npm run dev
+```
+
+前端默认运行在 `http://localhost:3000`（默认端口），确保后端 `4481` 端口可访问。
+
+---
+
+### 二、作为依赖接入你的项目
+
+如果你想在自己的业务项目中接入 Astrsomn 的 AI 能力，按以下步骤操作。
+
+#### 1. 引入 Maven 依赖
+
+**1) runtime-starter**：
 
 ```xml
-<!-- 运行时 Starter（AI 模型、工具、MCP 等） -->
 <dependency>
     <groupId>com.astrsomn</groupId>
     <artifactId>astrsomn-runtime-starter</artifactId>
-    <version>0.1.0-alpha.1</version>
+    <version>0.2.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -195,18 +270,18 @@ CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 <dependency>
     <groupId>com.astrsomn</groupId>
     <artifactId>astrsomn-provider-deepseek</artifactId>
-    <version>0.1.0-alpha.1</version>
+    <version>0.2.0-SNAPSHOT</version>
 </dependency>
 
 <!-- Zhipu Provider -->
 <dependency>
     <groupId>com.astrsomn</groupId>
     <artifactId>astrsomn-provider-zhipu</artifactId>
-    <version>0.1.0-alpha.1</version>
+    <version>0.2.0-SNAPSHOT</version>
 </dependency>
 ```
 
-> 当前“快速启动”仅验证并支持：`astrsomn-runtime-starter` + `astrsomn-provider-deepseek` / `astrsomn-provider-zhipu`。
+> 当前仅验证并支持：`astrsomn-runtime-starter` + `astrsomn-provider-deepseek` / `astrsomn-provider-zhipu`。
 > 其他 Starter/Provider 将在后续版本逐步开放。
 
 **3) 以下依赖需要由使用方项目自行提供（runtime-starter 中为 provided）**：
@@ -252,11 +327,9 @@ CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 </dependency>
 ```
 
-### 步骤 3：配置 application-mysql.yml（必做）
+#### 2. 添加配置
 
-编辑 `astrsomn-server/src/main/resources/application-mysql.yml`。
-
-如果你是在自己的业务项目中直接接入 `astrsomn-runtime-starter`，同样请确保激活 `mysql` profile：
+确保激活 `mysql` profile，在你的 `application.yml` 中添加：
 
 ```yml
 spring:
@@ -264,64 +337,13 @@ spring:
     active: mysql
 ```
 
-**必须修改项**：
-- `host`
-- `port`
-- `database-name`
-- `username`
-- `password`
+然后在 `application-mysql.yml` 中配置数据库连接，格式参考上方「1.2 修改配置」。
 
-**最新可启动参考（runtime-starter）**：
-
-```yml
-astrsomn:
-  enabled: true
-  env-code: PRO
-  username: admin
-  admin-users: admin
-  mybatis-plus:
-    additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
-  data-base:
-    database-type: mysql
-    host: 127.0.0.1
-    port: 3306
-    database-name: astro_ai
-    username: root
-    password: your_password
-    driver: com.mysql.cj.jdbc.Driver
-    use-ssl: false
-    charset: utf8
-    timezone: Asia/Shanghai
-    connection-timeout: 30000
-    maximum-pool-size: 10
-    minimum-idle: 5
-    validation:
-      enabled: true
-      fail-fast: false
-      required-tables:
-        - SYS_ENV
-```
-
-### 步骤 4：启动服务
-
-- 在 IDE 中运行 `astrsomn-server` 模块的 `AstrsomnServerApplication.java`。
-- 首次启动会自动执行 Flyway 迁移（默认开启）。
-
-### 步骤 5：确认启动成功
-
-满足以下任一条件可判定后端已成功启动：
-- 日志中出现 Spring Boot 启动完成信息（Started ...）。
-- 控制台无数据库连接报错且应用持续运行。
-- 监听端口为 `4481`（默认配置）。
-
-### 步骤 6：在业务代码中使用 `@Astro`
-
-完成依赖引入、配置和服务启动后，即可通过 `@Astro` 注解接入 AI 能力：
+#### 3. 在业务代码中使用 `@Astro`
 
 ```java
 @Service
 public class MyService {
-    // 一行注解，注入 AI 能力
     @Astro(agentKey = "MY-AGENT", envCode = "PRO")
     private AstroChatAssistant assistant;
 
