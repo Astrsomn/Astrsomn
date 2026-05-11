@@ -46,6 +46,8 @@
             <div class="model-icon" :class="model.modelType">
               <MessageOutlined v-if="model.modelType === 'chat'" />
               <PartitionOutlined v-else-if="model.modelType === 'embedding'" />
+              <PictureOutlined v-else-if="model.modelType === 'image'" />
+              <AudioOutlined v-else-if="model.modelType === 'voice'" />
               <PictureOutlined v-else />
             </div>
             <div class="model-info">
@@ -81,12 +83,14 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
-import { SearchOutlined, KeyOutlined, MessageOutlined, PartitionOutlined, PictureOutlined } from '@ant-design/icons-vue'
+import { SearchOutlined, KeyOutlined, MessageOutlined, PartitionOutlined, PictureOutlined, AudioOutlined } from '@ant-design/icons-vue'
 import { aiModelApi, type AiModel, type PageResponse } from '@/api/aiModel.ts'
 import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
 
 const props = defineProps<{
   open: boolean
+  /** When set, only list models of this type (chat / image / embedding). */
+  fixedModelType?: string
 }>()
 
 const emit = defineEmits<{
@@ -114,7 +118,8 @@ const fetchList = async () => {
       param: {
         modelName: keyword.value || undefined,
         status: queryStatus.value || undefined,
-        envCode: localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY) || undefined
+        envCode: localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY) || undefined,
+        modelType: props.fixedModelType || undefined
       }
     }
     const resp: PageResponse<AiModel> = await aiModelApi.queryPage(payload)
@@ -218,6 +223,11 @@ watch(() => props.open, (val) => {
 
 .model-icon.image {
   background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  color: white;
+}
+
+.model-icon.voice {
+  background: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
   color: white;
 }
 

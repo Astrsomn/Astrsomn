@@ -16,6 +16,9 @@ export type AiAgent = {
   /** 图像模型实例 */
   imageInstanceKey?: string
   imageInstanceName?: string
+  /** 语音 / TTS 等推理实例 */
+  voiceInstanceKey?: string
+  voiceInstanceName?: string
   promptKey?: string
   status?: string
   knowledgeBaseKeys?: string

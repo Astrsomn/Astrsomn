@@ -15,6 +15,7 @@
       <span class="header-type-icon" :class="form.modelType">
         <template v-if="form.modelType === 'chat'"><MessageOutlined /></template>
         <template v-else-if="form.modelType === 'embedding'"><PartitionOutlined /></template>
+        <template v-else-if="form.modelType === 'voice'"><AudioOutlined /></template>
         <template v-else><PictureOutlined /></template>
       </span>
     </template>
@@ -81,7 +82,7 @@
               </a-form-item>
 
               <a-form-item label="模型类型" name="modelType">
-                <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}]" block size="large" :disabled="props.mode === 'view' || isPluginModel" />
+                <a-segmented v-model:value="form.modelType" :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}, {label:'语音端点', value:'voice'}]" block size="large" :disabled="props.mode === 'view' || isPluginModel" />
               </a-form-item>
 
               <a-form-item label="模型名称" name="modelName">
@@ -92,7 +93,7 @@
             </div>
             <h3 class="section-headline"><ThunderboltOutlined /> 能力配置 (Capabilities)</h3>
 
-            <div v-if="form.modelType === 'chat'" class="capability-panel-section">
+            <div v-if="form.modelType === 'chat' || form.modelType === 'voice'" class="capability-panel-section">
               <div class="cap-tag-grid">
                 <div
                     v-for="opt in chatCapabilitiesOptions"
@@ -236,7 +237,7 @@ import {
   IdcardOutlined, MessageOutlined,
   PartitionOutlined, LockOutlined, ThunderboltOutlined,
   CheckCircleFilled, ControlOutlined, PictureOutlined,
-  SettingOutlined
+  SettingOutlined, AudioOutlined
 } from '@ant-design/icons-vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
@@ -366,7 +367,7 @@ function partitionConfig(caps: string[], params: any[], modelType: string) {
   imageCapabilities.value = []
   imageOrphanCapabilities.value = []
 
-  if (modelType === 'chat') {
+  if (modelType === 'chat' || modelType === 'voice') {
     chatCapabilities.value = caps.filter((c) => CHAT_CAPABILITIES_SET.has(c))
     chatOrphanCapabilities.value = caps.filter((c) => !CHAT_CAPABILITIES_SET.has(c))
     if (params && params.length > 0) {
@@ -467,7 +468,7 @@ const handleSubmit = async () => {
   const payload = { ...form }
   
   let allCapabilities: string[] = []
-  if (form.modelType === 'chat') {
+  if (form.modelType === 'chat' || form.modelType === 'voice') {
     allCapabilities = [...chatCapabilities.value, ...chatOrphanCapabilities.value]
   } else if (form.modelType === 'embedding') {
     allCapabilities = [...embeddingCapabilities.value, ...embeddingOrphanCapabilities.value]
@@ -514,6 +515,10 @@ const onCancel = () => emit('update:open', false)
 
 .header-type-icon.image {
   color: #fef08a;
+}
+
+.header-type-icon.voice {
+  color: #a5f3fc;
 }
 
 .model-form-shell {

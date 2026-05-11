@@ -20,6 +20,9 @@ public class AiAgentResponseDTO extends AiAgentEntity {
     /** 来自 AI_INSTANCE.INSTANCE_NAME（图像实例） */
     private String imageInstanceName;
 
+    /** 来自 AI_INSTANCE.INSTANCE_NAME（语音实例） */
+    private String voiceInstanceName;
+
     /** 来自 AI_PROMPT.PROMPT_TITLE（当前环境下该 promptKey 的最大版本） */
     private String promptTitle;
 

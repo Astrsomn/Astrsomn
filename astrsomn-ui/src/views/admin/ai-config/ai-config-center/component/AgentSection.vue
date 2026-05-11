@@ -124,7 +124,7 @@ const fetchAgents = async () => {
 }
 
 const handleSelect = (agent: AiAgent) => {
-  emit('select', agent.agentName)
+  emit('select', agent)
 }
 
 const handleCreate = () => {

@@ -26,7 +26,7 @@
       <textarea
         class="prompt-textarea custom-scrollbar"
         v-model="promptContent"
-        rows="6"
+        :rows="textareaRows"
         placeholder="给你的智能体配置一个清晰的角色定位和任务指令..."
       ></textarea>
       <button class="improve-btn" title="美化提示词" @click.stop="emit('improve')" :disabled="improveLoading">
@@ -45,9 +45,13 @@ import type { AiPrompt } from '@/api/aiPrompt'
 interface Props {
   prompt?: AiPrompt
   improveLoading?: boolean
+  /** 提示词正文 textarea 行数，默认 6 */
+  textareaRows?: number
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  textareaRows: 6,
+})
 
 const emit = defineEmits<{
   (e: 'select'): void

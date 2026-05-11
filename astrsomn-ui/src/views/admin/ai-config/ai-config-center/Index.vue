@@ -17,6 +17,7 @@
         <!-- Agent 配置页 -->
         <AgentConfig
           v-else-if="showConfig"
+          :agent-id="configAgentId"
           :agent-name="configAgentName"
           @back="handleConfigBack"
         />
@@ -68,6 +69,7 @@ import Sidebar from './component/Sidebar.vue'
 import AgentSection from './component/AgentSection.vue'
 import ModelSection from './component/ModelSection.vue'
 import AgentConfig from './component/AgentConfig.vue'
+import type { AiAgent } from '@/api/aiAgent'
 
 const route = useRoute()
 const router = useRouter()
@@ -118,20 +120,24 @@ const snapContainerRef = ref<HTMLDivElement | null>(null)
 const isPeeking = ref(false)
 const showConfig = ref(false)
 const configAgentName = ref('')
+const configAgentId = ref<string | number | undefined>(undefined)
 
 const handleCreateAgent = () => {
+  configAgentId.value = undefined
   configAgentName.value = '新 Agent'
   showConfig.value = true
 }
 
-const handleSelectAgent = (agentName: string) => {
-  configAgentName.value = agentName || 'Agent'
+const handleSelectAgent = (agent: AiAgent) => {
+  configAgentId.value = agent.id
+  configAgentName.value = agent.agentName || 'Agent'
   showConfig.value = true
 }
 
 const handleConfigBack = () => {
   showConfig.value = false
   configAgentName.value = ''
+  configAgentId.value = undefined
 }
 
 const playPeekScroll = async () => {
