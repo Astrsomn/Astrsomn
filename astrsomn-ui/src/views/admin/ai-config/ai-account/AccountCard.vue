@@ -69,20 +69,6 @@
             </a-button>
           </div>
         </div>
-
-        <div class="detail-item keys">
-          <span class="item-label">API 凭据</span>
-          <div class="key-rows">
-            <div class="key-mono">
-              <KeyOutlined class="k-icon" />
-              <code>{{ maskSecret(account.apiKey) }}</code>
-            </div>
-            <div class="key-mono">
-              <LockOutlined class="k-icon" />
-              <code>{{ maskSecret(account.apiSecret) }}</code>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="card-actions">
@@ -106,7 +92,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import {
-  KeyOutlined, LockOutlined, TransactionOutlined,
+  TransactionOutlined,
   EditOutlined, DeleteOutlined, CustomerServiceOutlined, RightOutlined
 } from '@ant-design/icons-vue'
 
@@ -121,7 +107,6 @@ const props = withDefaults(defineProps<{ account: AiAccount; selected?: boolean 
 })
 const emit = defineEmits(['edit', 'delete', 'show-models', 'toggle'])
 
-const maskSecret = (v?: string) => v ? `${v.slice(0, 6)}***${v.slice(-4)}` : '••••-••••'
 const formatTokens = (t?: number | null) => {
   if (t == null) return '0'
   return t >= 1000 ? (t / 1000).toFixed(1) + 'k' : t.toString()
@@ -146,20 +131,19 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 </script>
 
 <style scoped>
-/* 定义讨喜的 C 端色彩系统 */
 :deep(.ant-card-body) { padding: 0; }
 
 .c-side-card {
   position: relative;
-  border-radius: 24px; /* 超大圆角 */
+  border-radius: 8px;
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   box-shadow: var(--shadow-card);
-  transition: var(--transition-pop); /* 带有弹性的过渡 */
+  transition: var(--transition-pop);
   overflow: hidden;
   width: 100%;
   max-width: 360px;
-  height: 300px;
+  height: 260px;
   margin-bottom: 12px;
 }
 
@@ -195,8 +179,8 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 
 .card-inner {
   position: relative;
-  z-index: 2; /* 确保内容在装饰球上方 */
-  padding: 12px;
+  z-index: 2;
+  padding: 16px;
 }
 
 /* 头部：更丰富、更有趣 */
@@ -219,7 +203,7 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 
 .robot-icon {
   width: 34px; height: 34px;
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--primary-gradient);
   color: white;
   display: flex; align-items: center; justify-content: center;
@@ -260,11 +244,11 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
   animation: live-pulse 2s infinite;
 }
 
-/* 核心 Token 区：像一个精美的流量包卡片 */
+/* 核心 Token 区 */
 .token-section {
 
-  border-radius: 16px;
-  padding: 10px 12px;
+  border-radius: 8px;
+  padding: 12px 14px;
   margin-bottom: 10px;
   border: 1px solid var(--border-default);
 }
@@ -297,8 +281,8 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 .details-section {
   display: flex; flex-direction: column; gap: 10px;
 
-  border-radius: 16px;
-  padding: 8px;
+  border-radius: 8px;
+  padding: 10px;
   margin-bottom: 6px;
 }
 
@@ -319,27 +303,18 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 .more-text { font-size: 11px; color: var(--text-secondary); cursor: pointer; font-weight: 600; }
 .manage-btn { padding: 0; height: auto; font-size: 11px; margin-left: auto; color: var(--primary); }
 
-/* 密钥：单色、代码感 */
-.key-rows { display: flex; flex-direction: column; gap: 4px; }
-.key-mono {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--bg-card); padding: 3px 8px; border-radius: 8px; border: 1px solid var(--border-default);
-}
-.k-icon { color: var(--text-secondary); font-size: 11px; }
-.key-mono code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-secondary); letter-spacing: 0.5px; }
-
-/* 操作按钮：悬浮流式设计 */
+/* 操作按钮 */
 .card-actions {
   position: absolute;
-  top: 14px; right: 14px;
+  top: 16px; right: 16px;
   display: flex; gap: 4px;
-  opacity: 0; /* 默认隐藏 */
+  opacity: 0;
   transform: translateX(10px);
   transition: all 0.3s ease;
 }
 
 .c-side-card:hover .card-actions {
-  opacity: 1; /* 悬浮显示 */
+  opacity: 1;
   transform: translateX(0);
 }
 
@@ -359,17 +334,8 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 
 /* 动画定义 */
 @keyframes live-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-@keyframes live-pulse {
   0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7), 0 0 10px var(--success); }
   70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0), 0 0 10px var(--success); }
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), 0 0 10px var(--success); }
 }
-
-/* 引入谷歌字体，增加数字的 C 端高级感 (实际项目中在 HTML head 引入) */
-/* @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&display=swap'); */
 </style>

@@ -37,6 +37,10 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("IMAGE_INSTANCE_KEY")
     private String imageInstanceKey;
 
+    /** 语音 / TTS 等推理实例 */
+    @TableField("VOICE_INSTANCE_KEY")
+    private String voiceInstanceKey;
+
     @TableField("PROMPT_KEY")
     private String promptKey;
 

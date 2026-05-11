@@ -44,6 +44,7 @@
         <a-tab-pane key="chat" tab="对话" />
         <a-tab-pane key="embedding" tab="向量" />
         <a-tab-pane key="image" tab="图像" />
+        <a-tab-pane key="voice" tab="语音" />
       </a-tabs>
 
       <a-spin :spinning="loading">
@@ -59,6 +60,7 @@
               <MessageOutlined v-if="inst.modelType === 'chat'" />
               <PartitionOutlined v-else-if="inst.modelType === 'embedding'" />
               <PictureOutlined v-else-if="inst.modelType === 'image'" />
+              <AudioOutlined v-else-if="inst.modelType === 'voice'" />
               <ControlOutlined v-else />
             </div>
             <div class="instance-info">
@@ -116,7 +118,8 @@ import {
   MessageOutlined,
   PartitionOutlined,
   PictureOutlined,
-  ControlOutlined
+  ControlOutlined,
+  AudioOutlined
 } from '@ant-design/icons-vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance.ts'
@@ -126,6 +129,8 @@ const props = defineProps<{
   disableTtlEdit?: boolean
   defaultModelType?: string
   fixedModelType?: string
+  /** Narrow list to instances whose model key matches (backend LIKE on full key). */
+  filterModelKey?: string
 }>()
 
 const emit = defineEmits<{
@@ -150,6 +155,7 @@ const page = reactive({
 const modelTypeLabel = (type?: string) => {
   if (type === 'embedding') return '向量'
   if (type === 'image') return '图像'
+  if (type === 'voice') return '语音'
   return '对话'
 }
 
@@ -178,7 +184,8 @@ const fetchList = async () => {
       param: {
         instanceName: keyword.value || undefined,
         status: queryStatus.value || undefined,
-        modelType
+        modelType,
+        modelKey: props.filterModelKey?.trim() || undefined
       }
     }
     const resp: PageResponse<AiInstance> = await aiInstanceApi.queryPage(payload)
@@ -319,6 +326,11 @@ watch(() => props.open, (val) => {
 
 .instance-icon.image {
   background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  color: white;
+}
+
+.instance-icon.voice {
+  background: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
   color: white;
 }
 

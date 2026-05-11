@@ -4,7 +4,19 @@ import type { Router } from 'vue-router'
 const adminChildren: RouteRecordRaw[] = [
   {
     path: '',
-    redirect: '/admin/ai-config'
+    redirect: '/admin/ai-config-center'
+  },
+
+  {
+    path: 'ai-config-center',
+    name: 'AdminAiConfigCenter',
+    component: () => import('@/views/admin/ai-config/ai-config-center/Index.vue'),
+    meta: {
+      title: 'AI 配置中心',
+      requiresAuth: true,
+      showAdminDock: true,
+      showModuleSidebar: false
+    }
   },
 
   {
@@ -14,13 +26,7 @@ const adminChildren: RouteRecordRaw[] = [
       {
         path: '',
         name: 'Admin',
-        component: () => import('@/views/admin/ai-config/ai-config-center/Index.vue'),
-        meta: {
-          title: '管理后台',
-          requiresAuth: true,
-          showAdminDock: true,
-          showModuleSidebar: false
-        }
+        redirect: '/admin/ai-config/agents'
       },
       {
         path: 'builder',
@@ -34,11 +40,11 @@ const adminChildren: RouteRecordRaw[] = [
         }
       },
       {
-        path: 'agents',
-        name: 'AdminAgents',
-        component: () => import('@/views/admin/ai-config/ai-agent/AgentList.vue'),
+        path: 'ai-account',
+        name: 'AdminAiAccount',
+        component: () => import('@/views/admin/ai-config/ai-account/AccountList.vue'),
         meta: {
-          title: '智能体管理',
+          title: 'AI 账号',
           requiresAuth: true,
           showAdminDock: false,
           showModuleSidebar: true
@@ -67,6 +73,28 @@ const adminChildren: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'prompts',
+        name: 'AdminPrompts',
+        component: () => import('@/views/admin/ai-config/ai-prompt/PromptList.vue'),
+        meta: {
+          title: '提示词管理',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
+        path: 'agents',
+        name: 'AdminAgents',
+        component: () => import('@/views/admin/ai-config/ai-agent/AgentList.vue'),
+        meta: {
+          title: '智能体管理',
+          requiresAuth: true,
+          showAdminDock: false,
+          showModuleSidebar: true
+        }
+      },
+      {
         path: 'models',
         name: 'AdminModels',
         component: () => import('@/views/admin/ai-config/ai-model/ModelList.vue'),
@@ -83,28 +111,6 @@ const adminChildren: RouteRecordRaw[] = [
         component: () => import('@/views/admin/ai-config/ai-instance/InstanceList.vue'),
         meta: {
           title: '推理配置',
-          requiresAuth: true,
-          showAdminDock: false,
-          showModuleSidebar: true
-        }
-      },
-      {
-        path: 'ai-account',
-        name: 'AdminAiAccount',
-        component: () => import('@/views/admin/ai-config/ai-account/AccountList.vue'),
-        meta: {
-          title: 'AI 账号',
-          requiresAuth: true,
-          showAdminDock: false,
-          showModuleSidebar: true
-        }
-      },
-      {
-        path: 'prompts',
-        name: 'AdminPrompts',
-        component: () => import('@/views/admin/ai-config/ai-prompt/PromptList.vue'),
-        meta: {
-          title: '提示词管理',
           requiresAuth: true,
           showAdminDock: false,
           showModuleSidebar: true
