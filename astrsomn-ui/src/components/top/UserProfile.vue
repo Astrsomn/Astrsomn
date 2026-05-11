@@ -9,11 +9,8 @@
         <a-menu-item key="home">
           <home-outlined /> <span>立即聊天</span>
         </a-menu-item>
-        <a-menu-item key="admin">
-          <setting-outlined /> <span>管理后台</span>
-        </a-menu-item>
         <a-menu-item key="config">
-          <setting-outlined /> <span>配置中心</span>
+          <setting-outlined /> <span>管理后台</span>
         </a-menu-item>
         <a-menu-divider />
         <a-menu-item key="logout" class="logout-item">
@@ -56,8 +53,7 @@ const avatarChar = computed(() => {
 const handleMenuClick = ({ key }: { key: string }) => {
   switch (key) {
     case 'home': router.push('/'); break;
-    case 'admin': router.push('/admin'); break;
-    case 'config': router.push('/admin/system/config'); break;
+    case 'config': router.push('/admin/system/users'); break;
     case 'logout':
       localStorage.clear();
       message.success('已安全退出');

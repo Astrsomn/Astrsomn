@@ -48,7 +48,7 @@
 
     <!-- 全局管理（固定在底部） -->
     <div class="global-section">
-      <div class="nav-section-title">全局管理 (Global)</div>
+     
       <a-menu mode="inline" class="global-menu">
         <a-menu-item
           v-for="item in globalItems"
@@ -79,7 +79,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 import {
   SearchOutlined,
   CloudServerOutlined,
@@ -92,7 +92,7 @@ import {
 } from '@ant-design/icons-vue'
 import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension.ts'
 
-const router = useRouter()
+const emit = defineEmits(['select'])
 const route = useRoute()
 
 const searchText = ref('')
@@ -108,20 +108,7 @@ const globalItems = [
 
 const handleSelect = (key: string) => {
   activeItem.value = key
-  
-  // 全局管理页面使用路由跳转
-  const globalKeys = globalItems.map(item => item.key)
-  if (globalKeys.includes(key)) {
-    router.push(`/admin/ai-config/${key}`)
-    return
-  }
-  
-  // 模型提供商使用查询参数
-  if (key === 'all') {
-    router.push({ path: '/admin/ai-config', query: {} })
-  } else {
-    router.push({ path: '/admin/ai-config', query: { provider: key } })
-  }
+  emit('select', key)
 }
 
 const fetchProviders = async () => {
@@ -153,20 +140,35 @@ const fetchProviders = async () => {
 
 const updateActiveItem = () => {
   const currentPath = route.path
-  const pathParts = currentPath.split('/')
-  const lastPart = pathParts[pathParts.length - 1]
   
-  // 检查是否是全局管理页面
-  const globalKeys = globalItems.map(item => item.key)
-  if (globalKeys.includes(lastPart)) {
-    activeItem.value = lastPart
+  // 如果是 ai-config-center 页面
+  if (currentPath === '/admin/ai-config-center') {
+    // 先检查是否是全局管理视图
+    const view = route.query.view as string | undefined
+    const globalKeys = globalItems.map(item => item.key)
+    if (view && globalKeys.includes(view)) {
+      activeItem.value = view
+      return
+    }
+    
+    // 再检查是否是模型提供商
+    const provider = route.query.provider as string | undefined
+    if (provider && providers.value.some(p => p.key === provider)) {
+      activeItem.value = provider
+      return
+    }
+    
+    // 默认选中"全部"
+    activeItem.value = 'all'
     return
   }
   
-  // 从查询参数获取提供商
-  const provider = route.query.provider as string | undefined
-  if (provider && providers.value.some(p => p.key === provider)) {
-    activeItem.value = provider
+  // 检查是否是全局管理页面
+  const pathParts = currentPath.split('/')
+  const lastPart = pathParts[pathParts.length - 1]
+  const globalKeys = globalItems.map(item => item.key)
+  if (globalKeys.includes(lastPart)) {
+    activeItem.value = lastPart
     return
   }
   
@@ -180,10 +182,11 @@ onMounted(() => {
 })
 
 watch(
-  () => route.path,
+  () => [route.path, route.query.view, route.query.provider],
   () => {
     updateActiveItem()
-  }
+  },
+  { deep: true }
 )
 </script>
 

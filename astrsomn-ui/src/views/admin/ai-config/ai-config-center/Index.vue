@@ -2,20 +2,31 @@
   <a-layout>
     <!-- 左侧侧边栏 -->
     <a-layout-sider width="320" class="bg-white border-r">
-      <Sidebar />
+      <Sidebar @select="handleSidebarSelect" />
     </a-layout-sider>
 
     <!-- 右侧主内容区域 -->
     <a-layout-content class="bg-gray-50">
       <transition name="fade" mode="out-in">
-        <AgentList :key="currentProviderKey" :provider-key="currentProviderKey" />
+        <!-- 全局管理页面 -->
+        <component
+          v-if="currentViewType === 'global'"
+          :is="currentGlobalComponent"
+          :key="currentViewKey"
+        />
+        <!-- Agent列表页面 -->
+        <AgentList
+          v-else
+          :key="currentProviderKey"
+          :provider-key="currentProviderKey"
+        />
       </transition>
     </a-layout-content>
   </a-layout>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Sidebar from './component/Sidebar.vue'
 import AgentList from './component/AgentList.vue'
@@ -23,18 +34,61 @@ import AgentList from './component/AgentList.vue'
 const route = useRoute()
 const router = useRouter()
 
+const globalComponents: Record<string, any> = {
+  'ai-account': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-account/AccountList.vue')),
+  'prompts': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-prompt/PromptList.vue')),
+  'mcp': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-mcp/McpList.vue')),
+  'tools': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-tool/ToolList.vue')),
+}
+
+// 当前选中的视图类型
+const currentViewKey = computed(() => {
+  const viewKey = route.query.view as string | undefined
+  const provider = route.query.provider as string | undefined
+  
+  if (viewKey && Object.keys(globalComponents).includes(viewKey)) {
+    return viewKey
+  }
+  
+  return provider || 'all'
+})
+
+// 当前视图类型
+const currentViewType = computed(() => {
+  const viewKey = route.query.view as string | undefined
+  if (viewKey && Object.keys(globalComponents).includes(viewKey)) {
+    return 'global'
+  }
+  return 'agent'
+})
+
+// 当前提供商
 const currentProviderKey = computed(() => {
   const provider = route.query.provider as string | undefined
   return provider || 'all'
 })
 
-// 监听路由参数变化，用于高亮侧边栏
-watch(
-  () => route.query.provider,
-  () => {
-    // 路由参数变化时会触发 Sidebar 中的 watch
+// 当前全局组件
+const currentGlobalComponent = computed(() => {
+  const viewKey = route.query.view as string | undefined
+  return viewKey && globalComponents[viewKey] ? globalComponents[viewKey] : null
+})
+
+const configCenterPath = '/admin/ai-config-center'
+
+const handleSidebarSelect = (key: string) => {
+  const globalKeys = Object.keys(globalComponents)
+  
+  if (globalKeys.includes(key)) {
+    router.push({ path: configCenterPath, query: { view: key } })
+  } else {
+    if (key === 'all') {
+      router.push({ path: configCenterPath, query: {} })
+    } else {
+      router.push({ path: configCenterPath, query: { provider: key } })
+    }
   }
-)
+}
 </script>
 
 <style scoped>

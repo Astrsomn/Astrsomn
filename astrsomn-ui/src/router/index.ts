@@ -4,7 +4,19 @@ import type { Router } from 'vue-router'
 const adminChildren: RouteRecordRaw[] = [
   {
     path: '',
-    redirect: '/admin/ai-config'
+    redirect: '/admin/ai-config-center'
+  },
+
+  {
+    path: 'ai-config-center',
+    name: 'AdminAiConfigCenter',
+    component: () => import('@/views/admin/ai-config/ai-config-center/Index.vue'),
+    meta: {
+      title: 'AI 配置中心',
+      requiresAuth: true,
+      showAdminDock: true,
+      showModuleSidebar: false
+    }
   },
 
   {
@@ -14,13 +26,7 @@ const adminChildren: RouteRecordRaw[] = [
       {
         path: '',
         name: 'Admin',
-        component: () => import('@/views/admin/ai-config/ai-config-center/Index.vue'),
-        meta: {
-          title: '管理后台',
-          requiresAuth: true,
-          showAdminDock: true,
-          showModuleSidebar: false
-        }
+        redirect: '/admin/ai-config/agents'
       },
       {
         path: 'builder',

@@ -13,7 +13,7 @@
 
     <div class="dock-main">
       <div class="nav-group">
-        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-config') }" @click="navigateTo('/admin/ai-config')">
+        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-config-center') }" @click="navigateTo('/admin/ai-config-center')">
           <div class="icon-wrapper"><RobotOutlined /></div>
           <span class="nav-text">AI 配置</span>
         </div>
