@@ -1,6 +1,6 @@
 {
   "name": "@astrsomn/astro-chat-core",
-  "version": "0.1.0",
+  "version": "0.2.0-SNAPSHOT",
   "description": "Astrsomn chat SSE/stream parsing (framework-agnostic)",
   "type": "module",
   "main": "./dist/index.js",
