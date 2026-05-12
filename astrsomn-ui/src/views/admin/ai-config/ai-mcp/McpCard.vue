@@ -1,32 +1,31 @@
 <template>
-  <a-card :bordered="false" class="mcp-card" :class="{ 'is-disabled': record.enabled !== 1 }">
-    <div class="deco-bubble bubble-1"></div>
-    <div class="deco-bubble bubble-2"></div>
+  <div class="mcp-card-400" :class="{ 'is-disabled': record.enabled !== 1 }">
+    <div class="card-header-status">
+      <div class="status-chip" :class="{ active: record.enabled === 1 }">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ record.enabled === 1 ? 'Active' : 'Paused' }}</span>
+      </div>
+    </div>
 
-    <div class="card-inner">
-      <div class="card-header">
-        <div class="title-group">
-          <div class="mcp-icon">
-            <ApiOutlined />
-          </div>
-          <div class="text-info">
-            <h3 class="mcp-title" :title="record.serverName">
-              {{ record.serverName || record.mcpKey || 'MCP 服务' }}
-            </h3>
-            <div class="meta-under-title">
-              <span class="type-badge">{{ record.type || 'STDIO' }}</span>
-            </div>
-          </div>
+    <div class="card-content">
+      <div class="avatar-section">
+        <div class="avatar-glow">
+          <ApiOutlined />
         </div>
-        <div class="status-dot" :class="{ active: record.enabled === 1 }"></div>
+        <div class="type-tag">{{ record.type || 'STDIO' }}</div>
       </div>
 
-      <div class="key-section">
-        <span class="key-label">KEY</span>
-        <code class="key-value">{{ record.mcpKey || '--' }}</code>
+      <h3 class="title" :title="record.serverName">
+        {{ record.serverName || record.mcpKey || 'MCP 服务' }}
+      </h3>
+
+      <div class="key-capsule-btn" @click="copyKey(record.mcpKey)">
+        <span class="label">KEY</span>
+        <code class="code">{{ record.mcpKey || '--' }}</code>
+        <copy-outlined class="icon" />
       </div>
 
-      <div class="detail-section">
+      <div class="details-section">
         <div v-if="record.type === 'SSE'" class="detail-item">
           <span class="detail-label">SSE 地址</span>
           <span class="detail-value mono">{{ record.sseAddress || '未配置' }}</span>
@@ -42,28 +41,27 @@
           </div>
         </template>
       </div>
+    </div>
 
-      <div class="card-actions">
-        <a-tooltip title="编辑配置" placement="top">
-          <a-button type="text" class="action-btn edit" @click="emit('edit', record)">
-            <EditOutlined />
-          </a-button>
-        </a-tooltip>
-        <a-popconfirm title="确定删除吗？" ok-text="确认" cancel-text="取消" @confirm="emit('delete', record.id)">
-          <a-tooltip title="删除" placement="top">
-            <a-button type="text" danger class="action-btn delete">
-              <DeleteOutlined />
-            </a-button>
-          </a-tooltip>
+    <div class="card-footer-action">
+      <div class="action-group">
+        <button class="action-circle-btn" @click="emit('edit', record)">
+          <edit-outlined />
+        </button>
+        <a-popconfirm title="确定删除吗？" @confirm="emit('delete', record.id)">
+          <button class="action-circle-btn delete">
+            <delete-outlined />
+          </button>
         </a-popconfirm>
       </div>
     </div>
-  </a-card>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ApiOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
+import { ApiOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
 import type { AiMcp } from '@/api/aiMcp'
 
 const props = defineProps<{
@@ -81,157 +79,196 @@ const argsCount = computed(() => {
   } catch {}
   return `${raw.split(/\s+/).filter(Boolean).length || 1}`
 })
+
+const copyKey = async (key?: string) => {
+  if (!key) return
+  await navigator.clipboard.writeText(key)
+  message.success('Key已复制')
+}
 </script>
 
 <style scoped>
-:deep(.ant-card-body) { padding: 0; }
+.mcp-card-400 {
+  --primary-color: var(--primary);
+  --text-main: var(--text-primary);
+  --text-muted: var(--text-muted);
+  --card-bg: var(--bg-card);
+  --card-border-subtle: var(--border-subtle);
+  --card-border-default: var(--border-default);
 
-.mcp-card {
-  position: relative;
-  border-radius: 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-card);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
   width: 100%;
-  min-height: 220px;
+  max-width: 320px;
+  min-height: 400px;
+  background: var(--card-bg);
+  border-radius: 32px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  border: 1px solid var(--card-border-default);
 }
 
-.mcp-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-overview);
+.mcp-card-400:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-card);
   border-color: var(--primary);
 }
 
-.mcp-card.is-disabled {
-  opacity: 0.6;
+.mcp-card-400.is-disabled {
+  opacity: 0.5;
+  filter: grayscale(1);
 }
 
-.deco-bubble {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.2;
-  filter: blur(20px);
-  z-index: 1;
-}
-.bubble-1 {
-  width: 80px; height: 80px;
-  background: rgba(99, 102, 241, 0.4);
-  top: -30px; right: -20px;
-}
-.bubble-2 {
-  width: 60px; height: 60px;
-  background: rgba(16, 185, 129, 0.3);
-  bottom: -20px; left: -15px;
-}
-
-.card-inner {
-  position: relative;
-  z-index: 2;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.card-header {
+.card-header-status {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-.title-group {
+.status-chip {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-elevated);
+  border-radius: 100px;
 }
 
-.mcp-icon {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: white;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-  flex-shrink: 0;
+.status-chip.active {
+  background: rgba(34, 197, 94, 0.15);
 }
 
-.text-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-
-.mcp-title {
-  margin: 0; font-size: 14px; font-weight: 700; color: var(--text-primary);
-  max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.status-chip.active .status-dot {
+  background: var(--success);
 }
 
-.meta-under-title {
-  display: flex; align-items: center; gap: 6px;
-}
-
-.type-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 8px;
-  border-radius: 99px;
-  background: var(--primary-hover);
-  color: var(--primary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.status-chip.active .status-text {
+  color: var(--success);
 }
 
 .status-dot {
-  width: 10px; height: 10px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--text-muted);
-  flex-shrink: 0;
-  margin-top: 4px;
-}
-.status-dot.active {
-  background: var(--success);
-  box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--success);
 }
 
-.key-section {
+.status-text {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.avatar-section {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.avatar-glow {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 22px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+  border: 1px solid var(--border-default);
 }
 
-.key-label {
+.type-tag {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: var(--text-primary);
+  color: var(--bg-base);
   font-size: 9px;
   font-weight: 900;
-  color: var(--text-muted);
-  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 8px;
 }
 
-.key-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--text-primary);
+.title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 16px;
+  letter-spacing: -0.5px;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.detail-section {
+.key-capsule-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--bg-elevated);
+  border-radius: 100px;
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 24px;
+}
+
+.key-capsule-btn:hover {
+  background: var(--bg-card);
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.key-capsule-btn .label {
+  font-size: 9px;
+  font-weight: 900;
+  color: var(--text-muted);
+}
+
+.key-capsule-btn .code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-main);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.key-capsule-btn .icon {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.details-section {
+  flex: 1;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px;
-  border-radius: 10px;
+  gap: 12px;
+  padding: 16px;
   background: var(--bg-elevated);
+  border-radius: 16px;
   border: 1px solid var(--border-subtle);
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .detail-label {
@@ -253,29 +290,49 @@ const argsCount = computed(() => {
 
 .detail-value.mono {
   font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
 }
 
-.card-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 4px;
-  padding-top: 4px;
+.card-footer-action {
+  margin-top: 24px;
+  padding-top: 20px;
   border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.action-btn {
-  width: 32px; height: 32px;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
+.action-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.action-circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  background: transparent;
   color: var(--text-muted);
+  cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
 }
-.action-btn.edit:hover {
-  color: var(--primary);
-  background: var(--primary-hover);
+
+.action-circle-btn:hover {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
-.action-btn.delete:hover {
-  color: var(--error);
-  background: color-mix(in srgb, var(--error) 10%, transparent);
+
+.action-circle-btn.delete:hover {
+  background: var(--error);
+  border-color: var(--error);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 </style>

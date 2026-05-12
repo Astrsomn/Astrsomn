@@ -1,99 +1,89 @@
 <template>
-  <a-card :bordered="false" class="c-side-card" :class="{ 'is-selected': selected }">
-    <div class="deco-bubble bubble-1"></div>
-    <div class="deco-bubble bubble-2"></div>
+  <div
+    class="account-card-400"
+    :class="{
+      'is-selected': selected,
+    }"
+  >
+    <div class="card-header-status">
+      <div class="status-chip" :class="account.envCode?.toLowerCase() || 'unset'">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ account.envCode || 'UNSET' }}</span>
+      </div>
+      <div class="header-checkbox">
+        <a-checkbox :checked="selected" @change="onCheckboxChange" />
+      </div>
+    </div>
 
-    <div class="card-inner">
-      <div class="card-header">
-        <div class="title-group">
-          <a-checkbox
-            class="card-check"
-            :checked="selected"
-            @change="onCheckboxChange"
-            @click.stop
-          />
-          <div class="robot-icon">
-            <CustomerServiceOutlined />
-          </div>
-          <div class="text-info">
-            <h3 class="account-title" :title="account.accountName">
-              {{ account.accountName || 'AI 助手实例' }}
-            </h3>
-            <div class="meta-under-title">
-              <span class="creator">{{ account.createUser || 'Sys' }}</span>
-              <span class="divider">|</span>
-              <span class="time">{{ formatTime(account.createTime) }}</span>
-            </div>
-          </div>
+    <div class="card-content">
+      <div class="avatar-section">
+        <div class="avatar-glow">
+          <CustomerServiceOutlined />
         </div>
-        
-        <div class="status-tags">
-          <span class="c-env-tag" :class="account.envCode?.toLowerCase() || 'unset'">
-            {{ account.envCode || 'UNSET' }}
-          </span>
-          <span class="c-live-dot" title="在线"></span>
+        <div class="live-badge" title="在线">
+          <span class="live-dot"></span>
         </div>
       </div>
 
-      <div class="token-section">
-        <div class="token-label">
-          <TransactionOutlined /> 剩余 Tokens
-        </div>
-        <div class="token-value-wrapper">
-          <span class="token-num">{{ formatTokens(account.accountTokens).split('.')[0] }}</span>
-          <span class="token-decimal" v-if="formatTokens(account.accountTokens).includes('.')">
-            .{{ formatTokens(account.accountTokens).split('.')[1] }}
-          </span>
-          <span class="token-unit">Tokens</span>
-        </div>
-        <div class="token-progress">
-          <div class="progress-bar" style="width: 70%"></div>
-        </div>
+      <h3 class="title" :title="account.accountName">
+        {{ account.accountName || 'AI 助手实例' }}
+      </h3>
+
+      <div class="token-capsule">
+        <TransactionOutlined class="token-icon" />
+        <span class="token-num">{{ formatTokens(account.accountTokens).split('.')[0] }}</span>
+        <span class="token-decimal" v-if="formatTokens(account.accountTokens).includes('.')">
+          .{{ formatTokens(account.accountTokens).split('.')[1] }}
+        </span>
+        <span class="token-unit">Tokens</span>
       </div>
 
-      <div class="details-section">
-        <div class="detail-item models">
-          <span class="item-label">已启用的模型</span>
-          <div class="model-tags">
-            <template v-if="usedModels.length > 0">
-              <span v-for="m in usedModels.slice(0, 3)" :key="m" class="pastel-tag">
-                {{ m }}
-              </span>
-              <span v-if="usedModels.length > 3" class="more-text" @click="emitShowModels">
-                +{{ usedModels.length - 3 }}
-              </span>
-            </template>
-            <span v-else class="empty-text">暂未关联模型</span>
-            <a-button type="link" size="small" class="manage-btn" @click.stop="emitShowModels">
-              管理 <RightOutlined style="font-size: 10px;" />
-            </a-button>
-          </div>
+      <div class="description-box">
+        <div class="model-label">已启用的模型</div>
+        <div class="model-tags">
+          <template v-if="usedModels.length > 0">
+            <span v-for="m in usedModels.slice(0, 3)" :key="m" class="model-chip">
+              {{ m }}
+            </span>
+            <span v-if="usedModels.length > 3" class="more-text" @click="emitShowModels">
+              +{{ usedModels.length - 3 }}
+            </span>
+          </template>
+          <span v-else class="empty-text">暂未关联模型</span>
+          <button class="manage-link" @click.stop="emitShowModels">
+            管理 <RightOutlined style="font-size: 10px;" />
+          </button>
         </div>
       </div>
+    </div>
 
-      <div class="card-actions">
-        <a-tooltip title="编辑配置" placement="top">
-          <a-button type="text" class="action-btn edit" @click="onEdit">
-            <EditOutlined />
-          </a-button>
-        </a-tooltip>
+    <div class="card-footer-action">
+      <div class="user-meta">
+        <user-outlined class="meta-icon" />
+        <span class="meta-info">{{ account.createUser || 'Sys' }}</span>
+        <span class="divider">/</span>
+        <span class="meta-info">{{ formatTime(account.createTime) }}</span>
+      </div>
+
+      <div class="action-group">
+        <button class="action-circle-btn" @click="onEdit">
+          <edit-outlined />
+        </button>
         <a-popconfirm title="确定要释放该助手吗？" @confirm="onDelete">
-          <a-tooltip title="释放实例" placement="top">
-            <a-button type="text" danger class="action-btn delete">
-              <DeleteOutlined />
-            </a-button>
-          </a-tooltip>
+          <button class="action-circle-btn delete">
+            <delete-outlined />
+          </button>
         </a-popconfirm>
       </div>
     </div>
-  </a-card>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import {
   TransactionOutlined,
-  EditOutlined, DeleteOutlined, CustomerServiceOutlined, RightOutlined
+  EditOutlined, DeleteOutlined, CustomerServiceOutlined, RightOutlined, UserOutlined
 } from '@ant-design/icons-vue'
 
 interface AiAccount {
@@ -131,211 +121,318 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 </script>
 
 <style scoped>
-:deep(.ant-card-body) { padding: 0; }
+.account-card-400 {
+  --primary-color: var(--primary);
+  --text-main: var(--text-primary);
+  --text-muted: var(--text-muted);
+  --card-bg: var(--bg-card);
+  --card-border-subtle: var(--border-subtle);
+  --card-border-default: var(--border-default);
 
-.c-side-card {
-  position: relative;
-  border-radius: 8px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-card);
-  transition: var(--transition-pop);
-  overflow: hidden;
   width: 100%;
-  max-width: 360px;
-  height: 260px;
-  margin-bottom: 12px;
+  max-width: 320px;
+  min-height: 400px;
+  background: var(--card-bg);
+  border-radius: 32px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  border: 1px solid var(--card-border-default);
 }
 
-.c-side-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-overview);
+.account-card-400:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-card);
   border-color: var(--primary);
 }
 
-.c-side-card.is-selected {
+.account-card-400.is-selected {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
-/* 背景装饰球 */
-.deco-bubble {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.3;
-  filter: blur(20px);
-  z-index: 1;
-}
-.bubble-1 {
-  width: 100px; height: 100px;
-  background: rgba(59, 130, 246, 0.3);
-  top: -40px; right: -30px;
-}
-.bubble-2 {
-  width: 80px; height: 80px;
-  background: rgba(16, 185, 129, 0.3);
-  bottom: -30px; left: -20px;
-}
-
-.card-inner {
-  position: relative;
-  z-index: 2;
-  padding: 16px;
-}
-
-/* 头部：更丰富、更有趣 */
-.card-header {
+.card-header-status {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 10px;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-.title-group {
+.status-chip {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-elevated);
+  border-radius: 100px;
 }
 
-.card-check {
-  margin-right: 2px;
+.status-chip.prod,
+.status-chip.dev {
+  background: rgba(59, 130, 246, 0.1);
 }
+.status-chip.prod .status-dot,
+.status-chip.dev .status-dot { background: var(--primary); }
+.status-chip.prod .status-text,
+.status-chip.dev .status-text { color: var(--primary); }
 
-.robot-icon {
-  width: 34px; height: 34px;
-  border-radius: 8px;
-  background: var(--primary-gradient);
-  color: white;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-}
-
-.text-info { display: flex; flex-direction: column; gap: 2px; }
-
-.account-title {
-  margin: 0; font-size: 14px; font-weight: 700; color: var(--text-primary);
-  max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-.meta-under-title {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 11px; color: var(--text-secondary);
-}
-.meta-under-title .divider { color: var(--border-default); }
-
-.status-tags { display: flex; align-items: center; gap: 8px; }
-
-.c-env-tag {
-  font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 99px;
-  text-transform: uppercase; letter-spacing: 0.5px;
-}
-/* PROD 使用清爽的紫色，DEV 使用柔和的蓝色 */
-.c-env-tag.prod { background: var(--primary-hover); color: var(--primary); border: 1px solid var(--primary); }
-.c-env-tag.dev { background: var(--primary-hover); color: var(--primary); border: 1px solid var(--primary); }
-.c-env-tag:not(.prod):not(.dev) { background: var(--bg-elevated); color: var(--text-secondary); }
-
-.c-live-dot {
-  width: 8px; height: 8px;
-  background: var(--success); /* 绿宝石色 */
+.status-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  border: 2px solid var(--bg-card);
-  box-shadow: 0 0 0 2px var(--success), 0 0 10px var(--success);
+  background: var(--text-muted);
+}
+
+.status-text {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.avatar-section {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.avatar-glow {
+  width: 64px;
+  height: 64px;
+  background: var(--primary-gradient);
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  border: 1px solid var(--border-default);
+}
+
+.live-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  background: var(--card-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--card-bg);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--success);
+  border-radius: 50%;
   animation: live-pulse 2s infinite;
 }
 
-/* 核心 Token 区 */
-.token-section {
-
-  border-radius: 8px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-  border: 1px solid var(--border-default);
+.title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 16px;
+  letter-spacing: -0.5px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.token-label {
-  font-size: 11px; color: var(--primary);
-  font-weight: 600; display: flex; align-items: center; gap: 5px;
-  margin-bottom: 6px;
-}
-
-.token-value-wrapper {
-  display: flex; align-items: baseline;
-  color: var(--text-primary);
-}
-.token-num { font-size: 24px; font-weight: 800; line-height: 1; font-family: 'Poppins', sans-serif; }
-.token-decimal { font-size: 14px; font-weight: 700; opacity: 0.8; }
-.token-unit { font-size: 11px; font-weight: 600; margin-left: 4px; color: var(--text-secondary); }
-
-.token-progress {
-  height: 5px; background: var(--border-default); border-radius: 99px;
-  margin-top: 8px; overflow: hidden;
-}
-.progress-bar {
-  height: 100%;
-  background: var(--primary-gradient);
-  border-radius: 99px;
-}
-
-/* 详情区：模块化、干净 */
-.details-section {
-  display: flex; flex-direction: column; gap: 10px;
-
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 6px;
-}
-
-.detail-item { display: flex; flex-direction: column; gap: 6px; }
-
-.item-label {
-  font-size: 11px; font-weight: 600; color: var(--text-secondary);
-  text-transform: uppercase; letter-spacing: 0.5px;
-}
-
-/* 模型标签：莫兰迪色系/冰淇淋色系 */
-.model-tags { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-.pastel-tag {
-  background: var(--primary-hover); color: var(--primary);
-  padding: 2px 8px; border-radius: 8px; font-size: 11px;
-  font-weight: 500; border: 1px solid var(--primary);
-}
-.more-text { font-size: 11px; color: var(--text-secondary); cursor: pointer; font-weight: 600; }
-.manage-btn { padding: 0; height: auto; font-size: 11px; margin-left: auto; color: var(--primary); }
-
-/* 操作按钮 */
-.card-actions {
-  position: absolute;
-  top: 16px; right: 16px;
-  display: flex; gap: 4px;
-  opacity: 0;
-  transform: translateX(10px);
-  transition: all 0.3s ease;
-}
-
-.c-side-card:hover .card-actions {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.action-btn {
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 8px;
+.token-capsule {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 8px 20px;
   background: var(--bg-elevated);
-  box-shadow: var(--shadow-card);
-  color: var(--text-secondary);
-  transition: all 0.2s;
+  border-radius: 100px;
   border: 1px solid var(--border-default);
+  margin-bottom: 24px;
+  transition: all 0.2s;
 }
-.action-btn:hover { transform: scale(1.1); }
-.action-btn.edit:hover { background: var(--primary-hover); color: var(--primary); border-color: var(--primary); }
-.action-btn.delete:hover { background: rgba(239, 68, 68, 0.1); color: var(--error); border-color: var(--error); }
 
-/* 动画定义 */
+.token-capsule:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+.token-icon {
+  font-size: 13px;
+  color: var(--primary-color);
+  margin-right: 6px;
+}
+
+.token-num {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-main);
+}
+
+.token-decimal {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  opacity: 0.8;
+}
+
+.token-unit {
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 2px;
+  color: var(--text-muted);
+}
+
+.description-box {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.model-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.model-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.model-chip {
+  background: var(--primary-hover);
+  color: var(--primary);
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--primary);
+}
+
+.more-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.empty-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.manage-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.manage-link:hover {
+  opacity: 0.7;
+}
+
+.card-footer-action {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.user-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.meta-icon {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.meta-info {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.divider {
+  color: var(--border-default);
+  font-size: 10px;
+}
+
+.action-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.action-circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.action-circle-btn:hover {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.action-circle-btn.delete:hover {
+  background: var(--error);
+  border-color: var(--error);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
 @keyframes live-pulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7), 0 0 10px var(--success); }
-  70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0), 0 0 10px var(--success); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), 0 0 10px var(--success); }
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 </style>
