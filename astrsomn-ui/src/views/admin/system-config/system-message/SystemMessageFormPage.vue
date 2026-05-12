@@ -1,5 +1,5 @@
 ﻿<template>
-  <AdminPageShell
+  <AstrsomnPageShell
     :title="isEdit ? '编辑系统消息' : '新建系统消息'"
     description="维护系统通知内容，支持类型、级别、关联引用与错误码。"
     empty-text=""
@@ -83,7 +83,7 @@
         </div>
       </a-form>
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -91,7 +91,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { ArrowLeftOutlined } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import { systemMessageApi, type SystemMessage } from '@/api/systemMessage'
 
 const route = useRoute()

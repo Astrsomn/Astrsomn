@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AuthErrorEnum;
-import com.astrsomn.starter.runtime.mapper.SystemUserMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;
 import com.astrsomn.api.runtime.common.dto.auth.LoginRequest;
 import com.astrsomn.api.runtime.common.dto.auth.RefreshTokenRequest;
 import com.astrsomn.api.runtime.common.dto.auth.LoginResponse;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
 
     @Autowired
-    private SystemUserMapper systemUserMapper;
+    private AstSystemUserMapper systemUserMapper;
 
     @Autowired
     private JwtUtil jwtUtil;

@@ -140,7 +140,10 @@ const activeTabLocal = ref<ExtensionPanel>(props.activeTab || 'installed')
 watch(
   () => props.activeTab,
   (v) => {
-    if (v && v !== activeTabLocal.value) activeTabLocal.value = v
+    if (v && v !== activeTabLocal.value) {
+      activeTabLocal.value = v
+      void fetchActiveList()
+    }
   }
 )
 

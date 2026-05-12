@@ -1,35 +1,30 @@
 <template>
-  <AgentConfigSectionShell :step="1" title="人设">
-    <div class="layer1-row">
-      <div class="name-desc-panel">
-        <label class="card-label">智能体名称</label>
-        <div class="persona-field-frame persona-field-frame--single">
-          <a-input
-            :value="agentName"
-            class="field-input persona-prompt-like"
-            placeholder="智能体名称"
-            :bordered="false"
-            @update:value="onName"
-          />
-        </div>
-        <label class="card-label field-gap">智能体描述</label>
-        <div class="persona-field-frame persona-field-frame--textarea">
-          <a-textarea
-            :value="agentDescription"
-            class="field-input persona-prompt-like"
-            placeholder="简要说明该智能体的用途与能力边界"
-            :auto-size="{ minRows: 7, maxRows: 22 }"
-            allow-clear
-            :bordered="false"
-            @update:value="onDescription"
-          />
-        </div>
+  <AgentConfigSectionShell :step="1" title="角色设定">
+    <div class="persona-row">
+      <div class="left-panel">
+        <label class="card-label">名称 <span class="required">*</span></label>
+        <a-input
+          :value="agentName"
+          class="field-input"
+          placeholder="例如：翻译助手"
+          :bordered="false"
+          @update:value="emit('update:agentName', $event)"
+        />
+        <label class="card-label">Agent Key</label>
+        <a-input
+          :value="agentKey"
+          class="field-input"
+          placeholder="留空则自动生成"
+          :bordered="false"
+          @update:value="emit('update:agentKey', $event)"
+        />
       </div>
-      <div class="prompt-card-wrap">
+      <div class="right-panel">
+        <label class="card-label">人设指令 (Prompt) <span class="required">*</span></label>
         <PromptCard
           :prompt="currentPrompt"
           :improve-loading="improveLoading"
-          :textarea-rows="7"
+          :textarea-rows="6"
           @select="emit('open-prompt-drawer')"
           @create="emit('open-prompt-form')"
           @history="emit('prompt-history')"
@@ -48,166 +43,114 @@ import AgentConfigSectionShell from './AgentConfigSectionShell.vue'
 
 defineProps<{
   agentName: string
-  agentDescription: string
+  agentKey: string
   currentPrompt: AiPrompt | undefined
   improveLoading: boolean
 }>()
 
 const emit = defineEmits<{
   'update:agentName': [value: string]
-  'update:agentDescription': [value: string]
+  'update:agentKey': [value: string]
   'open-prompt-drawer': []
   'open-prompt-form': []
   'prompt-history': []
   'improve-prompt': []
   'update-prompt-content': [content: string]
 }>()
-
-function onName(v: string) {
-  emit('update:agentName', v)
-}
-
-function onDescription(v: string) {
-  emit('update:agentDescription', v)
-}
 </script>
 
 <style scoped>
-.layer1-row {
+.persona-row {
   display: flex;
-  flex-direction: row;
-  align-items: stretch;
   gap: 16px;
-  min-height: 0;
+  align-items: stretch;
 }
 
-.name-desc-panel {
-  flex: 1 1 40%;
-  min-width: 320px;
-  max-width: 560px;
+.left-panel {
+  width: 320px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  gap: 14px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 14px 16px;
-  box-shadow: none;
+  padding: 16px 18px;
 }
 
-.field-gap {
-  margin-top: 14px;
-}
-
-.field-input {
-  width: 100%;
-}
-
-.persona-field-frame {
-  border: 1px dashed var(--border-subtle);
-  border-radius: 12px;
-  padding: 14px 16px;
-  background: transparent;
-}
-
-.persona-field-frame--single {
-  flex-shrink: 0;
-}
-
-.persona-field-frame--textarea {
-  flex: 1;
-  min-height: 160px;
-  display: flex;
-  flex-direction: column;
-  margin-top: 0;
-}
-
-.persona-field-frame :deep(.ant-input-affix-wrapper),
-.persona-field-frame :deep(input.ant-input),
-.persona-field-frame :deep(textarea.ant-input) {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-.persona-field-frame :deep(.ant-input-affix-wrapper) {
-  padding-inline-start: 0;
-  padding-inline-end: 22px;
-}
-
-.persona-field-frame--single :deep(.ant-input-affix-wrapper) {
-  padding-inline-end: 0;
-}
-
-.persona-field-frame :deep(.ant-input),
-.persona-field-frame :deep(textarea.ant-input) {
-  font-size: 12px;
-  font-weight: 400;
-  color: #64748b;
-  line-height: 1.625;
-  font-family: inherit;
-}
-
-.persona-field-frame :deep(.ant-input::placeholder),
-.persona-field-frame :deep(textarea.ant-input::placeholder) {
-  color: #94a3b8;
-}
-
-.persona-field-frame :deep(textarea.ant-input) {
-  resize: none;
-  padding: 0;
-}
-
-.persona-field-frame--textarea :deep(textarea.ant-input) {
-  overflow-y: auto;
-}
-
-.persona-field-frame--textarea :deep(textarea.ant-input)::-webkit-scrollbar {
-  width: 6px;
-}
-
-.persona-field-frame--textarea :deep(textarea.ant-input)::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.persona-field-frame--textarea :deep(textarea.ant-input)::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 10px;
-}
-
-.persona-field-frame--textarea :deep(textarea.ant-input)::-webkit-scrollbar-thumb:hover {
-  background: var(--border-strong, var(--border-default));
-}
-
-.prompt-card-wrap {
+.right-panel {
   flex: 1;
   min-width: 0;
-  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-.prompt-card-wrap :deep(.prompt-card) {
-  min-height: 200px;
+.right-panel :deep(.prompt-card) {
+  min-height: 160px;
+  border-color: var(--border-subtle);
+  box-shadow: none;
+  background: transparent;
+}
+
+.right-panel :deep(.prompt-card:hover) {
   border-color: var(--border-subtle);
   box-shadow: none;
 }
 
-.prompt-card-wrap :deep(.prompt-card:hover) {
-  border-color: var(--border-subtle);
-  box-shadow: none;
-}
-
-.prompt-card-wrap :deep(.dashed-frame) {
-  min-height: 140px;
-  border: 1px dashed var(--border-subtle);
+.right-panel :deep(.dashed-frame) {
+  min-height: 110px;
+  border: 1px solid var(--border-subtle);
   background: transparent;
 }
 
 .card-label {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   display: block;
+  letter-spacing: 0.04em;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.field-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default) !important;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+}
+
+.field-input:hover {
+  border-color: var(--primary) !important;
+}
+
+.field-input:focus,
+.field-input:focus-within {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+}
+
+.field-input :deep(.ant-input) {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .persona-row {
+    flex-direction: column;
+  }
+  .left-panel {
+    width: 100%;
+  }
 }
 </style>

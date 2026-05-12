@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell title="业务幂等" description="用于防重复提交：按幂等键、业务类型与业务 ID 查询与清理。" empty-text="暂无幂等记录。">
+  <AstrsomnPageShell title="业务幂等" description="用于防重复提交：按幂等键、业务类型与业务 ID 查询与清理。" empty-text="暂无幂等记录。">
     <div class="page-wrap">
       <AstrsomnDataSection>
         <template #toolbar>
@@ -91,14 +91,14 @@
         </a-descriptions>
       </template>
     </a-drawer>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { DeleteOutlined, FilterOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'

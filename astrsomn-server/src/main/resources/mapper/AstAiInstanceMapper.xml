@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.server.mapper.AiInstanceMapper">
+
+    <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO">
+        SELECT
+        AI.*,
+        (SELECT M.MODEL_TYPE FROM AI_MODEL M
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND M.ENV_CODE = AI.ENV_CODE
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        LIMIT 1) AS model_type,
+        (
+        SELECT SE.AVATAR
+        FROM AI_MODEL M
+        JOIN SYS_EXTENSION SE
+        ON SE.ENV_CODE = AI.ENV_CODE
+        AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
+        AND (SE.EXTENSION_CODE = M.EXTENSION_CODE OR SE.EXTENSION_KEY = M.EXTENSION_CODE)
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND M.ENV_CODE = AI.ENV_CODE
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        AND M.EXTENSION_CODE IS NOT NULL
+        AND M.EXTENSION_CODE != ''
+        ORDER BY CASE WHEN SE.EXTENSION_CODE = M.EXTENSION_CODE THEN 0 ELSE 1 END
+        LIMIT 1
+        ) AS providerAvatar,
+        (
+        SELECT AA.ACCOUNT_NAME
+        FROM AI_ACCOUNT AA
+        WHERE AA.ACCOUNT_KEY = AI.ACCOUNT_KEY
+        AND (AA.DELETED = 0 OR AA.DELETED IS NULL)
+        LIMIT 1
+        ) AS account_name,
+        (
+        SELECT M.CAPABILITIES
+        FROM AI_MODEL M
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND M.ENV_CODE = AI.ENV_CODE
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        LIMIT 1
+        ) AS capabilities
+        FROM
+        `AI_INSTANCE` AI
+        WHERE
+        (AI.DELETED = 0 OR AI.DELETED IS NULL)
+        <if test="req != null and req.instanceKey != null and req.instanceKey != ''">
+            AND AI.INSTANCE_KEY LIKE CONCAT('%', #{req.instanceKey}, '%')
+        </if>
+        <if test="req != null and req.instanceName != null and req.instanceName != ''">
+            AND AI.INSTANCE_NAME LIKE CONCAT('%', #{req.instanceName}, '%')
+        </if>
+        <if test="req != null and req.modelKey != null and req.modelKey != ''">
+            AND AI.MODEL_KEY LIKE CONCAT('%', #{req.modelKey}, '%')
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND AI.STATUS = #{req.status}
+        </if>
+        <if test="req != null and req.envCode != null and req.envCode != ''">
+            AND AI.ENV_CODE = #{req.envCode}
+        </if>
+        <if test="req != null and req.modelType != null and req.modelType != ''">
+            AND EXISTS (
+            SELECT 1 FROM AI_MODEL M
+            WHERE M.MODEL_KEY = AI.MODEL_KEY
+            AND M.ENV_CODE = AI.ENV_CODE
+            AND M.MODEL_TYPE = #{req.modelType}
+            AND (M.DELETED = 0 OR M.DELETED IS NULL)
+            )
+        </if>
+        <if test="req != null and req.extensionCode != null and req.extensionCode != ''">
+            AND EXISTS (
+            SELECT 1 FROM AI_MODEL M
+            WHERE M.MODEL_KEY = AI.MODEL_KEY
+            AND M.ENV_CODE = AI.ENV_CODE
+            AND M.EXTENSION_CODE = #{req.extensionCode}
+            AND (M.DELETED = 0 OR M.DELETED IS NULL)
+            )
+        </if>
+        ORDER BY
+        AI.CREATE_TIME DESC
+    </select>
+
+    <select id="selectDetailDtoById" resultType="com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO">
+        SELECT
+        AI.*,
+        (
+        SELECT M.MODEL_TYPE
+        FROM AI_MODEL M
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND (M.ENV_CODE = AI.ENV_CODE OR (M.ENV_CODE IS NULL AND AI.ENV_CODE IS NULL))
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        LIMIT 1
+        ) AS model_type,
+        (
+        SELECT SE.AVATAR
+        FROM AI_MODEL M
+        JOIN SYS_EXTENSION SE
+        ON SE.ENV_CODE = AI.ENV_CODE
+        AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
+        AND (SE.EXTENSION_CODE = M.EXTENSION_CODE OR SE.EXTENSION_KEY = M.EXTENSION_CODE)
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND (M.ENV_CODE = AI.ENV_CODE OR (M.ENV_CODE IS NULL AND AI.ENV_CODE IS NULL))
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        AND M.EXTENSION_CODE IS NOT NULL
+        AND M.EXTENSION_CODE != ''
+        ORDER BY (CASE WHEN SE.EXTENSION_CODE = M.EXTENSION_CODE THEN 0 ELSE 1 END)
+        LIMIT 1
+        ) AS providerAvatar,
+        (
+        SELECT AA.ACCOUNT_NAME
+        FROM AI_ACCOUNT AA
+        WHERE AA.ACCOUNT_KEY = AI.ACCOUNT_KEY
+        AND (AA.DELETED = 0 OR AA.DELETED IS NULL)
+        LIMIT 1
+        ) AS account_name,
+        (
+        SELECT M.CAPABILITIES
+        FROM AI_MODEL M
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND (M.ENV_CODE = AI.ENV_CODE OR (M.ENV_CODE IS NULL AND AI.ENV_CODE IS NULL))
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        LIMIT 1
+        ) AS capabilities
+        FROM AI_INSTANCE AI
+        WHERE AI.ID = #{id}
+        AND (AI.DELETED = 0 OR AI.DELETED IS NULL)
+    </select>
+</mapper>

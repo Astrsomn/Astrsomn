@@ -129,21 +129,21 @@ const copyPromptKey = async (key?: string) => {
   --primary-color: var(--primary);
   --text-main: var(--text-primary);
   --text-muted: var(--text-muted);
-  --bg-card: var(--bg-card);
-  --border-subtle: var(--border-subtle);
-  --border-default: var(--border-default);
+  --card-bg: var(--bg-card);
+  --card-border-subtle: var(--border-subtle);
+  --card-border-default: var(--border-default);
   
   width: 100%;
   max-width: 320px;
   min-height: 400px;
-  background: var(--bg-card);
+  background: var(--card-bg);
   border-radius: 32px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--card-border-default);
 }
 
 .air-prompt-card-400:hover {

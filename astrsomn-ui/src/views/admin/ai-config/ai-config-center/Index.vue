@@ -13,6 +13,7 @@
           v-if="currentViewType === 'global'"
           :is="currentGlobalComponent"
           :key="currentViewKey"
+          :initial-view-mode="initialViewMode"
         />
         <!-- Agent 配置页 -->
         <AgentConfig
@@ -114,6 +115,12 @@ const currentGlobalComponent = computed(() => {
   return viewKey && globalComponents[viewKey] ? globalComponents[viewKey] : null
 })
 
+// 从路由 query 中读取视图模式，传给全局管理子组件
+const initialViewMode = computed<'grid' | 'list'>(() => {
+  const vm = route.query.viewMode as string | undefined
+  return vm === 'grid' ? 'grid' : 'list'
+})
+
 const configCenterPath = '/admin/ai-config-center'
 
 const snapContainerRef = ref<HTMLDivElement | null>(null)
@@ -193,7 +200,7 @@ const handleSidebarSelect = (key: string) => {
   const globalKeys = Object.keys(globalComponents)
   
   if (globalKeys.includes(key)) {
-    router.push({ path: configCenterPath, query: { view: key } })
+    router.push({ path: configCenterPath, query: { view: key, viewMode: 'grid' } })
   } else {
     if (key === 'all') {
       router.push({ path: configCenterPath, query: {} })

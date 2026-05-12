@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.entity.AiSensitiveWordEntity;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AiSensitiveWordMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiSensitiveWordMapper;
 import com.astrsomn.starter.runtime.langchain.quota.SensitiveWordProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -21,11 +21,11 @@ public class SensitiveWordPostInitializer implements ApplicationListener<Applica
     private static final String LOG_PREFIX = "[Astrsomn] [词库初始化器] ====> ";
     private static final String STATUS_ENABLED = "ENABLED";
 
-    private AiSensitiveWordMapper aiSensitiveWordMapper;
+    private AstAiSensitiveWordMapper aiSensitiveWordMapper;
     private SensitiveWordProvider sensitiveWordProvider;
     
     @Autowired(required = false)
-    public void setAiSensitiveWordMapper(AiSensitiveWordMapper aiSensitiveWordMapper) {
+    public void setAiSensitiveWordMapper(AstAiSensitiveWordMapper aiSensitiveWordMapper) {
         this.aiSensitiveWordMapper = aiSensitiveWordMapper;
     }
     

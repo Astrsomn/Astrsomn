@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell title="实例事件" description="记录流程实例在节点上的关键事件与追踪信息。" empty-text="暂无实例事件。">
+  <AstrsomnPageShell title="实例事件" description="记录流程实例在节点上的关键事件与追踪信息。" empty-text="暂无实例事件。">
     <div class="page-wrap">
       <AstrsomnDataSection>
         <template #toolbar>
@@ -105,14 +105,14 @@
         </a-descriptions>
       </template>
     </a-drawer>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { DeleteOutlined, FilterOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'

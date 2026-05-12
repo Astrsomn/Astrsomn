@@ -1,5 +1,6 @@
 package com.astrsomn.server.service.impl;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.server.mapper.AiVecStoreMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AstVecStoreErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiVecStoreMapper;
+
 import com.astrsomn.server.service.AiVecSourceService;
 import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.vector.VectorStorePhysicalHandler;

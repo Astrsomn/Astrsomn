@@ -8,8 +8,8 @@ import com.astrsomn.common.utils.JsonUtil;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.langchain.quota.SensitiveWordProvider;
-import com.astrsomn.starter.runtime.mapper.AiChatMessageMapper;
-import com.astrsomn.starter.runtime.mapper.AiChatSessionMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiChatMessageMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiChatSessionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import dev.langchain4j.model.output.TokenUsage;
@@ -31,8 +31,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class StreamTurnPersistenceHelper {
 
-    private final AiChatMessageMapper mapper;
-    private final AiChatSessionMapper sessionMapper;
+    private final AstAiChatMessageMapper mapper;
+    private final AstAiChatSessionMapper sessionMapper;
     private final AstrsomnProperties astrsomnProperties;
     private final SensitiveWordProvider sensitiveWordProvider;
 

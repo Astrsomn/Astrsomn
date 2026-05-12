@@ -1,6 +1,7 @@
 package com.astrsomn.server.service.impl;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.server.mapper.AiVecSegmentMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import dev.langchain4j.data.segment.TextSegment;
@@ -20,7 +21,6 @@ import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AstVecDocErrorEnum;
 import com.astrsomn.api.runtime.exception.AstVecSegmentErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiVecSegmentMapper;
 import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;

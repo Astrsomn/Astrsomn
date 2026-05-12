@@ -1,11 +1,14 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
     title="AI Tools"
     description="管理本地工具与调用配置（AI_TOOL），对接 AiToolController。"
     empty-text="暂无可用工具。"
     :breadcrumbs="breadcrumbs"
+    :show-view-toggle="true"
+    :view-mode="viewMode"
+    :view-toggle-handler="handleViewToggle"
   >
-    <div class="tool-page">
+    <div ref="pageRef" class="tool-page">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
@@ -36,7 +39,7 @@
 
 
         <AstrsomnDataView
-          mode="table"
+          :mode="dataViewMode"
           :data-source="list"
           :loading="loading"
           :columns="columns"
@@ -44,7 +47,17 @@
           :scroll="{ x: 1180 }"
           row-key="id"
           empty-text="暂无匹配的工具记录"
+          :card-columns="currentGridColumns"
+          :card-min-width="toolCardMinWidth"
+          :card-gap="toolCardGap"
         >
+          <template #card="{ record }">
+            <ToolCard
+              :record="record"
+              @edit="openEdit"
+              @delete="handleDeleteOne"
+            />
+          </template>
           <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'enableFlag'">
             <span>{{ renderEnable(String(record.enableFlag || '')) }}</span>
@@ -90,11 +103,11 @@
         @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onBeforeUnmount, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
@@ -105,7 +118,7 @@ import {
   ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
@@ -113,7 +126,24 @@ import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ToolFormModal from './ToolFormModal.vue'
+import ToolCard from './ToolCard.vue'
 import { aiToolApi, type AiTool, type PageResponse } from '@/api/aiTool.ts'
+
+const props = withDefaults(defineProps<{
+  initialViewMode?: 'grid' | 'list'
+}>(), {
+  initialViewMode: 'list'
+})
+
+const TOOL_CARD_MIN_WIDTH_PX = 320
+const TOOL_CARD_GAP_PX = 12
+const toolCardMinWidth = `${TOOL_CARD_MIN_WIDTH_PX}px`
+const toolCardGap = `${TOOL_CARD_GAP_PX}px`
+
+const pageRef = ref<HTMLElement | null>(null)
+const viewMode = ref<'grid' | 'list'>(props.initialViewMode)
+const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
+const currentGridColumns = ref(3)
 
 type QueryState = {
   toolName?: string
@@ -205,6 +235,38 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
 const toggleEnabledFilter = (value: 'enabled' | 'disabled') => {
   query.enableFlag = query.enableFlag === value ? undefined : value
 }
+
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
+}
+
+const resolveGridColumns = () => {
+  if (typeof window === 'undefined') return 3
+  const width = pageRef.value?.clientWidth ?? window.innerWidth
+  const n = Math.floor((width + TOOL_CARD_GAP_PX) / (TOOL_CARD_MIN_WIDTH_PX + TOOL_CARD_GAP_PX))
+  return Math.max(1, Math.min(3, n))
+}
+
+const syncGridColumns = () => {
+  currentGridColumns.value = resolveGridColumns()
+}
+
+let resizeObserver: ResizeObserver | null = null
+
+onMounted(() => {
+  syncGridColumns()
+  if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
+    resizeObserver = new ResizeObserver(syncGridColumns)
+    resizeObserver.observe(pageRef.value)
+  } else {
+    window.addEventListener('resize', syncGridColumns)
+  }
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  window.removeEventListener('resize', syncGridColumns)
+})
 
 const resetFilters = () => {
   query.toolName = undefined

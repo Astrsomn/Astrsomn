@@ -1,7 +1,9 @@
 package com.astrsomn.server.service.impl;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.server.astrsomn.PromptAssistant;
+import com.astrsomn.server.mapper.AiPromptMapper;
 import com.astrsomn.starter.runtime.langchain.aop.annotation.Astro;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -18,7 +20,6 @@ import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.utils.JsonUtil;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AiPromptErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiPromptMapper;
 import com.astrsomn.server.service.AiPromptService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;

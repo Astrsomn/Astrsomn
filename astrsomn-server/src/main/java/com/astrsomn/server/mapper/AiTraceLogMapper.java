@@ -1,0 +1,15 @@
+package com.astrsomn.server.mapper;
+
+import com.astrsomn.api.runtime.common.dto.tracelog.AiTraceLogQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.tracelog.AiTraceLogResponseDTO;
+import com.astrsomn.api.runtime.common.entity.AiTraceLogEntity;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+@Mapper
+public interface AiTraceLogMapper extends BaseMapper<AiTraceLogEntity> {
+
+    IPage<AiTraceLogResponseDTO> queryPage(IPage<AiTraceLogResponseDTO> page, @Param("req") AiTraceLogQueryRequestDTO param);
+}

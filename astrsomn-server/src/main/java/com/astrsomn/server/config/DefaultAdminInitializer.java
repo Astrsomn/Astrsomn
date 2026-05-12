@@ -7,8 +7,8 @@ import com.astrsomn.api.runtime.common.constant.SystemUserEnum.AdminEnum;
 import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
 import com.astrsomn.api.runtime.common.entity.SystemEnvEntity;
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
-import com.astrsomn.starter.runtime.mapper.SystemEnvMapper;
-import com.astrsomn.starter.runtime.mapper.SystemUserMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemEnvMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -59,16 +59,16 @@ public class DefaultAdminInitializer implements ApplicationListener<ApplicationR
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private SystemUserMapper systemUserMapper;
-    private SystemEnvMapper systemEnvMapper;
+    private AstSystemUserMapper systemUserMapper;
+    private AstSystemEnvMapper systemEnvMapper;
 
     @Autowired(required = false)
-    public void setSystemUserMapper(SystemUserMapper systemUserMapper) {
+    public void setSystemUserMapper(AstSystemUserMapper systemUserMapper) {
         this.systemUserMapper = systemUserMapper;
     }
 
     @Autowired(required = false)
-    public void setSystemEnvMapper(SystemEnvMapper systemEnvMapper) {
+    public void setSystemEnvMapper(AstSystemEnvMapper systemEnvMapper) {
         this.systemEnvMapper = systemEnvMapper;
     }
 

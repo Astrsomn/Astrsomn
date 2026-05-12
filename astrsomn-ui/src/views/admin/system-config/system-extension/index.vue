@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell empty-text="暂无系统扩展。">
+  <AstrsomnPageShell empty-text="暂无系统扩展。">
     <div class="extension-page">
       <div class="extension-shell">
         <ExtensionSidebar 
@@ -13,12 +13,12 @@
         </div>
       </div>
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import ExtensionCenterPage from './component/ExtensionCenterPage.vue'
 import ExtensionSidebar from './component/ExtensionSidebar.vue'
 import { useRoute } from 'vue-router'

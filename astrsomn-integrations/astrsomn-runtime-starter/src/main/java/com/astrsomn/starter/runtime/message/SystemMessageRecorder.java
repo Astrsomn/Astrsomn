@@ -4,7 +4,7 @@ import com.astrsomn.api.runtime.common.constant.SystemMessageEnum;
 import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageRecordCommand;
 import com.astrsomn.api.runtime.common.entity.SystemMessageEntity;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.SystemMessageMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemMessageMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class SystemMessageRecorder {
 
-    private final SystemMessageMapper systemMessageMapper;
+    private final AstSystemMessageMapper systemMessageMapper;
 
     /**
      * 写入并返回表行；插入失败时抛出 {@link IllegalStateException}。

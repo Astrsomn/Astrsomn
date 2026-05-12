@@ -1,13 +1,9 @@
 <template>
   <div class="vec-store-page-wrapper">
-    <SourceSidebar
-      v-model:selectedSourceId="selectedSourceId"
-      :totalStoreCount="totalStoreCount"
-      @refresh="fetchList"
-    />
+
 
     <div class="store-content">
-      <AdminPageShell
+      <AstrsomnPageShell
         :title="currentSourceTitle"
         :description="currentSourceDescription"
         empty-text="暂无向量存储配置。"
@@ -20,7 +16,7 @@
           <p>在左侧边栏选择一个向量源，以管理其对应的向量存储配置</p>
         </div>
         <div v-else class="vec-store-page">
-          <AdminListToolbar>
+          <AstrsomnListToolbar>
             <template #left>
               <AstrsomnSearchPill
                 v-model="query.collectionName"
@@ -34,7 +30,7 @@
             <template #right>
               <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
             </template>
-          </AdminListToolbar>
+          </AstrsomnListToolbar>
 
           <AstrsomnOverview
             :list-length="list.length"
@@ -117,7 +113,7 @@
             @submit="handleFormSubmit"
           />
         </div>
-      </AdminPageShell>
+      </AstrsomnPageShell>
     </div>
   </div>
 </template>
@@ -132,12 +128,12 @@ import {
   ReloadOutlined,
   DatabaseOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
+import AstrsomnListToolbar from '@/components/home/AstrsomnListToolbar.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import SourceSidebar from '@/components/ai-config/SourceSidebar.vue'
+
 import VecStoreFormModal from './VecStoreFormModal.vue'
 import { aiVecStoreApi, type AiVecStore, type PageResponse } from '@/api/aiVecStore.ts'
 import { aiVecSourceApi, type AiVecSource } from '@/api/aiVecSource.ts'

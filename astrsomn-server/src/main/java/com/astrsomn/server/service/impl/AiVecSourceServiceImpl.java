@@ -1,5 +1,6 @@
 package com.astrsomn.server.service.impl;
 
+import com.astrsomn.server.mapper.AiVecSourceMapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -18,7 +19,6 @@ import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AstVecSourceErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiVecSourceMapper;
 import com.astrsomn.server.service.AiVecSourceService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;

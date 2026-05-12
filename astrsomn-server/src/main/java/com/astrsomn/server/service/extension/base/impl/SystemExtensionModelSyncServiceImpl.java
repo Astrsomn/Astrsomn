@@ -1,5 +1,6 @@
 package com.astrsomn.server.service.extension.base.impl;
 
+import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import com.astrsomn.common.base.BaseResponse;
@@ -16,8 +17,7 @@ import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.SystemExtensionModelSyncErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiInstanceMapper;
-import com.astrsomn.starter.runtime.mapper.AiModelMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
 import com.astrsomn.server.service.AiModelService;
 import com.astrsomn.server.service.extension.base.SystemExtensionModelSyncService;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;
@@ -37,8 +37,8 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
     private final SystemExtensionService systemExtensionService;
     private final AstroModelFactory astroModelFactory;
     private final AiModelService aiModelService;
-    private final AiModelMapper aiModelMapper;
-    private final AiInstanceMapper aiInstanceMapper;
+    private final AstAiModelMapper aiModelMapper;
+    private final AstAiInstanceMapper aiInstanceMapper;
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstrsomnProperties astrsomnProperties;
 

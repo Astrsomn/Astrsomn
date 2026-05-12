@@ -1,11 +1,11 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
     title="向量源"
     description="配置向量数据库连接信息，支持 Milvus、Pinecone、DashVector 等多种向量引擎。"
     empty-text="暂无向量源配置。"
   >
     <div class="vecsource-page">
-      <AdminListToolbar>
+      <AstrsomnListToolbar>
         <template #left>
           <AstrsomnSearchPill
             v-model="query.name"
@@ -29,7 +29,7 @@
         <template #right>
           <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
-      </AdminListToolbar>
+      </AstrsomnListToolbar>
 
       <AstrsomnOverview
         :list-length="list.length"
@@ -148,7 +148,7 @@
         @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -162,8 +162,8 @@ import {
   ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
+import AstrsomnListToolbar from '@/components/home/AstrsomnListToolbar.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'

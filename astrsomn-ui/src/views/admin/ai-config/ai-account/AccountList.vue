@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
       title="凭证管理"
       description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
       empty-text="暂无账号。"
@@ -136,7 +136,7 @@
         :loading="modelsDrawer.loading"
         :models="modelsDrawer.models"
     />
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -149,7 +149,7 @@ import {
   PlusOutlined,
   ReloadOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
@@ -161,6 +161,12 @@ import AccountCard from './AccountCard.vue'
 import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
 import {aiAccountApi, type AiAccount, type PageResponse} from '@/api/aiAccount'
 import type {AiModel} from '@/api/aiModel'
+
+const props = withDefaults(defineProps<{
+  initialViewMode?: 'grid' | 'list'
+}>(), {
+  initialViewMode: 'list'
+})
 
 const ACCOUNT_CARD_MIN_WIDTH_PX = 340
 const ACCOUNT_CARD_GAP_PX = 8
@@ -175,7 +181,7 @@ const breadcrumbs = [
 const pageRef = ref<HTMLElement | null>(null)
 const formVisible = ref(false)
 const currentRecord = ref<AiAccount | undefined>(undefined)
-const viewMode = ref<'grid' | 'list'>('list')
+const viewMode = ref<'grid' | 'list'>(props.initialViewMode)
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 const currentGridColumns = ref(3)
 

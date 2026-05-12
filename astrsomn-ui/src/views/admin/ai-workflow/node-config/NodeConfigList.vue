@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell title="节点配置" description="查看流程节点配置。" empty-text="暂无节点配置。">
+  <AstrsomnPageShell title="节点配置" description="查看流程节点配置。" empty-text="暂无节点配置。">
     <div class="page-wrap">
       <AstrsomnDataSection>
         <template #toolbar>
@@ -22,14 +22,14 @@
         </template>
       </AstrsomnDataSection>
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { FilterOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'

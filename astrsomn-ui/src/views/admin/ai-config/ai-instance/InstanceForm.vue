@@ -106,7 +106,7 @@ import AstrsomnModal from '@/components/home/AstrsomnModal.vue';
 import Left from './instance-form/Left.vue';
 import Center from './instance-form/Center.vue';
 import Right from './instance-form/Right.vue';
-import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage';
+import { ensureWorkspaceEnvInStorage } from '@/utils/workspaceHelper.ts';
 import { aiModelApi, type AiModel } from '@/api/aiModel';
 import { aiInstanceApi, type AiInstance } from '@/api/aiInstance';
 import { useInstanceParamVisibility, getTempInfo } from './useInstanceParamVisibility';

@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell  empty-text="暂无流程定义。">
+  <AstrsomnPageShell  empty-text="暂无流程定义。">
     <div class="definition-list-page">
       <AstrsomnDataSection>
         <template #toolbar>
@@ -99,7 +99,7 @@
       </div>
     </a-modal>
 
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -107,7 +107,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { message, Modal } from 'ant-design-vue'
 import { CopyOutlined, DeleteOutlined, EditOutlined, FilterOutlined, HistoryOutlined, PlusOutlined, RocketOutlined, SearchOutlined } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'

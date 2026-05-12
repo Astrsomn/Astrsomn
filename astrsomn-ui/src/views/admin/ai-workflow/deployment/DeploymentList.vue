@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell title="流程发布" description="查看发布快照与版本信息。" empty-text="暂无发布记录。">
+  <AstrsomnPageShell title="流程发布" description="查看发布快照与版本信息。" empty-text="暂无发布记录。">
     <div class="page-wrap">
       <AstrsomnDataSection>
         <template #toolbar>
@@ -40,14 +40,14 @@
         </template>
       </AstrsomnDataSection>
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { FilterOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'

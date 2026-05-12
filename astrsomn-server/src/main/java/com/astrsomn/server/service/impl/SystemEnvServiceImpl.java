@@ -1,5 +1,6 @@
 package com.astrsomn.server.service.impl;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.server.mapper.SystemEnvMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.astrsomn.common.base.BasePageRequest;
@@ -12,7 +13,7 @@ import com.astrsomn.api.runtime.common.dto.env.SystemEnvUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.SystemEnvEntity;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.SystemEnvErrorEnum;
-import com.astrsomn.starter.runtime.mapper.SystemEnvMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemEnvMapper;
 import com.astrsomn.server.service.SystemEnvService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

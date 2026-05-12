@@ -1,5 +1,6 @@
 package com.astrsomn.server.service.impl;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.server.mapper.AiTraceLogMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,6 @@ import com.astrsomn.api.runtime.common.dto.tracelog.AiTraceLogUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiTraceLogEntity;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AiTraceLogErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiTraceLogMapper;
 import com.astrsomn.server.service.AiTraceLogService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;

@@ -1,11 +1,11 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
     title="向量分段"
     description="管理文档切片与向量映射，支持分段内容预览。"
     empty-text="暂无向量分段数据。"
   >
     <div class="vec-segment-page">
-      <AdminListToolbar>
+      <AstrsomnListToolbar>
         <template #left>
           <AstrsomnSearchPill
             v-model="query.vectorId"
@@ -19,7 +19,7 @@
         <template #right>
           <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
-      </AdminListToolbar>
+      </AstrsomnListToolbar>
 
       <AstrsomnOverview
         :list-length="list.length"
@@ -89,7 +89,7 @@
         @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -101,8 +101,8 @@ import {
   PlusOutlined,
   ReloadOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
+import AstrsomnListToolbar from '@/components/home/AstrsomnListToolbar.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'

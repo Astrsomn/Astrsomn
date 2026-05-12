@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-import { appConfig } from '@/config'
-import SystemMessageNoticeCenter from '@/components/bottom/global/SystemMessageNoticeCenter.vue'
+import { appConfig } from '@/config/config.ts'
+import SystemMessageNoticeCenter from '@/components/global/SystemMessageNoticeCenter.vue'
 </script>
 
 <style>

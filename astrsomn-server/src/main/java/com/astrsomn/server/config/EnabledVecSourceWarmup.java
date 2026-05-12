@@ -7,7 +7,7 @@ import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
 import com.astrsomn.api.runtime.common.constant.AiVecSourceEnum;
 import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
-import com.astrsomn.starter.runtime.mapper.AiVecSourceMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiVecSourceMapper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +29,12 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
     private static final String STATUS_DISABLED = AiVecDriverEnum.StatusEnum.DISABLED.getCode();
     private static final String STATUS_ENABLED = AiVecSourceEnum.StatusEnum.ENABLED.getCode();
 
-    private AiVecSourceMapper vecSourceMapper;
+    private AstAiVecSourceMapper vecSourceMapper;
     private AstroVecSourceFactory vecSourceFactory;
     private QueryEnvParamHelper envParamHelper;
 
     @Autowired(required = false)
-    public void setVecSourceMapper(AiVecSourceMapper vecSourceMapper) {
+    public void setVecSourceMapper(AstAiVecSourceMapper vecSourceMapper) {
         this.vecSourceMapper = vecSourceMapper;
     }
 

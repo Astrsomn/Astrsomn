@@ -9,8 +9,8 @@ import com.astrsomn.api.runtime.common.langchain.AstroHistoryRecorder;
 import com.astrsomn.api.runtime.common.langchain.ChatStreamEnum;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AiChatSessionMapper;
-import com.astrsomn.starter.runtime.mapper.AiChatMessageMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiChatSessionMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiChatMessageMapper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
 
-    private final AiChatMessageMapper mapper;
-    private final AiChatSessionMapper sessionMapper;
+    private final AstAiChatMessageMapper mapper;
+    private final AstAiChatSessionMapper sessionMapper;
     private final AstrsomnProperties astrsomnProperties;
 
 

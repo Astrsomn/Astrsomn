@@ -21,7 +21,7 @@ const adminChildren: RouteRecordRaw[] = [
 
   {
     path: 'ai-config',
-    component: () => import('@/views/admin/AdminModuleLayout.vue'),
+    component: () => import('@/views/admin/layout/AdminModuleLayout.vue'),
     children: [
       {
         path: '',
@@ -132,7 +132,7 @@ const adminChildren: RouteRecordRaw[] = [
 
   {
     path: 'ai-safety',
-    component: () => import('@/views/admin/AdminModuleLayout.vue'),
+    component: () => import('@/views/admin/layout/AdminModuleLayout.vue'),
     children: [
       {
         path: '',
@@ -183,7 +183,7 @@ const adminChildren: RouteRecordRaw[] = [
 
   {
     path: 'ai-workflow',
-    component: () => import('@/views/admin/AdminModuleLayout.vue'),
+    component: () => import('@/views/admin/layout/AdminModuleLayout.vue'),
     children: [
       {
         path: '',
@@ -410,7 +410,7 @@ const adminChildren: RouteRecordRaw[] = [
 
   {
     path: 'system',
-    component: () => import('@/views/admin/AdminModuleLayout.vue'),
+    component: () => import('@/views/admin/layout/AdminModuleLayout.vue'),
     children: [
       {
         path: '',

@@ -44,7 +44,7 @@ import { CodeOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PlusOutlined } from
 import { computed } from 'vue'
 import SessionList from '@/components/chat-session/SessionList.vue'
 import type { ChatSessionItem } from '@/components/chat-session/types'
-import { appConfig } from '@/config'
+import { appConfig } from '@/config/config.ts'
 
 const props = defineProps<{
   loading: boolean

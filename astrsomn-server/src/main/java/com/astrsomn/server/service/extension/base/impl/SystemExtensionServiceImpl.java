@@ -3,6 +3,7 @@ package com.astrsomn.server.service.extension.base.impl;
 import com.astrsomn.api.runtime.common.dto.extension.*;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.server.mapper.SystemExtensionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -18,7 +19,7 @@ import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescrip
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.SystemExtensionErrorEnum;
-import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
 import com.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
 import com.astrsomn.server.plugin.registry.SystemExtensionRegistry;
 import com.astrsomn.server.plugin.registry.PluginDirectoryExtensionSyncService;

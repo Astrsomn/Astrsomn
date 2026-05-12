@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
     title="提示词管理"
     description="同一 Prompt Key 共用一个逻辑提示词；每次保存生成新版本，列表按 Key 聚合展示当前最新版本。"
     empty-text="暂无提示词，请先创建。"
@@ -108,7 +108,7 @@
         :env-code="historyModal.envCode"
       />
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -121,7 +121,7 @@ import {
   PlusOutlined,
   ReloadOutlined,
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
@@ -133,6 +133,12 @@ import PromptHistoryModal from './PromptHistoryModal.vue'
 import PromptCard from './PromptCard.vue'
 import PromptSceneTagSelector from './component/PromptSceneTagSelector.vue'
 import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt'
+
+const props = withDefaults(defineProps<{
+  initialViewMode?: 'grid' | 'list'
+}>(), {
+  initialViewMode: 'list'
+})
 
 const PROMPT_CARD_MIN_WIDTH_PX = 320
 const PROMPT_CARD_GAP_PX = 12
@@ -176,7 +182,7 @@ const page = reactive({
 })
 
 const pageRef = ref<HTMLElement | null>(null)
-const viewMode = ref<'grid' | 'list'>('list')
+const viewMode = ref<'grid' | 'list'>(props.initialViewMode)
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 const currentGridColumns = ref(3)
 const selectedRowKeys = ref<Array<number | string>>([])

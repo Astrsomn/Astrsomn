@@ -3,7 +3,10 @@ package com.astrsomn.server.service.impl;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.starter.runtime.mapper.AiInstanceMapper;
+import com.astrsomn.server.mapper.AiAccountMapper;
+import com.astrsomn.server.mapper.AiChatMessageMapper;
+import com.astrsomn.server.mapper.AiInstanceMapper;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -17,14 +20,12 @@ import com.astrsomn.api.runtime.common.dto.account.AiAccountResponseDTO;
 import com.astrsomn.api.runtime.common.dto.account.AiAccountUsageStatsDTO;
 import com.astrsomn.api.runtime.common.dto.account.AiAccountUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
-import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AiAccountErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiAccountMapper;
-import com.astrsomn.starter.runtime.mapper.AiChatMessageMapper;
-import com.astrsomn.starter.runtime.mapper.AiModelMapper;
+
+
 import com.astrsomn.server.service.AiAccountService;
 
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
