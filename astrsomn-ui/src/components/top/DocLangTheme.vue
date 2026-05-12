@@ -32,7 +32,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+
 import { BookOutlined } from '@ant-design/icons-vue'
 import { useTheme } from '../../composables/useTheme'
 import { useLanguage } from '../../composables/useLanguage'
@@ -43,9 +43,9 @@ const props = defineProps<{
 }>()
 
 const showDoc = props.showDoc ?? true
-const docTo = props.docTo ?? '/admin/documents'
 
-const router = useRouter()
+
+
 const { isDark, toggleTheme } = useTheme()
 const { currentLang, changeLang, languageOptions } = useLanguage()
 

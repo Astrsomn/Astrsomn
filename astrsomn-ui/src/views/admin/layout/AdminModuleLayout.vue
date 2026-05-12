@@ -11,8 +11,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import AdminModuleShell from '@/components/admin/AdminModuleShell.vue';
-import { adminUnifiedNav } from '@/components/admin/adminUnifiedNav';
+import AdminModuleShell from '@/views/admin/layout/AdminModuleShell.vue';
+import { adminUnifiedNav } from '@/views/admin/layout/adminUnifiedNav.ts';
 
 const route = useRoute();
 const routeKey = computed(() => route.path);

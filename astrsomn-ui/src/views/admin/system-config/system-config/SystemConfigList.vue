@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
     title="系统配置"
     description="管理系统配置项（SYSTEM_CONFIG），支持按分组维护运行时参数。"
     empty-text="暂无系统配置。"
@@ -91,7 +91,7 @@
         @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -104,7 +104,7 @@ import {
   DeleteOutlined,
   PlusOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'

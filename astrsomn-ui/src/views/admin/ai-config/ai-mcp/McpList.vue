@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
     title="AI MCP"
     description="管理 MCP 服务接入（SSE / STDIO / STEAMABLE），对接 AiMcpController。"
     empty-text="暂无 MCP 服务。"
@@ -93,7 +93,7 @@
         @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -108,7 +108,7 @@ import {
   ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'

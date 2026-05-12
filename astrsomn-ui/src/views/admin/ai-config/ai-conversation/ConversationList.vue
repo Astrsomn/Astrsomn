@@ -1,10 +1,10 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
 
     empty-text="暂无对话记录。"
   >
     <div class="conversation-page">
-      <AdminListToolbar>
+      <AstrsomnListToolbar>
         <template #left>
           <AstrsomnSearchPill
             v-model="query.memoryKey"
@@ -28,7 +28,7 @@
         <template #right>
           <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
-      </AdminListToolbar>
+      </AstrsomnListToolbar>
 
       <div class="conversation-container">
         <!-- 左侧列表区域 -->
@@ -49,7 +49,7 @@
         />
       </div>
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -61,8 +61,8 @@ import {
   ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
+import AstrsomnListToolbar from '@/components/home/AstrsomnListToolbar.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'

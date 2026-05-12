@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import { aiWorkflowApi } from '@/api/aiWorkflow'
-import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
+import { ensureWorkspaceEnvInStorage } from '@/utils/workspaceHelper.ts'
 import type { WorkflowListItem, WorkflowMeta } from '../domain/types'
 
 type UseWorkflowPersistenceDeps = {

@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
     title="用户管理"
     description="SYSTEM_USER：角色分超级管理员 / 环境管理员 / 普通用户（USER_ROLE）。"
     empty-text="暂无用户数据。"
@@ -121,7 +121,7 @@
         @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -131,7 +131,7 @@ import {
   DeleteOutlined,
   PlusOutlined,
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'

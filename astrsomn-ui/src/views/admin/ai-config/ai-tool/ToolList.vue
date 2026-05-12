@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
     title="AI Tools"
     description="管理本地工具与调用配置（AI_TOOL），对接 AiToolController。"
     empty-text="暂无可用工具。"
@@ -90,7 +90,7 @@
         @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -105,7 +105,7 @@ import {
   ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'

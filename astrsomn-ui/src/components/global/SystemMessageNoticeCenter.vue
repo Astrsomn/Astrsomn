@@ -6,7 +6,7 @@
 import { onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { notification } from 'ant-design-vue'
-import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
+import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
 
 type SystemMessagePushPayload = {
   id?: number | string

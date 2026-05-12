@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
       title="凭证管理"
       description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
       empty-text="暂无账号。"
@@ -136,7 +136,7 @@
         :loading="modelsDrawer.loading"
         :models="modelsDrawer.models"
     />
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -149,7 +149,7 @@ import {
   PlusOutlined,
   ReloadOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'

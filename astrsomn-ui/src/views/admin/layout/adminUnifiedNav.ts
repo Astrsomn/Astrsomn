@@ -1,4 +1,4 @@
-import type { AdminModuleNavGroup } from '@/components/admin/adminModuleTypes';
+import type { AdminModuleNavGroup } from '@/views/admin/layout/adminModuleTypes.ts';
 import {
   AppstoreAddOutlined,
   ApiOutlined,

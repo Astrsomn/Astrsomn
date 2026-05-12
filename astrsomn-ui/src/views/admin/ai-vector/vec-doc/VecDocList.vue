@@ -1,11 +1,11 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
     title="向量文档"
     description="管理向量知识库中的文档记录，支持文档入库状态追踪。"
     empty-text="暂无向量文档数据。"
   >
     <div class="vecdoc-page">
-      <AdminListToolbar>
+      <AstrsomnListToolbar>
         <template #left>
           <AstrsomnSearchPill
             v-model="query.docIdInStore"
@@ -44,7 +44,7 @@
         <template #right>
           <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
         </template>
-      </AdminListToolbar>
+      </AstrsomnListToolbar>
 
       <AstrsomnOverview
         :list-length="list.length"
@@ -143,7 +143,7 @@
         @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -160,8 +160,8 @@ import {
   ReloadOutlined,
   UploadOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
+import AstrsomnListToolbar from '@/components/home/AstrsomnListToolbar.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'

@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell title="节点历史" description="查看节点执行输入输出与耗时。" empty-text="暂无节点历史。">
+  <AstrsomnPageShell title="节点历史" description="查看节点执行输入输出与耗时。" empty-text="暂无节点历史。">
     <div class="page-wrap">
       <AstrsomnDataSection>
         <template #toolbar>
@@ -37,14 +37,14 @@
         </template>
       </AstrsomnDataSection>
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { FilterOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'

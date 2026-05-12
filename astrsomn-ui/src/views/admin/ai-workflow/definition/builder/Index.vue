@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell      empty-text="暂无流程数据。">
+  <AstrsomnPageShell      empty-text="暂无流程数据。">
     <div class="workflow-builder-page">
       <main class="builder-layout">
         <Left
@@ -71,14 +71,14 @@
         @action="onContextMenuAction"
       />
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { useRoute } from 'vue-router'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import { useBuilderPage } from './app/useBuilderPage'
 import { useContextMenuActions } from './app/useContextMenuActions'
 import { useWorkflowPersistence } from './app/useWorkflowPersistence'

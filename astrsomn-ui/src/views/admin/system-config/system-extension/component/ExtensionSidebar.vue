@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import { InboxOutlined, AppstoreOutlined, RocketFilled, RightOutlined } from '@ant-design/icons-vue'
-import { appConfig } from '@/config'
+import { appConfig } from '@/config/config.ts'
 
 defineProps<{
   selectedMenuKeys: string[]

@@ -28,8 +28,8 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import AppHeader from '@/components/top/AppHeader.vue';
-import BottomNav from '@/components/bottom/BottomNav.vue';
-import { appConfig } from '@/config';
+import BottomNav from '@/components/global/BottomNav.vue';
+import { appConfig } from '@/config/config.ts';
 
 const route = useRoute();
 

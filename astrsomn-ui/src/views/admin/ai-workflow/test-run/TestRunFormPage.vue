@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell title="流程测试运行" description="调用测试运行接口并查看返回结果。" empty-text="">
+  <AstrsomnPageShell title="流程测试运行" description="调用测试运行接口并查看返回结果。" empty-text="">
     <div class="form-page">
       <a-form class="run-form" layout="vertical" :model="form" @finish="onSubmit">
         <a-row :gutter="16">
@@ -16,13 +16,13 @@
         </a-form-item>
       </a-form>
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import { aiWorkflowRuntimeApi } from '@/api/aiWorkflowRuntime'
 
 const submitting = ref(false)

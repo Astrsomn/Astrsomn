@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell title="资源库" description="管理系统资源和能力入口">
+  <AstrsomnPageShell title="资源库" description="管理系统资源和能力入口">
     <div class="resource-layout">
       <aside class="filter-column">
         <div class="filter-inner-wrapper">
@@ -108,7 +108,7 @@
         </div>
       </main>
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
@@ -120,7 +120,7 @@ import { LeftOutlined, RightOutlined, HomeOutlined, RobotOutlined, FileTextOutli
 // @ts-ignore
 import MenuSlotCard from './MenuSlotCard.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import { getCurrentUserRole, resolveManagementGroups } from './management.ts'
 
 const CARD_MIN_WIDTH = 300

@@ -104,7 +104,7 @@ import {
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
-import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
+import { ensureWorkspaceEnvInStorage } from '@/utils/workspaceHelper.ts'
 import { aiModelCapabilitiesDictionary } from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'
 import {
   CHAT_CAPABILITIES_SET,

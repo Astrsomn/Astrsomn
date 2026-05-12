@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell title="消息 Outbox" description="工作流消息投递出站箱：用于重试、失败定位与幂等对账。" empty-text="暂无 Outbox 消息。">
+  <AstrsomnPageShell title="消息 Outbox" description="工作流消息投递出站箱：用于重试、失败定位与幂等对账。" empty-text="暂无 Outbox 消息。">
     <div class="page-wrap">
       <AstrsomnDataSection>
         <template #toolbar>
@@ -115,14 +115,14 @@
         </a-descriptions>
       </template>
     </a-drawer>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { DeleteOutlined, FilterOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'

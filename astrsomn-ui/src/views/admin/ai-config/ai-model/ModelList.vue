@@ -1,5 +1,5 @@
 <template>
-  <AdminPageShell
+  <AstrsomnPageShell
       title="模型管理"
       description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
       :breadcrumbs="breadcrumbs"
@@ -162,7 +162,7 @@
 
 
     </div>
-  </AdminPageShell>
+  </AstrsomnPageShell>
 </template>
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
@@ -181,7 +181,7 @@ import {
   SearchOutlined,
   SwapOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
+import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
@@ -192,7 +192,7 @@ import ModelFormModal from './ModelFormModal.vue'
 import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
 import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
 import { useDictionary } from '@/locales/dictionary'
-import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
+import { ensureWorkspaceEnvInStorage } from '@/utils/workspaceHelper.ts'
 
 // ... (逻辑部分基本保持与原代码一致，新增工具函数)
 
