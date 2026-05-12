@@ -1,11 +1,11 @@
 <template>
-  <DashboardWrapper>
+  <AstrsomnDashboardWrapper>
     <div class="cen ter-page">
       <Top :safety-stats="safetyStats" />
       <Center :trace-stats="traceStats" :trace-cases="traceCases" :latest-events="latestEvents" />
       <Bottom :module-cards="moduleCards" @go-to="goTo" />
     </div>
-  </DashboardWrapper>
+  </AstrsomnDashboardWrapper>
 </template>
 
 <script setup lang="ts">
@@ -22,7 +22,7 @@ import {
 } from '@ant-design/icons-vue'
 import type { Component } from 'vue'
 import { useRouter } from 'vue-router'
-import DashboardWrapper from '@/components/home/DashboardWrapper.vue'
+import AstrsomnDashboardWrapper from '@/components/home/AstrsomnDashboardWrapper.vue'
 import Top from './component/top.vue'
 import Center from './component/center.vue'
 import Bottom from './component/bottom.vue'

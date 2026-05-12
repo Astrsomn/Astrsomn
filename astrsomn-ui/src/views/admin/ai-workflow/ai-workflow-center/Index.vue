@@ -1,5 +1,5 @@
 <template>
-  <DashboardWrapper>
+  <AstrsomnDashboardWrapper>
     <div class="workflow-center-page">
       <a-row :gutter="[16, 16]">
         <a-col :xs="24" :sm="12" :xl="6" v-for="item in summaryCards" :key="item.label">
@@ -22,12 +22,12 @@
         </a-row>
       </a-card>
     </div>
-  </DashboardWrapper>
+  </AstrsomnDashboardWrapper>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import DashboardWrapper from '@/components/home/DashboardWrapper.vue'
+import AstrsomnDashboardWrapper from '@/components/home/AstrsomnDashboardWrapper.vue'
 
 const router = useRouter()
 
