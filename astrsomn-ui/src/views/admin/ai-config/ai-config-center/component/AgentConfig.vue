@@ -6,11 +6,11 @@
       <div class="config-content">
         <AgentConfigPersonaSection
           :agent-name="localAgentName"
-          :agent-description="localAgentDescription"
+          :agent-key="localAgentKey"
           :current-prompt="currentPrompt"
           :improve-loading="improveLoading"
           @update:agent-name="localAgentName = $event"
-          @update:agent-description="localAgentDescription = $event"
+          @update:agent-key="localAgentKey = $event"
           @open-prompt-drawer="promptDrawerOpen = true"
           @open-prompt-form="promptFormOpen = true"
           @prompt-history="onPromptHistory"
@@ -18,31 +18,11 @@
           @update-prompt-content="onPromptContentUpdate"
         />
 
-        <AgentConfigIntegrationsSection
-          :tools="placedTools"
-          :mcps="placedMcps"
-          :knowledge-keys="knowledgeKeys"
-          @tool-add="onToolAdd"
-          @tool-remove="onToolRemove"
-          @mcp-add="onMcpAdd"
-          @mcp-remove="onMcpRemove"
-          @knowledge-add="onKnowledgeAdd"
-          @knowledge-remove="onKnowledgeRemove"
-        />
-
-        <AgentConfigModelTracksSection
+        <AgentConfigBrainSection
           :chat-model="chatModel"
-          :image-model="imageModel"
-          :voice-model="voiceModel"
           :current-chat-instance="currentChatInstance"
-          :current-image-instance="currentImageInstance"
-          :current-voice-instance="currentVoiceInstance"
           :chat-account="chatAccount"
-          :image-account="imageAccount"
-          :voice-account="voiceAccount"
           :chat-param-form="chatParamForm"
-          :image-param-form="imageParamForm"
-          :voice-param-form="voiceParamForm"
           :chat-param-section-title="chatParamSectionTitle"
           :chat-capability-hint="chatCapabilityHint"
           :chat-has-param-schema="chatHasParamSchema"
@@ -62,50 +42,29 @@
           :chat-show-image-style="chatShowImageStyle"
           :chat-embedding-has-any-control="chatEmbeddingHasAnyControl"
           :chat-image-has-any-control="chatImageHasAnyControl"
-          :image-param-section-title="imageParamSectionTitle"
-          :image-capability-hint="imageCapabilityHint"
-          :image-has-param-schema="imageHasParamSchema"
-          :image-unsupported-param-codes="imageUnsupportedParamCodes"
-          :image-model-kind="imageModelKind"
-          :image-show-chat-temperature="imageShowChatTemperature"
-          :image-show-chat-max-tokens="imageShowChatMaxTokens"
-          :image-show-chat-top-p="imageShowChatTopP"
-          :image-show-chat-top-k="imageShowChatTopK"
-          :image-show-chat-seed="imageShowChatSeed"
-          :image-show-chat-stop-sequences="imageShowChatStopSequences"
-          :image-show-chat-penalties="imageShowChatPenalties"
-          :image-show-chat-frequency-penalty="imageShowChatFrequencyPenalty"
-          :image-show-chat-presence-penalty="imageShowChatPresencePenalty"
-          :image-show-embedding-dimensions="imageShowEmbeddingDimensions"
-          :image-show-image-size="imageShowImageSize"
-          :image-show-image-style="imageShowImageStyle"
-          :image-embedding-has-any-control="imageEmbeddingHasAnyControl"
-          :image-image-has-any-control="imageImageHasAnyControl"
-          :voice-param-section-title="voiceParamSectionTitle"
-          :voice-capability-hint="voiceCapabilityHint"
-          :voice-has-param-schema="voiceHasParamSchema"
-          :voice-unsupported-param-codes="voiceUnsupportedParamCodes"
-          :voice-model-kind="voiceModelKind"
-          :voice-show-chat-temperature="voiceShowChatTemperature"
-          :voice-show-chat-max-tokens="voiceShowChatMaxTokens"
-          :voice-show-chat-top-p="voiceShowChatTopP"
-          :voice-show-chat-top-k="voiceShowChatTopK"
-          :voice-show-chat-seed="voiceShowChatSeed"
-          :voice-show-chat-stop-sequences="voiceShowChatStopSequences"
-          :voice-show-chat-penalties="voiceShowChatPenalties"
-          :voice-show-chat-frequency-penalty="voiceShowChatFrequencyPenalty"
-          :voice-show-chat-presence-penalty="voiceShowChatPresencePenalty"
-          :voice-show-embedding-dimensions="voiceShowEmbeddingDimensions"
-          :voice-show-image-size="voiceShowImageSize"
-          :voice-show-image-style="voiceShowImageStyle"
-          :voice-embedding-has-any-control="voiceEmbeddingHasAnyControl"
-          :voice-image-has-any-control="voiceImageHasAnyControl"
           :get-temp-info="getTempInfo"
           @clear-chat="clearChatTrack"
-          @clear-image="clearImageTrack"
-          @clear-voice="clearVoiceTrack"
           @open-model="openModelSelector"
           @open-instance="openInstanceSelectorSafe"
+        />
+
+        <AgentConfigIntegrationsSection
+          :image-model="imageModel"
+          :voice-model="voiceModel"
+          :current-image-instance="currentImageInstance"
+          :current-voice-instance="currentVoiceInstance"
+          :tools="placedTools"
+          :mcps="placedMcps"
+          :knowledge-keys="knowledgeKeys"
+          @open-model="openModelSelector"
+          @clear-image="clearImageTrack"
+          @clear-voice="clearVoiceTrack"
+          @tool-add="onToolAdd"
+          @tool-remove="onToolRemove"
+          @mcp-add="onMcpAdd"
+          @mcp-remove="onMcpRemove"
+          @knowledge-add="onKnowledgeAdd"
+          @knowledge-remove="onKnowledgeRemove"
         />
 
         <div class="bottom-spacing"></div>
@@ -186,8 +145,8 @@ import InstanceSelector from '@/views/admin/ai-config/ai-instance/selector/Insta
 import InstanceForm from '@/views/admin/ai-config/ai-instance/InstanceForm.vue'
 import AgentConfigHeader from './agent-config/AgentConfigHeader.vue'
 import AgentConfigPersonaSection from './agent-config/AgentConfigPersonaSection.vue'
+import AgentConfigBrainSection from './agent-config/AgentConfigBrainSection.vue'
 import AgentConfigIntegrationsSection from './agent-config/AgentConfigIntegrationsSection.vue'
-import AgentConfigModelTracksSection from './agent-config/AgentConfigModelTracksSection.vue'
 import AgentConfigPromptImproveModal from './agent-config/AgentConfigPromptImproveModal.vue'
 import { getTempInfo, useInstanceParamVisibility } from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
 
@@ -205,6 +164,7 @@ const loading = ref(false)
 const submitting = ref(false)
 const detailSnapshot = ref<AiAgent | null>(null)
 const localAgentName = ref('')
+const localAgentKey = ref('')
 const localAgentDescription = ref('')
 
 const currentPrompt = ref<AiPrompt | undefined>(undefined)
@@ -732,6 +692,7 @@ async function onInstanceFormSuccess() {
 function resetEmptyForm() {
   detailSnapshot.value = null
   localAgentName.value = props.agentName || '新 Agent'
+  localAgentKey.value = ''
   localAgentDescription.value = ''
   currentPrompt.value = undefined
   loadedPromptContent.value = ''
@@ -803,6 +764,7 @@ async function loadInstanceRowByKey(instanceKey: string): Promise<AiInstance | u
 
 async function backfillFromDetail(detail: AiAgent) {
   localAgentName.value = detail.agentName || props.agentName || '未命名的智能体'
+  localAgentKey.value = detail.agentKey ?? ''
   localAgentDescription.value = detail.description ?? ''
 
   if (detail.chatInstanceKey) {
@@ -905,6 +867,7 @@ function buildSubmitPayload(): AiAgent {
   return {
     ...base,
     agentName: localAgentName.value.trim(),
+    agentKey: localAgentKey.value.trim() || base.agentKey,
     description: localAgentDescription.value.trim(),
     promptKey: currentPrompt.value?.promptKey,
     chatInstanceKey: currentChatInstance.value?.instanceKey,

@@ -86,12 +86,18 @@
         <AppstoreOutlined class="m-btn" title="打开插件市场" @click="goPluginMarketplace" />
       </div>
     </div>
+
+    <ExtensionMarketplaceDialog
+      :open="marketplaceOpen"
+      @update:open="marketplaceOpen = $event"
+      @cancel="marketplaceOpen = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import {
   SearchOutlined,
   CloudServerOutlined,
@@ -106,14 +112,15 @@ import {
 import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension.ts'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import { useDictionary } from '@/locales/dictionary'
+import ExtensionMarketplaceDialog from './ExtensionMarketplaceDialog.vue'
 
 const emit = defineEmits(['select'])
 const route = useRoute()
-const router = useRouter()
 const providerDict = useDictionary('ai-model.provider')
 
 const searchText = ref('')
 const activeItem = ref('')
+const marketplaceOpen = ref(false)
 const enabledExtensions = ref<Array<{ key: string; name: string; avatar: string; initial: string }>>([])
 const providers = ref<Array<{ key: string; label: string; icon: typeof CloudServerOutlined; avatar?: string; initial: string }>>([])
 
@@ -132,11 +139,11 @@ const handleSelect = (key: string) => {
 const handleSearch = () => {}
 
 const handleAddPlugin = () => {
-  void router.push({ path: '/admin/system/extensions', query: { panel: 'marketplace' } })
+  marketplaceOpen.value = true
 }
 
 const goPluginMarketplace = () => {
-  void router.push({ path: '/admin/system/extensions', query: { panel: 'marketplace' } })
+  marketplaceOpen.value = true
 }
 
 const fetchEnabledExtensions = async () => {
@@ -267,17 +274,16 @@ watch(
 .search-section .sidebar-search-pill {
   flex: 1;
   min-width: 0;
-  height: 36px;
 }
 
 .search-section .add-plugin-btn {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s;
