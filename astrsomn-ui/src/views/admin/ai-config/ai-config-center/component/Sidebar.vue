@@ -9,7 +9,7 @@
         class="sidebar-search-pill"
         @search="handleSearch"
       />
-      <PlusOutlined class="add-plugin-btn" title="添加插件" @click="handleAddPlugin" />
+      <AppstoreOutlined class="add-plugin-btn" title="添加插件" @click="handleAddPlugin" />
     </div>
 
     <!-- 导航列表 -->
@@ -107,7 +107,7 @@ import {
   ToolOutlined,
   AppstoreOutlined,
   FileTextOutlined,
-  PlusOutlined,
+  PlusOutlined
 } from '@ant-design/icons-vue'
 import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension.ts'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'

@@ -85,6 +85,7 @@ function onPanelSync(tab: ExtensionPanel) {
 
 .content-card {
   padding: 24px;
+  border-radius: 8px;
 }
 
 .marketplace-shell > :deep(.extension-sider) {

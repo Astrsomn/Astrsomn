@@ -134,6 +134,12 @@ import PromptCard from './PromptCard.vue'
 import PromptSceneTagSelector from './component/PromptSceneTagSelector.vue'
 import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt'
 
+const props = withDefaults(defineProps<{
+  initialViewMode?: 'grid' | 'list'
+}>(), {
+  initialViewMode: 'list'
+})
+
 const PROMPT_CARD_MIN_WIDTH_PX = 320
 const PROMPT_CARD_GAP_PX = 12
 const promptCardMinWidth = `${PROMPT_CARD_MIN_WIDTH_PX}px`
@@ -176,7 +182,7 @@ const page = reactive({
 })
 
 const pageRef = ref<HTMLElement | null>(null)
-const viewMode = ref<'grid' | 'list'>('list')
+const viewMode = ref<'grid' | 'list'>(props.initialViewMode)
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 const currentGridColumns = ref(3)
 const selectedRowKeys = ref<Array<number | string>>([])

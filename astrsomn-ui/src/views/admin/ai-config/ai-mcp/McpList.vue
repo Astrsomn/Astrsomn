@@ -4,8 +4,11 @@
     description="管理 MCP 服务接入（SSE / STDIO / STEAMABLE），对接 AiMcpController。"
     empty-text="暂无 MCP 服务。"
     :breadcrumbs="breadcrumbs"
+    :show-view-toggle="true"
+    :view-mode="viewMode"
+    :view-toggle-handler="handleViewToggle"
   >
-    <div class="mcp-page">
+    <div ref="pageRef" class="mcp-page">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
@@ -36,7 +39,7 @@
 
 
         <AstrsomnDataView
-          mode="table"
+          :mode="dataViewMode"
           :data-source="list"
           :loading="loading"
           :columns="columns"
@@ -44,34 +47,39 @@
           :scroll="{ x: 1280 }"
           row-key="id"
           empty-text="暂无匹配的 MCP 服务"
+          :card-columns="currentGridColumns"
+          :card-min-width="mcpCardMinWidth"
+          :card-gap="mcpCardGap"
         >
+          <template #card="{ record }">
+            <McpCard
+              :record="record"
+              @edit="openEdit"
+              @delete="handleDeleteOne"
+            />
+          </template>
           <template #bodyCell="{ column, record }">
-
-      
-     
-          <template v-if="column.key === 'enabled'">
-            <span class="status-pill" :class="{ off: record.enabled !== 1 }">
-              {{ record.enabled === 1 ? '启用' : '停用' }}
-            </span>
-          </template>
-          <template v-if="column.key === 'actions'">
-            <a-button type="link" class="action-link" @click="openEdit(record)">
-              <template #icon><edit-outlined /></template>
-
-            </a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger class="action-link">
-                <template #icon><delete-outlined /></template>
-
+            <template v-if="column.key === 'enabled'">
+              <span class="status-pill" :class="{ off: record.enabled !== 1 }">
+                {{ record.enabled === 1 ? '启用' : '停用' }}
+              </span>
+            </template>
+            <template v-if="column.key === 'actions'">
+              <a-button type="link" class="action-link" @click="openEdit(record)">
+                <template #icon><edit-outlined /></template>
               </a-button>
-            </a-popconfirm>
-          </template>
+              <a-divider type="vertical" />
+              <a-popconfirm
+                title="确定删除吗？"
+                ok-text="确认"
+                cancel-text="取消"
+                @confirm="() => handleDeleteOne(record.id)"
+              >
+                <a-button type="link" danger class="action-link">
+                  <template #icon><delete-outlined /></template>
+                </a-button>
+              </a-popconfirm>
+            </template>
           </template>
         </AstrsomnDataView>
 
@@ -97,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, onBeforeUnmount, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   CheckCircleOutlined,
@@ -116,7 +124,24 @@ import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import McpFormModal from './McpFormModal.vue'
+import McpCard from './McpCard.vue'
 import { aiMcpApi, type AiMcp, type PageResponse } from '@/api/aiMcp'
+
+const props = withDefaults(defineProps<{
+  initialViewMode?: 'grid' | 'list'
+}>(), {
+  initialViewMode: 'list'
+})
+
+const MCP_CARD_MIN_WIDTH_PX = 320
+const MCP_CARD_GAP_PX = 12
+const mcpCardMinWidth = `${MCP_CARD_MIN_WIDTH_PX}px`
+const mcpCardGap = `${MCP_CARD_GAP_PX}px`
+
+const pageRef = ref<HTMLElement | null>(null)
+const viewMode = ref<'grid' | 'list'>(props.initialViewMode)
+const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
+const currentGridColumns = ref(3)
 
 type QueryState = {
   mcpKey?: string
@@ -356,6 +381,38 @@ const openEdit = async (record: AiMcp) => {
   modalInitial.value = detail
   modal.open = true
 }
+
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
+}
+
+const resolveGridColumns = () => {
+  if (typeof window === 'undefined') return 3
+  const width = pageRef.value?.clientWidth ?? window.innerWidth
+  const n = Math.floor((width + MCP_CARD_GAP_PX) / (MCP_CARD_MIN_WIDTH_PX + MCP_CARD_GAP_PX))
+  return Math.max(1, Math.min(3, n))
+}
+
+const syncGridColumns = () => {
+  currentGridColumns.value = resolveGridColumns()
+}
+
+let resizeObserver: ResizeObserver | null = null
+
+onMounted(() => {
+  syncGridColumns()
+  if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
+    resizeObserver = new ResizeObserver(syncGridColumns)
+    resizeObserver.observe(pageRef.value)
+  } else {
+    window.addEventListener('resize', syncGridColumns)
+  }
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  window.removeEventListener('resize', syncGridColumns)
+})
 
 const handleDeleteOne = async (id: number | string) => {
   if (id == null) return
