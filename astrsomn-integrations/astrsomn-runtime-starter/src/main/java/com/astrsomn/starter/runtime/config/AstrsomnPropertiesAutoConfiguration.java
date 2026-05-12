@@ -4,7 +4,7 @@ import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
 import com.astrsomn.starter.runtime.context.UserContext;
-import com.astrsomn.starter.runtime.mapper.SystemUserMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @AutoConfiguration
 @AutoConfigureBefore(AstrsomnAutoConfiguration.class)
-@ConditionalOnClass(SystemUserMapper.class)
+@ConditionalOnClass(AstSystemUserMapper.class)
 public class AstrsomnPropertiesAutoConfiguration {
 
     @Bean
@@ -95,11 +95,11 @@ public class AstrsomnPropertiesAutoConfiguration {
  */
 @Slf4j
 @Component
-@ConditionalOnClass(SystemUserMapper.class)
+@ConditionalOnClass(AstSystemUserMapper.class)
 class AstrsomnDbInitializer implements ApplicationListener<ApplicationReadyEvent> {
 
     private AstrsomnProperties astrsomnProperties;
-    private SystemUserMapper systemUserMapper;
+    private AstSystemUserMapper systemUserMapper;
 
     @Autowired(required = false)
     public void setAstrsomnProperties(AstrsomnProperties astrsomnProperties) {
@@ -107,7 +107,7 @@ class AstrsomnDbInitializer implements ApplicationListener<ApplicationReadyEvent
     }
 
     @Autowired(required = false)
-    public void setSystemUserMapper(SystemUserMapper systemUserMapper) {
+    public void setSystemUserMapper(AstSystemUserMapper systemUserMapper) {
         this.systemUserMapper = systemUserMapper;
     }
 
@@ -143,7 +143,7 @@ class AstrsomnDbInitializer implements ApplicationListener<ApplicationReadyEvent
     /**
      * 校验配置的 username 是否存在于数据库中。
      */
-    private void validateUsername(AstrsomnProperties astrsomnProperties, SystemUserMapper systemUserMapper) {
+    private void validateUsername(AstrsomnProperties astrsomnProperties, AstSystemUserMapper systemUserMapper) {
         String username = astrsomnProperties.getUsername();
         if (username == null || username.trim().isEmpty()) {
             String errorMsg = "Astrsomn configuration error: astrsomn.username must be configured";

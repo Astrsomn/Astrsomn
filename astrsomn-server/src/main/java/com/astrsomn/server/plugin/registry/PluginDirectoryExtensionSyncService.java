@@ -7,7 +7,7 @@ import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionMetaData;
 import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
 import com.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -26,7 +26,7 @@ public class PluginDirectoryExtensionSyncService {
     private static final String LOG_PREFIX = "[Astrsomn] [插件目录同步] ====> ";
 
     private final AstrsomnPluginManager pluginManager;
-    private final SystemExtensionMapper systemExtensionMapper;
+    private final AstSystemExtensionMapper astSystemExtensionMapper;
 
     @EventListener(ApplicationReadyEvent.class)
     public void syncOnApplicationReady() {
@@ -57,7 +57,7 @@ public class PluginDirectoryExtensionSyncService {
         }
 
         SystemExtensionEntity entity = buildEntity(meta, jar.getName());
-        Optional<SystemExtensionEntity> existingOpt = Optional.ofNullable(systemExtensionMapper.selectOne(
+        Optional<SystemExtensionEntity> existingOpt = Optional.ofNullable(astSystemExtensionMapper.selectOne(
                 new LambdaQueryWrapper<SystemExtensionEntity>()
                         .eq(SystemExtensionEntity::getExtensionKey, key)
                         .last("LIMIT 1")));
@@ -71,8 +71,8 @@ public class PluginDirectoryExtensionSyncService {
             entity.setInstallSource(Optional.ofNullable(StringUtils.trimToNull(existing.getInstallSource())).orElse(entity.getInstallSource()));
             entity.setDiscoveryMechanism(Optional.ofNullable(StringUtils.trimToNull(existing.getDiscoveryMechanism()))
                     .orElse(entity.getDiscoveryMechanism()));
-            return systemExtensionMapper.updateById(entity) > 0;
-        }).orElseGet(() -> systemExtensionMapper.insert(entity) > 0);
+            return astSystemExtensionMapper.updateById(entity) > 0;
+        }).orElseGet(() -> astSystemExtensionMapper.insert(entity) > 0);
 
         if (success) {
             log.info("{} 同步插件目录扩展成功 | Key: {} | Jar: {}", LOG_PREFIX, key, jar.getName());

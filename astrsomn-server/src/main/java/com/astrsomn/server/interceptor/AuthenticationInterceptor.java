@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
-import com.astrsomn.starter.runtime.mapper.SystemUserMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;
 import com.astrsomn.server.util.JwtUtil;
 import com.astrsomn.server.util.UserContext;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class AuthenticationInterceptor extends AbstractSecurityInterceptor implements HandlerInterceptor {
 
     private final JwtUtil jwtUtil;
-    private final SystemUserMapper systemUserMapper;
+    private final AstSystemUserMapper systemUserMapper;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

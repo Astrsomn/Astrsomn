@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AiInstanceMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
 import com.astrsomn.starter.runtime.langchain.runtime.AiRuntimeDefaultsResolver;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ResolveInstanceChainHandler implements AgentRuntimeChainHandler {
 
-    private final AiInstanceMapper aiInstanceMapper;
+    private final AstAiInstanceMapper aiInstanceMapper;
     private final AiRuntimeDefaultsResolver aiRuntimeDefaultsResolver;
 
     @Override

@@ -25,6 +25,7 @@ import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.AstVecDocErrorEnum;
+import com.astrsomn.server.mapper.AiVecDocMapper;
 import com.astrsomn.server.service.AiVecDocService;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.AiVecStoreService;
@@ -40,10 +41,9 @@ import com.astrsomn.internal.storage.service.model.StorageUploadResult;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
 import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
-import com.astrsomn.starter.runtime.mapper.AiAccountMapper;
-import com.astrsomn.starter.runtime.mapper.AiInstanceMapper;
-import com.astrsomn.starter.runtime.mapper.AiModelMapper;
-import com.astrsomn.starter.runtime.mapper.AiVecDocMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiAccountMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -86,9 +86,9 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     private final AstroVecSourceFactory astroVecSourceFactory;
     private final AstroModelFactory astroModelFactory;
     private final AiVecStoreService aiVecStoreService;
-    private final AiInstanceMapper aiInstanceMapper;
-    private final AiModelMapper aiModelMapper;
-    private final AiAccountMapper aiAccountMapper;
+    private final AstAiInstanceMapper aiInstanceMapper;
+    private final AstAiModelMapper aiModelMapper;
+    private final AstAiAccountMapper astAiAccountMapper;
     private final AiVecSegmentService aiVecSegmentService;
     private final AstrsomnStorageClient astrsomnStorageClient;
     private final AstroFileRecordService astroFileRecordService;
@@ -338,7 +338,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         String accountKey = StringUtils.trimToNull(instance.getAccountKey());
         if (accountKey != null) {
             AiAccountEntity account =
-                    aiAccountMapper.selectOne(
+                    astAiAccountMapper.selectOne(
                             new LambdaQueryWrapper<AiAccountEntity>()
                                     .eq(AiAccountEntity::getAccountKey, accountKey)
                                     .eq(AiAccountEntity::getEnvCode, envCode)

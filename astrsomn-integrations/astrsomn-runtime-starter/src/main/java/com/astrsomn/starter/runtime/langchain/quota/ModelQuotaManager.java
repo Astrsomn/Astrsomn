@@ -5,7 +5,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatUsageDTO;
-import com.astrsomn.starter.runtime.mapper.AiChatMessageMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiChatMessageMapper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ModelQuotaManager {
 
     private final AstrsomnProperties astrsomnProperties;
-    private final AiChatMessageMapper conversationMapper;
+    private final AstAiChatMessageMapper conversationMapper;
 
     private final Map<String, Long> dailyUsageCache = new ConcurrentHashMap<>();
 

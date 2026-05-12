@@ -8,7 +8,7 @@ import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.SystemExtensionErrorEnum;
-import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
 import com.astrsomn.server.service.extension.support.SystemExtensionSourceHelper;
 import com.astrsomn.server.service.extension.capability.ExtensionCapabilityResolver;
 import com.astrsomn.server.service.extension.dependency.ExtensionDependencyGuard;
@@ -27,7 +27,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class SystemExtensionLifecycleOrchestrator {
 
-    private final SystemExtensionMapper systemExtensionMapper;
+    private final AstSystemExtensionMapper astSystemExtensionMapper;
     private final ExtensionStrategyResolver strategyResolver;
     private final ExtensionDependencyGuard dependencyGuard;
     private final ExtensionCapabilityResolver capabilityResolver;
@@ -70,7 +70,7 @@ public class SystemExtensionLifecycleOrchestrator {
         ExtensionLifecycleStrategy strategy = strategyResolver.resolve(extension.getType());
         strategy.uninstall(extension);
 
-        int deleted = systemExtensionMapper.deleteById(id);
+        int deleted = astSystemExtensionMapper.deleteById(id);
         if (deleted <= 0) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UNINSTALL_FAILED);
         }
@@ -94,7 +94,7 @@ public class SystemExtensionLifecycleOrchestrator {
     }
 
     private SystemExtensionEntity mustGet(Long id) {
-        SystemExtensionEntity entity = systemExtensionMapper.selectById(id);
+        SystemExtensionEntity entity = astSystemExtensionMapper.selectById(id);
         if (entity == null) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
         }
@@ -102,7 +102,7 @@ public class SystemExtensionLifecycleOrchestrator {
     }
 
     private void updateRow(SystemExtensionEntity extension) {
-        int updated = systemExtensionMapper.updateById(extension);
+        int updated = astSystemExtensionMapper.updateById(extension);
         if (updated <= 0) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UPDATE_FAILED);
         }

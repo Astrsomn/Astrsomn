@@ -6,7 +6,7 @@ import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
@@ -26,7 +26,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
     private static final String LOG_PREFIX = "[Astrsomn] [扩展注册中心] ====> ";
 
     private ApplicationContext applicationContext;
-    private SystemExtensionMapper systemExtensionMapper;
+    private AstSystemExtensionMapper astSystemExtensionMapper;
     
     @Autowired(required = false)
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -34,8 +34,8 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
     }
     
     @Autowired(required = false)
-    public void setSystemExtensionMapper(SystemExtensionMapper systemExtensionMapper) {
-        this.systemExtensionMapper = systemExtensionMapper;
+    public void setSystemExtensionMapper(AstSystemExtensionMapper astSystemExtensionMapper) {
+        this.astSystemExtensionMapper = astSystemExtensionMapper;
     }
 
     /**
@@ -59,7 +59,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
      */
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        if (applicationContext == null || systemExtensionMapper == null) {
+        if (applicationContext == null || astSystemExtensionMapper == null) {
             log.warn("{} 必要依赖未注入，跳过扩展注册", LOG_PREFIX);
             return;
         }
@@ -143,7 +143,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
             SystemExtensionEnum.InstallSourceEnum installSource) {
         SystemExtensionEntity entity = buildEntity(descriptor, key, discoveryMechanism, installSource);
 
-        Optional<SystemExtensionEntity> existingOpt = Optional.ofNullable(systemExtensionMapper.selectOne(
+        Optional<SystemExtensionEntity> existingOpt = Optional.ofNullable(astSystemExtensionMapper.selectOne(
                 new LambdaQueryWrapper<SystemExtensionEntity>()
                         .eq(SystemExtensionEntity::getExtensionKey, key)
                         .last("LIMIT 1")));
@@ -158,8 +158,8 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
                     .orElse(entity.getInstallSource()));
             entity.setDiscoveryMechanism(Optional.ofNullable(StringUtils.trimToNull(existing.getDiscoveryMechanism()))
                     .orElse(entity.getDiscoveryMechanism()));
-            return systemExtensionMapper.updateById(entity) > 0;
-        }).orElseGet(() -> systemExtensionMapper.insert(entity) > 0);
+            return astSystemExtensionMapper.updateById(entity) > 0;
+        }).orElseGet(() -> astSystemExtensionMapper.insert(entity) > 0);
 
         if (success) {
             log.info("{} 注册成功 | Key: {} | Name: {} | Type: {} | Mechanism: {}",

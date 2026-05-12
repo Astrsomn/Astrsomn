@@ -1,5 +1,6 @@
 package com.astrsomn.server.service.impl;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.server.mapper.AiChatMessageMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,6 @@ import com.astrsomn.api.runtime.common.entity.AiChatMessageEntity;
 import com.astrsomn.api.runtime.common.utils.AiChatMessageRestoreUtil;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AiChatErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiChatMessageMapper;
 import com.astrsomn.server.service.AiChatMessageService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;

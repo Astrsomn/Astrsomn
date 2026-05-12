@@ -8,7 +8,7 @@ import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.SystemExtensionErrorEnum;
-import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExtensionDependencyGuard {
 
-    private final SystemExtensionMapper systemExtensionMapper;
+    private final AstSystemExtensionMapper astSystemExtensionMapper;
     private final ExtensionDependencyParser dependencyParser;
 
     public DependencyCheckResult assertDependencies(SystemExtensionEntity extension) {
@@ -36,7 +36,7 @@ public class ExtensionDependencyGuard {
             if (depKey == null) {
                 continue;
             }
-            SystemExtensionEntity dependency = systemExtensionMapper.selectOne(
+            SystemExtensionEntity dependency = astSystemExtensionMapper.selectOne(
                     new LambdaQueryWrapper<SystemExtensionEntity>()
                             .eq(SystemExtensionEntity::getExtensionKey, depKey)
                             .last("LIMIT 1"));

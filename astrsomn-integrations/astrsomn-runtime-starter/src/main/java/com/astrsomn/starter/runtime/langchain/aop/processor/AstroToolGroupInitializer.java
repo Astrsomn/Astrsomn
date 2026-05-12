@@ -1,11 +1,11 @@
 package com.astrsomn.starter.runtime.langchain.aop.processor;
 
+import com.astrsomn.starter.runtime.mapper.AstAiToolMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import dev.langchain4j.agent.tool.Tool;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.entity.AiToolEntity;
-import com.astrsomn.starter.runtime.mapper.AiToolMapper;
 import com.astrsomn.starter.runtime.langchain.aop.annotation.AstroToolGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -28,16 +28,16 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
     private static final String LOG_PREFIX = "[Astrsomn] [工具组扫描器] ====> ";
     private static final String ENABLED = AiModelEnum.StatusEnum.ENABLED.getCode();
 
-    private AiToolMapper aiToolMapper;
+    private AstAiToolMapper astAiToolMapper;
     
     @Autowired(required = false)
-    public void setAiToolMapper(AiToolMapper aiToolMapper) {
-        this.aiToolMapper = aiToolMapper;
+    public void setAiToolMapper(AstAiToolMapper astAiToolMapper) {
+        this.astAiToolMapper = astAiToolMapper;
     }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        if (aiToolMapper == null) {
+        if (astAiToolMapper == null) {
             log.warn("{} AiToolMapper 未注入，跳过工具组扫描", LOG_PREFIX);
             return;
         }
@@ -110,7 +110,7 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
         Tool toolAnno = method.getAnnotation(Tool.class);
         String toolKey = generateToolKey(groupAnno, beanName, method);
 
-        Optional<AiToolEntity> existingOpt = Optional.ofNullable(aiToolMapper.selectOne(
+        Optional<AiToolEntity> existingOpt = Optional.ofNullable(astAiToolMapper.selectOne(
                 new LambdaQueryWrapper<AiToolEntity>().eq(AiToolEntity::getToolKey, toolKey)));
 
         AiToolEntity entity = existingOpt.orElseGet(AiToolEntity::new);
@@ -119,8 +119,8 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
         fillToolEntity(entity, bean, beanName, groupAnno, method, toolAnno, toolKey);
 
         boolean success = existingOpt.isPresent()
-                ? aiToolMapper.updateById(entity) > 0
-                : aiToolMapper.insert(entity) > 0;
+                ? astAiToolMapper.updateById(entity) > 0
+                : astAiToolMapper.insert(entity) > 0;
 
         if (success) {
             log.info("{} 工具{}成功 | Key: {}", LOG_PREFIX, existingOpt.isPresent() ? "更新" : "创建", toolKey);

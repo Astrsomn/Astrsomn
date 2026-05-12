@@ -1,5 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.runtime;
 
+import com.astrsomn.starter.runtime.mapper.AstAiAgentMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import com.astrsomn.api.runtime.common.constant.AiAgentEnum;
@@ -7,8 +8,7 @@ import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AiAgentMapper;
-import com.astrsomn.starter.runtime.mapper.AiModelMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -25,8 +25,8 @@ public class AiRuntimeDefaultsResolver {
 
     private static final String DEFAULT_FLAG = AiAgentEnum.IsDefaultEnum.YES.getCode();
 
-    private final AiAgentMapper aiAgentMapper;
-    private final AiModelMapper aiModelMapper;
+    private final AstAiAgentMapper aiAgentMapper;
+    private final AstAiModelMapper aiModelMapper;
 
     public Optional<String> resolveDefaultAgentKey(String envCode) {
         if (StringUtils.isBlank(envCode)) {

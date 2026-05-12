@@ -1,6 +1,7 @@
 package com.astrsomn.starter.runtime.langchain.tool;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.astrsomn.starter.runtime.mapper.AstAiToolMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import dev.langchain4j.model.image.ImageModel;
 import dev.langchain4j.service.tool.ToolProvider;
@@ -10,8 +11,7 @@ import com.astrsomn.api.runtime.common.entity.AiToolEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ConversationSetting;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ToolSetting;
-import com.astrsomn.starter.runtime.mapper.AiMcpMapper;
-import com.astrsomn.starter.runtime.mapper.AiToolMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiMcpMapper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
 
@@ -35,8 +35,8 @@ import java.util.Optional;
 public class ToolProviderAssembler {
 
     private final McpToolCacheManager mcpToolManager;
-    private final AiMcpMapper aiMcpMapper;
-    private final AiToolMapper aiToolMapper;
+    private final AstAiMcpMapper aiMcpMapper;
+    private final AstAiToolMapper astAiToolMapper;
     private final ApplicationContext applicationContext;
     private final LocalToolCacheManager globalToolCache;
     private final AstrsomnProperties astrsomnProperties;
@@ -56,7 +56,7 @@ public class ToolProviderAssembler {
 
                     Optional.ofNullable(setting.getToolKeys())
                             .filter(CollectionUtil::isNotEmpty)
-                            .map(keys -> aiToolMapper.selectList(new LambdaQueryWrapper<AiToolEntity>()
+                            .map(keys -> astAiToolMapper.selectList(new LambdaQueryWrapper<AiToolEntity>()
                                     .in(AiToolEntity::getToolKey, keys)
                                     .eq(AiToolEntity::getEnvCode, env)))
                             .ifPresent(configs -> providers.add(new DynamicToolProvider(configs, applicationContext, globalToolCache)));

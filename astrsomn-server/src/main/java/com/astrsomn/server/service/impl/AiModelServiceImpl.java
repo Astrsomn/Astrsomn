@@ -1,5 +1,6 @@
 package com.astrsomn.server.service.impl;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.server.mapper.AiModelMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -17,8 +18,7 @@ import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AiModelErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiInstanceMapper;
-import com.astrsomn.starter.runtime.mapper.AiModelMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
 import com.astrsomn.server.service.AiModelService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
@@ -46,7 +46,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     private static final int INSTANCE_KEY_MAX_RETRY = 10;
 
     private final AstrsomnProperties astrsomnProperties;
-    private final AiInstanceMapper aiInstanceMapper;
+    private final AstAiInstanceMapper aiInstanceMapper;
     private final QueryEnvParamHelper queryEnvParamHelper;
 
 

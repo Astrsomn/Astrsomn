@@ -3,11 +3,11 @@ package com.astrsomn.starter.runtime.langchain.runtime.chain.handler;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeChainHandler;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeContext;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
+import com.astrsomn.starter.runtime.mapper.AstAiAgentMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AiAgentMapper;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ResolveAgentChainHandler implements AgentRuntimeChainHandler {
 
-    private final AiAgentMapper aiAgentMapper;
+    private final AstAiAgentMapper aiAgentMapper;
 
     @Override
     public void handle(AgentRuntimeContext ctx) {
