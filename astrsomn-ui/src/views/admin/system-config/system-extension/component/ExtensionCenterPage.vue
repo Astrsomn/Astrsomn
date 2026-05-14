@@ -120,6 +120,7 @@ import {
   type SystemExtension,
   type SystemExtensionQueryPagePayload
 } from '@/api/systemExtension.ts'
+import { extensionMarketplaceApi } from '@/api/extensionMarketplace.ts'
 import {
   extensionTypeLabel,
   isUninstallableExtension,
@@ -247,7 +248,7 @@ async function fetchInstalledList() {
 
 async function fetchMarketplaceList() {
   const typeQ = marketplaceQuery.type === 'ALL' ? undefined : marketplaceQuery.type
-  const resp = await systemExtensionApi.marketplaceCatalog(typeQ, marketplaceQuery.pageNo, marketplaceQuery.pageSize)
+  const resp = await extensionMarketplaceApi.catalog(typeQ, marketplaceQuery.pageNo, marketplaceQuery.pageSize)
   let rows = resp.list || []
   const keyword = marketplaceQuery.keyword?.trim().toLowerCase()
   if (keyword) {

@@ -24,18 +24,7 @@ export type SystemExtension = {
   createUser?: string
 }
 
-/** 插件市场目录项（GET marketplace/catalog） */
-export type ExtensionMarketplaceItem = {
-  extensionKey?: string
-  extensionName?: string
-  type?: string
-  version?: string
-  author?: string
-  description?: string
-  jarName?: string
-  extensionCode?: string
-  avatar?: string
-}
+export type { ExtensionMarketplaceItem } from './extensionMarketplace'
 
 export type PageResponse<T> = {
   total: number
@@ -155,15 +144,6 @@ export const systemExtensionApi = {
     return request({
       url: `/v1/astro/system-extension/disable-provider-models?id=${encodeURIComponent(String(id))}`,
       method: 'post'
-    })
-  },
-
-  marketplaceCatalog: (type?: string, pageNo: number = 1, pageSize: number = 10): Promise<PageResponse<ExtensionMarketplaceItem>> => {
-    let q = type && type !== 'ALL' ? `?type=${encodeURIComponent(type)}` : ''
-    q += (q ? '&' : '?') + `pageNo=${pageNo}&pageSize=${pageSize}`
-    return request({
-      url: `/v1/astro/system-extension/marketplace/catalog${q}`,
-      method: 'get'
     })
   },
 
