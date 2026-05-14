@@ -1,6 +1,6 @@
 package com.astrsomn.server.service.impl;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
-import com.astrsomn.server.astrsomn.PromptAssistant;
+import com.astrsomn.server.astrsomn.assistant.PromptAssistant;
 import com.astrsomn.server.mapper.AiPromptMapper;
 import com.astrsomn.starter.runtime.langchain.aop.annotation.Astro;
 

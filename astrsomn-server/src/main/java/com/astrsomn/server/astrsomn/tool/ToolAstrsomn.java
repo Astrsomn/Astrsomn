@@ -1,4 +1,4 @@
-package com.astrsomn.server.tool;
+package com.astrsomn.server.astrsomn.tool;
 
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
 import dev.langchain4j.agent.tool.Tool;
