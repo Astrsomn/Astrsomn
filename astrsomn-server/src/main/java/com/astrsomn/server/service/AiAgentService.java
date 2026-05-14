@@ -21,5 +21,5 @@ public interface AiAgentService extends IService<AiAgentEntity> {
 
     PageResponse<AiAgentResponseDTO> queryPage(BasePageRequest<AiAgentQueryRequestDTO> request);
 
-    BaseResponse<String> createByDashboard(AiAgentCreateRequestDTO request);
+    BaseResponse<String> createFullAgent(AiAgentCreateRequestDTO request);
 }

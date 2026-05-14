@@ -1,5 +1,7 @@
 import request from '@/utils/request'
 
+import type {AiInstance} from './aiInstance'
+
 export type AiAgent = {
     id?: number | string
     envCode?: string
@@ -9,14 +11,16 @@ export type AiAgent = {
     agentName?: string
     description?: string
     workflowKey?: string
-    /** 对话模型实例（推理层） */
+    /** 推理实例列表（一对多关系） */
+    instanceList?: AiInstance[]
+    /** 对话模型实例（旧版兼容） */
     chatInstanceKey?: string
     /** 前端展示用（列表联表或本地缓存，不必提交） */
     chatInstanceName?: string
-    /** 图像模型实例 */
+    /** 图像模型实例（旧版兼容） */
     imageInstanceKey?: string
     imageInstanceName?: string
-    /** 语音 / TTS 等推理实例 */
+    /** 语音 / TTS 等推理实例（旧版兼容） */
     voiceInstanceKey?: string
     voiceInstanceName?: string
     promptKey?: string

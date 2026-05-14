@@ -102,9 +102,6 @@ public final class RuntimeChatParamMergeSupport {
         if (agent == null || param == null) {
             return;
         }
-        if (StringUtils.isBlank(param.getInstanceKey())) {
-            param.setInstanceKey(StringUtils.trimToNull(agent.getChatInstanceKey()));
-        }
         PromptSetting prompt = param.getPromptSetting();
         if (prompt != null && StringUtils.isBlank(prompt.getPromptKey())) {
             prompt.setPromptKey(StringUtils.trimToNull(agent.getPromptKey()));

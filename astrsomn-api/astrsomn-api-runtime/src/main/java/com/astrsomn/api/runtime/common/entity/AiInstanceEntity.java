@@ -22,6 +22,9 @@ public class AiInstanceEntity extends BaseEntity<Long> {
     @TableField("INSTANCE_KEY")
     private String instanceKey;
 
+    @TableField("AGENT_KEY")
+    private String agentKey;
+
     @TableField("INSTANCE_NAME")
     private String instanceName;
 
@@ -90,5 +93,47 @@ public class AiInstanceEntity extends BaseEntity<Long> {
 
     @TableField(value = "MODEL_ROUTE_JSON", exist = false)
     private String modelRouteJson;
+
+    @TableField("ROUTE_STRATEGY")
+    private String routeStrategy;
+
+    @TableField("ROUTE_WEIGHT")
+    private Integer routeWeight;
+
+    @TableField("RESILIENCE_ENABLED")
+    private String resilienceEnabled;
+
+    @TableField("RESILIENCE_INSTANCE_NAME")
+    private String resilienceInstanceName;
+
+    @TableField("CIRCUIT_BREAKER_ENABLED")
+    private String circuitBreakerEnabled;
+
+    @TableField("CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD")
+    private Integer circuitBreakerFailureRateThreshold;
+
+    @TableField("CIRCUIT_BREAKER_WAIT_DURATION")
+    private Long circuitBreakerWaitDuration;
+
+    @TableField("RETRY_ENABLED")
+    private String retryEnabled;
+
+    @TableField("RETRY_MAX_ATTEMPTS")
+    private Integer retryMaxAttempts;
+
+    @TableField("RETRY_WAIT_DURATION")
+    private Long retryWaitDuration;
+
+    @TableField("TIMEOUT_ENABLED")
+    private String timeoutEnabled;
+
+    @TableField("TIMEOUT_DURATION")
+    private Long timeoutDuration;
+
+    @TableField("FALLBACK_ENABLED")
+    private String fallbackEnabled;
+
+    @TableField("FALLBACK_INSTANCE_KEY")
+    private String fallbackInstanceKey;
 
 }

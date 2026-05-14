@@ -30,17 +30,6 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("WORKFLOW_KEY")
     private String workflowKey;
 
-
-    @TableField("CHAT_INSTANCE_KEY")
-    private String chatInstanceKey;
-
-    @TableField("IMAGE_INSTANCE_KEY")
-    private String imageInstanceKey;
-
-
-    @TableField("VOICE_INSTANCE_KEY")
-    private String voiceInstanceKey;
-
     @TableField("PROMPT_KEY")
     private String promptKey;
 

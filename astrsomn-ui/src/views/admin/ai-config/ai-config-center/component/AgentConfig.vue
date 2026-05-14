@@ -18,34 +18,10 @@
             @update-prompt-content="onPromptContentUpdate"
         />
 
-        <AgentConfigBrainSection
-            :chat-account="chatAccount"
-            :chat-capability-hint="chatCapabilityHint"
-            :chat-embedding-has-any-control="chatEmbeddingHasAnyControl"
-            :chat-has-param-schema="chatHasParamSchema"
-            :chat-image-has-any-control="chatImageHasAnyControl"
-            :chat-model="chatModel"
-            :chat-model-kind="chatModelKind"
-            :chat-param-form="chatParamForm"
-            :chat-param-section-title="chatParamSectionTitle"
-            :chat-show-chat-frequency-penalty="chatShowChatFrequencyPenalty"
-            :chat-show-chat-max-tokens="chatShowChatMaxTokens"
-            :chat-show-chat-penalties="chatShowChatPenalties"
-            :chat-show-chat-presence-penalty="chatShowChatPresencePenalty"
-            :chat-show-chat-seed="chatShowChatSeed"
-            :chat-show-chat-stop-sequences="chatShowChatStopSequences"
-            :chat-show-chat-temperature="chatShowChatTemperature"
-            :chat-show-chat-top-k="chatShowChatTopK"
-            :chat-show-chat-top-p="chatShowChatTopP"
-            :chat-show-embedding-dimensions="chatShowEmbeddingDimensions"
-            :chat-show-image-size="chatShowImageSize"
-            :chat-show-image-style="chatShowImageStyle"
-            :chat-unsupported-param-codes="chatUnsupportedParamCodes"
-            :current-chat-instance="currentChatInstance"
-            :get-temp-info="getTempInfo"
-            @clear-chat="clearChatTrack"
-            @open-model="openModelSelector"
-            @open-instance="openInstanceSelectorSafe"
+        <AgentConfigInstanceList
+            :instance-list="instanceList"
+            :available-models="availableModels"
+            @update:instance-list="instanceList = $event"
         />
 
         <AgentConfigIntegrationsSection
@@ -145,7 +121,7 @@ import InstanceSelector from '@/views/admin/ai-config/ai-instance/selector/Insta
 import InstanceForm from '@/views/admin/ai-config/ai-instance/InstanceForm.vue'
 import AgentConfigHeader from './agent-config/AgentConfigHeader.vue'
 import AgentConfigPersonaSection from './agent-config/AgentConfigPersonaSection.vue'
-import AgentConfigBrainSection from './agent-config/AgentConfigBrainSection.vue'
+import AgentConfigInstanceList from './agent-config/AgentConfigInstanceList.vue'
 import AgentConfigIntegrationsSection from './agent-config/AgentConfigIntegrationsSection.vue'
 import AgentConfigPromptImproveModal from './agent-config/AgentConfigPromptImproveModal.vue'
 import {getTempInfo, useInstanceParamVisibility} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
@@ -172,6 +148,9 @@ const loadedPromptContent = ref('')
 const placedTools = ref<AiTool[]>([])
 const placedMcps = ref<AiMcp[]>([])
 const knowledgeKeys = ref<string[]>([])
+
+const instanceList = ref<AiInstance[]>([])
+const availableModels = ref<AiModel[]>([])
 
 const modelDrawerOpen = ref(false)
 const modelSelectorKind = ref<'chat' | 'image' | 'voice'>('chat')
@@ -699,9 +678,7 @@ function resetEmptyForm() {
   placedTools.value = []
   placedMcps.value = []
   knowledgeKeys.value = []
-  clearChatTrack()
-  clearImageTrack()
-  clearVoiceTrack()
+  instanceList.value = []
 }
 
 async function resolvePromptByKey(promptKey: string): Promise<AiPrompt | undefined> {
@@ -767,46 +744,10 @@ async function backfillFromDetail(detail: AiAgent) {
   localAgentKey.value = detail.agentKey ?? ''
   localAgentDescription.value = detail.description ?? ''
 
-  if (detail.chatInstanceKey) {
-    const inst = await loadInstanceRowByKey(detail.chatInstanceKey)
-    if (inst) {
-      currentChatInstance.value = inst
-      syncParamForm(chatParamForm, inst)
-      chatParamSnapshot.value = serializeParams(chatParamForm)
-      await resolveModelAndAccountForTrack(inst, chatModel, chatAccount)
-    } else {
-      clearChatTrack()
-    }
+  if (detail.instanceList && detail.instanceList.length > 0) {
+    instanceList.value = detail.instanceList
   } else {
-    clearChatTrack()
-  }
-
-  if (detail.imageInstanceKey) {
-    const inst = await loadInstanceRowByKey(detail.imageInstanceKey)
-    if (inst) {
-      currentImageInstance.value = inst
-      syncParamForm(imageParamForm, inst)
-      imageParamSnapshot.value = serializeParams(imageParamForm)
-      await resolveModelAndAccountForTrack(inst, imageModel, imageAccount)
-    } else {
-      clearImageTrack()
-    }
-  } else {
-    clearImageTrack()
-  }
-
-  if (detail.voiceInstanceKey) {
-    const inst = await loadInstanceRowByKey(detail.voiceInstanceKey)
-    if (inst) {
-      currentVoiceInstance.value = inst
-      syncParamForm(voiceParamForm, inst)
-      voiceParamSnapshot.value = serializeParams(voiceParamForm)
-      await resolveModelAndAccountForTrack(inst, voiceModel, voiceAccount)
-    } else {
-      clearVoiceTrack()
-    }
-  } else {
-    clearVoiceTrack()
+    instanceList.value = []
   }
 
   if (detail.promptKey) {
@@ -836,6 +777,7 @@ async function backfillFromDetail(detail: AiAgent) {
 async function loadAgent() {
   if (!props.agentId) {
     resetEmptyForm()
+    await loadAvailableModels()
     return
   }
   loading.value = true
@@ -843,11 +785,22 @@ async function loadAgent() {
     const detail = await aiAgentApi.detail(props.agentId)
     detailSnapshot.value = {...detail}
     await backfillFromDetail(detail)
+    await loadAvailableModels()
   } catch (e: any) {
     message.error(e?.message || '加载智能体详情失败')
     resetEmptyForm()
+    await loadAvailableModels()
   } finally {
     loading.value = false
+  }
+}
+
+async function loadAvailableModels() {
+  try {
+    const resp = await aiModelApi.queryPage({pageNo: 1, pageSize: 100, param: {status: 'enabled'}})
+    availableModels.value = resp.list || []
+  } catch {
+    availableModels.value = []
   }
 }
 
@@ -870,12 +823,10 @@ function buildSubmitPayload(): AiAgent {
     agentKey: localAgentKey.value.trim() || base.agentKey,
     description: localAgentDescription.value.trim(),
     promptKey: currentPrompt.value?.promptKey,
-    chatInstanceKey: currentChatInstance.value?.instanceKey,
-    imageInstanceKey: currentImageInstance.value?.instanceKey,
-    voiceInstanceKey: currentVoiceInstance.value?.instanceKey,
     knowledgeBaseKeys: knowledgeKeys.value.length ? knowledgeKeys.value.join(',') : '',
     toolKeys: placedTools.value.map((t) => t.toolKey).filter(Boolean).join(','),
     mcpKeys: placedMcps.value.map((m) => m.mcpKey).filter(Boolean).join(','),
+    instanceList: instanceList.value,
   }
 }
 
@@ -933,42 +884,18 @@ async function handleSave() {
     message.warning('请先选择或新建提示词')
     return
   }
-  if (!chatModel.value?.modelKey) {
-    message.warning('请选择对话模型')
+  if (instanceList.value.length === 0) {
+    message.warning('请至少添加一个推理实例')
     return
   }
   submitting.value = true
   try {
-    try {
-      await ensureChatInstanceOrCreate()
-    } catch (e: any) {
-      message.error(e?.message || '无法准备对话推理实例')
-      return
-    }
-    try {
-      await ensureImageInstanceOrCreateIfNeeded()
-    } catch (e: any) {
-      message.error(e?.message || '无法准备图像推理实例')
-      return
-    }
-    try {
-      await ensureVoiceInstanceOrCreateIfNeeded()
-    } catch (e: any) {
-      message.error(e?.message || '无法准备语音推理实例')
-      return
-    }
-    if (!currentChatInstance.value?.instanceKey) {
-      message.error('未能绑定对话推理实例')
-      return
-    }
     const p = currentPrompt.value
     if (p?.id != null && String(p.id) !== '' && String(p.promptContent ?? '') !== String(loadedPromptContent.value ?? '')) {
       await aiPromptApi.update({...p})
       loadedPromptContent.value = p.promptContent ?? ''
     }
-    await maybePersistInstanceTrack('chat')
-    await maybePersistInstanceTrack('image')
-    await maybePersistInstanceTrack('voice')
+    
     const payload = buildSubmitPayload()
     if (props.agentId != null && props.agentId !== '') {
       await aiAgentApi.update({...payload, id: props.agentId})

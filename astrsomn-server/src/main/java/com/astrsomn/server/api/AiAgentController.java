@@ -25,9 +25,9 @@ public class AiAgentController extends BaseController {
         return aiAgentService.create(request);
     }
 
-    @PostMapping("/createByDashboard")
-    public BaseResponse<String> createByDashboard(@RequestBody AiAgentCreateRequestDTO request) {
-        return aiAgentService.createByDashboard(request);
+    @PostMapping("/createFullAgent")
+    public BaseResponse<String> createFullAgent(@RequestBody AiAgentCreateRequestDTO request) {
+        return aiAgentService.createFullAgent(request);
     }
 
 
