@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.langchain.buildParam.setting;
+package com.astrsomn.api.runtime.common.langchain.buildParam.setting;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -25,4 +25,7 @@ public class ModelSetting {
 
     
     private String accountKey;
+
+
+    private ModelRouteSetting modelRouteSetting;
 }

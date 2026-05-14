@@ -93,3 +93,5 @@ build.xml
 /astrsomn-ui-packages/astro-chat-core/dist/
 /astrsomn-ui-packages/astro-chat-vue/package-lock.json
 /astrsomn-ui-packages/astro-chat-core/package-lock.json
+/astrsomn-integrations/astrsomn-runtime-starter/src/test/java/com/astrsomn/starter/runtime/langchain/route/CompositeChatModelTest.java
+/astrsomn-integrations/astrsomn-runtime-starter/src/test/java/com/astrsomn/starter/runtime/langchain/route/RoundRobinEndpointSelectionStrategyTest.java

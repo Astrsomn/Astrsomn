@@ -1,11 +1,14 @@
 package com.astrsomn.starter.runtime.langchain.factory;
 
 
-import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.langchain.route.ModelRouteCompositeFactory;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -15,12 +18,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AstroModelFactory {
+
+    private final ModelRouteCompositeFactory modelRouteCompositeFactory;
 
     // 存储 Provider 编码与处理器的映射
     private final Map<String, ModelProviderHandler> handlerMap = new ConcurrentHashMap<>();
 
-    public AstroModelFactory() {
+    @PostConstruct
+    public void initSpi() {
         initSpiHandlers();
     }
 
@@ -48,6 +55,9 @@ public class AstroModelFactory {
         if (handler == null) {
             throw new RuntimeException("Unsupported provider: " + modelProvider);
         }
+        if (modelRouteCompositeFactory.shouldWrap(param)) {
+            return modelRouteCompositeFactory.buildComposite(handler, modelClass, param);
+        }
         return handler.createModel(modelClass, param);
     }
 
@@ -74,6 +84,4 @@ public class AstroModelFactory {
             handlerMap.remove(provider.getCode());
         }
     }
-
-
 }

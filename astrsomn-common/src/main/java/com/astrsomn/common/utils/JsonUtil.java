@@ -1,4 +1,4 @@
-﻿package com.astrsomn.common.utils;
+package com.astrsomn.common.utils;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +11,17 @@ public class JsonUtil {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     
+    public static <T> T fromJson(String json, Class<T> clazz) {
+        if (json == null || json.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return MAPPER.readValue(json, clazz);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse JSON object", e);
+        }
+    }
+
     public static <T> List<T> parseArray(String json, Class<T> clazz) {
         if (json == null || json.trim().isEmpty()) {
             return null;

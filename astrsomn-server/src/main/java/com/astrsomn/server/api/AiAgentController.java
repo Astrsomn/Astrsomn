@@ -25,6 +25,11 @@ public class AiAgentController extends BaseController {
         return aiAgentService.create(request);
     }
 
+    @PostMapping("/createByDashboard")
+    public BaseResponse<String> createByDashboard(@RequestBody AiAgentCreateRequestDTO request) {
+        return aiAgentService.createByDashboard(request);
+    }
+
 
     @DeleteMapping("/delete/{ids}")
     public BaseResponse<String> deleteAgent(@PathVariable("ids") String ids) {

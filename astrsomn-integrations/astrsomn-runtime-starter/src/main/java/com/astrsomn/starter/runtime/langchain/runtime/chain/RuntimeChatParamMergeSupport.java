@@ -7,6 +7,7 @@ import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ChatSetting;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
+import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelRouteSetting;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.PromptSetting;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ToolSetting;
 import com.astrsomn.common.utils.JsonUtil;
@@ -77,6 +78,27 @@ public final class RuntimeChatParamMergeSupport {
         }
         if (StringUtils.isBlank(target.getApiUrl())) {
             target.setApiUrl(StringUtils.trimToNull(account.getApiUrl()));
+        }
+    }
+
+    /**
+     * 从实例扩展 JSON 合并路由配置；若调用方已配置启用且含 endpoints 则跳过。
+     */
+    public static void mergeModelRouteFromJson(ModelSetting target, String routeJson) {
+        if (target == null || StringUtils.isBlank(routeJson)) {
+            return;
+        }
+        ModelRouteSetting current = target.getModelRouteSetting();
+        if (current != null && current.isEnabled() && current.getEndpoints() != null && !current.getEndpoints().isEmpty()) {
+            return;
+        }
+        try {
+            ModelRouteSetting parsed = JsonUtil.fromJson(routeJson.trim(), ModelRouteSetting.class);
+            if (parsed != null && parsed.isEnabled() && parsed.getEndpoints() != null && !parsed.getEndpoints().isEmpty()) {
+                target.setModelRouteSetting(parsed);
+            }
+        } catch (RuntimeException ignored) {
+            // 非法 JSON 时忽略，避免阻断主流程
         }
     }
 

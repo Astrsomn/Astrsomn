@@ -87,4 +87,8 @@ public class AiInstanceEntity extends BaseEntity<Long> {
     @TableField("ACCOUNT_KEY")
     private String accountKey;
 
+
+    @TableField(value = "MODEL_ROUTE_JSON", exist = false)
+    private String modelRouteJson;
+
 }

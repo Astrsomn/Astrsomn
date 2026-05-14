@@ -42,6 +42,9 @@ public class ResolveInstanceChainHandler implements AgentRuntimeChainHandler {
         }
         ctx.setInstance(instance);
         RuntimeChatParamMergeSupport.mergeChatSettingFromInstance(ctx.getParam().getChatSetting(), instance);
+        if (StringUtils.isNotBlank(instance.getModelRouteJson())) {
+            RuntimeChatParamMergeSupport.mergeModelRouteFromJson(ctx.getParam().getModelSetting(), instance.getModelRouteJson());
+        }
         if (StringUtils.isBlank(ctx.getParam().getModelKey())) {
             ctx.getParam().setModelKey(StringUtils.trimToNull(instance.getModelKey()));
         }

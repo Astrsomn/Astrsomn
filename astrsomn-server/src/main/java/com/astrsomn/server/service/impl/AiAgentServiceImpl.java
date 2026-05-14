@@ -92,4 +92,11 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         IPage<AiAgentResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }
+
+    @Override
+    public BaseResponse<String> createByDashboard(AiAgentCreateRequestDTO request) {
+
+
+        return null;
+    }
 }

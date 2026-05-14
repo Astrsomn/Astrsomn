@@ -1,12 +1,14 @@
 package com.astrsomn.server.config;
 
 import com.astrsomn.common.base.BaseEntity;
+import com.astrsomn.common.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.SystemUserEnum.AdminEnum;
 import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
 import com.astrsomn.api.runtime.common.entity.SystemEnvEntity;
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.mapper.AstSystemEnvMapper;
 import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +63,7 @@ public class DefaultAdminInitializer implements ApplicationListener<ApplicationR
 
     private AstSystemUserMapper systemUserMapper;
     private AstSystemEnvMapper systemEnvMapper;
+    private AstrsomnProperties astrsomnProperties;
 
     @Autowired(required = false)
     public void setSystemUserMapper(AstSystemUserMapper systemUserMapper) {
@@ -70,6 +73,11 @@ public class DefaultAdminInitializer implements ApplicationListener<ApplicationR
     @Autowired(required = false)
     public void setSystemEnvMapper(AstSystemEnvMapper systemEnvMapper) {
         this.systemEnvMapper = systemEnvMapper;
+    }
+
+    @Autowired(required = false)
+    public void setAstrsomnProperties(AstrsomnProperties astrsomnProperties) {
+        this.astrsomnProperties = astrsomnProperties;
     }
 
     @Override
@@ -107,6 +115,41 @@ public class DefaultAdminInitializer implements ApplicationListener<ApplicationR
     private void doInitialize() {
         initializeDefaultEnv();
         initializeDefaultAdmin();
+        validateUsername();
+    }
+
+    /**
+     * 校验配置的 username 是否存在于数据库中
+     */
+    private void validateUsername() {
+        if (astrsomnProperties == null) {
+            log.warn("DefaultAdminInitializer: AstrsomnProperties 未注入，跳过 username 校验");
+            return;
+        }
+        
+        String username = astrsomnProperties.getUsername();
+        if (StringUtils.isBlank(username)) {
+            String errorMsg = "Astrsomn configuration error: astrsomn.username must be configured";
+            log.error(errorMsg);
+            throw new IllegalArgumentException(errorMsg);
+        }
+
+        username = username.trim();
+        LambdaQueryWrapper<SystemUserEntity> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SystemUserEntity::getUsername, username);
+
+        SystemUserEntity user = systemUserMapper.selectOne(queryWrapper);
+
+        if (user == null) {
+            String errorMsg = String.format(
+                "Astrsomn configuration error: username '%s' does not exist in SYS_USER table.",
+                username
+            );
+            log.error(errorMsg);
+            throw new IllegalArgumentException(errorMsg);
+        }
+
+        log.info("Astrsomn configuration validation passed: username '{}' exists in database.", username);
     }
 
     /**
