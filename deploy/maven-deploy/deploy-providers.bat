@@ -45,7 +45,7 @@ for %%m in (%MODULES%) do (
     echo Deploying module: %%m
     echo ----------------------------------------
     cd /d "%MODULES_DIR%\%%m"
-    call mvn deploy -X -DskipTests -Possrh-release
+    call mvn deploy -X -DskipTests -Possrh
     if errorlevel 1 (
         echo.
         echo [ERROR] Failed to deploy module %%m!
