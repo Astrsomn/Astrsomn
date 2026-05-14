@@ -3,12 +3,14 @@ setlocal enabledelayedexpansion
 
 REM ========================================
 REM Astrsomn Maven Deploy Script
-REM Deploy all modules to GitHub Packages
+REM Deploy all modules to Maven Central Repository
 REM ========================================
 
 echo.
 echo ========================================
 echo  Astrsomn Full Deploy Script
+echo ========================================
+echo  Target: Maven Central Repository (Sonatype OSSRH)
 echo ========================================
 echo.
 
@@ -27,7 +29,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/2] Deploying all modules to GitHub Packages...
+echo [2/2] Deploying all modules to Maven Central...
 echo.
 
 REM Deploy providers modules
@@ -35,7 +37,7 @@ echo ----------------------------------------
 echo Deploying providers modules...
 echo ----------------------------------------
 cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-openai"
-call mvn deploy -DskipTests
+call mvn deploy -DskipTests -Possrh-release
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-provider-openai!
@@ -43,7 +45,7 @@ if errorlevel 1 (
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-qianfan"
-call mvn deploy -DskipTests
+call mvn deploy -DskipTests -Possrh-release
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-provider-qianfan!
@@ -51,7 +53,7 @@ if errorlevel 1 (
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-qwen"
-call mvn deploy -DskipTests
+call mvn deploy -DskipTests -Possrh-release
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-provider-qwen!
@@ -59,7 +61,7 @@ if errorlevel 1 (
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-zhipu"
-call mvn deploy -DskipTests
+call mvn deploy -DskipTests -Possrh-release
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-provider-zhipu!
@@ -67,7 +69,7 @@ if errorlevel 1 (
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-deepseek"
-call mvn deploy -DskipTests
+call mvn deploy -DskipTests -Possrh-release
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-provider-deepseek!
@@ -80,7 +82,7 @@ echo ----------------------------------------
 echo Deploying integrations modules...
 echo ----------------------------------------
 cd /d "%PROJECT_ROOT%\astrsomn-integrations\astrsomn-internal-storage"
-call mvn deploy -DskipTests
+call mvn deploy -DskipTests -Possrh-release
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-internal-storage!
@@ -88,7 +90,7 @@ if errorlevel 1 (
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-integrations\astrsomn-runtime-starter"
-call mvn deploy -DskipTests
+call mvn deploy -DskipTests -Possrh-release
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-runtime-starter!
@@ -96,7 +98,7 @@ if errorlevel 1 (
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-integrations\astrsomn-workflow-starter"
-call mvn deploy -DskipTests
+call mvn deploy -DskipTests -Possrh-release
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-workflow-starter!

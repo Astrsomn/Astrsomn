@@ -3,12 +3,14 @@ setlocal enabledelayedexpansion
 
 REM ========================================
 REM Astrsomn Maven Deploy Script
-REM Deploy integrations modules to GitHub Packages
+REM Deploy integrations modules to Maven Central Repository
 REM ========================================
 
 echo.
 echo ========================================
 echo  Astrsomn Integrations Deploy Script
+echo ========================================
+echo  Target: Maven Central Repository (Sonatype OSSRH)
 echo ========================================
 echo.
 
@@ -31,7 +33,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/2] Deploying integrations modules to GitHub Packages...
+echo [2/2] Deploying integrations modules to Maven Central...
 echo.
 
 for %%m in (%MODULES%) do (
@@ -39,7 +41,7 @@ for %%m in (%MODULES%) do (
     echo Deploying module: %%m
     echo ----------------------------------------
     cd /d "%MODULES_DIR%\%%m"
-    call mvn deploy -DskipTests
+    call mvn deploy -DskipTests -Possrh-release
     if errorlevel 1 (
         echo.
         echo [ERROR] Failed to deploy module %%m!
