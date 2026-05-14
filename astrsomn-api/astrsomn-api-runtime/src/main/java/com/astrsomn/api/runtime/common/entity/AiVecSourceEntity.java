@@ -1,5 +1,6 @@
 package com.astrsomn.api.runtime.common.entity;
 
+import com.astrsomn.common.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -7,7 +8,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
-import com.astrsomn.common.base.BaseEntity;
 
 @Data
 @TableName("AI_VEC_SOURCE")
@@ -22,7 +22,6 @@ public class AiVecSourceEntity extends BaseEntity<Long> {
 
     @TableField("EXTENSION_CODE")
     private String extensionCode;
-
 
 
     @TableField("HOST")

@@ -1,8 +1,8 @@
 package com.astrsomn.starter.workflow.mapper;
 
-import com.astrsomn.api.workflow.domain.entity.AstFlowInstanceEntity;
 import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceQueryRequestDTO;
 import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceResponseDTO;
+import com.astrsomn.api.workflow.domain.entity.AstFlowInstanceEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;

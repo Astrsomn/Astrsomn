@@ -1,11 +1,11 @@
 package com.astrsomn.api.runtime.common.entity;
 
+import com.astrsomn.common.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
-import com.astrsomn.common.base.BaseEntity;
 
 @Data
 @TableName("AI_VEC_STORE")

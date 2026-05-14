@@ -1,21 +1,17 @@
 package com.astrsomn.server.api.system;
 
 import com.astrsomn.api.runtime.common.dto.extension.*;
-import lombok.RequiredArgsConstructor;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.server.service.extension.base.SystemExtensionMarketService;
 import com.astrsomn.server.service.extension.base.SystemExtensionModelSyncService;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;
 import com.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1/astro/system-extension")
@@ -23,7 +19,6 @@ import java.util.Optional;
 public class SystemExtensionController extends BaseController {
 
     private final SystemExtensionService systemExtensionService;
-    private final SystemExtensionMarketService extensionMarketplaceCatalogSource;
     private final SystemExtensionModelSyncService systemExtensionModelSyncService;
     private final SystemExtensionModelGuard systemExtensionModelGuard;
 
@@ -82,26 +77,6 @@ public class SystemExtensionController extends BaseController {
     @PostMapping("/uninstall")
     public BaseResponse<String> uninstall(@RequestParam("id") Long id) {
         return systemExtensionService.uninstall(id);
-    }
-
-    // ==================================== ExtensionMarketplaceCatalogSource ====================================
-
-    @GetMapping("/marketplace/catalog")
-    public BaseResponse<PageResponse<ExtensionMarketplaceItemDTO>> marketplaceCatalog(
-            @RequestParam(value = "type", required = false) String type,
-            @RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        String t = StringUtils.trimToNull(type);
-        PageResponse<ExtensionMarketplaceItemDTO> pageResponse =
-                extensionMarketplaceCatalogSource.listCatalog(pageNo, pageSize, Optional.ofNullable(t));
-        return BaseResponse.success(pageResponse);
-    }
-
-    @PostMapping("/marketplace/install")
-    public BaseResponse<String> installMarketplaceExtension(
-            @RequestParam("pluginId") String pluginId,
-            @RequestParam("version") String version) {
-        return extensionMarketplaceCatalogSource.installExtension(pluginId, version);
     }
 
     // ==================================== SystemExtensionModelSyncService ====================================

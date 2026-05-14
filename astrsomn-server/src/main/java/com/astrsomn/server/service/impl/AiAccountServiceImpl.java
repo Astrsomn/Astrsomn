@@ -1,42 +1,30 @@
 package com.astrsomn.server.service.impl;
 
+import com.astrsomn.api.runtime.common.dto.account.*;
+import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.api.runtime.exception.AiAccountErrorEnum;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.CryptoUtil;
+import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiAccountMapper;
 import com.astrsomn.server.mapper.AiChatMessageMapper;
 import com.astrsomn.server.mapper.AiInstanceMapper;
-
+import com.astrsomn.server.service.AiAccountService;
+import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.dto.account.AiAccountCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.account.AiAccountQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.account.AiAccountResponseDTO;
-import com.astrsomn.api.runtime.common.dto.account.AiAccountUsageStatsDTO;
-import com.astrsomn.api.runtime.common.dto.account.AiAccountUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.utils.CryptoUtil;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.api.runtime.exception.AiAccountErrorEnum;
-
-
-import com.astrsomn.server.service.AiAccountService;
-
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -225,9 +213,9 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
             return false;
         }
         return aiInstanceMapper.selectCount(
-                        new LambdaQueryWrapper<AiInstanceEntity>()
-                                .eq(AiInstanceEntity::getAccountKey, accountKey.trim())
-                                .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
+                new LambdaQueryWrapper<AiInstanceEntity>()
+                        .eq(AiInstanceEntity::getAccountKey, accountKey.trim())
+                        .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
                 > 0;
     }
 }

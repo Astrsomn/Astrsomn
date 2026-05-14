@@ -5,63 +5,65 @@
         <h2 class="section-title">文档列表</h2>
         <div class="count-badge">{{ filteredFiles.length }}</div>
       </div>
-      
+
       <div class="toolbar-right">
         <a-select
-          :value="uploadCollectionId"
-          @update:value="setUploadCollectionId"
-          :options="storeOptions"
-          placeholder="选择集合"
-          style="width: 180px"
+            :options="storeOptions"
+            :value="uploadCollectionId"
+            placeholder="选择集合"
+            style="width: 180px"
+            @update:value="setUploadCollectionId"
         />
-        <a-input-search 
-          placeholder="搜索文件名..." 
-          class="subtle-search"
-          :value="keyword"
-          @update:value="setKeyword"
+        <a-input-search
+            :value="keyword"
+            class="subtle-search"
+            placeholder="搜索文件名..."
+            @update:value="setKeyword"
         />
         <a-upload :custom-request="handleUpload" :show-upload-list="false">
-        <a-button type="primary" class="import-btn">
-          <template #icon><plus-outlined /></template>
-          导入文档
-        </a-button>
+          <a-button class="import-btn" type="primary">
+            <template #icon>
+              <plus-outlined/>
+            </template>
+            导入文档
+          </a-button>
         </a-upload>
         <a-button class="import-btn" @click="openCreate">新增记录</a-button>
       </div>
     </div>
 
     <div class="file-grid">
-      <FileCard 
-        v-for="file in filteredFiles" 
-        :key="file.id || file.name" 
-        :file="file" 
-        :active="String(file.id) === String(props.selectedDocId ?? '')"
-        @select="handleSelectDoc"
-        @edit="openEdit"
-        @vectorize="handleVectorize"
-        @delete="handleDelete"
+      <FileCard
+          v-for="file in filteredFiles"
+          :key="file.id || file.name"
+          :active="String(file.id) === String(props.selectedDocId ?? '')"
+          :file="file"
+          @delete="handleDelete"
+          @edit="openEdit"
+          @select="handleSelectDoc"
+          @vectorize="handleVectorize"
       />
     </div>
     <VecDocFormModal
-      :open="modalOpen"
-      @update:open="(value) => (modalOpen = value)"
-      :mode="modalMode"
-      :initial="modalInitial"
-      :confirm-loading="modalSubmitting"
-      @submit="handleSubmit"
+        :confirm-loading="modalSubmitting"
+        :initial="modalInitial"
+        :mode="modalMode"
+        :open="modalOpen"
+        @submit="handleSubmit"
+        @update:open="(value) => (modalOpen = value)"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue';
-import { message, Modal } from 'ant-design-vue'
-import type { UploadProps } from 'ant-design-vue'
-import { PlusOutlined } from '@ant-design/icons-vue';
+import {computed, ref, watch} from 'vue';
+import type {UploadProps} from 'ant-design-vue'
+import {message, Modal} from 'ant-design-vue'
+import {PlusOutlined} from '@ant-design/icons-vue';
 // 确保路径指向你刚才保存 FileCard 的位置
 import FileCard from '@/views/admin/ai-vector/vector-center/component/right-center/FileCard.vue';
 import VecDocFormModal from '@/views/admin/ai-vector/vec-doc/VecDocFormModal.vue'
-import { aiVecDocApi, type AiVecDoc } from '@/api/aiVecDoc'
+import {type AiVecDoc, aiVecDocApi} from '@/api/aiVecDoc'
 
 const props = defineProps<{
   docs: AiVecDoc[]
@@ -90,36 +92,36 @@ const setKeyword = (value: string) => {
 }
 
 watch(
-  () => props.storeId,
-  (id) => {
-    uploadCollectionId.value = id
-  },
-  { immediate: true }
+    () => props.storeId,
+    (id) => {
+      uploadCollectionId.value = id
+    },
+    {immediate: true}
 )
 
 const storeOptions = computed(() =>
-  props.storeId == null
-    ? []
-    : [{ label: `当前集合 (${props.storeId})`, value: props.storeId }]
+    props.storeId == null
+        ? []
+        : [{label: `当前集合 (${props.storeId})`, value: props.storeId}]
 )
 
 const filteredFiles = computed(() => {
   const list = props.docs || []
   const kw = keyword.value.trim().toLowerCase()
   return list
-    .filter((doc) => {
-      if (!kw) return true
-      return String(doc.originalFileName || doc.contentSummary || '').toLowerCase().includes(kw)
-    })
-    .map((doc) => ({
-      id: doc.id,
-      name: doc.originalFileName || `doc-${doc.id}`,
-      segments: 0,
-      size: doc.filePath ? '已上传' : '待上传',
-      status: String(doc.syncStatus || '').toUpperCase() === 'STORED' ? '已向量化' : '待向量化',
-      uploadTime: doc.createTime,
-      raw: doc
-    }))
+      .filter((doc) => {
+        if (!kw) return true
+        return String(doc.originalFileName || doc.contentSummary || '').toLowerCase().includes(kw)
+      })
+      .map((doc) => ({
+        id: doc.id,
+        name: doc.originalFileName || `doc-${doc.id}`,
+        segments: 0,
+        size: doc.filePath ? '已上传' : '待上传',
+        status: String(doc.syncStatus || '').toUpperCase() === 'STORED' ? '已向量化' : '待向量化',
+        uploadTime: doc.createTime,
+        raw: doc
+      }))
 })
 
 const openCreate = () => {
@@ -178,7 +180,7 @@ const handleDelete = async (file: any) => {
   Modal.confirm({
     title: '确认删除文档',
     content: `删除后将同步清理切片与向量数据：${file.name || file.id}`,
-    okButtonProps: { danger: true },
+    okButtonProps: {danger: true},
     async onOk() {
       await aiVecDocApi.delete([file.id])
       message.success('文档删除成功')
@@ -231,19 +233,47 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
     display: flex;
     align-items: center;
     gap: 12px;
-    .section-title { font-size: 16px; font-weight: 600; color: var(--text-heading); margin: 0; }
-    .count-badge { background: var(--bg-input); color: var(--text-secondary); padding: 2px 10px; border-radius: var(--radius-max); font-size: 12px; font-weight: 600; }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-heading);
+      margin: 0;
+    }
+
+    .count-badge {
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      padding: 2px 10px;
+      border-radius: var(--radius-max);
+      font-size: 12px;
+      font-weight: 600;
+    }
   }
 
   .toolbar-right {
     display: flex;
     gap: 12px;
+
     .subtle-search {
       width: 240px;
-      :deep(.ant-input) { border-radius: var(--radius-md); border-color: var(--border-input); background: var(--bg-input); color: var(--text-primary); }
-      :deep(.ant-input::placeholder) { color: var(--text-placeholder); }
+
+      :deep(.ant-input) {
+        border-radius: var(--radius-md);
+        border-color: var(--border-input);
+        background: var(--bg-input);
+        color: var(--text-primary);
+      }
+
+      :deep(.ant-input::placeholder) {
+        color: var(--text-placeholder);
+      }
     }
-    .import-btn { border-radius: var(--radius-md); font-weight: 500; }
+
+    .import-btn {
+      border-radius: var(--radius-md);
+      font-weight: 500;
+    }
   }
 }
 

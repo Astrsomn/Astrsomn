@@ -1,17 +1,14 @@
 package com.astrsomn.api.runtime.common.dto.systemmessage;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.SystemMessageEntity;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.Data;
 
-/**
- * 推给前端的轻量 DTO，与表结构同字段、便于在 SSE / WebSocket 中直传
- *（持久化与推送解耦，表数据由应用或 starter 中的封装类写入）。
- */
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+
 @Data
 public class SystemMessagePushPayload implements Serializable {
 

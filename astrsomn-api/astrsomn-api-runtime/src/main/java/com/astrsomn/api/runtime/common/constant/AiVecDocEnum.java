@@ -1,34 +1,26 @@
 package com.astrsomn.api.runtime.common.constant;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import com.astrsomn.common.base.BaseEnum;
 import com.astrsomn.common.utils.StringUtils;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.Optional;
 
-/**
- * AI 向量文档相关枚举。
- */
+
 public interface AiVecDocEnum {
 
     @Getter
     @AllArgsConstructor
     enum SyncStatus implements BaseEnum {
 
-        /**
-         * 待向量化（仅元数据/文件已落库）
-         */
+
         PENDING("PENDING", "待向量化"),
 
-        /**
-         * 已入库（向量侧已写入）
-         */
+
         STORED("STORED", "已入库"),
 
-        /**
-         * 已失效
-         */
+
         INVALID("INVALID", "已失效");
 
         private final String code;

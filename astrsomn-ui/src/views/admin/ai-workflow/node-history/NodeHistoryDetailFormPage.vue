@@ -1,32 +1,62 @@
 <template>
-  <AstrsomnPageShell title="节点历史详情" description="查看节点历史详情。" empty-text="">
+  <AstrsomnPageShell description="查看节点历史详情。" empty-text="" title="节点历史详情">
     <div class="form-page">
       <a-button class="ghost-btn" @click="goBack">
-        <template #icon><arrow-left-outlined /></template>
+        <template #icon>
+          <arrow-left-outlined/>
+        </template>
         返回列表
       </a-button>
-      <a-form class="detail-form" layout="vertical" :model="form">
+      <a-form :model="form" class="detail-form" layout="vertical">
         <a-row :gutter="16">
-          <a-col :xs="24" :md="12"><a-form-item label="id"><a-input v-model:value="form.id" disabled /></a-form-item></a-col>
-          <a-col :xs="24" :md="12"><a-form-item label="instanceId"><a-input v-model:value="form.instanceId" disabled /></a-form-item></a-col>
-          <a-col :xs="24" :md="12"><a-form-item label="nodeId"><a-input v-model:value="form.nodeId" disabled /></a-form-item></a-col>
-          <a-col :xs="24" :md="12"><a-form-item label="executionMs"><a-input v-model:value="form.executionMs" disabled /></a-form-item></a-col>
-          <a-col :xs="24" :md="12"><a-form-item label="createTime"><a-input v-model:value="form.createTime" disabled /></a-form-item></a-col>
-          <a-col :xs="24" :md="12"><a-form-item label="updateTime"><a-input v-model:value="form.updateTime" disabled /></a-form-item></a-col>
-          <a-col :xs="24"><a-form-item label="详情 JSON"><a-textarea v-model:value="form.rawJson" :auto-size="{ minRows: 10, maxRows: 18 }" disabled /></a-form-item></a-col>
+          <a-col :md="12" :xs="24">
+            <a-form-item label="id">
+              <a-input v-model:value="form.id" disabled/>
+            </a-form-item>
+          </a-col>
+          <a-col :md="12" :xs="24">
+            <a-form-item label="instanceId">
+              <a-input v-model:value="form.instanceId" disabled/>
+            </a-form-item>
+          </a-col>
+          <a-col :md="12" :xs="24">
+            <a-form-item label="nodeId">
+              <a-input v-model:value="form.nodeId" disabled/>
+            </a-form-item>
+          </a-col>
+          <a-col :md="12" :xs="24">
+            <a-form-item label="executionMs">
+              <a-input v-model:value="form.executionMs" disabled/>
+            </a-form-item>
+          </a-col>
+          <a-col :md="12" :xs="24">
+            <a-form-item label="createTime">
+              <a-input v-model:value="form.createTime" disabled/>
+            </a-form-item>
+          </a-col>
+          <a-col :md="12" :xs="24">
+            <a-form-item label="updateTime">
+              <a-input v-model:value="form.updateTime" disabled/>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24">
+            <a-form-item label="详情 JSON">
+              <a-textarea v-model:value="form.rawJson" :auto-size="{ minRows: 10, maxRows: 18 }" disabled/>
+            </a-form-item>
+          </a-col>
         </a-row>
       </a-form>
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { reactive, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
-import { ArrowLeftOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {reactive, watch} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {message} from 'ant-design-vue'
+import {ArrowLeftOutlined} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import { aiWorkflowRuntimeApi, type WorkflowRuntimeRecord } from '@/api/aiWorkflowRuntime'
+import {aiWorkflowRuntimeApi, type WorkflowRuntimeRecord} from '@/api/aiWorkflowRuntime'
 
 const route = useRoute()
 const router = useRouter()
@@ -43,7 +73,7 @@ const applyForm = (detail: WorkflowRuntimeRecord) => {
 }
 
 const goBack = () => {
-  void router.push({ name: 'AdminWorkflowNodeHistory' })
+  void router.push({name: 'AdminWorkflowNodeHistory'})
 }
 
 const loadDetail = async (id: string) => {
@@ -58,13 +88,13 @@ const loadDetail = async (id: string) => {
 }
 
 watch(
-  () => route.params.id,
-  (id) => {
-    if (id != null && String(id)) {
-      void loadDetail(String(id))
-    }
-  },
-  { immediate: true }
+    () => route.params.id,
+    (id) => {
+      if (id != null && String(id)) {
+        void loadDetail(String(id))
+      }
+    },
+    {immediate: true}
 )
 </script>
 

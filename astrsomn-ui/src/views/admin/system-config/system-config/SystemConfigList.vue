@@ -1,9 +1,9 @@
 <template>
   <AstrsomnPageShell
-    title="系统配置"
-    description="管理系统配置项（SYSTEM_CONFIG），支持按分组维护运行时参数。"
-    empty-text="暂无系统配置。"
-    :breadcrumbs="breadcrumbs"
+      :breadcrumbs="breadcrumbs"
+      description="管理系统配置项（SYSTEM_CONFIG），支持按分组维护运行时参数。"
+      empty-text="暂无系统配置。"
+      title="系统配置"
   >
     <div class="config-page">
       <AstrsomnDataSection>
@@ -11,33 +11,33 @@
           <div class="toolbar">
             <div class="toolbar-left">
               <AstrsomnSearchPill
-                v-model="query.configKey"
-                placeholder="配置 Key"
-                @search="fetchList"
+                  v-model="query.configKey"
+                  placeholder="配置 Key"
+                  @search="fetchList"
               />
 
               <AstrsomnStateSwitch
-                v-model="query.status"
-                :options="statusOptions"
-                @change="handleStatusChange"
+                  v-model="query.status"
+                  :options="statusOptions"
+                  @change="handleStatusChange"
               />
             </div>
 
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="actionButtons" />
+              <AstrsomnSegmentedButton :buttons="actionButtons"/>
             </div>
           </div>
         </template>
 
         <AstrsomnDataView
-          mode="table"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1400 }"
-          row-key="id"
-          empty-text="暂无匹配的系统配置"
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1400 }"
+            empty-text="暂无匹配的系统配置"
+            mode="table"
+            row-key="id"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'configKey'">
@@ -58,65 +58,59 @@
             </template>
             <template v-else-if="column.key === 'actions'">
               <a-button type="link" @click="openEdit(record)">编辑</a-button>
-              <a-divider type="vertical" />
+              <a-divider type="vertical"/>
               <a-popconfirm
-                v-if="!record.isSystem"
-                title="确定删除吗？"
-                ok-text="确认"
-                cancel-text="取消"
-                @confirm="() => handleDeleteOne(record.id)"
+                  v-if="!record.isSystem"
+                  cancel-text="取消"
+                  ok-text="确认"
+                  title="确定删除吗？"
+                  @confirm="() => handleDeleteOne(record.id)"
               >
-                <a-button type="link" danger>删除</a-button>
+                <a-button danger type="link">删除</a-button>
               </a-popconfirm>
-              <a-button type="link" disabled v-else>删除</a-button>
+              <a-button v-else disabled type="link">删除</a-button>
             </template>
           </template>
         </AstrsomnDataView>
 
         <template #pagination>
           <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
       </AstrsomnDataSection>
 
       <SystemConfigFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
-import {
-  AppstoreOutlined,
-  CheckCircleOutlined,
-  StopOutlined,
-  DeleteOutlined,
-  PlusOutlined
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message} from 'ant-design-vue'
+import {AppstoreOutlined, CheckCircleOutlined, DeleteOutlined, PlusOutlined, StopOutlined} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
 import SystemConfigFormModal from './SystemConfigFormModal.vue'
-import { systemConfigApi, type SystemConfig, type PageResponse } from '@/api/systemConfig.ts'
+import {type PageResponse, type SystemConfig, systemConfigApi} from '@/api/systemConfig.ts'
 
 const breadcrumbs = [
-  { title: '系统配置', href: '/admin/system-config' },
-  { title: '系统配置' },
+  {title: '系统配置', href: '/admin/system-config'},
+  {title: '系统配置'},
 ]
 
 type QueryState = {
@@ -126,13 +120,13 @@ type QueryState = {
 }
 
 const columns = [
-  { title: '配置 Key', dataIndex: 'configKey', key: 'configKey', width: 220, ellipsis: true, copyable: true },
-  { title: '配置分组', dataIndex: 'configGroup', key: 'configGroup', width: 160, ellipsis: true },
-  { title: '配置值', key: 'configValue', width: 280, ellipsis: true },
-  { title: '状态', key: 'status', width: 100 },
-  { title: '属性', key: 'isSystem', width: 110 },
-  { title: '描述', dataIndex: 'description', key: 'description', width: 200, ellipsis: true },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  {title: '配置 Key', dataIndex: 'configKey', key: 'configKey', width: 220, ellipsis: true, copyable: true},
+  {title: '配置分组', dataIndex: 'configGroup', key: 'configGroup', width: 160, ellipsis: true},
+  {title: '配置值', key: 'configValue', width: 280, ellipsis: true},
+  {title: '状态', key: 'status', width: 100},
+  {title: '属性', key: 'isSystem', width: 110},
+  {title: '描述', dataIndex: 'description', key: 'description', width: 200, ellipsis: true},
+  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
 ]
 
 const query = reactive<QueryState>({})
@@ -146,9 +140,9 @@ const page = reactive({
 })
 
 const statusOptions = [
-  { label: '全部', value: undefined, color: '#3b82f6', icon: AppstoreOutlined },
-  { label: '启用', value: 'ENABLED', color: '#10b981', icon: CheckCircleOutlined },
-  { label: '禁用', value: 'DISABLED', color: '#f43f5e', icon: StopOutlined }
+  {label: '全部', value: undefined, color: '#3b82f6', icon: AppstoreOutlined},
+  {label: '启用', value: 'ENABLED', color: '#10b981', icon: CheckCircleOutlined},
+  {label: '禁用', value: 'DISABLED', color: '#f43f5e', icon: StopOutlined}
 ]
 
 const selectedRowKeys = ref<Array<number | string>>([])
@@ -178,9 +172,9 @@ const actionButtons = computed<SegmentedButton[]>(() => [
 ])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -295,18 +289,28 @@ const handleDeleteOne = async (id: number | string) => {
 const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
-  
+
   const nonSystemIds = ids.filter(id => {
     const config = list.value.find(item => item.id === id)
     return !config?.isSystem
   })
-  
+
   if (nonSystemIds.length === 0) {
     message.warning('没有可删除的配置项（系统内置配置不可删除）')
     return
   }
-  
-  const modal = (window as unknown as { $modal: { confirm: (options: { title: string; content: string; okText: string; cancelText: string; onOk: () => void }) => void } }).$modal
+
+  const modal = (window as unknown as {
+    $modal: {
+      confirm: (options: {
+        title: string;
+        content: string;
+        okText: string;
+        cancelText: string;
+        onOk: () => void
+      }) => void
+    }
+  }).$modal
   if (modal) {
     modal.confirm({
       title: '确认删除',
@@ -331,7 +335,7 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: SystemConfig) => {
   modal.submitting = true
   try {
-    const payload: SystemConfig = { ...form }
+    const payload: SystemConfig = {...form}
 
     let msg: string
     if (modal.mode === 'create') {

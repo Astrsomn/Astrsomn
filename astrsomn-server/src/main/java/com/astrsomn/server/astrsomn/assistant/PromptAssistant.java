@@ -1,4 +1,4 @@
-package com.astrsomn.server.astrsomn;
+package com.astrsomn.server.astrsomn.assistant;
 
 import com.astrsomn.api.runtime.common.langchain.AstroChatAssistant;
 import dev.langchain4j.service.MemoryId;

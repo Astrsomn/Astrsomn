@@ -1,96 +1,96 @@
 <template>
-  <AstrsomnPageShell      empty-text="暂无流程数据。">
+  <AstrsomnPageShell empty-text="暂无流程数据。">
     <div class="workflow-builder-page">
       <main class="builder-layout">
         <Left
-          class="left-panel"
-          :class="{ collapsed: leftCollapsed }"
-          :workflow-items="workflowItems"
-          :active-workflow-id="activeWorkflowId"
-          :open-create-dialog-tick="openCreateDialogTick"
-          @select-workflow="onSelectWorkflow"
-          @create-workflow="onCreateWorkflow"
-          @edit-workflow="onEditWorkflow"
-          @delete-workflow="onDeleteWorkflow"
+            :active-workflow-id="activeWorkflowId"
+            :class="{ collapsed: leftCollapsed }"
+            :open-create-dialog-tick="openCreateDialogTick"
+            :workflow-items="workflowItems"
+            class="left-panel"
+            @select-workflow="onSelectWorkflow"
+            @create-workflow="onCreateWorkflow"
+            @edit-workflow="onEditWorkflow"
+            @delete-workflow="onDeleteWorkflow"
         />
 
         <div class="center-wrap">
-          <LeftBottom :collapsed="leftCollapsed" @toggle="leftCollapsed = !leftCollapsed" />
+          <LeftBottom :collapsed="leftCollapsed" @toggle="leftCollapsed = !leftCollapsed"/>
           <Center
-            class="center-panel"
-            :nodes="nodes"
-            :edges="edges"
-            :palette-icons="canvasPaletteIcons"
-            :canvas-config="canvasConfig"
-            :disabled="!hasActiveWorkflow"
-            :auto-save-enabled="autoSaveEnabled"
-            :auto-save-status="autoSaveStatus"
-            :auto-save-display-time="autoSaveDisplayTime"
-            :history-seed="activeWorkflowId || 'draft-workflow'"
-            :compact-node="compactNode"
-            :initial-zoom-mode="initialZoomMode"
-            @update:nodes="onNodesUpdate"
-            @update:edges="onEdgesUpdate"
-            @connect="handleConnect"
-            @drop-node="onDropNode"
-            @select-node="onSelectNode"
-            @select-edge="onSelectEdge"
-            @clear-selection="clearSelection"
-            @contextmenu="onCanvasContextmenu"
-            @selection-change="onSelectionChange"
-            @restore-graph-state="onRestoreGraphState"
-            :saving="saving"
-            @save="handleSaveAction"
-            @nodes-delete="clearSelection"
-            @edges-delete="clearSelection"
+              :auto-save-display-time="autoSaveDisplayTime"
+              :auto-save-enabled="autoSaveEnabled"
+              :auto-save-status="autoSaveStatus"
+              :canvas-config="canvasConfig"
+              :compact-node="compactNode"
+              :disabled="!hasActiveWorkflow"
+              :edges="edges"
+              :history-seed="activeWorkflowId || 'draft-workflow'"
+              :initial-zoom-mode="initialZoomMode"
+              :nodes="nodes"
+              :palette-icons="canvasPaletteIcons"
+              :saving="saving"
+              class="center-panel"
+              @connect="handleConnect"
+              @contextmenu="onCanvasContextmenu"
+              @save="handleSaveAction"
+              @update:nodes="onNodesUpdate"
+              @update:edges="onEdgesUpdate"
+              @drop-node="onDropNode"
+              @select-node="onSelectNode"
+              @select-edge="onSelectEdge"
+              @clear-selection="clearSelection"
+              @selection-change="onSelectionChange"
+              @restore-graph-state="onRestoreGraphState"
+              @nodes-delete="clearSelection"
+              @edges-delete="clearSelection"
           />
         </div>
 
         <Right
-          class="right-panel"
-          :workflow-meta="workflowMeta"
-          :canvas-config="canvasConfig"
-          :auto-save-enabled="autoSaveEnabled"
-          :all-nodes="nodes"
-          :selected-node="selectedNode"
-          :selected-edge="selectedEdge"
-          @update-node="updateSelectedNode"
-          @update-edge="updateSelectedEdge"
-          @update-canvas-config="updateCanvasConfig"
-          @apply-edge-style-all="applyEdgeTypeToAll"
-          @update-auto-save-enabled="onAutoSaveEnabledChange"
-          @remove-selection="removeSelection"
+            :all-nodes="nodes"
+            :auto-save-enabled="autoSaveEnabled"
+            :canvas-config="canvasConfig"
+            :selected-edge="selectedEdge"
+            :selected-node="selectedNode"
+            :workflow-meta="workflowMeta"
+            class="right-panel"
+            @update-node="updateSelectedNode"
+            @update-edge="updateSelectedEdge"
+            @update-canvas-config="updateCanvasConfig"
+            @apply-edge-style-all="applyEdgeTypeToAll"
+            @update-auto-save-enabled="onAutoSaveEnabledChange"
+            @remove-selection="removeSelection"
         />
       </main>
 
       <ContextMenu
-        :visible="contextMenu.visible"
-        :position="contextMenu.position"
-        :items="contextMenu.items"
-        @close="closeContextMenu"
-        @action="onContextMenuAction"
+          :items="contextMenu.items"
+          :position="contextMenu.position"
+          :visible="contextMenu.visible"
+          @action="onContextMenuAction"
+          @close="closeContextMenu"
       />
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import { useRoute } from 'vue-router'
+<script lang="ts" setup>
+import {computed, onMounted, onUnmounted, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {useRoute} from 'vue-router'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import { useBuilderPage } from './app/useBuilderPage'
-import { useContextMenuActions } from './app/useContextMenuActions'
-import { useWorkflowPersistence } from './app/useWorkflowPersistence'
+import {useBuilderPage} from './app/useBuilderPage'
+import {useContextMenuActions} from './app/useContextMenuActions'
+import {useWorkflowPersistence} from './app/useWorkflowPersistence'
 import Left from './components/left/Left.vue'
 import Center from './components/center/Center.vue'
 import Right from './components/right/Right.vue'
 import LeftBottom from '@/views/admin/ai-workflow/definition/builder/components/center/components/Left-Bottom.vue'
 import ContextMenu from './components/context-menu/ContextMenu.vue'
-import { canvasPaletteIcons } from './domain/palette'
-import { useWorkflowGraph } from '@/views/admin/ai-workflow/definition/builder/composables/useWorkflowGraph'
-import { defaultCanvasConfig } from './domain/types'
-import type { CanvasGraphState, NodeDropPayload, WorkflowListItem, WorkflowMeta } from './domain/types'
+import {canvasPaletteIcons} from './domain/palette'
+import {useWorkflowGraph} from '@/views/admin/ai-workflow/definition/builder/composables/useWorkflowGraph'
+import type {CanvasGraphState, NodeDropPayload, WorkflowListItem, WorkflowMeta} from './domain/types'
+import {defaultCanvasConfig} from './domain/types'
 
 const route = useRoute()
 const saving = ref(false)
@@ -101,7 +101,7 @@ const switchingWorkflow = ref(false)
 const openCreateDialogTick = ref(0)
 const AUTO_SAVE_SETTING_KEY = 'astrsomn-workflow-auto-save-enabled'
 const AUTO_SAVE_INTERVAL_MS = 30_000
-const { leftCollapsed, compactNode, initialZoomMode, layoutColumns, layoutColumnsSmall } = useBuilderPage()
+const {leftCollapsed, compactNode, initialZoomMode, layoutColumns, layoutColumnsSmall} = useBuilderPage()
 const autoSaveEnabled = ref(true)
 const autoSaveStatus = ref<'idle' | 'saving' | 'success' | 'failed'>('idle')
 const autoSaveDisplayTime = ref('')
@@ -167,7 +167,7 @@ const stripTransientNodeState = (node: Record<string, unknown>) => {
 }
 
 const stripTransientEdgeState = (edge: Record<string, unknown>) => {
-  const { selected, updating, events, sourceX, sourceY, targetX, targetY, ...rest } = edge
+  const {selected, updating, events, sourceX, sourceY, targetX, targetY, ...rest} = edge
   return rest
 }
 
@@ -195,7 +195,7 @@ const normalizeGraphSnapshot = (graphJson?: string) => {
       nodes: (parsed.nodes || []).map(stripTransientNodeState).sort((a, b) => String(a.id).localeCompare(String(b.id))),
       edges: (parsed.edges || []).map(stripTransientEdgeState).sort((a, b) => String(a.id).localeCompare(String(b.id))),
       // Viewport is runtime interaction state (pan/zoom), not a semantic graph change.
-      viewport: { x: 0, y: 0, zoom: 1 },
+      viewport: {x: 0, y: 0, zoom: 1},
       meta: {
         canvasConfig: normalizeCanvasConfigSnapshot((parsed.meta?.canvasConfig as Record<string, unknown>) || {})
       }
@@ -206,8 +206,8 @@ const normalizeGraphSnapshot = (graphJson?: string) => {
   }
 }
 const breadcrumbs = [
-  { title: 'AI 流程', href: '/admin/ai-config' },
-  { title: '编辑流程' },
+  {title: 'AI 流程', href: '/admin/ai-config'},
+  {title: '编辑流程'},
 ]
 const buildGraphSnapshot = () => normalizeGraphSnapshot(toGraphJson())
 const refreshSavedGraphSnapshot = () => {
@@ -277,7 +277,7 @@ const onRestoreGraphState = (snapshot: CanvasGraphState) => {
   clearSelection()
 }
 
-const { contextMenu, closeContextMenu, onCanvasContextmenu, onContextMenuAction } = useContextMenuActions({
+const {contextMenu, closeContextMenu, onCanvasContextmenu, onContextMenuAction} = useContextMenuActions({
   selectedNodeIds,
   edges,
   graphActions: {
@@ -341,7 +341,7 @@ const runAutoSave = async (source: 'switch' | 'timer') => {
   if (!hasActiveWorkflow.value) return false
   if (!graphDirty.value) return true
   autoSaveStatus.value = 'saving'
-  const saved = await handleSaveDraft({ skipValidation: true, silent: true })
+  const saved = await handleSaveDraft({skipValidation: true, silent: true})
   if (saved) {
     refreshSavedGraphSnapshot()
     autoSaveStatus.value = 'success'
@@ -421,8 +421,8 @@ const onCreateWorkflow = async (payload: { workflowName: string; workflowKey: st
 }
 
 const onEditWorkflow = async (
-  item: WorkflowListItem,
-  payload: { workflowName: string; workflowKey: string; category: string }
+    item: WorkflowListItem,
+    payload: { workflowName: string; workflowKey: string; category: string }
 ) => {
   await updateWorkflowMeta(item, payload)
   refreshSavedGraphSnapshot()

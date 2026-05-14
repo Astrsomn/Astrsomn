@@ -3,11 +3,11 @@
     <div v-if="selectedNode" class="selection-block selection-scroll app-scrollbar">
       <h4>节点配置</h4>
       <component
-        :is="selectedNodeInspector"
-        v-if="selectedNodeInspector"
-        :selected-node="selectedNode"
-        :all-nodes="allNodes || []"
-        @update-node="forwardNodeUpdate"
+          :is="selectedNodeInspector"
+          v-if="selectedNodeInspector"
+          :all-nodes="allNodes || []"
+          :selected-node="selectedNode"
+          @update-node="forwardNodeUpdate"
       />
     </div>
 
@@ -16,29 +16,35 @@
       <a-form layout="vertical">
         <a-form-item label="连线标签">
           <a-input
-            :value="String(selectedEdge.label || '')"
-            @update:value="forwardEdgeLabelUpdate"
+              :value="String(selectedEdge.label || '')"
+              @update:value="forwardEdgeLabelUpdate"
           />
         </a-form-item>
       </a-form>
     </div>
 
     <CanvasPaneConfig
-      v-else
-      :canvas-config="canvasConfig"
-      :auto-save-enabled="autoSaveEnabled"
-      @update-canvas-config="emit('update-canvas-config', $event)"
-      @apply-edge-style-all="emit('apply-edge-style-all', $event)"
-      @update-auto-save-enabled="emit('update-auto-save-enabled', $event)"
+        v-else
+        :auto-save-enabled="autoSaveEnabled"
+        :canvas-config="canvasConfig"
+        @update-canvas-config="emit('update-canvas-config', $event)"
+        @apply-edge-style-all="emit('apply-edge-style-all', $event)"
+        @update-auto-save-enabled="emit('update-auto-save-enabled', $event)"
     />
   </aside>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import type { CanvasConfig, CanvasEdgeApplyPayload, WorkflowEdge, WorkflowMeta, WorkflowNode } from '../../domain/types'
-import type { WorkflowNodeType } from '../../domain/types'
-import { nodeInspectorMap } from '../nodes/registry'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import type {
+  CanvasConfig,
+  CanvasEdgeApplyPayload,
+  WorkflowEdge,
+  WorkflowMeta,
+  WorkflowNode,
+  WorkflowNodeType
+} from '../../domain/types'
+import {nodeInspectorMap} from '../nodes/registry'
 import CanvasPaneConfig from './component/CanvasPaneConfig.vue'
 
 const props = defineProps<{
@@ -70,7 +76,7 @@ const forwardNodeUpdate = (payload: { label?: string; description?: string; conf
 }
 
 const forwardEdgeLabelUpdate = (value: string) => {
-  emit('update-edge', { label: value })
+  emit('update-edge', {label: value})
 }
 </script>
 

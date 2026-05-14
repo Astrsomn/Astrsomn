@@ -1,13 +1,15 @@
 <template>
-  <div class="sidebar-shell" :class="{ collapsed }">
+  <div :class="{ collapsed }" class="sidebar-shell">
     <aside class="session-sidebar">
       <div class="sidebar-top">
         <a-button class="new-chat-btn" @click="emit('create')">
-          <template #icon><PlusOutlined /></template>
+          <template #icon>
+            <PlusOutlined/>
+          </template>
           <span>新会话</span>
         </a-button>
-        <a-button size="small" type="text" class="collapse-btn" @click="toggleCollapsed">
-          <MenuFoldOutlined />
+        <a-button class="collapse-btn" size="small" type="text" @click="toggleCollapsed">
+          <MenuFoldOutlined/>
         </a-button>
       </div>
 
@@ -15,17 +17,17 @@
 
       <div class="session-list-wrap">
         <SessionList
-          :loading="loading"
-          :items="items"
-          :selected-keys="selectedMemoryKey ? [selectedMemoryKey] : []"
-          :deletable="true"
-          @open="(memoryKey) => emit('open', memoryKey)"
-          @delete="(item) => emit('delete', item)"
+            :deletable="true"
+            :items="items"
+            :loading="loading"
+            :selected-keys="selectedMemoryKey ? [selectedMemoryKey] : []"
+            @delete="(item) => emit('delete', item)"
+            @open="(memoryKey) => emit('open', memoryKey)"
         />
       </div>
 
       <div class="sidebar-footer">
-        <CodeOutlined class="footer-icon" />
+        <CodeOutlined class="footer-icon"/>
         <div class="footer-version">
           <strong>{{ versionText }}</strong>
           <span v-if="buildTime">{{ buildTime }}</span>
@@ -34,17 +36,17 @@
     </aside>
 
     <button v-if="collapsed" class="collapsed-toggle" type="button" @click="toggleCollapsed">
-      <MenuUnfoldOutlined />
+      <MenuUnfoldOutlined/>
     </button>
   </div>
 </template>
 
-<script setup lang="ts">
-import { CodeOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PlusOutlined } from '@ant-design/icons-vue'
-import { computed } from 'vue'
+<script lang="ts" setup>
+import {CodeOutlined, MenuFoldOutlined, MenuUnfoldOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import {computed} from 'vue'
 import SessionList from '@/components/chat-session/SessionList.vue'
-import type { ChatSessionItem } from '@/components/chat-session/types'
-import { appConfig } from '@/config/config.ts'
+import type {ChatSessionItem} from '@/components/chat-session/types'
+import {appConfig} from '@/config/config.ts'
 
 const props = defineProps<{
   loading: boolean

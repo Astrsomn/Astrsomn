@@ -1,14 +1,14 @@
-package com.astrsomn.server.tool;
+package com.astrsomn.server.astrsomn.tool;
 
-import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
-import dev.langchain4j.agent.tool.Tool;
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.api.runtime.common.constant.SystemUserEnum;
+import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.AiAccountService;
 import com.astrsomn.server.service.AiPromptService;
 import com.astrsomn.server.service.SystemUserService;
 import com.astrsomn.starter.runtime.langchain.aop.annotation.AstroToolGroup;
+import dev.langchain4j.agent.tool.Tool;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @AstroToolGroup(value = "toolAstrsomn", description = "系统查询工具组")

@@ -2,14 +2,14 @@
   <div class="admin-list-toolbar">
     <div class="toolbar-main">
       <div class="toolbar-left">
-        <slot name="left" />
+        <slot name="left"/>
       </div>
       <div class="toolbar-right">
-        <slot name="right" />
+        <slot name="right"/>
       </div>
     </div>
     <div v-if="$slots.extra" class="toolbar-extra">
-      <slot name="extra" />
+      <slot name="extra"/>
     </div>
   </div>
 </template>
@@ -62,5 +62,5 @@
   }
 }
 </style>
-<script setup lang="ts">
+<script lang="ts" setup>
 </script>

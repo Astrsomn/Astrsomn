@@ -1,72 +1,72 @@
 <template>
   <a-spin :spinning="loading">
-    <transition name="data-view-switch" mode="out-in">
+    <transition mode="out-in" name="data-view-switch">
       <div
-        v-if="dataSource.length > 0 && mode === 'card'"
-        key="card"
-        class="data-view-grid"
-        :style="gridStyle"
+          v-if="dataSource.length > 0 && mode === 'card'"
+          key="card"
+          :style="gridStyle"
+          class="data-view-grid"
       >
         <div
-          v-for="record in dataSource"
-          :key="resolveKey(record)"
-          class="data-view-grid-item"
+            v-for="record in dataSource"
+            :key="resolveKey(record)"
+            class="data-view-grid-item"
         >
-          <slot name="card" :record="record" />
+          <slot :record="record" name="card"/>
         </div>
       </div>
 
       <a-table
-        v-else-if="dataSource.length > 0"
-        key="table"
-        class="data-view-table"
-        :class="{ dense: dense }"
-        :style="tableStyle"
-        :row-key="rowKey"
-        :data-source="dataSource"
-        :columns="processedColumns"
-        :pagination="false"
-        :row-selection="rowSelection"
-        :scroll="scroll"
-        :bordered="bordered"
+          v-else-if="dataSource.length > 0"
+          key="table"
+          :bordered="bordered"
+          :class="{ dense: dense }"
+          :columns="processedColumns"
+          :data-source="dataSource"
+          :pagination="false"
+          :row-key="rowKey"
+          :row-selection="rowSelection"
+          :scroll="scroll"
+          :style="tableStyle"
+          class="data-view-table"
       >
         <template #bodyCell="{ column, record, text, index }">
           <slot
-            name="bodyCell"
-            :column="column"
-            :record="record"
-            :text="text"
-            :index="index"
+              :column="column"
+              :index="index"
+              :record="record"
+              :text="text"
+              name="bodyCell"
           >
             <template v-if="column.copyable && text">
-              <span class="copyable-cell" @click="handleCopy(text)" title="点击复制">
+              <span class="copyable-cell" title="点击复制" @click="handleCopy(text)">
                
-                <CopyOutlined class="copy-icon" /> {{ text }}
+                <CopyOutlined class="copy-icon"/> {{ text }}
               </span>
             </template>
             <template v-else-if="column.tag || column.enum">
               <a-tag :color="resolveTagColor(column, text)">
-                <component v-if="column.icon" :is="column.icon"  />
+                <component :is="column.icon" v-if="column.icon"/>
                 {{ resolveTagText(column, text) }}
               </a-tag>
             </template>
             <template v-else-if="column.dateFormat && text">
               <span class="icon-cell">
-                <component v-if="column.icon" :is="column.icon" class="cell-icon" />
+                <component :is="column.icon" v-if="column.icon" class="cell-icon"/>
                 {{ props.dateFormatter(text) }}
               </span>
             </template>
             <template v-else-if="column.image || column.enableBase64Render">
-              <img 
-                :src="text" 
-                :alt="column.imageAlt || ''"
-                :class="column.imageClass || 'base64-image'"
-                :style="column.imageStyle"
+              <img
+                  :alt="column.imageAlt || ''"
+                  :class="column.imageClass || 'base64-image'"
+                  :src="text"
+                  :style="column.imageStyle"
               />
             </template>
             <template v-else-if="column.icon">
               <span class="icon-cell">
-                <component :is="column.icon" class="cell-icon" />
+                <component :is="column.icon" class="cell-icon"/>
                 {{ text }}
               </span>
             </template>
@@ -78,16 +78,16 @@
       </a-table>
 
       <div v-else key="empty" class="data-view-empty">
-        <a-empty :description="emptyText" />
+        <a-empty :description="emptyText"/>
       </div>
     </transition>
   </a-spin>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { message } from 'ant-design-vue'
-import { CopyOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import {message} from 'ant-design-vue'
+import {CopyOutlined} from '@ant-design/icons-vue'
 
 const props = withDefaults(defineProps<{
   mode: 'card' | 'table'
@@ -181,7 +181,7 @@ const resolveTagColor = (column: any, value: string | number): string => {
     }
     return column.tagColor
   }
-  
+
   if (column.enum) {
     const enumItem = column.enum.find((item: any) => String(item.value) === String(value))
     if (enumItem && enumItem.color) {
@@ -191,7 +191,7 @@ const resolveTagColor = (column: any, value: string | number): string => {
       return defaultEnumColors[enumItem.status] || defaultEnumColors.default
     }
   }
-  
+
   return defaultEnumColors.default
 }
 
@@ -202,14 +202,14 @@ const resolveTagText = (column: any, value: string | number): string => {
       return enumItem.label ?? String(value)
     }
   }
-  
+
   if (column.tagText) {
     if (typeof column.tagText === 'function') {
       return column.tagText(value)
     }
     return column.tagText
   }
-  
+
   return String(value)
 }
 

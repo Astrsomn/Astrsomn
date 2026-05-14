@@ -1,8 +1,8 @@
 package com.astrsomn.api.runtime.exception;
 
+import com.astrsomn.common.base.IError;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.common.base.IError;
 
 @Getter
 @AllArgsConstructor

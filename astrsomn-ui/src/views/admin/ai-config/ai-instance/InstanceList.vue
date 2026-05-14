@@ -1,12 +1,12 @@
 <template>
   <AstrsomnPageShell
-    title="推理参数配置"
-    description="管理 AI 运行预设：定义采样温度、长度限制及生成策略，供智能体直接引用。"
-    empty-text="暂无推理预设实例。"
-    :breadcrumbs="breadcrumbs"
-    :show-view-toggle="true"
-    :view-mode="viewMode"
-    :view-toggle-handler="handleViewToggle"
+      :breadcrumbs="breadcrumbs"
+      :show-view-toggle="true"
+      :view-mode="viewMode"
+      :view-toggle-handler="handleViewToggle"
+      description="管理 AI 运行预设：定义采样温度、长度限制及生成策略，供智能体直接引用。"
+      empty-text="暂无推理预设实例。"
+      title="推理参数配置"
   >
     <div ref="pageRef" class="instance-page">
       <AstrsomnDataSection>
@@ -14,68 +14,68 @@
           <div class="toolbar">
             <div class="toolbar-left">
               <AstrsomnSearchPill
-                v-model="query.instanceName"
-                layout="toolbar"
-                placeholder="搜索预设名称或标识..."
-                button-label="查询"
-                @search="fetchList"
+                  v-model="query.instanceName"
+                  button-label="查询"
+                  layout="toolbar"
+                  placeholder="搜索预设名称或标识..."
+                  @search="fetchList"
               />
               <ExtensionSelector
-                :value="query.extensionCode"
-                class="toolbar-provider-select"
-                allow-clear
-                @update:value="handleProviderChange"
+                  :value="query.extensionCode"
+                  allow-clear
+                  class="toolbar-provider-select"
+                  @update:value="handleProviderChange"
               />
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
         <a-tabs
-                :active-key="modelTypeTab"
-                class="toolbar-model-type-tabs"
-                size="small"
-                @change="handleModelTypeTabChange"
-              >
-                <a-tab-pane key="all" tab="全部" />
-                <a-tab-pane key="chat" tab="对话" />
-                <a-tab-pane key="embedding" tab="向量" />
-                <a-tab-pane key="image" tab="图片" />
-              </a-tabs>
+            :active-key="modelTypeTab"
+            class="toolbar-model-type-tabs"
+            size="small"
+            @change="handleModelTypeTabChange"
+        >
+          <a-tab-pane key="all" tab="全部"/>
+          <a-tab-pane key="chat" tab="对话"/>
+          <a-tab-pane key="embedding" tab="向量"/>
+          <a-tab-pane key="image" tab="图片"/>
+        </a-tabs>
 
         <AstrsomnDataView
-          :mode="dataViewMode"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          row-key="id"
-          :scroll="{ x: 1080 }"
-          empty-text="暂无匹配的推理配置"
-          :card-columns="currentGridColumns"
-          :card-min-width="instanceCardMinWidth"
-          :card-gap="instanceCardGap"
+            :card-columns="currentGridColumns"
+            :card-gap="instanceCardGap"
+            :card-min-width="instanceCardMinWidth"
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :mode="dataViewMode"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1080 }"
+            empty-text="暂无匹配的推理配置"
+            row-key="id"
         >
           <template #card="{ record }">
             <InstanceCard
-              :record="record"
-              :index="list.findIndex((item) => item.id === record.id)"
-              :selected="record.id != null && selectedKeySet.has(record.id)"
-              @edit="goEdit(record)"
-              @delete="handleDeleteOne(record.id)"
+                :index="list.findIndex((item) => item.id === record.id)"
+                :record="record"
+                :selected="record.id != null && selectedKeySet.has(record.id)"
+                @delete="handleDeleteOne(record.id)"
+                @edit="goEdit(record)"
             />
           </template>
 
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'providerAvatar'">
               <img
-                v-if="providerAvatarCell(record)"
-                class="provider-avatar-cell"
-                :src="providerAvatarCell(record)"
-                :alt="record.instanceName || 'provider'"
-                aria-hidden="true"
+                  v-if="providerAvatarCell(record)"
+                  :alt="record.instanceName || 'provider'"
+                  :src="providerAvatarCell(record)"
+                  aria-hidden="true"
+                  class="provider-avatar-cell"
               />
               <span v-else class="text-secondary">—</span>
             </template>
@@ -96,12 +96,12 @@
 
             <template v-else-if="column.key === 'actions'">
               <a-space>
-                <a-button type="link" size="small" @click="goEdit(record)">
-                  <EditOutlined />
+                <a-button size="small" type="link" @click="goEdit(record)">
+                  <EditOutlined/>
                 </a-button>
                 <a-popconfirm title="确定删除该配置吗？" @confirm="() => handleDeleteOne(record.id)">
-                  <a-button type="link" danger size="small">
-                    <DeleteOutlined />
+                  <a-button danger size="small" type="link">
+                    <DeleteOutlined/>
                   </a-button>
                 </a-popconfirm>
               </a-space>
@@ -111,37 +111,37 @@
 
         <template #pagination>
           <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
       </AstrsomnDataSection>
 
       <InstanceForm
-        v-model:visible="formVisible"
-        :record="currentRecord"
-        @success="handleFormSuccess"
+          v-model:visible="formVisible"
+          :record="currentRecord"
+          @success="handleFormSuccess"
       />
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
 import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
 import InstanceForm from './InstanceForm.vue'
 import InstanceCard from './component/InstanceCard.vue'
-import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance'
+import {type AiInstance, aiInstanceApi, type PageResponse} from '@/api/aiInstance'
 
 const INSTANCE_CARD_MIN_WIDTH_PX = 360
 const INSTANCE_CARD_GAP_PX = 12
@@ -159,7 +159,7 @@ const query = reactive<{
 }>({})
 const list = ref<AiInstance[]>([])
 const loading = ref(false)
-const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
+const page = reactive({pageNum: 1, pageSize: 10, total: 0})
 const selectedRowKeys = ref<Array<number | string>>([])
 const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 const viewMode = ref<'grid' | 'list'>('list')
@@ -168,8 +168,8 @@ const currentGridColumns = ref(3)
 const modelTypeTab = computed(() => query.modelType ?? 'all')
 
 const breadcrumbs = [
-  { title: 'AI 配置', href: '/admin/ai-config' },
-  { title: '推理参数配置' },
+  {title: 'AI 配置', href: '/admin/ai-config'},
+  {title: '推理参数配置'},
 ]
 
 const handleViewToggle = () => {
@@ -177,26 +177,26 @@ const handleViewToggle = () => {
 }
 
 const columns = [
-  { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const },
-  { title: '模型类型', dataIndex: 'modelType', key: 'modelType', width: 110 },
-  { 
-    title: '实例 Key', 
-    dataIndex: 'instanceKey', 
-    key: 'instanceKey', 
+  {title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const},
+  {title: '模型类型', dataIndex: 'modelType', key: 'modelType', width: 110},
+  {
+    title: '实例 Key',
+    dataIndex: 'instanceKey',
+    key: 'instanceKey',
     width: 180,
     ellipsis: true,
     copyable: true
   },
-  { title: '名称', dataIndex: 'instanceName', key: 'instanceName', width: 180, ellipsis: true },
+  {title: '名称', dataIndex: 'instanceName', key: 'instanceName', width: 180, ellipsis: true},
 
-  { title: '关联模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true},
-  { title: '关联账号', dataIndex: 'accountName', key: 'accountName', width: 150, ellipsis: true },
-  { title: '默认', key: 'isDefault', width: 90, align: 'center' },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
+  {title: '关联模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true},
+  {title: '关联账号', dataIndex: 'accountName', key: 'accountName', width: 150, ellipsis: true},
+  {title: '默认', key: 'isDefault', width: 90, align: 'center'},
+  {title: '状态', dataIndex: 'status', key: 'status', width: 100},
   {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  { title: '操作', key: 'actions', width: 140, fixed: 'right' as const }
+  {title: '操作', key: 'actions', width: 140, fixed: 'right' as const}
 ]
 
 const providerAvatarCell = (record: AiInstance) => {

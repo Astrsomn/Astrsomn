@@ -1,19 +1,19 @@
 <template>
   <a-modal
-    :open="open"
-    :footer="null"
-    :closable="false"
-    centered
-    destroy-on-close
-    :width="modalWidth"
-    wrap-class-name="extension-model-sync-wrap"
-    @update:open="onUpdateOpen"
+      :closable="false"
+      :footer="null"
+      :open="open"
+      :width="modalWidth"
+      centered
+      destroy-on-close
+      wrap-class-name="extension-model-sync-wrap"
+      @update:open="onUpdateOpen"
   >
     <div class="ems-shell">
       <header class="ems-modal-header">
         <div class="ems-header-left">
           <div class="ems-logo-box">
-            <CloudUploadOutlined />
+            <CloudUploadOutlined/>
           </div>
           <div class="ems-title-group">
             <span class="ems-main-title">确认加载模型</span>
@@ -26,11 +26,11 @@
               取消
             </a-button>
             <a-button
-              type="primary"
-              class="ems-header-action-btn ems-header-btn-ok"
-              :disabled="okDisabled"
-              :loading="confirming"
-              @click="handleOk"
+                :disabled="okDisabled"
+                :loading="confirming"
+                class="ems-header-action-btn ems-header-btn-ok"
+                type="primary"
+                @click="handleOk"
             >
               确认加载模型
             </a-button>
@@ -40,14 +40,15 @@
 
       <div class="ems-body-scroll">
         <div v-if="previewError" class="ems-modal-alert">
-          <a-alert type="error" :message="previewError" show-icon />
+          <a-alert :message="previewError" show-icon type="error"/>
         </div>
         <a-spin v-else :spinning="loadingPreview">
           <template v-if="loadPreview">
             <p v-if="emptyHint" class="ems-hint">{{ emptyHint }}</p>
             <p class="ems-summary">已选择 {{ selectedCount }} 个模型将写入本环境。</p>
-            
-            <div v-if="(loadPreview.skippedInvalidCount ?? 0) > 0" class="ems-hint" style="color: #ff4d4f; margin-bottom: 8px;">
+
+            <div v-if="(loadPreview.skippedInvalidCount ?? 0) > 0" class="ems-hint"
+                 style="color: #ff4d4f; margin-bottom: 8px;">
               厂商返回条目中有 {{ loadPreview.skippedInvalidCount }} 条数据异常，将跳过。
             </div>
 
@@ -56,15 +57,15 @@
                 将保存（新增）
               </div>
               <a-table
-                v-if="(loadPreview.toCreate?.length ?? 0) > 0"
-                :data-source="loadPreview.toCreate"
-                :columns="createColumns"
-                :row-selection="rowSelection"
-                :row-key="'modelKey'"
-                size="small"
-                class="ems-preview-table"
-                :pagination="false"
-                :scroll="{ y: 300 }"
+                  v-if="(loadPreview.toCreate?.length ?? 0) > 0"
+                  :columns="createColumns"
+                  :data-source="loadPreview.toCreate"
+                  :pagination="false"
+                  :row-key="'modelKey'"
+                  :row-selection="rowSelection"
+                  :scroll="{ y: 300 }"
+                  class="ems-preview-table"
+                  size="small"
               />
               <div v-else class="ems-preview-empty">无新模型可新增</div>
             </div>
@@ -72,14 +73,14 @@
             <div class="ems-preview-section">
               <div class="ems-preview-section-title">已存在将跳过</div>
               <a-table
-                v-if="(loadPreview.skippedExisting?.length ?? 0) > 0"
-                :data-source="loadPreview.skippedExisting"
-                :columns="existingColumns"
-                :row-key="'modelKey'"
-                size="small"
-                class="ems-preview-table"
-                :pagination="false"
-                :scroll="{ y: 200 }"
+                  v-if="(loadPreview.skippedExisting?.length ?? 0) > 0"
+                  :columns="existingColumns"
+                  :data-source="loadPreview.skippedExisting"
+                  :pagination="false"
+                  :row-key="'modelKey'"
+                  :scroll="{ y: 200 }"
+                  class="ems-preview-table"
+                  size="small"
               />
               <div v-else class="ems-preview-empty">无</div>
             </div>
@@ -90,13 +91,13 @@
   </a-modal>
 </template>
 
-<script setup lang="ts">
-import { computed, ref, watch, h } from 'vue'
-import { CloudUploadOutlined } from '@ant-design/icons-vue'
-import type { ExtensionModelLoadPreview } from '@/api/systemExtension'
-import { formatExtensionModelPreviewRow } from './extensionModelSyncPreview'
+<script lang="ts" setup>
+import {computed, h, ref, watch} from 'vue'
+import {CloudUploadOutlined} from '@ant-design/icons-vue'
+import type {ExtensionModelLoadPreview} from '@/api/systemExtension'
+import {formatExtensionModelPreviewRow} from './extensionModelSyncPreview'
 
-const open = defineModel<boolean>('open', { required: true })
+const open = defineModel<boolean>('open', {required: true})
 
 const props = defineProps<{
   extensionLabel: string
@@ -118,15 +119,15 @@ const selectedRowKeys = ref<string[]>([])
 
 // 当数据加载时，默认全选新增列表
 watch(
-  () => props.loadPreview,
-  (newPreview) => {
-    if (newPreview?.toCreate) {
-      selectedRowKeys.value = newPreview.toCreate.map(m => m.modelKey)
-    } else {
-      selectedRowKeys.value = []
-    }
-  },
-  { immediate: true }
+    () => props.loadPreview,
+    (newPreview) => {
+      if (newPreview?.toCreate) {
+        selectedRowKeys.value = newPreview.toCreate.map(m => m.modelKey)
+      } else {
+        selectedRowKeys.value = []
+      }
+    },
+    {immediate: true}
 )
 
 // Table 选择功能配置
@@ -165,8 +166,8 @@ const createColumns = [
     dataIndex: 'modelKey',
     // 移除了固定 600 宽度，使用 flex 布局或自动宽度更灵活
     render: (_, record: any) => {
-      return h('div', { 
-        style: { padding: '4px 0', fontSize: '13px', lineHeight: '1.5' } 
+      return h('div', {
+        style: {padding: '4px 0', fontSize: '13px', lineHeight: '1.5'}
       }, formatExtensionModelPreviewRow(record))
     }
   }
@@ -177,8 +178,8 @@ const existingColumns = [
     title: '模型详细信息',
     dataIndex: 'modelKey',
     render: (_, record: any) => {
-      return h('div', { 
-        style: { padding: '4px 0', fontSize: '13px', color: '#999' } 
+      return h('div', {
+        style: {padding: '4px 0', fontSize: '13px', color: '#999'}
       }, formatExtensionModelPreviewRow(record))
     }
   }

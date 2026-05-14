@@ -1,8 +1,8 @@
 package com.astrsomn.api.runtime.common.dto.vecstore;
 
+import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
 
 @Data
 public class AiVecStoreResponseDTO extends AiVecStoreEntity {

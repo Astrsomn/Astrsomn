@@ -1,20 +1,20 @@
 <template>
   <div class="left-view-toggle">
     <button
-      v-for="item in viewModes"
-      :key="item.key"
-      type="button"
-      class="toggle-btn"
-      :class="{ active: item.key === modelValue }"
-      @click="$emit('update:modelValue', item.key)"
+        v-for="item in viewModes"
+        :key="item.key"
+        :class="{ active: item.key === modelValue }"
+        class="toggle-btn"
+        type="button"
+        @click="$emit('update:modelValue', item.key)"
     >
       {{ item.label }}
     </button>
   </div>
 </template>
 
-<script setup lang="ts">
-import type { LeftViewMode } from '../../../domain/types.ts'
+<script lang="ts" setup>
+import type {LeftViewMode} from '../../../domain/types.ts'
 
 defineProps<{
   modelValue: LeftViewMode
@@ -25,8 +25,8 @@ defineEmits<{
 }>()
 
 const viewModes: Array<{ key: LeftViewMode; label: string }> = [
-  { key: 'workflow-list', label: '流程列表' },
-  { key: 'model-chat', label: '模型对话' }
+  {key: 'workflow-list', label: '流程列表'},
+  {key: 'model-chat', label: '模型对话'}
 ]
 </script>
 

@@ -1,14 +1,14 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.astrsomn.server.mapper.AiTraceLogMapper">
 
     <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.tracelog.AiTraceLogResponseDTO">
         SELECT
-            *
+        *
         FROM
-            `AI_TRACE_LOG`
+        `AI_TRACE_LOG`
         WHERE
-            DELETED = 0
+        DELETED = 0
         <if test="req != null and req.traceId != null and req.traceId != ''">
             AND TRACE_ID = #{req.traceId}
         </if>
@@ -40,7 +40,7 @@
             AND CREATE_USER = #{req.createUser}
         </if>
         ORDER BY
-            CREATE_TIME DESC
+        CREATE_TIME DESC
     </select>
 
 </mapper>

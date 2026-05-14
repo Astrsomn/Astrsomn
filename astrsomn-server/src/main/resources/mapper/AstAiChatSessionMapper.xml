@@ -4,11 +4,11 @@
 
     <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.chat.session.AiChatSessionResponseDTO">
         SELECT
-            ACS.*
+        ACS.*
         FROM
-            `AI_CHAT_SESSION` ACS
+        `AI_CHAT_SESSION` ACS
         WHERE
-            ACS.DELETED = 0
+        ACS.DELETED = 0
         <if test="req != null and req.envCode != null and req.envCode != ''">
             AND ACS.ENV_CODE = #{req.envCode}
         </if>
@@ -22,7 +22,7 @@
             AND ACS.SESSION_TITLE LIKE CONCAT('%', #{req.sessionTitle}, '%')
         </if>
         ORDER BY
-            ACS.CREATE_TIME DESC
+        ACS.CREATE_TIME DESC
     </select>
 
 </mapper>

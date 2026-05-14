@@ -5,10 +5,14 @@ package com.astrsomn.starter.runtime.config;
  */
 public final class AstrsomnRuntimeBeans {
 
-    /** Astrsomn 专用 {@link javax.sql.DataSource}，非 {@code @Primary}。 */
+    /**
+     * Astrsomn 专用 {@link javax.sql.DataSource}，非 {@code @Primary}。
+     */
     public static final String DATA_SOURCE = "astrsomnDataSource";
 
-    /** Astrsomn {@link org.apache.ibatis.session.SqlSessionFactory}。 */
+    /**
+     * Astrsomn {@link org.apache.ibatis.session.SqlSessionFactory}。
+     */
     public static final String SQL_SESSION_FACTORY = "astrsomnSqlSessionFactory";
 
     private AstrsomnRuntimeBeans() {

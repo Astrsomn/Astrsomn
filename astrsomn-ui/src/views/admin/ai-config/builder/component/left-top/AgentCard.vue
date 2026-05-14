@@ -4,37 +4,37 @@
       <div class="card-header">
         <div class="header-left">
           <div class="icon-badge">
-            <RobotOutlined />
+            <RobotOutlined/>
           </div>
           <div class="header-info">
-            <input 
-              v-model="agentNameLocal" 
-              class="agent-name-input header-input"
-              placeholder="智能体名称"
-              maxlength="50"
-              @input="handleAgentNameInput"
+            <input
+                v-model="agentNameLocal"
+                class="agent-name-input header-input"
+                maxlength="50"
+                placeholder="智能体名称"
+                @input="handleAgentNameInput"
             />
           </div>
         </div>
         <div class="card-icon">
-          <DoubleRightOutlined />
+          <DoubleRightOutlined/>
         </div>
       </div>
-      <input 
-        v-model="descriptionLocal" 
-        class="agent-name-input desc-input"
-        placeholder="智能体描述"
-        maxlength="100"
-        @input="handleDescriptionInput"
+      <input
+          v-model="descriptionLocal"
+          class="agent-name-input desc-input"
+          maxlength="100"
+          placeholder="智能体描述"
+          @input="handleDescriptionInput"
       />
 
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { RobotOutlined, DoubleRightOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import {DoubleRightOutlined, RobotOutlined} from '@ant-design/icons-vue'
 
 interface Props {
   agentName?: string
@@ -86,9 +86,8 @@ const handleDescriptionInput = (event: Event) => {
   padding: 16px;
   position: relative;
   overflow: hidden;
-  transition:
-    box-shadow 0.2s,
-    transform 0.2s;
+  transition: box-shadow 0.2s,
+  transform 0.2s;
   box-shadow: var(--ab-btn-glow, 0 4px 15px rgba(59, 130, 246, 0.3));
   color: white;
   cursor: pointer;

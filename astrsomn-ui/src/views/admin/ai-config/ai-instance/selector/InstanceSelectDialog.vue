@@ -1,47 +1,55 @@
 <template>
   <a-modal
-    v-model:open="open"
-    title="选择 AI 实例"
-    width="800px"
-    :footer="null"
-    :destroy-on-close="true"
-    @cancel="onCancel"
+      v-model:open="open"
+      :destroy-on-close="true"
+      :footer="null"
+      title="选择 AI 实例"
+      width="800px"
+      @cancel="onCancel"
   >
     <div class="instance-select-dialog">
       <div class="dialog-header">
         <AstrsomnSearchPill
-          v-model="searchQuery"
-          placeholder="搜索实例名称或标识..."
-          button-label="搜索"
-          layout="toolbar"
-          @search="fetchInstances"
+            v-model="searchQuery"
+            button-label="搜索"
+            layout="toolbar"
+            placeholder="搜索实例名称或标识..."
+            @search="fetchInstances"
         />
         <a-tabs v-model:activeKey="typeFilter" class="model-type-tabs">
-          <a-tab-pane key="all" tab="全部类型" />
-          <a-tab-pane key="chat" tab="对话" />
-          <a-tab-pane key="embedding" tab="向量" />
-          <a-tab-pane key="image" tab="图像" />
+          <a-tab-pane key="all" tab="全部类型"/>
+          <a-tab-pane key="chat" tab="对话"/>
+          <a-tab-pane key="embedding" tab="向量"/>
+          <a-tab-pane key="image" tab="图像"/>
         </a-tabs>
       </div>
 
       <div class="table-container">
         <a-table
-          :columns="columns"
-          :data-source="instances"
-          :loading="loading"
-          :pagination="{ pageSize: 10, showTotal: (t: number) => `共 ${t} 个实例` }"
-          :scroll="{ y: 400 }"
-          :row-selection="rowSelection"
-          row-key="instanceKey"
+            :columns="columns"
+            :data-source="instances"
+            :loading="loading"
+            :pagination="{ pageSize: 10, showTotal: (t: number) => `共 ${t} 个实例` }"
+            :row-selection="rowSelection"
+            :scroll="{ y: 400 }"
+            row-key="instanceKey"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'modelType'">
               <div class="model-type-cell">
-                <div class="model-type-icon" :class="record.modelType">
-                  <template v-if="record.modelType === 'chat'"><MessageOutlined /></template>
-                  <template v-else-if="record.modelType === 'embedding'"><PartitionOutlined /></template>
-                  <template v-else-if="record.modelType === 'image'"><PictureOutlined /></template>
-                  <template v-else><MessageOutlined /></template>
+                <div :class="record.modelType" class="model-type-icon">
+                  <template v-if="record.modelType === 'chat'">
+                    <MessageOutlined/>
+                  </template>
+                  <template v-else-if="record.modelType === 'embedding'">
+                    <PartitionOutlined/>
+                  </template>
+                  <template v-else-if="record.modelType === 'image'">
+                    <PictureOutlined/>
+                  </template>
+                  <template v-else>
+                    <MessageOutlined/>
+                  </template>
                 </div>
                 <span class="model-type-label">{{ modelTypeLabel(record.modelType) }}</span>
               </div>
@@ -55,7 +63,7 @@
 
       <div class="dialog-footer">
         <a-button @click="onCancel">取消</a-button>
-        <a-button type="primary" :disabled="!selectedInstance" @click="handleSelect">
+        <a-button :disabled="!selectedInstance" type="primary" @click="handleSelect">
           选择
         </a-button>
       </div>
@@ -63,13 +71,13 @@
   </a-modal>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { MessageOutlined, PartitionOutlined, PictureOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, onMounted, ref, watch} from 'vue'
+import {MessageOutlined, PartitionOutlined, PictureOutlined} from '@ant-design/icons-vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import { aiInstanceApi, type AiInstance } from '@/api/aiInstance.ts'
+import {type AiInstance, aiInstanceApi} from '@/api/aiInstance.ts'
 
-const open = defineModel<boolean>('open', { required: true })
+const open = defineModel<boolean>('open', {required: true})
 const emit = defineEmits<{ select: [instance: AiInstance] }>()
 const props = defineProps<{
   defaultType?: string
@@ -89,11 +97,11 @@ watch(() => open.value, (isOpen) => {
 })
 
 const columns = [
-  { title: '实例名称', dataIndex: 'instanceName', key: 'instanceName', width: 200 },
-  { title: '实例标识', dataIndex: 'instanceKey', key: 'instanceKey', width: 200, ellipsis: true },
-  { title: '类型', dataIndex: 'modelType', key: 'modelType', width: 100 },
-  { title: '向量维度', dataIndex: 'dimensions', key: 'dimensions', width: 100 },
-  { title: '模型 Key', dataIndex: 'modelKey', key: 'modelKey', ellipsis: true }
+  {title: '实例名称', dataIndex: 'instanceName', key: 'instanceName', width: 200},
+  {title: '实例标识', dataIndex: 'instanceKey', key: 'instanceKey', width: 200, ellipsis: true},
+  {title: '类型', dataIndex: 'modelType', key: 'modelType', width: 100},
+  {title: '向量维度', dataIndex: 'dimensions', key: 'dimensions', width: 100},
+  {title: '模型 Key', dataIndex: 'modelKey', key: 'modelKey', ellipsis: true}
 ]
 
 const rowSelection = computed(() => ({

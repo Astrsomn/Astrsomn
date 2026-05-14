@@ -1,19 +1,22 @@
 package com.astrsomn.server.plugin.registry;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,16 +30,6 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
 
     private ApplicationContext applicationContext;
     private AstSystemExtensionMapper astSystemExtensionMapper;
-    
-    @Autowired(required = false)
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
-    
-    @Autowired(required = false)
-    public void setSystemExtensionMapper(AstSystemExtensionMapper astSystemExtensionMapper) {
-        this.astSystemExtensionMapper = astSystemExtensionMapper;
-    }
 
     /**
      * 合并 Spring Bean 和 SPI 加载的扩展描述符（Bean 优先）
@@ -52,6 +45,16 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
                         d -> d,
                         (existing, replacement) -> existing // 保持 Bean 优先
                 ));
+    }
+
+    @Autowired(required = false)
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    @Autowired(required = false)
+    public void setSystemExtensionMapper(AstSystemExtensionMapper astSystemExtensionMapper) {
+        this.astSystemExtensionMapper = astSystemExtensionMapper;
     }
 
     /**

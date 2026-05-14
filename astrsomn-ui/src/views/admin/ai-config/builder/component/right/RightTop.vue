@@ -1,29 +1,29 @@
 <template>
   <div class="right-top">
     <div class="status-info">
-      <div class="status-dot" />
+      <div class="status-dot"/>
       <span class="status-text">Preview & Debug</span>
     </div>
     <div class="action-buttons">
       <button
-        class="action-btn"
-        type="button"
-        :class="{ active: mode === 'code' }"
-        @click="$emit('toggle')"
+          :class="{ active: mode === 'code' }"
+          class="action-btn"
+          type="button"
+          @click="$emit('toggle')"
       >
-        <CodeOutlined />
+        <CodeOutlined/>
         Code
       </button>
       <button class="action-btn reset-btn" type="button">
-        <DeleteOutlined />
+        <DeleteOutlined/>
         Reset
       </button>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { DeleteOutlined, CodeOutlined } from '@ant-design/icons-vue';
+<script lang="ts" setup>
+import {CodeOutlined, DeleteOutlined} from '@ant-design/icons-vue';
 
 defineProps<{
   mode: 'chat' | 'code';

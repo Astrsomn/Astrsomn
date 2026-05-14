@@ -16,10 +16,10 @@ public class LoggingInterceptor implements HandlerInterceptor {
                 request.getRequestURI(),
                 request.getMethod(),
                 handler);
-        
+
         // 记录请求开始时间到请求属性中
         request.setAttribute("startTime", System.currentTimeMillis());
-        
+
         return true;
     }
 
@@ -28,7 +28,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
         Object startTimeObj = request.getAttribute("startTime");
         long startTime = startTimeObj instanceof Long ? (Long) startTimeObj : System.currentTimeMillis();
         long duration = System.currentTimeMillis() - startTime;
-        
+
         log.info("拦截器 - 请求完成 - URI: {}, 状态码: {}, 耗时: {}ms, 异常: {}",
                 request.getRequestURI(),
                 response.getStatus(),

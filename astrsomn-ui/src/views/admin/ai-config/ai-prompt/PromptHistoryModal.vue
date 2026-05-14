@@ -1,21 +1,21 @@
 <template>
   <a-modal
-    v-model:open="open"
-    title="历史版本"
-    width="920px"
-    :footer="null"
-    :body-style="{ maxHeight: '72vh', overflowY: 'auto' }"
-    destroy-on-close
-    @cancel="open = false"
+      v-model:open="open"
+      :body-style="{ maxHeight: '72vh', overflowY: 'auto' }"
+      :footer="null"
+      destroy-on-close
+      title="历史版本"
+      width="920px"
+      @cancel="open = false"
   >
     <a-table
-      :columns="columns"
-      :data-source="rows"
-      :loading="loading"
-      :pagination="false"
-      row-key="id"
-      size="small"
-      :scroll="{ x: 820 }"
+        :columns="columns"
+        :data-source="rows"
+        :loading="loading"
+        :pagination="false"
+        :scroll="{ x: 820 }"
+        row-key="id"
+        size="small"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'status'">
@@ -25,44 +25,44 @@
           <span>{{ formatTime(record.createTime) }}</span>
         </template>
         <template v-else-if="column.key === 'actions'">
-          <a-button type="link" size="small" @click="openDetail(record)">查看内容</a-button>
+          <a-button size="small" type="link" @click="openDetail(record)">查看内容</a-button>
         </template>
       </template>
     </a-table>
 
     <a-modal
-      v-model:open="detailOpen"
-      :title="`版本 ${detailRow?.version ?? '—'} 内容`"
-      width="720px"
-      :footer="null"
-      destroy-on-close
+        v-model:open="detailOpen"
+        :footer="null"
+        :title="`版本 ${detailRow?.version ?? '—'} 内容`"
+        destroy-on-close
+        width="720px"
     >
-      <a-descriptions bordered size="small" :column="1" class="mb-3">
+      <a-descriptions :column="1" bordered class="mb-3" size="small">
         <a-descriptions-item label="标题">{{ detailRow?.promptTitle || '—' }}</a-descriptions-item>
         <a-descriptions-item label="场景">{{ detailRow?.scene || '—' }}</a-descriptions-item>
         <a-descriptions-item label="状态">{{ renderEnabled(String(detailRow?.status || '')) }}</a-descriptions-item>
       </a-descriptions>
       <a-textarea
-        :value="detailRow?.promptContent || ''"
-        readonly
-        :auto-size="{ minRows: 14, maxRows: 28 }"
-        class="history-content"
+          :auto-size="{ minRows: 14, maxRows: 28 }"
+          :value="detailRow?.promptContent || ''"
+          class="history-content"
+          readonly
       />
     </a-modal>
   </a-modal>
 </template>
 
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import { message } from 'ant-design-vue'
-import { aiPromptApi, type AiPrompt } from '@/api/aiPrompt.ts'
+<script lang="ts" setup>
+import {ref, watch} from 'vue'
+import {message} from 'ant-design-vue'
+import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt.ts'
 
 const props = defineProps<{
   promptKey?: string
   envCode?: string
 }>()
 
-const open = defineModel<boolean>('open', { required: true })
+const open = defineModel<boolean>('open', {required: true})
 
 const loading = ref(false)
 const rows = ref<AiPrompt[]>([])
@@ -70,8 +70,8 @@ const detailOpen = ref(false)
 const detailRow = ref<AiPrompt | null>(null)
 
 const enabledFilterOptions = [
-  { label: '启用', value: 'enabled' },
-  { label: '停用', value: 'disabled' }
+  {label: '启用', value: 'enabled'},
+  {label: '停用', value: 'disabled'}
 ]
 
 const renderEnabled = (f: string) => {
@@ -85,12 +85,12 @@ const formatTime = (v: unknown) => {
 }
 
 const columns = [
-  { title: '版本', dataIndex: 'version', key: 'version', width: 72 },
-  { title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true },
-  { title: '场景', dataIndex: 'scene', key: 'scene', width: 120, ellipsis: true },
-  { title: '状态', key: 'status', width: 90 },
-  { title: '创建时间', key: 'createTime', width: 180 },
-  { title: '操作', key: 'actions', width: 100, fixed: 'right' as const }
+  {title: '版本', dataIndex: 'version', key: 'version', width: 72},
+  {title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true},
+  {title: '场景', dataIndex: 'scene', key: 'scene', width: 120, ellipsis: true},
+  {title: '状态', key: 'status', width: 90},
+  {title: '创建时间', key: 'createTime', width: 180},
+  {title: '操作', key: 'actions', width: 100, fixed: 'right' as const}
 ]
 
 function openDetail(record: AiPrompt) {
@@ -117,12 +117,12 @@ async function load() {
 }
 
 watch(
-  () => [open.value, props.promptKey, props.envCode] as const,
-  ([isOpen]) => {
-    if (isOpen) {
-      void load()
+    () => [open.value, props.promptKey, props.envCode] as const,
+    ([isOpen]) => {
+      if (isOpen) {
+        void load()
+      }
     }
-  }
 )
 </script>
 

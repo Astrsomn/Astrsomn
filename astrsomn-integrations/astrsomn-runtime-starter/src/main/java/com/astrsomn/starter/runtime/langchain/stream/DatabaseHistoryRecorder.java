@@ -1,19 +1,19 @@
 package com.astrsomn.starter.runtime.langchain.stream;
 
 import com.astrsomn.api.runtime.common.constant.AiChatEnum;
-import com.astrsomn.api.runtime.common.entity.AiChatSessionEntity;
-import dev.langchain4j.model.output.TokenUsage;
-import lombok.RequiredArgsConstructor;
 import com.astrsomn.api.runtime.common.entity.AiChatMessageEntity;
+import com.astrsomn.api.runtime.common.entity.AiChatSessionEntity;
 import com.astrsomn.api.runtime.common.langchain.AstroHistoryRecorder;
 import com.astrsomn.api.runtime.common.langchain.ChatStreamEnum;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AstAiChatSessionMapper;
-import com.astrsomn.starter.runtime.mapper.AstAiChatMessageMapper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
+import com.astrsomn.starter.runtime.mapper.AstAiChatMessageMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiChatSessionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import dev.langchain4j.model.output.TokenUsage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +25,13 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
     private final AstAiChatSessionMapper sessionMapper;
     private final AstrsomnProperties astrsomnProperties;
 
+    private static String previewUserInput(AstroChatParam<?> param) {
+        return StringUtils.trimToNull(param.getUserMessageText());
+    }
+
+    private static String blankToNull(String envCode) {
+        return StringUtils.isBlank(envCode) ? null : envCode;
+    }
 
     @Override
     @Transactional
@@ -121,10 +128,6 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         sessionMapper.update(null, wrapper);
     }
 
-    private static String previewUserInput(AstroChatParam<?> param) {
-        return StringUtils.trimToNull(param.getUserMessageText());
-    }
-
     private String buildSessionTitle(String content) {
         if (StringUtils.isBlank(content)) {
             return "New Chat";
@@ -163,10 +166,6 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
             entity.setEnvCode(astrsomnProperties.getEnvCode());
         }
         return entity;
-    }
-
-    private static String blankToNull(String envCode) {
-        return StringUtils.isBlank(envCode) ? null : envCode;
     }
 
 }

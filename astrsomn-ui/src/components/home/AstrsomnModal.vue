@@ -1,43 +1,43 @@
 <template>
   <a-modal
-    :open="open"
-    :width="width"
-    :footer="footer"
-    :closable="closable"
-    :destroy-on-close="destroyOnClose"
-    :wrap-class-name="wrapClass"
-    :wrap-style="mergedWrapStyle"
-    @update:open="emit('update:open', $event)"
-    @cancel="emit('cancel')"
+      :closable="closable"
+      :destroy-on-close="destroyOnClose"
+      :footer="footer"
+      :open="open"
+      :width="width"
+      :wrap-class-name="wrapClass"
+      :wrap-style="mergedWrapStyle"
+      @cancel="emit('cancel')"
+      @update:open="emit('update:open', $event)"
   >
     <div class="fsm-root">
       <header class="fsm-header">
         <div class="fsm-header-left">
           <div v-if="$slots['header-logo']" class="fsm-logo-box">
-            <slot name="header-logo" />
+            <slot name="header-logo"/>
           </div>
           <div class="fsm-title-group">
             <span v-if="$slots['header-title']" class="fsm-main-title">
-              <slot name="header-title" />
+              <slot name="header-title"/>
             </span>
             <span v-if="$slots['header-subtitle']" class="fsm-sub-title">
-              <slot name="header-subtitle" />
+              <slot name="header-subtitle"/>
             </span>
           </div>
         </div>
         <div v-if="$slots['header-actions']" class="fsm-header-actions">
-          <slot name="header-actions" />
+          <slot name="header-actions"/>
         </div>
       </header>
-      <div class="fsm-main" :style="mainAreaStyle">
-        <slot />
+      <div :style="mainAreaStyle" class="fsm-main">
+        <slot/>
       </div>
     </div>
   </a-modal>
 </template>
 
-<script setup lang="ts">
-import { computed, type CSSProperties } from 'vue'
+<script lang="ts" setup>
+import {computed, type CSSProperties} from 'vue'
 
 const BASE_WRAP_CLASS = 'astrsomn-fullscreen-shell'
 
@@ -89,7 +89,7 @@ const emit = defineEmits<{
 }>()
 
 const wrapClass = computed(() =>
-  [BASE_WRAP_CLASS, props.wrapClassName].filter(Boolean).join(' ')
+    [BASE_WRAP_CLASS, props.wrapClassName].filter(Boolean).join(' ')
 )
 
 const mergedWrapStyle = computed(() => ({
@@ -173,9 +173,8 @@ const mainAreaStyle = computed(() => ({
   color: #fff;
   font-size: 22px;
   flex-shrink: 0;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.2) inset,
-    0 2px 6px rgba(29, 78, 216, 0.35);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset,
+  0 2px 6px rgba(29, 78, 216, 0.35);
 }
 
 .fsm-title-group {

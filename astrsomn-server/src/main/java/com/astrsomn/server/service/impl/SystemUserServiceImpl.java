@@ -1,12 +1,5 @@
 package com.astrsomn.server.service.impl;
-import com.astrsomn.api.runtime.common.utils.PageConverter;
-import com.astrsomn.server.mapper.SystemUserMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
+
 import com.astrsomn.api.runtime.common.constant.SystemUserEnum.AdminEnum;
 import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
 import com.astrsomn.api.runtime.common.dto.user.SystemUserCreateRequestDTO;
@@ -14,24 +7,42 @@ import com.astrsomn.api.runtime.common.dto.user.SystemUserQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.user.SystemUserResponseDTO;
 import com.astrsomn.api.runtime.common.dto.user.SystemUserUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.SystemUserErrorEnum;
-
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.server.mapper.SystemUserMapper;
 import com.astrsomn.server.service.SystemUserService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import com.astrsomn.api.runtime.common.utils.PageUtils;
+
 @Service
 @RequiredArgsConstructor
 public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemUserEntity> implements SystemUserService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
     private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+    private final QueryEnvParamHelper queryEnvParamHelper;
+
+    /**
+     * 统一角色与 ADMIN_FLAG：管理员类（超管、环境管理员）为 Y，普通用户为 N。
+     */
+    private static void applyUserRole(SystemUserEntity entity) {
+        UserRoleEnum role = UserRoleEnum.fromCode(entity.getUserRole());
+        entity.setUserRole(role.getCode());
+        entity.setAdminFlag(role == UserRoleEnum.USER ? AdminEnum.NO.getCode() : AdminEnum.YES.getCode());
+    }
+
     @Override
     public BaseResponse<String> create(SystemUserCreateRequestDTO request) {
         SystemUserEntity entity = new SystemUserEntity();
@@ -92,15 +103,6 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
             throw new BusinessException(SystemUserErrorEnum.USER_UPDATE_FAILED);
         }
         return BaseResponse.success("更新成功");
-    }
-
-    /**
-     * 统一角色与 ADMIN_FLAG：管理员类（超管、环境管理员）为 Y，普通用户为 N。
-     */
-    private static void applyUserRole(SystemUserEntity entity) {
-        UserRoleEnum role = UserRoleEnum.fromCode(entity.getUserRole());
-        entity.setUserRole(role.getCode());
-        entity.setAdminFlag(role == UserRoleEnum.USER ? AdminEnum.NO.getCode() : AdminEnum.YES.getCode());
     }
 
     @Override

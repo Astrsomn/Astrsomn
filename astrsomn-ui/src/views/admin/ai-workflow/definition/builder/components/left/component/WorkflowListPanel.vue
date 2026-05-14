@@ -2,14 +2,14 @@
   <div class="workflow-list-panel">
     <div class="panel-head">
       <a-input
-        class="panel-search"
-        :value="keyword"
-        allow-clear
-        placeholder="搜索流程..."
-        @update:value="onKeywordChange"
+          :value="keyword"
+          allow-clear
+          class="panel-search"
+          placeholder="搜索流程..."
+          @update:value="onKeywordChange"
       >
         <template #prefix>
-          <SearchOutlined />
+          <SearchOutlined/>
         </template>
       </a-input>
     </div>
@@ -18,42 +18,42 @@
 
     <div v-else class="category-list">
       <div v-for="group in groupedItems" :key="group.category" class="category-block">
-        <button type="button" class="category-title" @click="toggleCategory(group.category)">
+        <button class="category-title" type="button" @click="toggleCategory(group.category)">
           <span class="arrow">{{ expandedCategories[group.category] ? '⌄' : '›' }}</span>
           <span class="name">{{ group.category }}</span>
           <span class="count">{{ group.items.length }}</span>
         </button>
         <div v-show="expandedCategories[group.category]" class="workflow-list">
           <button
-            v-for="item in group.items"
-            :key="item.id"
-            type="button"
-            class="workflow-item"
-            :class="{ active: item.id === activeWorkflowId }"
-            @click="$emit('select', item)"
+              v-for="item in group.items"
+              :key="item.id"
+              :class="{ active: item.id === activeWorkflowId }"
+              class="workflow-item"
+              type="button"
+              @click="$emit('select', item)"
           >
-            <span class="item-dot" :class="{ active: item.id === activeWorkflowId }"></span>
+            <span :class="{ active: item.id === activeWorkflowId }" class="item-dot"></span>
             <div class="workflow-main">
               <span class="workflow-name">{{ item.workflowName }}</span>
               <span class="workflow-key">
                 <span class="workflow-key-text">{{ item.workflowKey || '-' }}</span>
                 <a-tooltip title="复制 Flow Key">
-                  <button type="button" class="icon-action key-copy" @click.stop="copyWorkflowKey(item.workflowKey)">
-                    <CopyOutlined />
+                  <button class="icon-action key-copy" type="button" @click.stop="copyWorkflowKey(item.workflowKey)">
+                    <CopyOutlined/>
                   </button>
                 </a-tooltip>
               </span>
             </div>
             <div class="workflow-actions">
               <a-tooltip title="编辑">
-                <button type="button" class="icon-action" @click.stop="openEditDialog(item)">
-                  <EditOutlined />
+                <button class="icon-action" type="button" @click.stop="openEditDialog(item)">
+                  <EditOutlined/>
                 </button>
               </a-tooltip>
-              <a-popconfirm title="确认删除当前流程？" ok-text="删除" cancel-text="取消" @confirm="onDelete(item)">
+              <a-popconfirm cancel-text="取消" ok-text="删除" title="确认删除当前流程？" @confirm="onDelete(item)">
                 <a-tooltip title="删除">
-                  <button type="button" class="icon-action danger" @click.stop>
-                    <DeleteOutlined />
+                  <button class="icon-action danger" type="button" @click.stop>
+                    <DeleteOutlined/>
                   </button>
                 </a-tooltip>
               </a-popconfirm>
@@ -64,59 +64,61 @@
     </div>
 
     <a-modal
-      :visible="dialogVisible"
-      title="新建流程"
-      :confirm-loading="creating"
-      @update:visible="onCreateDialogVisibleChange"
-      @ok="onConfirmCreate"
+        :confirm-loading="creating"
+        :visible="dialogVisible"
+        title="新建流程"
+        @ok="onConfirmCreate"
+        @update:visible="onCreateDialogVisibleChange"
     >
       <a-form layout="vertical">
         <a-form-item label="流程名称" required>
-          <a-input :value="form.workflowName" maxlength="128" @update:value="onCreateNameChange" />
+          <a-input :value="form.workflowName" maxlength="128" @update:value="onCreateNameChange"/>
         </a-form-item>
         <a-form-item label="Flow Key" required>
-          <a-input :value="form.workflowKey" maxlength="128" @update:value="onCreateKeyChange" />
+          <a-input :value="form.workflowKey" maxlength="128" @update:value="onCreateKeyChange"/>
         </a-form-item>
         <a-form-item label="业务分类" required>
-          <a-input :value="form.category" maxlength="128" placeholder="例如：审批流程、客服流程" @update:value="onCreateCategoryChange" />
+          <a-input :value="form.category" maxlength="128" placeholder="例如：审批流程、客服流程"
+                   @update:value="onCreateCategoryChange"/>
         </a-form-item>
       </a-form>
     </a-modal>
 
     <a-modal
-      :visible="editDialogVisible"
-      title="编辑流程"
-      :confirm-loading="editing"
-      @update:visible="onEditDialogVisibleChange"
-      @ok="onConfirmEdit"
+        :confirm-loading="editing"
+        :visible="editDialogVisible"
+        title="编辑流程"
+        @ok="onConfirmEdit"
+        @update:visible="onEditDialogVisibleChange"
     >
       <a-form layout="vertical">
         <a-form-item label="流程名称" required>
-          <a-input :value="editForm.workflowName" maxlength="128" @update:value="onEditNameChange" />
+          <a-input :value="editForm.workflowName" maxlength="128" @update:value="onEditNameChange"/>
         </a-form-item>
         <a-form-item label="Flow Key" required>
-          <a-input :value="editForm.workflowKey" maxlength="128" @update:value="onEditKeyChange" />
+          <a-input :value="editForm.workflowKey" maxlength="128" @update:value="onEditKeyChange"/>
         </a-form-item>
         <a-form-item label="业务分类" required>
-          <a-input :value="editForm.category" maxlength="128" placeholder="例如：审批流程、客服流程" @update:value="onEditCategoryChange" />
+          <a-input :value="editForm.category" maxlength="128" placeholder="例如：审批流程、客服流程"
+                   @update:value="onEditCategoryChange"/>
         </a-form-item>
       </a-form>
     </a-modal>
 
     <div class="panel-foot">
-      <a-button class="create-btn" block @click="dialogVisible = true">
-        <PlusOutlined />
+      <a-button block class="create-btn" @click="dialogVisible = true">
+        <PlusOutlined/>
         新建流程
       </a-button>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import { message } from 'ant-design-vue'
-import { CopyOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
-import type { WorkflowListItem } from '../../../domain/types'
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from 'vue'
+import {message} from 'ant-design-vue'
+import {CopyOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined} from '@ant-design/icons-vue'
+import type {WorkflowListItem} from '../../../domain/types'
 
 const props = defineProps<{
   items: WorkflowListItem[]
@@ -174,23 +176,23 @@ const groupedItems = computed(() => {
 })
 
 watch(
-  groupedItems,
-  (groups) => {
-    const next: Record<string, boolean> = {}
-    for (const group of groups) {
-      next[group.category] = expandedCategories.value[group.category] ?? true
-    }
-    expandedCategories.value = next
-  },
-  { immediate: true }
+    groupedItems,
+    (groups) => {
+      const next: Record<string, boolean> = {}
+      for (const group of groups) {
+        next[group.category] = expandedCategories.value[group.category] ?? true
+      }
+      expandedCategories.value = next
+    },
+    {immediate: true}
 )
 
 watch(
-  () => props.openCreateDialogTick,
-  (tick) => {
-    if (!tick) return
-    dialogVisible.value = true
-  }
+    () => props.openCreateDialogTick,
+    (tick) => {
+      if (!tick) return
+      dialogVisible.value = true
+    }
 )
 
 const toggleCategory = (category: string) => {

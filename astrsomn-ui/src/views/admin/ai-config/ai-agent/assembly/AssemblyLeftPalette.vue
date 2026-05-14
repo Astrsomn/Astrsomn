@@ -1,78 +1,79 @@
 <template>
   <aside class="assembly-palette palette-left">
-    <a-tabs v-model:activeKey="activeTab" size="small" class="left-tabs">
+    <a-tabs v-model:activeKey="activeTab" class="left-tabs" size="small">
       <a-tab-pane key="chat" tab="对话">
         <div class="search-input-wrapper">
-          <SearchOutlined class="search-icon" />
+          <SearchOutlined class="search-icon"/>
           <input
-            v-model="keywords.chat"
-            type="text"
-            placeholder="预设名称 / Instance Key"
-            @keyup.enter="$emit('search', 'chat', keywords.chat)"
+              v-model="keywords.chat"
+              placeholder="预设名称 / Instance Key"
+              type="text"
+              @keyup.enter="$emit('search', 'chat', keywords.chat)"
           />
-          <button type="button" class="search-submit-btn" @click="$emit('search', 'chat', keywords.chat)">搜索</button>
+          <button class="search-submit-btn" type="button" @click="$emit('search', 'chat', keywords.chat)">搜索</button>
         </div>
         <a-pagination
-          v-if="chatPage.total > 0"
-          class="pane-pager-top"
-          size="small"
-          :current="chatPage.current"
-          :total="chatPage.total"
-          :page-size="pageSize"
-          :show-size-changer="false"
-          :hide-on-single-page="true"
-          @change="(p: number) => $emit('chat-page', p)"
+            v-if="chatPage.total > 0"
+            :current="chatPage.current"
+            :hide-on-single-page="true"
+            :page-size="pageSize"
+            :show-size-changer="false"
+            :total="chatPage.total"
+            class="pane-pager-top"
+            size="small"
+            @change="(p: number) => $emit('chat-page', p)"
         />
         <div class="chip-scroll">
           <template v-if="chatItems.length">
             <AssemblyDragChip
-              v-for="row in chatItems"
-              :key="String(row.instanceKey ?? row.id)"
-              :payload="{ kind: 'instance', instanceModelType: 'chat', data: row }"
-              :title="row.instanceName || row.instanceKey || ''"
-              :subtitle="row.instanceKey"
-              badge="Chat"
-              @drag-start="$emit('dragStart', $event)"
-              @drag-end="$emit('dragEnd')"
+                v-for="row in chatItems"
+                :key="String(row.instanceKey ?? row.id)"
+                :payload="{ kind: 'instance', instanceModelType: 'chat', data: row }"
+                :subtitle="row.instanceKey"
+                :title="row.instanceName || row.instanceKey || ''"
+                badge="Chat"
+                @drag-start="$emit('dragStart', $event)"
+                @drag-end="$emit('dragEnd')"
             />
           </template>
           <div v-else class="palette-empty">暂无数据</div>
         </div>
       </a-tab-pane>
-      
+
       <a-tab-pane key="image" tab="图像">
         <div class="search-input-wrapper">
-          <SearchOutlined class="search-icon" />
+          <SearchOutlined class="search-icon"/>
           <input
-            v-model="keywords.image"
-            type="text"
-            placeholder="预设名称 / Instance Key"
-            @keyup.enter="$emit('search', 'image', keywords.image)"
+              v-model="keywords.image"
+              placeholder="预设名称 / Instance Key"
+              type="text"
+              @keyup.enter="$emit('search', 'image', keywords.image)"
           />
-          <button type="button" class="search-submit-btn" @click="$emit('search', 'image', keywords.image)">搜索</button>
+          <button class="search-submit-btn" type="button" @click="$emit('search', 'image', keywords.image)">搜索
+          </button>
         </div>
         <a-pagination
-          v-if="imagePage.total > 0"
-          class="pane-pager-top"
-          size="small"
-          :current="imagePage.current"
-          :total="imagePage.total"
-          :page-size="pageSize"
-          :show-size-changer="false"
-          :hide-on-single-page="true"
-          @change="(p: number) => $emit('image-page', p)"
+            v-if="imagePage.total > 0"
+            :current="imagePage.current"
+            :hide-on-single-page="true"
+            :page-size="pageSize"
+            :show-size-changer="false"
+            :total="imagePage.total"
+            class="pane-pager-top"
+            size="small"
+            @change="(p: number) => $emit('image-page', p)"
         />
         <div class="chip-scroll">
           <template v-if="imageItems.length">
             <AssemblyDragChip
-              v-for="row in imageItems"
-              :key="String(row.instanceKey ?? row.id)"
-              :payload="{ kind: 'instance', instanceModelType: 'image', data: row }"
-              :title="row.instanceName || row.instanceKey || ''"
-              :subtitle="row.instanceKey"
-              badge="Img"
-              @drag-start="$emit('dragStart', $event)"
-              @drag-end="$emit('dragEnd')"
+                v-for="row in imageItems"
+                :key="String(row.instanceKey ?? row.id)"
+                :payload="{ kind: 'instance', instanceModelType: 'image', data: row }"
+                :subtitle="row.instanceKey"
+                :title="row.instanceName || row.instanceKey || ''"
+                badge="Img"
+                @drag-start="$emit('dragStart', $event)"
+                @drag-end="$emit('dragEnd')"
             />
           </template>
           <div v-else class="palette-empty">暂无数据</div>
@@ -82,11 +83,11 @@
   </aside>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { SearchOutlined } from '@ant-design/icons-vue'
-import type { AiInstance } from '@/api/aiInstance'
-import type { AssemblyDragPayload, InstanceModelType } from './assemblyTypes'
+<script lang="ts" setup>
+import {reactive, ref} from 'vue'
+import {SearchOutlined} from '@ant-design/icons-vue'
+import type {AiInstance} from '@/api/aiInstance'
+import type {AssemblyDragPayload, InstanceModelType} from './assemblyTypes'
 import AssemblyDragChip from './AssemblyDragChip.vue'
 
 defineProps<{
@@ -113,10 +114,10 @@ const keywords = reactive<Record<InstanceModelType, string>>({
 })
 
 function getKeywords(): Record<InstanceModelType, string> {
-  return { ...keywords }
+  return {...keywords}
 }
 
-defineExpose({ getKeywords })
+defineExpose({getKeywords})
 </script>
 
 <style scoped>

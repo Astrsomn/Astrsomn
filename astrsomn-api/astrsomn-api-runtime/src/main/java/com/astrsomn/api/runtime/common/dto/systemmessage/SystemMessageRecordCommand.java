@@ -1,12 +1,8 @@
 package com.astrsomn.api.runtime.common.dto.systemmessage;
 
-import com.astrsomn.api.runtime.common.entity.SystemMessageEntity;
 import lombok.Data;
 
-/**
- * 编程写入 {@link SystemMessageEntity} 时使用的入参
- *（通常由应用模块中的 Recorder 等封装为 insert，业务避免直接调 Mapper）。
- */
+
 @Data
 public class SystemMessageRecordCommand {
 
@@ -21,8 +17,6 @@ public class SystemMessageRecordCommand {
     private String source;
     private String errorCode;
 
-    /**
-     * 可显式指定环境；为空则在插入时由元数据填充（请求上下文或实例配置）解析
-     */
+
     private String envCode;
 }

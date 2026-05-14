@@ -1,68 +1,70 @@
 <template>
   <AstrsomnPageShell
-    title="向量文档"
-    description="管理向量知识库中的文档记录，支持文档入库状态追踪。"
-    empty-text="暂无向量文档数据。"
+      description="管理向量知识库中的文档记录，支持文档入库状态追踪。"
+      empty-text="暂无向量文档数据。"
+      title="向量文档"
   >
     <div class="vecdoc-page">
       <AstrsomnListToolbar>
         <template #left>
           <AstrsomnSearchPill
-            v-model="query.docIdInStore"
-            placeholder="搜索文档 ID"
-            button-label="搜索"
-            layout="toolbar"
-            @search="fetchList"
+              v-model="query.docIdInStore"
+              button-label="搜索"
+              layout="toolbar"
+              placeholder="搜索文档 ID"
+              @search="fetchList"
           />
 
           <AstrsomnStateSwitch
-            v-model="query.syncStatus"
-            @change="fetchList"
-            :options="[
+              v-model="query.syncStatus"
+              :options="[
               { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
               { label: '待向量化', value: AiVecDocSyncStatus.PENDING, color: '#f59e0b', icon: ClockCircleOutlined },
               { label: '已入库', value: AiVecDocSyncStatus.STORED, color: '#10b981', icon: CheckCircleOutlined },
               { label: '已失效', value: AiVecDocSyncStatus.INVALID, color: '#f43f5e', icon: CloseCircleOutlined }
             ]"
+              @change="fetchList"
           />
 
           <a-select
-            v-model:value="uploadCollectionId"
-            placeholder="上传前选择向量集合"
-            style="width: 260px"
-            :options="storeOptions"
-            allow-clear
+              v-model:value="uploadCollectionId"
+              :options="storeOptions"
+              allow-clear
+              placeholder="上传前选择向量集合"
+              style="width: 260px"
           />
-          <a-upload :show-upload-list="false" accept=".txt" :custom-request="handleUpload">
-            <a-button type="primary" ghost :disabled="!uploadCollectionId" :loading="uploadSubmitting">
-              <template #icon><UploadOutlined /></template>
+          <a-upload :custom-request="handleUpload" :show-upload-list="false" accept=".txt">
+            <a-button :disabled="!uploadCollectionId" :loading="uploadSubmitting" ghost type="primary">
+              <template #icon>
+                <UploadOutlined/>
+              </template>
               上传 txt
             </a-button>
           </a-upload>
         </template>
 
         <template #right>
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
         </template>
       </AstrsomnListToolbar>
 
       <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条向量文档，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
+          :all-current-selected="allCurrentSelected"
+          :list-length="list.length"
+          :part-current-selected="partCurrentSelected"
+          :selected-count="selectedRowKeys.length"
+          :show-actions="list.length > 0"
+          :summary-text="`当前页 ${list.length} 条向量文档，已选 ${selectedRowKeys.length} 条。`"
+          @toggle-select-all="toggleSelectAllCurrentPage"
       />
 
       <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1280 }"
+          :columns="columns"
+          :data-source="list"
+          :pagination="false"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1280 }"
+          row-key="id"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'content'">
@@ -76,48 +78,54 @@
               <span class="mono-chip">{{ record.docIdInStore || '—' }}</span>
               <a-tooltip title="复制文档 ID">
                 <a-button
-                  type="text"
-                  class="copy-btn"
-                  :disabled="!record.docIdInStore"
-                  @click="copyDocId(record.docIdInStore)"
+                    :disabled="!record.docIdInStore"
+                    class="copy-btn"
+                    type="text"
+                    @click="copyDocId(record.docIdInStore)"
                 >
-                  <template #icon><copy-outlined /></template>
+                  <template #icon>
+                    <copy-outlined/>
+                  </template>
                 </a-button>
               </a-tooltip>
             </div>
           </template>
           <template v-else-if="column.key === 'status'">
-            <span class="status-pill" :class="`status-pill-${record.syncStatus?.toLowerCase()}`">
+            <span :class="`status-pill-${record.syncStatus?.toLowerCase()}`" class="status-pill">
               {{ getStatusLabel(record.syncStatus) }}
             </span>
           </template>
           <template v-else-if="column.key === 'actions'">
             <a-button
-              v-if="String(record.syncStatus || '').toUpperCase() === AiVecDocSyncStatus.PENDING"
-              type="link"
-              class="action-link"
-              :loading="vectorizeLoadingId === record.id"
-              @click="handleVectorize(record)"
+                v-if="String(record.syncStatus || '').toUpperCase() === AiVecDocSyncStatus.PENDING"
+                :loading="vectorizeLoadingId === record.id"
+                class="action-link"
+                type="link"
+                @click="handleVectorize(record)"
             >
               向量化
             </a-button>
             <a-divider
-              v-if="String(record.syncStatus || '').toUpperCase() === AiVecDocSyncStatus.PENDING"
-              type="vertical"
+                v-if="String(record.syncStatus || '').toUpperCase() === AiVecDocSyncStatus.PENDING"
+                type="vertical"
             />
-            <a-button type="link" class="action-link" @click="openEdit(record)">
-              <template #icon><edit-outlined /></template>
+            <a-button class="action-link" type="link" @click="openEdit(record)">
+              <template #icon>
+                <edit-outlined/>
+              </template>
               编辑
             </a-button>
-            <a-divider type="vertical" />
+            <a-divider type="vertical"/>
             <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
+                cancel-text="取消"
+                ok-text="确认"
+                title="确定删除吗？"
+                @confirm="() => handleDeleteOne(record.id)"
             >
-              <a-button type="link" danger class="action-link">
-                <template #icon><delete-outlined /></template>
+              <a-button class="action-link" danger type="link">
+                <template #icon>
+                  <delete-outlined/>
+                </template>
                 删除
               </a-button>
             </a-popconfirm>
@@ -127,28 +135,29 @@
 
       <div class="pagination-wrap">
         <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :show-size-changer="false"
+            :total="page.total"
+            @change="onPageChange"
         />
       </div>
 
       <VecDocFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
+<script lang="ts" setup>
+import {computed, onMounted, reactive, ref} from 'vue'
+import type {UploadProps} from 'ant-design-vue'
+import {message, Modal} from 'ant-design-vue'
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -164,17 +173,11 @@ import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnListToolbar from '@/components/home/AstrsomnListToolbar.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import VecDocFormModal from './VecDocFormModal.vue'
-import { aiVecStoreApi } from '@/api/aiVecStore.ts'
-import {
-  aiVecDocApi,
-  AiVecDocSyncStatus,
-  type AiVecDoc,
-  type PageResponse
-} from '@/api/aiVecDoc.ts'
-import type { UploadProps } from 'ant-design-vue'
+import {aiVecStoreApi} from '@/api/aiVecStore.ts'
+import {type AiVecDoc, aiVecDocApi, AiVecDocSyncStatus, type PageResponse} from '@/api/aiVecDoc.ts'
 
 type QueryState = {
   docIdInStore?: string
@@ -183,11 +186,11 @@ type QueryState = {
 }
 
 const columns = [
-  { title: '文档摘要', key: 'content', width: 380 },
-  { title: '存储文档 ID', key: 'docId', width: 220, ellipsis: true },
-  { title: '集合 ID', dataIndex: 'collectionId', key: 'collectionId', width: 140 },
-  { title: '同步状态', key: 'status', width: 120 },
-  { title: '操作', key: 'actions', width: 240, fixed: 'right' as const }
+  {title: '文档摘要', key: 'content', width: 380},
+  {title: '存储文档 ID', key: 'docId', width: 220, ellipsis: true},
+  {title: '集合 ID', dataIndex: 'collectionId', key: 'collectionId', width: 140},
+  {title: '同步状态', key: 'status', width: 120},
+  {title: '操作', key: 'actions', width: 240, fixed: 'right' as const}
 ]
 
 const statusLabelMap: Record<string, string> = {
@@ -228,13 +231,13 @@ const vectorizeLoadingId = ref<number | string | null>(null)
 
 const loadStores = async () => {
   try {
-    const resp = await aiVecStoreApi.queryPage({ pageNo: 1, pageSize: 500, param: {} })
+    const resp = await aiVecStoreApi.queryPage({pageNo: 1, pageSize: 500, param: {}})
     storeOptions.value = (resp.list || [])
-      .filter((s) => s.id != null)
-      .map((s) => ({
-        label: `${s.collectionName} (id=${s.id})`,
-        value: s.id as number | string
-      }))
+        .filter((s) => s.id != null)
+        .map((s) => ({
+          label: `${s.collectionName} (id=${s.id})`,
+          value: s.id as number | string
+        }))
   } catch {
     storeOptions.value = []
   }
@@ -286,9 +289,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -422,7 +425,7 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: AiVecDoc) => {
   modal.submitting = true
   try {
-    const payload: AiVecDoc = { ...form }
+    const payload: AiVecDoc = {...form}
 
     let msg: string
     if (modal.mode === 'create') {

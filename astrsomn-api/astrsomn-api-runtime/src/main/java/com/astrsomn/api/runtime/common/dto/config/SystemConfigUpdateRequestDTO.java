@@ -1,7 +1,7 @@
 package com.astrsomn.api.runtime.common.dto.config;
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.SystemConfigEntity;
+import lombok.Data;
 
 @Data
 public class SystemConfigUpdateRequestDTO extends SystemConfigEntity {

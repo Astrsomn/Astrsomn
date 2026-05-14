@@ -1,7 +1,7 @@
 package com.astrsomn.api.runtime.common.dto.tool;
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiToolEntity;
+import lombok.Data;
 
 @Data
 public class AiToolCreateRequestDTO extends AiToolEntity {

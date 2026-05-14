@@ -1,7 +1,7 @@
 package com.astrsomn.starter.runtime.langchain.quota;
 
-import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.common.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,9 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SensitiveWordProvider {
 
-    private final Map<Character, Object> nodes = new ConcurrentHashMap<>();
     private static final String IS_END = "isEnd";
-
+    private final Map<Character, Object> nodes = new ConcurrentHashMap<>();
 
     public void refreshWords(List<String> words) {
         nodes.clear();

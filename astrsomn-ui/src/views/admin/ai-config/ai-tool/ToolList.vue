@@ -1,12 +1,12 @@
 <template>
   <AstrsomnPageShell
-    title="AI Tools"
-    description="管理本地工具与调用配置（AI_TOOL），对接 AiToolController。"
-    empty-text="暂无可用工具。"
-    :breadcrumbs="breadcrumbs"
-    :show-view-toggle="true"
-    :view-mode="viewMode"
-    :view-toggle-handler="handleViewToggle"
+      :breadcrumbs="breadcrumbs"
+      :show-view-toggle="true"
+      :view-mode="viewMode"
+      :view-toggle-handler="handleViewToggle"
+      description="管理本地工具与调用配置（AI_TOOL），对接 AiToolController。"
+      empty-text="暂无可用工具。"
+      title="AI Tools"
   >
     <div ref="pageRef" class="tool-page">
       <AstrsomnDataSection>
@@ -14,106 +14,104 @@
           <div class="toolbar">
             <div class="toolbar-left">
               <AstrsomnSearchPill
-                v-model="query.toolName"
-                placeholder="搜索工具名称"
-                button-label="搜索"
-                layout="toolbar"
-                @search="fetchList"
+                  v-model="query.toolName"
+                  button-label="搜索"
+                  layout="toolbar"
+                  placeholder="搜索工具名称"
+                  @search="fetchList"
               />
               <AstrsomnStateSwitch
-                v-model="query.enableFlag"
-                @change="fetchList"
-                :options="[
+                  v-model="query.enableFlag"
+                  :options="[
                   { label: '全部', value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
                   { label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
                   { label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined }
                 ]"
+                  @change="fetchList"
               />
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
 
-
         <AstrsomnDataView
-          :mode="dataViewMode"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1180 }"
-          row-key="id"
-          empty-text="暂无匹配的工具记录"
-          :card-columns="currentGridColumns"
-          :card-min-width="toolCardMinWidth"
-          :card-gap="toolCardGap"
+            :card-columns="currentGridColumns"
+            :card-gap="toolCardGap"
+            :card-min-width="toolCardMinWidth"
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :mode="dataViewMode"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1180 }"
+            empty-text="暂无匹配的工具记录"
+            row-key="id"
         >
           <template #card="{ record }">
             <ToolCard
-              :record="record"
-              @edit="openEdit"
-              @delete="handleDeleteOne"
+                :record="record"
+                @delete="handleDeleteOne"
+                @edit="openEdit"
             />
           </template>
           <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'enableFlag'">
-            <span>{{ renderEnable(String(record.enableFlag || '')) }}</span>
-          </template>
-          <template v-else-if="column.key === 'description'">
-            <span class="desc-preview">{{ preview(record.description) }}</span>
-          </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-space>
-              <a-button type="link" size="small" @click="openEdit(record)">
-                <EditOutlined />
-              </a-button>
-              <a-popconfirm
-                title="确定删除吗？"
-                ok-text="确认"
-                cancel-text="取消"
-                @confirm="() => handleDeleteOne(record.id)"
-              >
-                <a-button type="link" danger size="small">
-                  <DeleteOutlined />
+            <template v-if="column.key === 'enableFlag'">
+              <span>{{ renderEnable(String(record.enableFlag || '')) }}</span>
+            </template>
+            <template v-else-if="column.key === 'description'">
+              <span class="desc-preview">{{ preview(record.description) }}</span>
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-space>
+                <a-button size="small" type="link" @click="openEdit(record)">
+                  <EditOutlined/>
                 </a-button>
-              </a-popconfirm>
-            </a-space>
-          </template>
+                <a-popconfirm
+                    cancel-text="取消"
+                    ok-text="确认"
+                    title="确定删除吗？"
+                    @confirm="() => handleDeleteOne(record.id)"
+                >
+                  <a-button danger size="small" type="link">
+                    <DeleteOutlined/>
+                  </a-button>
+                </a-popconfirm>
+              </a-space>
+            </template>
           </template>
         </AstrsomnDataView>
 
         <template #pagination>
           <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
       </AstrsomnDataSection>
 
       <ToolFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, onBeforeUnmount, onMounted } from 'vue'
-import { message, Modal } from 'ant-design-vue'
+<script lang="ts" setup>
+import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
 import {
   CheckCircleOutlined,
   DeleteOutlined,
   EditOutlined,
-  KeyOutlined,
   PlusOutlined,
   ReloadOutlined,
   StopOutlined
@@ -123,11 +121,11 @@ import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ToolFormModal from './ToolFormModal.vue'
 import ToolCard from './ToolCard.vue'
-import { aiToolApi, type AiTool, type PageResponse } from '@/api/aiTool.ts'
+import {type AiTool, aiToolApi, type PageResponse} from '@/api/aiTool.ts'
 
 const props = withDefaults(defineProps<{
   initialViewMode?: 'grid' | 'list'
@@ -153,18 +151,18 @@ type QueryState = {
 }
 
 const breadcrumbs = [
-  { title: 'AI 配置', href: '/admin/ai-config' },
-  { title: 'AI Tools' },
+  {title: 'AI 配置', href: '/admin/ai-config'},
+  {title: 'AI Tools'},
 ]
 
 const typeFilterOptions = [
-  { label: 'HTML', value: 'html' },
-  { label: 'Method', value: 'method' }
+  {label: 'HTML', value: 'html'},
+  {label: 'Method', value: 'method'}
 ]
 
 const enableFilterOptions = [
-  { label: '启用', value: 'enabled' },
-  { label: '停用', value: 'disabled' }
+  {label: '启用', value: 'enabled'},
+  {label: '停用', value: 'disabled'}
 ]
 
 const renderEnable = (f: string) => enableFilterOptions.find((x) => x.value === f)?.label ?? f
@@ -176,17 +174,17 @@ const preview = (raw: string | undefined) => {
 }
 
 const columns = [
-  { title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 180, ellipsis: true, copyable: true },
-  { title: '名称', dataIndex: 'toolName', key: 'toolName', width: 140, ellipsis: true },
-  { title: '类型', dataIndex: 'type', key: 'type', width: 90 },
-  { title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 140, ellipsis: true },
-  { title: '方法', dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true },
-  { title: '描述', key: 'description', width: 200, ellipsis: true },
-  { title: '状态', key: 'enableFlag', width: 80 },
+  {title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 180, ellipsis: true, copyable: true},
+  {title: '名称', dataIndex: 'toolName', key: 'toolName', width: 140, ellipsis: true},
+  {title: '类型', dataIndex: 'type', key: 'type', width: 90},
+  {title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 140, ellipsis: true},
+  {title: '方法', dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true},
+  {title: '描述', key: 'description', width: 200, ellipsis: true},
+  {title: '状态', key: 'enableFlag', width: 80},
   {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  { title: '操作', key: 'actions', width: 100, fixed: 'right' as const }
+  {title: '操作', key: 'actions', width: 100, fixed: 'right' as const}
 ]
 
 const query = reactive<QueryState>({})
@@ -202,9 +200,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -378,7 +376,7 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: AiTool) => {
   modal.submitting = true
   try {
-    const payload: AiTool = { ...form }
+    const payload: AiTool = {...form}
 
     let msg: string
     if (modal.mode === 'create') {

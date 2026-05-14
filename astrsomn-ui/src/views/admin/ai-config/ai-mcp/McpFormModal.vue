@@ -1,20 +1,20 @@
 <template>
   <AstrsomnModal
-    :open="open"
-    :width="'80vw'"
-    :body-height="'80vh'"
-    :max-width="'80vw'"
-    :header-height="'72px'"
-    :closable="false"
-    :destroy-on-close="true"
-    @update:open="onOpenChange"
-    @cancel="onCancel"
+      :body-height="'80vh'"
+      :closable="false"
+      :destroy-on-close="true"
+      :header-height="'72px'"
+      :max-width="'80vw'"
+      :open="open"
+      :width="'80vw'"
+      @cancel="onCancel"
+      @update:open="onOpenChange"
   >
     <template #header-logo>
-      <div class="icon-box" :class="form.type?.toLowerCase()">
-        <ApiOutlined v-if="form.type === 'SSE'" />
-        <ConsoleSqlOutlined v-else-if="form.type === 'STDIO'" />
-        <RocketOutlined v-else />
+      <div :class="form.type?.toLowerCase()" class="icon-box">
+        <ApiOutlined v-if="form.type === 'SSE'"/>
+        <ConsoleSqlOutlined v-else-if="form.type === 'STDIO'"/>
+        <RocketOutlined v-else/>
       </div>
     </template>
 
@@ -29,18 +29,18 @@
     <template #header-actions>
       <div class="header-actions">
         <a-button class="btn-flat" @click="onCancel">取消</a-button>
-        <a-button type="primary" class="btn-submit" :loading="confirmLoading" @click="handleOk">
+        <a-button :loading="confirmLoading" class="btn-submit" type="primary" @click="handleOk">
           {{ mode === 'create' ? '保存并同步服务' : '保存修改' }}
         </a-button>
       </div>
     </template>
 
     <a-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      layout="vertical"
-      class="professional-form"
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        class="professional-form"
+        layout="vertical"
     >
       <div class="form-body-container">
         <div class="form-layout">
@@ -48,22 +48,23 @@
           <div class="form-left">
             <div class="section-card">
               <h3 class="section-title">
-                <IdcardOutlined /> 基础设定
+                <IdcardOutlined/>
+                基础设定
               </h3>
 
               <a-alert
-                v-if="mode === 'create'"
-                type="info"
-                show-icon
-                message="MCP Key 可留空，系统将根据名称自动生成唯一标识。"
-                class="custom-alert"
+                  v-if="mode === 'create'"
+                  class="custom-alert"
+                  message="MCP Key 可留空，系统将根据名称自动生成唯一标识。"
+                  show-icon
+                  type="info"
               />
 
               <div class="form-fields">
                 <a-row :gutter="16">
                   <a-col :span="16">
                     <a-form-item label="服务展示名称" name="serverName">
-                      <a-input v-model:value="form.serverName" placeholder="例如：Google Search API" size="large" />
+                      <a-input v-model:value="form.serverName" placeholder="例如：Google Search API" size="large"/>
                     </a-form-item>
                   </a-col>
                   <a-col :span="8">
@@ -78,23 +79,23 @@
 
                 <a-form-item label="MCP Key (识别码)" name="mcpKey">
                   <AstrsomnKeyGenerator
-                    v-model="form.mcpKey"
-                    :prefix="AI_MCP_KEY_PREFIX"
-                    :disabled="mode === 'edit'"
-                    placeholder="留空则服务端自动生成"
-                    size="large"
+                      v-model="form.mcpKey"
+                      :disabled="mode === 'edit'"
+                      :prefix="AI_MCP_KEY_PREFIX"
+                      placeholder="留空则服务端自动生成"
+                      size="large"
                   />
                 </a-form-item>
 
                 <a-form-item label="协议类型" name="type">
-                  <a-segmented v-model:value="form.type" :options="mcpTypeOptions" block size="large" />
+                  <a-segmented v-model:value="form.type" :options="mcpTypeOptions" block size="large"/>
                 </a-form-item>
 
                 <a-form-item label="服务描述" name="description">
                   <a-textarea
-                    v-model:value="form.description"
-                    :auto-size="{ minRows: 4, maxRows: 6 }"
-                    placeholder="详述此 MCP 服务的功能及用途..."
+                      v-model:value="form.description"
+                      :auto-size="{ minRows: 4, maxRows: 6 }"
+                      placeholder="详述此 MCP 服务的功能及用途..."
                   />
                 </a-form-item>
               </div>
@@ -105,9 +106,9 @@
           <div class="form-right">
             <div class="section-card">
               <h3 class="section-title">
-                <LinkOutlined v-if="form.type === 'SSE'" />
-                <CodeOutlined v-else-if="form.type === 'STDIO'" />
-                <RocketOutlined v-else />
+                <LinkOutlined v-if="form.type === 'SSE'"/>
+                <CodeOutlined v-else-if="form.type === 'STDIO'"/>
+                <RocketOutlined v-else/>
                 {{ form.type }} 通讯配置
               </h3>
 
@@ -115,18 +116,21 @@
               <div v-if="form.type === 'SSE'" class="protocol-box">
                 <div class="form-fields">
                   <a-form-item label="SSE 服务地址" name="sseAddress">
-                    <a-input v-model:value="form.sseAddress" placeholder="https://mcp-server.example.com/sse" size="large">
-                      <template #prefix><GlobalOutlined style="color: #bfbfbf" /></template>
+                    <a-input v-model:value="form.sseAddress" placeholder="https://mcp-server.example.com/sse"
+                             size="large">
+                      <template #prefix>
+                        <GlobalOutlined style="color: #bfbfbf"/>
+                      </template>
                     </a-input>
                   </a-form-item>
 
                   <a-form-item label="请求头配置 (Headers JSON)" name="requestHeaderConfig">
                     <div class="json-editor-wrapper">
                       <a-textarea
-                        v-model:value="form.requestHeaderConfig"
-                        :auto-size="{ minRows: 6, maxRows: 10 }"
-                        placeholder='{"Authorization": "Bearer your_token"}'
-                        class="mono-text"
+                          v-model:value="form.requestHeaderConfig"
+                          :auto-size="{ minRows: 6, maxRows: 10 }"
+                          class="mono-text"
+                          placeholder='{"Authorization": "Bearer your_token"}'
                       />
                     </div>
                   </a-form-item>
@@ -138,26 +142,28 @@
                 <div class="form-fields">
                   <a-form-item label="执行命令" name="command">
                     <a-input v-model:value="form.command" placeholder="npx / python / node" size="large">
-                      <template #prefix><RightSquareOutlined style="color: #bfbfbf" /></template>
+                      <template #prefix>
+                        <RightSquareOutlined style="color: #bfbfbf"/>
+                      </template>
                     </a-input>
                   </a-form-item>
 
                   <a-form-item label="启动参数" name="args">
                     <a-textarea
-                      v-model:value="form.args"
-                      :auto-size="{ minRows: 3, maxRows: 4 }"
-                      placeholder="请输入启动参数，支持空格分隔或 JSON 数组格式"
-                      class="mono-text"
+                        v-model:value="form.args"
+                        :auto-size="{ minRows: 3, maxRows: 4 }"
+                        class="mono-text"
+                        placeholder="请输入启动参数，支持空格分隔或 JSON 数组格式"
                     />
                   </a-form-item>
 
                   <a-form-item label="环境变量 (Environment Variables)" name="envVars">
                     <div class="json-editor-wrapper">
                       <a-textarea
-                        v-model:value="form.envVars"
-                        :auto-size="{ minRows: 6, maxRows: 10 }"
-                        placeholder='{"API_KEY": "sk-xxx"}'
-                        class="mono-text"
+                          v-model:value="form.envVars"
+                          :auto-size="{ minRows: 6, maxRows: 10 }"
+                          class="mono-text"
+                          placeholder='{"API_KEY": "sk-xxx"}'
                       />
                     </div>
                   </a-form-item>
@@ -170,10 +176,10 @@
                   <a-form-item label="Steamable 配置" name="steamableConfig">
                     <div class="json-editor-wrapper">
                       <a-textarea
-                        v-model:value="form.steamableConfig"
-                        :auto-size="{ minRows: 8, maxRows: 12 }"
-                        placeholder='{"endpoint": "wss://example.com/stream", "auth": {"type": "bearer", "token": "xxx"}}'
-                        class="mono-text"
+                          v-model:value="form.steamableConfig"
+                          :auto-size="{ minRows: 8, maxRows: 12 }"
+                          class="mono-text"
+                          placeholder='{"endpoint": "wss://example.com/stream", "auth": {"type": "bearer", "token": "xxx"}}'
                       />
                     </div>
                   </a-form-item>
@@ -187,28 +193,34 @@
   </AstrsomnModal>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+<script lang="ts" setup>
+import {reactive, ref, watch} from 'vue'
 import {
-  ApiOutlined, ConsoleSqlOutlined, IdcardOutlined, LinkOutlined,
-  CodeOutlined, GlobalOutlined, RightSquareOutlined, RocketOutlined
+  ApiOutlined,
+  CodeOutlined,
+  ConsoleSqlOutlined,
+  GlobalOutlined,
+  IdcardOutlined,
+  LinkOutlined,
+  RightSquareOutlined,
+  RocketOutlined
 } from '@ant-design/icons-vue'
-import type { FormInstance } from 'ant-design-vue'
-import type { AiMcp } from '@/api/aiMcp.ts'
+import type {FormInstance} from 'ant-design-vue'
+import type {AiMcp} from '@/api/aiMcp.ts'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
-import { AI_MCP_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
+import {AI_MCP_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
 const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiMcp | null }>()
 const emit = defineEmits<{ submit: [payload: AiMcp] }>()
-const open = defineModel<boolean>('open', { required: true })
+const open = defineModel<boolean>('open', {required: true})
 
 const formRef = ref<FormInstance | null>(null)
 
 const mcpTypeOptions = [
-  { label: 'SSE (远程)', value: 'SSE' },
-  { label: 'STDIO (本地)', value: 'STDIO' },
-  { label: 'STEAMABLE', value: 'STEAMABLE' }
+  {label: 'SSE (远程)', value: 'SSE'},
+  {label: 'STDIO (本地)', value: 'STDIO'},
+  {label: 'STEAMABLE', value: 'STEAMABLE'}
 ]
 
 function emptyForm(): AiMcp {
@@ -222,9 +234,9 @@ function emptyForm(): AiMcp {
 const form = reactive<AiMcp>(emptyForm())
 
 const rules = {
-  serverName: [{ required: true, message: '请输入服务名称' }],
-  type: [{ required: true, message: '请选择协议类型' }],
-  sseAddress: [{ required: true, message: 'SSE 地址不能为空', trigger: 'blur' }]
+  serverName: [{required: true, message: '请输入服务名称'}],
+  type: [{required: true, message: '请选择协议类型'}],
+  sseAddress: [{required: true, message: 'SSE 地址不能为空', trigger: 'blur'}]
 }
 
 const onOpenChange = (val: boolean) => {
@@ -247,14 +259,16 @@ watch(() => [open.value, props.initial] as const, ([isOpen, initial]) => {
 
 async function handleOk() {
   await formRef.value?.validate()
-  const payload: AiMcp = { ...form }
+  const payload: AiMcp = {...form}
   if (props.mode === 'create' && !String(payload.mcpKey || '').trim()) {
     delete payload.mcpKey
   }
   emit('submit', payload)
 }
 
-const onCancel = () => { open.value = false }
+const onCancel = () => {
+  open.value = false
+}
 </script>
 
 <style scoped>
@@ -408,7 +422,13 @@ const onCancel = () => { open.value = false }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

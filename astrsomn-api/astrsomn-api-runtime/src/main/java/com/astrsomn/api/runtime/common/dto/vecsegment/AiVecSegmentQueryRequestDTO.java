@@ -1,7 +1,7 @@
 package com.astrsomn.api.runtime.common.dto.vecsegment;
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
+import lombok.Data;
 
 import java.io.Serializable;
 

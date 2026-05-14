@@ -1,25 +1,31 @@
 <template>
   <div class="canvas-actions">
     <a-tooltip title="保存草稿">
-      <a-button class="action-btn save-btn" shape="circle" :loading="saving" @click="$emit('save')">
-        <template #icon><SaveOutlined /></template>
+      <a-button :loading="saving" class="action-btn save-btn" shape="circle" @click="$emit('save')">
+        <template #icon>
+          <SaveOutlined/>
+        </template>
       </a-button>
     </a-tooltip>
     <a-tooltip title="调试运行">
-      <a-button class="action-btn debug-btn" shape="circle" disabled>
-        <template #icon><BugOutlined /></template>
+      <a-button class="action-btn debug-btn" disabled shape="circle">
+        <template #icon>
+          <BugOutlined/>
+        </template>
       </a-button>
     </a-tooltip>
     <a-tooltip title="发布流程">
-      <a-button class="action-btn publish-btn" shape="circle" disabled>
-        <template #icon><RocketOutlined /></template>
+      <a-button class="action-btn publish-btn" disabled shape="circle">
+        <template #icon>
+          <RocketOutlined/>
+        </template>
       </a-button>
     </a-tooltip>
   </div>
 </template>
 
-<script setup lang="ts">
-import { BugOutlined, RocketOutlined, SaveOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {BugOutlined, RocketOutlined, SaveOutlined} from '@ant-design/icons-vue'
 
 defineProps<{
   saving?: boolean

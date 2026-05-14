@@ -1,32 +1,32 @@
 <template>
   <a-drawer
-    :open="props.open"
-    placement="right"
-    :width="600"
-    :maskClosable="false"
-    :closable="true"
-    title="选择模型"
-    @close="handleClose"
-    root-class-name="model-select-drawer"
+      :closable="true"
+      :maskClosable="false"
+      :open="props.open"
+      :width="600"
+      placement="right"
+      root-class-name="model-select-drawer"
+      title="选择模型"
+      @close="handleClose"
   >
     <div class="select-drawer-content">
       <div class="search-bar">
         <a-input
-          v-model:value="keyword"
-          placeholder="搜索模型名称"
-          allow-clear
-          @pressEnter="handleSearch"
+            v-model:value="keyword"
+            allow-clear
+            placeholder="搜索模型名称"
+            @pressEnter="handleSearch"
         >
           <template #prefix>
-            <SearchOutlined />
+            <SearchOutlined/>
           </template>
         </a-input>
         <a-select
-          v-model:value="queryStatus"
-          placeholder="状态筛选"
-          allow-clear
-          style="width: 120px"
-          @change="handleSearch"
+            v-model:value="queryStatus"
+            allow-clear
+            placeholder="状态筛选"
+            style="width: 120px"
+            @change="handleSearch"
         >
           <a-select-option value="enabled">启用</a-select-option>
           <a-select-option value="disabled">禁用</a-select-option>
@@ -37,55 +37,63 @@
       <a-spin :spinning="loading">
         <div class="model-list">
           <div
-            v-for="model in list"
-            :key="model.id"
-            class="model-item"
-            :class="{ selected: selectedId === model.id }"
-            @click="handleSelect(model)"
+              v-for="model in list"
+              :key="model.id"
+              :class="{ selected: selectedId === model.id }"
+              class="model-item"
+              @click="handleSelect(model)"
           >
-            <div class="model-icon" :class="model.modelType">
-              <MessageOutlined v-if="model.modelType === 'chat'" />
-              <PartitionOutlined v-else-if="model.modelType === 'embedding'" />
-              <PictureOutlined v-else-if="model.modelType === 'image'" />
-              <AudioOutlined v-else-if="model.modelType === 'voice'" />
-              <PictureOutlined v-else />
+            <div :class="model.modelType" class="model-icon">
+              <MessageOutlined v-if="model.modelType === 'chat'"/>
+              <PartitionOutlined v-else-if="model.modelType === 'embedding'"/>
+              <PictureOutlined v-else-if="model.modelType === 'image'"/>
+              <AudioOutlined v-else-if="model.modelType === 'voice'"/>
+              <PictureOutlined v-else/>
             </div>
             <div class="model-info">
               <div class="model-name">{{ model.modelName }}</div>
               <div class="model-key">
-                <KeyOutlined /> {{ model.modelKey }}
+                <KeyOutlined/>
+                {{ model.modelKey }}
               </div>
             </div>
             <div class="model-meta">
               <span class="provider-tag">{{ model.extensionCode }}</span>
-              <span class="status-badge" :class="model.status">
+              <span :class="model.status" class="status-badge">
                 {{ model.status === 'enabled' ? '启用' : '禁用' }}
               </span>
             </div>
           </div>
 
-          <a-empty v-if="!loading && list.length === 0" description="暂无模型" />
+          <a-empty v-if="!loading && list.length === 0" description="暂无模型"/>
         </div>
       </a-spin>
 
       <div class="drawer-footer">
         <a-pagination
-          v-model:current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="fetchList"
+            v-model:current="page.pageNum"
+            :page-size="page.pageSize"
+            :show-size-changer="false"
+            :total="page.total"
+            @change="fetchList"
         />
       </div>
     </div>
   </a-drawer>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
-import { SearchOutlined, KeyOutlined, MessageOutlined, PartitionOutlined, PictureOutlined, AudioOutlined } from '@ant-design/icons-vue'
-import { aiModelApi, type AiModel, type PageResponse } from '@/api/aiModel.ts'
-import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
+<script lang="ts" setup>
+import {reactive, ref, watch} from 'vue'
+import {
+  AudioOutlined,
+  KeyOutlined,
+  MessageOutlined,
+  PartitionOutlined,
+  PictureOutlined,
+  SearchOutlined
+} from '@ant-design/icons-vue'
+import {type AiModel, aiModelApi, type PageResponse} from '@/api/aiModel.ts'
+import {WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
 
 const props = defineProps<{
   open: boolean

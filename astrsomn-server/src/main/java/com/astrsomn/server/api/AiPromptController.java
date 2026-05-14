@@ -1,15 +1,15 @@
 package com.astrsomn.server.api;
 
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BaseController;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.api.runtime.common.dto.prompt.AiPromptCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.prompt.AiPromptQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.prompt.AiPromptResponseDTO;
 import com.astrsomn.api.runtime.common.dto.prompt.AiPromptUpdateRequestDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.AiPromptService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

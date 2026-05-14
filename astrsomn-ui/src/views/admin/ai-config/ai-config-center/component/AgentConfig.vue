@@ -1,70 +1,46 @@
 <template>
   <div class="config-container">
-    <AgentConfigHeader :submitting="submitting" @back="emit('back')" @save="handleSave" />
+    <AgentConfigHeader :submitting="submitting" @back="emit('back')" @save="handleSave"/>
 
     <a-spin :spinning="loading">
       <div class="config-content">
         <AgentConfigPersonaSection
-          :agent-name="localAgentName"
-          :agent-key="localAgentKey"
-          :current-prompt="currentPrompt"
-          :improve-loading="improveLoading"
-          @update:agent-name="localAgentName = $event"
-          @update:agent-key="localAgentKey = $event"
-          @open-prompt-drawer="promptDrawerOpen = true"
-          @open-prompt-form="promptFormOpen = true"
-          @prompt-history="onPromptHistory"
-          @improve-prompt="handleImprovePrompt"
-          @update-prompt-content="onPromptContentUpdate"
+            :agent-key="localAgentKey"
+            :agent-name="localAgentName"
+            :current-prompt="currentPrompt"
+            :improve-loading="improveLoading"
+            @update:agent-name="localAgentName = $event"
+            @update:agent-key="localAgentKey = $event"
+            @open-prompt-drawer="promptDrawerOpen = true"
+            @open-prompt-form="promptFormOpen = true"
+            @prompt-history="onPromptHistory"
+            @improve-prompt="handleImprovePrompt"
+            @update-prompt-content="onPromptContentUpdate"
         />
 
-        <AgentConfigBrainSection
-          :chat-model="chatModel"
-          :current-chat-instance="currentChatInstance"
-          :chat-account="chatAccount"
-          :chat-param-form="chatParamForm"
-          :chat-param-section-title="chatParamSectionTitle"
-          :chat-capability-hint="chatCapabilityHint"
-          :chat-has-param-schema="chatHasParamSchema"
-          :chat-unsupported-param-codes="chatUnsupportedParamCodes"
-          :chat-model-kind="chatModelKind"
-          :chat-show-chat-temperature="chatShowChatTemperature"
-          :chat-show-chat-max-tokens="chatShowChatMaxTokens"
-          :chat-show-chat-top-p="chatShowChatTopP"
-          :chat-show-chat-top-k="chatShowChatTopK"
-          :chat-show-chat-seed="chatShowChatSeed"
-          :chat-show-chat-stop-sequences="chatShowChatStopSequences"
-          :chat-show-chat-penalties="chatShowChatPenalties"
-          :chat-show-chat-frequency-penalty="chatShowChatFrequencyPenalty"
-          :chat-show-chat-presence-penalty="chatShowChatPresencePenalty"
-          :chat-show-embedding-dimensions="chatShowEmbeddingDimensions"
-          :chat-show-image-size="chatShowImageSize"
-          :chat-show-image-style="chatShowImageStyle"
-          :chat-embedding-has-any-control="chatEmbeddingHasAnyControl"
-          :chat-image-has-any-control="chatImageHasAnyControl"
-          :get-temp-info="getTempInfo"
-          @clear-chat="clearChatTrack"
-          @open-model="openModelSelector"
-          @open-instance="openInstanceSelectorSafe"
+        <AgentConfigInstanceList
+            :instance-list="instanceList"
+            :available-models="availableModels"
+            @update:instance-list="instanceList = $event"
         />
 
         <AgentConfigIntegrationsSection
-          :image-model="imageModel"
-          :voice-model="voiceModel"
-          :current-image-instance="currentImageInstance"
-          :current-voice-instance="currentVoiceInstance"
-          :tools="placedTools"
-          :mcps="placedMcps"
-          :knowledge-keys="knowledgeKeys"
-          @open-model="openModelSelector"
-          @clear-image="clearImageTrack"
-          @clear-voice="clearVoiceTrack"
-          @tool-add="onToolAdd"
-          @tool-remove="onToolRemove"
-          @mcp-add="onMcpAdd"
-          @mcp-remove="onMcpRemove"
-          @knowledge-add="onKnowledgeAdd"
-          @knowledge-remove="onKnowledgeRemove"
+            :current-image-instance="currentImageInstance"
+            :current-voice-instance="currentVoiceInstance"
+            :image-model="imageModel"
+            :knowledge-keys="knowledgeKeys"
+            :mcps="placedMcps"
+            :tools="placedTools"
+            :voice-model="voiceModel"
+            @open-model="openModelSelector"
+            @clear-image="clearImageTrack"
+            @clear-voice="clearVoiceTrack"
+            @tool-add="onToolAdd"
+            @tool-remove="onToolRemove"
+            @mcp-add="onMcpAdd"
+            @mcp-remove="onMcpRemove"
+            @knowledge-add="onKnowledgeAdd"
+            @knowledge-remove="onKnowledgeRemove"
         />
 
         <div class="bottom-spacing"></div>
@@ -72,71 +48,71 @@
     </a-spin>
 
     <PromptSelectDrawer
-      :open="promptDrawerOpen"
-      @update:open="promptDrawerOpen = $event"
-      @select="onPromptSelect"
+        :open="promptDrawerOpen"
+        @select="onPromptSelect"
+        @update:open="promptDrawerOpen = $event"
     />
 
     <PromptFormModal
-      :open="promptFormOpen"
-      @update:open="promptFormOpen = $event"
-      mode="create"
-      :confirm-loading="false"
-      :initial="null"
-      @submit="onPromptFormSubmit"
+        :confirm-loading="false"
+        :initial="null"
+        :open="promptFormOpen"
+        mode="create"
+        @submit="onPromptFormSubmit"
+        @update:open="promptFormOpen = $event"
     />
 
     <PromptHistoryModal
-      :open="historyModalOpen"
-      @update:open="historyModalOpen = $event"
-      :prompt-key="currentPrompt?.promptKey"
-      :env-code="currentPrompt?.envCode"
+        :env-code="currentPrompt?.envCode"
+        :open="historyModalOpen"
+        :prompt-key="currentPrompt?.promptKey"
+        @update:open="historyModalOpen = $event"
     />
 
     <AgentConfigPromptImproveModal
-      :open="diffModalVisible"
-      :original-content="originalContent"
-      :improved-content="improvedContent"
-      @update:open="diffModalVisible = $event"
-      @apply="handleApplyImproved"
+        :improved-content="improvedContent"
+        :open="diffModalVisible"
+        :original-content="originalContent"
+        @apply="handleApplyImproved"
+        @update:open="diffModalVisible = $event"
     />
 
     <ModelSelector
-      :open="modelDrawerOpen"
-      :fixed-model-type="modelSelectorKind === 'chat' ? 'chat' : modelSelectorKind === 'image' ? 'image' : 'voice'"
-      @update:open="modelDrawerOpen = $event"
-      @select="onModelSelect"
+        :fixed-model-type="modelSelectorKind === 'chat' ? 'chat' : modelSelectorKind === 'image' ? 'image' : 'voice'"
+        :open="modelDrawerOpen"
+        @select="onModelSelect"
+        @update:open="modelDrawerOpen = $event"
     />
 
     <InstanceSelector
-      :open="instanceDrawerOpen"
-      :fixed-model-type="instanceSelectorKind"
-      :filter-model-key="instanceFilterModelKey"
-      @update:open="instanceDrawerOpen = $event"
-      @select="onInstanceSelect"
-      @edit="onInstanceEditFromDrawer"
-      @create="onCreateInstanceFromDrawer"
+        :filter-model-key="instanceFilterModelKey"
+        :fixed-model-type="instanceSelectorKind"
+        :open="instanceDrawerOpen"
+        @create="onCreateInstanceFromDrawer"
+        @edit="onInstanceEditFromDrawer"
+        @select="onInstanceSelect"
+        @update:open="instanceDrawerOpen = $event"
     />
 
     <InstanceForm
-      :visible="instanceFormVisible"
-      @update:visible="instanceFormVisible = $event"
-      :record="instanceFormRecord"
-      @success="onInstanceFormSuccess"
+        :record="instanceFormRecord"
+        :visible="instanceFormVisible"
+        @success="onInstanceFormSuccess"
+        @update:visible="instanceFormVisible = $event"
     />
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, reactive, watch, computed } from 'vue'
-import { message } from 'ant-design-vue'
-import { aiAgentApi, type AiAgent } from '@/api/aiAgent'
-import { aiInstanceApi, type AiInstance } from '@/api/aiInstance'
-import { aiModelApi, type AiModel } from '@/api/aiModel'
-import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
-import { aiPromptApi, type AiPrompt } from '@/api/aiPrompt'
-import { aiToolApi, type AiTool } from '@/api/aiTool'
-import { aiMcpApi, type AiMcp } from '@/api/aiMcp'
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from 'vue'
+import {message} from 'ant-design-vue'
+import {type AiAgent, aiAgentApi} from '@/api/aiAgent'
+import {type AiInstance, aiInstanceApi} from '@/api/aiInstance'
+import {type AiModel, aiModelApi} from '@/api/aiModel'
+import {type AiAccount, aiAccountApi} from '@/api/aiAccount'
+import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt'
+import {type AiTool, aiToolApi} from '@/api/aiTool'
+import {type AiMcp, aiMcpApi} from '@/api/aiMcp'
 import PromptSelectDrawer from '@/views/admin/ai-config/ai-prompt/PromptSelectDrawer.vue'
 import PromptFormModal from '@/views/admin/ai-config/ai-prompt/PromptFormModal.vue'
 import PromptHistoryModal from '@/views/admin/ai-config/ai-prompt/PromptHistoryModal.vue'
@@ -145,10 +121,10 @@ import InstanceSelector from '@/views/admin/ai-config/ai-instance/selector/Insta
 import InstanceForm from '@/views/admin/ai-config/ai-instance/InstanceForm.vue'
 import AgentConfigHeader from './agent-config/AgentConfigHeader.vue'
 import AgentConfigPersonaSection from './agent-config/AgentConfigPersonaSection.vue'
-import AgentConfigBrainSection from './agent-config/AgentConfigBrainSection.vue'
+import AgentConfigInstanceList from './agent-config/AgentConfigInstanceList.vue'
 import AgentConfigIntegrationsSection from './agent-config/AgentConfigIntegrationsSection.vue'
 import AgentConfigPromptImproveModal from './agent-config/AgentConfigPromptImproveModal.vue'
-import { getTempInfo, useInstanceParamVisibility } from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
+import {getTempInfo, useInstanceParamVisibility} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
 
 const props = defineProps<{
   agentName: string
@@ -172,6 +148,9 @@ const loadedPromptContent = ref('')
 const placedTools = ref<AiTool[]>([])
 const placedMcps = ref<AiMcp[]>([])
 const knowledgeKeys = ref<string[]>([])
+
+const instanceList = ref<AiInstance[]>([])
+const availableModels = ref<AiModel[]>([])
 
 const modelDrawerOpen = ref(false)
 const modelSelectorKind = ref<'chat' | 'image' | 'voice'>('chat')
@@ -204,11 +183,11 @@ const instanceSelectorKind = ref<'chat' | 'image' | 'voice'>('chat')
 const instanceFilterModelKey = computed(() => {
   const kind = instanceSelectorKind.value
   const mk =
-    kind === 'chat'
-      ? chatModel.value?.modelKey
-      : kind === 'image'
-        ? imageModel.value?.modelKey
-        : voiceModel.value?.modelKey
+      kind === 'chat'
+          ? chatModel.value?.modelKey
+          : kind === 'image'
+              ? imageModel.value?.modelKey
+              : voiceModel.value?.modelKey
   return mk?.trim() || undefined
 })
 const instanceFormVisible = ref(false)
@@ -229,8 +208,8 @@ function defaultParamForm(): AiInstance {
 }
 
 const chatParamForm = reactive<AiInstance>(defaultParamForm())
-const imageParamForm = reactive<AiInstance>({ ...defaultParamForm() })
-const voiceParamForm = reactive<AiInstance>({ ...defaultParamForm() })
+const imageParamForm = reactive<AiInstance>({...defaultParamForm()})
+const voiceParamForm = reactive<AiInstance>({...defaultParamForm()})
 
 const {
   paramSectionTitle: chatParamSectionTitle,
@@ -344,29 +323,29 @@ function syncParamForm(form: AiInstance, inst: AiInstance) {
 }
 
 async function resolveModelAndAccountForTrack(
-  instance: AiInstance,
-  modelRef: typeof chatModel,
-  accountRef: typeof chatAccount
+    instance: AiInstance,
+    modelRef: typeof chatModel,
+    accountRef: typeof chatAccount
 ) {
   const tasks: Promise<void>[] = []
   if (instance.modelKey) {
     tasks.push(
-      aiModelApi
-        .queryPage({ pageNo: 1, pageSize: 1, param: { modelKey: instance.modelKey } })
-        .then((resp) => {
-          modelRef.value = resp.list?.[0]
-        })
+        aiModelApi
+            .queryPage({pageNo: 1, pageSize: 1, param: {modelKey: instance.modelKey}})
+            .then((resp) => {
+              modelRef.value = resp.list?.[0]
+            })
     )
   } else {
     modelRef.value = undefined
   }
   if (instance.accountKey) {
     tasks.push(
-      aiAccountApi
-        .queryPage({ pageNo: 1, pageSize: 1, param: { accountKey: instance.accountKey } })
-        .then((resp) => {
-          accountRef.value = resp.list?.[0]
-        })
+        aiAccountApi
+            .queryPage({pageNo: 1, pageSize: 1, param: {accountKey: instance.accountKey}})
+            .then((resp) => {
+              accountRef.value = resp.list?.[0]
+            })
     )
   } else {
     accountRef.value = undefined
@@ -384,7 +363,7 @@ async function resolveFullInstance(inst: AiInstance): Promise<AiInstance> {
     const resp = await aiInstanceApi.queryPage({
       pageNo: 1,
       pageSize: 1,
-      param: { instanceKey: key },
+      param: {instanceKey: key},
     })
     const row = resp.list?.[0]
     if (!row) return inst
@@ -497,11 +476,11 @@ function openInstanceSelectorSafe(kind: 'chat' | 'image' | 'voice') {
   const model = kind === 'chat' ? chatModel.value : kind === 'image' ? imageModel.value : voiceModel.value
   if (!model?.modelKey?.trim()) {
     const msg =
-      kind === 'chat'
-        ? '请先在「模型」中选择对话模型'
-        : kind === 'image'
-          ? '请先在「模型」中选择图像模型'
-          : '请先在「模型」中选择语音模型'
+        kind === 'chat'
+            ? '请先在「模型」中选择对话模型'
+            : kind === 'image'
+                ? '请先在「模型」中选择图像模型'
+                : '请先在「模型」中选择语音模型'
     message.warning(msg)
     return
   }
@@ -566,24 +545,24 @@ async function pickOrCreateInstanceForModel(model: AiModel, kind: 'chat' | 'imag
   const resp = await aiInstanceApi.queryPage({
     pageNo: 1,
     pageSize: 100,
-    param: { modelKey: mk, modelType, status: 'enabled' },
+    param: {modelKey: mk, modelType, status: 'enabled'},
   })
   const candidates = (resp.list || []).filter((i) => i.modelKey === mk && i.status === 'enabled')
   let picked =
-    candidates.find((i) => i.isDefault === 'Y') ||
-    [...candidates].sort((a, b) => String(a.createTime || '').localeCompare(String(b.createTime || '')))[0]
+      candidates.find((i) => i.isDefault === 'Y') ||
+      [...candidates].sort((a, b) => String(a.createTime || '').localeCompare(String(b.createTime || '')))[0]
   if (!picked) {
     await aiModelApi.generateInstances([model.id])
     const resp2 = await aiInstanceApi.queryPage({
       pageNo: 1,
       pageSize: 30,
-      param: { modelKey: mk, modelType, status: 'enabled' },
+      param: {modelKey: mk, modelType, status: 'enabled'},
     })
     const list2 = resp2.list || []
     picked =
-      list2.find((i) => i.modelKey === mk && i.isDefault === 'Y') ||
-      list2.find((i) => i.modelKey === mk) ||
-      list2[0]
+        list2.find((i) => i.modelKey === mk && i.isDefault === 'Y') ||
+        list2.find((i) => i.modelKey === mk) ||
+        list2[0]
   }
   if (!picked?.instanceKey) {
     throw new Error('无法为该模型创建推理实例，请检查实例与账号配置')
@@ -662,7 +641,7 @@ async function onInstanceFormSuccess() {
   const resp = await aiInstanceApi.queryPage({
     pageNo: 1,
     pageSize: 1,
-    param: { instanceKey: rec.instanceKey.trim() },
+    param: {instanceKey: rec.instanceKey.trim()},
   })
   const row = resp.list?.[0]
   if (!row) return
@@ -699,9 +678,7 @@ function resetEmptyForm() {
   placedTools.value = []
   placedMcps.value = []
   knowledgeKeys.value = []
-  clearChatTrack()
-  clearImageTrack()
-  clearVoiceTrack()
+  instanceList.value = []
 }
 
 async function resolvePromptByKey(promptKey: string): Promise<AiPrompt | undefined> {
@@ -710,13 +687,13 @@ async function resolvePromptByKey(promptKey: string): Promise<AiPrompt | undefin
   const direct = await aiPromptApi.queryPage({
     pageNo: 1,
     pageSize: 1,
-    param: { promptKey: key },
+    param: {promptKey: key},
   })
   if (direct.list?.[0]?.promptKey === key) return direct.list[0]
   const wide = await aiPromptApi.queryPage({
     pageNo: 1,
     pageSize: 100,
-    param: { promptKey: key },
+    param: {promptKey: key},
   })
   return (wide.list || []).find((p) => p.promptKey === key)
 }
@@ -727,7 +704,7 @@ async function resolveToolsByKeys(keys: string[]): Promise<AiTool[]> {
     const resp = await aiToolApi.queryPage({
       pageNo: 1,
       pageSize: 20,
-      param: { toolKey: key },
+      param: {toolKey: key},
     })
     const hit = (resp.list || []).find((t) => t.toolKey === key)
     if (hit) out.push(hit)
@@ -741,7 +718,7 @@ async function resolveMcpsByKeys(keys: string[]): Promise<AiMcp[]> {
     const resp = await aiMcpApi.queryPage({
       pageNo: 1,
       pageSize: 20,
-      param: { mcpKey: key },
+      param: {mcpKey: key},
     })
     const hit = (resp.list || []).find((m) => m.mcpKey === key)
     if (hit) out.push(hit)
@@ -755,7 +732,7 @@ async function loadInstanceRowByKey(instanceKey: string): Promise<AiInstance | u
   const resp = await aiInstanceApi.queryPage({
     pageNo: 1,
     pageSize: 1,
-    param: { instanceKey: key },
+    param: {instanceKey: key},
   })
   const row = resp.list?.[0]
   if (!row) return undefined
@@ -767,46 +744,10 @@ async function backfillFromDetail(detail: AiAgent) {
   localAgentKey.value = detail.agentKey ?? ''
   localAgentDescription.value = detail.description ?? ''
 
-  if (detail.chatInstanceKey) {
-    const inst = await loadInstanceRowByKey(detail.chatInstanceKey)
-    if (inst) {
-      currentChatInstance.value = inst
-      syncParamForm(chatParamForm, inst)
-      chatParamSnapshot.value = serializeParams(chatParamForm)
-      await resolveModelAndAccountForTrack(inst, chatModel, chatAccount)
-    } else {
-      clearChatTrack()
-    }
+  if (detail.instanceList && detail.instanceList.length > 0) {
+    instanceList.value = detail.instanceList
   } else {
-    clearChatTrack()
-  }
-
-  if (detail.imageInstanceKey) {
-    const inst = await loadInstanceRowByKey(detail.imageInstanceKey)
-    if (inst) {
-      currentImageInstance.value = inst
-      syncParamForm(imageParamForm, inst)
-      imageParamSnapshot.value = serializeParams(imageParamForm)
-      await resolveModelAndAccountForTrack(inst, imageModel, imageAccount)
-    } else {
-      clearImageTrack()
-    }
-  } else {
-    clearImageTrack()
-  }
-
-  if (detail.voiceInstanceKey) {
-    const inst = await loadInstanceRowByKey(detail.voiceInstanceKey)
-    if (inst) {
-      currentVoiceInstance.value = inst
-      syncParamForm(voiceParamForm, inst)
-      voiceParamSnapshot.value = serializeParams(voiceParamForm)
-      await resolveModelAndAccountForTrack(inst, voiceModel, voiceAccount)
-    } else {
-      clearVoiceTrack()
-    }
-  } else {
-    clearVoiceTrack()
+    instanceList.value = []
   }
 
   if (detail.promptKey) {
@@ -836,26 +777,38 @@ async function backfillFromDetail(detail: AiAgent) {
 async function loadAgent() {
   if (!props.agentId) {
     resetEmptyForm()
+    await loadAvailableModels()
     return
   }
   loading.value = true
   try {
     const detail = await aiAgentApi.detail(props.agentId)
-    detailSnapshot.value = { ...detail }
+    detailSnapshot.value = {...detail}
     await backfillFromDetail(detail)
+    await loadAvailableModels()
   } catch (e: any) {
     message.error(e?.message || '加载智能体详情失败')
     resetEmptyForm()
+    await loadAvailableModels()
   } finally {
     loading.value = false
+  }
+}
+
+async function loadAvailableModels() {
+  try {
+    const resp = await aiModelApi.queryPage({pageNo: 1, pageSize: 100, param: {status: 'enabled'}})
+    availableModels.value = resp.list || []
+  } catch {
+    availableModels.value = []
   }
 }
 
 function buildSubmitPayload(): AiAgent {
   const snap = detailSnapshot.value
   const base: AiAgent = snap
-    ? { ...snap }
-    : {
+      ? {...snap}
+      : {
         status: 'enabled',
         enableStream: true,
         description: '',
@@ -870,26 +823,24 @@ function buildSubmitPayload(): AiAgent {
     agentKey: localAgentKey.value.trim() || base.agentKey,
     description: localAgentDescription.value.trim(),
     promptKey: currentPrompt.value?.promptKey,
-    chatInstanceKey: currentChatInstance.value?.instanceKey,
-    imageInstanceKey: currentImageInstance.value?.instanceKey,
-    voiceInstanceKey: currentVoiceInstance.value?.instanceKey,
     knowledgeBaseKeys: knowledgeKeys.value.length ? knowledgeKeys.value.join(',') : '',
     toolKeys: placedTools.value.map((t) => t.toolKey).filter(Boolean).join(','),
     mcpKeys: placedMcps.value.map((m) => m.mcpKey).filter(Boolean).join(','),
+    instanceList: instanceList.value,
   }
 }
 
 async function maybePersistInstanceTrack(track: 'chat' | 'image' | 'voice') {
   const inst =
-    track === 'chat'
-      ? currentChatInstance.value
-      : track === 'image'
-        ? currentImageInstance.value
-        : currentVoiceInstance.value
+      track === 'chat'
+          ? currentChatInstance.value
+          : track === 'image'
+              ? currentImageInstance.value
+              : currentVoiceInstance.value
   const form =
-    track === 'chat' ? chatParamForm : track === 'image' ? imageParamForm : voiceParamForm
+      track === 'chat' ? chatParamForm : track === 'image' ? imageParamForm : voiceParamForm
   const snapRef =
-    track === 'chat' ? chatParamSnapshot : track === 'image' ? imageParamSnapshot : voiceParamSnapshot
+      track === 'chat' ? chatParamSnapshot : track === 'image' ? imageParamSnapshot : voiceParamSnapshot
   if (!inst?.id || String(inst.id) === '') return
   if (serializeParams(form) === snapRef.value) return
   const fresh = await aiInstanceApi.detail(inst.id)
@@ -933,45 +884,21 @@ async function handleSave() {
     message.warning('请先选择或新建提示词')
     return
   }
-  if (!chatModel.value?.modelKey) {
-    message.warning('请选择对话模型')
+  if (instanceList.value.length === 0) {
+    message.warning('请至少添加一个推理实例')
     return
   }
   submitting.value = true
   try {
-    try {
-      await ensureChatInstanceOrCreate()
-    } catch (e: any) {
-      message.error(e?.message || '无法准备对话推理实例')
-      return
-    }
-    try {
-      await ensureImageInstanceOrCreateIfNeeded()
-    } catch (e: any) {
-      message.error(e?.message || '无法准备图像推理实例')
-      return
-    }
-    try {
-      await ensureVoiceInstanceOrCreateIfNeeded()
-    } catch (e: any) {
-      message.error(e?.message || '无法准备语音推理实例')
-      return
-    }
-    if (!currentChatInstance.value?.instanceKey) {
-      message.error('未能绑定对话推理实例')
-      return
-    }
     const p = currentPrompt.value
     if (p?.id != null && String(p.id) !== '' && String(p.promptContent ?? '') !== String(loadedPromptContent.value ?? '')) {
-      await aiPromptApi.update({ ...p })
+      await aiPromptApi.update({...p})
       loadedPromptContent.value = p.promptContent ?? ''
     }
-    await maybePersistInstanceTrack('chat')
-    await maybePersistInstanceTrack('image')
-    await maybePersistInstanceTrack('voice')
+    
     const payload = buildSubmitPayload()
     if (props.agentId != null && props.agentId !== '') {
-      await aiAgentApi.update({ ...payload, id: props.agentId })
+      await aiAgentApi.update({...payload, id: props.agentId})
       message.success('智能体已保存')
     } else {
       await aiAgentApi.create(payload)
@@ -999,21 +926,21 @@ function onPromptFormSubmit(form: AiPrompt) {
 }
 
 watch(
-  () => props.agentId,
-  () => {
-    void loadAgent()
-  },
-  { immediate: true }
+    () => props.agentId,
+    () => {
+      void loadAgent()
+    },
+    {immediate: true}
 )
 
 watch(
-  () => props.agentName,
-  (name) => {
-    if (props.agentId == null || props.agentId === '') {
-      localAgentName.value = name || '新 Agent'
-    }
-  },
-  { immediate: true }
+    () => props.agentName,
+    (name) => {
+      if (props.agentId == null || props.agentId === '') {
+        localAgentName.value = name || '新 Agent'
+      }
+    },
+    {immediate: true}
 )
 </script>
 

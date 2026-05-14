@@ -1,10 +1,10 @@
 <template>
   <a-input
-    :value="keySuffix"
-    :placeholder="placeholder"
-    :size="size"
-    :disabled="disabled"
-    @update:value="onSuffixChange"
+      :disabled="disabled"
+      :placeholder="placeholder"
+      :size="size"
+      :value="keySuffix"
+      @update:value="onSuffixChange"
   >
     <template v-if="prefix" #addonBefore>
       <span class="key-prefix">{{ prefix }}</span>
@@ -12,37 +12,37 @@
     <template #suffix>
       <a-space :size="4">
         <a-tooltip title="随机生成 Key">
-          <ReloadOutlined class="input-action-icon" @click="generateRandomKey" />
+          <ReloadOutlined class="input-action-icon" @click="generateRandomKey"/>
         </a-tooltip>
         <a-tooltip title="清空 Key">
-          <CloseCircleOutlined v-if="keySuffix" class="input-action-icon input-action-icon--danger" @click="clearKey" />
+          <CloseCircleOutlined v-if="keySuffix" class="input-action-icon input-action-icon--danger" @click="clearKey"/>
         </a-tooltip>
       </a-space>
     </template>
   </a-input>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { CloseCircleOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import {CloseCircleOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 
 const props = withDefaults(
-  defineProps<{
-    modelValue?: string
-    prefix?: string
-    placeholder?: string
-    size?: 'large' | 'middle' | 'small'
-    disabled?: boolean
-    randomLength?: number
-  }>(),
-  {
-    modelValue: '',
-    prefix: '',
-    placeholder: '请输入 Key',
-    size: 'large',
-    disabled: false,
-    randomLength: 8
-  }
+    defineProps<{
+      modelValue?: string
+      prefix?: string
+      placeholder?: string
+      size?: 'large' | 'middle' | 'small'
+      disabled?: boolean
+      randomLength?: number
+    }>(),
+    {
+      modelValue: '',
+      prefix: '',
+      placeholder: '请输入 Key',
+      size: 'large',
+      disabled: false,
+      randomLength: 8
+    }
 )
 
 const emit = defineEmits<{
@@ -75,7 +75,7 @@ function onSuffixChange(value: string) {
 function generateRandomKey() {
   if (props.disabled) return
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  const random = Array.from({ length: Math.max(4, props.randomLength) }, () => {
+  const random = Array.from({length: Math.max(4, props.randomLength)}, () => {
     const index = Math.floor(Math.random() * chars.length)
     return chars[index]
   }).join('')

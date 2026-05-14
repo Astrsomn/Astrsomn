@@ -1,17 +1,17 @@
 <template>
-  <div 
-    class="agent-card-v3" 
-    :class="{ 'is-disabled': record.status !== 'enabled', 'is-selected': selected }"
+  <div
+      :class="{ 'is-disabled': record.status !== 'enabled', 'is-selected': selected }"
+      class="agent-card-v3"
   >
     <div class="aurora-glow"></div>
 
     <div class="card-top-bar">
-      <div class="env-tag" :class="record.envCode">
+      <div :class="record.envCode" class="env-tag">
         <span class="status-dot"></span>
         {{ record.envCode || '默认环境' }}
       </div>
       <div class="card-checkbox">
-        <a-checkbox :checked="selected" @change="onToggle" />
+        <a-checkbox :checked="selected" @change="onToggle"/>
       </div>
     </div>
 
@@ -20,9 +20,10 @@
         <div class="avatar-main">
           <span class="avatar-letter">{{ initialLetter }}</span>
         </div>
-        <div class="status-badge" :class="record.status" :title="record.status === 'enabled' ? '运行中' : '已禁用'"></div>
+        <div :class="record.status" :title="record.status === 'enabled' ? '运行中' : '已禁用'"
+             class="status-badge"></div>
       </div>
-      
+
       <div class="header-content">
         <div class="title-area">
           <h3 class="agent-name">{{ record.agentName }}</h3>
@@ -31,29 +32,32 @@
       </div>
     </div>
 
-    <div class="key-section" @click="copyAgentKey" title="点击复制 Key">
+    <div class="key-section" title="点击复制 Key" @click="copyAgentKey">
       <div class="key-label">
-        <key-outlined />
+        <key-outlined/>
         <span>AGENT KEY</span>
       </div>
       <div class="key-value">
         <code>{{ record.agentKey || '未分配 KEY' }}</code>
-        <copy-outlined v-if="record.agentKey" class="copy-icon" />
+        <copy-outlined v-if="record.agentKey" class="copy-icon"/>
       </div>
     </div>
 
     <div class="card-body">
       <p class="description">{{ record.description || '暂无详细描述信息...' }}</p>
-      
+
       <div class="config-grid">
         <div class="config-item config-item-model">
-          <div class="item-label"><robot-outlined /> 模型实例</div>
+          <div class="item-label">
+            <robot-outlined/>
+            模型实例
+          </div>
           <div class="item-value item-value-with-logo">
             <span
-              v-if="providerAvatarMarkup"
-              class="provider-logo"
-              v-html="providerAvatarMarkup"
-              aria-hidden="true"
+                v-if="providerAvatarMarkup"
+                aria-hidden="true"
+                class="provider-logo"
+                v-html="providerAvatarMarkup"
             />
             <span class="highlight item-value-text">
               {{ record.chatInstanceName || record.modelName || '未配置' }}
@@ -61,7 +65,10 @@
           </div>
         </div>
         <div class="config-item">
-          <div class="item-label"><file-text-outlined /> 提示词策略</div>
+          <div class="item-label">
+            <file-text-outlined/>
+            提示词策略
+          </div>
           <div class="item-value">
             {{ record.promptTitle || '默认策略' }}
           </div>
@@ -71,13 +78,13 @@
 
     <div class="card-footer">
       <button class="action-btn edit" @click="emit('edit', record)">
-        <edit-outlined />
+        <edit-outlined/>
         <span>编辑配置</span>
       </button>
       <div class="btn-divider"></div>
       <a-popconfirm title="确定删除该智能体吗？" @confirm="onConfirmDelete">
         <button class="action-btn delete">
-          <delete-outlined />
+          <delete-outlined/>
           <span>删除</span>
         </button>
       </a-popconfirm>
@@ -85,13 +92,13 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { message } from 'ant-design-vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import {message} from 'ant-design-vue'
 import {
   CopyOutlined,
-  EditOutlined,
   DeleteOutlined,
+  EditOutlined,
   FileTextOutlined,
   KeyOutlined,
   RobotOutlined,

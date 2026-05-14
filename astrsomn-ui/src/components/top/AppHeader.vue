@@ -2,17 +2,17 @@
   <header class="app-header">
     <div class="header-container">
       <div class="header-left">
-        <transition name="fade-slide" mode="out-in">
-          <div v-if="showBrand" class="brand-area" key="logo">
+        <transition mode="out-in" name="fade-slide">
+          <div v-if="showBrand" key="logo" class="brand-area">
             <div class="logo-box">
-              <img src="../../assets/Astrsomn-logo.png" class="logo-img" alt="Astrsomn"/>
+              <img alt="Astrsomn" class="logo-img" src="../../assets/Astrsomn-logo.png"/>
             </div>
 
             <button
-                type="button"
-                class="brand-interactive-wrapper"
-                @click="handleSwitch"
                 v-if="showSwitch"
+                class="brand-interactive-wrapper"
+                type="button"
+                @click="handleSwitch"
             >
               <div class="flip-content">
                 <div class="flip-layer layer-front">
@@ -33,8 +33,8 @@
             </div>
           </div>
 
-          <div v-else-if="showBack" class="page-nav-area" key="back">
-            <button type="button" class="back-icon-btn" @click="handleBack">
+          <div v-else-if="showBack" key="back" class="page-nav-area">
+            <button class="back-icon-btn" type="button" @click="handleBack">
               <arrow-left-outlined/>
             </button>
             <h1 class="page-title">{{ pageTitle }}</h1>
@@ -51,7 +51,7 @@
           <slot name="actions">
             <DocLangTheme :showDoc="showDoc"/>
             <UserProfile v-if="isLoggedIn"/>
-            <a-button v-else type="primary" size="small" shape="round" @click="handleLogin">登录</a-button>
+            <a-button v-else shape="round" size="small" type="primary" @click="handleLogin">登录</a-button>
           </slot>
         </div>
       </div>
@@ -59,14 +59,10 @@
   </header>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed, ref} from 'vue'
-import {useRouter, useRoute} from 'vue-router';
-import {
-  ArrowLeftOutlined,
-  SwapOutlined,
-  AppstoreOutlined
-} from '@ant-design/icons-vue';
+import {useRoute, useRouter} from 'vue-router';
+import {AppstoreOutlined, ArrowLeftOutlined, SwapOutlined} from '@ant-design/icons-vue';
 // Vetur occasionally misses Vue SFC default exports in script setup files.
 // @ts-ignore
 import DocLangTheme from './DocLangTheme.vue';
@@ -298,9 +294,8 @@ const handleLogin = () => {
 /* Header 左侧品牌/返回切换动画 */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition:
-    opacity 0.22s ease,
-    transform 0.22s ease;
+  transition: opacity 0.22s ease,
+  transform 0.22s ease;
 }
 
 .fade-slide-enter-from {

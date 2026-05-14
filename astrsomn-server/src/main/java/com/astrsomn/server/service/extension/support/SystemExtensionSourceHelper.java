@@ -6,7 +6,8 @@ import com.astrsomn.common.utils.StringUtils;
 
 public final class SystemExtensionSourceHelper {
 
-    private SystemExtensionSourceHelper() {}
+    private SystemExtensionSourceHelper() {
+    }
 
     public static String resolveInstallSource(SystemExtensionEntity extension) {
         if (extension == null) {

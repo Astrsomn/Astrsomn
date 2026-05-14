@@ -1,11 +1,11 @@
 package com.astrsomn.starter.runtime.config;
 
+import com.astrsomn.starter.runtime.context.EnvRuntime;
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.StringValue;
-import com.astrsomn.starter.runtime.context.EnvRuntime;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -16,9 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EnvCodeTenantHandler implements TenantLineHandler {
 
-
-    @Resource
-    private  AstrsomnProperties properties;
 
     /**
      * 需拼接 ENV_CODE 条件的表（小写，与 MP 传入表名归一后一致）。
@@ -62,6 +59,8 @@ public class EnvCodeTenantHandler implements TenantLineHandler {
             "ast_flow_node_history",
             "ast_flow_timer_job"
     );
+    @Resource
+    private AstrsomnProperties properties;
 
     @Override
     public Expression getTenantId() {

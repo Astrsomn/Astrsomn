@@ -1,32 +1,28 @@
 <template>
   <div class="trio-switch-wrapper">
-    <div 
-      class="trio-container" 
-      :style="{ '--active-index': activeIndex, '--active-color': activeColor }"
+    <div
+        :style="{ '--active-index': activeIndex, '--active-color': activeColor }"
+        class="trio-container"
     >
       <div class="trio-slider"></div>
 
-      <div 
-        v-for="(option, index) in options" 
-        :key="option.value"
-        class="trio-item"
-        :class="{ 'is-active': modelValue === option.value }"
-        @click="handleSelect(option.value, index)"
+      <div
+          v-for="(option, index) in options"
+          :key="option.value"
+          :class="{ 'is-active': modelValue === option.value }"
+          class="trio-item"
+          @click="handleSelect(option.value, index)"
       >
-        <component :is="option.icon" v-if="option.icon" class="item-icon" />
+        <component :is="option.icon" v-if="option.icon" class="item-icon"/>
         <span class="item-text">{{ option.label }}</span>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue';
-import { 
-  AppstoreOutlined, 
-  CheckCircleOutlined, 
-  StopOutlined 
-} from '@ant-design/icons-vue';
+<script lang="ts" setup>
+import {computed} from 'vue';
+import {AppstoreOutlined, CheckCircleOutlined, StopOutlined} from '@ant-design/icons-vue';
 
 // 定义 Props
 const props = withDefaults(defineProps<{
@@ -39,9 +35,9 @@ const props = withDefaults(defineProps<{
   }>;
 }>(), {
   options: () => [
-    { label: '全部', value: undefined, color: '#1676fd', icon: AppstoreOutlined },
-    { label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
-    { label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined },
+    {label: '全部', value: undefined, color: '#1676fd', icon: AppstoreOutlined},
+    {label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined},
+    {label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined},
   ]
 });
 
@@ -87,7 +83,7 @@ const handleSelect = (value: string | number, index: number) => {
   --item-width: 90px;
   --item-height: 42px;
   --gap: 4px;
-  
+
   display: flex;
   background: var(--bg-surface);
   padding: var(--gap);
@@ -99,7 +95,6 @@ const handleSelect = (value: string | number, index: number) => {
   height: 50px;
   box-sizing: border-box;
 }
-
 
 
 .trio-item {
@@ -136,11 +131,11 @@ const handleSelect = (value: string | number, index: number) => {
   background: var(--bg-card);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
-  
+
   /* 弹性反馈动画控制 */
   transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
-              border-color 0.3s ease;
-  
+  border-color 0.3s ease;
+
   /* 基于 CSS 变量的位移 */
   transform: translateX(calc(var(--active-index) * var(--item-width)));
   border: 2px solid var(--active-color);

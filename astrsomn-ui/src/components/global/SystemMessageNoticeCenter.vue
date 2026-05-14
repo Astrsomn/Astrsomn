@@ -1,12 +1,12 @@
-﻿<template>
+<template>
   <span style="display: none"></span>
 </template>
 
-<script setup lang="ts">
-import { onBeforeUnmount, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { notification } from 'ant-design-vue'
-import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
+<script lang="ts" setup>
+import {onBeforeUnmount, onMounted, watch} from 'vue'
+import {useRoute} from 'vue-router'
+import {notification} from 'ant-design-vue'
+import {WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
 
 type SystemMessagePushPayload = {
   id?: number | string
@@ -57,8 +57,8 @@ const openNotice = (payload: SystemMessagePushPayload) => {
   const type = levelToNoticeType(payload.messageLevel)
   const title = payload.title || '系统消息'
   const description = [payload.content, payload.source ? `来源：${payload.source}` : '', payload.envCode ? `环境：${payload.envCode}` : '']
-    .filter(Boolean)
-    .join(' | ')
+      .filter(Boolean)
+      .join(' | ')
 
   notification[type]({
     message: title,
@@ -96,7 +96,7 @@ const connect = () => {
   if (!token) return
 
   const envCode = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY)
-  const query = new URLSearchParams({ token })
+  const query = new URLSearchParams({token})
   if (envCode) query.set('envCode', envCode)
 
   source = new EventSource(`/v1/astro/sse/system-message?${query.toString()}`)
@@ -135,10 +135,10 @@ onMounted(() => {
 })
 
 watch(
-  () => route.path,
-  () => {
-    refreshConnection()
-  }
+    () => route.path,
+    () => {
+      refreshConnection()
+    }
 )
 
 onBeforeUnmount(() => {

@@ -1,22 +1,22 @@
 <template>
   <div class="module-shell">
-    <aside v-if="showModuleSidebar" class="module-sider" aria-label="模块导航">
+    <aside v-if="showModuleSidebar" aria-label="模块导航" class="module-sider">
       <div class="module-sider-scroll">
         <nav class="module-sider-inner">
           <a-menu
-              mode="inline"
               :inline-indent="12"
               :open-keys="openKeys"
               :selected-keys="selectedKeys"
               class="module-sider-menu"
+              mode="inline"
               @openChange="onOpenChange"
           >
             <a-sub-menu v-for="g in groups" :key="g.key" class="module-sider-group">
               <template #title>
                 <span class="module-sider-group-title">
                   <component
-                      v-if="g.icon"
                       :is="g.icon"
+                      v-if="g.icon"
                       class="anticon module-sider-group-icon"
                   />
                   <span>{{ g.label }}</span>
@@ -26,13 +26,13 @@
               <a-menu-item
                   v-for="it in g.children"
                   :key="it.to"
-                  @click="() => go(it.to)"
                   class="module-sider-item"
+                  @click="() => go(it.to)"
               >
                 <span class="module-sider-item-inner">
                   <component
-                      v-if="it.icon"
                       :is="it.icon"
+                      v-if="it.icon"
                       class="anticon module-sider-item-icon"
                   />
                   <span>{{ it.label }}</span>
@@ -44,8 +44,8 @@
       </div>
 
       <div class="module-sider-foot">
-        <a href="https://www.astrsomn.com/home.html" target="_blank" class="official-btn">
-          <GlobalOutlined class="btn-icon" />
+        <a class="official-btn" href="https://www.astrsomn.com/home.html" target="_blank">
+          <GlobalOutlined class="btn-icon"/>
           <span>访问官方网站</span>
         </a>
 
@@ -63,17 +63,17 @@
     </aside>
 
     <div class="module-content">
-      <slot />
+      <slot/>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, provide, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { GlobalOutlined } from '@ant-design/icons-vue'; // 确保安装了 antd-icons
-import { appConfig } from '@/config/config.ts';
-import type { AdminModuleNavGroup } from './adminModuleTypes.ts';
+<script lang="ts" setup>
+import {computed, provide, ref, watch} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {GlobalOutlined} from '@ant-design/icons-vue'; // 确保安装了 antd-icons
+import {appConfig} from '@/config/config.ts';
+import type {AdminModuleNavGroup} from './adminModuleTypes.ts';
 
 const props = defineProps<{
   groups: AdminModuleNavGroup[];
@@ -123,12 +123,12 @@ const selectedKeys = computed(() => {
 });
 
 watch(
-  () => route.path,
-  (path) => {
-    const groupKey = findMatchedGroupKey(path);
-    if (groupKey) openKeys.value = [groupKey];
-  },
-  { immediate: true }
+    () => route.path,
+    (path) => {
+      const groupKey = findMatchedGroupKey(path);
+      if (groupKey) openKeys.value = [groupKey];
+    },
+    {immediate: true}
 );
 
 const appMeta = computed(() => {
@@ -140,7 +140,9 @@ const appMeta = computed(() => {
   };
 });
 
-const go = (to: string) => { void router.push(to); };
+const go = (to: string) => {
+  void router.push(to);
+};
 </script>
 
 <style scoped>
@@ -169,9 +171,18 @@ const go = (to: string) => { void router.push(to); };
 }
 
 /* 隐藏滚动条但保留功能 */
-.module-sider-scroll::-webkit-scrollbar { width: 4px; }
-.module-sider-scroll::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
-.module-sider-scroll:hover::-webkit-scrollbar-thumb { background: var(--border-default); }
+.module-sider-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.module-sider-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.module-sider-scroll:hover::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+}
 
 .module-sider-inner {
   padding: 0px 12px;

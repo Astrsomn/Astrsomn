@@ -3,57 +3,60 @@
     <div class="model-section__toolbar">
       <div class="model-section__search">
         <AstrsomnSearchPill
-          v-model="keyword"
-          layout="pane"
-          placeholder="搜索模型名称..."
-          @search="handleSearch"
+            v-model="keyword"
+            layout="pane"
+            placeholder="搜索模型名称..."
+            @search="handleSearch"
         />
       </div>
       <span class="model-section__count">共 {{ total }} 个模型</span>
-      <a-button size="large" type="primary" class="model-section__create-btn" @click="handleCreate">
-        <template #icon><PlusOutlined /></template>
+      <a-button class="model-section__create-btn" size="large" type="primary" @click="handleCreate">
+        <template #icon>
+          <PlusOutlined/>
+        </template>
         新增模型
       </a-button>
     </div>
 
     <div class="model-section__body">
       <div v-if="loading" class="model-section__loading">
-        <a-spin size="small" />
+        <a-spin size="small"/>
       </div>
 
       <template v-else>
         <div class="model-section__grid">
           <div
-            v-for="model in models"
-            :key="model.id"
-            class="model-card"
-            @click="handleEditItem(model)"
+              v-for="model in models"
+              :key="model.id"
+              class="model-card"
+              @click="handleEditItem(model)"
           >
             <div class="model-card__head">
-              <div class="model-card__icon" :class="model.modelType">
-                <img v-if="model.providerAvatar" :src="model.providerAvatar" class="model-card__avatar" :alt="model.modelName" />
-                <MessageOutlined v-else-if="model.modelType === 'chat'" />
-                <PartitionOutlined v-else-if="model.modelType === 'embedding'" />
-                <PictureOutlined v-else-if="model.modelType === 'image'" />
-                <CloudServerOutlined v-else />
+              <div :class="model.modelType" class="model-card__icon">
+                <img v-if="model.providerAvatar" :alt="model.modelName" :src="model.providerAvatar"
+                     class="model-card__avatar"/>
+                <MessageOutlined v-else-if="model.modelType === 'chat'"/>
+                <PartitionOutlined v-else-if="model.modelType === 'embedding'"/>
+                <PictureOutlined v-else-if="model.modelType === 'image'"/>
+                <CloudServerOutlined v-else/>
               </div>
               <div class="model-card__meta">
                 <span class="model-card__name">{{ model.modelName }}</span>
                 <span class="model-card__key">{{ model.modelKey }}</span>
               </div>
               <div class="model-card__status">
-                <CheckCircleOutlined v-if="model.status === 'enabled'" class="status-enabled" />
-                <CloseCircleOutlined v-else class="status-disabled" />
+                <CheckCircleOutlined v-if="model.status === 'enabled'" class="status-enabled"/>
+                <CloseCircleOutlined v-else class="status-disabled"/>
               </div>
             </div>
 
-            <div class="model-card__divider" />
+            <div class="model-card__divider"/>
 
-            <div class="model-card__caps" v-if="getModelCaps(model).length">
+            <div v-if="getModelCaps(model).length" class="model-card__caps">
               <span
-                v-for="cap in getModelCaps(model)"
-                :key="cap"
-                class="cap-tag"
+                  v-for="cap in getModelCaps(model)"
+                  :key="cap"
+                  class="cap-tag"
               >
                 {{ capLabel(cap) }}
               </span>
@@ -61,9 +64,9 @@
 
             <div class="model-card__foot">
               <span
-                v-for="p in getModelParams(model)"
-                :key="p"
-                class="param-chip"
+                  v-for="p in getModelParams(model)"
+                  :key="p"
+                  class="param-chip"
               >
                 {{ capLabel(p) }}
               </span>
@@ -73,39 +76,39 @@
         </div>
 
         <div v-if="!models.length" class="model-section__empty">
-          <a-empty description="暂无模型" :image-style="{ height: '48px' }" />
+          <a-empty :image-style="{ height: '48px' }" description="暂无模型"/>
         </div>
       </template>
     </div>
 
     <AstrsomnPagination
-      v-if="total > 0"
-      :current="pageNo"
-      :page-size="pageSize"
-      :total="total"
-      :show-size-changer="false"
-      @change="handlePageChange"
+        v-if="total > 0"
+        :current="pageNo"
+        :page-size="pageSize"
+        :show-size-changer="false"
+        :total="total"
+        @change="handlePageChange"
     />
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+<script lang="ts" setup>
+import {onMounted, ref, watch} from 'vue'
+import {useRouter} from 'vue-router'
 import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   CloudServerOutlined,
   MessageOutlined,
   PartitionOutlined,
   PictureOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons-vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
-import { ensureWorkspaceEnvInStorage } from '@/utils/workspaceHelper.ts'
-import { aiModelCapabilitiesDictionary } from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'
+import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
+import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts'
+import {aiModelCapabilitiesDictionary} from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'
 import {
   CHAT_CAPABILITIES_SET,
   CHAT_PARAM_CODES,
@@ -214,7 +217,7 @@ const handleCreate = () => {
 }
 
 const handleEditItem = (model: AiModel) => {
-  router.push({ path: '/admin/ai-config/models', query: { edit: model.id } })
+  router.push({path: '/admin/ai-config/models', query: {edit: model.id}})
 }
 
 watch(() => props.providerKey, () => {

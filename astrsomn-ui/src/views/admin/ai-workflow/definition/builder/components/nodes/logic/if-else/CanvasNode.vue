@@ -1,27 +1,28 @@
 <template>
   <BaseCanvasNode
-    :data="data"
-    fallback-label="条件分支 (If/Else)"
-    fallback-description="按表达式结果选择路径"
-    :source-handles="[{ id: 'true', style: { top: '35%' } }, { id: 'false', style: { top: '70%' } }]"
-    subtitle="If Else"
-    icon-text="IF"
-    icon-background="#fff7ed"
-    icon-color="#ea580c"
-    :theme="{
+      :data="data"
+      :source-handles="[{ id: 'true', style: { top: '35%' } }, { id: 'false', style: { top: '70%' } }]"
+      :theme="{
       borderColor: '#fed7aa',
       background: '#ffffff',
       titleColor: '#0f172a',
       descColor: '#475569'
     }"
+      fallback-description="按表达式结果选择路径"
+      fallback-label="条件分支 (If/Else)"
+      icon-background="#fff7ed"
+      icon-color="#ea580c"
+      icon-text="IF"
+      subtitle="If Else"
   >
     <div class="route-item">满足条件 -> true</div>
     <div class="route-item">不满足 -> false</div>
   </BaseCanvasNode>
 </template>
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseCanvasNode from '../../shared/BaseCanvasNode.vue'
-import type { WorkflowNodeViewData } from '../../shared/node-props'
+import type {WorkflowNodeViewData} from '../../shared/node-props'
+
 defineProps<{ data?: WorkflowNodeViewData }>()
 </script>
 
@@ -33,6 +34,7 @@ defineProps<{ data?: WorkflowNodeViewData }>()
   font-size: 11px;
   color: #475569;
 }
+
 .route-item + .route-item {
   margin-top: 6px;
 }

@@ -3,35 +3,35 @@
     <main class="main-layout">
       <div class="online-systems-panel">
         <CenterLeftBottom
-          :loading="loading"
-          :paged-online-systems="pagedOnlineSystems"
-          :current-page="currentPage"
-          :filtered-total="filteredTotal"
-          :status-filter="statusFilter"
-          :status-counts="statusCounts"
-          :page-size="pageSize"
-          @update:status-filter="emit('update:statusFilter', $event)"
-          @update:page="emit('update:page', $event)"
-          @update:page-size="emit('update:pageSize', $event)"
-          @export="emit('export')"
-          @refresh="emit('refresh')"
+            :current-page="currentPage"
+            :filtered-total="filteredTotal"
+            :loading="loading"
+            :page-size="pageSize"
+            :paged-online-systems="pagedOnlineSystems"
+            :status-counts="statusCounts"
+            :status-filter="statusFilter"
+            @export="emit('export')"
+            @refresh="emit('refresh')"
+            @update:status-filter="emit('update:statusFilter', $event)"
+            @update:page="emit('update:page', $event)"
+            @update:page-size="emit('update:pageSize', $event)"
         />
       </div>
 
       <aside class="right-panel">
-        <CenterRightTop :distribution="envDistribution" />
+        <CenterRightTop :distribution="envDistribution"/>
         <CenterRightBottom
-          :resource-usage="resourceUsage"
-          :recent-changes="recentChanges"
-          @view-all-changes="emit('view-all-changes')"
+            :recent-changes="recentChanges"
+            :resource-usage="resourceUsage"
+            @view-all-changes="emit('view-all-changes')"
         />
       </aside>
     </main>
   </div>
 </template>
 
-<script setup lang="ts">
-import type { Component } from 'vue'
+<script lang="ts" setup>
+import type {Component} from 'vue'
 import CenterLeftBottom from './center/center-left/CenterLeftBottom.vue'
 import CenterRightTop from './center/center-right/CenterRightTop.vue'
 import CenterRightBottom from './center/center-right/CenterRightBottom.vue'

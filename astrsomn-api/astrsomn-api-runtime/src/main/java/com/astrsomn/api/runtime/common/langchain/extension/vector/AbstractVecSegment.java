@@ -1,8 +1,8 @@
 package com.astrsomn.api.runtime.common.langchain.extension.vector;
 
+import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
 
 
 @Getter

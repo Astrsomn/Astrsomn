@@ -1,7 +1,5 @@
 package com.astrsomn.vector.qdrant.service;
 
-import io.qdrant.client.QdrantClient;
-import io.qdrant.client.QdrantGrpcClient;
 import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecSource;
@@ -9,6 +7,8 @@ import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecSto
 import com.astrsomn.api.runtime.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.vector.qdrant.internal.QdrantConfigSupport;
+import io.qdrant.client.QdrantClient;
+import io.qdrant.client.QdrantGrpcClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +52,21 @@ public final class QdrantVecSourceHandler extends AbstractVecSource {
                 StringUtils.isNotBlank(connectionProperties.getToken()));
     }
 
+    private static String qdrantTestFailureHint(Exception e) {
+        for (Throwable t = e; t != null; t = t.getCause()) {
+            if (t instanceof java.net.ConnectException) {
+                return "Qdrant gRPC 连接失败（请从运行本服务的主机访问 TCP "
+                        + "6334；浏览器能打开 6333 仅说明 REST 可达，与 gRPC 端口是否放行无关）: "
+                        + t.getMessage();
+            }
+            String msg = t.getMessage();
+            if (msg != null && msg.contains("Connection timed out")) {
+                return "Qdrant gRPC 连接超时（请检查防火墙、Docker 是否映射 6334、Qdrant 是否对外监听 gRPC）: " + msg;
+            }
+        }
+        return "Qdrant testConnection failed";
+    }
+
     AiVecSourceConnectionProperties connectionProperties() {
         return connectionProperties;
     }
@@ -78,21 +93,6 @@ public final class QdrantVecSourceHandler extends AbstractVecSource {
             log.error("[Qdrant] testConnection failed after {}ms", elapsedMs, e);
             throw new IllegalStateException(qdrantTestFailureHint(e), e);
         }
-    }
-
-    private static String qdrantTestFailureHint(Exception e) {
-        for (Throwable t = e; t != null; t = t.getCause()) {
-            if (t instanceof java.net.ConnectException) {
-                return "Qdrant gRPC 连接失败（请从运行本服务的主机访问 TCP "
-                        + "6334；浏览器能打开 6333 仅说明 REST 可达，与 gRPC 端口是否放行无关）: "
-                        + t.getMessage();
-            }
-            String msg = t.getMessage();
-            if (msg != null && msg.contains("Connection timed out")) {
-                return "Qdrant gRPC 连接超时（请检查防火墙、Docker 是否映射 6334、Qdrant 是否对外监听 gRPC）: " + msg;
-            }
-        }
-        return "Qdrant testConnection failed";
     }
 
     @Override

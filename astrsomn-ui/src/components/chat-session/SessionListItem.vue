@@ -1,35 +1,35 @@
 <template>
   <div
-    class="conversation-item"
-    :class="{ selected: isSelected, compact }"
-    @click="emit('open', item.memoryKey)"
+      :class="{ selected: isSelected, compact }"
+      class="conversation-item"
+      @click="emit('open', item.memoryKey)"
   >
     <a-checkbox
-      v-if="selectable"
-      :checked="isSelected"
-      @change="emit('toggle-select', item.memoryKey)"
-      @click.stop
-      class="select-checkbox"
+        v-if="selectable"
+        :checked="isSelected"
+        class="select-checkbox"
+        @change="emit('toggle-select', item.memoryKey)"
+        @click.stop
     />
-    <message-outlined class="item-icon" />
+    <message-outlined class="item-icon"/>
     <div class="title-wrap">
       <p class="title">{{ item.title || '无标题会话' }}</p>
     </div>
     <button
-      v-if="deletable"
-      type="button"
-      class="delete-btn"
-      title="删除会话"
-      @click.stop="emit('delete', item)"
+        v-if="deletable"
+        class="delete-btn"
+        title="删除会话"
+        type="button"
+        @click.stop="emit('delete', item)"
     >
-      <delete-outlined />
+      <delete-outlined/>
     </button>
   </div>
 </template>
 
-<script setup lang="ts">
-import { DeleteOutlined, MessageOutlined } from '@ant-design/icons-vue'
-import type { ChatSessionItem } from './types'
+<script lang="ts" setup>
+import {DeleteOutlined, MessageOutlined} from '@ant-design/icons-vue'
+import type {ChatSessionItem} from './types'
 
 defineProps<{
   item: ChatSessionItem

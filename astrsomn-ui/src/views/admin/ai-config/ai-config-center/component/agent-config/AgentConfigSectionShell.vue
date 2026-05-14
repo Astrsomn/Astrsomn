@@ -5,11 +5,11 @@
       <h3 class="section-title">{{ title }}</h3>
     </div>
     <p v-if="hint" class="section-hint">{{ hint }}</p>
-    <slot />
+    <slot/>
   </section>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 defineProps<{
   step: number | string
   title: string

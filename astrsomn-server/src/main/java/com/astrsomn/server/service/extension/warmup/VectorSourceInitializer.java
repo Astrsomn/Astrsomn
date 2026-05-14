@@ -1,14 +1,14 @@
 package com.astrsomn.server.service.extension.warmup;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.AiVecSourceEnum;
 import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AstAiVecSourceMapper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.mapper.AstAiVecSourceMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

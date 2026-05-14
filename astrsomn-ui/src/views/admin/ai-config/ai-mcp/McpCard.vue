@@ -1,7 +1,7 @@
 <template>
-  <div class="mcp-card-400" :class="{ 'is-disabled': record.enabled !== 1 }">
+  <div :class="{ 'is-disabled': record.enabled !== 1 }" class="mcp-card-400">
     <div class="card-header-status">
-      <div class="status-chip" :class="{ active: record.enabled === 1 }">
+      <div :class="{ active: record.enabled === 1 }" class="status-chip">
         <span class="status-dot"></span>
         <span class="status-text">{{ record.enabled === 1 ? 'Active' : 'Paused' }}</span>
       </div>
@@ -10,19 +10,19 @@
     <div class="card-content">
       <div class="avatar-section">
         <div class="avatar-glow">
-          <ApiOutlined />
+          <ApiOutlined/>
         </div>
         <div class="type-tag">{{ record.type || 'STDIO' }}</div>
       </div>
 
-      <h3 class="title" :title="record.serverName">
+      <h3 :title="record.serverName" class="title">
         {{ record.serverName || record.mcpKey || 'MCP 服务' }}
       </h3>
 
       <div class="key-capsule-btn" @click="copyKey(record.mcpKey)">
         <span class="label">KEY</span>
         <code class="code">{{ record.mcpKey || '--' }}</code>
-        <copy-outlined class="icon" />
+        <copy-outlined class="icon"/>
       </div>
 
       <div class="details-section">
@@ -46,11 +46,11 @@
     <div class="card-footer-action">
       <div class="action-group">
         <button class="action-circle-btn" @click="emit('edit', record)">
-          <edit-outlined />
+          <edit-outlined/>
         </button>
         <a-popconfirm title="确定删除吗？" @confirm="emit('delete', record.id)">
           <button class="action-circle-btn delete">
-            <delete-outlined />
+            <delete-outlined/>
           </button>
         </a-popconfirm>
       </div>
@@ -58,11 +58,11 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { ApiOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
-import type { AiMcp } from '@/api/aiMcp'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import {ApiOutlined, CopyOutlined, DeleteOutlined, EditOutlined} from '@ant-design/icons-vue'
+import {message} from 'ant-design-vue'
+import type {AiMcp} from '@/api/aiMcp'
 
 const props = defineProps<{
   record: AiMcp
@@ -76,7 +76,8 @@ const argsCount = computed(() => {
   try {
     const parsed = JSON.parse(raw)
     if (Array.isArray(parsed)) return `${parsed.length}`
-  } catch {}
+  } catch {
+  }
   return `${raw.split(/\s+/).filter(Boolean).length || 1}`
 })
 

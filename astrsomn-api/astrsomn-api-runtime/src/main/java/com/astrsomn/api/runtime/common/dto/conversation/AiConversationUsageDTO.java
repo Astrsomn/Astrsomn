@@ -6,6 +6,6 @@ import lombok.Data;
 public class AiConversationUsageDTO {
 
     private String modelKey;
-    
+
     private Long total;
 }

@@ -1,27 +1,27 @@
 <template>
   <div
-    :class="['toc-card', `toc-card--${cardVariant}`, { 'is-selected': selected }]"
-    :style="{ '--delay': index }"
+      :class="['toc-card', `toc-card--${cardVariant}`, { 'is-selected': selected }]"
+      :style="{ '--delay': index }"
   >
-    <div class="deco-bubble bubble-1" />
-    <div class="deco-bubble bubble-2" />
-    <div class="deco-accent-bar" aria-hidden="true" />
+    <div class="deco-bubble bubble-1"/>
+    <div class="deco-bubble bubble-2"/>
+    <div aria-hidden="true" class="deco-accent-bar"/>
 
     <div class="toc-checkbox-wrapper" @click.stop="emit('toggle-select')">
       <div :class="['custom-check', { active: selected }]">
-        <check-outlined v-if="selected" />
+        <check-outlined v-if="selected"/>
       </div>
     </div>
 
     <div class="card-actions">
       <a-tooltip title="快速编辑">
         <div class="action-icon-btn edit" @click.stop="emit('edit')">
-          <edit-outlined />
+          <edit-outlined/>
         </div>
       </a-tooltip>
       <a-popconfirm title="确定删除此配置？" @confirm="emit('delete')">
         <div class="action-icon-btn delete" @click.stop>
-          <delete-outlined />
+          <delete-outlined/>
         </div>
       </a-popconfirm>
     </div>
@@ -30,20 +30,20 @@
       <div class="toc-card-header">
         <div class="header-type-block">
           <span
-            v-if="providerAvatarMarkup"
-            class="provider-logo"
-            v-html="providerAvatarMarkup"
-            aria-hidden="true"
+              v-if="providerAvatarMarkup"
+              aria-hidden="true"
+              class="provider-logo"
+              v-html="providerAvatarMarkup"
           />
           <div :class="['type-icon-box', getModelTypeClass(record)]">
-            <component :is="getModelIcon(record)" />
+            <component :is="getModelIcon(record)"/>
           </div>
         </div>
         <div class="title-area">
           <div class="top-row">
-            <h4 class="name" :title="record.instanceName">{{ record.instanceName || '未命名配置' }}</h4>
+            <h4 :title="record.instanceName" class="name">{{ record.instanceName || '未命名配置' }}</h4>
             <div :class="['status-glow', record.status]">
-              <span class="dot"></span> 
+              <span class="dot"></span>
               {{ record.status === 'enabled' ? '运行中' : '已停用' }}
             </div>
           </div>
@@ -56,11 +56,15 @@
           <div class="params-label">模型推理参数</div>
           <div class="mini-progress-item">
             <div class="p-labels"><span>温度 (Temp)</span> <b>{{ record.temperature ?? 0.7 }}</b></div>
-            <div class="p-track"><div class="p-thumb temp" :style="{ width: `${(record.temperature || 0) / 2 * 100}%` }"></div></div>
+            <div class="p-track">
+              <div :style="{ width: `${(record.temperature || 0) / 2 * 100}%` }" class="p-thumb temp"></div>
+            </div>
           </div>
           <div class="mini-progress-item">
             <div class="p-labels"><span>核采样 (TopP)</span> <b>{{ record.topP ?? 1.0 }}</b></div>
-            <div class="p-track"><div class="p-thumb topp" :style="{ width: `${(record.topP || 0) * 100}%` }"></div></div>
+            <div class="p-track">
+              <div :style="{ width: `${(record.topP || 0) * 100}%` }" class="p-thumb topp"></div>
+            </div>
           </div>
         </template>
 
@@ -68,14 +72,18 @@
           <div class="params-label">向量空间规格</div>
           <div class="capability-grid">
             <div class="cap-item">
-              <div class="cap-icon v-dim"><cluster-outlined /></div>
+              <div class="cap-icon v-dim">
+                <cluster-outlined/>
+              </div>
               <div class="cap-info">
                 <span class="l">维度</span>
                 <span class="v">{{ record.dimensions || 1536 }}D</span>
               </div>
             </div>
             <div class="cap-item">
-              <div class="cap-icon v-env"><environment-outlined /></div>
+              <div class="cap-icon v-env">
+                <environment-outlined/>
+              </div>
               <div class="cap-info">
                 <span class="l">部署环境</span>
                 <span class="v">{{ record.envCode || 'PROD' }}</span>
@@ -116,11 +124,11 @@
 
       <div class="toc-card-meta">
         <div class="provider-info">
-          <api-outlined class="m-icon" />
+          <api-outlined class="m-icon"/>
           <span class="provider-label">{{ record.modelKey || '未关联端点' }}</span>
         </div>
         <div class="time-info">
-          <history-outlined />
+          <history-outlined/>
           <span class="time-ago">{{ formatUpdateTime(record.updateTime) }}</span>
         </div>
       </div>
@@ -128,24 +136,24 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
 import {
+  ApiOutlined,
   CheckOutlined,
+  ClusterOutlined,
   DeleteOutlined,
   EditOutlined,
+  EnvironmentOutlined,
+  FileImageOutlined,
+  HistoryOutlined,
   MessageOutlined,
   PartitionOutlined,
-  FileImageOutlined,
-  ClusterOutlined,
-  EnvironmentOutlined,
-  ApiOutlined,
-  HistoryOutlined,
   SettingOutlined
 } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import type { AiInstance } from '@/api/aiInstance.ts'
+import type {AiInstance} from '@/api/aiInstance.ts'
 
 dayjs.extend(relativeTime)
 
@@ -226,11 +234,10 @@ const providerAvatarMarkup = computed(() => {
   border-radius: 28px;
   border: 1px solid var(--border-default);
   position: relative;
-  transition:
-    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.35s ease,
-    border-color 0.35s ease,
-    background 0.35s ease;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+  box-shadow 0.35s ease,
+  border-color 0.35s ease,
+  background 0.35s ease;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -240,9 +247,8 @@ const providerAvatarMarkup = computed(() => {
 
 .toc-card:hover {
   transform: translateY(-8px);
-  box-shadow:
-    var(--shadow-overview),
-    0 0 0 1px var(--card-accent-soft);
+  box-shadow: var(--shadow-overview),
+  0 0 0 1px var(--card-accent-soft);
   border-color: var(--card-hover-border);
 }
 
@@ -265,6 +271,7 @@ const providerAvatarMarkup = computed(() => {
   z-index: 0;
   pointer-events: none;
 }
+
 .bubble-1 {
   width: 120px;
   height: 120px;
@@ -272,6 +279,7 @@ const providerAvatarMarkup = computed(() => {
   right: -30px;
   background: var(--bubble-1);
 }
+
 .bubble-2 {
   width: 88px;
   height: 88px;
@@ -283,9 +291,8 @@ const providerAvatarMarkup = computed(() => {
 .toc-card.is-selected {
   border-color: var(--card-accent);
   background: var(--card-selected-bg);
-  box-shadow:
-    0 12px 28px -8px var(--card-accent-soft),
-    0 0 0 1px var(--card-accent-soft);
+  box-shadow: 0 12px 28px -8px var(--card-accent-soft),
+  0 0 0 1px var(--card-accent-soft);
 }
 
 .toc-checkbox-wrapper {
@@ -295,6 +302,7 @@ const providerAvatarMarkup = computed(() => {
   z-index: 10;
   cursor: pointer;
 }
+
 .custom-check {
   width: 26px;
   height: 26px;
@@ -306,6 +314,7 @@ const providerAvatarMarkup = computed(() => {
   justify-content: center;
   transition: all 0.3s;
 }
+
 .custom-check.active {
   background: var(--card-accent);
   border-color: var(--card-accent-mid);
@@ -316,33 +325,52 @@ const providerAvatarMarkup = computed(() => {
 /* 悬浮按钮组 */
 .card-actions {
   position: absolute;
-  top: 60px; right: 20px;
-  display: flex; flex-direction: column;
+  top: 60px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   opacity: 0;
   transform: translateX(10px);
   transition: all 0.3s ease;
   z-index: 10;
 }
+
 .toc-card:hover .card-actions {
   opacity: 1;
   transform: translateX(0);
 }
+
 .action-icon-btn {
-  width: 36px; height: 36px;
+  width: 36px;
+  height: 36px;
   border-radius: 12px;
   background: var(--bg-card);
   backdrop-filter: blur(8px);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: var(--shadow-card);
   border: 1px solid var(--border-default);
   cursor: pointer;
   transition: all 0.2s;
   color: var(--text-secondary);
 }
-.action-icon-btn:hover { transform: scale(1.1); background: var(--bg-elevated); }
-.action-icon-btn.edit:hover { color: var(--card-accent); border-color: var(--card-accent-soft); }
-.action-icon-btn.delete:hover { color: var(--error); border-color: rgba(239, 68, 68, 0.2); }
+
+.action-icon-btn:hover {
+  transform: scale(1.1);
+  background: var(--bg-elevated);
+}
+
+.action-icon-btn.edit:hover {
+  color: var(--card-accent);
+  border-color: var(--card-accent-soft);
+}
+
+.action-icon-btn.delete:hover {
+  color: var(--error);
+  border-color: rgba(239, 68, 68, 0.2);
+}
 
 /* 主体内容 */
 .toc-card-body {
@@ -353,7 +381,9 @@ const providerAvatarMarkup = computed(() => {
 }
 
 .toc-card-header {
-  display: flex; gap: 16px; margin-bottom: 24px;
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .header-type-block {
@@ -377,38 +407,89 @@ const providerAvatarMarkup = computed(() => {
 
 /* 图标盒 - 潮流霓虹配色 */
 .type-icon-box {
-  width: 54px; height: 54px;
+  width: 54px;
+  height: 54px;
   border-radius: 18px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px; color: white;
-  box-shadow: 0 8px 16px -4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1);
 }
-.type-icon-box.chat { background: linear-gradient(135deg, #6366f1, #2563eb); }
-.type-icon-box.embedding { background: linear-gradient(135deg, #10b981, #047857); }
-.type-icon-box.image { background: linear-gradient(135deg, #fb923c, #c2410c); }
-.type-icon-box.other { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+
+.type-icon-box.chat {
+  background: linear-gradient(135deg, #6366f1, #2563eb);
+}
+
+.type-icon-box.embedding {
+  background: linear-gradient(135deg, #10b981, #047857);
+}
+
+.type-icon-box.image {
+  background: linear-gradient(135deg, #fb923c, #c2410c);
+}
+
+.type-icon-box.other {
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+}
 
 .title-area .name {
-  font-size: 18px; font-weight: 800; color: var(--text-primary);
-  margin: 0; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.title-area .sub-key { font-size: 11px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; margin: 2px 0 0 0; }
+
+.title-area .sub-key {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  margin: 2px 0 0 0;
+}
 
 .status-glow {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 10px; font-weight: 800; padding: 2px 10px; border-radius: 20px;
-  background: var(--bg-elevated); color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
 }
-.status-glow.enabled { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-.status-glow .dot { 
-  width: 6px; height: 6px; border-radius: 50%; background: currentColor; 
+
+.status-glow.enabled {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--success);
 }
-.status-glow.enabled .dot { animation: pulse 2s infinite; }
+
+.status-glow .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-glow.enabled .dot {
+  animation: pulse 2s infinite;
+}
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 
 .dynamic-content-wrapper {
@@ -432,27 +513,95 @@ const providerAvatarMarkup = computed(() => {
 }
 
 /* 进度条样式 (Chat) */
-.mini-progress-item { margin-bottom: 12px; }
-.p-labels { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; color: var(--text-secondary); }
-.p-track { height: 6px; background: var(--border-default); border-radius: 10px; overflow: hidden; }
-.p-thumb { height: 100%; border-radius: 10px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-.toc-card--chat .p-thumb.temp { background: linear-gradient(90deg, #fbbf24, #ea580c); }
-.toc-card--chat .p-thumb.topp { background: linear-gradient(90deg, #818cf8, #4f46e5); }
+.mini-progress-item {
+  margin-bottom: 12px;
+}
+
+.p-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+}
+
+.p-track {
+  height: 6px;
+  background: var(--border-default);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.p-thumb {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toc-card--chat .p-thumb.temp {
+  background: linear-gradient(90deg, #fbbf24, #ea580c);
+}
+
+.toc-card--chat .p-thumb.topp {
+  background: linear-gradient(90deg, #818cf8, #4f46e5);
+}
 
 /* 能力网格 (Embedding) */
-.capability-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.cap-item { display: flex; align-items: center; gap: 10px; }
-.cap-icon {
-  width: 28px; height: 28px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center; font-size: 14px;
+.capability-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
-.toc-card--embedding .cap-icon.v-dim { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-.toc-card--embedding .cap-icon.v-env { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.cap-info { display: flex; flex-direction: column; }
-.cap-info .l { font-size: 10px; color: var(--text-secondary); font-weight: 600; }
-.cap-info .v { font-size: 12px; color: var(--text-primary); font-weight: 700; }
 
-.image-spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cap-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cap-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.toc-card--embedding .cap-icon.v-dim {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.toc-card--embedding .cap-icon.v-env {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.cap-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.cap-info .l {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.cap-info .v {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.image-spec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 .toc-card--image .spec-block {
   padding: 10px 8px;
   background: var(--bg-elevated);
@@ -463,10 +612,26 @@ const providerAvatarMarkup = computed(() => {
   align-items: center;
   text-align: center;
 }
-.toc-card--image .spec-block .s-label { font-size: 9px; color: #ea580c; font-weight: 800; }
-.toc-card--image .spec-block .s-value { font-size: 12px; color: var(--text-primary); font-weight: 700; word-break: break-all; }
 
-.other-spec { display: flex; flex-direction: column; gap: 10px; }
+.toc-card--image .spec-block .s-label {
+  font-size: 9px;
+  color: #ea580c;
+  font-weight: 800;
+}
+
+.toc-card--image .spec-block .s-value {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.other-spec {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .other-type-pill {
   align-self: flex-start;
   font-size: 11px;
@@ -477,6 +642,7 @@ const providerAvatarMarkup = computed(() => {
   color: var(--card-accent-mid);
   border: 1px solid var(--card-hover-border);
 }
+
 .other-row {
   display: flex;
   justify-content: space-between;
@@ -488,14 +654,38 @@ const providerAvatarMarkup = computed(() => {
   border-radius: 12px;
   border: 1px solid var(--content-border);
 }
-.other-row b { color: var(--text-primary); font-weight: 800; }
+
+.other-row b {
+  color: var(--text-primary);
+  font-weight: 800;
+}
 
 /* 底部 Meta */
 .toc-card-meta {
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 11px; color: var(--text-secondary); padding: 0 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-secondary);
+  padding: 0 4px;
 }
-.provider-info { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-secondary); }
-.provider-info .m-icon { color: var(--card-accent); opacity: 0.85; }
-.time-info { display: flex; align-items: center; gap: 4px; }
+
+.provider-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.provider-info .m-icon {
+  color: var(--card-accent);
+  opacity: 0.85;
+}
+
+.time-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 </style>

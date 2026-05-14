@@ -1,7 +1,7 @@
 package com.astrsomn.api.runtime.common.dto.prompt;
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiPromptEntity;
+import lombok.Data;
 
 import java.io.Serializable;
 

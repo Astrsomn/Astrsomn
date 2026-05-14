@@ -1,18 +1,18 @@
 <template>
   <AstrsomnModal
-    :open="open"
-    width="80vw"
-    max-width="80vw"
-    body-height="80vh"
-    header-height="64px"
-    content-background="var(--bg-card)"
-    main-background="#f8fafc"
-    main-padding="0"
-    @update:open="emit('update:open', $event)"
-    @cancel="emit('cancel')"
+      :open="open"
+      body-height="80vh"
+      content-background="var(--bg-card)"
+      header-height="64px"
+      main-background="#f8fafc"
+      main-padding="0"
+      max-width="80vw"
+      width="80vw"
+      @cancel="emit('cancel')"
+      @update:open="emit('update:open', $event)"
   >
     <template #header-logo>
-      <AppstoreOutlined />
+      <AppstoreOutlined/>
     </template>
     <template #header-title>插件市场</template>
     <template #header-subtitle>浏览、安装和管理插件扩展</template>
@@ -22,14 +22,14 @@
 
     <div class="marketplace-shell">
       <ExtensionSidebar
-        :selected-menu-keys="selectedMenuKeys"
-        @menu-click="onMenuClick"
+          :selected-menu-keys="selectedMenuKeys"
+          @menu-click="onMenuClick"
       />
       <div class="marketplace-content">
         <div class="content-card">
           <ExtensionCenterPage
-            :active-tab="activeTab"
-            @update:active-tab="onPanelSync"
+              :active-tab="activeTab"
+              @update:active-tab="onPanelSync"
           />
         </div>
       </div>
@@ -37,9 +37,9 @@
   </AstrsomnModal>
 </template>
 
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-import { AppstoreOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, ref} from 'vue'
+import {AppstoreOutlined} from '@ant-design/icons-vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import ExtensionCenterPage from '@/views/admin/system-config/system-extension/component/ExtensionCenterPage.vue'
 import ExtensionSidebar from '@/views/admin/system-config/system-extension/component/ExtensionSidebar.vue'

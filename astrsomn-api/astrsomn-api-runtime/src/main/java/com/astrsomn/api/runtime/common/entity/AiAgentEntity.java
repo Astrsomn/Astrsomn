@@ -1,5 +1,6 @@
 package com.astrsomn.api.runtime.common.entity;
 
+import com.astrsomn.common.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -7,7 +8,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
-import com.astrsomn.common.base.BaseEntity;
 
 
 @Data
@@ -29,17 +29,6 @@ public class AiAgentEntity extends BaseEntity<Long> {
 
     @TableField("WORKFLOW_KEY")
     private String workflowKey;
-
-
-    @TableField("CHAT_INSTANCE_KEY")
-    private String chatInstanceKey;
-
-    @TableField("IMAGE_INSTANCE_KEY")
-    private String imageInstanceKey;
-
-    /** 语音 / TTS 等推理实例 */
-    @TableField("VOICE_INSTANCE_KEY")
-    private String voiceInstanceKey;
 
     @TableField("PROMPT_KEY")
     private String promptKey;

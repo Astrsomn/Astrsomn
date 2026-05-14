@@ -3,7 +3,7 @@
     <nav class="glass-header">
       <div class="header-left" @click="goHome">
         <div class="logo-dot">
-          <img :src="logoUrl" class="logo-img" alt="Astrsomn" />
+          <img :src="logoUrl" alt="Astrsomn" class="logo-img"/>
         </div>
         <span class="logo-text">Astrsomn</span>
       </div>
@@ -18,20 +18,20 @@
       <div class="brand-content">
         <div class="tagline">Enterprise AI Framework</div>
         <h1 class="brand-title">
-          封装复杂 AI<br />
+          封装复杂 AI<br/>
           <span class="gradient-text">释放 Java 创造力</span>
         </h1>
         <div class="brand-features">
           <div class="feature-item">
-            <check-circle-filled class="icon" />
+            <check-circle-filled class="icon"/>
             <span>基于 <strong>LangChain4j</strong> 深度构建</span>
           </div>
           <div class="feature-item">
-            <check-circle-filled class="icon" />
+            <check-circle-filled class="icon"/>
             <span>生产级 LLM 应用开发解决方案</span>
           </div>
           <div class="feature-item">
-            <check-circle-filled class="icon" />
+            <check-circle-filled class="icon"/>
             <span>为 Java 开发者而生的 AI 基础设施</span>
           </div>
         </div>
@@ -46,31 +46,35 @@
         </div>
 
         <a-form
-          :model="formState"
-          :rules="rules"
-          class="login-form"
-          @finish="handleLogin"
-          layout="vertical"
+            :model="formState"
+            :rules="rules"
+            class="login-form"
+            layout="vertical"
+            @finish="handleLogin"
         >
-          <a-form-item name="username" label="用户名">
+          <a-form-item label="用户名" name="username">
             <a-input
-              v-model:value="formState.username"
-              placeholder="Admin / User"
-              size="large"
-              class="custom-input"
+                v-model:value="formState.username"
+                class="custom-input"
+                placeholder="Admin / User"
+                size="large"
             >
-              <template #prefix><user-outlined /></template>
+              <template #prefix>
+                <user-outlined/>
+              </template>
             </a-input>
           </a-form-item>
 
-          <a-form-item name="password" label="密码">
+          <a-form-item label="密码" name="password">
             <a-input-password
-              v-model:value="formState.password"
-              placeholder="••••••••"
-              size="large"
-              class="custom-input"
+                v-model:value="formState.password"
+                class="custom-input"
+                placeholder="••••••••"
+                size="large"
             >
-              <template #prefix><lock-outlined /></template>
+              <template #prefix>
+                <lock-outlined/>
+              </template>
             </a-input-password>
           </a-form-item>
 
@@ -81,12 +85,12 @@
 
           <a-form-item>
             <a-button
-              type="primary"
-              html-type="submit"
-              size="large"
-              block
-              :loading="loading"
-              class="submit-btn"
+                :loading="loading"
+                block
+                class="submit-btn"
+                html-type="submit"
+                size="large"
+                type="primary"
             >
               即刻进入系统
             </a-button>
@@ -101,16 +105,12 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
-import { login } from '@/api/auth'
-import { 
-  UserOutlined, 
-  LockOutlined, 
-  CheckCircleFilled 
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {reactive, ref} from 'vue'
+import {useRouter} from 'vue-router'
+import {message} from 'ant-design-vue'
+import {login} from '@/api/auth'
+import {CheckCircleFilled, LockOutlined, UserOutlined} from '@ant-design/icons-vue'
 import logoUrl from '@/assets/Astrsomn-logo.png'
 import DocLangTheme from '@/components/top/DocLangTheme.vue'
 
@@ -123,8 +123,8 @@ const formState = reactive({
 })
 
 const rules = {
-  username: [{ required: true, message: '请输入用户名' }],
-  password: [{ required: true, message: '请输入密码' }]
+  username: [{required: true, message: '请输入用户名'}],
+  password: [{required: true, message: '请输入密码'}]
 }
 
 const goHome = () => router.push('/')
@@ -164,7 +164,9 @@ const handleLogin = async () => {
 /* 顶部玻璃态导航 */
 .glass-header {
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 72px;
   padding: 0 40px;
   display: flex;
@@ -181,11 +183,13 @@ const handleLogin = async () => {
 }
 
 .logo-dot {
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   background: transparent;
   border-radius: 8px;
   display: flex;
-  align-items: center; justify-content: center;
+  align-items: center;
+  justify-content: center;
   box-shadow: none;
   overflow: hidden;
 }
@@ -198,12 +202,15 @@ const handleLogin = async () => {
 }
 
 .logo-text {
-  font-size: 18px; font-weight: 700;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--text-heading);
 }
 
 .logo-text small {
-  font-weight: 400; font-size: 14px; opacity: 0.6;
+  font-weight: 400;
+  font-size: 14px;
+  opacity: 0.6;
 }
 
 .header-right {
@@ -220,17 +227,26 @@ const handleLogin = async () => {
 .nav-item {
   color: var(--text-secondary);
   font-size: 13px;
-  display: flex; align-items: center; gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .v-divider {
-  width: 1px; height: 14px; background: var(--border-default);
+  width: 1px;
+  height: 14px;
+  background: var(--border-default);
 }
 
-.lang-select { width: 80px; }
+.lang-select {
+  width: 80px;
+}
 
 .theme-toggle {
-  background: none; border: none; cursor: pointer; font-size: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
 }
 
 /* 左侧品牌区：光效与文字排版 */
@@ -246,10 +262,12 @@ const handleLogin = async () => {
 
 .brand-visual-bg {
   position: absolute;
-  width: 150%; height: 150%;
-  top: -25%; left: -25%;
+  width: 150%;
+  height: 150%;
+  top: -25%;
+  left: -25%;
   background: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1), transparent 40%),
-              radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.05), transparent 50%);
+  radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.05), transparent 50%);
   z-index: 1;
 }
 
@@ -327,7 +345,8 @@ const handleLogin = async () => {
 }
 
 .welcome-title {
-  font-size: 28px; font-weight: 700;
+  font-size: 28px;
+  font-weight: 700;
   color: var(--text-heading);
   margin-bottom: 8px;
 }
@@ -344,7 +363,8 @@ const handleLogin = async () => {
   border-color: var(--border-default) !important;
   transition: all 0.3s;
 }
-:deep(.ant-input){
+
+:deep(.ant-input) {
   background-color: var(--bg-input) !important;
 }
 
@@ -365,7 +385,9 @@ const handleLogin = async () => {
   font-size: 13px;
 }
 
-.forget-pwd { color: var(--primary); }
+.forget-pwd {
+  color: var(--primary);
+}
 
 .submit-btn {
   height: 50px;
@@ -385,7 +407,9 @@ const handleLogin = async () => {
 /* 页脚 */
 .login-footer {
   position: absolute;
-  bottom: 24px; left: 0; right: 0;
+  bottom: 24px;
+  left: 0;
+  right: 0;
   text-align: center;
   font-size: 12px;
   color: var(--text-muted);
@@ -393,7 +417,13 @@ const handleLogin = async () => {
 }
 
 @media (max-width: 1024px) {
-  .login-left { display: none; }
-  .login-right { flex: 1; width: 100%; }
+  .login-left {
+    display: none;
+  }
+
+  .login-right {
+    flex: 1;
+    width: 100%;
+  }
 }
 </style>

@@ -3,34 +3,38 @@
     <div class="toolbar">
       <div class="toolbar-left">
         <AstrsomnSearchPill
-          v-model="activeQuery.keyword"
-          placeholder="搜索插件名称 / Provider / 能力"
-          layout="toolbar"
-          @search="onSearch"
+            v-model="activeQuery.keyword"
+            layout="toolbar"
+            placeholder="搜索插件名称 / Provider / 能力"
+            @search="onSearch"
         />
-   
+
       </div>
       <div class="toolbar-right">
         <a-upload
-          v-if="isInstalledTab"
-          :show-upload-list="false"
-          accept=".jar,application/java-archive"
-          :before-upload="onBeforeUploadJar"
+            v-if="isInstalledTab"
+            :before-upload="onBeforeUploadJar"
+            :show-upload-list="false"
+            accept=".jar,application/java-archive"
         >
-          <a-button class="ghost-btn" :loading="jarUploading">
-            <template #icon><upload-outlined /></template>
+          <a-button :loading="jarUploading" class="ghost-btn">
+            <template #icon>
+              <upload-outlined/>
+            </template>
             导入插件
           </a-button>
         </a-upload>
         <a-popconfirm
-          v-if="isInstalledTab && selectedRowKeys.length > 0"
-          title="确定批量删除选中的扩展吗？"
-          ok-text="确认"
-          cancel-text="取消"
-          @confirm="handleBatchDelete"
+            v-if="isInstalledTab && selectedRowKeys.length > 0"
+            cancel-text="取消"
+            ok-text="确认"
+            title="确定批量删除选中的扩展吗？"
+            @confirm="handleBatchDelete"
         >
-          <a-button danger class="ghost-btn">
-            <template #icon><delete-outlined /></template>
+          <a-button class="ghost-btn" danger>
+            <template #icon>
+              <delete-outlined/>
+            </template>
             批量删除
           </a-button>
         </a-popconfirm>
@@ -40,94 +44,84 @@
 
     <div class="type-tab-row">
       <a-tabs :active-key="activeQuery.type" class="type-tabs" @change="onTypeChange">
-        <a-tab-pane key="ALL" tab="全部" />
-        <a-tab-pane key="MODEL_PROVIDER" tab="模型" />
-        <a-tab-pane key="VECTOR_STORE" tab="向量库" />
-        <a-tab-pane key="MCP" tab="MCP" />
+        <a-tab-pane key="ALL" tab="全部"/>
+        <a-tab-pane key="MODEL_PROVIDER" tab="模型"/>
+        <a-tab-pane key="VECTOR_STORE" tab="向量库"/>
+        <a-tab-pane key="MCP" tab="MCP"/>
       </a-tabs>
       <a-pagination
-        :current="activeQuery.pageNo"
-        :page-size="activeQuery.pageSize"
-        :total="activeTotal"
-        :show-size-changer="false"
-        @change="onPageChange"
+          :current="activeQuery.pageNo"
+          :page-size="activeQuery.pageSize"
+          :show-size-changer="false"
+          :total="activeTotal"
+          @change="onPageChange"
       />
     </div>
 
     <div v-if="activeList.length > 0" class="card-list">
       <transition-group name="card-list">
         <ExtensionCard
-          v-for="item in activeList"
-          :key="rowKey(item)"
-          :item="item"
-          :show-actions="isInstalledTab"
-          :is-selected="isRowSelected(item)"
-          @load-models="openLoadModelsPreview"
-          @unload-models="openUnloadModelsPreview"
-          @apply="handleApply"
-          @revoke-apply="handleRevokeApply"
-          @uninstall="handleUninstall"
-          @install="installFromCatalog"
-          @toggle-select="onCardToggleSelect"
+            v-for="item in activeList"
+            :key="rowKey(item)"
+            :is-selected="isRowSelected(item)"
+            :item="item"
+            :show-actions="isInstalledTab"
+            @apply="handleApply"
+            @install="installFromCatalog"
+            @uninstall="handleUninstall"
+            @load-models="openLoadModelsPreview"
+            @unload-models="openUnloadModelsPreview"
+            @revoke-apply="handleRevokeApply"
+            @toggle-select="onCardToggleSelect"
         />
       </transition-group>
     </div>
     <div v-else class="extension-empty">
-      <a-empty :description="isInstalledTab ? '暂无已安装扩展' : '暂无市场插件'" />
+      <a-empty :description="isInstalledTab ? '暂无已安装扩展' : '暂无市场插件'"/>
     </div>
 
     <ExtensionModelLoadDialog
-      :open="loadSyncModal.open"
-      :extension-label="loadSyncModal.extensionLabel"
-      :loading-preview="loadSyncModal.loadingPreview"
-      :preview-error="loadSyncModal.previewError"
-      :load-preview="loadSyncModal.loadPreview"
-      :confirm="confirmLoadModels"
-      @update:open="(v) => (loadSyncModal.open = v)"
-      @cancel="resetLoadSyncModal"
+        :confirm="confirmLoadModels"
+        :extension-label="loadSyncModal.extensionLabel"
+        :load-preview="loadSyncModal.loadPreview"
+        :loading-preview="loadSyncModal.loadingPreview"
+        :open="loadSyncModal.open"
+        :preview-error="loadSyncModal.previewError"
+        @cancel="resetLoadSyncModal"
+        @update:open="(v) => (loadSyncModal.open = v)"
     />
     <ExtensionModelUnloadDialog
-      :open="unloadSyncModal.open"
-      :extension-label="unloadSyncModal.extensionLabel"
-      :loading-preview="unloadSyncModal.loadingPreview"
-      :preview-error="unloadSyncModal.previewError"
-      :unload-preview="unloadSyncModal.unloadPreview"
-      :confirm="confirmUnloadModels"
-      @update:open="(v) => (unloadSyncModal.open = v)"
-      @cancel="resetUnloadSyncModal"
+        :confirm="confirmUnloadModels"
+        :extension-label="unloadSyncModal.extensionLabel"
+        :loading-preview="unloadSyncModal.loadingPreview"
+        :open="unloadSyncModal.open"
+        :preview-error="unloadSyncModal.previewError"
+        :unload-preview="unloadSyncModal.unloadPreview"
+        @cancel="resetUnloadSyncModal"
+        @update:open="(v) => (unloadSyncModal.open = v)"
     />
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import { message } from 'ant-design-vue'
-import {
-  CaretRightOutlined,
-  CloudDownloadOutlined,
-  DeleteOutlined,
-  DownloadOutlined,
-  PauseOutlined,
-  RestOutlined,
-  UploadOutlined
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from 'vue'
+import {message} from 'ant-design-vue'
+import {DeleteOutlined, UploadOutlined} from '@ant-design/icons-vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import {
-  systemExtensionApi,
   type ExtensionModelLoadPreview,
   type ExtensionModelUnloadPreview,
   type PageResponse,
   type SystemExtension,
+  systemExtensionApi,
   type SystemExtensionQueryPagePayload
 } from '@/api/systemExtension.ts'
-import {
-  extensionTypeLabel,
-  isUninstallableExtension,
-  preview,
-  type ExtensionRow
-} from '@/views/admin/system-config/system-extension/model-dialog/extensionDisplay.ts'
-import ExtensionModelLoadDialog from '@/views/admin/system-config/system-extension/model-dialog/ExtensionModelLoadDialog.vue'
-import ExtensionModelUnloadDialog from '@/views/admin/system-config/system-extension/model-dialog/ExtensionModelUnloadDialog.vue'
+import {extensionMarketplaceApi} from '@/api/extensionMarketplace.ts'
+import {type ExtensionRow} from '@/views/admin/system-config/system-extension/model-dialog/extensionDisplay.ts'
+import ExtensionModelLoadDialog
+  from '@/views/admin/system-config/system-extension/model-dialog/ExtensionModelLoadDialog.vue'
+import ExtensionModelUnloadDialog
+  from '@/views/admin/system-config/system-extension/model-dialog/ExtensionModelUnloadDialog.vue'
 import ExtensionCard from './ExtensionCard.vue'
 
 type ExtensionPanel = 'marketplace' | 'installed'
@@ -138,17 +132,17 @@ const emit = defineEmits<{ 'update:activeTab': [tab: ExtensionPanel] }>()
 
 const activeTabLocal = ref<ExtensionPanel>(props.activeTab || 'installed')
 watch(
-  () => props.activeTab,
-  (v) => {
-    if (v && v !== activeTabLocal.value) {
-      activeTabLocal.value = v
-      void fetchActiveList()
+    () => props.activeTab,
+    (v) => {
+      if (v && v !== activeTabLocal.value) {
+        activeTabLocal.value = v
+        void fetchActiveList()
+      }
     }
-  }
 )
 
-const installedQuery = reactive<QueryState>({ keyword: '', type: 'ALL', pageNo: 1, pageSize: 10 })
-const marketplaceQuery = reactive<QueryState>({ keyword: '', type: 'ALL', pageNo: 1, pageSize: 8 })
+const installedQuery = reactive<QueryState>({keyword: '', type: 'ALL', pageNo: 1, pageSize: 10})
+const marketplaceQuery = reactive<QueryState>({keyword: '', type: 'ALL', pageNo: 1, pageSize: 8})
 const installedList = ref<ExtensionRow[]>([])
 const marketplaceList = ref<ExtensionRow[]>([])
 const installedTotal = ref(0)
@@ -157,10 +151,10 @@ const selectedRowKeys = ref<string[]>([])
 const jarUploading = ref(false)
 
 const typeFilterOptions = [
-  { label: '全部类型', value: 'ALL' },
-  { label: '模型', value: 'MODEL_PROVIDER' },
-  { label: '向量库', value: 'VECTOR_STORE' },
-  { label: 'MCP', value: 'MCP' }
+  {label: '全部类型', value: 'ALL'},
+  {label: '模型', value: 'MODEL_PROVIDER'},
+  {label: '向量库', value: 'VECTOR_STORE'},
+  {label: 'MCP', value: 'MCP'}
 ]
 
 const isInstalledTab = computed(() => activeTabLocal.value === 'installed')
@@ -247,7 +241,7 @@ async function fetchInstalledList() {
 
 async function fetchMarketplaceList() {
   const typeQ = marketplaceQuery.type === 'ALL' ? undefined : marketplaceQuery.type
-  const resp = await systemExtensionApi.marketplaceCatalog(typeQ, marketplaceQuery.pageNo, marketplaceQuery.pageSize)
+  const resp = await extensionMarketplaceApi.catalog(typeQ, marketplaceQuery.pageNo, marketplaceQuery.pageSize)
   let rows = resp.list || []
   const keyword = marketplaceQuery.keyword?.trim().toLowerCase()
   if (keyword) {
@@ -286,9 +280,9 @@ async function installFromCatalog(item: ExtensionRow) {
 
 async function handleBatchDelete() {
   const ids = installedList.value
-    .filter((x) => selectedRowKeys.value.includes(rowKey(x)))
-    .map((x) => x.id)
-    .filter((x): x is string | number => x != null)
+      .filter((x) => selectedRowKeys.value.includes(rowKey(x)))
+      .map((x) => x.id)
+      .filter((x): x is string | number => x != null)
   if (ids.length === 0) return
   const msg = await systemExtensionApi.delete(ids)
   message.success(msg)
@@ -378,7 +372,7 @@ async function openLoadModelsPreview(record: ExtensionRow) {
   loadSyncModal.loadingPreview = true
   try {
     const data = await systemExtensionApi.previewLoadModels(id)
-    loadSyncModal.loadPreview = data ?? { toCreate: [], skippedExisting: [], skippedInvalidCount: 0 }
+    loadSyncModal.loadPreview = data ?? {toCreate: [], skippedExisting: [], skippedInvalidCount: 0}
   } catch (e: unknown) {
     const err = e as { message?: string }
     loadSyncModal.previewError = err?.message || '加载预览失败'
@@ -398,7 +392,7 @@ async function openUnloadModelsPreview(record: ExtensionRow) {
   unloadSyncModal.loadingPreview = true
   try {
     const data = await systemExtensionApi.previewUnloadModels(id)
-    unloadSyncModal.unloadPreview = data ?? { toRemove: [], keptReferenced: [] }
+    unloadSyncModal.unloadPreview = data ?? {toRemove: [], keptReferenced: []}
   } catch (e: unknown) {
     const err = e as { message?: string }
     unloadSyncModal.previewError = err?.message || '卸载预览失败'

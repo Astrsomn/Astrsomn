@@ -7,25 +7,27 @@
             <div class="brand-section">
               <div class="status-label">
                 <span class="label-text">当前选中资产</span>
-                <a-tag color="success" class="subtle-tag">
-                  <template #icon><sync-outlined :spin="true" /></template>
+                <a-tag class="subtle-tag" color="success">
+                  <template #icon>
+                    <sync-outlined :spin="true"/>
+                  </template>
                   运行中
                 </a-tag>
               </div>
               <a-input
-                :value="libraryName"
-                @update:value="(v) => (libraryName = v)"
-                class="main-title-input"
-                placeholder="请输入知识库名称"
+                  :value="libraryName"
+                  class="main-title-input"
+                  placeholder="请输入知识库名称"
+                  @update:value="(v) => (libraryName = v)"
               />
               <a-input
-                :value="description"
-                @update:value="(v) => (description = v)"
-                type="textarea"
-                class="description-input"
-                placeholder="请输入描述信息（可选）"
-                :rows="2"
-                :auto-size="{ minRows: 2, maxRows: 4 }"
+                  :auto-size="{ minRows: 2, maxRows: 4 }"
+                  :rows="2"
+                  :value="description"
+                  class="description-input"
+                  placeholder="请输入描述信息（可选）"
+                  type="textarea"
+                  @update:value="(v) => (description = v)"
               />
               <div class="sync-meta">
                 上次同步: {{ lastSyncText }} • <span class="node-text">{{ sourceNodeText }}</span>
@@ -36,12 +38,12 @@
               <div class="config-item">
                 <span class="config-label">Embedding 模型</span>
                 <a-select
-                  :value="selectedModel"
-                  @update:value="(v) => (selectedModel = v)"
-                  class="model-select"
-                  :options="modelOptions"
-                  :loading="instanceLoading"
-                  placeholder="选择模型"
+                    :loading="instanceLoading"
+                    :options="modelOptions"
+                    :value="selectedModel"
+                    class="model-select"
+                    placeholder="选择模型"
+                    @update:value="(v) => (selectedModel = v)"
                 />
               </div>
               <div class="config-divider"></div>
@@ -52,7 +54,7 @@
               </div>
             </div>
             <div class="action-area">
-              <a-button type="primary" size="small" @click="handleSave">保存</a-button>
+              <a-button size="small" type="primary" @click="handleSave">保存</a-button>
             </div>
           </div>
         </a-card>
@@ -65,8 +67,8 @@
               <span class="stats-label">存储统计 / STORAGE</span>
               <div class="main-number">
                 <a-statistic
-                  :value="vectorCount"
-                  :value-style="{ color: '#fff', fontSize: '28px', fontWeight: '700' }"
+                    :value="vectorCount"
+                    :value-style="{ color: '#fff', fontSize: '28px', fontWeight: '700' }"
                 />
                 <span class="unit">个向量片段</span>
               </div>
@@ -77,7 +79,7 @@
               </div>
             </div>
             <div class="stats-icon-box">
-              <bar-chart-outlined />
+              <bar-chart-outlined/>
             </div>
           </div>
         </a-card>
@@ -87,13 +89,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, watch } from 'vue';
-import { message } from 'ant-design-vue'
-import { BarChartOutlined, SyncOutlined } from '@ant-design/icons-vue';
-import type { AiVecStore } from '@/api/aiVecStore'
-import type { AiVecSource } from '@/api/aiVecSource'
-import { aiVecStoreApi } from '@/api/aiVecStore'
-import { aiInstanceApi } from '@/api/aiInstance'
+import {computed, reactive, ref, watch} from 'vue';
+import {message} from 'ant-design-vue'
+import {BarChartOutlined, SyncOutlined} from '@ant-design/icons-vue';
+import type {AiVecStore} from '@/api/aiVecStore'
+import {aiVecStoreApi} from '@/api/aiVecStore'
+import type {AiVecSource} from '@/api/aiVecSource'
+import {aiInstanceApi} from '@/api/aiInstance'
 
 const props = defineProps<{
   store?: AiVecStore
@@ -118,22 +120,22 @@ const stats = reactive({
 const modelOptions = ref<Array<{ value: string; label: string }>>([])
 
 watch(
-  () => props.store,
-  async (store) => {
-    libraryName.value = store?.collectionName || ''
-    description.value = store?.metadataSchema || ''
-    selectedModel.value = store?.instanceKey || ''
-    if (store?.id) {
-      await Promise.all([fetchStoreStats(store.id), fetchInstanceOptions()])
-    } else {
-      stats.docCount = 0
-      stats.segmentCount = 0
-      stats.totalWordCount = 0
-      stats.lastSyncTime = ''
-      modelOptions.value = []
-    }
-  },
-  { immediate: true }
+    () => props.store,
+    async (store) => {
+      libraryName.value = store?.collectionName || ''
+      description.value = store?.metadataSchema || ''
+      selectedModel.value = store?.instanceKey || ''
+      if (store?.id) {
+        await Promise.all([fetchStoreStats(store.id), fetchInstanceOptions()])
+      } else {
+        stats.docCount = 0
+        stats.segmentCount = 0
+        stats.totalWordCount = 0
+        stats.lastSyncTime = ''
+        modelOptions.value = []
+      }
+    },
+    {immediate: true}
 )
 
 const vectorCount = computed(() => stats.segmentCount)
@@ -158,12 +160,12 @@ const fetchInstanceOptions = async () => {
     })
     const list = resp.list || []
     modelOptions.value = list
-      .filter((x) => String(x.modelType || '').toLowerCase().includes('embedding'))
-      .map((x) => ({
-        value: String(x.instanceKey || ''),
-        label: `${x.instanceName || x.instanceKey} (${x.instanceKey})`
-      }))
-      .filter((x) => x.value)
+        .filter((x) => String(x.modelType || '').toLowerCase().includes('embedding'))
+        .map((x) => ({
+          value: String(x.instanceKey || ''),
+          label: `${x.instanceName || x.instanceKey} (${x.instanceKey})`
+        }))
+        .filter((x) => x.value)
   } finally {
     instanceLoading.value = false
   }
@@ -300,7 +302,11 @@ const handleSave = async () => {
       font-size: 12px;
       color: var(--text-secondary);
       margin-top: 4px;
-      .node-text { color: var(--text-muted); font-family: monospace; }
+
+      .node-text {
+        color: var(--text-muted);
+        font-family: monospace;
+      }
     }
   }
 
@@ -432,7 +438,12 @@ const handleSave = async () => {
 
 /* 响应式微调 */
 @media (max-width: 1200px) {
-  .brand-section { padding-right: 20px !important; }
-  .main-title { font-size: 18px !important; }
+  .brand-section {
+    padding-right: 20px !important;
+  }
+
+  .main-title {
+    font-size: 18px !important;
+  }
 }
 </style>

@@ -1,45 +1,45 @@
 <template>
   <main class="assembly-canvas">
     <div class="canvas-header">
-      <a-form layout="vertical" :colon="false" class="agent-assembly-form">
+      <a-form :colon="false" class="agent-assembly-form" layout="vertical">
         <div class="header-row">
           <div class="form-group-main">
-            <a-form-item label="名称" class="fi-name">
-              <a-input v-model:value="agentForm.agentName" placeholder="智能体名称" allow-clear />
+            <a-form-item class="fi-name" label="名称">
+              <a-input v-model:value="agentForm.agentName" allow-clear placeholder="智能体名称"/>
             </a-form-item>
-            <a-form-item label="Streamable" class="fi-stream">
-              <a-switch v-model:checked="agentForm.enableStream" />
+            <a-form-item class="fi-stream" label="Streamable">
+              <a-switch v-model:checked="agentForm.enableStream"/>
             </a-form-item>
-            <a-form-item label="记忆模式" class="fi-mem">
-              <a-select v-model:value="agentForm.memoryMode" :options="memoryModeOptions" />
+            <a-form-item class="fi-mem" label="记忆模式">
+              <a-select v-model:value="agentForm.memoryMode" :options="memoryModeOptions"/>
             </a-form-item>
-            <a-form-item label="窗口大小" class="fi-win">
-              <a-input-number v-model:value="memoryWindowNum" :min="0" />
+            <a-form-item class="fi-win" label="窗口大小">
+              <a-input-number v-model:value="memoryWindowNum" :min="0"/>
             </a-form-item>
           </div>
-          
-     
+
+
         </div>
 
         <div class="header-row row-meta">
-          <a-form-item label="状态" class="fi-status">
+          <a-form-item class="fi-status" label="状态">
             <a-select v-model:value="agentForm.status" placeholder="选择状态">
               <a-select-option value="enabled">启用</a-select-option>
               <a-select-option value="disabled">禁用</a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item label="标识符 (Agent Key)" class="fi-key">
+          <a-form-item class="fi-key" label="标识符 (Agent Key)">
             <AstrsomnKeyGenerator
-              v-model="agentForm.agentKey"
-              :prefix="AI_AGENT_KEY_PREFIX"
-              placeholder="唯一 ID"
+                v-model="agentForm.agentKey"
+                :prefix="AI_AGENT_KEY_PREFIX"
+                placeholder="唯一 ID"
             />
           </a-form-item>
-          <a-form-item label="角色描述" class="fi-desc">
+          <a-form-item class="fi-desc" label="角色描述">
             <a-textarea
-              v-model:value="agentForm.description"
-              placeholder="定义 AI 的行为准则..."
-              :auto-size="{ minRows: 1, maxRows: 3 }"
+                v-model:value="agentForm.description"
+                :auto-size="{ minRows: 1, maxRows: 3 }"
+                placeholder="定义 AI 的行为准则..."
             />
           </a-form-item>
         </div>
@@ -49,50 +49,54 @@
     <div class="drop-stack">
       <div class="drop-grid drop-grid-main">
         <AssemblyDropZone
-          slot-key="chatInstance"
-          title="对话核心 (Chat)"
-          variant="chat"
-          :icon="MessageOutlined"
-          :dragging-payload="draggingPayload"
-          :active-drop-key="activeDropKey"
-          :has-content="!!chatInstance"
-          class="canvas-slot slot-chat"
-          @hover="$emit('hover', $event)"
-          @drop="$emit('drop', $event)"
+            :active-drop-key="activeDropKey"
+            :dragging-payload="draggingPayload"
+            :has-content="!!chatInstance"
+            :icon="MessageOutlined"
+            class="canvas-slot slot-chat"
+            slot-key="chatInstance"
+            title="对话核心 (Chat)"
+            variant="chat"
+            @drop="$emit('drop', $event)"
+            @hover="$emit('hover', $event)"
         >
           <template v-if="chatInstance">
             <div class="placed-card-fill">
-              <div class="card-icon"><MessageOutlined /></div>
+              <div class="card-icon">
+                <MessageOutlined/>
+              </div>
               <div class="card-content">
                 <div class="p-title">{{ chatInstance.instanceName || chatInstance.instanceKey }}</div>
                 <div class="p-sub">{{ chatInstance.modelKey }}</div>
               </div>
-              <a-button type="link" size="small" danger @click="$emit('clear', 'chatInstance')">移除</a-button>
+              <a-button danger size="small" type="link" @click="$emit('clear', 'chatInstance')">移除</a-button>
             </div>
           </template>
           <div v-else class="placeholder-minimal">请拖入对话模型</div>
         </AssemblyDropZone>
-        
+
         <AssemblyDropZone
-          slot-key="promptInstance"
-          title="系统提示词 (Prompt)"
-          variant="chat"
-          :icon="FileTextOutlined"
-          :dragging-payload="draggingPayload"
-          :active-drop-key="activeDropKey"
-          :has-content="!!promptInstance"
-          class="canvas-slot slot-prompt"
-          @hover="$emit('hover', $event)"
-          @drop="$emit('drop', $event)"
+            :active-drop-key="activeDropKey"
+            :dragging-payload="draggingPayload"
+            :has-content="!!promptInstance"
+            :icon="FileTextOutlined"
+            class="canvas-slot slot-prompt"
+            slot-key="promptInstance"
+            title="系统提示词 (Prompt)"
+            variant="chat"
+            @drop="$emit('drop', $event)"
+            @hover="$emit('hover', $event)"
         >
           <template v-if="promptInstance">
             <div class="placed-card-fill">
-              <div class="card-icon"><FileTextOutlined /></div>
+              <div class="card-icon">
+                <FileTextOutlined/>
+              </div>
               <div class="card-content">
                 <div class="p-title">{{ promptInstance.promptTitle || promptInstance.promptKey }}</div>
                 <div class="p-sub">{{ promptInstance.promptKey }}</div>
               </div>
-              <a-button type="link" size="small" danger @click="$emit('clear', 'promptInstance')">移除</a-button>
+              <a-button danger size="small" type="link" @click="$emit('clear', 'promptInstance')">移除</a-button>
             </div>
           </template>
           <div v-else class="placeholder-minimal">请拖入提示词</div>
@@ -101,38 +105,38 @@
 
       <div class="drop-grid drop-grid-secondary">
         <AssemblyDropZone
-          slot-key="imageInstance"
-          title="多媒体支持"
-          variant="img"
-          :icon="PictureOutlined"
-          :dragging-payload="draggingPayload"
-          :active-drop-key="activeDropKey"
-          :has-content="!!imageInstance"
-          class="canvas-slot"
-          @hover="$emit('hover', $event)"
-          @drop="$emit('drop', $event)"
+            :active-drop-key="activeDropKey"
+            :dragging-payload="draggingPayload"
+            :has-content="!!imageInstance"
+            :icon="PictureOutlined"
+            class="canvas-slot"
+            slot-key="imageInstance"
+            title="多媒体支持"
+            variant="img"
+            @drop="$emit('drop', $event)"
+            @hover="$emit('hover', $event)"
         >
           <div v-if="imageInstance" class="placed-card-fill">
             <div class="card-content">
               <div class="p-title">{{ imageInstance.instanceName || imageInstance.instanceKey }}</div>
               <div class="p-sub">{{ imageInstance.modelKey }}</div>
             </div>
-            <a-button type="link" size="small" danger @click="$emit('clear', 'imageInstance')">移除</a-button>
+            <a-button danger size="small" type="link" @click="$emit('clear', 'imageInstance')">移除</a-button>
           </div>
           <div v-else class="placeholder-minimal">未配置图像</div>
         </AssemblyDropZone>
 
         <AssemblyDropZone
-          slot-key="tools"
-          title="插件工具 (Tools)"
-          variant="tool"
-          :icon="ToolOutlined"
-          :dragging-payload="draggingPayload"
-          :active-drop-key="activeDropKey"
-          :has-content="tools.length > 0"
-          class="canvas-slot"
-          @hover="$emit('hover', $event)"
-          @drop="$emit('drop', $event)"
+            :active-drop-key="activeDropKey"
+            :dragging-payload="draggingPayload"
+            :has-content="tools.length > 0"
+            :icon="ToolOutlined"
+            class="canvas-slot"
+            slot-key="tools"
+            title="插件工具 (Tools)"
+            variant="tool"
+            @drop="$emit('drop', $event)"
+            @hover="$emit('hover', $event)"
         >
           <div v-if="tools.length" class="placed-card-fill tag-wrap">
             <a-tag v-for="t in tools" :key="t.toolKey" closable color="blue" @close="removeToolTag(t.toolKey)">
@@ -143,16 +147,16 @@
         </AssemblyDropZone>
 
         <AssemblyDropZone
-          slot-key="mcps"
-          title="MCP 服务"
-          variant="mcp"
-          :icon="ApiOutlined"
-          :dragging-payload="draggingPayload"
-          :active-drop-key="activeDropKey"
-          :has-content="mcps.length > 0"
-          class="canvas-slot"
-          @hover="$emit('hover', $event)"
-          @drop="$emit('drop', $event)"
+            :active-drop-key="activeDropKey"
+            :dragging-payload="draggingPayload"
+            :has-content="mcps.length > 0"
+            :icon="ApiOutlined"
+            class="canvas-slot"
+            slot-key="mcps"
+            title="MCP 服务"
+            variant="mcp"
+            @drop="$emit('drop', $event)"
+            @hover="$emit('hover', $event)"
         >
           <div v-if="mcps.length" class="placed-card-fill tag-wrap">
             <a-tag v-for="m in mcps" :key="m.mcpKey" closable color="purple" @close="removeMcpTag(m.mcpKey)">
@@ -166,16 +170,16 @@
 
     <div class="knowledge-section">
       <AssemblyDropZone
-        slot-key="knowledgeBase"
-        title="关联知识库"
-        variant="kb"
-        :icon="BookOutlined"
-        :dragging-payload="draggingPayload"
-        :active-drop-key="activeDropKey"
-        :has-content="knowledgeKeys.length > 0"
-        class="canvas-slot"
-        @hover="$emit('hover', $event)"
-        @drop="$emit('drop', $event)"
+          :active-drop-key="activeDropKey"
+          :dragging-payload="draggingPayload"
+          :has-content="knowledgeKeys.length > 0"
+          :icon="BookOutlined"
+          class="canvas-slot"
+          slot-key="knowledgeBase"
+          title="关联知识库"
+          variant="kb"
+          @drop="$emit('drop', $event)"
+          @hover="$emit('hover', $event)"
       >
         <div v-if="knowledgeKeys.length" class="placed-card-fill tag-wrap">
           <a-tag v-for="k in knowledgeKeys" :key="k" closable color="cyan" @close="emit('removeKnowledgeKey', k)">
@@ -188,26 +192,30 @@
   </main>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
 import {
-  ApiOutlined, BookOutlined, FileTextOutlined, MessageOutlined,
-  PictureOutlined, ToolOutlined
+  ApiOutlined,
+  BookOutlined,
+  FileTextOutlined,
+  MessageOutlined,
+  PictureOutlined,
+  ToolOutlined
 } from '@ant-design/icons-vue'
-import type { AiInstance } from '@/api/aiInstance'
-import type { AiTool } from '@/api/aiTool'
-import type { AiMcp } from '@/api/aiMcp'
-import type { AiPrompt } from '@/api/aiPrompt'
-import type { AssemblyAgentForm, AssemblyDragPayload, AssemblySlotKey } from './assemblyTypes'
+import type {AiInstance} from '@/api/aiInstance'
+import type {AiTool} from '@/api/aiTool'
+import type {AiMcp} from '@/api/aiMcp'
+import type {AiPrompt} from '@/api/aiPrompt'
+import type {AssemblyAgentForm, AssemblyDragPayload, AssemblySlotKey} from './assemblyTypes'
 import AssemblyDropZone from './AssemblyDropZone.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
-import { AI_AGENT_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
+import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
 const memoryModeOptions = [
-  { label: '禁用', value: 'NONE' },
-  { label: '滑动窗口', value: 'SLIDING_WINDOW' },
-  { label: '长期向量', value: 'VECTOR' },
-  { label: '混合模式', value: 'hybrid' }
+  {label: '禁用', value: 'NONE'},
+  {label: '滑动窗口', value: 'SLIDING_WINDOW'},
+  {label: '长期向量', value: 'VECTOR'},
+  {label: '混合模式', value: 'hybrid'}
 ]
 
 const props = defineProps<{
@@ -221,7 +229,7 @@ const props = defineProps<{
   knowledgeKeys: string[]
 }>()
 
-const agentForm = defineModel<AssemblyAgentForm>('agentForm', { required: true })
+const agentForm = defineModel<AssemblyAgentForm>('agentForm', {required: true})
 
 const memoryWindowNum = computed({
   get(): number | undefined {
@@ -244,8 +252,13 @@ const emit = defineEmits<{
   submit: []
 }>()
 
-function removeToolTag(key?: string) { if (key) emit('removeTool', key) }
-function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
+function removeToolTag(key?: string) {
+  if (key) emit('removeTool', key)
+}
+
+function removeMcpTag(key?: string) {
+  if (key) emit('removeMcp', key)
+}
 </script>
 
 <style scoped>
@@ -277,7 +290,9 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
   gap: 24px;
 }
 
-.row-meta { margin-top: 20px; }
+.row-meta {
+  margin-top: 20px;
+}
 
 .form-group-main {
   display: flex;
@@ -286,20 +301,43 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
   align-items: flex-end;
 }
 
-:deep(.ant-form-item) { margin-bottom: 0 !important; }
+:deep(.ant-form-item) {
+  margin-bottom: 0 !important;
+}
+
 :deep(.ant-form-item-label > label) {
   font-size: 12px;
   color: var(--assembly-form-label);
   font-weight: 600;
 }
 
-.fi-name { flex: 2; }
-.fi-stream { flex: 0; }
-.fi-mem { flex: 1; }
-.fi-win { flex: 0 0 80px; }
-.fi-status { flex: 0 0 120px; }
-.fi-key { flex: 1; }
-.fi-desc { flex: 2; }
+.fi-name {
+  flex: 2;
+}
+
+.fi-stream {
+  flex: 0;
+}
+
+.fi-mem {
+  flex: 1;
+}
+
+.fi-win {
+  flex: 0 0 80px;
+}
+
+.fi-status {
+  flex: 0 0 120px;
+}
+
+.fi-key {
+  flex: 1;
+}
+
+.fi-desc {
+  flex: 2;
+}
 
 /* 按钮样式 */
 .action-btn {
@@ -307,8 +345,16 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
   border-radius: 8px;
   font-weight: 500;
 }
-.btn-ghost { border: 1px solid var(--assembly-btn-ghost-border); color: var(--assembly-btn-ghost-text); }
-.btn-primary { padding: 0 24px; box-shadow: var(--assembly-btn-primary-shadow); }
+
+.btn-ghost {
+  border: 1px solid var(--assembly-btn-ghost-border);
+  color: var(--assembly-btn-ghost-text);
+}
+
+.btn-primary {
+  padding: 0 24px;
+  box-shadow: var(--assembly-btn-primary-shadow);
+}
 
 /* 拖拽区域堆叠 */
 .drop-stack {
@@ -339,9 +385,11 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
   .drop-grid-main {
     grid-template-columns: 1fr;
   }
+
   .drop-grid-secondary {
     grid-template-columns: 1fr;
   }
+
   .form-group-main {
     flex-wrap: wrap;
   }
@@ -367,8 +415,14 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card-icon {
@@ -420,7 +474,12 @@ function removeMcpTag(key?: string) { if (key) emit('removeMcp', key) }
 }
 
 @media (max-width: 1024px) {
-  .drop-grid { grid-template-columns: 1fr; }
-  .form-group-main { flex-wrap: wrap; }
+  .drop-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group-main {
+    flex-wrap: wrap;
+  }
 }
 </style>

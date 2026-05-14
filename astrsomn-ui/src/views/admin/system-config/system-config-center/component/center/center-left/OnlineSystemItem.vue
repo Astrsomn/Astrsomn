@@ -2,8 +2,8 @@
   <tr class="biz-row">
     <td class="col-name">
       <div class="name-cell">
-        <div class="icon-swatch" :class="`icon-swatch--${system.iconTheme}`">
-          <component :is="system.icon" class="icon-swatch__ico" />
+        <div :class="`icon-swatch--${system.iconTheme}`" class="icon-swatch">
+          <component :is="system.icon" class="icon-swatch__ico"/>
         </div>
         <span class="name-text">{{ system.name }}</span>
       </div>
@@ -13,16 +13,16 @@
     </td>
     <td class="col-owner">
       <span class="owner-line">
-        <span class="owner-dot" :class="`owner-dot--${system.ownerDot}`" aria-hidden="true" />
+        <span :class="`owner-dot--${system.ownerDot}`" aria-hidden="true" class="owner-dot"/>
         {{ system.ownerName }}
       </span>
     </td>
     <td class="col-env">
-      <span class="env-tag" :class="`env-tag--${system.env}`">{{ envLabel(system.env) }}</span>
+      <span :class="`env-tag--${system.env}`" class="env-tag">{{ envLabel(system.env) }}</span>
     </td>
     <td class="col-status">
-      <span class="status-line" :class="`status-line--${system.status}`">
-        <span class="status-dot" aria-hidden="true" />
+      <span :class="`status-line--${system.status}`" class="status-line">
+        <span aria-hidden="true" class="status-dot"/>
         {{ statusLabel(system.status) }}
       </span>
     </td>
@@ -35,23 +35,23 @@
     </td>
     <td class="col-actions">
       <div class="action-btns">
-        <button type="button" class="icon-action" aria-label="监控" @click.stop>
-          <MonitorOutlined />
+        <button aria-label="监控" class="icon-action" type="button" @click.stop>
+          <MonitorOutlined/>
         </button>
-        <button type="button" class="icon-action" aria-label="编辑" @click.stop>
-          <EditOutlined />
+        <button aria-label="编辑" class="icon-action" type="button" @click.stop>
+          <EditOutlined/>
         </button>
-        <button type="button" class="icon-action" aria-label="更多" @click.stop>
-          <EllipsisOutlined />
+        <button aria-label="更多" class="icon-action" type="button" @click.stop>
+          <EllipsisOutlined/>
         </button>
       </div>
     </td>
   </tr>
 </template>
 
-<script setup lang="ts">
-import { EditOutlined, EllipsisOutlined, MonitorOutlined } from '@ant-design/icons-vue'
-import type { Component } from 'vue'
+<script lang="ts" setup>
+import {EditOutlined, EllipsisOutlined, MonitorOutlined} from '@ant-design/icons-vue'
+import type {Component} from 'vue'
 
 type SystemStatus = 'online' | 'offline' | 'maintenance'
 type SystemEnv = 'prod' | 'pre' | 'test' | 'dev'

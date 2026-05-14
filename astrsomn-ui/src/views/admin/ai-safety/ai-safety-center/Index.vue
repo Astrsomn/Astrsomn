@@ -1,14 +1,14 @@
 <template>
   <AstrsomnDashboardWrapper>
     <div class="cen ter-page">
-      <Top :safety-stats="safetyStats" />
-      <Center :trace-stats="traceStats" :trace-cases="traceCases" :latest-events="latestEvents" />
-      <Bottom :module-cards="moduleCards" @go-to="goTo" />
+      <Top :safety-stats="safetyStats"/>
+      <Center :latest-events="latestEvents" :trace-cases="traceCases" :trace-stats="traceStats"/>
+      <Bottom :module-cards="moduleCards" @go-to="goTo"/>
     </div>
   </AstrsomnDashboardWrapper>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import {
   AlertOutlined,
   CheckCircleOutlined,
@@ -20,8 +20,8 @@ import {
   SecurityScanOutlined,
   WarningOutlined
 } from '@ant-design/icons-vue'
-import type { Component } from 'vue'
-import { useRouter } from 'vue-router'
+import type {Component} from 'vue'
+import {useRouter} from 'vue-router'
 import AstrsomnDashboardWrapper from '@/components/home/AstrsomnDashboardWrapper.vue'
 import Top from './component/top.vue'
 import Center from './component/center.vue'
@@ -68,34 +68,34 @@ const moduleCards: ModuleCard[] = [
 ]
 
 const safetyStats: SafetyStat[] = [
-  { label: '策略总数', value: '72', hint: '本周新增 6 条', trend: 'up', icon: SecurityScanOutlined },
-  { label: '今日拦截', value: '1,284', hint: '较昨日 +11%', trend: 'up', icon: AlertOutlined },
-  { label: '误拦截率', value: '0.8%', hint: '较昨日 -0.2%', trend: 'down', icon: CheckCircleOutlined },
-  { label: '待复核事件', value: '9', hint: '较昨日持平', trend: 'flat', icon: SafetyCertificateOutlined }
+  {label: '策略总数', value: '72', hint: '本周新增 6 条', trend: 'up', icon: SecurityScanOutlined},
+  {label: '今日拦截', value: '1,284', hint: '较昨日 +11%', trend: 'up', icon: AlertOutlined},
+  {label: '误拦截率', value: '0.8%', hint: '较昨日 -0.2%', trend: 'down', icon: CheckCircleOutlined},
+  {label: '待复核事件', value: '9', hint: '较昨日持平', trend: 'flat', icon: SafetyCertificateOutlined}
 ]
 
 const traceStats = [
-  { label: '已成功链路', value: '2,148', hint: '成功率 96.1%', icon: CheckCircleOutlined },
-  { label: '失败链路', value: '87', hint: '失败率 3.9%', icon: CloseCircleOutlined },
-  { label: '进行中链路', value: '46', hint: '峰值并发 71', icon: ClockCircleOutlined }
+  {label: '已成功链路', value: '2,148', hint: '成功率 96.1%', icon: CheckCircleOutlined},
+  {label: '失败链路', value: '87', hint: '失败率 3.9%', icon: CloseCircleOutlined},
+  {label: '进行中链路', value: '46', hint: '峰值并发 71', icon: ClockCircleOutlined}
 ]
 
 const latestEvents = [
-  { title: '检测到疑似 Prompt 注入请求', level: 'high', levelText: '高危', source: '客服助手', time: '2分钟前' },
-  { title: '命中敏感词策略并完成拦截', level: 'medium', levelText: '中危', source: '营销生成', time: '8分钟前' },
-  { title: '模型输出触发合规复检规则', level: 'medium', levelText: '中危', source: '知识问答', time: '14分钟前' },
-  { title: '审计链路追踪任务执行成功', level: 'low', levelText: '低危', source: '系统任务', time: '26分钟前' }
+  {title: '检测到疑似 Prompt 注入请求', level: 'high', levelText: '高危', source: '客服助手', time: '2分钟前'},
+  {title: '命中敏感词策略并完成拦截', level: 'medium', levelText: '中危', source: '营销生成', time: '8分钟前'},
+  {title: '模型输出触发合规复检规则', level: 'medium', levelText: '中危', source: '知识问答', time: '14分钟前'},
+  {title: '审计链路追踪任务执行成功', level: 'low', levelText: '低危', source: '系统任务', time: '26分钟前'}
 ]
 
 const traceCases = [
-  { name: '客服问答安全审查链路', status: 'success', statusText: '成功', cost: '312ms', updatedAt: '1 分钟前' },
-  { name: '营销文案合规过滤链路', status: 'running', statusText: '进行中', cost: '428ms', updatedAt: '10 秒前' },
-  { name: '订单风控二次校验链路', status: 'failed', statusText: '失败', cost: '1.2s', updatedAt: '3 分钟前' },
-  { name: '知识库检索结果脱敏链路', status: 'success', statusText: '成功', cost: '276ms', updatedAt: '2 分钟前' }
+  {name: '客服问答安全审查链路', status: 'success', statusText: '成功', cost: '312ms', updatedAt: '1 分钟前'},
+  {name: '营销文案合规过滤链路', status: 'running', statusText: '进行中', cost: '428ms', updatedAt: '10 秒前'},
+  {name: '订单风控二次校验链路', status: 'failed', statusText: '失败', cost: '1.2s', updatedAt: '3 分钟前'},
+  {name: '知识库检索结果脱敏链路', status: 'success', statusText: '成功', cost: '276ms', updatedAt: '2 分钟前'}
 ]
 
 const goTo = (routeName: string) => {
-  void router.push({ name: routeName })
+  void router.push({name: routeName})
 }
 </script>
 

@@ -3,13 +3,13 @@
     <!-- 搜索框 + 添加插件按钮 -->
     <div class="search-section">
       <AstrsomnSearchPill
-        v-model="searchText"
-        layout="fluid"
-        placeholder="搜索资源..."
-        class="sidebar-search-pill"
-        @search="handleSearch"
+          v-model="searchText"
+          class="sidebar-search-pill"
+          layout="fluid"
+          placeholder="搜索资源..."
+          @search="handleSearch"
       />
-      <AppstoreOutlined class="add-plugin-btn" title="添加插件" @click="handleAddPlugin" />
+      <AppstoreOutlined class="add-plugin-btn" title="添加插件" @click="handleAddPlugin"/>
     </div>
 
     <!-- 导航列表 -->
@@ -20,25 +20,25 @@
         <div class="provider-list">
           <!-- 全部选项 -->
           <div
-            class="provider-card"
-            :class="{ 'is-active': activeItem === 'all' }"
-            @click="handleSelect('all')"
+              :class="{ 'is-active': activeItem === 'all' }"
+              class="provider-card"
+              @click="handleSelect('all')"
           >
             <div class="provider-avatar">
-              <component :is="CloudServerOutlined" class="all-icon" />
+              <component :is="CloudServerOutlined" class="all-icon"/>
             </div>
             <span class="provider-name">全部</span>
           </div>
           <!-- 各模型提供商 -->
           <div
-            v-for="item in providers"
-            :key="item.key"
-            class="provider-card"
-            :class="{ 'is-active': activeItem === item.key }"
-            @click="handleSelect(item.key)"
+              v-for="item in providers"
+              :key="item.key"
+              :class="{ 'is-active': activeItem === item.key }"
+              class="provider-card"
+              @click="handleSelect(item.key)"
           >
             <div class="provider-avatar">
-              <img v-if="item.avatar" :src="item.avatar" :alt="item.label" class="avatar-img" />
+              <img v-if="item.avatar" :alt="item.label" :src="item.avatar" class="avatar-img"/>
               <span v-else class="avatar-initial">{{ item.initial }}</span>
             </div>
             <span class="provider-name">{{ item.label }}</span>
@@ -50,13 +50,13 @@
     <!-- 全局管理（固定在底部） -->
     <div class="global-section">
       <div
-        v-for="item in globalItems"
-        :key="item.key"
-        class="global-item"
-        :class="{ 'is-active': activeItem === item.key }"
-        @click="handleSelect(item.key)"
+          v-for="item in globalItems"
+          :key="item.key"
+          :class="{ 'is-active': activeItem === item.key }"
+          class="global-item"
+          @click="handleSelect(item.key)"
       >
-        <component :is="item.icon" class="global-icon" />
+        <component :is="item.icon" class="global-icon"/>
         <span>{{ item.label }}</span>
       </div>
     </div>
@@ -68,12 +68,12 @@
           <div class="s-avatars">
             <template v-if="enabledExtensions.length">
               <span
-                v-for="item in enabledExtensions.slice(0, 4)"
-                :key="item.key"
-                class="s-av s-av-real"
-                :title="item.name"
+                  v-for="item in enabledExtensions.slice(0, 4)"
+                  :key="item.key"
+                  :title="item.name"
+                  class="s-av s-av-real"
               >
-                <img v-if="item.avatar" :src="item.avatar" :alt="item.name" />
+                <img v-if="item.avatar" :alt="item.name" :src="item.avatar"/>
                 <span v-else>{{ item.initial }}</span>
               </span>
             </template>
@@ -83,35 +83,32 @@
             {{ enabledExtensions.length ? `已启用扩展 ${enabledExtensions.length}` : '暂无已启用扩展' }}
           </span>
         </div>
-        <AppstoreOutlined class="m-btn" title="打开插件市场" @click="goPluginMarketplace" />
+        <AppstoreOutlined class="m-btn" title="打开插件市场" @click="goPluginMarketplace"/>
       </div>
     </div>
 
     <ExtensionMarketplaceDialog
-      :open="marketplaceOpen"
-      @update:open="marketplaceOpen = $event"
-      @cancel="marketplaceOpen = false"
+        :open="marketplaceOpen"
+        @cancel="marketplaceOpen = false"
+        @update:open="marketplaceOpen = $event"
     />
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+<script lang="ts" setup>
+import {onMounted, ref, watch} from 'vue'
+import {useRoute} from 'vue-router'
 import {
-  SearchOutlined,
+  AppstoreOutlined,
   CloudServerOutlined,
   CreditCardOutlined,
-  LayoutOutlined,
-  LinkOutlined,
-  ToolOutlined,
-  AppstoreOutlined,
   FileTextOutlined,
-  PlusOutlined
+  LinkOutlined,
+  ToolOutlined
 } from '@ant-design/icons-vue'
-import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension.ts'
+import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import { useDictionary } from '@/locales/dictionary'
+import {useDictionary} from '@/locales/dictionary'
 import ExtensionMarketplaceDialog from './ExtensionMarketplaceDialog.vue'
 
 const emit = defineEmits(['select'])
@@ -122,13 +119,19 @@ const searchText = ref('')
 const activeItem = ref('')
 const marketplaceOpen = ref(false)
 const enabledExtensions = ref<Array<{ key: string; name: string; avatar: string; initial: string }>>([])
-const providers = ref<Array<{ key: string; label: string; icon: typeof CloudServerOutlined; avatar?: string; initial: string }>>([])
+const providers = ref<Array<{
+  key: string;
+  label: string;
+  icon: typeof CloudServerOutlined;
+  avatar?: string;
+  initial: string
+}>>([])
 
 const globalItems = [
-  { key: 'ai-account', label: 'AI 账号', icon: CreditCardOutlined },
-  { key: 'prompts', label: '提示词', icon: FileTextOutlined },
-  { key: 'mcp', label: 'MCP', icon: LinkOutlined },
-  { key: 'tools', label: 'Tools', icon: ToolOutlined },
+  {key: 'ai-account', label: 'AI 账号', icon: CreditCardOutlined},
+  {key: 'prompts', label: '提示词', icon: FileTextOutlined},
+  {key: 'mcp', label: 'MCP', icon: LinkOutlined},
+  {key: 'tools', label: 'Tools', icon: ToolOutlined},
 ]
 
 const handleSelect = (key: string) => {
@@ -136,7 +139,8 @@ const handleSelect = (key: string) => {
   emit('select', key)
 }
 
-const handleSearch = () => {}
+const handleSearch = () => {
+}
 
 const handleAddPlugin = () => {
   marketplaceOpen.value = true
@@ -202,7 +206,7 @@ const fetchProviders = async () => {
 
 const updateActiveItem = () => {
   const currentPath = route.path
-  
+
   // 如果是 ai-config-center 页面
   if (currentPath === '/admin/ai-config-center') {
     // 先检查是否是全局管理视图
@@ -212,19 +216,19 @@ const updateActiveItem = () => {
       activeItem.value = view
       return
     }
-    
+
     // 再检查是否是模型提供商
     const provider = route.query.provider as string | undefined
     if (provider && providers.value.some(p => p.key === provider.toLowerCase())) {
       activeItem.value = provider.toLowerCase()
       return
     }
-    
+
     // 默认选中"全部"
     activeItem.value = 'all'
     return
   }
-  
+
   // 检查是否是全局管理页面
   const pathParts = currentPath.split('/')
   const lastPart = pathParts[pathParts.length - 1]
@@ -233,7 +237,7 @@ const updateActiveItem = () => {
     activeItem.value = lastPart
     return
   }
-  
+
   // 默认选中"全部"
   activeItem.value = 'all'
 }
@@ -245,11 +249,11 @@ onMounted(() => {
 })
 
 watch(
-  () => [route.path, route.query.view, route.query.provider],
-  () => {
-    updateActiveItem()
-  },
-  { deep: true }
+    () => [route.path, route.query.view, route.query.provider],
+    () => {
+      updateActiveItem()
+    },
+    {deep: true}
 )
 </script>
 

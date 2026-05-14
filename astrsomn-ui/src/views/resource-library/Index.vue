@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnPageShell title="资源库" description="管理系统资源和能力入口">
+  <AstrsomnPageShell description="管理系统资源和能力入口" title="资源库">
     <div class="resource-layout">
       <aside class="filter-column">
         <div class="filter-inner-wrapper">
@@ -7,37 +7,37 @@
             <h2 class="filter-title">筛选导航</h2>
             <div class="search-container">
               <AstrsomnSearchPill
-                v-model="keyword"
-                placeholder="搜索资源..."
-                button-label="搜索"
-                layout="fluid"
-                @search="handleSearch"
+                  v-model="keyword"
+                  button-label="搜索"
+                  layout="fluid"
+                  placeholder="搜索资源..."
+                  @search="handleSearch"
               />
             </div>
           </header>
 
           <nav class="group-nav">
             <button
-              class="nav-item"
-              :class="{ active: activeGroupId === 'all' }"
-              @click="activeGroupId = 'all'"
+                :class="{ active: activeGroupId === 'all' }"
+                class="nav-item"
+                @click="activeGroupId = 'all'"
             >
               <div class="nav-icon">
-                <component :is="getGroupIcon('all')" />
+                <component :is="getGroupIcon('all')"/>
               </div>
               <span class="nav-label">全部入口</span>
               <span class="nav-badge">{{ filteredTotalCount }}</span>
             </button>
 
             <button
-              v-for="group in groupsFiltered"
-              :key="group.id"
-              class="nav-item"
-              :class="{ active: activeGroupId === group.id }"
-              @click="activeGroupId = group.id"
+                v-for="group in groupsFiltered"
+                :key="group.id"
+                :class="{ active: activeGroupId === group.id }"
+                class="nav-item"
+                @click="activeGroupId = group.id"
             >
               <div class="nav-icon">
-                <component :is="getGroupIcon(group.id)" />
+                <component :is="getGroupIcon(group.id)"/>
               </div>
               <span class="nav-label">{{ group.title }}</span>
               <span class="nav-badge">{{ group.filteredItems.length }}</span>
@@ -55,53 +55,53 @@
             </div>
 
             <div class="action-section">
-              <div class="modern-pagination" v-if="totalPages > 1">
-                <button 
-                  class="page-btn" 
-                  :disabled="currentPage === 1" 
-                  @click="changePage(currentPage - 1)"
+              <div v-if="totalPages > 1" class="modern-pagination">
+                <button
+                    :disabled="currentPage === 1"
+                    class="page-btn"
+                    @click="changePage(currentPage - 1)"
                 >
-                  <LeftOutlined />
+                  <LeftOutlined/>
                 </button>
                 <div class="page-indicator">
                   <span class="current">{{ currentPage }}</span>
                   <span class="divider">/</span>
                   <span class="total">{{ totalPages }}</span>
                 </div>
-                <button 
-                  class="page-btn" 
-                  :disabled="currentPage === totalPages" 
-                  @click="changePage(currentPage + 1)"
+                <button
+                    :disabled="currentPage === totalPages"
+                    class="page-btn"
+                    @click="changePage(currentPage + 1)"
                 >
-                  <RightOutlined />
+                  <RightOutlined/>
                 </button>
               </div>
             </div>
           </header>
 
-          <section class="grid-section" ref="gridContainerRef">
+          <section ref="gridContainerRef" class="grid-section">
             <div v-if="paginatedEntries.length === 0" class="empty-state">
-              <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" description="未找到相关资源" />
+              <a-empty :image="Empty.PRESENTED_IMAGE_SIMPLE" description="未找到相关资源"/>
             </div>
 
             <div v-else class="resource-grid">
               <MenuSlotCard
-                v-for="(entry, index) in paginatedEntries"
-                :key="entry.route"
-                :entry="entry"
-                :title="entry.label"
-                :description="entry.description"
-                :accent="entry.accent"
-                :style="{ animationDelay: `${index * 0.05}s` }"
-                variant="compact"
-                @navigate="navigateTo"
+                  v-for="(entry, index) in paginatedEntries"
+                  :key="entry.route"
+                  :accent="entry.accent"
+                  :description="entry.description"
+                  :entry="entry"
+                  :style="{ animationDelay: `${index * 0.05}s` }"
+                  :title="entry.label"
+                  variant="compact"
+                  @navigate="navigateTo"
               />
             </div>
           </section>
 
           <footer class="content-footer">
             <div class="footer-info">
-              显示第 {{ (currentPage - 1) * pageSize + 1 }} - 
+              显示第 {{ (currentPage - 1) * pageSize + 1 }} -
               {{ Math.min(currentPage * pageSize, filteredEntries.length) }} 条结果
             </div>
           </footer>
@@ -111,17 +111,25 @@
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { Empty } from 'ant-design-vue'
-import { LeftOutlined, RightOutlined, HomeOutlined, RobotOutlined, FileTextOutlined, SafetyCertificateOutlined, SettingOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
+import {useRouter} from 'vue-router'
+import {Empty} from 'ant-design-vue'
+import {
+  FileTextOutlined,
+  HomeOutlined,
+  LeftOutlined,
+  RightOutlined,
+  RobotOutlined,
+  SafetyCertificateOutlined,
+  SettingOutlined
+} from '@ant-design/icons-vue'
 // Vetur occasionally misses Vue SFC default exports in script setup files.
 // @ts-ignore
 import MenuSlotCard from './MenuSlotCard.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import { getCurrentUserRole, resolveManagementGroups } from './management.ts'
+import {getCurrentUserRole, resolveManagementGroups} from './management.ts'
 
 const CARD_MIN_WIDTH = 300
 const GRID_GAP = 20
@@ -189,28 +197,28 @@ const currentRole = computed(() => getCurrentUserRole())
 const groups = computed(() => resolveManagementGroups(currentRole.value))
 
 const groupsFiltered = computed(() =>
-  groups.value
-    .map((group) => ({
-      ...group,
-      filteredItems: group.items.filter(
-        (entry) =>
-          entry.label.toLowerCase().includes(keyword.value.toLowerCase()) ||
-          entry.description.toLowerCase().includes(keyword.value.toLowerCase()),
-      ),
-    }))
-    .filter((group) => group.filteredItems.length > 0 || !keyword.value),
+    groups.value
+        .map((group) => ({
+          ...group,
+          filteredItems: group.items.filter(
+              (entry) =>
+                  entry.label.toLowerCase().includes(keyword.value.toLowerCase()) ||
+                  entry.description.toLowerCase().includes(keyword.value.toLowerCase()),
+          ),
+        }))
+        .filter((group) => group.filteredItems.length > 0 || !keyword.value),
 )
 
 const filteredTotalCount = computed(() =>
-  groupsFiltered.value.reduce((sum, group) => sum + group.filteredItems.length, 0),
+    groupsFiltered.value.reduce((sum, group) => sum + group.filteredItems.length, 0),
 )
 
 const activeGroup = computed(() =>
-  groups.value.find((group) => group.id === activeGroupId.value),
+    groups.value.find((group) => group.id === activeGroupId.value),
 )
 
 const activeGroupTitle = computed(() =>
-  activeGroupId.value === 'all' ? '全部入口' : activeGroup.value?.title ?? '全部入口',
+    activeGroupId.value === 'all' ? '全部入口' : activeGroup.value?.title ?? '全部入口',
 )
 
 const getGroupIcon = (groupId: string) => {
@@ -233,8 +241,8 @@ const getGroupIcon = (groupId: string) => {
 const filteredEntries = computed(() => {
   if (activeGroupId.value === 'all') {
     return groupsFiltered.value.reduce<typeof groupsFiltered.value[number]['filteredItems']>(
-      (entries, group) => entries.concat(group.filteredItems),
-      [],
+        (entries, group) => entries.concat(group.filteredItems),
+        [],
     )
   }
 
@@ -242,7 +250,7 @@ const filteredEntries = computed(() => {
 })
 
 const totalPages = computed(() =>
-  Math.max(1, Math.ceil(filteredEntries.value.length / pageSize.value)),
+    Math.max(1, Math.ceil(filteredEntries.value.length / pageSize.value)),
 )
 
 const paginatedEntries = computed(() => {
@@ -260,7 +268,7 @@ watch(totalPages, (pageCount) => {
 
 const changePage = (page: number) => {
   currentPage.value = Math.min(Math.max(page, 1), totalPages.value)
-  gridContainerRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  gridContainerRef.value?.scrollIntoView({behavior: 'smooth', block: 'start'})
 }
 
 const navigateTo = (path: string) => {
@@ -506,6 +514,7 @@ const handleSearch = () => {
   .resource-layout {
     grid-template-columns: 1fr;
   }
+
   .filter-column {
     border-right: none;
     border-bottom: 1px solid var(--border-default);

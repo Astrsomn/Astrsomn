@@ -1,12 +1,12 @@
 package com.astrsomn.starter.runtime.langchain.quota;
 
+import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.chat.listener.ChatModelRequestContext;
 import dev.langchain4j.model.chat.listener.ChatModelResponseContext;
 import dev.langchain4j.model.output.TokenUsage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
@@ -27,6 +27,7 @@ public class AstroModelListener implements ChatModelListener {
             public void onResponse(ChatModelResponseContext context) {
                 doAsyncAuditAndClean(param, context);
             }
+
             @Override
             public void onRequest(ChatModelRequestContext context) {
                 // 1. 输入过滤（同步执行，拦截异常直接中断 AI 请求）
@@ -38,6 +39,7 @@ public class AstroModelListener implements ChatModelListener {
             }
         };
     }
+
     private void doAsyncAuditAndClean(AstroChatParam<?> param, ChatModelResponseContext context) {
         CompletableFuture.runAsync(() -> {
             try {
@@ -52,6 +54,7 @@ public class AstroModelListener implements ChatModelListener {
             }
         }, taskExecutor);
     }
+
     private boolean containsSensitiveWord(String text) {
         for (int i = 0; i < text.length(); i++) {
             if (sensitiveWordProvider.checkSensitiveWord(text, i) > 0) return true;

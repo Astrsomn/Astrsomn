@@ -1,18 +1,18 @@
 <template>
   <BaseCanvasNode
-    :data="data"
-    fallback-label="代码执行"
-    fallback-description="运行 Python/JS 脚本"
-    subtitle="Sandbox"
-    icon-text="Py"
-    icon-background="#e0e7ff"
-    icon-color="#4338ca"
-    :theme="{
+      :data="data"
+      :theme="{
       borderColor: '#c7d2fe',
       background: '#ffffff',
       titleColor: '#0f172a',
       descColor: '#475569'
     }"
+      fallback-description="运行 Python/JS 脚本"
+      fallback-label="代码执行"
+      icon-background="#e0e7ff"
+      icon-color="#4338ca"
+      icon-text="Py"
+      subtitle="Sandbox"
   >
     <div class="file">
       <span class="size">1.2 KB</span>
@@ -20,9 +20,10 @@
     </div>
   </BaseCanvasNode>
 </template>
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseCanvasNode from '../../shared/BaseCanvasNode.vue'
-import type { WorkflowNodeViewData } from '../../shared/node-props'
+import type {WorkflowNodeViewData} from '../../shared/node-props'
+
 defineProps<{ data?: WorkflowNodeViewData }>()
 </script>
 
@@ -34,6 +35,7 @@ defineProps<{ data?: WorkflowNodeViewData }>()
   font-size: 11px;
   color: #475569;
 }
+
 .size {
   background: #f1f5f9;
   border: 1px solid #e2e8f0;

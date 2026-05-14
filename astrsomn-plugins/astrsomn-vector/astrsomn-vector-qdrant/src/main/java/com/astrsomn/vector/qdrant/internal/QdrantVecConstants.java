@@ -5,10 +5,14 @@ package com.astrsomn.vector.qdrant.internal;
  */
 public final class QdrantVecConstants {
 
-    /** 写入 {@link dev.langchain4j.data.document.Metadata} 时使用的文档键，用于按文档批量删除。 */
+    /**
+     * 写入 {@link dev.langchain4j.data.document.Metadata} 时使用的文档键，用于按文档批量删除。
+     */
     public static final String META_DOC_ID_IN_STORE = "doc_id_in_store";
 
-    /** {@code CONFIG_JSON} 布尔：是否对 gRPC 使用 TLS。 */
+    /**
+     * {@code CONFIG_JSON} 布尔：是否对 gRPC 使用 TLS。
+     */
     public static final String CONFIG_USE_TLS = "useTls";
 
     /**
@@ -17,8 +21,11 @@ public final class QdrantVecConstants {
      */
     public static final String CONFIG_CHECK_COMPATIBILITY = "checkCompatibility";
 
-    /** LangChain4j Qdrant 默认 payload 文本字段名。 */
+    /**
+     * LangChain4j Qdrant 默认 payload 文本字段名。
+     */
     public static final String DEFAULT_PAYLOAD_TEXT_KEY = "text_segment";
 
-    private QdrantVecConstants() {}
+    private QdrantVecConstants() {
+    }
 }

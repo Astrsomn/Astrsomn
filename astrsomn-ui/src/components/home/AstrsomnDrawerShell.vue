@@ -1,36 +1,36 @@
 <template>
   <a-drawer
-    :open="props.open"
-    placement="right"
-    :width="props.width"
-    :maskClosable="props.maskClosable"
-    :closable="false"
-    :destroyOnClose="props.destroyOnClose"
-    :root-class-name="mergedRootClassName"
-    @close="closeDrawer"
+      :closable="false"
+      :destroyOnClose="props.destroyOnClose"
+      :maskClosable="props.maskClosable"
+      :open="props.open"
+      :root-class-name="mergedRootClassName"
+      :width="props.width"
+      placement="right"
+      @close="closeDrawer"
   >
     <template #title>
       <div class="drawer-header">
         <div class="header-main">
           <div v-if="$slots.icon" class="header-icon">
-            <slot name="icon" />
+            <slot name="icon"/>
           </div>
           <div class="title-content">
             <div class="title-row">
               <span class="main-title">
-                <slot name="title" />
+                <slot name="title"/>
               </span>
-              <slot name="title-extra" />
+              <slot name="title-extra"/>
             </div>
             <div v-if="$slots.subtitle" class="sub-title">
-              <slot name="subtitle" />
+              <slot name="subtitle"/>
             </div>
           </div>
         </div>
         <div class="header-actions">
-          <slot name="header-actions" />
-          <a-button v-if="props.showClose" type="text" class="close-btn" @click="closeDrawer">
-            <CloseOutlined />
+          <slot name="header-actions"/>
+          <a-button v-if="props.showClose" class="close-btn" type="text" @click="closeDrawer">
+            <CloseOutlined/>
           </a-button>
         </div>
       </div>
@@ -38,18 +38,18 @@
 
     <div class="drawer-layout">
       <div class="drawer-content">
-        <slot />
+        <slot/>
       </div>
       <div v-if="$slots.footer" class="drawer-footer">
-        <slot name="footer" />
+        <slot name="footer"/>
       </div>
     </div>
   </a-drawer>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { CloseOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import {CloseOutlined} from '@ant-design/icons-vue'
 
 interface Props {
   open: boolean
@@ -73,7 +73,7 @@ const emit = defineEmits<{
 }>()
 
 const mergedRootClassName = computed(() =>
-  ['astrsomn-drawer-shell', props.rootClassName].filter(Boolean).join(' ')
+    ['astrsomn-drawer-shell', props.rootClassName].filter(Boolean).join(' ')
 )
 
 const closeDrawer = () => {

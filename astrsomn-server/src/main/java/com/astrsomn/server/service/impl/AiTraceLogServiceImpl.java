@@ -1,24 +1,26 @@
 package com.astrsomn.server.service.impl;
-import com.astrsomn.api.runtime.common.utils.PageConverter;
-import com.astrsomn.server.mapper.AiTraceLogMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
+
 import com.astrsomn.api.runtime.common.dto.tracelog.AiTraceLogCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.tracelog.AiTraceLogQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.tracelog.AiTraceLogResponseDTO;
 import com.astrsomn.api.runtime.common.dto.tracelog.AiTraceLogUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiTraceLogEntity;
-import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.AiTraceLogErrorEnum;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.server.mapper.AiTraceLogMapper;
 import com.astrsomn.server.service.AiTraceLogService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import com.astrsomn.api.runtime.common.utils.PageUtils;
+
 @Service
 @RequiredArgsConstructor
 public class AiTraceLogServiceImpl extends ServiceImpl<AiTraceLogMapper, AiTraceLogEntity> implements AiTraceLogService {

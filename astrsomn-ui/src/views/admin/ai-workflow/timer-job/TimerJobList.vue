@@ -1,60 +1,61 @@
 <template>
-  <AstrsomnPageShell title="定时任务" description="工作流定时器任务队列：到期执行、重试与失败排查。" empty-text="暂无定时任务。">
+  <AstrsomnPageShell description="工作流定时器任务队列：到期执行、重试与失败排查。" empty-text="暂无定时任务。"
+                     title="定时任务">
     <div class="page-wrap">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill v-model="query.nodeId" placeholder="搜索 nodeId" @search="onSearch" />
+              <AstrsomnSearchPill v-model="query.nodeId" placeholder="搜索 nodeId" @search="onSearch"/>
               <a-input
-                v-model:value="query.instanceIdText"
-                class="toolbar-input"
-                allow-clear
-                placeholder="instanceId"
-                @pressEnter="onSearch"
+                  v-model:value="query.instanceIdText"
+                  allow-clear
+                  class="toolbar-input"
+                  placeholder="instanceId"
+                  @pressEnter="onSearch"
               />
               <a-input
-                v-model:value="query.jobType"
-                class="toolbar-input"
-                allow-clear
-                placeholder="jobType"
-                @pressEnter="onSearch"
+                  v-model:value="query.jobType"
+                  allow-clear
+                  class="toolbar-input"
+                  placeholder="jobType"
+                  @pressEnter="onSearch"
               />
               <a-input
-                v-model:value="query.jobStatus"
-                class="toolbar-input"
-                allow-clear
-                placeholder="jobStatus"
-                @pressEnter="onSearch"
+                  v-model:value="query.jobStatus"
+                  allow-clear
+                  class="toolbar-input"
+                  placeholder="jobStatus"
+                  @pressEnter="onSearch"
               />
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="segmentedButtons" />
+              <AstrsomnSegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
         </template>
 
         <template #overview>
           <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前页 ${list.length} 条定时任务，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
+              :all-current-selected="allCurrentSelected"
+              :list-length="list.length"
+              :part-current-selected="partCurrentSelected"
+              :selected-count="selectedRowKeys.length"
+              :show-actions="list.length > 0"
+              :summary-text="`当前页 ${list.length} 条定时任务，已选 ${selectedRowKeys.length} 条。`"
+              @toggle-select-all="toggleSelectAllCurrentPage"
           />
         </template>
 
         <AstrsomnDataView
-          :data-source="list"
-          :columns="columns"
-          row-key="id"
-          mode="table"
-          :pagination="false"
-          :loading="loading"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1550 }"
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :pagination="false"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1550 }"
+            mode="table"
+            row-key="id"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'dueTimeMs'">
@@ -64,42 +65,45 @@
               <span>{{ record.retryCount ?? '—' }} / {{ record.maxRetry ?? '—' }}</span>
             </template>
             <template v-else-if="column.key === 'payloadJson'">
-              <span class="ellipsis mono" :title="String(record.payloadJson ?? '')">
+              <span :title="String(record.payloadJson ?? '')" class="ellipsis mono">
                 {{ record.payloadJson ? String(record.payloadJson) : '—' }}
               </span>
             </template>
             <template v-else-if="column.key === 'lastError'">
-              <span class="ellipsis" :title="String(record.lastError ?? '')">
+              <span :title="String(record.lastError ?? '')" class="ellipsis">
                 {{ record.lastError ? String(record.lastError) : '—' }}
               </span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" size="small" @click="openDetail(record.id)">详情</a-button>
-              <a-divider type="vertical" />
-              <a-popconfirm title="确定删除该任务吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
-                <a-button type="link" size="small" danger>删除</a-button>
+              <a-button size="small" type="link" @click="openDetail(record.id)">详情</a-button>
+              <a-divider type="vertical"/>
+              <a-popconfirm cancel-text="取消" ok-text="确认" title="确定删除该任务吗？"
+                            @confirm="() => handleDeleteOne(record.id)">
+                <a-button danger size="small" type="link">删除</a-button>
               </a-popconfirm>
             </template>
           </template>
         </AstrsomnDataView>
 
         <template #pagination>
-          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total" @change="onPageChange" />
+          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
+                              @change="onPageChange"/>
         </template>
       </AstrsomnDataSection>
     </div>
 
-    <a-drawer v-model:open="detail.open" title="定时任务详情" width="920" destroy-on-close>
+    <a-drawer v-model:open="detail.open" destroy-on-close title="定时任务详情" width="920">
       <template v-if="detail.loading">
-        <a-skeleton active />
+        <a-skeleton active/>
       </template>
       <template v-else>
-        <a-descriptions bordered size="small" :column="1">
+        <a-descriptions :column="1" bordered size="small">
           <a-descriptions-item label="ID">{{ detail.data?.id ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="实例 ID">{{ detail.data?.instanceId ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="节点 ID">{{ detail.data?.nodeId ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="任务类型">{{ detail.data?.jobType ?? '—' }}</a-descriptions-item>
-          <a-descriptions-item label="到期时间(ms)"><span class="mono">{{ detail.data?.dueTimeMs ?? '—' }}</span></a-descriptions-item>
+          <a-descriptions-item label="到期时间(ms)"><span class="mono">{{ detail.data?.dueTimeMs ?? '—' }}</span>
+          </a-descriptions-item>
           <a-descriptions-item label="任务状态">{{ detail.data?.jobStatus ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="重试次数">{{ detail.data?.retryCount ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="最大重试">{{ detail.data?.maxRetry ?? '—' }}</a-descriptions-item>
@@ -118,31 +122,31 @@
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import { DeleteOutlined, FilterOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {DeleteOutlined, FilterOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
-import { aiWorkflowOpsApi, type TimerJobRecord } from '@/api/aiWorkflowOps'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
+import {aiWorkflowOpsApi, type TimerJobRecord} from '@/api/aiWorkflowOps'
 
 const columns = [
-  { title: 'ID', dataIndex: 'id', key: 'id', width: 110 },
-  { title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId', width: 130 },
-  { title: '节点 ID', dataIndex: 'nodeId', key: 'nodeId', width: 180, ellipsis: true },
-  { title: '任务类型', dataIndex: 'jobType', key: 'jobType', width: 140, ellipsis: true },
-  { title: '状态', dataIndex: 'jobStatus', key: 'jobStatus', width: 120, ellipsis: true },
-  { title: '到期时间(ms)', key: 'dueTimeMs', width: 170 },
-  { title: '重试/上限', key: 'retry', width: 120 },
-  { title: 'Payload', key: 'payloadJson', width: 260, ellipsis: true },
-  { title: '最后错误', key: 'lastError', width: 220, ellipsis: true },
-  { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180 },
-  { title: '操作', key: 'actions', width: 140, fixed: 'right' as const }
+  {title: 'ID', dataIndex: 'id', key: 'id', width: 110},
+  {title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId', width: 130},
+  {title: '节点 ID', dataIndex: 'nodeId', key: 'nodeId', width: 180, ellipsis: true},
+  {title: '任务类型', dataIndex: 'jobType', key: 'jobType', width: 140, ellipsis: true},
+  {title: '状态', dataIndex: 'jobStatus', key: 'jobStatus', width: 120, ellipsis: true},
+  {title: '到期时间(ms)', key: 'dueTimeMs', width: 170},
+  {title: '重试/上限', key: 'retry', width: 120},
+  {title: 'Payload', key: 'payloadJson', width: 260, ellipsis: true},
+  {title: '最后错误', key: 'lastError', width: 220, ellipsis: true},
+  {title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180},
+  {title: '操作', key: 'actions', width: 140, fixed: 'right' as const}
 ]
 
 const query = reactive<{
@@ -169,9 +173,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {

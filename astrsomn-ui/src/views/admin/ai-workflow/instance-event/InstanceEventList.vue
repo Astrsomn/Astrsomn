@@ -1,64 +1,65 @@
 <template>
-  <AstrsomnPageShell title="实例事件" description="记录流程实例在节点上的关键事件与追踪信息。" empty-text="暂无实例事件。">
+  <AstrsomnPageShell description="记录流程实例在节点上的关键事件与追踪信息。" empty-text="暂无实例事件。"
+                     title="实例事件">
     <div class="page-wrap">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill v-model="query.traceId" placeholder="搜索 traceId" @search="onSearch" />
+              <AstrsomnSearchPill v-model="query.traceId" placeholder="搜索 traceId" @search="onSearch"/>
               <a-input
-                v-model:value="query.instanceIdText"
-                class="toolbar-input"
-                allow-clear
-                placeholder="instanceId"
-                @pressEnter="onSearch"
+                  v-model:value="query.instanceIdText"
+                  allow-clear
+                  class="toolbar-input"
+                  placeholder="instanceId"
+                  @pressEnter="onSearch"
               />
               <a-input
-                v-model:value="query.eventType"
-                class="toolbar-input"
-                allow-clear
-                placeholder="eventType"
-                @pressEnter="onSearch"
+                  v-model:value="query.eventType"
+                  allow-clear
+                  class="toolbar-input"
+                  placeholder="eventType"
+                  @pressEnter="onSearch"
               />
               <a-input
-                v-model:value="query.nodeId"
-                class="toolbar-input"
-                allow-clear
-                placeholder="nodeId"
-                @pressEnter="onSearch"
+                  v-model:value="query.nodeId"
+                  allow-clear
+                  class="toolbar-input"
+                  placeholder="nodeId"
+                  @pressEnter="onSearch"
               />
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="segmentedButtons" />
+              <AstrsomnSegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
         </template>
 
         <template #overview>
           <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前页 ${list.length} 条事件记录，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
+              :all-current-selected="allCurrentSelected"
+              :list-length="list.length"
+              :part-current-selected="partCurrentSelected"
+              :selected-count="selectedRowKeys.length"
+              :show-actions="list.length > 0"
+              :summary-text="`当前页 ${list.length} 条事件记录，已选 ${selectedRowKeys.length} 条。`"
+              @toggle-select-all="toggleSelectAllCurrentPage"
           />
         </template>
 
         <AstrsomnDataView
-          :data-source="list"
-          :columns="columns"
-          row-key="id"
-          mode="table"
-          :pagination="false"
-          :loading="loading"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1400 }"
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :pagination="false"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1400 }"
+            mode="table"
+            row-key="id"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'eventDataJson'">
-              <span class="ellipsis mono" :title="String(record.eventDataJson ?? '')">
+              <span :title="String(record.eventDataJson ?? '')" class="ellipsis mono">
                 {{ record.eventDataJson ? String(record.eventDataJson) : '—' }}
               </span>
             </template>
@@ -69,33 +70,37 @@
               <span class="mono">{{ record.traceId ?? '—' }}</span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" size="small" @click="openDetail(record.id)">详情</a-button>
-              <a-divider type="vertical" />
-              <a-popconfirm title="确定删除该事件吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
-                <a-button type="link" size="small" danger>删除</a-button>
+              <a-button size="small" type="link" @click="openDetail(record.id)">详情</a-button>
+              <a-divider type="vertical"/>
+              <a-popconfirm cancel-text="取消" ok-text="确认" title="确定删除该事件吗？"
+                            @confirm="() => handleDeleteOne(record.id)">
+                <a-button danger size="small" type="link">删除</a-button>
               </a-popconfirm>
             </template>
           </template>
         </AstrsomnDataView>
 
         <template #pagination>
-          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total" @change="onPageChange" />
+          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
+                              @change="onPageChange"/>
         </template>
       </AstrsomnDataSection>
     </div>
 
-    <a-drawer v-model:open="detail.open" title="实例事件详情" width="860" destroy-on-close>
+    <a-drawer v-model:open="detail.open" destroy-on-close title="实例事件详情" width="860">
       <template v-if="detail.loading">
-        <a-skeleton active />
+        <a-skeleton active/>
       </template>
       <template v-else>
-        <a-descriptions bordered size="small" :column="1">
+        <a-descriptions :column="1" bordered size="small">
           <a-descriptions-item label="ID">{{ detail.data?.id ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="实例 ID">{{ detail.data?.instanceId ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="事件类型">{{ detail.data?.eventType ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="节点 ID">{{ detail.data?.nodeId ?? '—' }}</a-descriptions-item>
-          <a-descriptions-item label="事件时间(ms)"><span class="mono">{{ detail.data?.eventTimeMs ?? '—' }}</span></a-descriptions-item>
-          <a-descriptions-item label="traceId"><span class="mono">{{ detail.data?.traceId ?? '—' }}</span></a-descriptions-item>
+          <a-descriptions-item label="事件时间(ms)"><span class="mono">{{ detail.data?.eventTimeMs ?? '—' }}</span>
+          </a-descriptions-item>
+          <a-descriptions-item label="traceId"><span class="mono">{{ detail.data?.traceId ?? '—' }}</span>
+          </a-descriptions-item>
           <a-descriptions-item label="环境">{{ detail.data?.envCode ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="创建时间">{{ detail.data?.createTime ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="更新时间">{{ detail.data?.updateTime ?? '—' }}</a-descriptions-item>
@@ -108,29 +113,29 @@
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import { DeleteOutlined, FilterOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {DeleteOutlined, FilterOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
-import { aiWorkflowOpsApi, type InstanceEventRecord } from '@/api/aiWorkflowOps'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
+import {aiWorkflowOpsApi, type InstanceEventRecord} from '@/api/aiWorkflowOps'
 
 const columns = [
-  { title: 'ID', dataIndex: 'id', key: 'id', width: 110 },
-  { title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId', width: 130 },
-  { title: '事件类型', dataIndex: 'eventType', key: 'eventType', width: 160, ellipsis: true },
-  { title: '节点 ID', dataIndex: 'nodeId', key: 'nodeId', width: 160, ellipsis: true },
-  { title: '事件时间(ms)', key: 'eventTimeMs', width: 160 },
-  { title: 'traceId', key: 'traceId', width: 220, ellipsis: true },
-  { title: '事件数据', key: 'eventDataJson', width: 260, ellipsis: true },
-  { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180 },
-  { title: '操作', key: 'actions', width: 140, fixed: 'right' as const }
+  {title: 'ID', dataIndex: 'id', key: 'id', width: 110},
+  {title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId', width: 130},
+  {title: '事件类型', dataIndex: 'eventType', key: 'eventType', width: 160, ellipsis: true},
+  {title: '节点 ID', dataIndex: 'nodeId', key: 'nodeId', width: 160, ellipsis: true},
+  {title: '事件时间(ms)', key: 'eventTimeMs', width: 160},
+  {title: 'traceId', key: 'traceId', width: 220, ellipsis: true},
+  {title: '事件数据', key: 'eventDataJson', width: 260, ellipsis: true},
+  {title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180},
+  {title: '操作', key: 'actions', width: 140, fixed: 'right' as const}
 ]
 
 const query = reactive<{
@@ -157,9 +162,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {

@@ -1,19 +1,19 @@
 <template>
   <a-modal
-    :open="open"
-    :footer="null"
-    :closable="false"
-    centered
-    destroy-on-close
-    :width="modalWidth"
-    wrap-class-name="extension-model-sync-wrap"
-    @update:open="onUpdateOpen"
+      :closable="false"
+      :footer="null"
+      :open="open"
+      :width="modalWidth"
+      centered
+      destroy-on-close
+      wrap-class-name="extension-model-sync-wrap"
+      @update:open="onUpdateOpen"
   >
     <div class="ems-shell">
       <header class="ems-modal-header">
         <div class="ems-header-left">
           <div class="ems-logo-box ems-logo-unload">
-            <DeleteOutlined />
+            <DeleteOutlined/>
           </div>
           <div class="ems-title-group">
             <span class="ems-main-title">确认卸载模型</span>
@@ -26,12 +26,12 @@
               取消
             </a-button>
             <a-button
-              danger
-              type="primary"
-              class="ems-header-action-btn ems-header-btn-ok"
-              :disabled="okDisabled"
-              :loading="confirming"
-              @click="handleOk"
+                :disabled="okDisabled"
+                :loading="confirming"
+                class="ems-header-action-btn ems-header-btn-ok"
+                danger
+                type="primary"
+                @click="handleOk"
             >
               确认卸载模型
             </a-button>
@@ -41,7 +41,7 @@
 
       <div class="ems-body-scroll">
         <div v-if="previewError" class="ems-modal-alert">
-          <a-alert type="error" :message="previewError" show-icon />
+          <a-alert :message="previewError" show-icon type="error"/>
         </div>
         <a-spin v-else :spinning="loadingPreview">
           <template v-if="unloadPreview">
@@ -53,15 +53,15 @@
             <div class="ems-preview-section">
               <div class="ems-preview-section-title">将卸载（删除）</div>
               <a-table
-                v-if="(unloadPreview.toRemove?.length ?? 0) > 0"
-                :data-source="unloadPreview.toRemove"
-                :columns="commonColumns"
-                :row-selection="rowSelection"
-                :row-key="'modelKey'"
-                size="small"
-                class="ems-preview-table"
-                :pagination="false"
-                :scroll="{ y: 280 }"
+                  v-if="(unloadPreview.toRemove?.length ?? 0) > 0"
+                  :columns="commonColumns"
+                  :data-source="unloadPreview.toRemove"
+                  :pagination="false"
+                  :row-key="'modelKey'"
+                  :row-selection="rowSelection"
+                  :scroll="{ y: 280 }"
+                  class="ems-preview-table"
+                  size="small"
               />
               <div v-else class="ems-preview-empty">无</div>
             </div>
@@ -69,14 +69,14 @@
             <div class="ems-preview-section">
               <div class="ems-preview-section-title">因实例引用将保留</div>
               <a-table
-                v-if="(unloadPreview.keptReferenced?.length ?? 0) > 0"
-                :data-source="unloadPreview.keptReferenced"
-                :columns="commonColumns"
-                :row-key="'modelKey'"
-                size="small"
-                class="ems-preview-table ems-table-disabled"
-                :pagination="false"
-                :scroll="{ y: 200 }"
+                  v-if="(unloadPreview.keptReferenced?.length ?? 0) > 0"
+                  :columns="commonColumns"
+                  :data-source="unloadPreview.keptReferenced"
+                  :pagination="false"
+                  :row-key="'modelKey'"
+                  :scroll="{ y: 200 }"
+                  class="ems-preview-table ems-table-disabled"
+                  size="small"
               />
               <div v-else class="ems-preview-empty">无</div>
             </div>
@@ -87,13 +87,13 @@
   </a-modal>
 </template>
 
-<script setup lang="ts">
-import { computed, ref, watch, h } from 'vue'
-import { DeleteOutlined } from '@ant-design/icons-vue'
-import type { ExtensionModelUnloadPreview } from '@/api/systemExtension'
-import { formatExtensionModelPreviewRow } from './extensionModelSyncPreview'
+<script lang="ts" setup>
+import {computed, h, ref, watch} from 'vue'
+import {DeleteOutlined} from '@ant-design/icons-vue'
+import type {ExtensionModelUnloadPreview} from '@/api/systemExtension'
+import {formatExtensionModelPreviewRow} from './extensionModelSyncPreview'
 
-const open = defineModel<boolean>('open', { required: true })
+const open = defineModel<boolean>('open', {required: true})
 
 const props = defineProps<{
   extensionLabel: string
@@ -115,15 +115,15 @@ const selectedRowKeys = ref<string[]>([])
 
 // 监听数据变化，默认全部勾选待删除项
 watch(
-  () => props.unloadPreview,
-  (newPreview) => {
-    if (newPreview?.toRemove) {
-      selectedRowKeys.value = newPreview.toRemove.map(m => m.modelKey)
-    } else {
-      selectedRowKeys.value = []
-    }
-  },
-  { immediate: true }
+    () => props.unloadPreview,
+    (newPreview) => {
+      if (newPreview?.toRemove) {
+        selectedRowKeys.value = newPreview.toRemove.map(m => m.modelKey)
+      } else {
+        selectedRowKeys.value = []
+      }
+    },
+    {immediate: true}
 )
 
 // 表格选择配置
@@ -161,8 +161,8 @@ const commonColumns = [
     title: '模型详细信息',
     dataIndex: 'modelKey',
     render: (_, record: any) => {
-      return h('div', { 
-        style: { padding: '2px 0', fontSize: '13px' } 
+      return h('div', {
+        style: {padding: '2px 0', fontSize: '13px'}
       }, formatExtensionModelPreviewRow(record))
     }
   }

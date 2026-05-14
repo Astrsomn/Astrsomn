@@ -1,28 +1,30 @@
 package com.astrsomn.server.service.impl;
-import com.astrsomn.api.runtime.common.utils.PageConverter;
-import com.astrsomn.server.mapper.AiModelMapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
+
 import com.astrsomn.api.runtime.common.dto.model.AiModelCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.model.AiModelQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.model.AiModelResponseDTO;
 import com.astrsomn.api.runtime.common.dto.model.AiModelUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.AiModelErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.server.mapper.AiModelMapper;
 import com.astrsomn.server.service.AiModelService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
+import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +35,7 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import com.astrsomn.api.runtime.common.utils.PageUtils;
+
 @Service
 @RequiredArgsConstructor
 public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity> implements AiModelService {
@@ -227,7 +229,6 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         }
         update(clearDefaultWrapper);
     }
-
 
 
 }

@@ -10,16 +10,9 @@ import java.util.Objects;
 
 public class SystemExtensionEvent extends ApplicationEvent {
 
-    public enum EventType {
-        INSTALLED,
-        UNINSTALLED,
-        UPDATED
-    }
-
     private final EventType eventType;
     private final SystemExtensionEntity extension;
     private final List<AiModelEntity> models;
-
     public SystemExtensionEvent(Object source,
                                 EventType eventType,
                                 SystemExtensionEntity extension,
@@ -40,5 +33,11 @@ public class SystemExtensionEvent extends ApplicationEvent {
 
     public List<AiModelEntity> getModels() {
         return models;
+    }
+
+    public enum EventType {
+        INSTALLED,
+        UNINSTALLED,
+        UPDATED
     }
 }

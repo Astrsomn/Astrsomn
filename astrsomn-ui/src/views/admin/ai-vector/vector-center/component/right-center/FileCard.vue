@@ -1,20 +1,27 @@
 <template>
-  <a-card :bordered="false" class="custom-file-card" :class="{ active }" :body-style="{ padding: 0 }" @click="$emit('select', file)">
+  <a-card :body-style="{ padding: 0 }" :bordered="false" :class="{ active }" class="custom-file-card"
+          @click="$emit('select', file)">
     <div class="square-container">
       <div class="inner-content">
-        
+
         <div class="action-group">
-          <div class="action-btn" title="编辑" @click.stop="$emit('edit', file)"><edit-outlined /></div>
-          <div class="action-btn vectorize" title="向量化" @click.stop="$emit('vectorize', file)"><experiment-outlined /></div>
-          <div class="action-btn delete" title="删除" @click.stop="$emit('delete', file)"><delete-outlined /></div>
+          <div class="action-btn" title="编辑" @click.stop="$emit('edit', file)">
+            <edit-outlined/>
+          </div>
+          <div class="action-btn vectorize" title="向量化" @click.stop="$emit('vectorize', file)">
+            <experiment-outlined/>
+          </div>
+          <div class="action-btn delete" title="删除" @click.stop="$emit('delete', file)">
+            <delete-outlined/>
+          </div>
         </div>
 
         <div class="main-body">
-          <div class="status-dot" :class="file.status === '已向量化' ? 'ready' : 'pending'"></div>
-          <div class="icon-box" :class="getFileExtension(file.name)">
-            <component :is="getFileIcon(file.name)" class="file-icon-svg" />
+          <div :class="file.status === '已向量化' ? 'ready' : 'pending'" class="status-dot"></div>
+          <div :class="getFileExtension(file.name)" class="icon-box">
+            <component :is="getFileIcon(file.name)" class="file-icon-svg"/>
           </div>
-          <h3 class="file-name" :title="file.name">{{ file.name }}</h3>
+          <h3 :title="file.name" class="file-name">{{ file.name }}</h3>
         </div>
 
         <div class="footer-overlay">
@@ -29,12 +36,12 @@
 
 <script lang="ts" setup>
 import {
-  FileTextOutlined,
-  FilePdfOutlined,
-  FileMarkdownOutlined,
-  EditOutlined,
   DeleteOutlined,
-  ExperimentOutlined
+  EditOutlined,
+  ExperimentOutlined,
+  FileMarkdownOutlined,
+  FilePdfOutlined,
+  FileTextOutlined
 } from '@ant-design/icons-vue';
 
 defineProps<{
@@ -81,9 +88,15 @@ const getFileExtension = (name: string) => {
     background: var(--bg-elevated);
     transform: translateY(-4px);
     box-shadow: var(--shadow-card);
-    
-    .action-group { opacity: 1; transform: translateY(0); }
-    .icon-box { transform: scale(1.1); }
+
+    .action-group {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .icon-box {
+      transform: scale(1.1);
+    }
   }
 
   &.active {
@@ -96,7 +109,7 @@ const getFileExtension = (name: string) => {
     position: relative;
     width: 100%;
     padding-top: 100%; // 关键：利用 padding 实现 1:1 比例
-    
+
     .inner-content {
       position: absolute;
       top: 0;
@@ -124,8 +137,14 @@ const getFileExtension = (name: string) => {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      &.ready { background: var(--success); }
-      &.pending { background: #f59e0b; }
+
+      &.ready {
+        background: var(--success);
+      }
+
+      &.pending {
+        background: #f59e0b;
+      }
     }
 
     .icon-box {
@@ -140,14 +159,21 @@ const getFileExtension = (name: string) => {
       font-size: 30px;
       color: var(--text-secondary);
       transition: transform 0.3s ease;
-      
+
       .file-icon-svg, span {
         display: inline-block !important;
         line-height: 1;
       }
 
-      &.pdf { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-      &.md { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
+      &.pdf {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
+
+      &.md {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary);
+      }
     }
 
     .file-name {
@@ -183,8 +209,15 @@ const getFileExtension = (name: string) => {
       justify-content: center;
       cursor: pointer;
       color: var(--text-secondary);
-      &:hover { background: var(--primary); color: #fff; }
-      &.delete:hover { background: var(--error); }
+
+      &:hover {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      &.delete:hover {
+        background: var(--error);
+      }
     }
   }
 

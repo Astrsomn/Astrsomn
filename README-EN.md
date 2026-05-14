@@ -20,31 +20,34 @@
 
 > [!WARNING]
 > ## Work in Progress (Not Production Ready)
-> This project is currently **incomplete** and under active development. Features, configuration, and APIs may change frequently.  
+> This project is currently **incomplete** and under active development. Features, configuration, and APIs may change
+> frequently.  
 > **Do not use in production**. It is currently intended for learning, evaluation, and feedback only.
 
 ---
 
 ## 📖 Project Introduction
 
-**Astrsomn** is designed to solve common engineering challenges when integrating large models into the Java ecosystem: complex configuration, dependency coupling, difficult capability extension, and insufficient runtime governance.
+**Astrsomn** is designed to solve common engineering challenges when integrating large models into the Java ecosystem:
+complex configuration, dependency coupling, difficult capability extension, and insufficient runtime governance.
 
-Through layered modularization and standardized encapsulation, Astrsomn enables developers to quickly get started while supporting long-term evolution in enterprise scenarios.
+Through layered modularization and standardized encapsulation, Astrsomn enables developers to quickly get started while
+supporting long-term evolution in enterprise scenarios.
 
 ---
 
 ## 🏗️ Under Construction 🏗️
 
-| Status | Feature Module | Description |
-|---|---|---|
-| ✅ | **Agent Lifecycle** | Creation, configuration, and management capabilities completed |
-| ✅ | **Environment Initialization** | Supports quick environment configuration and initialization |
-| ✅ | **Dependency Quick Import** | Maven Starter one-click integration |
-| ✅ | **Basic Configuration** | Core configuration management capabilities provided |
-| ❌ | **Workflow Module** | Not yet implemented |
-| ❌ | **Vector Database Integration** | Partial implementation, unstable |
-| ❌ | **Security & Governance** | Multi-tenant, rate limiting, monitoring and other features missing |
-| ⚠️ | **API Compatibility** | May change at any time, no backward compatibility guaranteed |
+| Status | Feature Module                  | Description                                                        |
+|--------|---------------------------------|--------------------------------------------------------------------|
+| ✅      | **Agent Lifecycle**             | Creation, configuration, and management capabilities completed     |
+| ✅      | **Environment Initialization**  | Supports quick environment configuration and initialization        |
+| ✅      | **Dependency Quick Import**     | Maven Starter one-click integration                                |
+| ✅      | **Basic Configuration**         | Core configuration management capabilities provided                |
+| ❌      | **Workflow Module**             | Not yet implemented                                                |
+| ❌      | **Vector Database Integration** | Partial implementation, unstable                                   |
+| ❌      | **Security & Governance**       | Multi-tenant, rate limiting, monitoring and other features missing |
+| ⚠️     | **API Compatibility**           | May change at any time, no backward compatibility guaranteed       |
 
 **⚠️ NOT FOR PRODUCTION USE! ⚠️**
 
@@ -54,6 +57,7 @@ See [Contributing](#🤝-Contributing)
 ---
 
 Astrsomn consists of a complete ecosystem:
+
 - `core`: Unified abstraction and common capabilities
 - `starter`: Spring Boot auto-configuration and access layer
 - `providers`: Model provider implementations
@@ -61,35 +65,36 @@ Astrsomn consists of a complete ecosystem:
 - `server`: Service-oriented runtime and governance
 - `ui`: Visual configuration and operations
 
-**Application scenarios**: RAG knowledge base, intelligent dialogue, Agent orchestration, MCP tool integration, enterprise AI platform, etc.
+**Application scenarios**: RAG knowledge base, intelligent dialogue, Agent orchestration, MCP tool integration,
+enterprise AI platform, etc.
 
 ---
 
 ## ✨ Core Features
 
-| Feature | Description |
-|---------|-------------|
-| 🔧 **Deep Encapsulation** | Full encapsulation of LangChain4j capabilities (LLM / Embedding / Vector Database / Memory / RAG / Tools / Agent) |
-| 🚀 **Zero-Invasion Integration** | SpringBoot Starter auto-configuration, integrate with one annotation |
-| 🔌 **Plugable Design** | Provider/Vector pluggable architecture, supports multi-model and multi-vector database governance |
-| 📡 **Streaming Response** | Supports streaming response, tool calling, memory, RAG, orchestration and other complete workflows |
-| 📊 **Observability** | Production-ready observability and maintainability (configuration, logging, cost, caching) |
-| 🔒 **Enterprise Features** | Multi-model, multi-tenant, rate limiting, monitoring, logging and other enterprise-grade features |
-| 🔗 **Native Compatibility** | Fully compatible with native LangChain4j, seamless extension |
+| Feature                          | Description                                                                                                       |
+|----------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| 🔧 **Deep Encapsulation**        | Full encapsulation of LangChain4j capabilities (LLM / Embedding / Vector Database / Memory / RAG / Tools / Agent) |
+| 🚀 **Zero-Invasion Integration** | SpringBoot Starter auto-configuration, integrate with one annotation                                              |
+| 🔌 **Plugable Design**           | Provider/Vector pluggable architecture, supports multi-model and multi-vector database governance                 |
+| 📡 **Streaming Response**        | Supports streaming response, tool calling, memory, RAG, orchestration and other complete workflows                |
+| 📊 **Observability**             | Production-ready observability and maintainability (configuration, logging, cost, caching)                        |
+| 🔒 **Enterprise Features**       | Multi-model, multi-tenant, rate limiting, monitoring, logging and other enterprise-grade features                 |
+| 🔗 **Native Compatibility**      | Fully compatible with native LangChain4j, seamless extension                                                      |
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Backend Framework | Spring Boot 3.3.0 |
-| Language | Java 17+ |
-| AI Integration | LangChain4j |
-| Frontend Framework | Vue 3 + TypeScript |
-| Build Tool | Maven |
-| Database | MySQL / H2 |
-| Vector Database | Qdrant / Milvus / Chroma / Redis |
+| Category           | Technology                       |
+|--------------------|----------------------------------|
+| Backend Framework  | Spring Boot 3.3.0                |
+| Language           | Java 17+                         |
+| AI Integration     | LangChain4j                      |
+| Frontend Framework | Vue 3 + TypeScript               |
+| Build Tool         | Maven                            |
+| Database           | MySQL / H2                       |
+| Vector Database    | Qdrant / Milvus / Chroma / Redis |
 
 ---
 
@@ -153,6 +158,7 @@ public class MyService {
 ```
 
 ### Requirements
+
 - JDK 21+
 - Spring Boot 3.2+
 - Maven 3.8+
@@ -173,6 +179,7 @@ Edit `astrsomn-server/src/main/resources/application-mysql.yml`.
 The `mysql` profile is active by default (configured in `application.yml`), so no extra profile switch is needed.
 
 **Required fields**:
+
 - `host`
 - `port`
 - `database-name`
@@ -200,13 +207,15 @@ astrsomn:
 ### Step 4: Verify startup
 
 Any of the following indicates successful startup:
+
 - You can see Spring Boot startup completion logs (Started ...).
 - No database connection errors appear and the process keeps running.
 - The service listens on port `4481` (default).
 
 ### Step 5: Add dependency and use `@Astro`
 
-After the server is running, import the starter dependency below in your business project, then integrate AI capabilities via `@Astro`.
+After the server is running, import the starter dependency below in your business project, then integrate AI
+capabilities via `@Astro`.
 
 ### Maven Dependencies
 
@@ -232,26 +241,26 @@ After the server is running, import the starter dependency below in your busines
 
 ## 🌐 Official Website & Documentation
 
-| Type | Link |
-|------|------|
-| 🏠 Official Website | [astrsomn.com](https://www.astrsomn.com/home.html) |
-| 📖 Documentation | [doc.astrsomn.com](https://doc.astrsomn.com) |
-| 🎯 Demo Server | [server.astrsomn.com](https://server.astrsomn.com) |
+| Type                 | Link                                                      |
+|----------------------|-----------------------------------------------------------|
+| 🏠 Official Website  | [astrsomn.com](https://www.astrsomn.com/home.html)        |
+| 📖 Documentation     | [doc.astrsomn.com](https://doc.astrsomn.com)              |
+| 🎯 Demo Server       | [server.astrsomn.com](https://server.astrsomn.com)        |
 | 💻 GitHub Repository | [Astrsomn/Astrsomn](https://github.com/Astrsomn/Astrsomn) |
 
 ---
 
 ## 📚 Documentation & Resources
 
-| Document Type | Link |
-|---------------|------|
-| 📖 System Design | [System Design Document](document/系统设计文档.md) |
-| 🌐 Introduction Site | [astrsomn-introduction](astrsomn-introduction/) |
-| 📝 Chinese Documentation | [README.md](README.md) |
-| 📋 Version Roadmap | [Version Roadmap 1.x to 2.x](document/2026-04-17/版本路线规划-1x到2x.md) |
-| 🗂️ Workflow Design | [AI Workflow Standardization Roadmap](document/2026-04-26/ai-workflow-standardization-roadmap.md) |
-| 📐 Vector Storage Design | [Vector Storage Extension Specification](document/2026-04-06/向量存储扩展设计规范.md) |
-| 📊 Extension Architecture | [Extension System Architecture Analysis](document/2026-04-15/扩展系统架构分析.md) |
+| Document Type             | Link                                                                                              |
+|---------------------------|---------------------------------------------------------------------------------------------------|
+| 📖 System Design          | [System Design Document](document/系统设计文档.md)                                                      |
+| 🌐 Introduction Site      | [astrsomn-introduction](astrsomn-introduction/)                                                   |
+| 📝 Chinese Documentation  | [README.md](README.md)                                                                            |
+| 📋 Version Roadmap        | [Version Roadmap 1.x to 2.x](document/2026-04-17/版本路线规划-1x到2x.md)                                 |
+| 🗂️ Workflow Design       | [AI Workflow Standardization Roadmap](document/2026-04-26/ai-workflow-standardization-roadmap.md) |
+| 📐 Vector Storage Design  | [Vector Storage Extension Specification](document/2026-04-06/向量存储扩展设计规范.md)                       |
+| 📊 Extension Architecture | [Extension System Architecture Analysis](document/2026-04-15/扩展系统架构分析.md)                         |
 
 ---
 
@@ -260,6 +269,7 @@ After the server is running, import the starter dependency below in your busines
 We welcome contributions! We appreciate any form of contribution including but not limited to:
 
 ### Ways to Contribute
+
 - 💡 [Submit Issues](https://github.com/Astrsomn/Astrsomn/issues) - Report bugs or suggest features
 - 📝 [Submit Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - Contribute code
 - 📖 Improve Documentation - Help improve project documentation
@@ -274,6 +284,7 @@ We welcome contributions! We appreciate any form of contribution including but n
 5. **Create Pull Request** → [Submit PR](https://github.com/Astrsomn/Astrsomn/pulls)
 
 ### Contribution Guidelines
+
 - Follow the [Code Style Guide](document/2026-04-02/开源完善总方案.md)
 - Ensure all tests pass before submitting
 - Provide clear commit messages and PR descriptions
@@ -283,6 +294,7 @@ We welcome contributions! We appreciate any form of contribution including but n
 ## 📦 Extension Ecosystem
 
 ### Model Providers
+
 - [OpenAI Provider](astrsomn-providers/astrsomn-provider-openai/)
 - [DeepSeek Provider](astrsomn-providers/astrsomn-provider-deepseek/)
 - [Qwen Provider](astrsomn-providers/astrsomn-provider-qwen/)
@@ -290,6 +302,7 @@ We welcome contributions! We appreciate any form of contribution including but n
 - [Zhipu Provider](astrsomn-providers/astrsomn-provider-zhipu/)
 
 ### Vector Storage
+
 - [Qdrant Vector](astrsomn-vector/astrsomn-vector-qdrant/)
 - [Chroma Vector](astrsomn-vector/astrsomn-vector-chroma/)
 - [Milvus Vector](astrsomn-vector/astrsomn-vector-milvus/)
@@ -306,7 +319,8 @@ We welcome contributions! We appreciate any form of contribution including but n
   <a href="mailto:astrsomn@outlook.com"><img src="https://img.shields.io/badge/Email-astrsomn@outlook.com-red?style=flat-square&logo=gmail" alt="Email"></a>
 </p>
 
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - Share experiences and ideas
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - Share experiences and
+  ideas
 - 🐛 **Issues**: [GitHub Issues](https://github.com/Astrsomn/Astrsomn/issues) - Report bugs and suggest features
 - 🔧 **Contributions**: [Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - Welcome to submit PRs
 - 📧 **Email**: astrsomn@outlook.com

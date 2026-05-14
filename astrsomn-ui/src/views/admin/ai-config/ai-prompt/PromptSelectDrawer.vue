@@ -1,8 +1,8 @@
 <template>
   <AstrsomnDrawerShell
-    :open="props.open"
-    :width="560"
-    @update:open="handleClose"
+      :open="props.open"
+      :width="560"
+      @update:open="handleClose"
   >
     <template #title>选择提示词</template>
     <template #subtitle>AI Prompt</template>
@@ -10,70 +10,71 @@
     <div class="select-drawer-content">
       <div class="search-bar">
         <AstrsomnSearchPill
-          v-model="keyword"
-          placeholder="搜索标题"
-          layout="fluid"
-          style="flex: 1"
-          @search="handleSearch"
+            v-model="keyword"
+            layout="fluid"
+            placeholder="搜索标题"
+            style="flex: 1"
+            @search="handleSearch"
         />
       </div>
 
       <a-spin :spinning="loading">
         <div class="prompt-list">
           <div
-            v-for="prompt in list"
-            :key="prompt.id"
-            class="prompt-item"
-            :class="{ selected: selectedId === prompt.id }"
-            @click="handleSelect(prompt)"
+              v-for="prompt in list"
+              :key="prompt.id"
+              :class="{ selected: selectedId === prompt.id }"
+              class="prompt-item"
+              @click="handleSelect(prompt)"
           >
             <div class="prompt-icon">
-              <EditOutlined />
+              <EditOutlined/>
             </div>
             <div class="prompt-info">
               <div class="prompt-header">
                 <div class="prompt-title">{{ prompt.promptTitle }}</div>
                 <div class="prompt-meta">
                   <span class="version-tag">v{{ prompt.version || 1 }}</span>
-                  <span class="status-badge" :class="prompt.status">
+                  <span :class="prompt.status" class="status-badge">
                     {{ prompt.status === 'enabled' ? '启用' : '禁用' }}
                   </span>
                 </div>
               </div>
               <div class="prompt-key">
-                <KeyOutlined /> {{ prompt.promptKey || '自动生成' }}
+                <KeyOutlined/>
+                {{ prompt.promptKey || '自动生成' }}
               </div>
-              <div class="prompt-scene" v-if="prompt.scene">{{ prompt.scene }}</div>
-              <div class="prompt-content-preview" v-if="prompt.promptContent">
+              <div v-if="prompt.scene" class="prompt-scene">{{ prompt.scene }}</div>
+              <div v-if="prompt.promptContent" class="prompt-content-preview">
                 {{ truncateContent(prompt.promptContent) }}
               </div>
             </div>
           </div>
 
-          <a-empty v-if="!loading && list.length === 0" description="暂无提示词" />
+          <a-empty v-if="!loading && list.length === 0" description="暂无提示词"/>
         </div>
       </a-spin>
     </div>
 
     <template #footer>
       <AstrsomnPagination
-        :current="page.pageNum"
-        :page-size="page.pageSize"
-        :total="page.total"
-        :show-size-changer="true"
-        @change="onPageChange"
+          :current="page.pageNum"
+          :page-size="page.pageSize"
+          :show-size-changer="true"
+          :total="page.total"
+          @change="onPageChange"
       />
     </template>
   </AstrsomnDrawerShell>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref, watch, nextTick } from 'vue'
-import { EditOutlined, KeyOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {nextTick, reactive, ref, watch} from 'vue'
+import {EditOutlined, KeyOutlined} from '@ant-design/icons-vue'
 import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt'
+import {type AiPrompt, aiPromptApi, type PageResponse} from '@/api/aiPrompt'
 
 const props = defineProps<{
   open: boolean

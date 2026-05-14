@@ -47,20 +47,16 @@
         AM.MODEL_TYPE DESC
     </select>
 
-    <select id="selectModelWithReferenceStatus" resultType="com.astrsomn.api.runtime.common.dto.model.AiModelResponseDTO">
-        SELECT
-            AM.*,
-            (EXISTS (
-                SELECT 1
-                FROM `AI_INSTANCE` AI
-                WHERE AI.MODEL_KEY = AM.MODEL_KEY
-                  AND AI.ENV_CODE = AM.ENV_CODE
-                  AND (AI.DELETED = 0 OR AI.DELETED IS NULL)
-            )) AS modelKeyImmutable
-        FROM
-            `AI_MODEL` AM
-        WHERE
-            AM.ID = #{id}
+    <select id="selectModelWithReferenceStatus"
+            resultType="com.astrsomn.api.runtime.common.dto.model.AiModelResponseDTO">
+        SELECT AM.*,
+               (EXISTS (SELECT 1
+                        FROM `AI_INSTANCE` AI
+                        WHERE AI.MODEL_KEY = AM.MODEL_KEY
+                          AND AI.ENV_CODE = AM.ENV_CODE
+                          AND (AI.DELETED = 0 OR AI.DELETED IS NULL))) AS modelKeyImmutable
+        FROM `AI_MODEL` AM
+        WHERE AM.ID = #{id}
           AND (AM.DELETED = 0 OR AM.DELETED IS NULL)
     </select>
 

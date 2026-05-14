@@ -1,12 +1,5 @@
 package com.astrsomn.server.service.impl;
-import com.astrsomn.api.runtime.common.utils.PageConverter;
-import com.astrsomn.server.mapper.AiChatMessageMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
+
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageResponseDTO;
@@ -14,24 +7,35 @@ import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageUpdateReque
 import com.astrsomn.api.runtime.common.dto.chat.message.restore.AiChatTurnBundleDTO;
 import com.astrsomn.api.runtime.common.entity.AiChatMessageEntity;
 import com.astrsomn.api.runtime.common.utils.AiChatMessageRestoreUtil;
-import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.AiChatErrorEnum;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.server.mapper.AiChatMessageMapper;
 import com.astrsomn.server.service.AiChatMessageService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import com.astrsomn.api.runtime.common.utils.PageUtils;
+
 import java.util.Arrays;
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, AiChatMessageEntity> implements AiChatMessageService {
 
     private final QueryEnvParamHelper queryEnvParamHelper;
+
     @Override
     public BaseResponse<String> create(AiChatMessageCreateRequestDTO request) {
         AiChatMessageEntity entity = new AiChatMessageEntity();
-    
+
         BeanUtils.copyProperties(request, entity);
         boolean result = save(entity);
         if (!result) {
@@ -91,18 +95,17 @@ public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, A
     }
 
 
-
     @Override
     public BaseResponse<List<AiChatMessageResponseDTO>> recoverByMemoryKey(String memoryKey) {
         if (memoryKey == null || memoryKey.isEmpty()) {
             throw new BusinessException(AiChatErrorEnum.CHAT_PARAM_ERROR);
         }
-        
+
         List<AiChatMessageResponseDTO> responseDTOs = baseMapper.recoverByMemoryKey(memoryKey);
         if (responseDTOs == null || responseDTOs.isEmpty()) {
             throw new BusinessException(AiChatErrorEnum.CHAT_NOT_FOUND);
         }
-        
+
         return BaseResponse.success(responseDTOs);
     }
 

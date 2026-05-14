@@ -13,44 +13,44 @@ public class UserContext {
     private static final String TOKEN = "token";
     private static final String CLIENT_IP = "clientIp";
 
-    public static void setUserId(Long userId) {
-        CONTEXT.get().put(USER_ID, userId);
-    }
-
     public static Long getUserId() {
         return (Long) CONTEXT.get().get(USER_ID);
     }
 
-    public static void setUsername(String username) {
-        CONTEXT.get().put(USERNAME, username);
+    public static void setUserId(Long userId) {
+        CONTEXT.get().put(USER_ID, userId);
     }
 
     public static String getUsername() {
         return (String) CONTEXT.get().get(USERNAME);
     }
 
-    public static void setUserRole(String userRole) {
-        CONTEXT.get().put(USER_ROLE, userRole);
+    public static void setUsername(String username) {
+        CONTEXT.get().put(USERNAME, username);
     }
 
     public static String getUserRole() {
         return (String) CONTEXT.get().get(USER_ROLE);
     }
 
-    public static void setToken(String token) {
-        CONTEXT.get().put(TOKEN, token);
+    public static void setUserRole(String userRole) {
+        CONTEXT.get().put(USER_ROLE, userRole);
     }
 
     public static String getToken() {
         return (String) CONTEXT.get().get(TOKEN);
     }
 
-    public static void setClientIp(String clientIp) {
-        CONTEXT.get().put(CLIENT_IP, clientIp);
+    public static void setToken(String token) {
+        CONTEXT.get().put(TOKEN, token);
     }
 
     public static String getClientIp() {
         return (String) CONTEXT.get().get(CLIENT_IP);
+    }
+
+    public static void setClientIp(String clientIp) {
+        CONTEXT.get().put(CLIENT_IP, clientIp);
     }
 
     public static void set(String key, Object value) {

@@ -1,11 +1,9 @@
 package com.astrsomn.api.runtime.common.langchain;
 
-import dev.langchain4j.model.output.TokenUsage;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
+import dev.langchain4j.model.output.TokenUsage;
 
 public interface AstroHistoryRecorder {
-    /**
-     * 保存一组对话（用户+助手）
-     */
+
     void savePair(AstroChatParam param, String assistantContent, TokenUsage usage);
 }

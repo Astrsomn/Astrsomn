@@ -5,9 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * 仅作为 VecDriver SPI 元数据载体保留，不再映射数据库表。
- */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

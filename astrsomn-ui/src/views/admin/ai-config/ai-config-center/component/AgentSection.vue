@@ -8,21 +8,21 @@
     </div>
 
     <div v-if="loading" class="loading-container">
-      <a-spin size="large" />
+      <a-spin size="large"/>
     </div>
 
     <div v-else class="agent-grid">
       <!-- Agent 卡片 -->
       <a-card
-        v-for="agent in agents"
-        :key="agent.id"
-        class="agent-card"
-        hoverable
-        @click="handleSelect(agent)"
+          v-for="agent in agents"
+          :key="agent.id"
+          class="agent-card"
+          hoverable
+          @click="handleSelect(agent)"
       >
         <div class="card-header">
           <div :class="['icon-wrapper', getIconBg(agent)]">
-            <component :is="getIcon(agent)" class="card-icon" />
+            <component :is="getIcon(agent)" class="card-icon"/>
           </div>
           <a-tag :class="['status-tag', agent.status]">{{ agent.status === 'enabled' ? '已上线' : '草稿' }}</a-tag>
         </div>
@@ -30,12 +30,12 @@
         <p class="card-description">{{ agent.description }}</p>
         <div class="card-footer">
           <div class="model-info">
-            <component :is="RobotOutlined" class="model-icon" />
+            <component :is="RobotOutlined" class="model-icon"/>
             <span>{{ agent.chatInstanceName }}</span>
           </div>
           <span class="edit-link">
             点击编辑
-            <component :is="RightOutlined" class="arrow-icon" />
+            <component :is="RightOutlined" class="arrow-icon"/>
           </span>
         </div>
       </a-card>
@@ -43,30 +43,29 @@
       <!-- 添加卡片 -->
       <a-card class="add-card" hoverable @click="handleCreate">
         <div class="add-content">
-          <component :is="PlusCircleOutlined" class="add-icon" />
+          <component :is="PlusCircleOutlined" class="add-icon"/>
           <span class="add-text">构建新业务</span>
         </div>
       </a-card>
     </div>
 
     <div v-if="!loading && agents.length === 0" class="empty-container">
-      <a-empty description="暂无 Agent" />
+      <a-empty description="暂无 Agent"/>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+<script lang="ts" setup>
+import {computed, ref, watch} from 'vue'
 import {
-  PlusOutlined,
+  CloudServerOutlined,
+  CodeOutlined,
+  GlobalOutlined,
+  PlusCircleOutlined,
   RightOutlined,
   RobotOutlined,
-  PlusCircleOutlined,
-  GlobalOutlined,
-  CodeOutlined,
-  CloudServerOutlined,
 } from '@ant-design/icons-vue'
-import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
+import {type AiAgent, aiAgentApi, type PageResponse} from '@/api/aiAgent.ts'
 
 const props = defineProps<{
   providerKey?: string
@@ -132,10 +131,10 @@ const handleCreate = () => {
 }
 
 watch(
-  () => props.providerKey,
-  () => {
-    void fetchAgents()
-  }
+    () => props.providerKey,
+    () => {
+      void fetchAgents()
+    }
 )
 
 void fetchAgents()

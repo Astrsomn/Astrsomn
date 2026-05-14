@@ -1,18 +1,18 @@
 <template>
   <AstrsomnModal
-    :open="open"
-    width="80vw"
-    :max-width="maxWidth"
-    body-height="75vh"
-    max-body-height="720px"
-    :closable="false"
-    main-padding="0"
-    wrap-class-name="vec-store-form-wrap"
-    @update:open="emit('update:open', $event)"
-    @cancel="onCancel"
+      :closable="false"
+      :max-width="maxWidth"
+      :open="open"
+      body-height="75vh"
+      main-padding="0"
+      max-body-height="720px"
+      width="80vw"
+      wrap-class-name="vec-store-form-wrap"
+      @cancel="onCancel"
+      @update:open="emit('update:open', $event)"
   >
     <template #header-logo>
-      <DatabaseOutlined />
+      <DatabaseOutlined/>
     </template>
     <template #header-title>
       {{ mode === 'create' ? '创建向量存储' : '编辑向量存储' }}
@@ -23,10 +23,10 @@
     <template #header-actions>
       <a-button class="header-action-btn header-action-btn-cancel" @click="onCancel">取消</a-button>
       <a-button
-        type="primary"
-        class="header-action-btn header-action-btn-save"
-        :loading="confirmLoading"
-        @click="handleOk"
+          :loading="confirmLoading"
+          class="header-action-btn header-action-btn-save"
+          type="primary"
+          @click="handleOk"
       >
         保存配置
       </a-button>
@@ -35,29 +35,32 @@
     <div class="vec-store-form-shell">
       <div class="form-scroll-area">
         <a-form
-          ref="formRef"
-          :model="form"
-          :rules="rules"
-          layout="vertical"
-          class="professional-form"
+            ref="formRef"
+            :model="form"
+            :rules="rules"
+            class="professional-form"
+            layout="vertical"
         >
           <div class="form-body-container">
             <div class="form-section">
-              <h3 class="section-headline"><IdcardOutlined /> 基本配置</h3>
+              <h3 class="section-headline">
+                <IdcardOutlined/>
+                基本配置
+              </h3>
 
               <div class="form-grid">
                 <a-form-item label="集合名称" name="collectionName">
-                  <a-input v-model:value="form.collectionName" placeholder="例如：document_embeddings" size="large" />
+                  <a-input v-model:value="form.collectionName" placeholder="例如：document_embeddings" size="large"/>
                 </a-form-item>
 
                 <a-form-item label="向量维度" name="dimension">
                   <a-input-number
-                    v-model:value="form.dimension"
-                    size="large"
-                    min="1"
-                    :disabled="true"
-                    :placeholder="selectedInstance ? '自动读取中…' : '请先选择实例'"
-                    class="dimension-input"
+                      v-model:value="form.dimension"
+                      :disabled="true"
+                      :placeholder="selectedInstance ? '自动读取中…' : '请先选择实例'"
+                      class="dimension-input"
+                      min="1"
+                      size="large"
                   />
                   <div v-if="selectedInstance && form.dimension" class="dimension-hint">
                     由模型 <b>{{ selectedInstance.instanceName }}</b> 自动提供（{{ form.dimension }} 维）
@@ -77,19 +80,19 @@
 
                 <a-form-item label="实例 Key" name="instanceKey">
                   <div class="instance-selector">
-                    <a-input 
-                      v-model:value="form.instanceKey" 
-                      placeholder="选择 AI 实例" 
-                      size="large" 
-                      readonly
+                    <a-input
+                        v-model:value="form.instanceKey"
+                        placeholder="选择 AI 实例"
+                        readonly
+                        size="large"
                     />
-                    <a-button 
-                      type="primary" 
-                      size="large" 
-                      class="select-button"
-                      @click="openInstanceSelectDialog"
+                    <a-button
+                        class="select-button"
+                        size="large"
+                        type="primary"
+                        @click="openInstanceSelectDialog"
                     >
-                      <SelectOutlined />
+                      <SelectOutlined/>
                       选择
                     </a-button>
                   </div>
@@ -98,13 +101,13 @@
                   </div>
                 </a-form-item>
 
-                <a-form-item label="元数据模式 (JSON)" name="metadataSchema" class="span-2">
+                <a-form-item class="span-2" label="元数据模式 (JSON)" name="metadataSchema">
                   <div class="json-editor-wrapper">
                     <a-textarea
-                      v-model:value="form.metadataSchema"
-                      :auto-size="{ minRows: 4, maxRows: 6 }"
-                      placeholder='{"type": "object", "properties": {"title": {"type": "string"}}}'
-                      class="mono-text"
+                        v-model:value="form.metadataSchema"
+                        :auto-size="{ minRows: 4, maxRows: 6 }"
+                        class="mono-text"
+                        placeholder='{"type": "object", "properties": {"title": {"type": "string"}}}'
                     />
                   </div>
                 </a-form-item>
@@ -114,44 +117,41 @@
         </a-form>
 
         <div class="modal-footer-info">
-          <SafetyCertificateOutlined /> 数据安全加密存储
+          <SafetyCertificateOutlined/>
+          数据安全加密存储
         </div>
       </div>
     </div>
 
     <InstanceSelector
-      v-model:open="instanceSelectDialogVisible"
-      fixed-model-type="embedding"
-      @select="handleInstanceSelect"
+        v-model:open="instanceSelectDialogVisible"
+        fixed-model-type="embedding"
+        @select="handleInstanceSelect"
     />
   </AstrsomnModal>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref, watch, computed } from 'vue'
-import { 
-  DatabaseOutlined,
-  IdcardOutlined, SafetyCertificateOutlined, 
-  SelectOutlined
-} from '@ant-design/icons-vue'
-import type { FormInstance } from 'ant-design-vue'
-import type { AiVecStore } from '@/api/aiVecStore.ts'
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from 'vue'
+import {DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined, SelectOutlined} from '@ant-design/icons-vue'
+import type {FormInstance} from 'ant-design-vue'
+import type {AiVecStore} from '@/api/aiVecStore.ts'
 import InstanceSelector from '@/views/admin/ai-config/ai-instance/selector/InstanceSelector.vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
-import { aiInstanceApi, type AiInstance } from '@/api/aiInstance.ts'
-import { aiModelApi } from '@/api/aiModel'
+import {type AiInstance, aiInstanceApi} from '@/api/aiInstance.ts'
+import {aiModelApi} from '@/api/aiModel'
 
-const props = defineProps<{ 
-  mode: 'create' | 'edit', 
-  confirmLoading: boolean, 
+const props = defineProps<{
+  mode: 'create' | 'edit',
+  confirmLoading: boolean,
   initial: AiVecStore | null,
   defaultSourceId?: number | string | null
 }>()
-const emit = defineEmits<{ 
+const emit = defineEmits<{
   submit: [payload: AiVecStore],
   'update:open': [value: boolean]
 }>()
-const open = defineModel<boolean>('open', { required: true })
+const open = defineModel<boolean>('open', {required: true})
 const maxWidth = computed(() => 'min(80vw, 1000px)')
 
 const formRef = ref<FormInstance | null>(null)
@@ -172,7 +172,7 @@ function emptyForm(): AiVecStore {
 const form = reactive<AiVecStore>(emptyForm())
 
 const rules = {
-  collectionName: [{ required: true, message: '请输入集合名称' }],
+  collectionName: [{required: true, message: '请输入集合名称'}],
   dimension: [{
     validator: (_rule: unknown, value: unknown) => {
       if (value == null || value === undefined || value === '') {
@@ -181,7 +181,7 @@ const rules = {
       return Promise.resolve()
     }
   }],
-  distanceMetric: [{ required: true, message: '请选择距离度量' }]
+  distanceMetric: [{required: true, message: '请选择距离度量'}]
 }
 
 const selectedInstanceName = computed(() => {
@@ -216,12 +216,12 @@ watch(() => [open.value, props.initial, props.defaultSourceId] as const, ([isOpe
 
 async function handleOk() {
   await formRef.value?.validate()
-  const payload: AiVecStore = { ...form }
+  const payload: AiVecStore = {...form}
   emit('submit', payload)
 }
 
-const onCancel = () => { 
-  open.value = false 
+const onCancel = () => {
+  open.value = false
   instanceSelectDialogVisible.value = false
 }
 
@@ -245,7 +245,7 @@ const handleInstanceSelect = async (instance: AiInstance) => {
       const res = await aiModelApi.queryPage({
         pageNo: 1,
         pageSize: 1,
-        param: { modelKey: instance.modelKey }
+        param: {modelKey: instance.modelKey}
       })
       const hit = res.list?.[0] as Record<string, unknown> | undefined
       const dims = hit?.dimensions ?? hit?.responseLimit
@@ -318,8 +318,14 @@ const handleInstanceSelect = async (instance: AiInstance) => {
   background: #f8fafc;
 }
 
-.form-scroll-area::-webkit-scrollbar { width: 4px; }
-.form-scroll-area::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+.form-scroll-area::-webkit-scrollbar {
+  width: 4px;
+}
+
+.form-scroll-area::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
 
 .professional-form {
   flex: 1;
@@ -354,7 +360,9 @@ const handleInstanceSelect = async (instance: AiInstance) => {
   gap: 12px 24px;
 }
 
-.span-2 { grid-column: span 2; }
+.span-2 {
+  grid-column: span 2;
+}
 
 .dimension-input {
   width: 100%;
@@ -421,7 +429,9 @@ const handleInstanceSelect = async (instance: AiInstance) => {
   padding: 12px;
 }
 
-.mono-text:focus { box-shadow: none; }
+.mono-text:focus {
+  box-shadow: none;
+}
 
 .modal-footer-info {
   flex-shrink: 0;
@@ -436,8 +446,14 @@ const handleInstanceSelect = async (instance: AiInstance) => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {

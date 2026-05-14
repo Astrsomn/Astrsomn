@@ -1,11 +1,11 @@
 <template>
   <AstrsomnModal
-    :open="visible"
-    @update:open="emit('update:visible', $event)"
-    @cancel="handleCancel"
+      :open="visible"
+      @cancel="handleCancel"
+      @update:open="emit('update:visible', $event)"
   >
     <template #header-logo>
-      <ThunderboltFilled />
+      <ThunderboltFilled/>
     </template>
     <template #header-title>
       {{ isEdit ? '编辑智能体' : '新建智能体' }}
@@ -14,100 +14,85 @@
       通过拖拽组装模型实例、工具与知识库，定义 Astrsomn 智能体策略
     </template>
     <template #header-actions>
-      <AstrsomnSegmentedButton :buttons="headerFormSegmentButtons" />
+      <AstrsomnSegmentedButton :buttons="headerFormSegmentButtons"/>
     </template>
 
     <div class="assembly-page">
       <div class="assembly-layout">
         <AssemblyLeftPalette
-          ref="leftPaletteRef"
-          :page-size="pageSize.value"
-          :chat-items="chatItems"
-          :image-items="imageItems"
-          :chat-page="pagination.chat"
-          :image-page="pagination.image"
-          @search="onLeftSearch"
-          @chat-page="onChatPage"
-          @image-page="onImagePage"
-          @drag-start="onDragStart"
-          @drag-end="onDragEnd"
+            ref="leftPaletteRef"
+            :chat-items="chatItems"
+            :chat-page="pagination.chat"
+            :image-items="imageItems"
+            :image-page="pagination.image"
+            :page-size="pageSize.value"
+            @search="onLeftSearch"
+            @chat-page="onChatPage"
+            @image-page="onImagePage"
+            @drag-start="onDragStart"
+            @drag-end="onDragEnd"
         />
 
         <AssemblyCanvas
-          v-model:agent-form="agentForm"
-          :dragging-payload="dragPayload"
-          :active-drop-key="activeDropKey"
-          :chat-instance="chatInstance"
-          :image-instance="imageInstance"
-          :prompt-instance="promptInstance"
-          :tools="placedTools"
-          :mcps="placedMcps"
-          :knowledge-keys="knowledgeKeys"
-          @hover="activeDropKey = $event"
-          @drop="onCanvasDrop"
-          @clear="onClearInstance"
-          @remove-tool="removeTool"
-          @remove-mcp="removeMcp"
-          @remove-knowledge-key="removeKnowledgeKey"
-          @reset="handleReset"
-          @submit="handleSubmit"
+            v-model:agent-form="agentForm"
+            :active-drop-key="activeDropKey"
+            :chat-instance="chatInstance"
+            :dragging-payload="dragPayload"
+            :image-instance="imageInstance"
+            :knowledge-keys="knowledgeKeys"
+            :mcps="placedMcps"
+            :prompt-instance="promptInstance"
+            :tools="placedTools"
+            @clear="onClearInstance"
+            @drop="onCanvasDrop"
+            @hover="activeDropKey = $event"
+            @reset="handleReset"
+            @submit="handleSubmit"
+            @remove-tool="removeTool"
+            @remove-mcp="removeMcp"
+            @remove-knowledge-key="removeKnowledgeKey"
         />
 
         <AssemblyRightPalette
-          ref="rightPaletteRef"
-          :page-size="pageSize.value"
-          :tools="toolItems"
-          :mcps="mcpItems"
-          :prompts="promptItems"
-          :tool-page="pagination.tool"
-          :mcp-page="pagination.mcp"
-          :prompt-page="pagination.prompt"
-          @search-tool="onSearchTool"
-          @search-mcp="onSearchMcp"
-          @search-prompt="onSearchPrompt"
-          @tool-page="onToolPage"
-          @mcp-page="onMcpPage"
-          @prompt-page="onPromptPage"
-          @drag-start="onDragStart"
-          @drag-end="onDragEnd"
+            ref="rightPaletteRef"
+            :mcp-page="pagination.mcp"
+            :mcps="mcpItems"
+            :page-size="pageSize.value"
+            :prompt-page="pagination.prompt"
+            :prompts="promptItems"
+            :tool-page="pagination.tool"
+            :tools="toolItems"
+            @search-tool="onSearchTool"
+            @search-mcp="onSearchMcp"
+            @search-prompt="onSearchPrompt"
+            @tool-page="onToolPage"
+            @mcp-page="onMcpPage"
+            @prompt-page="onPromptPage"
+            @drag-start="onDragStart"
+            @drag-end="onDragEnd"
         />
       </div>
     </div>
   </AstrsomnModal>
 </template>
 
-<script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { message } from 'ant-design-vue'
-import {
-  ThunderboltFilled,
-  CloseOutlined,
-  SaveOutlined,
-  CloudUploadOutlined,
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, onMounted, reactive, ref, watch} from 'vue'
+import {message} from 'ant-design-vue'
+import {CloseOutlined, CloudUploadOutlined, SaveOutlined, ThunderboltFilled,} from '@ant-design/icons-vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
-import type { AiInstance } from '@/api/aiInstance'
-import type { AiTool } from '@/api/aiTool'
-import type { AiMcp } from '@/api/aiMcp'
-import type { AiPrompt } from '@/api/aiPrompt'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
+import type {AiInstance} from '@/api/aiInstance'
+import type {AiTool} from '@/api/aiTool'
+import type {AiMcp} from '@/api/aiMcp'
+import type {AiPrompt} from '@/api/aiPrompt'
 import AssemblyLeftPalette from './assembly/AssemblyLeftPalette.vue'
 import AssemblyRightPalette from './assembly/AssemblyRightPalette.vue'
 import AssemblyCanvas from './assembly/AssemblyCanvas.vue'
-import {
-  fetchInstancesPaged,
-  fetchMcpsPaged,
-  fetchToolsPaged,
-  fetchPromptsPaged
-} from './assembly/assemblyFetch'
-import { aiAgentApi } from '@/api/aiAgent'
-import type {
-  AssemblyAgentForm,
-  AssemblyDragPayload,
-  AssemblySlotKey,
-  InstanceModelType
-} from './assembly/assemblyTypes'
-import type { AiAgent } from '@/api/aiAgent'
+import {fetchInstancesPaged, fetchMcpsPaged, fetchPromptsPaged, fetchToolsPaged} from './assembly/assemblyFetch'
+import type {AiAgent} from '@/api/aiAgent'
+import {aiAgentApi} from '@/api/aiAgent'
+import type {AssemblyAgentForm, AssemblyDragPayload, AssemblySlotKey, InstanceModelType} from './assembly/assemblyTypes'
 
 interface Props {
   visible: boolean
@@ -141,17 +126,17 @@ const headerFormSegmentButtons = computed<SegmentedButton[]>(() => [
 const calculatePageSize = () => {
   // 容器高度：calc(100vh - 100px)
   const containerHeight = window.innerHeight - 100
-  
+
   // 减去 tab 栏、搜索框、分页按钮的高度
   const headerHeight = 100 // tab栏 + 搜索框 + 分页按钮
   const availableHeight = containerHeight - headerHeight
-  
+
   // 每个芯片的估算高度（包括间距）
   const chipHeight = 60 // 保守估算，包括上下间距
-  
+
   // 计算最大可容纳的芯片数量，保守一点，取整后减1
   const maxChips = Math.floor(availableHeight / chipHeight) - 1
-  
+
   // 确保至少显示 3 个
   return Math.max(3, maxChips)
 }
@@ -163,7 +148,7 @@ const pageSize = ref(calculatePageSize())
 window.addEventListener('resize', () => {
   const oldPageSize = pageSize.value
   pageSize.value = calculatePageSize()
-  
+
   // 如果 pageSize 发生变化，重置页码并重新加载数据
   if (oldPageSize !== pageSize.value) {
     resetPagination()
@@ -181,11 +166,11 @@ const mcpItems = ref<AiMcp[]>([])
 const promptItems = ref<AiPrompt[]>([])
 
 const pagination = reactive({
-  chat: { current: 1, total: 0 },
-  image: { current: 1, total: 0 },
-  tool: { current: 1, total: 0 },
-  mcp: { current: 1, total: 0 },
-  prompt: { current: 1, total: 0 }
+  chat: {current: 1, total: 0},
+  image: {current: 1, total: 0},
+  tool: {current: 1, total: 0},
+  mcp: {current: 1, total: 0},
+  prompt: {current: 1, total: 0}
 })
 
 const chatInstance = ref<AiInstance | null>(null)
@@ -220,35 +205,35 @@ function onDragEnd() {
 
 async function loadChat() {
   const kw = leftPaletteRef.value?.getKeywords?.().chat ?? ''
-  const { list, total } = await fetchInstancesPaged('chat', kw, pagination.chat.current, pageSize.value)
+  const {list, total} = await fetchInstancesPaged('chat', kw, pagination.chat.current, pageSize.value)
   chatItems.value = list
   pagination.chat.total = total
 }
 
 async function loadImage() {
   const kw = leftPaletteRef.value?.getKeywords?.().image ?? ''
-  const { list, total } = await fetchInstancesPaged('image', kw, pagination.image.current, pageSize.value)
+  const {list, total} = await fetchInstancesPaged('image', kw, pagination.image.current, pageSize.value)
   imageItems.value = list
   pagination.image.total = total
 }
 
 async function loadTools() {
   const kw = rightPaletteRef.value?.getKeywords?.().tool ?? ''
-  const { list, total } = await fetchToolsPaged(kw, pagination.tool.current, pageSize.value)
+  const {list, total} = await fetchToolsPaged(kw, pagination.tool.current, pageSize.value)
   toolItems.value = list
   pagination.tool.total = total
 }
 
 async function loadMcps() {
   const kw = rightPaletteRef.value?.getKeywords?.().mcp ?? ''
-  const { list, total } = await fetchMcpsPaged(kw, pagination.mcp.current, pageSize.value)
+  const {list, total} = await fetchMcpsPaged(kw, pagination.mcp.current, pageSize.value)
   mcpItems.value = list
   pagination.mcp.total = total
 }
 
 async function loadPrompts() {
   const kw = rightPaletteRef.value?.getKeywords?.().prompt ?? ''
-  const { list, total } = await fetchPromptsPaged(kw, pagination.prompt.current, pageSize.value)
+  const {list, total} = await fetchPromptsPaged(kw, pagination.prompt.current, pageSize.value)
   promptItems.value = list
   pagination.prompt.total = total
 }
@@ -273,36 +258,36 @@ function applyAgentDetail(detail: AiAgent) {
   }
 
   knowledgeKeys.value = (detail.knowledgeBaseKeys || '')
-    .split(',')
-    .map((k) => k.trim())
-    .filter(Boolean)
+      .split(',')
+      .map((k) => k.trim())
+      .filter(Boolean)
 
   if (detail.chatInstanceKey) {
     chatInstance.value =
-      chatItems.value.find((i) => i.instanceKey === detail.chatInstanceKey) ?? null
+        chatItems.value.find((i) => i.instanceKey === detail.chatInstanceKey) ?? null
   }
   if (detail.imageInstanceKey) {
     imageInstance.value =
-      imageItems.value.find((i) => i.instanceKey === detail.imageInstanceKey) ?? null
+        imageItems.value.find((i) => i.instanceKey === detail.imageInstanceKey) ?? null
   }
   if (detail.promptKey) {
     promptInstance.value =
-      promptItems.value.find((p) => p.promptKey === detail.promptKey) ?? null
+        promptItems.value.find((p) => p.promptKey === detail.promptKey) ?? null
   }
 
   if (detail.toolKeys) {
     const keys = detail.toolKeys
-      .split(',')
-      .map((k) => k.trim())
-      .filter(Boolean)
+        .split(',')
+        .map((k) => k.trim())
+        .filter(Boolean)
     placedTools.value = toolItems.value.filter((t) => t.toolKey && keys.includes(t.toolKey))
   }
 
   if (detail.mcpKeys) {
     const keys = detail.mcpKeys
-      .split(',')
-      .map((k) => k.trim())
-      .filter(Boolean)
+        .split(',')
+        .map((k) => k.trim())
+        .filter(Boolean)
     placedMcps.value = mcpItems.value.filter((m) => m.mcpKey && keys.includes(m.mcpKey))
   }
 }
@@ -388,10 +373,10 @@ function onCanvasDrop(p: AssemblyDragPayload) {
   if (p.kind === 'instance') {
     const row = p.data
     if (p.instanceModelType === 'chat') {
-      chatInstance.value = { ...row }
+      chatInstance.value = {...row}
       message.success('已装入对话推理预设')
     } else {
-      imageInstance.value = { ...row }
+      imageInstance.value = {...row}
       message.success('已装入图像推理预设')
     }
     return
@@ -403,7 +388,7 @@ function onCanvasDrop(p: AssemblyDragPayload) {
       message.info('该工具已在列表中')
       return
     }
-    placedTools.value = [...placedTools.value, { ...p.data }]
+    placedTools.value = [...placedTools.value, {...p.data}]
     message.success('已添加工具')
     return
   }
@@ -414,7 +399,7 @@ function onCanvasDrop(p: AssemblyDragPayload) {
       message.info('该 MCP 已在列表中')
       return
     }
-    placedMcps.value = [...placedMcps.value, { ...p.data }]
+    placedMcps.value = [...placedMcps.value, {...p.data}]
     message.success('已添加 MCP')
     return
   }
@@ -430,7 +415,7 @@ function onCanvasDrop(p: AssemblyDragPayload) {
     return
   }
   if (p.kind === 'prompt') {
-    promptInstance.value = { ...p.data }
+    promptInstance.value = {...p.data}
     message.success('已添加提示词')
   }
 }
@@ -530,16 +515,16 @@ function handleCancel() {
 }
 
 watch(
-  () => props.visible,
-  async (val) => {
-    if (!val) return
-    await loadAll()
-    if (props.recordId) {
-      await initEditState()
-    } else {
-      handleReset()
+    () => props.visible,
+    async (val) => {
+      if (!val) return
+      await loadAll()
+      if (props.recordId) {
+        await initEditState()
+      } else {
+        handleReset()
+      }
     }
-  }
 )
 
 onMounted(async () => {

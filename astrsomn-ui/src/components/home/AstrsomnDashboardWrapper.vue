@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-wrapper">
     <main class="dashboard-main">
-      <slot />
+      <slot/>
     </main>
   </div>
 </template>

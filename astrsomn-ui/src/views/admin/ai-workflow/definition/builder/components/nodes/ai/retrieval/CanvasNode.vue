@@ -1,26 +1,27 @@
 <template>
   <BaseCanvasNode
-    :data="data"
-    fallback-label="知识库 (Retrieval)"
-    fallback-description="向量检索相关知识片段"
-    subtitle="Retrieval"
-    icon-text="R"
-    icon-background="#eef2ff"
-    icon-color="#4f46e5"
-    :theme="{
+      :data="data"
+      :theme="{
       borderColor: '#c7d2fe',
       background: '#ffffff',
       titleColor: '#0f172a',
       descColor: '#475569'
     }"
+      fallback-description="向量检索相关知识片段"
+      fallback-label="知识库 (Retrieval)"
+      icon-background="#eef2ff"
+      icon-color="#4f46e5"
+      icon-text="R"
+      subtitle="Retrieval"
   >
     <div class="retrieval-tip">RAG: TopK + 相似度阈值</div>
   </BaseCanvasNode>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseCanvasNode from '../../shared/BaseCanvasNode.vue'
-import type { WorkflowNodeViewData } from '../../shared/node-props'
+import type {WorkflowNodeViewData} from '../../shared/node-props'
+
 defineProps<{ data?: WorkflowNodeViewData }>()
 </script>
 

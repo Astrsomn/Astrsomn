@@ -4,13 +4,13 @@
 
     <div class="store-content">
       <AstrsomnPageShell
-        :title="currentSourceTitle"
-        :description="currentSourceDescription"
-        empty-text="暂无向量存储配置。"
+          :description="currentSourceDescription"
+          :title="currentSourceTitle"
+          empty-text="暂无向量存储配置。"
       >
         <div v-if="selectedSourceId === null" class="no-source-selected">
           <div class="no-source-icon">
-            <DatabaseOutlined />
+            <DatabaseOutlined/>
           </div>
           <h3>请选择一个向量源</h3>
           <p>在左侧边栏选择一个向量源，以管理其对应的向量存储配置</p>
@@ -19,36 +19,36 @@
           <AstrsomnListToolbar>
             <template #left>
               <AstrsomnSearchPill
-                v-model="query.collectionName"
-                placeholder="搜索集合名称"
-                button-label="搜索"
-                layout="toolbar"
-                @search="fetchList"
+                  v-model="query.collectionName"
+                  button-label="搜索"
+                  layout="toolbar"
+                  placeholder="搜索集合名称"
+                  @search="fetchList"
               />
             </template>
 
             <template #right>
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
             </template>
           </AstrsomnListToolbar>
 
           <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前页 ${list.length} 条向量存储，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
+              :all-current-selected="allCurrentSelected"
+              :list-length="list.length"
+              :part-current-selected="partCurrentSelected"
+              :selected-count="selectedRowKeys.length"
+              :show-actions="list.length > 0"
+              :summary-text="`当前页 ${list.length} 条向量存储，已选 ${selectedRowKeys.length} 条。`"
+              @toggle-select-all="toggleSelectAllCurrentPage"
           />
 
           <a-table
-            :columns="columns"
-            :data-source="list"
-            :pagination="false"
-            row-key="id"
-            :row-selection="rowSelection"
-            :scroll="{ x: 1400 }"
+              :columns="columns"
+              :data-source="list"
+              :pagination="false"
+              :row-selection="rowSelection"
+              :scroll="{ x: 1400 }"
+              row-key="id"
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'collectionName'">
@@ -64,8 +64,8 @@
               </template>
               <template v-else-if="column.key === 'sourceName'">
                 <div class="source-cell-inline">
-                  <div class="source-icon-small" :class="getProviderClass(record.sourceProvider)">
-                    <DatabaseOutlined />
+                  <div :class="getProviderClass(record.sourceProvider)" class="source-icon-small">
+                    <DatabaseOutlined/>
                   </div>
                   <span>{{ record.sourceName || '未关联' }}</span>
                 </div>
@@ -74,19 +74,23 @@
                 <span class="instance-name">{{ record.instanceName || '未关联' }}</span>
               </template>
               <template v-else-if="column.key === 'actions'">
-                <a-button type="link" class="action-link" @click="openEdit(record)">
-                  <template #icon><edit-outlined /></template>
+                <a-button class="action-link" type="link" @click="openEdit(record)">
+                  <template #icon>
+                    <edit-outlined/>
+                  </template>
                   编辑
                 </a-button>
-                <a-divider type="vertical" />
+                <a-divider type="vertical"/>
                 <a-popconfirm
-                  title="确定删除吗？"
-                  ok-text="确认"
-                  cancel-text="取消"
-                  @confirm="() => handleDeleteOne(record.id)"
+                    cancel-text="取消"
+                    ok-text="确认"
+                    title="确定删除吗？"
+                    @confirm="() => handleDeleteOne(record.id)"
                 >
-                  <a-button type="link" danger class="action-link">
-                    <template #icon><delete-outlined /></template>
+                  <a-button class="action-link" danger type="link">
+                    <template #icon>
+                      <delete-outlined/>
+                    </template>
                     删除
                   </a-button>
                 </a-popconfirm>
@@ -96,21 +100,21 @@
 
           <div class="pagination-wrap">
             <a-pagination
-              :current="page.pageNum"
-              :page-size="page.pageSize"
-              :total="page.total"
-              :show-size-changer="false"
-              @change="onPageChange"
+                :current="page.pageNum"
+                :page-size="page.pageSize"
+                :show-size-changer="false"
+                :total="page.total"
+                @change="onPageChange"
             />
           </div>
 
           <VecStoreFormModal
-            v-model:open="modal.open"
-            :mode="modal.mode"
-            :confirm-loading="modal.submitting"
-            :initial="modalInitial"
-            :default-source-id="selectedSourceId"
-            @submit="handleFormSubmit"
+              v-model:open="modal.open"
+              :confirm-loading="modal.submitting"
+              :default-source-id="selectedSourceId"
+              :initial="modalInitial"
+              :mode="modal.mode"
+              @submit="handleFormSubmit"
           />
         </div>
       </AstrsomnPageShell>
@@ -118,25 +122,18 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, onMounted, watch } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-  DatabaseOutlined
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, onMounted, reactive, ref, watch} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {DatabaseOutlined, DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnListToolbar from '@/components/home/AstrsomnListToolbar.vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 
 import VecStoreFormModal from './VecStoreFormModal.vue'
-import { aiVecStoreApi, type AiVecStore, type PageResponse } from '@/api/aiVecStore.ts'
-import { aiVecSourceApi, type AiVecSource } from '@/api/aiVecSource.ts'
+import {type AiVecStore, aiVecStoreApi, type PageResponse} from '@/api/aiVecStore.ts'
 
 type QueryState = {
   collectionName?: string
@@ -146,13 +143,13 @@ type QueryState = {
 }
 
 const columns = [
-  { title: '集合名称', key: 'collectionName', width: 240 },
-  { title: '距离度量', dataIndex: 'distanceMetric', key: 'distanceMetric', width: 150 },
-  { title: '向量源', key: 'sourceName', width: 200 },
-  { title: '实例名称', key: 'instanceName', width: 200 },
-  { title: '实例 Key', dataIndex: 'instanceKey', key: 'instanceKey', width: 200, ellipsis: true },
-  { title: '元数据模式', key: 'metadataSchema', width: 300 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  {title: '集合名称', key: 'collectionName', width: 240},
+  {title: '距离度量', dataIndex: 'distanceMetric', key: 'distanceMetric', width: 150},
+  {title: '向量源', key: 'sourceName', width: 200},
+  {title: '实例名称', key: 'instanceName', width: 200},
+  {title: '实例 Key', dataIndex: 'instanceKey', key: 'instanceKey', width: 200, ellipsis: true},
+  {title: '元数据模式', key: 'metadataSchema', width: 300},
+  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
 ]
 
 const getMetadataInfo = (metadataSchema?: string) => {
@@ -165,7 +162,8 @@ const getMetadataInfo = (metadataSchema?: string) => {
       const properties = parsed.properties || {}
       return `属性: ${Object.keys(properties).length}`
     }
-  } catch (error) {}
+  } catch (error) {
+  }
 
   return '已配置'
 }
@@ -217,9 +215,9 @@ const currentSourceDescription = computed(() => {
 })
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {

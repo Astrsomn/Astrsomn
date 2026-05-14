@@ -16,7 +16,7 @@ public class LoginResponse {
     private String username;
     private String email;
     private String adminFlag;
-    /** SUPER_ADMIN / ENV_ADMIN / USER */
+
     private String userRole;
     private String token;
     private Long expiresIn;

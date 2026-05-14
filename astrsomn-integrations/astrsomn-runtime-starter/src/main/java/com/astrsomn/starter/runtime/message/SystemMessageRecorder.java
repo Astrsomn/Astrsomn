@@ -25,6 +25,22 @@ public class SystemMessageRecorder {
 
     private final AstSystemMessageMapper systemMessageMapper;
 
+    private static SystemMessageEntity toEntity(SystemMessageRecordCommand c) {
+        SystemMessageEntity e = new SystemMessageEntity();
+        BeanUtils.copyProperties(c, e, "id", "deleted");
+        if (StringUtils.isBlank(e.getMessageType())) {
+            e.setMessageType(SystemMessageEnum.MessageTypeEnum.OTHER.getCode());
+        }
+        if (StringUtils.isBlank(e.getMessageLevel())) {
+            e.setMessageLevel(SystemMessageEnum.MessageLevelEnum.INFO.getCode());
+        }
+        if (StringUtils.isBlank(e.getReadStatus())) {
+            e.setReadStatus(SystemMessageEnum.ReadStatusEnum.UNREAD.getCode());
+        }
+        e.setDeleted(Boolean.FALSE);
+        return e;
+    }
+
     /**
      * 写入并返回表行；插入失败时抛出 {@link IllegalStateException}。
      */
@@ -41,21 +57,5 @@ public class SystemMessageRecorder {
         }
         SystemMessageEntity row = systemMessageMapper.selectById(e.getId());
         return row != null ? row : e;
-    }
-
-    private static SystemMessageEntity toEntity(SystemMessageRecordCommand c) {
-        SystemMessageEntity e = new SystemMessageEntity();
-        BeanUtils.copyProperties(c, e, "id", "deleted");
-        if (StringUtils.isBlank(e.getMessageType())) {
-            e.setMessageType(SystemMessageEnum.MessageTypeEnum.OTHER.getCode());
-        }
-        if (StringUtils.isBlank(e.getMessageLevel())) {
-            e.setMessageLevel(SystemMessageEnum.MessageLevelEnum.INFO.getCode());
-        }
-        if (StringUtils.isBlank(e.getReadStatus())) {
-            e.setReadStatus(SystemMessageEnum.ReadStatusEnum.UNREAD.getCode());
-        }
-        e.setDeleted(Boolean.FALSE);
-        return e;
     }
 }

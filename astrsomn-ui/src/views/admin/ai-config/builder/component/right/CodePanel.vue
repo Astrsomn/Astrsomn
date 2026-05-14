@@ -2,15 +2,17 @@
   <div class="code-panel">
     <div class="code-header">
       <div class="header-left">
-        <code-outlined class="header-icon" />
+        <code-outlined class="header-icon"/>
         <span class="header-title">后端调用代码</span>
       </div>
       <button class="copy-btn" @click="copyCode">
         <template v-if="copied">
-          <check-outlined /> 已复制
+          <check-outlined/>
+          已复制
         </template>
         <template v-else>
-          <copy-outlined /> 复制
+          <copy-outlined/>
+          复制
         </template>
       </button>
     </div>
@@ -20,10 +22,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import { message } from 'ant-design-vue';
-import { CodeOutlined, CopyOutlined, CheckOutlined } from '@ant-design/icons-vue';
+<script lang="ts" setup>
+import {ref} from 'vue';
+import {message} from 'ant-design-vue';
+import {CheckOutlined, CodeOutlined, CopyOutlined} from '@ant-design/icons-vue';
 
 const copied = ref(false);
 

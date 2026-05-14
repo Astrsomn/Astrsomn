@@ -1,12 +1,12 @@
 <template>
   <AstrsomnPageShell
-    title="提示词管理"
-    description="同一 Prompt Key 共用一个逻辑提示词；每次保存生成新版本，列表按 Key 聚合展示当前最新版本。"
-    empty-text="暂无提示词，请先创建。"
-    :breadcrumbs="breadcrumbs"
-    :show-view-toggle="true"
-    :view-mode="viewMode"
-    :view-toggle-handler="handleViewToggle"
+      :breadcrumbs="breadcrumbs"
+      :show-view-toggle="true"
+      :view-mode="viewMode"
+      :view-toggle-handler="handleViewToggle"
+      description="同一 Prompt Key 共用一个逻辑提示词；每次保存生成新版本，列表按 Key 聚合展示当前最新版本。"
+      empty-text="暂无提示词，请先创建。"
+      title="提示词管理"
   >
     <div ref="pageRef" class="prompt-page">
       <AstrsomnDataSection>
@@ -14,44 +14,43 @@
           <div class="toolbar">
             <div class="toolbar-left">
               <AstrsomnSearchPill
-                v-model="query.promptTitle"
-                layout="toolbar"
-                placeholder="搜索标题"
-                button-label="查询"
-                @search="fetchList"
+                  v-model="query.promptTitle"
+                  button-label="查询"
+                  layout="toolbar"
+                  placeholder="搜索标题"
+                  @search="fetchList"
               />
-              <PromptSceneTagSelector v-model="query.sceneTags" @change="fetchList" />
-              <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
+              <PromptSceneTagSelector v-model="query.sceneTags" @change="fetchList"/>
+              <AstrsomnStateSwitch v-model="query.status" @change="fetchList"/>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
 
-
         <AstrsomnDataView
-          :mode="dataViewMode"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1180 }"
-          row-key="id"
-          empty-text="暂无匹配的提示词"
-          :card-columns="currentGridColumns"
-          :card-min-width="promptCardMinWidth"
-          :card-gap="promptCardGap"
+            :card-columns="currentGridColumns"
+            :card-gap="promptCardGap"
+            :card-min-width="promptCardMinWidth"
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :mode="dataViewMode"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1180 }"
+            empty-text="暂无匹配的提示词"
+            row-key="id"
         >
           <template #card="{ record }">
             <PromptCard
-              :record="record"
-              :selected="record.id != null && selectedKeySet.has(record.id)"
-              @select-change="onPromptCardSelectChange.bind(null, record.id)"
-              @history="openHistory"
-              @edit="openEdit"
-              @delete="handleDeleteOne"
+                :record="record"
+                :selected="record.id != null && selectedKeySet.has(record.id)"
+                @delete="handleDeleteOne"
+                @edit="openEdit"
+                @history="openHistory"
+                @select-change="onPromptCardSelectChange.bind(null, record.id)"
             />
           </template>
           <template #bodyCell="{ column, record }">
@@ -68,15 +67,16 @@
             </template>
             <template v-else-if="column.key === 'actions'">
               <a-space>
-                <a-button type="link" size="small" @click="openHistory(record)">
-                  <HistoryOutlined />
+                <a-button size="small" type="link" @click="openHistory(record)">
+                  <HistoryOutlined/>
                 </a-button>
-                <a-button type="link" size="small" @click="openEdit(record)">
-                  <EditOutlined />
+                <a-button size="small" type="link" @click="openEdit(record)">
+                  <EditOutlined/>
                 </a-button>
-                <a-popconfirm title="确定删除吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
-                  <a-button type="link" danger size="small">
-                    <DeleteOutlined />
+                <a-popconfirm cancel-text="取消" ok-text="确认" title="确定删除吗？"
+                              @confirm="() => handleDeleteOne(record.id)">
+                  <a-button danger size="small" type="link">
+                    <DeleteOutlined/>
                   </a-button>
                 </a-popconfirm>
               </a-space>
@@ -86,53 +86,47 @@
 
         <template #pagination>
           <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
       </AstrsomnDataSection>
 
       <PromptFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
 
       <PromptHistoryModal
-        v-model:open="historyModal.open"
-        :prompt-key="historyModal.promptKey"
-        :env-code="historyModal.envCode"
+          v-model:open="historyModal.open"
+          :env-code="historyModal.envCode"
+          :prompt-key="historyModal.promptKey"
       />
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import {
-  DeleteOutlined,
-  EditOutlined,
-  HistoryOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {DeleteOutlined, EditOutlined, HistoryOutlined, PlusOutlined, ReloadOutlined,} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import PromptFormModal from './PromptFormModal.vue'
 import PromptHistoryModal from './PromptHistoryModal.vue'
 import PromptCard from './PromptCard.vue'
 import PromptSceneTagSelector from './component/PromptSceneTagSelector.vue'
-import { aiPromptApi, type AiPrompt, type PageResponse } from '@/api/aiPrompt'
+import {type AiPrompt, aiPromptApi, type PageResponse} from '@/api/aiPrompt'
 
 const props = withDefaults(defineProps<{
   initialViewMode?: 'grid' | 'list'
@@ -146,8 +140,8 @@ const promptCardMinWidth = `${PROMPT_CARD_MIN_WIDTH_PX}px`
 const promptCardGap = `${PROMPT_CARD_GAP_PX}px`
 
 const breadcrumbs = [
-  { title: 'AI 配置', href: '/admin/ai-config' },
-  { title: '提示词管理' },
+  {title: 'AI 配置', href: '/admin/ai-config'},
+  {title: '提示词管理'},
 ]
 
 type QueryState = {
@@ -163,16 +157,16 @@ const query = reactive<QueryState>({})
 const loading = ref(false)
 const list = ref<AiPrompt[]>([])
 const columns = [
-    { title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 180, ellipsis: true, copyable: true },
-  { title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', width: 220, ellipsis: true },
-  { title: '场景', dataIndex: 'scene', key: 'scene', width: 140, ellipsis: true },
-  { title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '版本', dataIndex: 'version', key: 'version', width: 90 },
+  {title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 180, ellipsis: true, copyable: true},
+  {title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', width: 220, ellipsis: true},
+  {title: '场景', dataIndex: 'scene', key: 'scene', width: 140, ellipsis: true},
+  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true},
+  {title: '状态', dataIndex: 'status', key: 'status', width: 100},
+  {title: '版本', dataIndex: 'version', key: 'version', width: 90},
   {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  { title: '操作', key: 'actions', width: 150, fixed: 'right' as const }
+  {title: '操作', key: 'actions', width: 150, fixed: 'right' as const}
 ]
 
 const page = reactive({
@@ -189,9 +183,9 @@ const selectedRowKeys = ref<Array<number | string>>([])
 const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -359,7 +353,7 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: AiPrompt) => {
   modal.submitting = true
   try {
-    const payload: AiPrompt = { ...form }
+    const payload: AiPrompt = {...form}
     delete payload.version
 
     let msg: string
@@ -390,7 +384,8 @@ const renderScene = (scene?: string) => {
     if (Array.isArray(parsed)) {
       return parsed.join(', ')
     }
-  } catch (err) {}
+  } catch (err) {
+  }
   return scene
 }
 

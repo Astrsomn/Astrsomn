@@ -1,10 +1,10 @@
 <template>
-  <BaseInspectorPanel :selected-node="selectedNode" :all-nodes="allNodes" @update-node="$emit('update-node', $event)" />
+  <BaseInspectorPanel :all-nodes="allNodes" :selected-node="selectedNode" @update-node="$emit('update-node', $event)"/>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseInspectorPanel from '../../shared/BaseInspectorPanel.vue'
-import type { WorkflowNode } from '../../../../domain/types.ts'
+import type {WorkflowNode} from '../../../../domain/types.ts'
 
 defineProps<{
   selectedNode: WorkflowNode

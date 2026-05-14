@@ -1,12 +1,12 @@
 <template>
   <div
-    class="db-node"
-    :class="{ selected: isSelected, 'has-pulse': active }"
-    @click="$emit('select')"
+      :class="{ selected: isSelected, 'has-pulse': active }"
+      class="db-node"
+      @click="$emit('select')"
   >
     <div class="db-info">
       <div class="db-title-row">
-        <NodeIndexOutlined class="db-type-icon" />
+        <NodeIndexOutlined class="db-type-icon"/>
         <span class="db-name">{{ dbName }}</span>
       </div>
       <div class="db-model-row">
@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { NodeIndexOutlined } from '@ant-design/icons-vue'
+import {NodeIndexOutlined} from '@ant-design/icons-vue'
 
 defineProps<{
   dbName: string

@@ -1,12 +1,8 @@
 package com.astrsomn.starter.runtime.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import com.astrsomn.api.runtime.common.dto.env.SystemEnvQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.env.SystemEnvResponseDTO;
 import com.astrsomn.api.runtime.common.entity.SystemEnvEntity;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface AstSystemEnvMapper extends BaseMapper<SystemEnvEntity> {

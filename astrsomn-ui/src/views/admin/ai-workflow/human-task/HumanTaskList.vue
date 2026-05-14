@@ -1,52 +1,54 @@
 <template>
-  <AstrsomnPageShell title="人工任务" description="处理人工审批节点与反馈数据。" empty-text="暂无人工任务。">
+  <AstrsomnPageShell description="处理人工审批节点与反馈数据。" empty-text="暂无人工任务。" title="人工任务">
     <div class="page-wrap">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill v-model="query.keyword" placeholder="搜索实例 ID / 节点 ID" @search="onSearch" />
+              <AstrsomnSearchPill v-model="query.keyword" placeholder="搜索实例 ID / 节点 ID" @search="onSearch"/>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="segmentedButtons" />
+              <AstrsomnSegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
         </template>
 
         <template #overview>
           <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="0"
-            :all-current-selected="false"
-            :part-current-selected="false"
-            :show-actions="false"
-            :summary-text="`当前页 ${list.length} 条人工任务。`"
+              :all-current-selected="false"
+              :list-length="list.length"
+              :part-current-selected="false"
+              :selected-count="0"
+              :show-actions="false"
+              :summary-text="`当前页 ${list.length} 条人工任务。`"
           />
         </template>
 
-        <AstrsomnDataView :data-source="list" :columns="columns" row-key="id" mode="table" :pagination="false" :loading="loading">
+        <AstrsomnDataView :columns="columns" :data-source="list" :loading="loading" :pagination="false" mode="table"
+                          row-key="id">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'taskStatus'">
               <a-tag :color="statusColor[record.taskStatus] || 'default'">{{ record.taskStatus }}</a-tag>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" size="small" @click="goDetail(record.id)">详情</a-button>
+              <a-button size="small" type="link" @click="goDetail(record.id)">详情</a-button>
             </template>
           </template>
         </AstrsomnDataView>
 
         <template #pagination>
-          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total" @change="onPageChange" />
+          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
+                              @change="onPageChange"/>
         </template>
       </AstrsomnDataSection>
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { FilterOutlined } from '@ant-design/icons-vue'
-import { useRouter } from 'vue-router'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {FilterOutlined} from '@ant-design/icons-vue'
+import {useRouter} from 'vue-router'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
@@ -54,7 +56,7 @@ import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
-import { aiWorkflowRuntimeApi, type WorkflowRuntimeRecord } from '@/api/aiWorkflowRuntime'
+import {aiWorkflowRuntimeApi, type WorkflowRuntimeRecord} from '@/api/aiWorkflowRuntime'
 
 const statusColor: Record<string, string> = {
   PENDING: 'gold',
@@ -63,13 +65,13 @@ const statusColor: Record<string, string> = {
 }
 
 const columns = [
-  { title: '任务 ID', dataIndex: 'id', key: 'id', width: 120 },
-  { title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId', width: 120 },
-  { title: '节点 ID', dataIndex: 'nodeId', key: 'nodeId', width: 160 },
-  { title: '任务状态', key: 'taskStatus', width: 120 },
-  { title: '上下文摘要', dataIndex: 'payloadPreview', key: 'payloadPreview', width: 280, ellipsis: true },
-  { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180 },
-  { title: '操作', key: 'actions', width: 100, fixed: 'right' as const }
+  {title: '任务 ID', dataIndex: 'id', key: 'id', width: 120},
+  {title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId', width: 120},
+  {title: '节点 ID', dataIndex: 'nodeId', key: 'nodeId', width: 160},
+  {title: '任务状态', key: 'taskStatus', width: 120},
+  {title: '上下文摘要', dataIndex: 'payloadPreview', key: 'payloadPreview', width: 280, ellipsis: true},
+  {title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180},
+  {title: '操作', key: 'actions', width: 100, fixed: 'right' as const}
 ]
 
 const router = useRouter()
@@ -92,7 +94,7 @@ const fetchList = async () => {
     const resp = await aiWorkflowRuntimeApi.humanTaskQueryPage({
       pageNo: page.pageNum,
       pageSize: page.pageSize,
-      param: { keyword: query.keyword || undefined }
+      param: {keyword: query.keyword || undefined}
     })
     list.value = resp.list || []
     page.total = resp.total || 0
@@ -120,7 +122,7 @@ const onPageChange = (pageNum: number, pageSize: number) => {
 
 const goDetail = (id: unknown) => {
   if (id == null) return
-  void router.push({ name: 'AdminWorkflowHumanTaskDetail', params: { id: String(id) } })
+  void router.push({name: 'AdminWorkflowHumanTaskDetail', params: {id: String(id)}})
 }
 
 const segmentedButtons = computed(() => [

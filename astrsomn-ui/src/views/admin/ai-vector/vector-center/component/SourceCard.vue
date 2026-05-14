@@ -1,31 +1,31 @@
 <template>
   <div
-    class="source-card"
-    :class="{ active: isOpen }"
-    @click="$emit('toggle')"
+      :class="{ active: isOpen }"
+      class="source-card"
+      @click="$emit('toggle')"
   >
     <div class="source-icon-box">
-      <img v-if="providerAvatar" :src="providerAvatar" alt="provider-avatar" class="source-avatar" />
-      <ClusterOutlined v-else class="source-icon" />
+      <img v-if="providerAvatar" :src="providerAvatar" alt="provider-avatar" class="source-avatar"/>
+      <ClusterOutlined v-else class="source-icon"/>
     </div>
     <div class="source-info">
       <div class="source-header-row">
         <span class="source-title">{{ sourceName || '数据源' }}</span>
-        <span class="status-badge" :class="isConnected ? 'badge-up' : 'badge-down'">
+        <span :class="isConnected ? 'badge-up' : 'badge-down'" class="status-badge">
           {{ isConnected ? '已连接' : '未连接' }}
         </span>
       </div>
       <div class="source-conn-row">
         <span class="source-conn">{{ sourceType }} · {{ ip }}:{{ port }}</span>
-        <LoadingOutlined v-if="isChecking" class="arrow-icon spinning" />
-        <UpOutlined v-else class="arrow-icon" :class="{ rotated: isOpen }" />
+        <LoadingOutlined v-if="isChecking" class="arrow-icon spinning"/>
+        <UpOutlined v-else :class="{ rotated: isOpen }" class="arrow-icon"/>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ClusterOutlined, LoadingOutlined, UpOutlined } from '@ant-design/icons-vue'
+import {ClusterOutlined, LoadingOutlined, UpOutlined} from '@ant-design/icons-vue'
 
 defineProps<{
   sourceName: string

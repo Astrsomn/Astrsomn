@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
@@ -39,40 +38,20 @@ import java.util.concurrent.atomic.AtomicReference;
 public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOrdered, BeanFactoryAware, ApplicationListener<ApplicationReadyEvent> {
 
     private static final String LOG_PREFIX = "[Astrsomn] [AI注入器] ====> ";
-
-    private BeanFactory beanFactory;
-    
-    private AiRuntimeDefaultsResolver aiRuntimeDefaultsResolver;
-    private AstrsomnProperties astrsomnProperties;
-    
     // 延迟注入的字段列表
     private final List<DelayedInjection> delayedInjections = new ArrayList<>();
-    
+    private BeanFactory beanFactory;
+    private AiRuntimeDefaultsResolver aiRuntimeDefaultsResolver;
+    private AstrsomnProperties astrsomnProperties;
+
     @Autowired(required = false)
     public void setAiRuntimeDefaultsResolver(AiRuntimeDefaultsResolver aiRuntimeDefaultsResolver) {
         this.aiRuntimeDefaultsResolver = aiRuntimeDefaultsResolver;
     }
-    
+
     @Autowired(required = false)
     public void setAstrsomnProperties(AstrsomnProperties astrsomnProperties) {
         this.astrsomnProperties = astrsomnProperties;
-    }
-    
-    /**
-     * 延迟注入信息
-     */
-    private static class DelayedInjection {
-        final Object bean;
-        final Field field;
-        final String beanName;
-        final Astro astro;
-        
-        DelayedInjection(Object bean, Field field, String beanName, Astro astro) {
-            this.bean = bean;
-            this.field = field;
-            this.beanName = beanName;
-            this.astro = astro;
-        }
     }
 
     @Override
@@ -85,19 +64,19 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         final boolean[] hasAstroField = {false};
         ReflectionUtils.doWithFields(targetClass, field -> {
             if (!field.isAnnotationPresent(Astro.class)) return;
-            
+
             hasAstroField[0] = true;
             log.info("{} 发现 @Astro 注解字段 | Bean: {} | Field: {} | FieldType: {}",
                     LOG_PREFIX, beanName, field.getName(), field.getType().getName());
 
             ReflectionUtils.makeAccessible(field);
             Astro astro = field.getAnnotation(Astro.class);
-            
+
             log.debug("{} 解析注解参数 | Bean: {} | Field: {} | agentKey: {} | envCode: {} | promptKey: {}",
                     LOG_PREFIX, beanName, field.getName(), astro.agentKey(), astro.envCode(), astro.promptKey());
 
             String annotationAgentKey = StringUtils.trimToNull(astro.agentKey());
-            
+
             if (annotationAgentKey != null) {
                 // 注解中指定了 agentKey，可以立即处理
                 processField(bean, beanName, field, astro, annotationAgentKey);
@@ -108,14 +87,14 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
                 delayedInjections.add(new DelayedInjection(bean, field, beanName, astro));
             }
         });
-        
+
         if (!hasAstroField[0]) {
             log.debug("{} Bean 无 @Astro 注解字段 | BeanName: {}", LOG_PREFIX, beanName);
         }
-        
+
         return bean;
     }
-    
+
     /**
      * 处理单个字段注入
      */
@@ -150,7 +129,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
             throw new RuntimeException("Injection failed for @Astro field: " + field.getName(), e);
         }
     }
-    
+
     /**
      * ApplicationReadyEvent 触发后处理延迟注入
      */
@@ -188,7 +167,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
      */
     private void doProcessInjections() {
         log.info("{} 开始处理延迟注入 | 待处理字段数: {}", LOG_PREFIX, delayedInjections.size());
-        
+
         for (DelayedInjection injection : delayedInjections) {
             try {
                 String agentKey = resolveAgentKeyFromDatabase(injection.astro);
@@ -198,7 +177,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
                         LOG_PREFIX, injection.beanName, injection.field.getName(), e.getMessage(), e);
             }
         }
-        
+
         delayedInjections.clear();
         log.info("{} 延迟注入处理完成", LOG_PREFIX);
     }
@@ -217,17 +196,17 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
             log.error("{} 无法解析 AgentKey：必要的依赖未注入", LOG_PREFIX);
             throw new IllegalStateException(LOG_PREFIX + "无法解析 AgentKey：必要的依赖未注入");
         }
-        
+
         String env = EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties);
         log.debug("{} 注解未指定 agentKey，尝试从环境 [{}] 查询默认 Agent", LOG_PREFIX, env);
-        
+
         Optional<String> defaultAgentKey = aiRuntimeDefaultsResolver.resolveDefaultAgentKey(env);
-        
+
         if (defaultAgentKey.isPresent()) {
             log.debug("{} 从数据库查询到默认 AgentKey: {}", LOG_PREFIX, defaultAgentKey.get());
             return defaultAgentKey.get();
         }
-        
+
         log.error("{} 无法解析 AgentKey：注解未指定且环境 [{}] 无默认配置", LOG_PREFIX, env);
         throw new IllegalStateException(LOG_PREFIX + "无法解析 AgentKey：注解未指定且环境 [" + env + "] 无默认配置");
     }
@@ -290,5 +269,22 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
+    }
+
+    /**
+     * 延迟注入信息
+     */
+    private static class DelayedInjection {
+        final Object bean;
+        final Field field;
+        final String beanName;
+        final Astro astro;
+
+        DelayedInjection(Object bean, Field field, String beanName, Astro astro) {
+            this.bean = bean;
+            this.field = field;
+            this.beanName = beanName;
+            this.astro = astro;
+        }
     }
 }

@@ -4,10 +4,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * 基础响应DTO
- * @param <T> 数据类型
- */
+
 @Data
 public class BaseResponse<T> implements Serializable {
     private static final long serialVersionUID = 1L;

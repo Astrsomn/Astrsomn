@@ -2,54 +2,54 @@
   <div class="left-top">
     <div class="card-chain">
       <AgentCard
-        :agent-name="agentName"
-        :description="description"
-        @update:agentName="handleAgentNameUpdate"
-        @update:description="handleDescriptionUpdate"
+          :agent-name="agentName"
+          :description="description"
+          @update:agentName="handleAgentNameUpdate"
+          @update:description="handleDescriptionUpdate"
       />
       <InstanceCard
-        :instance="currentInstance"
-        @select="handleSelectInstance"
-        @create="handleCreateInstance"
+          :instance="currentInstance"
+          @create="handleCreateInstance"
+          @select="handleSelectInstance"
       />
       <ModelCard
-        :model="currentModel"
-        readonly
+          :model="currentModel"
+          readonly
       />
       <AccountCard
-        :account="currentAccount"
-        readonly
+          :account="currentAccount"
+          readonly
       />
     </div>
 
     <InstanceSelector
-      v-model:open="instanceDrawerOpen"
-      @select="handleInstanceSelect"
-      @edit="handleInstanceEditFromDrawer"
-      @create="handleCreateFromDrawer"
+        v-model:open="instanceDrawerOpen"
+        @create="handleCreateFromDrawer"
+        @edit="handleInstanceEditFromDrawer"
+        @select="handleInstanceSelect"
     />
 
     <InstanceForm
-      v-model:visible="instanceFormVisible"
-      :record="currentInstance"
-      @success="handleInstanceFormSuccess"
+        v-model:visible="instanceFormVisible"
+        :record="currentInstance"
+        @success="handleInstanceFormSuccess"
     />
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
+<script lang="ts" setup>
+import {ref} from 'vue'
 import AccountCard from './left-top/AccountCard.vue'
 import ModelCard from './left-top/ModelCard.vue'
 import InstanceCard from './left-top/InstanceCard.vue'
 import AgentCard from './left-top/AgentCard.vue'
 import InstanceSelector from '../../ai-instance/selector/InstanceSelector.vue'
 import InstanceForm from '../../ai-instance/InstanceForm.vue'
-import { aiModelApi } from '@/api/aiModel'
-import { aiAccountApi } from '@/api/aiAccount'
-import type { AiAccount } from '@/api/aiAccount'
-import type { AiModel } from '@/api/aiModel'
-import type { AiInstance } from '@/api/aiInstance'
+import type {AiModel} from '@/api/aiModel'
+import {aiModelApi} from '@/api/aiModel'
+import type {AiAccount} from '@/api/aiAccount'
+import {aiAccountApi} from '@/api/aiAccount'
+import type {AiInstance} from '@/api/aiInstance'
 
 defineProps<{
   agentName?: string
@@ -75,12 +75,12 @@ async function resolveModelAndAccount(instance: AiInstance) {
 
   if (instance.modelKey) {
     tasks.push(
-      aiModelApi.queryPage({ pageNo: 1, pageSize: 1, param: { modelKey: instance.modelKey } })
-        .then((resp) => {
-          const model = resp.list?.[0]
-          currentModel.value = model
-          emit('update:model', model)
-        })
+        aiModelApi.queryPage({pageNo: 1, pageSize: 1, param: {modelKey: instance.modelKey}})
+            .then((resp) => {
+              const model = resp.list?.[0]
+              currentModel.value = model
+              emit('update:model', model)
+            })
     )
   } else {
     currentModel.value = undefined
@@ -89,12 +89,12 @@ async function resolveModelAndAccount(instance: AiInstance) {
 
   if (instance.accountKey) {
     tasks.push(
-      aiAccountApi.queryPage({ pageNo: 1, pageSize: 1, param: { accountKey: instance.accountKey } })
-        .then((resp) => {
-          const account = resp.list?.[0]
-          currentAccount.value = account
-          emit('update:account', account)
-        })
+        aiAccountApi.queryPage({pageNo: 1, pageSize: 1, param: {accountKey: instance.accountKey}})
+            .then((resp) => {
+              const account = resp.list?.[0]
+              currentAccount.value = account
+              emit('update:account', account)
+            })
     )
   } else {
     currentAccount.value = undefined
@@ -156,7 +156,7 @@ function setInstance(instance: AiInstance | undefined) {
   currentInstance.value = instance
 }
 
-defineExpose({ setAccount, setModel, setInstance })
+defineExpose({setAccount, setModel, setInstance})
 </script>
 
 <style scoped>

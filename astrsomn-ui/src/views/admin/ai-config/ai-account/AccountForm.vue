@@ -1,8 +1,8 @@
 <template>
   <AstrsomnDrawerShell
-    :open="visible"
-    :width="560"
-    @update:open="emit('update:visible', $event)"
+      :open="visible"
+      :width="560"
+      @update:open="emit('update:visible', $event)"
   >
     <template #title>{{ isEdit ? '编辑账号' : '新建账号' }}</template>
     <template #subtitle>AI Account 配置</template>
@@ -10,91 +10,89 @@
     <a-spin :spinning="loading">
 
 
-
-        <a-form layout="vertical" :model="form">
-          <a-form-item label="账号 Key" name="accountKey">
-            <AstrsomnKeyGenerator
+      <a-form :model="form" layout="vertical">
+        <a-form-item label="账号 Key" name="accountKey">
+          <AstrsomnKeyGenerator
               v-model="form.accountKey"
-              :prefix="AI_ACCOUNT_KEY_PREFIX"
-              :placeholder="accountKeyImmutable ? '' : '系统自动生成'"
               :disabled="accountKeyImmutable"
-            />
-          </a-form-item>
+              :placeholder="accountKeyImmutable ? '' : '系统自动生成'"
+              :prefix="AI_ACCOUNT_KEY_PREFIX"
+          />
+        </a-form-item>
 
-          <a-form-item
-              label="模型供应商"
-              name="extensionCode"
-              :rules="[{ required: true, message: '请选择供应商' }]"
-          >
-            <ExtensionSelector
-                v-model:value="form.extensionCode"
-                placeholder="请选择供应商"
-                :allow-clear="true"
-                size="middle"
-                :only-applied="true"
-            />
-          </a-form-item>
-          <a-form-item label="启用状态" name="status">
-            <a-segmented
-                v-model:value="form.status"
-                :options="[{label:'已启用', value:'enabled'}, {label:'已禁用', value:'disabled'}]"
-                block
-                size="large"
-                class="status-segmented"
-            />
-          </a-form-item>
-          <a-form-item
+        <a-form-item
+            :rules="[{ required: true, message: '请选择供应商' }]"
+            label="模型供应商"
+            name="extensionCode"
+        >
+          <ExtensionSelector
+              v-model:value="form.extensionCode"
+              :allow-clear="true"
+              :only-applied="true"
+              placeholder="请选择供应商"
+              size="middle"
+          />
+        </a-form-item>
+        <a-form-item label="启用状态" name="status">
+          <a-segmented
+              v-model:value="form.status"
+              :options="[{label:'已启用', value:'enabled'}, {label:'已禁用', value:'disabled'}]"
+              block
+              class="status-segmented"
+              size="large"
+          />
+        </a-form-item>
+        <a-form-item
+            :rules="[{ required: true, message: '请定义凭证展示名称' }]"
             label="展示名称"
             name="accountName"
-            :rules="[{ required: true, message: '请定义凭证展示名称' }]"
-          >
-            <a-input v-model:value="form.accountName" placeholder="请输入账号名称" allow-clear />
-          </a-form-item>
+        >
+          <a-input v-model:value="form.accountName" allow-clear placeholder="请输入账号名称"/>
+        </a-form-item>
 
 
-
-          <a-form-item label="API URL" name="apiUrl">
-            <a-input
+        <a-form-item label="API URL" name="apiUrl">
+          <a-input
               v-model:value="form.apiUrl"
-              placeholder="例如：https://api.openai.com/v1"
               allow-clear
-            />
-          </a-form-item>
+              placeholder="例如：https://api.openai.com/v1"
+          />
+        </a-form-item>
 
-          <a-form-item label="API Key" name="apiKey">
-            <a-input-password v-model:value="form.apiKey" placeholder="请输入 API Key" />
-          </a-form-item>
+        <a-form-item label="API Key" name="apiKey">
+          <a-input-password v-model:value="form.apiKey" placeholder="请输入 API Key"/>
+        </a-form-item>
 
-          <a-form-item label="API Secret" name="apiSecret">
-            <a-input-password v-model:value="form.apiSecret" placeholder="请输入 Secret 密钥" />
-          </a-form-item>
+        <a-form-item label="API Secret" name="apiSecret">
+          <a-input-password v-model:value="form.apiSecret" placeholder="请输入 Secret 密钥"/>
+        </a-form-item>
 
-          <a-form-item label="消耗上限 (Tokens)" name="accountTokens">
-            <a-input-number v-model:value="form.accountTokens" :min="0" placeholder="无限制" class="w-full" />
-          </a-form-item>
+        <a-form-item label="消耗上限 (Tokens)" name="accountTokens">
+          <a-input-number v-model:value="form.accountTokens" :min="0" class="w-full" placeholder="无限制"/>
+        </a-form-item>
 
 
-        </a-form>
+      </a-form>
 
     </a-spin>
 
     <template #footer>
       <a-button @click="handleCancel">取消</a-button>
-      <a-button type="primary" :loading="submitting" @click="onSubmit">
+      <a-button :loading="submitting" type="primary" @click="onSubmit">
         {{ isEdit ? '保存' : '创建' }}
       </a-button>
     </template>
   </AstrsomnDrawerShell>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref, watch, computed } from 'vue'
-import { message } from 'ant-design-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from 'vue'
+import {message} from 'ant-design-vue'
 import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
-import { aiAccountApi, type AiAccount } from '@/api/aiAccount'
-import { AI_ACCOUNT_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
+import {type AiAccount, aiAccountApi} from '@/api/aiAccount'
+import {AI_ACCOUNT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
 interface Props {
   visible: boolean
@@ -146,7 +144,7 @@ const onSubmit = async () => {
   }
   submitting.value = true
   try {
-    const payload = { ...form }
+    const payload = {...form}
     if (!isEdit.value) delete payload.id
     const msg = isEdit.value ? await aiAccountApi.update(payload) : await aiAccountApi.create(payload)
     message.success(msg || '操作成功')
@@ -174,7 +172,7 @@ watch(() => props.visible, (val) => {
       status: 'enabled'
     })
     accountKeyImmutable.value = false
-    
+
     if (props.record?.id) {
       loadDetail(props.record.id)
     }

@@ -5,80 +5,80 @@
         <div class="builder-topbar">
           <a-tooltip title="返回">
             <button class="topbar-icon-btn" @click="handleCancel">
-              <LeftOutlined />
+              <LeftOutlined/>
             </button>
           </a-tooltip>
           <span class="topbar-title">{{ isEdit ? '编辑智能体' : '新建智能体' }}</span>
           <div class="topbar-actions">
             <a-tooltip title="重置">
-              <button class="topbar-icon-btn" :disabled="submitting" @click="handleReset">
-                <ReloadOutlined />
+              <button :disabled="submitting" class="topbar-icon-btn" @click="handleReset">
+                <ReloadOutlined/>
               </button>
             </a-tooltip>
             <a-tooltip :title="isEdit ? '保存' : '发布'">
-              <button class="topbar-icon-btn primary" :disabled="submitting" @click="handleSubmit">
+              <button :disabled="submitting" class="topbar-icon-btn primary" @click="handleSubmit">
                 <span v-if="submitting" class="spinner"></span>
-                <RocketOutlined v-else />
+                <RocketOutlined v-else/>
               </button>
             </a-tooltip>
           </div>
         </div>
         <section class="builder-left">
-        <LeftTop
-          ref="leftTopRef"
-          :agent-name="agentName"
-          :description="description"
-          @update:agentName="agentName = $event"
-          @update:description="description = $event"
-          @update:account="onAccountUpdate"
-          @update:model="onModelUpdate"
-          @update:instance="onInstanceUpdate"
-        />
-        <LeftCenter
-          ref="leftCenterRef"
-          :tools="placedTools"
-          :mcps="placedMcps"
-          :knowledge-keys="knowledgeKeys"
-          @update:prompt="onPromptUpdate"
-          @update:image-instance="onImageInstanceUpdate"
-          @add:tool="onToolAdd"
-          @remove:tool="onToolRemove"
-          @add:mcp="onMcpAdd"
-          @remove:mcp="onMcpRemove"
-          @add:kb="onKbAdd"
-          @remove:kb="onKbRemove"
-        />
+          <LeftTop
+              ref="leftTopRef"
+              :agent-name="agentName"
+              :description="description"
+              @update:agentName="agentName = $event"
+              @update:description="description = $event"
+              @update:account="onAccountUpdate"
+              @update:model="onModelUpdate"
+              @update:instance="onInstanceUpdate"
+          />
+          <LeftCenter
+              ref="leftCenterRef"
+              :knowledge-keys="knowledgeKeys"
+              :mcps="placedMcps"
+              :tools="placedTools"
+              @update:prompt="onPromptUpdate"
+              @update:image-instance="onImageInstanceUpdate"
+              @add:tool="onToolAdd"
+              @remove:tool="onToolRemove"
+              @add:mcp="onMcpAdd"
+              @remove:mcp="onMcpRemove"
+              @add:kb="onKbAdd"
+              @remove:kb="onKbRemove"
+          />
         </section>
       </div>
-      <Right />
+      <Right/>
     </div>
   </main>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, onMounted, provide } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
-import { LeftOutlined, ReloadOutlined, RocketOutlined } from '@ant-design/icons-vue'
-import { aiAgentApi } from '@/api/aiAgent'
-import type { AiAgent } from '@/api/aiAgent'
-import type { AiAccount } from '@/api/aiAccount'
-import type { AiModel } from '@/api/aiModel'
-import type { AiInstance } from '@/api/aiInstance'
-import type { AiPrompt } from '@/api/aiPrompt'
-import type { AiTool } from '@/api/aiTool'
-import type { AiMcp } from '@/api/aiMcp'
-import { aiInstanceApi } from '@/api/aiInstance'
-import { aiModelApi } from '@/api/aiModel'
-import { aiAccountApi } from '@/api/aiAccount'
-import { aiToolApi } from '@/api/aiTool'
-import { aiMcpApi } from '@/api/aiMcp'
-import { aiPromptApi } from '@/api/aiPrompt'
+<script lang="ts" setup>
+import {computed, onMounted, provide, ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {message} from 'ant-design-vue'
+import {LeftOutlined, ReloadOutlined, RocketOutlined} from '@ant-design/icons-vue'
+import type {AiAgent} from '@/api/aiAgent'
+import {aiAgentApi} from '@/api/aiAgent'
+import type {AiAccount} from '@/api/aiAccount'
+import {aiAccountApi} from '@/api/aiAccount'
+import type {AiModel} from '@/api/aiModel'
+import {aiModelApi} from '@/api/aiModel'
+import type {AiInstance} from '@/api/aiInstance'
+import {aiInstanceApi} from '@/api/aiInstance'
+import type {AiPrompt} from '@/api/aiPrompt'
+import {aiPromptApi} from '@/api/aiPrompt'
+import type {AiTool} from '@/api/aiTool'
+import {aiToolApi} from '@/api/aiTool'
+import type {AiMcp} from '@/api/aiMcp'
+import {aiMcpApi} from '@/api/aiMcp'
 
 import LeftTop from './component/LeftTop.vue'
 import LeftCenter from './component/LeftCenter.vue'
 import Right from './component/Right.vue'
-import { BUILDER_CHAT_CONTEXT } from './component/builderChatInjection'
+import {BUILDER_CHAT_CONTEXT} from './component/builderChatInjection'
 
 const route = useRoute()
 const router = useRouter()
@@ -124,11 +124,25 @@ provide(BUILDER_CHAT_CONTEXT, {
   memoryKey: builderChatMemoryKey
 })
 
-function onAccountUpdate(account: AiAccount | undefined) { currentAccount.value = account }
-function onModelUpdate(model: AiModel | undefined) { currentModel.value = model }
-function onInstanceUpdate(instance: AiInstance | undefined) { currentInstance.value = instance }
-function onPromptUpdate(prompt: AiPrompt | undefined) { currentPrompt.value = prompt }
-function onImageInstanceUpdate(instance: AiInstance | undefined) { currentImageInstance.value = instance }
+function onAccountUpdate(account: AiAccount | undefined) {
+  currentAccount.value = account
+}
+
+function onModelUpdate(model: AiModel | undefined) {
+  currentModel.value = model
+}
+
+function onInstanceUpdate(instance: AiInstance | undefined) {
+  currentInstance.value = instance
+}
+
+function onPromptUpdate(prompt: AiPrompt | undefined) {
+  currentPrompt.value = prompt
+}
+
+function onImageInstanceUpdate(instance: AiInstance | undefined) {
+  currentImageInstance.value = instance
+}
 
 function onToolAdd(tool: AiTool) {
   if (tool.toolKey && !placedTools.value.some((t) => t.toolKey === tool.toolKey)) {
@@ -187,7 +201,7 @@ async function handleSubmit() {
   try {
     const payload = buildSubmitPayload()
     if (isEdit.value) {
-      await aiAgentApi.update({ ...payload, id: agentId.value as string })
+      await aiAgentApi.update({...payload, id: agentId.value as string})
       message.success('智能体已保存')
     } else {
       await aiAgentApi.create(payload)
@@ -245,67 +259,67 @@ async function backfillFromDetail(detail: AiAgent) {
 
   if (detail.chatInstanceKey) {
     promises.push(
-      aiInstanceApi.queryPage({ pageNo: 1, pageSize: 1, param: { instanceKey: detail.chatInstanceKey } })
-        .then(async (resp) => {
-          const inst = resp.list?.[0]
-          if (inst) {
-            currentInstance.value = inst
-            leftTopRef.value?.setInstance(inst)
+        aiInstanceApi.queryPage({pageNo: 1, pageSize: 1, param: {instanceKey: detail.chatInstanceKey}})
+            .then(async (resp) => {
+              const inst = resp.list?.[0]
+              if (inst) {
+                currentInstance.value = inst
+                leftTopRef.value?.setInstance(inst)
 
-            const subTasks: Promise<void>[] = []
-            if (inst.modelKey) {
-              subTasks.push(
-                aiModelApi.queryPage({ pageNo: 1, pageSize: 1, param: { modelKey: inst.modelKey } })
-                  .then((mResp) => {
-                    const model = mResp.list?.[0]
-                    if (model) {
-                      currentModel.value = model
-                      leftTopRef.value?.setModel(model)
-                    }
-                  })
-              )
-            }
-            if (inst.accountKey) {
-              subTasks.push(
-                aiAccountApi.queryPage({ pageNo: 1, pageSize: 1, param: { accountKey: inst.accountKey } })
-                  .then((aResp) => {
-                    const account = aResp.list?.[0]
-                    if (account) {
-                      currentAccount.value = account
-                      leftTopRef.value?.setAccount(account)
-                    }
-                  })
-              )
-            }
-            await Promise.allSettled(subTasks)
-          }
-        })
+                const subTasks: Promise<void>[] = []
+                if (inst.modelKey) {
+                  subTasks.push(
+                      aiModelApi.queryPage({pageNo: 1, pageSize: 1, param: {modelKey: inst.modelKey}})
+                          .then((mResp) => {
+                            const model = mResp.list?.[0]
+                            if (model) {
+                              currentModel.value = model
+                              leftTopRef.value?.setModel(model)
+                            }
+                          })
+                  )
+                }
+                if (inst.accountKey) {
+                  subTasks.push(
+                      aiAccountApi.queryPage({pageNo: 1, pageSize: 1, param: {accountKey: inst.accountKey}})
+                          .then((aResp) => {
+                            const account = aResp.list?.[0]
+                            if (account) {
+                              currentAccount.value = account
+                              leftTopRef.value?.setAccount(account)
+                            }
+                          })
+                  )
+                }
+                await Promise.allSettled(subTasks)
+              }
+            })
     )
   }
 
   if (detail.imageInstanceKey) {
     promises.push(
-      aiInstanceApi.queryPage({ pageNo: 1, pageSize: 1, param: { instanceKey: detail.imageInstanceKey } })
-        .then((resp) => {
-          const inst = resp.list?.[0]
-          if (inst) {
-            currentImageInstance.value = inst
-            leftCenterRef.value?.setImageInstance(inst)
-          }
-        })
+        aiInstanceApi.queryPage({pageNo: 1, pageSize: 1, param: {instanceKey: detail.imageInstanceKey}})
+            .then((resp) => {
+              const inst = resp.list?.[0]
+              if (inst) {
+                currentImageInstance.value = inst
+                leftCenterRef.value?.setImageInstance(inst)
+              }
+            })
     )
   }
 
   if (detail.promptKey) {
     promises.push(
-      aiPromptApi.queryPage({ pageNo: 1, pageSize: 1, param: { promptKey: detail.promptKey } })
-        .then((resp) => {
-          const p = resp.list?.[0]
-          if (p) {
-            currentPrompt.value = p
-            leftCenterRef.value?.setPrompt(p)
-          }
-        })
+        aiPromptApi.queryPage({pageNo: 1, pageSize: 1, param: {promptKey: detail.promptKey}})
+            .then((resp) => {
+              const p = resp.list?.[0]
+              if (p) {
+                currentPrompt.value = p
+                leftCenterRef.value?.setPrompt(p)
+              }
+            })
     )
   }
 
@@ -313,10 +327,10 @@ async function backfillFromDetail(detail: AiAgent) {
     const keys = detail.toolKeys.split(',').map((k) => k.trim()).filter(Boolean)
     if (keys.length) {
       promises.push(
-        aiToolApi.queryPage({ pageNo: 1, pageSize: keys.length + 5, param: {} })
-          .then((resp) => {
-            placedTools.value = (resp.list || []).filter((t) => t.toolKey && keys.includes(t.toolKey))
-          })
+          aiToolApi.queryPage({pageNo: 1, pageSize: keys.length + 5, param: {}})
+              .then((resp) => {
+                placedTools.value = (resp.list || []).filter((t) => t.toolKey && keys.includes(t.toolKey))
+              })
       )
     }
   }
@@ -325,10 +339,10 @@ async function backfillFromDetail(detail: AiAgent) {
     const keys = detail.mcpKeys.split(',').map((k) => k.trim()).filter(Boolean)
     if (keys.length) {
       promises.push(
-        aiMcpApi.queryPage({ pageNo: 1, pageSize: keys.length + 5, param: {} })
-          .then((resp) => {
-            placedMcps.value = (resp.list || []).filter((m) => m.mcpKey && keys.includes(m.mcpKey))
-          })
+          aiMcpApi.queryPage({pageNo: 1, pageSize: keys.length + 5, param: {}})
+              .then((resp) => {
+                placedMcps.value = (resp.list || []).filter((m) => m.mcpKey && keys.includes(m.mcpKey))
+              })
       )
     }
   }
@@ -472,7 +486,9 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .builder-left {

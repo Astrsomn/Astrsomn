@@ -1,7 +1,7 @@
 package com.astrsomn.api.runtime.common.dto.vecsource;
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import lombok.Data;
 
 @Data
 public class AiVecSourceCreateRequestDTO extends AiVecSourceEntity {

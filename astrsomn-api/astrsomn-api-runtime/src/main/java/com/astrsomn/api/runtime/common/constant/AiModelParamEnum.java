@@ -1,22 +1,13 @@
 package com.astrsomn.api.runtime.common.constant;
 
+import com.astrsomn.common.base.BaseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.common.base.BaseEnum;
 
 
-
-
-/**
- * AI 模型参数与能力枚举定义
- * 对齐 LangChain4j 各个 Model 接口的 Builder 属性与能力检查
- */
 public interface AiModelParamEnum {
 
-    /**
-     * 聊天模型能力位
-     * 用于标识模型是否支持特定的交互模式
-     */
+
     @Getter
     @AllArgsConstructor
     enum ChatCapabilitiesEnum implements BaseEnum {
@@ -31,9 +22,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    /**
-     * 向量模型能力位
-     */
+
     @Getter
     @AllArgsConstructor
     enum EmbeddingCapabilityEnum implements BaseEnum {
@@ -44,9 +33,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    /**
-     * 图像模型能力位
-     */
+
     @Getter
     @AllArgsConstructor
     enum ImageCapabilitiesEnum implements BaseEnum {
@@ -58,10 +45,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    /**
-     * 聊天模型推理超参数
-     * 对应各 Provider Builder 的 set 方法
-     */
+
     @Getter
     @AllArgsConstructor
     enum ChatParamEnum implements BaseEnum {
@@ -79,9 +63,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    /**
-     * 向量模型参数
-     */
+
     @Getter
     @AllArgsConstructor
     enum EmbeddingParamEnum implements BaseEnum {
@@ -97,9 +79,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    /**
-     * 图像生成参数
-     */
+
     @Getter
     @AllArgsConstructor
     enum ImageParamEnum implements BaseEnum {
@@ -115,10 +95,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    /**
-     * 系统与 HTTP 级配置
-     * 对应 OkHttpClient 或 SDK 基础配置
-     */
+
     @Getter
     @AllArgsConstructor
     enum SystemConfigParam implements BaseEnum {

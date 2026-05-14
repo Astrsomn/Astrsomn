@@ -1,102 +1,98 @@
 <template>
   <AstrsomnPageShell
-    title="环境管理"
-    description="管理运行环境（SYSTEM_ENV），对接 SystemEnvController。"
-    empty-text="暂无环境配置。"
-    :breadcrumbs="breadcrumbs"
+      :breadcrumbs="breadcrumbs"
+      description="管理运行环境（SYSTEM_ENV），对接 SystemEnvController。"
+      empty-text="暂无环境配置。"
+      title="环境管理"
   >
     <div class="env-page">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-  
-            <AstrsomnSearchPill
-              v-model="query.envName"
-              placeholder="搜索环境名称"
-              button-label="搜索"
-              layout="toolbar"
-              @search="fetchList"
-            />
+
+              <AstrsomnSearchPill
+                  v-model="query.envName"
+                  button-label="搜索"
+                  layout="toolbar"
+                  placeholder="搜索环境名称"
+                  @search="fetchList"
+              />
             </div>
 
             <div class="toolbar-right">
-          <AstrsomnSegmentedButton :buttons="actionButtons" />
+              <AstrsomnSegmentedButton :buttons="actionButtons"/>
             </div>
           </div>
         </template>
 
 
-
         <AstrsomnDataView
-          mode="table"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          :scroll="{ x: 800 }"
-          row-key="id"
-          empty-text="暂无匹配的环境"
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :row-selection="rowSelection"
+            :scroll="{ x: 800 }"
+            empty-text="暂无匹配的环境"
+            mode="table"
+            row-key="id"
         >
           <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'description'">
-            <span class="desc-preview">{{ preview(record.description) }}</span>
-          </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="openEdit(record)">编辑</a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger>删除</a-button>
-            </a-popconfirm>
-          </template>
+            <template v-if="column.key === 'description'">
+              <span class="desc-preview">{{ preview(record.description) }}</span>
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-button type="link" @click="openEdit(record)">编辑</a-button>
+              <a-divider type="vertical"/>
+              <a-popconfirm
+                  cancel-text="取消"
+                  ok-text="确认"
+                  title="确定删除吗？"
+                  @confirm="() => handleDeleteOne(record.id)"
+              >
+                <a-button danger type="link">删除</a-button>
+              </a-popconfirm>
+            </template>
           </template>
         </AstrsomnDataView>
 
         <template #pagination>
           <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
       </AstrsomnDataSection>
 
       <EnvFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import {
-  DeleteOutlined,
-  PlusOutlined
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {DeleteOutlined, PlusOutlined} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
 import EnvFormModal from './EnvFormModal.vue'
-import { systemEnvApi, type SystemEnv, type PageResponse } from '@/api/systemEnv.ts'
+import {type PageResponse, type SystemEnv, systemEnvApi} from '@/api/systemEnv.ts'
 
 const breadcrumbs = [
-  { title: '系统配置', href: '/admin/system-config' },
-  { title: '环境管理' },
+  {title: '系统配置', href: '/admin/system-config'},
+  {title: '环境管理'},
 ]
 
 type QueryState = {
@@ -112,10 +108,10 @@ const preview = (raw: string | undefined) => {
 }
 
 const columns = [
-  { title: '环境名称', dataIndex: 'envName', key: 'envName', width: 180, ellipsis: true },
-  { title: '环境 Key', dataIndex: 'envKey', key: 'envKey', width: 140, ellipsis: true, copyable: true },
-  { title: '描述', key: 'description', width: 260, ellipsis: true },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  {title: '环境名称', dataIndex: 'envName', key: 'envName', width: 180, ellipsis: true},
+  {title: '环境 Key', dataIndex: 'envKey', key: 'envKey', width: 140, ellipsis: true, copyable: true},
+  {title: '描述', key: 'description', width: 260, ellipsis: true},
+  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
 ]
 
 const query = reactive<QueryState>({})
@@ -155,9 +151,9 @@ const actionButtons = computed<SegmentedButton[]>(() => [
 ])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -253,7 +249,7 @@ const handleDeleteOne = async (id: number | string) => {
 const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
-  
+
   try {
     await new Promise<void>((resolve, reject) => {
       const modal = Modal.confirm({
@@ -264,7 +260,7 @@ const handleBatchDelete = async () => {
         onCancel: () => reject(new Error('取消删除'))
       })
     })
-    
+
     const msg = await systemEnvApi.delete(ids)
     message.success(msg)
     selectedRowKeys.value = []
@@ -277,7 +273,7 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: SystemEnv) => {
   modal.submitting = true
   try {
-    const payload: SystemEnv = { ...form }
+    const payload: SystemEnv = {...form}
 
     let msg: string
     if (modal.mode === 'create') {

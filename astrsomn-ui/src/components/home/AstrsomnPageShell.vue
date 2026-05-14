@@ -1,5 +1,5 @@
 <template>
-  <div class="page-content" :class="{ 'page-content--in-module': inModuleLayout }">
+  <div :class="{ 'page-content--in-module': inModuleLayout }" class="page-content">
     <div v-if="breadcrumbs && breadcrumbs.length > 0" class="page-breadcrumb">
       <a-breadcrumb>
         <a-breadcrumb-item v-for="(crumb, index) in breadcrumbs" :key="index">
@@ -13,27 +13,27 @@
       <p class="page-description">{{ description }}</p>
     </div>
     <slot>
-      <a-empty :description="emptyText" />
+      <a-empty :description="emptyText"/>
     </slot>
     <div v-if="showViewToggle && viewToggleHandler" class="float-view-toggle">
       <a-button
-        type="primary"
-        shape="circle"
-        size="large"
-        @click="viewToggleHandler"
-        :title="viewMode === 'grid' ? '切换为列表视图' : '切换为卡片视图'"
+          :title="viewMode === 'grid' ? '切换为列表视图' : '切换为卡片视图'"
+          shape="circle"
+          size="large"
+          type="primary"
+          @click="viewToggleHandler"
       >
-  
-        <BarsOutlined  v-if="viewMode === 'grid'"/>
-        <AppstoreOutlined v-else />
+
+        <BarsOutlined v-if="viewMode === 'grid'"/>
+        <AppstoreOutlined v-else/>
       </a-button>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { inject } from 'vue';
-import { AppstoreOutlined, BarsOutlined } from '@ant-design/icons-vue';
+<script lang="ts" setup>
+import {inject} from 'vue';
+import {AppstoreOutlined, BarsOutlined} from '@ant-design/icons-vue';
 
 interface BreadcrumbItem {
   title: string;
@@ -41,20 +41,20 @@ interface BreadcrumbItem {
 }
 
 withDefaults(
-  defineProps<{
-    title?: string;
-    description?: string;
-    emptyText?: string;
-    breadcrumbs?: BreadcrumbItem[];
-    showViewToggle?: boolean;
-    viewMode?: 'grid' | 'list';
-    viewToggleHandler?: () => void;
-  }>(),
-  {
-    emptyText: '暂无数据',
-    showViewToggle: false,
-    viewMode: 'list',
-  }
+    defineProps<{
+      title?: string;
+      description?: string;
+      emptyText?: string;
+      breadcrumbs?: BreadcrumbItem[];
+      showViewToggle?: boolean;
+      viewMode?: 'grid' | 'list';
+      viewToggleHandler?: () => void;
+    }>(),
+    {
+      emptyText: '暂无数据',
+      showViewToggle: false,
+      viewMode: 'list',
+    }
 );
 
 const inModuleLayout = inject('adminInModuleLayout', false);

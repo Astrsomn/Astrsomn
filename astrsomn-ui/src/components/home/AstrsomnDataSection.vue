@@ -1,24 +1,23 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 </script>
 <template>
   <div class="data-section">
 
-      <section v-if="$slots.toolbar" class="data-section-toolbar">
-        <slot name="toolbar" />
-      </section>
+    <section v-if="$slots.toolbar" class="data-section-toolbar">
+      <slot name="toolbar"/>
+    </section>
 
-      <section v-if="$slots.overview" class="data-section-overview">
-        <slot name="overview" />
-      </section>
-
+    <section v-if="$slots.overview" class="data-section-overview">
+      <slot name="overview"/>
+    </section>
 
 
     <section class="data-section-content">
-      <slot />
+      <slot/>
     </section>
 
     <section v-if="$slots.pagination" class="data-section-pagination">
-      <slot name="pagination" />
+      <slot name="pagination"/>
     </section>
   </div>
 </template>
@@ -36,7 +35,6 @@
 .data-section-pagination {
   width: 100%;
 }
-
 
 
 </style>
