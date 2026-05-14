@@ -9,7 +9,9 @@
     <version>0.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Astrsomn</name>
-    <description>Astrsomn is an AI Agent runtime platform that provides powerful orchestration capabilities for building intelligent applications.</description>
+    <description>
+        Astrsomn is an AI Agent runtime platform that provides powerful orchestration capabilities for building intelligent applications.
+    </description>
     <url>https://github.com/Astrsomn/Astrsomn</url>
 
     <licenses>
@@ -23,7 +25,7 @@
     <developers>
         <developer>
             <name>Astrsomn Team</name>
-            <email>dev@astrsomn.com</email>
+            <email>astrsomn@outlook.com</email>
             <organization>Astrsomn</organization>
             <organizationUrl>https://github.com/Astrsomn</organizationUrl>
         </developer>
@@ -35,7 +37,7 @@
         <url>https://github.com/Astrsomn/Astrsomn</url>
     </scm>
 
-<properties>
+    <properties>
         <!-- 项目基础配置 -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -56,6 +58,7 @@
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
         <deploy.skip>${project.packaging == 'pom'}</deploy.skip>
     </properties>
 
@@ -104,7 +107,6 @@
                 <artifactId>astrsomn-workflow-starter</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>
-
 
 
             <dependency>
@@ -163,7 +165,7 @@
         </dependencies>
     </dependencyManagement>
 
-<build>
+    <build>
         <plugins>
             <!-- 中央仓库发布专用插件：替代旧的 deploy 插件 -->
             <plugin>
@@ -246,15 +248,42 @@
                         </execution>
                     </executions>
                 </plugin>
+
+                <!-- Flatten 插件：生成自包含的POM文件，合并父POM元数据 -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>${flatten-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>flatten</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>flatten</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>flatten.clean</id>
+                            <phase>clean</phase>
+                            <goals>
+                                <goal>clean</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <flattenMode>ossrh</flattenMode>
+                        <updatePomFile>true</updatePomFile>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
 
 
-
-<profiles>
+    <profiles>
         <profile>
-            <id>ossrh</id> <build>
+            <id>ossrh</id>
+            <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -263,7 +292,9 @@
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
-                                <goals><goal>jar-no-fork</goal></goals>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
@@ -274,7 +305,9 @@
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
-                                <goals><goal>jar</goal></goals>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
@@ -286,7 +319,31 @@
                             <execution>
                                 <id>sign-artifacts</id>
                                 <phase>verify</phase>
-                                <goals><goal>sign</goal></goals>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Flatten 插件：确保发布时生成自包含的POM -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>flatten-maven-plugin</artifactId>
+                        <version>${flatten-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>flatten</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>flatten</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>flatten.clean</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>

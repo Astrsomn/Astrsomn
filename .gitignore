@@ -9,6 +9,7 @@ build/
 # Maven
 .mvn/wrapper/maven-wrapper.jar
 /.mvn/
+.flattened-pom.xml
 
 # Gradle (if used)
 .gradle/

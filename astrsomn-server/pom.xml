@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -22,19 +22,23 @@
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-api-runtime</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-api-storage</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-internal-storage</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-workflow-starter</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
 
@@ -103,6 +107,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -110,44 +115,44 @@
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-deepseek</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-zhipu</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-qianfan</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-provider-qwen</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-qdrant</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-milvus</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-vector-chroma</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

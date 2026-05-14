@@ -33,6 +33,7 @@
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-api-runtime</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
