@@ -17,6 +17,8 @@
         <module>astrsomn-internal-storage</module>
         <module>astrsomn-runtime-starter</module>
         <module>astrsomn-workflow-starter</module>
+        <module>astrsomn-vector-starter</module>
+        <module>astrsomn-system-starter</module>
     </modules>
 
     <properties>
@@ -26,4 +28,3 @@
     </properties>
 
 </project>
-
