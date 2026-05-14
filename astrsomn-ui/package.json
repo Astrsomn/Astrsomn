@@ -22,6 +22,7 @@
     "ant-design-vue": "^4.2.6",
     "axios": "^1.13.4",
     "codemirror": "^6.0.2",
+    "driver.js": "^1.4.0",
     "echarts": "^6.0.0",
     "grid-layout-plus": "^1.1.1",
     "highlight.js": "^11.11.1",

@@ -11,8 +11,17 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { appConfig } from '@/config/config.ts'
 import SystemMessageNoticeCenter from '@/components/global/SystemMessageNoticeCenter.vue'
+import { useGuide } from '@/composables/useGuide.ts'
+import 'driver.js/dist/driver.css'
+
+const { initAutoGuide } = useGuide()
+
+onMounted(() => {
+  initAutoGuide()
+})
 </script>
 
 <style>
