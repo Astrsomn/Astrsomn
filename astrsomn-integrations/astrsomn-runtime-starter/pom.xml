@@ -25,16 +25,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- 鏍稿績妯″潡 -->
         <dependency>
             <groupId>com.astrsomn</groupId>
             <artifactId>astrsomn-api-runtime</artifactId>
         </dependency>
 
-        <!-- 宸ヤ綔娴佸紩鎿庯細TASK 鑺傜偣鍥炶皟 {@link factory.langchain.com.astrsomn.starter.AstroAssistantFactory} -->
-
-
-        <!-- Spring Boot - 浣跨敤provided scope锛岀敱浣跨敤鏂规彁渚?-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -50,7 +45,6 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- MyBatis-Plus - 浣跨敤provided scope锛岀敱浣跨敤鏂规彁渚?-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
@@ -58,28 +52,24 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Hutool - 鍙紩鍏ラ渶瑕佺殑妯″潡锛岄伩鍏嶅紩鍏ll -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
             <version>5.8.26</version>
         </dependency>
 
-        <!-- Reactor - 浣跨敤provided scope锛岀敱浣跨敤鏂规彁渚?-->
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- 閰嶇疆澶勭悊鍣?- optional锛屼笉鎵撳寘 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-        
-        <!-- 閰嶇疆鏍￠獙 -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -91,7 +81,6 @@
             <version>1.11.0</version>
         </dependency>
 
-        <!-- 娴嬭瘯 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

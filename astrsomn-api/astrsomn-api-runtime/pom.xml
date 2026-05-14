@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -11,14 +11,13 @@
     </parent>
     <artifactId>astrsomn-api-runtime</artifactId>
     <name>astrsomn-core</name>
-    <description>AI鏍稿績鍔熻兘妯″潡</description>
+    <description>AI Gateway Core Functionality Module</description>
 
     <properties>
         <langchain4j.version>1.11.0</langchain4j.version>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
@@ -43,8 +42,6 @@
             <version>2.3.33</version>
         </dependency>
 
-
-
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
@@ -57,7 +54,6 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -99,4 +95,3 @@
         </repository>
     </repositories>
 </project>
-

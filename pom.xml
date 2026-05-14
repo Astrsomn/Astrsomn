@@ -38,14 +38,11 @@
     </scm>
 
     <properties>
-        <!-- 项目基础配置 -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!-- Astrsomn 项目版本 -->
         <astrsomn.version>${project.version}</astrsomn.version>
-        <!-- 核心依赖版本 -->
         <spring-boot.version>3.3.0</spring-boot.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <spring-cloud-alibaba.version>2023.0.1.2</spring-cloud-alibaba.version>
@@ -108,7 +105,6 @@
                 <version>${astrsomn.version}</version>
             </dependency>
 
-
             <dependency>
                 <groupId>com.astrsomn</groupId>
                 <artifactId>astrsomn-providers</artifactId>
@@ -137,7 +133,6 @@
                 <scope>import</scope>
             </dependency>
 
-
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
@@ -149,7 +144,6 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-
 
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
@@ -167,22 +161,18 @@
 
     <build>
         <plugins>
-            <!-- 中央仓库发布专用插件：替代旧的 deploy 插件 -->
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
                 <version>0.4.0</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <!-- 必须与 settings.xml 中的 <server><id> 一致 -->
                     <publishingServerId>ossrh</publishingServerId>
                     <tokenAuth>true</tokenAuth>
-                    <!-- 设为 true 则上传成功后自动发布，建议先设为 false 手动检查 -->
                     <autoPublish>false</autoPublish>
                 </configuration>
             </plugin>
 
-            <!-- 编译插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -197,7 +187,6 @@
 
         <pluginManagement>
             <plugins>
-                <!-- 源码插件 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
@@ -212,7 +201,6 @@
                     </executions>
                 </plugin>
 
-                <!-- Javadoc 插件 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
@@ -233,7 +221,6 @@
                     </configuration>
                 </plugin>
 
-                <!-- GPG 签名插件 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
@@ -249,7 +236,6 @@
                     </executions>
                 </plugin>
 
-                <!-- Flatten 插件：生成自包含的POM文件，合并父POM元数据 -->
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
@@ -278,7 +264,6 @@
             </plugins>
         </pluginManagement>
     </build>
-
 
     <profiles>
         <profile>
@@ -325,7 +310,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- Flatten 插件：确保发布时生成自包含的POM -->
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>flatten-maven-plugin</artifactId>

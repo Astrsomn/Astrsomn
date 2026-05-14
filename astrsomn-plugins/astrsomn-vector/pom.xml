@@ -18,7 +18,6 @@
 
     <properties>
         <langchain4j.version>1.11.0</langchain4j.version>
-        <!-- LangChain4j 鍚勫悜閲忛泦鎴愭ā鍧椾笌 core 涓荤増鏈榻愮殑 beta 绾?-->
         <langchain4j.integration.version>1.11.0-beta19</langchain4j.integration.version>
     </properties>
     <modules>
@@ -55,4 +54,3 @@
     </build>
 
 </project>
-
