@@ -1,11 +1,9 @@
 <template>
   <div :class="['toolbar-segmented-btn', { 'toolbar-segmented-btn--block': block }]">
     <button
-      v-for="(btn, index) in buttons"
-      :key="index"
-      type="button"
-      :disabled="Boolean(btn.disabled || btn.loading)"
-      :class="[
+        v-for="(btn, index) in buttons"
+        :key="index"
+        :class="[
         'seg-btn',
         btn.type ? `seg-btn-${btn.type}` : 'seg-btn-default',
         {
@@ -14,18 +12,20 @@
           'seg-btn-plain': btn.plain
         }
       ]"
-      @click="btn.onClick"
+        :disabled="Boolean(btn.disabled || btn.loading)"
+        type="button"
+        @click="btn.onClick"
     >
-      <LoadingOutlined v-if="btn.loading" class="seg-btn-icon seg-btn-icon-spin" />
-      <component v-else-if="btn.icon" :is="btn.icon" class="seg-btn-icon" />
+      <LoadingOutlined v-if="btn.loading" class="seg-btn-icon seg-btn-icon-spin"/>
+      <component :is="btn.icon" v-else-if="btn.icon" class="seg-btn-icon"/>
       <span>{{ btn.label }}</span>
     </button>
   </div>
 </template>
 
-<script setup lang="ts">
-import { LoadingOutlined } from '@ant-design/icons-vue'
-import type { Component } from 'vue'
+<script lang="ts" setup>
+import {LoadingOutlined} from '@ant-design/icons-vue'
+import type {Component} from 'vue'
 
 export interface SegmentedButton {
   label: string

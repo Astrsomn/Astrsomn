@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.dto.account;
+package com.astrsomn.api.runtime.common.dto.account;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -16,7 +16,7 @@ public class AiAccountResponseDTO {
     private String accountName;
     private String extensionCode;
     private String apiUrl;
-//    private String apiKey;
+    //    private String apiKey;
 //    private String apiSecret;
     private Long accountTokens;
     private Long callCount;

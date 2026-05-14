@@ -7,15 +7,7 @@ import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.request.ChatRequestParameters;
-import dev.langchain4j.model.chat.response.ChatResponse;
-import dev.langchain4j.model.chat.response.CompleteToolCall;
-import dev.langchain4j.model.chat.response.PartialResponse;
-import dev.langchain4j.model.chat.response.PartialResponseContext;
-import dev.langchain4j.model.chat.response.PartialThinking;
-import dev.langchain4j.model.chat.response.PartialThinkingContext;
-import dev.langchain4j.model.chat.response.PartialToolCall;
-import dev.langchain4j.model.chat.response.PartialToolCallContext;
-import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
+import dev.langchain4j.model.chat.response.*;
 
 import java.util.HashSet;
 import java.util.List;

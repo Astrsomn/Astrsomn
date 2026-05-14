@@ -1,7 +1,7 @@
 <template>
-  <div class="tool-card-400" :class="{ 'is-disabled': record.enableFlag !== 'enabled' }">
+  <div :class="{ 'is-disabled': record.enableFlag !== 'enabled' }" class="tool-card-400">
     <div class="card-header-status">
-      <div class="status-chip" :class="{ active: record.enableFlag === 'enabled' }">
+      <div :class="{ active: record.enableFlag === 'enabled' }" class="status-chip">
         <span class="status-dot"></span>
         <span class="status-text">{{ record.enableFlag === 'enabled' ? 'Active' : 'Paused' }}</span>
       </div>
@@ -10,19 +10,19 @@
     <div class="card-content">
       <div class="avatar-section">
         <div class="avatar-glow">
-          <ToolOutlined />
+          <ToolOutlined/>
         </div>
         <div class="type-tag">{{ record.type || '--' }}</div>
       </div>
 
-      <h3 class="title" :title="record.toolName">
+      <h3 :title="record.toolName" class="title">
         {{ record.toolName || record.toolKey || '工具' }}
       </h3>
 
       <div class="key-capsule-btn" @click="copyKey(record.toolKey)">
         <span class="label">KEY</span>
         <code class="code">{{ record.toolKey || '--' }}</code>
-        <copy-outlined class="icon" />
+        <copy-outlined class="icon"/>
       </div>
 
       <div class="description-box">
@@ -46,11 +46,11 @@
     <div class="card-footer-action">
       <div class="action-group">
         <button class="action-circle-btn" @click="emit('edit', record)">
-          <edit-outlined />
+          <edit-outlined/>
         </button>
         <a-popconfirm title="确定删除吗？" @confirm="emit('delete', record.id)">
           <button class="action-circle-btn delete">
-            <delete-outlined />
+            <delete-outlined/>
           </button>
         </a-popconfirm>
       </div>
@@ -58,10 +58,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ToolOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
-import type { AiTool } from '@/api/aiTool.ts'
+<script lang="ts" setup>
+import {CopyOutlined, DeleteOutlined, EditOutlined, ToolOutlined} from '@ant-design/icons-vue'
+import {message} from 'ant-design-vue'
+import type {AiTool} from '@/api/aiTool.ts'
 
 defineProps<{
   record: AiTool

@@ -6,58 +6,58 @@
     </p>
     <a-form layout="vertical">
       <a-form-item label="节点名称">
-        <a-input :value="selectedNode.data?.label || ''" @update:value="onUpdateLabel" />
+        <a-input :value="selectedNode.data?.label || ''" @update:value="onUpdateLabel"/>
       </a-form-item>
       <a-form-item label="节点说明">
         <a-textarea
-          :value="selectedNode.data?.description || ''"
-          :rows="4"
-          @update:value="onUpdateDescription"
+            :rows="4"
+            :value="selectedNode.data?.description || ''"
+            @update:value="onUpdateDescription"
         />
       </a-form-item>
       <a-form-item
-        v-for="field in selectedNodeDefinition?.configSchema || []"
-        :key="field.key"
-        :label="field.label"
-        :required="!!field.required"
+          v-for="field in selectedNodeDefinition?.configSchema || []"
+          :key="field.key"
+          :label="field.label"
+          :required="!!field.required"
       >
         <a-input
-          v-if="field.component === 'input'"
-          :value="getConfigValue(field.key)"
-          :placeholder="field.placeholder"
-          @update:value="(value) => updateNodeConfig(field.key, value)"
+            v-if="field.component === 'input'"
+            :placeholder="field.placeholder"
+            :value="getConfigValue(field.key)"
+            @update:value="(value) => updateNodeConfig(field.key, value)"
         />
         <a-textarea
-          v-else-if="field.component === 'textarea'"
-          :value="getConfigValue(field.key)"
-          :placeholder="field.placeholder"
-          :rows="3"
-          @update:value="(value) => updateNodeConfig(field.key, value)"
+            v-else-if="field.component === 'textarea'"
+            :placeholder="field.placeholder"
+            :rows="3"
+            :value="getConfigValue(field.key)"
+            @update:value="(value) => updateNodeConfig(field.key, value)"
         />
         <a-input-number
-          v-else-if="field.component === 'number'"
-          :value="Number(getConfigValue(field.key) || 0)"
-          class="full-width"
-          @update:value="(value) => updateNodeConfig(field.key, String(value ?? ''))"
+            v-else-if="field.component === 'number'"
+            :value="Number(getConfigValue(field.key) || 0)"
+            class="full-width"
+            @update:value="(value) => updateNodeConfig(field.key, String(value ?? ''))"
         />
         <a-select
-          v-else-if="field.component === 'select'"
-          :value="getConfigValue(field.key)"
-          :options="field.options || []"
-          @update:value="(value) => updateNodeConfig(field.key, String(value))"
+            v-else-if="field.component === 'select'"
+            :options="field.options || []"
+            :value="getConfigValue(field.key)"
+            @update:value="(value) => updateNodeConfig(field.key, String(value))"
         />
         <a-switch
-          v-else-if="field.component === 'switch'"
-          :checked="getConfigValue(field.key) === 'true'"
-          @update:checked="(value) => updateNodeConfig(field.key, String(value))"
+            v-else-if="field.component === 'switch'"
+            :checked="getConfigValue(field.key) === 'true'"
+            @update:checked="(value) => updateNodeConfig(field.key, String(value))"
         />
         <div v-if="field.component === 'input' || field.component === 'textarea'" class="var-assist">
           <span class="assist-label">变量:</span>
           <a-tag
-            v-for="refName in variableRefs"
-            :key="`${field.key}-${refName}`"
-            class="ref-tag"
-            @click="appendVariableRef(field.key, refName)"
+              v-for="refName in variableRefs"
+              :key="`${field.key}-${refName}`"
+              class="ref-tag"
+              @click="appendVariableRef(field.key, refName)"
           >
             {{ refName }}
           </a-tag>
@@ -82,10 +82,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { getNodeDefinition } from '../../../domain/node-data-factory'
-import type { WorkflowNode } from '../../../domain/types'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import {getNodeDefinition} from '../../../domain/node-data-factory'
+import type {WorkflowNode} from '../../../domain/types'
 
 const props = defineProps<{
   selectedNode: WorkflowNode
@@ -105,11 +105,11 @@ const getConfigValue = (key: string) => {
 }
 
 const updateNodeConfig = (key: string, value: string) => {
-  emit('update-node', { config: { [key]: value } })
+  emit('update-node', {config: {[key]: value}})
 }
 
-const onUpdateLabel = (value: string) => emit('update-node', { label: value })
-const onUpdateDescription = (value: string) => emit('update-node', { description: value })
+const onUpdateLabel = (value: string) => emit('update-node', {label: value})
+const onUpdateDescription = (value: string) => emit('update-node', {description: value})
 
 const inputPorts = computed(() => props.selectedNode?.data?.inputs ?? [])
 const outputPorts = computed(() => props.selectedNode?.data?.outputs ?? [])

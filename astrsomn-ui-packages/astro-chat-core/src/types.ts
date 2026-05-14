@@ -2,6 +2,6 @@
 export type StreamEventType = 'text' | 'thought' | 'html' | 'image' | 'tool' | 'error' | 'done'
 
 export type StreamEvent = {
-  type: StreamEventType
-  content: string
+    type: StreamEventType
+    content: string
 }

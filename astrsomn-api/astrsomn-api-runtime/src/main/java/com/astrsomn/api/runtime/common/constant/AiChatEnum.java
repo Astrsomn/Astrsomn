@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.constant;
+package com.astrsomn.api.runtime.common.constant;
 
 import com.astrsomn.common.base.BaseEnum;
 import lombok.AllArgsConstructor;
@@ -38,9 +38,9 @@ public interface AiChatEnum {
         TOOL_CALL("tool_call", "Tool Call"),
         TOOL_RESULT("tool_result", "Tool Result"),
         ERROR("error", "Error"),
-        
+
         HTML("html", "Html"),
-        
+
         IMAGE("image", "Image");
 
         private final String code;
@@ -97,7 +97,7 @@ public interface AiChatEnum {
         private final String desc;
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum MessagePartKindEnum implements BaseEnum {
@@ -125,7 +125,7 @@ public interface AiChatEnum {
         }
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum AttachmentKindEnum implements BaseEnum {
@@ -151,19 +151,19 @@ public interface AiChatEnum {
         }
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum MessageLineageEnum implements BaseEnum {
-        
+
         USER_TURN_ROOT("user_turn_root", "用户轮次根"),
-        
+
         ASSISTANT_SEGMENT("assistant_segment", "助手片段"),
-        
+
         TOOL_CALL("tool_call", "工具调用"),
-        
+
         TOOL_RESULT("tool_result", "工具结果"),
-        
+
         SYSTEM("system", "系统");
 
         private final String code;

@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.storage.dto;
+package com.astrsomn.api.storage.dto;
 
 import com.astrsomn.api.storage.entity.AstFileRecordEntity;
 import lombok.Data;

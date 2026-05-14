@@ -8,11 +8,11 @@ import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
-import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
+import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -40,7 +40,7 @@ public class MybatisPlusConfig {
 
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnDatasourceProperties datasourceProperties,
-                                                           TenantLineHandler tenantLineHandler) {
+                                                         TenantLineHandler tenantLineHandler) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
         String jdbcUrl = datasourceProperties != null ? datasourceProperties.getUrl() : null;
@@ -84,25 +84,25 @@ public class MybatisPlusConfig {
         factoryBean.setDataSource(dataSource);
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        
+
         String defaultMapperLocations = "classpath*:mapper/*.xml";
         String defaultTypeAliasesPackage = "com.astrsomn.core.common.entity";
-        
+
         String mapperLocations = defaultMapperLocations;
         String typeAliasesPackage = defaultTypeAliasesPackage;
-        
+
         if (properties.getMybatisPlus() != null) {
-            if (properties.getMybatisPlus().getAdditionalMapperLocations() != null 
+            if (properties.getMybatisPlus().getAdditionalMapperLocations() != null
                     && !properties.getMybatisPlus().getAdditionalMapperLocations().trim().isEmpty()) {
                 mapperLocations = defaultMapperLocations + "," + properties.getMybatisPlus().getAdditionalMapperLocations();
             }
-            
-            if (properties.getMybatisPlus().getAdditionalTypeAliasesPackage() != null 
+
+            if (properties.getMybatisPlus().getAdditionalTypeAliasesPackage() != null
                     && !properties.getMybatisPlus().getAdditionalTypeAliasesPackage().trim().isEmpty()) {
                 typeAliasesPackage = defaultTypeAliasesPackage + "," + properties.getMybatisPlus().getAdditionalTypeAliasesPackage();
             }
         }
-        
+
         List<Resource> mapperResources = new ArrayList<>();
         Arrays.stream(mapperLocations.split(","))
                 .map(String::trim)
@@ -117,7 +117,7 @@ public class MybatisPlusConfig {
         factoryBean.setMapperLocations(mapperResources.toArray(new Resource[0]));
         factoryBean.setTypeAliasesPackage(typeAliasesPackage);
         factoryBean.setPlugins(mybatisPlusInterceptor, reflectiveAuditAutoFillInterceptor);
-        
+
         // 关键：显式设置 MyBatis-Plus SqlInjector，确保 BaseMapper 默认方法
         // （如 selectList/selectById/insert 等）能够被注入到 mapped statements 中
         MybatisConfiguration mybatisConfiguration = new MybatisConfiguration();

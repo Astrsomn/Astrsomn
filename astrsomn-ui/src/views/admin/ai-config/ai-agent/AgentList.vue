@@ -1,11 +1,11 @@
 <template>
   <AstrsomnPageShell
-    title="智能体管理"
-    description="管理 Agent 配置、执行策略与发布状态。"
-    :breadcrumbs="breadcrumbs"
-    :show-view-toggle="true"
-    :view-mode="viewMode"
-    :view-toggle-handler="handleViewToggle"
+      :breadcrumbs="breadcrumbs"
+      :show-view-toggle="true"
+      :view-mode="viewMode"
+      :view-toggle-handler="handleViewToggle"
+      description="管理 Agent 配置、执行策略与发布状态。"
+      title="智能体管理"
   >
     <div ref="pageRef" class="agent-page">
       <AstrsomnDataSection>
@@ -13,50 +13,50 @@
           <div class="toolbar">
             <div class="toolbar-left">
               <AstrsomnSearchPill
-                v-model="query.agentName"
-                layout="toolbar"
-                placeholder="搜索智能体名称"
-                @search="fetchList"
+                  v-model="query.agentName"
+                  layout="toolbar"
+                  placeholder="搜索智能体名称"
+                  @search="fetchList"
               />
-              <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
+              <AstrsomnStateSwitch v-model="query.status" @change="fetchList"/>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
         <AstrsomnDataView
-          :mode="dataViewMode"
-          :data-source="list"
-          :loading="loading"
-          :columns="tableColumns"
-          :row-selection="tableRowSelection"
-          :scroll="{ x: 980 }"
-          row-key="id"
-          empty-text="暂无匹配的智能体"
-          :card-columns="currentGridColumns"
-          :card-gap="agentGridGap"
-          :card-min-width="agentCardMinWidth"
+            :card-columns="currentGridColumns"
+            :card-gap="agentGridGap"
+            :card-min-width="agentCardMinWidth"
+            :columns="tableColumns"
+            :data-source="list"
+            :loading="loading"
+            :mode="dataViewMode"
+            :row-selection="tableRowSelection"
+            :scroll="{ x: 980 }"
+            empty-text="暂无匹配的智能体"
+            row-key="id"
         >
           <template #card="{ record }">
             <AgentCard
-              :record="record"
-              :selected="record.id != null && selectedKeys.has(record.id)"
-              @edit="openEdit"
-              @delete="handleDeleteOne"
-              @toggle="onToggleSelect"
+                :record="record"
+                :selected="record.id != null && selectedKeys.has(record.id)"
+                @delete="handleDeleteOne"
+                @edit="openEdit"
+                @toggle="onToggleSelect"
             />
           </template>
 
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'providerAvatar'">
               <img
-                v-if="providerAvatarCell(record)"
-                class="provider-avatar-cell"
-                :src="providerAvatarCell(record)"
-                :alt="record.agentName || 'provider'"
-                aria-hidden="true"
+                  v-if="providerAvatarCell(record)"
+                  :alt="record.agentName || 'provider'"
+                  :src="providerAvatarCell(record)"
+                  aria-hidden="true"
+                  class="provider-avatar-cell"
               />
               <span v-else class="text-secondary">—</span>
             </template>
@@ -68,12 +68,12 @@
 
             <template v-else-if="column.key === 'actions'">
               <a-space>
-                <a-button type="link" size="small" @click="openEdit(record)">
-                  <EditOutlined />
+                <a-button size="small" type="link" @click="openEdit(record)">
+                  <EditOutlined/>
                 </a-button>
                 <a-popconfirm title="确定删除该智能体吗？" @confirm="handleDeleteFromRecord(record)">
-                  <a-button type="link" danger size="small">
-                    <DeleteOutlined />
+                  <a-button danger size="small" type="link">
+                    <DeleteOutlined/>
                   </a-button>
                 </a-popconfirm>
               </a-space>
@@ -83,10 +83,10 @@
 
         <template #pagination>
           <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
       </AstrsomnDataSection>
@@ -95,21 +95,29 @@
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
-import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, ClockCircleOutlined, UserOutlined, ClusterOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
+import {useRouter} from 'vue-router'
+import {message} from 'ant-design-vue'
+import {
+  ClockCircleOutlined,
+  ClusterOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  UserOutlined
+} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
 import AgentCard from './AgentCard.vue'
-import { aiAgentApi, type AiAgent, type PageResponse } from '@/api/aiAgent.ts'
+import {type AiAgent, aiAgentApi, type PageResponse} from '@/api/aiAgent.ts'
 
 const AGENT_CARD_MIN_WIDTH_PX = 360
 const AGENT_GRID_GAP_PX = 12
@@ -141,8 +149,8 @@ const currentGridColumns = ref(resolveGridColumns())
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 
 const breadcrumbs = [
-  { title: 'AI 配置', href: '/admin/ai-config' },
-  { title: '智能体管理' },
+  {title: 'AI 配置', href: '/admin/ai-config'},
+  {title: '智能体管理'},
 ]
 
 const handleViewToggle = () => {
@@ -155,23 +163,39 @@ const partCurrentSelected = computed(() => selectedKeys.value.size > 0 && select
 const tableSelectedRowKeys = computed<Array<string | number>>(() => Array.from(selectedKeys.value))
 
 const tableColumns = [
-  { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const },
-  { 
-    title: 'Agent Key', 
-    dataIndex: 'agentKey', 
-    key: 'agentKey', 
-    ellipsis: true, 
+  {title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const},
+  {
+    title: 'Agent Key',
+    dataIndex: 'agentKey',
+    key: 'agentKey',
+    ellipsis: true,
     width: 200,
     copyable: true
   },
-  { title: '智能体名称', dataIndex: 'agentName', key: 'agentName', ellipsis: true, width: 200 },
-  { title: '模型实例', dataIndex: 'chatInstanceName', key: 'chatInstanceName', ellipsis: true, width: 180 },
-  { title: '提示词策略', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true, width: 180 },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
-  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue', icon: ClusterOutlined},
-  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 200, dateFormat: true, icon: ClockCircleOutlined},
+  {title: '智能体名称', dataIndex: 'agentName', key: 'agentName', ellipsis: true, width: 200},
+  {title: '模型实例', dataIndex: 'chatInstanceName', key: 'chatInstanceName', ellipsis: true, width: 180},
+  {title: '提示词策略', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true, width: 180},
+  {title: '状态', dataIndex: 'status', key: 'status', width: 100},
+  {
+    title: '环境',
+    dataIndex: 'envCode',
+    key: 'envCode',
+    width: 120,
+    ellipsis: true,
+    tag: true,
+    tagColor: 'blue',
+    icon: ClusterOutlined
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'createTime',
+    key: 'createTime',
+    width: 200,
+    dateFormat: true,
+    icon: ClockCircleOutlined
+  },
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150, icon: UserOutlined},
-  { title: '操作', key: 'actions', width: 120, fixed: 'right' as const }
+  {title: '操作', key: 'actions', width: 120, fixed: 'right' as const}
 ]
 
 const providerAvatarCell = (record: AiAgent) => {
@@ -243,22 +267,22 @@ const openCreate = () => {
 }
 
 const toolbarSegmentButtons = computed(() => [
-  { label: '重置', plain: true, icon: ReloadOutlined, onClick: resetFilters },
-  { 
-    label: selectedCount.value > 0 ? `删除 (${selectedCount.value})` : '删除', 
-    icon: DeleteOutlined, 
+  {label: '重置', plain: true, icon: ReloadOutlined, onClick: resetFilters},
+  {
+    label: selectedCount.value > 0 ? `删除 (${selectedCount.value})` : '删除',
+    icon: DeleteOutlined,
     onClick: () => handleBatchDelete(Array.from(selectedKeys.value)),
     disabled: selectedCount.value === 0,
     type: 'danger',
     plain: true
   },
-  { label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate, plain: true },
+  {label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate, plain: true},
 ])
 
 const openEdit = (record: AiAgent) => {
   const id = record.id
   if (id == null) return
-  router.push({ path: '/admin/ai-config/builder', query: { id: String(id) } })
+  router.push({path: '/admin/ai-config/builder', query: {id: String(id)}})
 }
 
 const handleDeleteOne = async (id: number | string) => {
@@ -383,9 +407,8 @@ void fetchList()
   border: 1px solid #e2e8f0;
   background: #fff;
   overflow: hidden;
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.05),
-    0 4px 10px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05),
+  0 4px 10px rgba(15, 23, 42, 0.06);
 }
 
 .status-switch :deep(.status-btn.ant-btn) {

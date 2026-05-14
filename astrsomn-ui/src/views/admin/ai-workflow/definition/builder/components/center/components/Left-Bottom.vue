@@ -1,16 +1,16 @@
 <template>
   <a-tooltip :title="collapsed ? '展开侧栏' : '收起侧栏'">
     <a-button class="canvas-left-toggle" shape="circle" @click="$emit('toggle')">
-      <span class="toggle-icon" :class="{ collapsed }">
-        <MenuUnfoldOutlined v-if="collapsed" />
-        <MenuFoldOutlined v-else />
+      <span :class="{ collapsed }" class="toggle-icon">
+        <MenuUnfoldOutlined v-if="collapsed"/>
+        <MenuFoldOutlined v-else/>
       </span>
     </a-button>
   </a-tooltip>
 </template>
 
-<script setup lang="ts">
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons-vue'
 
 defineProps<{
   collapsed: boolean

@@ -45,13 +45,13 @@ public final class EnvRuntime {
         if (StringUtils.isBlank(username)) {
             return false;
         }
-        
+
         // 配置的默认用户也可以切换环境
         String defaultUser = properties != null ? properties.getUsername() : null;
         if (username.equalsIgnoreCase(defaultUser)) {
             return true;
         }
-        
+
         // 检查管理员用户列表
         String adminUsers = properties != null ? properties.getAdminUsers() : null;
         if (StringUtils.isNotBlank(adminUsers)) {
@@ -62,7 +62,7 @@ public final class EnvRuntime {
                     .forEach(adminSet::add);
             return adminSet.contains(username.trim());
         }
-        
+
         return false;
     }
 }

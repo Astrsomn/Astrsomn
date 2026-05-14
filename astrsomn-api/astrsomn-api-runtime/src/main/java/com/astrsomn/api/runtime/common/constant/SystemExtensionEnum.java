@@ -1,8 +1,8 @@
-﻿package com.astrsomn.api.runtime.common.constant;
+package com.astrsomn.api.runtime.common.constant;
 
+import com.astrsomn.common.base.BaseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.common.base.BaseEnum;
 
 public interface SystemExtensionEnum {
     @Getter
@@ -28,7 +28,7 @@ public interface SystemExtensionEnum {
 
     @Getter
     @AllArgsConstructor
-    enum ApplyStatusEnum implements BaseEnum{
+    enum ApplyStatusEnum implements BaseEnum {
         Y("Y", "Y"),
         N("N", "N");
         private String code;

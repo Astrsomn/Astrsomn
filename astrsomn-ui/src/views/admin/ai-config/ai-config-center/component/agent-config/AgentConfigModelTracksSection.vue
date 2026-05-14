@@ -1,27 +1,29 @@
 <template>
   <AgentConfigSectionShell
-    :step="3"
-    title="模型与推理"
-    hint="必选对话模型；图像与语音为可选。默认使用系统自动实例与参数，展开「实例与参数」可手动选择实例并微调。"
+      :step="3"
+      hint="必选对话模型；图像与语音为可选。默认使用系统自动实例与参数，展开「实例与参数」可手动选择实例并微调。"
+      title="模型与推理"
   >
     <div class="inference-panel">
       <div class="tracks-grid">
         <div class="track-cell">
           <div class="track-head">
             <span class="track-title">对话模型</span>
-            <a-button v-if="chatModel || currentChatInstance" type="link" size="small" @click="emit('clear-chat')">
+            <a-button v-if="chatModel || currentChatInstance" size="small" type="link" @click="emit('clear-chat')">
               清除
             </a-button>
           </div>
           <div class="model-line">
-            <RobotOutlined class="model-inline-icon" />
+            <RobotOutlined class="model-inline-icon"/>
             <span class="model-line-text">{{ chatModel?.modelName || chatModel?.modelKey || '未选择' }}</span>
           </div>
           <div class="account-line">
-            <CreditCardOutlined class="account-icon" />
-            <span>{{ currentChatInstance ? (chatAccount?.accountName || chatAccount?.accountKey || '—') : '保存时可自动绑定实例' }}</span>
+            <CreditCardOutlined class="account-icon"/>
+            <span>{{
+                currentChatInstance ? (chatAccount?.accountName || chatAccount?.accountKey || '—') : '保存时可自动绑定实例'
+              }}</span>
           </div>
-          <a-button type="primary" block ghost class="pick-btn" @click="emit('open-model', 'chat')">
+          <a-button block class="pick-btn" ghost type="primary" @click="emit('open-model', 'chat')">
             {{ chatModel?.modelName ? '更换对话模型' : '选择对话模型' }}
           </a-button>
         </div>
@@ -29,19 +31,21 @@
         <div class="track-cell">
           <div class="track-head">
             <span class="track-title">图像模型</span>
-            <a-button v-if="imageModel || currentImageInstance" type="link" size="small" @click="emit('clear-image')">
+            <a-button v-if="imageModel || currentImageInstance" size="small" type="link" @click="emit('clear-image')">
               清除
             </a-button>
           </div>
           <div class="model-line">
-            <RobotOutlined class="model-inline-icon" />
+            <RobotOutlined class="model-inline-icon"/>
             <span class="model-line-text">{{ imageModel?.modelName || imageModel?.modelKey || '未选择' }}</span>
           </div>
           <div class="account-line">
-            <CreditCardOutlined class="account-icon" />
-            <span>{{ currentImageInstance ? (imageAccount?.accountName || imageAccount?.accountKey || '—') : '可选' }}</span>
+            <CreditCardOutlined class="account-icon"/>
+            <span>{{
+                currentImageInstance ? (imageAccount?.accountName || imageAccount?.accountKey || '—') : '可选'
+              }}</span>
           </div>
-          <a-button type="default" block class="pick-btn pick-btn--muted" @click="emit('open-model', 'image')">
+          <a-button block class="pick-btn pick-btn--muted" type="default" @click="emit('open-model', 'image')">
             {{ imageModel?.modelName ? '更换图像模型' : '选择图像模型' }}
           </a-button>
         </div>
@@ -49,27 +53,29 @@
         <div class="track-cell">
           <div class="track-head">
             <span class="track-title">语音模型</span>
-            <a-button v-if="voiceModel || currentVoiceInstance" type="link" size="small" @click="emit('clear-voice')">
+            <a-button v-if="voiceModel || currentVoiceInstance" size="small" type="link" @click="emit('clear-voice')">
               清除
             </a-button>
           </div>
           <div class="model-line">
-            <AudioOutlined class="model-inline-icon model-inline-icon--voice" />
+            <AudioOutlined class="model-inline-icon model-inline-icon--voice"/>
             <span class="model-line-text">{{ voiceModel?.modelName || voiceModel?.modelKey || '未选择' }}</span>
           </div>
           <div class="account-line">
-            <CreditCardOutlined class="account-icon" />
-            <span>{{ currentVoiceInstance ? (voiceAccount?.accountName || voiceAccount?.accountKey || '—') : '可选' }}</span>
+            <CreditCardOutlined class="account-icon"/>
+            <span>{{
+                currentVoiceInstance ? (voiceAccount?.accountName || voiceAccount?.accountKey || '—') : '可选'
+              }}</span>
           </div>
-          <a-button type="default" block class="pick-btn pick-btn--muted" @click="emit('open-model', 'voice')">
+          <a-button block class="pick-btn pick-btn--muted" type="default" @click="emit('open-model', 'voice')">
             {{ voiceModel?.modelName ? '更换语音模型' : '选择语音模型' }}
           </a-button>
         </div>
       </div>
 
       <div class="advanced-bar">
-        <a-button type="text" class="adv-toggle" @click="showAdvanced = !showAdvanced">
-          <SettingOutlined />
+        <a-button class="adv-toggle" type="text" @click="showAdvanced = !showAdvanced">
+          <SettingOutlined/>
           <span>{{ showAdvanced ? '收起实例与参数' : '实例与参数' }}</span>
         </a-button>
       </div>
@@ -78,58 +84,53 @@
         <div class="instances-strip">
           <div class="instance-chip">
             <span class="instance-chip-label">对话实例</span>
-            <a-button type="default" block class="instance-pick" @click="emit('open-instance', 'chat')">
+            <a-button block class="instance-pick" type="default" @click="emit('open-instance', 'chat')">
               {{ currentChatInstance?.instanceName || currentChatInstance?.instanceKey || '选择已有实例（可选）' }}
             </a-button>
           </div>
           <div class="instance-chip">
             <span class="instance-chip-label">图像实例</span>
-            <a-button type="default" block class="instance-pick" @click="emit('open-instance', 'image')">
+            <a-button block class="instance-pick" type="default" @click="emit('open-instance', 'image')">
               {{ currentImageInstance?.instanceName || currentImageInstance?.instanceKey || '选择已有实例（可选）' }}
             </a-button>
           </div>
           <div class="instance-chip">
             <span class="instance-chip-label">语音实例</span>
-            <a-button type="default" block class="instance-pick" @click="emit('open-instance', 'voice')">
+            <a-button block class="instance-pick" type="default" @click="emit('open-instance', 'voice')">
               {{ currentVoiceInstance?.instanceName || currentVoiceInstance?.instanceKey || '选择已有实例（可选）' }}
             </a-button>
           </div>
         </div>
 
         <a-segmented
-          :value="paramTab"
-          class="param-segmented"
-          block
-          size="small"
-          :options="[
+            :options="[
             { label: '对话参数', value: 'chat' },
             { label: '图像参数', value: 'image' },
             { label: '语音参数', value: 'voice' },
           ]"
-          @update:value="onParamTabChange"
+            :value="paramTab"
+            block
+            class="param-segmented"
+            size="small"
+            @update:value="onParamTabChange"
         />
 
         <div class="param-shared">
-          <Center v-bind="centerBind" :key="paramTab" />
+          <Center :key="paramTab" v-bind="centerBind"/>
         </div>
       </div>
     </div>
   </AgentConfigSectionShell>
 </template>
 
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-import {
-  AudioOutlined,
-  CreditCardOutlined,
-  RobotOutlined,
-  SettingOutlined,
-} from '@ant-design/icons-vue'
-import type { AiModel } from '@/api/aiModel'
-import type { AiInstance } from '@/api/aiInstance'
-import type { AiAccount } from '@/api/aiAccount'
+<script lang="ts" setup>
+import {computed, ref} from 'vue'
+import {AudioOutlined, CreditCardOutlined, RobotOutlined, SettingOutlined,} from '@ant-design/icons-vue'
+import type {AiModel} from '@/api/aiModel'
+import type {AiInstance} from '@/api/aiInstance'
+import type {AiAccount} from '@/api/aiAccount'
 import Center from '@/views/admin/ai-config/ai-instance/instance-form/Center.vue'
-import type { TempInfo } from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
+import type {TempInfo} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
 import AgentConfigSectionShell from './AgentConfigSectionShell.vue'
 
 const props = defineProps<{

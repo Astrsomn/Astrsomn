@@ -1,8 +1,8 @@
 package com.astrsomn.server.exception;
 
+import com.astrsomn.common.base.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.common.base.BusinessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;

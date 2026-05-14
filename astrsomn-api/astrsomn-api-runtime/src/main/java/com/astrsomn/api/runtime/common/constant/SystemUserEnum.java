@@ -1,12 +1,12 @@
-﻿package com.astrsomn.api.runtime.common.constant;
+package com.astrsomn.api.runtime.common.constant;
 
+import com.astrsomn.common.base.BaseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.common.base.BaseEnum;
 
 public interface SystemUserEnum {
 
-    
+
     @Getter
     @AllArgsConstructor
     enum UserRoleEnum implements BaseEnum {
@@ -30,13 +30,13 @@ public interface SystemUserEnum {
             return USER;
         }
 
-        
+
         public static boolean canManageAiConfig(String code) {
             UserRoleEnum r = fromCode(code);
             return r == SUPER_ADMIN || r == ENV_ADMIN;
         }
 
-        
+
         public static boolean canManagePlatformUsers(String code) {
             return fromCode(code) == SUPER_ADMIN;
         }

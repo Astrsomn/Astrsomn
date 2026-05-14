@@ -1,22 +1,22 @@
 <template>
   <div class="doc-lang-theme">
-    <a v-if="showDoc" href="https://doc.astrsomn.com/" class="doc-link" target="_blank">
-      <book-outlined />
+    <a v-if="showDoc" class="doc-link" href="https://doc.astrsomn.com/" target="_blank">
+      <book-outlined/>
     </a>
 
-    <div v-if="showDoc" class="th-divider" />
+    <div v-if="showDoc" class="th-divider"/>
 
     <a-select
-      :value="currentLang"
-      size="small"
-      class="lang-select"
-      :options="languageOptions"
-      @change="changeLang"
-      :bordered="false"
-      option-label-prop="label"
+        :bordered="false"
+        :options="languageOptions"
+        :value="currentLang"
+        class="lang-select"
+        option-label-prop="label"
+        size="small"
+        @change="changeLang"
     />
 
-    <div class="th-divider" />
+    <div class="th-divider"/>
 
     <button class="theme-toggle" @click="toggleTheme(!isDark)">
       <template v-if="isDark">🌙</template>
@@ -31,11 +31,11 @@ export default {
 }
 </script>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 
-import { BookOutlined } from '@ant-design/icons-vue'
-import { useTheme } from '../../composables/useTheme'
-import { useLanguage } from '../../composables/useLanguage'
+import {BookOutlined} from '@ant-design/icons-vue'
+import {useTheme} from '../../composables/useTheme'
+import {useLanguage} from '../../composables/useLanguage'
 
 const props = defineProps<{
   showDoc?: boolean
@@ -45,9 +45,8 @@ const props = defineProps<{
 const showDoc = props.showDoc ?? true
 
 
-
-const { isDark, toggleTheme } = useTheme()
-const { currentLang, changeLang, languageOptions } = useLanguage()
+const {isDark, toggleTheme} = useTheme()
+const {currentLang, changeLang, languageOptions} = useLanguage()
 
 
 </script>

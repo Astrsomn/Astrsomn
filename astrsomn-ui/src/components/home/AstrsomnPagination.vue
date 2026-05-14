@@ -2,16 +2,16 @@
   <div class="pagination-wrap">
     <span class="pagination-total">共 {{ total }} 条</span>
     <a-pagination
-      :current="current"
-      :page-size="pageSize"
-      :total="total"
-      :show-size-changer="showSizeChanger"
-      @change="onChange"
+        :current="current"
+        :page-size="pageSize"
+        :show-size-changer="showSizeChanger"
+        :total="total"
+        @change="onChange"
     />
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 const props = withDefaults(defineProps<{
   current: number
   pageSize: number

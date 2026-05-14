@@ -37,55 +37,49 @@
         </if>
     </select>
 
-    <select id="recoverByMemoryKey" resultType="com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageResponseDTO">
-        SELECT
-            ACM.*
-        FROM
-            `AI_CHAT_MESSAGE` ACM
-        WHERE
-            ACM.DELETED = 0
-            AND ACM.MEMORY_KEY = #{memoryKey}
-        ORDER BY
-            ACM.TURN_NO ASC,
-            ACM.MESSAGE_ORDER ASC
+    <select id="recoverByMemoryKey"
+            resultType="com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageResponseDTO">
+        SELECT ACM.*
+        FROM `AI_CHAT_MESSAGE` ACM
+        WHERE ACM.DELETED = 0
+          AND ACM.MEMORY_KEY = #{memoryKey}
+        ORDER BY ACM.TURN_NO ASC,
+                 ACM.MESSAGE_ORDER ASC
     </select>
 
     <select id="selectTodayUsage" resultType="com.astrsomn.api.runtime.common.dto.chat.message.AiChatUsageDTO">
-        SELECT
-            MODEL_KEY AS modelKey,
-            SUM(TOTAL_TOKENS) AS total
-        FROM
-            `AI_CHAT_MESSAGE`
-        WHERE
-            CREATE_TIME >= CURDATE()
-            AND DELETED = 0
-            AND ENV_CODE = #{envCode}
-        GROUP BY
-            MODEL_KEY
+        SELECT MODEL_KEY         AS modelKey,
+               SUM(TOTAL_TOKENS) AS total
+        FROM `AI_CHAT_MESSAGE`
+        WHERE CREATE_TIME >= CURDATE()
+          AND DELETED = 0
+          AND ENV_CODE = #{envCode}
+        GROUP BY MODEL_KEY
     </select>
 
-    <select id="selectUsageByAccountKeys" resultType="com.astrsomn.api.runtime.common.dto.account.AiAccountUsageStatsDTO">
+    <select id="selectUsageByAccountKeys"
+            resultType="com.astrsomn.api.runtime.common.dto.account.AiAccountUsageStatsDTO">
         SELECT
-            ACCOUNT_KEY AS accountKey,
-            COUNT(1) AS callCount,
-            COALESCE(SUM(PROMPT_TOKENS), 0) AS promptTokens,
-            COALESCE(SUM(COMPLETION_TOKENS), 0) AS completionTokens,
-            COALESCE(SUM(TOTAL_TOKENS), 0) AS totalTokens
+        ACCOUNT_KEY AS accountKey,
+        COUNT(1) AS callCount,
+        COALESCE(SUM(PROMPT_TOKENS), 0) AS promptTokens,
+        COALESCE(SUM(COMPLETION_TOKENS), 0) AS completionTokens,
+        COALESCE(SUM(TOTAL_TOKENS), 0) AS totalTokens
         FROM
-            `AI_CHAT_MESSAGE`
+        `AI_CHAT_MESSAGE`
         WHERE
-            DELETED = 0
-            <if test="envCode != null and envCode != ''">
-                AND ENV_CODE = #{envCode}
-            </if>
-            <if test="accountKeys != null and accountKeys.size() > 0">
-                AND ACCOUNT_KEY IN
-                <foreach collection="accountKeys" item="key" open="(" separator="," close=")">
-                    #{key}
-                </foreach>
-            </if>
+        DELETED = 0
+        <if test="envCode != null and envCode != ''">
+            AND ENV_CODE = #{envCode}
+        </if>
+        <if test="accountKeys != null and accountKeys.size() > 0">
+            AND ACCOUNT_KEY IN
+            <foreach collection="accountKeys" item="key" open="(" separator="," close=")">
+                #{key}
+            </foreach>
+        </if>
         GROUP BY
-            ACCOUNT_KEY
+        ACCOUNT_KEY
     </select>
 
 </mapper>

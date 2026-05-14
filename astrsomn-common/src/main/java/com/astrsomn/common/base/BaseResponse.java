@@ -1,4 +1,4 @@
-﻿package com.astrsomn.common.base;
+package com.astrsomn.common.base;
 
 import lombok.Data;
 

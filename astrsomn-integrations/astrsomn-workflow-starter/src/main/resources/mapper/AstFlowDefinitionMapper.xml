@@ -10,21 +10,21 @@
         d.CATEGORY AS description,
         d.DRAFT_GRAPH_JSON AS graphJson,
         COALESCE((
-          SELECT MAX(dp.VERSION)
-          FROM AST_FLOW_DEPLOYMENT dp
-          WHERE dp.FLOW_DEFINITION_ID = d.ID
-            AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
-            AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
+        SELECT MAX(dp.VERSION)
+        FROM AST_FLOW_DEPLOYMENT dp
+        WHERE dp.FLOW_DEFINITION_ID = d.ID
+        AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
+        AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
         ), 0) AS versionNo,
         CASE
-          WHEN EXISTS (
-            SELECT 1
-            FROM AST_FLOW_DEPLOYMENT dp
-            WHERE dp.FLOW_DEFINITION_ID = d.ID
-              AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
-              AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
-          ) THEN '已发布'
-          ELSE '未发布'
+        WHEN EXISTS (
+        SELECT 1
+        FROM AST_FLOW_DEPLOYMENT dp
+        WHERE dp.FLOW_DEFINITION_ID = d.ID
+        AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
+        AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
+        ) THEN '已发布'
+        ELSE '未发布'
         END AS status,
         d.ENV_CODE AS envCode,
         d.DELETED AS deleted,
@@ -57,21 +57,21 @@
         d.CATEGORY AS description,
         d.DRAFT_GRAPH_JSON AS graphJson,
         COALESCE((
-          SELECT MAX(dp.VERSION)
-          FROM AST_FLOW_DEPLOYMENT dp
-          WHERE dp.FLOW_DEFINITION_ID = d.ID
-            AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
-            AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
+        SELECT MAX(dp.VERSION)
+        FROM AST_FLOW_DEPLOYMENT dp
+        WHERE dp.FLOW_DEFINITION_ID = d.ID
+        AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
+        AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
         ), 0) AS versionNo,
         CASE
-          WHEN EXISTS (
-            SELECT 1
-            FROM AST_FLOW_DEPLOYMENT dp
-            WHERE dp.FLOW_DEFINITION_ID = d.ID
-              AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
-              AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
-          ) THEN '已发布'
-          ELSE '未发布'
+        WHEN EXISTS (
+        SELECT 1
+        FROM AST_FLOW_DEPLOYMENT dp
+        WHERE dp.FLOW_DEFINITION_ID = d.ID
+        AND (dp.DELETED = 0 OR dp.DELETED IS NULL)
+        AND (dp.ENV_CODE = d.ENV_CODE OR dp.ENV_CODE IS NULL OR d.ENV_CODE IS NULL)
+        ) THEN '已发布'
+        ELSE '未发布'
         END AS status,
         d.ENV_CODE AS envCode,
         d.DELETED AS deleted,

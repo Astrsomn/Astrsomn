@@ -1,76 +1,77 @@
 <template>
   <section
-    class="flow-canvas"
-    :class="{ 'compact-node': compactNode, disabled: disabled }"
-    :style="canvasInlineStyle"
-    @dragover="onDragOver"
-    @drop="onDropToCanvas"
-    @mousedown.capture="onCanvasMouseDown"
-    @mousemove.capture="onCanvasMouseMove"
-    @mouseup.capture="onCanvasMouseUp"
-    @contextmenu.capture="onNativeContextmenu"
+      :class="{ 'compact-node': compactNode, disabled: disabled }"
+      :style="canvasInlineStyle"
+      class="flow-canvas"
+      @dragover="onDragOver"
+      @drop="onDropToCanvas"
+      @mousedown.capture="onCanvasMouseDown"
+      @mousemove.capture="onCanvasMouseMove"
+      @mouseup.capture="onCanvasMouseUp"
+      @contextmenu.capture="onNativeContextmenu"
   >
-   
+
     <VueFlow
-      :nodes="flowNodes"
-      :edges="flowEdges"
-      ref="flowRef"
-      class="canvas-inner"
-      :min-zoom="0.3"
-      :max-zoom="1.5"
-      :node-types="nodeTypes"
-      :nodes-connectable="true"
-      :elements-selectable="interactionMode !== 'pan'"
-      :nodes-draggable="interactionMode !== 'pan'"
-      :edges-updatable="true"
-      :connect-on-click="false"
-      :selection-on-drag="interactionMode === 'box'"
-      :selection-key-code="interactionMode === 'box' ? true : null"
-      :pan-on-drag="interactionMode === 'pan'"
-      :snap-to-grid="canvasConfig.snapToGridEnabled"
-      :snap-grid="[canvasConfig.snapGridSize, canvasConfig.snapGridSize]"
-      @update:nodes="onNodesUpdate"
-      @update:edges="onEdgesUpdate"
-      @connect="onConnect"
-      @node-click="onNodeClick"
-      @edge-click="onEdgeClick"
-      @pane-click="clearSelection"
-      @selection-change="onSelectionChange"
-      @nodes-delete="$emit('nodes-delete')"
-      @edges-delete="$emit('edges-delete')"
-      @move="onViewportMove"
+        ref="flowRef"
+        :connect-on-click="false"
+        :edges="flowEdges"
+        :edges-updatable="true"
+        :elements-selectable="interactionMode !== 'pan'"
+        :max-zoom="1.5"
+        :min-zoom="0.3"
+        :node-types="nodeTypes"
+        :nodes="flowNodes"
+        :nodes-connectable="true"
+        :nodes-draggable="interactionMode !== 'pan'"
+        :pan-on-drag="interactionMode === 'pan'"
+        :selection-key-code="interactionMode === 'box' ? true : null"
+        :selection-on-drag="interactionMode === 'box'"
+        :snap-grid="[canvasConfig.snapGridSize, canvasConfig.snapGridSize]"
+        :snap-to-grid="canvasConfig.snapToGridEnabled"
+        class="canvas-inner"
+        @connect="onConnect"
+        @move="onViewportMove"
+        @update:nodes="onNodesUpdate"
+        @update:edges="onEdgesUpdate"
+        @node-click="onNodeClick"
+        @edge-click="onEdgeClick"
+        @pane-click="clearSelection"
+        @selection-change="onSelectionChange"
+        @nodes-delete="$emit('nodes-delete')"
+        @edges-delete="$emit('edges-delete')"
     >
-      <div v-if="canvasConfig.backgroundVariant !== 'none'" class="canvas-pattern-overlay" :style="patternOverlayStyle"></div>
-  
+      <div v-if="canvasConfig.backgroundVariant !== 'none'" :style="patternOverlayStyle"
+           class="canvas-pattern-overlay"></div>
+
     </VueFlow>
     <div
-      v-if="canvasConfig.showOriginMarker"
-      class="origin-marker"
-      :style="{
+        v-if="canvasConfig.showOriginMarker"
+        :style="{
         left: `${originPoint.x}px`,
         top: `${originPoint.y}px`
       }"
+        class="origin-marker"
     >
-      <span class="origin-dot" />
+      <span class="origin-dot"/>
       <span class="origin-label">(0,0)</span>
     </div>
-    <LeftCenter :items="paletteIcons" />
+    <LeftCenter :items="paletteIcons"/>
     <LeftTop
-      :interaction-mode="interactionMode"
-      :can-undo="canUndo"
-      :can-redo="canRedo"
-      @set-mode="setInteractionMode"
-      @clear-selection="clearSelection"
-      @undo="onUndo"
-      @redo="onRedo"
+        :can-redo="canRedo"
+        :can-undo="canUndo"
+        :interaction-mode="interactionMode"
+        @redo="onRedo"
+        @undo="onUndo"
+        @set-mode="setInteractionMode"
+        @clear-selection="clearSelection"
     />
-    <RightTop :saving="saving" @save="$emit('save')" />
+    <RightTop :saving="saving" @save="$emit('save')"/>
     <RightBottom
-      :zoom-percent="zoomPercent"
-      @fit-view="onFitView"
-      @zoom-in="onZoomIn"
-      @zoom-out="onZoomOut"
-      @set-zoom-percent="onSetZoomPercent"
+        :zoom-percent="zoomPercent"
+        @fit-view="onFitView"
+        @zoom-in="onZoomIn"
+        @zoom-out="onZoomOut"
+        @set-zoom-percent="onSetZoomPercent"
     />
     <div class="autosave-tip">
       {{ autoSaveHint }}
@@ -81,21 +82,31 @@
   </section>
 </template>
 
-<script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { VueFlow, type Connection, type Edge, type EdgeMouseEvent, type Node, type NodeMouseEvent, useVueFlow } from '@vue-flow/core'
-import { nodeCanvasTypes } from '../nodes/registry'
+<script lang="ts" setup>
+import {computed, nextTick, onMounted, ref, watch} from 'vue'
+import {
+  type Connection,
+  type Edge,
+  type EdgeMouseEvent,
+  type Node,
+  type NodeMouseEvent,
+  useVueFlow,
+  VueFlow
+} from '@vue-flow/core'
+import {nodeCanvasTypes} from '../nodes/registry'
 import LeftCenter from '@/views/admin/ai-workflow/definition/builder/components/center/components/Left-Center.vue'
 import LeftTop from '@/views/admin/ai-workflow/definition/builder/components/center/components/Left-Top.vue'
 import RightTop from '@/views/admin/ai-workflow/definition/builder/components/center/components/Right-Top.vue'
 import RightBottom from '@/views/admin/ai-workflow/definition/builder/components/center/components/Right-Bottom.vue'
-import { useNodeDnD } from '@/views/admin/ai-workflow/definition/builder/composables/useNodeDnD'
-import { useCanvasHistory } from '@/views/admin/ai-workflow/definition/builder/components/center/composables/useCanvasHistory'
-import { useCanvasTools } from '@/views/admin/ai-workflow/definition/builder/components/center/composables/useCanvasTools'
+import {useNodeDnD} from '@/views/admin/ai-workflow/definition/builder/composables/useNodeDnD'
+import {
+  useCanvasHistory
+} from '@/views/admin/ai-workflow/definition/builder/components/center/composables/useCanvasHistory'
+import {useCanvasTools} from '@/views/admin/ai-workflow/definition/builder/components/center/composables/useCanvasTools'
 import type {
-  CanvasGraphState,
   CanvasConfig,
   CanvasContextMenuPayload,
+  CanvasGraphState,
   CanvasPaletteIconItem,
   NodeDropPayload,
   WorkflowEdge,
@@ -103,29 +114,29 @@ import type {
 } from '../../domain/types'
 
 const props = withDefaults(
-  defineProps<{
-    nodes: WorkflowNode[]
-    edges: WorkflowEdge[]
-    paletteIcons: CanvasPaletteIconItem[]
-    canvasConfig: CanvasConfig
-    historySeed?: string
-    saving?: boolean
-    compactNode?: boolean
-    initialZoomMode?: 'fit-compact' | 'normal'
-    disabled?: boolean
-    autoSaveEnabled?: boolean
-    autoSaveStatus?: 'idle' | 'saving' | 'success' | 'failed'
-    autoSaveDisplayTime?: string
-  }>(),
-  {
-    compactNode: false,
-    historySeed: '',
-    initialZoomMode: 'normal',
-    disabled: false,
-    autoSaveEnabled: true,
-    autoSaveStatus: 'idle',
-    autoSaveDisplayTime: ''
-  }
+    defineProps<{
+      nodes: WorkflowNode[]
+      edges: WorkflowEdge[]
+      paletteIcons: CanvasPaletteIconItem[]
+      canvasConfig: CanvasConfig
+      historySeed?: string
+      saving?: boolean
+      compactNode?: boolean
+      initialZoomMode?: 'fit-compact' | 'normal'
+      disabled?: boolean
+      autoSaveEnabled?: boolean
+      autoSaveStatus?: 'idle' | 'saving' | 'success' | 'failed'
+      autoSaveDisplayTime?: string
+    }>(),
+    {
+      compactNode: false,
+      historySeed: '',
+      initialZoomMode: 'normal',
+      disabled: false,
+      autoSaveEnabled: true,
+      autoSaveStatus: 'idle',
+      autoSaveDisplayTime: ''
+    }
 )
 
 const emit = defineEmits<{
@@ -144,7 +155,7 @@ const emit = defineEmits<{
   save: []
 }>()
 
-const { parseDropType } = useNodeDnD()
+const {parseDropType} = useNodeDnD()
 const history = useCanvasHistory()
 const isRestoringHistory = ref(false)
 const {
@@ -178,10 +189,10 @@ const {
     }, 0)
   }
 })
-const { project, zoomIn, zoomOut, fitView, getViewport, setViewport } = useVueFlow()
+const {project, zoomIn, zoomOut, fitView, getViewport, setViewport} = useVueFlow()
 const flowRef = ref<InstanceType<typeof VueFlow> | null>(null)
 const zoomPercent = ref(100)
-const originPoint = ref({ x: 0, y: 0 })
+const originPoint = ref({x: 0, y: 0})
 const rightPanState = ref<{
   active: boolean
   startClientX: number
@@ -245,13 +256,13 @@ const onConnect = (connection: Connection) => {
   emit('connect', connection)
 }
 
-const onNodeClick = ({ node }: NodeMouseEvent) => {
+const onNodeClick = ({node}: NodeMouseEvent) => {
   const nodeId = (node as { id?: string }).id
   if (!nodeId) return
   emit('select-node', nodeId)
 }
 
-const onEdgeClick = ({ edge }: EdgeMouseEvent) => {
+const onEdgeClick = ({edge}: EdgeMouseEvent) => {
   const edgeId = (edge as { id?: string }).id
   if (!edgeId) return
   emit('select-edge', edgeId)
@@ -293,15 +304,15 @@ const onSetZoomPercent = (value: number) => {
 
 const onSelectionChange = (payload: { nodes?: Array<{ id: string }> }) => {
   emit(
-    'selection-change',
-    (payload.nodes || []).map((node) => node.id)
+      'selection-change',
+      (payload.nodes || []).map((node) => node.id)
   )
 }
 
 const onViewportMove = () => {
   syncZoomPercent()
   const viewport = getViewport()
-  originPoint.value = { x: viewport.x, y: viewport.y }
+  originPoint.value = {x: viewport.x, y: viewport.y}
 }
 
 const onDragOver = (ev: DragEvent) => {
@@ -436,7 +447,7 @@ const onNativeContextmenu = (ev: MouseEvent) => {
 const syncZoomPercent = () => {
   const viewport = getViewport()
   zoomPercent.value = Math.round(viewport.zoom * 100)
-  originPoint.value = { x: viewport.x, y: viewport.y }
+  originPoint.value = {x: viewport.x, y: viewport.y}
 }
 
 onMounted(() => {
@@ -448,23 +459,23 @@ onMounted(() => {
 })
 
 watch(
-  () => props.historySeed,
-  () => {
-    history.resetHistory(buildSnapshot())
-  }
+    () => props.historySeed,
+    () => {
+      history.resetHistory(buildSnapshot())
+    }
 )
 
 watch(
-  () => props.canvasConfig,
-  (value) => {
-    if (isRestoringHistory.value) return
-    history.queuePushSnapshot({
-      nodes: props.nodes,
-      edges: props.edges,
-      canvasConfig: value
-    })
-  },
-  { deep: true }
+    () => props.canvasConfig,
+    (value) => {
+      if (isRestoringHistory.value) return
+      history.queuePushSnapshot({
+        nodes: props.nodes,
+        edges: props.edges,
+        canvasConfig: value
+      })
+    },
+    {deep: true}
 )
 </script>
 

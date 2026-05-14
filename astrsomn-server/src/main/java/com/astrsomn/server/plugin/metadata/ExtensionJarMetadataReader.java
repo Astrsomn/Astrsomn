@@ -1,17 +1,20 @@
 package com.astrsomn.server.plugin.metadata;
 
-import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionMetaData;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
 import com.astrsomn.common.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.jar.JarFile;
 
 /**
@@ -22,7 +25,8 @@ public final class ExtensionJarMetadataReader {
 
     private static final String LOG_PREFIX = "[Astrsomn] [扩展解析器] ====> ";
 
-    private ExtensionJarMetadataReader() {}
+    private ExtensionJarMetadataReader() {
+    }
 
     /**
      * 尝试从 JAR 文件中加载系统扩展元数据

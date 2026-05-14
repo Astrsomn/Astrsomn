@@ -1,30 +1,30 @@
 <template>
   <div
-    v-if="variant === 'full'"
-    class="astro-chat-composer-root"
-    :class="[`is-${layout}`, `density-${density}`]"
-    :style="rootInlineStyle"
+      v-if="variant === 'full'"
+      :class="[`is-${layout}`, `density-${density}`]"
+      :style="rootInlineStyle"
+      class="astro-chat-composer-root"
   >
-    <div class="input-panel" :style="panelInlineStyle">
-      <slot name="preview" />
+    <div :style="panelInlineStyle" class="input-panel">
+      <slot name="preview"/>
       <div v-if="$slots.toolbar" class="input-toolbar">
-        <slot name="toolbar" />
+        <slot name="toolbar"/>
       </div>
       <div class="input-body">
         <a-textarea
-          :value="modelValue"
-          :auto-size="textareaAutoSize"
-          :placeholder="placeholder"
-          class="main-textarea"
-          :disabled="disabled"
-          @update:value="emit('update:modelValue', $event ?? '')"
-          @pressEnter="onPressEnter"
-          @paste="emit('paste', $event)"
+            :auto-size="textareaAutoSize"
+            :disabled="disabled"
+            :placeholder="placeholder"
+            :value="modelValue"
+            class="main-textarea"
+            @paste="emit('paste', $event)"
+            @pressEnter="onPressEnter"
+            @update:value="emit('update:modelValue', $event ?? '')"
         />
       </div>
       <div class="input-footer">
         <div class="footer-left">
-          <slot name="footer-left" />
+          <slot name="footer-left"/>
         </div>
         <div class="footer-right">
           <div v-if="showCharCount && modelValue.length > 0" class="char-count">
@@ -32,14 +32,14 @@
           </div>
           <div v-else-if="isStreaming" class="stream-status">流式回复中</div>
           <a-button
-            type="primary"
-            class="send-btn"
-            :disabled="sendDisabled"
-            @click="isStreaming ? emit('stop') : emit('submit')"
+              :disabled="sendDisabled"
+              class="send-btn"
+              type="primary"
+              @click="isStreaming ? emit('stop') : emit('submit')"
           >
             <template #icon>
-              <StopOutlined v-if="isStreaming" />
-              <ArrowUpOutlined v-else />
+              <StopOutlined v-if="isStreaming"/>
+              <ArrowUpOutlined v-else/>
             </template>
           </a-button>
         </div>
@@ -47,26 +47,26 @@
     </div>
   </div>
 
-  <div v-else class="composer-nested-root" :class="`density-${density}`">
-    <slot name="preview" />
+  <div v-else :class="`density-${density}`" class="composer-nested-root">
+    <slot name="preview"/>
     <div v-if="$slots.toolbar" class="input-toolbar">
-      <slot name="toolbar" />
+      <slot name="toolbar"/>
     </div>
     <div class="input-body">
       <a-textarea
-        :value="modelValue"
-        :auto-size="textareaAutoSize"
-        :placeholder="placeholder"
-        class="main-textarea"
-        :disabled="disabled"
-        @update:value="emit('update:modelValue', $event ?? '')"
-        @pressEnter="onPressEnter"
-        @paste="emit('paste', $event)"
+          :auto-size="textareaAutoSize"
+          :disabled="disabled"
+          :placeholder="placeholder"
+          :value="modelValue"
+          class="main-textarea"
+          @paste="emit('paste', $event)"
+          @pressEnter="onPressEnter"
+          @update:value="emit('update:modelValue', $event ?? '')"
       />
     </div>
     <div class="input-footer">
       <div class="footer-left">
-        <slot name="footer-left" />
+        <slot name="footer-left"/>
       </div>
       <div class="footer-right">
         <div v-if="showCharCount && modelValue.length > 0" class="char-count">
@@ -74,14 +74,14 @@
         </div>
         <div v-else-if="isStreaming" class="stream-status">流式回复中</div>
         <a-button
-          type="primary"
-          class="send-btn"
-          :disabled="sendDisabled"
-          @click="isStreaming ? emit('stop') : emit('submit')"
+            :disabled="sendDisabled"
+            class="send-btn"
+            type="primary"
+            @click="isStreaming ? emit('stop') : emit('submit')"
         >
           <template #icon>
-            <StopOutlined v-if="isStreaming" />
-            <ArrowUpOutlined v-else />
+            <StopOutlined v-if="isStreaming"/>
+            <ArrowUpOutlined v-else/>
           </template>
         </a-button>
       </div>
@@ -89,38 +89,38 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ArrowUpOutlined, StopOutlined } from '@ant-design/icons-vue'
-import { computed } from 'vue'
+<script lang="ts" setup>
+import {ArrowUpOutlined, StopOutlined} from '@ant-design/icons-vue'
+import {computed} from 'vue'
 
 const props = withDefaults(
-  defineProps<{
-    modelValue: string
-    variant?: 'full' | 'nested'
-    layout?: 'bottom' | 'centered' | 'embedded'
-    density?: 'comfortable' | 'compact'
-    maxWidth?: string
-    placeholder?: string
-    disabled?: boolean
-    isStreaming?: boolean
-    sendDisabled?: boolean
-    showCharCount?: boolean
-    minRows?: number
-    maxRows?: number
-  }>(),
-  {
-    variant: 'full',
-    layout: 'embedded',
-    density: 'comfortable',
-    maxWidth: '',
-    placeholder: '输入消息…',
-    disabled: false,
-    isStreaming: false,
-    sendDisabled: false,
-    showCharCount: true,
-    minRows: 1,
-    maxRows: 6
-  }
+    defineProps<{
+      modelValue: string
+      variant?: 'full' | 'nested'
+      layout?: 'bottom' | 'centered' | 'embedded'
+      density?: 'comfortable' | 'compact'
+      maxWidth?: string
+      placeholder?: string
+      disabled?: boolean
+      isStreaming?: boolean
+      sendDisabled?: boolean
+      showCharCount?: boolean
+      minRows?: number
+      maxRows?: number
+    }>(),
+    {
+      variant: 'full',
+      layout: 'embedded',
+      density: 'comfortable',
+      maxWidth: '',
+      placeholder: '输入消息…',
+      disabled: false,
+      isStreaming: false,
+      sendDisabled: false,
+      showCharCount: true,
+      minRows: 1,
+      maxRows: 6
+    }
 )
 
 const emit = defineEmits<{
@@ -133,19 +133,19 @@ const emit = defineEmits<{
 const textareaAutoSize = computed(() => {
   const min = props.density === 'compact' ? Math.min(props.minRows, 2) : props.minRows
   const max = props.density === 'compact' ? Math.min(props.maxRows, 4) : props.maxRows
-  return { minRows: min, maxRows: max }
+  return {minRows: min, maxRows: max}
 })
 
 const rootInlineStyle = computed(() => {
   if (props.layout === 'embedded' && props.maxWidth) {
-    return { maxWidth: props.maxWidth, marginLeft: 'auto', marginRight: 'auto' }
+    return {maxWidth: props.maxWidth, marginLeft: 'auto', marginRight: 'auto'}
   }
   return undefined
 })
 
 const panelInlineStyle = computed(() => {
   if (props.maxWidth && props.layout !== 'embedded') {
-    return { maxWidth: props.maxWidth }
+    return {maxWidth: props.maxWidth}
   }
   return undefined
 })
@@ -203,9 +203,8 @@ const onPressEnter = (e: KeyboardEvent) => {
   border: 1px solid var(--border-default, #e5e7eb);
   border-radius: 8px;
   box-shadow: var(--shadow-card, 0 4px 24px rgba(0, 0, 0, 0.06));
-  transition:
-    border-color 0.3s,
-    box-shadow 0.3s;
+  transition: border-color 0.3s,
+  box-shadow 0.3s;
   overflow: hidden;
   position: relative;
 }

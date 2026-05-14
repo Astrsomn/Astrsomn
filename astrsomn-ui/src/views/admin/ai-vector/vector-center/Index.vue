@@ -1,55 +1,55 @@
 <template>
 
 
-    <a-layout>
-      <!-- 侧边栏 -->
-      <a-layout-sider width="320" class="bg-white border-r">
-        <Left
+  <a-layout>
+    <!-- 侧边栏 -->
+    <a-layout-sider class="bg-white border-r" width="320">
+      <Left
+          :selected-store-id="selectedStoreId"
           :sources="sources"
           :stores="stores"
-          :selected-store-id="selectedStoreId"
+          @changed="handleTreeChanged"
           @select-source="handleSelectSource"
           @select-store="handleSelectStore"
-          @changed="handleTreeChanged"
-        />
-      </a-layout-sider>
+      />
+    </a-layout-sider>
 
-      <!-- 主内容区 -->
-      <a-layout-content class="bg-gray-50">
-        <div v-if="!selectedSourceId" class="empty-state">
-          请先在左侧选择数据源
-        </div>
-        <div v-else-if="!selectedStoreId" class="empty-state">
-          请先在左侧选择数据库
-        </div>
-        <template v-else>
-          <RightTop :store="selectedStore" :source="selectedSource" @updated="handleStoreUpdated" />
-          <RightCenter
+    <!-- 主内容区 -->
+    <a-layout-content class="bg-gray-50">
+      <div v-if="!selectedSourceId" class="empty-state">
+        请先在左侧选择数据源
+      </div>
+      <div v-else-if="!selectedStoreId" class="empty-state">
+        请先在左侧选择数据库
+      </div>
+      <template v-else>
+        <RightTop :source="selectedSource" :store="selectedStore" @updated="handleStoreUpdated"/>
+        <RightCenter
             :docs="docs"
-            :store-id="selectedStoreId"
             :selected-doc-id="selectedDocId"
-            @select-doc="handleSelectDoc"
+            :store-id="selectedStoreId"
             @changed="handleDocChanged"
-          />
-          <RightBottom
+            @select-doc="handleSelectDoc"
+        />
+        <RightBottom
+            :doc-id="selectedDocId"
             :segments="segments"
             :store-id="selectedStoreId"
-            :doc-id="selectedDocId"
             @changed="handleBottomChanged"
-          />
-        </template>
-      </a-layout-content>
-    </a-layout>
+        />
+      </template>
+    </a-layout-content>
+  </a-layout>
 
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue'
+import {onMounted} from 'vue'
 import Left from '@/views/admin/ai-vector/vector-center/component/Left.vue'
 import RightTop from '@/views/admin/ai-vector/vector-center/component/RightTop.vue'
 import RightCenter from '@/views/admin/ai-vector/vector-center/component/RightCenter.vue'
 import RightBottom from '@/views/admin/ai-vector/vector-center/component/RightBottom.vue'
-import { useVectorCenterState } from '@/views/admin/ai-vector/vector-center/hooks/useVectorCenterState.ts'
+import {useVectorCenterState} from '@/views/admin/ai-vector/vector-center/hooks/useVectorCenterState.ts'
 
 const {
   sources,

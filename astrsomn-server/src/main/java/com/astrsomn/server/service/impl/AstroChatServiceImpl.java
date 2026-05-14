@@ -1,18 +1,18 @@
 package com.astrsomn.server.service.impl;
+
 import cn.hutool.core.lang.UUID;
-import jakarta.annotation.Resource;
 import com.astrsomn.api.runtime.common.langchain.AstroBuilderChatRequest;
 import com.astrsomn.api.runtime.common.langchain.AstroChatAssistant;
 import com.astrsomn.api.runtime.common.langchain.AstroChatRequest;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.*;
-import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AstroChatErrorEnum;
+import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.AstroChatService;
 import com.astrsomn.starter.runtime.langchain.factory.AstroAssistantFactory;
-
 import com.astrsomn.starter.runtime.langchain.stream.AstroChatStreamUtil;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -23,10 +23,10 @@ import java.util.Optional;
 public class AstroChatServiceImpl implements AstroChatService {
 
     @Resource
-    private  AstroAssistantFactory assistantFactory;
+    private AstroAssistantFactory assistantFactory;
 
     @Resource
-    private  AstroChatStreamUtil chatStreamUtil;
+    private AstroChatStreamUtil chatStreamUtil;
 
 
     @Override
@@ -87,7 +87,6 @@ public class AstroChatServiceImpl implements AstroChatService {
                 .maxHistoryMessages(Optional.ofNullable(request.getMaxHistoryMessages()).orElse(10))
                 .enableHistorySave(request.isEnableHistorySave())
                 .build();
-
 
 
         try {

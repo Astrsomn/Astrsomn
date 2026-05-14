@@ -14,7 +14,9 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ModelEndpoint {
 
-    /** 可选，用于日志与监控打标 */
+    /**
+     * 可选，用于日志与监控打标
+     */
     private String name;
 
     private String apiUrl;
@@ -23,6 +25,8 @@ public class ModelEndpoint {
 
     private String apiSecret;
 
-    /** 加权随机时使用，默认 1 */
+    /**
+     * 加权随机时使用，默认 1
+     */
     private Integer weight;
 }

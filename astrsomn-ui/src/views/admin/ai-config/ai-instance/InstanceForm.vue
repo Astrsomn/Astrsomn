@@ -1,18 +1,18 @@
 <template>
   <AstrsomnModal
-    :open="visible"
-    width="80vw"
-    :max-width="maxWidth"
-    body-height="90vh"
-    max-body-height="800px"
-    :closable="false"
-    main-padding="0"
-    wrap-class-name="instance-form-fsm-wrap"
-    @update:open="emit('update:visible', $event)"
-    @cancel="handleCancel"
+      :closable="false"
+      :max-width="maxWidth"
+      :open="visible"
+      body-height="90vh"
+      main-padding="0"
+      max-body-height="800px"
+      width="80vw"
+      wrap-class-name="instance-form-fsm-wrap"
+      @cancel="handleCancel"
+      @update:open="emit('update:visible', $event)"
   >
     <template #header-logo>
-      <ThunderboltFilled />
+      <ThunderboltFilled/>
     </template>
     <template #header-title>
       {{ isEdit ? '编辑推理预设' : '新建推理预设' }}
@@ -23,10 +23,10 @@
     <template #header-actions>
       <a-button class="header-action-btn header-action-btn-cancel" @click="handleCancel">取消</a-button>
       <a-button
-        type="primary"
-        class="header-action-btn header-action-btn-save"
-        :loading="submitting"
-        @click="onSubmit"
+          :loading="submitting"
+          class="header-action-btn header-action-btn-save"
+          type="primary"
+          @click="onSubmit"
       >
         保存预设
       </a-button>
@@ -35,83 +35,85 @@
     <div class="instance-form-shell">
       <div class="main-content">
         <Left
-        :form="form"
-        :is-edit="isEdit"
-        :instance-key-rules="instanceKeyRules"
-        :account-selector-open="accountSelectorOpen"
-        @preset-name-input="onPresetNameUserInput"
-        @open-account-selector="accountSelectorOpen = true"
-        @select-account="onAccountSelect"
-      />
-     <Right
-        :is-edit="isEdit"
-        :provider-filter="providerFilter"
-        :search-draft="searchDraft"
-        :type-filter="typeFilter"
-        :model-list="modelList"
-        :selected-keys="selectedKeys"
-        :models-loading="modelsLoading"
-        :models-loading-more="modelsLoadingMore"
-        :total="modelPager.total"
-        :has-next="modelPager.hasNext"
-        :current-page="modelPager.pageNo"
-        :page-size="modelPager.pageSize"
-        :page-size-options="pageSizeOptions"
-        :provider-avatar-cell="providerAvatarCell"
-        :model-type-label="modelTypeLabel"
-        @provider-change="onProviderFilterChange"
-        @update:search-draft="searchDraft = $event"
-        @search="applyModelSearch"
-        @update:type-filter="typeFilter = $event"
-        @page-change="onModelPageChange"
-        @page-size-change="onModelPageSizeChange"
-        @panel-scroll="onModelPanelScroll"
-        @select-model="onSelectModelCard"
-      />
-      <Center
-        :form="form"
-        :param-section-title="paramSectionTitle"
-        :capability-hint="capabilityHint"
-        :has-param-schema="hasParamSchema"
-        :unsupported-param-codes="unsupportedParamCodes"
-        :model-kind="modelKind"
-        :show-chat-temperature="showChatTemperature"
-        :show-chat-max-tokens="showChatMaxTokens"
-        :show-chat-top-p="showChatTopP"
-        :show-chat-top-k="showChatTopK"
-        :show-chat-seed="showChatSeed"
-        :show-chat-stop-sequences="showChatStopSequences"
-        :show-chat-penalties="showChatPenalties"
-        :show-chat-frequency-penalty="showChatFrequencyPenalty"
-        :show-chat-presence-penalty="showChatPresencePenalty"
-        :show-embedding-dimensions="showEmbeddingDimensions"
-        :show-image-size="showImageSize"
-        :show-image-style="showImageStyle"
-        :embedding-has-any-control="embeddingHasAnyControl"
-        :image-has-any-control="imageHasAnyControl"
-        :get-temp-info="getTempInfo"
+            :account-selector-open="accountSelectorOpen"
+            :form="form"
+            :instance-key-rules="instanceKeyRules"
+            :is-edit="isEdit"
+            @preset-name-input="onPresetNameUserInput"
+            @open-account-selector="accountSelectorOpen = true"
+            @select-account="onAccountSelect"
+        />
+        <Right
+            :current-page="modelPager.pageNo"
+            :has-next="modelPager.hasNext"
+            :is-edit="isEdit"
+            :model-list="modelList"
+            :model-type-label="modelTypeLabel"
+            :models-loading="modelsLoading"
+            :models-loading-more="modelsLoadingMore"
+            :page-size="modelPager.pageSize"
+            :page-size-options="pageSizeOptions"
+            :provider-avatar-cell="providerAvatarCell"
+            :provider-filter="providerFilter"
+            :search-draft="searchDraft"
+            :selected-keys="selectedKeys"
+            :total="modelPager.total"
+            :type-filter="typeFilter"
+            @search="applyModelSearch"
+            @provider-change="onProviderFilterChange"
+            @update:search-draft="searchDraft = $event"
+            @update:type-filter="typeFilter = $event"
+            @page-change="onModelPageChange"
+            @page-size-change="onModelPageSizeChange"
+            @panel-scroll="onModelPanelScroll"
+            @select-model="onSelectModelCard"
+        />
+        <Center
+            :capability-hint="capabilityHint"
+            :embedding-has-any-control="embeddingHasAnyControl"
+            :form="form"
+            :get-temp-info="getTempInfo"
+            :has-param-schema="hasParamSchema"
+            :image-has-any-control="imageHasAnyControl"
+            :model-kind="modelKind"
+            :param-section-title="paramSectionTitle"
+            :show-chat-frequency-penalty="showChatFrequencyPenalty"
+            :show-chat-max-tokens="showChatMaxTokens"
+            :show-chat-penalties="showChatPenalties"
+            :show-chat-presence-penalty="showChatPresencePenalty"
+            :show-chat-seed="showChatSeed"
+            :show-chat-stop-sequences="showChatStopSequences"
+            :show-chat-temperature="showChatTemperature"
+            :show-chat-top-k="showChatTopK"
+            :show-chat-top-p="showChatTopP"
+            :show-embedding-dimensions="showEmbeddingDimensions"
+            :show-image-size="showImageSize"
+            :show-image-style="showImageStyle"
+            :unsupported-param-codes="unsupportedParamCodes"
         />
       </div>
     </div>
   </AstrsomnModal>
 </template>
 
-<script setup lang="ts">
-import { ref, reactive, computed, watch, nextTick } from 'vue';
-import { message } from 'ant-design-vue';
-import {
-  ThunderboltFilled
-} from '@ant-design/icons-vue';
+<script lang="ts" setup>
+import {computed, nextTick, reactive, ref, watch} from 'vue';
+import {message} from 'ant-design-vue';
+import {ThunderboltFilled} from '@ant-design/icons-vue';
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue';
 import Left from './instance-form/Left.vue';
 import Center from './instance-form/Center.vue';
 import Right from './instance-form/Right.vue';
-import { ensureWorkspaceEnvInStorage } from '@/utils/workspaceHelper.ts';
-import { aiModelApi, type AiModel } from '@/api/aiModel';
-import { aiInstanceApi, type AiInstance } from '@/api/aiInstance';
-import { useInstanceParamVisibility, getTempInfo } from './useInstanceParamVisibility';
+import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts';
+import {type AiModel, aiModelApi} from '@/api/aiModel';
+import {type AiInstance, aiInstanceApi} from '@/api/aiInstance';
+import {getTempInfo, useInstanceParamVisibility} from './useInstanceParamVisibility';
 
-interface Props { visible: boolean; record?: AiInstance }
+interface Props {
+  visible: boolean;
+  record?: AiInstance
+}
+
 const props = defineProps<Props>();
 const emit = defineEmits(['update:visible', 'success']);
 
@@ -131,9 +133,9 @@ const typeFilter = ref('all');
 /** 与模型列表一致：按 AI_MODEL.extensionCode（扩展 key）筛选 */
 const providerFilter = ref<string | undefined>(undefined);
 const pageSizeOptions = [
-  { label: '每页 12', value: 12 },
-  { label: '每页 24', value: 24 },
-  { label: '每页 36', value: 36 }
+  {label: '每页 12', value: 12},
+  {label: '每页 24', value: 24},
+  {label: '每页 36', value: 36}
 ];
 const modelPager = reactive({
   pageNo: 1,
@@ -257,8 +259,8 @@ const instanceKeyRules = [
     validator: (_rule: unknown, value: unknown) => {
       if (value == null || String(value).trim() === '') return Promise.resolve();
       return /^[a-zA-Z0-9_-]+$/.test(String(value).trim())
-        ? Promise.resolve()
-        : Promise.reject('仅字母、数字、下划线、连字符');
+          ? Promise.resolve()
+          : Promise.reject('仅字母、数字、下划线、连字符');
     }
   }
 ];
@@ -344,7 +346,9 @@ const onSubmit = async () => {
     message.success('预设配置已同步至 Astrsomn 引擎');
     emit('success');
     handleCancel();
-  } finally { submitting.value = false; }
+  } finally {
+    submitting.value = false;
+  }
 };
 
 watch(() => props.visible, async (val) => {
@@ -369,7 +373,7 @@ watch(() => props.visible, async (val) => {
         const extra = await aiModelApi.queryPage({
           pageNo: 1,
           pageSize: 1,
-          param: { modelKey: key }
+          param: {modelKey: key}
         });
         const hit = extra.list?.[0];
         if (hit?.modelKey) {

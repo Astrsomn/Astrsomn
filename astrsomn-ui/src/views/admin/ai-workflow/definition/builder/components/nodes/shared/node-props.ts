@@ -1,5 +1,5 @@
 export type WorkflowNodeViewData = {
-  label?: string
-  description?: string
+    label?: string
+    description?: string
 }
 

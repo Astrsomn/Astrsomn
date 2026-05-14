@@ -3,14 +3,13 @@ package com.astrsomn.starter.runtime.config;
 import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.starter.runtime.context.UserContext;
+import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-
-import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;
 
 /**
  * Astrsomn 配置自动配置类。

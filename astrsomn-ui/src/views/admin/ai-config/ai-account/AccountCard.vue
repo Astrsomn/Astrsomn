@@ -1,38 +1,38 @@
 <template>
   <div
-    class="account-card-400"
-    :class="{
+      :class="{
       'is-selected': selected,
     }"
+      class="account-card-400"
   >
     <div class="card-header-status">
-      <div class="status-chip" :class="account.envCode?.toLowerCase() || 'unset'">
+      <div :class="account.envCode?.toLowerCase() || 'unset'" class="status-chip">
         <span class="status-dot"></span>
         <span class="status-text">{{ account.envCode || 'UNSET' }}</span>
       </div>
       <div class="header-checkbox">
-        <a-checkbox :checked="selected" @change="onCheckboxChange" />
+        <a-checkbox :checked="selected" @change="onCheckboxChange"/>
       </div>
     </div>
 
     <div class="card-content">
       <div class="avatar-section">
         <div class="avatar-glow">
-          <CustomerServiceOutlined />
+          <CustomerServiceOutlined/>
         </div>
         <div class="live-badge" title="在线">
           <span class="live-dot"></span>
         </div>
       </div>
 
-      <h3 class="title" :title="account.accountName">
+      <h3 :title="account.accountName" class="title">
         {{ account.accountName || 'AI 助手实例' }}
       </h3>
 
       <div class="token-capsule">
-        <TransactionOutlined class="token-icon" />
+        <TransactionOutlined class="token-icon"/>
         <span class="token-num">{{ formatTokens(account.accountTokens).split('.')[0] }}</span>
-        <span class="token-decimal" v-if="formatTokens(account.accountTokens).includes('.')">
+        <span v-if="formatTokens(account.accountTokens).includes('.')" class="token-decimal">
           .{{ formatTokens(account.accountTokens).split('.')[1] }}
         </span>
         <span class="token-unit">Tokens</span>
@@ -51,7 +51,8 @@
           </template>
           <span v-else class="empty-text">暂未关联模型</span>
           <button class="manage-link" @click.stop="emitShowModels">
-            管理 <RightOutlined style="font-size: 10px;" />
+            管理
+            <RightOutlined style="font-size: 10px;"/>
           </button>
         </div>
       </div>
@@ -59,7 +60,7 @@
 
     <div class="card-footer-action">
       <div class="user-meta">
-        <user-outlined class="meta-icon" />
+        <user-outlined class="meta-icon"/>
         <span class="meta-info">{{ account.createUser || 'Sys' }}</span>
         <span class="divider">/</span>
         <span class="meta-info">{{ formatTime(account.createTime) }}</span>
@@ -67,11 +68,11 @@
 
       <div class="action-group">
         <button class="action-circle-btn" @click="onEdit">
-          <edit-outlined />
+          <edit-outlined/>
         </button>
         <a-popconfirm title="确定要释放该助手吗？" @confirm="onDelete">
           <button class="action-circle-btn delete">
-            <delete-outlined />
+            <delete-outlined/>
           </button>
         </a-popconfirm>
       </div>
@@ -79,17 +80,28 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
 import {
+  CustomerServiceOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  RightOutlined,
   TransactionOutlined,
-  EditOutlined, DeleteOutlined, CustomerServiceOutlined, RightOutlined, UserOutlined
+  UserOutlined
 } from '@ant-design/icons-vue'
 
 interface AiAccount {
-  id?: number | string; accountName?: string; envCode?: string;
-  apiKey?: string; apiSecret?: string; accountTokens?: number | null;
-  createTime?: string; createUser?: string; usedModelNames?: string; usedModelKeys?: string;
+  id?: number | string;
+  accountName?: string;
+  envCode?: string;
+  apiKey?: string;
+  apiSecret?: string;
+  accountTokens?: number | null;
+  createTime?: string;
+  createUser?: string;
+  usedModelNames?: string;
+  usedModelKeys?: string;
 }
 
 const props = withDefaults(defineProps<{ account: AiAccount; selected?: boolean }>(), {
@@ -173,10 +185,16 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 .status-chip.dev {
   background: rgba(59, 130, 246, 0.1);
 }
+
 .status-chip.prod .status-dot,
-.status-chip.dev .status-dot { background: var(--primary); }
+.status-chip.dev .status-dot {
+  background: var(--primary);
+}
+
 .status-chip.prod .status-text,
-.status-chip.dev .status-text { color: var(--primary); }
+.status-chip.dev .status-text {
+  color: var(--primary);
+}
 
 .status-dot {
   width: 6px;
@@ -431,8 +449,14 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 }
 
 @keyframes live-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 </style>

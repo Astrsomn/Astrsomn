@@ -1,20 +1,20 @@
 <template>
   <div v-if="visible && isLoggedIn" class="env-capsule-minimal">
     <div class="env-content">
-      <a-spin v-if="workspaceLoading" size="small" />
+      <a-spin v-if="workspaceLoading" size="small"/>
       <template v-else-if="workspaceContext">
         <a-dropdown
-          v-if="workspaceContext.canSwitchWorkspace && envPickOptions.length > 0"
-          :trigger="['click']"
-          placement="bottomRight"
+            v-if="workspaceContext.canSwitchWorkspace && envPickOptions.length > 0"
+            :trigger="['click']"
+            placement="bottomRight"
         >
           <div class="env-trigger-btn">
-            <cloud-server-outlined class="env-icon-small" />
+            <cloud-server-outlined class="env-icon-small"/>
             <span class="env-label-text">{{ currentEnvDisplay }}</span>
-            <down-outlined class="env-caret-small" />
+            <down-outlined class="env-caret-small"/>
           </div>
           <template #overlay>
-            <a-menu class="env-menu-pop" :selected-keys="[workspaceContext.effectiveEnvCode]" @click="onEnvMenuPick">
+            <a-menu :selected-keys="[workspaceContext.effectiveEnvCode]" class="env-menu-pop" @click="onEnvMenuPick">
               <a-menu-item v-for="option in envPickOptions" :key="option.value">{{ option.label }}</a-menu-item>
             </a-menu>
           </template>
@@ -31,12 +31,12 @@ export default {
 }
 </script>
 
-<script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { CloudServerOutlined, DownOutlined } from '@ant-design/icons-vue'
-import { getWorkspaceEnv, type WorkspaceEnvContext } from '../../api/auth'
-import { systemEnvApi } from '../../api/systemEnv'
-import { WORKSPACE_ENV_STORAGE_KEY } from '../../constants/workspaceEnv'
+<script lang="ts" setup>
+import {computed, onMounted, ref} from 'vue'
+import {CloudServerOutlined, DownOutlined} from '@ant-design/icons-vue'
+import {getWorkspaceEnv, type WorkspaceEnvContext} from '../../api/auth'
+import {systemEnvApi} from '../../api/systemEnv'
+import {WORKSPACE_ENV_STORAGE_KEY} from '../../constants/workspaceEnv'
 
 withDefaults(defineProps<{
   visible?: boolean
@@ -69,7 +69,7 @@ async function loadWorkspaceContext() {
     }
 
     if (workspace.canSwitchWorkspace) {
-      const response = await systemEnvApi.queryPage({ pageNo: 1, pageSize: 200, param: {} })
+      const response = await systemEnvApi.queryPage({pageNo: 1, pageSize: 200, param: {}})
       envPickOptions.value = (response.list || []).map((row) => ({
         value: String(row.envKey),
         label: row.envName ? `${row.envName}` : String(row.envKey),

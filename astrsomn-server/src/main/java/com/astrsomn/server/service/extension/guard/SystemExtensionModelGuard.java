@@ -1,22 +1,22 @@
 package com.astrsomn.server.service.extension.guard;
 
-import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
-import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
+import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
+import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -36,7 +36,22 @@ public class SystemExtensionModelGuard {
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstrsomnProperties astrsomnProperties;
 
-    private record ProviderEnv(String extensionCode, String envCode) {}
+    private static String resolveExtensionCode(SystemExtensionEntity ext) {
+        String fromCol = StringUtils.trimToNull(ext.getExtensionCode());
+        if (fromCol != null) {
+            return fromCol;
+        }
+        return StringUtils.trimToNull(ext.getExtensionKey());
+    }
+
+    private static Optional<AiModelEnum.ProviderEnum> findProviderEnum(String code) {
+        for (AiModelEnum.ProviderEnum e : AiModelEnum.ProviderEnum.values()) {
+            if (e.getCode().equals(code)) {
+                return Optional.of(e);
+            }
+        }
+        return Optional.empty();
+    }
 
     /**
      * 将当前环境下该扩展对应厂商的全部模型状态设为 disabled。
@@ -161,23 +176,6 @@ public class SystemExtensionModelGuard {
         return BaseResponse.success(new ProviderEnv(extensionCode, envCode));
     }
 
-    private static String resolveExtensionCode(SystemExtensionEntity ext) {
-        String fromCol = StringUtils.trimToNull(ext.getExtensionCode());
-        if (fromCol != null) {
-            return fromCol;
-        }
-        return StringUtils.trimToNull(ext.getExtensionKey());
-    }
-
-    private static Optional<AiModelEnum.ProviderEnum> findProviderEnum(String code) {
-        for (AiModelEnum.ProviderEnum e : AiModelEnum.ProviderEnum.values()) {
-            if (e.getCode().equals(code)) {
-                return Optional.of(e);
-            }
-        }
-        return Optional.empty();
-    }
-
     private String effectiveEnvCode() {
         String stamped = queryEnvParamHelper.effectiveEnvCode();
         if (StringUtils.isNotBlank(stamped)) {
@@ -191,10 +189,13 @@ public class SystemExtensionModelGuard {
             return false;
         }
         return aiInstanceMapper.selectCount(
-                        new LambdaQueryWrapper<AiInstanceEntity>()
-                                .eq(AiInstanceEntity::getModelKey, modelKey.trim())
-                                .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
+                new LambdaQueryWrapper<AiInstanceEntity>()
+                        .eq(AiInstanceEntity::getModelKey, modelKey.trim())
+                        .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
                 > 0;
+    }
+
+    private record ProviderEnv(String extensionCode, String envCode) {
     }
 }
 

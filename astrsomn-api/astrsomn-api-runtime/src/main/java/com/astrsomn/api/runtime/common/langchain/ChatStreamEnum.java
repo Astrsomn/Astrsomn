@@ -1,8 +1,8 @@
-﻿package com.astrsomn.api.runtime.common.langchain;
+package com.astrsomn.api.runtime.common.langchain;
 
+import com.astrsomn.common.base.BaseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.common.base.BaseEnum;
 
 public interface ChatStreamEnum {
 
@@ -20,14 +20,13 @@ public interface ChatStreamEnum {
     }
 
 
-
     @Getter
     @AllArgsConstructor
     enum AstroEventType implements BaseEnum {
 
         TEXT("text", "文本", ""),
         THOUGHT("thought", "思考", ""),
-        
+
         TOOL("tool", "工具", ""),
         HTML("html", "html代码", ""),
         ERROR("error", "错误", ""),

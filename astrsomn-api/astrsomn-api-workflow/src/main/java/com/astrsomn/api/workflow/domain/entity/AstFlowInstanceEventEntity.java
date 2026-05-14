@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.workflow.domain.entity;
+package com.astrsomn.api.workflow.domain.entity;
 
 import com.astrsomn.common.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;

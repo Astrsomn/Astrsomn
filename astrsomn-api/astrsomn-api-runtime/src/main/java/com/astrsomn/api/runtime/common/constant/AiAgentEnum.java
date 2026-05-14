@@ -1,9 +1,8 @@
-﻿package com.astrsomn.api.runtime.common.constant;
+package com.astrsomn.api.runtime.common.constant;
 
+import com.astrsomn.common.base.BaseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.common.base.BaseEnum;
-
 
 
 public interface AiAgentEnum {
@@ -11,10 +10,10 @@ public interface AiAgentEnum {
     @Getter
     @AllArgsConstructor
     enum StatusEnum implements BaseEnum {
-        
+
         ENABLED("enabled", "Enabled"),
 
-        
+
         DISABLED("disabled", "Disable");
 
         private final String code;
@@ -31,7 +30,6 @@ public interface AiAgentEnum {
         private final String code;
         private final String desc;
     }
-
 
 
     @Getter

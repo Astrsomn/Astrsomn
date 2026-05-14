@@ -3,81 +3,85 @@
     <div class="card-header">
       <div class="header-left">
         <div class="icon-badge">
-          <DatabaseOutlined />
+          <DatabaseOutlined/>
         </div>
         <h3 class="card-title">知识库 (RAG)</h3>
       </div>
       <button class="action-btn primary" title="选择知识库" @click.stop="drawerOpen = true">
-        <PlusOutlined />
+        <PlusOutlined/>
       </button>
     </div>
     <div class="kb-list">
       <div v-for="k in knowledgeKeys" :key="k" class="kb-tag">
         <span class="kb-name">{{ k }}</span>
-        <CloseOutlined class="kb-close" @click.stop="emit('remove', k)" />
+        <CloseOutlined class="kb-close" @click.stop="emit('remove', k)"/>
       </div>
       <div v-if="!knowledgeKeys.length" class="empty-hint">暂未关联知识库</div>
     </div>
 
     <a-drawer
-      :open="drawerOpen"
-      placement="right"
-      :width="520"
-      title="选择向量存储（知识库）"
-      @close="drawerOpen = false"
+        :open="drawerOpen"
+        :width="520"
+        placement="right"
+        title="选择向量存储（知识库）"
+        @close="drawerOpen = false"
     >
       <div class="selector-content">
         <div class="search-bar">
           <a-input
-            v-model:value="keyword"
-            placeholder="集合名称"
-            allow-clear
-            @pressEnter="fetchList"
+              v-model:value="keyword"
+              allow-clear
+              placeholder="集合名称"
+              @pressEnter="fetchList"
           >
-            <template #prefix><SearchOutlined /></template>
+            <template #prefix>
+              <SearchOutlined/>
+            </template>
           </a-input>
           <a-button type="primary" @click="fetchList">搜索</a-button>
         </div>
         <a-spin :spinning="loading">
           <div class="item-list">
             <div
-              v-for="item in list"
-              :key="item.id"
-              class="item-row"
-              :class="{ selected: selectedKeys.has(String(item.id || '')) }"
-              @click="toggle(item)"
+                v-for="item in list"
+                :key="item.id"
+                :class="{ selected: selectedKeys.has(String(item.id || '')) }"
+                class="item-row"
+                @click="toggle(item)"
             >
               <div class="item-icon">
-                <DatabaseOutlined />
+                <DatabaseOutlined/>
               </div>
               <div class="item-info">
                 <div class="item-name">{{ item.collectionName }}</div>
-                <div class="item-sub">{{ item.sourceProvider || '未知' }} · dim={{ item.dimension }} · {{ item.distanceMetric }}</div>
+                <div class="item-sub">{{ item.sourceProvider || '未知' }} · dim={{ item.dimension }} ·
+                  {{ item.distanceMetric }}
+                </div>
               </div>
-              <CheckCircleOutlined v-if="selectedKeys.has(String(item.id || ''))" class="check-icon" />
+              <CheckCircleOutlined v-if="selectedKeys.has(String(item.id || ''))" class="check-icon"/>
             </div>
             <div v-if="!list.length && !loading" class="empty-list">暂无向量存储</div>
           </div>
         </a-spin>
         <a-pagination
-          v-if="page.total > page.pageSize"
-          class="pager"
-          size="small"
-          :current="page.pageNum"
-          :total="page.total"
-          :page-size="page.pageSize"
-          :show-size-changer="false"
-          @change="onPageChange"
+            v-if="page.total > page.pageSize"
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :show-size-changer="false"
+            :total="page.total"
+            class="pager"
+            size="small"
+            @change="onPageChange"
         />
       </div>
     </a-drawer>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import { DatabaseOutlined, PlusOutlined, CloseOutlined, SearchOutlined, CheckCircleOutlined } from '@ant-design/icons-vue'
-import { aiVecStoreApi, type AiVecStore } from '@/api/aiVecStore'
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from 'vue'
+import {CheckCircleOutlined, CloseOutlined, DatabaseOutlined, PlusOutlined, SearchOutlined} from '@ant-design/icons-vue'
+import {type AiVecStore, aiVecStoreApi} from '@/api/aiVecStore'
 
 const props = defineProps<{
   knowledgeKeys: string[]
@@ -92,7 +96,7 @@ const drawerOpen = ref(false)
 const keyword = ref('')
 const loading = ref(false)
 const list = ref<AiVecStore[]>([])
-const page = reactive({ pageNum: 1, pageSize: 20, total: 0 })
+const page = reactive({pageNum: 1, pageSize: 20, total: 0})
 
 const selectedKeys = computed(() => new Set(props.knowledgeKeys))
 
@@ -102,7 +106,7 @@ async function fetchList() {
     const resp = await aiVecStoreApi.queryPage({
       pageNo: page.pageNum,
       pageSize: page.pageSize,
-      param: { collectionName: keyword.value || undefined }
+      param: {collectionName: keyword.value || undefined}
     })
     list.value = resp.list || []
     page.total = resp.total || 0
@@ -180,7 +184,9 @@ watch(drawerOpen, (open) => {
   color: #059669;
 }
 
-.icon-badge .anticon { font-size: 16px; }
+.icon-badge .anticon {
+  font-size: 16px;
+}
 
 .card-title {
   font-weight: 700;
@@ -203,7 +209,9 @@ watch(drawerOpen, (open) => {
   transition: color 0.2s;
 }
 
-.action-btn:hover { color: #2563eb; }
+.action-btn:hover {
+  color: #2563eb;
+}
 
 .action-btn.primary {
   background: #10b981;
@@ -211,8 +219,14 @@ watch(drawerOpen, (open) => {
   box-shadow: 0 1px 3px rgba(16, 185, 129, 0.35);
 }
 
-.action-btn.primary:hover { color: #fff; background: #059669; }
-.action-btn .anticon { font-size: 12px; }
+.action-btn.primary:hover {
+  color: #fff;
+  background: #059669;
+}
+
+.action-btn .anticon {
+  font-size: 12px;
+}
 
 .kb-list {
   display: flex;
@@ -234,14 +248,19 @@ watch(drawerOpen, (open) => {
   font-weight: 600;
 }
 
-.kb-name { font-size: 11px; }
+.kb-name {
+  font-size: 11px;
+}
 
 .kb-close {
   font-size: 10px;
   cursor: pointer;
   transition: color 0.2s;
 }
-.kb-close:hover { color: #ef4444; }
+
+.kb-close:hover {
+  color: #ef4444;
+}
 
 .empty-hint {
   font-size: 12px;
@@ -303,13 +322,31 @@ watch(drawerOpen, (open) => {
   flex-shrink: 0;
 }
 
-.item-info { flex: 1; min-width: 0; }
-.item-name { font-size: 13px; font-weight: 600; color: #1e293b; }
-.item-sub { font-size: 11px; color: #94a3b8; }
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
 
-.check-icon { color: #059669; font-size: 16px; }
+.item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
 
-.pager { text-align: center; flex-shrink: 0; }
+.item-sub {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.check-icon {
+  color: #059669;
+  font-size: 16px;
+}
+
+.pager {
+  text-align: center;
+  flex-shrink: 0;
+}
 
 .empty-list {
   text-align: center;

@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.exception;
+package com.astrsomn.api.runtime.exception;
 
 import com.astrsomn.common.base.IError;
 import lombok.AllArgsConstructor;

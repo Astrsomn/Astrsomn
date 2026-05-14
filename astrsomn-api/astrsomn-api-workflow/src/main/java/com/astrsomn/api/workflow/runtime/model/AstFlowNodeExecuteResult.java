@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.workflow.runtime.model;
+package com.astrsomn.api.workflow.runtime.model;
 
 import com.astrsomn.api.workflow.runtime.constant.AstFlowNodeStateEnum;
 import lombok.Builder;

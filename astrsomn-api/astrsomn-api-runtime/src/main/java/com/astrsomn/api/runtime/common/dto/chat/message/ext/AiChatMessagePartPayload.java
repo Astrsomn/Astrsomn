@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.dto.chat.message.ext;
+package com.astrsomn.api.runtime.common.dto.chat.message.ext;
 
 import lombok.Data;
 
@@ -7,7 +7,7 @@ import lombok.Data;
 public class AiChatMessagePartPayload {
 
     private Integer order;
-    
+
     private String partKind;
     private String content;
 }

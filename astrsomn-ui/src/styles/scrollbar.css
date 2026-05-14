@@ -1,59 +1,59 @@
 :root {
-  --app-scrollbar-size: 6px;
-  --app-scrollbar-size-thin: 4px;
-  --app-scrollbar-track: transparent;
-  --app-scrollbar-thumb: color-mix(in srgb, var(--primary) 58%, transparent);
-  --app-scrollbar-thumb-hover: color-mix(in srgb, var(--primary) 80%, #ffffff 20%);
-  --app-scrollbar-radius: 999px;
-  --app-scrollbar-border: 1px solid transparent;
+    --app-scrollbar-size: 6px;
+    --app-scrollbar-size-thin: 4px;
+    --app-scrollbar-track: transparent;
+    --app-scrollbar-thumb: color-mix(in srgb, var(--primary) 58%, transparent);
+    --app-scrollbar-thumb-hover: color-mix(in srgb, var(--primary) 80%, #ffffff 20%);
+    --app-scrollbar-radius: 999px;
+    --app-scrollbar-border: 1px solid transparent;
 }
 
 /* 通用滚动条：组件通过 class 接入，避免散落重复样式 */
 .app-scrollbar,
 .custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track);
+    scrollbar-width: thin;
+    scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track);
 }
 
 .app-scrollbar::-webkit-scrollbar,
 .custom-scrollbar::-webkit-scrollbar {
-  width: var(--app-scrollbar-size);
-  height: var(--app-scrollbar-size);
+    width: var(--app-scrollbar-size);
+    height: var(--app-scrollbar-size);
 }
 
 .app-scrollbar::-webkit-scrollbar-track,
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: var(--app-scrollbar-track);
+    background: var(--app-scrollbar-track);
 }
 
 .app-scrollbar::-webkit-scrollbar-thumb,
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--app-scrollbar-thumb);
-  border-radius: var(--app-scrollbar-radius);
-  border: var(--app-scrollbar-border);
-  background-clip: content-box;
+    background: var(--app-scrollbar-thumb);
+    border-radius: var(--app-scrollbar-radius);
+    border: var(--app-scrollbar-border);
+    background-clip: content-box;
 }
 
 .app-scrollbar:hover::-webkit-scrollbar-thumb,
 .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background: var(--app-scrollbar-thumb-hover);
-  background-clip: content-box;
+    background: var(--app-scrollbar-thumb-hover);
+    background-clip: content-box;
 }
 
 .app-scrollbar-thin {
-  scrollbar-width: thin;
+    scrollbar-width: thin;
 }
 
 .app-scrollbar-thin::-webkit-scrollbar {
-  width: var(--app-scrollbar-size-thin);
-  height: var(--app-scrollbar-size-thin);
+    width: var(--app-scrollbar-size-thin);
+    height: var(--app-scrollbar-size-thin);
 }
 
 .app-scrollbar-hidden {
-  scrollbar-width: none;
+    scrollbar-width: none;
 }
 
 .app-scrollbar-hidden::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+    width: 0;
+    height: 0;
 }

@@ -1,16 +1,15 @@
-﻿package com.astrsomn.api.runtime.common.langchain.extension.vector;
+package com.astrsomn.api.runtime.common.langchain.extension.vector;
 
-import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
 import com.astrsomn.api.runtime.common.entity.AiVecDriverEntity;
 import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
 
 
 public interface VecDriver {
 
-    
+
     String getExtensionKey();
 
-    
+
     VecSource bindSource(AiVecSourceEntity source);
 
     default String getVersion() {

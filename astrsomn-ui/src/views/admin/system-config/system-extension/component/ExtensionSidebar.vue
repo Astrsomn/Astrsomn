@@ -1,5 +1,5 @@
 <template>
-  <aside class="extension-sider" aria-label="扩展中心导航">
+  <aside aria-label="扩展中心导航" class="extension-sider">
     <div class="sider-wrapper">
       <header class="sider-header">
         <div class="brand-info">
@@ -12,13 +12,17 @@
       </header>
 
       <div class="sider-menu-container">
-        <a-menu mode="inline" :selected-keys="selectedMenuKeys" @click="onMenuClick" class="custom-menu">
+        <a-menu :selected-keys="selectedMenuKeys" class="custom-menu" mode="inline" @click="onMenuClick">
           <a-menu-item key="installed">
-            <template #icon><inbox-outlined /></template>
+            <template #icon>
+              <inbox-outlined/>
+            </template>
             已安装插件
           </a-menu-item>
           <a-menu-item key="marketplace">
-            <template #icon><appstore-outlined /></template>
+            <template #icon>
+              <appstore-outlined/>
+            </template>
             云端仓库
           </a-menu-item>
         </a-menu>
@@ -28,7 +32,7 @@
         <div class="promo-card" @click="openMarketplace">
           <div class="promo-content">
             <div class="promo-icon">
-              <rocket-filled />
+              <rocket-filled/>
             </div>
             <div class="promo-text">
               <div class="promo-title">官方插件市场</div>
@@ -37,7 +41,7 @@
           </div>
           <div class="promo-action">
             <span>立即访问</span>
-            <right-outlined />
+            <right-outlined/>
           </div>
         </div>
       </div>
@@ -45,9 +49,9 @@
   </aside>
 </template>
 
-<script setup lang="ts">
-import { InboxOutlined, AppstoreOutlined, RocketFilled, RightOutlined } from '@ant-design/icons-vue'
-import { appConfig } from '@/config/config.ts'
+<script lang="ts" setup>
+import {AppstoreOutlined, InboxOutlined, RightOutlined, RocketFilled} from '@ant-design/icons-vue'
+import {appConfig} from '@/config/config.ts'
 
 defineProps<{
   selectedMenuKeys: string[]
@@ -57,7 +61,7 @@ const emit = defineEmits<{
   (e: 'menu-click', key: string): void
 }>()
 
-function onMenuClick({ key }: { key: string }) {
+function onMenuClick({key}: { key: string }) {
   emit('menu-click', key)
 }
 

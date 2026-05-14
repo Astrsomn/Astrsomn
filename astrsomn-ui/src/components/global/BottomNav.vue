@@ -1,65 +1,70 @@
 <template>
-  <div 
-    class="dock-container" 
-    :class="{ 'dock-active': shouldShowDock }"
-    @mouseenter="isAutoHideEnabled ? handlePointerEnter() : undefined"
-    @mouseleave="isAutoHideEnabled ? handlePointerLeave($event) : undefined"
+  <div
+      :class="{ 'dock-active': shouldShowDock }"
+      class="dock-container"
+      @mouseenter="isAutoHideEnabled ? handlePointerEnter() : undefined"
+      @mouseleave="isAutoHideEnabled ? handlePointerLeave($event) : undefined"
   >
     <div
-      v-if="isAutoHideEnabled"
-      class="dock-wake-zone"
-      @mouseenter="handlePointerEnter"
+        v-if="isAutoHideEnabled"
+        class="dock-wake-zone"
+        @mouseenter="handlePointerEnter"
     ></div>
 
     <div class="dock-main">
       <div class="nav-group">
-        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-config-center') }" @click="navigateTo('/admin/ai-config-center')">
-          <div class="icon-wrapper"><RobotOutlined /></div>
+        <div :class="{ 'nav-item-active': isActivePath('/admin/ai-config-center') }" class="nav-item"
+             @click="navigateTo('/admin/ai-config-center')">
+          <div class="icon-wrapper">
+            <RobotOutlined/>
+          </div>
           <span class="nav-text">AI 配置</span>
         </div>
 
-                <div v-if="false" class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/system') }" @click="navigateTo('/admin/system')">
-          <div class="icon-wrapper"><SettingOutlined /></div>
+        <div v-if="false" :class="{ 'nav-item-active': isActivePath('/admin/system') }" class="nav-item"
+             @click="navigateTo('/admin/system')">
+          <div class="icon-wrapper">
+            <SettingOutlined/>
+          </div>
           <span class="nav-text">系统管理</span>
         </div>
-        <div class="center-btn" :class="{ 'center-btn-active': isActivePath('/admin/ai-config/builder') }" @click="navigateTo('/admin/ai-config/builder')">
+        <div :class="{ 'center-btn-active': isActivePath('/admin/ai-config/builder') }" class="center-btn"
+             @click="navigateTo('/admin/ai-config/builder')">
           <div class="pulse-ring"></div>
-          <ToolOutlined />
+          <ToolOutlined/>
           <span class="floating-label">Agent Studio</span>
         </div>
 
 
-
-        <div v-if="false" class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/ai-safety') }" @click="navigateTo('/admin/ai-safety')">
-          <div class="icon-wrapper"><SafetyOutlined /></div>
+        <div v-if="false" :class="{ 'nav-item-active': isActivePath('/admin/ai-safety') }" class="nav-item"
+             @click="navigateTo('/admin/ai-safety')">
+          <div class="icon-wrapper">
+            <SafetyOutlined/>
+          </div>
           <span class="nav-text">安全治理</span>
         </div>
 
 
-        
-        <div class="nav-item" :class="{ 'nav-item-active': isActivePath('/admin/vec-center') }" @click="navigateTo('/admin/vec-center')">
-          <div class="icon-wrapper"><DatabaseOutlined /></div>
+        <div :class="{ 'nav-item-active': isActivePath('/admin/vec-center') }" class="nav-item"
+             @click="navigateTo('/admin/vec-center')">
+          <div class="icon-wrapper">
+            <DatabaseOutlined/>
+          </div>
           <span class="nav-text">向量中心</span>
         </div>
       </div>
     </div>
 
     <div
-      class="home-indicator"
+        class="home-indicator"
     ></div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, defineProps, onMounted, onUnmounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import {
-  DatabaseOutlined,
-  SettingOutlined,
-  ToolOutlined,
-  SafetyOutlined,
-  RobotOutlined
-} from '@ant-design/icons-vue';
+<script lang="ts" setup>
+import {computed, defineProps, onMounted, onUnmounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import {DatabaseOutlined, RobotOutlined, SafetyOutlined, SettingOutlined, ToolOutlined} from '@ant-design/icons-vue';
 
 const props = defineProps<{
   fixed?: boolean;
@@ -114,11 +119,11 @@ const shouldShowDock = computed(() => {
 
 const handleScroll = () => {
   if (!isAutoHideEnabled.value || props.fixed) return;
-  
+
   const currentScrollY = window.scrollY;
   const documentHeight = Math.max(
-    document.documentElement.scrollHeight,
-    document.body?.scrollHeight ?? 0
+      document.documentElement.scrollHeight,
+      document.body?.scrollHeight ?? 0
   );
   const maxScrollableDistance = documentHeight - window.innerHeight;
   const viewportBottom = currentScrollY + window.innerHeight;
@@ -126,8 +131,8 @@ const handleScroll = () => {
 
   // 只有页面可滚动时，才判定“滚动到底部”
   isAtBottom.value =
-    maxScrollableDistance > bottomThreshold &&
-    viewportBottom >= documentHeight - bottomThreshold;
+      maxScrollableDistance > bottomThreshold &&
+      viewportBottom >= documentHeight - bottomThreshold;
 
   if (isAtBottom.value) {
     isNavVisible.value = false;
@@ -195,9 +200,8 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: var(--radius-md);
   padding: 8px 16px;
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 20px 40px -10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+  0 20px 40px -10px rgba(0, 0, 0, 0.1);
   transform: translateY(120px) scale(0.9);
   opacity: 0;
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -351,15 +355,31 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); opacity: 0.4; }
-  100% { transform: scale(1.5); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 /* 响应式 */
 @media (max-width: 640px) {
-  .nav-text { display: none; }
-  .nav-item { min-width: 48px; padding: 12px; }
-  .dock-main { padding: 6px; border-radius: var(--radius-md); }
+  .nav-text {
+    display: none;
+  }
+
+  .nav-item {
+    min-width: 48px;
+    padding: 12px;
+  }
+
+  .dock-main {
+    padding: 6px;
+    border-radius: var(--radius-md);
+  }
 }
 
 /* 深色模式适配 - 使用CSS变量 */
@@ -367,37 +387,36 @@ onUnmounted(() => {
   .dock-main {
     background: rgba(15, 23, 42, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 
-      0 4px 6px -1px rgba(0, 0, 0, 0.3),
-      0 20px 40px -10px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 20px 40px -10px rgba(0, 0, 0, 0.4);
   }
-  
-  .nav-item { 
-    color: #94a3b8; 
+
+  .nav-item {
+    color: #94a3b8;
   }
-  
+
   .nav-item:hover {
     background: rgba(22, 119, 255, 0.15);
     color: #4096ff;
   }
-  
-  .home-indicator::before { 
+
+  .home-indicator::before {
     background: rgba(255, 255, 255, 0.9);
   }
-  
+
   .home-indicator:hover::before {
     background: rgba(255, 255, 255, 1);
   }
-  
+
   .center-btn {
     background: var(--primary, #1677ff);
     box-shadow: 0 8px 20px rgba(22, 119, 255, 0.42);
   }
-  
+
   .center-btn:hover {
     background: #0958d9;
   }
-  
+
   .center-btn .floating-label {
     background: rgba(15, 23, 42, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -408,13 +427,12 @@ onUnmounted(() => {
 :root.dark .dock-main {
   background: rgba(15, 23, 42, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 20px 40px -10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+  0 20px 40px -10px rgba(0, 0, 0, 0.4);
 }
 
-:root.dark .nav-item { 
-  color: #94a3b8; 
+:root.dark .nav-item {
+  color: #94a3b8;
 }
 
 :root.dark .nav-item:hover {
@@ -422,8 +440,8 @@ onUnmounted(() => {
   color: #4096ff;
 }
 
-:root.dark .home-indicator::before { 
-  background: rgba(255, 255, 255, 0.9); 
+:root.dark .home-indicator::before {
+  background: rgba(255, 255, 255, 0.9);
 }
 
 :root.dark .home-indicator:hover::before {
@@ -448,13 +466,12 @@ onUnmounted(() => {
 :root.light .dock-main {
   background: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 20px 40px -10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+  0 20px 40px -10px rgba(0, 0, 0, 0.1);
 }
 
-:root.light .nav-item { 
-  color: #64748b; 
+:root.light .nav-item {
+  color: #64748b;
 }
 
 :root.light .nav-item:hover {
@@ -462,8 +479,8 @@ onUnmounted(() => {
   color: #1677ff;
 }
 
-:root.light .home-indicator::before { 
-  background: rgba(255, 255, 255, 0.95); 
+:root.light .home-indicator::before {
+  background: rgba(255, 255, 255, 0.95);
 }
 
 :root.light .home-indicator:hover::before {

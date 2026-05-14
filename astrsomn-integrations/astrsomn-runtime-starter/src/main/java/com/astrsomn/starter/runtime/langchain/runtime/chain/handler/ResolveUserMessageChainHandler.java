@@ -21,11 +21,6 @@ import java.util.List;
 @Order(15)
 public class ResolveUserMessageChainHandler implements AgentRuntimeChainHandler {
 
-    @Override
-    public void handle(AgentRuntimeContext ctx) {
-        resolveUserMessage(ctx.getParam());
-    }
-
     /**
      * 供跳过责任链的场景（如 {@code createAssistantDirect}）在调用前显式组装。
      */
@@ -61,5 +56,10 @@ public class ResolveUserMessageChainHandler implements AgentRuntimeChainHandler 
             return UserMessage.from(text);
         }
         return UserMessage.from(parts);
+    }
+
+    @Override
+    public void handle(AgentRuntimeContext ctx) {
+        resolveUserMessage(ctx.getParam());
     }
 }

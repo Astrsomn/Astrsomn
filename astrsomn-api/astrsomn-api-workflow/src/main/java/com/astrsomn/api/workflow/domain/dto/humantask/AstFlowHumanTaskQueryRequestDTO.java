@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.workflow.domain.dto.humantask;
+package com.astrsomn.api.workflow.domain.dto.humantask;
 
 import com.astrsomn.common.base.BaseEntity;
 import lombok.Data;

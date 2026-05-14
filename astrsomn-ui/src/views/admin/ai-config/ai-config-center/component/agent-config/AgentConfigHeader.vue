@@ -1,12 +1,12 @@
 <template>
   <div class="config-header">
     <div class="header-left">
-      <a-button type="text" class="back-btn" @click="emit('back')">
-        <component :is="ArrowLeftOutlined" />
+      <a-button class="back-btn" type="text" @click="emit('back')">
+        <component :is="ArrowLeftOutlined"/>
       </a-button>
       <div class="header-info">
         <div class="icon-wrapper">
-          <component :is="LayoutOutlined" class="config-icon" />
+          <component :is="LayoutOutlined" class="config-icon"/>
         </div>
         <div class="header-text">
           <span class="header-title">Agent 配置</span>
@@ -15,16 +15,16 @@
       </div>
     </div>
     <div class="header-right">
-      <a-button type="text" class="cancel-btn" @click="emit('back')">取消</a-button>
-      <a-button type="primary" class="save-btn" :loading="submitting" @click="emit('save')">
+      <a-button class="cancel-btn" type="text" @click="emit('back')">取消</a-button>
+      <a-button :loading="submitting" class="save-btn" type="primary" @click="emit('save')">
         保存更改
       </a-button>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ArrowLeftOutlined, LayoutOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {ArrowLeftOutlined, LayoutOutlined} from '@ant-design/icons-vue'
 
 defineProps<{
   submitting: boolean

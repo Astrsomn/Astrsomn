@@ -1,7 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.dto.extension;
-
-import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
-
+package com.astrsomn.api.runtime.common.dto.extension;
 
 public record SystemExtensionMetaData(
         String extensionKey,
@@ -13,4 +10,5 @@ public record SystemExtensionMetaData(
         String avatar,
         String extensionCode,
         String changelog,
-        String minServerVersion) {}
+        String minServerVersion) {
+}

@@ -9,13 +9,13 @@
           <div class="event-title">{{ event.title }}</div>
           <div class="event-meta">{{ event.source }} · {{ event.time }}</div>
         </div>
-        <span class="event-level" :class="`level-${event.level}`">{{ event.levelText }}</span>
+        <span :class="`level-${event.level}`" class="event-level">{{ event.levelText }}</span>
       </article>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 type LatestEvent = {
   title: string
   level: 'high' | 'medium' | 'low'

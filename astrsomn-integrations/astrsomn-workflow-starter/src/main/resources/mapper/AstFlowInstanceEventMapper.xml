@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.astrsomn.starter.workflow.mapper.AstFlowInstanceEventMapper">
 
-    <select id="queryPage" resultType="com.astrsomn.api.workflow.domain.dto.instanceevent.AstFlowInstanceEventResponseDTO">
+    <select id="queryPage"
+            resultType="com.astrsomn.api.workflow.domain.dto.instanceevent.AstFlowInstanceEventResponseDTO">
         SELECT
         e.ID AS id,
         e.INSTANCE_ID AS instanceId,

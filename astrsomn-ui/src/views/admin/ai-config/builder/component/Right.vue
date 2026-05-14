@@ -1,14 +1,14 @@
 <template>
   <aside class="right-panel">
-    <RightTop :mode="mode" @toggle="toggleMode" />
+    <RightTop :mode="mode" @toggle="toggleMode"/>
 
-    <component :is="currentPanel" />
+    <component :is="currentPanel"/>
 
   </aside>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue';
+<script lang="ts" setup>
+import {computed, ref} from 'vue';
 import RightTop from './right/RightTop.vue';
 import CodePanel from './right/CodePanel.vue';
 import ChatPanel from './right/ChatPanel.vue';

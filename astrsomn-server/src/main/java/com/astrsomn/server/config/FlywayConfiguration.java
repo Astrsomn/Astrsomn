@@ -21,6 +21,15 @@ import java.util.List;
 @ConditionalOnProperty(prefix = "spring.flyway", name = "enabled", matchIfMissing = true)
 public class FlywayConfiguration {
 
+    private static String[] toArray(List<String> locations) {
+        if (locations == null || locations.isEmpty()) return new String[0];
+        return locations.toArray(new String[0]);
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
     @Bean
     public SchemaInitializer flywaySchemaInitializer(FlywayProperties properties) {
         return (DataSource dataSource) -> {
@@ -43,15 +52,6 @@ public class FlywayConfiguration {
 
             log.info("[Astrsomn] Flyway migration finished");
         };
-    }
-
-    private static String[] toArray(List<String> locations) {
-        if (locations == null || locations.isEmpty()) return new String[0];
-        return locations.toArray(new String[0]);
-    }
-
-    private static boolean isBlank(String s) {
-        return s == null || s.trim().isEmpty();
     }
 }
 

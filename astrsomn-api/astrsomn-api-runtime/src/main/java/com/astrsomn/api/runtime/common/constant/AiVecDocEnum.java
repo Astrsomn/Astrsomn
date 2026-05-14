@@ -1,9 +1,9 @@
-﻿package com.astrsomn.api.runtime.common.constant;
+package com.astrsomn.api.runtime.common.constant;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import com.astrsomn.common.base.BaseEnum;
 import com.astrsomn.common.utils.StringUtils;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.util.Optional;
 
@@ -14,13 +14,13 @@ public interface AiVecDocEnum {
     @AllArgsConstructor
     enum SyncStatus implements BaseEnum {
 
-        
+
         PENDING("PENDING", "待向量化"),
 
-        
+
         STORED("STORED", "已入库"),
 
-        
+
         INVALID("INVALID", "已失效");
 
         private final String code;

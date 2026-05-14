@@ -2,16 +2,16 @@
   <a-spin :spinning="loading" class="session-list-spin">
     <div class="session-list">
       <SessionListItem
-        v-for="item in items"
-        :key="item.memoryKey"
-        :item="item"
-        :is-selected="selectedKeys.includes(item.memoryKey)"
-        :compact="compact"
-        :selectable="selectable"
-        :deletable="deletable"
-        @open="(memoryKey) => emit('open', memoryKey)"
-        @toggle-select="(memoryKey) => emit('toggle-select', memoryKey)"
-        @delete="(sessionItem) => emit('delete', sessionItem)"
+          v-for="item in items"
+          :key="item.memoryKey"
+          :compact="compact"
+          :deletable="deletable"
+          :is-selected="selectedKeys.includes(item.memoryKey)"
+          :item="item"
+          :selectable="selectable"
+          @delete="(sessionItem) => emit('delete', sessionItem)"
+          @open="(memoryKey) => emit('open', memoryKey)"
+          @toggle-select="(memoryKey) => emit('toggle-select', memoryKey)"
       />
       <div v-if="items.length === 0" class="empty-wrap">
         <div class="empty-box">
@@ -28,9 +28,9 @@
   </a-spin>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import SessionListItem from './SessionListItem.vue'
-import type { ChatSessionItem } from './types'
+import type {ChatSessionItem} from './types'
 
 withDefaults(defineProps<{
   loading?: boolean

@@ -3,192 +3,192 @@
  *      其他 3 个文件都依赖这里的类型，保证调用时有统一约束。
  */
 
-import type { XYPosition } from '@vue-flow/core'
+import type {XYPosition} from '@vue-flow/core'
 
 export type WorkflowNodeType =
-  | 'start'
-  | 'end'
-  | 'parallel'
-  | 'llm'
-  | 'retrieval'
-  | 'if-else'
-  | 'intent-classifier'
-  | 'merge'
-  | 'http'
-  | 'code'
-  | 'tools'
+    | 'start'
+    | 'end'
+    | 'parallel'
+    | 'llm'
+    | 'retrieval'
+    | 'if-else'
+    | 'intent-classifier'
+    | 'merge'
+    | 'http'
+    | 'code'
+    | 'tools'
 
 export type WorkflowValueType = 'String' | 'Number' | 'Boolean' | 'Array' | 'Object' | 'Any'
 
 export type NodePort = {
-  handleId: string
-  valueType: WorkflowValueType
-  sourceNode?: string
-  value?: unknown
+    handleId: string
+    valueType: WorkflowValueType
+    sourceNode?: string
+    value?: unknown
 }
 
 export type NodeConfigField = {
-  key: string
-  label: string
-  component: 'input' | 'textarea' | 'number' | 'select' | 'switch'
-  required?: boolean
-  placeholder?: string
-  options?: Array<{ label: string; value: string }>
-  defaultValue?: unknown
+    key: string
+    label: string
+    component: 'input' | 'textarea' | 'number' | 'select' | 'switch'
+    required?: boolean
+    placeholder?: string
+    options?: Array<{ label: string; value: string }>
+    defaultValue?: unknown
 }
 
 export type WorkflowNodeData = {
-  label: string
-  description?: string
-  category?: string
-  nodeTypeTitle?: string
-  config?: Record<string, unknown>
-  inputs?: NodePort[]
-  outputs?: NodePort[]
+    label: string
+    description?: string
+    category?: string
+    nodeTypeTitle?: string
+    config?: Record<string, unknown>
+    inputs?: NodePort[]
+    outputs?: NodePort[]
 }
 
 export type WorkflowNode = {
-  id: string
-  type?: WorkflowNodeType | string
-  position: XYPosition
-  data: WorkflowNodeData
-  selected?: boolean
-  [key: string]: unknown
+    id: string
+    type?: WorkflowNodeType | string
+    position: XYPosition
+    data: WorkflowNodeData
+    selected?: boolean
+    [key: string]: unknown
 }
 export type WorkflowEdge = {
-  id?: string
-  source: string
-  target: string
-  sourceHandle?: string | null
-  targetHandle?: string | null
-  label?: string
-  type?: string
-  [key: string]: unknown
+    id?: string
+    source: string
+    target: string
+    sourceHandle?: string | null
+    targetHandle?: string | null
+    label?: string
+    type?: string
+    [key: string]: unknown
 }
 
 export type WorkflowMeta = {
-  id?: number | string
-  workflowName: string
-  workflowKey: string
-  description: string
+    id?: number | string
+    workflowName: string
+    workflowKey: string
+    description: string
 }
 
 export type CanvasEdgeStyle = 'default' | 'straight' | 'step'
 export type CanvasEdgeLinePattern = 'solid' | 'dashed'
 export type CanvasEdgeApplyPayload = {
-  edgeStyle: CanvasEdgeStyle
-  edgeLinePattern: CanvasEdgeLinePattern
-  edgeLineWidth: number
+    edgeStyle: CanvasEdgeStyle
+    edgeLinePattern: CanvasEdgeLinePattern
+    edgeLineWidth: number
 }
 
 export type CanvasBackgroundVariant = 'dots' | 'lines' | 'cross' | 'none'
 
 export type CanvasConfig = {
-  edgeStyleDefault: CanvasEdgeStyle
-  edgeLinePatternDefault: CanvasEdgeLinePattern
-  edgeLineWidthDefault: number
-  backgroundVariant: CanvasBackgroundVariant
-  backgroundColor: string
-  patternColor: string
-  patternGap: number
-  patternSize: number
-  showOriginMarker: boolean
-  snapToGridEnabled: boolean
-  snapGridSize: number
+    edgeStyleDefault: CanvasEdgeStyle
+    edgeLinePatternDefault: CanvasEdgeLinePattern
+    edgeLineWidthDefault: number
+    backgroundVariant: CanvasBackgroundVariant
+    backgroundColor: string
+    patternColor: string
+    patternGap: number
+    patternSize: number
+    showOriginMarker: boolean
+    snapToGridEnabled: boolean
+    snapGridSize: number
 }
 
 export const defaultCanvasConfig: CanvasConfig = {
-  edgeStyleDefault: 'default',
-  edgeLinePatternDefault: 'solid',
-  edgeLineWidthDefault: 2,
-  backgroundVariant: 'dots',
-  backgroundColor: '#f8fafc',
-  patternColor: '#94a3b8',
-  patternGap: 22,
-  patternSize: 1.8,
-  showOriginMarker: true,
-  snapToGridEnabled: true,
-  snapGridSize: 24
+    edgeStyleDefault: 'default',
+    edgeLinePatternDefault: 'solid',
+    edgeLineWidthDefault: 2,
+    backgroundVariant: 'dots',
+    backgroundColor: '#f8fafc',
+    patternColor: '#94a3b8',
+    patternGap: 22,
+    patternSize: 1.8,
+    showOriginMarker: true,
+    snapToGridEnabled: true,
+    snapGridSize: 24
 }
 
 export type WorkflowGraph = {
-  nodes: WorkflowNode[]
-  edges: WorkflowEdge[]
-  viewport?: {
-    x: number
-    y: number
-    zoom: number
-  }
-  meta?: Partial<WorkflowMeta> & {
-    canvasConfig?: Partial<CanvasConfig>
-  }
+    nodes: WorkflowNode[]
+    edges: WorkflowEdge[]
+    viewport?: {
+        x: number
+        y: number
+        zoom: number
+    }
+    meta?: Partial<WorkflowMeta> & {
+        canvasConfig?: Partial<CanvasConfig>
+    }
 }
 
 export type CanvasGraphState = {
-  nodes: WorkflowNode[]
-  edges: WorkflowEdge[]
-  canvasConfig: CanvasConfig
+    nodes: WorkflowNode[]
+    edges: WorkflowEdge[]
+    canvasConfig: CanvasConfig
 }
 
 export type NodePaletteItem = {
-  type: WorkflowNodeType
-  label: string
-  description: string
+    type: WorkflowNodeType
+    label: string
+    description: string
 }
 
 export type NodePaletteGroup = {
-  key: string
-  title: string
-  items: NodePaletteItem[]
+    key: string
+    title: string
+    items: NodePaletteItem[]
 }
 
 export type LeftViewMode = 'workflow-list' | 'model-chat'
 
 export type WorkflowListItem = {
-  id: string
-  recordId?: number | string
-  workflowName: string
-  workflowKey?: string
-  description?: string
-  category?: string
+    id: string
+    recordId?: number | string
+    workflowName: string
+    workflowKey?: string
+    description?: string
+    category?: string
 }
 
 export type CanvasPaletteIconItem = {
-  key: string
-  label: string
-  description: string
-  children: NodePaletteItem[]
+    key: string
+    label: string
+    description: string
+    children: NodePaletteItem[]
 }
 
 export type NodeDropPayload = {
-  type: WorkflowNodeType
-  position: XYPosition
+    type: WorkflowNodeType
+    position: XYPosition
 }
 
 export type CanvasContextTarget = 'node' | 'edge' | 'pane'
 
 export type CanvasContextMenuPayload = {
-  target: CanvasContextTarget
-  x: number
-  y: number
-  nodeId?: string
-  edgeId?: string
+    target: CanvasContextTarget
+    x: number
+    y: number
+    nodeId?: string
+    edgeId?: string
 }
 
 export type PaletteContextMenuPayload = {
-  x: number
-  y: number
-  type: WorkflowNodeType
-  label: string
-  description: string
+    x: number
+    y: number
+    type: WorkflowNodeType
+    label: string
+    description: string
 }
 
 export type WorkflowNodeDefinition = {
-  type: WorkflowNodeType
-  category: 'control' | 'ai' | 'logic' | 'tool' | 'interaction'
-  title: string
-  description: string
-  inputs: NodePort[]
-  outputs: NodePort[]
-  configSchema: NodeConfigField[]
+    type: WorkflowNodeType
+    category: 'control' | 'ai' | 'logic' | 'tool' | 'interaction'
+    title: string
+    description: string
+    inputs: NodePort[]
+    outputs: NodePort[]
+    configSchema: NodeConfigField[]
 }

@@ -1,16 +1,16 @@
 package com.astrsomn.server.config;
 
-import com.astrsomn.common.base.BaseEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.SystemUserEnum.AdminEnum;
 import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
 import com.astrsomn.api.runtime.common.entity.SystemEnvEntity;
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import com.astrsomn.common.base.BaseEntity;
+import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.mapper.AstSystemEnvMapper;
 import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -39,28 +39,25 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class DefaultAdminInitializer implements ApplicationListener<ApplicationReadyEvent> {
 
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Value("${astrsomn.default-admin.username:admin}")
     private String defaultAdminUsername;
-
     @Value("${astrsomn.default-admin.password:admin}")
     private String defaultAdminPassword;
-
     @Value("${astrsomn.default-admin.email:}")
     private String defaultAdminEmail;
-
     @Value("${astrsomn.env-code:pro}")
     private String envCode;
-
-    /** 写入 SYSTEM_ENV 时的展示名称 */
+    /**
+     * 写入 SYSTEM_ENV 时的展示名称
+     */
     @Value("${astrsomn.default-env.name:默认环境}")
     private String defaultEnvName;
-
-    /** 写入 SYSTEM_ENV 时的说明 */
+    /**
+     * 写入 SYSTEM_ENV 时的说明
+     */
     @Value("${astrsomn.default-env.description:与 astrsomn.env-code 对应，应用首次启动时自动创建。}")
     private String defaultEnvDescription;
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
     private AstSystemUserMapper systemUserMapper;
     private AstSystemEnvMapper systemEnvMapper;
     private AstrsomnProperties astrsomnProperties;
@@ -126,7 +123,7 @@ public class DefaultAdminInitializer implements ApplicationListener<ApplicationR
             log.warn("DefaultAdminInitializer: AstrsomnProperties 未注入，跳过 username 校验");
             return;
         }
-        
+
         String username = astrsomnProperties.getUsername();
         if (StringUtils.isBlank(username)) {
             String errorMsg = "Astrsomn configuration error: astrsomn.username must be configured";
@@ -142,8 +139,8 @@ public class DefaultAdminInitializer implements ApplicationListener<ApplicationR
 
         if (user == null) {
             String errorMsg = String.format(
-                "Astrsomn configuration error: username '%s' does not exist in SYS_USER table.",
-                username
+                    "Astrsomn configuration error: username '%s' does not exist in SYS_USER table.",
+                    username
             );
             log.error(errorMsg);
             throw new IllegalArgumentException(errorMsg);

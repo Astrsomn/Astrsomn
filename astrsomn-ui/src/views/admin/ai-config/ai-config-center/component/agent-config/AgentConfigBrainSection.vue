@@ -1,11 +1,11 @@
 <template>
   <AgentConfigSectionShell :step="2" :title="'选择\u201C大脑\u201D'">
     <div class="brain-panel">
-      <div class="brain-card" :class="{ 'has-model': !!chatModel }">
+      <div :class="{ 'has-model': !!chatModel }" class="brain-card">
         <div class="brain-main">
           <div class="model-avatar">
             <span v-if="chatModel?.modelName" class="avatar-text">{{ avatarInitial }}</span>
-            <RobotOutlined v-else class="avatar-icon" />
+            <RobotOutlined v-else class="avatar-icon"/>
           </div>
           <div class="model-info">
             <h4 class="model-name">{{ chatModel?.modelName || chatModel?.modelKey || '未选择模型' }}</h4>
@@ -16,15 +16,15 @@
         </div>
         <div class="brain-actions">
           <a-button
-            class="brain-btn brain-btn--outline"
-            :disabled="!chatModel && !currentChatInstance"
-            @click="showAdvanced = !showAdvanced"
+              :disabled="!chatModel && !currentChatInstance"
+              class="brain-btn brain-btn--outline"
+              @click="showAdvanced = !showAdvanced"
           >
-            <SettingOutlined />
+            <SettingOutlined/>
             <span>配置参数</span>
           </a-button>
           <a-button class="brain-btn brain-btn--primary" @click="emit('open-model', 'chat')">
-            <SwapOutlined />
+            <SwapOutlined/>
             <span>{{ chatModel ? '切换模型' : '选择模型' }}</span>
           </a-button>
         </div>
@@ -33,35 +33,35 @@
       <div v-show="showAdvanced" class="advanced-panel">
         <div class="advanced-header">
           <label class="card-label">推理实例</label>
-          <a-button type="link" size="small" class="instance-pick-btn" @click="emit('open-instance', 'chat')">
+          <a-button class="instance-pick-btn" size="small" type="link" @click="emit('open-instance', 'chat')">
             {{ currentChatInstance?.instanceName || currentChatInstance?.instanceKey || '选择实例' }}
-            <RightOutlined />
+            <RightOutlined/>
           </a-button>
         </div>
 
         <div class="params-wrap">
           <Center
-            :form="chatParamForm"
-            :param-section-title="chatParamSectionTitle"
-            :capability-hint="chatCapabilityHint"
-            :has-param-schema="chatHasParamSchema"
-            :unsupported-param-codes="chatUnsupportedParamCodes"
-            :model-kind="chatModelKind"
-            :show-chat-temperature="chatShowChatTemperature"
-            :show-chat-max-tokens="chatShowChatMaxTokens"
-            :show-chat-top-p="chatShowChatTopP"
-            :show-chat-top-k="chatShowChatTopK"
-            :show-chat-seed="chatShowChatSeed"
-            :show-chat-stop-sequences="chatShowChatStopSequences"
-            :show-chat-penalties="chatShowChatPenalties"
-            :show-chat-frequency-penalty="chatShowChatFrequencyPenalty"
-            :show-chat-presence-penalty="chatShowChatPresencePenalty"
-            :show-embedding-dimensions="chatShowEmbeddingDimensions"
-            :show-image-size="chatShowImageSize"
-            :show-image-style="chatShowImageStyle"
-            :embedding-has-any-control="chatEmbeddingHasAnyControl"
-            :image-has-any-control="chatImageHasAnyControl"
-            :get-temp-info="getTempInfo"
+              :capability-hint="chatCapabilityHint"
+              :embedding-has-any-control="chatEmbeddingHasAnyControl"
+              :form="chatParamForm"
+              :get-temp-info="getTempInfo"
+              :has-param-schema="chatHasParamSchema"
+              :image-has-any-control="chatImageHasAnyControl"
+              :model-kind="chatModelKind"
+              :param-section-title="chatParamSectionTitle"
+              :show-chat-frequency-penalty="chatShowChatFrequencyPenalty"
+              :show-chat-max-tokens="chatShowChatMaxTokens"
+              :show-chat-penalties="chatShowChatPenalties"
+              :show-chat-presence-penalty="chatShowChatPresencePenalty"
+              :show-chat-seed="chatShowChatSeed"
+              :show-chat-stop-sequences="chatShowChatStopSequences"
+              :show-chat-temperature="chatShowChatTemperature"
+              :show-chat-top-k="chatShowChatTopK"
+              :show-chat-top-p="chatShowChatTopP"
+              :show-embedding-dimensions="chatShowEmbeddingDimensions"
+              :show-image-size="chatShowImageSize"
+              :show-image-style="chatShowImageStyle"
+              :unsupported-param-codes="chatUnsupportedParamCodes"
           />
         </div>
       </div>
@@ -69,13 +69,13 @@
   </AgentConfigSectionShell>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { RobotOutlined, SettingOutlined, SwapOutlined, RightOutlined } from '@ant-design/icons-vue'
-import type { AiModel } from '@/api/aiModel'
-import type { AiInstance } from '@/api/aiInstance'
-import type { AiAccount } from '@/api/aiAccount'
-import type { TempInfo } from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
+<script lang="ts" setup>
+import {computed, ref} from 'vue'
+import {RightOutlined, RobotOutlined, SettingOutlined, SwapOutlined} from '@ant-design/icons-vue'
+import type {AiModel} from '@/api/aiModel'
+import type {AiInstance} from '@/api/aiInstance'
+import type {AiAccount} from '@/api/aiAccount'
+import type {TempInfo} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
 import Center from '@/views/admin/ai-config/ai-instance/instance-form/Center.vue'
 import AgentConfigSectionShell from './AgentConfigSectionShell.vue'
 

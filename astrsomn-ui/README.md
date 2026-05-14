@@ -39,6 +39,7 @@ astrsomn-ui/
 ## 功能特性
 
 ### 已实现
+
 - ✅ 用户登录功能
 - ✅ API接口层与页面分离
 - ✅ 路由守卫（登录验证）
@@ -50,6 +51,7 @@ astrsomn-ui/
 ### 接口说明
 
 #### 登录接口
+
 - **URL**: `/api/auth/login`
 - **方法**: POST
 - **请求参数**:
@@ -76,31 +78,37 @@ astrsomn-ui/
   ```
 
 #### 退出登录接口
+
 - **URL**: `/api/auth/logout`
 - **方法**: POST
 
 #### 获取用户信息接口
+
 - **URL**: `/api/auth/user-info`
 - **方法**: GET
 
 ## 开发指南
 
 ### 安装依赖
+
 ```bash
 npm install
 ```
 
 ### 启动开发服务器
+
 ```bash
 npm run dev
 ```
 
 ### 构建生产版本
+
 ```bash
 npm run build
 ```
 
 ### 预览生产构建
+
 ```bash
 npm run preview
 ```
@@ -110,11 +118,13 @@ npm run preview
 ### 环境变量
 
 开发环境 (`.env.development`):
+
 ```
 VITE_API_BASE_URL=http://localhost:8080/api
 ```
 
 生产环境 (`.env.production`):
+
 ```
 VITE_API_BASE_URL=/api
 ```

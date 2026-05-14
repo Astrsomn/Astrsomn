@@ -1,75 +1,70 @@
 <template>
   <AstrsomnPageShell
 
-    empty-text="暂无对话记录。"
+      empty-text="暂无对话记录。"
   >
     <div class="conversation-page">
       <AstrsomnListToolbar>
         <template #left>
           <AstrsomnSearchPill
-            v-model="query.memoryKey"
-            placeholder="搜索 Memory Key"
-            button-label="搜索"
-            layout="toolbar"
-            @search="fetchList"
+              v-model="query.memoryKey"
+              button-label="搜索"
+              layout="toolbar"
+              placeholder="搜索 Memory Key"
+              @search="fetchList"
           />
 
           <AstrsomnStateSwitch
-            v-model="query.status"
-            @change="fetchList"
-            :options="[
+              v-model="query.status"
+              :options="[
               { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
               { label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
               { label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined }
             ]"
+              @change="fetchList"
           />
         </template>
 
         <template #right>
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
         </template>
       </AstrsomnListToolbar>
 
       <div class="conversation-container">
         <!-- 左侧列表区域 -->
         <ConversationListPanel
-          :loading="loading"
-          :list="list"
-          v-model:selectedRowKeys="selectedRowKeys"
-          :page="page"
-          @recover="handleRecoverConversation"
-          @delete="handleDeleteByMemoryKey"
-          @pageChange="onPageChange"
+            v-model:selectedRowKeys="selectedRowKeys"
+            :list="list"
+            :loading="loading"
+            :page="page"
+            @delete="handleDeleteByMemoryKey"
+            @pageChange="onPageChange"
+            @recover="handleRecoverConversation"
         />
 
         <!-- 右侧对话内容区域 -->
         <ConversationDetailPanel
-          :selectedConversation="selectedConversation"
-          :selectedConversationList="selectedConversationList"
+            :selectedConversation="selectedConversation"
+            :selectedConversationList="selectedConversationList"
         />
       </div>
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import {
-  CheckCircleOutlined,
-  DeleteOutlined,
-  ReloadOutlined,
-  StopOutlined
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {CheckCircleOutlined, DeleteOutlined, ReloadOutlined, StopOutlined} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnListToolbar from '@/components/home/AstrsomnListToolbar.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import ConversationListPanel from './ConversationListPanel.vue'
 import ConversationDetailPanel from './ConversationDetailPanel.vue'
-import { aiConversationApi, type AiConversation } from '@/api/aiConversation'
-import { aiChatSessionApi, type AiChatSession, type PageResponse } from '@/api/aiChatSession'
+import {type AiConversation, aiConversationApi} from '@/api/aiConversation'
+import {type AiChatSession, aiChatSessionApi, type PageResponse} from '@/api/aiChatSession'
 
 type QueryState = {
   memoryKey?: string
@@ -187,14 +182,14 @@ const onPageChange = (p: number, size: number) => {
 const handleBatchDelete = async () => {
   const memoryKeys = [...selectedRowKeys.value]
   if (memoryKeys.length === 0) return
-  
+
   const ids: Array<number | string> = []
   list.value.forEach(c => {
     if (memoryKeys.includes(c.memoryKey || '')) {
       if (c.id) ids.push(c.id)
     }
   })
-  
+
   if (ids.length === 0) return
   const msg = await aiChatSessionApi.delete(ids)
   message.success(msg)
@@ -205,8 +200,8 @@ const handleBatchDelete = async () => {
 
 const handleDeleteByMemoryKey = async (memoryKey: string) => {
   const ids: Array<number | string> = list.value
-    .filter((item) => item.memoryKey === memoryKey && item.id !== undefined && item.id !== null)
-    .map((item) => item.id as number | string)
+      .filter((item) => item.memoryKey === memoryKey && item.id !== undefined && item.id !== null)
+      .map((item) => item.id as number | string)
   if (ids.length === 0) return
   const msg = await aiChatSessionApi.delete(ids)
   message.success(msg)

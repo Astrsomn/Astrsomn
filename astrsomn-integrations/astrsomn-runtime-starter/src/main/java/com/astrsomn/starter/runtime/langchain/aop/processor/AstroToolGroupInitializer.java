@@ -1,12 +1,12 @@
 package com.astrsomn.starter.runtime.langchain.aop.processor;
 
+import com.astrsomn.api.runtime.common.constant.AiModelEnum;
+import com.astrsomn.api.runtime.common.entity.AiToolEntity;
+import com.astrsomn.starter.runtime.langchain.aop.annotation.AstroToolGroup;
 import com.astrsomn.starter.runtime.mapper.AstAiToolMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import dev.langchain4j.agent.tool.Tool;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.api.runtime.common.constant.AiModelEnum;
-import com.astrsomn.api.runtime.common.entity.AiToolEntity;
-import com.astrsomn.starter.runtime.langchain.aop.annotation.AstroToolGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -29,7 +29,7 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
     private static final String ENABLED = AiModelEnum.StatusEnum.ENABLED.getCode();
 
     private AstAiToolMapper astAiToolMapper;
-    
+
     @Autowired(required = false)
     public void setAiToolMapper(AstAiToolMapper astAiToolMapper) {
         this.astAiToolMapper = astAiToolMapper;
@@ -69,7 +69,7 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
      */
     private void doScanAndRegisterTools(ConfigurableApplicationContext context) {
         Map<String, Object> beansWithAnnotation = context.getBeansWithAnnotation(AstroToolGroup.class);
-        
+
         beansWithAnnotation.forEach((beanName, bean) -> {
             Class<?> beanClass = ClassUtils.getUserClass(bean);
             AstroToolGroup groupAnno = beanClass.getAnnotation(AstroToolGroup.class);

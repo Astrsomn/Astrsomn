@@ -1,16 +1,13 @@
-﻿package com.astrsomn.api.runtime.common.constant;
+package com.astrsomn.api.runtime.common.constant;
 
+import com.astrsomn.common.base.BaseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.common.base.BaseEnum;
-
-
-
 
 
 public interface AiModelParamEnum {
 
-    
+
     @Getter
     @AllArgsConstructor
     enum ChatCapabilitiesEnum implements BaseEnum {
@@ -25,7 +22,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum EmbeddingCapabilityEnum implements BaseEnum {
@@ -36,7 +33,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum ImageCapabilitiesEnum implements BaseEnum {
@@ -48,7 +45,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum ChatParamEnum implements BaseEnum {
@@ -66,7 +63,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum EmbeddingParamEnum implements BaseEnum {
@@ -82,7 +79,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum ImageParamEnum implements BaseEnum {
@@ -98,7 +95,7 @@ public interface AiModelParamEnum {
         private final String desc;
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum SystemConfigParam implements BaseEnum {

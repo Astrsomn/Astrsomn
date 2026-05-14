@@ -5,11 +5,7 @@ import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ChatSetting;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelRouteSetting;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.PromptSetting;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ToolSetting;
+import com.astrsomn.api.runtime.common.langchain.buildParam.setting.*;
 import com.astrsomn.common.utils.JsonUtil;
 import com.astrsomn.common.utils.StringUtils;
 
@@ -113,7 +109,7 @@ public final class RuntimeChatParamMergeSupport {
         if (prompt != null && StringUtils.isBlank(prompt.getPromptKey())) {
             prompt.setPromptKey(StringUtils.trimToNull(agent.getPromptKey()));
         } else if (prompt == null) {
-            prompt = new PromptSetting(){{
+            prompt = new PromptSetting() {{
                 setPromptKey(StringUtils.trimToNull(agent.getPromptKey()));
             }};
         }

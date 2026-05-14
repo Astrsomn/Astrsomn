@@ -1,4 +1,4 @@
-﻿package com.astrsomn.common.base;
+package com.astrsomn.common.base;
 
 
 import lombok.Data;
@@ -12,26 +12,25 @@ import java.util.List;
 public class PageResponse<T> implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    
+
     private long total;
 
-    
+
     private long pageSize;
 
-    
+
     private long pageNum;
 
-    
+
     private long pages;
 
-    
+
     private List<T> list;
 
 
-    
     private boolean hasNext;
 
-    
+
     public PageResponse(long total, long pageSize, int pageNum, List<T> list) {
         this.total = total;
         this.pageSize = pageSize;
@@ -40,13 +39,11 @@ public class PageResponse<T> implements Serializable {
         this.list = list;
     }
 
-    
+
     public PageResponse() {
     }
 
 
-
-    
     public static <R> PageResponse<R> empty() {
         PageResponse<R> response = new PageResponse<>();
         response.pageNum = 1;

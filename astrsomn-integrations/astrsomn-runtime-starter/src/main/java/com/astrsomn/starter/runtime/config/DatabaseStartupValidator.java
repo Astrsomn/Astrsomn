@@ -6,21 +6,12 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * 在 SqlSessionFactory（含可选 {@link com.astrsomn.starter.runtime.schema.SchemaInitializer}）就绪后校验数据源连通性及必选表。
@@ -33,6 +24,50 @@ public class DatabaseStartupValidator implements InitializingBean {
     private final AstrsomnDatasourceProperties datasourceProperties;
     private final AstrsomnProperties astrsomnProperties;
     private final SqlSessionFactory sqlSessionFactory;
+
+    private static boolean tableExists(Connection conn, String tableName) throws SQLException {
+        DatabaseMetaData md = conn.getMetaData();
+        String catalog = conn.getCatalog();
+        String schema = conn.getSchema();
+        String[] schemaPatterns = buildSchemaPatterns(schema);
+        String[] names = {tableName, tableName.toUpperCase(Locale.ROOT)};
+
+        for (String schemaPattern : schemaPatterns) {
+            for (String name : names) {
+                try (ResultSet rs = md.getTables(catalog, schemaPattern, name, new String[]{"TABLE"})) {
+                    if (rs.next()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private static String[] buildSchemaPatterns(String schema) {
+        if (schema == null || schema.isEmpty()) {
+            return new String[]{null, "PUBLIC"};
+        }
+        return new String[]{schema, null, "PUBLIC"};
+    }
+
+    private static String describeJdbcUrl(String jdbcUrl) {
+        if (jdbcUrl == null || jdbcUrl.isBlank()) {
+            return "(unknown)";
+        }
+        try {
+            return JdbcUrlDbSupport.resolveMybatisDbType(jdbcUrl).getDb();
+        } catch (IllegalArgumentException ex) {
+            return "(unsupported)";
+        }
+    }
+
+    private static String sanitizeJdbcUrl(String url) {
+        if (url == null || url.isEmpty()) {
+            return "(empty)";
+        }
+        return url.replaceAll("(?i)(password|passwd)=([^;&]*)", "$1=***");
+    }
 
     @Override
     public void afterPropertiesSet() {
@@ -131,32 +166,6 @@ public class DatabaseStartupValidator implements InitializingBean {
         }
     }
 
-    private static boolean tableExists(Connection conn, String tableName) throws SQLException {
-        DatabaseMetaData md = conn.getMetaData();
-        String catalog = conn.getCatalog();
-        String schema = conn.getSchema();
-        String[] schemaPatterns = buildSchemaPatterns(schema);
-        String[] names = {tableName, tableName.toUpperCase(Locale.ROOT)};
-
-        for (String schemaPattern : schemaPatterns) {
-            for (String name : names) {
-                try (ResultSet rs = md.getTables(catalog, schemaPattern, name, new String[]{"TABLE"})) {
-                    if (rs.next()) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private static String[] buildSchemaPatterns(String schema) {
-        if (schema == null || schema.isEmpty()) {
-            return new String[]{null, "PUBLIC"};
-        }
-        return new String[]{schema, null, "PUBLIC"};
-    }
-
     private void logFailure(AstrsomnProperties.Validation cfg, Exception e) {
         String jdbcUrl = datasourceProperties != null ? datasourceProperties.getUrl() : null;
         String hint = "请检查 astrsomn.datasource.url / 账号密码、网络、以及是否已执行数据库迁移（Flyway 等）。"
@@ -171,23 +180,5 @@ public class DatabaseStartupValidator implements InitializingBean {
                 hint,
                 e
         );
-    }
-
-    private static String describeJdbcUrl(String jdbcUrl) {
-        if (jdbcUrl == null || jdbcUrl.isBlank()) {
-            return "(unknown)";
-        }
-        try {
-            return JdbcUrlDbSupport.resolveMybatisDbType(jdbcUrl).getDb();
-        } catch (IllegalArgumentException ex) {
-            return "(unsupported)";
-        }
-    }
-
-    private static String sanitizeJdbcUrl(String url) {
-        if (url == null || url.isEmpty()) {
-            return "(empty)";
-        }
-        return url.replaceAll("(?i)(password|passwd)=([^;&]*)", "$1=***");
     }
 }

@@ -1,12 +1,12 @@
 <template>
   <AstrsomnPageShell
-    title="AI MCP"
-    description="管理 MCP 服务接入（SSE / STDIO / STEAMABLE），对接 AiMcpController。"
-    empty-text="暂无 MCP 服务。"
-    :breadcrumbs="breadcrumbs"
-    :show-view-toggle="true"
-    :view-mode="viewMode"
-    :view-toggle-handler="handleViewToggle"
+      :breadcrumbs="breadcrumbs"
+      :show-view-toggle="true"
+      :view-mode="viewMode"
+      :view-toggle-handler="handleViewToggle"
+      description="管理 MCP 服务接入（SSE / STDIO / STEAMABLE），对接 AiMcpController。"
+      empty-text="暂无 MCP 服务。"
+      title="AI MCP"
   >
     <div ref="pageRef" class="mcp-page">
       <AstrsomnDataSection>
@@ -14,69 +14,72 @@
           <div class="toolbar">
             <div class="toolbar-left">
               <AstrsomnSearchPill
-                v-model="query.mcpKey"
-                placeholder="搜索 MCP Key"
-                button-label="搜索"
-                layout="toolbar"
-                @search="fetchList"
+                  v-model="query.mcpKey"
+                  button-label="搜索"
+                  layout="toolbar"
+                  placeholder="搜索 MCP Key"
+                  @search="fetchList"
               />
               <AstrsomnStateSwitch
-                v-model="query.enabled"
-                @change="fetchList"
-                :options="[
+                  v-model="query.enabled"
+                  :options="[
                   { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
                   { label: '启用', value: 1, color: '#10b981', icon: CheckCircleOutlined },
                   { label: '禁用', value: 0, color: '#f43f5e', icon: StopOutlined }
                 ]"
+                  @change="fetchList"
               />
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
 
-
         <AstrsomnDataView
-          :mode="dataViewMode"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1280 }"
-          row-key="id"
-          empty-text="暂无匹配的 MCP 服务"
-          :card-columns="currentGridColumns"
-          :card-min-width="mcpCardMinWidth"
-          :card-gap="mcpCardGap"
+            :card-columns="currentGridColumns"
+            :card-gap="mcpCardGap"
+            :card-min-width="mcpCardMinWidth"
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :mode="dataViewMode"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1280 }"
+            empty-text="暂无匹配的 MCP 服务"
+            row-key="id"
         >
           <template #card="{ record }">
             <McpCard
-              :record="record"
-              @edit="openEdit"
-              @delete="handleDeleteOne"
+                :record="record"
+                @delete="handleDeleteOne"
+                @edit="openEdit"
             />
           </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'enabled'">
-              <span class="status-pill" :class="{ off: record.enabled !== 1 }">
+              <span :class="{ off: record.enabled !== 1 }" class="status-pill">
                 {{ record.enabled === 1 ? '启用' : '停用' }}
               </span>
             </template>
             <template v-if="column.key === 'actions'">
-              <a-button type="link" class="action-link" @click="openEdit(record)">
-                <template #icon><edit-outlined /></template>
+              <a-button class="action-link" type="link" @click="openEdit(record)">
+                <template #icon>
+                  <edit-outlined/>
+                </template>
               </a-button>
-              <a-divider type="vertical" />
+              <a-divider type="vertical"/>
               <a-popconfirm
-                title="确定删除吗？"
-                ok-text="确认"
-                cancel-text="取消"
-                @confirm="() => handleDeleteOne(record.id)"
+                  cancel-text="取消"
+                  ok-text="确认"
+                  title="确定删除吗？"
+                  @confirm="() => handleDeleteOne(record.id)"
               >
-                <a-button type="link" danger class="action-link">
-                  <template #icon><delete-outlined /></template>
+                <a-button class="action-link" danger type="link">
+                  <template #icon>
+                    <delete-outlined/>
+                  </template>
                 </a-button>
               </a-popconfirm>
             </template>
@@ -85,31 +88,30 @@
 
         <template #pagination>
           <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
       </AstrsomnDataSection>
 
       <McpFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, onBeforeUnmount, onMounted } from 'vue'
-import { message, Modal } from 'ant-design-vue'
+<script lang="ts" setup>
+import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
 import {
   CheckCircleOutlined,
-  CopyOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
@@ -121,11 +123,11 @@ import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import McpFormModal from './McpFormModal.vue'
 import McpCard from './McpCard.vue'
-import { aiMcpApi, type AiMcp, type PageResponse } from '@/api/aiMcp'
+import {type AiMcp, aiMcpApi, type PageResponse} from '@/api/aiMcp'
 
 const props = withDefaults(defineProps<{
   initialViewMode?: 'grid' | 'list'
@@ -150,23 +152,23 @@ type QueryState = {
 }
 
 const breadcrumbs = [
-  { title: 'AI 配置', href: '/admin/ai-config' },
-  { title: 'AI MCP' },
+  {title: 'AI 配置', href: '/admin/ai-config'},
+  {title: 'AI MCP'},
 ]
 
 const typeFilterOptions = [
-  { label: 'SSE', value: 'SSE' },
-  { label: 'STDIO', value: 'STDIO' },
-  { label: 'STEAMABLE', value: 'STEAMABLE' }
+  {label: 'SSE', value: 'SSE'},
+  {label: 'STDIO', value: 'STDIO'},
+  {label: 'STEAMABLE', value: 'STEAMABLE'}
 ]
 
 const columns = [
-    { title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 180, ellipsis: true, copyable: true },
-  { title: '服务名称', dataIndex: 'serverName', key: 'serverName', width: 240 },
-  { title: '类型', dataIndex: 'type', key: 'type', width: 120 },
-  { title: '启用', key: 'enabled', width: 90 },
-    { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  {title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 180, ellipsis: true, copyable: true},
+  {title: '服务名称', dataIndex: 'serverName', key: 'serverName', width: 240},
+  {title: '类型', dataIndex: 'type', key: 'type', width: 120},
+  {title: '启用', key: 'enabled', width: 90},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true},
+  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
 ]
 
 const typeLabelMap: Record<string, string> = {
@@ -191,7 +193,8 @@ const getJsonEntryCountLabel = (raw?: string, label = '项') => {
     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
       return `${label}: ${Object.keys(parsed).length}`
     }
-  } catch (error) {}
+  } catch (error) {
+  }
 
   return `${label}: 已配置`
 }
@@ -205,7 +208,8 @@ const getArgsLabel = (args?: string) => {
     if (Array.isArray(parsed)) {
       return `参数: ${parsed.length}`
     }
-  } catch (error) {}
+  } catch (error) {
+  }
 
   const segmentCount = text.split(/\s+/).filter(Boolean).length
   return `参数: ${segmentCount || 1}`
@@ -258,9 +262,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -434,7 +438,7 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: AiMcp) => {
   modal.submitting = true
   try {
-    const payload: AiMcp = { ...form }
+    const payload: AiMcp = {...form}
     if (payload.enabled !== undefined && payload.enabled !== null) {
       payload.enabled = Number(payload.enabled) === 0 ? 0 : 1
     }

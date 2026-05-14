@@ -1,5 +1,6 @@
-﻿package com.astrsomn.api.runtime.common.entity;
+package com.astrsomn.api.runtime.common.entity;
 
+import com.astrsomn.common.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -8,7 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.astrsomn.common.base.BaseEntity;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -1,23 +1,16 @@
 package com.astrsomn.server.api.workflow;
 
+import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceCreateRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceQueryRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceResponseDTO;
+import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceUpdateRequestDTO;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.AiWorkflowInstanceService;
-import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceCreateRequestDTO;
-import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceQueryRequestDTO;
-import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceResponseDTO;
-import com.astrsomn.api.workflow.domain.dto.instance.AstFlowInstanceUpdateRequestDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Workflow 实例控制器（骨架）。

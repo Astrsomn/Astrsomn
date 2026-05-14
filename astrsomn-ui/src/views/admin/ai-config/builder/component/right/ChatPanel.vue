@@ -2,48 +2,50 @@
   <div class="chat-panel">
     <div ref="scrollRef" class="chat-messages custom-scrollbar">
       <AstroChatMessage
-        v-for="item in messages"
-        :key="item.id"
-        :role="item.role"
-        :content="item.content"
-        :segments="item.segments"
-        :streaming="item.streaming"
-        :error="item.error"
-        compact
+          v-for="item in messages"
+          :key="item.id"
+          :content="item.content"
+          :error="item.error"
+          :role="item.role"
+          :segments="item.segments"
+          :streaming="item.streaming"
+          compact
       />
-      <div ref="bottomRef" class="messages-bottom-spacer" />
+      <div ref="bottomRef" class="messages-bottom-spacer"/>
     </div>
 
     <div class="chat-composer-wrap">
       <AstroChatComposer
-        variant="full"
-        layout="embedded"
-        density="compact"
-        :model-value="draft"
-        placeholder="发送指令测试 Agent…"
-        :disabled="isStreaming"
-        :is-streaming="isStreaming"
-        :send-disabled="sendDisabled"
-        :show-char-count="false"
-        @update:model-value="draft = $event"
-        @submit="onSubmit"
-        @stop="stopStreaming"
+          :disabled="isStreaming"
+          :is-streaming="isStreaming"
+          :model-value="draft"
+          :send-disabled="sendDisabled"
+          :show-char-count="false"
+          density="compact"
+          layout="embedded"
+          placeholder="发送指令测试 Agent…"
+          variant="full"
+          @stop="stopStreaming"
+          @submit="onSubmit"
+          @update:model-value="draft = $event"
       >
         <template #footer-left>
           <div class="feature-switches">
             <div
-              class="feature-tag"
-              :class="{ active: isDeepThinking }"
-              @click="isDeepThinking = !isDeepThinking"
+                :class="{ active: isDeepThinking }"
+                class="feature-tag"
+                @click="isDeepThinking = !isDeepThinking"
             >
-              <BulbOutlined /> 深度思考
+              <BulbOutlined/>
+              深度思考
             </div>
             <div
-              class="feature-tag"
-              :class="{ active: isWebSearch }"
-              @click="isWebSearch = !isWebSearch"
+                :class="{ active: isWebSearch }"
+                class="feature-tag"
+                @click="isWebSearch = !isWebSearch"
             >
-              <GlobalOutlined /> 联网
+              <GlobalOutlined/>
+              联网
             </div>
           </div>
         </template>
@@ -52,15 +54,15 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { BulbOutlined, GlobalOutlined } from '@ant-design/icons-vue'
-import { AstroChatComposer, AstroChatMessage } from '@astrsomn/astro-chat-vue'
-import { readAstroStream, buildStreamError, type StreamEvent } from '@astrsomn/astro-chat-core'
-import { computed, inject, nextTick, onBeforeUnmount, ref } from 'vue'
-import { message } from 'ant-design-vue'
-import { BUILDER_CHAT_CONTEXT } from '../builderChatInjection'
-import { buildAstroBuilderChatRequest } from '../buildAstroBuilderChatRequest'
-import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
+<script lang="ts" setup>
+import {BulbOutlined, GlobalOutlined} from '@ant-design/icons-vue'
+import {AstroChatComposer, AstroChatMessage} from '@astrsomn/astro-chat-vue'
+import {buildStreamError, readAstroStream, type StreamEvent} from '@astrsomn/astro-chat-core'
+import {computed, inject, nextTick, onBeforeUnmount, ref} from 'vue'
+import {message} from 'ant-design-vue'
+import {BUILDER_CHAT_CONTEXT} from '../builderChatInjection'
+import {buildAstroBuilderChatRequest} from '../buildAstroBuilderChatRequest'
+import {WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
 
 type ChatSegmentType = 'text' | 'thought' | 'html'
 
@@ -100,19 +102,19 @@ const sendDisabled = computed(() => {
 })
 
 const mergeMessageContent = (segments: ChatSegment[]) =>
-  segments
-    .map((segment) => (segment.type === 'thought' ? `[思考]\n${segment.content}` : segment.content))
-    .join('\n')
+    segments
+        .map((segment) => (segment.type === 'thought' ? `[思考]\n${segment.content}` : segment.content))
+        .join('\n')
 
 const scrollToBottom = async () => {
   await nextTick()
-  bottomRef.value?.scrollIntoView({ block: 'end' })
+  bottomRef.value?.scrollIntoView({block: 'end'})
 }
 
 const appendAssistantContent = async (
-  messageId: string,
-  chunk: string,
-  type: ChatSegmentType = 'text'
+    messageId: string,
+    chunk: string,
+    type: ChatSegmentType = 'text'
 ) => {
   if (!chunk) return
   const target = messages.value.find((item) => item.id === messageId)
@@ -122,7 +124,7 @@ const appendAssistantContent = async (
   if (last && last.type === type) {
     last.content += chunk
   } else {
-    target.segments.push({ type, content: chunk })
+    target.segments.push({type, content: chunk})
   }
   target.content = mergeMessageContent(target.segments)
   await scrollToBottom()
@@ -176,7 +178,7 @@ const onSubmit = async () => {
   draft.value = ''
   const userMessageId = `user-${Date.now()}`
   const assistantMessageId = `ai-${Date.now()}`
-  messages.value.push({ id: userMessageId, role: 'user', content: prompt })
+  messages.value.push({id: userMessageId, role: 'user', content: prompt})
   messages.value.push({
     id: assistantMessageId,
     role: 'ai',
@@ -197,8 +199,8 @@ const onSubmit = async () => {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'text/event-stream',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(workspaceEnv ? { [WORKSPACE_ENV_HEADER]: workspaceEnv.trim() } : {})
+        ...(token ? {Authorization: `Bearer ${token}`} : {}),
+        ...(workspaceEnv ? {[WORKSPACE_ENV_HEADER]: workspaceEnv.trim()} : {})
       },
       body: JSON.stringify(body),
       signal: abortController.signal
@@ -224,11 +226,11 @@ const onSubmit = async () => {
       if ((error as { name?: string })?.name === 'AbortError') {
         const stopText = target.content || '已停止生成'
         target.content = stopText
-        target.segments = [{ type: 'text', content: stopText }]
+        target.segments = [{type: 'text', content: stopText}]
       } else {
         const msg = (error as Error)?.message || '请求失败'
         target.content = msg
-        target.segments = [{ type: 'text', content: msg }]
+        target.segments = [{type: 'text', content: msg}]
         target.error = true
       }
     }

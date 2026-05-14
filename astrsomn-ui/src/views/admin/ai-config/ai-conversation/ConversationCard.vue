@@ -1,24 +1,28 @@
 <template>
-  <a-card 
-    :body-style="{ padding: '12px' }" 
-    class="conversation-card" 
-    :class="{ 'selected': isSelected }" 
-    @click="handleCardClick"
+  <a-card
+      :body-style="{ padding: '12px' }"
+      :class="{ 'selected': isSelected }"
+      class="conversation-card"
+      @click="handleCardClick"
   >
     <div class="card-layout">
-      <a-checkbox 
-        :checked="isSelected" 
-        @change="handleCheckboxChange" 
-        @click.stop 
-        class="compact-checkbox" 
+      <a-checkbox
+          :checked="isSelected"
+          class="compact-checkbox"
+          @change="handleCheckboxChange"
+          @click.stop
       />
 
       <div class="card-main">
         <div class="main-header">
           <h3 class="title">{{ getCardTitle() }}</h3>
           <div class="actions">
-            <a-tooltip title="复原"><reload-outlined class="icon-btn" @click.stop="recoverConversation" /></a-tooltip>
-            <a-tooltip title="删除"><delete-outlined class="icon-btn danger" @click.stop="deleteConversation" /></a-tooltip>
+            <a-tooltip title="复原">
+              <reload-outlined class="icon-btn" @click.stop="recoverConversation"/>
+            </a-tooltip>
+            <a-tooltip title="删除">
+              <delete-outlined class="icon-btn danger" @click.stop="deleteConversation"/>
+            </a-tooltip>
           </div>
         </div>
 
@@ -30,9 +34,9 @@
 
         <div class="key-footer" @click.stop="copyMemoryKey">
           <div class="key-tag">
-            <link-outlined class="key-icon" />
+            <link-outlined class="key-icon"/>
             <span class="key-text">{{ conversation.memoryKey || 'No Key' }}</span>
-            <copy-outlined class="copy-trigger" />
+            <copy-outlined class="copy-trigger"/>
           </div>
         </div>
       </div>
@@ -40,10 +44,10 @@
   </a-card>
 </template>
 
-<script setup lang="ts">
-import { message, Modal } from 'ant-design-vue'
-import { CopyOutlined, DeleteOutlined, ReloadOutlined, LinkOutlined } from '@ant-design/icons-vue'
-import type { AiConversation } from '@/api/aiConversation'
+<script lang="ts" setup>
+import {message, Modal} from 'ant-design-vue'
+import {CopyOutlined, DeleteOutlined, LinkOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import type {AiConversation} from '@/api/aiConversation'
 
 const props = defineProps<{
   conversation: AiConversation
@@ -157,8 +161,14 @@ const handleCheckboxChange = () => emit('select', props.conversation.memoryKey)
   font-size: 14px;
   color: #8c8c8c;
 }
-.icon-btn:hover { color: #1890ff; }
-.icon-btn.danger:hover { color: #ff4d4f; }
+
+.icon-btn:hover {
+  color: #1890ff;
+}
+
+.icon-btn.danger:hover {
+  color: #ff4d4f;
+}
 
 .metadata {
   display: flex;

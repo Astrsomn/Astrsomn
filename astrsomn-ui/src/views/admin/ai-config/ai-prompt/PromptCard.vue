@@ -1,40 +1,40 @@
 <template>
   <div
-    class="air-prompt-card-400"
-    :class="{
+      :class="{
       'is-selected': selected,
       'is-disabled': String(record.status || '') !== 'enabled'
     }"
+      class="air-prompt-card-400"
   >
     <div class="card-header-status">
-      <div class="status-chip" :class="String(record.status || 'disabled')">
+      <div :class="String(record.status || 'disabled')" class="status-chip">
         <span class="status-dot"></span>
         <span class="status-text">{{ renderEnabled(String(record.status || 'disabled')) }}</span>
       </div>
       <div class="header-checkbox">
-        <a-checkbox :checked="selected" @change="onCheckedChange" />
+        <a-checkbox :checked="selected" @change="onCheckedChange"/>
       </div>
     </div>
 
     <div class="card-content">
       <div class="avatar-section">
         <div class="avatar-glow">
-          <file-text-outlined />
+          <file-text-outlined/>
         </div>
         <div class="version-tag">VER {{ record.version ?? 1 }}</div>
       </div>
 
-      <h3 class="title" :title="record.promptTitle">
+      <h3 :title="record.promptTitle" class="title">
         {{ record.promptTitle || '未命名提示词' }}
       </h3>
 
-      <div 
-        class="key-capsule-btn" 
-        @click="copyPromptKey(record.promptKey)"
+      <div
+          class="key-capsule-btn"
+          @click="copyPromptKey(record.promptKey)"
       >
         <span class="label">KEY</span>
         <code class="code">{{ record.promptKey || '自动生成' }}</code>
-        <copy-outlined class="icon" />
+        <copy-outlined class="icon"/>
       </div>
 
       <div class="description-box">
@@ -46,7 +46,7 @@
 
     <div class="card-footer-action">
       <div class="user-meta">
-        <user-outlined class="meta-icon" />
+        <user-outlined class="meta-icon"/>
         <span class="meta-info">{{ record.createUser || '系统' }}</span>
         <span class="divider">/</span>
         <span class="meta-info">{{ formatShortTime(record.createTime) }}</span>
@@ -54,14 +54,14 @@
 
       <div class="action-group">
         <button class="action-circle-btn" @click="emit('history', record)">
-          <history-outlined />
+          <history-outlined/>
         </button>
         <button class="action-circle-btn" @click="emit('edit', record)">
-          <edit-outlined />
+          <edit-outlined/>
         </button>
         <a-popconfirm title="确定删除吗？" @confirm="onDelete">
           <button class="action-circle-btn delete">
-            <delete-outlined />
+            <delete-outlined/>
           </button>
         </a-popconfirm>
       </div>
@@ -69,8 +69,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { message } from 'ant-design-vue'
+<script lang="ts" setup>
+import {message} from 'ant-design-vue'
 import {
   CopyOutlined,
   DeleteOutlined,
@@ -111,7 +111,7 @@ const previewContent = (raw?: string) => {
 
 const formatShortTime = (raw?: string) => {
   if (!raw) return '--'
-  return raw.split('T')[0].slice(5) 
+  return raw.split('T')[0].slice(5)
 }
 
 const onCheckedChange = (e: any) => emit('select-change', e.target.checked)
@@ -132,7 +132,7 @@ const copyPromptKey = async (key?: string) => {
   --card-bg: var(--bg-card);
   --card-border-subtle: var(--border-subtle);
   --card-border-default: var(--border-default);
-  
+
   width: 100%;
   max-width: 320px;
   min-height: 400px;
@@ -153,7 +153,6 @@ const copyPromptKey = async (key?: string) => {
 }
 
 
-
 .card-header-status {
   display: flex;
   justify-content: space-between;
@@ -170,11 +169,17 @@ const copyPromptKey = async (key?: string) => {
   border-radius: 100px;
 }
 
-.status-chip.enabled { 
-  background: rgba(34, 197, 94, 0.15); 
+.status-chip.enabled {
+  background: rgba(34, 197, 94, 0.15);
 }
-.status-chip.enabled .status-dot { background: var(--success); }
-.status-chip.enabled .status-text { color: var(--success); }
+
+.status-chip.enabled .status-dot {
+  background: var(--success);
+}
+
+.status-chip.enabled .status-text {
+  color: var(--success);
+}
 
 .status-dot {
   width: 6px;

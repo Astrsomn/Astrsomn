@@ -1,11 +1,11 @@
-﻿package com.astrsomn.api.runtime.common.langchain.extension.vector;
+package com.astrsomn.api.runtime.common.langchain.extension.vector;
 
+import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
+import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
 
 @Getter
 @AllArgsConstructor

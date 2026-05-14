@@ -20,13 +20,6 @@ public class LocalToolCacheManager {
 
     private final Map<String, ToolDefinition> cache = new ConcurrentHashMap<>();
 
-    @Data
-    @AllArgsConstructor
-    public static class ToolDefinition {
-        private final ToolSpecification specification;
-        private final ToolExecutor executor;
-    }
-
     public ToolDefinition getOrCompute(Object bean, String beanName, String methodName) {
         String key = beanName + ":" + methodName;
         return cache.computeIfAbsent(key, k -> {
@@ -40,6 +33,13 @@ public class LocalToolCacheManager {
 
             return new ToolDefinition(spec, executor);
         });
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class ToolDefinition {
+        private final ToolSpecification specification;
+        private final ToolExecutor executor;
     }
 
 

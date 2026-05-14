@@ -6,7 +6,7 @@
     <div class="trace-overview-grid">
       <article v-for="item in traceStats" :key="item.label" class="trace-overview-item">
         <div class="trace-overview-head">
-          <component :is="item.icon" />
+          <component :is="item.icon"/>
           <span>{{ item.label }}</span>
         </div>
         <strong>{{ item.value }}</strong>
@@ -20,7 +20,7 @@
           <div class="trace-detail-cost">平均耗时 {{ trace.cost }}</div>
         </div>
         <div class="trace-detail-right">
-          <span class="trace-detail-status" :class="`status-${trace.status}`">
+          <span :class="`status-${trace.status}`" class="trace-detail-status">
             <span class="status-dot"></span>
             {{ trace.statusText }}
           </span>
@@ -31,8 +31,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import type { Component } from 'vue'
+<script lang="ts" setup>
+import type {Component} from 'vue'
 
 type TraceStat = {
   label: string

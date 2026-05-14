@@ -6,7 +6,6 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -27,15 +26,15 @@ public class ExceptionHandlingFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        
+
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        
+
         try {
             chain.doFilter(request, response);
         } catch (Throwable e) {
             log.error("请求处理异常 - URI: {}, 异常: {}", httpRequest.getRequestURI(), e.getMessage(), e);
-            
+
             if (httpResponse.isCommitted()) {
                 return;
             }

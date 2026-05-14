@@ -1,18 +1,19 @@
 package com.astrsomn.starter.runtime.langchain.tool.mcp.protocol;
 
+import com.astrsomn.api.runtime.common.constant.AiMcpEnum;
+import com.astrsomn.api.runtime.common.entity.AiMcpEntity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.api.runtime.common.constant.AiMcpEnum;
-import com.astrsomn.api.runtime.common.entity.AiMcpEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.*;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -56,7 +57,8 @@ public class StdioProtocolHandler implements McpProtocolHandler {
 
     private List<String> parseArgs(String argsJson) {
         try {
-            return objectMapper.readValue(argsJson, new TypeReference<>() {});
+            return objectMapper.readValue(argsJson, new TypeReference<>() {
+            });
         } catch (Exception e) {
             log.warn("{} 参数 JSON 解析失败，回退至空格分割 | 原始值: {}", LOG_PREFIX, argsJson);
             return Arrays.asList(argsJson.split("\\s+"));
@@ -65,7 +67,8 @@ public class StdioProtocolHandler implements McpProtocolHandler {
 
     private Map<String, String> parseEnvVars(String envJson) {
         try {
-            return objectMapper.readValue(envJson, new TypeReference<>() {});
+            return objectMapper.readValue(envJson, new TypeReference<>() {
+            });
         } catch (Exception e) {
             log.error("{} 环境变量解析失败 | 原始值: {}", LOG_PREFIX, envJson);
             return Collections.emptyMap();

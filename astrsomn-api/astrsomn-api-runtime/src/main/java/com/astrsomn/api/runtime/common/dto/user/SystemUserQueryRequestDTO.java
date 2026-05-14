@@ -1,7 +1,7 @@
-﻿package com.astrsomn.api.runtime.common.dto.user;
+package com.astrsomn.api.runtime.common.dto.user;
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import lombok.Data;
 
 import java.io.Serializable;
 
@@ -12,7 +12,7 @@ public class SystemUserQueryRequestDTO extends SystemUserEntity implements Seria
     private String adminFlag;
     private String email;
 
-    
+
     private String systemStatus;
 
 }

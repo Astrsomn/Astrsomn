@@ -1,15 +1,15 @@
 <template>
-  <AstrsomnPageShell  empty-text="暂无流程定义。">
+  <AstrsomnPageShell empty-text="暂无流程定义。">
     <div class="definition-list-page">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill v-model="query.workflowName" placeholder="搜索流程名称" @search="fetchList" />
+              <AstrsomnSearchPill v-model="query.workflowName" placeholder="搜索流程名称" @search="fetchList"/>
 
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="segmentedButtons" />
+              <AstrsomnSegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
 
@@ -17,16 +17,17 @@
 
         <template #overview>
           <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="0"
-            :all-current-selected="false"
-            :part-current-selected="false"
-            :show-actions="false"
-            :summary-text="`当前页 ${list.length} 条流程定义。`"
+              :all-current-selected="false"
+              :list-length="list.length"
+              :part-current-selected="false"
+              :selected-count="0"
+              :show-actions="false"
+              :summary-text="`当前页 ${list.length} 条流程定义。`"
           />
         </template>
 
-        <AstrsomnDataView :data-source="list" :columns="columns" row-key="id" mode="table" :pagination="false" :loading="loading" :row-selection="rowSelection">
+        <AstrsomnDataView :columns="columns" :data-source="list" :loading="loading" :pagination="false" :row-selection="rowSelection"
+                          mode="table" row-key="id">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'workflowName'">
               <span>{{ record.workflowName || '-' }}</span>
@@ -42,23 +43,25 @@
             </template>
             <template v-else-if="column.key === 'actions'">
               <a-space>
-                <a-button type="link" size="small" @click="openEdit(record)">
-                  <EditOutlined />
+                <a-button size="small" type="link" @click="openEdit(record)">
+                  <EditOutlined/>
                 </a-button>
-                <a-button type="link" size="small" @click="openCopy(record)">
-                  <CopyOutlined />
+                <a-button size="small" type="link" @click="openCopy(record)">
+                  <CopyOutlined/>
                 </a-button>
-                <a-popconfirm title="确定发布该流程吗？" ok-text="确认" cancel-text="取消" @confirm="() => handlePublish(record)">
-                  <a-button type="link" size="small">
-                    <RocketOutlined />
+                <a-popconfirm cancel-text="取消" ok-text="确认" title="确定发布该流程吗？"
+                              @confirm="() => handlePublish(record)">
+                  <a-button size="small" type="link">
+                    <RocketOutlined/>
                   </a-button>
                 </a-popconfirm>
-                <a-button type="link" size="small" @click="openHistory(record)">
-                  <HistoryOutlined />
+                <a-button size="small" type="link" @click="openHistory(record)">
+                  <HistoryOutlined/>
                 </a-button>
-                <a-popconfirm title="确定删除吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
-                  <a-button type="link" danger size="small">
-                    <DeleteOutlined />
+                <a-popconfirm cancel-text="取消" ok-text="确认" title="确定删除吗？"
+                              @confirm="() => handleDeleteOne(record.id)">
+                  <a-button danger size="small" type="link">
+                    <DeleteOutlined/>
                   </a-button>
                 </a-popconfirm>
               </a-space>
@@ -67,34 +70,35 @@
         </AstrsomnDataView>
 
         <template #pagination>
-          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total" @change="onPageChange" />
+          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
+                              @change="onPageChange"/>
         </template>
       </AstrsomnDataSection>
     </div>
 
     <a-modal
-      v-model:open="historyModalOpen"
-      :title="`发布历史：${historyWorkflowName || '-'}`"
-      :footer="null"
-      width="900px"
-      destroy-on-close
-      @cancel="closeHistoryModal"
+        v-model:open="historyModalOpen"
+        :footer="null"
+        :title="`发布历史：${historyWorkflowName || '-'}`"
+        destroy-on-close
+        width="900px"
+        @cancel="closeHistoryModal"
     >
       <a-table
-        size="small"
-        :loading="historyLoading"
-        :data-source="historyList"
-        :columns="historyColumns"
-        :pagination="false"
-        row-key="id"
-        :scroll="{ y: 420 }"
+          :columns="historyColumns"
+          :data-source="historyList"
+          :loading="historyLoading"
+          :pagination="false"
+          :scroll="{ y: 420 }"
+          row-key="id"
+          size="small"
       />
       <div class="history-pagination">
         <AstrsomnPagination
-          :current="historyPage.pageNum"
-          :page-size="historyPage.pageSize"
-          :total="historyPage.total"
-          @change="onHistoryPageChange"
+            :current="historyPage.pageNum"
+            :page-size="historyPage.pageSize"
+            :total="historyPage.total"
+            @change="onHistoryPageChange"
         />
       </div>
     </a-modal>
@@ -102,11 +106,20 @@
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { message, Modal } from 'ant-design-vue'
-import { CopyOutlined, DeleteOutlined, EditOutlined, FilterOutlined, HistoryOutlined, PlusOutlined, RocketOutlined, SearchOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, onMounted, reactive, ref} from 'vue'
+import {useRouter} from 'vue-router'
+import {message, Modal} from 'ant-design-vue'
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  FilterOutlined,
+  HistoryOutlined,
+  PlusOutlined,
+  RocketOutlined,
+  SearchOutlined
+} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
@@ -114,8 +127,8 @@ import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
-import { aiWorkflowApi, type AiWorkflow, type PageResponse } from '@/api/aiWorkflow'
-import { aiWorkflowRuntimeApi, type WorkflowRuntimeRecord } from '@/api/aiWorkflowRuntime'
+import {type AiWorkflow, aiWorkflowApi, type PageResponse} from '@/api/aiWorkflow'
+import {aiWorkflowRuntimeApi, type WorkflowRuntimeRecord} from '@/api/aiWorkflowRuntime'
 
 type WorkflowQuery = {
   workflowName?: string
@@ -124,19 +137,19 @@ type WorkflowQuery = {
 }
 
 const categoryOptions = [
-  { label: '生产', value: '生产' },
-  { label: '质检', value: '质检' },
-  { label: '通用', value: '通用' }
+  {label: '生产', value: '生产'},
+  {label: '质检', value: '质检'},
+  {label: '通用', value: '通用'}
 ]
 
 const columns = [
-  { title: '流程名称', dataIndex: 'workflowName', key: 'workflowName', width: 220 },
-  { title: 'Flow Key', dataIndex: 'workflowKey', key: 'workflowKey', width: 220 },
-  { title: '业务分类', dataIndex: 'description', key: 'description', width: 140 },
-  { title: '版本号', dataIndex: 'versionNo', key: 'versionNo', width: 100 },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 120 },
-  { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180 },
-  { title: '操作', key: 'actions', width: 280 }
+  {title: '流程名称', dataIndex: 'workflowName', key: 'workflowName', width: 220},
+  {title: 'Flow Key', dataIndex: 'workflowKey', key: 'workflowKey', width: 220},
+  {title: '业务分类', dataIndex: 'description', key: 'description', width: 140},
+  {title: '版本号', dataIndex: 'versionNo', key: 'versionNo', width: 100},
+  {title: '状态', dataIndex: 'status', key: 'status', width: 120},
+  {title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180},
+  {title: '操作', key: 'actions', width: 280}
 ]
 
 const loading = ref(false)
@@ -154,11 +167,11 @@ const historyPage = reactive({
 })
 
 const historyColumns = [
-  { title: '版本号', dataIndex: 'version', key: 'version', width: 90 },
-  { title: '节点ID', dataIndex: 'nodeId', key: 'nodeId', width: 180, ellipsis: true },
-  { title: '节点名称', dataIndex: 'nodeName', key: 'nodeName', width: 180, ellipsis: true },
-  { title: '历史类型', dataIndex: 'historyType', key: 'historyType', width: 120 },
-  { title: '记录时间', dataIndex: 'updateTime', key: 'updateTime', width: 180 }
+  {title: '版本号', dataIndex: 'version', key: 'version', width: 90},
+  {title: '节点ID', dataIndex: 'nodeId', key: 'nodeId', width: 180, ellipsis: true},
+  {title: '节点名称', dataIndex: 'nodeName', key: 'nodeName', width: 180, ellipsis: true},
+  {title: '历史类型', dataIndex: 'historyType', key: 'historyType', width: 120},
+  {title: '记录时间', dataIndex: 'updateTime', key: 'updateTime', width: 180}
 ]
 
 const page = reactive({
@@ -245,14 +258,14 @@ const resetFilters = () => {
 }
 
 const openCreate = () => {
-  void router.push({ name: 'AdminWorkflowDefinitionBuilder' })
+  void router.push({name: 'AdminWorkflowDefinitionBuilder'})
 }
 
 const openEdit = (record: AiWorkflow) => {
   if (record.id == null) return
   void router.push({
     name: 'AdminWorkflowDefinitionEditBuilder',
-    params: { id: String(record.id) }
+    params: {id: String(record.id)}
   })
 }
 
@@ -260,7 +273,7 @@ const openCopy = (record: AiWorkflow) => {
   if (record.id == null) return
   void router.push({
     name: 'AdminWorkflowDefinitionBuilder',
-    query: { cloneId: String(record.id) }
+    query: {cloneId: String(record.id)}
   })
 }
 
@@ -273,7 +286,7 @@ const handleDeleteOne = async (id?: number | string) => {
 
 const handlePublish = async (record: AiWorkflow) => {
   if (record.id == null) return
-  const msg = await aiWorkflowRuntimeApi.publish({ id: record.id })
+  const msg = await aiWorkflowRuntimeApi.publish({id: record.id})
   message.success(msg || '发布成功')
   void fetchList()
   if (historyModalOpen.value && historyWorkflowId.value === record.id) {

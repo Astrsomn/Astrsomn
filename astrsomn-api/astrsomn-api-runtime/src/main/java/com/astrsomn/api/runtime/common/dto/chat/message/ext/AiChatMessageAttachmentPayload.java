@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.dto.chat.message.ext;
+package com.astrsomn.api.runtime.common.dto.chat.message.ext;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class AiChatMessageAttachmentPayload {
 
-    
+
     private String kind;
     private String url;
     private String mimeType;

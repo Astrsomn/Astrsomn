@@ -1,10 +1,10 @@
 <template>
   <div class="node-connector">
-    <div class="instance-card" :class="{ 'has-instance': instance }">
+    <div :class="{ 'has-instance': instance }" class="instance-card">
       <div class="card-header">
         <div class="header-left">
           <div class="icon-badge">
-            <ControlOutlined />
+            <ControlOutlined/>
           </div>
           <div class="header-info">
             <span class="card-label">实例</span>
@@ -14,7 +14,7 @@
       </div>
       <template v-if="instance">
         <div class="card-title">{{ instance.instanceName || '创意生成参数' }}</div>
-        <div class="card-subtitle" v-if="instance.temperature !== undefined">
+        <div v-if="instance.temperature !== undefined" class="card-subtitle">
           Temp: {{ instance.temperature }}
         </div>
       </template>
@@ -22,23 +22,23 @@
         <div class="card-placeholder">请选择或创建实例</div>
       </template>
       <div class="card-icon">
-        <DoubleRightOutlined />
+        <DoubleRightOutlined/>
       </div>
       <div class="card-overlay">
         <button class="overlay-btn" title="选择实例" @click.stop="emit('select')">
-          <UnorderedListOutlined />
+          <UnorderedListOutlined/>
         </button>
         <button class="overlay-btn" title="创建实例" @click.stop="emit('create')">
-          <PlusOutlined />
+          <PlusOutlined/>
         </button>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ControlOutlined, UnorderedListOutlined, PlusOutlined, DoubleRightOutlined } from '@ant-design/icons-vue'
-import type { AiInstance } from '@/api/aiInstance'
+<script lang="ts" setup>
+import {ControlOutlined, DoubleRightOutlined, PlusOutlined, UnorderedListOutlined} from '@ant-design/icons-vue'
+import type {AiInstance} from '@/api/aiInstance'
 
 interface Props {
   instance?: AiInstance
@@ -73,10 +73,9 @@ const emit = defineEmits<{
   padding: 16px;
   position: relative;
   overflow: hidden;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s,
-    transform 0.2s;
+  transition: border-color 0.2s,
+  box-shadow 0.2s,
+  transform 0.2s;
   display: flex;
   flex-direction: column;
 }

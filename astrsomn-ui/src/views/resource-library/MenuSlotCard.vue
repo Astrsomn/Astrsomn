@@ -1,16 +1,16 @@
 <template>
   <div class="slot-wrapper">
     <button
-      type="button"
-      class="slot-card"
-      :class="{ 'slot-card--compact': variant === 'compact' }"
-      :data-accent="accent"
-      :disabled="buttonDisabled"
-      @click="handleClick"
+        :class="{ 'slot-card--compact': variant === 'compact' }"
+        :data-accent="accent"
+        :disabled="buttonDisabled"
+        class="slot-card"
+        type="button"
+        @click="handleClick"
     >
-      <div class="slot-icon-container" aria-hidden="true">
+      <div aria-hidden="true" class="slot-icon-container">
         <div class="slot-icon-bg"></div>
-        <component v-if="entry" :is="entry.icon" class="slot-icon-actual" />
+        <component :is="entry.icon" v-if="entry" class="slot-icon-actual"/>
         <span v-else class="slot-icon-plus">+</span>
       </div>
 
@@ -21,39 +21,39 @@
     </button>
 
     <button
-      v-if="showPinToDashboard && entry"
-      type="button"
-      class="slot-pin"
-      title="固定到控制台首页"
-      @click.stop="emit('pinToDashboard', entry.route)"
+        v-if="showPinToDashboard && entry"
+        class="slot-pin"
+        title="固定到控制台首页"
+        type="button"
+        @click.stop="emit('pinToDashboard', entry.route)"
     >
-      <pushpin-outlined class="slot-pin-icon" />
+      <pushpin-outlined class="slot-pin-icon"/>
     </button>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { PushpinOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import {PushpinOutlined} from '@ant-design/icons-vue'
 // 注意：请确保路径与您的项目实际路径一致
-import type { EntryAccent, ManagementEntry } from './management.ts'
+import type {EntryAccent, ManagementEntry} from './management.ts'
 
 const props = withDefaults(
-  defineProps<{
-    entry?: ManagementEntry
-    title: string
-    description?: string
-    accent?: EntryAccent
-    variant?: 'default' | 'compact'
-    disabled?: boolean
-    showPinToDashboard?: boolean
-  }>(),
-  {
-    accent: 'primary',
-    variant: 'default',
-    disabled: false,
-    showPinToDashboard: false,
-  },
+    defineProps<{
+      entry?: ManagementEntry
+      title: string
+      description?: string
+      accent?: EntryAccent
+      variant?: 'default' | 'compact'
+      disabled?: boolean
+      showPinToDashboard?: boolean
+    }>(),
+    {
+      accent: 'primary',
+      variant: 'default',
+      disabled: false,
+      showPinToDashboard: false,
+    },
 )
 
 const emit = defineEmits<{
@@ -82,7 +82,7 @@ const handleClick = () => {
 .slot-card {
   /* 动态配色逻辑 */
   --accent-color: var(--primary);
-  
+
   width: 100%;
   padding: 24px;
   display: flex;
@@ -150,9 +150,8 @@ const handleClick = () => {
 .slot-card:not(:disabled):hover {
   transform: translateY(-4px);
   border-color: color-mix(in srgb, var(--accent-color) 30%, transparent);
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.05),
-    0 8px 10px -6px color-mix(in srgb, var(--accent-color) 12%, transparent);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05),
+  0 8px 10px -6px color-mix(in srgb, var(--accent-color) 12%, transparent);
 }
 
 .slot-card:not(:disabled):hover .slot-icon-bg {
@@ -201,20 +200,42 @@ const handleClick = () => {
   padding: 16px;
   border-radius: 20px;
 }
+
 .slot-card--compact .slot-icon-container {
   width: 40px;
   height: 40px;
   margin-bottom: 12px;
 }
-.slot-card--compact .slot-icon-bg { border-radius: 12px; }
-.slot-card--compact .slot-title { font-size: 14px; }
+
+.slot-card--compact .slot-icon-bg {
+  border-radius: 12px;
+}
+
+.slot-card--compact .slot-title {
+  font-size: 14px;
+}
 
 /* 7. 配色方案映射 */
-.slot-card[data-accent='cyan'] { --accent-color: #06b6d4; }
-.slot-card[data-accent='blue'] { --accent-color: #3b82f6; }
-.slot-card[data-accent='mint'] { --accent-color: #10b981; }
-.slot-card[data-accent='coral'] { --accent-color: #f43f5e; }
-.slot-card[data-accent='indigo'] { --accent-color: #6366f1; }
+.slot-card[data-accent='cyan'] {
+  --accent-color: #06b6d4;
+}
+
+.slot-card[data-accent='blue'] {
+  --accent-color: #3b82f6;
+}
+
+.slot-card[data-accent='mint'] {
+  --accent-color: #10b981;
+}
+
+.slot-card[data-accent='coral'] {
+  --accent-color: #f43f5e;
+}
+
+.slot-card[data-accent='indigo'] {
+  --accent-color: #6366f1;
+}
+
 /* ... 其他配色依此类推 */
 
 .slot-card:disabled {

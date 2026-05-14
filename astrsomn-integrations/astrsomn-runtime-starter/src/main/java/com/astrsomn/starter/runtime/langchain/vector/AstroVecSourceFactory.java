@@ -1,27 +1,17 @@
 package com.astrsomn.starter.runtime.langchain.vector;
 
-import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.AiVecSourceEnum;
 import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecDriver;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AstVecSourceErrorEnum;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentHashMap;
-
-
-
 import java.util.*;
-
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -223,10 +213,9 @@ public class AstroVecSourceFactory {
     }
 
 
-
-
-
-    /** 辅助快速构建流 */
+    /**
+     * 辅助快速构建流
+     */
     private java.util.stream.Stream<String> StreamOf(String... args) {
         return Arrays.stream(args);
     }

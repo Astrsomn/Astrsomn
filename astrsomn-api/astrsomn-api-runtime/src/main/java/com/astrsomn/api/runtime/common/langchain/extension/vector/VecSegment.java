@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.langchain.extension.vector;
+package com.astrsomn.api.runtime.common.langchain.extension.vector;
 
 import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
 
@@ -9,6 +9,6 @@ public interface VecSegment {
 
     AiVecSegmentEntity getEntity();
 
-    
+
     void deleteEmbedding();
 }

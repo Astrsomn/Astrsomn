@@ -1,19 +1,19 @@
 <template>
   <a-select
-    :value="innerValue"
-    mode="multiple"
-    :options="options"
-    :loading="loading"
-    :placeholder="placeholder"
-    allow-clear
-    class="scene-tag-selector"
-    @change="handleChange"
+      :loading="loading"
+      :options="options"
+      :placeholder="placeholder"
+      :value="innerValue"
+      allow-clear
+      class="scene-tag-selector"
+      mode="multiple"
+      @change="handleChange"
   />
 </template>
 
-<script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { aiPromptApi } from '@/api/aiPrompt'
+<script lang="ts" setup>
+import {computed, onMounted, ref} from 'vue'
+import {aiPromptApi} from '@/api/aiPrompt'
 
 const props = withDefaults(defineProps<{
   modelValue?: string[]
@@ -32,7 +32,7 @@ const loading = ref(false)
 const tagList = ref<string[]>([])
 
 const innerValue = computed(() => props.modelValue ?? [])
-const options = computed(() => tagList.value.map((tag) => ({ label: tag, value: tag })))
+const options = computed(() => tagList.value.map((tag) => ({label: tag, value: tag})))
 
 const handleChange = (value: string[]) => {
   const next = Array.isArray(value) ? value : []

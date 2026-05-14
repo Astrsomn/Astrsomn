@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.entity;
+package com.astrsomn.api.runtime.common.entity;
 
 import com.astrsomn.common.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -19,23 +19,23 @@ public class AiChatSessionEntity extends BaseEntity<Long> {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
-    
+
     @TableField("MEMORY_KEY")
     private String memoryKey;
 
-    
+
     @TableField("SESSION_TITLE")
     private String sessionTitle;
 
-    
+
     @TableField("SESSION_STATUS")
     private String sessionStatus;
 
-    
+
     @TableField("LAST_MESSAGE_PREVIEW")
     private String lastMessagePreview;
 
-    
+
     @TableField("LAST_MESSAGE_AT")
     private Long lastMessageAt;
 

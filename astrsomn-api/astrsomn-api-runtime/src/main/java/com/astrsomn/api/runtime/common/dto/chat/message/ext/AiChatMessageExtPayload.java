@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.dto.chat.message.ext;
+package com.astrsomn.api.runtime.common.dto.chat.message.ext;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

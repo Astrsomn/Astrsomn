@@ -82,16 +82,13 @@
     </select>
 
     <select id="selectDetailDtoById" resultType="com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO">
-        SELECT
-        AI.*,
-        (
-        SELECT M.MODEL_TYPE
-        FROM AI_MODEL M
-        WHERE M.MODEL_KEY = AI.MODEL_KEY
-        AND (M.ENV_CODE = AI.ENV_CODE OR (M.ENV_CODE IS NULL AND AI.ENV_CODE IS NULL))
-        AND (M.DELETED = 0 OR M.DELETED IS NULL)
-        LIMIT 1
-        ) AS model_type,
+        SELECT AI.*,
+               (SELECT M.MODEL_TYPE
+                FROM AI_MODEL M
+                WHERE M.MODEL_KEY = AI.MODEL_KEY
+                  AND (M.ENV_CODE = AI.ENV_CODE OR (M.ENV_CODE IS NULL AND AI.ENV_CODE IS NULL))
+                  AND (M.DELETED = 0 OR M.DELETED IS NULL)
+                   LIMIT 1 ) AS model_type,
         (
         SELECT SE.AVATAR
         FROM AI_MODEL M
@@ -124,6 +121,7 @@
         ) AS capabilities
         FROM AI_INSTANCE AI
         WHERE AI.ID = #{id}
-        AND (AI.DELETED = 0 OR AI.DELETED IS NULL)
+          AND (AI.DELETED = 0
+           OR AI.DELETED IS NULL)
     </select>
 </mapper>

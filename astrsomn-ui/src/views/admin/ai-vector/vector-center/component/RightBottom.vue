@@ -7,20 +7,22 @@
           <span class="meta">doc={{ docId || '-' }} / store={{ storeId || '-' }}</span>
         </div>
         <a-table
-          :data-source="segmentRows"
-          :loading="loading"
-          :pagination="pagination"
-          :columns="segmentColumns"
-          row-key="id"
-          size="small"
-          @change="handleTableChange"
+            :columns="segmentColumns"
+            :data-source="segmentRows"
+            :loading="loading"
+            :pagination="pagination"
+            row-key="id"
+            size="small"
+            @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'segmentContent'">
-              <a-typography-paragraph :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }" :content="record.segmentContent || '-'" />
+              <a-typography-paragraph :content="record.segmentContent || '-'"
+                                      :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }"/>
             </template>
             <template v-else-if="column.key === 'metadataJson'">
-              <a-typography-paragraph :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }" :content="record.metadataJson || '-'" />
+              <a-typography-paragraph :content="record.metadataJson || '-'"
+                                      :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }"/>
             </template>
             <template v-if="column.key === 'actions'">
               <a @click="removeSegment(record)">删除</a>
@@ -33,9 +35,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, watch } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import { aiVecSegmentApi, type AiVecSegment } from '@/api/aiVecSegment'
+import {computed, reactive, ref, watch} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {type AiVecSegment, aiVecSegmentApi} from '@/api/aiVecSegment'
 
 const props = defineProps<{
   segments: AiVecSegment[]
@@ -48,13 +50,13 @@ const emit = defineEmits<{
 }>()
 
 const segmentColumns = [
-  { title: 'ID', dataIndex: 'id' },
-  { title: 'chunk', dataIndex: 'chunkIndex' },
-  { title: '内容', dataIndex: 'segmentContent', key: 'segmentContent' },
-  { title: '词数', dataIndex: 'wordCount' },
-  { title: 'vectorId', dataIndex: 'vectorId' },
-  { title: '元数据', dataIndex: 'metadataJson', key: 'metadataJson' },
-  { title: '操作', key: 'actions' }
+  {title: 'ID', dataIndex: 'id'},
+  {title: 'chunk', dataIndex: 'chunkIndex'},
+  {title: '内容', dataIndex: 'segmentContent', key: 'segmentContent'},
+  {title: '词数', dataIndex: 'wordCount'},
+  {title: 'vectorId', dataIndex: 'vectorId'},
+  {title: '元数据', dataIndex: 'metadataJson', key: 'metadataJson'},
+  {title: '操作', key: 'actions'}
 ]
 
 const loading = ref(false)
@@ -97,12 +99,12 @@ const fetchSegmentRows = async () => {
 }
 
 watch(
-  () => [props.storeId, props.docId],
-  () => {
-    pager.pageNo = 1
-    fetchSegmentRows()
-  },
-  { immediate: true }
+    () => [props.storeId, props.docId],
+    () => {
+      pager.pageNo = 1
+      fetchSegmentRows()
+    },
+    {immediate: true}
 )
 
 const handleTableChange = (page: { current?: number; pageSize?: number }) => {
@@ -116,7 +118,7 @@ const removeSegment = async (record: AiVecSegment) => {
   Modal.confirm({
     title: '确认删除切片',
     content: `将删除切片 ${record.id} 并同步清理向量实体。`,
-    okButtonProps: { danger: true },
+    okButtonProps: {danger: true},
     async onOk() {
       const segmentId = record.id
       if (segmentId == null) return
@@ -136,12 +138,14 @@ const removeSegment = async (record: AiVecSegment) => {
   background: var(--bg-card);
   border-top: 1px solid var(--border-default);
 }
+
 .panel-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
+
 .meta {
   color: var(--text-muted);
   font-size: 12px;

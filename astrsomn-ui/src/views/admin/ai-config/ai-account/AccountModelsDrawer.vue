@@ -1,12 +1,12 @@
 <template>
   <AstrsomnDrawerShell
-    :open="props.open"
-    :width="500"
-    root-class-name="c-models-drawer"
-    @update:open="(value) => emit('update:open', value)"
+      :open="props.open"
+      :width="500"
+      root-class-name="c-models-drawer"
+      @update:open="(value) => emit('update:open', value)"
   >
     <template #icon>
-      <DeploymentUnitOutlined />
+      <DeploymentUnitOutlined/>
     </template>
     <template #title>
       {{ props.account?.accountName || '关联模型库' }}
@@ -17,16 +17,17 @@
       </a-tag>
     </template>
     <template #subtitle>
-      <KeyOutlined /> {{ props.account?.accountKey || 'NO_KEY_INDEX' }}
+      <KeyOutlined/>
+      {{ props.account?.accountKey || 'NO_KEY_INDEX' }}
     </template>
 
     <a-spin :spinning="props.loading">
       <div class="card-list-container">
         <template v-if="props.models.length > 0">
           <div
-            v-for="(item, index) in props.models"
-            :key="item.id || index"
-            class="model-card-item"
+              v-for="(item, index) in props.models"
+              :key="item.id || index"
+              class="model-card-item"
           >
             <div class="m-card-head">
               <div class="m-name-box">
@@ -47,7 +48,7 @@
               <div class="info-row">
                 <span class="info-label">供应商</span>
                 <div class="provider-wrapper">
-                  <span class="provider-tag" :data-provider="item.extensionCode?.toLowerCase()">
+                  <span :data-provider="item.extensionCode?.toLowerCase()" class="provider-tag">
                     {{ item.extensionCode }}
                   </span>
                 </div>
@@ -63,26 +64,23 @@
             <template #description>
               <span class="empty-text">当前账号尚未关联任何模型资产</span>
             </template>
-            <a-button type="primary" ghost size="small">去关联</a-button>
+            <a-button ghost size="small" type="primary">去关联</a-button>
           </a-empty>
         </div>
       </div>
     </a-spin>
     <template v-if="$slots.footer" #footer>
-      <slot name="footer" />
+      <slot name="footer"/>
     </template>
   </AstrsomnDrawerShell>
 </template>
 
-<script setup lang="ts">
-import { Empty } from 'ant-design-vue'
-import {
-  DeploymentUnitOutlined,
-  KeyOutlined
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {Empty} from 'ant-design-vue'
+import {DeploymentUnitOutlined, KeyOutlined} from '@ant-design/icons-vue'
 import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
-import type { AiAccount } from '@/api/aiAccount'
-import type { AiModel } from '@/api/aiModel'
+import type {AiAccount} from '@/api/aiAccount'
+import type {AiModel} from '@/api/aiModel'
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
 
@@ -106,8 +104,15 @@ const emit = defineEmits<{
   border: none;
 }
 
-.env-tag.prod { background: #fee2e2; color: #ef4444; }
-.env-tag.dev { background: #e0f2fe; color: #0ea5e9; }
+.env-tag.prod {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.env-tag.dev {
+  background: #e0f2fe;
+  color: #0ea5e9;
+}
 
 .card-list-container {
   padding-top: 10px;
@@ -121,7 +126,7 @@ const emit = defineEmits<{
   background: #ffffff;
   border-radius: var(--radius-md);
   padding: 20px;
-  border: 1px solid var(--border-default) ;
+  border: 1px solid var(--border-default);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -169,8 +174,13 @@ const emit = defineEmits<{
   font-weight: 600;
 }
 
-.status-indicator.enabled { color: #10b981; }
-.status-indicator.disabled { color: #94a3b8; }
+.status-indicator.enabled {
+  color: #10b981;
+}
+
+.status-indicator.disabled {
+  color: #94a3b8;
+}
 
 .status-indicator .dot {
   width: 6px;
@@ -221,9 +231,20 @@ const emit = defineEmits<{
   color: #475569;
 }
 
-.provider-tag[data-provider*="openai"] { background: #dcfce7; color: #15803d; }
-.provider-tag[data-provider*="claude"] { background: #ffedd5; color: #c2410c; }
-.provider-tag[data-provider*="azure"] { background: #e0f2fe; color: #0369a1; }
+.provider-tag[data-provider*="openai"] {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.provider-tag[data-provider*="claude"] {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.provider-tag[data-provider*="azure"] {
+  background: #e0f2fe;
+  color: #0369a1;
+}
 
 .m-card-footer-line {
   position: absolute;
@@ -240,11 +261,23 @@ const emit = defineEmits<{
   border-radius: 20px;
 }
 
-.empty-text { color: #cbd5e1; font-size: 13px; }
+.empty-text {
+  color: #cbd5e1;
+  font-size: 13px;
+}
 
 @keyframes pulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 </style>

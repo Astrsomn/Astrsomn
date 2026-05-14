@@ -10,7 +10,7 @@ public class JsonUtil {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    
+
     public static <T> T fromJson(String json, Class<T> clazz) {
         if (json == null || json.trim().isEmpty()) {
             return null;
@@ -35,7 +35,7 @@ public class JsonUtil {
         }
     }
 
-    
+
     public static <T> List<T> parseArray(Object input, Class<T> clazz) {
         if (input == null) {
             return null;
@@ -53,7 +53,7 @@ public class JsonUtil {
         }
     }
 
-    
+
     public static String toJson(Map<String, Object> map) {
         if (map == null) return "null";
 
@@ -119,20 +119,34 @@ public class JsonUtil {
         sb.append("]");
     }
 
-    
+
     public static String escape(String s) {
         if (s == null) return "";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
             switch (ch) {
-                case '"':  sb.append("\\\""); break;
-                case '\\': sb.append("\\\\"); break;
-                case '\b': sb.append("\\b"); break;
-                case '\f': sb.append("\\f"); break;
-                case '\n': sb.append("\\n"); break;
-                case '\r': sb.append("\\r"); break;
-                case '\t': sb.append("\\t"); break;
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '\b':
+                    sb.append("\\b");
+                    break;
+                case '\f':
+                    sb.append("\\f");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
                 default:
                     if (ch < ' ') {
                         String hex = Integer.toHexString(ch);

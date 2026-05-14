@@ -1,19 +1,19 @@
 <template>
   <AstrsomnModal
-    :open="open"
-    :width="'80vw'"
-    :body-height="'80vh'"
-    :max-width="'80vw'"
-    :header-height="'72px'"
-    :closable="false"
-    :destroy-on-close="true"
-    @update:open="onOpenChange"
-    @cancel="onCancel"
+      :body-height="'80vh'"
+      :closable="false"
+      :destroy-on-close="true"
+      :header-height="'72px'"
+      :max-width="'80vw'"
+      :open="open"
+      :width="'80vw'"
+      @cancel="onCancel"
+      @update:open="onOpenChange"
   >
     <template #header-logo>
-      <div class="icon-box" :class="form.type">
-        <BuildOutlined v-if="form.type === 'method'" />
-        <Html5Outlined v-else />
+      <div :class="form.type" class="icon-box">
+        <BuildOutlined v-if="form.type === 'method'"/>
+        <Html5Outlined v-else/>
       </div>
     </template>
 
@@ -28,18 +28,18 @@
     <template #header-actions>
       <div class="header-actions">
         <a-button class="btn-flat" @click="onCancel">取消</a-button>
-        <a-button type="primary" class="btn-submit" :loading="confirmLoading" @click="handleOk">
+        <a-button :loading="confirmLoading" class="btn-submit" type="primary" @click="handleOk">
           {{ mode === 'create' ? '注册工具并发布' : '保存修改' }}
         </a-button>
       </div>
     </template>
 
     <a-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      layout="vertical"
-      class="professional-form"
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        class="professional-form"
+        layout="vertical"
     >
       <div class="form-body-container">
         <div class="form-layout">
@@ -47,22 +47,23 @@
           <div class="form-left">
             <div class="section-card">
               <h3 class="section-title">
-                <IdcardOutlined /> 基础标识
+                <IdcardOutlined/>
+                基础标识
               </h3>
 
               <a-alert
-                v-if="mode === 'create'"
-                type="info"
-                show-icon
-                message="Tool Key 是工具的唯一逻辑标识，建议使用下划线命名（如 weather_api）。"
-                class="custom-alert"
+                  v-if="mode === 'create'"
+                  class="custom-alert"
+                  message="Tool Key 是工具的唯一逻辑标识，建议使用下划线命名（如 weather_api）。"
+                  show-icon
+                  type="info"
               />
 
               <div class="form-fields">
                 <a-row :gutter="16">
                   <a-col :span="16">
                     <a-form-item label="工具显示名称" name="toolName">
-                      <a-input v-model:value="form.toolName" placeholder="例如：实时天气查询" size="large" />
+                      <a-input v-model:value="form.toolName" placeholder="例如：实时天气查询" size="large"/>
                     </a-form-item>
                   </a-col>
                   <a-col :span="8">
@@ -77,23 +78,23 @@
 
                 <a-form-item label="Tool Key (逻辑标识)" name="toolKey">
                   <AstrsomnKeyGenerator
-                    v-model="form.toolKey"
-                    :prefix="AI_TOOL_KEY_PREFIX"
-                    :disabled="mode === 'edit'"
-                    placeholder="留空则由系统自动生成"
-                    size="large"
+                      v-model="form.toolKey"
+                      :disabled="mode === 'edit'"
+                      :prefix="AI_TOOL_KEY_PREFIX"
+                      placeholder="留空则由系统自动生成"
+                      size="large"
                   />
                 </a-form-item>
 
                 <a-form-item label="实现类型" name="type">
-                  <a-segmented v-model:value="form.type" :options="toolTypeOptions" block size="large" />
+                  <a-segmented v-model:value="form.type" :options="toolTypeOptions" block size="large"/>
                 </a-form-item>
 
                 <a-form-item label="功能详细描述 (给 AI 看)" name="description">
                   <a-textarea
-                    v-model:value="form.description"
-                    :auto-size="{ minRows: 6, maxRows: 10 }"
-                    placeholder="请清晰描述工具的功能及其参数含义，这有助于大模型更准确地进行 Tool Call..."
+                      v-model:value="form.description"
+                      :auto-size="{ minRows: 6, maxRows: 10 }"
+                      placeholder="请清晰描述工具的功能及其参数含义，这有助于大模型更准确地进行 Tool Call..."
                   />
                 </a-form-item>
               </div>
@@ -104,7 +105,8 @@
           <div class="form-right">
             <div class="section-card">
               <h3 class="section-title">
-                <RocketOutlined /> 执行配置
+                <RocketOutlined/>
+                执行配置
               </h3>
 
               <div class="impl-hint">
@@ -115,18 +117,22 @@
               <div class="form-fields">
                 <a-form-item label="Spring Bean ID" name="beanName">
                   <a-input v-model:value="form.beanName" placeholder="例如：weatherToolService" size="large">
-                    <template #prefix><BlockOutlined style="color: #bfbfbf" /></template>
+                    <template #prefix>
+                      <BlockOutlined style="color: #bfbfbf"/>
+                    </template>
                   </a-input>
                 </a-form-item>
 
                 <a-form-item label="执行方法名 (Method)" name="methodName">
                   <a-input v-model:value="form.methodName" placeholder="例如：getWeather" size="large">
-                    <template #prefix><CodeOutlined style="color: #bfbfbf" /></template>
+                    <template #prefix>
+                      <CodeOutlined style="color: #bfbfbf"/>
+                    </template>
                   </a-input>
                 </a-form-item>
 
                 <a-form-item label="Class 名称" name="className">
-                  <a-input v-model:value="form.className" placeholder="例如：WeatherToolImpl" size="large" />
+                  <a-input v-model:value="form.className" placeholder="例如：WeatherToolImpl" size="large"/>
                 </a-form-item>
               </div>
             </div>
@@ -137,27 +143,31 @@
   </AstrsomnModal>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+<script lang="ts" setup>
+import {reactive, ref, watch} from 'vue'
 import {
-  BuildOutlined, Html5Outlined, IdcardOutlined, RocketOutlined,
-  BlockOutlined, CodeOutlined
+  BlockOutlined,
+  BuildOutlined,
+  CodeOutlined,
+  Html5Outlined,
+  IdcardOutlined,
+  RocketOutlined
 } from '@ant-design/icons-vue'
-import type { FormInstance } from 'ant-design-vue'
-import type { AiTool } from '@/api/aiTool.ts'
+import type {FormInstance} from 'ant-design-vue'
+import type {AiTool} from '@/api/aiTool.ts'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
-import { AI_TOOL_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes'
+import {AI_TOOL_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
 const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiTool | null }>()
 const emit = defineEmits<{ submit: [payload: AiTool] }>()
-const open = defineModel<boolean>('open', { required: true })
+const open = defineModel<boolean>('open', {required: true})
 
 const formRef = ref<FormInstance | null>(null)
 
 const toolTypeOptions = [
-  { label: 'Method (后端)', value: 'method' },
-  { label: 'HTML (组件)', value: 'html' }
+  {label: 'Method (后端)', value: 'method'},
+  {label: 'HTML (组件)', value: 'html'}
 ]
 
 function emptyForm(): AiTool {
@@ -171,10 +181,10 @@ function emptyForm(): AiTool {
 const form = reactive<AiTool>(emptyForm())
 
 const rules = {
-  toolName: [{ required: true, message: '请输入工具名称' }],
-  type: [{ required: true, message: '请选择实现类型' }],
-  beanName: [{ required: true, message: 'Bean ID 不能为空' }],
-  methodName: [{ required: true, message: '方法名不能为空' }]
+  toolName: [{required: true, message: '请输入工具名称'}],
+  type: [{required: true, message: '请选择实现类型'}],
+  beanName: [{required: true, message: 'Bean ID 不能为空'}],
+  methodName: [{required: true, message: '方法名不能为空'}]
 }
 
 const onOpenChange = (val: boolean) => {
@@ -194,14 +204,16 @@ watch(() => [open.value, props.initial] as const, ([isOpen, initial]) => {
 
 async function handleOk() {
   await formRef.value?.validate()
-  const payload: AiTool = { ...form }
+  const payload: AiTool = {...form}
   if (props.mode === 'create' && !String(payload.toolKey || '').trim()) {
     delete payload.toolKey
   }
   emit('submit', payload)
 }
 
-const onCancel = () => { open.value = false }
+const onCancel = () => {
+  open.value = false
+}
 </script>
 
 <style scoped>

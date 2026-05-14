@@ -1,147 +1,149 @@
 <template>
   <AstrsomnPageShell
-    title="用户管理"
-    description="SYSTEM_USER：角色分超级管理员 / 环境管理员 / 普通用户（USER_ROLE）。"
-    empty-text="暂无用户数据。"
-    :breadcrumbs="breadcrumbs"
+      :breadcrumbs="breadcrumbs"
+      description="SYSTEM_USER：角色分超级管理员 / 环境管理员 / 普通用户（USER_ROLE）。"
+      empty-text="暂无用户数据。"
+      title="用户管理"
   >
     <div class="user-page">
       <AstrsomnDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-          <AstrsomnSearchPill
-            v-model="query.username"
-            placeholder="搜索用户名"
-            @search="fetchList"
-          />
+              <AstrsomnSearchPill
+                  v-model="query.username"
+                  placeholder="搜索用户名"
+                  @search="fetchList"
+              />
 
 
-          <div class="status-switch" role="group" aria-label="角色筛选">
-            <a-button
-              class="status-btn"
-              :class="{ active: query.userRole === 'SUPER_ADMIN' }"
-              @click="toggleRoleFilter('SUPER_ADMIN')"
-            >
-              超级管理员
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.userRole === 'ENV_ADMIN' }"
-              @click="toggleRoleFilter('ENV_ADMIN')"
-            >
-              环境管理员
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.userRole === 'USER' }"
-              @click="toggleRoleFilter('USER')"
-            >
-              普通用户
-            </a-button>
-          </div>
+              <div aria-label="角色筛选" class="status-switch" role="group">
+                <a-button
+                    :class="{ active: query.userRole === 'SUPER_ADMIN' }"
+                    class="status-btn"
+                    @click="toggleRoleFilter('SUPER_ADMIN')"
+                >
+                  超级管理员
+                </a-button>
+                <a-button
+                    :class="{ active: query.userRole === 'ENV_ADMIN' }"
+                    class="status-btn"
+                    @click="toggleRoleFilter('ENV_ADMIN')"
+                >
+                  环境管理员
+                </a-button>
+                <a-button
+                    :class="{ active: query.userRole === 'USER' }"
+                    class="status-btn"
+                    @click="toggleRoleFilter('USER')"
+                >
+                  普通用户
+                </a-button>
+              </div>
             </div>
 
             <div class="toolbar-right">
-    
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的用户吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              删除 ({{ selectedRowKeys.length }})
-            </a-button>
-          </a-popconfirm>
-          <a-button danger class="ghost-btn danger-btn" disabled v-else>
-            <template #icon><delete-outlined /></template>
-            删除
-          </a-button>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+
+              <a-popconfirm
+                  v-if="selectedRowKeys.length > 0"
+                  cancel-text="取消"
+                  ok-text="确认"
+                  title="确定批量删除选中的用户吗？"
+                  @confirm="handleBatchDelete"
+              >
+                <a-button class="ghost-btn danger-btn" danger>
+                  <template #icon>
+                    <delete-outlined/>
+                  </template>
+                  删除 ({{ selectedRowKeys.length }})
+                </a-button>
+              </a-popconfirm>
+              <a-button v-else class="ghost-btn danger-btn" danger disabled>
+                <template #icon>
+                  <delete-outlined/>
+                </template>
+                删除
+              </a-button>
+              <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
+              <a-button class="ghost-btn" @click="openCreate">
+                <template #icon>
+                  <plus-outlined/>
+                </template>
+                新增
+              </a-button>
             </div>
           </div>
         </template>
 
 
-
         <AstrsomnDataView
-          mode="table"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1020 }"
-          row-key="id"
-          empty-text="暂无匹配的用户"
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1020 }"
+            empty-text="暂无匹配的用户"
+            mode="table"
+            row-key="id"
         >
           <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'userRole'">
-            <span>{{ roleLabel(record.userRole) }}</span>
-          </template>
-          <template v-else-if="column.key === 'envCode'">
-            <span>{{ record.envCode || '—' }}</span>
-          </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="openEdit(record)">编辑</a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger>删除</a-button>
-            </a-popconfirm>
-          </template>
+            <template v-if="column.key === 'userRole'">
+              <span>{{ roleLabel(record.userRole) }}</span>
+            </template>
+            <template v-else-if="column.key === 'envCode'">
+              <span>{{ record.envCode || '—' }}</span>
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-button type="link" @click="openEdit(record)">编辑</a-button>
+              <a-divider type="vertical"/>
+              <a-popconfirm
+                  cancel-text="取消"
+                  ok-text="确认"
+                  title="确定删除吗？"
+                  @confirm="() => handleDeleteOne(record.id)"
+              >
+                <a-button danger type="link">删除</a-button>
+              </a-popconfirm>
+            </template>
           </template>
         </AstrsomnDataView>
 
         <template #pagination>
           <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
       </AstrsomnDataSection>
 
       <UserFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
-import {
-  DeleteOutlined,
-  PlusOutlined,
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message} from 'ant-design-vue'
+import {DeleteOutlined, PlusOutlined,} from '@ant-design/icons-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
 import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import UserFormModal from './UserFormModal.vue'
-import { systemUserApi, type SystemUser, type PageResponse } from '@/api/systemUser.ts'
+import {type PageResponse, type SystemUser, systemUserApi} from '@/api/systemUser.ts'
 
 const breadcrumbs = [
-  { title: '系统配置', href: '/admin/system-config' },
-  { title: '用户管理' },
+  {title: '系统配置', href: '/admin/system-config'},
+  {title: '用户管理'},
 ]
 
 type QueryState = {
@@ -161,13 +163,13 @@ function roleLabel(code: string | undefined) {
 }
 
 const columns = [
-  { title: '用户名', dataIndex: 'username', key: 'username', width: 160, ellipsis: true },
-  { title: '角色', key: 'userRole', width: 120 },
-  { title: '环境', key: 'envCode', width: 88, ellipsis: true },
-  { title: '邮箱', dataIndex: 'email', key: 'email', width: 200, ellipsis: true },
+  {title: '用户名', dataIndex: 'username', key: 'username', width: 160, ellipsis: true},
+  {title: '角色', key: 'userRole', width: 120},
+  {title: '环境', key: 'envCode', width: 88, ellipsis: true},
+  {title: '邮箱', dataIndex: 'email', key: 'email', width: 200, ellipsis: true},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
 
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
 ]
 
 const query = reactive<QueryState>({})
@@ -183,9 +185,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -296,7 +298,7 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: SystemUser) => {
   modal.submitting = true
   try {
-    const payload: SystemUser = { ...form }
+    const payload: SystemUser = {...form}
 
     let msg: string
     if (modal.mode === 'create') {

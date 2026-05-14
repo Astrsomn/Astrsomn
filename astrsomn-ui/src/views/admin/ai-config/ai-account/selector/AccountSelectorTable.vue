@@ -1,24 +1,24 @@
 <template>
   <a-drawer
-    :open="props.open"
-    placement="right"
-    :width="480"
-    :maskClosable="false"
-    :closable="true"
-    title="选择账号"
-    @close="handleClose"
-    root-class-name="account-select-drawer"
+      :closable="true"
+      :maskClosable="false"
+      :open="props.open"
+      :width="480"
+      placement="right"
+      root-class-name="account-select-drawer"
+      title="选择账号"
+      @close="handleClose"
   >
     <div class="select-drawer-content">
       <div class="search-bar">
         <a-input
-          v-model:value="keyword"
-          placeholder="搜索账号名称"
-          allow-clear
-          @pressEnter="handleSearch"
+            v-model:value="keyword"
+            allow-clear
+            placeholder="搜索账号名称"
+            @pressEnter="handleSearch"
         >
           <template #prefix>
-            <SearchOutlined />
+            <SearchOutlined/>
           </template>
         </a-input>
         <a-button type="primary" @click="handleSearch">查询</a-button>
@@ -27,48 +27,49 @@
       <a-spin :spinning="loading">
         <div class="account-list">
           <div
-            v-for="account in list"
-            :key="account.id"
-            class="account-item"
-            @click="handleSelect(account)"
+              v-for="account in list"
+              :key="account.id"
+              class="account-item"
+              @click="handleSelect(account)"
           >
             <div class="account-info">
               <div class="account-name">{{ account.accountName }}</div>
               <div class="account-key">
-                <KeyOutlined /> {{ account.accountKey }}
+                <KeyOutlined/>
+                {{ account.accountKey }}
               </div>
             </div>
             <div class="account-meta">
               <span v-if="account.usedModelCount" class="model-count">
                 关联 {{ account.usedModelCount }} 个模型
               </span>
-              <span class="env-badge" :class="account.envCode?.toLowerCase()">
+              <span :class="account.envCode?.toLowerCase()" class="env-badge">
                 {{ account.envCode || '无环境' }}
               </span>
             </div>
           </div>
 
-          <a-empty v-if="!loading && list.length === 0" description="暂无账号" />
+          <a-empty v-if="!loading && list.length === 0" description="暂无账号"/>
         </div>
       </a-spin>
 
       <div class="drawer-footer">
         <a-pagination
-          v-model:current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="fetchList"
+            v-model:current="page.pageNum"
+            :page-size="page.pageSize"
+            :show-size-changer="false"
+            :total="page.total"
+            @change="fetchList"
         />
       </div>
     </div>
   </a-drawer>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
-import { SearchOutlined, KeyOutlined } from '@ant-design/icons-vue'
-import { aiAccountApi, type AiAccount, type PageResponse } from '@/api/aiAccount.ts'
+<script lang="ts" setup>
+import {reactive, ref, watch} from 'vue'
+import {KeyOutlined, SearchOutlined} from '@ant-design/icons-vue'
+import {type AiAccount, aiAccountApi, type PageResponse} from '@/api/aiAccount.ts'
 
 const props = withDefaults(defineProps<{
   open: boolean

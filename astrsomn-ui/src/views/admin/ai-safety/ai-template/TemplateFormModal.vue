@@ -1,13 +1,15 @@
 <template>
   <AstrsomnModal
-    :open="open"
-    width="80vw"
-    :body-height="'80vh'"
-    @update:open="(value) => open = value"
-    @cancel="onCancel"
+      :body-height="'80vh'"
+      :open="open"
+      width="80vw"
+      @cancel="onCancel"
+      @update:open="(value) => open = value"
   >
     <template #header-logo>
-      <div class="logo-box"><CodeOutlined /></div>
+      <div class="logo-box">
+        <CodeOutlined/>
+      </div>
     </template>
     <template #header-title>
       <span class="main-title">{{ mode === 'create' ? '新增 FTL/ST 模板' : '编辑 FTL/ST 模板' }}</span>
@@ -19,10 +21,10 @@
       <div class="header-action-pair">
         <a-button class="header-action-btn header-action-btn-cancel" @click="onCancel">取消</a-button>
         <a-button
-          type="primary"
-          class="header-action-btn header-action-btn-save"
-          :loading="confirmLoading"
-          @click="handleOk"
+            :loading="confirmLoading"
+            class="header-action-btn header-action-btn-save"
+            type="primary"
+            @click="handleOk"
         >
           保存模板
         </a-button>
@@ -33,53 +35,53 @@
       <section class="info-pane">
         <div class="pane-card ">
           <a-form
-            ref="formRef"
-            :model="form"
-            :rules="rules"
-            layout="vertical"
-            class="template-form"
+              ref="formRef"
+              :model="form"
+              :rules="rules"
+              class="template-form"
+              layout="vertical"
           >
             <div class="form-grid">
               <a-form-item label="Template Key" name="templateKey">
                 <a-input
-                  v-model:value="form.templateKey"
-                  placeholder="同一逻辑多版本共用的 Key"
-                  :disabled="mode === 'edit'"
-                  size="large"
+                    v-model:value="form.templateKey"
+                    :disabled="mode === 'edit'"
+                    placeholder="同一逻辑多版本共用的 Key"
+                    size="large"
                 />
               </a-form-item>
 
               <a-form-item label="标题" name="templateTitle">
-                <a-input v-model:value="form.templateTitle" placeholder="展示名称" size="large" />
+                <a-input v-model:value="form.templateTitle" placeholder="展示名称" size="large"/>
               </a-form-item>
 
               <a-form-item label="分类" name="category">
-                <a-input v-model:value="form.category" placeholder="可选" allow-clear size="large" />
+                <a-input v-model:value="form.category" allow-clear placeholder="可选" size="large"/>
               </a-form-item>
 
               <a-form-item label="模板类型" name="templateType">
                 <a-select
-                  v-model:value="form.templateType"
-                  :options="templateTypeOptions"
-                  placeholder="选择引擎"
-                  size="large"
+                    v-model:value="form.templateType"
+                    :options="templateTypeOptions"
+                    placeholder="选择引擎"
+                    size="large"
                 />
               </a-form-item>
 
               <a-form-item label="版本号" name="version">
                 <a-input-number
-                  v-model:value="form.version"
-                  :min="1"
-                  :precision="0"
-                  class="w-full"
-                  placeholder="默认 1"
-                  size="large"
-                  :disabled="true"
+                    v-model:value="form.version"
+                    :disabled="true"
+                    :min="1"
+                    :precision="0"
+                    class="w-full"
+                    placeholder="默认 1"
+                    size="large"
                 />
               </a-form-item>
 
               <a-form-item label="状态" name="status">
-                <a-select v-model:value="form.status" :options="statusOptions" size="large" />
+                <a-select v-model:value="form.status" :options="statusOptions" size="large"/>
               </a-form-item>
             </div>
           </a-form>
@@ -94,16 +96,18 @@
                 {{ form.templateType === 'FREEMARKER' ? 'FTL Code Editor' : 'Template Code Editor' }}
               </span>
               <span class="editor-hint">
-                {{ form.templateType === 'FREEMARKER' ? '使用专用代码编辑框编辑 .ftl 模板' : '编辑 StringTemplate 正文' }}
+                {{
+                  form.templateType === 'FREEMARKER' ? '使用专用代码编辑框编辑 .ftl 模板' : '编辑 StringTemplate 正文'
+                }}
               </span>
             </div>
             <Codemirror
-              v-model="form.content"
-              :extensions="editorExtensions"
-              :autofocus="mode === 'create'"
-              :indent-with-tab="true"
-              :tab-size="2"
-              class="content-editor"
+                v-model="form.content"
+                :autofocus="mode === 'create'"
+                :extensions="editorExtensions"
+                :indent-with-tab="true"
+                :tab-size="2"
+                class="content-editor"
             />
           </div>
         </a-form-item>
@@ -112,15 +116,15 @@
   </AstrsomnModal>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import type { FormInstance } from 'ant-design-vue'
-import { Codemirror } from 'vue-codemirror'
-import { html } from '@codemirror/lang-html'
-import { oneDark } from '@codemirror/theme-one-dark'
-import { CodeOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from 'vue'
+import type {FormInstance} from 'ant-design-vue'
+import {Codemirror} from 'vue-codemirror'
+import {html} from '@codemirror/lang-html'
+import {oneDark} from '@codemirror/theme-one-dark'
+import {CodeOutlined} from '@ant-design/icons-vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
-import type { AiTemplate } from '@/api/aiTemplate.ts'
+import type {AiTemplate} from '@/api/aiTemplate.ts'
 
 const props = defineProps<{
   mode: 'create' | 'edit'
@@ -132,18 +136,18 @@ const emit = defineEmits<{
   submit: [payload: AiTemplate]
 }>()
 
-const open = defineModel<boolean>('open', { required: true })
+const open = defineModel<boolean>('open', {required: true})
 
 const formRef = ref<FormInstance | null>(null)
 
 const statusOptions = [
-  { label: '启用', value: 'enabled' },
-  { label: '禁用', value: 'disabled' }
+  {label: '启用', value: 'enabled'},
+  {label: '禁用', value: 'disabled'}
 ]
 
 const templateTypeOptions = [
-  { label: 'Freemarker (.ftl)', value: 'FREEMARKER' },
-  { label: 'StringTemplate (.st)', value: 'STRING_TEMPLATE' }
+  {label: 'Freemarker (.ftl)', value: 'FREEMARKER'},
+  {label: 'StringTemplate (.st)', value: 'STRING_TEMPLATE'}
 ]
 
 function emptyForm(): AiTemplate {
@@ -162,10 +166,10 @@ const form = reactive<AiTemplate>(emptyForm())
 
 const rules = {
   templateKey: [],
-  templateTitle: [{ required: true, message: '请输入标题' }],
-  content: [{ required: true, message: '请输入模板内容' }],
-  templateType: [{ required: true, message: '请选择模板类型' }],
-  status: [{ required: true, message: '请选择状态' }]
+  templateTitle: [{required: true, message: '请输入标题'}],
+  content: [{required: true, message: '请输入模板内容'}],
+  templateType: [{required: true, message: '请选择模板类型'}],
+  status: [{required: true, message: '请选择状态'}]
 }
 
 const editorExtensions = computed(() => {
@@ -187,15 +191,15 @@ function assignFromInitial(src: AiTemplate) {
 }
 
 watch(
-  () => [open.value, props.initial] as const,
-  ([isOpen, initial]) => {
-    if (!isOpen) return
-    if (initial && Object.keys(initial).length > 0) {
-      assignFromInitial(initial)
-    } else {
-      Object.assign(form, emptyForm())
+    () => [open.value, props.initial] as const,
+    ([isOpen, initial]) => {
+      if (!isOpen) return
+      if (initial && Object.keys(initial).length > 0) {
+        assignFromInitial(initial)
+      } else {
+        Object.assign(form, emptyForm())
+      }
     }
-  }
 )
 
 async function handleOk() {
@@ -205,7 +209,7 @@ async function handleOk() {
   } catch {
     return Promise.reject(new Error('validation'))
   }
-  emit('submit', { ...form })
+  emit('submit', {...form})
 }
 
 function onCancel() {
@@ -226,9 +230,8 @@ function onCancel() {
   color: #fff;
   font-size: 22px;
   flex-shrink: 0;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.2) inset,
-    0 2px 6px rgba(29, 78, 216, 0.35);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset,
+  0 2px 6px rgba(29, 78, 216, 0.35);
 }
 
 .main-title {
@@ -300,7 +303,6 @@ function onCancel() {
   gap: 20px;
   overflow: hidden;
 }
-
 
 
 .pane-card {
@@ -409,12 +411,12 @@ function onCancel() {
   .main-content {
     flex-direction: column;
   }
-  
+
   .code-pane {
     width: 100%;
     min-height: 400px;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
   }

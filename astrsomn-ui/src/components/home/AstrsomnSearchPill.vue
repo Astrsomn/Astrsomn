@@ -1,23 +1,23 @@
 <template>
-  <div class="toolbar-search-pill" :class="rootClass">
-    <SearchOutlined class="toolbar-search-pill__left-icon" />
+  <div :class="rootClass" class="toolbar-search-pill">
+    <SearchOutlined class="toolbar-search-pill__left-icon"/>
     <input
-        type="text"
-        class="toolbar-search-pill__input"
-        :value="displayValue"
         :placeholder="placeholder"
+        :value="displayValue"
+        class="toolbar-search-pill__input"
+        type="text"
         @input="onInput"
         @keyup.enter="emitSearch"
     />
-    <button type="button" class="toolbar-search-pill__btn" @click="emitSearch">
-      <SearchOutlined />
+    <button class="toolbar-search-pill__btn" type="button" @click="emitSearch">
+      <SearchOutlined/>
     </button>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { SearchOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import {SearchOutlined} from '@ant-design/icons-vue'
 
 export type ToolbarSearchPillLayout = 'toolbar' | 'pane' | 'fluid'
 
@@ -79,7 +79,6 @@ function emitSearch() {
   background: transparent;
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary, #3b82f6) 10%, transparent);
 }
-
 
 
 .toolbar-search-pill__left-icon {

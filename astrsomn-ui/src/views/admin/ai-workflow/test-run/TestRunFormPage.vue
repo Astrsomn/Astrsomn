@@ -1,29 +1,41 @@
 <template>
-  <AstrsomnPageShell title="流程测试运行" description="调用测试运行接口并查看返回结果。" empty-text="">
+  <AstrsomnPageShell description="调用测试运行接口并查看返回结果。" empty-text="" title="流程测试运行">
     <div class="form-page">
-      <a-form class="run-form" layout="vertical" :model="form" @finish="onSubmit">
+      <a-form :model="form" class="run-form" layout="vertical" @finish="onSubmit">
         <a-row :gutter="16">
-          <a-col :xs="24" :md="12"><a-form-item label="流程定义 ID"><a-input v-model:value="form.flowDefinitionId" allow-clear /></a-form-item></a-col>
-          <a-col :xs="24" :md="12"><a-form-item label="业务主键"><a-input v-model:value="form.businessKey" allow-clear /></a-form-item></a-col>
-          <a-col :xs="24"><a-form-item label="输入参数 JSON"><a-textarea v-model:value="form.inputJson" :auto-size="{ minRows: 8, maxRows: 14 }" /></a-form-item></a-col>
+          <a-col :md="12" :xs="24">
+            <a-form-item label="流程定义 ID">
+              <a-input v-model:value="form.flowDefinitionId" allow-clear/>
+            </a-form-item>
+          </a-col>
+          <a-col :md="12" :xs="24">
+            <a-form-item label="业务主键">
+              <a-input v-model:value="form.businessKey" allow-clear/>
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24">
+            <a-form-item label="输入参数 JSON">
+              <a-textarea v-model:value="form.inputJson" :auto-size="{ minRows: 8, maxRows: 14 }"/>
+            </a-form-item>
+          </a-col>
         </a-row>
-        <a-button type="primary" class="primary-btn" html-type="submit" :loading="submitting">执行测试运行</a-button>
+        <a-button :loading="submitting" class="primary-btn" html-type="submit" type="primary">执行测试运行</a-button>
       </a-form>
 
-      <a-form class="result-form" layout="vertical" v-if="resultText">
+      <a-form v-if="resultText" class="result-form" layout="vertical">
         <a-form-item label="返回结果">
-          <a-textarea :value="resultText" :auto-size="{ minRows: 8, maxRows: 16 }" disabled />
+          <a-textarea :auto-size="{ minRows: 8, maxRows: 16 }" :value="resultText" disabled/>
         </a-form-item>
       </a-form>
     </div>
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+<script lang="ts" setup>
+import {reactive, ref} from 'vue'
+import {message} from 'ant-design-vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import { aiWorkflowRuntimeApi } from '@/api/aiWorkflowRuntime'
+import {aiWorkflowRuntimeApi} from '@/api/aiWorkflowRuntime'
 
 const submitting = ref(false)
 const resultText = ref('')

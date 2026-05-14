@@ -1,38 +1,40 @@
 <template>
   <div class="zoom-controls">
     <a-input-number
-      class="zoom-percent-input"
-      size="small"
-      :value="zoomPercent"
-      :min="30"
-      :max="150"
-      :step="10"
-      :controls="false"
-      :formatter="zoomFormatter"
-      :parser="zoomParser"
-      @update:value="onInputZoom"
-      @wheel.prevent="onWheelZoom"
+        :controls="false"
+        :formatter="zoomFormatter"
+        :max="150"
+        :min="30"
+        :parser="zoomParser"
+        :step="10"
+        :value="zoomPercent"
+        class="zoom-percent-input"
+        size="small"
+        @update:value="onInputZoom"
+        @wheel.prevent="onWheelZoom"
     />
     <a-tooltip title="适配视图">
       <a-button class="tool-btn" shape="circle" @click="$emit('fit-view')">
-        <template #icon><AimOutlined /></template>
+        <template #icon>
+          <AimOutlined/>
+        </template>
       </a-button>
     </a-tooltip>
     <a-tooltip title="放大">
-      <button type="button" class="zoom-btn" @click="$emit('zoom-in')">
-        <PlusOutlined />
+      <button class="zoom-btn" type="button" @click="$emit('zoom-in')">
+        <PlusOutlined/>
       </button>
     </a-tooltip>
     <a-tooltip title="缩小">
-      <button type="button" class="zoom-btn" @click="$emit('zoom-out')">
-        <MinusOutlined />
+      <button class="zoom-btn" type="button" @click="$emit('zoom-out')">
+        <MinusOutlined/>
       </button>
     </a-tooltip>
   </div>
 </template>
 
-<script setup lang="ts">
-import { AimOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {AimOutlined, MinusOutlined, PlusOutlined} from '@ant-design/icons-vue'
 
 const props = defineProps<{
   zoomPercent: number
@@ -84,7 +86,7 @@ const onWheelZoom = (event: WheelEvent) => {
 
 .zoom-percent-input :deep(.ant-input-number-input-wrap) {
   height: 38px;
-  
+
 }
 
 .zoom-percent-input :deep(.ant-input-number-input) {

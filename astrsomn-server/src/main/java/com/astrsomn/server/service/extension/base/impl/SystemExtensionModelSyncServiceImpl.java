@@ -1,9 +1,5 @@
 package com.astrsomn.server.service.extension.base.impl;
 
-import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.dto.extension.ExtensionModelLoadPreviewDTO;
@@ -13,11 +9,11 @@ import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
+import com.astrsomn.api.runtime.exception.SystemExtensionModelSyncErrorEnum;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.api.runtime.exception.SystemExtensionModelSyncErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
 import com.astrsomn.server.service.AiModelService;
 import com.astrsomn.server.service.extension.base.SystemExtensionModelSyncService;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;
@@ -25,6 +21,10 @@ import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
+import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -42,9 +42,32 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstrsomnProperties astrsomnProperties;
 
-    private record ProviderEnv(String extensionCode, String envCode) {}
+    private static ExtensionModelSyncPreviewRowDTO toPreviewRow(AiModelEntity src, String fallbackProvider) {
+        ExtensionModelSyncPreviewRowDTO row = new ExtensionModelSyncPreviewRowDTO();
+        row.setModelKey(src.getModelKey());
+        row.setModelName(src.getModelName());
+        row.setModelType(src.getModelType());
+        String p = StringUtils.trimToNull(src.getExtensionCode());
+        row.setProvider(p != null ? p : fallbackProvider);
+        return row;
+    }
 
-    private record LoadSyncContext(String extensionCode, String envCode, ModelProviderHandler handler) {}
+    private static String resolveExtensionCode(SystemExtensionEntity ext) {
+        String fromCol = StringUtils.trimToNull(ext.getExtensionCode());
+        if (fromCol != null) {
+            return fromCol;
+        }
+        return StringUtils.trimToNull(ext.getExtensionKey());
+    }
+
+    private static Optional<AiModelEnum.ProviderEnum> findProviderEnum(String code) {
+        for (AiModelEnum.ProviderEnum e : AiModelEnum.ProviderEnum.values()) {
+            if (e.getCode().equals(code)) {
+                return Optional.of(e);
+            }
+        }
+        return Optional.empty();
+    }
 
     @Override
     public BaseResponse<String> loadModels(Long extensionId, String modelKeys) {
@@ -69,12 +92,12 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 skipped++;
                 continue;
             }
-            
+
             // 如果指定了模型键，且当前模型不在选中列表中，则跳过
             if (!selectedModelKeys.isEmpty() && !selectedModelKeys.contains(modelKey)) {
                 continue;
             }
-            
+
             String rowProvider = StringUtils.trimToNull(src.getExtensionCode());
             if (rowProvider == null) {
                 rowProvider = ctx.extensionCode();
@@ -138,12 +161,12 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 skipped++;
                 continue;
             }
-            
+
             // 如果指定了模型键，且当前模型不在选中列表中，则跳过
             if (!selectedModelKeys.isEmpty() && !selectedModelKeys.contains(mk)) {
                 continue;
             }
-            
+
             if (isModelKeyReferencedByInstance(mk, pe.envCode())) {
                 skipped++;
                 blockedKeys.add(mk);
@@ -265,33 +288,6 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
         return new LoadSyncContext(pe.extensionCode(), pe.envCode(), handlerOpt.get());
     }
 
-    private static ExtensionModelSyncPreviewRowDTO toPreviewRow(AiModelEntity src, String fallbackProvider) {
-        ExtensionModelSyncPreviewRowDTO row = new ExtensionModelSyncPreviewRowDTO();
-        row.setModelKey(src.getModelKey());
-        row.setModelName(src.getModelName());
-        row.setModelType(src.getModelType());
-        String p = StringUtils.trimToNull(src.getExtensionCode());
-        row.setProvider(p != null ? p : fallbackProvider);
-        return row;
-    }
-
-    private static String resolveExtensionCode(SystemExtensionEntity ext) {
-        String fromCol = StringUtils.trimToNull(ext.getExtensionCode());
-        if (fromCol != null) {
-            return fromCol;
-        }
-        return StringUtils.trimToNull(ext.getExtensionKey());
-    }
-
-    private static Optional<AiModelEnum.ProviderEnum> findProviderEnum(String code) {
-        for (AiModelEnum.ProviderEnum e : AiModelEnum.ProviderEnum.values()) {
-            if (e.getCode().equals(code)) {
-                return Optional.of(e);
-            }
-        }
-        return Optional.empty();
-    }
-
     private String effectiveEnvCode() {
         String stamped = queryEnvParamHelper.effectiveEnvCode();
         if (StringUtils.isNotBlank(stamped)) {
@@ -305,9 +301,15 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             return false;
         }
         return aiInstanceMapper.selectCount(
-                        new LambdaQueryWrapper<AiInstanceEntity>()
-                                .eq(AiInstanceEntity::getModelKey, modelKey.trim())
-                                .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
+                new LambdaQueryWrapper<AiInstanceEntity>()
+                        .eq(AiInstanceEntity::getModelKey, modelKey.trim())
+                        .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
                 > 0;
+    }
+
+    private record ProviderEnv(String extensionCode, String envCode) {
+    }
+
+    private record LoadSyncContext(String extensionCode, String envCode, ModelProviderHandler handler) {
     }
 }

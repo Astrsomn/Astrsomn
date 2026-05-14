@@ -1,6 +1,5 @@
-﻿package com.astrsomn.api.runtime.common.dto.extension;
+package com.astrsomn.api.runtime.common.dto.extension;
 
-import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,12 +22,12 @@ public class ExtensionMarketplaceItemDTO implements Serializable {
     private String version;
     private String author;
     private String description;
-    
+
     private String jarName;
 
-    
+
     private String extensionCode;
 
-    
+
     private String avatar;
 }

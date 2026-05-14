@@ -1,7 +1,6 @@
 package com.astrsomn.server.api.system;
 
 import com.astrsomn.api.runtime.common.dto.extension.*;
-import lombok.RequiredArgsConstructor;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
@@ -9,6 +8,7 @@ import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.extension.base.SystemExtensionModelSyncService;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;
 import com.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

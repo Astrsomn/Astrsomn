@@ -1,7 +1,7 @@
 <template>
   <div class="app-root">
-    <router-view />
-    <SystemMessageNoticeCenter />
+    <router-view/>
+    <SystemMessageNoticeCenter/>
     <footer class="global-footer">
       <span class="copyright">© 2026 Astrsomn. All rights reserved.</span>
       <span class="divider">|</span>
@@ -10,14 +10,14 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { onMounted } from 'vue'
-import { appConfig } from '@/config/config.ts'
+<script lang="ts" setup>
+import {onMounted} from 'vue'
+import {appConfig} from '@/config/config.ts'
 import SystemMessageNoticeCenter from '@/components/global/SystemMessageNoticeCenter.vue'
-import { useGuide } from '@/composables/useGuide.ts'
+import {useGuide} from '@/composables/useGuide.ts'
 import 'driver.js/dist/driver.css'
 
-const { initAutoGuide } = useGuide()
+const {initAutoGuide} = useGuide()
 
 onMounted(() => {
   initAutoGuide()

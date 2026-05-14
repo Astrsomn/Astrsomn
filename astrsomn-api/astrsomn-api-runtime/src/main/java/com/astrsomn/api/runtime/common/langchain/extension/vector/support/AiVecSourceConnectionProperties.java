@@ -1,10 +1,10 @@
-﻿package com.astrsomn.api.runtime.common.langchain.extension.vector.support;
+package com.astrsomn.api.runtime.common.langchain.extension.vector.support;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
 import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
 import com.astrsomn.common.utils.StringUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
 import java.util.Map;
@@ -55,7 +55,8 @@ public final class AiVecSourceConnectionProperties {
             return Collections.emptyMap();
         }
         try {
-            return MAPPER.readValue(configJson.trim(), new TypeReference<Map<String, Object>>() {});
+            return MAPPER.readValue(configJson.trim(), new TypeReference<Map<String, Object>>() {
+            });
         } catch (Exception e) {
             throw new IllegalArgumentException("CONFIG_JSON is not valid JSON for vector source", e);
         }
@@ -98,7 +99,7 @@ public final class AiVecSourceConnectionProperties {
         return host;
     }
 
-    
+
     public int getPort() {
         return port;
     }
@@ -119,12 +120,12 @@ public final class AiVecSourceConnectionProperties {
         return token;
     }
 
-    
+
     public String resolvedHost() {
         return StringUtils.isNotBlank(host) ? host : "localhost";
     }
 
-    
+
     public int resolvedPort(int defaultIfUnset) {
         return port > 0 ? port : defaultIfUnset;
     }

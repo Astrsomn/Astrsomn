@@ -1,24 +1,23 @@
-import { markRaw } from 'vue'
-import type { Component } from 'vue'
+import type {Component} from 'vue'
+import {markRaw} from 'vue'
 import {
-    TeamOutlined,
-    ContainerOutlined,
-    SettingOutlined,
-
-    FileTextOutlined,
-    UserOutlined,
+    BuildOutlined,
     CloudServerOutlined,
+    CloudUploadOutlined,
     CodeOutlined,
-    SecurityScanOutlined,
+    ContainerOutlined,
+    ControlOutlined,
+    DatabaseOutlined,
+    FileSearchOutlined,
+    FileTextOutlined,
     LineChartOutlined,
     NodeIndexOutlined,
-    BuildOutlined,
-    ControlOutlined,
-    SafetyOutlined,
-    DatabaseOutlined,
     PartitionOutlined,
-    FileSearchOutlined,
-    CloudUploadOutlined,
+    SafetyOutlined,
+    SecurityScanOutlined,
+    SettingOutlined,
+    TeamOutlined,
+    UserOutlined,
 } from '@ant-design/icons-vue'
 
 export type EntryAccent =
@@ -143,7 +142,7 @@ const managementGroupsAll: ManagementGroup[] = [
                 accent: 'mint', // 内容输入使用清新薄荷色
                 highlight: true,
             },
-                        {
+            {
                 key: 'templates',
                 label: 'FTL 模板',
                 description: 'Freemarker / StringTemplate 模板（AI_TEMPLATE）',

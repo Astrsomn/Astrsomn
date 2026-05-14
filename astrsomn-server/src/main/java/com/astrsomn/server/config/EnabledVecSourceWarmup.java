@@ -1,15 +1,15 @@
 package com.astrsomn.server.config;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
 import com.astrsomn.api.runtime.common.constant.AiVecSourceEnum;
 import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
-import com.astrsomn.starter.runtime.mapper.AstAiVecSourceMapper;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.mapper.AstAiVecSourceMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;

@@ -1,5 +1,6 @@
-﻿package com.astrsomn.api.runtime.common.entity;
+package com.astrsomn.api.runtime.common.entity;
 
+import com.astrsomn.common.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -8,7 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.astrsomn.common.base.BaseEntity;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -19,31 +19,31 @@ public class AiTraceLogEntity extends BaseEntity<Long> {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
-    
+
     @TableField("TRACE_ID")
     private String traceId;
 
-    
+
     @TableField("CONVERSATION_ID")
     private Long conversationId;
 
-    
+
     @TableField("AGENT_ID")
     private Long agentId;
 
-    
+
     @TableField("INSTANCE_ID")
     private Long instanceId;
 
-    
+
     @TableField("PROMPT_ID")
     private Long promptId;
 
-    
+
     @TableField("AGENT_KEY")
     private String agentKey;
 
-    
+
     @TableField("SNAPSHOT_CONTENT")
     private String snapshotContent;
 

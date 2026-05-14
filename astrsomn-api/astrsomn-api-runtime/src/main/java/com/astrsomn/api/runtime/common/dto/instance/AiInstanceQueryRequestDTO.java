@@ -1,8 +1,7 @@
-﻿package com.astrsomn.api.runtime.common.dto.instance;
+package com.astrsomn.api.runtime.common.dto.instance;
 
-import com.astrsomn.api.runtime.common.constant.AiModelEnum;
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
+import lombok.Data;
 
 import java.io.Serializable;
 
@@ -11,9 +10,9 @@ public class AiInstanceQueryRequestDTO extends AiInstanceEntity implements Seria
 
     private static final long serialVersionUID = 1L;
 
-    
+
     private String modelType;
 
-    
+
     private String extensionCode;
 }

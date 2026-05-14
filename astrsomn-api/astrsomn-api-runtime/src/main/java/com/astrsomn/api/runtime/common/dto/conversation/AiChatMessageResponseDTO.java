@@ -1,7 +1,7 @@
-﻿package com.astrsomn.api.runtime.common.dto.conversation;
+package com.astrsomn.api.runtime.common.dto.conversation;
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiChatMessageEntity;
+import lombok.Data;
 
 @Data
 public class AiChatMessageResponseDTO extends AiChatMessageEntity {

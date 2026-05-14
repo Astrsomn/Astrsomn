@@ -1,15 +1,15 @@
 package com.astrsomn.starter.runtime.langchain.tool.rag;
 
 
+import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
+import com.astrsomn.api.runtime.common.langchain.buildParam.setting.RagSetting;
+import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.RagSetting;
-import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
 import org.springframework.stereotype.Component;
 
 @Component

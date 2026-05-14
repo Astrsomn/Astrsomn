@@ -1,7 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.route;
 
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelEndpoint;
-
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -10,6 +9,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 public class WeightedRandomEndpointSelectionStrategy implements EndpointSelectionStrategy {
+
+    private static int weight(ModelEndpoint e) {
+        Integer w = e.getWeight();
+        return w == null || w < 1 ? 1 : w;
+    }
 
     @Override
     public String getId() {
@@ -50,10 +54,5 @@ public class WeightedRandomEndpointSelectionStrategy implements EndpointSelectio
             }
         }
         return -1;
-    }
-
-    private static int weight(ModelEndpoint e) {
-        Integer w = e.getWeight();
-        return w == null || w < 1 ? 1 : w;
     }
 }

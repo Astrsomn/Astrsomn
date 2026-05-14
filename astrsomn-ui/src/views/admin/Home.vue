@@ -1,35 +1,35 @@
 <template>
   <div class="admin-shell">
-    <AppHeader 
-      :showBrand="!showExtensionBackHeader"
-      :showBack="showExtensionBackHeader"
-      :page-title="headerPageTitle"
-      :showDoc="true"
-      :showSwitch="true"
-      :show-workspace-env="true"
-      switchTarget="chat"
+    <AppHeader
+        :page-title="headerPageTitle"
+        :show-workspace-env="true"
+        :showBack="showExtensionBackHeader"
+        :showBrand="!showExtensionBackHeader"
+        :showDoc="true"
+        :showSwitch="true"
+        switchTarget="chat"
     />
 
     <main class="shell-content" @scroll="handleScroll">
       <div class="content-wrapper">
         <router-view v-slot="{ Component }">
-          <transition name="page-fade" mode="out-in">
-            <component :is="Component" />
+          <transition mode="out-in" name="page-fade">
+            <component :is="Component"/>
           </transition>
         </router-view>
       </div>
     </main>
 
-    <BottomNav :auto-hide="bottomNavAutoHide" />
+    <BottomNav :auto-hide="bottomNavAutoHide"/>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+<script lang="ts" setup>
+import {computed} from 'vue';
+import {useRoute} from 'vue-router';
 import AppHeader from '@/components/top/AppHeader.vue';
 import BottomNav from '@/components/global/BottomNav.vue';
-import { appConfig } from '@/config/config.ts';
+import {appConfig} from '@/config/config.ts';
 
 const route = useRoute();
 
@@ -40,9 +40,9 @@ const leafMeta = () => {
 
 const showExtensionBackHeader = computed(() => {
   return (
-    route.name === 'AdminSystemExtension' ||
-    route.name === 'AdminWorkflowDefinitionBuilder' ||
-    route.name === 'AdminWorkflowDefinitionEditBuilder'
+      route.name === 'AdminSystemExtension' ||
+      route.name === 'AdminWorkflowDefinitionBuilder' ||
+      route.name === 'AdminWorkflowDefinitionEditBuilder'
   );
 });
 
@@ -102,7 +102,6 @@ const handleScroll = () => {
 }
 
 
-
 /* 让顶部 Header 覆盖在内容上方，这样 Header 透明时能看到底下页面内容 */
 :deep(.app-header) {
   position: fixed;
@@ -113,6 +112,8 @@ const handleScroll = () => {
 
 /* 响应式适配 */
 @media (max-width: 768px) {
-  .content-wrapper { padding: 0 16px; }
+  .content-wrapper {
+    padding: 0 16px;
+  }
 }
 </style>

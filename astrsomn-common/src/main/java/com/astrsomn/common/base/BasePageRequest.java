@@ -1,4 +1,4 @@
-﻿package com.astrsomn.common.base;
+package com.astrsomn.common.base;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,14 +11,13 @@ public class BasePageRequest<T> extends BaseRequest {
 
     private static final long serialVersionUID = 1L;
 
-    
+
     private Integer pageNo = 1;
 
-    
+
     private Integer pageSize = 10;
 
 
-    
     private T param;
 
     public BasePageRequest() {

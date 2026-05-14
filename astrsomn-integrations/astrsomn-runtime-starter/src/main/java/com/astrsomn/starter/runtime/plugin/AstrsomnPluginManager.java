@@ -1,18 +1,19 @@
 package com.astrsomn.starter.runtime.plugin;
 
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecDriver;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
 import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -103,7 +104,7 @@ public class AstrsomnPluginManager {
     }
 
     private void loadPlugin(File jar) throws Exception {
-        URL[] urls = { jar.toURI().toURL() };
+        URL[] urls = {jar.toURI().toURL()};
         // 传入 ContextClassLoader 作为父加载器以保证类可见性
         PluginClassLoader classLoader = new PluginClassLoader(urls, Thread.currentThread().getContextClassLoader());
 

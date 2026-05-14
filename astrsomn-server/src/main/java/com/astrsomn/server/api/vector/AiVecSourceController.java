@@ -1,16 +1,12 @@
 package com.astrsomn.server.api.vector;
 
-import lombok.RequiredArgsConstructor;
+import com.astrsomn.api.runtime.common.dto.vecsource.*;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceSetStatusRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceUpdateRequestDTO;
 import com.astrsomn.server.service.AiVecSourceService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -40,7 +36,9 @@ public class AiVecSourceController extends BaseController {
         return aiVecSourceService.testConnection(request);
     }
 
-    /** 启用 / 禁用：更新 STATUS，并注册或移除运行时向量源连接缓存。 */
+    /**
+     * 启用 / 禁用：更新 STATUS，并注册或移除运行时向量源连接缓存。
+     */
     @PostMapping("/set-status")
     public BaseResponse<String> setStatus(@RequestBody AiVecSourceSetStatusRequestDTO request) {
         return aiVecSourceService.setEnabledStatus(request);

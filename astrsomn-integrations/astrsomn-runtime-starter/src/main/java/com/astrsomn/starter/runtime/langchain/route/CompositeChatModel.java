@@ -1,5 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.route;
 
+import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelEndpoint;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelRouteSetting;
 import dev.langchain4j.model.ModelProvider;
 import dev.langchain4j.model.chat.ChatModel;

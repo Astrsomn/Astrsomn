@@ -1,6 +1,5 @@
-﻿package com.astrsomn.api.runtime.common.dto.systemmessage;
+package com.astrsomn.api.runtime.common.dto.systemmessage;
 
-import com.astrsomn.api.runtime.common.entity.SystemMessageEntity;
 import lombok.Data;
 
 
@@ -18,6 +17,6 @@ public class SystemMessageRecordCommand {
     private String source;
     private String errorCode;
 
-    
+
     private String envCode;
 }

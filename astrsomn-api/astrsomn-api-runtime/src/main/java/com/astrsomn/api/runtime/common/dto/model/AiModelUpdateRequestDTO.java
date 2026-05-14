@@ -1,6 +1,5 @@
-﻿package com.astrsomn.api.runtime.common.dto.model;
+package com.astrsomn.api.runtime.common.dto.model;
 
-import com.astrsomn.common.base.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;

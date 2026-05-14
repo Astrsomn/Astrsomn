@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.workflow.domain.dto.msgoutbox;
+package com.astrsomn.api.workflow.domain.dto.msgoutbox;
 
 import com.astrsomn.common.base.BaseEntity;
 import lombok.Data;

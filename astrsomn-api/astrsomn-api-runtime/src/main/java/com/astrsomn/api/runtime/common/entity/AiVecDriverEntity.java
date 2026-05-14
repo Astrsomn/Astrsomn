@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.entity;
+package com.astrsomn.api.runtime.common.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,9 +1,9 @@
 package com.astrsomn.internal.storage.service.impl;
 
+import com.astrsomn.api.storage.exception.AstFileErrorEnum;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.internal.storage.config.StorageProperties;
-import com.astrsomn.api.storage.exception.AstFileErrorEnum;
 import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
 import com.astrsomn.internal.storage.service.model.StorageDownloadRequest;
 import com.astrsomn.internal.storage.service.model.StorageUploadRequest;
@@ -33,6 +33,35 @@ public class XFileStorageClient implements AstrsomnStorageClient {
     private final FileStorageService fileStorageService;
     private final StorageProperties storageProperties;
     private final Environment environment;
+
+    private static String extractExt(String originalName) {
+        int idx = originalName.lastIndexOf('.');
+        if (idx < 0 || idx == originalName.length() - 1) {
+            return "";
+        }
+        return originalName.substring(idx + 1).toLowerCase();
+    }
+
+    private static String sanitize(String originalName) {
+        return originalName.replaceAll("[^a-zA-Z0-9._-]", "_");
+    }
+
+    private static String buildDatePath() {
+        LocalDate now = LocalDate.now();
+        return now.format(DATE_PATH_FORMATTER);
+    }
+
+    private static String buildSaveFilename(String originalName, String ext, boolean randomFilename) {
+        String safeName = sanitize(originalName);
+        if (!ext.isEmpty() && !safeName.toLowerCase().endsWith("." + ext)) {
+            safeName = safeName + "." + ext;
+        }
+        if (!randomFilename) {
+            return safeName;
+        }
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return uuid + "_" + safeName;
+    }
 
     @Override
     public StorageUploadResult upload(StorageUploadRequest request) {
@@ -138,34 +167,5 @@ public class XFileStorageClient implements AstrsomnStorageClient {
             log.warn("x-file-storage delete failed key={} platform={}", objectKey, platform, e);
             throw new BusinessException(AstFileErrorEnum.FILE_DELETE_FAILED, e.getMessage());
         }
-    }
-
-    private static String extractExt(String originalName) {
-        int idx = originalName.lastIndexOf('.');
-        if (idx < 0 || idx == originalName.length() - 1) {
-            return "";
-        }
-        return originalName.substring(idx + 1).toLowerCase();
-    }
-
-    private static String sanitize(String originalName) {
-        return originalName.replaceAll("[^a-zA-Z0-9._-]", "_");
-    }
-
-    private static String buildDatePath() {
-        LocalDate now = LocalDate.now();
-        return now.format(DATE_PATH_FORMATTER);
-    }
-
-    private static String buildSaveFilename(String originalName, String ext, boolean randomFilename) {
-        String safeName = sanitize(originalName);
-        if (!ext.isEmpty() && !safeName.toLowerCase().endsWith("." + ext)) {
-            safeName = safeName + "." + ext;
-        }
-        if (!randomFilename) {
-            return safeName;
-        }
-        String uuid = UUID.randomUUID().toString().replace("-", "");
-        return uuid + "_" + safeName;
     }
 }

@@ -24,7 +24,7 @@ public interface AiChatMessageMapper extends BaseMapper<AiChatMessageEntity> {
     List<AiChatUsageDTO> selectTodayUsage(@Param("envCode") String envCode);
 
     List<AiAccountUsageStatsDTO> selectUsageByAccountKeys(@Param("envCode") String envCode,
-                                                           @Param("accountKeys") List<String> accountKeys);
+                                                          @Param("accountKeys") List<String> accountKeys);
 
 
     List<AiChatMessageResponseDTO> recoverByMemoryKey(@Param("memoryKey") String memoryKey);

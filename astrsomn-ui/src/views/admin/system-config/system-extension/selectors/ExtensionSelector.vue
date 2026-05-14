@@ -1,17 +1,17 @@
 <template>
-  <a-select :value="value" :loading="loading" :disabled="disabled" :placeholder="placeholder" :size="size"
-    option-filter-prop="label" :allow-clear="allowClear" class="model-provider-select" @update:value="onUpdate">
+  <a-select :allow-clear="allowClear" :disabled="disabled" :loading="loading" :placeholder="placeholder" :size="size"
+            :value="value" class="model-provider-select" option-filter-prop="label" @update:value="onUpdate">
     <template #label="{ label, value: val }">
-      <div class="selected-content" v-if="val">
-        <img v-if="getSelectedAvatar(val)" class="opt-avatar" :src="getSelectedAvatar(val)" :alt="label" />
+      <div v-if="val" class="selected-content">
+        <img v-if="getSelectedAvatar(val)" :alt="label" :src="getSelectedAvatar(val)" class="opt-avatar"/>
         <span v-else class="opt-avatar-placeholder"></span>
         <span class="opt-text">{{ label }}</span>
       </div>
     </template>
 
-    <a-select-option v-for="opt in optionsWithFallback" :key="opt.key" :value="opt.key" :label="opt.label">
+    <a-select-option v-for="opt in optionsWithFallback" :key="opt.key" :label="opt.label" :value="opt.key">
       <div class="opt-row">
-        <img v-if="opt.avatar" class="opt-avatar" :src="opt.avatar" :alt="opt.label" aria-hidden="true" />
+        <img v-if="opt.avatar" :alt="opt.label" :src="opt.avatar" aria-hidden="true" class="opt-avatar"/>
         <span v-else class="opt-avatar-placeholder"></span>
         <span class="opt-text">{{ opt.label }}</span>
       </div>
@@ -19,30 +19,30 @@
   </a-select>
 </template>
 
-<script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { message } from 'ant-design-vue'
-import { systemExtensionApi, type SystemExtension } from '@/api/systemExtension.ts'
+<script lang="ts" setup>
+import {computed, onMounted, ref, watch} from 'vue'
+import {message} from 'ant-design-vue'
+import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts'
 
 const props = withDefaults(
-  defineProps<{
-    value?: string
-    disabled?: boolean
-    placeholder?: string
-    size?: 'large' | 'middle' | 'small'
-    allowClear?: boolean
-    /** 扩展类型：MODEL_PROVIDER 或 VECTOR_STORE */
-    extensionType?: 'MODEL_PROVIDER' | 'VECTOR_STORE'
-    /** 是否只查询已启用的扩展 */
-    onlyApplied?: boolean
-  }>(),
-  {
-    placeholder: '根据供应商筛选',
-    size: 'large',
-    allowClear: false,
-    extensionType: 'MODEL_PROVIDER',
-    onlyApplied: true
-  }
+    defineProps<{
+      value?: string
+      disabled?: boolean
+      placeholder?: string
+      size?: 'large' | 'middle' | 'small'
+      allowClear?: boolean
+      /** 扩展类型：MODEL_PROVIDER 或 VECTOR_STORE */
+      extensionType?: 'MODEL_PROVIDER' | 'VECTOR_STORE'
+      /** 是否只查询已启用的扩展 */
+      onlyApplied?: boolean
+    }>(),
+    {
+      placeholder: '根据供应商筛选',
+      size: 'large',
+      allowClear: false,
+      extensionType: 'MODEL_PROVIDER',
+      onlyApplied: true
+    }
 )
 
 const emit = defineEmits<{
@@ -64,20 +64,20 @@ function displayName(it: SystemExtension): string {
 type OptRow = { key: string; label: string; avatar: string }
 
 const catalogOptions = computed((): OptRow[] =>
-  catalog.value
-    .filter((it) => rowKey(it))
-    .map((it) => ({
-      key: rowKey(it),
-      label: displayName(it),
-      avatar: it.avatar?.trim() || ''
-    }))
+    catalog.value
+        .filter((it) => rowKey(it))
+        .map((it) => ({
+          key: rowKey(it),
+          label: displayName(it),
+          avatar: it.avatar?.trim() || ''
+        }))
 )
 
 const optionsWithFallback = computed((): OptRow[] => {
   const base = catalogOptions.value
   const v = props.value?.trim()
   if (v && !base.some((o) => o.key === v)) {
-    return [{ key: v, label: v, avatar: '' }, ...base]
+    return [{key: v, label: v, avatar: ''}, ...base]
   }
   return base
 })
@@ -114,10 +114,10 @@ onMounted(() => {
 })
 
 watch(
-  () => [props.extensionType, props.onlyApplied],
-  () => {
-    void load()
-  }
+    () => [props.extensionType, props.onlyApplied],
+    () => {
+      void load()
+    }
 )
 
 function onUpdate(v: string | undefined) {

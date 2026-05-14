@@ -1,30 +1,30 @@
-﻿package com.astrsomn.api.runtime.common.constant;
+package com.astrsomn.api.runtime.common.constant;
 
+import com.astrsomn.common.base.BaseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.common.base.BaseEnum;
 
 
 public interface SystemMessageEnum {
 
-    
+
     @Getter
     @AllArgsConstructor
     enum MessageTypeEnum implements BaseEnum {
 
-        
+
         PLUGIN_INSTALLED("PLUGIN_INSTALLED", "插件已安装"),
-        
+
         PLUGIN_INSTALL_FAILED("PLUGIN_INSTALL_FAILED", "插件安装失败"),
-        
+
         PLUGIN_UNINSTALLED("PLUGIN_UNINSTALLED", "插件已卸载"),
-        
+
         DEPLOYMENT_ONLINE("DEPLOYMENT_ONLINE", "上线通知"),
-        
+
         API_CALL_FAILED("API_CALL_FAILED", "调用失败"),
-        
+
         SYSTEM_NOTICE("SYSTEM_NOTICE", "系统通知"),
-        
+
         OTHER("OTHER", "其他");
 
         private final String code;
@@ -44,7 +44,7 @@ public interface SystemMessageEnum {
         }
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum MessageLevelEnum implements BaseEnum {
@@ -71,7 +71,7 @@ public interface SystemMessageEnum {
         }
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum ReadStatusEnum implements BaseEnum {
@@ -96,12 +96,12 @@ public interface SystemMessageEnum {
         }
     }
 
-    
+
     @Getter
     @AllArgsConstructor
     enum RefTypeEnum implements BaseEnum {
 
-        
+
         EXTENSION("EXTENSION", "扩展/插件"),
         AI_INSTANCE("AI_INSTANCE", "模型实例"),
         AI_AGENT("AI_AGENT", "Agent"),

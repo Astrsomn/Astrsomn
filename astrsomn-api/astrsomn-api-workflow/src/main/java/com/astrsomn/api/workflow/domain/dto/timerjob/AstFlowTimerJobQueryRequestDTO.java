@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.workflow.domain.dto.timerjob;
+package com.astrsomn.api.workflow.domain.dto.timerjob;
 
 import com.astrsomn.common.base.BaseEntity;
 import lombok.Data;

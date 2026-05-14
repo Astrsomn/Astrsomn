@@ -1,9 +1,9 @@
 package com.astrsomn.vector.chroma.internal;
 
-import dev.langchain4j.store.embedding.chroma.ChromaApiVersion;
 import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
 import com.astrsomn.common.utils.StringUtils;
+import dev.langchain4j.store.embedding.chroma.ChromaApiVersion;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -25,7 +25,8 @@ public final class ChromaCollectionAdmin {
     private static final HttpClient HTTP =
             HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
-    private ChromaCollectionAdmin() {}
+    private ChromaCollectionAdmin() {
+    }
 
     public static boolean collectionExists(AiVecSourceEntity sourceEntity, String collectionName) {
         if (StringUtils.isBlank(collectionName)) {
@@ -47,7 +48,9 @@ public final class ChromaCollectionAdmin {
         throw new IllegalStateException("Chroma collection exists check failed: HTTP " + code);
     }
 
-    /** 删除集合；若集合已不存在则视为成功（幂等）。 */
+    /**
+     * 删除集合；若集合已不存在则视为成功（幂等）。
+     */
     public static void deleteCollection(AiVecSourceEntity sourceEntity, String collectionName) {
         if (StringUtils.isBlank(collectionName)) {
             return;

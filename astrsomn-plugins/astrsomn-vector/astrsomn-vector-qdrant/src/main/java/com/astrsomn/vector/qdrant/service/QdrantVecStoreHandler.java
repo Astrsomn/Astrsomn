@@ -1,17 +1,17 @@
 package com.astrsomn.vector.qdrant.service;
 
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.qdrant.QdrantEmbeddingStore;
-import io.qdrant.client.QdrantClient;
-import io.qdrant.client.grpc.Collections.Distance;
-import io.qdrant.client.grpc.Collections.VectorParams;
 import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
 import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecDoc;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecStore;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.vector.qdrant.internal.QdrantVecConstants;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.qdrant.QdrantEmbeddingStore;
+import io.qdrant.client.QdrantClient;
+import io.qdrant.client.grpc.Collections.Distance;
+import io.qdrant.client.grpc.Collections.VectorParams;
 
 import java.util.concurrent.ExecutionException;
 
@@ -23,6 +23,26 @@ public final class QdrantVecStoreHandler extends AbstractVecStore {
     public QdrantVecStoreHandler(QdrantVecSourceHandler source, AiVecStoreEntity entity) {
         super(source, entity);
         this.qdrantSource = source;
+    }
+
+    private static Distance mapDistance(String metric) {
+        if (StringUtils.isBlank(metric)) {
+            return Distance.Cosine;
+        }
+        switch (metric.trim().toLowerCase()) {
+            case "cosine":
+                return Distance.Cosine;
+            case "dot":
+            case "dot_product":
+            case "ip":
+                return Distance.Dot;
+            case "euclid":
+            case "euclidean":
+            case "l2":
+                return Distance.Euclid;
+            default:
+                return Distance.Cosine;
+        }
     }
 
     QdrantVecSourceHandler qdrantSource() {
@@ -127,25 +147,5 @@ public final class QdrantVecStoreHandler extends AbstractVecStore {
             throw new IllegalStateException("AiVecStoreEntity.dimension too large");
         }
         return d.intValue();
-    }
-
-    private static Distance mapDistance(String metric) {
-        if (StringUtils.isBlank(metric)) {
-            return Distance.Cosine;
-        }
-        switch (metric.trim().toLowerCase()) {
-            case "cosine":
-                return Distance.Cosine;
-            case "dot":
-            case "dot_product":
-            case "ip":
-                return Distance.Dot;
-            case "euclid":
-            case "euclidean":
-            case "l2":
-                return Distance.Euclid;
-            default:
-                return Distance.Cosine;
-        }
     }
 }

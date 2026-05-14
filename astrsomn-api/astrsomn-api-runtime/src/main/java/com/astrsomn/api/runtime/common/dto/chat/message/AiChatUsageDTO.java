@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.dto.chat.message;
+package com.astrsomn.api.runtime.common.dto.chat.message;
 
 import lombok.Data;
 

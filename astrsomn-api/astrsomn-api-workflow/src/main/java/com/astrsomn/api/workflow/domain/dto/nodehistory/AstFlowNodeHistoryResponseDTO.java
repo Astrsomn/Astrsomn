@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.workflow.domain.dto.nodehistory;
+package com.astrsomn.api.workflow.domain.dto.nodehistory;
 
 import com.astrsomn.common.base.BaseEntity;
 import lombok.Data;

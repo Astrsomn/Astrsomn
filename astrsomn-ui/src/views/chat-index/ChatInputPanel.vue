@@ -1,47 +1,47 @@
 <template>
-  <transition name="input-slide" appear>
-    <div class="chat-input-section" :class="[`is-${props.layout}`]">
+  <transition appear name="input-slide">
+    <div :class="[`is-${props.layout}`]" class="chat-input-section">
       <div class="input-panel">
         <div
-          class="input-body-wrap"
-          :class="{ 'is-dragging': isDragging }"
-          @dragenter.prevent="canUploadImage && onDragEnter"
-          @dragover.prevent="canUploadImage && onDragOver"
-          @dragleave.prevent="canUploadImage && onDragLeave"
-          @drop.prevent="canUploadImage && onDrop"
+            :class="{ 'is-dragging': isDragging }"
+            class="input-body-wrap"
+            @dragenter.prevent="canUploadImage && onDragEnter"
+            @dragover.prevent="canUploadImage && onDragOver"
+            @dragleave.prevent="canUploadImage && onDragLeave"
+            @drop.prevent="canUploadImage && onDrop"
         >
           <div v-if="isDragging" class="drag-overlay">拖拽文件到这里上传</div>
 
           <AstroChatComposer
-            variant="nested"
-            density="comfortable"
-            :model-value="draft"
-            placeholder="问点什么吧..."
-            :disabled="isStreaming"
-            :is-streaming="isStreaming"
-            :send-disabled="sendDisabled"
-            @update:model-value="onDraftInput"
-            @submit="handleSend"
-            @stop="emit('stop')"
-            @paste="handlePaste"
+              :disabled="isStreaming"
+              :is-streaming="isStreaming"
+              :model-value="draft"
+              :send-disabled="sendDisabled"
+              density="comfortable"
+              placeholder="问点什么吧..."
+              variant="nested"
+              @paste="handlePaste"
+              @stop="emit('stop')"
+              @submit="handleSend"
+              @update:model-value="onDraftInput"
           >
             <template #preview>
               <div v-if="uploadedFiles.length" class="uploaded-preview">
                 <div v-for="item in uploadedFiles" :key="item.id" class="preview-item">
                   <a-image
-                    v-if="item.isImage"
-                    class="preview-image"
-                    :src="item.url"
-                    :alt="item.name"
-                    :preview="item.status === 'success'"
+                      v-if="item.isImage"
+                      :alt="item.name"
+                      :preview="item.status === 'success'"
+                      :src="item.url"
+                      class="preview-image"
                   />
                   <div v-else class="preview-file">{{ item.name }}</div>
                   <div v-if="item.status === 'uploading'" class="preview-uploading">上传中...</div>
                   <div v-if="item.isImage && item.status === 'success'" class="preview-view-hint" title="点击查看大图">
-                    <EyeOutlined />
+                    <EyeOutlined/>
                   </div>
-                  <button class="preview-remove" type="button" title="移除图片" @click="removeUploadedFile(item.id)">
-                    <CloseCircleFilled />
+                  <button class="preview-remove" title="移除图片" type="button" @click="removeUploadedFile(item.id)">
+                    <CloseCircleFilled/>
                   </button>
                 </div>
               </div>
@@ -49,17 +49,17 @@
             <template #toolbar>
               <div class="toolbar-left">
                 <a-select
-                  :value="selectedAgent"
-                  class="panel-select"
-                  placeholder="选择 Agent"
-                  :bordered="false"
-                  :loading="optionsLoading"
-                  @update:value="emit('update:selectedAgent', $event)"
+                    :bordered="false"
+                    :loading="optionsLoading"
+                    :value="selectedAgent"
+                    class="panel-select"
+                    placeholder="选择 Agent"
+                    @update:value="emit('update:selectedAgent', $event)"
                 >
                   <a-select-option
-                    v-for="agent in agentOptions"
-                    :key="agent.agentKey"
-                    :value="agent.agentKey"
+                      v-for="agent in agentOptions"
+                      :key="agent.agentKey"
+                      :value="agent.agentKey"
                   >
                     {{ agent.agentName || agent.agentKey }}
                   </a-select-option>
@@ -69,35 +69,35 @@
 
                 <div class="instance-select-with-avatar">
                   <img
-                    v-if="selectedChatInstanceAvatarHtml"
-                    class="inst-select-inline-avatar"
-                    :src="selectedChatInstanceAvatarHtml"
-                    :alt="selectedChatInstanceKey"
-                    aria-hidden="true"
+                      v-if="selectedChatInstanceAvatarHtml"
+                      :alt="selectedChatInstanceKey"
+                      :src="selectedChatInstanceAvatarHtml"
+                      aria-hidden="true"
+                      class="inst-select-inline-avatar"
                   />
                   <a-select
-                    :value="selectedChatInstanceKey"
-                    class="panel-select instance-select-inner"
-                    placeholder="选择对话实例"
-                    :bordered="false"
-                    dropdown-class-name="custom-dropdown"
-                    option-label-prop="label"
-                    :loading="optionsLoading"
-                    @update:value="emit('update:selectedChatInstanceKey', $event)"
+                      :bordered="false"
+                      :loading="optionsLoading"
+                      :value="selectedChatInstanceKey"
+                      class="panel-select instance-select-inner"
+                      dropdown-class-name="custom-dropdown"
+                      option-label-prop="label"
+                      placeholder="选择对话实例"
+                      @update:value="emit('update:selectedChatInstanceKey', $event)"
                   >
                     <a-select-option
-                      v-for="inst in chatInstanceOptions"
-                      :key="inst.instanceKey"
-                      :value="inst.instanceKey"
-                      :label="inst.instanceName || inst.instanceKey"
+                        v-for="inst in chatInstanceOptions"
+                        :key="inst.instanceKey"
+                        :label="inst.instanceName || inst.instanceKey"
+                        :value="inst.instanceKey"
                     >
                       <span class="inst-opt-row">
                         <img
-                          v-if="instanceAvatarHtml(inst)"
-                          class="inst-opt-avatar"
-                          :src="instanceAvatarHtml(inst)"
-                          :alt="inst.instanceKey"
-                          aria-hidden="true"
+                            v-if="instanceAvatarHtml(inst)"
+                            :alt="inst.instanceKey"
+                            :src="instanceAvatarHtml(inst)"
+                            aria-hidden="true"
+                            class="inst-opt-avatar"
                         />
                         <span class="inst-opt-text">{{ inst.instanceName || inst.instanceKey }}</span>
                       </span>
@@ -108,33 +108,35 @@
             </template>
             <template #footer-left>
               <a-upload
-                v-if="canUploadImage"
-                :show-upload-list="false"
-                :before-upload="beforeUpload"
-                :custom-request="uploadRequest"
-                :accept="FILE_ACCEPT"
-                class="upload-trigger"
+                  v-if="canUploadImage"
+                  :accept="FILE_ACCEPT"
+                  :before-upload="beforeUpload"
+                  :custom-request="uploadRequest"
+                  :show-upload-list="false"
+                  class="upload-trigger"
               >
                 <button class="icon-btn" title="上传图片">
-                  <PaperClipOutlined />
+                  <PaperClipOutlined/>
                 </button>
               </a-upload>
 
               <div class="feature-switches">
                 <div
-                  v-if="canDeepThinking"
-                  class="feature-tag"
-                  :class="{ active: isDeepThinking }"
-                  @click="emit('update:isDeepThinking', !isDeepThinking)"
+                    v-if="canDeepThinking"
+                    :class="{ active: isDeepThinking }"
+                    class="feature-tag"
+                    @click="emit('update:isDeepThinking', !isDeepThinking)"
                 >
-                  <BulbOutlined /> 深度思考
+                  <BulbOutlined/>
+                  深度思考
                 </div>
                 <div
-                  class="feature-tag"
-                  :class="{ active: isWebSearch }"
-                  @click="emit('update:isWebSearch', !isWebSearch)"
+                    :class="{ active: isWebSearch }"
+                    class="feature-tag"
+                    @click="emit('update:isWebSearch', !isWebSearch)"
                 >
-                  <GlobalOutlined /> 联网搜索
+                  <GlobalOutlined/>
+                  联网搜索
                 </div>
               </div>
             </template>
@@ -146,21 +148,15 @@
   </transition>
 </template>
 
-<script setup lang="ts">
-import {
-  BulbOutlined,
-  CloseCircleFilled,
-  EyeOutlined,
-  GlobalOutlined,
-  PaperClipOutlined
-} from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {BulbOutlined, CloseCircleFilled, EyeOutlined, GlobalOutlined, PaperClipOutlined} from '@ant-design/icons-vue'
 import request from '@/utils/request'
-import { AstroChatComposer } from '@astrsomn/astro-chat-vue'
-import type { AiAgent } from '@/api/aiAgent.ts'
-import type { AiInstance } from '@/api/aiInstance.ts'
-import { message } from 'ant-design-vue'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import type { UploadProps } from 'ant-design-vue'
+import {AstroChatComposer} from '@astrsomn/astro-chat-vue'
+import type {AiAgent} from '@/api/aiAgent.ts'
+import type {AiInstance} from '@/api/aiInstance.ts'
+import type {UploadProps} from 'ant-design-vue'
+import {message} from 'ant-design-vue'
+import {computed, onBeforeUnmount, ref, watch} from 'vue'
 
 const props = withDefaults(defineProps<{
   layout?: 'bottom' | 'centered'
@@ -223,7 +219,7 @@ function instanceAvatarHtml(inst: AiInstance): string {
 }
 
 const selectedChatInstance = computed(() =>
-  props.chatInstanceOptions.find((i) => i.instanceKey === props.selectedChatInstanceKey)
+    props.chatInstanceOptions.find((i) => i.instanceKey === props.selectedChatInstanceKey)
 )
 
 const selectedChatInstanceAvatarHtml = computed(() => {
@@ -236,25 +232,25 @@ const hasCapability = (code: string): boolean => {
 }
 
 const canUploadImage = computed(() =>
-  props.modelCapabilities.length === 0 || hasCapability('vision')
+    props.modelCapabilities.length === 0 || hasCapability('vision')
 )
 
 const canDeepThinking = computed(() =>
-  props.modelCapabilities.length === 0 || hasCapability('deep_reasoning')
+    props.modelCapabilities.length === 0 || hasCapability('deep_reasoning')
 )
 
 /** 本地草稿：与父级 userInput 同步，但发送时先在此清空，避免仅依赖 v-model 时 a-textarea 不刷新 */
 const draft = ref('')
 
 watch(
-  () => props.userInput,
-  (v) => {
-    const next = v ?? ''
-    if (next !== draft.value) {
-      draft.value = next
-    }
-  },
-  { immediate: true }
+    () => props.userInput,
+    (v) => {
+      const next = v ?? ''
+      if (next !== draft.value) {
+        draft.value = next
+      }
+    },
+    {immediate: true}
 )
 
 const onDraftInput = (v: string) => {
@@ -264,45 +260,45 @@ const onDraftInput = (v: string) => {
 }
 
 watch(
-  () => props.fileUrlList ?? [],
-  (urls) => {
-    const currentByUrl = new Map(uploadedFiles.value.map((item) => [item.url, item]))
-    uploadedFiles.value = urls.map((url, idx) => {
-      const current = currentByUrl.get(url)
-      if (current) return current
-      return {
-        id: `${Date.now()}-${idx}`,
-        url,
-        name: `image-${idx + 1}`,
-        isImage: true,
-        status: 'success'
-      }
-    })
-  },
-  { immediate: true }
+    () => props.fileUrlList ?? [],
+    (urls) => {
+      const currentByUrl = new Map(uploadedFiles.value.map((item) => [item.url, item]))
+      uploadedFiles.value = urls.map((url, idx) => {
+        const current = currentByUrl.get(url)
+        if (current) return current
+        return {
+          id: `${Date.now()}-${idx}`,
+          url,
+          name: `image-${idx + 1}`,
+          isImage: true,
+          status: 'success'
+        }
+      })
+    },
+    {immediate: true}
 )
 
 const emitFileUrlList = () => {
   emit(
-    'update:fileUrlList',
-    uploadedFiles.value.filter((item) => item.status === 'success').map((item) => item.url)
+      'update:fileUrlList',
+      uploadedFiles.value.filter((item) => item.status === 'success').map((item) => item.url)
   )
 }
 
 watch(
-  () => props.modelCapabilities,
-  () => {
-    if (!canUploadImage.value && uploadedFiles.value.length > 0) {
-      uploadedFiles.value.forEach((item) => {
-        if (item.localPreviewUrl) URL.revokeObjectURL(item.localPreviewUrl)
-      })
-      uploadedFiles.value = []
-      emitFileUrlList()
+    () => props.modelCapabilities,
+    () => {
+      if (!canUploadImage.value && uploadedFiles.value.length > 0) {
+        uploadedFiles.value.forEach((item) => {
+          if (item.localPreviewUrl) URL.revokeObjectURL(item.localPreviewUrl)
+        })
+        uploadedFiles.value = []
+        emitFileUrlList()
+      }
+      if (!canDeepThinking.value && props.isDeepThinking) {
+        emit('update:isDeepThinking', false)
+      }
     }
-    if (!canDeepThinking.value && props.isDeepThinking) {
-      emit('update:isDeepThinking', false)
-    }
-  }
 )
 
 const isAllowedFileType = (file: File) => {
@@ -382,7 +378,7 @@ const uploadSingleFile = async (file: File) => {
       target.localPreviewUrl = undefined
     }
     const duplicateByUrl = uploadedFiles.value.find(
-      (item) => item.id !== target.id && item.status === 'success' && item.url === fileUrl
+        (item) => item.id !== target.id && item.status === 'success' && item.url === fileUrl
     )
     if (duplicateByUrl) {
       uploadedFiles.value = uploadedFiles.value.filter((item) => item.id !== target.id)

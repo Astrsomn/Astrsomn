@@ -36,6 +36,48 @@ public class StreamTurnPersistenceHelper {
     private final AstrsomnProperties astrsomnProperties;
     private final SensitiveWordProvider sensitiveWordProvider;
 
+    private static String errPreview(Throwable error, String safeAssistant) {
+        if (error != null) {
+            String m = error.getMessage() != null ? error.getMessage().trim() : "";
+            return m.isEmpty() ? error.getClass().getSimpleName() : m;
+        }
+        return safeAssistant;
+    }
+
+    private static ToolPersistKind classifyTool(String toolName) {
+        if (toolName == null) {
+            return ToolPersistKind.GENERIC;
+        }
+        String n = toolName.toLowerCase();
+        if (n.startsWith("image") || n.contains("_image") || n.contains("generateimage")) {
+            return ToolPersistKind.IMAGE;
+        }
+        if (n.contains("html")) {
+            return ToolPersistKind.HTML;
+        }
+        return ToolPersistKind.GENERIC;
+    }
+
+    private static String buildSegmentExtJson(String runId, String partKind, String toolName) {
+        Map<String, Object> ext = new LinkedHashMap<>();
+        ext.put(AiChatMessageExtJsonKeys.SCHEMA_VERSION, AiChatMessageExtJsonKeys.SCHEMA_VERSION_V1);
+        ext.put(AiChatMessageExtJsonKeys.RUN_ID, runId);
+        ext.put(AiChatMessageExtJsonKeys.LINEAGE, AiChatEnum.MessageLineageEnum.ASSISTANT_SEGMENT.getCode());
+        ext.put(AiChatMessageExtJsonKeys.PART_KIND, partKind);
+        if (StringUtils.isNotBlank(toolName)) {
+            ext.put(AiChatMessageExtJsonKeys.TOOL_NAME, toolName);
+        }
+        return JsonUtil.toJson(ext);
+    }
+
+    private static String previewUserInput(AstroChatParam<?> param) {
+        return StringUtils.trimToNull(param.getUserMessageText());
+    }
+
+    private static String blankToNull(String envCode) {
+        return StringUtils.isBlank(envCode) ? null : envCode;
+    }
+
     @Transactional
     public void persistStreamTurn(
             AstroChatParam<?> param,
@@ -210,32 +252,6 @@ public class StreamTurnPersistenceHelper {
         return "";
     }
 
-    private static String errPreview(Throwable error, String safeAssistant) {
-        if (error != null) {
-            String m = error.getMessage() != null ? error.getMessage().trim() : "";
-            return m.isEmpty() ? error.getClass().getSimpleName() : m;
-        }
-        return safeAssistant;
-    }
-
-    private enum ToolPersistKind {
-        IMAGE, HTML, GENERIC
-    }
-
-    private static ToolPersistKind classifyTool(String toolName) {
-        if (toolName == null) {
-            return ToolPersistKind.GENERIC;
-        }
-        String n = toolName.toLowerCase();
-        if (n.startsWith("image") || n.contains("_image") || n.contains("generateimage")) {
-            return ToolPersistKind.IMAGE;
-        }
-        if (n.contains("html")) {
-            return ToolPersistKind.HTML;
-        }
-        return ToolPersistKind.GENERIC;
-    }
-
     private void ensureSession(AstroChatParam<?> param) {
         String memoryKey = param.getMemoryKey();
         if (StringUtils.isBlank(memoryKey)) {
@@ -373,18 +389,6 @@ public class StreamTurnPersistenceHelper {
         return e;
     }
 
-    private static String buildSegmentExtJson(String runId, String partKind, String toolName) {
-        Map<String, Object> ext = new LinkedHashMap<>();
-        ext.put(AiChatMessageExtJsonKeys.SCHEMA_VERSION, AiChatMessageExtJsonKeys.SCHEMA_VERSION_V1);
-        ext.put(AiChatMessageExtJsonKeys.RUN_ID, runId);
-        ext.put(AiChatMessageExtJsonKeys.LINEAGE, AiChatEnum.MessageLineageEnum.ASSISTANT_SEGMENT.getCode());
-        ext.put(AiChatMessageExtJsonKeys.PART_KIND, partKind);
-        if (StringUtils.isNotBlank(toolName)) {
-            ext.put(AiChatMessageExtJsonKeys.TOOL_NAME, toolName);
-        }
-        return JsonUtil.toJson(ext);
-    }
-
     private AiChatMessageEntity baseEntity(AstroChatParam<?> param, int turnNo, int messageOrder, String envCode) {
         AiChatMessageEntity entity = new AiChatMessageEntity();
         entity.setMemoryKey(param.getMemoryKey());
@@ -432,10 +436,6 @@ public class StreamTurnPersistenceHelper {
         sessionMapper.update(null, wrapper);
     }
 
-    private static String previewUserInput(AstroChatParam<?> param) {
-        return StringUtils.trimToNull(param.getUserMessageText());
-    }
-
     private String buildSessionTitle(String content) {
         if (StringUtils.isBlank(content)) {
             return "New Chat";
@@ -444,7 +444,7 @@ public class StreamTurnPersistenceHelper {
         return trimmed.length() > 80 ? trimmed.substring(0, 80) : trimmed;
     }
 
-    private static String blankToNull(String envCode) {
-        return StringUtils.isBlank(envCode) ? null : envCode;
+    private enum ToolPersistKind {
+        IMAGE, HTML, GENERIC
     }
 }

@@ -1,15 +1,15 @@
 package com.astrsomn.server.api.vector;
 
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BaseController;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentResponseDTO;
 import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
+import com.astrsomn.common.base.BaseController;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.AiVecSegmentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

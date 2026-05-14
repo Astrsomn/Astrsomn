@@ -1,17 +1,17 @@
 <template>
   <AstrsomnModal
-    :open="open"
-    width="80vw"
-    max-width="80vw"
-    body-height="80vh"
-    :closable="true"
-    main-padding="0"
-    wrap-class-name="prompt-form-fsm-wrap"
-    @update:open="onFsmOpenUpdate"
-    @cancel="onCancel"
+      :closable="true"
+      :open="open"
+      body-height="80vh"
+      main-padding="0"
+      max-width="80vw"
+      width="80vw"
+      wrap-class-name="prompt-form-fsm-wrap"
+      @cancel="onCancel"
+      @update:open="onFsmOpenUpdate"
   >
     <template #header-logo>
-      <component :is="mode === 'create' ? PlusCircleOutlined : FormOutlined" />
+      <component :is="mode === 'create' ? PlusCircleOutlined : FormOutlined"/>
     </template>
     <template #header-title>
       {{ mode === 'create' ? '新增提示词' : '编辑提示词' }}
@@ -22,7 +22,7 @@
     <template #header-actions>
       <a-space>
         <a-button @click="onCancel">取消</a-button>
-        <a-button type="primary" :loading="confirmLoading" @click="handleOk">
+        <a-button :loading="confirmLoading" type="primary" @click="handleOk">
           确定
         </a-button>
       </a-space>
@@ -31,22 +31,22 @@
     <div class="prompt-form-body">
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
         <div class="editor-layout">
-          <PromptConfigLeft :form="form" :scene-options="sceneOptions" />
-          <PromptContentRight :form="form" />
+          <PromptConfigLeft :form="form" :scene-options="sceneOptions"/>
+          <PromptContentRight :form="form"/>
         </div>
       </a-form>
     </div>
   </AstrsomnModal>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
-import type { FormInstance } from "ant-design-vue";
-import { FormOutlined, PlusCircleOutlined } from "@ant-design/icons-vue";
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from "vue";
+import type {FormInstance} from "ant-design-vue";
+import {FormOutlined, PlusCircleOutlined} from "@ant-design/icons-vue";
 import AstrsomnModal from "@/components/home/AstrsomnModal.vue";
 import PromptConfigLeft from "./component/PromptConfigLeft.vue";
 import PromptContentRight from "./component/PromptContentRight.vue";
-import { aiPromptApi } from "@/api/aiPrompt";
+import {aiPromptApi} from "@/api/aiPrompt";
 
 const props = defineProps<{
   mode: "create" | "edit";
@@ -55,7 +55,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(["submit"]);
-const open = defineModel<boolean>("open", { required: true });
+const open = defineModel<boolean>("open", {required: true});
 const formRef = ref<FormInstance | null>(null);
 
 const emptyForm = () => ({
@@ -70,34 +70,34 @@ const emptyForm = () => ({
 const form = reactive(emptyForm());
 const sceneTagLibrary = ref<string[]>([]);
 const sceneOptions = computed(() =>
-  sceneTagLibrary.value.map((tag) => ({ label: tag, value: tag })),
+    sceneTagLibrary.value.map((tag) => ({label: tag, value: tag})),
 );
 
 const rules = {
-  promptTitle: [{ required: true, message: "请输入标题" }],
-  promptContent: [{ required: true, message: "请输入提示词内容" }],
-  status: [{ required: true, message: "请选择启用状态" }],
+  promptTitle: [{required: true, message: "请输入标题"}],
+  promptContent: [{required: true, message: "请输入提示词内容"}],
+  status: [{required: true, message: "请选择启用状态"}],
 };
 
 watch(
-  [() => open.value, () => props.initial],
-  ([isOpen, initial]) => {
-    if (!isOpen) return;
-    void loadSceneTagLibrary();
-    if (initial && Object.keys(initial).length > 0) {
-      Object.assign(form, emptyForm(), initial);
-      form.scene = parseSceneTags(form.scene);
-    } else {
-      Object.assign(form, emptyForm());
-    }
-  },
-  { immediate: true },
+    [() => open.value, () => props.initial],
+    ([isOpen, initial]) => {
+      if (!isOpen) return;
+      void loadSceneTagLibrary();
+      if (initial && Object.keys(initial).length > 0) {
+        Object.assign(form, emptyForm(), initial);
+        form.scene = parseSceneTags(form.scene);
+      } else {
+        Object.assign(form, emptyForm());
+      }
+    },
+    {immediate: true},
 );
 
 async function handleOk() {
   try {
     await formRef.value?.validate();
-    const payload: Record<string, any> = { ...form };
+    const payload: Record<string, any> = {...form};
     payload.scene = JSON.stringify(normalizeSceneTags(payload.scene));
     if (!payload.promptKey?.trim()) {
       delete payload.promptKey;
@@ -105,7 +105,8 @@ async function handleOk() {
       payload.promptKey = payload.promptKey.trim();
     }
     emit("submit", payload);
-  } catch (err) {}
+  } catch (err) {
+  }
 }
 
 function onCancel() {
@@ -128,11 +129,11 @@ async function loadSceneTagLibrary() {
 function normalizeSceneTags(raw: unknown): string[] {
   const arr = Array.isArray(raw) ? raw : [];
   return Array.from(
-    new Set(
-      arr
-        .map((item) => String(item ?? "").trim())
-        .filter(Boolean),
-    ),
+      new Set(
+          arr
+              .map((item) => String(item ?? "").trim())
+              .filter(Boolean),
+      ),
   );
 }
 
@@ -146,7 +147,8 @@ function parseSceneTags(raw: unknown): string[] {
       if (Array.isArray(parsed)) {
         return normalizeSceneTags(parsed);
       }
-    } catch (err) {}
+    } catch (err) {
+    }
   }
   return [];
 }

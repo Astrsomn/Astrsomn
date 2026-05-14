@@ -2,14 +2,14 @@
   <div class="list-overview">
     <div class="overview-main">
       <button
-        type="button"
-        class="overview-icon overview-view-toggle"
-        :aria-label="viewMode === 'grid' ? '切换为列表展示' : '切换为方块展示'"
-        :title="viewMode === 'grid' ? '切换为列表展示' : '切换为方块展示'"
-        @click="toggleViewMode"
+          :aria-label="viewMode === 'grid' ? '切换为列表展示' : '切换为方块展示'"
+          :title="viewMode === 'grid' ? '切换为列表展示' : '切换为方块展示'"
+          class="overview-icon overview-view-toggle"
+          type="button"
+          @click="toggleViewMode"
       >
-        <UnorderedListOutlined v-if="viewMode === 'grid'" />
-        <AppstoreOutlined v-else />
+        <UnorderedListOutlined v-if="viewMode === 'grid'"/>
+        <AppstoreOutlined v-else/>
       </button>
       <div>
         <div class="overview-desc">
@@ -20,9 +20,9 @@
 
     <div v-if="showActions" class="overview-actions">
       <a-checkbox
-        :checked="allCurrentSelected"
-        :indeterminate="partCurrentSelected"
-        @change="onToggleSelectAll"
+          :checked="allCurrentSelected"
+          :indeterminate="partCurrentSelected"
+          @change="onToggleSelectAll"
       >
         本页全选
       </a-checkbox>
@@ -30,8 +30,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { AppstoreOutlined, UnorderedListOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {AppstoreOutlined, UnorderedListOutlined} from '@ant-design/icons-vue'
 
 const props = withDefaults(defineProps<{
   listLength: number

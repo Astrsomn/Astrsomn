@@ -23,17 +23,17 @@ public class RequestLoggingFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        
+
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         long startTime = System.currentTimeMillis();
-        
+
         // 记录请求信息
         log.info("请求开始 - URI: {}, Method: {}, IP: {}, User-Agent: {}",
                 httpRequest.getRequestURI(),
                 httpRequest.getMethod(),
                 getClientIp(httpRequest),
                 httpRequest.getHeader("User-Agent"));
-        
+
         try {
             chain.doFilter(request, response);
         } finally {

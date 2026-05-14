@@ -1,7 +1,7 @@
-﻿package com.astrsomn.api.runtime.common.dto.vecdoc;
+package com.astrsomn.api.runtime.common.dto.vecdoc;
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
+import lombok.Data;
 
 @Data
 public class AiVecDocResponseDTO extends AiVecDocEntity {

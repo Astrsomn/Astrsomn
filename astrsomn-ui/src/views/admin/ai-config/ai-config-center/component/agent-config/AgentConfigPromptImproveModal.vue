@@ -1,11 +1,11 @@
 <template>
   <a-modal
-    :open="open"
-    title="提示词美化对比"
-    width="800px"
-    :footer="null"
-    destroy-on-close
-    @update:open="onOpen"
+      :footer="null"
+      :open="open"
+      destroy-on-close
+      title="提示词美化对比"
+      width="800px"
+      @update:open="onOpen"
   >
     <div class="diff-container">
       <div class="diff-header">
@@ -30,7 +30,7 @@
   </a-modal>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 defineProps<{
   open: boolean
   originalContent: string

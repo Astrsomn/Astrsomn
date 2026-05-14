@@ -1,12 +1,12 @@
-﻿package com.astrsomn.api.runtime.common.dto.systemmessage;
+package com.astrsomn.api.runtime.common.dto.systemmessage;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.SystemMessageEntity;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 
 @Data

@@ -2,13 +2,13 @@
   <AstrsomnPageShell empty-text="暂无系统扩展。">
     <div class="extension-page">
       <div class="extension-shell">
-        <ExtensionSidebar 
-          :selected-menu-keys="selectedMenuKeys" 
-          @menu-click="onMenuClick" 
+        <ExtensionSidebar
+            :selected-menu-keys="selectedMenuKeys"
+            @menu-click="onMenuClick"
         />
         <div class="extension-content">
           <div class="content-card">
-            <ExtensionCenterPage :active-tab="activePanel" @update:active-tab="onPanelSync" />
+            <ExtensionCenterPage :active-tab="activePanel" @update:active-tab="onPanelSync"/>
           </div>
         </div>
       </div>
@@ -16,12 +16,12 @@
   </AstrsomnPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+<script lang="ts" setup>
+import {computed, ref, watch} from 'vue'
 import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
 import ExtensionCenterPage from './component/ExtensionCenterPage.vue'
 import ExtensionSidebar from './component/ExtensionSidebar.vue'
-import { useRoute } from 'vue-router'
+import {useRoute} from 'vue-router'
 
 type ExtensionPanel = 'marketplace' | 'installed'
 const route = useRoute()
@@ -40,12 +40,12 @@ function onPanelSync(tab: ExtensionPanel) {
 }
 
 watch(
-  () => route.query.panel,
-  (panel) => {
-    if (panel === 'marketplace' || panel === 'installed') {
-      activePanel.value = panel
+    () => route.query.panel,
+    (panel) => {
+      if (panel === 'marketplace' || panel === 'installed') {
+        activePanel.value = panel
+      }
     }
-  }
 )
 </script>
 

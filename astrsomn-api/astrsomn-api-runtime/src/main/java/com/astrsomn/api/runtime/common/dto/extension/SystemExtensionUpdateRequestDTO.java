@@ -1,7 +1,7 @@
-﻿package com.astrsomn.api.runtime.common.dto.extension;
+package com.astrsomn.api.runtime.common.dto.extension;
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import lombok.Data;
 
 @Data
 public class SystemExtensionUpdateRequestDTO extends SystemExtensionEntity {

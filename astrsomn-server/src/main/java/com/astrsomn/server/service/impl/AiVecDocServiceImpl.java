@@ -1,10 +1,5 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.constant.AiVecDocEnum;
 import com.astrsomn.api.runtime.common.constant.VecDocMetadataKeys;
@@ -12,12 +7,7 @@ import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocResponseDTO;
 import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
-import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
-import com.astrsomn.api.runtime.common.entity.AiModelEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.runtime.common.entity.*;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
@@ -25,19 +15,24 @@ import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.AstVecDocErrorEnum;
+import com.astrsomn.api.storage.entity.AstFileRecordEntity;
+import com.astrsomn.api.storage.exception.AstFileErrorEnum;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.internal.storage.config.StorageProperties;
+import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
+import com.astrsomn.internal.storage.service.model.StorageDownloadRequest;
+import com.astrsomn.internal.storage.service.model.StorageUploadRequest;
+import com.astrsomn.internal.storage.service.model.StorageUploadResult;
 import com.astrsomn.server.mapper.AiVecDocMapper;
 import com.astrsomn.server.service.AiVecDocService;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.AstroFileRecordService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.internal.storage.config.StorageProperties;
-import com.astrsomn.api.storage.entity.AstFileRecordEntity;
-import com.astrsomn.api.storage.exception.AstFileErrorEnum;
-import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
-import com.astrsomn.internal.storage.service.model.StorageDownloadRequest;
-import com.astrsomn.internal.storage.service.model.StorageUploadRequest;
-import com.astrsomn.internal.storage.service.model.StorageUploadResult;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
 import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
@@ -93,6 +88,26 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     private final AstrsomnStorageClient astrsomnStorageClient;
     private final AstroFileRecordService astroFileRecordService;
     private final StorageProperties storageProperties;
+
+    private static String readStrictUtf8Text(InputStream inputStream) throws IOException, CharacterCodingException {
+        byte[] bytes = readAllBytes(inputStream);
+        CharsetDecoder dec =
+                StandardCharsets.UTF_8
+                        .newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT);
+        return dec.decode(ByteBuffer.wrap(bytes)).toString();
+    }
+
+    private static byte[] readAllBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int len;
+        while ((len = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, len);
+        }
+        return outputStream.toByteArray();
+    }
 
     @Override
     public BaseResponse<String> create(AiVecDocCreateRequestDTO request) {
@@ -369,26 +384,6 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
                 .platform(platform)
                 .objectKey(key)
                 .build());
-    }
-
-    private static String readStrictUtf8Text(InputStream inputStream) throws IOException, CharacterCodingException {
-        byte[] bytes = readAllBytes(inputStream);
-        CharsetDecoder dec =
-                StandardCharsets.UTF_8
-                        .newDecoder()
-                        .onMalformedInput(CodingErrorAction.REPORT)
-                        .onUnmappableCharacter(CodingErrorAction.REPORT);
-        return dec.decode(ByteBuffer.wrap(bytes)).toString();
-    }
-
-    private static byte[] readAllBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[8192];
-        int len;
-        while ((len = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, len);
-        }
-        return outputStream.toByteArray();
     }
 
     @Override

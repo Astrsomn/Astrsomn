@@ -1,33 +1,30 @@
 package com.astrsomn.server.service.impl;
+
+import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
+import com.astrsomn.api.runtime.common.dto.vecstore.*;
+import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.api.runtime.exception.AstVecStoreErrorEnum;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiVecStoreMapper;
+import com.astrsomn.server.service.AiVecSourceService;
+import com.astrsomn.server.service.AiVecStoreService;
+import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.astrsomn.server.service.vector.VectorStorePhysicalHandler;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
-import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreStatsResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.api.runtime.exception.AstVecStoreErrorEnum;
-
-import com.astrsomn.server.service.AiVecSourceService;
-import com.astrsomn.server.service.AiVecStoreService;
-import com.astrsomn.server.service.vector.VectorStorePhysicalHandler;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import com.astrsomn.api.runtime.common.utils.PageUtils;
+
 @Service
 @RequiredArgsConstructor
 public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecStoreEntity> implements AiVecStoreService {
@@ -35,6 +32,53 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final VectorStorePhysicalHandler astroVecStorePhysicalOps;
     private final AiVecSourceService aiVecSourceService;
+
+    private static void mergeVecStoreUpdate(AiVecStoreEntity target, AiVecStoreUpdateRequestDTO req) {
+        if (req.getSourceId() != null) {
+            target.setSourceId(req.getSourceId());
+        }
+        if (req.getCollectionName() != null) {
+            target.setCollectionName(req.getCollectionName());
+        }
+        if (req.getDimension() != null) {
+            target.setDimension(req.getDimension());
+        }
+        if (req.getDistanceMetric() != null) {
+            target.setDistanceMetric(req.getDistanceMetric());
+        }
+        if (req.getMetadataSchema() != null) {
+            target.setMetadataSchema(req.getMetadataSchema());
+        }
+        if (req.getInstanceKey() != null) {
+            target.setInstanceKey(req.getInstanceKey());
+        }
+    }
+
+    private static boolean physicalChanged(AiVecStoreEntity before, AiVecStoreEntity after, AiVecSourceEntity afterSource) {
+        if (!Objects.equals(before.getSourceId(), after.getSourceId())) {
+            return true;
+        }
+        if (!Objects.equals(trimNorm(before.getCollectionName()), trimNorm(after.getCollectionName()))) {
+            return true;
+        }
+        String p =
+                afterSource != null
+                        ? StringUtils.defaultIfBlank(StringUtils.trimToNull(afterSource.getExtensionCode()), "")
+                        : "";
+        if (AiVecDriverEnum.Provider.QDRANT.getCode().equalsIgnoreCase(p)) {
+            if (!Objects.equals(before.getDimension(), after.getDimension())) {
+                return true;
+            }
+            if (!Objects.equals(trimNorm(before.getDistanceMetric()), trimNorm(after.getDistanceMetric()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String trimNorm(String s) {
+        return StringUtils.trimToNull(s);
+    }
 
     @Override
     public BaseResponse<String> create(AiVecStoreCreateRequestDTO request) {
@@ -109,53 +153,6 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
             }
         }
         return BaseResponse.success("更新成功");
-    }
-
-    private static void mergeVecStoreUpdate(AiVecStoreEntity target, AiVecStoreUpdateRequestDTO req) {
-        if (req.getSourceId() != null) {
-            target.setSourceId(req.getSourceId());
-        }
-        if (req.getCollectionName() != null) {
-            target.setCollectionName(req.getCollectionName());
-        }
-        if (req.getDimension() != null) {
-            target.setDimension(req.getDimension());
-        }
-        if (req.getDistanceMetric() != null) {
-            target.setDistanceMetric(req.getDistanceMetric());
-        }
-        if (req.getMetadataSchema() != null) {
-            target.setMetadataSchema(req.getMetadataSchema());
-        }
-        if (req.getInstanceKey() != null) {
-            target.setInstanceKey(req.getInstanceKey());
-        }
-    }
-
-    private static boolean physicalChanged(AiVecStoreEntity before, AiVecStoreEntity after, AiVecSourceEntity afterSource) {
-        if (!Objects.equals(before.getSourceId(), after.getSourceId())) {
-            return true;
-        }
-        if (!Objects.equals(trimNorm(before.getCollectionName()), trimNorm(after.getCollectionName()))) {
-            return true;
-        }
-        String p =
-                afterSource != null
-                        ? StringUtils.defaultIfBlank(StringUtils.trimToNull(afterSource.getExtensionCode()), "")
-                        : "";
-        if (AiVecDriverEnum.Provider.QDRANT.getCode().equalsIgnoreCase(p)) {
-            if (!Objects.equals(before.getDimension(), after.getDimension())) {
-                return true;
-            }
-            if (!Objects.equals(trimNorm(before.getDistanceMetric()), trimNorm(after.getDistanceMetric()))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static String trimNorm(String s) {
-        return StringUtils.trimToNull(s);
     }
 
     @Override

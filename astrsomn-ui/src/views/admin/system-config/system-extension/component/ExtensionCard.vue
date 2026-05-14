@@ -1,14 +1,14 @@
 <template>
-  <article class="plugin-card" :class="{ selected: isSelected }">
+  <article :class="{ selected: isSelected }" class="plugin-card">
     <div class="plugin-main">
       <div class="plugin-icon">
-        <img v-if="item.avatar?.trim()" class="avatar-img" :src="item.avatar" :alt="item.extensionName" />
-        <component :is="iconComponent" v-else />
+        <img v-if="item.avatar?.trim()" :alt="item.extensionName" :src="item.avatar" class="avatar-img"/>
+        <component :is="iconComponent" v-else/>
       </div>
       <div class="plugin-info">
-        <div class="status-row" v-if="showActions">
-          <span class="status-dot" :class="item.applied === 'Y' ? 'enabled' : 'disabled'" />
-          <span class="status-text" :class="item.applied === 'Y' ? 'enabled' : 'disabled'">
+        <div v-if="showActions" class="status-row">
+          <span :class="item.applied === 'Y' ? 'enabled' : 'disabled'" class="status-dot"/>
+          <span :class="item.applied === 'Y' ? 'enabled' : 'disabled'" class="status-text">
             {{ item.applied === 'Y' ? '已启用' : '未启用' }}
           </span>
         </div>
@@ -28,63 +28,75 @@
     <div class="action-row">
       <template v-if="showActions">
         <a-button
-          v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
-          type="default"
-          class="action-btn"
-          @click="$emit('loadModels', item)"
+            v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
+            class="action-btn"
+            type="default"
+            @click="$emit('loadModels', item)"
         >
-          <template #icon><CloudDownloadOutlined /></template>
+          <template #icon>
+            <CloudDownloadOutlined/>
+          </template>
           加载模型
         </a-button>
         <a-button
-          v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
-          danger
-          class="action-btn"
-          @click="$emit('unloadModels', item)"
+            v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
+            class="action-btn"
+            danger
+            @click="$emit('unloadModels', item)"
         >
-          <template #icon><RestOutlined /></template>
+          <template #icon>
+            <RestOutlined/>
+          </template>
           卸载模型
         </a-button>
         <a-popconfirm
-          v-if="item.applied === 'N'"
-          title="确定应用该插件吗？"
-          ok-text="确定"
-          cancel-text="取消"
-          @confirm="$emit('apply', item.id)"
+            v-if="item.applied === 'N'"
+            cancel-text="取消"
+            ok-text="确定"
+            title="确定应用该插件吗？"
+            @confirm="$emit('apply', item.id)"
         >
-          <a-button type="primary" class="action-btn">
-            <template #icon><CaretRightOutlined /></template>
+          <a-button class="action-btn" type="primary">
+            <template #icon>
+              <CaretRightOutlined/>
+            </template>
             启用插件
           </a-button>
         </a-popconfirm>
         <a-popconfirm
-          v-else
-          title="确定取消启用吗？插件将恢复为未启用状态。"
-          ok-text="确定"
-          cancel-text="取消"
-          @confirm="$emit('revokeApply', item.id)"
+            v-else
+            cancel-text="取消"
+            ok-text="确定"
+            title="确定取消启用吗？插件将恢复为未启用状态。"
+            @confirm="$emit('revokeApply', item.id)"
         >
           <a-button class="action-btn">
-            <template #icon><PauseOutlined /></template>
+            <template #icon>
+              <PauseOutlined/>
+            </template>
             禁用插件
           </a-button>
         </a-popconfirm>
         <a-popconfirm
-          v-if="isUninstallable"
-          title="确定卸载该插件吗？"
-          ok-text="确定"
-          cancel-text="取消"
-          @confirm="$emit('uninstall', item.id)"
+            v-if="isUninstallable"
+            cancel-text="取消"
+            ok-text="确定"
+            title="确定卸载该插件吗？"
+            @confirm="$emit('uninstall', item.id)"
         >
-          <a-button danger class="action-btn icon-btn">
-            <template #icon><DeleteOutlined /></template>
+          <a-button class="action-btn icon-btn" danger>
+            <template #icon>
+              <DeleteOutlined/>
+            </template>
           </a-button>
         </a-popconfirm>
-   
+
       </template>
       <template v-else>
-        <a-button type="primary" class="action-btn" @click="$emit('install', item)">
-          <template #icon><DownloadOutlined /></template>
+        <a-button class="action-btn" type="primary" @click="$emit('install', item)">
+          <template #icon>
+            <DownloadOutlined/>
+          </template>
           安装到环境
         </a-button>
       </template>
@@ -92,8 +104,8 @@
   </article>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
 import {
   AppstoreOutlined,
   BuildOutlined,
@@ -105,7 +117,12 @@ import {
   RestOutlined,
   RocketOutlined
 } from '@ant-design/icons-vue'
-import { extensionTypeLabel, isUninstallableExtension, preview, type ExtensionRow } from '@/views/admin/system-config/system-extension/model-dialog/extensionDisplay.ts'
+import {
+  type ExtensionRow,
+  extensionTypeLabel,
+  isUninstallableExtension,
+  preview
+} from '@/views/admin/system-config/system-extension/model-dialog/extensionDisplay.ts'
 
 const props = defineProps<{
   item: ExtensionRow

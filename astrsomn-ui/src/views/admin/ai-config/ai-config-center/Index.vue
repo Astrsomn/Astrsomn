@@ -1,60 +1,60 @@
 <template>
   <a-layout>
     <!-- 左侧侧边栏 -->
-    <a-layout-sider width="320" class="bg-white">
-      <Sidebar @select="handleSidebarSelect" />
+    <a-layout-sider class="bg-white" width="320">
+      <Sidebar @select="handleSidebarSelect"/>
     </a-layout-sider>
 
     <!-- 右侧主内容区域 -->
     <a-layout-content class="bg-gray-50">
-      <transition name="fade" mode="out-in">
+      <transition mode="out-in" name="fade">
         <!-- 全局管理页面 -->
         <component
-          v-if="currentViewType === 'global'"
-          :is="currentGlobalComponent"
-          :key="currentViewKey"
-          :initial-view-mode="initialViewMode"
+            :is="currentGlobalComponent"
+            v-if="currentViewType === 'global'"
+            :key="currentViewKey"
+            :initial-view-mode="initialViewMode"
         />
         <!-- Agent 配置页 -->
         <AgentConfig
-          v-else-if="showConfig"
-          :agent-id="configAgentId"
-          :agent-name="configAgentName"
-          @back="handleConfigBack"
+            v-else-if="showConfig"
+            :agent-id="configAgentId"
+            :agent-name="configAgentName"
+            @back="handleConfigBack"
         />
         <!-- 指定提供商：Agent + Model 磁吸翻页 -->
         <div
-          v-else-if="currentProviderKey !== 'all'"
-          ref="snapContainerRef"
-          class="provider-detail-view"
-          :class="{ 'is-peeking': isPeeking }"
-          :key="currentProviderKey"
+            v-else-if="currentProviderKey !== 'all'"
+            :key="currentProviderKey"
+            ref="snapContainerRef"
+            :class="{ 'is-peeking': isPeeking }"
+            class="provider-detail-view"
         >
           <div class="snap-page">
-            <AgentSection :provider-key="currentProviderKey" @create="handleCreateAgent" @select="handleSelectAgent" />
+            <AgentSection :provider-key="currentProviderKey" @create="handleCreateAgent" @select="handleSelectAgent"/>
             <div class="scroll-hint">
-              <DownOutlined />
+              <DownOutlined/>
               <span>滚动查看接入模型</span>
-              <DownOutlined />
+              <DownOutlined/>
             </div>
           </div>
           <div class="snap-page">
-            <ModelSection :provider-key="currentProviderKey" />
+            <ModelSection :provider-key="currentProviderKey"/>
           </div>
         </div>
         <!-- 全部 Agent + Model 磁吸翻页 -->
         <div
-          v-else
-          ref="snapContainerRef"
-          class="provider-detail-view"
-          :class="{ 'is-peeking': isPeeking }"
-          key="all"
+            v-else
+            key="all"
+            ref="snapContainerRef"
+            :class="{ 'is-peeking': isPeeking }"
+            class="provider-detail-view"
         >
           <div class="snap-page">
-            <AgentSection provider-key="all" @create="handleCreateAgent" @select="handleSelectAgent" />
+            <AgentSection provider-key="all" @create="handleCreateAgent" @select="handleSelectAgent"/>
           </div>
           <div class="snap-page">
-            <ModelSection provider-key="all" />
+            <ModelSection provider-key="all"/>
           </div>
         </div>
       </transition>
@@ -62,15 +62,15 @@
   </a-layout>
 </template>
 
-<script setup lang="ts">
-import { computed, defineAsyncComponent, ref, nextTick, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { DownOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {computed, defineAsyncComponent, nextTick, ref, watch} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {DownOutlined} from '@ant-design/icons-vue'
 import Sidebar from './component/Sidebar.vue'
 import AgentSection from './component/AgentSection.vue'
 import ModelSection from './component/ModelSection.vue'
 import AgentConfig from './component/AgentConfig.vue'
-import type { AiAgent } from '@/api/aiAgent'
+import type {AiAgent} from '@/api/aiAgent'
 
 const route = useRoute()
 const router = useRouter()
@@ -86,11 +86,11 @@ const globalComponents: Record<string, any> = {
 const currentViewKey = computed(() => {
   const viewKey = route.query.view as string | undefined
   const provider = route.query.provider as string | undefined
-  
+
   if (viewKey && Object.keys(globalComponents).includes(viewKey)) {
     return viewKey
   }
-  
+
   return provider || 'all'
 })
 
@@ -186,26 +186,26 @@ const playPeekScroll = async () => {
 }
 
 watch(
-  () => currentProviderKey.value,
-  (val) => {
-    if (val && val !== 'all') {
-      playPeekScroll()
-    }
-  },
-  { immediate: true }
+    () => currentProviderKey.value,
+    (val) => {
+      if (val && val !== 'all') {
+        playPeekScroll()
+      }
+    },
+    {immediate: true}
 )
 
 const handleSidebarSelect = (key: string) => {
   showConfig.value = false
   const globalKeys = Object.keys(globalComponents)
-  
+
   if (globalKeys.includes(key)) {
-    router.push({ path: configCenterPath, query: { view: key, viewMode: 'grid' } })
+    router.push({path: configCenterPath, query: {view: key, viewMode: 'grid'}})
   } else {
     if (key === 'all') {
-      router.push({ path: configCenterPath, query: {} })
+      router.push({path: configCenterPath, query: {}})
     } else {
-      router.push({ path: configCenterPath, query: { provider: key } })
+      router.push({path: configCenterPath, query: {provider: key}})
     }
   }
 }
@@ -280,7 +280,11 @@ const handleSidebarSelect = (key: string) => {
 }
 
 @keyframes hint-bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
 }
 </style>

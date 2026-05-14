@@ -7,25 +7,25 @@
           <span class="info-item">Memory Key: {{ selectedConversation.memoryKey }}</span>
           <span class="info-item">创建时间: {{ formatTime(selectedConversation.createTime) }}</span>
           <span class="info-item">状态: 
-            <span class="status-pill" :class="`status-pill-${String(selectedConversation.status || '').toLowerCase()}`">
+            <span :class="`status-pill-${String(selectedConversation.status || '').toLowerCase()}`" class="status-pill">
               {{ getStatusLabel(selectedConversation.status) }}
             </span>
           </span>
         </div>
       </div>
-      
+
       <div class="conversation-content">
         <div v-if="parsedConversation" class="chat-messages">
           <div
-            v-for="(message, index) in parsedConversation"
-            :key="index"
-            class="message-row"
-            :class="message.role"
+              v-for="(message, index) in parsedConversation"
+              :key="index"
+              :class="message.role"
+              class="message-row"
           >
             <div class="avatar-box">
-              <div v-if="message.role === 'ai'" class="avatar ai-avatar" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="22" height="22">
-                  <path fill="currentColor" d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z" />
+              <div v-if="message.role === 'ai'" aria-hidden="true" class="avatar ai-avatar">
+                <svg height="22" viewBox="0 0 24 24" width="22">
+                  <path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z" fill="currentColor"/>
                 </svg>
               </div>
               <div v-else class="avatar user-avatar">
@@ -53,19 +53,19 @@
           </div>
         </div>
         <div v-else class="empty-content">
-          <a-empty description="暂无对话内容" />
+          <a-empty description="暂无对话内容"/>
         </div>
       </div>
     </div>
     <div v-else class="empty-detail">
-      <a-empty description="请选择一个对话组查看详情" />
+      <a-empty description="请选择一个对话组查看详情"/>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, defineProps } from 'vue'
-import { AiConversation } from '@/api/aiConversation'
+<script lang="ts" setup>
+import {computed, defineProps} from 'vue'
+import {AiConversation} from '@/api/aiConversation'
 
 type ChatMessage = {
   role: 'user' | 'ai'
@@ -110,7 +110,7 @@ const formatTime = (time?: string) => {
 
 const parsedConversation = computed<ChatMessage[] | null>(() => {
   if (!props.selectedConversationList || props.selectedConversationList.length === 0) return null
-  
+
   return props.selectedConversationList.map(item => ({
     role: item.role === 'user' ? 'user' : 'ai',
     content: item.content || '',
@@ -312,11 +312,11 @@ const parsedConversation = computed<ChatMessage[] | null>(() => {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .message-body {
     max-width: calc(100% - 40px);
   }
-  
+
   .user-bubble {
     max-width: min(100%, 100%);
   }

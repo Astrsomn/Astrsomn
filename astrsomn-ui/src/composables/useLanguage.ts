@@ -1,5 +1,5 @@
-import { ref } from 'vue'
-import { setDictionaryLocale, type DictionaryLocale } from '@/locales/dictionary'
+import {ref} from 'vue'
+import {type DictionaryLocale, setDictionaryLocale} from '@/locales/dictionary'
 
 type Lang = DictionaryLocale
 
@@ -8,34 +8,34 @@ const STORAGE_KEY = 'lang'
 const currentLang = ref<Lang>('zh-CN')
 
 function syncDictionaryLocale(lang: Lang) {
-  setDictionaryLocale(lang)
+    setDictionaryLocale(lang)
 }
 
 function initLang() {
-  const stored = localStorage.getItem(STORAGE_KEY) as Lang | null
-  if (stored) {
-    currentLang.value = stored
-  }
-  syncDictionaryLocale(currentLang.value)
+    const stored = localStorage.getItem(STORAGE_KEY) as Lang | null
+    if (stored) {
+        currentLang.value = stored
+    }
+    syncDictionaryLocale(currentLang.value)
 }
 
 function changeLang(lang: Lang) {
-  currentLang.value = lang
-  localStorage.setItem(STORAGE_KEY, lang)
-  syncDictionaryLocale(lang)
+    currentLang.value = lang
+    localStorage.setItem(STORAGE_KEY, lang)
+    syncDictionaryLocale(lang)
 }
 
 const languageOptions = [
-  { label: '🇨🇳', value: 'zh-CN' },
-  { label: '🇺🇸', value: 'en-US' }
+    {label: '🇨🇳', value: 'zh-CN'},
+    {label: '🇺🇸', value: 'en-US'}
 ]
 
 let initialized = false
 
 export function useLanguage() {
-  if (!initialized) {
-    initLang()
-    initialized = true
-  }
-  return { currentLang, changeLang, languageOptions }
+    if (!initialized) {
+        initLang()
+        initialized = true
+    }
+    return {currentLang, changeLang, languageOptions}
 }

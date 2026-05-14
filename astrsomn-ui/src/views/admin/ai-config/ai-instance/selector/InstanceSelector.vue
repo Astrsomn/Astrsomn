@@ -1,128 +1,134 @@
 <template>
   <a-drawer
-    :open="props.open"
-    placement="right"
-    :width="560"
-    :maskClosable="true"
-    :closable="true"
-    :title="drawerTitle"
-    @close="handleClose"
-    root-class-name="instance-select-drawer"
+      :closable="true"
+      :maskClosable="true"
+      :open="props.open"
+      :title="drawerTitle"
+      :width="560"
+      placement="right"
+      root-class-name="instance-select-drawer"
+      @close="handleClose"
   >
     <div class="select-drawer-content">
       <div class="toolbar">
         <a-input
-          v-model:value="keyword"
-          class="toolbar-search"
-          placeholder="搜索实例名称"
-          allow-clear
-          @pressEnter="handleSearch"
+            v-model:value="keyword"
+            allow-clear
+            class="toolbar-search"
+            placeholder="搜索实例名称"
+            @pressEnter="handleSearch"
         >
           <template #prefix>
-            <SearchOutlined />
+            <SearchOutlined/>
           </template>
         </a-input>
         <a-select
-          v-model:value="queryStatus"
-          class="toolbar-status"
-          placeholder="状态筛选"
-          allow-clear
-          @change="handleSearch"
+            v-model:value="queryStatus"
+            allow-clear
+            class="toolbar-status"
+            placeholder="状态筛选"
+            @change="handleSearch"
         >
           <a-select-option value="enabled">启用</a-select-option>
           <a-select-option value="disabled">禁用</a-select-option>
         </a-select>
         <a-button type="primary" @click="handleSearch">查询</a-button>
         <a-button @click="emit('create')">
-          <template #icon><PlusOutlined /></template>
+          <template #icon>
+            <PlusOutlined/>
+          </template>
           新增
         </a-button>
       </div>
 
-      <a-tabs v-if="!props.fixedModelType" v-model:activeKey="activeTypeTab" class="type-tabs" @change="handleTypeTabChange">
-        <a-tab-pane key="all" tab="全部" />
-        <a-tab-pane key="chat" tab="对话" />
-        <a-tab-pane key="embedding" tab="向量" />
-        <a-tab-pane key="image" tab="图像" />
-        <a-tab-pane key="voice" tab="语音" />
+      <a-tabs v-if="!props.fixedModelType" v-model:activeKey="activeTypeTab" class="type-tabs"
+              @change="handleTypeTabChange">
+        <a-tab-pane key="all" tab="全部"/>
+        <a-tab-pane key="chat" tab="对话"/>
+        <a-tab-pane key="embedding" tab="向量"/>
+        <a-tab-pane key="image" tab="图像"/>
+        <a-tab-pane key="voice" tab="语音"/>
       </a-tabs>
 
       <a-spin :spinning="loading">
         <div class="instance-list">
           <div
-            v-for="inst in list"
-            :key="inst.id"
-            class="instance-item"
-            :class="{ selected: selectedId === inst.id }"
-            @click="handleSelect(inst)"
+              v-for="inst in list"
+              :key="inst.id"
+              :class="{ selected: selectedId === inst.id }"
+              class="instance-item"
+              @click="handleSelect(inst)"
           >
-            <div class="instance-icon" :class="inst.modelType">
-              <MessageOutlined v-if="inst.modelType === 'chat'" />
-              <PartitionOutlined v-else-if="inst.modelType === 'embedding'" />
-              <PictureOutlined v-else-if="inst.modelType === 'image'" />
-              <AudioOutlined v-else-if="inst.modelType === 'voice'" />
-              <ControlOutlined v-else />
+            <div :class="inst.modelType" class="instance-icon">
+              <MessageOutlined v-if="inst.modelType === 'chat'"/>
+              <PartitionOutlined v-else-if="inst.modelType === 'embedding'"/>
+              <PictureOutlined v-else-if="inst.modelType === 'image'"/>
+              <AudioOutlined v-else-if="inst.modelType === 'voice'"/>
+              <ControlOutlined v-else/>
             </div>
             <div class="instance-info">
               <div class="instance-name">{{ inst.instanceName || '未命名实例' }}</div>
               <div class="instance-key">
-                <KeyOutlined /> {{ inst.instanceKey || '-' }}
+                <KeyOutlined/>
+                {{ inst.instanceKey || '-' }}
               </div>
             </div>
             <div class="instance-meta">
               <div class="meta-row">
                 <span v-if="inst.modelType" class="type-tag">{{ modelTypeLabel(inst.modelType) }}</span>
                 <span v-if="inst.modelKey" class="model-key-tag">{{ inst.modelKey }}</span>
-                <span class="status-badge" :class="inst.status">
+                <span :class="inst.status" class="status-badge">
                   {{ inst.status === 'enabled' ? '启用' : '禁用' }}
                 </span>
               </div>
               <div class="meta-bottom">
                 <span class="create-time">{{ formatTime(inst.createTime) }}</span>
                 <a-button
-                  type="text"
-                  size="small"
-                  class="edit-btn"
-                  @click="(e: MouseEvent) => handleEdit(e, inst)"
+                    class="edit-btn"
+                    size="small"
+                    type="text"
+                    @click="(e: MouseEvent) => handleEdit(e, inst)"
                 >
-                  <template #icon><EditOutlined /></template>
+                  <template #icon>
+                    <EditOutlined/>
+                  </template>
                 </a-button>
               </div>
             </div>
           </div>
 
-          <a-empty v-if="!loading && list.length === 0" description="暂无实例" />
+          <a-empty v-if="!loading && list.length === 0" description="暂无实例"/>
         </div>
       </a-spin>
 
       <div class="drawer-footer">
         <AstrsomnPagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="true"
-          @change="onPageChange"
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :show-size-changer="true"
+            :total="page.total"
+            @change="onPageChange"
         />
       </div>
     </div>
   </a-drawer>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from 'vue'
 import {
+  AudioOutlined,
+  ControlOutlined,
   EditOutlined,
-  SearchOutlined,
-  PlusOutlined,
   KeyOutlined,
   MessageOutlined,
   PartitionOutlined,
   PictureOutlined,
-  ControlOutlined,
-  AudioOutlined
+  PlusOutlined,
+  SearchOutlined
 } from '@ant-design/icons-vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import { aiInstanceApi, type AiInstance, type PageResponse } from '@/api/aiInstance.ts'
+import {type AiInstance, aiInstanceApi, type PageResponse} from '@/api/aiInstance.ts'
 
 const props = defineProps<{
   open: boolean

@@ -10,62 +10,63 @@
     <div class="card-grid">
       <div class="cell-prompt">
         <PromptCard
-          :prompt="currentPrompt"
-          :improve-loading="improveLoading"
-          @select="handleSelectPrompt"
-          @create="handleCreatePrompt"
-          @history="handleHistoryPrompt"
-          @improve="handleImprovePrompt"
-          @update:promptContent="handlePromptContentUpdate"
+            :improve-loading="improveLoading"
+            :prompt="currentPrompt"
+            @create="handleCreatePrompt"
+            @history="handleHistoryPrompt"
+            @improve="handleImprovePrompt"
+            @select="handleSelectPrompt"
+            @update:promptContent="handlePromptContentUpdate"
         />
       </div>
       <div class="cell-tools-rag">
         <ToolCard
-          :tools="tools"
-          @add="handleToolAdd"
-          @remove="handleToolRemove"
+            :tools="tools"
+            @add="handleToolAdd"
+            @remove="handleToolRemove"
         />
         <McpCard
-          :mcps="mcps"
-          @add="handleMcpAdd"
-          @remove="handleMcpRemove"
+            :mcps="mcps"
+            @add="handleMcpAdd"
+            @remove="handleMcpRemove"
         />
         <RagCard
-          :knowledge-keys="knowledgeKeys"
-          @add="handleKbAdd"
-          @remove="handleKbRemove"
+            :knowledge-keys="knowledgeKeys"
+            @add="handleKbAdd"
+            @remove="handleKbRemove"
         />
       </div>
       <div class="cell-multimodal">
-        <ImageModelCard :current-image-instance="currentImageInstance" @select:image-instance="handleSelectImageInstance" />
+        <ImageModelCard :current-image-instance="currentImageInstance"
+                        @select:image-instance="handleSelectImageInstance"/>
       </div>
     </div>
 
     <PromptSelectDrawer
-      v-model:open="promptDrawerOpen"
-      @select="handlePromptSelect"
+        v-model:open="promptDrawerOpen"
+        @select="handlePromptSelect"
     />
 
     <PromptFormModal
-      v-model:open="promptFormOpen"
-      mode="create"
-      :confirm-loading="false"
-      :initial="null"
-      @submit="handlePromptSubmit"
+        v-model:open="promptFormOpen"
+        :confirm-loading="false"
+        :initial="null"
+        mode="create"
+        @submit="handlePromptSubmit"
     />
 
     <PromptHistoryModal
-      v-model:open="historyModalOpen"
-      :prompt-key="currentPrompt?.promptKey"
-      :env-code="currentPrompt?.envCode"
+        v-model:open="historyModalOpen"
+        :env-code="currentPrompt?.envCode"
+        :prompt-key="currentPrompt?.promptKey"
     />
 
     <a-modal
-      v-model:open="diffModalVisible"
-      title="提示词美化对比"
-      width="800px"
-      :footer="null"
-      destroy-on-close
+        v-model:open="diffModalVisible"
+        :footer="null"
+        destroy-on-close
+        title="提示词美化对比"
+        width="800px"
     >
       <div class="diff-container">
         <div class="diff-header">
@@ -91,9 +92,9 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { message } from 'ant-design-vue'
+<script lang="ts" setup>
+import {ref} from 'vue'
+import {message} from 'ant-design-vue'
 import PromptCard from './left-center/PromptCard.vue'
 import ImageModelCard from './left-center/ImageModelCard.vue'
 import ToolCard from './left-center/ToolCard.vue'
@@ -102,10 +103,10 @@ import RagCard from './left-center/RagCard.vue'
 import PromptSelectDrawer from '../../ai-prompt/PromptSelectDrawer.vue'
 import PromptFormModal from '../../ai-prompt/PromptFormModal.vue'
 import PromptHistoryModal from '../../ai-prompt/PromptHistoryModal.vue'
-import { aiPromptApi, type AiPrompt } from '@/api/aiPrompt'
-import type { AiInstance } from '@/api/aiInstance'
-import type { AiTool } from '@/api/aiTool'
-import type { AiMcp } from '@/api/aiMcp'
+import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt'
+import type {AiInstance} from '@/api/aiInstance'
+import type {AiTool} from '@/api/aiTool'
+import type {AiMcp} from '@/api/aiMcp'
 
 defineProps<{
   tools: AiTool[]
@@ -142,7 +143,7 @@ function setImageInstance(instance: AiInstance | undefined) {
   currentImageInstance.value = instance
 }
 
-defineExpose({ setPrompt, setImageInstance })
+defineExpose({setPrompt, setImageInstance})
 
 const handleSelectPrompt = () => {
   promptDrawerOpen.value = true

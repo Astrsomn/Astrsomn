@@ -1,7 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.route;
 
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelRouteSetting;
-
 import org.springframework.stereotype.Component;
 
 import java.util.function.Supplier;

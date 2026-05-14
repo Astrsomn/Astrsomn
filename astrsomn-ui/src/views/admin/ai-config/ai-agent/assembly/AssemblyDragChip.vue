@@ -1,9 +1,9 @@
 <template>
   <div
-    class="assembly-drag-chip"
-    draggable="true"
-    @dragstart="onStart"
-    @dragend="onEnd"
+      class="assembly-drag-chip"
+      draggable="true"
+      @dragend="onEnd"
+      @dragstart="onStart"
   >
     <span v-if="badge" class="chip-badge">{{ badge }}</span>
     <span class="chip-title">{{ title }}</span>
@@ -11,9 +11,9 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import type { AssemblyDragPayload } from './assemblyTypes'
-import { ASSEMBLY_DRAG_MIME } from './assemblyTypes'
+<script lang="ts" setup>
+import type {AssemblyDragPayload} from './assemblyTypes'
+import {ASSEMBLY_DRAG_MIME} from './assemblyTypes'
 
 const props = defineProps<{
   payload: AssemblyDragPayload
@@ -56,18 +56,20 @@ function onEnd() {
   background: var(--assembly-chip-bg);
   cursor: grab;
   user-select: none;
-  transition:
-    border-color 0.15s,
-    box-shadow 0.15s,
-    transform 0.15s;
+  transition: border-color 0.15s,
+  box-shadow 0.15s,
+  transform 0.15s;
 }
+
 .assembly-drag-chip:hover {
   border-color: var(--assembly-chip-hover-border);
   box-shadow: var(--assembly-chip-hover-shadow);
 }
+
 .assembly-drag-chip:active {
   cursor: grabbing;
 }
+
 .chip-badge {
   font-size: 11px;
   font-weight: 600;
@@ -76,12 +78,14 @@ function onEnd() {
   background: var(--assembly-chip-badge-bg);
   color: var(--assembly-chip-badge-text);
 }
+
 .chip-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--assembly-chip-title);
   word-break: break-all;
 }
+
 .chip-sub {
   font-size: 11px;
   color: var(--assembly-chip-sub);

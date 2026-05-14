@@ -3,12 +3,12 @@
     <div class="biz-header-row">
       <h2 class="biz-title">业务系统列表</h2>
       <div class="biz-actions">
-        <button type="button" class="ghost-btn" @click="emit('export')">
-          <DownloadOutlined />
+        <button class="ghost-btn" type="button" @click="emit('export')">
+          <DownloadOutlined/>
           <span>导出</span>
         </button>
-        <button type="button" class="ghost-btn icon-only" aria-label="刷新" @click="emit('refresh')">
-          <ReloadOutlined />
+        <button aria-label="刷新" class="ghost-btn icon-only" type="button" @click="emit('refresh')">
+          <ReloadOutlined/>
         </button>
       </div>
     </div>
@@ -16,12 +16,12 @@
     <div class="biz-filter-row">
       <div class="filter-pills" role="tablist">
         <button
-          v-for="tab in filterTabs"
-          :key="tab.key"
-          type="button"
-          role="tab"
-          :class="['pill', { 'pill--active': statusFilter === tab.key }]"
-          @click="emit('update:statusFilter', tab.key)"
+            v-for="tab in filterTabs"
+            :key="tab.key"
+            :class="['pill', { 'pill--active': statusFilter === tab.key }]"
+            role="tab"
+            type="button"
+            @click="emit('update:statusFilter', tab.key)"
         >
           {{ tab.label }} {{ tab.count }}
         </button>
@@ -31,29 +31,29 @@
     <div class="table-scroll">
       <table class="biz-table">
         <thead>
-          <tr>
-            <th class="col-name">系统名称</th>
-            <th class="col-slug">系统标识</th>
-            <th class="col-owner">负责人</th>
-            <th class="col-env">环境</th>
-            <th class="col-status">状态</th>
-            <th class="col-calls">今日调用量</th>
-            <th class="col-err">错误率</th>
-            <th class="col-last">最后访问</th>
-            <th class="col-actions">操作</th>
-          </tr>
+        <tr>
+          <th class="col-name">系统名称</th>
+          <th class="col-slug">系统标识</th>
+          <th class="col-owner">负责人</th>
+          <th class="col-env">环境</th>
+          <th class="col-status">状态</th>
+          <th class="col-calls">今日调用量</th>
+          <th class="col-err">错误率</th>
+          <th class="col-last">最后访问</th>
+          <th class="col-actions">操作</th>
+        </tr>
         </thead>
         <tbody>
-          <tr v-if="!loading && pagedOnlineSystems.length === 0">
-            <td colspan="9" class="biz-empty">暂无业务系统</td>
-          </tr>
-          <template v-else-if="!loading">
-            <OnlineSystemItem
+        <tr v-if="!loading && pagedOnlineSystems.length === 0">
+          <td class="biz-empty" colspan="9">暂无业务系统</td>
+        </tr>
+        <template v-else-if="!loading">
+          <OnlineSystemItem
               v-for="system in pagedOnlineSystems"
               :key="system.id"
               :system="system"
-            />
-          </template>
+          />
+        </template>
         </tbody>
       </table>
     </div>
@@ -61,31 +61,31 @@
     <div class="biz-footer">
       <span class="footer-total">共 {{ filteredTotal }} 条</span>
       <a-select
-        class="page-size-select"
-        :value="pageSize"
-        size="small"
-        :options="pageSizeOptions"
-        @update:value="onPageSizeChange"
+          :options="pageSizeOptions"
+          :value="pageSize"
+          class="page-size-select"
+          size="small"
+          @update:value="onPageSizeChange"
       />
       <a-pagination
-        class="biz-pagination"
-        size="small"
-        :current="currentPage"
-        :total="filteredTotal"
-        :page-size="pageSize"
-        :show-size-changer="false"
-        :show-quick-jumper="false"
-        @change="onPageChange"
+          :current="currentPage"
+          :page-size="pageSize"
+          :show-quick-jumper="false"
+          :show-size-changer="false"
+          :total="filteredTotal"
+          class="biz-pagination"
+          size="small"
+          @change="onPageChange"
       />
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { DownloadOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import { computed } from 'vue'
+<script lang="ts" setup>
+import {DownloadOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import type {Component} from 'vue'
+import {computed} from 'vue'
 import OnlineSystemItem from './OnlineSystemItem.vue'
-import type { Component } from 'vue'
 
 type SystemStatus = 'online' | 'offline' | 'maintenance'
 type SystemEnv = 'prod' | 'pre' | 'test' | 'dev'
@@ -115,16 +115,16 @@ type StatusCounts = {
 }
 
 const props = withDefaults(
-  defineProps<{
-    loading?: boolean
-    pagedOnlineSystems: OnlineSystem[]
-    currentPage: number
-    filteredTotal: number
-    statusFilter: 'all' | 'online' | 'offline' | 'maintenance'
-    statusCounts: StatusCounts
-    pageSize: number
-  }>(),
-  { loading: false }
+    defineProps<{
+      loading?: boolean
+      pagedOnlineSystems: OnlineSystem[]
+      currentPage: number
+      filteredTotal: number
+      statusFilter: 'all' | 'online' | 'offline' | 'maintenance'
+      statusCounts: StatusCounts
+      pageSize: number
+    }>(),
+    {loading: false}
 )
 
 const emit = defineEmits<{
@@ -136,16 +136,16 @@ const emit = defineEmits<{
 }>()
 
 const filterTabs = computed(() => [
-  { key: 'all' as const, label: '全部', count: props.statusCounts.all },
-  { key: 'online' as const, label: '在线', count: props.statusCounts.online },
-  { key: 'offline' as const, label: '离线', count: props.statusCounts.offline },
-  { key: 'maintenance' as const, label: '维护中', count: props.statusCounts.maintenance }
+  {key: 'all' as const, label: '全部', count: props.statusCounts.all},
+  {key: 'online' as const, label: '在线', count: props.statusCounts.online},
+  {key: 'offline' as const, label: '离线', count: props.statusCounts.offline},
+  {key: 'maintenance' as const, label: '维护中', count: props.statusCounts.maintenance}
 ])
 
 const pageSizeOptions = [
-  { value: 10, label: '10 条/页' },
-  { value: 20, label: '20 条/页' },
-  { value: 50, label: '50 条/页' }
+  {value: 10, label: '10 条/页'},
+  {value: 20, label: '20 条/页'},
+  {value: 50, label: '50 条/页'}
 ]
 
 const onPageChange = (page: number) => {

@@ -15,23 +15,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class RateLimitingInterceptor implements HandlerInterceptor {
 
+    private final Map<String, RateCounter> counters = new ConcurrentHashMap<>();
     @Value("${rate.limit.maxRequests:120}")
     private int maxRequests;
-
     @Value("${rate.limit.windowMillis:60000}")
     private long windowMillis;
-
-    private final Map<String, RateCounter> counters = new ConcurrentHashMap<>();
-
-    private static class RateCounter {
-        private final AtomicInteger count;
-        private volatile long windowStartMillis;
-
-        private RateCounter(long nowMillis) {
-            this.count = new AtomicInteger(0);
-            this.windowStartMillis = nowMillis;
-        }
-    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -62,5 +50,15 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
 
     private String getClientId(HttpServletRequest request) {
         return "ip:" + request.getRemoteAddr();
+    }
+
+    private static class RateCounter {
+        private final AtomicInteger count;
+        private volatile long windowStartMillis;
+
+        private RateCounter(long nowMillis) {
+            this.count = new AtomicInteger(0);
+            this.windowStartMillis = nowMillis;
+        }
     }
 }

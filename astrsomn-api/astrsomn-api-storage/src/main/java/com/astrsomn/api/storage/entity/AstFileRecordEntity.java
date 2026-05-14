@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.storage.entity;
+package com.astrsomn.api.storage.entity;
 
 import com.astrsomn.common.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;

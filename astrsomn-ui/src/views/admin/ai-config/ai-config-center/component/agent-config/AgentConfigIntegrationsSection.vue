@@ -10,13 +10,13 @@
         </h3>
         <div class="multimodal-grid">
           <div
-            class="modal-card"
-            :class="{ 'is-active': !!imageModel }"
-            @click="emit('open-model', 'image')"
+              :class="{ 'is-active': !!imageModel }"
+              class="modal-card"
+              @click="emit('open-model', 'image')"
           >
             <div class="modal-card-left">
               <div class="modal-icon modal-icon--image">
-                <PictureOutlined />
+                <PictureOutlined/>
               </div>
               <div class="modal-info">
                 <p class="modal-name">图像理解与生成</p>
@@ -25,28 +25,28 @@
             </div>
             <div class="modal-card-right">
               <a-button
-                v-if="imageModel || currentImageInstance"
-                type="link"
-                size="small"
-                danger
-                class="clear-btn"
-                @click.stop="emit('clear-image')"
+                  v-if="imageModel || currentImageInstance"
+                  class="clear-btn"
+                  danger
+                  size="small"
+                  type="link"
+                  @click.stop="emit('clear-image')"
               >
                 清除
               </a-button>
-              <PlusOutlined v-if="!imageModel" class="modal-add" />
-              <RightOutlined v-else class="modal-add modal-add--active" />
+              <PlusOutlined v-if="!imageModel" class="modal-add"/>
+              <RightOutlined v-else class="modal-add modal-add--active"/>
             </div>
           </div>
 
           <div
-            class="modal-card"
-            :class="{ 'is-active': !!voiceModel }"
-            @click="emit('open-model', 'voice')"
+              :class="{ 'is-active': !!voiceModel }"
+              class="modal-card"
+              @click="emit('open-model', 'voice')"
           >
             <div class="modal-card-left">
               <div class="modal-icon modal-icon--voice">
-                <AudioOutlined />
+                <AudioOutlined/>
               </div>
               <div class="modal-info">
                 <p class="modal-name">语音对话能力</p>
@@ -55,17 +55,17 @@
             </div>
             <div class="modal-card-right">
               <a-button
-                v-if="voiceModel || currentVoiceInstance"
-                type="link"
-                size="small"
-                danger
-                class="clear-btn"
-                @click.stop="emit('clear-voice')"
+                  v-if="voiceModel || currentVoiceInstance"
+                  class="clear-btn"
+                  danger
+                  size="small"
+                  type="link"
+                  @click.stop="emit('clear-voice')"
               >
                 清除
               </a-button>
-              <PlusOutlined v-if="!voiceModel" class="modal-add" />
-              <RightOutlined v-else class="modal-add modal-add--active" />
+              <PlusOutlined v-if="!voiceModel" class="modal-add"/>
+              <RightOutlined v-else class="modal-add modal-add--active"/>
             </div>
           </div>
         </div>
@@ -78,12 +78,12 @@
           <span class="title-line"></span>
         </h3>
         <div class="integrations-grid builder-tool-mcp-skin">
-          <ToolCard :tools="tools" @add="emit('tool-add', $event)" @remove="emit('tool-remove', $event)" />
-          <McpCard :mcps="mcps" @add="emit('mcp-add', $event)" @remove="emit('mcp-remove', $event)" />
+          <ToolCard :tools="tools" @add="emit('tool-add', $event)" @remove="emit('tool-remove', $event)"/>
+          <McpCard :mcps="mcps" @add="emit('mcp-add', $event)" @remove="emit('mcp-remove', $event)"/>
           <RagCard
-            :knowledge-keys="knowledgeKeys"
-            @add="emit('knowledge-add', $event)"
-            @remove="emit('knowledge-remove', $event)"
+              :knowledge-keys="knowledgeKeys"
+              @add="emit('knowledge-add', $event)"
+              @remove="emit('knowledge-remove', $event)"
           />
         </div>
       </div>
@@ -92,12 +92,12 @@
   </AgentConfigSectionShell>
 </template>
 
-<script setup lang="ts">
-import { PictureOutlined, AudioOutlined, PlusOutlined, RightOutlined } from '@ant-design/icons-vue'
-import type { AiTool } from '@/api/aiTool'
-import type { AiMcp } from '@/api/aiMcp'
-import type { AiModel } from '@/api/aiModel'
-import type { AiInstance } from '@/api/aiInstance'
+<script lang="ts" setup>
+import {AudioOutlined, PictureOutlined, PlusOutlined, RightOutlined} from '@ant-design/icons-vue'
+import type {AiTool} from '@/api/aiTool'
+import type {AiMcp} from '@/api/aiMcp'
+import type {AiModel} from '@/api/aiModel'
+import type {AiInstance} from '@/api/aiInstance'
 import ToolCard from '@/views/admin/ai-config/builder/component/left-center/ToolCard.vue'
 import McpCard from '@/views/admin/ai-config/builder/component/left-center/McpCard.vue'
 import RagCard from '@/views/admin/ai-config/builder/component/left-center/RagCard.vue'

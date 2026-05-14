@@ -1,28 +1,29 @@
 <template>
   <BaseCanvasNode
-    :data="data"
-    fallback-label="HTTP 请求"
-    fallback-description="调用外部 API 接口"
-    subtitle="Restful API"
-    badge="POST"
-    badge-background="#7c3aed"
-    badge-color="#ffffff"
-    icon-text="H"
-    icon-background="#f3e8ff"
-    icon-color="#7c3aed"
-    :theme="{
+      :data="data"
+      :theme="{
       borderColor: '#e9d5ff',
       background: '#ffffff',
       titleColor: '#0f172a',
       descColor: '#475569'
     }"
+      badge="POST"
+      badge-background="#7c3aed"
+      badge-color="#ffffff"
+      fallback-description="调用外部 API 接口"
+      fallback-label="HTTP 请求"
+      icon-background="#f3e8ff"
+      icon-color="#7c3aed"
+      icon-text="H"
+      subtitle="Restful API"
   >
     <div class="url">https://api.system.io/v1/sync</div>
   </BaseCanvasNode>
 </template>
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseCanvasNode from '../../shared/BaseCanvasNode.vue'
-import type { WorkflowNodeViewData } from '../../shared/node-props'
+import type {WorkflowNodeViewData} from '../../shared/node-props'
+
 defineProps<{ data?: WorkflowNodeViewData }>()
 </script>
 

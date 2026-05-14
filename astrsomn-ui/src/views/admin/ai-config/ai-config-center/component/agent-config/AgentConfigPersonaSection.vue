@@ -4,40 +4,40 @@
       <div class="left-panel">
         <label class="card-label">名称 <span class="required">*</span></label>
         <a-input
-          :value="agentName"
-          class="field-input"
-          placeholder="例如：翻译助手"
-          :bordered="false"
-          @update:value="emit('update:agentName', $event)"
+            :bordered="false"
+            :value="agentName"
+            class="field-input"
+            placeholder="例如：翻译助手"
+            @update:value="emit('update:agentName', $event)"
         />
         <label class="card-label">Agent Key</label>
         <a-input
-          :value="agentKey"
-          class="field-input"
-          placeholder="留空则自动生成"
-          :bordered="false"
-          @update:value="emit('update:agentKey', $event)"
+            :bordered="false"
+            :value="agentKey"
+            class="field-input"
+            placeholder="留空则自动生成"
+            @update:value="emit('update:agentKey', $event)"
         />
       </div>
       <div class="right-panel">
         <label class="card-label">人设指令 (Prompt) <span class="required">*</span></label>
         <PromptCard
-          :prompt="currentPrompt"
-          :improve-loading="improveLoading"
-          :textarea-rows="6"
-          @select="emit('open-prompt-drawer')"
-          @create="emit('open-prompt-form')"
-          @history="emit('prompt-history')"
-          @improve="emit('improve-prompt')"
-          @update:prompt-content="emit('update-prompt-content', $event)"
+            :improve-loading="improveLoading"
+            :prompt="currentPrompt"
+            :textarea-rows="6"
+            @create="emit('open-prompt-form')"
+            @history="emit('prompt-history')"
+            @improve="emit('improve-prompt')"
+            @select="emit('open-prompt-drawer')"
+            @update:prompt-content="emit('update-prompt-content', $event)"
         />
       </div>
     </div>
   </AgentConfigSectionShell>
 </template>
 
-<script setup lang="ts">
-import type { AiPrompt } from '@/api/aiPrompt'
+<script lang="ts" setup>
+import type {AiPrompt} from '@/api/aiPrompt'
 import PromptCard from '@/views/admin/ai-config/builder/component/left-center/PromptCard.vue'
 import AgentConfigSectionShell from './AgentConfigSectionShell.vue'
 
@@ -149,6 +149,7 @@ const emit = defineEmits<{
   .persona-row {
     flex-direction: column;
   }
+
   .left-panel {
     width: 100%;
   }

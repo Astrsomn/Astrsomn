@@ -1,15 +1,15 @@
 package com.astrsomn.server.plugin.registry;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionMetaData;
 import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
 import com.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
+import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -27,6 +27,24 @@ public class PluginDirectoryExtensionSyncService {
 
     private final AstrsomnPluginManager pluginManager;
     private final AstSystemExtensionMapper astSystemExtensionMapper;
+
+    private static SystemExtensionEntity buildEntity(SystemExtensionMetaData meta, String jarName) {
+        SystemExtensionEntity entity = new SystemExtensionEntity();
+        entity.setExtensionKey(StringUtils.trimToNull(meta.extensionKey()));
+        entity.setExtensionName(StringUtils.trimToNull(meta.extensionName()));
+        entity.setType(StringUtils.trimToNull(meta.type()));
+        entity.setVersion(StringUtils.trimToNull(meta.version()));
+        entity.setAuthor(StringUtils.trimToNull(meta.author()));
+        entity.setDescription(StringUtils.trimToNull(meta.description()));
+        entity.setAvatar(StringUtils.trimToNull(meta.avatar()));
+        entity.setExtensionCode(StringUtils.trimToNull(meta.extensionCode()));
+        entity.setJarName(StringUtils.trimToNull(jarName));
+        entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
+        entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
+        entity.setDiscoveryMechanism(SystemExtensionEnum.DiscoveryMechanismEnum.SPI.getCode());
+        entity.setInstallSource(SystemExtensionEnum.InstallSourceEnum.PLUGIN_JAR_DISCOVERED.getCode());
+        return entity;
+    }
 
     @EventListener(ApplicationReadyEvent.class)
     public void syncOnApplicationReady() {
@@ -79,23 +97,5 @@ public class PluginDirectoryExtensionSyncService {
         } else {
             log.warn("{} 同步插件目录扩展失败 | Key: {} | Jar: {}", LOG_PREFIX, key, jar.getName());
         }
-    }
-
-    private static SystemExtensionEntity buildEntity(SystemExtensionMetaData meta, String jarName) {
-        SystemExtensionEntity entity = new SystemExtensionEntity();
-        entity.setExtensionKey(StringUtils.trimToNull(meta.extensionKey()));
-        entity.setExtensionName(StringUtils.trimToNull(meta.extensionName()));
-        entity.setType(StringUtils.trimToNull(meta.type()));
-        entity.setVersion(StringUtils.trimToNull(meta.version()));
-        entity.setAuthor(StringUtils.trimToNull(meta.author()));
-        entity.setDescription(StringUtils.trimToNull(meta.description()));
-        entity.setAvatar(StringUtils.trimToNull(meta.avatar()));
-        entity.setExtensionCode(StringUtils.trimToNull(meta.extensionCode()));
-        entity.setJarName(StringUtils.trimToNull(jarName));
-        entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
-        entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
-        entity.setDiscoveryMechanism(SystemExtensionEnum.DiscoveryMechanismEnum.SPI.getCode());
-        entity.setInstallSource(SystemExtensionEnum.InstallSourceEnum.PLUGIN_JAR_DISCOVERED.getCode());
-        return entity;
     }
 }

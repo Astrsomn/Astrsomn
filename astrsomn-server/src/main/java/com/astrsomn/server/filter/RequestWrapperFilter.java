@@ -24,7 +24,7 @@ public class RequestWrapperFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        
+
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         // multipart 不能先读入缓存：wrapper 会耗尽底层 InputStream，而 Servlet 规范里 getParts() 仍委托底层请求，

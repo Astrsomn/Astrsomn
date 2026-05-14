@@ -1,19 +1,19 @@
 package com.astrsomn.provider.openai;
 
+import com.astrsomn.api.runtime.common.constant.AiModelEnum;
+import com.astrsomn.api.runtime.common.entity.AiModelEntity;
+import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
+import com.astrsomn.api.runtime.common.langchain.buildParam.setting.EmbeddingSetting;
+import com.astrsomn.api.runtime.common.langchain.extension.model.AbstractModelProviderHandler;
+import com.astrsomn.common.UnknowModelException;
+import com.astrsomn.common.utils.CollectionUtils;
+import com.astrsomn.common.utils.StringUtils;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-import com.astrsomn.api.runtime.common.constant.AiModelEnum;
-import com.astrsomn.api.runtime.common.entity.AiModelEntity;
-import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.EmbeddingSetting;
-import com.astrsomn.api.runtime.common.langchain.extension.model.AbstractModelProviderHandler;
-import com.astrsomn.common.utils.CollectionUtils;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.UnknowModelException;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -23,6 +23,32 @@ import java.util.List;
  * OpenAI 官方 API（及兼容端点）；可通过 {@code baseUrl} 指向代理或第三方兼容服务。
  */
 public class OpenAiProviderHandler extends AbstractModelProviderHandler {
+
+    private static void applyEmbeddingSetting(
+            OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder builder, AstroChatParam<?> param) {
+        EmbeddingSetting es = param.getEmbeddingSetting();
+        if (es == null) {
+            return;
+        }
+        if (es.getDimensions() != null) {
+            builder.dimensions(es.getDimensions());
+        }
+        if (StringUtils.isNotBlank(es.getUser())) {
+            builder.user(es.getUser());
+        }
+        if (es.getMaxRetries() != null) {
+            builder.maxRetries(es.getMaxRetries());
+        }
+        if (es.getMaxSegmentsPerBatch() != null) {
+            builder.maxSegmentsPerBatch(es.getMaxSegmentsPerBatch());
+        }
+        if (StringUtils.isNotBlank(es.getEncodingFormat())) {
+            builder.encodingFormat(es.getEncodingFormat());
+        }
+        if (es.getTimeoutSeconds() != null && es.getTimeoutSeconds() > 0) {
+            builder.timeout(Duration.ofSeconds(es.getTimeoutSeconds()));
+        }
+    }
 
     @Override
     public AiModelEnum.ProviderEnum getProvider() {
@@ -97,31 +123,5 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
         }
         applyEmbeddingSetting(builder, param);
         return builder.build();
-    }
-
-    private static void applyEmbeddingSetting(
-            OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder builder, AstroChatParam<?> param) {
-        EmbeddingSetting es = param.getEmbeddingSetting();
-        if (es == null) {
-            return;
-        }
-        if (es.getDimensions() != null) {
-            builder.dimensions(es.getDimensions());
-        }
-        if (StringUtils.isNotBlank(es.getUser())) {
-            builder.user(es.getUser());
-        }
-        if (es.getMaxRetries() != null) {
-            builder.maxRetries(es.getMaxRetries());
-        }
-        if (es.getMaxSegmentsPerBatch() != null) {
-            builder.maxSegmentsPerBatch(es.getMaxSegmentsPerBatch());
-        }
-        if (StringUtils.isNotBlank(es.getEncodingFormat())) {
-            builder.encodingFormat(es.getEncodingFormat());
-        }
-        if (es.getTimeoutSeconds() != null && es.getTimeoutSeconds() > 0) {
-            builder.timeout(Duration.ofSeconds(es.getTimeoutSeconds()));
-        }
     }
 }

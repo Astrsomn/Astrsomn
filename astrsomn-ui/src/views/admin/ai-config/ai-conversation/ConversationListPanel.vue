@@ -1,27 +1,27 @@
 <template>
   <div class="left-panel">
     <AstrsomnOverview
-      :list-length="list.length"
-      :selected-count="selectedRowKeys.length"
-      :all-current-selected="allCurrentSelected"
-      :part-current-selected="partCurrentSelected"
-      :show-actions="list.length > 0"
-      :summary-text="`当前页 ${list.length} 条对话组，已选 ${selectedRowKeys.length} 条。`"
-      @toggle-select-all="toggleSelectAllCurrentPage"
+        :all-current-selected="allCurrentSelected"
+        :list-length="list.length"
+        :part-current-selected="partCurrentSelected"
+        :selected-count="selectedRowKeys.length"
+        :show-actions="list.length > 0"
+        :summary-text="`当前页 ${list.length} 条对话组，已选 ${selectedRowKeys.length} 条。`"
+        @toggle-select-all="toggleSelectAllCurrentPage"
     />
 
     <a-spin :spinning="loading">
 
       <div class="conversation-cards">
         <SessionList
-          :loading="loading"
-          :items="sessionItems"
-          :selected-keys="selectedRowKeys"
-          :selectable="true"
-          :deletable="true"
-          @toggle-select="handleCardSelect"
-          @open="handleRecoverConversation"
-          @delete="handleDeleteOne"
+            :deletable="true"
+            :items="sessionItems"
+            :loading="loading"
+            :selectable="true"
+            :selected-keys="selectedRowKeys"
+            @delete="handleDeleteOne"
+            @open="handleRecoverConversation"
+            @toggle-select="handleCardSelect"
         />
       </div>
 
@@ -30,11 +30,11 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, defineProps, defineEmits } from 'vue'
+<script lang="ts" setup>
+import {computed, defineEmits, defineProps} from 'vue'
 import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
 import SessionList from '@/components/chat-session/SessionList.vue'
-import { adaptSessionToSessionItem, type AiChatSession } from '@/api/aiChatSession'
+import {adaptSessionToSessionItem, type AiChatSession} from '@/api/aiChatSession'
 
 const props = defineProps<{
   loading: boolean
@@ -55,9 +55,9 @@ const emit = defineEmits<{
 }>()
 
 const currentPageIds = computed(() =>
-  props.list
-    .map((item) => item.memoryKey)
-    .filter((id): id is string => id !== undefined && id !== null)
+    props.list
+        .map((item) => item.memoryKey)
+        .filter((id): id is string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -105,9 +105,9 @@ const onPageChange = (p: number, size: number) => {
 }
 
 const sessionItems = computed(() =>
-  props.list
-    .filter((item) => !!item.memoryKey)
-    .map((item) => adaptSessionToSessionItem(item))
+    props.list
+        .filter((item) => !!item.memoryKey)
+        .map((item) => adaptSessionToSessionItem(item))
 )
 </script>
 

@@ -12,8 +12,7 @@ import org.apache.ibatis.annotations.Param;
 public interface AiAgentMapper extends BaseMapper<AiAgentEntity> {
 
 
-    IPage<AiAgentResponseDTO> queryPage(IPage<AiAgentResponseDTO> page,@Param("req") AiAgentQueryRequestDTO param);
-
+    IPage<AiAgentResponseDTO> queryPage(IPage<AiAgentResponseDTO> page, @Param("req") AiAgentQueryRequestDTO param);
 
 
 }

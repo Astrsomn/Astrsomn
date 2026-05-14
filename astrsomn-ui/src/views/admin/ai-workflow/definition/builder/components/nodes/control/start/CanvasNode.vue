@@ -1,20 +1,20 @@
 <template>
   <BaseCanvasNode
-    :data="data"
-    fallback-label="开始"
-    fallback-description="流程入口"
-    :target-handles="[]"
-    :source-handles="[{ id: undefined }]"
-    subtitle="Input Trigger"
-    icon-text="S"
-    icon-background="#ecfdf3"
-    icon-color="#059669"
-    :theme="{
+      :data="data"
+      :source-handles="[{ id: undefined }]"
+      :target-handles="[]"
+      :theme="{
       borderColor: '#d1fae5',
       background: '#ffffff',
       titleColor: '#0f172a',
       descColor: '#475569'
     }"
+      fallback-description="流程入口"
+      fallback-label="开始"
+      icon-background="#ecfdf3"
+      icon-color="#059669"
+      icon-text="S"
+      subtitle="Input Trigger"
   >
     <div class="slot-box">
       <div class="slot-head">INPUT VARS</div>
@@ -26,9 +26,9 @@
   </BaseCanvasNode>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseCanvasNode from '../../shared/BaseCanvasNode.vue'
-import type { WorkflowNodeViewData } from '../../shared/node-props'
+import type {WorkflowNodeViewData} from '../../shared/node-props'
 
 defineProps<{ data?: WorkflowNodeViewData }>()
 </script>

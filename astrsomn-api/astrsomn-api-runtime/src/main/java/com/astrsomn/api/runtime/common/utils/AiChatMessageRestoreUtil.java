@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.utils;
+package com.astrsomn.api.runtime.common.utils;
 
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageResponseDTO;
 import com.astrsomn.api.runtime.common.dto.chat.message.ext.AiChatMessageExtPayload;
@@ -6,12 +6,7 @@ import com.astrsomn.api.runtime.common.dto.chat.message.restore.AiChatTurnBundle
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -23,7 +18,7 @@ public final class AiChatMessageRestoreUtil {
     private AiChatMessageRestoreUtil() {
     }
 
-    
+
     public static List<AiChatTurnBundleDTO> bundleByTurn(List<AiChatMessageResponseDTO> rows) {
         if (rows == null || rows.isEmpty()) {
             return List.of();
@@ -58,7 +53,7 @@ public final class AiChatMessageRestoreUtil {
         }
     }
 
-    
+
     public static Optional<AiChatMessageResponseDTO> findToolCallRow(List<AiChatMessageResponseDTO> turnRows, String toolCallId) {
         if (toolCallId == null || turnRows == null) {
             return Optional.empty();

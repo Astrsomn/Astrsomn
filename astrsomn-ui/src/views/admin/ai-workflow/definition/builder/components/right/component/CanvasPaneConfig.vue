@@ -2,7 +2,7 @@
   <div class="pane-config">
     <div class="config-head">
       <div class="head-left">
-        <SettingOutlined />
+        <SettingOutlined/>
         <h4>画布配置</h4>
       </div>
     </div>
@@ -13,24 +13,24 @@
           <label class="section-label">默认连线样式</label>
           <div class="option-grid option-grid-3">
             <button
-              v-for="item in edgeStyleOptions"
-              :key="item.value"
-              type="button"
-              class="option-card"
-              :class="{ active: canvasConfig.edgeStyleDefault === item.value }"
-              @click="onChangeEdgeDefault(item.value)"
+                v-for="item in edgeStyleOptions"
+                :key="item.value"
+                :class="{ active: canvasConfig.edgeStyleDefault === item.value }"
+                class="option-card"
+                type="button"
+                @click="onChangeEdgeDefault(item.value)"
             >
               {{ item.label }}
             </button>
           </div>
           <div class="option-grid option-grid-2">
             <button
-              v-for="item in edgeLinePatternOptions"
-              :key="item.value"
-              type="button"
-              class="option-card"
-              :class="{ active: canvasConfig.edgeLinePatternDefault === item.value }"
-              @click="onChangeEdgeLinePattern(item.value)"
+                v-for="item in edgeLinePatternOptions"
+                :key="item.value"
+                :class="{ active: canvasConfig.edgeLinePatternDefault === item.value }"
+                class="option-card"
+                type="button"
+                @click="onChangeEdgeLinePattern(item.value)"
             >
               {{ item.label }}
             </button>
@@ -40,12 +40,13 @@
               <label class="section-label">连线粗细</label>
               <span class="slider-value">{{ canvasConfig.edgeLineWidthDefault.toFixed(1) }}</span>
             </div>
-            <a-slider :min="1" :max="8" :step="0.2" :value="canvasConfig.edgeLineWidthDefault" @change="onEdgeLineWidthChange" />
+            <a-slider :max="8" :min="1" :step="0.2" :value="canvasConfig.edgeLineWidthDefault"
+                      @change="onEdgeLineWidthChange"/>
           </div>
           <a-button
-            class="apply-btn"
-            block
-            @click="
+              block
+              class="apply-btn"
+              @click="
               emit('apply-edge-style-all', {
                 edgeStyle: canvasConfig.edgeStyleDefault,
                 edgeLinePattern: canvasConfig.edgeLinePatternDefault,
@@ -57,18 +58,18 @@
           </a-button>
         </div>
 
-        <a-divider class="section-divider" />
+        <a-divider class="section-divider"/>
 
         <div class="section">
           <label class="section-label">背景样式</label>
           <div class="option-grid option-grid-4">
             <button
-              v-for="item in backgroundOptions"
-              :key="item.value"
-              type="button"
-              class="option-card"
-              :class="{ active: canvasConfig.backgroundVariant === item.value }"
-              @click="onChangeBackgroundVariant(item.value)"
+                v-for="item in backgroundOptions"
+                :key="item.value"
+                :class="{ active: canvasConfig.backgroundVariant === item.value }"
+                class="option-card"
+                type="button"
+                @click="onChangeBackgroundVariant(item.value)"
             >
               {{ item.label }}
             </button>
@@ -78,15 +79,19 @@
             <div class="color-item">
               <label class="mini-label">背景颜色</label>
               <div class="color-input-wrap">
-                <input class="color-picker" type="color" :value="normalizeHex(canvasConfig.backgroundColor)" @input="onBackgroundColorPick" />
-                <a-input size="small" :value="canvasConfig.backgroundColor" placeholder="#f8fafc" @update:value="onBackgroundColorChange" />
+                <input :value="normalizeHex(canvasConfig.backgroundColor)" class="color-picker" type="color"
+                       @input="onBackgroundColorPick"/>
+                <a-input :value="canvasConfig.backgroundColor" placeholder="#f8fafc" size="small"
+                         @update:value="onBackgroundColorChange"/>
               </div>
             </div>
             <div class="color-item">
               <label class="mini-label">点线颜色</label>
               <div class="color-input-wrap">
-                <input class="color-picker" type="color" :value="normalizeHex(canvasConfig.patternColor)" @input="onPatternColorPick" />
-                <a-input size="small" :value="canvasConfig.patternColor" placeholder="#94a3b8" @update:value="onPatternColorChange" />
+                <input :value="normalizeHex(canvasConfig.patternColor)" class="color-picker" type="color"
+                       @input="onPatternColorPick"/>
+                <a-input :value="canvasConfig.patternColor" placeholder="#94a3b8" size="small"
+                         @update:value="onPatternColorChange"/>
               </div>
             </div>
           </div>
@@ -98,12 +103,12 @@
             </div>
             <div class="option-grid option-grid-5">
               <button
-                v-for="gap in fixedGapOptions"
-                :key="gap"
-                type="button"
-                class="option-card"
-                :class="{ active: canvasConfig.patternGap === gap }"
-                @click="onSelectFixedGap(gap)"
+                  v-for="gap in fixedGapOptions"
+                  :key="gap"
+                  :class="{ active: canvasConfig.patternGap === gap }"
+                  class="option-card"
+                  type="button"
+                  @click="onSelectFixedGap(gap)"
               >
                 {{ gap }}
               </button>
@@ -115,45 +120,48 @@
               <label class="section-label">点线粗细</label>
               <span class="slider-value">{{ canvasConfig.patternSize.toFixed(1) }}</span>
             </div>
-            <a-slider :min="1" :max="8" :step="0.2" :value="canvasConfig.patternSize" @change="onPatternSizeChange" />
+            <a-slider :max="8" :min="1" :step="0.2" :value="canvasConfig.patternSize" @change="onPatternSizeChange"/>
           </div>
 
           <div class="switch-row">
             <label class="section-label">显示坐标原点</label>
-            <a-switch :checked="canvasConfig.showOriginMarker" @change="onShowOriginChange" />
+            <a-switch :checked="canvasConfig.showOriginMarker" @change="onShowOriginChange"/>
           </div>
 
           <div class="snap-block">
             <div class="switch-row">
               <label class="section-label">节点磁吸</label>
-              <a-switch :checked="canvasConfig.snapToGridEnabled" @change="onSnapEnabledChange" />
+              <a-switch :checked="canvasConfig.snapToGridEnabled" @change="onSnapEnabledChange"/>
             </div>
             <div class="snap-hint">当前磁吸网格：{{ canvasConfig.snapGridSize }}px</div>
           </div>
         </div>
 
-        <a-divider class="section-divider" />
+        <a-divider class="section-divider"/>
 
         <div class="section">
           <div class="switch-row">
             <label class="section-label">自动保存</label>
-            <a-switch :checked="autoSaveEnabled" @change="onAutoSaveEnabledChange" />
+            <a-switch :checked="autoSaveEnabled" @change="onAutoSaveEnabledChange"/>
           </div>
           <div class="snap-hint">开启后切换流程前会自动保存，并每 30 秒自动保存一次</div>
         </div>
 
-        <a-divider class="section-divider" />
+        <a-divider class="section-divider"/>
 
         <div class="section">
           <div class="preset-head">
             <label class="section-label">快速预设（本地）</label>
             <a-button size="small" @click="saveCurrentAsPreset">保存当前</a-button>
           </div>
-          <a-input size="small" :value="presetNameDraft" maxlength="24" placeholder="输入预设名称后保存" @update:value="onPresetDraftChange" />
+          <a-input :value="presetNameDraft" maxlength="24" placeholder="输入预设名称后保存" size="small"
+                   @update:value="onPresetDraftChange"/>
           <div class="preset-list">
             <div v-for="preset in allPresets" :key="preset.key" class="preset-item">
               <a-button size="small" @click="applyPreset(preset.key)">{{ preset.label }}</a-button>
-              <button v-if="preset.isCustom" type="button" class="preset-remove" title="删除预设" @click="removeCustomPreset(preset.key)">×</button>
+              <button v-if="preset.isCustom" class="preset-remove" title="删除预设" type="button"
+                      @click="removeCustomPreset(preset.key)">×
+              </button>
             </div>
           </div>
         </div>
@@ -162,11 +170,17 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-import { message } from 'ant-design-vue'
-import { SettingOutlined } from '@ant-design/icons-vue'
-import type { CanvasBackgroundVariant, CanvasConfig, CanvasEdgeApplyPayload, CanvasEdgeLinePattern, CanvasEdgeStyle } from '../../../domain/types'
+<script lang="ts" setup>
+import {computed, ref} from 'vue'
+import {message} from 'ant-design-vue'
+import {SettingOutlined} from '@ant-design/icons-vue'
+import type {
+  CanvasBackgroundVariant,
+  CanvasConfig,
+  CanvasEdgeApplyPayload,
+  CanvasEdgeLinePattern,
+  CanvasEdgeStyle
+} from '../../../domain/types'
 
 const props = defineProps<{
   canvasConfig: CanvasConfig
@@ -180,20 +194,20 @@ const emit = defineEmits<{
 }>()
 
 const edgeStyleOptions: Array<{ label: string; value: CanvasEdgeStyle }> = [
-  { label: '曲线', value: 'default' },
-  { label: '直线', value: 'straight' },
-  { label: '折线', value: 'step' }
+  {label: '曲线', value: 'default'},
+  {label: '直线', value: 'straight'},
+  {label: '折线', value: 'step'}
 ]
 const edgeLinePatternOptions: Array<{ label: string; value: CanvasEdgeLinePattern }> = [
-  { label: '实线', value: 'solid' },
-  { label: '虚线', value: 'dashed' }
+  {label: '实线', value: 'solid'},
+  {label: '虚线', value: 'dashed'}
 ]
 
 const backgroundOptions: Array<{ label: string; value: CanvasBackgroundVariant }> = [
-  { label: '点阵', value: 'dots' },
-  { label: '网格', value: 'lines' },
-  { label: '十字', value: 'cross' },
-  { label: '无', value: 'none' }
+  {label: '点阵', value: 'dots'},
+  {label: '网格', value: 'lines'},
+  {label: '十字', value: 'cross'},
+  {label: '无', value: 'none'}
 ]
 const fixedGapOptions = [8, 16, 24, 32, 48]
 
@@ -280,7 +294,7 @@ function persistCustomPresets() {
 }
 
 const onChangeEdgeDefault = (value: CanvasEdgeStyle) => {
-  emit('update-canvas-config', { edgeStyleDefault: value })
+  emit('update-canvas-config', {edgeStyleDefault: value})
   emit('apply-edge-style-all', {
     edgeStyle: value,
     edgeLinePattern: props.canvasConfig.edgeLinePatternDefault,
@@ -289,7 +303,7 @@ const onChangeEdgeDefault = (value: CanvasEdgeStyle) => {
 }
 
 const onChangeEdgeLinePattern = (value: CanvasEdgeLinePattern) => {
-  emit('update-canvas-config', { edgeLinePatternDefault: value })
+  emit('update-canvas-config', {edgeLinePatternDefault: value})
   emit('apply-edge-style-all', {
     edgeStyle: props.canvasConfig.edgeStyleDefault,
     edgeLinePattern: value,
@@ -299,7 +313,7 @@ const onChangeEdgeLinePattern = (value: CanvasEdgeLinePattern) => {
 
 const onEdgeLineWidthChange = (value: number | [number, number]) => {
   const next = Array.isArray(value) ? Number(value[0]) : Number(value)
-  emit('update-canvas-config', { edgeLineWidthDefault: next })
+  emit('update-canvas-config', {edgeLineWidthDefault: next})
   emit('apply-edge-style-all', {
     edgeStyle: props.canvasConfig.edgeStyleDefault,
     edgeLinePattern: props.canvasConfig.edgeLinePatternDefault,
@@ -308,41 +322,41 @@ const onEdgeLineWidthChange = (value: number | [number, number]) => {
 }
 
 const onChangeBackgroundVariant = (value: CanvasBackgroundVariant) => {
-  emit('update-canvas-config', { backgroundVariant: value })
+  emit('update-canvas-config', {backgroundVariant: value})
 }
 
 const onBackgroundColorChange = (value: string) => {
-  emit('update-canvas-config', { backgroundColor: value || '#f8fafc' })
+  emit('update-canvas-config', {backgroundColor: value || '#f8fafc'})
 }
 
 const onPatternColorChange = (value: string) => {
-  emit('update-canvas-config', { patternColor: value || '#94a3b8' })
+  emit('update-canvas-config', {patternColor: value || '#94a3b8'})
 }
 
 const onBackgroundColorPick = (event: Event) => {
   const value = (event.target as HTMLInputElement).value
-  emit('update-canvas-config', { backgroundColor: value || '#f8fafc' })
+  emit('update-canvas-config', {backgroundColor: value || '#f8fafc'})
 }
 
 const onPatternColorPick = (event: Event) => {
   const value = (event.target as HTMLInputElement).value
-  emit('update-canvas-config', { patternColor: value || '#94a3b8' })
+  emit('update-canvas-config', {patternColor: value || '#94a3b8'})
 }
 
 const onSelectFixedGap = (gap: number) => {
-  emit('update-canvas-config', { patternGap: gap, snapGridSize: gap })
+  emit('update-canvas-config', {patternGap: gap, snapGridSize: gap})
 }
 
 const onPatternSizeChange = (value: number | [number, number]) => {
-  emit('update-canvas-config', { patternSize: Array.isArray(value) ? Number(value[0]) : Number(value) })
+  emit('update-canvas-config', {patternSize: Array.isArray(value) ? Number(value[0]) : Number(value)})
 }
 
 const onShowOriginChange = (checked: boolean) => {
-  emit('update-canvas-config', { showOriginMarker: checked })
+  emit('update-canvas-config', {showOriginMarker: checked})
 }
 
 const onSnapEnabledChange = (checked: boolean) => {
-  emit('update-canvas-config', { snapToGridEnabled: checked })
+  emit('update-canvas-config', {snapToGridEnabled: checked})
 }
 
 const onAutoSaveEnabledChange = (checked: boolean) => {
@@ -371,7 +385,7 @@ const saveCurrentAsPreset = () => {
     {
       key,
       label: name,
-      config: { ...props.canvasConfig },
+      config: {...props.canvasConfig},
       isCustom: true
     }
   ]
@@ -383,7 +397,7 @@ const saveCurrentAsPreset = () => {
 const applyPreset = (presetKey: string) => {
   const target = allPresets.value.find((x) => x.key === presetKey)
   if (!target) return
-  emit('update-canvas-config', { ...target.config })
+  emit('update-canvas-config', {...target.config})
   emit('apply-edge-style-all', {
     edgeStyle: target.config.edgeStyleDefault,
     edgeLinePattern: target.config.edgeLinePatternDefault,

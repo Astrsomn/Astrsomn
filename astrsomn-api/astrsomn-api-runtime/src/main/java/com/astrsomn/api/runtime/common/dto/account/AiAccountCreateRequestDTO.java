@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.dto.account;
+package com.astrsomn.api.runtime.common.dto.account;
 
 import lombok.Data;
 

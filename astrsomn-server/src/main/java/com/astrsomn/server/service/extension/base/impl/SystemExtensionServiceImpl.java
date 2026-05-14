@@ -1,32 +1,32 @@
 package com.astrsomn.server.service.extension.base.impl;
 
+import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.dto.extension.*;
+import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.api.runtime.exception.SystemExtensionErrorEnum;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.SystemExtensionMapper;
+import com.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
+import com.astrsomn.server.plugin.registry.PluginDirectoryExtensionSyncService;
+import com.astrsomn.server.plugin.registry.SystemExtensionRegistry;
+import com.astrsomn.server.service.extension.base.SystemExtensionService;
+import com.astrsomn.server.service.extension.lifecycle.SystemExtensionLifecycleOrchestrator;
+import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.astrsomn.server.util.ExtensionJarUtil;
+import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
-import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.api.runtime.exception.SystemExtensionErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
-import com.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
-import com.astrsomn.server.plugin.registry.SystemExtensionRegistry;
-import com.astrsomn.server.plugin.registry.PluginDirectoryExtensionSyncService;
-import com.astrsomn.server.service.extension.base.SystemExtensionService;
-import com.astrsomn.server.service.extension.lifecycle.SystemExtensionLifecycleOrchestrator;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -41,8 +41,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
-import com.astrsomn.server.util.ExtensionJarUtil;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -54,6 +52,28 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     private final SystemExtensionLifecycleOrchestrator lifecycleOrchestrator;
     private final ApplicationContext applicationContext;
     private final PluginDirectoryExtensionSyncService pluginDirectoryExtensionSyncService;
+
+    /**
+     * 库中 AVATAR 为空时，按 extensionKey 用内置 {@link AstroExtensionDescriptor} 补全（已安装列表/详情与 SPI 展示一致）。
+     */
+    private static void fillAvatarFromDescriptors(
+            SystemExtensionResponseDTO dto, Map<String, AstroExtensionDescriptor> descriptorsByKey) {
+        if (dto == null || StringUtils.isNotBlank(dto.getAvatar())) {
+            return;
+        }
+        String key = StringUtils.trimToNull(dto.getExtensionKey());
+        if (key == null) {
+            return;
+        }
+        AstroExtensionDescriptor d = descriptorsByKey.get(key);
+        if (d == null) {
+            return;
+        }
+        String svg = d.getAvatar();
+        if (StringUtils.isNotBlank(svg)) {
+            dto.setAvatar(svg);
+        }
+    }
 
     @Override
     public BaseResponse<String> create(SystemExtensionCreateRequestDTO request) {
@@ -132,28 +152,6 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
 
     private void fillAvatarFromDescriptors(SystemExtensionResponseDTO dto) {
         fillAvatarFromDescriptors(dto, SystemExtensionRegistry.mergeDescriptors(applicationContext));
-    }
-
-    /**
-     * 库中 AVATAR 为空时，按 extensionKey 用内置 {@link AstroExtensionDescriptor} 补全（已安装列表/详情与 SPI 展示一致）。
-     */
-    private static void fillAvatarFromDescriptors(
-            SystemExtensionResponseDTO dto, Map<String, AstroExtensionDescriptor> descriptorsByKey) {
-        if (dto == null || StringUtils.isNotBlank(dto.getAvatar())) {
-            return;
-        }
-        String key = StringUtils.trimToNull(dto.getExtensionKey());
-        if (key == null) {
-            return;
-        }
-        AstroExtensionDescriptor d = descriptorsByKey.get(key);
-        if (d == null) {
-            return;
-        }
-        String svg = d.getAvatar();
-        if (StringUtils.isNotBlank(svg)) {
-            dto.setAvatar(svg);
-        }
     }
 
     @Override

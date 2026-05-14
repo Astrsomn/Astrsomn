@@ -1,14 +1,14 @@
 <template>
   <section class="main-grid">
     <button
-      v-for="item in moduleCards"
-      :key="item.routeName"
-      class="route-card"
-      type="button"
-      @click="emit('go-to', item.routeName)"
+        v-for="item in moduleCards"
+        :key="item.routeName"
+        class="route-card"
+        type="button"
+        @click="emit('go-to', item.routeName)"
     >
       <div class="card-icon">
-        <component :is="item.icon" />
+        <component :is="item.icon"/>
       </div>
       <div class="card-content">
         <h4 class="card-title">{{ item.title }}</h4>
@@ -18,8 +18,8 @@
   </section>
 </template>
 
-<script setup lang="ts">
-import type { Component } from 'vue'
+<script lang="ts" setup>
+import type {Component} from 'vue'
 
 type ModuleCard = {
   title: string

@@ -1,14 +1,14 @@
 package com.astrsomn.server.service.extension.base;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionResponseDTO;
 import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface SystemExtensionService extends IService<SystemExtensionEntity> {

@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.dto.conversation;
+package com.astrsomn.api.runtime.common.dto.conversation;
 
 import lombok.Data;
 
@@ -6,6 +6,6 @@ import lombok.Data;
 public class AiConversationUsageDTO {
 
     private String modelKey;
-    
+
     private Long total;
 }

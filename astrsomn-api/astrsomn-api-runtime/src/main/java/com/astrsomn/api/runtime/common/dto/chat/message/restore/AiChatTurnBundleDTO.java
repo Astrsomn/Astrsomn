@@ -1,4 +1,4 @@
-﻿package com.astrsomn.api.runtime.common.dto.chat.message.restore;
+package com.astrsomn.api.runtime.common.dto.chat.message.restore;
 
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageResponseDTO;
 import lombok.Data;
@@ -21,7 +21,7 @@ public class AiChatTurnBundleDTO {
                 .findFirst();
     }
 
-    
+
     public List<AiChatMessageResponseDTO> getReplyChain() {
         return orderedRows.stream()
                 .filter(r -> !"user".equalsIgnoreCase(r.getRole()))
