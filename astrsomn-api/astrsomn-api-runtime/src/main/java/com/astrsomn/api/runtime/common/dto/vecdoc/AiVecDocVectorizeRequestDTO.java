@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.dto.vecdoc;
+﻿package com.astrsomn.api.runtime.common.dto.vecdoc;
 
 import lombok.Data;
 

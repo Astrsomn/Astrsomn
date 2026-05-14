@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.constant;
+﻿package com.astrsomn.api.runtime.common.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,14 +11,10 @@ public interface AiPromptEnum {
     @AllArgsConstructor
     enum StatusEnum implements BaseEnum {
 
-        /**
-         * Enabled
-         */
+        
         ENABLED("enabled", "Enabled"),
 
-        /**
-         * Disabled
-         */
+        
         DISABLED("disabled", "Disabled");
 
         private final String code;
@@ -29,14 +25,10 @@ public interface AiPromptEnum {
     @AllArgsConstructor
     enum IsDefaultEnum implements BaseEnum {
 
-        /**
-         * Is default
-         */
+        
         YES("Y", "Yes"),
 
-        /**
-         * Is not default
-         */
+        
         NO("N", "No");
 
         private final String code;

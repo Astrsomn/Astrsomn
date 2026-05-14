@@ -1,4 +1,4 @@
-package com.astrsomn.api.workflow.domain.dto.bizidempotent;
+﻿package com.astrsomn.api.workflow.domain.dto.bizidempotent;
 
 import com.astrsomn.common.base.BaseEntity;
 import lombok.Data;

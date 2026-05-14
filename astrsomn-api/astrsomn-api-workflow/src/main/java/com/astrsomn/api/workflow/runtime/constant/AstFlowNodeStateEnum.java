@@ -1,4 +1,4 @@
-package com.astrsomn.api.workflow.runtime.constant;
+﻿package com.astrsomn.api.workflow.runtime.constant;
 
 public enum AstFlowNodeStateEnum {
     READY,

@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.dto.mcp;
+﻿package com.astrsomn.api.runtime.common.dto.mcp;
 
 import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiMcpEntity;

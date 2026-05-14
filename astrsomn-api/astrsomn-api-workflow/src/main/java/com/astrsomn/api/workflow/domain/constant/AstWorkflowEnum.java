@@ -1,4 +1,4 @@
-package com.astrsomn.api.workflow.domain.constant;
+﻿package com.astrsomn.api.workflow.domain.constant;
 
 import com.astrsomn.common.base.BaseEnum;
 import lombok.AllArgsConstructor;

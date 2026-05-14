@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.utils;
+﻿package com.astrsomn.api.runtime.common.utils;
 
 import com.astrsomn.api.runtime.common.dto.chat.message.AiChatMessageResponseDTO;
 import com.astrsomn.api.runtime.common.dto.chat.message.ext.AiChatMessageExtPayload;
@@ -14,9 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * 将扁平的消息表行分组为轮次，并解析 EXT_JSON，供会话复原与工具链追踪。
- */
+
 @Slf4j
 public final class AiChatMessageRestoreUtil {
 
@@ -25,9 +23,7 @@ public final class AiChatMessageRestoreUtil {
     private AiChatMessageRestoreUtil() {
     }
 
-    /**
-     * 按 {@code TURN_NO}、{@code MESSAGE_ORDER} 稳定排序后分组为回合包。
-     */
+    
     public static List<AiChatTurnBundleDTO> bundleByTurn(List<AiChatMessageResponseDTO> rows) {
         if (rows == null || rows.isEmpty()) {
             return List.of();
@@ -62,9 +58,7 @@ public final class AiChatMessageRestoreUtil {
         }
     }
 
-    /**
-     * 在同一轮行列表中，按 {@code relatedToolCallId} 匹配工具调用行（MESSAGE_TYPE / lineage / partKind 任一可标识调用侧）。
-     */
+    
     public static Optional<AiChatMessageResponseDTO> findToolCallRow(List<AiChatMessageResponseDTO> turnRows, String toolCallId) {
         if (toolCallId == null || turnRows == null) {
             return Optional.empty();

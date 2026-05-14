@@ -1,26 +1,20 @@
-package com.astrsomn.api.runtime.common.constant;
+﻿package com.astrsomn.api.runtime.common.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import com.astrsomn.common.base.BaseEnum;
 
 
-/**
- * AI Agent
- */
+
 public interface AiAgentEnum {
 
     @Getter
     @AllArgsConstructor
     enum StatusEnum implements BaseEnum {
-        /**
-         * Enable
-         */
+        
         ENABLED("enabled", "Enabled"),
 
-        /**
-         * Disable
-         */
+        
         DISABLED("disabled", "Disable");
 
         private final String code;

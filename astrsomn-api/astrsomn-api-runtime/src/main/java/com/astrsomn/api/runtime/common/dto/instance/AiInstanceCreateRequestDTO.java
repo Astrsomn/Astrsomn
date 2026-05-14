@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.dto.instance;
+﻿package com.astrsomn.api.runtime.common.dto.instance;
 
 import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;

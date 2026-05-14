@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.dto.auth;
+﻿package com.astrsomn.api.runtime.common.dto.auth;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -16,7 +16,7 @@ public class LoginResponse {
     private String username;
     private String email;
     private String adminFlag;
-    /** SUPER_ADMIN / ENV_ADMIN / USER */
+    
     private String userRole;
     private String token;
     private Long expiresIn;

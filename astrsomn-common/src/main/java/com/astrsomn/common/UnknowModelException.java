@@ -1,4 +1,4 @@
-package com.astrsomn.common;
+﻿package com.astrsomn.common;
 
 public class UnknowModelException extends RuntimeException {
 

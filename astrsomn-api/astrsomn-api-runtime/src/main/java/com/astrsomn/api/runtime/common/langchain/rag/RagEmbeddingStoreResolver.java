@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.langchain.rag;
+﻿package com.astrsomn.api.runtime.common.langchain.rag;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;

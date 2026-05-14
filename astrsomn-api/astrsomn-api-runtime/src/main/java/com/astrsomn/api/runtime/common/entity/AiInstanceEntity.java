@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.entity;
+﻿package com.astrsomn.api.runtime.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -28,92 +28,62 @@ public class AiInstanceEntity extends BaseEntity<Long> {
     @TableField("MODEL_KEY")
     private String modelKey;
 
-    /**
-     * Resolved from {@code AI_MODEL.MODEL_TYPE} by {@code modelKey} + {@code envCode}; not a column on {@code AI_INSTANCE}.
-     */
+    
     @TableField(exist = false)
     private String modelType;
-    /**
-     * The maximum number of tokens allowed in the generated response.
-     */
+    
     @TableField("MAX_TOKENS")
     private Integer maxTokens;
 
-    /**
-     * The temperature value controlling the randomness of the output.
-     */
+    
     @TableField("TEMPERATURE")
     private Double temperature;
 
-    /**
-     * The presence penalty value to discourage token repetition based on existence.
-     */
+    
     @TableField("PRESENCE_PENALTY")
     private Double presencePenalty;
 
-    /**
-     * The frequency penalty value to discourage token repetition based on count.
-     */
+    
     @TableField("FREQUENCY_PENALTY")
     private Double frequencyPenalty;
 
-    /**
-     * Custom sequences that will trigger the end of text generation.
-     */
+    
     @TableField("STOP_SEQUENCES")
     private String stopSequences;
 
-    /**
-     * The random seed for reproducible output generation.
-     */
+    
     @TableField("SEED")
     private Integer seed;
 
-    /**
-     *
-     */
+    
     @TableField("TOP_P")
     private Double topP;
 
-    /**
-     *
-     */
+    
     @TableField("TOP_K")
     private Integer topK;
 
-    /**
-     *
-     */
+    
     @TableField("STYLE")
     private String style;
 
-    /**
-     *
-     */
+    
     @TableField("SIZE")
     private String size;
 
-    /**
-     *
-     */
+    
     @TableField("DIMENSIONS")
     private Integer dimensions;
 
-    /**
-     *
-     */
+    
     @TableField("STATUS")
     private String status;
 
-    /**
-     * 是否为默认预设 (Y/N)
-     */
+    
     @TableField("IS_DEFAULT")
     private String isDefault;
 
-    /**
-     * 关联的账号 key，用于动态配置账号信息
-     */
+    
     @TableField("ACCOUNT_KEY")
     private String accountKey;
 

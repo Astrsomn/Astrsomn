@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.langchain;
+﻿package com.astrsomn.api.runtime.common.langchain;
 
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.*;
 import lombok.Data;

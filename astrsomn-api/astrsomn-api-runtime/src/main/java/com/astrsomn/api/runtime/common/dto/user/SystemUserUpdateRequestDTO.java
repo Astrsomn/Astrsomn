@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.dto.user;
+﻿package com.astrsomn.api.runtime.common.dto.user;
 
 import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.SystemUserEntity;

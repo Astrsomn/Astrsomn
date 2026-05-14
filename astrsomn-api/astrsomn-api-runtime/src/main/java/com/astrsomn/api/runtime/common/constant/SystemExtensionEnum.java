@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.constant;
+﻿package com.astrsomn.api.runtime.common.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.entity;
+﻿package com.astrsomn.api.runtime.common.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;

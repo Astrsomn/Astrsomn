@@ -1,4 +1,4 @@
-package com.astrsomn.api.workflow.runtime.model;
+﻿package com.astrsomn.api.workflow.runtime.model;
 
 import lombok.Builder;
 import lombok.Data;

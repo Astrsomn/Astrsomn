@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.dto.vecsegment;
+﻿package com.astrsomn.api.runtime.common.dto.vecsegment;
 
 import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;

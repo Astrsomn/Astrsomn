@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.entity;
+﻿package com.astrsomn.api.runtime.common.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -37,7 +37,7 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("IMAGE_INSTANCE_KEY")
     private String imageInstanceKey;
 
-    /** 语音 / TTS 等推理实例 */
+    
     @TableField("VOICE_INSTANCE_KEY")
     private String voiceInstanceKey;
 

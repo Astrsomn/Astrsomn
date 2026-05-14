@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.dto.extension;
+﻿package com.astrsomn.api.runtime.common.dto.extension;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import lombok.AllArgsConstructor;
@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/**
- * 插件市场目录项（可来自 Mock 或后续真实 Provider 聚合）。
- */
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -25,14 +23,12 @@ public class ExtensionMarketplaceItemDTO implements Serializable {
     private String version;
     private String author;
     private String description;
-    /** 应用插件包时可选 */
+    
     private String jarName;
 
-    /**
-     * 公用厂商 code；模型类扩展时与 {@link AiModelEnum.ProviderEnum#getCode()} 一致。
-     */
+    
     private String extensionCode;
 
-    /** SVG 等展示用头像（可选） */
+    
     private String avatar;
 }

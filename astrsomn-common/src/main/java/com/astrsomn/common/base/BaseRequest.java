@@ -1,13 +1,11 @@
-package com.astrsomn.common.base;
+﻿package com.astrsomn.common.base;
 
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * 基础请求DTO
- */
+
 @Data
 public class BaseRequest implements Serializable {
     private static final long serialVersionUID = 1L;

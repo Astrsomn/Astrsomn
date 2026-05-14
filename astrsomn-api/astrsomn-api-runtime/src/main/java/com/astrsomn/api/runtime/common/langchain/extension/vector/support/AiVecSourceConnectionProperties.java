@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.langchain.extension.vector.support;
+﻿package com.astrsomn.api.runtime.common.langchain.extension.vector.support;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,10 +10,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * 从 {@link AiVecSourceEntity} 解析向量库连接参数：表字段优先非空值，其余从 {@code CONFIG_JSON} 读取，
- * JSON 键使用 {@link AiVecDriverEnum.ParamEnum#getCode()}。
- */
+
 public final class AiVecSourceConnectionProperties {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -101,9 +98,7 @@ public final class AiVecSourceConnectionProperties {
         return host;
     }
 
-    /**
-     * 解析后的 TCP 端口；若为 0 表示未配置，由调用方按后端默认端口处理。
-     */
+    
     public int getPort() {
         return port;
     }
@@ -124,12 +119,12 @@ public final class AiVecSourceConnectionProperties {
         return token;
     }
 
-    /** 未配置时使用 {@code localhost}。 */
+    
     public String resolvedHost() {
         return StringUtils.isNotBlank(host) ? host : "localhost";
     }
 
-    /** 未配置或端口为 0 时使用传入默认值（如 Qdrant gRPC 6334、Milvus 19530）。 */
+    
     public int resolvedPort(int defaultIfUnset) {
         return port > 0 ? port : defaultIfUnset;
     }

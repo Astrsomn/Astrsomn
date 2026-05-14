@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.dto.account;
+﻿package com.astrsomn.api.runtime.common.dto.account;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;

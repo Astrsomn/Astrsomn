@@ -1,4 +1,4 @@
-package com.astrsomn.common.utils;
+﻿package com.astrsomn.common.utils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;

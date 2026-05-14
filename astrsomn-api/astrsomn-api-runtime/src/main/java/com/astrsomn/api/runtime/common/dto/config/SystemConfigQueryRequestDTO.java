@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.dto.config;
+﻿package com.astrsomn.api.runtime.common.dto.config;
 
 import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.SystemConfigEntity;

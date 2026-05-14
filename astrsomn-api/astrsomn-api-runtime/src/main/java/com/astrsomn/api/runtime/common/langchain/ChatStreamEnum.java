@@ -1,4 +1,4 @@
-package com.astrsomn.api.runtime.common.langchain;
+﻿package com.astrsomn.api.runtime.common.langchain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +27,7 @@ public interface ChatStreamEnum {
 
         TEXT("text", "文本", ""),
         THOUGHT("thought", "思考", ""),
-        /** SSE：结构化工具片段，content 为 JSON（toolName / args / result）。 */
+        
         TOOL("tool", "工具", ""),
         HTML("html", "html代码", ""),
         ERROR("error", "错误", ""),

@@ -1,4 +1,4 @@
-package com.astrsomn.api.workflow.domain.dto.definition;
+﻿package com.astrsomn.api.workflow.domain.dto.definition;
 
 import lombok.Data;
 

@@ -1,10 +1,8 @@
-package com.astrsomn.api.runtime.common.dto.extension;
+﻿package com.astrsomn.api.runtime.common.dto.extension;
 
 import lombok.Data;
 
-/**
- * 扩展模型同步预览中的单条模型摘要。
- */
+
 @Data
 public class ExtensionModelSyncPreviewRowDTO {
     private String modelKey;
