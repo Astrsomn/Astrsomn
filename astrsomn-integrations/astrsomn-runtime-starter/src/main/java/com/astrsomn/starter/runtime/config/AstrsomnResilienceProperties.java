@@ -1,13 +1,11 @@
 package com.astrsomn.starter.runtime.config;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Astrsomn 与 Resilience4j 相关的预留配置（命名实例仍在宿主 {@code resilience4j.*} 下声明）。
  */
 @Data
-@ConfigurationProperties(prefix = "astrsomn.resilience")
 public class AstrsomnResilienceProperties {
 
     /**
