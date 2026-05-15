@@ -37,10 +37,7 @@
         </if>
         <if test="req != null and req.nodeId != null and req.nodeId != ''">
             AND h.NODE_ID LIKE CONCAT('%', #{req.nodeId}, '%')
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND h.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         ORDER BY h.VERSION DESC, h.UPDATE_TIME DESC, h.ID DESC
     </select>
 
@@ -65,10 +62,7 @@
         h.UPDATE_TIME AS updateTime
         FROM AST_FLOW_NODE_HISTORY h
         WHERE h.ID = #{id}
-        AND (h.DELETED = 0 OR h.DELETED IS NULL)
-        <if test="envCode != null and envCode != ''">
-            AND h.ENV_CODE = #{envCode}
-        </if>
+        AND (h.DELETED = 0 OR h.DELETED IS NULL)
     </select>
 
 </mapper>

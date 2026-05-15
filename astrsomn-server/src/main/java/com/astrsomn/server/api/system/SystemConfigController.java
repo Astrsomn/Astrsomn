@@ -1,9 +1,9 @@
 package com.astrsomn.server.api.system;
 
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigResponseDTO;
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigUpdateRequestDTO;
+import com.astrsomn.system.dto.config.SystemConfigCreateRequestDTO;
+import com.astrsomn.system.dto.config.SystemConfigQueryRequestDTO;
+import com.astrsomn.system.dto.config.SystemConfigResponseDTO;
+import com.astrsomn.system.dto.config.SystemConfigUpdateRequestDTO;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;

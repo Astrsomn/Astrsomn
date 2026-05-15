@@ -14,7 +14,6 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.mapper.AiTraceLogMapper;
 import com.astrsomn.server.service.AiTraceLogService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AiTraceLogServiceImpl extends ServiceImpl<AiTraceLogMapper, AiTraceLogEntity> implements AiTraceLogService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiTraceLogCreateRequestDTO request) {
@@ -74,7 +72,6 @@ public class AiTraceLogServiceImpl extends ServiceImpl<AiTraceLogMapper, AiTrace
         if (param == null) {
             param = new AiTraceLogQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiTraceLogResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

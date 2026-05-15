@@ -1,32 +1,18 @@
 package com.astrsomn.api.runtime.common.dto.agent;
 
+import com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO;
 import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class AiAgentResponseDTO extends AiAgentEntity {
 
-
-    private String modelName;
-
-
-    private String chatInstanceName;
-
-
-    private String imageInstanceName;
-
-
-    private String voiceInstanceName;
-
-
     private String promptTitle;
 
-
-    private String modelProvider;
-
-
-    private String providerAvatar;
+    private List<AiInstanceResponseDTO> instanceList;
 }

@@ -16,7 +16,6 @@ import com.astrsomn.server.mapper.AiAccountMapper;
 import com.astrsomn.server.mapper.AiChatMessageMapper;
 import com.astrsomn.server.mapper.AiInstanceMapper;
 import com.astrsomn.server.service.AiAccountService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -35,7 +34,6 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
 
     private final AiInstanceMapper aiInstanceMapper;
     private final AiChatMessageMapper aiChatMessageMapper;
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiAccountCreateRequestDTO request) {

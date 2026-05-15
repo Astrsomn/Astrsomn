@@ -83,7 +83,6 @@ public class AiWorkflowTimerJobServiceImpl extends ServiceImpl<AstFlowTimerJobMa
         IPage<AstFlowTimerJobResponseDTO> page = PageUtils.buildPage(request);
         AstFlowTimerJobQueryRequestDTO param = request.getParam();
         if (param == null) param = new AstFlowTimerJobQueryRequestDTO();
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowTimerJobResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

@@ -8,9 +8,6 @@
         `AI_CHAT_MESSAGE` ACM
         WHERE
         ACM.DELETED = 0
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND ACM.ENV_CODE = #{req.envCode}
-        </if>
         <if test="req != null and req.memoryKey != null and req.memoryKey != ''">
             AND ACM.MEMORY_KEY = #{req.memoryKey}
         </if>
@@ -24,17 +21,11 @@
     <select id="getMaxMessageOrder" resultType="java.lang.Integer">
         SELECT COALESCE(MAX(MESSAGE_ORDER), -1) FROM `AI_CHAT_MESSAGE`
         WHERE DELETED = 0 AND MEMORY_KEY = #{messageKey}
-        <if test="envCode != null and envCode != ''">
-            AND ENV_CODE = #{envCode}
-        </if>
     </select>
 
     <select id="getMaxTurnNo" resultType="java.lang.Integer">
         SELECT COALESCE(MAX(TURN_NO), 0) FROM `AI_CHAT_MESSAGE`
         WHERE DELETED = 0 AND MEMORY_KEY = #{messageKey}
-        <if test="envCode != null and envCode != ''">
-            AND ENV_CODE = #{envCode}
-        </if>
     </select>
 
     <select id="recoverByMemoryKey"
@@ -53,7 +44,6 @@
         FROM `AI_CHAT_MESSAGE`
         WHERE CREATE_TIME >= CURDATE()
           AND DELETED = 0
-          AND ENV_CODE = #{envCode}
         GROUP BY MODEL_KEY
     </select>
 
@@ -69,9 +59,6 @@
         `AI_CHAT_MESSAGE`
         WHERE
         DELETED = 0
-        <if test="envCode != null and envCode != ''">
-            AND ENV_CODE = #{envCode}
-        </if>
         <if test="accountKeys != null and accountKeys.size() > 0">
             AND ACCOUNT_KEY IN
             <foreach collection="accountKeys" item="key" open="(" separator="," close=")">

@@ -89,7 +89,6 @@ public class AiWorkflowServiceImpl extends ServiceImpl<AstFlowDefinitionMapper, 
         if (param == null) {
             param = new AstFlowDefinitionQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowDefinitionResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

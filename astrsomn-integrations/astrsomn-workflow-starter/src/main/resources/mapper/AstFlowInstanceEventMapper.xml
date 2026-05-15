@@ -31,10 +31,7 @@
         </if>
         <if test="req != null and req.traceId != null and req.traceId != ''">
             AND e.TRACE_ID = #{req.traceId}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND e.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         ORDER BY e.UPDATE_TIME DESC, e.ID DESC
     </select>
 
@@ -55,10 +52,7 @@
         e.UPDATE_TIME AS updateTime
         FROM AST_FLOW_INSTANCE_EVENT e
         WHERE e.ID = #{id}
-        AND (e.DELETED = 0 OR e.DELETED IS NULL)
-        <if test="envCode != null and envCode != ''">
-            AND e.ENV_CODE = #{envCode}
-        </if>
+        AND (e.DELETED = 0 OR e.DELETED IS NULL)
     </select>
 
 </mapper>

@@ -14,7 +14,7 @@ import java.util.List;
  *   enabled: false
  * }</pre>
  *
- * <p>连接配置使用独立 Bean {@link AstrsomnDatasourceProperties}（前缀 {@code astrsomn.datasource}）。
+ * <p>连接配置使用独立 Bean {@link com.astrsomn.starter.runtime.config.datasource.AstrsomnDatasourceProperties}（前缀 {@code astrsomn.datasource}）。
  * <pre>{@code
  * astrsomn:
  *   enabled: true

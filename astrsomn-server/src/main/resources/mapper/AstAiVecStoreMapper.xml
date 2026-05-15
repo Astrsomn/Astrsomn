@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.astrsomn.server.mapper.AiVecStoreMapper">
 
-    <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreResponseDTO">
+    <select id="queryPage" resultType="com.astrsomn.api.vector.dto.vecstore.AiVecStoreResponseDTO">
         SELECT
         s.ID,
         s.SOURCE_ID,
@@ -34,9 +34,6 @@
         <if test="req != null and req.instanceKey != null and req.instanceKey != ''">
             AND s.INSTANCE_KEY = #{req.instanceKey}
         </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND s.ENV_CODE = #{req.envCode}
-        </if>
         <if test="req != null and req.createUser != null and req.createUser != ''">
             AND s.CREATE_USER = #{req.createUser}
         </if>
@@ -44,7 +41,7 @@
         s.CREATE_TIME DESC
     </select>
 
-    <select id="selectDetailDtoById" resultType="com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreResponseDTO">
+    <select id="selectDetailDtoById" resultType="com.astrsomn.api.vector.dto.vecstore.AiVecStoreResponseDTO">
         SELECT s.ID,
                s.SOURCE_ID,
                s.COLLECTION_NAME,
@@ -67,7 +64,7 @@
           AND s.DELETED = 0
     </select>
 
-    <select id="selectStoreStats" resultType="com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreStatsResponseDTO">
+    <select id="selectStoreStats" resultType="com.astrsomn.api.vector.dto.vecstore.AiVecStoreStatsResponseDTO">
         SELECT s.ID                                                                          AS STORE_ID,
                COUNT(DISTINCT d.ID)                                                          AS DOC_COUNT,
                COUNT(seg.ID)                                                                 AS SEGMENT_COUNT,
@@ -76,13 +73,10 @@
         FROM AI_VEC_STORE s
                  LEFT JOIN AI_VEC_DOC d ON d.COLLECTION_ID = s.ID
             AND d.DELETED = 0
-            AND d.ENV_CODE = #{envCode}
                  LEFT JOIN AI_VEC_SEGMENT seg ON seg.DOC_ID = d.ID
             AND seg.DELETED = 0
-            AND seg.ENV_CODE = #{envCode}
         WHERE s.ID = #{storeId}
           AND s.DELETED = 0
-          AND s.ENV_CODE = #{envCode}
         GROUP BY s.ID
     </select>
 

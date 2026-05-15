@@ -18,7 +18,7 @@
       </a-button>
     </div>
 
-    <div class="model-section__body">
+    <div ref="bodyRef" class="model-section__body">
       <div v-if="loading" class="model-section__loading">
         <a-spin size="small"/>
       </div>
@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts" setup>
-import {onMounted, ref, watch} from 'vue'
+import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import {
   CheckCircleOutlined,
@@ -129,6 +129,37 @@ const models = ref<AiModel[]>([])
 const total = ref(0)
 const pageNo = ref(1)
 const pageSize = ref(12)
+
+const bodyRef = ref<HTMLElement>()
+const CARD_HEIGHT = 180
+const GRID_GAP = 16
+const COL_MIN = 280
+
+let resizeObserver: ResizeObserver | null = null
+let recalcTimer: ReturnType<typeof setTimeout> | null = null
+
+function recalcPageSize() {
+  const el = bodyRef.value
+  if (!el) return
+  const bodyHeight = el.clientHeight
+  const bodyWidth = el.clientWidth
+  if (bodyHeight <= 0 || bodyWidth <= 0) return
+  const cols = Math.max(1, Math.floor((bodyWidth + GRID_GAP) / (COL_MIN + GRID_GAP)))
+  const rows = Math.max(1, Math.floor((bodyHeight + GRID_GAP) / (CARD_HEIGHT + GRID_GAP)))
+  const newSize = cols * rows
+  if (newSize !== pageSize.value) {
+    pageSize.value = newSize
+    pageNo.value = 1
+    debouncedFetch()
+  }
+}
+
+function debouncedFetch() {
+  if (recalcTimer) clearTimeout(recalcTimer)
+  recalcTimer = setTimeout(() => {
+    void fetchModels()
+  }, 200)
+}
 
 const handleSearch = () => {
   pageNo.value = 1
@@ -227,7 +258,15 @@ watch(() => props.providerKey, () => {
 })
 
 onMounted(() => {
+  resizeObserver = new ResizeObserver(() => recalcPageSize())
+  if (bodyRef.value) resizeObserver.observe(bodyRef.value)
   void fetchModels()
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  resizeObserver = null
+  if (recalcTimer) clearTimeout(recalcTimer)
 })
 </script>
 
@@ -236,7 +275,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   padding: 24px 32px 32px;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 236px);
 }
 
 .model-section__toolbar {

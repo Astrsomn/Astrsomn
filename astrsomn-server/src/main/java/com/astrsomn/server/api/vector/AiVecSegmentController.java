@@ -1,9 +1,9 @@
 package com.astrsomn.server.api.vector;
 
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentCreateRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentQueryRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentResponseDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;

@@ -1,7 +1,7 @@
 package com.astrsomn.api.runtime.common.langchain.extension.vector;
 
-import com.astrsomn.api.runtime.common.entity.AiVecDriverEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.entity.AiVecDriverEntity;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 
 
 public interface VecDriver {

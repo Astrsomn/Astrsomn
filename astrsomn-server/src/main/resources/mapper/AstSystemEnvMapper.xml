@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.astrsomn.server.mapper.SystemEnvMapper">
 
-    <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.env.SystemEnvResponseDTO">
+    <select id="queryPage" resultType="com.astrsomn.system.dto.env.SystemEnvResponseDTO">
         SELECT
         se.*
         FROM
@@ -11,10 +11,7 @@
         1=1
         <if test="req != null and req.envName != null and req.envName != ''">
             AND se.ENV_NAME LIKE CONCAT('%', #{req.envName}, '%')
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND se.ENV_KEY = #{req.envCode}
-        </if>
+        </if>
         ORDER BY
         se.CREATE_TIME DESC
     </select>

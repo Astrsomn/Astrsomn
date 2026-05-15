@@ -73,7 +73,6 @@ public class AiWorkflowNodeConfigServiceImpl extends ServiceImpl<AstFlowNodeConf
         IPage<AstFlowNodeConfigResponseDTO> page = PageUtils.buildPage(request);
         AstFlowNodeConfigQueryRequestDTO param = request.getParam();
         if (param == null) param = new AstFlowNodeConfigQueryRequestDTO();
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowNodeConfigResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

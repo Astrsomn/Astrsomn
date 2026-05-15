@@ -1,8 +1,8 @@
 package com.astrsomn.server.mapper;
 
-import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionResponseDTO;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.dto.extension.SystemExtensionQueryRequestDTO;
+import com.astrsomn.system.dto.extension.SystemExtensionResponseDTO;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;

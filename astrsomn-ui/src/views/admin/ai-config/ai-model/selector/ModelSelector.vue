@@ -1,37 +1,36 @@
 <template>
-  <a-drawer
-      :closable="true"
-      :maskClosable="false"
+  <AstrsomnDrawerShell
       :open="props.open"
-      :width="600"
-      placement="right"
+      :width="640"
       root-class-name="model-select-drawer"
-      title="选择模型"
-      @close="handleClose"
+      @update:open="handleClose"
   >
+    <template #icon>
+      <AppstoreOutlined/>
+    </template>
+    <template #title>选择模型</template>
+    <template #subtitle>为实例选择一个推理端点</template>
+
     <div class="select-drawer-content">
       <div class="search-bar">
+        <ExtensionSelector
+            :allow-clear="true"
+            :value="providerFilter"
+            placeholder="全部提供商"
+            size="middle"
+            @update:value="onProviderChange"
+        />
         <a-input
             v-model:value="keyword"
             allow-clear
-            placeholder="搜索模型名称"
+            placeholder="搜索模型名称或 Key"
+            size="large"
             @pressEnter="handleSearch"
         >
           <template #prefix>
             <SearchOutlined/>
           </template>
         </a-input>
-        <a-select
-            v-model:value="queryStatus"
-            allow-clear
-            placeholder="状态筛选"
-            style="width: 120px"
-            @change="handleSearch"
-        >
-          <a-select-option value="enabled">启用</a-select-option>
-          <a-select-option value="disabled">禁用</a-select-option>
-        </a-select>
-        <a-button type="primary" @click="handleSearch">查询</a-button>
       </div>
 
       <a-spin :spinning="loading">
@@ -43,61 +42,72 @@
               class="model-item"
               @click="handleSelect(model)"
           >
-            <div :class="model.modelType" class="model-icon">
-              <MessageOutlined v-if="model.modelType === 'chat'"/>
-              <PartitionOutlined v-else-if="model.modelType === 'embedding'"/>
-              <PictureOutlined v-else-if="model.modelType === 'image'"/>
-              <AudioOutlined v-else-if="model.modelType === 'voice'"/>
-              <PictureOutlined v-else/>
-            </div>
-            <div class="model-info">
-              <div class="model-name">{{ model.modelName }}</div>
-              <div class="model-key">
-                <KeyOutlined/>
-                {{ model.modelKey }}
+            <div class="model-item-left">
+              <img
+                  v-if="getAvatar(model)"
+                  :src="getAvatar(model)"
+                  :alt="model.extensionCode"
+                  class="provider-avatar"
+              />
+              <div v-else :class="model.modelType" class="model-icon-fallback">
+                <MessageOutlined v-if="model.modelType === 'chat'"/>
+                <PartitionOutlined v-else-if="model.modelType === 'embedding'"/>
+                <PictureOutlined v-else-if="model.modelType === 'image'"/>
+                <AudioOutlined v-else-if="model.modelType === 'voice'"/>
+                <AppstoreOutlined v-else/>
+              </div>
+              <div class="model-info">
+                <div class="model-name">{{ model.modelName }}</div>
+                <div class="model-key">
+                  <KeyOutlined/>
+                  {{ model.modelKey }}
+                </div>
               </div>
             </div>
             <div class="model-meta">
               <span class="provider-tag">{{ model.extensionCode }}</span>
-              <span :class="model.status" class="status-badge">
+              <a-tag :color="model.status === 'enabled' ? 'green' : 'red'" class="status-tag">
                 {{ model.status === 'enabled' ? '启用' : '禁用' }}
-              </span>
+              </a-tag>
             </div>
           </div>
 
           <a-empty v-if="!loading && list.length === 0" description="暂无模型"/>
         </div>
       </a-spin>
-
-      <div class="drawer-footer">
-        <a-pagination
-            v-model:current="page.pageNum"
-            :page-size="page.pageSize"
-            :show-size-changer="false"
-            :total="page.total"
-            @change="fetchList"
-        />
-      </div>
     </div>
-  </a-drawer>
+
+    <template #footer>
+      <AstrsomnPagination
+          :current="page.pageNum"
+          :page-size="page.pageSize"
+          :show-size-changer="false"
+          :total="page.total"
+          @change="onPageChange"
+      />
+    </template>
+  </AstrsomnDrawerShell>
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, watch} from 'vue'
+import {ref, reactive, watch} from 'vue'
 import {
+  AppstoreOutlined,
   AudioOutlined,
   KeyOutlined,
   MessageOutlined,
   PartitionOutlined,
   PictureOutlined,
-  SearchOutlined
+  SearchOutlined,
 } from '@ant-design/icons-vue'
 import {type AiModel, aiModelApi, type PageResponse} from '@/api/aiModel.ts'
 import {WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
+import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
 
 const props = defineProps<{
   open: boolean
-  /** When set, only list models of this type (chat / image / embedding). */
   fixedModelType?: string
 }>()
 
@@ -107,17 +117,22 @@ const emit = defineEmits<{
 }>()
 
 const keyword = ref('')
-const queryStatus = ref<string | undefined>()
+const providerFilter = ref<string | undefined>(undefined)
 const loading = ref(false)
 const list = ref<AiModel[]>([])
 const selectedId = ref<number | string | undefined>()
 const page = reactive({
   pageNum: 1,
   pageSize: 10,
-  total: 0
+  total: 0,
 })
 
-const fetchList = async () => {
+function getAvatar(model: AiModel): string {
+  const raw = model?.providerAvatar
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+}
+
+async function fetchList() {
   loading.value = true
   try {
     const payload = {
@@ -125,10 +140,10 @@ const fetchList = async () => {
       pageSize: page.pageSize,
       param: {
         modelName: keyword.value || undefined,
-        status: queryStatus.value || undefined,
         envCode: localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY) || undefined,
-        modelType: props.fixedModelType || undefined
-      }
+        modelType: props.fixedModelType || undefined,
+        extensionCode: providerFilter.value?.trim() || undefined,
+      },
     }
     const resp: PageResponse<AiModel> = await aiModelApi.queryPage(payload)
     list.value = resp.list || []
@@ -138,24 +153,36 @@ const fetchList = async () => {
   }
 }
 
-const handleSearch = () => {
+function handleSearch() {
   page.pageNum = 1
   void fetchList()
 }
 
-const handleSelect = (model: AiModel) => {
+function onProviderChange(v: string | undefined) {
+  providerFilter.value = v
+  page.pageNum = 1
+  void fetchList()
+}
+
+function onPageChange(p: number, ps: number) {
+  page.pageNum = p
+  page.pageSize = ps
+  void fetchList()
+}
+
+function handleSelect(model: AiModel) {
   selectedId.value = model.id
   emit('select', model)
 }
 
-const handleClose = () => {
+function handleClose() {
   emit('update:open', false)
 }
 
 watch(() => props.open, (val) => {
   if (val) {
     keyword.value = ''
-    queryStatus.value = undefined
+    providerFilter.value = undefined
     selectedId.value = undefined
     page.pageNum = 1
     void fetchList()
@@ -167,6 +194,7 @@ watch(() => props.open, (val) => {
 .select-drawer-content {
   display: flex;
   flex-direction: column;
+  gap: 16px;
   height: 100%;
   min-height: 0;
 }
@@ -174,42 +202,63 @@ watch(() => props.open, (val) => {
 .search-bar {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.search-bar > * {
+  flex: 1;
 }
 
 .model-list {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .model-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .model-item:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-card);
+  border-color: #3b82f6;
+  background: #f0f7ff;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
 }
 
 .model-item.selected {
-  border-color: var(--primary);
-  background: var(--primary-hover);
+  border-color: #3b82f6;
+  background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
-.model-icon {
+.model-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.provider-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  object-fit: contain;
+  flex-shrink: 0;
+  background: #fff;
+  padding: 2px;
+}
+
+.model-icon-fallback {
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -217,24 +266,25 @@ watch(() => props.open, (val) => {
   align-items: center;
   justify-content: center;
   font-size: 18px;
+  flex-shrink: 0;
 }
 
-.model-icon.chat {
+.model-icon-fallback.chat {
   background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   color: white;
 }
 
-.model-icon.embedding {
+.model-icon-fallback.embedding {
   background: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
   color: white;
 }
 
-.model-icon.image {
+.model-icon-fallback.image {
   background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
   color: white;
 }
 
-.model-icon.voice {
+.model-icon-fallback.voice {
   background: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
   color: white;
 }
@@ -245,17 +295,18 @@ watch(() => props.open, (val) => {
 }
 
 .model-name {
+  font-size: 14px;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 4px;
+  color: #1e293b;
+  margin-bottom: 3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .model-key {
-  font-size: 12px;
-  color: var(--text-secondary);
+  font-size: 11px;
+  color: #94a3b8;
   font-family: 'JetBrains Mono', monospace;
   display: flex;
   align-items: center;
@@ -264,41 +315,22 @@ watch(() => props.open, (val) => {
 
 .model-meta {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .provider-tag {
   font-size: 11px;
   padding: 2px 8px;
-  background: var(--bg-secondary);
-  border-radius: 4px;
-  color: var(--text-secondary);
+  background: #f1f5f9;
+  border-radius: 6px;
+  color: #64748b;
+  font-weight: 500;
 }
 
-.status-badge {
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-.status-badge.enabled {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.status-badge.disabled {
-  background: #fee2e2;
-  color: #ef4444;
-}
-
-.drawer-footer {
-  flex-shrink: 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-default);
-  display: flex;
-  justify-content: center;
+.status-tag {
+  font-size: 11px;
+  margin: 0;
 }
 </style>

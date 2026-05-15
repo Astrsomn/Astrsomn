@@ -16,7 +16,6 @@ import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiModelMapper;
 import com.astrsomn.server.service.AiModelService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
 import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
@@ -49,7 +48,6 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
 
     private final AstrsomnProperties astrsomnProperties;
     private final AstAiInstanceMapper aiInstanceMapper;
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
 
     @Override
@@ -105,7 +103,6 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         if (param == null) {
             param = new AiModelQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiModelResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

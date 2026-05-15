@@ -2,8 +2,9 @@ package com.astrsomn.starter.runtime.config;
 
 import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.config.datasource.AstrsomnDatasourceProperties;
 import com.astrsomn.starter.runtime.context.UserContext;
-import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;
+import com.astrsomn.system.entity.SystemUserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -25,7 +26,7 @@ import org.springframework.context.annotation.Bean;
 @Slf4j
 @AutoConfiguration
 @AutoConfigureBefore(AstrsomnAutoConfiguration.class)
-@ConditionalOnClass(AstSystemUserMapper.class)
+@ConditionalOnClass(SystemUserEntity.class)
 public class AstrsomnPropertiesAutoConfiguration {
 
     @Bean

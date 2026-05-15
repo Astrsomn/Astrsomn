@@ -1,6 +1,6 @@
 package com.astrsomn.server.plugin.metadata;
 
-import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionMetaData;
+import com.astrsomn.system.dto.extension.SystemExtensionMetaData;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
 import com.astrsomn.common.utils.StringUtils;

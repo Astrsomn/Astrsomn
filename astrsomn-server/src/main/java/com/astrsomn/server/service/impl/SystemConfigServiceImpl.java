@@ -1,20 +1,19 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigResponseDTO;
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.SystemConfigEntity;
+import com.astrsomn.system.dto.config.SystemConfigCreateRequestDTO;
+import com.astrsomn.system.dto.config.SystemConfigQueryRequestDTO;
+import com.astrsomn.system.dto.config.SystemConfigResponseDTO;
+import com.astrsomn.system.dto.config.SystemConfigUpdateRequestDTO;
+import com.astrsomn.system.entity.SystemConfigEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.runtime.exception.SystemConfigErrorEnum;
+import com.astrsomn.system.exception.SystemConfigErrorEnum;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.mapper.SystemConfigMapper;
 import com.astrsomn.server.service.SystemConfigService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ import java.util.Arrays;
 public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, SystemConfigEntity>
         implements SystemConfigService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(SystemConfigCreateRequestDTO request) {
@@ -86,7 +84,6 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
         if (param == null) {
             param = new SystemConfigQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<SystemConfigResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

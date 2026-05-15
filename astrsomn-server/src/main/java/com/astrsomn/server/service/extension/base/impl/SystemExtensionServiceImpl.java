@@ -1,12 +1,12 @@
 package com.astrsomn.server.service.extension.base.impl;
 
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.dto.extension.*;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.dto.extension.*;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.runtime.exception.SystemExtensionErrorEnum;
+import com.astrsomn.system.exception.SystemExtensionErrorEnum;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
@@ -18,7 +18,6 @@ import com.astrsomn.server.plugin.registry.PluginDirectoryExtensionSyncService;
 import com.astrsomn.server.plugin.registry.SystemExtensionRegistry;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;
 import com.astrsomn.server.service.extension.lifecycle.SystemExtensionLifecycleOrchestrator;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.server.util.ExtensionJarUtil;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -47,7 +46,6 @@ import java.util.Optional;
 public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMapper, SystemExtensionEntity>
         implements SystemExtensionService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstrsomnPluginManager pluginManager;
     private final SystemExtensionLifecycleOrchestrator lifecycleOrchestrator;
     private final ApplicationContext applicationContext;
@@ -138,7 +136,6 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         if (param == null) {
             param = new SystemExtensionQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<SystemExtensionResponseDTO> result = baseMapper.queryPage(page, param);
         Map<String, AstroExtensionDescriptor> descriptorsByKey =
                 SystemExtensionRegistry.mergeDescriptors(applicationContext);

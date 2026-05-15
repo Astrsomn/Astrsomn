@@ -1,10 +1,10 @@
 package com.astrsomn.server.service;
 
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocCreateRequestDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocQueryRequestDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocResponseDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocUpdateRequestDTO;
+import com.astrsomn.api.vector.entity.AiVecDocEntity;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;

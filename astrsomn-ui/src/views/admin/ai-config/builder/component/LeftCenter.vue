@@ -170,7 +170,7 @@ const handleImprovePrompt = async () => {
   originalContent.value = content
   improveLoading.value = true
   try {
-    const improved = await aiPromptApi.improvePrompt(content)
+    const improved = await aiPromptApi.beautify(content)
     improvedContent.value = improved
     diffModalVisible.value = true
   } catch {

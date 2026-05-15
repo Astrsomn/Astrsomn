@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.astrsomn.server.mapper.AiVecDocMapper">
 
-    <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocResponseDTO">
+    <select id="queryPage" resultType="com.astrsomn.api.vector.dto.vecdoc.AiVecDocResponseDTO">
         SELECT
         *
         FROM
@@ -17,10 +17,7 @@
         </if>
         <if test="req != null and req.syncStatus != null and req.syncStatus != ''">
             AND SYNC_STATUS = #{req.syncStatus}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         <if test="req != null and req.createUser != null and req.createUser != ''">
             AND CREATE_USER = #{req.createUser}
         </if>

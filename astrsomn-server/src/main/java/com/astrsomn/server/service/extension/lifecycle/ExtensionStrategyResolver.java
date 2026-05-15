@@ -1,7 +1,7 @@
 package com.astrsomn.server.service.extension.lifecycle;
 
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.exception.SystemExtensionErrorEnum;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.exception.SystemExtensionErrorEnum;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,8 @@
 package com.astrsomn.vector.chroma.service;
 
-import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
-import com.astrsomn.api.runtime.common.entity.AiVecDriverEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.constant.AiVecDriverEnum;
+import com.astrsomn.api.vector.entity.AiVecDriverEntity;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecDriver;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
 import com.astrsomn.common.utils.EnumUtils;

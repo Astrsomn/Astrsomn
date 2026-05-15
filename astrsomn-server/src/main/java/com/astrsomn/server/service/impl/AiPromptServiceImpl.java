@@ -148,7 +148,6 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         if (param == null) {
             param = new AiPromptQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiPromptResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }
@@ -166,9 +165,57 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     }
 
     @Override
-    public BaseResponse<String> improvePrompt(AiPromptUpdateRequestDTO request) {
-        String data = promptAssistant.improvePrompt(request.getPromptContent(), UUID.randomUUID().toString());
-        return BaseResponse.success(data);
+    public BaseResponse<AiPromptResponseDTO> submit(AiPromptUpdateRequestDTO request) {
+        String rawContent = StringUtils.trimToNull(request.getPromptContent());
+        if (rawContent == null) {
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
+        }
+
+        String beautified = promptAssistant.submit(rawContent, UUID.randomUUID().toString());
+
+        String env = queryEnvParamHelper.effectiveEnvCode();
+        String promptKey = StringUtils.trimToNull(request.getPromptKey());
+
+        AiPromptEntity entity = new AiPromptEntity();
+        entity.setPromptContent(beautified);
+        entity.setPromptTitle(request.getPromptTitle());
+        entity.setScene(request.getScene());
+        entity.setEnvCode(env);
+
+        if (promptKey == null) {
+            // 无 promptKey → 新建
+            entity.setPromptKey("PT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase());
+            entity.setVersion(1);
+        } else {
+            // 有 promptKey → 追加新版本
+            entity.setPromptKey(promptKey);
+            AiPromptEntity top = lambdaQuery()
+                    .eq(AiPromptEntity::getPromptKey, promptKey)
+                    .eq(AiPromptEntity::getEnvCode, env)
+                    .orderByDesc(AiPromptEntity::getVersion)
+                    .last("LIMIT 1")
+                    .one();
+            int base = (top != null && top.getVersion() != null) ? top.getVersion() : 0;
+            entity.setVersion(base + 1);
+        }
+
+        if (!save(entity)) {
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_CREATE_FAILED);
+        }
+
+        AiPromptResponseDTO dto = new AiPromptResponseDTO();
+        BeanUtils.copyProperties(entity, dto);
+        return BaseResponse.success(dto);
+    }
+
+    @Override
+    public BaseResponse<String> beautify(String promptContent) {
+        String rawContent = StringUtils.trimToNull(promptContent);
+        if (rawContent == null) {
+            throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
+        }
+        String result = promptAssistant.submit(rawContent, UUID.randomUUID().toString());
+        return BaseResponse.success(result);
     }
 
     @Override

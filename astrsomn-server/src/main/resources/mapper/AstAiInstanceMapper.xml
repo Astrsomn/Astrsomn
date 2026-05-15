@@ -55,10 +55,7 @@
         </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND AI.STATUS = #{req.status}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND AI.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         <if test="req != null and req.modelType != null and req.modelType != ''">
             AND EXISTS (
             SELECT 1 FROM AI_MODEL M
@@ -79,6 +76,38 @@
         </if>
         ORDER BY
         AI.CREATE_TIME DESC
+    </select>
+
+    <select id="selectByAgentKeys" resultType="com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO">
+        SELECT
+        AI.*,
+        (SELECT M.MODEL_TYPE FROM AI_MODEL M
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND M.ENV_CODE = AI.ENV_CODE
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        LIMIT 1) AS model_type,
+        (
+        SELECT SE.AVATAR
+        FROM AI_MODEL M
+        JOIN SYS_EXTENSION SE
+        ON SE.ENV_CODE = AI.ENV_CODE
+        AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
+        AND (SE.EXTENSION_CODE = M.EXTENSION_CODE OR SE.EXTENSION_KEY = M.EXTENSION_CODE)
+        WHERE M.MODEL_KEY = AI.MODEL_KEY
+        AND M.ENV_CODE = AI.ENV_CODE
+        AND (M.DELETED = 0 OR M.DELETED IS NULL)
+        AND M.EXTENSION_CODE IS NOT NULL
+        AND M.EXTENSION_CODE != ''
+        ORDER BY CASE WHEN SE.EXTENSION_CODE = M.EXTENSION_CODE THEN 0 ELSE 1 END
+        LIMIT 1
+        ) AS providerAvatar
+        FROM `AI_INSTANCE` AI
+        WHERE (AI.DELETED = 0 OR AI.DELETED IS NULL)
+        AND AI.AGENT_KEY IN
+        <foreach collection="agentKeys" item="key" open="(" separator="," close=")">
+            #{key}
+        </foreach>
+        ORDER BY AI.CREATE_TIME ASC
     </select>
 
     <select id="selectDetailDtoById" resultType="com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO">

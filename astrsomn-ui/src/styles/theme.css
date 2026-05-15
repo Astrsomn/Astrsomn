@@ -334,6 +334,20 @@
     --builder-code-bg: #0c1521;
     --builder-code-text: #d4d4d4;
     --builder-code-header-bg: var(--bg-elevated);
+
+    /* ── Agent Config glass-panel ── */
+    --ac-glass-bg: rgba(18, 30, 45, 0.85);
+    --ac-glass-border: rgba(255, 255, 255, 0.08);
+    --ac-glass-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    --ac-glass-backdrop: blur(12px);
+    --ac-instance-selected-border: var(--primary);
+    --ac-instance-selected-bg: rgba(59, 130, 246, 0.08);
+    --ac-instance-selected-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3);
+    --ac-status-active: #34d399;
+    --ac-status-inactive: #64748b;
+    --ac-tab-inactive: var(--text-muted);
+    --ac-tab-active: var(--primary);
+    --ac-tab-dot: var(--primary);
 }
 
 :root.light {
@@ -654,6 +668,20 @@
     --builder-code-bg: #1e1e1e;
     --builder-code-text: #d4d4d4;
     --builder-code-header-bg: var(--bg-elevated);
+
+    /* ── Agent Config glass-panel ── */
+    --ac-glass-bg: rgba(255, 255, 255, 0.9);
+    --ac-glass-border: #ffffff;
+    --ac-glass-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+    --ac-glass-backdrop: blur(12px);
+    --ac-instance-selected-border: #3b82f6;
+    --ac-instance-selected-bg: #f0f7ff;
+    --ac-instance-selected-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+    --ac-status-active: #10b981;
+    --ac-status-inactive: #94a3b8;
+    --ac-tab-inactive: #94a3b8;
+    --ac-tab-active: #3b82f6;
+    --ac-tab-dot: #3b82f6;
 }
 
 /* --- 全局动效定义 --- */

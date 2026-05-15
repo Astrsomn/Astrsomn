@@ -14,7 +14,6 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.mapper.AiSensitiveWordMapper;
 import com.astrsomn.server.service.AiSensitiveWordService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ import java.util.Arrays;
 public class AiSensitiveWordServiceImpl extends ServiceImpl<AiSensitiveWordMapper, AiSensitiveWordEntity>
         implements AiSensitiveWordService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiSensitiveWordCreateRequestDTO request) {
@@ -86,7 +84,6 @@ public class AiSensitiveWordServiceImpl extends ServiceImpl<AiSensitiveWordMappe
         if (param == null) {
             param = new AiSensitiveWordQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiSensitiveWordResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

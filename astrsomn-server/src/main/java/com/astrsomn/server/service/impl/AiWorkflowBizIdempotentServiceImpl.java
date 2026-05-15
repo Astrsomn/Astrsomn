@@ -77,7 +77,6 @@ public class AiWorkflowBizIdempotentServiceImpl extends ServiceImpl<AstFlowBizId
         IPage<AstFlowBizIdempotentResponseDTO> page = PageUtils.buildPage(request);
         AstFlowBizIdempotentQueryRequestDTO param = request.getParam();
         if (param == null) param = new AstFlowBizIdempotentQueryRequestDTO();
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowBizIdempotentResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

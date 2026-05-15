@@ -79,6 +79,18 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-api-vector</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-api-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>

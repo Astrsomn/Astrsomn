@@ -42,10 +42,7 @@
         </if>
         <if test="req != null and req.description != null and req.description != ''">
             AND d.CATEGORY = #{req.description}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND d.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         ORDER BY d.UPDATE_TIME DESC, d.ID DESC
     </select>
 
@@ -81,10 +78,7 @@
         d.UPDATE_TIME AS updateTime
         FROM AST_FLOW_DEFINITION d
         WHERE d.ID = #{id}
-        AND (d.DELETED = 0 OR d.DELETED IS NULL)
-        <if test="envCode != null and envCode != ''">
-            AND d.ENV_CODE = #{envCode}
-        </if>
+        AND (d.DELETED = 0 OR d.DELETED IS NULL)
     </select>
 
 </mapper>

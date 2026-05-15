@@ -5,6 +5,7 @@ import com.astrsomn.api.runtime.common.dto.agent.AiAgentQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.agent.AiAgentResponseDTO;
 import com.astrsomn.api.runtime.common.dto.agent.AiAgentUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO;
 import com.astrsomn.api.runtime.common.dto.prompt.AiPromptCreateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
@@ -19,7 +20,6 @@ import com.astrsomn.server.mapper.AiAgentMapper;
 import com.astrsomn.server.service.AiAgentService;
 import com.astrsomn.server.service.AiInstanceService;
 import com.astrsomn.server.service.AiPromptService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -27,16 +27,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity> implements AiAgentService {
 
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
     private final AiPromptService aiPromptService;
     private final AiInstanceService aiInstanceService;
 
@@ -103,6 +101,23 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         }
 
         IPage<AiAgentResponseDTO> result = baseMapper.queryPage(page, param);
+
+        List<AiAgentResponseDTO> records = result.getRecords();
+        if (records != null && !records.isEmpty()) {
+            List<String> agentKeys = records.stream()
+                    .map(AiAgentResponseDTO::getAgentKey)
+                    .filter(StringUtils::isNotBlank)
+                    .collect(Collectors.toList());
+            if (!agentKeys.isEmpty()) {
+                List<AiInstanceResponseDTO> allInstances = aiInstanceService.queryByAgentKeys(agentKeys);
+                Map<String, List<AiInstanceResponseDTO>> grouped = allInstances.stream()
+                        .collect(Collectors.groupingBy(AiInstanceResponseDTO::getAgentKey));
+                for (AiAgentResponseDTO dto : records) {
+                    dto.setInstanceList(grouped.getOrDefault(dto.getAgentKey(), Collections.emptyList()));
+                }
+            }
+        }
+
         return PageConverter.toResponse(result);
     }
 
@@ -139,6 +154,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
 
         List<AiInstanceCreateRequestDTO> instanceList = request.getInstanceList();
         if (instanceList != null && !instanceList.isEmpty()) {
+            String routeStrategy = request.getRouteStrategy();
             for (AiInstanceCreateRequestDTO instanceRequest : instanceList) {
                 if (StringUtils.isBlank(instanceRequest.getInstanceKey())) {
                     instanceRequest.setInstanceKey(generateUniqueInstanceKey());
@@ -146,6 +162,9 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
                 instanceRequest.setAgentKey(agentKey);
                 instanceRequest.setEnvCode(request.getEnvCode());
                 instanceRequest.setStatus("enabled");
+                if (StringUtils.isNotBlank(routeStrategy)) {
+                    instanceRequest.setRouteStrategy(routeStrategy);
+                }
                 aiInstanceService.create(instanceRequest);
             }
         }

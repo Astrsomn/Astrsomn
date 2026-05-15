@@ -1,9 +1,9 @@
 package com.astrsomn.server.service.extension.capability;
 
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
-import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,17 +1,17 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentCreateRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentQueryRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentResponseDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
+import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.runtime.exception.AstVecDocErrorEnum;
-import com.astrsomn.api.runtime.exception.AstVecSegmentErrorEnum;
+import com.astrsomn.api.vector.exception.AstVecDocErrorEnum;
+import com.astrsomn.api.vector.exception.AstVecSegmentErrorEnum;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
@@ -19,8 +19,7 @@ import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.mapper.AiVecSegmentMapper;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.AiVecStoreService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import dev.langchain4j.data.segment.TextSegment;
@@ -34,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiVecSegmentEntity> implements AiVecSegmentService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
     private final AiVecStoreService aiVecStoreService;
     private final AstroVecSourceFactory astroVecSourceFactory;
 
@@ -110,7 +108,6 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
         if (param == null) {
             param = new AiVecSegmentQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiVecSegmentResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

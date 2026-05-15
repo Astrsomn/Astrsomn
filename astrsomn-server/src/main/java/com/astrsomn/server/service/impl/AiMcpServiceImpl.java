@@ -14,7 +14,6 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.mapper.AiMcpMapper;
 import com.astrsomn.server.service.AiMcpService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ import java.util.Arrays;
 public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> implements AiMcpService {
 
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiMcpCreateRequestDTO request) {
@@ -88,7 +86,6 @@ public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> impl
         if (param == null) {
             param = new AiMcpQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiMcpResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

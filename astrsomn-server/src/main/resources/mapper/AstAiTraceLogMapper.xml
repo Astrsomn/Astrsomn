@@ -32,10 +32,7 @@
         </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND STATUS = #{req.status}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         <if test="req != null and req.createUser != null and req.createUser != ''">
             AND CREATE_USER = #{req.createUser}
         </if>

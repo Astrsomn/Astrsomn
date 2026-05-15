@@ -14,7 +14,6 @@ import com.astrsomn.starter.workflow.runtime.policy.NoopAstFlowRetryPolicy;
 import com.astrsomn.starter.workflow.runtime.policy.NoopAstFlowTimeoutPolicy;
 import com.astrsomn.starter.workflow.runtime.registry.DefaultAstFlowNodeExecutorRegistry;
 import com.astrsomn.starter.workflow.runtime.state.DefaultAstFlowExecutionStateMachine;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -25,46 +24,16 @@ import org.springframework.context.annotation.Bean;
 import java.util.List;
 
 /**
- * Workflow starter 的补充自动配置：
- * 在不改业务方配置的情况下，将 workflow entity 包自动并入 typeAliasesPackage。
+ * Workflow starter 的自动配置。
+ * <p>
+ * mapper 包、entity 包和租户隔离表已通过 {@link WorkflowMybatisContributor} 贡献给 runtime-starter，
+ * 不再需要 BeanPostProcessor hack。
  */
 @AutoConfiguration
 @ConditionalOnClass(AstrsomnProperties.class)
 @ConditionalOnProperty(name = "astrsomn.datasource.url")
 @AutoConfigureBefore(name = "com.astrsomn.starter.runtime.config.AstrsomnAutoConfiguration")
 public class AstrsomnWorkflowAutoConfiguration {
-
-    private static final String WORKFLOW_ENTITY_PACKAGE = "com.astrsomn.workflow.core.domain.entity";
-
-    @Bean
-    public BeanPostProcessor astrsomnWorkflowMybatisDefaultsPostProcessor() {
-        return new BeanPostProcessor() {
-            @Override
-            public Object postProcessAfterInitialization(Object bean, String beanName) {
-                if (!(bean instanceof AstrsomnProperties properties)) {
-                    return bean;
-                }
-
-                AstrsomnProperties.MybatisPlus mybatisPlus = properties.getMybatisPlus();
-                if (mybatisPlus == null) {
-                    return bean;
-                }
-
-                String additionalTypeAliasesPackage = mybatisPlus.getAdditionalTypeAliasesPackage();
-                if (additionalTypeAliasesPackage == null || additionalTypeAliasesPackage.isBlank()) {
-                    mybatisPlus.setAdditionalTypeAliasesPackage(WORKFLOW_ENTITY_PACKAGE);
-                    return bean;
-                }
-
-                if (!additionalTypeAliasesPackage.contains(WORKFLOW_ENTITY_PACKAGE)) {
-                    mybatisPlus.setAdditionalTypeAliasesPackage(
-                            additionalTypeAliasesPackage + "," + WORKFLOW_ENTITY_PACKAGE
-                    );
-                }
-                return bean;
-            }
-        };
-    }
 
     @Bean
     @ConditionalOnMissingBean

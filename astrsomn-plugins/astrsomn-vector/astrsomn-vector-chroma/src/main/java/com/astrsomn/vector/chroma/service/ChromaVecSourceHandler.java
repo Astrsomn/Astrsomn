@@ -1,7 +1,7 @@
 package com.astrsomn.vector.chroma.service;
 
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecSource;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecStore;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;

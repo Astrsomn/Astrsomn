@@ -32,7 +32,14 @@
 
         <dependency>
             <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-runtime-starter</artifactId>
+            <artifactId>astrsomn-api-system</artifactId>
+            <version>0.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.astrsomn</groupId>
+            <artifactId>astrsomn-api-vector</artifactId>
+            <version>0.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

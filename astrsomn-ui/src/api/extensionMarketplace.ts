@@ -11,6 +11,7 @@ export type ExtensionMarketplaceItem = {
     jarName?: string
     extensionCode?: string
     avatar?: string
+    installed?: boolean
 }
 
 /**

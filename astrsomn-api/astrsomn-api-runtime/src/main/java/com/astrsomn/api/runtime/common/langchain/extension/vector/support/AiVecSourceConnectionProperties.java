@@ -1,7 +1,7 @@
 package com.astrsomn.api.runtime.common.langchain.extension.vector.support;
 
-import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.constant.AiVecDriverEnum;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

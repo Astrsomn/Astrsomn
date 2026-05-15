@@ -1,7 +1,7 @@
 package com.astrsomn.api.runtime.common.langchain.extension.vector;
 
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 
 
 public interface VecSource {

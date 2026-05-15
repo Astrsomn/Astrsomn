@@ -1,6 +1,5 @@
 package com.astrsomn.server.api.system;
 
-import com.astrsomn.api.runtime.common.dto.extension.*;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
@@ -8,6 +7,10 @@ import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.extension.base.SystemExtensionModelSyncService;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;
 import com.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
+import com.astrsomn.system.dto.extension.SystemExtensionCreateRequestDTO;
+import com.astrsomn.system.dto.extension.SystemExtensionQueryRequestDTO;
+import com.astrsomn.system.dto.extension.SystemExtensionResponseDTO;
+import com.astrsomn.system.dto.extension.SystemExtensionUpdateRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -82,7 +85,7 @@ public class SystemExtensionController extends BaseController {
     // ==================================== SystemExtensionModelSyncService ====================================
 
     @GetMapping("/load-models/preview")
-    public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(@RequestParam("id") Long id) {
+    public BaseResponse<com.astrsomn.system.dto.extension.ExtensionModelLoadPreviewDTO> previewLoadModels(@RequestParam("id") Long id) {
         return systemExtensionModelSyncService.previewLoadModels(id);
     }
 
@@ -92,7 +95,7 @@ public class SystemExtensionController extends BaseController {
     }
 
     @GetMapping("/unload-models/preview")
-    public BaseResponse<ExtensionModelUnloadPreviewDTO> previewUnloadModels(@RequestParam("id") Long id) {
+    public BaseResponse<com.astrsomn.system.dto.extension.ExtensionModelUnloadPreviewDTO> previewUnloadModels(@RequestParam("id") Long id) {
         return systemExtensionModelSyncService.previewUnloadModels(id);
     }
 

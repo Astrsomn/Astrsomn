@@ -1,10 +1,10 @@
 package com.astrsomn.server.plugin.registry;
 
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
+import com.astrsomn.starter.runtime.system.mapper.AstSystemExtensionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

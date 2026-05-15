@@ -3,6 +3,7 @@ import request from '@/utils/request'
 import type {AiInstance} from './aiInstance'
 
 export type AiAgent = {
+    instanceList?: AiInstance[]
     id?: number | string
     envCode?: string
     createUser?: string
@@ -41,6 +42,7 @@ export type AiAgent = {
     promptTitle?: string
     toolNames?: string
     mcpNames?: string
+    routeStrategy?: string
 }
 
 export type PageResponse<T> = {
@@ -71,6 +73,14 @@ export const aiAgentApi = {
     create: (payload: AiAgent): Promise<string> => {
         return request({
             url: '/v1/astro/ai-agent/create',
+            method: 'post',
+            data: payload
+        })
+    },
+
+    createFullAgent: (payload: AiAgent): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-agent/createFullAgent',
             method: 'post',
             data: payload
         })

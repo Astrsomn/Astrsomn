@@ -77,7 +77,6 @@ public class AiWorkflowInstanceEventServiceImpl extends ServiceImpl<AstFlowInsta
         IPage<AstFlowInstanceEventResponseDTO> page = PageUtils.buildPage(request);
         AstFlowInstanceEventQueryRequestDTO param = request.getParam();
         if (param == null) param = new AstFlowInstanceEventQueryRequestDTO();
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowInstanceEventResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

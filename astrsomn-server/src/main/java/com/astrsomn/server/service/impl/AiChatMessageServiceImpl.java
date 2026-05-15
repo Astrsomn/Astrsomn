@@ -16,7 +16,6 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.mapper.AiChatMessageMapper;
 import com.astrsomn.server.service.AiChatMessageService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, AiChatMessageEntity> implements AiChatMessageService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiChatMessageCreateRequestDTO request) {
@@ -89,7 +87,6 @@ public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, A
         if (param == null) {
             param = new AiChatMessageQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiChatMessageResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

@@ -73,7 +73,6 @@ public class AiWorkflowDeploymentServiceImpl extends ServiceImpl<AstFlowDeployme
         IPage<AstFlowDeploymentResponseDTO> page = PageUtils.buildPage(request);
         AstFlowDeploymentQueryRequestDTO param = request.getParam();
         if (param == null) param = new AstFlowDeploymentQueryRequestDTO();
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowDeploymentResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }
