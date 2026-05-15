@@ -92,7 +92,6 @@ public class AiWorkflowHumanTaskServiceImpl extends ServiceImpl<AstFlowHumanTask
         if (param == null) {
             param = new AstFlowHumanTaskQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowHumanTaskResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

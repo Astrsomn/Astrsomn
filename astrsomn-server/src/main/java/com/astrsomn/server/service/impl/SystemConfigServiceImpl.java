@@ -14,7 +14,6 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.mapper.SystemConfigMapper;
 import com.astrsomn.server.service.SystemConfigService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ import java.util.Arrays;
 public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, SystemConfigEntity>
         implements SystemConfigService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(SystemConfigCreateRequestDTO request) {
@@ -86,7 +84,6 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
         if (param == null) {
             param = new SystemConfigQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<SystemConfigResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

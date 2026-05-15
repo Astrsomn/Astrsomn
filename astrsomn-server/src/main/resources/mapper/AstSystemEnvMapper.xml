@@ -11,10 +11,7 @@
         1=1
         <if test="req != null and req.envName != null and req.envName != ''">
             AND se.ENV_NAME LIKE CONCAT('%', #{req.envName}, '%')
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND se.ENV_KEY = #{req.envCode}
-        </if>
+        </if>
         ORDER BY
         se.CREATE_TIME DESC
     </select>

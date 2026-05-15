@@ -83,7 +83,6 @@ public class AiWorkflowMsgOutboxServiceImpl extends ServiceImpl<AstFlowMsgOutbox
         IPage<AstFlowMsgOutboxResponseDTO> page = PageUtils.buildPage(request);
         AstFlowMsgOutboxQueryRequestDTO param = request.getParam();
         if (param == null) param = new AstFlowMsgOutboxQueryRequestDTO();
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowMsgOutboxResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

@@ -28,10 +28,7 @@
         </if>
         <if test="req != null and req.bizId != null and req.bizId != ''">
             AND b.BIZ_ID = #{req.bizId}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND b.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         ORDER BY b.UPDATE_TIME DESC, b.ID DESC
     </select>
 
@@ -52,10 +49,7 @@
         b.UPDATE_TIME AS updateTime
         FROM AST_FLOW_BIZ_IDEMPOTENT b
         WHERE b.ID = #{id}
-        AND (b.DELETED = 0 OR b.DELETED IS NULL)
-        <if test="envCode != null and envCode != ''">
-            AND b.ENV_CODE = #{envCode}
-        </if>
+        AND (b.DELETED = 0 OR b.DELETED IS NULL)
     </select>
 
 </mapper>

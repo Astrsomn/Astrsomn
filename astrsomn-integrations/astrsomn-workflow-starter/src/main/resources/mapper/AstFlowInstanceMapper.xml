@@ -29,10 +29,7 @@
         </if>
         <if test="req != null and req.currentNodeId != null and req.currentNodeId != ''">
             AND i.CURRENT_NODE_ID = #{req.currentNodeId}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND i.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         ORDER BY i.UPDATE_TIME DESC, i.ID DESC
     </select>
 
@@ -52,10 +49,7 @@
         i.UPDATE_TIME AS updateTime
         FROM AST_FLOW_INSTANCE i
         WHERE i.ID = #{id}
-        AND (i.DELETED = 0 OR i.DELETED IS NULL)
-        <if test="envCode != null and envCode != ''">
-            AND i.ENV_CODE = #{envCode}
-        </if>
+        AND (i.DELETED = 0 OR i.DELETED IS NULL)
     </select>
 
 </mapper>

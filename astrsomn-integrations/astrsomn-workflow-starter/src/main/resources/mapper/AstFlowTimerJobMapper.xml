@@ -33,10 +33,7 @@
         </if>
         <if test="req != null and req.jobStatus != null and req.jobStatus != ''">
             AND j.JOB_STATUS = #{req.jobStatus}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND j.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         ORDER BY j.UPDATE_TIME DESC, j.ID DESC
     </select>
 
@@ -60,10 +57,7 @@
         j.UPDATE_TIME AS updateTime
         FROM AST_FLOW_TIMER_JOB j
         WHERE j.ID = #{id}
-        AND (j.DELETED = 0 OR j.DELETED IS NULL)
-        <if test="envCode != null and envCode != ''">
-            AND j.ENV_CODE = #{envCode}
-        </if>
+        AND (j.DELETED = 0 OR j.DELETED IS NULL)
     </select>
 
 </mapper>

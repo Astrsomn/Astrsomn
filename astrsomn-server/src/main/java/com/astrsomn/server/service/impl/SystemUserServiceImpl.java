@@ -17,7 +17,6 @@ import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.SystemUserMapper;
 import com.astrsomn.server.service.SystemUserService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,6 @@ import java.util.Arrays;
 public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemUserEntity> implements SystemUserService {
 
     private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     /**
      * 统一角色与 ADMIN_FLAG：管理员类（超管、环境管理员）为 Y，普通用户为 N。
@@ -112,7 +110,6 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
         if (param == null) {
             param = new SystemUserQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<SystemUserResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

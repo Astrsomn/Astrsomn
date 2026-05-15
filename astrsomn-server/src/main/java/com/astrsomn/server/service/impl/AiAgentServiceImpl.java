@@ -20,7 +20,6 @@ import com.astrsomn.server.mapper.AiAgentMapper;
 import com.astrsomn.server.service.AiAgentService;
 import com.astrsomn.server.service.AiInstanceService;
 import com.astrsomn.server.service.AiPromptService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,6 @@ import java.util.stream.Collectors;
 public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity> implements AiAgentService {
 
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
     private final AiPromptService aiPromptService;
     private final AiInstanceService aiInstanceService;
 

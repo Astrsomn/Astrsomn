@@ -84,7 +84,6 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
     public BaseResponse<String> create(AiVecStoreCreateRequestDTO request) {
         AiVecStoreEntity entity = new AiVecStoreEntity();
         BeanUtils.copyProperties(request, entity);
-        queryEnvParamHelper.stampEffectiveEnv(entity);
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_CREATE_FAILED);
@@ -132,7 +131,6 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         AiVecStoreEntity after = new AiVecStoreEntity();
         BeanUtils.copyProperties(before, after);
         mergeVecStoreUpdate(after, request);
-        queryEnvParamHelper.stampEffectiveEnv(after);
 
         AiVecSourceEntity afterSrc = aiVecSourceService.getById(after.getSourceId());
         if (afterSrc == null) {
@@ -162,7 +160,6 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         if (param == null) {
             param = new AiVecStoreQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiVecStoreResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

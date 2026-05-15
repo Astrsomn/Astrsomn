@@ -14,7 +14,6 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.mapper.AiToolMapper;
 import com.astrsomn.server.service.AiToolService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ import java.util.Arrays;
 public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> implements AiToolService {
 
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiToolCreateRequestDTO request) {
@@ -87,7 +85,6 @@ public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> i
         if (param == null) {
             param = new AiToolQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiToolResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

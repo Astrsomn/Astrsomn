@@ -19,7 +19,6 @@ import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.mapper.AiVecSegmentMapper;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.AiVecStoreService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -34,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiVecSegmentEntity> implements AiVecSegmentService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
     private final AiVecStoreService aiVecStoreService;
     private final AstroVecSourceFactory astroVecSourceFactory;
 
@@ -110,7 +108,6 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
         if (param == null) {
             param = new AiVecSegmentQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiVecSegmentResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

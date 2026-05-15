@@ -85,7 +85,6 @@ public class AiWorkflowNodeHistoryServiceImpl extends ServiceImpl<AstFlowNodeHis
         IPage<AstFlowNodeHistoryResponseDTO> page = PageUtils.buildPage(request);
         AstFlowNodeHistoryQueryRequestDTO param = request.getParam();
         if (param == null) param = new AstFlowNodeHistoryQueryRequestDTO();
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowNodeHistoryResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

@@ -8,10 +8,7 @@
         FROM
         `AI_SENSITIVE_WORD` ASW
         WHERE
-        1=1
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND ASW.ENV_CODE = #{req.envCode}
-        </if>
+        1=1
         <if test="req != null and req.word != null and req.word != ''">
             AND ASW.WORD LIKE CONCAT('%', #{req.word}, '%')
         </if>

@@ -33,10 +33,7 @@
         </if>
         <if test="req != null and req.idempotentKey != null and req.idempotentKey != ''">
             AND o.IDEMPOTENT_KEY = #{req.idempotentKey}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND o.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         ORDER BY o.UPDATE_TIME DESC, o.ID DESC
     </select>
 
@@ -60,10 +57,7 @@
         o.UPDATE_TIME AS updateTime
         FROM AST_FLOW_MSG_OUTBOX o
         WHERE o.ID = #{id}
-        AND (o.DELETED = 0 OR o.DELETED IS NULL)
-        <if test="envCode != null and envCode != ''">
-            AND o.ENV_CODE = #{envCode}
-        </if>
+        AND (o.DELETED = 0 OR o.DELETED IS NULL)
     </select>
 
 </mapper>

@@ -148,7 +148,6 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         if (param == null) {
             param = new AiPromptQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiPromptResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

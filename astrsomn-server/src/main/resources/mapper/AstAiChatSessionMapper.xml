@@ -8,10 +8,7 @@
         FROM
         `AI_CHAT_SESSION` ACS
         WHERE
-        ACS.DELETED = 0
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND ACS.ENV_CODE = #{req.envCode}
-        </if>
+        ACS.DELETED = 0
         <if test="req != null and req.memoryKey != null and req.memoryKey != ''">
             AND ACS.MEMORY_KEY = #{req.memoryKey}
         </if>

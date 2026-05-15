@@ -16,7 +16,6 @@ import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.SystemMessageMapper;
 import com.astrsomn.server.service.SystemMessageService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Service;
 public class SystemMessageServiceImpl extends ServiceImpl<SystemMessageMapper, SystemMessageEntity> implements
         SystemMessageService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(SystemMessageCreateRequestDTO request) {
@@ -80,7 +78,6 @@ public class SystemMessageServiceImpl extends ServiceImpl<SystemMessageMapper, S
         if (param == null) {
             param = new SystemMessageQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<SystemMessageResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

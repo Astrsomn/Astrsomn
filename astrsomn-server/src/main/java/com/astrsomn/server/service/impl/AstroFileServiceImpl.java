@@ -11,7 +11,6 @@ import com.astrsomn.internal.storage.service.model.StorageUploadRequest;
 import com.astrsomn.internal.storage.service.model.StorageUploadResult;
 import com.astrsomn.server.service.AstroFileRecordService;
 import com.astrsomn.server.service.AstroFileService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ public class AstroFileServiceImpl implements AstroFileService {
 
     private final AstrsomnStorageClient astrsomnStorageClient;
     private final AstroFileRecordService astroFileRecordService;
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<AstFileUploadResponseDTO> upload(MultipartFile file, String bizType, String bizId) {
@@ -52,7 +50,6 @@ public class AstroFileServiceImpl implements AstroFileService {
         row.setEtag(uploadResult.getEtag());
         row.setFileUrl(uploadResult.getUrl());
         row.setStatus("ACTIVE");
-        queryEnvParamHelper.stampEffectiveEnv(row);
         boolean saved = astroFileRecordService.save(row);
         if (!saved) {
             throw new BusinessException(AstFileErrorEnum.FILE_RECORD_CREATE_FAILED);

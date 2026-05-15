@@ -14,7 +14,6 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.mapper.AiTemplateMapper;
 import com.astrsomn.server.service.AiTemplateService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTemplateEntity> implements AiTemplateService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiTemplateCreateRequestDTO request) {
@@ -85,7 +83,6 @@ public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTempl
         if (param == null) {
             param = new AiTemplateQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiTemplateResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

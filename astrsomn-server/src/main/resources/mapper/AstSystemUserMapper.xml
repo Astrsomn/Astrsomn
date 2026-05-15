@@ -8,10 +8,7 @@
         FROM
         `SYS_USER` su
         WHERE
-        1=1
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND su.ENV_CODE = #{req.envCode}
-        </if>
+        1=1
         <if test="req != null and req.username != null and req.username != ''">
             AND su.username LIKE CONCAT('%', #{req.username}, '%')
         </if>

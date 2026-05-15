@@ -55,10 +55,7 @@
         </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND AI.STATUS = #{req.status}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND AI.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         <if test="req != null and req.modelType != null and req.modelType != ''">
             AND EXISTS (
             SELECT 1 FROM AI_MODEL M

@@ -15,7 +15,6 @@ import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiInstanceMapper;
 import com.astrsomn.server.service.AiInstanceService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ import java.util.List;
 public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInstanceEntity> implements AiInstanceService {
 
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiInstanceCreateRequestDTO request) {
@@ -93,7 +91,6 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
         if (param == null) {
             param = new AiInstanceQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiInstanceResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

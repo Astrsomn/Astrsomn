@@ -34,9 +34,6 @@
         <if test="req != null and req.instanceKey != null and req.instanceKey != ''">
             AND s.INSTANCE_KEY = #{req.instanceKey}
         </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND s.ENV_CODE = #{req.envCode}
-        </if>
         <if test="req != null and req.createUser != null and req.createUser != ''">
             AND s.CREATE_USER = #{req.createUser}
         </if>
@@ -76,13 +73,10 @@
         FROM AI_VEC_STORE s
                  LEFT JOIN AI_VEC_DOC d ON d.COLLECTION_ID = s.ID
             AND d.DELETED = 0
-            AND d.ENV_CODE = #{envCode}
                  LEFT JOIN AI_VEC_SEGMENT seg ON seg.DOC_ID = d.ID
             AND seg.DELETED = 0
-            AND seg.ENV_CODE = #{envCode}
         WHERE s.ID = #{storeId}
           AND s.DELETED = 0
-          AND s.ENV_CODE = #{envCode}
         GROUP BY s.ID
     </select>
 

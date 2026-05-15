@@ -25,11 +25,7 @@ public class SystemMybatisContributor implements AstrsomnMybatisContributor {
     @Override
     public Collection<String> getTenantTables() {
         return List.of(
-                "system_config",
-                "system_env",
-                "system_extension",
-                "system_message",
-                "system_user"
+                "system_message"
         );
     }
 }

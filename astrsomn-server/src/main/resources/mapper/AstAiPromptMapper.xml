@@ -23,9 +23,6 @@
         AND AP.VERSION = LATEST.max_version
         WHERE
         AP.DELETED = 0
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND AP.ENV_CODE = #{req.envCode}
-        </if>
         <if test="req != null and req.createUser != null and req.createUser != ''">
             AND AP.CREATE_USER = #{req.createUser}
         </if>
@@ -50,7 +47,6 @@
         FROM AI_PROMPT AP
         WHERE AP.DELETED = 0
           AND AP.PROMPT_KEY = #{promptKey}
-          AND AP.ENV_CODE = #{envCode}
         ORDER BY AP.VERSION DESC,
                  AP.ID DESC
     </select>
@@ -82,7 +78,6 @@
             AND AP.PROMPT_KEY = LATEST.PROMPT_KEY
             AND AP.VERSION = LATEST.max_version
         WHERE AP.DELETED = 0
-          AND AP.ENV_CODE = #{envCode}
           AND AP.SCENE IS NOT NULL
           AND AP.SCENE != ''
         ORDER BY AP.CREATE_TIME DESC

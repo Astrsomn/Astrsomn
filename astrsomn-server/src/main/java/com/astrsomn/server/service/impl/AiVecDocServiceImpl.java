@@ -118,7 +118,6 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         if (StringUtils.isBlank(entity.getSyncStatus())) {
             entity.setSyncStatus(AiVecDocEnum.SyncStatus.PENDING.getCode());
         }
-        queryEnvParamHelper.stampEffectiveEnv(entity);
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_CREATE_FAILED);
@@ -162,7 +161,6 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         fileRow.setEtag(uploadResult.getEtag());
         fileRow.setFileUrl(uploadResult.getUrl());
         fileRow.setStatus("ACTIVE");
-        queryEnvParamHelper.stampEffectiveEnv(fileRow);
         if (!astroFileRecordService.save(fileRow)) {
             throw new BusinessException(AstFileErrorEnum.FILE_RECORD_CREATE_FAILED);
         }
@@ -175,7 +173,6 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         entity.setContentSummary(originalFileName);
         entity.setSyncStatus(AiVecDocEnum.SyncStatus.PENDING.getCode());
         entity.setDocIdInStore(null);
-        queryEnvParamHelper.stampEffectiveEnv(entity);
 
         boolean saved = save(entity);
         if (!saved) {
@@ -290,7 +287,6 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             row.setSegmentContent(seg.text());
             row.setWordCount((long) seg.text().length());
             row.setChunkIndex(idx++);
-            queryEnvParamHelper.stampEffectiveEnv(row);
             rows.add(row);
         }
         boolean segOk = aiVecSegmentService.saveBatch(rows);
@@ -465,7 +461,6 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         if (param == null) {
             param = new AiVecDocQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiVecDocResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

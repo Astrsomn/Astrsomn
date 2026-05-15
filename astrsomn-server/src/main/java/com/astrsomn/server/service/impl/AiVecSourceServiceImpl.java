@@ -13,7 +13,6 @@ import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiVecSourceMapper;
 import com.astrsomn.server.service.AiVecSourceService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -28,14 +27,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVecSourceEntity> implements AiVecSourceService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstroVecSourceFactory astroVecSourceFactory;
 
     @Override
     public BaseResponse<String> create(AiVecSourceCreateRequestDTO request) {
         AiVecSourceEntity entity = new AiVecSourceEntity();
         BeanUtils.copyProperties(request, entity);
-        queryEnvParamHelper.stampEffectiveEnv(entity);
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_CREATE_FAILED);
@@ -101,7 +98,6 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
         if (param == null) {
             param = new AiVecSourceQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiVecSourceResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

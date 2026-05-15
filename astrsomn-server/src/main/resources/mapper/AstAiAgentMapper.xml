@@ -22,9 +22,6 @@
         AND (AP.DELETED = 0 OR AP.DELETED IS NULL)
         WHERE
         (AA.DELETED = 0 OR AA.DELETED IS NULL)
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND AA.ENV_CODE = #{req.envCode}
-        </if>
         <if test="req != null and req.name != null and req.name != ''">
             AND AA.AGENT_NAME LIKE CONCAT('%', #{req.name}, '%')
         </if>
