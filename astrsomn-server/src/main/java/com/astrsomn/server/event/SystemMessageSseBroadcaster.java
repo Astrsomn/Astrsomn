@@ -1,6 +1,6 @@
 package com.astrsomn.server.event;
 
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessagePushPayload;
+import com.astrsomn.system.dto.systemmessage.SystemMessagePushPayload;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;

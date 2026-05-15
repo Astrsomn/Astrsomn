@@ -1,12 +1,12 @@
 package com.astrsomn.server.service.impl;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
-import com.astrsomn.api.runtime.common.constant.AiVecDocEnum;
-import com.astrsomn.api.runtime.common.constant.VecDocMetadataKeys;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocUpdateRequestDTO;
+import com.astrsomn.api.vector.constant.AiVecDocEnum;
+import com.astrsomn.api.vector.constant.VecDocMetadataKeys;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocCreateRequestDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocQueryRequestDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocResponseDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.*;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
@@ -14,9 +14,11 @@ import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.runtime.exception.AstVecDocErrorEnum;
+import com.astrsomn.api.vector.exception.AstVecDocErrorEnum;
 import com.astrsomn.api.storage.entity.AstFileRecordEntity;
 import com.astrsomn.api.storage.exception.AstFileErrorEnum;
+import com.astrsomn.api.vector.entity.AiVecDocEntity;
+import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
@@ -132,7 +134,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         if (collectionId == null) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "collectionId 不能为空");
         }
-        AiVecStoreEntity store = aiVecStoreService.getById(collectionId);
+        com.astrsomn.api.vector.entity.AiVecStoreEntity store = aiVecStoreService.getById(collectionId);
         if (store == null) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_STORE_NOT_FOUND);
         }
@@ -207,7 +209,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_READABLE, "文件路径为空");
         }
 
-        AiVecStoreEntity store = aiVecStoreService.getById(doc.getCollectionId());
+        com.astrsomn.api.vector.entity.AiVecStoreEntity store = aiVecStoreService.getById(doc.getCollectionId());
         if (store == null) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_STORE_NOT_FOUND);
         }
@@ -308,7 +310,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         return BaseResponse.success("向量化完成");
     }
 
-    private EmbeddingModel resolveEmbeddingModel(AiVecStoreEntity store, String envCode) {
+    private EmbeddingModel resolveEmbeddingModel(com.astrsomn.api.vector.entity.AiVecStoreEntity store, String envCode) {
         if (StringUtils.isBlank(envCode)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "无法解析环境 ENV_CODE");
         }

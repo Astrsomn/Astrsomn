@@ -1,8 +1,8 @@
 package com.astrsomn.server.config;
 
-import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
-import com.astrsomn.api.runtime.common.constant.AiVecSourceEnum;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.constant.AiVecDriverEnum;
+import com.astrsomn.api.vector.constant.AiVecSourceEnum;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;

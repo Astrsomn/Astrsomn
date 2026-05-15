@@ -1,17 +1,17 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentCreateRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentQueryRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentResponseDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
+import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.runtime.exception.AstVecDocErrorEnum;
-import com.astrsomn.api.runtime.exception.AstVecSegmentErrorEnum;
+import com.astrsomn.api.vector.exception.AstVecDocErrorEnum;
+import com.astrsomn.api.vector.exception.AstVecSegmentErrorEnum;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;

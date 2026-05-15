@@ -1,6 +1,6 @@
 package com.astrsomn.server.api.vector;
 
-import com.astrsomn.api.runtime.common.dto.vecsource.*;
+import com.astrsomn.api.vector.dto.vecsource.*;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;

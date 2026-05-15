@@ -1,10 +1,10 @@
 package com.astrsomn.server.api;
 
 
-import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
-import com.astrsomn.api.runtime.common.dto.auth.LoginRequest;
-import com.astrsomn.api.runtime.common.dto.auth.LoginResponse;
-import com.astrsomn.api.runtime.common.dto.auth.RefreshTokenRequest;
+import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
+import com.astrsomn.system.dto.auth.LoginRequest;
+import com.astrsomn.system.dto.auth.LoginResponse;
+import com.astrsomn.system.dto.auth.RefreshTokenRequest;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.server.service.AuthService;

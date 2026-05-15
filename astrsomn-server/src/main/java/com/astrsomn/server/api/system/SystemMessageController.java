@@ -1,9 +1,9 @@
 package com.astrsomn.server.api.system;
 
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageResponseDTO;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageUpdateRequestDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageCreateRequestDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageQueryRequestDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageResponseDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageUpdateRequestDTO;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;

@@ -1,8 +1,8 @@
 package com.astrsomn.server.mapper;
 
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentResponseDTO;
-import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentQueryRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentResponseDTO;
+import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;

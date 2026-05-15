@@ -1,8 +1,8 @@
 package com.astrsomn.server.plugin.registry;
 
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionMetaData;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.dto.extension.SystemExtensionMetaData;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
 import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;

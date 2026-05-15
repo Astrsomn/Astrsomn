@@ -1,7 +1,7 @@
 package com.astrsomn.server.astrsomn.tool;
 
-import com.astrsomn.api.runtime.common.constant.SystemUserEnum;
-import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import com.astrsomn.system.constant.SystemUserEnum;
+import com.astrsomn.system.entity.SystemUserEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.AiAccountService;
 import com.astrsomn.server.service.AiPromptService;

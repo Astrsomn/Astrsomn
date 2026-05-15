@@ -1,7 +1,7 @@
 package com.astrsomn.server.service.extension.warmup;
 
-import com.astrsomn.api.runtime.common.constant.AiVecSourceEnum;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.constant.AiVecSourceEnum;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;

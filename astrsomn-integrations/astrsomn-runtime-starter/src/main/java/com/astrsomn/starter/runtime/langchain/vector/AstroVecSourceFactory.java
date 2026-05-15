@@ -1,10 +1,10 @@
 package com.astrsomn.starter.runtime.langchain.vector;
 
-import com.astrsomn.api.runtime.common.constant.AiVecSourceEnum;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.constant.AiVecSourceEnum;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecDriver;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
-import com.astrsomn.api.runtime.exception.AstVecSourceErrorEnum;
+import com.astrsomn.api.vector.exception.AstVecSourceErrorEnum;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;

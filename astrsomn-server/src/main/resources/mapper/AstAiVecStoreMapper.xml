@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.astrsomn.server.mapper.AiVecStoreMapper">
 
-    <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreResponseDTO">
+    <select id="queryPage" resultType="com.astrsomn.api.vector.dto.vecstore.AiVecStoreResponseDTO">
         SELECT
         s.ID,
         s.SOURCE_ID,
@@ -44,7 +44,7 @@
         s.CREATE_TIME DESC
     </select>
 
-    <select id="selectDetailDtoById" resultType="com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreResponseDTO">
+    <select id="selectDetailDtoById" resultType="com.astrsomn.api.vector.dto.vecstore.AiVecStoreResponseDTO">
         SELECT s.ID,
                s.SOURCE_ID,
                s.COLLECTION_NAME,
@@ -67,7 +67,7 @@
           AND s.DELETED = 0
     </select>
 
-    <select id="selectStoreStats" resultType="com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreStatsResponseDTO">
+    <select id="selectStoreStats" resultType="com.astrsomn.api.vector.dto.vecstore.AiVecStoreStatsResponseDTO">
         SELECT s.ID                                                                          AS STORE_ID,
                COUNT(DISTINCT d.ID)                                                          AS DOC_COUNT,
                COUNT(seg.ID)                                                                 AS SEGMENT_COUNT,

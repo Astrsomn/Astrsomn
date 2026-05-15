@@ -1,8 +1,8 @@
 package com.astrsomn.server.service.extension.guard;
 
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.starter.runtime.mapper.AstAiVecSourceMapper;

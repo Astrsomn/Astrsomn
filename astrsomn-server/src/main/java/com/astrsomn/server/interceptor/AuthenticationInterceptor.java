@@ -1,6 +1,6 @@
 package com.astrsomn.server.interceptor;
 
-import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import com.astrsomn.system.entity.SystemUserEntity;
 import com.astrsomn.server.util.JwtUtil;
 import com.astrsomn.server.util.UserContext;
 import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;

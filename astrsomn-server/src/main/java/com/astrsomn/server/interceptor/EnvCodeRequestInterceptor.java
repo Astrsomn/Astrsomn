@@ -1,6 +1,6 @@
 package com.astrsomn.server.interceptor;
 
-import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
+import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.util.UserContext;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;

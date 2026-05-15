@@ -1,15 +1,15 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.api.runtime.common.constant.SystemUserEnum.AdminEnum;
-import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
-import com.astrsomn.api.runtime.common.dto.user.SystemUserCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.user.SystemUserQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.user.SystemUserResponseDTO;
-import com.astrsomn.api.runtime.common.dto.user.SystemUserUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import com.astrsomn.system.constant.SystemUserEnum.AdminEnum;
+import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
+import com.astrsomn.system.dto.user.SystemUserCreateRequestDTO;
+import com.astrsomn.system.dto.user.SystemUserQueryRequestDTO;
+import com.astrsomn.system.dto.user.SystemUserResponseDTO;
+import com.astrsomn.system.dto.user.SystemUserUpdateRequestDTO;
+import com.astrsomn.system.entity.SystemUserEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.runtime.exception.SystemUserErrorEnum;
+import com.astrsomn.system.exception.SystemUserErrorEnum;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;

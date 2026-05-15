@@ -1,10 +1,10 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.api.runtime.common.dto.auth.LoginRequest;
-import com.astrsomn.api.runtime.common.dto.auth.LoginResponse;
-import com.astrsomn.api.runtime.common.dto.auth.RefreshTokenRequest;
-import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
-import com.astrsomn.api.runtime.exception.AuthErrorEnum;
+import com.astrsomn.system.dto.auth.LoginRequest;
+import com.astrsomn.system.dto.auth.LoginResponse;
+import com.astrsomn.system.dto.auth.RefreshTokenRequest;
+import com.astrsomn.system.entity.SystemUserEntity;
+import com.astrsomn.system.exception.AuthErrorEnum;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.server.service.AuthService;
 import com.astrsomn.server.util.JwtUtil;

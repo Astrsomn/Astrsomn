@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.astrsomn.server.mapper.AiVecSourceMapper">
 
-    <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceResponseDTO">
+    <select id="queryPage" resultType="com.astrsomn.api.vector.dto.vecsource.AiVecSourceResponseDTO">
         SELECT
         s.*,
         e.AVATAR AS providerAvatar,

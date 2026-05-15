@@ -102,6 +102,18 @@
 
             <dependency>
                 <groupId>com.astrsomn</groupId>
+                <artifactId>astrsomn-api-system</artifactId>
+                <version>${astrsomn.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.astrsomn</groupId>
+                <artifactId>astrsomn-api-vector</artifactId>
+                <version>${astrsomn.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.astrsomn</groupId>
                 <artifactId>astrsomn-workflow-starter</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>

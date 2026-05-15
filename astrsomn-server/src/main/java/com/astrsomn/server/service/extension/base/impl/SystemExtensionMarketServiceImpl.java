@@ -1,6 +1,6 @@
 package com.astrsomn.server.service.extension.base.impl;
 
-import com.astrsomn.api.runtime.common.dto.extension.ExtensionMarketplaceItemDTO;
+import com.astrsomn.system.dto.extension.ExtensionMarketplaceItemDTO;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.extension.base.SystemExtensionMarketService;

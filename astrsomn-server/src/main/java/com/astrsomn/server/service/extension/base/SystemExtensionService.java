@@ -1,10 +1,10 @@
 package com.astrsomn.server.service.extension.base;
 
-import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionResponseDTO;
-import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.dto.extension.SystemExtensionCreateRequestDTO;
+import com.astrsomn.system.dto.extension.SystemExtensionQueryRequestDTO;
+import com.astrsomn.system.dto.extension.SystemExtensionResponseDTO;
+import com.astrsomn.system.dto.extension.SystemExtensionUpdateRequestDTO;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;

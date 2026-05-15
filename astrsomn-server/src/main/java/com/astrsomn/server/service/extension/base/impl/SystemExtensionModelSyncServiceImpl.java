@@ -1,15 +1,15 @@
 package com.astrsomn.server.service.extension.base.impl;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.dto.extension.ExtensionModelLoadPreviewDTO;
-import com.astrsomn.api.runtime.common.dto.extension.ExtensionModelSyncPreviewRowDTO;
-import com.astrsomn.api.runtime.common.dto.extension.ExtensionModelUnloadPreviewDTO;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.dto.extension.ExtensionModelLoadPreviewDTO;
+import com.astrsomn.system.dto.extension.ExtensionModelSyncPreviewRowDTO;
+import com.astrsomn.system.dto.extension.ExtensionModelUnloadPreviewDTO;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
-import com.astrsomn.api.runtime.exception.SystemExtensionModelSyncErrorEnum;
+import com.astrsomn.system.exception.SystemExtensionModelSyncErrorEnum;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.CollectionUtils;

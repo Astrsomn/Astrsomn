@@ -1,9 +1,9 @@
 package com.astrsomn.server.api.system;
 
-import com.astrsomn.api.runtime.common.dto.env.SystemEnvCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.env.SystemEnvQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.env.SystemEnvResponseDTO;
-import com.astrsomn.api.runtime.common.dto.env.SystemEnvUpdateRequestDTO;
+import com.astrsomn.system.dto.env.SystemEnvCreateRequestDTO;
+import com.astrsomn.system.dto.env.SystemEnvQueryRequestDTO;
+import com.astrsomn.system.dto.env.SystemEnvResponseDTO;
+import com.astrsomn.system.dto.env.SystemEnvUpdateRequestDTO;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;

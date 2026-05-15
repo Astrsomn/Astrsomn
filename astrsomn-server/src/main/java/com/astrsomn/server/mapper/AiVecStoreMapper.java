@@ -1,9 +1,9 @@
 package com.astrsomn.server.mapper;
 
-import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecstore.AiVecStoreStatsResponseDTO;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.vector.dto.vecstore.AiVecStoreQueryRequestDTO;
+import com.astrsomn.api.vector.dto.vecstore.AiVecStoreResponseDTO;
+import com.astrsomn.api.vector.dto.vecstore.AiVecStoreStatsResponseDTO;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;

@@ -1,9 +1,9 @@
 package com.astrsomn.server.config;
 
-import com.astrsomn.api.runtime.common.constant.SystemUserEnum.AdminEnum;
-import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
-import com.astrsomn.api.runtime.common.entity.SystemEnvEntity;
-import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import com.astrsomn.system.constant.SystemUserEnum.AdminEnum;
+import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
+import com.astrsomn.system.entity.SystemEnvEntity;
+import com.astrsomn.system.entity.SystemUserEntity;
 import com.astrsomn.common.base.BaseEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;

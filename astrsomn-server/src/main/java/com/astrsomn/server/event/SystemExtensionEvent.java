@@ -1,7 +1,7 @@
 package com.astrsomn.server.event;
 
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import org.springframework.context.ApplicationEvent;
 
 import java.util.Collections;

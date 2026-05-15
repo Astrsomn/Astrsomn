@@ -1,14 +1,14 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.api.runtime.common.constant.SystemMessageEnum;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageResponseDTO;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.SystemMessageEntity;
+import com.astrsomn.system.constant.SystemMessageEnum;
+import com.astrsomn.system.dto.systemmessage.SystemMessageCreateRequestDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageQueryRequestDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageResponseDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageUpdateRequestDTO;
+import com.astrsomn.system.entity.SystemMessageEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.runtime.exception.SystemMessageErrorEnum;
+import com.astrsomn.system.exception.SystemMessageErrorEnum;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;

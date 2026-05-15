@@ -1,12 +1,12 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
-import com.astrsomn.api.runtime.common.dto.vecstore.*;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.vector.constant.AiVecDriverEnum;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.runtime.exception.AstVecStoreErrorEnum;
+import com.astrsomn.api.vector.exception.AstVecStoreErrorEnum;
+import com.astrsomn.api.vector.dto.vecstore.*;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;

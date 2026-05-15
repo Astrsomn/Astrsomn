@@ -17,6 +17,8 @@
         <module>astrsomn-api-runtime</module>
         <module>astrsomn-api-storage</module>
         <module>astrsomn-api-workflow</module>
+        <module>astrsomn-api-system</module>
+        <module>astrsomn-api-vector</module>
     </modules>
 
     <properties>
