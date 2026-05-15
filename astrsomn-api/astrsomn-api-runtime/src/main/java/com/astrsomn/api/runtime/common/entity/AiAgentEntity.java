@@ -57,4 +57,7 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("IS_DEFAULT")
     private String isDefault;
 
+    @TableField("ROUTE_STRATEGY")
+    private String routeStrategy;
+
 }

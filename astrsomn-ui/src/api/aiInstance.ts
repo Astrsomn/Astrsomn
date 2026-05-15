@@ -26,6 +26,20 @@ export type AiInstance = {
     accountKey?: string
     accountName?: string
     isDefault?: string
+    routeStrategy?: string
+    routeWeight?: number
+    resilienceEnabled?: string
+    resilienceInstanceName?: string
+    circuitBreakerEnabled?: string
+    circuitBreakerFailureRateThreshold?: number
+    circuitBreakerWaitDuration?: number
+    retryEnabled?: string
+    retryMaxAttempts?: number
+    retryWaitDuration?: number
+    timeoutEnabled?: string
+    timeoutDuration?: number
+    fallbackEnabled?: string
+    fallbackInstanceKey?: string
     maxQuotaTokens?: number
     envCode?: string
     createUser?: string

@@ -139,6 +139,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
 
         List<AiInstanceCreateRequestDTO> instanceList = request.getInstanceList();
         if (instanceList != null && !instanceList.isEmpty()) {
+            String routeStrategy = request.getRouteStrategy();
             for (AiInstanceCreateRequestDTO instanceRequest : instanceList) {
                 if (StringUtils.isBlank(instanceRequest.getInstanceKey())) {
                     instanceRequest.setInstanceKey(generateUniqueInstanceKey());
@@ -146,6 +147,9 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
                 instanceRequest.setAgentKey(agentKey);
                 instanceRequest.setEnvCode(request.getEnvCode());
                 instanceRequest.setStatus("enabled");
+                if (StringUtils.isNotBlank(routeStrategy)) {
+                    instanceRequest.setRouteStrategy(routeStrategy);
+                }
                 aiInstanceService.create(instanceRequest);
             }
         }

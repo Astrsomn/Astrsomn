@@ -21,20 +21,15 @@
         <AgentConfigInstanceList
             :instance-list="instanceList"
             :available-models="availableModels"
+            :route-strategy="routeStrategy"
             @update:instance-list="instanceList = $event"
+            @update:route-strategy="routeStrategy = $event"
         />
 
         <AgentConfigIntegrationsSection
-            :current-image-instance="currentImageInstance"
-            :current-voice-instance="currentVoiceInstance"
-            :image-model="imageModel"
             :knowledge-keys="knowledgeKeys"
             :mcps="placedMcps"
             :tools="placedTools"
-            :voice-model="voiceModel"
-            @open-model="openModelSelector"
-            @clear-image="clearImageTrack"
-            @clear-voice="clearVoiceTrack"
             @tool-add="onToolAdd"
             @tool-remove="onToolRemove"
             @mcp-add="onMcpAdd"
@@ -76,55 +71,26 @@
         @apply="handleApplyImproved"
         @update:open="diffModalVisible = $event"
     />
-
-    <ModelSelector
-        :fixed-model-type="modelSelectorKind === 'chat' ? 'chat' : modelSelectorKind === 'image' ? 'image' : 'voice'"
-        :open="modelDrawerOpen"
-        @select="onModelSelect"
-        @update:open="modelDrawerOpen = $event"
-    />
-
-    <InstanceSelector
-        :filter-model-key="instanceFilterModelKey"
-        :fixed-model-type="instanceSelectorKind"
-        :open="instanceDrawerOpen"
-        @create="onCreateInstanceFromDrawer"
-        @edit="onInstanceEditFromDrawer"
-        @select="onInstanceSelect"
-        @update:open="instanceDrawerOpen = $event"
-    />
-
-    <InstanceForm
-        :record="instanceFormRecord"
-        :visible="instanceFormVisible"
-        @success="onInstanceFormSuccess"
-        @update:visible="instanceFormVisible = $event"
-    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref, watch} from 'vue'
+import {ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import {type AiAgent, aiAgentApi} from '@/api/aiAgent'
 import {type AiInstance, aiInstanceApi} from '@/api/aiInstance'
 import {type AiModel, aiModelApi} from '@/api/aiModel'
-import {type AiAccount, aiAccountApi} from '@/api/aiAccount'
 import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt'
 import {type AiTool, aiToolApi} from '@/api/aiTool'
 import {type AiMcp, aiMcpApi} from '@/api/aiMcp'
 import PromptSelectDrawer from '@/views/admin/ai-config/ai-prompt/PromptSelectDrawer.vue'
 import PromptFormModal from '@/views/admin/ai-config/ai-prompt/PromptFormModal.vue'
 import PromptHistoryModal from '@/views/admin/ai-config/ai-prompt/PromptHistoryModal.vue'
-import ModelSelector from '@/views/admin/ai-config/ai-model/selector/ModelSelector.vue'
-import InstanceSelector from '@/views/admin/ai-config/ai-instance/selector/InstanceSelector.vue'
-import InstanceForm from '@/views/admin/ai-config/ai-instance/InstanceForm.vue'
 import AgentConfigHeader from './agent-config/AgentConfigHeader.vue'
 import AgentConfigPersonaSection from './agent-config/AgentConfigPersonaSection.vue'
 import AgentConfigInstanceList from './agent-config/AgentConfigInstanceList.vue'
 import AgentConfigIntegrationsSection from './agent-config/AgentConfigIntegrationsSection.vue'
 import AgentConfigPromptImproveModal from './agent-config/AgentConfigPromptImproveModal.vue'
-import {getTempInfo, useInstanceParamVisibility} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
 
 const props = defineProps<{
   agentName: string
@@ -151,23 +117,7 @@ const knowledgeKeys = ref<string[]>([])
 
 const instanceList = ref<AiInstance[]>([])
 const availableModels = ref<AiModel[]>([])
-
-const modelDrawerOpen = ref(false)
-const modelSelectorKind = ref<'chat' | 'image' | 'voice'>('chat')
-
-const currentChatInstance = ref<AiInstance | undefined>(undefined)
-const currentImageInstance = ref<AiInstance | undefined>(undefined)
-const currentVoiceInstance = ref<AiInstance | undefined>(undefined)
-const chatModel = ref<AiModel | undefined>(undefined)
-const imageModel = ref<AiModel | undefined>(undefined)
-const voiceModel = ref<AiModel | undefined>(undefined)
-const chatAccount = ref<AiAccount | undefined>(undefined)
-const imageAccount = ref<AiAccount | undefined>(undefined)
-const voiceAccount = ref<AiAccount | undefined>(undefined)
-
-const chatParamSnapshot = ref('')
-const imageParamSnapshot = ref('')
-const voiceParamSnapshot = ref('')
+const routeStrategy = ref<string>('roundRobin')
 
 const promptDrawerOpen = ref(false)
 const promptFormOpen = ref(false)
@@ -176,205 +126,6 @@ const improveLoading = ref(false)
 const diffModalVisible = ref(false)
 const originalContent = ref('')
 const improvedContent = ref('')
-
-const instanceDrawerOpen = ref(false)
-const instanceSelectorKind = ref<'chat' | 'image' | 'voice'>('chat')
-
-const instanceFilterModelKey = computed(() => {
-  const kind = instanceSelectorKind.value
-  const mk =
-      kind === 'chat'
-          ? chatModel.value?.modelKey
-          : kind === 'image'
-              ? imageModel.value?.modelKey
-              : voiceModel.value?.modelKey
-  return mk?.trim() || undefined
-})
-const instanceFormVisible = ref(false)
-const instanceFormRecord = ref<AiInstance | undefined>(undefined)
-const instanceFormTargetKind = ref<'chat' | 'image' | 'voice'>('chat')
-
-function defaultParamForm(): AiInstance {
-  return {
-    status: 'enabled',
-    isDefault: 'N',
-    temperature: 0.7,
-    maxTokens: 2048,
-    topP: 1.0,
-    frequencyPenalty: 0,
-    presencePenalty: 0,
-    accountKey: '',
-  }
-}
-
-const chatParamForm = reactive<AiInstance>(defaultParamForm())
-const imageParamForm = reactive<AiInstance>({...defaultParamForm()})
-const voiceParamForm = reactive<AiInstance>({...defaultParamForm()})
-
-const {
-  paramSectionTitle: chatParamSectionTitle,
-  capabilityHint: chatCapabilityHint,
-  hasParamSchema: chatHasParamSchema,
-  unsupportedParamCodes: chatUnsupportedParamCodes,
-  modelKind: chatModelKind,
-  showChatTemperature: chatShowChatTemperature,
-  showChatMaxTokens: chatShowChatMaxTokens,
-  showChatTopP: chatShowChatTopP,
-  showChatTopK: chatShowChatTopK,
-  showChatSeed: chatShowChatSeed,
-  showChatStopSequences: chatShowChatStopSequences,
-  showChatPenalties: chatShowChatPenalties,
-  showChatFrequencyPenalty: chatShowChatFrequencyPenalty,
-  showChatPresencePenalty: chatShowChatPresencePenalty,
-  showEmbeddingDimensions: chatShowEmbeddingDimensions,
-  showImageSize: chatShowImageSize,
-  showImageStyle: chatShowImageStyle,
-  embeddingHasAnyControl: chatEmbeddingHasAnyControl,
-  imageHasAnyControl: chatImageHasAnyControl,
-} = useInstanceParamVisibility(chatModel)
-
-const {
-  paramSectionTitle: imageParamSectionTitle,
-  capabilityHint: imageCapabilityHint,
-  hasParamSchema: imageHasParamSchema,
-  unsupportedParamCodes: imageUnsupportedParamCodes,
-  modelKind: imageModelKind,
-  showChatTemperature: imageShowChatTemperature,
-  showChatMaxTokens: imageShowChatMaxTokens,
-  showChatTopP: imageShowChatTopP,
-  showChatTopK: imageShowChatTopK,
-  showChatSeed: imageShowChatSeed,
-  showChatStopSequences: imageShowChatStopSequences,
-  showChatPenalties: imageShowChatPenalties,
-  showChatFrequencyPenalty: imageShowChatFrequencyPenalty,
-  showChatPresencePenalty: imageShowChatPresencePenalty,
-  showEmbeddingDimensions: imageShowEmbeddingDimensions,
-  showImageSize: imageShowImageSize,
-  showImageStyle: imageShowImageStyle,
-  embeddingHasAnyControl: imageEmbeddingHasAnyControl,
-  imageHasAnyControl: imageImageHasAnyControl,
-} = useInstanceParamVisibility(imageModel)
-
-const {
-  paramSectionTitle: voiceParamSectionTitle,
-  capabilityHint: voiceCapabilityHint,
-  hasParamSchema: voiceHasParamSchema,
-  unsupportedParamCodes: voiceUnsupportedParamCodes,
-  modelKind: voiceModelKind,
-  showChatTemperature: voiceShowChatTemperature,
-  showChatMaxTokens: voiceShowChatMaxTokens,
-  showChatTopP: voiceShowChatTopP,
-  showChatTopK: voiceShowChatTopK,
-  showChatSeed: voiceShowChatSeed,
-  showChatStopSequences: voiceShowChatStopSequences,
-  showChatPenalties: voiceShowChatPenalties,
-  showChatFrequencyPenalty: voiceShowChatFrequencyPenalty,
-  showChatPresencePenalty: voiceShowChatPresencePenalty,
-  showEmbeddingDimensions: voiceShowEmbeddingDimensions,
-  showImageSize: voiceShowImageSize,
-  showImageStyle: voiceShowImageStyle,
-  embeddingHasAnyControl: voiceEmbeddingHasAnyControl,
-  imageHasAnyControl: voiceImageHasAnyControl,
-} = useInstanceParamVisibility(voiceModel)
-
-function serializeParams(form: AiInstance): string {
-  const keys = [
-    'temperature',
-    'maxTokens',
-    'topP',
-    'topK',
-    'seed',
-    'stopSequences',
-    'frequencyPenalty',
-    'presencePenalty',
-    'dimensions',
-    'size',
-    'style',
-  ] as const
-  const o: Record<string, unknown> = {}
-  for (const k of keys) {
-    o[k] = form[k]
-  }
-  return JSON.stringify(o)
-}
-
-function syncParamForm(form: AiInstance, inst: AiInstance) {
-  Object.assign(form, defaultParamForm(), {
-    id: inst.id,
-    instanceKey: inst.instanceKey,
-    instanceName: inst.instanceName,
-    modelKey: inst.modelKey,
-    modelType: inst.modelType,
-    temperature: inst.temperature ?? 0.7,
-    maxTokens: inst.maxTokens ?? 2048,
-    topP: inst.topP ?? 1,
-    topK: inst.topK,
-    seed: inst.seed,
-    stopSequences: inst.stopSequences,
-    frequencyPenalty: inst.frequencyPenalty ?? 0,
-    presencePenalty: inst.presencePenalty ?? 0,
-    dimensions: inst.dimensions,
-    size: inst.size,
-    style: inst.style,
-    accountKey: inst.accountKey ?? '',
-    status: inst.status ?? 'enabled',
-    isDefault: inst.isDefault ?? 'N',
-  })
-}
-
-async function resolveModelAndAccountForTrack(
-    instance: AiInstance,
-    modelRef: typeof chatModel,
-    accountRef: typeof chatAccount
-) {
-  const tasks: Promise<void>[] = []
-  if (instance.modelKey) {
-    tasks.push(
-        aiModelApi
-            .queryPage({pageNo: 1, pageSize: 1, param: {modelKey: instance.modelKey}})
-            .then((resp) => {
-              modelRef.value = resp.list?.[0]
-            })
-    )
-  } else {
-    modelRef.value = undefined
-  }
-  if (instance.accountKey) {
-    tasks.push(
-        aiAccountApi
-            .queryPage({pageNo: 1, pageSize: 1, param: {accountKey: instance.accountKey}})
-            .then((resp) => {
-              accountRef.value = resp.list?.[0]
-            })
-    )
-  } else {
-    accountRef.value = undefined
-  }
-  await Promise.all(tasks.map((p) => p.catch(() => undefined)))
-}
-
-async function resolveFullInstance(inst: AiInstance): Promise<AiInstance> {
-  if (inst.id != null && String(inst.id) !== '') {
-    const d = await aiInstanceApi.detail(inst.id).catch(() => null)
-    if (d) return d
-  }
-  const key = inst.instanceKey?.trim()
-  if (key) {
-    const resp = await aiInstanceApi.queryPage({
-      pageNo: 1,
-      pageSize: 1,
-      param: {instanceKey: key},
-    })
-    const row = resp.list?.[0]
-    if (!row) return inst
-    if (row.id != null && String(row.id) !== '') {
-      const d2 = await aiInstanceApi.detail(row.id).catch(() => row)
-      return d2 || row
-    }
-    return row
-  }
-  return inst
-}
 
 function onToolAdd(tool: AiTool) {
   if (tool.toolKey && !placedTools.value.some((t) => t.toolKey === tool.toolKey)) {
@@ -437,83 +188,6 @@ function handleApplyImproved() {
   message.success('已应用美化后的提示词')
 }
 
-function openModelSelector(kind: 'chat' | 'image' | 'voice') {
-  modelSelectorKind.value = kind
-  modelDrawerOpen.value = true
-}
-
-function onModelSelect(model: AiModel) {
-  modelDrawerOpen.value = false
-  const kind = modelSelectorKind.value
-  if (kind === 'chat') {
-    chatModel.value = model
-    if (currentChatInstance.value?.modelKey && currentChatInstance.value.modelKey !== model.modelKey) {
-      currentChatInstance.value = undefined
-      chatAccount.value = undefined
-      Object.assign(chatParamForm, defaultParamForm())
-      chatParamSnapshot.value = serializeParams(chatParamForm)
-    }
-  } else if (kind === 'image') {
-    imageModel.value = model
-    if (currentImageInstance.value?.modelKey && currentImageInstance.value.modelKey !== model.modelKey) {
-      currentImageInstance.value = undefined
-      imageAccount.value = undefined
-      Object.assign(imageParamForm, defaultParamForm())
-      imageParamSnapshot.value = serializeParams(imageParamForm)
-    }
-  } else {
-    voiceModel.value = model
-    if (currentVoiceInstance.value?.modelKey && currentVoiceInstance.value.modelKey !== model.modelKey) {
-      currentVoiceInstance.value = undefined
-      voiceAccount.value = undefined
-      Object.assign(voiceParamForm, defaultParamForm())
-      voiceParamSnapshot.value = serializeParams(voiceParamForm)
-    }
-  }
-}
-
-function openInstanceSelectorSafe(kind: 'chat' | 'image' | 'voice') {
-  const model = kind === 'chat' ? chatModel.value : kind === 'image' ? imageModel.value : voiceModel.value
-  if (!model?.modelKey?.trim()) {
-    const msg =
-        kind === 'chat'
-            ? '请先在「模型」中选择对话模型'
-            : kind === 'image'
-                ? '请先在「模型」中选择图像模型'
-                : '请先在「模型」中选择语音模型'
-    message.warning(msg)
-    return
-  }
-  instanceSelectorKind.value = kind
-  instanceDrawerOpen.value = true
-}
-
-async function bindTrackInstance(kind: 'chat' | 'image' | 'voice', instance: AiInstance) {
-  const full = await resolveFullInstance(instance)
-  if (kind === 'chat') {
-    currentChatInstance.value = full
-    syncParamForm(chatParamForm, full)
-    chatParamSnapshot.value = serializeParams(chatParamForm)
-    await resolveModelAndAccountForTrack(full, chatModel, chatAccount)
-  } else if (kind === 'image') {
-    currentImageInstance.value = full
-    syncParamForm(imageParamForm, full)
-    imageParamSnapshot.value = serializeParams(imageParamForm)
-    await resolveModelAndAccountForTrack(full, imageModel, imageAccount)
-  } else {
-    currentVoiceInstance.value = full
-    syncParamForm(voiceParamForm, full)
-    voiceParamSnapshot.value = serializeParams(voiceParamForm)
-    await resolveModelAndAccountForTrack(full, voiceModel, voiceAccount)
-  }
-}
-
-async function onInstanceSelect(instance: AiInstance) {
-  const kind = instanceSelectorKind.value
-  instanceDrawerOpen.value = false
-  await bindTrackInstance(kind, instance)
-}
-
 function onKnowledgeAdd(key: string) {
   const k = String(key || '').trim()
   if (!k || knowledgeKeys.value.includes(k)) return
@@ -536,138 +210,6 @@ function parseKnowledgeKeys(raw?: string): string[] {
   return t.split(',').map((s) => s.trim()).filter(Boolean)
 }
 
-async function pickOrCreateInstanceForModel(model: AiModel, kind: 'chat' | 'image' | 'voice'): Promise<AiInstance> {
-  const modelType = kind === 'chat' ? 'chat' : kind === 'image' ? 'image' : 'voice'
-  const mk = model.modelKey?.trim()
-  if (!mk || model.id == null || String(model.id) === '') {
-    throw new Error('模型数据不完整，无法创建推理实例')
-  }
-  const resp = await aiInstanceApi.queryPage({
-    pageNo: 1,
-    pageSize: 100,
-    param: {modelKey: mk, modelType, status: 'enabled'},
-  })
-  const candidates = (resp.list || []).filter((i) => i.modelKey === mk && i.status === 'enabled')
-  let picked =
-      candidates.find((i) => i.isDefault === 'Y') ||
-      [...candidates].sort((a, b) => String(a.createTime || '').localeCompare(String(b.createTime || '')))[0]
-  if (!picked) {
-    await aiModelApi.generateInstances([model.id])
-    const resp2 = await aiInstanceApi.queryPage({
-      pageNo: 1,
-      pageSize: 30,
-      param: {modelKey: mk, modelType, status: 'enabled'},
-    })
-    const list2 = resp2.list || []
-    picked =
-        list2.find((i) => i.modelKey === mk && i.isDefault === 'Y') ||
-        list2.find((i) => i.modelKey === mk) ||
-        list2[0]
-  }
-  if (!picked?.instanceKey) {
-    throw new Error('无法为该模型创建推理实例，请检查实例与账号配置')
-  }
-  return picked
-}
-
-async function ensureChatInstanceOrCreate() {
-  if (currentChatInstance.value?.instanceKey) return
-  const m = chatModel.value
-  if (!m?.modelKey) return
-  const row = await pickOrCreateInstanceForModel(m, 'chat')
-  await bindTrackInstance('chat', row)
-}
-
-async function ensureImageInstanceOrCreateIfNeeded() {
-  if (currentImageInstance.value?.instanceKey) return
-  const m = imageModel.value
-  if (!m?.modelKey) return
-  const row = await pickOrCreateInstanceForModel(m, 'image')
-  await bindTrackInstance('image', row)
-}
-
-async function ensureVoiceInstanceOrCreateIfNeeded() {
-  if (currentVoiceInstance.value?.instanceKey) return
-  const m = voiceModel.value
-  if (!m?.modelKey) return
-  const row = await pickOrCreateInstanceForModel(m, 'voice')
-  await bindTrackInstance('voice', row)
-}
-
-function clearChatTrack() {
-  currentChatInstance.value = undefined
-  chatModel.value = undefined
-  chatAccount.value = undefined
-  Object.assign(chatParamForm, defaultParamForm())
-  chatParamSnapshot.value = serializeParams(chatParamForm)
-}
-
-function clearImageTrack() {
-  currentImageInstance.value = undefined
-  imageModel.value = undefined
-  imageAccount.value = undefined
-  Object.assign(imageParamForm, defaultParamForm())
-  imageParamSnapshot.value = serializeParams(imageParamForm)
-}
-
-function clearVoiceTrack() {
-  currentVoiceInstance.value = undefined
-  voiceModel.value = undefined
-  voiceAccount.value = undefined
-  Object.assign(voiceParamForm, defaultParamForm())
-  voiceParamSnapshot.value = serializeParams(voiceParamForm)
-}
-
-function onCreateInstanceFromDrawer() {
-  instanceDrawerOpen.value = false
-  instanceFormTargetKind.value = instanceSelectorKind.value
-  instanceFormRecord.value = undefined
-  instanceFormVisible.value = true
-}
-
-function onInstanceEditFromDrawer(instance: AiInstance) {
-  instanceDrawerOpen.value = false
-  const mt = instance.modelType
-  instanceFormTargetKind.value = mt === 'image' ? 'image' : mt === 'voice' ? 'voice' : 'chat'
-  instanceFormRecord.value = instance
-  instanceFormVisible.value = true
-}
-
-async function onInstanceFormSuccess() {
-  instanceFormVisible.value = false
-  const rec = instanceFormRecord.value
-  const kind = instanceFormTargetKind.value
-  if (!rec?.instanceKey?.trim()) return
-  const resp = await aiInstanceApi.queryPage({
-    pageNo: 1,
-    pageSize: 1,
-    param: {instanceKey: rec.instanceKey.trim()},
-  })
-  const row = resp.list?.[0]
-  if (!row) return
-  const full = await resolveFullInstance(row)
-  if (kind === 'image') {
-    if (currentImageInstance.value?.instanceKey === full.instanceKey) {
-      currentImageInstance.value = full
-      syncParamForm(imageParamForm, full)
-      imageParamSnapshot.value = serializeParams(imageParamForm)
-      await resolveModelAndAccountForTrack(full, imageModel, imageAccount)
-    }
-  } else if (kind === 'voice') {
-    if (currentVoiceInstance.value?.instanceKey === full.instanceKey) {
-      currentVoiceInstance.value = full
-      syncParamForm(voiceParamForm, full)
-      voiceParamSnapshot.value = serializeParams(voiceParamForm)
-      await resolveModelAndAccountForTrack(full, voiceModel, voiceAccount)
-    }
-  } else if (currentChatInstance.value?.instanceKey === full.instanceKey) {
-    currentChatInstance.value = full
-    syncParamForm(chatParamForm, full)
-    chatParamSnapshot.value = serializeParams(chatParamForm)
-    await resolveModelAndAccountForTrack(full, chatModel, chatAccount)
-  }
-}
-
 function resetEmptyForm() {
   detailSnapshot.value = null
   localAgentName.value = props.agentName || '新 Agent'
@@ -679,6 +221,7 @@ function resetEmptyForm() {
   placedMcps.value = []
   knowledgeKeys.value = []
   instanceList.value = []
+  routeStrategy.value = 'roundRobin'
 }
 
 async function resolvePromptByKey(promptKey: string): Promise<AiPrompt | undefined> {
@@ -726,26 +269,26 @@ async function resolveMcpsByKeys(keys: string[]): Promise<AiMcp[]> {
   return out
 }
 
-async function loadInstanceRowByKey(instanceKey: string): Promise<AiInstance | undefined> {
-  const key = instanceKey.trim()
-  if (!key) return undefined
+async function loadInstanceListForAgent(agentKey: string): Promise<AiInstance[]> {
+  if (!agentKey) return []
   const resp = await aiInstanceApi.queryPage({
     pageNo: 1,
-    pageSize: 1,
-    param: {instanceKey: key},
+    pageSize: 100,
+    param: {agentKey},
   })
-  const row = resp.list?.[0]
-  if (!row) return undefined
-  return resolveFullInstance(row)
+  return resp.list || []
 }
 
 async function backfillFromDetail(detail: AiAgent) {
   localAgentName.value = detail.agentName || props.agentName || '未命名的智能体'
   localAgentKey.value = detail.agentKey ?? ''
   localAgentDescription.value = detail.description ?? ''
+  routeStrategy.value = detail.routeStrategy || 'roundRobin'
 
   if (detail.instanceList && detail.instanceList.length > 0) {
     instanceList.value = detail.instanceList
+  } else if (detail.agentKey) {
+    instanceList.value = await loadInstanceListForAgent(detail.agentKey)
   } else {
     instanceList.value = []
   }
@@ -827,51 +370,7 @@ function buildSubmitPayload(): AiAgent {
     toolKeys: placedTools.value.map((t) => t.toolKey).filter(Boolean).join(','),
     mcpKeys: placedMcps.value.map((m) => m.mcpKey).filter(Boolean).join(','),
     instanceList: instanceList.value,
-  }
-}
-
-async function maybePersistInstanceTrack(track: 'chat' | 'image' | 'voice') {
-  const inst =
-      track === 'chat'
-          ? currentChatInstance.value
-          : track === 'image'
-              ? currentImageInstance.value
-              : currentVoiceInstance.value
-  const form =
-      track === 'chat' ? chatParamForm : track === 'image' ? imageParamForm : voiceParamForm
-  const snapRef =
-      track === 'chat' ? chatParamSnapshot : track === 'image' ? imageParamSnapshot : voiceParamSnapshot
-  if (!inst?.id || String(inst.id) === '') return
-  if (serializeParams(form) === snapRef.value) return
-  const fresh = await aiInstanceApi.detail(inst.id)
-  const merged: AiInstance = {
-    ...fresh,
-    temperature: form.temperature,
-    maxTokens: form.maxTokens,
-    topP: form.topP,
-    topK: form.topK,
-    seed: form.seed,
-    stopSequences: form.stopSequences,
-    frequencyPenalty: form.frequencyPenalty,
-    presencePenalty: form.presencePenalty,
-    dimensions: form.dimensions,
-    size: form.size,
-    style: form.style,
-  }
-  await aiInstanceApi.update(merged)
-  const after = await aiInstanceApi.detail(inst.id)
-  if (track === 'chat') {
-    currentChatInstance.value = after
-    syncParamForm(chatParamForm, after)
-    chatParamSnapshot.value = serializeParams(chatParamForm)
-  } else if (track === 'image') {
-    currentImageInstance.value = after
-    syncParamForm(imageParamForm, after)
-    imageParamSnapshot.value = serializeParams(imageParamForm)
-  } else {
-    currentVoiceInstance.value = after
-    syncParamForm(voiceParamForm, after)
-    voiceParamSnapshot.value = serializeParams(voiceParamForm)
+    routeStrategy: routeStrategy.value,
   }
 }
 
@@ -895,13 +394,13 @@ async function handleSave() {
       await aiPromptApi.update({...p})
       loadedPromptContent.value = p.promptContent ?? ''
     }
-    
+
     const payload = buildSubmitPayload()
     if (props.agentId != null && props.agentId !== '') {
       await aiAgentApi.update({...payload, id: props.agentId})
       message.success('智能体已保存')
     } else {
-      await aiAgentApi.create(payload)
+      await aiAgentApi.createFullAgent(payload)
       message.success('智能体已创建')
     }
     emit('saved')
