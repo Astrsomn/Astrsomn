@@ -84,6 +84,12 @@
 
             <dependency>
                 <groupId>com.astrsomn</groupId>
+                <artifactId>astrsomn-vector-starter</artifactId>
+                <version>${astrsomn.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.astrsomn</groupId>
                 <artifactId>astrsomn-internal-storage</artifactId>
                 <version>${astrsomn.version}</version>
             </dependency>

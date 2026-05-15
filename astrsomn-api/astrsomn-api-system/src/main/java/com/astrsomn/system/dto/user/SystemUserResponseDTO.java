@@ -1,6 +1,6 @@
 package com.astrsomn.system.dto.user;
 
-import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import com.astrsomn.system.entity.SystemUserEntity;
 import lombok.Data;
 
 import java.math.BigDecimal;

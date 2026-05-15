@@ -13,7 +13,7 @@ import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
 import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
 import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
-import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
+import com.astrsomn.starter.runtime.system.mapper.AstSystemExtensionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;

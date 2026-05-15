@@ -3,7 +3,7 @@ package com.astrsomn.starter.runtime.plugin;
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecDriver;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
-import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

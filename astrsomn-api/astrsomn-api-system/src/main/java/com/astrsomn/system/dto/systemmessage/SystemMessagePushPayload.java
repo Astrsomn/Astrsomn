@@ -1,6 +1,6 @@
 package com.astrsomn.system.dto.systemmessage;
 
-import com.astrsomn.api.runtime.common.entity.SystemMessageEntity;
+import com.astrsomn.system.entity.SystemMessageEntity;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;

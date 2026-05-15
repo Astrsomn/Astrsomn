@@ -14,7 +14,7 @@ import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiVecSourceMapper;
 import com.astrsomn.server.service.AiVecSourceService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

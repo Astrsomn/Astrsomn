@@ -1,6 +1,6 @@
 package com.astrsomn.api.runtime.common.langchain.extension;
 
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
+import com.astrsomn.system.constant.SystemExtensionEnum;
 
 import java.io.IOException;
 import java.io.InputStream;

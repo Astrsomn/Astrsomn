@@ -1,6 +1,6 @@
 package com.astrsomn.api.vector.dto.vecsource;
 
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import lombok.Data;
 
 import java.io.Serializable;

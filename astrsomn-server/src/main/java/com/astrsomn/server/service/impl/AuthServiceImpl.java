@@ -8,7 +8,7 @@ import com.astrsomn.system.exception.AuthErrorEnum;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.server.service.AuthService;
 import com.astrsomn.server.util.JwtUtil;
-import com.astrsomn.starter.runtime.mapper.AstSystemUserMapper;
+import com.astrsomn.starter.runtime.system.mapper.AstSystemUserMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.astrsomn.starter.runtime.langchain.vector;
+package com.astrsomn.starter.runtime.vector;
 
 import com.astrsomn.api.vector.constant.AiVecSourceEnum;
 import com.astrsomn.api.vector.entity.AiVecSourceEntity;
@@ -209,7 +209,7 @@ public class AstroVecSourceFactory {
         return StreamOf(e.getExtensionCode(), e.getHost(), e.getPort(), e.getUsername(),
                 e.getPassword(), e.getDatabaseName(), e.getToken(), e.getConfigJson())
                 .map(StringUtils::normalize)
-                .collect(Collectors.joining("\u0001"));
+                .collect(Collectors.joining(""));
     }
 
 

@@ -20,7 +20,7 @@ import com.astrsomn.server.mapper.AiVecSegmentMapper;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import dev.langchain4j.data.segment.TextSegment;

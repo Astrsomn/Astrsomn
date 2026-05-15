@@ -1,6 +1,6 @@
 package com.astrsomn.system.dto.config;
 
-import com.astrsomn.api.runtime.common.entity.SystemConfigEntity;
+import com.astrsomn.system.entity.SystemConfigEntity;
 import lombok.Data;
 
 import java.io.Serializable;

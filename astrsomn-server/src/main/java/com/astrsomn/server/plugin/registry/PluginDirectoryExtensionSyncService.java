@@ -5,7 +5,7 @@ import com.astrsomn.system.dto.extension.SystemExtensionMetaData;
 import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
-import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
+import com.astrsomn.starter.runtime.system.mapper.AstSystemExtensionMapper;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;

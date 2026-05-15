@@ -9,7 +9,7 @@ import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.extension.capability.ExtensionCapabilityResolver;
 import com.astrsomn.server.service.extension.dependency.ExtensionDependencyGuard;
 import com.astrsomn.server.service.extension.support.SystemExtensionSourceHelper;
-import com.astrsomn.starter.runtime.mapper.AstSystemExtensionMapper;
+import com.astrsomn.starter.runtime.system.mapper.AstSystemExtensionMapper;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

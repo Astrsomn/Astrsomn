@@ -1,6 +1,6 @@
 package com.astrsomn.provider.zhipu;
 
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
+import com.astrsomn.system.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 
 import java.io.IOException;

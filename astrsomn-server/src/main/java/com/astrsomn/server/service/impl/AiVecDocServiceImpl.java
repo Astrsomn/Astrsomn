@@ -37,7 +37,7 @@ import com.astrsomn.server.service.AstroFileRecordService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
-import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import com.astrsomn.starter.runtime.mapper.AstAiAccountMapper;
 import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
 import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
