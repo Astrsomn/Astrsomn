@@ -68,9 +68,14 @@ public class AiPromptController extends BaseController {
     }
 
 
-    @PostMapping("/improvePrompt")
-    public BaseResponse<String> improvePrompt(@RequestBody AiPromptUpdateRequestDTO request) {
-        return aiPromptService.improvePrompt(request);
+    @PostMapping("/submit")
+    public BaseResponse<AiPromptResponseDTO> submit(@RequestBody AiPromptUpdateRequestDTO request) {
+        return aiPromptService.submit(request);
+    }
+
+    @PostMapping("/beautify")
+    public BaseResponse<String> beautify(@RequestBody AiPromptUpdateRequestDTO request) {
+        return aiPromptService.beautify(request.getPromptContent());
     }
 
 

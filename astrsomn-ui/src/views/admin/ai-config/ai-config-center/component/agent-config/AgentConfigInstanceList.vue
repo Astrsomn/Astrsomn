@@ -76,6 +76,10 @@
               <span class="label">模型</span>
               <span class="value">{{ getModelLabel(instance.modelKey) }}</span>
             </div>
+            <div v-if="instance.accountKey" class="model-info">
+              <span class="label">账号</span>
+              <span class="value">{{ instance.accountName || instance.accountKey }}</span>
+            </div>
           </div>
 
         </div>
@@ -139,6 +143,31 @@
                         <SearchOutlined/>
                       </div>
                       <span class="model-pick-placeholder">点击选择模型</span>
+                    </template>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <label class="field-label">关联账号</label>
+                  <div
+                      :class="['model-pick-card', { 'has-model': !!formData.accountKey }]"
+                      @click="accountDrawerOpen = true"
+                  >
+                    <template v-if="formData.accountKey">
+                      <div class="model-pick-icon">
+                        <UserOutlined/>
+                      </div>
+                      <div class="model-pick-info">
+                        <span class="model-pick-name">{{ formData.accountName || formData.accountKey }}</span>
+                        <span class="model-pick-key">{{ formData.accountKey }}</span>
+                      </div>
+                      <SwapOutlined class="model-pick-swap"/>
+                    </template>
+                    <template v-else>
+                      <div class="model-pick-icon model-pick-icon--empty">
+                        <KeyOutlined/>
+                      </div>
+                      <span class="model-pick-placeholder">点击选择账号</span>
                     </template>
                   </div>
                 </div>
@@ -310,6 +339,13 @@
         @select="onModelDrawerSelect"
         @update:open="modelDrawerOpen = $event"
     />
+
+    <AccountSelectorTable
+        :open="accountDrawerOpen"
+        :provider-filter="selectedModelForForm?.extensionCode"
+        @select="onAccountSelect"
+        @update:open="accountDrawerOpen = $event"
+    />
   </AgentConfigSectionShell>
 </template>
 
@@ -326,11 +362,15 @@ import {
   QuestionCircleOutlined,
   SearchOutlined,
   SwapOutlined,
+  UserOutlined,
+  KeyOutlined,
 } from '@ant-design/icons-vue'
 import type {AiModel} from '@/api/aiModel'
 import type {AiInstance} from '@/api/aiInstance'
+import type {AiAccount} from '@/api/aiAccount'
 import AgentConfigSectionShell from './AgentConfigSectionShell.vue'
 import ModelSelector from '@/views/admin/ai-config/ai-model/selector/ModelSelector.vue'
+import AccountSelectorTable from '@/views/admin/ai-config/ai-account/selector/AccountSelectorTable.vue'
 import {useInstanceParamVisibility, getTempInfo} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
 
 const props = defineProps<{
@@ -359,6 +399,7 @@ const activeTab = ref<string>('chat')
 const showInlineForm = ref(false)
 const editingInstance = ref<AiInstance | null>(null)
 const modelDrawerOpen = ref(false)
+const accountDrawerOpen = ref(false)
 
 const routeStrategyOptions = [
   {value: 'roundRobin', label: '轮询 (Round Robin)'},
@@ -371,6 +412,8 @@ const routeStrategyOptions = [
 const formData = reactive({
   modelType: 'chat' as string,
   modelKey: '' as string,
+  accountKey: '' as string,
+  accountName: '' as string,
   instanceName: '' as string,
   isDefault: 'N' as string,
   routeWeight: undefined as number | undefined,
@@ -443,6 +486,12 @@ function onModelDrawerSelect(model: AiModel) {
   modelDrawerOpen.value = false
 }
 
+function onAccountSelect(account: AiAccount) {
+  formData.accountKey = account.accountKey || ''
+  formData.accountName = account.accountName || ''
+  accountDrawerOpen.value = false
+}
+
 function onFormModelTypeChange(e: { target: { value: string } }) {
   formData.modelType = e.target.value
   formData.modelKey = ''
@@ -451,6 +500,8 @@ function onFormModelTypeChange(e: { target: { value: string } }) {
 function resetFormData() {
   formData.modelType = activeTab.value
   formData.modelKey = ''
+  formData.accountKey = ''
+  formData.accountName = ''
   formData.instanceName = ''
   formData.isDefault = 'N'
   formData.routeWeight = undefined
@@ -478,6 +529,8 @@ function startEdit(instance: AiInstance) {
   editingInstance.value = instance
   formData.modelType = instance.modelType || 'chat'
   formData.modelKey = instance.modelKey || ''
+  formData.accountKey = instance.accountKey || ''
+  formData.accountName = instance.accountName || ''
   formData.instanceName = instance.instanceName || ''
   formData.isDefault = instance.isDefault || 'N'
   formData.routeWeight = instance.routeWeight
@@ -505,6 +558,8 @@ function buildInstanceFromForm(): AiInstance {
   return {
     modelType: formData.modelType,
     modelKey: formData.modelKey,
+    accountKey: formData.accountKey,
+    accountName: formData.accountName,
     instanceName: formData.instanceName,
     routeStrategy: props.routeStrategy || 'roundRobin',
     routeWeight: formData.routeWeight,

@@ -75,9 +75,17 @@ export const aiPromptApi = {
         })
     },
 
-    improvePrompt: (promptContent: string): Promise<string> => {
+    submit: (payload: AiPrompt): Promise<AiPrompt> => {
         return request({
-            url: '/v1/astro/ai-promopt/improvePrompt',
+            url: '/v1/astro/ai-promopt/submit',
+            method: 'post',
+            data: payload
+        })
+    },
+
+    beautify: (promptContent: string): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-promopt/beautify',
             method: 'post',
             data: {promptContent}
         })

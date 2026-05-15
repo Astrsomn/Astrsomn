@@ -1,30 +1,36 @@
 <template>
-  <a-drawer
-      :closable="true"
-      :maskClosable="false"
+  <AstrsomnDrawerShell
       :open="props.open"
-      :width="480"
-      placement="right"
-      root-class-name="account-select-drawer"
-      title="选择账号"
-      @close="handleClose"
+      :width="520"
+      @update:open="handleClose"
   >
+    <template #title>选择账号</template>
+    <template #subtitle>AI Account</template>
+
     <div class="select-drawer-content">
-      <div class="search-bar">
-        <a-input
-            v-model:value="keyword"
-            allow-clear
+      <div class="toolbar-row">
+        <AstrsomnSearchPill
+            :model-value="keyword"
+            class="toolbar-search"
             placeholder="搜索账号名称"
-            @pressEnter="handleSearch"
-        >
-          <template #prefix>
-            <SearchOutlined/>
-          </template>
-        </a-input>
-        <a-button type="primary" @click="handleSearch">查询</a-button>
+            @update:model-value="keyword = $event"
+            @search="handleSearch"
+        />
+        <a-button class="add-btn" type="primary" @click="accountFormOpen = true">
+          <PlusOutlined/>
+        </a-button>
       </div>
 
-      <a-spin :spinning="loading">
+      <div class="filter-bar">
+        <ExtensionSelector
+            v-model:value="filterExtensionCode"
+            :allow-clear="true"
+            placeholder="全部供应商"
+            size="middle"
+        />
+      </div>
+
+      <a-spin :spinning="loading" class="list-spin">
         <div class="account-list">
           <div
               v-for="account in list"
@@ -32,13 +38,40 @@
               class="account-item"
               @click="handleSelect(account)"
           >
-            <div class="account-info">
-              <div class="account-name">{{ account.accountName }}</div>
-              <div class="account-key">
-                <KeyOutlined/>
-                {{ account.accountKey }}
+            <div class="account-item-main">
+              <img
+                  v-if="getProviderAvatar(account.extensionCode)"
+                  :src="getProviderAvatar(account.extensionCode)"
+                  class="account-provider-avatar"
+                  alt=""
+              />
+              <div v-else class="account-provider-avatar-placeholder">
+                <UserOutlined/>
+              </div>
+              <div class="account-info">
+                <div class="account-name">{{ account.accountName }}</div>
+                <div class="account-key">
+                  <KeyOutlined/>
+                  {{ account.accountKey }}
+                </div>
               </div>
             </div>
+
+            <div class="account-stats">
+              <div v-if="account.accountTokens != null" class="stat-item">
+                <span class="stat-label">额度</span>
+                <span class="stat-value">{{ formatTokens(account.accountTokens) }}</span>
+              </div>
+              <div v-if="account.totalTokens != null" class="stat-item">
+                <span class="stat-label">已用</span>
+                <span class="stat-value">{{ formatTokens(account.totalTokens) }}</span>
+              </div>
+              <div v-if="account.callCount != null" class="stat-item">
+                <span class="stat-label">调用</span>
+                <span class="stat-value">{{ account.callCount }}</span>
+              </div>
+            </div>
+
             <div class="account-meta">
               <span v-if="account.usedModelCount" class="model-count">
                 关联 {{ account.usedModelCount }} 个模型
@@ -46,6 +79,7 @@
               <span :class="account.envCode?.toLowerCase()" class="env-badge">
                 {{ account.envCode || '无环境' }}
               </span>
+              <span :class="['status-dot', account.status === 'enabled' ? 'enabled' : 'disabled']"/>
             </div>
           </div>
 
@@ -53,30 +87,47 @@
         </div>
       </a-spin>
 
-      <div class="drawer-footer">
-        <a-pagination
-            v-model:current="page.pageNum"
-            :page-size="page.pageSize"
-            :show-size-changer="false"
-            :total="page.total"
-            @change="fetchList"
-        />
-      </div>
     </div>
-  </a-drawer>
+
+    <template #footer>
+      <AstrsomnPagination
+          :current="page.pageNum"
+          :page-size="page.pageSize"
+          :show-size-changer="false"
+          :total="page.total"
+          @change="onPageChange"
+      />
+    </template>
+
+    <AccountForm
+        :visible="accountFormOpen"
+        @update:visible="accountFormOpen = $event"
+        @success="onAccountCreated"
+    />
+  </AstrsomnDrawerShell>
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, watch} from 'vue'
-import {KeyOutlined, SearchOutlined} from '@ant-design/icons-vue'
-import {type AiAccount, aiAccountApi, type PageResponse} from '@/api/aiAccount.ts'
+import {reactive, ref, watch, onMounted} from 'vue'
+import {KeyOutlined, PlusOutlined, UserOutlined} from '@ant-design/icons-vue'
+import {type AiAccount, aiAccountApi, type PageResponse} from '@/api/aiAccount'
+import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension'
+import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
+import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
+import AccountForm from '@/views/admin/ai-config/ai-account/AccountForm.vue'
 
 const props = withDefaults(defineProps<{
   open: boolean
-  /** 是否只查询已启用的账号 */
   onlyEnabled?: boolean
+  /** 按供应商 extensionCode 快速过滤 */
+  providerFilter?: string
+  /** 初始页码 */
+  pageNum?: number
 }>(), {
-  onlyEnabled: true
+  onlyEnabled: true,
+  pageNum: 1
 })
 
 const emit = defineEmits<{
@@ -88,9 +139,55 @@ const keyword = ref('')
 const loading = ref(false)
 const list = ref<AiAccount[]>([])
 const page = reactive({
-  pageNum: 1,
+  pageNum: props.pageNum,
   pageSize: 10,
   total: 0
+})
+
+const filterExtensionCode = ref<string | undefined>(undefined)
+const accountFormOpen = ref(false)
+
+// --- provider avatar map ---
+const extensionMap = ref<Record<string, SystemExtension>>({})
+
+async function loadExtensions() {
+  try {
+    const resp = await systemExtensionApi.queryPage({
+      pageNo: 1,
+      pageSize: 500,
+      param: {type: 'MODEL_PROVIDER', listScope: 'APPLIED' as any}
+    })
+    const map: Record<string, SystemExtension> = {}
+    for (const ext of resp?.list ?? []) {
+      const code = (ext.extensionCode || ext.extensionKey || '').trim()
+      if (code) map[code] = ext
+    }
+    extensionMap.value = map
+  } catch {
+    // silent
+  }
+}
+
+function getProviderAvatar(extensionCode?: string): string {
+  if (!extensionCode) return ''
+  return extensionMap.value[extensionCode]?.avatar?.trim() || ''
+}
+
+function formatTokens(val: number): string {
+  if (val >= 1_000_000) return (val / 1_000_000).toFixed(1) + 'M'
+  if (val >= 1_000) return (val / 1_000).toFixed(1) + 'K'
+  return String(val)
+}
+
+// --- sync providerFilter prop to local filter ---
+watch(() => props.providerFilter, (val) => {
+  filterExtensionCode.value = val || undefined
+}, {immediate: true})
+
+// re-fetch when filter changes
+watch(filterExtensionCode, () => {
+  page.pageNum = 1
+  void fetchList()
 })
 
 const fetchList = async () => {
@@ -101,7 +198,8 @@ const fetchList = async () => {
       pageSize: page.pageSize,
       param: {
         accountName: keyword.value || undefined,
-        status: props.onlyEnabled ? 'enabled' : undefined
+        status: props.onlyEnabled ? 'enabled' : undefined,
+        extensionCode: filterExtensionCode.value || undefined
       }
     }
     const resp: PageResponse<AiAccount> = await aiAccountApi.queryPage(payload)
@@ -117,6 +215,11 @@ const handleSearch = () => {
   void fetchList()
 }
 
+function onPageChange(p: number) {
+  page.pageNum = p
+  void fetchList()
+}
+
 const handleSelect = (account: AiAccount) => {
   emit('select', account)
 }
@@ -125,12 +228,22 @@ const handleClose = () => {
   emit('update:open', false)
 }
 
+function onAccountCreated() {
+  page.pageNum = 1
+  void fetchList()
+}
+
 watch(() => props.open, (val) => {
   if (val) {
     keyword.value = ''
-    page.pageNum = 1
+    filterExtensionCode.value = props.providerFilter || undefined
+    page.pageNum = props.pageNum
     void fetchList()
   }
+})
+
+onMounted(() => {
+  void loadExtensions()
 })
 </script>
 
@@ -140,58 +253,164 @@ watch(() => props.open, (val) => {
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  gap: 12px;
 }
 
-.search-bar {
+/* --- toolbar: search + add --- */
+.toolbar-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.toolbar-search {
+  flex: 1;
+  min-width: 0;
+}
+
+.add-btn {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md, 10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary, #3b82f6) 30%, transparent);
+}
+
+.add-btn:hover {
+  transform: scale(1.06);
+  filter: brightness(1.1);
+}
+
+/* --- filter bar --- */
+.filter-bar {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
 }
 
-.search-bar :deep(.ant-input-affix-wrapper) {
+.filter-bar :deep(.model-provider-select) {
   flex: 1;
+}
+
+/* --- list area (scrollable) --- */
+.list-spin {
+  flex: 1;
+  min-height: 0;
+}
+
+.list-spin :deep(.ant-spin-container) {
+  height: 100%;
+}
+
+.list-spin :deep(.ant-spin) {
+  max-height: 100%;
 }
 
 .account-list {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 420px;
+  overflow-y: auto;
 }
 
 .account-item {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
   padding: 16px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .account-item:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-card);
+  border-color: var(--primary, #3b82f6);
+  box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.06));
+}
+
+.account-item-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.account-provider-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.account-provider-avatar-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
 .account-info {
-  margin-bottom: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .account-name {
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 4px;
+  color: var(--text-primary, #1e293b);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .account-key {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #64748b);
   font-family: 'JetBrains Mono', monospace;
   display: flex;
   align-items: center;
   gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .account-meta {
@@ -202,7 +421,7 @@ watch(() => props.open, (val) => {
 
 .model-count {
   font-size: 12px;
-  color: var(--text-hint);
+  color: var(--text-hint, #94a3b8);
 }
 
 .env-badge {
@@ -222,11 +441,19 @@ watch(() => props.open, (val) => {
   color: #0ea5e9;
 }
 
-.drawer-footer {
-  flex-shrink: 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-default);
-  display: flex;
-  justify-content: center;
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: auto;
 }
+
+.status-dot.enabled {
+  background: #22c55e;
+}
+
+.status-dot.disabled {
+  background: #e2e8f0;
+}
+
 </style>

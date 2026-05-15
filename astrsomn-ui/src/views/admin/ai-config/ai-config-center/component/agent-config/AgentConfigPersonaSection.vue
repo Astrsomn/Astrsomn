@@ -11,12 +11,11 @@
             @update:value="emit('update:agentName', $event)"
         />
         <label class="card-label">Agent Key</label>
-        <a-input
-            :bordered="false"
-            :value="agentKey"
-            class="field-input"
+        <AstrsomnKeyGenerator
+            :model-value="agentKey"
+            :prefix="AI_AGENT_KEY_PREFIX"
             placeholder="留空则自动生成"
-            @update:value="emit('update:agentKey', $event)"
+            @update:model-value="emit('update:agentKey', $event)"
         />
       </div>
       <div class="right-panel">
@@ -40,6 +39,8 @@
 import type {AiPrompt} from '@/api/aiPrompt'
 import PromptCard from '@/views/admin/ai-config/builder/component/left-center/PromptCard.vue'
 import AgentConfigSectionShell from './AgentConfigSectionShell.vue'
+import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
+import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
 defineProps<{
   agentName: string

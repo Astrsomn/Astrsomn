@@ -170,7 +170,7 @@ async function handleImprovePrompt() {
   originalContent.value = content
   improveLoading.value = true
   try {
-    const improved = await aiPromptApi.improvePrompt(content)
+    const improved = await aiPromptApi.beautify(content)
     improvedContent.value = improved
     diffModalVisible.value = true
   } catch {
@@ -180,11 +180,19 @@ async function handleImprovePrompt() {
   }
 }
 
-function handleApplyImproved() {
+async function handleApplyImproved() {
   if (currentPrompt.value) {
     currentPrompt.value.promptContent = improvedContent.value
   }
   diffModalVisible.value = false
+  // 美化后立即保存提示词（新建或更新）
+  try {
+    const saved = await aiPromptApi.submit({...currentPrompt.value, promptContent: improvedContent.value})
+    currentPrompt.value = saved
+    loadedPromptContent.value = saved.promptContent ?? improvedContent.value
+  } catch {
+    // 提示词保存失败不阻塞，handleSave 会重试
+  }
   message.success('已应用美化后的提示词')
 }
 
@@ -215,7 +223,7 @@ function resetEmptyForm() {
   localAgentName.value = props.agentName || '新 Agent'
   localAgentKey.value = ''
   localAgentDescription.value = ''
-  currentPrompt.value = undefined
+  currentPrompt.value = {promptContent: ''}
   loadedPromptContent.value = ''
   placedTools.value = []
   placedMcps.value = []
@@ -379,10 +387,6 @@ async function handleSave() {
     message.warning('请输入智能体名称')
     return
   }
-  if (!currentPrompt.value?.promptKey) {
-    message.warning('请先选择或新建提示词')
-    return
-  }
   if (instanceList.value.length === 0) {
     message.warning('请至少添加一个推理实例')
     return
@@ -390,9 +394,12 @@ async function handleSave() {
   submitting.value = true
   try {
     const p = currentPrompt.value
-    if (p?.id != null && String(p.id) !== '' && String(p.promptContent ?? '') !== String(loadedPromptContent.value ?? '')) {
-      await aiPromptApi.update({...p})
-      loadedPromptContent.value = p.promptContent ?? ''
+    const content = p?.promptContent?.trim() || ''
+    if (content && content !== String(loadedPromptContent.value ?? '').trim()) {
+      // 内容有变化（直接输入或选了又改）→ 美化 + 保存（新建或更新）
+      const saved = await aiPromptApi.submit({...p, promptContent: content})
+      currentPrompt.value = saved
+      loadedPromptContent.value = saved.promptContent ?? content
     }
 
     const payload = buildSubmitPayload()
