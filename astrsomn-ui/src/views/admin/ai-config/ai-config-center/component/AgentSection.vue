@@ -1,9 +1,16 @@
 <template>
   <div class="agent-list-container">
     <div class="list-header">
+      <div v-if="props.providerAvatar" class="header-avatar">
+        <img :src="props.providerAvatar" :alt="props.providerName" class="header-avatar-img"/>
+      </div>
+      <div v-else-if="props.providerName" class="header-avatar header-avatar-placeholder">
+        <span>{{ props.providerName.slice(0, 1).toUpperCase() }}</span>
+      </div>
       <div class="header-info">
-        <h2 class="list-title">所有 Agents</h2>
-        <p class="list-subtitle">当前 Provider: {{ currentProviderName }}</p>
+        <h2 class="list-title">{{ props.providerName || '所有 Agents' }}</h2>
+        <p v-if="props.providerDescription" class="list-subtitle">{{ props.providerDescription }}</p>
+        <p v-else class="list-subtitle">当前 Provider: {{ currentProviderName }}</p>
       </div>
     </div>
 
@@ -78,6 +85,9 @@ import {type AiAgent, aiAgentApi, type PageResponse} from '@/api/aiAgent'
 
 const props = defineProps<{
   providerKey?: string
+  providerName?: string
+  providerDescription?: string
+  providerAvatar?: string
 }>()
 
 const emit = defineEmits(['select', 'create'])
@@ -160,7 +170,32 @@ void fetchAgents()
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   margin-bottom: 32px;
+}
+
+.header-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.header-avatar-placeholder {
+  background: var(--primary-hover);
+  color: var(--primary);
+  font-size: 22px;
+  font-weight: 700;
 }
 
 .header-info {

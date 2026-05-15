@@ -452,9 +452,7 @@ watch(
 
 <style scoped>
 .config-container {
-  padding: 32px;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 0;
   overflow-y: auto;
   height: 100%;
 }
@@ -462,7 +460,8 @@ watch(
 .config-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 32px;
+  padding: 32px 40px;
 }
 
 .bottom-spacing {

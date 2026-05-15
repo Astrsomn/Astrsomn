@@ -1,18 +1,12 @@
 <template>
-  <div class="config-header">
+  <header class="agent-config-header">
     <div class="header-left">
-      <a-button class="back-btn" type="text" @click="emit('back')">
-        <component :is="ArrowLeftOutlined"/>
-      </a-button>
-      <div class="header-info">
-        <div class="icon-wrapper">
-          <component :is="LayoutOutlined" class="config-icon"/>
-        </div>
-        <div class="header-text">
-          <span class="header-title">Agent 配置</span>
-          <p class="header-subtitle">正在配置 Agent 运行环境与逻辑底座</p>
-        </div>
+      <div class="header-logo">
+        <img alt="Logo" class="logo-img" src="https://api.dicebear.com/7.x/shapes/svg?seed=Astrsomn">
+        <span class="logo-text">Astrsomn</span>
       </div>
+      <div class="header-divider"></div>
+      <span class="header-title">Agent 配置</span>
     </div>
     <div class="header-right">
       <a-button class="cancel-btn" type="text" @click="emit('back')">取消</a-button>
@@ -20,12 +14,10 @@
         保存更改
       </a-button>
     </div>
-  </div>
+  </header>
 </template>
 
 <script lang="ts" setup>
-import {ArrowLeftOutlined, LayoutOutlined} from '@ant-design/icons-vue'
-
 defineProps<{
   submitting: boolean
 }>()
@@ -37,91 +29,77 @@ const emit = defineEmits<{
 </script>
 
 <style scoped>
-.config-header {
+.agent-config-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 64px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-default);
-  margin-bottom: 20px;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: var(--ac-glass-bg);
+  backdrop-filter: var(--ac-glass-backdrop);
+  border-bottom: 1px solid var(--ac-glass-border);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 24px;
-}
-
-.back-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.back-btn:hover {
-  background: var(--primary-hover);
-  color: var(--primary);
-}
-
-.header-info {
-  display: flex;
-  align-items: center;
   gap: 16px;
 }
 
-.icon-wrapper {
-  width: 48px;
-  height: 48px;
-  background: rgba(59, 130, 246, 0.08);
-  border-radius: 16px;
+.header-logo {
   display: flex;
   align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(59, 130, 246, 0.15);
+  gap: 8px;
 }
 
-.config-icon {
-  font-size: 24px;
-  color: var(--primary);
+.logo-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
 }
 
-.header-text {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.header-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-default);
 }
 
 .header-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: var(--text-primary);
-}
-
-.header-subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
 .header-right {
   display: flex;
+  align-items: center;
   gap: 12px;
 }
 
 .cancel-btn {
-  font-size: 12px;
-  color: var(--text-muted);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.cancel-btn:hover {
+  color: var(--text-primary);
 }
 
 .save-btn {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 6px 20px;
+  padding: 6px 24px;
+  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
 }
 </style>

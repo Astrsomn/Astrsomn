@@ -44,6 +44,13 @@
             <span class="provider-name">{{ item.label }}</span>
           </div>
         </div>
+        <div v-if="providers.length === 0" class="empty-provider">
+          <a-empty description="暂无已启用的插件">
+            <template #extra>
+              <a-button type="link" @click="handleAddPlugin">前往插件市场</a-button>
+            </template>
+          </a-empty>
+        </div>
       </div>
     </div>
 
@@ -57,7 +64,30 @@
           @click="handleSelect(item.key)"
       >
         <component :is="item.icon" class="global-icon"/>
-        <span>{{ item.label }}</span>
+        <span class="global-label">{{ item.label }}</span>
+        <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
+      </div>
+
+
+
+      <!-- 展开区域 -->
+      <div v-show="extraExpanded" class="extra-items">
+        <div
+            v-for="item in extraItems"
+            :key="item.key"
+            :class="{ 'is-active': activeItem === item.key }"
+            class="global-item"
+            @click="handleSelect(item.key)"
+        >
+          <component :is="item.icon" class="global-icon"/>
+          <span class="global-label">{{ item.label }}</span>
+          <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
+        </div>
+      </div>
+            <!-- 展开/收起 -->
+      <div class="expand-toggle" @click="toggleExtra">
+        <span>{{ extraExpanded ? '收起' : '更多功能' }}</span>
+        <DownOutlined :class="{ 'rotate-up': extraExpanded }" class="expand-arrow"/>
       </div>
     </div>
 
@@ -102,16 +132,27 @@ import {
   AppstoreOutlined,
   CloudServerOutlined,
   CreditCardOutlined,
+  DownOutlined,
   FileTextOutlined,
   LinkOutlined,
+  MessageOutlined,
   ToolOutlined
 } from '@ant-design/icons-vue'
 import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts'
+import {aiAccountApi} from '@/api/aiAccount'
+import {aiPromptApi} from '@/api/aiPrompt'
+import {aiMcpApi} from '@/api/aiMcp'
+import {aiToolApi} from '@/api/aiTool'
+import {aiTemplateApi} from '@/api/aiTemplate'
+import {aiConversationApi} from '@/api/aiConversation'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import {useDictionary} from '@/locales/dictionary'
 import ExtensionMarketplaceDialog from './ExtensionMarketplaceDialog.vue'
 
-const emit = defineEmits(['select'])
+const emit = defineEmits<{
+  select: [key: string]
+  'select-provider': [info: { key: string; name: string; description: string; avatar: string }]
+}>()
 const route = useRoute()
 const providerDict = useDictionary('ai-model.provider')
 
@@ -124,19 +165,34 @@ const providers = ref<Array<{
   label: string;
   icon: typeof CloudServerOutlined;
   avatar?: string;
-  initial: string
+  initial: string;
+  description: string
 }>>([])
 
-const globalItems = [
-  {key: 'ai-account', label: 'AI 账号', icon: CreditCardOutlined},
-  {key: 'prompts', label: '提示词', icon: FileTextOutlined},
-  {key: 'mcp', label: 'MCP', icon: LinkOutlined},
-  {key: 'tools', label: 'Tools', icon: ToolOutlined},
-]
+const globalItems = ref([
+  {key: 'ai-account', label: 'AI 账号', icon: CreditCardOutlined, count: undefined as number | undefined},
+  {key: 'prompts', label: '提示词', icon: FileTextOutlined, count: undefined as number | undefined},
+  {key: 'mcp', label: 'MCP', icon: LinkOutlined, count: undefined as number | undefined},
+  {key: 'tools', label: 'Tools', icon: ToolOutlined, count: undefined as number | undefined},
+])
+
+const extraExpanded = ref(false)
+const extraItems = ref([
+  {key: 'ftl', label: 'FTL 模板', icon: FileTextOutlined, count: undefined as number | undefined},
+  {key: 'conversations', label: '对话管理', icon: MessageOutlined, count: undefined as number | undefined},
+])
+
+const toggleExtra = () => {
+  extraExpanded.value = !extraExpanded.value
+}
 
 const handleSelect = (key: string) => {
   activeItem.value = key
   emit('select', key)
+  const provider = providers.value.find(p => p.key === key)
+  if (provider) {
+    emit('select-provider', {key: provider.key, name: provider.label, description: provider.description, avatar: provider.avatar || ''})
+  }
 }
 
 const handleSearch = () => {
@@ -185,7 +241,8 @@ const fetchProviders = async () => {
         type: 'MODEL_PROVIDER',
       },
     })
-    const modelProviders = (resp.list || []).map((item: SystemExtension) => {
+    const enabled = (resp.list || []).filter((item) => String(item.applied || '').toUpperCase() === 'Y')
+    const modelProviders = enabled.map((item: SystemExtension) => {
       const code = (item.extensionCode || item.extensionKey || '').toLowerCase()
       const dictLabel = providerDict.value.getLabel(code)
       const name = dictLabel || item.extensionName || item.extensionKey || '未知插件'
@@ -195,6 +252,7 @@ const fetchProviders = async () => {
         icon: CloudServerOutlined,
         avatar: item.avatar,
         initial: name.slice(0, 1).toUpperCase(),
+        description: item.description || '',
       }
     })
     providers.value = modelProviders
@@ -211,7 +269,7 @@ const updateActiveItem = () => {
   if (currentPath === '/admin/ai-config-center') {
     // 先检查是否是全局管理视图
     const view = route.query.view as string | undefined
-    const globalKeys = globalItems.map(item => item.key)
+    const globalKeys = [...globalItems.value.map(item => item.key), ...extraItems.value.map(item => item.key)]
     if (view && globalKeys.includes(view)) {
       activeItem.value = view
       return
@@ -232,7 +290,7 @@ const updateActiveItem = () => {
   // 检查是否是全局管理页面
   const pathParts = currentPath.split('/')
   const lastPart = pathParts[pathParts.length - 1]
-  const globalKeys = globalItems.map(item => item.key)
+  const globalKeys = [...globalItems.value.map(item => item.key), ...extraItems.value.map(item => item.key)]
   if (globalKeys.includes(lastPart)) {
     activeItem.value = lastPart
     return
@@ -242,9 +300,30 @@ const updateActiveItem = () => {
   activeItem.value = 'all'
 }
 
+const fetchCount = async (api: { queryPage: (p: unknown) => Promise<{ total?: number }> }, list: typeof globalItems, idx: number) => {
+  try {
+    const resp = await api.queryPage({pageNo: 1, pageSize: 1})
+    list.value[idx].count = resp.total ?? 0
+  } catch {
+    // ignore
+  }
+}
+
+const fetchCounts = () => {
+  return Promise.all([
+    fetchCount(aiAccountApi, globalItems, 0),
+    fetchCount(aiPromptApi, globalItems, 1),
+    fetchCount(aiMcpApi, globalItems, 2),
+    fetchCount(aiToolApi, globalItems, 3),
+    fetchCount(aiTemplateApi, extraItems, 0),
+    fetchCount(aiConversationApi, extraItems, 1),
+  ])
+}
+
 onMounted(() => {
   void fetchProviders()
   void fetchEnabledExtensions()
+  void fetchCounts()
   updateActiveItem()
 })
 
@@ -263,7 +342,6 @@ watch(
   display: flex;
   flex-direction: column;
   padding: 14px 16px;
-  position: relative;
   background: var(--bg-card);
 }
 
@@ -345,6 +423,19 @@ watch(
   background: var(--primary-hover);
   color: var(--primary);
   font-weight: 500;
+  position: relative;
+}
+
+.provider-card.is-active::after {
+  content: '';
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--primary);
 }
 
 .provider-avatar {
@@ -392,10 +483,7 @@ watch(
 
 /* 全局管理区域（固定在底部） */
 .global-section {
-  position: absolute;
-  bottom: 56px;
-  left: 16px;
-  right: 16px;
+  margin-top: auto;
   padding-top: 12px;
   border-top: 1px solid var(--border-default);
 }
@@ -411,7 +499,6 @@ watch(
   transition: all 0.2s;
   position: relative;
   border: 1px solid transparent;
-  margin-bottom: 6px;
 }
 
 .global-item:hover {
@@ -426,13 +513,13 @@ watch(
   border-color: var(--primary);
 }
 
-.global-item.is-active::before {
+.global-item.is-active::after {
   content: '';
   position: absolute;
-  left: 0;
+  right: 4px;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
+  width: 4px;
   height: 16px;
   border-radius: 2px;
   background: var(--primary);
@@ -447,15 +534,58 @@ watch(
   color: var(--primary);
 }
 
+.global-label {
+  flex: 1;
+}
+
+.global-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--primary-hover);
+  padding: 1px 6px;
+  border-radius: 10px;
+  line-height: 18px;
+}
+
+/* 空状态提示 */
+.empty-provider {
+  padding: 24px 0;
+  text-align: center;
+}
+
+/* 展开/收起按钮 */
+.expand-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: var(--radius-sm);
+}
+
+.expand-toggle:hover {
+  background: var(--primary-hover);
+  color: var(--primary);
+}
+
+.expand-toggle .expand-arrow {
+  font-size: 10px;
+  transition: transform 0.25s ease;
+}
+
+.expand-toggle .expand-arrow.rotate-up {
+  transform: rotate(180deg);
+}
+
 /* 底部拓展中心入口 */
 .sidebar-footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 12px 14px;
+  flex-shrink: 0;
+  padding: 12px 0;
   border-top: 1px solid var(--border-default);
-  background: var(--bg-card);
 }
 
 .sidebar-footer .footer-row {

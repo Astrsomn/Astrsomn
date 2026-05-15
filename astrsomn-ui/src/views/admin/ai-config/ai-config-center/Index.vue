@@ -2,7 +2,7 @@
   <a-layout>
     <!-- 左侧侧边栏 -->
     <a-layout-sider class="bg-white" width="320">
-      <Sidebar @select="handleSidebarSelect"/>
+      <Sidebar @select="handleSidebarSelect" @select-provider="handleSelectProvider"/>
     </a-layout-sider>
 
     <!-- 右侧主内容区域 -->
@@ -31,7 +31,14 @@
             class="provider-detail-view"
         >
           <div class="snap-page">
-            <AgentSection :provider-key="currentProviderKey" @create="handleCreateAgent" @select="handleSelectAgent"/>
+            <AgentSection
+                :provider-key="currentProviderKey"
+                :provider-name="selectedProvider?.name"
+                :provider-description="selectedProvider?.description"
+                :provider-avatar="selectedProvider?.avatar"
+                @create="handleCreateAgent"
+                @select="handleSelectAgent"
+            />
             <div class="scroll-hint">
               <DownOutlined/>
               <span>滚动查看接入模型</span>
@@ -80,6 +87,8 @@ const globalComponents: Record<string, any> = {
   'prompts': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-prompt/PromptList.vue')),
   'mcp': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-mcp/McpList.vue')),
   'tools': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-tool/ToolList.vue')),
+  'ftl': defineAsyncComponent(() => import('@/views/admin/ai-safety/ai-template/TemplateList.vue')),
+  'conversations': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-conversation/ConversationList.vue')),
 }
 
 // 当前选中的视图类型
@@ -128,6 +137,7 @@ const isPeeking = ref(false)
 const showConfig = ref(false)
 const configAgentName = ref('')
 const configAgentId = ref<string | number | undefined>(undefined)
+const selectedProvider = ref<{ key: string; name: string; description: string; avatar: string } | null>(null)
 
 const handleCreateAgent = () => {
   configAgentId.value = undefined
@@ -195,14 +205,20 @@ watch(
     {immediate: true}
 )
 
+const handleSelectProvider = (info: { key: string; name: string; description: string; avatar: string }) => {
+  selectedProvider.value = info
+}
+
 const handleSidebarSelect = (key: string) => {
   showConfig.value = false
   const globalKeys = Object.keys(globalComponents)
 
   if (globalKeys.includes(key)) {
+    selectedProvider.value = null
     router.push({path: configCenterPath, query: {view: key, viewMode: 'grid'}})
   } else {
     if (key === 'all') {
+      selectedProvider.value = null
       router.push({path: configCenterPath, query: {}})
     } else {
       router.push({path: configCenterPath, query: {provider: key}})
