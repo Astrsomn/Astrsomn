@@ -93,7 +93,13 @@
 
       </template>
       <template v-else>
-        <a-button class="action-btn" type="primary" @click="$emit('install', item)">
+        <a-button v-if="item.installed" class="action-btn" disabled>
+          <template #icon>
+            <CheckCircleOutlined/>
+          </template>
+          已安装
+        </a-button>
+        <a-button v-else class="action-btn" type="primary" @click="$emit('install', item)">
           <template #icon>
             <DownloadOutlined/>
           </template>
@@ -110,6 +116,7 @@ import {
   AppstoreOutlined,
   BuildOutlined,
   CaretRightOutlined,
+  CheckCircleOutlined,
   CloudDownloadOutlined,
   DeleteOutlined,
   DownloadOutlined,

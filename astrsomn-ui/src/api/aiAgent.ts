@@ -3,6 +3,7 @@ import request from '@/utils/request'
 import type {AiInstance} from './aiInstance'
 
 export type AiAgent = {
+    instanceList?: AiInstance[]
     id?: number | string
     envCode?: string
     createUser?: string

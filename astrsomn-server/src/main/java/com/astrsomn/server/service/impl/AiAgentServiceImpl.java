@@ -5,6 +5,7 @@ import com.astrsomn.api.runtime.common.dto.agent.AiAgentQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.agent.AiAgentResponseDTO;
 import com.astrsomn.api.runtime.common.dto.agent.AiAgentUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO;
 import com.astrsomn.api.runtime.common.dto.prompt.AiPromptCreateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
@@ -27,9 +28,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -103,6 +103,23 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         }
 
         IPage<AiAgentResponseDTO> result = baseMapper.queryPage(page, param);
+
+        List<AiAgentResponseDTO> records = result.getRecords();
+        if (records != null && !records.isEmpty()) {
+            List<String> agentKeys = records.stream()
+                    .map(AiAgentResponseDTO::getAgentKey)
+                    .filter(StringUtils::isNotBlank)
+                    .collect(Collectors.toList());
+            if (!agentKeys.isEmpty()) {
+                List<AiInstanceResponseDTO> allInstances = aiInstanceService.queryByAgentKeys(agentKeys);
+                Map<String, List<AiInstanceResponseDTO>> grouped = allInstances.stream()
+                        .collect(Collectors.groupingBy(AiInstanceResponseDTO::getAgentKey));
+                for (AiAgentResponseDTO dto : records) {
+                    dto.setInstanceList(grouped.getOrDefault(dto.getAgentKey(), Collections.emptyList()));
+                }
+            }
+        }
+
         return PageConverter.toResponse(result);
     }
 

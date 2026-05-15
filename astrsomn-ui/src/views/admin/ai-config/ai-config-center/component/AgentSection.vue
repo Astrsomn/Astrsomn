@@ -29,9 +29,19 @@
         <h3 class="card-title">{{ agent.agentName }}</h3>
         <p class="card-description">{{ agent.description }}</p>
         <div class="card-footer">
-          <div class="model-info">
-            <component :is="RobotOutlined" class="model-icon"/>
-            <span>{{ agent.chatInstanceName }}</span>
+          <div class="instance-tags">
+            <a-tag
+                v-for="inst in (agent.instanceList || []).slice(0, 3)"
+                :key="inst.instanceKey"
+                :color="inst.modelType === 'chat' ? 'blue' : 'orange'"
+                class="instance-tag"
+            >
+              {{ inst.instanceName || inst.modelKey }}
+            </a-tag>
+            <a-tag v-if="(agent.instanceList || []).length > 3" class="instance-tag">
+              +{{ agent.instanceList.length - 3 }}
+            </a-tag>
+            <span v-if="!agent.instanceList || agent.instanceList.length === 0" class="no-instance">暂无实例</span>
           </div>
           <span class="edit-link">
             点击编辑
@@ -63,9 +73,8 @@ import {
   GlobalOutlined,
   PlusCircleOutlined,
   RightOutlined,
-  RobotOutlined,
 } from '@ant-design/icons-vue'
-import {type AiAgent, aiAgentApi, type PageResponse} from '@/api/aiAgent.ts'
+import {type AiAgent, aiAgentApi, type PageResponse} from '@/api/aiAgent'
 
 const props = defineProps<{
   providerKey?: string
@@ -308,16 +317,20 @@ void fetchAgents()
   border-top: 1px solid var(--border-default);
 }
 
-.model-info {
+.instance-tags {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
-  color: var(--text-muted);
+  flex-wrap: wrap;
 }
 
-.model-icon {
-  font-size: 10px;
+.instance-tag {
+  font-size: 11px;
+}
+
+.no-instance {
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
 .edit-link {

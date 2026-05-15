@@ -30,4 +30,7 @@ public class ExtensionMarketplaceItemDTO implements Serializable {
 
 
     private String avatar;
+
+    /** 是否已安装在本地 */
+    private boolean installed;
 }

@@ -23,6 +23,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -94,5 +96,13 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
         queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiInstanceResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
+    }
+
+    @Override
+    public List<AiInstanceResponseDTO> queryByAgentKeys(List<String> agentKeys) {
+        if (agentKeys == null || agentKeys.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return baseMapper.selectByAgentKeys(agentKeys);
     }
 }

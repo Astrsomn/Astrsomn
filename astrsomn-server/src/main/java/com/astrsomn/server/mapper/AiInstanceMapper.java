@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface AiInstanceMapper extends BaseMapper<AiInstanceEntity> {
 
@@ -15,4 +17,6 @@ public interface AiInstanceMapper extends BaseMapper<AiInstanceEntity> {
                                            @Param("req") AiInstanceQueryRequestDTO param);
 
     AiInstanceResponseDTO selectDetailDtoById(@Param("id") Long id);
+
+    List<AiInstanceResponseDTO> selectByAgentKeys(@Param("agentKeys") List<String> agentKeys);
 }

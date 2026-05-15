@@ -1,10 +1,12 @@
 package com.astrsomn.server.service.extension.base.impl;
 
 import com.astrsomn.system.dto.extension.ExtensionMarketplaceItemDTO;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.extension.base.SystemExtensionMarketService;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
@@ -16,9 +18,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 插件市场目录：调用外部 API 获取插件列表。
@@ -43,9 +44,9 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
         requestBody.put("pageNo", pageNo);
         requestBody.put("pageSize", pageSize);
 
-        Map<String, Object> data = new HashMap<>();
-        typeFilter.ifPresent(t -> data.put("type", t));
-        requestBody.put("data", data);
+        Map<String, Object> param = new HashMap<>();
+        typeFilter.ifPresent(t -> param.put("type", t));
+        requestBody.put("param", param);
 
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
@@ -55,13 +56,41 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
 
 
         try {
-            return restTemplate.exchange(MARKETPLACE_URL, HttpMethod.POST, entity,
+            PageResponse<ExtensionMarketplaceItemDTO> resp = restTemplate.exchange(MARKETPLACE_URL, HttpMethod.POST, entity,
                             new org.springframework.core.ParameterizedTypeReference<PageResponse<ExtensionMarketplaceItemDTO>>() {
                             })
                     .getBody();
+            if (resp == null || resp.getList() == null || resp.getList().isEmpty()) {
+                return resp != null ? resp : PageResponse.empty();
+            }
+            markInstalledExtensions(resp.getList());
+            return resp;
         } catch (Exception e) {
             // 如果外部 API 调用失败，返回空分页结果
             return PageResponse.empty();
+        }
+    }
+
+    private void markInstalledExtensions(List<ExtensionMarketplaceItemDTO> items) {
+        Set<String> keys = items.stream()
+                .map(ExtensionMarketplaceItemDTO::getExtensionKey)
+                .filter(k -> k != null && !k.isEmpty())
+                .collect(Collectors.toSet());
+        if (keys.isEmpty()) return;
+
+        List<SystemExtensionEntity> installed = systemExtensionService.list(
+                new LambdaQueryWrapper<SystemExtensionEntity>()
+                        .in(SystemExtensionEntity::getExtensionKey, keys)
+                        .eq(SystemExtensionEntity::getDeleted, 0)
+        );
+        Set<String> installedKeys = installed.stream()
+                .map(SystemExtensionEntity::getExtensionKey)
+                .collect(Collectors.toSet());
+
+        for (ExtensionMarketplaceItemDTO item : items) {
+            if (item.getExtensionKey() != null && installedKeys.contains(item.getExtensionKey())) {
+                item.setInstalled(true);
+            }
         }
     }
 
