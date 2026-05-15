@@ -1,4 +1,4 @@
-package com.astrsomn.starter.runtime.config;
+package com.astrsomn.starter.runtime.config.datasource;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 

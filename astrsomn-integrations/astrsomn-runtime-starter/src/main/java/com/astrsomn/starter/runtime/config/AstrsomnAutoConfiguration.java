@@ -1,1 +1,23 @@
-package com.astrsomn.starter.runtime.config;import org.springframework.boot.autoconfigure.AutoConfiguration;import org.springframework.boot.autoconfigure.AutoConfigureAfter;import org.springframework.context.annotation.ComponentScan;import org.springframework.context.annotation.Conditional;import org.springframework.context.annotation.Import;@AutoConfiguration@AutoConfigureAfter(AstrsomnPropertiesAutoConfiguration.class)@ComponentScan(basePackages = "com.astrsomn.starter")@Conditional(AstrsomnStarterRuntimeCondition.class)@Import({        AstrsomnDataSourceConfiguration.class,        MybatisPlusConfig.class})public class AstrsomnAutoConfiguration {    // 这里通常不需要写代码，仅作为组件入口}
+package com.astrsomn.starter.runtime.config;
+
+import com.astrsomn.starter.runtime.config.datasource.AstrsomnDatabaseAutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Import;
+
+/**
+ * Astrsomn runtime-starter 总入口。
+ * <p>
+ * 按职责编排两个子配置：
+ * <ul>
+ *   <li>{@link AstrsomnDatabaseAutoConfiguration} — 数据库基础设施</li>
+ *   <li>{@link AstrsomnAiAutoConfiguration} — AI 编排层</li>
+ * </ul>
+ */
+@AutoConfiguration
+@AutoConfigureAfter(AstrsomnPropertiesAutoConfiguration.class)
+@Conditional(AstrsomnStarterRuntimeCondition.class)
+@Import({AstrsomnDatabaseAutoConfiguration.class, AstrsomnAiAutoConfiguration.class})
+public class AstrsomnAutoConfiguration {
+}

@@ -2,6 +2,7 @@ package com.astrsomn.starter.runtime.config;
 
 import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.config.datasource.AstrsomnDatasourceProperties;
 import com.astrsomn.starter.runtime.context.UserContext;
 import com.astrsomn.system.entity.SystemUserEntity;
 import lombok.extern.slf4j.Slf4j;

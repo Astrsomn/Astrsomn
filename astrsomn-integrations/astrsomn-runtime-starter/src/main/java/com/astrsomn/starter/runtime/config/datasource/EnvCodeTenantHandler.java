@@ -1,5 +1,6 @@
-package com.astrsomn.starter.runtime.config;
+package com.astrsomn.starter.runtime.config.datasource;
 
+import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.Set;
 /**
  * 环境隔离租户处理器。
  * <p>
- * 表名集合由各 starter 模块通过 {@link com.astrsomn.starter.runtime.config.mybatis.AstrsomnMybatisContributor} 动态贡献，
+ * 表名集合由各 starter 模块通过 {@link com.astrsomn.api.runtime.common.mybatis.AstrsomnMybatisContributor} 动态贡献，
  * 不再硬编码。
  */
 @RequiredArgsConstructor

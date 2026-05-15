@@ -1,4 +1,4 @@
-package com.astrsomn.starter.runtime.config;
+package com.astrsomn.starter.runtime.config.datasource;
 
 import com.astrsomn.api.runtime.common.mybatis.AstrsomnMybatisContributor;
 import org.springframework.stereotype.Component;

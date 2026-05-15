@@ -1,5 +1,7 @@
-package com.astrsomn.starter.runtime.config;
+package com.astrsomn.starter.runtime.config.datasource;
 
+import com.astrsomn.starter.runtime.config.AstrsomnProperties;
+import com.astrsomn.starter.runtime.config.AstrsomnRuntimeBeans;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

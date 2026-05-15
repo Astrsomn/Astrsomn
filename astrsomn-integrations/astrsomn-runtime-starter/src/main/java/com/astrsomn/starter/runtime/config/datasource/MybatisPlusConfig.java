@@ -1,6 +1,8 @@
-package com.astrsomn.starter.runtime.config;
+package com.astrsomn.starter.runtime.config.datasource;
 
 import com.astrsomn.api.runtime.common.mybatis.AstrsomnMybatisContributor;
+import com.astrsomn.starter.runtime.config.AstrsomnProperties;
+import com.astrsomn.starter.runtime.config.AstrsomnRuntimeBeans;
 import com.astrsomn.starter.runtime.schema.SchemaInitializer;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
@@ -18,7 +20,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
