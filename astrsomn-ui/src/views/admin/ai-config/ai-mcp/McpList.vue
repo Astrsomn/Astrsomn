@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       :show-view-toggle="true"
       :view-mode="viewMode"
@@ -9,18 +9,18 @@
       title="AI MCP"
   >
     <div ref="pageRef" class="mcp-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.mcpKey"
                   button-label="搜索"
                   layout="toolbar"
                   placeholder="搜索 MCP Key"
                   @search="fetchList"
               />
-              <AstrsomnStateSwitch
+              <AstStatusSwitch
                   v-model="query.enabled"
                   :options="[
                   { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
@@ -31,13 +31,13 @@
               />
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
+              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
 
-        <AstrsomnDataView
+        <AstDataView
             :card-columns="currentGridColumns"
             :card-gap="mcpCardGap"
             :card-min-width="mcpCardMinWidth"
@@ -84,17 +84,17 @@
               </a-popconfirm>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
       <McpFormModal
           v-model:open="modal.open"
@@ -104,7 +104,7 @@
           @submit="handleFormSubmit"
       />
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
@@ -118,15 +118,15 @@ import {
   ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import McpFormModal from './McpFormModal.vue'
-import McpCard from './McpCard.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import McpFormModal from './component/McpFormModal.vue'
+import McpCard from './component/McpCard.vue'
 import {type AiMcp, aiMcpApi, type PageResponse} from '@/api/aiMcp'
 
 const props = withDefaults(defineProps<{

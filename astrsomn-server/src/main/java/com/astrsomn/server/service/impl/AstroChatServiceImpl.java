@@ -13,11 +13,13 @@ import com.astrsomn.server.service.AstroChatService;
 import com.astrsomn.starter.runtime.langchain.factory.AstroAssistantFactory;
 import com.astrsomn.starter.runtime.langchain.stream.AstroChatStreamUtil;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 
 public class AstroChatServiceImpl implements AstroChatService {
@@ -55,6 +57,7 @@ public class AstroChatServiceImpl implements AstroChatService {
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {
+            log.error("====> [Astrsomn] 对话创建失败, agentKey={}, instanceKey={}", request.getAgentKey(), request.getInstanceKey(), e);
             throw new BusinessException(AstroChatErrorEnum.CHAT_PERMISSION_DENIED, e.getMessage());
         }
     }
@@ -94,6 +97,7 @@ public class AstroChatServiceImpl implements AstroChatService {
             return chatStreamUtil.convertStreamToFlux(
                     chatAssistant.stream(param.getUserMessage(), memoryKey), param);
         } catch (Exception e) {
+            log.error("====> [Astrsomn] Builder对话创建失败", e);
             throw new BusinessException(AstroChatErrorEnum.CHAT_PERMISSION_DENIED, e.getMessage());
         }
     }

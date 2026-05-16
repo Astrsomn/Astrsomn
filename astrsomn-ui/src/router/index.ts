@@ -426,7 +426,7 @@ const adminChildren: RouteRecordRaw[] = [
             {
                 path: 'users',
                 name: 'AdminUsers',
-                component: () => import('@/views/admin/system-config/system-user/UserList.vue'),
+                component: () => import('@/views/admin/system-config/system-user/SystemUserList.vue'),
                 meta: {
                     title: '用户管理',
                     requiresAuth: true,
@@ -437,7 +437,7 @@ const adminChildren: RouteRecordRaw[] = [
             {
                 path: 'env',
                 name: 'AdminEnv',
-                component: () => import('@/views/admin/system-config/system-env/EnvList.vue'),
+                component: () => import('@/views/admin/system-config/system-env/SystemEnvList.vue'),
                 meta: {
                     title: '环境管理',
                     requiresAuth: true,
@@ -459,7 +459,7 @@ const adminChildren: RouteRecordRaw[] = [
             {
                 path: 'extensions',
                 name: 'AdminSystemExtension',
-                component: () => import('@/views/admin/system-config/system-extension/index.vue'),
+                component: () => import('@/views/admin/system-config/system-extension/SystemExtensionList.vue'),
                 meta: {
                     title: '系统扩展',
                     requiresAuth: true,
@@ -481,7 +481,7 @@ const adminChildren: RouteRecordRaw[] = [
             {
                 path: 'messages/new',
                 name: 'AdminSystemMessageNew',
-                component: () => import('@/views/admin/system-config/system-message/SystemMessageFormPage.vue'),
+                component: () => import('@/views/admin/system-config/system-message/component/SystemMessageForm.vue'),
                 meta: {
                     title: '新建系统消息',
                     requiresAuth: true,
@@ -492,7 +492,7 @@ const adminChildren: RouteRecordRaw[] = [
             {
                 path: 'messages/:id/edit',
                 name: 'AdminSystemMessageEdit',
-                component: () => import('@/views/admin/system-config/system-message/SystemMessageFormPage.vue'),
+                component: () => import('@/views/admin/system-config/system-message/component/SystemMessageForm.vue'),
                 meta: {
                     title: '编辑系统消息',
                     requiresAuth: true,
@@ -533,12 +533,7 @@ const adminChildren: RouteRecordRaw[] = [
         component: () => import('@/views/admin/ai-vector/vector-center/Index.vue'),
         meta: {title: '向量知识库管理', requiresAuth: true, showAdminDock: true, showModuleSidebar: false}
     },
-    {
-        path: 'resource-library',
-        name: 'AdminResourceLibrary',
-        component: () => import('@/views/resource-library/Index.vue'),
-        meta: {title: '资源库', requiresAuth: true, showAdminDock: false, showModuleSidebar: false}
-    },
+
 
     {path: 'ai-config-center', redirect: {path: '/admin/ai-config'}},
     {path: 'builder', redirect: {path: '/admin/ai-config/builder'}},

@@ -19,6 +19,7 @@ public class AiVecDocEntity extends BaseEntity<Long> {
 
 
     @TableField("COLLECTION_ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long collectionId;
 
 
@@ -39,11 +40,35 @@ public class AiVecDocEntity extends BaseEntity<Long> {
 
 
     @TableField("FILE_RECORD_ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long fileRecordId;
 
 
     @TableField("ORIGINAL_FILE_NAME")
     private String originalFileName;
 
+
+    @TableField("VECTORIZE_PROGRESS")
+    private Integer vectorizeProgress;
+
+
+    @TableField("VECTORIZE_MSG")
+    private String vectorizeMsg;
+
+
+    @TableField("VECTORIZE_TASK_ID")
+    private String vectorizeTaskId;
+
+
+    @TableField("TOTAL_SEGMENTS")
+    private Integer totalSegments;
+
+
+    @TableField("DONE_SEGMENTS")
+    private Integer doneSegments;
+
+    @TableField("FOLDER_ID")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long folderId;
 
 }

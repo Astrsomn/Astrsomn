@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnPageShell description="调用发布接口发布流程。" empty-text="" title="流程发布">
+  <AstPageShell description="调用发布接口发布流程。" empty-text="" title="流程发布">
     <div class="form-page">
       <a-form :model="form" class="publish-form" layout="vertical" @finish="onSubmit">
         <a-row :gutter="16">
@@ -23,13 +23,13 @@
         <a-button :loading="submitting" class="primary-btn" html-type="submit" type="primary">发布</a-button>
       </a-form>
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {reactive, ref} from 'vue'
 import {message} from 'ant-design-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
 import {aiWorkflowRuntimeApi} from '@/api/aiWorkflowRuntime'
 
 const submitting = ref(false)

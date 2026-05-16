@@ -2,6 +2,9 @@ package com.astrsomn.starter.runtime.langchain.runtime.chain.handler;
 
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.langchain.exception.ErrorCode;
+import com.astrsomn.starter.runtime.langchain.exception.InvalidRouteConfigException;
+import com.astrsomn.starter.runtime.langchain.exception.ModelNotFoundException;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeChainHandler;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeContext;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
@@ -25,8 +28,8 @@ public class ResolveModelChainHandler implements AgentRuntimeChainHandler {
     public void handle(AgentRuntimeContext ctx) {
         String modelKey = StringUtils.trimToNull(ctx.getParam().getModelKey());
         if (modelKey == null) {
-            throw new IllegalStateException(
-                    "未解析到模型 Key：请配置实例 MODEL_KEY，或在当前环境下维护一条 IS_DEFAULT=1 且 MODEL_TYPE=chat 的 AI_MODEL 记录");
+            throw new InvalidRouteConfigException(ErrorCode.MODEL_KEY_MISSING,
+                    "Please configure instance MODEL_KEY, or maintain an AI_MODEL record with IS_DEFAULT=1 and MODEL_TYPE=chat");
         }
         AiModelEntity model = aiModelMapper.selectOne(
                 new LambdaQueryWrapper<AiModelEntity>()
@@ -35,8 +38,7 @@ public class ResolveModelChainHandler implements AgentRuntimeChainHandler {
                         .eq(AiModelEntity::getDeleted, false)
                         .last("LIMIT 1"));
         if (model == null) {
-            throw new IllegalStateException(
-                    "未找到模型配置: modelKey=" + modelKey + ", envCode=" + ctx.getEnvCode());
+            throw new ModelNotFoundException(modelKey, ctx.getEnvCode());
         }
         ctx.setModel(model);
         RuntimeChatParamMergeSupport.mergeModelSettingFromModel(ctx.getParam().getModelSetting(), model);

@@ -1,22 +1,22 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       description="管理系统配置项（SYSTEM_CONFIG），支持按分组维护运行时参数。"
       empty-text="暂无系统配置。"
       title="系统配置"
   >
     <div class="config-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.configKey"
                   placeholder="配置 Key"
                   @search="fetchList"
               />
 
-              <AstrsomnStateSwitch
+              <AstStatusSwitch
                   v-model="query.status"
                   :options="statusOptions"
                   @change="handleStatusChange"
@@ -24,12 +24,12 @@
             </div>
 
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="actionButtons"/>
+              <AstegmentedButton :buttons="actionButtons"/>
             </div>
           </div>
         </template>
 
-        <AstrsomnDataView
+        <AstDataView
             :columns="columns"
             :data-source="list"
             :loading="loading"
@@ -71,19 +71,19 @@
               <a-button v-else disabled type="link">删除</a-button>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
-      <SystemConfigFormModal
+      <SystemConfigForm
           v-model:open="modal.open"
           :confirm-loading="modal.submitting"
           :initial="modalInitial"
@@ -91,21 +91,21 @@
           @submit="handleFormSubmit"
       />
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {computed, reactive, ref} from 'vue'
 import {message} from 'ant-design-vue'
 import {AppstoreOutlined, CheckCircleOutlined, DeleteOutlined, PlusOutlined, StopOutlined} from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
-import SystemConfigFormModal from './SystemConfigFormModal.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import SystemConfigForm from './component/SystemConfigForm.vue'
 import {type PageResponse, type SystemConfig, systemConfigApi} from '@/api/systemConfig.ts'
 
 const breadcrumbs = [

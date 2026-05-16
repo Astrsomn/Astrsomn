@@ -29,7 +29,7 @@
             </a-select>
           </a-form-item>
           <a-form-item class="fi-key" label="标识符 (Agent Key)">
-            <AstrsomnKeyGenerator
+            <AstKeyGenerator
                 v-model="agentForm.agentKey"
                 :prefix="AI_AGENT_KEY_PREFIX"
                 placeholder="唯一 ID"
@@ -208,7 +208,7 @@ import type {AiMcp} from '@/api/aiMcp'
 import type {AiPrompt} from '@/api/aiPrompt'
 import type {AssemblyAgentForm, AssemblyDragPayload, AssemblySlotKey} from './assemblyTypes'
 import AssemblyDropZone from './AssemblyDropZone.vue'
-import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
+import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
 const memoryModeOptions = [

@@ -171,13 +171,11 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
             throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
 
-        String beautified = promptAssistant.submit(rawContent, UUID.randomUUID().toString());
-
         String env = queryEnvParamHelper.effectiveEnvCode();
         String promptKey = StringUtils.trimToNull(request.getPromptKey());
 
         AiPromptEntity entity = new AiPromptEntity();
-        entity.setPromptContent(beautified);
+        entity.setPromptContent(request.getPromptContent());
         entity.setPromptTitle(request.getPromptTitle());
         entity.setScene(request.getScene());
         entity.setEnvCode(env);

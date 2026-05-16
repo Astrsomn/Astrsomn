@@ -1,15 +1,15 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
       title="模型管理"
   >
     <div class="model-page-container">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.modelName"
                   layout="toolbar"
                   placeholder="搜索模型名称"
@@ -23,10 +23,10 @@
                   @update:value="handleProviderChange"
               />
 
-              <AstrsomnStateSwitch v-model="query.status" @change="fetchList"/>
+              <AstStatusSwitch v-model="query.status" @change="fetchList"/>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
+              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
@@ -43,7 +43,7 @@
           <a-tab-pane key="image" tab="图片"/>
         </a-tabs>
 
-        <AstrsomnDataView
+        <AstDataView
             :columns="columns"
             :data-source="list"
             :loading="loading"
@@ -141,19 +141,19 @@
               </a-space>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
-      <ModelFormModal
+      <ModelForm
           v-model:open="modal.open"
           :confirm-loading="modal.submitting"
           :initial-data="modalInitialData"
@@ -164,7 +164,7 @@
 
 
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 <script lang="ts" setup>
 import {computed, onMounted, reactive, ref} from 'vue'
@@ -181,15 +181,15 @@ import {
   SearchOutlined,
   SwapOutlined
 } from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import ModelFormModal from './ModelFormModal.vue'
-import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
+import ModelForm from './component/ModelForm.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
 import {useDictionary} from '@/locales/dictionary'
 import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts'

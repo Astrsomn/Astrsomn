@@ -4,6 +4,7 @@ import com.astrsomn.api.vector.dto.vecdoc.AiVecDocCreateRequestDTO;
 import com.astrsomn.api.vector.dto.vecdoc.AiVecDocQueryRequestDTO;
 import com.astrsomn.api.vector.dto.vecdoc.AiVecDocResponseDTO;
 import com.astrsomn.api.vector.dto.vecdoc.AiVecDocUpdateRequestDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocVectorizeProgressDTO;
 import com.astrsomn.api.vector.entity.AiVecDocEntity;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
@@ -18,7 +19,7 @@ public interface AiVecDocService extends IService<AiVecDocEntity> {
     /**
      * 保存上传文件并插入待向量化文档记录。
      */
-    BaseResponse<AiVecDocResponseDTO> upload(MultipartFile file, Long collectionId);
+    BaseResponse<AiVecDocResponseDTO> upload(MultipartFile file, Long collectionId, Long folderId);
 
     /**
      * 将待向量化文档读入、切分、嵌入并写入向量库与切片表。
@@ -32,4 +33,8 @@ public interface AiVecDocService extends IService<AiVecDocEntity> {
     PageResponse<AiVecDocResponseDTO> queryPage(BasePageRequest<AiVecDocQueryRequestDTO> request);
 
     BaseResponse<AiVecDocResponseDTO> detail(Long id);
+
+    AiVecDocVectorizeProgressDTO getVectorizeProgress(Long id);
+
+    BaseResponse<String> reVectorize(Long id);
 }

@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnDrawerShell
+  <AstDrawer
       :destroy-on-close="true"
       :mask-closable="true"
       :open="open"
@@ -86,7 +86,7 @@
                 size="large"
             >
               <template v-if="paramMeta[code].prefix" #prefix>
-                <component :is="paramMeta[code].prefix" style="color: #bfbfbf"/>
+                <component :is="paramMeta[code].prefix" style="color: var(--text-muted)"/>
               </template>
             </a-input-password>
             <a-input
@@ -96,7 +96,7 @@
                 size="large"
             >
               <template v-if="paramMeta[code].prefix" #prefix>
-                <component :is="paramMeta[code].prefix" style="color: #bfbfbf"/>
+                <component :is="paramMeta[code].prefix" style="color: var(--text-muted)"/>
               </template>
             </a-input>
           </a-form-item>
@@ -133,7 +133,7 @@
         保存
       </a-button>
     </template>
-  </AstrsomnDrawerShell>
+  </AstDrawer>
 </template>
 
 <script lang="ts" setup>
@@ -152,8 +152,8 @@ import {
   UserOutlined
 } from '@ant-design/icons-vue'
 import type {FormInstance, Rule} from 'ant-design-vue/es/form'
-import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
-import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
+import AstDrawer from '@/components/home/AstDrawer.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import type {AiVecSource} from '@/api/aiVecSource.ts'
 import {aiVecSourceApi} from '@/api/aiVecSource.ts'
 
@@ -323,7 +323,7 @@ function onOpenChange(val: boolean) {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .status-segmented {
@@ -336,16 +336,16 @@ function onOpenChange(val: boolean) {
 }
 
 .json-editor-wrapper {
-  border: 1px solid #d9d9d9;
-  border-radius: 8px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
   overflow: hidden;
-  background: #fafafa;
+  background: var(--bg-input);
   transition: 0.3s;
 }
 
 .json-editor-wrapper:focus-within {
-  border-color: #10b981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+  border-color: var(--success);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
 }
 
 .mono-text {

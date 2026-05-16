@@ -49,12 +49,24 @@ public class AiVecDocController extends BaseController {
 
     @PostMapping("/upload")
     public BaseResponse<AiVecDocResponseDTO> upload(
-            @RequestParam("file") MultipartFile file, @RequestParam("collectionId") Long collectionId) {
-        return aiVecDocService.upload(file, collectionId);
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("collectionId") Long collectionId,
+            @RequestParam(value = "folderId", required = false) Long folderId) {
+        return aiVecDocService.upload(file, collectionId, folderId);
     }
 
     @PostMapping("/vectorize")
     public BaseResponse<String> vectorize(@RequestBody AiVecDocVectorizeRequestDTO request) {
         return aiVecDocService.vectorize(request.getId());
+    }
+
+    @GetMapping("/vectorize-progress")
+    public BaseResponse<AiVecDocVectorizeProgressDTO> vectorizeProgress(@RequestParam("id") Long id) {
+        return BaseResponse.success(aiVecDocService.getVectorizeProgress(id));
+    }
+
+    @PostMapping("/re-vectorize")
+    public BaseResponse<String> reVectorize(@RequestBody AiVecDocVectorizeRequestDTO request) {
+        return aiVecDocService.reVectorize(request.getId());
     }
 }

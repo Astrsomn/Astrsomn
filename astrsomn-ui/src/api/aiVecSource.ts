@@ -1,5 +1,14 @@
 import request from '@/utils/request'
 
+export type AiVecDriverDTO = {
+    extensionKey: string
+    driverName?: string
+    provider?: string
+    version?: string
+    author?: string
+    source?: string
+}
+
 export type AiVecSource = {
     id?: number | string
     name?: string
@@ -86,6 +95,14 @@ export const aiVecSourceApi = {
             url: '/v1/astro/ai-vec-source/set-status',
             method: 'post',
             data: {id, enabled}
+        })
+    },
+
+    /** 获取所有可用的向量驱动 */
+    availableDrivers: (): Promise<AiVecDriverDTO[]> => {
+        return request({
+            url: '/v1/astro/ai-vec-source/available-drivers',
+            method: 'get'
         })
     }
 }

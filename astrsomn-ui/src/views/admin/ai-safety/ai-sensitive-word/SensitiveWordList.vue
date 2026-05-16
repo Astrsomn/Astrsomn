@@ -1,12 +1,12 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       description="配置敏感词、注入检测与风控策略。"
       empty-text="暂无安全策略。"
       title="安全治理"
   >
     <div class="sensitive-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
@@ -133,7 +133,7 @@
         </template>
 
 
-        <AstrsomnDataView
+        <AstDataView
             :columns="columns"
             :data-source="list"
             :loading="loading"
@@ -178,17 +178,17 @@
               </a-popconfirm>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
       <SensitiveWordFormModal
           v-model:open="modal.open"
@@ -198,7 +198,7 @@
           @submit="handleFormSubmit"
       />
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
@@ -214,10 +214,10 @@ import {
   StopOutlined,
   TagsOutlined
 } from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
 import SensitiveWordFormModal from './SensitiveWordFormModal.vue'
 import {type AiSensitiveWord, aiSensitiveWordApi, type PageResponse} from '@/api/aiSensitiveWord.ts'
 

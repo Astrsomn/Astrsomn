@@ -54,7 +54,7 @@ export function getTempInfo(v: number): TempInfo {
 }
 
 /**
- * Drives InstanceForm/Center param visibility from the currently selected AI_MODEL row.
+ * Drives InstanceForm/InstanceParam param visibility from the currently selected AI_MODEL row.
  */
 export function useInstanceParamVisibility(selectedModel: Ref<AiModel | undefined>) {
     const selectedCaps = computed(() => parseCapabilitiesRaw(selectedModel.value?.capabilities))

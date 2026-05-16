@@ -8,6 +8,7 @@ export interface AiVecStore {
     distanceMetric: string
     metadataSchema?: string
     instanceKey?: string
+    modelKey?: string
     sourceName?: string
     sourceProvider?: string
     instanceName?: string
@@ -21,6 +22,8 @@ export interface AiVecStoreStats {
     segmentCount: number
     totalWordCount: number
     lastSyncTime?: string
+    physicalVectorCount?: number
+    collectionExists?: boolean
 }
 
 export interface PageResponse<T> {
@@ -39,23 +42,23 @@ export interface AiVecStoreQueryRequest {
 
 export const aiVecStoreApi = {
     async create(data: AiVecStore): Promise<string> {
-        const res = await request.post<{ message: string }>('/v1/astro/ai-vec-store/create', data)
-        return res.message
+        const res = await request.post<string>('/v1/astro/ai-vec-store/create', data)
+        return res
     },
 
     async update(data: AiVecStore): Promise<string> {
-        const res = await request.post<{ message: string }>('/v1/astro/ai-vec-store/update', data)
-        return res.message
+        const res = await request.post<string>('/v1/astro/ai-vec-store/update', data)
+        return res
     },
 
     async delete(ids: Array<number | string>): Promise<string> {
-        const res = await request.delete<{ message: string }>(`/v1/astro/ai-vec-store/delete/${ids.join(',')}`)
-        return res.message
+        const res = await request.delete<string>(`/v1/astro/ai-vec-store/delete/${ids.join(',')}`)
+        return res
     },
 
     async detail(id: number | string): Promise<AiVecStore> {
-        const res = await request.get<{ data: AiVecStore }>(`/v1/astro/ai-vec-store/detail?id=${id}`)
-        return res.data
+        const res = await request.get<AiVecStore>(`/v1/astro/ai-vec-store/detail?id=${id}`)
+        return res
     },
 
     async queryPage(params: {
@@ -68,7 +71,7 @@ export const aiVecStoreApi = {
     },
 
     async stats(id: number | string): Promise<AiVecStoreStats> {
-        const res = await request.get<{ data: AiVecStoreStats }>(`/v1/astro/ai-vec-store/stats?id=${id}`)
-        return res.data
+        const res = await request.get<AiVecStoreStats>(`/v1/astro/ai-vec-store/stats?id=${id}`)
+        return res
     }
 }

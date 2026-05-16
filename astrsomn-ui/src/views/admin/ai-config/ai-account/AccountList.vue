@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       :show-view-toggle="true"
       :view-mode="viewMode"
@@ -9,11 +9,11 @@
       title="凭证管理"
   >
     <div ref="pageRef" class="account-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.accountName"
                   button-label="查询"
                   layout="toolbar"
@@ -32,13 +32,13 @@
               </div>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
+              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
 
-        <AstrsomnDataView
+        <AstDataView
             :card-columns="currentGridColumns"
             :card-gap="accountCardGap"
             :card-min-width="accountCardMinWidth"
@@ -114,17 +114,17 @@
               </a-space>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
       <AccountForm
           v-model:visible="formVisible"
@@ -138,23 +138,23 @@
         :loading="modelsDrawer.loading"
         :models="modelsDrawer.models"
     />
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import {message, Modal} from 'ant-design-vue'
 import {DeleteOutlined, EditOutlined, LinkOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
-import AccountForm from './AccountForm.vue'
-import AccountModelsDrawer from './AccountModelsDrawer.vue'
-import AccountCard from './AccountCard.vue'
-import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AccountForm from './component/AccountForm.vue'
+import AccountModelsDrawer from './component/AccountModelsDrawer.vue'
+import AccountCard from './component/AccountCard.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import {type AiAccount, aiAccountApi, type PageResponse} from '@/api/aiAccount'
 import type {AiModel} from '@/api/aiModel'
 

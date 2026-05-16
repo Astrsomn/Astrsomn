@@ -2,6 +2,8 @@ package com.astrsomn.starter.runtime.langchain.route;
 
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelEndpoint;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelRouteSetting;
+import com.astrsomn.starter.runtime.langchain.exception.AllEndpointsFailedException;
+import com.astrsomn.starter.runtime.langchain.exception.NoAvailableEndpointException;
 import dev.langchain4j.model.ModelProvider;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
@@ -72,13 +74,13 @@ public class CompositeStreamingChatModel implements StreamingChatModel {
             int callNo) {
         int maxAttempts = Math.max(1, Math.min(route.getFailoverMaxAttempts(), delegates.size()));
         if (attempt >= maxAttempts) {
-            handler.onError(new IllegalStateException("All streaming endpoints failed after " + attempt + " attempts"));
+            handler.onError(new AllEndpointsFailedException(attempt));
             return;
         }
         ModelRouteSelectionInput input = new ModelRouteSelectionInput(ctx, attempt, callNo, endpoints);
         int idx = selection.select(input, excluded);
         if (idx < 0 || idx >= delegates.size()) {
-            handler.onError(new IllegalStateException("No streaming endpoint available"));
+            handler.onError(new NoAvailableEndpointException("No streaming endpoint available"));
             return;
         }
         AtomicBoolean anyChunk = new AtomicBoolean(false);

@@ -1,83 +1,31 @@
 <template>
-  <a-layout>
+  <div class="config-center-layout">
     <!-- 左侧侧边栏 -->
-    <a-layout-sider class="bg-white" width="320">
-      <Sidebar @select="handleSidebarSelect" @select-provider="handleSelectProvider"/>
-    </a-layout-sider>
+    <div class="config-center-sider">
+      <Sidebar
+          @select="handleSidebarSelect"
+          @select-provider="handleSelectProvider"
+          @update:collapsed="sidebarCollapsed = $event"
+      />
+    </div>
 
     <!-- 右侧主内容区域 -->
-    <a-layout-content class="bg-gray-50">
-      <transition mode="out-in" name="fade">
-        <!-- 全局管理页面 -->
-        <component
-            :is="currentGlobalComponent"
-            v-if="currentViewType === 'global'"
-            :key="currentViewKey"
-            :initial-view-mode="initialViewMode"
-        />
-        <!-- Agent 配置页 -->
-        <AgentConfig
-            v-else-if="showConfig"
-            :agent-id="configAgentId"
-            :agent-name="configAgentName"
-            @back="handleConfigBack"
-        />
-        <!-- 指定提供商：Agent + Model 磁吸翻页 -->
-        <div
-            v-else-if="currentProviderKey !== 'all'"
-            :key="currentProviderKey"
-            ref="snapContainerRef"
-            :class="{ 'is-peeking': isPeeking }"
-            class="provider-detail-view"
-        >
-          <div class="snap-page">
-            <AgentSection
-                :provider-key="currentProviderKey"
-                :provider-name="selectedProvider?.name"
-                :provider-description="selectedProvider?.description"
-                :provider-avatar="selectedProvider?.avatar"
-                @create="handleCreateAgent"
-                @select="handleSelectAgent"
-            />
-            <div class="scroll-hint">
-              <DownOutlined/>
-              <span>滚动查看接入模型</span>
-              <DownOutlined/>
-            </div>
-          </div>
-          <div class="snap-page">
-            <ModelSection :provider-key="currentProviderKey"/>
-          </div>
-        </div>
-        <!-- 全部 Agent + Model 磁吸翻页 -->
-        <div
-            v-else
-            key="all"
-            ref="snapContainerRef"
-            :class="{ 'is-peeking': isPeeking }"
-            class="provider-detail-view"
-        >
-          <div class="snap-page">
-            <AgentSection provider-key="all" @create="handleCreateAgent" @select="handleSelectAgent"/>
-          </div>
-          <div class="snap-page">
-            <ModelSection provider-key="all"/>
-          </div>
-        </div>
-      </transition>
-    </a-layout-content>
-  </a-layout>
+    <Main
+        :current-view-type="currentViewType"
+        :current-view-key="currentViewKey"
+        :current-global-component="currentGlobalComponent"
+        :initial-view-mode="initialViewMode"
+        :current-provider-key="currentProviderKey"
+        :selected-provider="selectedProvider"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, defineAsyncComponent, nextTick, ref, watch} from 'vue'
+import {computed, defineAsyncComponent, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import {DownOutlined} from '@ant-design/icons-vue'
 import Sidebar from './component/Sidebar.vue'
-import AgentSection from './component/AgentSection.vue'
-import ModelSection from './component/ModelSection.vue'
-import AgentConfig from './component/AgentConfig.vue'
-import type {AiAgent} from '@/api/aiAgent'
+import Main from './component/Main.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -132,85 +80,14 @@ const initialViewMode = computed<'grid' | 'list'>(() => {
 
 const configCenterPath = '/admin/ai-config-center'
 
-const snapContainerRef = ref<HTMLDivElement | null>(null)
-const isPeeking = ref(false)
-const showConfig = ref(false)
-const configAgentName = ref('')
-const configAgentId = ref<string | number | undefined>(undefined)
+const sidebarCollapsed = ref(false)
 const selectedProvider = ref<{ key: string; name: string; description: string; avatar: string } | null>(null)
-
-const handleCreateAgent = () => {
-  configAgentId.value = undefined
-  configAgentName.value = '新 Agent'
-  showConfig.value = true
-}
-
-const handleSelectAgent = (agent: AiAgent) => {
-  configAgentId.value = agent.id
-  configAgentName.value = agent.agentName || 'Agent'
-  showConfig.value = true
-}
-
-const handleConfigBack = () => {
-  showConfig.value = false
-  configAgentName.value = ''
-  configAgentId.value = undefined
-}
-
-const playPeekScroll = async () => {
-  await nextTick()
-  await new Promise((r) => setTimeout(r, 300))
-  const el = snapContainerRef.value
-  if (!el) return
-
-  isPeeking.value = true
-
-  const target = el.scrollHeight
-  const duration = 600
-  const stay = 300
-  const start = performance.now()
-  const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2)
-
-  const animate = (now: number) => {
-    const progress = Math.min((now - start) / duration, 1)
-    el.scrollTop = target * easeInOut(progress)
-    if (progress < 1) {
-      requestAnimationFrame(animate)
-    } else {
-      setTimeout(() => {
-        const backStart = performance.now()
-        const animateBack = (now2: number) => {
-          const p = Math.min((now2 - backStart) / duration, 1)
-          el.scrollTop = target * (1 - easeInOut(p))
-          if (p < 1) {
-            requestAnimationFrame(animateBack)
-          } else {
-            isPeeking.value = false
-          }
-        }
-        requestAnimationFrame(animateBack)
-      }, stay)
-    }
-  }
-  requestAnimationFrame(animate)
-}
-
-watch(
-    () => currentProviderKey.value,
-    (val) => {
-      if (val && val !== 'all') {
-        playPeekScroll()
-      }
-    },
-    {immediate: true}
-)
 
 const handleSelectProvider = (info: { key: string; name: string; description: string; avatar: string }) => {
   selectedProvider.value = info
 }
 
 const handleSidebarSelect = (key: string) => {
-  showConfig.value = false
   const globalKeys = Object.keys(globalComponents)
 
   if (globalKeys.includes(key)) {
@@ -228,79 +105,15 @@ const handleSidebarSelect = (key: string) => {
 </script>
 
 <style scoped>
-.ant-layout {
+.config-center-layout {
   height: calc(100vh - 60px);
-  background-color: var(--bg-surface);
-}
-
-.ant-layout-sider {
-  height: 100%;
+  display: flex;
   overflow: hidden;
-  background-color: var(--bg-card);
-  flex-shrink: 0;
-}
-
-.ant-layout-content {
-  height: 100%;
-  overflow-y: auto;
   background-color: var(--bg-surface);
 }
 
-/* 视图切换动画 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.fade-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-/* 磁吸翻页容器 */
-.provider-detail-view {
-  height: 100%;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-}
-
-.provider-detail-view.is-peeking {
-  scroll-snap-type: none;
-}
-
-/* 每一页占满视口高度 */
-.snap-page {
-  height: calc(100vh - 60px);
-  scroll-snap-align: start;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 底部滚动提示 */
-.scroll-hint {
+.config-center-sider {
+  overflow: hidden;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 16px 0 24px;
-  font-size: 12px;
-  color: var(--text-muted);
-  animation: hint-bounce 2s ease-in-out infinite;
-}
-
-@keyframes hint-bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(6px);
-  }
 }
 </style>

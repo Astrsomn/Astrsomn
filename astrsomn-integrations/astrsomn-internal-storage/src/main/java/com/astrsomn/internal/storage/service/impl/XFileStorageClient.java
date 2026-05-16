@@ -162,7 +162,17 @@ public class XFileStorageClient implements AstrsomnStorageClient {
             return;
         }
         try {
-            fileStorageService.delete(objectKey);
+            FileInfo fileInfo = new FileInfo();
+            fileInfo.setPlatform(platform);
+            int lastSlash = objectKey.lastIndexOf('/');
+            if (lastSlash >= 0) {
+                fileInfo.setPath(objectKey.substring(0, lastSlash + 1));
+                fileInfo.setFilename(objectKey.substring(lastSlash + 1));
+            } else {
+                fileInfo.setPath("");
+                fileInfo.setFilename(objectKey);
+            }
+            fileStorageService.delete(fileInfo);
         } catch (Exception e) {
             log.warn("x-file-storage delete failed key={} platform={}", objectKey, platform, e);
             throw new BusinessException(AstFileErrorEnum.FILE_DELETE_FAILED, e.getMessage());

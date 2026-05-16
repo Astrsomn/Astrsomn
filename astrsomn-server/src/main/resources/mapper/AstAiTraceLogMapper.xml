@@ -24,15 +24,15 @@
         <if test="req != null and req.promptId != null">
             AND PROMPT_ID = #{req.promptId}
         </if>
-        <if test="req != null and req.agentKey != null and req.agentKey != ''">
-            AND AGENT_KEY = #{req.agentKey}
+        <if test="req != null and req.bizKey != null and req.bizKey != ''">
+            AND BIZ_KEY = #{req.bizKey}
         </if>
         <if test="req != null and req.nodeType != null and req.nodeType != ''">
             AND NODE_TYPE = #{req.nodeType}
         </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND STATUS = #{req.status}
-        </if>
+        </if>
         <if test="req != null and req.createUser != null and req.createUser != ''">
             AND CREATE_USER = #{req.createUser}
         </if>

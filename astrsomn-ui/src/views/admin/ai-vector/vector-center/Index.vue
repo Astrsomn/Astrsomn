@@ -1,55 +1,43 @@
 <template>
-
-
-  <a-layout>
-    <!-- 侧边栏 -->
-    <a-layout-sider class="bg-white border-r" width="320">
-      <Left
+  <div class="vector-center-layout">
+    <!-- 侧边栏固定 -->
+    <div class="vector-center-sider">
+      <Sidebar
+          :collapsed="sidebarCollapsed"
           :selected-store-id="selectedStoreId"
           :sources="sources"
           :stores="stores"
           @changed="handleTreeChanged"
           @select-source="handleSelectSource"
           @select-store="handleSelectStore"
+          @toggle-collapse="sidebarCollapsed = !sidebarCollapsed"
       />
-    </a-layout-sider>
+    </div>
 
     <!-- 主内容区 -->
-    <a-layout-content class="bg-gray-50">
-      <div v-if="!selectedSourceId" class="empty-state">
-        请先在左侧选择数据源
-      </div>
-      <div v-else-if="!selectedStoreId" class="empty-state">
-        请先在左侧选择数据库
-      </div>
-      <template v-else>
-        <RightTop :source="selectedSource" :store="selectedStore" @updated="handleStoreUpdated"/>
-        <RightCenter
-            :docs="docs"
-            :selected-doc-id="selectedDocId"
-            :store-id="selectedStoreId"
-            @changed="handleDocChanged"
-            @select-doc="handleSelectDoc"
-        />
-        <RightBottom
-            :doc-id="selectedDocId"
-            :segments="segments"
-            :store-id="selectedStoreId"
-            @changed="handleBottomChanged"
-        />
-      </template>
-    </a-layout-content>
-  </a-layout>
-
+    <Main
+        :selected-source-id="selectedSourceId"
+        :selected-store-id="selectedStoreId"
+        :selected-source="selectedSource"
+        :selected-store="selectedStore"
+        :docs="docs"
+        :segments="segments"
+        :selected-doc-id="selectedDocId"
+        @store-updated="handleStoreUpdated"
+        @doc-changed="handleDocChanged"
+        @select-doc="handleSelectDoc"
+        @bottom-changed="handleBottomChanged"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
-import {onMounted} from 'vue'
-import Left from '@/views/admin/ai-vector/vector-center/component/Left.vue'
-import RightTop from '@/views/admin/ai-vector/vector-center/component/RightTop.vue'
-import RightCenter from '@/views/admin/ai-vector/vector-center/component/RightCenter.vue'
-import RightBottom from '@/views/admin/ai-vector/vector-center/component/RightBottom.vue'
-import {useVectorCenterState} from '@/views/admin/ai-vector/vector-center/hooks/useVectorCenterState.ts'
+import {onMounted, ref} from 'vue'
+import Sidebar from '@/views/admin/ai-vector/vector-center/component/Sidebar.vue'
+import Main from '@/views/admin/ai-vector/vector-center/component/Main.vue'
+import {useVectorCenterState} from '@/views/admin/ai-vector/vector-center/hooks/useVectorCenterState'
+
+const sidebarCollapsed = ref(false)
 
 const {
   sources,
@@ -116,26 +104,57 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* 整体布局样式 */
-.ant-layout {
+/* 整体布局占满视口，阻止父容器滚动 */
+.vector-center-layout {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+/* 侧边栏固定 */
+.vector-center-sider {
+  overflow: hidden;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+/* 右侧主内容区 */
+.vector-center-main {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background-color: var(--bg-surface);
 }
 
-/* 主内容区样式 */
-.ant-layout-content {
-  padding: 0;
+/* 右侧顶部固定 */
+.vector-center-top {
+  flex-shrink: 0;
+}
+
+/* 右侧可滚动内容区 */
+.vector-center-content {
+  flex: 1;
   overflow-y: auto;
   background-color: var(--bg-surface);
+  scroll-snap-type: y mandatory;
 }
 
-/* 侧边栏样式 */
-.ant-layout-sider {
-  background-color: var(--bg-card);
-  border-right: 1px solid var(--border-default);
+/* 磁吸分区 */
+.snap-section {
+  min-height: 100%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
 }
 
 .empty-state {
-  min-height: calc(100vh - 120px);
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;

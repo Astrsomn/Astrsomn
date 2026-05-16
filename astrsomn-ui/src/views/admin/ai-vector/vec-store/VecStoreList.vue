@@ -3,7 +3,7 @@
 
 
     <div class="store-content">
-      <AstrsomnPageShell
+      <AstPageShell
           :description="currentSourceDescription"
           :title="currentSourceTitle"
           empty-text="暂无向量存储配置。"
@@ -16,9 +16,9 @@
           <p>在左侧边栏选择一个向量源，以管理其对应的向量存储配置</p>
         </div>
         <div v-else class="vec-store-page">
-          <AstrsomnListToolbar>
+          <AstListToolbar>
             <template #left>
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.collectionName"
                   button-label="搜索"
                   layout="toolbar"
@@ -28,11 +28,11 @@
             </template>
 
             <template #right>
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
+              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
             </template>
-          </AstrsomnListToolbar>
+          </AstListToolbar>
 
-          <AstrsomnOverview
+          <AstOverview
               :all-current-selected="allCurrentSelected"
               :list-length="list.length"
               :part-current-selected="partCurrentSelected"
@@ -117,7 +117,7 @@
               @submit="handleFormSubmit"
           />
         </div>
-      </AstrsomnPageShell>
+      </AstPageShell>
     </div>
   </div>
 </template>
@@ -126,11 +126,11 @@
 import {computed, onMounted, reactive, ref, watch} from 'vue'
 import {message, Modal} from 'ant-design-vue'
 import {DatabaseOutlined, DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnListToolbar from '@/components/home/AstrsomnListToolbar.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstListToolbar from '@/components/home/AstListToolbar.vue'
+import AstOverview from '@/components/home/AstOverview.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 
 import VecStoreFormModal from './VecStoreFormModal.vue'
 import {type AiVecStore, aiVecStoreApi, type PageResponse} from '@/api/aiVecStore.ts'

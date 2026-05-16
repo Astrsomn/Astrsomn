@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type {ChatSessionItem} from '@/components/chat-session/types'
+import type {ChatSessionItem} from '@/views/chat-index/utils/types.ts'
 
 export type AiChatSession = {
     id?: number | string

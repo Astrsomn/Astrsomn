@@ -22,8 +22,8 @@ public class AiInstanceEntity extends BaseEntity<Long> {
     @TableField("INSTANCE_KEY")
     private String instanceKey;
 
-    @TableField("AGENT_KEY")
-    private String agentKey;
+    @TableField("BIZ_KEY")
+    private String bizKey;
 
     @TableField("INSTANCE_NAME")
     private String instanceName;

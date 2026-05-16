@@ -1,12 +1,12 @@
 <template>
-  <AstrsomnPageShell description="用于防重复提交：按幂等键、业务类型与业务 ID 查询与清理。" empty-text="暂无幂等记录。"
+  <AstPageShell description="用于防重复提交：按幂等键、业务类型与业务 ID 查询与清理。" empty-text="暂无幂等记录。"
                      title="业务幂等">
     <div class="page-wrap">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill v-model="query.idempotentKey" placeholder="搜索幂等键 idempotentKey"
+              <AstSearchInput v-model="query.idempotentKey" placeholder="搜索幂等键 idempotentKey"
                                   @search="onSearch"/>
               <a-input
                   v-model:value="query.bizType"
@@ -24,13 +24,13 @@
               />
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="segmentedButtons"/>
+              <AstegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
         </template>
 
         <template #overview>
-          <AstrsomnOverview
+          <AstOverview
               :all-current-selected="allCurrentSelected"
               :list-length="list.length"
               :part-current-selected="partCurrentSelected"
@@ -41,7 +41,7 @@
           />
         </template>
 
-        <AstrsomnDataView
+        <AstDataView
             :columns="columns"
             :data-source="list"
             :loading="loading"
@@ -67,13 +67,13 @@
               </a-popconfirm>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
+          <AstPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
                               @change="onPageChange"/>
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
     </div>
 
     <a-drawer v-model:open="detail.open" destroy-on-close title="幂等记录详情" width="720">
@@ -98,20 +98,20 @@
         </a-descriptions>
       </template>
     </a-drawer>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {computed, reactive, ref} from 'vue'
 import {message, Modal} from 'ant-design-vue'
 import {DeleteOutlined, FilterOutlined, ReloadOutlined} from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstOverview from '@/components/home/AstOverview.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
 import {aiWorkflowOpsApi, type BizIdempotentQuery, type BizIdempotentRecord} from '@/api/aiWorkflowOps'
 
 const columns = [

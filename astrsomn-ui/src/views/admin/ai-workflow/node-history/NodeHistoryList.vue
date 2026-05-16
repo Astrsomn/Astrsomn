@@ -1,20 +1,20 @@
 <template>
-  <AstrsomnPageShell description="查看节点执行输入输出与耗时。" empty-text="暂无节点历史。" title="节点历史">
+  <AstPageShell description="查看节点执行输入输出与耗时。" empty-text="暂无节点历史。" title="节点历史">
     <div class="page-wrap">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill v-model="query.keyword" placeholder="搜索实例 ID / 节点 ID" @search="onSearch"/>
+              <AstSearchInput v-model="query.keyword" placeholder="搜索实例 ID / 节点 ID" @search="onSearch"/>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="segmentedButtons"/>
+              <AstegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
         </template>
 
         <template #overview>
-          <AstrsomnOverview
+          <AstOverview
               :all-current-selected="false"
               :list-length="list.length"
               :part-current-selected="false"
@@ -24,35 +24,35 @@
           />
         </template>
 
-        <AstrsomnDataView :columns="columns" :data-source="list" :loading="loading" :pagination="false" mode="table"
+        <AstDataView :columns="columns" :data-source="list" :loading="loading" :pagination="false" mode="table"
                           row-key="id">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'actions'">
               <a-button size="small" type="link" @click="goDetail(record.id)">详情</a-button>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
+          <AstPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
                               @change="onPageChange"/>
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {computed, reactive, ref} from 'vue'
 import {FilterOutlined} from '@ant-design/icons-vue'
 import {useRouter} from 'vue-router'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstOverview from '@/components/home/AstOverview.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton from '@/components/home/AstegmentedButton.vue'
 import {aiWorkflowRuntimeApi, type WorkflowRuntimeRecord} from '@/api/aiWorkflowRuntime'
 
 const columns = [

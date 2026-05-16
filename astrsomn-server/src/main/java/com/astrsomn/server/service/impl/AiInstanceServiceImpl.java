@@ -96,10 +96,10 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
     }
 
     @Override
-    public List<AiInstanceResponseDTO> queryByAgentKeys(List<String> agentKeys) {
-        if (agentKeys == null || agentKeys.isEmpty()) {
+    public List<AiInstanceResponseDTO> queryByBizKeys(List<String> bizKeys) {
+        if (bizKeys == null || bizKeys.isEmpty()) {
             return Collections.emptyList();
         }
-        return baseMapper.selectByAgentKeys(agentKeys);
+        return baseMapper.selectByBizKeys(bizKeys);
     }
 }

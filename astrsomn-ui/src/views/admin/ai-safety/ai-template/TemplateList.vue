@@ -1,24 +1,24 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       description="维护 Freemarker / StringTemplate 模板（AI_TEMPLATE），与 AiTemplateController 对应。"
       empty-text="暂无模板，请先创建。"
       title="FTL 模板管理"
   >
     <div class="template-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.templateTitle"
                   placeholder="搜索模板标题"
                   @search="fetchList"
               />
-              <AstrsomnStateSwitch v-model="query.status" @change="fetchList"/>
+              <AstStatusSwitch v-model="query.status" @change="fetchList"/>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="segmentedButtons"/>
+              <AstegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
         </template>
@@ -45,7 +45,7 @@
         </template>
 
 
-        <AstrsomnDataView
+        <AstDataView
             :columns="columns"
             :data-source="list"
             :loading="loading"
@@ -78,17 +78,17 @@
               </a-popconfirm>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
       <TemplateFormModal
           v-model:open="modal.open"
@@ -98,20 +98,20 @@
           @submit="handleFormSubmit"
       />
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {computed, reactive, ref} from 'vue'
 import {message} from 'ant-design-vue'
 import {DeleteOutlined, FilterOutlined, PlusOutlined, TagsOutlined} from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton from '@/components/home/AstegmentedButton.vue'
+import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
 import TemplateFormModal from './TemplateFormModal.vue'
 import {type AiTemplate, aiTemplateApi, type PageResponse} from '@/api/aiTemplate.ts'
 

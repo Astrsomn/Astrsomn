@@ -129,7 +129,7 @@ import {
   extensionTypeLabel,
   isUninstallableExtension,
   preview
-} from '@/views/admin/system-config/system-extension/model-dialog/extensionDisplay.ts'
+} from '@/views/admin/system-config/system-extension/utils/extensionDisplay.ts'
 
 const props = defineProps<{
   item: ExtensionRow
@@ -158,23 +158,22 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 
 <style scoped>
 .plugin-card {
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   padding: 18px;
   transition: all 0.3s ease;
-  background: #fff;
-  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  background: var(--bg-card);
 }
 
 .plugin-card:hover {
-  border-color: #dbeafe;
+  border-color: var(--primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .plugin-card.selected {
-  border-color: #3b82f6;
-  background: #f8fafc;
+  border-color: var(--primary);
+  background: var(--primary-hover);
 }
 
 .plugin-main {
@@ -188,8 +187,8 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
   width: 64px;
   height: 64px;
   border-radius: 10px;
-  background: #eff6ff;
-  color: #3b82f6;
+  background: var(--primary-hover);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -222,11 +221,11 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 }
 
 .status-dot.enabled {
-  background: #3b82f6;
+  background: var(--primary);
 }
 
 .status-dot.disabled {
-  background: #cbd5e1;
+  background: var(--text-muted);
 }
 
 .status-text {
@@ -235,22 +234,22 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 }
 
 .status-text.enabled {
-  color: #3b82f6;
+  color: var(--primary);
 }
 
 .status-text.disabled {
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .plugin-title {
   margin: 0;
   font-size: 18px;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .plugin-meta {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
@@ -265,18 +264,18 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
   padding: 2px 8px;
   border-radius: 8px;
   font-size: 12px;
-  color: #2563eb;
-  background: #eff6ff;
+  color: var(--primary);
+  background: var(--primary-hover);
 }
 
 .tag.soft {
-  color: #94a3b8;
-  background: #f8fafc;
-  border: 1px solid #f1f5f9;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
 }
 
 .plugin-desc {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 14px;
   line-height: 1.6;
 }

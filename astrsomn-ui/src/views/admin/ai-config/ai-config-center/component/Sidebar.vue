@@ -1,50 +1,62 @@
 <template>
-  <div class="sidebar-content">
-    <!-- 搜索框 + 添加插件按钮 -->
-    <div class="search-section">
-      <AstrsomnSearchPill
+  <div class="sidebar-wrapper">
+  <SidebarShell :collapsed="collapsed">
+    <template #top>
+      <a-tooltip :placement="collapsed ? 'right' : 'bottom'">
+        <template #title>{{ collapsed ? '展开侧边栏' : '收起侧边栏' }}</template>
+        <div class="collapse-toggle" @click="toggleCollapsed">
+          <MenuUnfoldOutlined v-if="collapsed"/>
+          <MenuFoldOutlined v-else/>
+        </div>
+      </a-tooltip>
+      <AstSearchInput
+          v-if="!collapsed"
           v-model="searchText"
           class="sidebar-search-pill"
           layout="fluid"
           placeholder="搜索资源..."
           @search="handleSearch"
       />
-      <AppstoreOutlined class="add-plugin-btn" title="添加插件" @click="handleAddPlugin"/>
-    </div>
+    </template>
 
     <!-- 导航列表 -->
     <div class="nav-list">
-
       <div class="nav-section">
-
         <div class="provider-list">
-          <!-- 全部选项 -->
-          <div
-              :class="{ 'is-active': activeItem === 'all' }"
-              class="provider-card"
-              @click="handleSelect('all')"
-          >
-            <div class="provider-avatar">
-              <component :is="CloudServerOutlined" class="all-icon"/>
+          <a-tooltip :disabled="!collapsed" placement="right">
+            <template #title>全部</template>
+            <div
+                :class="{ 'is-active': activeItem === 'all' }"
+                class="provider-card"
+                @click="handleSelect('all')"
+            >
+              <div class="provider-avatar">
+                <component :is="CloudServerOutlined" class="all-icon"/>
+              </div>
+              <span class="provider-name">全部</span>
             </div>
-            <span class="provider-name">全部</span>
-          </div>
-          <!-- 各模型提供商 -->
-          <div
+          </a-tooltip>
+          <a-tooltip
               v-for="item in providers"
               :key="item.key"
-              :class="{ 'is-active': activeItem === item.key }"
-              class="provider-card"
-              @click="handleSelect(item.key)"
+              :disabled="!collapsed"
+              placement="right"
           >
-            <div class="provider-avatar">
-              <img v-if="item.avatar" :alt="item.label" :src="item.avatar" class="avatar-img"/>
-              <span v-else class="avatar-initial">{{ item.initial }}</span>
+            <template #title>{{ item.label }}</template>
+            <div
+                :class="{ 'is-active': activeItem === item.key }"
+                class="provider-card"
+                @click="handleSelect(item.key)"
+            >
+              <div class="provider-avatar">
+                <img v-if="item.avatar" :alt="item.label" :src="item.avatar" class="avatar-img"/>
+                <span v-else class="avatar-initial">{{ item.initial }}</span>
+              </div>
+              <span class="provider-name">{{ item.label }}</span>
             </div>
-            <span class="provider-name">{{ item.label }}</span>
-          </div>
+          </a-tooltip>
         </div>
-        <div v-if="providers.length === 0" class="empty-provider">
+        <div v-if="providers.length === 0 && !collapsed" class="empty-provider">
           <a-empty description="暂无已启用的插件">
             <template #extra>
               <a-button type="link" @click="handleAddPlugin">前往插件市场</a-button>
@@ -54,24 +66,27 @@
       </div>
     </div>
 
-    <!-- 全局管理（固定在底部） -->
+    <!-- 全局管理 -->
     <div class="global-section">
-      <div
+      <a-tooltip
           v-for="item in globalItems"
           :key="item.key"
-          :class="{ 'is-active': activeItem === item.key }"
-          class="global-item"
-          @click="handleSelect(item.key)"
+          :disabled="!collapsed"
+          placement="right"
       >
-        <component :is="item.icon" class="global-icon"/>
-        <span class="global-label">{{ item.label }}</span>
-        <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
-      </div>
+        <template #title>{{ item.label }}</template>
+        <div
+            :class="{ 'is-active': activeItem === item.key }"
+            class="global-item"
+            @click="handleSelect(item.key)"
+        >
+          <component :is="item.icon" class="global-icon"/>
+          <span class="global-label">{{ item.label }}</span>
+          <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
+        </div>
+      </a-tooltip>
 
-
-
-      <!-- 展开区域 -->
-      <div v-show="extraExpanded" class="extra-items">
+      <div v-show="extraExpanded && !collapsed" class="extra-items">
         <div
             v-for="item in extraItems"
             :key="item.key"
@@ -84,44 +99,27 @@
           <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
         </div>
       </div>
-            <!-- 展开/收起 -->
-      <div class="expand-toggle" @click="toggleExtra">
+      <div v-show="!collapsed" class="expand-toggle" @click="toggleExtra">
         <span>{{ extraExpanded ? '收起' : '更多功能' }}</span>
         <DownOutlined :class="{ 'rotate-up': extraExpanded }" class="expand-arrow"/>
       </div>
     </div>
 
-    <!-- 底部拓展中心入口 -->
-    <div class="sidebar-footer">
-      <div class="footer-row">
-        <div class="driver-info">
-          <div class="s-avatars">
-            <template v-if="enabledExtensions.length">
-              <span
-                  v-for="item in enabledExtensions.slice(0, 4)"
-                  :key="item.key"
-                  :title="item.name"
-                  class="s-av s-av-real"
-              >
-                <img v-if="item.avatar" :alt="item.name" :src="item.avatar"/>
-                <span v-else>{{ item.initial }}</span>
-              </span>
-            </template>
-            <span v-else class="s-av">-</span>
-          </div>
-          <span class="s-text">
-            {{ enabledExtensions.length ? `已启用扩展 ${enabledExtensions.length}` : '暂无已启用扩展' }}
-          </span>
-        </div>
-        <AppstoreOutlined class="m-btn" title="打开插件市场" @click="goPluginMarketplace"/>
-      </div>
-    </div>
+    <template #footer>
+      <SidebarFooter
+          :collapsed="collapsed"
+          :enabled-extensions="enabledExtensions"
+          :show-dot="!providers.length"
+          @open-marketplace="goPluginMarketplace"
+      />
+    </template>
+  </SidebarShell>
 
-    <ExtensionMarketplaceDialog
-        :open="marketplaceOpen"
-        @cancel="marketplaceOpen = false"
-        @update:open="marketplaceOpen = $event"
-    />
+  <ExtensionMarketplaceDialog
+      :open="marketplaceOpen"
+      @cancel="marketplaceOpen = false"
+      @update:open="marketplaceOpen = $event"
+  />
   </div>
 </template>
 
@@ -129,15 +127,18 @@
 import {onMounted, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {
-  AppstoreOutlined,
   CloudServerOutlined,
   CreditCardOutlined,
   DownOutlined,
   FileTextOutlined,
   LinkOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
   MessageOutlined,
   ToolOutlined
 } from '@ant-design/icons-vue'
+import SidebarShell from '@/components/sidebar/SidebarShell.vue'
+import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts'
 import {aiAccountApi} from '@/api/aiAccount'
 import {aiPromptApi} from '@/api/aiPrompt'
@@ -145,14 +146,21 @@ import {aiMcpApi} from '@/api/aiMcp'
 import {aiToolApi} from '@/api/aiTool'
 import {aiTemplateApi} from '@/api/aiTemplate'
 import {aiConversationApi} from '@/api/aiConversation'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {useDictionary} from '@/locales/dictionary'
-import ExtensionMarketplaceDialog from './ExtensionMarketplaceDialog.vue'
+import ExtensionMarketplaceDialog from './left/ExtensionMarketplaceDialog.vue'
 
 const emit = defineEmits<{
   select: [key: string]
   'select-provider': [info: { key: string; name: string; description: string; avatar: string }]
+  'update:collapsed': [value: boolean]
 }>()
+
+const collapsed = ref(false)
+const toggleCollapsed = () => {
+  collapsed.value = !collapsed.value
+  emit('update:collapsed', collapsed.value)
+}
 const route = useRoute()
 const providerDict = useDictionary('ai-model.provider')
 
@@ -337,45 +345,36 @@ watch(
 </script>
 
 <style scoped>
-.sidebar-content {
-  height: calc(100vh - 60px);
-  display: flex;
-  flex-direction: column;
-  padding: 14px 16px;
-  background: var(--bg-card);
-}
-
-/* 搜索框区域 */
-.search-section {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.search-section .sidebar-search-pill {
+/* 顶部区域 */
+.sidebar-search-pill {
   flex: 1;
   min-width: 0;
 }
 
-.search-section .add-plugin-btn {
+.collapse-toggle {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 15px;
+  font-size: 14px;
 }
 
-.search-section .add-plugin-btn:hover {
+.collapse-toggle:hover {
   color: var(--primary);
   background: var(--primary-hover);
 }
+
+.ast-sidebar.collapsed .collapse-toggle {
+  width: 36px;
+  height: 36px;
+}
+
 
 /* 导航列表 */
 .nav-list {
@@ -581,67 +580,77 @@ watch(
   transform: rotate(180deg);
 }
 
-/* 底部拓展中心入口 */
-.sidebar-footer {
-  flex-shrink: 0;
-  padding: 12px 0;
-  border-top: 1px solid var(--border-default);
-}
-
-.sidebar-footer .footer-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sidebar-footer .footer-row .driver-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sidebar-footer .footer-row .driver-info .s-avatars {
-  display: flex;
-}
-
-.sidebar-footer .footer-row .driver-info .s-avatars .s-av {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--primary-hover);
-  color: var(--primary);
-  font-size: 9px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--bg-card);
-  margin-right: -4px;
-}
-
-.sidebar-footer .footer-row .driver-info .s-text {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.sidebar-footer .footer-row .m-btn {
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.sidebar-footer .footer-row .m-btn:hover {
-  color: var(--primary);
-}
-
-.sidebar-footer .footer-row .driver-info .s-avatars .s-av.s-av-real {
-  overflow: hidden;
-  padding: 0;
-}
-
-.sidebar-footer .footer-row .driver-info .s-avatars .s-av.s-av-real img {
+/* ── 收起状态：导航列表 ── */
+.ast-sidebar.collapsed .nav-list {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
+
+.ast-sidebar.collapsed .provider-list {
+  align-items: center;
+}
+
+.ast-sidebar.collapsed .provider-card {
+  justify-content: center;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+}
+
+.ast-sidebar.collapsed .provider-card.is-active::after {
+  right: -4px;
+}
+
+.ast-sidebar.collapsed .provider-avatar {
+  margin-right: 0;
+}
+
+.ast-sidebar.collapsed .provider-name {
+  display: none;
+}
+
+.ast-sidebar.collapsed .empty-provider {
+  display: none;
+}
+
+/* ── 收起状态：全局管理 ── */
+.ast-sidebar.collapsed .global-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ast-sidebar.collapsed .global-item {
+  justify-content: center;
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  margin: 2px auto;
+}
+
+.ast-sidebar.collapsed .global-item.is-active::after {
+  right: -4px;
+}
+
+.ast-sidebar.collapsed .global-icon {
+  margin-right: 0;
+}
+
+.ast-sidebar.collapsed .global-label {
+  display: none;
+}
+
+.ast-sidebar.collapsed .global-count {
+  display: none;
+}
+
+.ast-sidebar.collapsed .expand-toggle {
+  display: none;
+}
+
+.ast-sidebar.collapsed .extra-items {
+  display: none;
+}
+
 </style>

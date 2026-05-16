@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       :show-view-toggle="true"
       :view-mode="viewMode"
@@ -9,18 +9,18 @@
       title="AI Tools"
   >
     <div ref="pageRef" class="tool-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.toolName"
                   button-label="搜索"
                   layout="toolbar"
                   placeholder="搜索工具名称"
                   @search="fetchList"
               />
-              <AstrsomnStateSwitch
+              <AstStatusSwitch
                   v-model="query.enableFlag"
                   :options="[
                   { label: '全部', value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
@@ -31,13 +31,13 @@
               />
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
+              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
 
-        <AstrsomnDataView
+        <AstDataView
             :card-columns="currentGridColumns"
             :card-gap="toolCardGap"
             :card-min-width="toolCardMinWidth"
@@ -82,19 +82,19 @@
               </a-space>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
-      <ToolFormModal
+      <ToolForm
           v-model:open="modal.open"
           :confirm-loading="modal.submitting"
           :initial="modalInitial"
@@ -102,7 +102,7 @@
           @submit="handleFormSubmit"
       />
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
@@ -116,15 +116,15 @@ import {
   ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import ToolFormModal from './ToolFormModal.vue'
-import ToolCard from './ToolCard.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import ToolForm from './component/ToolForm.vue'
+import ToolCard from './component/ToolCard.vue'
 import {type AiTool, aiToolApi, type PageResponse} from '@/api/aiTool.ts'
 
 const props = withDefaults(defineProps<{

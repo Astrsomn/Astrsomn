@@ -25,6 +25,8 @@ export type AiAgent = {
     voiceInstanceKey?: string
     voiceInstanceName?: string
     promptKey?: string
+    promptContent?: string
+    promptVersion?: number
     status?: string
     knowledgeBaseKeys?: string
     toolKeys?: string
@@ -43,6 +45,7 @@ export type AiAgent = {
     toolNames?: string
     mcpNames?: string
     routeStrategy?: string
+    agentAvatar?: string
 }
 
 export type PageResponse<T> = {

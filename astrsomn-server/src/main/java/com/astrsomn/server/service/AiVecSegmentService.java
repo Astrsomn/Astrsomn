@@ -3,12 +3,16 @@ package com.astrsomn.server.service;
 import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentCreateRequestDTO;
 import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentQueryRequestDTO;
 import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentResponseDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentSearchRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentSearchResultDTO;
 import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
 import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 public interface AiVecSegmentService extends IService<AiVecSegmentEntity> {
 
@@ -21,4 +25,6 @@ public interface AiVecSegmentService extends IService<AiVecSegmentEntity> {
     PageResponse<AiVecSegmentResponseDTO> queryPage(BasePageRequest<AiVecSegmentQueryRequestDTO> request);
 
     BaseResponse<AiVecSegmentResponseDTO> detail(Long id);
+
+    List<AiVecSegmentSearchResultDTO> search(AiVecSegmentSearchRequestDTO request);
 }
