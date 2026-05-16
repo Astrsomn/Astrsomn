@@ -1,6 +1,7 @@
 package com.astrsomn.starter.runtime.vector;
 
 import com.astrsomn.api.vector.constant.AiVecSourceEnum;
+import com.astrsomn.api.vector.dto.vecsource.AiVecDriverDTO;
 import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecDriver;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
@@ -98,6 +99,39 @@ public class AstroVecSourceFactory {
             }
             return false;
         });
+    }
+
+    /**
+     * 获取所有可用驱动元信息（classpath + 插件）
+     */
+    public List<AiVecDriverDTO> getAvailableDrivers() {
+        Map<String, AiVecDriverDTO> merged = new LinkedHashMap<>();
+
+        // classpath 驱动
+        classpathDrivers.forEach((key, driver) -> merged.put(key, toDriverDTO(driver, "classpath")));
+
+        // 插件驱动（覆盖同 key 的 classpath 驱动）
+        pluginDriverOverrides.forEach((key, driver) -> merged.put(key, toDriverDTO(driver, "plugin")));
+
+        return new ArrayList<>(merged.values());
+    }
+
+    private AiVecDriverDTO toDriverDTO(VecDriver driver, String source) {
+        AiVecDriverDTO.AiVecDriverDTOBuilder builder = AiVecDriverDTO.builder()
+                .extensionKey(driver.getExtensionKey())
+                .version(driver.getVersion())
+                .author(driver.getAuthor())
+                .source(source);
+        // 从 DriverEntity 补充元信息
+        try {
+            var entity = driver.getDriverEntity();
+            if (entity != null) {
+                builder.driverName(entity.getDriverName())
+                        .provider(entity.getProvider());
+            }
+        } catch (Exception ignored) {
+        }
+        return builder.build();
     }
 
     /**

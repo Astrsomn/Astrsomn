@@ -1,449 +1,208 @@
 <template>
-  <div class="dashboard-header-container">
-    <a-row :gutter="[16, 16]">
-      <a-col :span="16">
-        <a-card :bordered="false" class="info-card">
-          <div class="content-wrapper">
-            <div class="brand-section">
-              <div class="status-label">
-                <span class="label-text">当前选中资产</span>
-                <a-tag class="subtle-tag" color="success">
-                  <template #icon>
-                    <sync-outlined :spin="true"/>
-                  </template>
-                  运行中
-                </a-tag>
-              </div>
-              <a-input
-                  :value="libraryName"
-                  class="main-title-input"
-                  placeholder="请输入知识库名称"
-                  @update:value="(v) => (libraryName = v)"
-              />
-              <a-input
-                  :auto-size="{ minRows: 2, maxRows: 4 }"
-                  :rows="2"
-                  :value="description"
-                  class="description-input"
-                  placeholder="请输入描述信息（可选）"
-                  type="textarea"
-                  @update:value="(v) => (description = v)"
-              />
-              <div class="sync-meta">
-                上次同步: {{ lastSyncText }} • <span class="node-text">{{ sourceNodeText }}</span>
-              </div>
-            </div>
-
-            <div class="config-section">
-              <div class="config-item">
-                <span class="config-label">Embedding 模型</span>
-                <a-select
-                    :loading="instanceLoading"
-                    :options="modelOptions"
-                    :value="selectedModel"
-                    class="model-select"
-                    placeholder="选择模型"
-                    @update:value="(v) => (selectedModel = v)"
-                />
-              </div>
-              <div class="config-divider"></div>
-              <div class="config-item">
-                <span class="config-label">检索策略</span>
-                <div class="config-value">HNSW / 余弦相似度</div>
-                <div class="config-sub">M:16 • ef:200</div>
-              </div>
-            </div>
-            <div class="action-area">
-              <a-button size="small" type="primary" @click="handleSave">保存</a-button>
-            </div>
+  <div class="dashboard-header-mini">
+    <div class="mini-flex-container">
+      
+      <div class="section main-info">
+        <div class="avatar-mini">
+          <img v-if="source?.providerAvatar" :src="source.providerAvatar" />
+          <ClusterOutlined v-else />
+        </div>
+        <div class="title-group">
+          <div class="top-meta">
+            <span class="type-tag">{{ source?.extensionCode || 'DB' }}</span>
+            <span class="host-text">{{ source?.host }}{{ source.port ? ':' + source.port : '' }}</span>
           </div>
-        </a-card>
-      </a-col>
+          <a-input 
+            v-model:value="libraryName" 
+            placeholder="知识库名称" 
+            class="ultra-minimal-input name-input"
+          />
+        </div>
+      </div>
 
-      <a-col :span="8">
-        <a-card :bordered="false" class="stats-card">
-          <div class="stats-wrapper">
-            <div class="stats-content">
-              <span class="stats-label">存储统计 / STORAGE</span>
-              <div class="main-number">
-                <a-statistic
-                    :value="vectorCount"
-                    :value-style="{ color: '#fff', fontSize: '28px', fontWeight: '700' }"
-                />
-                <span class="unit">个向量片段</span>
-              </div>
-              <div class="stats-footer">
-                <span class="footer-item">文档 {{ stats.docCount }} 个</span>
-                <span class="footer-dot"></span>
-                <span class="footer-item">字符 {{ stats.totalWordCount }}</span>
-              </div>
-            </div>
-            <div class="stats-icon-box">
-              <bar-chart-outlined/>
-            </div>
+      <div class="v-sep"></div>
+
+      <div class="section desc-section">
+        <a-input 
+          v-model:value="description" 
+          placeholder="点击添加描述信息..." 
+          class="ultra-minimal-input desc-input"
+        />
+      </div>
+
+      <div class="v-sep"></div>
+
+      <div class="section specs-inline">
+        <a-tooltip title="Embedding 模型 / 距离策略 / 维度">
+          <div class="spec-pill">
+            <deployment-unit-outlined />
+            <span class="val">{{ selectedModel || '-' }}</span>
+            <span class="dot">·</span>
+            <span class="val">{{ distanceMetricLabel }}</span>
+            <span class="dot">·</span>
+            <span class="val">{{ dimension ?? '-' }}D</span>
           </div>
-        </a-card>
-      </a-col>
-    </a-row>
+        </a-tooltip>
+        <div class="stat-pill">
+          <database-outlined />
+          <span class="num">{{ vectorCount }}</span>
+          <span class="unit">Chunks</span>
+        </div>
+      </div>
+
+      <div class="section actions">
+        <a-tag :color="stats.collectionExists === false ? 'error' : 'success'" class="mini-status">
+          {{ stats.collectionExists === false ? '集合不存在' : '运行中' }}
+        </a-tag>
+        <a-button type="primary" size="small" @click="handleSave" class="mini-save-btn">
+          保存
+        </a-button>
+      </div>
+
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref, watch} from 'vue';
-import {message} from 'ant-design-vue'
-import {BarChartOutlined, SyncOutlined} from '@ant-design/icons-vue';
-import type {AiVecStore} from '@/api/aiVecStore'
-import {aiVecStoreApi} from '@/api/aiVecStore'
-import type {AiVecSource} from '@/api/aiVecSource'
-import {type AiModel, aiModelApi} from '@/api/aiModel'
+import { computed, reactive, ref, watch } from 'vue';
+import { message } from 'ant-design-vue';
+import { 
+  ClusterOutlined, DeploymentUnitOutlined, 
+  DatabaseOutlined, SyncOutlined 
+} from '@ant-design/icons-vue';
+import { aiVecStoreApi } from '@/api/aiVecStore';
 
-const props = defineProps<{
-  store?: AiVecStore
-  source?: AiVecSource
-}>()
-
-const emit = defineEmits<{
-  updated: []
-}>()
+const props = defineProps<{ store?: any; source?: any; }>();
+const emit = defineEmits(['updated']);
 
 const libraryName = ref('');
 const description = ref('');
 const selectedModel = ref('');
-const instanceLoading = ref(false)
+const distanceMetric = ref('');
+const dimension = ref<number | undefined>(undefined);
+
 const stats = reactive({
   docCount: 0,
   segmentCount: 0,
   totalWordCount: 0,
-  lastSyncTime: ''
-})
+  physicalVectorCount: -1,
+  collectionExists: true as boolean | undefined,
+});
 
-const modelOptions = ref<Array<{ value: string; label: string }>>([])
+const distanceMetricLabel = computed(() => {
+  const map: Record<string, string> = { cosine: '余弦', euclidean: '欧氏', dot: '点积' };
+  return map[distanceMetric.value] || distanceMetric.value || '-';
+});
 
-watch(
-    () => props.store,
-    async (store) => {
-      libraryName.value = store?.collectionName || ''
-      description.value = store?.metadataSchema || ''
-      selectedModel.value = store?.modelKey || store?.instanceKey || ''
-      if (store?.id) {
-        await Promise.all([fetchStoreStats(store.id), fetchInstanceOptions()])
-      } else {
-        stats.docCount = 0
-        stats.segmentCount = 0
-        stats.totalWordCount = 0
-        stats.lastSyncTime = ''
-        modelOptions.value = []
-      }
-    },
-    {immediate: true}
-)
+const vectorCount = computed(() => stats.segmentCount);
 
-const vectorCount = computed(() => stats.segmentCount)
-const lastSyncText = computed(() => stats.lastSyncTime || '暂无')
-const sourceNodeText = computed(() => props.source?.name || props.source?.extensionCode || '未命名节点')
-
-const fetchStoreStats = async (id: number | string) => {
-  const resp = await aiVecStoreApi.stats(id)
-  stats.docCount = Number(resp.docCount || 0)
-  stats.segmentCount = Number(resp.segmentCount || 0)
-  stats.totalWordCount = Number(resp.totalWordCount || 0)
-  stats.lastSyncTime = resp.lastSyncTime || ''
-}
-
-const fetchInstanceOptions = async () => {
-  instanceLoading.value = true
-  try {
-    const resp = await aiModelApi.queryPage({
-      pageNo: 1,
-      pageSize: 200,
-      param: {}
-    })
-    const list = resp.list || []
-    modelOptions.value = list
-        .filter((x) => String(x.modelType || '').toLowerCase().includes('embedding'))
-        .map((x) => ({
-          value: String(x.modelKey || ''),
-          label: `${x.modelName || x.modelKey} (${x.modelKey})`
-        }))
-        .filter((x) => x.value)
-  } finally {
-    instanceLoading.value = false
+watch(() => props.store, async (store) => {
+  if (!store) return;
+  libraryName.value = store?.collectionName || '';
+  description.value = store?.metadataSchema || '';
+  selectedModel.value = store?.modelKey || '';
+  distanceMetric.value = store?.distanceMetric || '';
+  dimension.value = store?.dimension;
+  if (store?.id) {
+    const resp = await aiVecStoreApi.stats(store.id);
+    Object.assign(stats, resp);
   }
-}
+}, { immediate: true });
 
 const handleSave = async () => {
-  if (!props.store?.id) {
-    message.warning('请先在左侧选择数据库')
-    return
-  }
-  if (!selectedModel.value) {
-    message.warning('请选择 Embedding 模型')
-    return
-  }
   try {
-    const msg = await aiVecStoreApi.update({
-      ...props.store,
-      collectionName: libraryName.value,
-      metadataSchema: description.value,
-      modelKey: selectedModel.value
-    })
-    message.success(msg || '保存成功')
-    await fetchStoreStats(props.store.id)
-    emit('updated')
-  } catch (error) {
-    const err = error as { message?: string }
-    message.error(err?.message || '保存失败')
-  }
-}
+    await aiVecStoreApi.update({ ...props.store, collectionName: libraryName.value, metadataSchema: description.value });
+    message.success('已保存');
+    emit('updated');
+  } catch (e: any) { message.error('失败'); }
+};
 </script>
 
 <style lang="less" scoped>
-.dashboard-header-container {
-  padding: 20px;
-  background-color: var(--bg-card);
+.dashboard-header-mini {
+  height: 64px; /* 严格控制在 60-70px 之间 */
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
 }
 
-/* 基础卡片美化 */
-.ant-card {
-  border-radius: var(--radius-lg);
-  height: 100%;
-  transition: all 0.3s;
+.mini-flex-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
 }
 
-/* 信息卡片样式 */
-.info-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default) !important;
+.section {
+  display: flex;
+  align-items: center;
+}
 
-  .content-wrapper {
-    display: flex;
-    align-items: center;
-    height: 100px;
+.v-sep {
+  width: 1px;
+  height: 24px;
+  background: #f0f0f0;
+}
+
+/* 左侧标题组 */
+.main-info {
+  gap: 12px;
+  min-width: 200px;
+  .avatar-mini {
+    width: 32px; height: 32px; background: #f5f5f5; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    img { width: 20px; height: 20px; }
+    span { font-size: 16px; color: #bfbfbf; }
   }
-
-  .brand-section {
-    padding-right: 40px;
-    border-right: 1px solid var(--border-default);
-    flex-shrink: 0;
-    min-width: 280px;
-
-    .status-label {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
-
-      .label-text {
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--primary);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-
-      .subtle-tag {
-        border: none;
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
-        font-size: 10px;
-        line-height: 18px;
-        border-radius: var(--radius-sm);
-      }
-    }
-
-    .main-title-input {
-      font-size: 20px;
-      font-weight: 700;
-      border: 1px solid transparent;
-      padding: 4px 8px;
-      background: transparent;
-      color: var(--text-heading);
-      margin-bottom: 6px;
-      border-radius: var(--radius-md);
-      transition: all 0.2s ease;
-
-      &:hover {
-        border-color: var(--border-default);
-        background: var(--bg-input);
-      }
-
-      &:focus {
-        border-color: var(--primary);
-        background: var(--bg-card);
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
-      }
-    }
-
-    .description-input {
-      font-size: 12px;
-      color: var(--text-secondary);
-      border: 1px solid transparent;
-      padding: 4px 8px;
-      background: transparent;
-      margin-bottom: 8px;
-      border-radius: var(--radius-md);
-      transition: all 0.2s ease;
-      resize: none;
-
-      &:hover {
-        border-color: var(--border-default);
-        background: var(--bg-input);
-      }
-
-      &:focus {
-        border-color: var(--primary);
-        background: var(--bg-card);
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
-        color: var(--text-primary);
-      }
-    }
-
-    .sync-meta {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-
-      .node-text {
-        color: var(--text-muted);
-        font-family: monospace;
-      }
-    }
-  }
-
-  .config-section {
-    flex: 1;
-    display: flex;
-    justify-content: space-around;
-    padding-left: 20px;
-
-    .config-divider {
-      width: 1px;
-      height: 40px;
-      background: var(--border-default);
-      align-self: center;
-    }
-
-    .config-item {
-      text-align: center;
-
-      .config-label {
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--text-secondary);
-        display: block;
-        margin-bottom: 4px;
-      }
-
-      .model-select {
-        min-width: 180px;
-
-        :deep(.ant-select-selector) {
-          border: none !important;
-          background: transparent !important;
-          box-shadow: none !important;
-          font-weight: 600;
-          font-size: 14px;
-          color: var(--text-primary);
-          padding: 0 !important;
-          height: auto !important;
-
-          .ant-select-selection-item {
-            padding-right: 16px;
-          }
-        }
-
-        :deep(.ant-select-arrow) {
-          color: var(--text-secondary);
-        }
-      }
-
-      .config-value {
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--text-heading);
-      }
-
-      .config-sub {
-        font-size: 11px;
-        color: var(--text-secondary);
-        margin-top: 2px;
-      }
+  .title-group {
+    display: flex; flex-direction: column;
+    .top-meta {
+      display: flex; gap: 6px; align-items: center; line-height: 1; margin-bottom: 2px;
+      .type-tag { font-size: 9px; font-weight: 700; color: #1890ff; background: #e6f7ff; padding: 0 4px; border-radius: 2px; }
+      .host-text { font-size: 10px; color: #bfbfbf; font-family: monospace; }
     }
   }
 }
 
-/* 指标卡片样式（深色渐变） */
-.stats-card {
-  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
-  box-shadow: var(--shadow-card);
-  border: 1px solid var(--border-default);
+/* 输入框统一极简样式 */
+.ultra-minimal-input {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  &:hover, &:focus { background: #f5f5f5 !important; border-radius: 4px; padding: 0 4px !important; }
+}
 
-  .stats-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 100px;
-    color: var(--text-primary);
-  }
+.name-input { font-size: 14px; font-weight: 600; color: #262626; width: 140px; }
+.desc-input { font-size: 13px; color: #8c8c8c; width: 100%; }
 
-  .stats-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-  }
+.desc-section { flex: 1; }
 
-  .main-number {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin-top: 4px;
-
-    .unit {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-  }
-
-  .stats-footer {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-
-    .footer-dot {
-      width: 3px;
-      height: 3px;
-      background: var(--text-muted);
-      border-radius: 50%;
-    }
-  }
-
-  .stats-icon-box {
-    background: rgba(59, 130, 246, 0.15);
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-lg);
-    font-size: 22px;
-    color: var(--accent-cyan);
-    backdrop-filter: blur(4px);
+/* 只读参数 pills */
+.specs-inline {
+  gap: 8px;
+  .spec-pill, .stat-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: #f8f9fa; padding: 4px 10px; border-radius: 14px;
+    font-size: 12px; color: #595959; border: 1px solid #f0f0f0;
+    white-space: nowrap;
+    .dot { color: #d9d9d9; }
+    .val { font-weight: 500; }
+    .num { font-weight: 700; color: #1890ff; }
+    .unit { font-size: 10px; color: #bfbfbf; }
   }
 }
 
-/* 响应式微调 */
+/* 操作区 */
+.actions {
+  gap: 12px;
+  .mini-status { margin: 0; font-size: 10px; border: none; background: #f6ffed; color: #52c41a; }
+  .mini-save-btn { border-radius: 4px; height: 24px; font-size: 12px; padding: 0 8px; }
+}
+
 @media (max-width: 1200px) {
-  .brand-section {
-    padding-right: 20px !important;
-  }
-
-  .main-title {
-    font-size: 18px !important;
-  }
+  .specs-inline { display: none; } /* 屏幕太窄时隐藏参数区 */
 }
 </style>

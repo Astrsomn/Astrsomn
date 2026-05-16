@@ -18,7 +18,13 @@ public interface AiVecDocEnum {
         PENDING("PENDING", "待向量化"),
 
 
+        VECTORING("VECTORING", "向量化中"),
+
+
         STORED("STORED", "已入库"),
+
+
+        FAILED("FAILED", "失败"),
 
 
         INVALID("INVALID", "已失效");

@@ -8,12 +8,22 @@
           <div class="action-btn" title="编辑" @click.stop="$emit('edit', file)">
             <edit-outlined/>
           </div>
-          <div class="action-btn vectorize" title="向量化" @click.stop="$emit('vectorize', file)">
+          <div v-if="canVectorize" class="action-btn vectorize" title="向量化" @click.stop="$emit('vectorize', file)">
             <experiment-outlined/>
+          </div>
+          <div v-if="canReVectorize" class="action-btn re-vectorize" title="重新向量化" @click.stop="$emit('re-vectorize', file)">
+            <sync-outlined/>
           </div>
           <div class="action-btn delete" title="删除" @click.stop="$emit('delete', file)">
             <delete-outlined/>
           </div>
+        </div>
+
+        <div v-if="vectorizing" class="vectorizing-overlay">
+          <div class="progress-ring">
+            <a-progress :percent="progress || 0" :size="54" :stroke-color="'#1677ff'" :trail-color="'#f0f0f0'" type="circle"/>
+          </div>
+          <span class="progress-msg">{{ progressMsg || '向量化中...' }}</span>
         </div>
 
         <div class="main-body">
@@ -35,16 +45,18 @@
 </template>
 
 <script lang="ts" setup>
+import {computed} from 'vue';
 import {
   DeleteOutlined,
   EditOutlined,
   ExperimentOutlined,
   FileMarkdownOutlined,
   FilePdfOutlined,
-  FileTextOutlined
+  FileTextOutlined,
+  SyncOutlined
 } from '@ant-design/icons-vue';
 
-defineProps<{
+const props = defineProps<{
   file: {
     id?: number | string;
     name: string;
@@ -54,14 +66,21 @@ defineProps<{
     uploadTime?: string;
   };
   active?: boolean;
+  vectorizing?: boolean;
+  progress?: number;
+  progressMsg?: string;
 }>();
 
 defineEmits<{
   select: [file: any]
   edit: [file: any]
   vectorize: [file: any]
+  're-vectorize': [file: any]
   delete: [file: any]
 }>()
+
+const canVectorize = computed(() => !props.vectorizing && props.file.status === '待向量化')
+const canReVectorize = computed(() => !props.vectorizing && (props.file.status === '已向量化' || props.file.status === '失败'))
 
 const getFileIcon = (name: string) => {
   const ext = name.split('.').pop()?.toLowerCase();
@@ -218,6 +237,10 @@ const getFileExtension = (name: string) => {
       &.delete:hover {
         background: var(--error);
       }
+
+      &.re-vectorize:hover {
+        background: #faad14;
+      }
     }
   }
 
@@ -233,6 +256,29 @@ const getFileExtension = (name: string) => {
     color: var(--text-muted);
     opacity: 0.7;
     z-index: 1;
+  }
+
+  .vectorizing-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.88);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    z-index: 20;
+    border-radius: var(--radius-lg);
+
+    .progress-msg {
+      font-size: 11px;
+      color: var(--text-secondary);
+      max-width: 80%;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 </style>

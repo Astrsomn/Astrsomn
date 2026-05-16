@@ -38,10 +38,14 @@
           :key="file.id || file.name"
           :active="String(file.id) === String(props.selectedDocId ?? '')"
           :file="file"
+          :vectorizing="!!vectorizingMap[String(file.id)]"
+          :progress="vectorizingMap[String(file.id)]?.progress"
+          :progress-msg="vectorizingMap[String(file.id)]?.message"
           @delete="handleDelete"
           @edit="openEdit"
           @select="handleSelectDoc"
           @vectorize="handleVectorize"
+          @re-vectorize="handleReVectorize"
       />
     </div>
     <VecDocFormModal
@@ -56,14 +60,14 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, ref, watch} from 'vue';
+import {computed, onUnmounted, reactive, ref, watch} from 'vue';
 import type {UploadProps} from 'ant-design-vue'
 import {message, Modal} from 'ant-design-vue'
 import {PlusOutlined} from '@ant-design/icons-vue';
 // 确保路径指向你刚才保存 FileCard 的位置
 import FileCard from '@/views/admin/ai-vector/vector-center/component/right-center/FileCard.vue';
 import VecDocFormModal from '@/views/admin/ai-vector/vec-doc/VecDocFormModal.vue'
-import {type AiVecDoc, aiVecDocApi} from '@/api/aiVecDoc'
+import {type AiVecDoc, type AiVecDocVectorizeProgress, aiVecDocApi} from '@/api/aiVecDoc'
 
 const props = defineProps<{
   docs: AiVecDoc[]
@@ -82,6 +86,10 @@ const modalOpen = ref(false)
 const modalMode = ref<'create' | 'edit'>('create')
 const modalInitial = ref<AiVecDoc | null>(null)
 const modalSubmitting = ref(false)
+
+// 向量化进度追踪
+const vectorizingMap = reactive<Record<string, { progress: number; message: string }>>({})
+const pollingTimers = ref<Record<string, ReturnType<typeof setInterval>>>({})
 
 const setUploadCollectionId = (value: number | string | undefined) => {
   uploadCollectionId.value = value
@@ -113,16 +121,39 @@ const filteredFiles = computed(() => {
         if (!kw) return true
         return String(doc.originalFileName || doc.contentSummary || '').toLowerCase().includes(kw)
       })
-      .map((doc) => ({
-        id: doc.id,
-        name: doc.originalFileName || `doc-${doc.id}`,
-        segments: 0,
-        size: doc.filePath ? '已上传' : '待上传',
-        status: String(doc.syncStatus || '').toUpperCase() === 'STORED' ? '已向量化' : '待向量化',
-        uploadTime: doc.createTime,
-        raw: doc
-      }))
+      .map((doc) => {
+        const status = String(doc.syncStatus || '').toUpperCase()
+        let statusLabel = '待向量化'
+        if (status === 'STORED') statusLabel = '已向量化'
+        else if (status === 'VECTORING') statusLabel = '向量化中'
+        else if (status === 'FAILED') statusLabel = '失败'
+        return {
+          id: doc.id,
+          name: doc.originalFileName || `doc-${doc.id}`,
+          segments: 0,
+          size: doc.filePath ? '已上传' : '待上传',
+          status: statusLabel,
+          uploadTime: doc.createTime,
+          raw: doc
+        }
+      })
 })
+
+// 自动为已在向量化中的文档启动轮询
+watch(
+    () => props.docs,
+    (docs) => {
+      if (!docs) return
+      for (const doc of docs) {
+        const id = String(doc.id ?? '')
+        const status = String(doc.syncStatus || '').toUpperCase()
+        if (status === 'VECTORING' && id && !vectorizingMap[id]) {
+          startPolling(id)
+        }
+      }
+    },
+    {immediate: true}
+)
 
 const openCreate = () => {
   modalMode.value = 'create'
@@ -161,6 +192,44 @@ const handleSubmit = async (payload: AiVecDoc) => {
   }
 }
 
+const startPolling = (docId: string) => {
+  if (pollingTimers.value[docId]) return
+  vectorizingMap[docId] = {progress: 0, message: '准备中...'}
+  pollingTimers.value[docId] = setInterval(async () => {
+    try {
+      const prog = await aiVecDocApi.vectorizeProgress(docId)
+      vectorizingMap[docId] = {
+        progress: prog.progress || 0,
+        message: prog.message || '向量化中...'
+      }
+      const status = String(prog.status || '').toUpperCase()
+      if (status === 'STORED' || status === 'FAILED') {
+        stopPolling(docId)
+        if (status === 'STORED') {
+          message.success('向量化完成')
+        } else {
+          message.error('向量化失败: ' + (prog.message || '未知错误'))
+        }
+        emit('changed')
+      }
+    } catch {
+      // ignore polling errors
+    }
+  }, 2000)
+}
+
+const stopPolling = (docId: string) => {
+  if (pollingTimers.value[docId]) {
+    clearInterval(pollingTimers.value[docId])
+    delete pollingTimers.value[docId]
+  }
+  delete vectorizingMap[docId]
+}
+
+onUnmounted(() => {
+  Object.keys(pollingTimers.value).forEach(stopPolling)
+})
+
 const handleVectorize = async (file: any) => {
   if (file?.id == null) return
   Modal.confirm({
@@ -168,9 +237,21 @@ const handleVectorize = async (file: any) => {
     content: `将对文档 ${file.name || file.id} 执行向量化并写入向量库。`,
     async onOk() {
       await aiVecDocApi.vectorize(file.id)
-      message.success('向量化任务已完成')
-      emit('changed')
-      emit('select-doc', file.id)
+      message.info('向量化任务已提交')
+      startPolling(String(file.id))
+    }
+  })
+}
+
+const handleReVectorize = async (file: any) => {
+  if (file?.id == null) return
+  Modal.confirm({
+    title: '确认重新向量化',
+    content: `将清除文档 ${file.name || file.id} 的旧向量数据并重新执行向量化。`,
+    async onOk() {
+      await aiVecDocApi.reVectorize(file.id)
+      message.info('重新向量化任务已提交')
+      startPolling(String(file.id))
     }
   })
 }

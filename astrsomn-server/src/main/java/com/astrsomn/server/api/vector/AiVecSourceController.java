@@ -6,8 +6,11 @@ import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.AiVecSourceService;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/astro/ai-vec-source")
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class AiVecSourceController extends BaseController {
 
     private final AiVecSourceService aiVecSourceService;
+    private final AstroVecSourceFactory astroVecSourceFactory;
 
     @PostMapping("/create")
     public BaseResponse<String> create(@RequestBody AiVecSourceCreateRequestDTO request) {
@@ -57,5 +61,10 @@ public class AiVecSourceController extends BaseController {
     @GetMapping("/detail")
     public BaseResponse<AiVecSourceResponseDTO> detail(@RequestParam("id") Long id) {
         return aiVecSourceService.detail(id);
+    }
+
+    @GetMapping("/available-drivers")
+    public BaseResponse<List<AiVecDriverDTO>> availableDrivers() {
+        return BaseResponse.success(astroVecSourceFactory.getAvailableDrivers());
     }
 }

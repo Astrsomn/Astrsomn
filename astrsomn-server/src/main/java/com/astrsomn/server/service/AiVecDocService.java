@@ -4,6 +4,7 @@ import com.astrsomn.api.vector.dto.vecdoc.AiVecDocCreateRequestDTO;
 import com.astrsomn.api.vector.dto.vecdoc.AiVecDocQueryRequestDTO;
 import com.astrsomn.api.vector.dto.vecdoc.AiVecDocResponseDTO;
 import com.astrsomn.api.vector.dto.vecdoc.AiVecDocUpdateRequestDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocVectorizeProgressDTO;
 import com.astrsomn.api.vector.entity.AiVecDocEntity;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
@@ -32,4 +33,8 @@ public interface AiVecDocService extends IService<AiVecDocEntity> {
     PageResponse<AiVecDocResponseDTO> queryPage(BasePageRequest<AiVecDocQueryRequestDTO> request);
 
     BaseResponse<AiVecDocResponseDTO> detail(Long id);
+
+    AiVecDocVectorizeProgressDTO getVectorizeProgress(Long id);
+
+    BaseResponse<String> reVectorize(Long id);
 }

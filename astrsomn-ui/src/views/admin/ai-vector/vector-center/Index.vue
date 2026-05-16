@@ -31,6 +31,7 @@
             @changed="handleDocChanged"
             @select-doc="handleSelectDoc"
         />
+        <VectorSearchPanel :store-id="selectedStoreId"/>
         <RightBottom
             :doc-id="selectedDocId"
             :segments="segments"
@@ -49,6 +50,7 @@ import Left from '@/views/admin/ai-vector/vector-center/component/Left.vue'
 import RightTop from '@/views/admin/ai-vector/vector-center/component/RightTop.vue'
 import RightCenter from '@/views/admin/ai-vector/vector-center/component/RightCenter.vue'
 import RightBottom from '@/views/admin/ai-vector/vector-center/component/RightBottom.vue'
+import VectorSearchPanel from '@/views/admin/ai-vector/vector-center/component/VectorSearchPanel.vue'
 import {useVectorCenterState} from '@/views/admin/ai-vector/vector-center/hooks/useVectorCenterState.ts'
 
 const {

@@ -16,6 +16,7 @@ public class AiVecStoreEntity extends BaseEntity<Long> {
     private Long id;
 
     @TableField("SOURCE_ID")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long sourceId;
 
     @TableField("COLLECTION_NAME")

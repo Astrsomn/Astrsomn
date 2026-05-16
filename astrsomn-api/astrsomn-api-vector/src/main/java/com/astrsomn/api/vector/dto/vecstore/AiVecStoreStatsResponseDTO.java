@@ -16,4 +16,8 @@ public class AiVecStoreStatsResponseDTO {
     private Long totalWordCount;
 
     private LocalDateTime lastSyncTime;
+
+    private Long physicalVectorCount;
+
+    private Boolean collectionExists;
 }
