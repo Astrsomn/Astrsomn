@@ -2,6 +2,8 @@ package com.astrsomn.starter.runtime.langchain.route;
 
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelEndpoint;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelRouteSetting;
+import com.astrsomn.starter.runtime.langchain.exception.AllEndpointsFailedException;
+import com.astrsomn.starter.runtime.langchain.exception.NoAvailableEndpointException;
 import dev.langchain4j.model.ModelProvider;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
@@ -86,8 +88,8 @@ public class CompositeChatModel implements ChatModel {
             }
         }
         if (last != null) {
-            throw last;
+            throw new AllEndpointsFailedException(maxAttempts, last);
         }
-        throw new IllegalStateException("No chat delegate available for routing");
+        throw new NoAvailableEndpointException("No chat delegate available for routing");
     }
 }

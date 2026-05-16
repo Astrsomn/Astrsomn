@@ -1,6 +1,7 @@
 package com.astrsomn.starter.runtime.langchain.quota;
 
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
+import com.astrsomn.starter.runtime.langchain.exception.ContentModerationException;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.chat.listener.ChatModelRequestContext;
 import dev.langchain4j.model.chat.listener.ChatModelResponseContext;
@@ -34,7 +35,7 @@ public class AstroModelListener implements ChatModelListener {
                 String userMessage = context.chatRequest().messages().get(0).toString();
                 if (containsSensitiveWord(userMessage)) {
                     log.error("====> [Astrsomn] 用户输入命中敏感词拦截: {}", userMessage);
-                    throw new RuntimeException("您的输入包含违规内容，请重新组织语言");
+                    throw new ContentModerationException("Input contains sensitive words");
                 }
             }
         };

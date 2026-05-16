@@ -4,6 +4,7 @@ import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
 import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.langchain.exception.AccountNotFoundException;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeChainHandler;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeContext;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
@@ -40,8 +41,7 @@ public class ResolveAccountChainHandler implements AgentRuntimeChainHandler {
                         .eq(AiAccountEntity::getDeleted, false)
                         .last("LIMIT 1"));
         if (account == null) {
-            throw new IllegalStateException(
-                    "未找到账号配置: accountKey=" + accountKey + ", envCode=" + ctx.getEnvCode());
+            throw new AccountNotFoundException(accountKey, ctx.getEnvCode());
         }
         // 解密 API Key 和 Secret
         if (account.getApiKey() != null) {

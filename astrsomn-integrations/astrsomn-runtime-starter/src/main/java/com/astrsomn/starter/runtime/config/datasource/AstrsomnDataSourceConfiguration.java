@@ -1,6 +1,8 @@
 package com.astrsomn.starter.runtime.config.datasource;
 
 import com.astrsomn.starter.runtime.config.AstrsomnRuntimeBeans;
+import com.astrsomn.starter.runtime.langchain.exception.AstroConfigException;
+import com.astrsomn.starter.runtime.langchain.exception.ErrorCode;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +21,8 @@ public class AstrsomnDataSourceConfiguration {
     @Bean(name = AstrsomnRuntimeBeans.DATA_SOURCE)
     public DataSource astrsomnDataSource(AstrsomnDatasourceProperties dsProps) {
         if (dsProps == null || dsProps.getUrl() == null || dsProps.getUrl().isBlank()) {
-            throw new IllegalStateException("astrsomn.datasource.url is required when astrsomn starter is enabled");
+            throw new AstroConfigException(ErrorCode.DATASOURCE_URL_REQUIRED,
+                    "astrsomn.datasource.url is required when astrsomn starter is enabled");
         }
         JdbcUrlDbSupport.resolveMybatisDbType(dsProps.getUrl());
 

@@ -5,6 +5,7 @@ import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.langchain.exception.ModelProviderNotFoundException;
 import com.astrsomn.starter.runtime.langchain.route.ModelRouteCompositeFactory;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,7 @@ public class AstroModelFactory {
         String modelProvider = param.getModelSetting().getExtensionCode();
         ModelProviderHandler handler = handlerMap.get(modelProvider);
         if (handler == null) {
-            throw new RuntimeException("Unsupported provider: " + modelProvider);
+            throw new ModelProviderNotFoundException(modelProvider);
         }
         if (modelRouteCompositeFactory.shouldWrap(param)) {
             return modelRouteCompositeFactory.buildComposite(handler, modelClass, param);

@@ -3,6 +3,7 @@ package com.astrsomn.starter.runtime.langchain.runtime.chain.handler;
 import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.langchain.exception.InstanceNotFoundException;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeChainHandler;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeContext;
 import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
@@ -57,8 +58,7 @@ public class ResolveInstanceFromAgentChainHandler implements AgentRuntimeChainHa
                         .orderByAsc(AiInstanceEntity::getCreateTime));
 
         if (instances == null || instances.isEmpty()) {
-            throw new IllegalStateException(
-                    "智能体 [" + agentKey + "] 未关联任何可用推理实例，请在 AI_INSTANCE 表中配置 BIZ_KEY=" + agentKey);
+            throw new InstanceNotFoundException(agentKey, ctx.getEnvCode(), true);
         }
 
         AiInstanceEntity selected = selectInstance(instances, agent.getRouteStrategy(), ctx);
