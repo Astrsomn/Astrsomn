@@ -182,7 +182,7 @@ function onUpdate(v: string | undefined) {
   width: 24px;
   height: 24px;
   flex-shrink: 0;
-  background: #f1f5f9;
+  background: var(--bg-surface);
   border-radius: 4px;
 }
 

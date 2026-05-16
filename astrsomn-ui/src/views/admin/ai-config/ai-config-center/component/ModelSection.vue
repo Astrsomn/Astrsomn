@@ -10,15 +10,14 @@
         />
       </div>
       <span class="model-section__count">共 {{ total }} 个模型</span>
-      <a-button class="model-section__create-btn" size="large" type="primary" @click="handleCreate">
-        <template #icon>
+      <a-tooltip title="新增模型">
+        <a-button class="model-section__create-btn" shape="circle" size="large" type="primary" @click="handleCreate">
           <PlusOutlined/>
-        </template>
-        新增模型
-      </a-button>
+        </a-button>
+      </a-tooltip>
     </div>
 
-    <div ref="bodyRef" class="model-section__body">
+    <div class="model-section__body">
       <div v-if="loading" class="model-section__loading">
         <a-spin size="small"/>
       </div>
@@ -89,11 +88,19 @@
         :total="total"
         @change="handlePageChange"
     />
+
+    <ModelFormModal
+        v-model:open="formOpen"
+        :initial-data="null"
+        :status-options="statusOptions"
+        :submit-handler="handleFormSubmit"
+        mode="create"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
+import {ref, watch} from 'vue'
 import {useRouter} from 'vue-router'
 import {
   CheckCircleOutlined,
@@ -106,6 +113,7 @@ import {
 } from '@ant-design/icons-vue'
 import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
+import ModelFormModal from '@/views/admin/ai-config/ai-model/ModelFormModal.vue'
 import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
 import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts'
 import {aiModelCapabilitiesDictionary} from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'
@@ -128,38 +136,13 @@ const loading = ref(false)
 const models = ref<AiModel[]>([])
 const total = ref(0)
 const pageNo = ref(1)
-const pageSize = ref(12)
+const pageSize = ref(18)
 
-const bodyRef = ref<HTMLElement>()
-const CARD_HEIGHT = 180
-const GRID_GAP = 16
-const COL_MIN = 280
-
-let resizeObserver: ResizeObserver | null = null
-let recalcTimer: ReturnType<typeof setTimeout> | null = null
-
-function recalcPageSize() {
-  const el = bodyRef.value
-  if (!el) return
-  const bodyHeight = el.clientHeight
-  const bodyWidth = el.clientWidth
-  if (bodyHeight <= 0 || bodyWidth <= 0) return
-  const cols = Math.max(1, Math.floor((bodyWidth + GRID_GAP) / (COL_MIN + GRID_GAP)))
-  const rows = Math.max(1, Math.floor((bodyHeight + GRID_GAP) / (CARD_HEIGHT + GRID_GAP)))
-  const newSize = cols * rows
-  if (newSize !== pageSize.value) {
-    pageSize.value = newSize
-    pageNo.value = 1
-    debouncedFetch()
-  }
-}
-
-function debouncedFetch() {
-  if (recalcTimer) clearTimeout(recalcTimer)
-  recalcTimer = setTimeout(() => {
-    void fetchModels()
-  }, 200)
-}
+const formOpen = ref(false)
+const statusOptions = [
+  {label: '启用', value: 'enabled'},
+  {label: '禁用', value: 'disabled'},
+]
 
 const handleSearch = () => {
   pageNo.value = 1
@@ -244,7 +227,14 @@ const fetchModels = async () => {
 }
 
 const handleCreate = () => {
-  router.push('/admin/ai-config/models')
+  formOpen.value = true
+}
+
+const handleFormSubmit = async (payload: AiModel) => {
+  await aiModelApi.create(payload)
+  formOpen.value = false
+  pageNo.value = 1
+  await fetchModels()
 }
 
 const handleEditItem = (model: AiModel) => {
@@ -257,17 +247,7 @@ watch(() => props.providerKey, () => {
   void fetchModels()
 })
 
-onMounted(() => {
-  resizeObserver = new ResizeObserver(() => recalcPageSize())
-  if (bodyRef.value) resizeObserver.observe(bodyRef.value)
-  void fetchModels()
-})
-
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect()
-  resizeObserver = null
-  if (recalcTimer) clearTimeout(recalcTimer)
-})
+void fetchModels()
 </script>
 
 <style scoped>
@@ -275,7 +255,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   padding: 24px 32px 32px;
-  height: calc(100vh - 236px);
+  flex: 1;
 }
 
 .model-section__toolbar {
@@ -316,17 +296,12 @@ onBeforeUnmount(() => {
 }
 
 .model-section__create-btn {
-  border-radius: 20px;
-  font-weight: 600;
-  padding: 0 24px;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
 }
 
 .model-section__body {
   flex: 1;
-  min-height: 0;
-  overflow-y: auto;
 }
 
 .model-section__loading {

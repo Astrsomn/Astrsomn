@@ -477,7 +477,7 @@ void fetchActiveList()
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .type-tabs {
@@ -489,7 +489,7 @@ void fetchActiveList()
 }
 
 .type-tabs :deep(.ant-tabs-tab) {
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .card-list {

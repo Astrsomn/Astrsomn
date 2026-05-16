@@ -7,10 +7,12 @@
         <AgentConfigPersonaSection
             :agent-key="localAgentKey"
             :agent-name="localAgentName"
+            :agent-avatar="localAgentAvatar"
             :current-prompt="currentPrompt"
             :improve-loading="improveLoading"
             @update:agent-name="localAgentName = $event"
             @update:agent-key="localAgentKey = $event"
+            @update:agent-avatar="localAgentAvatar = $event"
             @open-prompt-drawer="promptDrawerOpen = true"
             @open-prompt-form="promptFormOpen = true"
             @prompt-history="onPromptHistory"
@@ -108,6 +110,7 @@ const detailSnapshot = ref<AiAgent | null>(null)
 const localAgentName = ref('')
 const localAgentKey = ref('')
 const localAgentDescription = ref('')
+const localAgentAvatar = ref('')
 
 const currentPrompt = ref<AiPrompt | undefined>(undefined)
 const loadedPromptContent = ref('')
@@ -223,6 +226,7 @@ function resetEmptyForm() {
   localAgentName.value = props.agentName || '新 Agent'
   localAgentKey.value = ''
   localAgentDescription.value = ''
+  localAgentAvatar.value = ''
   currentPrompt.value = {promptContent: ''}
   loadedPromptContent.value = ''
   placedTools.value = []
@@ -291,6 +295,7 @@ async function backfillFromDetail(detail: AiAgent) {
   localAgentName.value = detail.agentName || props.agentName || '未命名的智能体'
   localAgentKey.value = detail.agentKey ?? ''
   localAgentDescription.value = detail.description ?? ''
+  localAgentAvatar.value = detail.agentAvatar ?? ''
   routeStrategy.value = detail.routeStrategy || 'roundRobin'
 
   if (detail.instanceList && detail.instanceList.length > 0) {
@@ -302,7 +307,17 @@ async function backfillFromDetail(detail: AiAgent) {
   }
 
   if (detail.promptKey) {
-    currentPrompt.value = await resolvePromptByKey(detail.promptKey)
+    if (detail.promptContent) {
+      currentPrompt.value = {
+        promptKey: detail.promptKey,
+        promptTitle: detail.promptTitle,
+        promptContent: detail.promptContent,
+        version: detail.promptVersion,
+      }
+    } else {
+      const resolved = await resolvePromptByKey(detail.promptKey)
+      currentPrompt.value = resolved ?? {promptKey: detail.promptKey, promptContent: ''}
+    }
   } else {
     currentPrompt.value = undefined
   }
@@ -334,6 +349,7 @@ async function loadAgent() {
   loading.value = true
   try {
     const detail = await aiAgentApi.detail(props.agentId)
+    console.log('[AgentConfig] detail response:', JSON.parse(JSON.stringify(detail)))
     detailSnapshot.value = {...detail}
     await backfillFromDetail(detail)
     await loadAvailableModels()
@@ -373,6 +389,7 @@ function buildSubmitPayload(): AiAgent {
     agentName: localAgentName.value.trim(),
     agentKey: localAgentKey.value.trim() || base.agentKey,
     description: localAgentDescription.value.trim(),
+    agentAvatar: localAgentAvatar.value || undefined,
     promptKey: currentPrompt.value?.promptKey,
     knowledgeBaseKeys: knowledgeKeys.value.length ? knowledgeKeys.value.join(',') : '',
     toolKeys: placedTools.value.map((t) => t.toolKey).filter(Boolean).join(','),

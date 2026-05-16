@@ -62,6 +62,16 @@
                   <KeyOutlined/>
                   {{ model.modelKey }}
                 </div>
+                <div v-if="getModelCaps(model).length" class="model-caps">
+                  <span
+                      v-for="cap in getModelCaps(model)"
+                      :key="cap"
+                      class="cap-tag"
+                  >
+                    <component :is="CAP_ICON_MAP[cap]" v-if="CAP_ICON_MAP[cap]" class="cap-icon"/>
+                    {{ capLabel(cap) }}
+                  </span>
+                </div>
               </div>
             </div>
             <div class="model-meta">
@@ -94,17 +104,40 @@ import {ref, reactive, watch} from 'vue'
 import {
   AppstoreOutlined,
   AudioOutlined,
+  BlockOutlined,
+  BulbOutlined,
+  CaretRightOutlined,
+  CompressOutlined,
+  EyeOutlined,
+  FileTextOutlined,
   KeyOutlined,
   MessageOutlined,
   PartitionOutlined,
   PictureOutlined,
   SearchOutlined,
+  ToolOutlined,
 } from '@ant-design/icons-vue'
 import {type AiModel, aiModelApi, type PageResponse} from '@/api/aiModel.ts'
+import {CHAT_CAPABILITIES_SET, EMBEDDING_CAPABILITIES_SET, IMAGE_CAPABILITIES_SET} from '@/constants/aiModelEnums.ts'
+import {aiModelCapabilitiesDictionary} from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'
 import {WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
 import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
 import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
+
+const CAP_ICON_MAP: Record<string, any> = {
+  streaming: CaretRightOutlined,
+  tools: ToolOutlined,
+  vision: EyeOutlined,
+  json_mode: BlockOutlined,
+  deep_reasoning: BulbOutlined,
+  context_caching: CompressOutlined,
+  text_embedding: FileTextOutlined,
+  image_embedding: PictureOutlined,
+  text_to_image: PictureOutlined,
+  image_to_image: PictureOutlined,
+  image_editing: PictureOutlined,
+}
 
 const props = defineProps<{
   open: boolean
@@ -130,6 +163,28 @@ const page = reactive({
 function getAvatar(model: AiModel): string {
   const raw = model?.providerAvatar
   return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+}
+
+function parseCapabilities(model: AiModel): string[] {
+  try {
+    const parsed = JSON.parse(model.capabilities || '[]')
+    return Array.isArray(parsed) ? parsed.map(String) : []
+  } catch {
+    return []
+  }
+}
+
+function getModelCaps(model: AiModel): string[] {
+  const allCaps = parseCapabilities(model)
+  let capSet: Set<string>
+  if (model.modelType === 'embedding') capSet = EMBEDDING_CAPABILITIES_SET
+  else if (model.modelType === 'image') capSet = IMAGE_CAPABILITIES_SET
+  else capSet = CHAT_CAPABILITIES_SET
+  return allCaps.filter((c) => capSet.has(c))
+}
+
+function capLabel(code: string): string {
+  return aiModelCapabilitiesDictionary.getLabel(code) ?? code
 }
 
 async function fetchList() {
@@ -220,24 +275,24 @@ watch(() => props.open, (val) => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .model-item:hover {
-  border-color: #3b82f6;
-  background: #f0f7ff;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
+  border-color: var(--primary);
+  background: var(--primary-hover);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12);
 }
 
 .model-item.selected {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  border-color: var(--primary);
+  background: var(--primary-hover);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
 }
 
 .model-item-left {
@@ -254,7 +309,7 @@ watch(() => props.open, (val) => {
   border-radius: 10px;
   object-fit: contain;
   flex-shrink: 0;
-  background: #fff;
+  background: var(--bg-card);
   padding: 2px;
 }
 
@@ -297,7 +352,7 @@ watch(() => props.open, (val) => {
 .model-name {
   font-size: 14px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary);
   margin-bottom: 3px;
   white-space: nowrap;
   overflow: hidden;
@@ -306,7 +361,7 @@ watch(() => props.open, (val) => {
 
 .model-key {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-family: 'JetBrains Mono', monospace;
   display: flex;
   align-items: center;
@@ -323,14 +378,40 @@ watch(() => props.open, (val) => {
 .provider-tag {
   font-size: 11px;
   padding: 2px 8px;
-  background: #f1f5f9;
+  background: var(--bg-surface);
   border-radius: 6px;
-  color: #64748b;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .status-tag {
   font-size: 11px;
   margin: 0;
+}
+
+.model-caps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.cap-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--primary-hover);
+  color: var(--primary);
+  line-height: 1;
+  white-space: nowrap;
+  gap: 3px;
+}
+
+.cap-icon {
+  font-size: 10px;
 }
 </style>

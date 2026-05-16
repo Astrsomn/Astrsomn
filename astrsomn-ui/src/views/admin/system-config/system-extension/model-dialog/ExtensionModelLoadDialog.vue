@@ -48,7 +48,7 @@
             <p class="ems-summary">已选择 {{ selectedCount }} 个模型将写入本环境。</p>
 
             <div v-if="(loadPreview.skippedInvalidCount ?? 0) > 0" class="ems-hint"
-                 style="color: #ff4d4f; margin-bottom: 8px;">
+                 style="color: var(--error); margin-bottom: 8px;">
               厂商返回条目中有 {{ loadPreview.skippedInvalidCount }} 条数据异常，将跳过。
             </div>
 
@@ -179,7 +179,7 @@ const existingColumns = [
     dataIndex: 'modelKey',
     render: (_, record: any) => {
       return h('div', {
-        style: {padding: '4px 0', fontSize: '13px', color: '#999'}
+        style: {padding: '4px 0', fontSize: '13px', color: 'var(--text-muted)'}
       }, formatExtensionModelPreviewRow(record))
     }
   }
@@ -225,14 +225,14 @@ async function handleOk() {
 .ems-preview-empty {
   padding: 20px;
   text-align: center;
-  color: #bfbfbf;
-  border: 1px dashed #d9d9d9;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-default);
   border-radius: 4px;
 }
 
 .ems-summary {
   margin-bottom: 16px;
   font-weight: 500;
-  color: #1890ff;
+  color: var(--primary);
 }
 </style>

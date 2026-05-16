@@ -60,4 +60,7 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("ROUTE_STRATEGY")
     private String routeStrategy;
 
+    @TableField("AGENT_AVATAR")
+    private String agentAvatar;
+
 }

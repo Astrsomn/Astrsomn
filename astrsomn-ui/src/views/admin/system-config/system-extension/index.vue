@@ -55,21 +55,21 @@ watch(
   padding: 0;
   height: calc(100vh - 70px);
   overflow: hidden;
-  background: #f8fafc;
+  background: var(--bg-surface);
 }
 
 .extension-shell {
   display: flex;
   width: 100%;
   height: 100%;
-  background-color: #f8fafc;
+  background-color: var(--bg-surface);
   overflow: hidden;
 }
 
 /* 主内容区 */
 .extension-content {
   flex: 1;
-  background: #ffffff;
+  background: var(--bg-card);
   overflow-y: auto;
 }
 
@@ -83,16 +83,16 @@ watch(
 }
 
 .extension-content::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: var(--bg-surface);
   border-radius: 3px;
 }
 
 .extension-content::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: var(--border-default);
   border-radius: 3px;
 }
 
 .extension-content::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+  background: var(--text-muted);
 }
 </style>

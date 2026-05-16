@@ -7,6 +7,8 @@ import com.astrsomn.api.runtime.common.dto.agent.AiAgentUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO;
 import com.astrsomn.api.runtime.common.dto.prompt.AiPromptCreateRequestDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptQueryRequestDTO;
+import com.astrsomn.api.runtime.common.dto.prompt.AiPromptResponseDTO;
 import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
@@ -70,6 +72,31 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         }
         AiAgentResponseDTO responseDTO = new AiAgentResponseDTO();
         BeanUtils.copyProperties(aiAgent, responseDTO);
+
+        // 加载关联的推理实例列表
+        String agentKey = aiAgent.getAgentKey();
+        if (StringUtils.isNotBlank(agentKey)) {
+            List<AiInstanceResponseDTO> instances = aiInstanceService.queryByAgentKeys(List.of(agentKey));
+            responseDTO.setInstanceList(instances != null ? instances : Collections.emptyList());
+        }
+
+        // 加载关联的 Prompt（最新版本）
+        String promptKey = aiAgent.getPromptKey();
+        if (StringUtils.isNotBlank(promptKey)) {
+            AiPromptQueryRequestDTO promptQuery = new AiPromptQueryRequestDTO();
+            promptQuery.setPromptKey(promptKey);
+            BasePageRequest<AiPromptQueryRequestDTO> promptReq = new BasePageRequest<>(promptQuery);
+            promptReq.setPageNo(1);
+            promptReq.setPageSize(1);
+            PageResponse<AiPromptResponseDTO> promptPage = aiPromptService.queryPage(promptReq);
+            if (promptPage.getList() != null && !promptPage.getList().isEmpty()) {
+                AiPromptResponseDTO prompt = promptPage.getList().get(0);
+                responseDTO.setPromptTitle(prompt.getPromptTitle());
+                responseDTO.setPromptContent(prompt.getPromptContent());
+                responseDTO.setPromptVersion(prompt.getVersion());
+            }
+        }
+
         return BaseResponse.success(responseDTO);
     }
 

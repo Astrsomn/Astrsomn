@@ -195,7 +195,7 @@ async function handleOk() {
 
 /* 危险操作的汇总文案颜色 */
 .ems-summary-danger {
-  color: #ff4d4f;
+  color: var(--error);
   font-weight: 500;
   margin-bottom: 16px;
 }
@@ -207,18 +207,18 @@ async function handleOk() {
 .ems-preview-section-title {
   font-weight: 600;
   margin-bottom: 12px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 /* 已保留列表的样式微调 */
 .ems-table-disabled :deep(.ant-table-cell) {
-  color: #999;
+  color: var(--text-muted);
 }
 
 .ems-preview-empty {
   padding: 16px;
   text-align: center;
-  color: #bfbfbf;
-  border: 1px dashed #eee;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-default);
 }
 </style>

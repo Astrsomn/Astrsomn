@@ -1,50 +1,64 @@
 <template>
-  <div class="sidebar-content">
-    <!-- 搜索框 + 添加插件按钮 -->
-    <div class="search-section">
+  <div :class="{ collapsed: collapsed }" class="sidebar-content">
+    <!-- 顶部区域：收起/展开按钮 + 搜索框 -->
+    <div class="top-section">
+      <a-tooltip :placement="collapsed ? 'right' : 'bottom'">
+        <template #title>{{ collapsed ? '展开侧边栏' : '收起侧边栏' }}</template>
+        <div class="collapse-toggle" @click="toggleCollapsed">
+          <MenuUnfoldOutlined v-if="collapsed"/>
+          <MenuFoldOutlined v-else/>
+        </div>
+      </a-tooltip>
       <AstrsomnSearchPill
+          v-if="!collapsed"
           v-model="searchText"
           class="sidebar-search-pill"
           layout="fluid"
           placeholder="搜索资源..."
           @search="handleSearch"
       />
-      <AppstoreOutlined class="add-plugin-btn" title="添加插件" @click="handleAddPlugin"/>
     </div>
 
     <!-- 导航列表 -->
     <div class="nav-list">
-
       <div class="nav-section">
-
         <div class="provider-list">
           <!-- 全部选项 -->
-          <div
-              :class="{ 'is-active': activeItem === 'all' }"
-              class="provider-card"
-              @click="handleSelect('all')"
-          >
-            <div class="provider-avatar">
-              <component :is="CloudServerOutlined" class="all-icon"/>
+          <a-tooltip :disabled="!collapsed" placement="right">
+            <template #title>全部</template>
+            <div
+                :class="{ 'is-active': activeItem === 'all' }"
+                class="provider-card"
+                @click="handleSelect('all')"
+            >
+              <div class="provider-avatar">
+                <component :is="CloudServerOutlined" class="all-icon"/>
+              </div>
+              <span class="provider-name">全部</span>
             </div>
-            <span class="provider-name">全部</span>
-          </div>
+          </a-tooltip>
           <!-- 各模型提供商 -->
-          <div
+          <a-tooltip
               v-for="item in providers"
               :key="item.key"
-              :class="{ 'is-active': activeItem === item.key }"
-              class="provider-card"
-              @click="handleSelect(item.key)"
+              :disabled="!collapsed"
+              placement="right"
           >
-            <div class="provider-avatar">
-              <img v-if="item.avatar" :alt="item.label" :src="item.avatar" class="avatar-img"/>
-              <span v-else class="avatar-initial">{{ item.initial }}</span>
+            <template #title>{{ item.label }}</template>
+            <div
+                :class="{ 'is-active': activeItem === item.key }"
+                class="provider-card"
+                @click="handleSelect(item.key)"
+            >
+              <div class="provider-avatar">
+                <img v-if="item.avatar" :alt="item.label" :src="item.avatar" class="avatar-img"/>
+                <span v-else class="avatar-initial">{{ item.initial }}</span>
+              </div>
+              <span class="provider-name">{{ item.label }}</span>
             </div>
-            <span class="provider-name">{{ item.label }}</span>
-          </div>
+          </a-tooltip>
         </div>
-        <div v-if="providers.length === 0" class="empty-provider">
+        <div v-if="providers.length === 0 && !collapsed" class="empty-provider">
           <a-empty description="暂无已启用的插件">
             <template #extra>
               <a-button type="link" @click="handleAddPlugin">前往插件市场</a-button>
@@ -56,22 +70,26 @@
 
     <!-- 全局管理（固定在底部） -->
     <div class="global-section">
-      <div
+      <a-tooltip
           v-for="item in globalItems"
           :key="item.key"
-          :class="{ 'is-active': activeItem === item.key }"
-          class="global-item"
-          @click="handleSelect(item.key)"
+          :disabled="!collapsed"
+          placement="right"
       >
-        <component :is="item.icon" class="global-icon"/>
-        <span class="global-label">{{ item.label }}</span>
-        <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
-      </div>
-
-
+        <template #title>{{ item.label }}</template>
+        <div
+            :class="{ 'is-active': activeItem === item.key }"
+            class="global-item"
+            @click="handleSelect(item.key)"
+        >
+          <component :is="item.icon" class="global-icon"/>
+          <span class="global-label">{{ item.label }}</span>
+          <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
+        </div>
+      </a-tooltip>
 
       <!-- 展开区域 -->
-      <div v-show="extraExpanded" class="extra-items">
+      <div v-show="extraExpanded && !collapsed" class="extra-items">
         <div
             v-for="item in extraItems"
             :key="item.key"
@@ -84,8 +102,8 @@
           <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
         </div>
       </div>
-            <!-- 展开/收起 -->
-      <div class="expand-toggle" @click="toggleExtra">
+      <!-- 展开/收起（收起状态下隐藏） -->
+      <div v-show="!collapsed" class="expand-toggle" @click="toggleExtra">
         <span>{{ extraExpanded ? '收起' : '更多功能' }}</span>
         <DownOutlined :class="{ 'rotate-up': extraExpanded }" class="expand-arrow"/>
       </div>
@@ -93,28 +111,42 @@
 
     <!-- 底部拓展中心入口 -->
     <div class="sidebar-footer">
-      <div class="footer-row">
-        <div class="driver-info">
-          <div class="s-avatars">
-            <template v-if="enabledExtensions.length">
-              <span
-                  v-for="item in enabledExtensions.slice(0, 4)"
-                  :key="item.key"
-                  :title="item.name"
-                  class="s-av s-av-real"
-              >
-                <img v-if="item.avatar" :alt="item.name" :src="item.avatar"/>
-                <span v-else>{{ item.initial }}</span>
-              </span>
-            </template>
-            <span v-else class="s-av">-</span>
+      <template v-if="!collapsed">
+        <div class="footer-row">
+          <div class="driver-info">
+            <div class="s-avatars">
+              <template v-if="enabledExtensions.length">
+                <span
+                    v-for="item in enabledExtensions.slice(0, 4)"
+                    :key="item.key"
+                    :title="item.name"
+                    class="s-av s-av-real"
+                >
+                  <img v-if="item.avatar" :alt="item.name" :src="item.avatar"/>
+                  <span v-else>{{ item.initial }}</span>
+                </span>
+              </template>
+              <span v-else class="s-av">-</span>
+            </div>
+            <span class="s-text">
+              {{ enabledExtensions.length ? `已启用扩展 ${enabledExtensions.length}` : '暂无已启用扩展' }}
+            </span>
           </div>
-          <span class="s-text">
-            {{ enabledExtensions.length ? `已启用扩展 ${enabledExtensions.length}` : '暂无已启用扩展' }}
-          </span>
+          <div class="plugin-market-btn" @click="goPluginMarketplace">
+            <AppstoreOutlined class="plugin-market-icon"/>
+            <span>插件市场</span>
+            <span v-if="!providers.length" class="plugin-market-dot"></span>
+          </div>
         </div>
-        <AppstoreOutlined class="m-btn" title="打开插件市场" @click="goPluginMarketplace"/>
-      </div>
+      </template>
+      <template v-else>
+        <a-tooltip placement="right">
+          <template #title>插件市场</template>
+          <div class="footer-collapsed" @click="goPluginMarketplace">
+            <AppstoreOutlined class="m-btn"/>
+          </div>
+        </a-tooltip>
+      </template>
     </div>
 
     <ExtensionMarketplaceDialog
@@ -135,6 +167,8 @@ import {
   DownOutlined,
   FileTextOutlined,
   LinkOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
   MessageOutlined,
   ToolOutlined
 } from '@ant-design/icons-vue'
@@ -152,7 +186,14 @@ import ExtensionMarketplaceDialog from './ExtensionMarketplaceDialog.vue'
 const emit = defineEmits<{
   select: [key: string]
   'select-provider': [info: { key: string; name: string; description: string; avatar: string }]
+  'update:collapsed': [value: boolean]
 }>()
+
+const collapsed = ref(false)
+const toggleCollapsed = () => {
+  collapsed.value = !collapsed.value
+  emit('update:collapsed', collapsed.value)
+}
 const route = useRoute()
 const providerDict = useDictionary('ai-model.provider')
 
@@ -343,39 +384,56 @@ watch(
   flex-direction: column;
   padding: 14px 16px;
   background: var(--bg-card);
+  transition: padding 0.28s ease;
 }
 
-/* 搜索框区域 */
-.search-section {
+.sidebar-content.collapsed {
+  padding: 14px 8px;
+  align-items: center;
+}
+
+/* 顶部区域 */
+.top-section {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 16px;
 }
 
-.search-section .sidebar-search-pill {
+.top-section .sidebar-search-pill {
   flex: 1;
   min-width: 0;
 }
 
-.search-section .add-plugin-btn {
+.sidebar-content.collapsed .top-section {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.collapse-toggle {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 15px;
+  font-size: 14px;
 }
 
-.search-section .add-plugin-btn:hover {
+.collapse-toggle:hover {
   color: var(--primary);
   background: var(--primary-hover);
 }
+
+.sidebar-content.collapsed .collapse-toggle {
+  width: 36px;
+  height: 36px;
+}
+
 
 /* 导航列表 */
 .nav-list {
@@ -634,6 +692,51 @@ watch(
   color: var(--primary);
 }
 
+/* 插件市场按钮 */
+.plugin-market-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  background: var(--primary-hover);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.plugin-market-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+.plugin-market-icon {
+  font-size: 13px;
+}
+
+.plugin-market-dot {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff4d4f;
+  box-shadow: 0 0 0 2px var(--primary-hover);
+  animation: dot-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.3); }
+}
+
 .sidebar-footer .footer-row .driver-info .s-avatars .s-av.s-av-real {
   overflow: hidden;
   padding: 0;
@@ -643,5 +746,101 @@ watch(
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* ── 收起状态：导航列表 ── */
+.sidebar-content.collapsed .nav-list {
+  width: 100%;
+}
+
+.sidebar-content.collapsed .provider-list {
+  align-items: center;
+}
+
+.sidebar-content.collapsed .provider-card {
+  justify-content: center;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+}
+
+.sidebar-content.collapsed .provider-card.is-active::after {
+  right: -4px;
+}
+
+.sidebar-content.collapsed .provider-avatar {
+  margin-right: 0;
+}
+
+.sidebar-content.collapsed .provider-name {
+  display: none;
+}
+
+.sidebar-content.collapsed .empty-provider {
+  display: none;
+}
+
+/* ── 收起状态：全局管理 ── */
+.sidebar-content.collapsed .global-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar-content.collapsed .global-item {
+  justify-content: center;
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  margin: 2px auto;
+}
+
+.sidebar-content.collapsed .global-item.is-active::after {
+  right: -4px;
+}
+
+.sidebar-content.collapsed .global-icon {
+  margin-right: 0;
+}
+
+.sidebar-content.collapsed .global-label {
+  display: none;
+}
+
+.sidebar-content.collapsed .global-count {
+  display: none;
+}
+
+.sidebar-content.collapsed .expand-toggle {
+  display: none;
+}
+
+.sidebar-content.collapsed .extra-items {
+  display: none;
+}
+
+/* ── 收起状态：底部 footer ── */
+.sidebar-content.collapsed .sidebar-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.footer-collapsed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.footer-collapsed:hover {
+  color: var(--primary);
+  background: var(--primary-hover);
 }
 </style>

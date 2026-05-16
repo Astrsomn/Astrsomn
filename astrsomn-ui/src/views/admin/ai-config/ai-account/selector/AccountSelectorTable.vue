@@ -350,11 +350,11 @@ onMounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: #f1f5f9;
+  background: var(--bg-surface);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 16px;
   flex-shrink: 0;
 }
@@ -390,8 +390,8 @@ onMounted(() => {
   gap: 16px;
   margin-bottom: 10px;
   padding: 8px 12px;
-  background: #f8fafc;
-  border-radius: 8px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
 }
 
 .stat-item {
@@ -402,14 +402,14 @@ onMounted(() => {
 
 .stat-label {
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-weight: 500;
 }
 
 .stat-value {
   font-size: 13px;
   font-weight: 700;
-  color: #334155;
+  color: var(--text-primary);
   font-family: 'JetBrains Mono', monospace;
 }
 
@@ -432,13 +432,13 @@ onMounted(() => {
 }
 
 .env-badge.prod {
-  background: #fee2e2;
-  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--error);
 }
 
 .env-badge.dev {
-  background: #e0f2fe;
-  color: #0ea5e9;
+  background: rgba(14, 165, 233, 0.12);
+  color: #38bdf8;
 }
 
 .status-dot {
@@ -453,7 +453,7 @@ onMounted(() => {
 }
 
 .status-dot.disabled {
-  background: #e2e8f0;
+  background: var(--text-muted);
 }
 
 </style>

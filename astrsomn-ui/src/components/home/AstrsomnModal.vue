@@ -108,7 +108,7 @@ const mainAreaStyle = computed(() => ({
 </script>
 
 <style scoped>
-/* 全屏弹层：顶对齐、去圆角，尺寸由 wrap 上的 CSS 变量控制 */
+/* 全屏弹层：顶对齐，尺寸由 wrap 上的 CSS 变量控制 */
 :global(.astrsomn-fullscreen-shell.ant-modal-wrap) {
   display: flex;
   align-items: center;
@@ -125,8 +125,9 @@ const mainAreaStyle = computed(() => ({
 :global(.astrsomn-fullscreen-shell .ant-modal-content) {
   height: var(--fsm-body-height, 100vh);
   max-height: var(--fsm-max-body-height, none);
-  border-radius: 0;
+  border-radius: var(--radius-lg, 12px);
   padding: 0;
+  overflow: hidden;
   background: var(--fsm-modal-content-bg, var(--bg-card, #f8fafc));
 }
 

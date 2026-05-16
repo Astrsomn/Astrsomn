@@ -7,6 +7,15 @@
         <h2 class="heading-title">身份标识</h2>
       </div>
       <div class="card-fields">
+        <div class="field-group avatar-field">
+          <label class="field-label">头像</label>
+          <IconAvatarPicker
+              :model-value="agentAvatar"
+              :name="agentName"
+              :size="56"
+              @update:model-value="emit('update:agentAvatar', $event)"
+          />
+        </div>
         <div class="field-group">
           <label class="field-label">Agent 名称</label>
           <a-input
@@ -65,11 +74,13 @@ import {ThunderboltOutlined} from '@ant-design/icons-vue'
 import type {AiPrompt} from '@/api/aiPrompt'
 import PromptCard from '@/views/admin/ai-config/builder/component/left-center/PromptCard.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
+import IconAvatarPicker from '@/components/home/IconAvatarPicker.vue'
 import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
 defineProps<{
   agentName: string
   agentKey: string
+  agentAvatar: string
   currentPrompt: AiPrompt | undefined
   improveLoading: boolean
 }>()
@@ -77,6 +88,7 @@ defineProps<{
 const emit = defineEmits<{
   'update:agentName': [value: string]
   'update:agentKey': [value: string]
+  'update:agentAvatar': [value: string]
   'open-prompt-drawer': []
   'open-prompt-form': []
   'prompt-history': []
@@ -169,6 +181,10 @@ const emit = defineEmits<{
 .soft-input:focus-within {
   border-color: var(--primary) !important;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08) !important;
+}
+
+.avatar-field {
+  align-items: flex-start;
 }
 
 /* Improve button in heading */

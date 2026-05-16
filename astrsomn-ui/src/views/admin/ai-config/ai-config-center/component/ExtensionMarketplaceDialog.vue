@@ -4,7 +4,7 @@
       body-height="80vh"
       content-background="var(--bg-card)"
       header-height="64px"
-      main-background="#f8fafc"
+      main-background="var(--bg-surface)"
       main-padding="0"
       max-width="80vw"
       width="80vw"
@@ -80,12 +80,12 @@ function onPanelSync(tab: ExtensionPanel) {
 .marketplace-content {
   flex: 1;
   overflow-y: auto;
-  background: #ffffff;
+  background: var(--bg-card);
 }
 
 .content-card {
   padding: 24px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .marketplace-shell > :deep(.extension-sider) {
@@ -97,16 +97,16 @@ function onPanelSync(tab: ExtensionPanel) {
 }
 
 .marketplace-content::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: var(--bg-surface);
   border-radius: 3px;
 }
 
 .marketplace-content::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: var(--border-default);
   border-radius: 3px;
 }
 
 .marketplace-content::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+  background: var(--text-muted);
 }
 </style>

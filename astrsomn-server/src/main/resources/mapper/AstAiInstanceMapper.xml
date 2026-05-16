@@ -14,8 +14,7 @@
         SELECT SE.AVATAR
         FROM AI_MODEL M
         JOIN SYS_EXTENSION SE
-        ON SE.ENV_CODE = AI.ENV_CODE
-        AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
+        ON (SE.DELETED = 0 OR SE.DELETED IS NULL)
         AND (SE.EXTENSION_CODE = M.EXTENSION_CODE OR SE.EXTENSION_KEY = M.EXTENSION_CODE)
         WHERE M.MODEL_KEY = AI.MODEL_KEY
         AND M.ENV_CODE = AI.ENV_CODE
@@ -55,7 +54,7 @@
         </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND AI.STATUS = #{req.status}
-        </if>
+        </if>
         <if test="req != null and req.modelType != null and req.modelType != ''">
             AND EXISTS (
             SELECT 1 FROM AI_MODEL M
@@ -90,8 +89,7 @@
         SELECT SE.AVATAR
         FROM AI_MODEL M
         JOIN SYS_EXTENSION SE
-        ON SE.ENV_CODE = AI.ENV_CODE
-        AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
+        ON (SE.DELETED = 0 OR SE.DELETED IS NULL)
         AND (SE.EXTENSION_CODE = M.EXTENSION_CODE OR SE.EXTENSION_KEY = M.EXTENSION_CODE)
         WHERE M.MODEL_KEY = AI.MODEL_KEY
         AND M.ENV_CODE = AI.ENV_CODE
@@ -122,8 +120,7 @@
         SELECT SE.AVATAR
         FROM AI_MODEL M
         JOIN SYS_EXTENSION SE
-        ON SE.ENV_CODE = AI.ENV_CODE
-        AND (SE.DELETED = 0 OR SE.DELETED IS NULL)
+        ON (SE.DELETED = 0 OR SE.DELETED IS NULL)
         AND (SE.EXTENSION_CODE = M.EXTENSION_CODE OR SE.EXTENSION_KEY = M.EXTENSION_CODE)
         WHERE M.MODEL_KEY = AI.MODEL_KEY
         AND (M.ENV_CODE = AI.ENV_CODE OR (M.ENV_CODE IS NULL AND AI.ENV_CODE IS NULL))

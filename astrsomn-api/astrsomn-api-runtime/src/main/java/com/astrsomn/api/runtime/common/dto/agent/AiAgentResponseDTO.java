@@ -14,5 +14,9 @@ public class AiAgentResponseDTO extends AiAgentEntity {
 
     private String promptTitle;
 
+    private String promptContent;
+
+    private Integer promptVersion;
+
     private List<AiInstanceResponseDTO> instanceList;
 }

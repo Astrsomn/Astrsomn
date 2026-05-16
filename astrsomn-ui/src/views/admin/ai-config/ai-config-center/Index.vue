@@ -1,8 +1,12 @@
 <template>
   <a-layout>
     <!-- 左侧侧边栏 -->
-    <a-layout-sider class="bg-white" width="320">
-      <Sidebar @select="handleSidebarSelect" @select-provider="handleSelectProvider"/>
+    <a-layout-sider :width="sidebarCollapsed ? 64 : 320" class="bg-white config-sider">
+      <Sidebar
+          @select="handleSidebarSelect"
+          @select-provider="handleSelectProvider"
+          @update:collapsed="sidebarCollapsed = $event"
+      />
     </a-layout-sider>
 
     <!-- 右侧主内容区域 -->
@@ -132,6 +136,7 @@ const initialViewMode = computed<'grid' | 'list'>(() => {
 
 const configCenterPath = '/admin/ai-config-center'
 
+const sidebarCollapsed = ref(false)
 const snapContainerRef = ref<HTMLDivElement | null>(null)
 const isPeeking = ref(false)
 const showConfig = ref(false)
@@ -238,6 +243,11 @@ const handleSidebarSelect = (key: string) => {
   overflow: hidden;
   background-color: var(--bg-card);
   flex-shrink: 0;
+  transition: width 0.28s ease !important;
+}
+
+.ant-layout-sider :deep(.ant-layout-sider-children) {
+  overflow: hidden;
 }
 
 .ant-layout-content {
@@ -275,9 +285,8 @@ const handleSidebarSelect = (key: string) => {
 
 /* 每一页占满视口高度 */
 .snap-page {
-  height: calc(100vh - 60px);
+  min-height: calc(100vh - 60px);
   scroll-snap-align: start;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
@@ -287,9 +296,9 @@ const handleSidebarSelect = (key: string) => {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 6px;
-  padding: 16px 0 24px;
+  padding: 16px 30px 24px;
   font-size: 12px;
   color: var(--text-muted);
   animation: hint-bounce 2s ease-in-out infinite;

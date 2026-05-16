@@ -74,8 +74,8 @@ function openMarketplace() {
 /* 侧边栏主体 - 与 AdminModuleShell 保持一致的宽度 */
 .extension-sider {
   width: 260px;
-  background: #ffffff;
-  border-right: 1px solid #f1f5f9;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
   transition: all 0.3s;
@@ -101,7 +101,7 @@ function openMarketplace() {
 .brand-logo {
   width: 30px;
   height: 30px;
-  background: #1a73e8;
+  background: var(--primary);
   color: white;
   border-radius: 8px;
   display: flex;
@@ -115,13 +115,13 @@ function openMarketplace() {
   margin: 0;
   font-size: 15px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-heading);
   line-height: 1.2;
 }
 
 .sider-version {
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 /* 菜单区 */
@@ -141,18 +141,18 @@ function openMarketplace() {
   line-height: 38px !important;
   margin: 3px 0 !important;
   border-radius: 10px !important;
-  color: #64748b !important;
+  color: var(--text-secondary) !important;
   transition: all 0.2s;
 }
 
 :deep(.ant-menu-item:hover) {
-  background: #f8fafc !important;
-  color: #1a73e8 !important;
+  background: var(--primary-hover) !important;
+  color: var(--primary) !important;
 }
 
 :deep(.ant-menu-item-selected) {
-  background: #e8f0fe !important;
-  color: #1a73e8 !important;
+  background: var(--primary-hover) !important;
+  color: var(--primary) !important;
   font-weight: 600;
   position: relative;
 }
@@ -165,18 +165,18 @@ function openMarketplace() {
   bottom: 8px;
   width: 3px;
   border-radius: 999px;
-  background: #1a73e8;
+  background: var(--primary);
 }
 
 /* 底部区域 */
 .sider-footer {
   padding: 14px 12px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-default);
 }
 
 .promo-card {
-  background: #e8f0fe;
-  border: 1px solid #dbeafe;
+  background: var(--primary-hover);
+  border: 1px solid transparent;
   border-radius: 12px;
   padding: 12px;
   cursor: pointer;
@@ -184,7 +184,16 @@ function openMarketplace() {
 }
 
 .promo-card:hover {
-  background: #dbeafe;
+  background: var(--primary);
+  color: #fff;
+}
+
+.promo-card:hover .promo-icon,
+.promo-card:hover .promo-title,
+.promo-card:hover .promo-slogan,
+.promo-card:hover .promo-action {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .promo-content {
@@ -199,21 +208,21 @@ function openMarketplace() {
   height: 30px;
   border-radius: 8px;
   font-size: 16px;
-  color: #1a73e8;
-  background: #ffffff;
+  color: var(--primary);
+  background: var(--bg-card);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .promo-title {
-  color: #1e293b;
+  color: var(--text-primary);
   font-size: 13px;
   font-weight: 600;
 }
 
 .promo-slogan {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 10px;
 }
 
@@ -221,8 +230,8 @@ function openMarketplace() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #1a73e8;
-  background: #ffffff;
+  color: var(--primary);
+  background: var(--bg-card);
   font-size: 11px;
   font-weight: 500;
   padding: 6px 8px;

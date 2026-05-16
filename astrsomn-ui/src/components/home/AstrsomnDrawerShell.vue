@@ -84,13 +84,13 @@ const closeDrawer = () => {
 <style scoped>
 :deep(.astrsomn-drawer-shell .ant-drawer-header) {
   padding: 24px;
-  border-bottom: 1px solid #f1f5f9;
-  background: linear-gradient(to bottom, #ffffff, #fcfdff);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-card);
 }
 
 :deep(.astrsomn-drawer-shell .ant-drawer-body) {
   padding: 20px;
-  background-color: #ffffff;
+  background-color: var(--bg-card);
 }
 
 .drawer-header {
@@ -112,13 +112,13 @@ const closeDrawer = () => {
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  background: var(--primary-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 24px;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
   flex-shrink: 0;
 }
 
@@ -138,7 +138,7 @@ const closeDrawer = () => {
 .main-title {
   font-size: 16px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-heading);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -146,7 +146,7 @@ const closeDrawer = () => {
 
 .sub-title {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -161,7 +161,7 @@ const closeDrawer = () => {
 }
 
 .close-btn {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 18px;
 }
 
@@ -182,10 +182,10 @@ const closeDrawer = () => {
   flex-shrink: 0;
   margin-top: 12px;
   padding-top: 16px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border-default);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  background: #ffffff;
+  background: var(--bg-card);
 }
 </style>
