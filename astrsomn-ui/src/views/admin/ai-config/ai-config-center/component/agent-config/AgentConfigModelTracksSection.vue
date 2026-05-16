@@ -116,7 +116,7 @@
         />
 
         <div class="param-shared">
-          <Center :key="paramTab" v-bind="centerBind"/>
+          <InstanceParam :key="paramTab" v-bind="centerBind"/>
         </div>
       </div>
     </div>
@@ -129,7 +129,7 @@ import {AudioOutlined, CreditCardOutlined, RobotOutlined, SettingOutlined,} from
 import type {AiModel} from '@/api/aiModel'
 import type {AiInstance} from '@/api/aiInstance'
 import type {AiAccount} from '@/api/aiAccount'
-import Center from '@/views/admin/ai-config/ai-instance/instance-form/Center.vue'
+import InstanceParam from '@/views/admin/ai-config/ai-instance/instance-form/InstanceParam.vue'
 import type {TempInfo} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
 import AgentConfigSectionShell from './AgentConfigSectionShell.vue'
 

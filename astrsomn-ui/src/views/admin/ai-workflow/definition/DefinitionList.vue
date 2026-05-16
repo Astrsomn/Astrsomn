@@ -1,22 +1,22 @@
 <template>
-  <AstrsomnPageShell empty-text="暂无流程定义。">
+  <AstPageShell empty-text="暂无流程定义。">
     <div class="definition-list-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill v-model="query.workflowName" placeholder="搜索流程名称" @search="fetchList"/>
+              <AstSearchInput v-model="query.workflowName" placeholder="搜索流程名称" @search="fetchList"/>
 
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="segmentedButtons"/>
+              <AstegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
 
         </template>
 
         <template #overview>
-          <AstrsomnOverview
+          <AstOverview
               :all-current-selected="false"
               :list-length="list.length"
               :part-current-selected="false"
@@ -26,7 +26,7 @@
           />
         </template>
 
-        <AstrsomnDataView :columns="columns" :data-source="list" :loading="loading" :pagination="false" :row-selection="rowSelection"
+        <AstDataView :columns="columns" :data-source="list" :loading="loading" :pagination="false" :row-selection="rowSelection"
                           mode="table" row-key="id">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'workflowName'">
@@ -67,13 +67,13 @@
               </a-space>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
+          <AstPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
                               @change="onPageChange"/>
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
     </div>
 
     <a-modal
@@ -94,7 +94,7 @@
           size="small"
       />
       <div class="history-pagination">
-        <AstrsomnPagination
+        <AstPagination
             :current="historyPage.pageNum"
             :page-size="historyPage.pageSize"
             :total="historyPage.total"
@@ -103,7 +103,7 @@
       </div>
     </a-modal>
 
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
@@ -120,13 +120,13 @@ import {
   RocketOutlined,
   SearchOutlined
 } from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstOverview from '@/components/home/AstOverview.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton from '@/components/home/AstegmentedButton.vue'
 import {type AiWorkflow, aiWorkflowApi, type PageResponse} from '@/api/aiWorkflow'
 import {aiWorkflowRuntimeApi, type WorkflowRuntimeRecord} from '@/api/aiWorkflowRuntime'
 

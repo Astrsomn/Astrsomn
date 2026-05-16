@@ -1,16 +1,16 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       description="管理 SYS_MESSAGE，支持创建通知、更新已读状态、查看来源与错误码。"
       empty-text="暂无系统消息。"
       title="系统消息"
   >
     <div class="message-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.title"
                   layout="toolbar"
                   placeholder="按标题搜索"
@@ -46,13 +46,13 @@
             </div>
 
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="actionButtons"/>
+              <AstegmentedButton :buttons="actionButtons"/>
             </div>
           </div>
         </template>
 
 
-        <AstrsomnDataView
+        <AstDataView
             :columns="columns"
             :data-source="list"
             :loading="loading"
@@ -88,19 +88,19 @@
               </a-popconfirm>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
@@ -108,12 +108,12 @@ import {computed, reactive, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {message, Modal} from 'ant-design-vue'
 import {DeleteOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
 import {type PageResponse, type SystemMessage, systemMessageApi} from '@/api/systemMessage'
 
 const router = useRouter()

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type {ChatSessionItem} from '@/components/chat-session/types'
+import type {ChatSessionItem} from '@/views/chat-index/utils/types.ts'
 
 /** 与后端 AiChatMessageResponseDTO / 实体对齐的单条消息行（camelCase JSON）。 */
 export type AiChatMessageRow = {

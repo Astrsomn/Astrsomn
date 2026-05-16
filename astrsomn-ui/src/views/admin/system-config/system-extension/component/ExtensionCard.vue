@@ -129,7 +129,7 @@ import {
   extensionTypeLabel,
   isUninstallableExtension,
   preview
-} from '@/views/admin/system-config/system-extension/model-dialog/extensionDisplay.ts'
+} from '@/views/admin/system-config/system-extension/utils/extensionDisplay.ts'
 
 const props = defineProps<{
   item: ExtensionRow

@@ -44,7 +44,7 @@
       </div>
     </a-spin>
 
-    <PromptSelectDrawer
+    <PromptSelectorDrawer
         :open="promptDrawerOpen"
         @select="onPromptSelect"
         @update:open="promptDrawerOpen = $event"
@@ -85,9 +85,9 @@ import {type AiModel, aiModelApi} from '@/api/aiModel'
 import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt'
 import {type AiTool, aiToolApi} from '@/api/aiTool'
 import {type AiMcp, aiMcpApi} from '@/api/aiMcp'
-import PromptSelectDrawer from '@/views/admin/ai-config/ai-prompt/PromptSelectDrawer.vue'
-import PromptFormModal from '@/views/admin/ai-config/ai-prompt/PromptFormModal.vue'
-import PromptHistoryModal from '@/views/admin/ai-config/ai-prompt/PromptHistoryModal.vue'
+import PromptSelectorDrawer from '@/views/admin/ai-config/ai-prompt/selector/PromptSelectorDrawer.vue'
+import PromptFormModal from '@/views/admin/ai-config/ai-prompt/component/PromptFormModal.vue'
+import PromptHistoryModal from '@/views/admin/ai-config/ai-prompt/component/PromptHistoryModal.vue'
 import AgentConfigHeader from './agent-config/AgentConfigHeader.vue'
 import AgentConfigPersonaSection from './agent-config/AgentConfigPersonaSection.vue'
 import AgentConfigInstanceList from './agent-config/AgentConfigInstanceList.vue'

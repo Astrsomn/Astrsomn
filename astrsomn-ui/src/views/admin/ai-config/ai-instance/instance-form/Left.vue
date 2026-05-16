@@ -20,7 +20,7 @@
 
             <a-form-item :rules="[{ required: true, message: '请输入实例标识' }, ...instanceKeyRules]" class="span-2" label="实例标识 (instanceKey)"
                          name="instanceKey">
-              <AstrsomnKeyGenerator
+              <AstKeyGenerator
                   v-model="form.instanceKey"
                   :disabled="isEdit"
                   :prefix="AI_INSTANCE_KEY_PREFIX"
@@ -30,11 +30,11 @@
             </a-form-item>
 
             <a-form-item class="span-2" label="运行状态">
-              <AstrsomnSegmentedButton :buttons="statusButtons" block/>
+              <AstegmentedButton :buttons="statusButtons" block/>
             </a-form-item>
 
             <a-form-item class="span-2" label="默认预设">
-              <AstrsomnSegmentedButton :buttons="defaultButtons" block/>
+              <AstegmentedButton :buttons="defaultButtons" block/>
             </a-form-item>
 
             <a-form-item :rules="[{ required: true, message: '请选择关联账号' }]" class="span-2" label="关联账号"
@@ -58,7 +58,7 @@
       </a-form>
     </div>
 
-    <AccountSelectorTable
+    <AccountSelectorDrawer
         v-model:open="accountSelectorOpen"
         @select="handleAccountSelect"
     />
@@ -74,10 +74,10 @@ import {
   PauseCircleOutlined,
   ThunderboltOutlined
 } from '@ant-design/icons-vue'
-import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
-import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
+import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
+import AstegmentedButton from '@/components/home/AstegmentedButton.vue'
 import {AI_INSTANCE_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
-import AccountSelectorTable from '@/views/admin/ai-config/ai-account/selector/AccountSelectorTable.vue'
+import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
 import type {AiAccount} from '@/api/aiAccount'
 
 const props = defineProps<{

@@ -40,7 +40,7 @@
         </div>
 
         <div class="params-wrap">
-          <Center
+          <InstanceParam
               :capability-hint="chatCapabilityHint"
               :embedding-has-any-control="chatEmbeddingHasAnyControl"
               :form="chatParamForm"
@@ -76,7 +76,7 @@ import type {AiModel} from '@/api/aiModel'
 import type {AiInstance} from '@/api/aiInstance'
 import type {AiAccount} from '@/api/aiAccount'
 import type {TempInfo} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
-import Center from '@/views/admin/ai-config/ai-instance/instance-form/Center.vue'
+import InstanceParam from '@/views/admin/ai-config/ai-instance/instance-form/InstanceParam.vue'
 import AgentConfigSectionShell from './AgentConfigSectionShell.vue'
 
 const props = defineProps<{

@@ -22,7 +22,7 @@
       />
     </div>
 
-    <InstanceSelector
+    <InstanceSelectorDrawer
         v-model:open="instanceDrawerOpen"
         @create="handleCreateFromDrawer"
         @edit="handleInstanceEditFromDrawer"
@@ -43,7 +43,7 @@ import AccountCard from './left-top/AccountCard.vue'
 import ModelCard from './left-top/ModelCard.vue'
 import InstanceCard from './left-top/InstanceCard.vue'
 import AgentCard from './left-top/AgentCard.vue'
-import InstanceSelector from '../../ai-instance/selector/InstanceSelector.vue'
+import InstanceSelectorDrawer from '../../ai-instance/selector/InstanceSelectorDrawer.vue'
 import InstanceForm from '../../ai-instance/InstanceForm.vue'
 import type {AiModel} from '@/api/aiModel'
 import {aiModelApi} from '@/api/aiModel'

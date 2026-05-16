@@ -9,7 +9,7 @@
           <MenuFoldOutlined v-else/>
         </div>
       </a-tooltip>
-      <AstrsomnSearchPill
+      <AstSearchInput
           v-if="!collapsed"
           v-model="searchText"
           class="sidebar-search-pill"
@@ -179,7 +179,7 @@ import {aiMcpApi} from '@/api/aiMcp'
 import {aiToolApi} from '@/api/aiTool'
 import {aiTemplateApi} from '@/api/aiTemplate'
 import {aiConversationApi} from '@/api/aiConversation'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {useDictionary} from '@/locales/dictionary'
 import ExtensionMarketplaceDialog from './ExtensionMarketplaceDialog.vue'
 

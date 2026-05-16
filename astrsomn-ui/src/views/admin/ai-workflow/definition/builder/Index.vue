@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnPageShell empty-text="暂无流程数据。">
+  <AstPageShell empty-text="暂无流程数据。">
     <div class="workflow-builder-page">
       <main class="builder-layout">
         <Left
@@ -71,14 +71,14 @@
           @close="closeContextMenu"
       />
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {computed, onMounted, onUnmounted, reactive, ref} from 'vue'
 import {message, Modal} from 'ant-design-vue'
 import {useRoute} from 'vue-router'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
 import {useBuilderPage} from './app/useBuilderPage'
 import {useContextMenuActions} from './app/useContextMenuActions'
 import {useWorkflowPersistence} from './app/useWorkflowPersistence'

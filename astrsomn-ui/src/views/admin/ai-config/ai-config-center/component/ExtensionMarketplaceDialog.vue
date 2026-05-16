@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnModal
+  <AstModal
       :open="open"
       body-height="80vh"
       content-background="var(--bg-card)"
@@ -21,7 +21,7 @@
     </template>
 
     <div class="marketplace-shell">
-      <ExtensionSidebar
+      <Sidebar
           :selected-menu-keys="selectedMenuKeys"
           @menu-click="onMenuClick"
       />
@@ -34,15 +34,15 @@
         </div>
       </div>
     </div>
-  </AstrsomnModal>
+  </AstModal>
 </template>
 
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
 import {AppstoreOutlined} from '@ant-design/icons-vue'
-import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
+import AstModal from '@/components/home/AstModal.vue'
 import ExtensionCenterPage from '@/views/admin/system-config/system-extension/component/ExtensionCenterPage.vue'
-import ExtensionSidebar from '@/views/admin/system-config/system-extension/component/ExtensionSidebar.vue'
+import Sidebar from '@/views/admin/system-config/system-extension/component/Sidebar.vue'
 
 type ExtensionPanel = 'marketplace' | 'installed'
 

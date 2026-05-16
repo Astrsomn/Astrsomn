@@ -20,7 +20,7 @@
       </div>
     </main>
 
-    <BottomNav :auto-hide="bottomNavAutoHide"/>
+    <BottomNavigator :auto-hide="bottomNavAutoHide"/>
   </div>
 </template>
 
@@ -28,7 +28,7 @@
 import {computed} from 'vue';
 import {useRoute} from 'vue-router';
 import AppHeader from '@/components/top/AppHeader.vue';
-import BottomNav from '@/components/global/BottomNav.vue';
+import BottomNavigator from '@/components/global/BottomNavigator.vue';
 import {appConfig} from '@/config/config.ts';
 
 const route = useRoute();

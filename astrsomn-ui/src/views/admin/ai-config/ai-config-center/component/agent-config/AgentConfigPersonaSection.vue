@@ -9,7 +9,7 @@
       <div class="card-fields">
         <div class="field-group avatar-field">
           <label class="field-label">头像</label>
-          <IconAvatarPicker
+          <AstIconPicker
               :model-value="agentAvatar"
               :name="agentName"
               :size="56"
@@ -27,7 +27,7 @@
         </div>
         <div class="field-group">
           <label class="field-label">Agent Key</label>
-          <AstrsomnKeyGenerator
+          <AstKeyGenerator
               :model-value="agentKey"
               :prefix="AI_AGENT_KEY_PREFIX"
               class="soft-input"
@@ -73,8 +73,8 @@
 import {ThunderboltOutlined} from '@ant-design/icons-vue'
 import type {AiPrompt} from '@/api/aiPrompt'
 import PromptCard from '@/views/admin/ai-config/builder/component/left-center/PromptCard.vue'
-import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
-import IconAvatarPicker from '@/components/home/IconAvatarPicker.vue'
+import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
+import AstIconPicker from '@/components/home/AstIconPicker.vue'
 import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
 defineProps<{

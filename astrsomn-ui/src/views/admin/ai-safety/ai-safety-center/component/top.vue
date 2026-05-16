@@ -38,7 +38,7 @@ defineProps<{
 </script>
 
 <style scoped>
-/* 与 system-config Center 快捷入口对齐：4 列、卡片高度与图标尺寸一致 */
+/* 与 system-config InstanceParam 快捷入口对齐：4 列、卡片高度与图标尺寸一致 */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

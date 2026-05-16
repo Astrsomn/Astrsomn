@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnModal
+  <AstModal
       :closable="false"
       :max-width="maxWidth"
       :open="visible"
@@ -43,7 +43,7 @@
             @open-account-selector="accountSelectorOpen = true"
             @select-account="onAccountSelect"
         />
-        <Right
+        <ModelParam
             :current-page="modelPager.pageNo"
             :has-next="modelPager.hasNext"
             :is-edit="isEdit"
@@ -68,7 +68,7 @@
             @panel-scroll="onModelPanelScroll"
             @select-model="onSelectModelCard"
         />
-        <Center
+        <InstanceParam
             :capability-hint="capabilityHint"
             :embedding-has-any-control="embeddingHasAnyControl"
             :form="form"
@@ -93,17 +93,17 @@
         />
       </div>
     </div>
-  </AstrsomnModal>
+  </AstModal>
 </template>
 
 <script lang="ts" setup>
 import {computed, nextTick, reactive, ref, watch} from 'vue';
 import {message} from 'ant-design-vue';
 import {ThunderboltFilled} from '@ant-design/icons-vue';
-import AstrsomnModal from '@/components/home/AstrsomnModal.vue';
+import AstModal from '@/components/home/AstModal.vue';
 import Left from './instance-form/Left.vue';
-import Center from './instance-form/Center.vue';
-import Right from './instance-form/Right.vue';
+import InstanceParam from './instance-form/InstanceParam.vue';
+import ModelParam from './instance-form/ModelParam.vue';
 import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts';
 import {type AiModel, aiModelApi} from '@/api/aiModel';
 import {type AiInstance, aiInstanceApi} from '@/api/aiInstance';

@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnModal
+  <AstModal
       :closable="false"
       :max-width="maxWidth"
       :open="open"
@@ -115,7 +115,7 @@
         </div>
       </div>
     </div>
-  </AstrsomnModal>
+  </AstModal>
 </template>
 
 <script lang="ts" setup>
@@ -123,7 +123,7 @@ import {computed, reactive, ref, watch} from 'vue'
 import {DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined} from '@ant-design/icons-vue'
 import type {FormInstance} from 'ant-design-vue'
 import type {AiVecStore} from '@/api/aiVecStore.ts'
-import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
+import AstModal from '@/components/home/AstModal.vue'
 import {type AiModel, aiModelApi} from '@/api/aiModel'
 
 const props = defineProps<{

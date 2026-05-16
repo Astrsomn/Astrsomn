@@ -73,7 +73,7 @@ import {computed, provide, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {GlobalOutlined} from '@ant-design/icons-vue'; // 确保安装了 antd-icons
 import {appConfig} from '@/config/config.ts';
-import type {AdminModuleNavGroup} from './adminModuleTypes.ts';
+import type {AdminModuleNavGroup} from './utils/adminModuleTypes.ts';
 
 const props = defineProps<{
   groups: AdminModuleNavGroup[];

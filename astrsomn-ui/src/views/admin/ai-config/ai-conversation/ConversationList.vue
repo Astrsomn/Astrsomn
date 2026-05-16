@@ -1,12 +1,12 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
 
       empty-text="暂无对话记录。"
   >
     <div class="conversation-page">
-      <AstrsomnListToolbar>
+      <AstListToolbar>
         <template #left>
-          <AstrsomnSearchPill
+          <AstSearchInput
               v-model="query.memoryKey"
               button-label="搜索"
               layout="toolbar"
@@ -14,7 +14,7 @@
               @search="fetchList"
           />
 
-          <AstrsomnStateSwitch
+          <AstStatusSwitch
               v-model="query.status"
               :options="[
               { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
@@ -26,9 +26,9 @@
         </template>
 
         <template #right>
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
+          <AstegmentedButton :buttons="toolbarSegmentButtons"/>
         </template>
-      </AstrsomnListToolbar>
+      </AstListToolbar>
 
       <div class="conversation-container">
         <!-- 左侧列表区域 -->
@@ -49,20 +49,20 @@
         />
       </div>
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {computed, reactive, ref} from 'vue'
 import {message, Modal} from 'ant-design-vue'
 import {CheckCircleOutlined, DeleteOutlined, ReloadOutlined, StopOutlined} from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnListToolbar from '@/components/home/AstrsomnListToolbar.vue'
-import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import ConversationListPanel from './ConversationListPanel.vue'
-import ConversationDetailPanel from './ConversationDetailPanel.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstListToolbar from '@/components/home/AstListToolbar.vue'
+import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import ConversationListPanel from './component/ConversationListPanel.vue'
+import ConversationDetailPanel from './component/ConversationDetailPanel.vue'
 import {type AiConversation, aiConversationApi} from '@/api/aiConversation'
 import {type AiChatSession, aiChatSessionApi, type PageResponse} from '@/api/aiChatSession'
 

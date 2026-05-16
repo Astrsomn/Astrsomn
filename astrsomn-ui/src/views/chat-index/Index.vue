@@ -10,7 +10,7 @@
     />
 
     <main class="chat-main">
-      <ChatSessionSidebar
+      <AstSidebar
           :collapsed="sidebarCollapsed"
           :items="sessionItems"
           :loading="sessionLoading"
@@ -27,7 +27,7 @@
             <h2>今天想聊点什么？</h2>
             <p>输入问题即可开启新会话，你可以选择不同 Agent 与模型实例。</p>
           </div>
-          <ChatInputPanel
+          <AstInputPanel
               v-model:file-url-list="fileUrlList"
               v-model:is-deep-thinking="isDeepThinking"
               v-model:is-web-search="isWebSearch"
@@ -66,7 +66,7 @@
           </div>
         </div>
 
-        <ChatInputPanel
+        <AstInputPanel
             v-if="!isNewSessionView"
             v-model:file-url-list="fileUrlList"
             v-model:is-deep-thinking="isDeepThinking"
@@ -93,15 +93,15 @@
 import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {message, Modal} from 'ant-design-vue'
 import AppHeader from '@/components/top/AppHeader.vue'
-import ChatInputPanel from '@/views/chat-index/ChatInputPanel.vue'
+import AstInputPanel from '@/views/chat-index/component/AstInputPanel.vue'
 import {AstroChatMessage} from '@astrsomn/astro-chat-vue'
-import ChatSessionSidebar from '@/views/chat-index/ChatSessionSidebar.vue'
+import AstSidebar from '@/views/chat-index/component/AstSidebar.vue'
 import {buildStreamError, readAstroStream, type StreamEvent} from '@astrsomn/astro-chat-core'
 import {adaptSessionToSessionItem, aiChatSessionApi} from '@/api/aiChatSession'
 import {type AiInstance, aiInstanceApi} from '@/api/aiInstance.ts'
 import {type AiAgent, aiAgentApi} from '@/api/aiAgent.ts'
 import {aiConversationApi} from '@/api/aiConversation'
-import type {ChatSessionItem} from '@/components/chat-session/types'
+import type {ChatSessionItem} from '@/views/chat-index/utils/types.ts'
 import {WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
 import {
   type ChatMessage,
@@ -109,7 +109,7 @@ import {
   type ChatSegmentType,
   mapTurnBundlesToChatMessages,
   mergeContentFromSegments
-} from '@/views/chat-index/historyMapper'
+} from '@/views/chat-index/utils/historyMapper.ts'
 
 const CHAT_MEMORY_KEY = 'astrsomn-chat-memory-key'
 const CHAT_DRAFT_KEY_PREFIX = 'astrsomn-chat-draft:'

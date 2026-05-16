@@ -5,7 +5,7 @@
     </a-form-item>
 
     <a-form-item label="Prompt Key" name="promptKey">
-      <AstrsomnKeyGenerator
+      <AstKeyGenerator
           v-model="form.promptKey"
           :prefix="AI_PROMPT_KEY_PREFIX"
           placeholder="唯一标识（选填）"
@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
+import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import {AI_PROMPT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
 defineProps<{

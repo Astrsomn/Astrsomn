@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnModal
+  <AstModal
       :body-height="'80vh'"
       :open="open"
       width="80vw"
@@ -113,7 +113,7 @@
         </a-form-item>
       </aside>
     </div>
-  </AstrsomnModal>
+  </AstModal>
 </template>
 
 <script lang="ts" setup>
@@ -123,7 +123,7 @@ import {Codemirror} from 'vue-codemirror'
 import {html} from '@codemirror/lang-html'
 import {oneDark} from '@codemirror/theme-one-dark'
 import {CodeOutlined} from '@ant-design/icons-vue'
-import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
+import AstModal from '@/components/home/AstModal.vue'
 import type {AiTemplate} from '@/api/aiTemplate.ts'
 
 const props = defineProps<{

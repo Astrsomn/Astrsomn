@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnPageShell description="查看节点配置详情。" empty-text="" title="节点配置详情">
+  <AstPageShell description="查看节点配置详情。" empty-text="" title="节点配置详情">
     <div class="form-page">
       <a-button class="ghost-btn" @click="goBack">
         <template #icon>
@@ -52,7 +52,7 @@
         </a-row>
       </a-form>
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
@@ -60,7 +60,7 @@ import {reactive, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {message} from 'ant-design-vue'
 import {ArrowLeftOutlined} from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
 import {aiWorkflowRuntimeApi, type WorkflowRuntimeRecord} from '@/api/aiWorkflowRuntime'
 
 const route = useRoute()

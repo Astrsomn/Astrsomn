@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <PromptSelectDrawer
+    <PromptSelectorDrawer
         v-model:open="promptDrawerOpen"
         @select="handlePromptSelect"
     />
@@ -100,9 +100,9 @@ import ImageModelCard from './left-center/ImageModelCard.vue'
 import ToolCard from './left-center/ToolCard.vue'
 import McpCard from './left-center/McpCard.vue'
 import RagCard from './left-center/RagCard.vue'
-import PromptSelectDrawer from '../../ai-prompt/PromptSelectDrawer.vue'
-import PromptFormModal from '../../ai-prompt/PromptFormModal.vue'
-import PromptHistoryModal from '../../ai-prompt/PromptHistoryModal.vue'
+import PromptSelectorDrawer from '../../ai-prompt/selector/PromptSelectorDrawer.vue'
+import PromptFormModal from '../../ai-prompt/component/PromptFormModal.vue'
+import PromptHistoryModal from '../../ai-prompt/component/PromptHistoryModal.vue'
 import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt'
 import type {AiInstance} from '@/api/aiInstance'
 import type {AiTool} from '@/api/aiTool'

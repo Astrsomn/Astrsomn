@@ -2,7 +2,7 @@
   <div class="extension-center">
     <div class="toolbar">
       <div class="toolbar-left">
-        <AstrsomnSearchPill
+        <AstSearchInput
             v-model="activeQuery.keyword"
             layout="toolbar"
             placeholder="搜索插件名称 / Provider / 能力"
@@ -107,7 +107,7 @@
 import {computed, reactive, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import {DeleteOutlined, UploadOutlined} from '@ant-design/icons-vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {
   type ExtensionModelLoadPreview,
   type ExtensionModelUnloadPreview,
@@ -117,11 +117,11 @@ import {
   type SystemExtensionQueryPagePayload
 } from '@/api/systemExtension.ts'
 import {extensionMarketplaceApi} from '@/api/extensionMarketplace.ts'
-import {type ExtensionRow} from '@/views/admin/system-config/system-extension/model-dialog/extensionDisplay.ts'
+import {type ExtensionRow} from '@/views/admin/system-config/system-extension/utils/extensionDisplay.ts'
 import ExtensionModelLoadDialog
-  from '@/views/admin/system-config/system-extension/model-dialog/ExtensionModelLoadDialog.vue'
+  from '@/views/admin/system-config/system-extension/component/model-dialog/ExtensionModelLoadDialog.vue'
 import ExtensionModelUnloadDialog
-  from '@/views/admin/system-config/system-extension/model-dialog/ExtensionModelUnloadDialog.vue'
+  from '@/views/admin/system-config/system-extension/component/model-dialog/ExtensionModelUnloadDialog.vue'
 import ExtensionCard from './ExtensionCard.vue'
 
 type ExtensionPanel = 'marketplace' | 'installed'

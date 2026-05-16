@@ -2,7 +2,7 @@
   <div class="model-section">
     <div class="model-section__toolbar">
       <div class="model-section__search">
-        <AstrsomnSearchPill
+        <AstSearchInput
             v-model="keyword"
             layout="pane"
             placeholder="搜索模型名称..."
@@ -80,7 +80,7 @@
       </template>
     </div>
 
-    <AstrsomnPagination
+    <AstPagination
         v-if="total > 0"
         :current="pageNo"
         :page-size="pageSize"
@@ -89,7 +89,7 @@
         @change="handlePageChange"
     />
 
-    <ModelFormModal
+    <ModelForm
         v-model:open="formOpen"
         :initial-data="null"
         :status-options="statusOptions"
@@ -111,9 +111,9 @@ import {
   PictureOutlined,
   PlusOutlined,
 } from '@ant-design/icons-vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import ModelFormModal from '@/views/admin/ai-config/ai-model/ModelFormModal.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import ModelForm from '@/views/admin/ai-config/ai-model/component/ModelForm.vue'
 import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
 import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts'
 import {aiModelCapabilitiesDictionary} from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'

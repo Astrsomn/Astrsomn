@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       :show-view-toggle="true"
       :view-mode="viewMode"
@@ -9,11 +9,11 @@
       title="推理参数配置"
   >
     <div ref="pageRef" class="instance-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.instanceName"
                   button-label="查询"
                   layout="toolbar"
@@ -28,7 +28,7 @@
               />
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
+              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
@@ -45,7 +45,7 @@
           <a-tab-pane key="image" tab="图片"/>
         </a-tabs>
 
-        <AstrsomnDataView
+        <AstDataView
             :card-columns="currentGridColumns"
             :card-gap="instanceCardGap"
             :card-min-width="instanceCardMinWidth"
@@ -107,17 +107,17 @@
               </a-space>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
       <InstanceForm
           v-model:visible="formVisible"
@@ -125,20 +125,20 @@
           @success="handleFormSuccess"
       />
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import {message, Modal} from 'ant-design-vue'
 import {DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
-import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import InstanceForm from './InstanceForm.vue'
 import InstanceCard from './component/InstanceCard.vue'
 import {type AiInstance, aiInstanceApi, type PageResponse} from '@/api/aiInstance'

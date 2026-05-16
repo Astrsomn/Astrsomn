@@ -336,13 +336,13 @@
     </div>
 
     <!-- Drawers -->
-    <ModelSelector
+    <ModelSelectorDrawer
         :fixed-model-type="activeTab"
         :open="modelDrawerOpen"
         @select="onModelDrawerSelect"
         @update:open="modelDrawerOpen = $event"
     />
-    <AccountSelectorTable
+    <AccountSelectorDrawer
         :open="accountDrawerOpen"
         :provider-filter="selectedModelForForm?.extensionCode"
         @select="onAccountSelect"
@@ -364,8 +364,8 @@ import {
 import type {AiModel} from '@/api/aiModel'
 import type {AiInstance} from '@/api/aiInstance'
 import type {AiAccount} from '@/api/aiAccount'
-import ModelSelector from '@/views/admin/ai-config/ai-model/selector/ModelSelector.vue'
-import AccountSelectorTable from '@/views/admin/ai-config/ai-account/selector/AccountSelectorTable.vue'
+import ModelSelectorDrawer from '@/views/admin/ai-config/ai-model/selector/ModelSelectorDrawer.vue'
+import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
 import {useInstanceParamVisibility, getTempInfo} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
 
 const props = defineProps<{
@@ -890,7 +890,7 @@ watch(filteredInstances, (list) => {
   color: var(--text-secondary);
 }
 
-/* Right panel */
+/* ModelParam panel */
 .split-right {
   padding: 28px 32px;
   display: flex;

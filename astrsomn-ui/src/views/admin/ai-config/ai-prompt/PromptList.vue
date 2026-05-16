@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnPageShell
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       :show-view-toggle="true"
       :view-mode="viewMode"
@@ -9,11 +9,11 @@
       title="提示词管理"
   >
     <div ref="pageRef" class="prompt-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.promptTitle"
                   button-label="查询"
                   layout="toolbar"
@@ -21,16 +21,16 @@
                   @search="fetchList"
               />
               <PromptSceneTagSelector v-model="query.sceneTags" @change="fetchList"/>
-              <AstrsomnStateSwitch v-model="query.status" @change="fetchList"/>
+              <AstStatusSwitch v-model="query.status" @change="fetchList"/>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
+              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
 
-        <AstrsomnDataView
+        <AstDataView
             :card-columns="currentGridColumns"
             :card-gap="promptCardGap"
             :card-min-width="promptCardMinWidth"
@@ -82,17 +82,17 @@
               </a-space>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
       <PromptFormModal
           v-model:open="modal.open"
@@ -108,23 +108,23 @@
           :prompt-key="historyModal.promptKey"
       />
     </div>
-  </AstrsomnPageShell>
+  </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import {message, Modal} from 'ant-design-vue'
 import {DeleteOutlined, EditOutlined, HistoryOutlined, PlusOutlined, ReloadOutlined,} from '@ant-design/icons-vue'
-import AstrsomnPageShell from '@/components/home/AstrsomnPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import PromptFormModal from './PromptFormModal.vue'
-import PromptHistoryModal from './PromptHistoryModal.vue'
-import PromptCard from './PromptCard.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
+import PromptFormModal from './component/PromptFormModal.vue'
+import PromptHistoryModal from './component/PromptHistoryModal.vue'
+import PromptCard from './component/PromptCard.vue'
 import PromptSceneTagSelector from './component/PromptSceneTagSelector.vue'
 import {type AiPrompt, aiPromptApi, type PageResponse} from '@/api/aiPrompt'
 

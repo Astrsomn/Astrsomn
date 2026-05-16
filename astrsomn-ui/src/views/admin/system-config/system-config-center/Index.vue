@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnDashboardWrapper>
+  <AstDashboardWrapper>
     <div class="system-config-center-page">
       <Top :module-cards="moduleCards" @go-to="goTo"/>
       <a-spin :spinning="loading" class="center-spin">
@@ -23,14 +23,14 @@
         />
       </a-spin>
     </div>
-  </AstrsomnDashboardWrapper>
+  </AstDashboardWrapper>
 </template>
 
 <script lang="ts" setup>
 import {AlertOutlined, ApiOutlined, ClusterOutlined, SettingOutlined, UserOutlined} from '@ant-design/icons-vue'
 import {message} from 'ant-design-vue'
 import {useRouter} from 'vue-router'
-import AstrsomnDashboardWrapper from '@/components/home/AstrsomnDashboardWrapper.vue'
+import AstDashboardWrapper from '@/components/home/AstDashboardWrapper.vue'
 import type {Component} from 'vue'
 import Top from './component/Top.vue'
 import Center from './component/Center.vue'

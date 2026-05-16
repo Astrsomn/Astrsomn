@@ -1,5 +1,5 @@
 <template>
-  <AstrsomnDrawerShell
+  <AstDrawer
       :destroy-on-close="true"
       :mask-closable="true"
       :open="open"
@@ -133,7 +133,7 @@
         保存
       </a-button>
     </template>
-  </AstrsomnDrawerShell>
+  </AstDrawer>
 </template>
 
 <script lang="ts" setup>
@@ -152,8 +152,8 @@ import {
   UserOutlined
 } from '@ant-design/icons-vue'
 import type {FormInstance, Rule} from 'ant-design-vue/es/form'
-import AstrsomnDrawerShell from '@/components/home/AstrsomnDrawerShell.vue'
-import ExtensionSelector from '@/views/admin/system-config/system-extension/selectors/ExtensionSelector.vue'
+import AstDrawer from '@/components/home/AstDrawer.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import type {AiVecSource} from '@/api/aiVecSource.ts'
 import {aiVecSourceApi} from '@/api/aiVecSource.ts'
 
