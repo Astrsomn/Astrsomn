@@ -40,8 +40,8 @@ public class AiTraceLogEntity extends BaseEntity<Long> {
     private Long promptId;
 
 
-    @TableField("AGENT_KEY")
-    private String agentKey;
+    @TableField("BIZ_KEY")
+    private String bizKey;
 
 
     @TableField("SNAPSHOT_CONTENT")

@@ -8,6 +8,7 @@ export interface AiVecStore {
     distanceMetric: string
     metadataSchema?: string
     instanceKey?: string
+    modelKey?: string
     sourceName?: string
     sourceProvider?: string
     instanceName?: string

@@ -32,4 +32,7 @@ public class AiVecStoreEntity extends BaseEntity<Long> {
 
     @TableField("INSTANCE_KEY")
     private String instanceKey;
+
+    @TableField("MODEL_KEY")
+    private String modelKey;
 }

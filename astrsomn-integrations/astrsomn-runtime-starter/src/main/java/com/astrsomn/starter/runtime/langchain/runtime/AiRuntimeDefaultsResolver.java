@@ -28,7 +28,7 @@ public class AiRuntimeDefaultsResolver {
     private final AstAiAgentMapper aiAgentMapper;
     private final AstAiModelMapper aiModelMapper;
 
-    public Optional<String> resolveDefaultAgentKey(String envCode) {
+    public Optional<String> resolveDefaultBizKey(String envCode) {
         if (StringUtils.isBlank(envCode)) {
             return Optional.empty();
         }
@@ -41,7 +41,7 @@ public class AiRuntimeDefaultsResolver {
         if (row == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(StringUtils.trimToNull(row.getAgentKey()));
+        return Optional.ofNullable(StringUtils.trimToNull(row.getBizKey()));
     }
 
     public Optional<String> resolveDefaultChatModelKey(String envCode) {

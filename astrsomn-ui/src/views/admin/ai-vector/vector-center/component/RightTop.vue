@@ -95,7 +95,7 @@ import {BarChartOutlined, SyncOutlined} from '@ant-design/icons-vue';
 import type {AiVecStore} from '@/api/aiVecStore'
 import {aiVecStoreApi} from '@/api/aiVecStore'
 import type {AiVecSource} from '@/api/aiVecSource'
-import {aiInstanceApi} from '@/api/aiInstance'
+import {type AiModel, aiModelApi} from '@/api/aiModel'
 
 const props = defineProps<{
   store?: AiVecStore
@@ -124,7 +124,7 @@ watch(
     async (store) => {
       libraryName.value = store?.collectionName || ''
       description.value = store?.metadataSchema || ''
-      selectedModel.value = store?.instanceKey || ''
+      selectedModel.value = store?.modelKey || store?.instanceKey || ''
       if (store?.id) {
         await Promise.all([fetchStoreStats(store.id), fetchInstanceOptions()])
       } else {
@@ -153,7 +153,7 @@ const fetchStoreStats = async (id: number | string) => {
 const fetchInstanceOptions = async () => {
   instanceLoading.value = true
   try {
-    const resp = await aiInstanceApi.queryPage({
+    const resp = await aiModelApi.queryPage({
       pageNo: 1,
       pageSize: 200,
       param: {}
@@ -162,8 +162,8 @@ const fetchInstanceOptions = async () => {
     modelOptions.value = list
         .filter((x) => String(x.modelType || '').toLowerCase().includes('embedding'))
         .map((x) => ({
-          value: String(x.instanceKey || ''),
-          label: `${x.instanceName || x.instanceKey} (${x.instanceKey})`
+          value: String(x.modelKey || ''),
+          label: `${x.modelName || x.modelKey} (${x.modelKey})`
         }))
         .filter((x) => x.value)
   } finally {
@@ -177,7 +177,7 @@ const handleSave = async () => {
     return
   }
   if (!selectedModel.value) {
-    message.warning('请选择 Embedding 实例')
+    message.warning('请选择 Embedding 模型')
     return
   }
   try {
@@ -185,7 +185,7 @@ const handleSave = async () => {
       ...props.store,
       collectionName: libraryName.value,
       metadataSchema: description.value,
-      instanceKey: selectedModel.value
+      modelKey: selectedModel.value
     })
     message.success(msg || '保存成功')
     await fetchStoreStats(props.store.id)

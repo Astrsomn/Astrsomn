@@ -182,7 +182,7 @@ const knowledgeKeys = ref<string[]>([])
 
 const agentForm = ref<AssemblyAgentForm>({
   agentName: '',
-  agentKey: '',
+  bizKey: '',
   status: 'enabled',
   enableStream: true,
   description: '',
@@ -249,7 +249,7 @@ async function loadAll() {
 function applyAgentDetail(detail: AiAgent) {
   agentForm.value = {
     agentName: detail.agentName ?? '',
-    agentKey: detail.agentKey ?? '',
+    bizKey: detail.bizKey ?? '',
     status: detail.status ?? 'enabled',
     enableStream: detail.enableStream ?? true,
     description: detail.description ?? '',
@@ -455,7 +455,7 @@ function handleReset() {
   knowledgeKeys.value = []
   agentForm.value = {
     agentName: '',
-    agentKey: '',
+    bizKey: '',
     status: 'enabled',
     enableStream: true,
     description: '',
@@ -471,7 +471,7 @@ function buildSubmitPayload() {
   const f = agentForm.value
   return {
     agentName: f.agentName,
-    agentKey: f.agentKey,
+    bizKey: f.bizKey,
     status: f.status,
     enableStream: f.enableStream,
     description: f.description,

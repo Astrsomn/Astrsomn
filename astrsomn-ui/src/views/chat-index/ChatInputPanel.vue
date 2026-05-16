@@ -58,10 +58,10 @@
                 >
                   <a-select-option
                       v-for="agent in agentOptions"
-                      :key="agent.agentKey"
-                      :value="agent.agentKey"
+                      :key="agent.bizKey"
+                      :value="agent.bizKey"
                   >
-                    {{ agent.agentName || agent.agentKey }}
+                    {{ agent.agentName || agent.bizKey }}
                   </a-select-option>
                 </a-select>
 

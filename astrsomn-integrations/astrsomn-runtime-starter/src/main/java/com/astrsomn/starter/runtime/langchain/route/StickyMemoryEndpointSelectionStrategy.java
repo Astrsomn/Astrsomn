@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * 按 memoryKey 与 agentKey 哈希粘性到某一端点；若该端点不可用则在环上向后探测。
+ * 按 memoryKey 与 bizKey 哈希粘性到某一端点；若该端点不可用则在环上向后探测。
  */
 @Component
 public class StickyMemoryEndpointSelectionStrategy implements EndpointSelectionStrategy {
@@ -26,7 +26,7 @@ public class StickyMemoryEndpointSelectionStrategy implements EndpointSelectionS
         int base = Math.floorMod(
                 Objects.hash(
                         ctx.memoryKey() != null ? ctx.memoryKey() : "",
-                        ctx.agentKey() != null ? ctx.agentKey() : ""),
+                        ctx.bizKey() != null ? ctx.bizKey() : ""),
                 n);
         for (int i = 0; i < n; i++) {
             int idx = (base + i) % n;

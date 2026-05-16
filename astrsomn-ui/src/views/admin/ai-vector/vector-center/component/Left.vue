@@ -293,7 +293,7 @@ const sourceTree = computed<Source[]>(() =>
           id: store.id as number | string,
           dbName: store.collectionName || `Store-${store.id}`,
           type: source.provider || 'unknown',
-          modelName: store.instanceName || store.instanceKey || '-',
+          modelName: store.modelKey || store.instanceName || store.instanceKey || '-',
           dim: Number(store.dimension || 0),
           active: true
         }))
@@ -420,10 +420,7 @@ const handleSourceSubmit = async (payload: AiVecSource) => {
   sourceModalSubmitting.value = true
   try {
     const provider = String(payload.provider || '').toLowerCase()
-    if (provider !== 'qdrant' && provider !== 'chroma') {
-      message.warning('当前仅允许创建 qdrant/chroma 类型数据源')
-      return
-    }
+
     if (sourceModalMode.value === 'create') {
       await aiVecSourceApi.create(payload)
     } else {

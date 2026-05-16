@@ -54,19 +54,18 @@
                 </a-form-item>
 
                 <a-form-item label="向量维度" name="dimension">
-                  <a-input-number
+                  <a-select
                       v-model:value="form.dimension"
-                      :disabled="true"
-                      :placeholder="selectedInstance ? '自动读取中…' : '请先选择实例'"
-                      class="dimension-input"
-                      min="1"
+                      :filter-option="filterDimensionOption"
+                      :options="dimensionOptions"
+                      allow-clear
+                      placeholder="选择或输入维度"
+                      show-search
                       size="large"
+                      style="width: 100%"
                   />
-                  <div v-if="selectedInstance && form.dimension" class="dimension-hint">
-                    由模型 <b>{{ selectedInstance.instanceName }}</b> 自动提供（{{ form.dimension }} 维）
-                  </div>
-                  <div v-else-if="!selectedInstance" class="dimension-hint dimension-hint-warn">
-                    选择一个 embedding 实例后将自动填入维度
+                  <div v-if="form.modelKey && form.dimension" class="dimension-hint">
+                    由模型 <b>{{ form.modelKey }}</b> 推荐（{{ form.dimension }} 维），可手动覆盖
                   </div>
                 </a-form-item>
 
@@ -78,26 +77,20 @@
                   </a-select>
                 </a-form-item>
 
-                <a-form-item label="实例 Key" name="instanceKey">
-                  <div class="instance-selector">
-                    <a-input
-                        v-model:value="form.instanceKey"
-                        placeholder="选择 AI 实例"
-                        readonly
-                        size="large"
-                    />
-                    <a-button
-                        class="select-button"
-                        size="large"
-                        type="primary"
-                        @click="openInstanceSelectDialog"
-                    >
-                      <SelectOutlined/>
-                      选择
-                    </a-button>
-                  </div>
-                  <div v-if="selectedInstanceName" class="instance-info">
-                    已选择：{{ selectedInstanceName }}
+                <a-form-item label="Embedding 模型" name="modelKey">
+                  <a-select
+                      v-model:value="form.modelKey"
+                      :loading="modelLoading"
+                      :options="modelOptions"
+                      allow-clear
+                      placeholder="选择 Embedding 模型"
+                      show-search
+                      size="large"
+                      style="width: 100%"
+                      @change="handleModelChange"
+                  />
+                  <div v-if="selectedModelInfo" class="instance-info">
+                    已选择：{{ selectedModelInfo }}
                   </div>
                 </a-form-item>
 
@@ -122,24 +115,16 @@
         </div>
       </div>
     </div>
-
-    <InstanceSelector
-        v-model:open="instanceSelectDialogVisible"
-        fixed-model-type="embedding"
-        @select="handleInstanceSelect"
-    />
   </AstrsomnModal>
 </template>
 
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
-import {DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined, SelectOutlined} from '@ant-design/icons-vue'
+import {DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined} from '@ant-design/icons-vue'
 import type {FormInstance} from 'ant-design-vue'
 import type {AiVecStore} from '@/api/aiVecStore.ts'
-import InstanceSelector from '@/views/admin/ai-config/ai-instance/selector/InstanceSelector.vue'
 import AstrsomnModal from '@/components/home/AstrsomnModal.vue'
-import {type AiInstance, aiInstanceApi} from '@/api/aiInstance.ts'
-import {aiModelApi} from '@/api/aiModel'
+import {type AiModel, aiModelApi} from '@/api/aiModel'
 
 const props = defineProps<{
   mode: 'create' | 'edit',
@@ -155,8 +140,25 @@ const open = defineModel<boolean>('open', {required: true})
 const maxWidth = computed(() => 'min(80vw, 1000px)')
 
 const formRef = ref<FormInstance | null>(null)
-const instanceSelectDialogVisible = ref(false)
-const selectedInstance = ref<AiInstance | null>(null)
+const modelLoading = ref(false)
+const modelOptions = ref<Array<{ value: string; label: string }>>([])
+const allModels = ref<AiModel[]>([])
+
+const dimensionOptions = [
+  {value: 256, label: '256 — 轻量级，适合简单检索'},
+  {value: 512, label: '512 — 紧凑型，平衡性能与精度'},
+  {value: 768, label: '768 — 常用基线（BGE / text-embedding-ada）'},
+  {value: 1024, label: '1024 — 中高维度，语义表达更丰富'},
+  {value: 1536, label: '1536 — 主流高维（OpenAI text-embedding-3）'},
+  {value: 2048, label: '2048 — 高精度场景'},
+  {value: 3072, label: '3072 — 超高精度，适合专业语义匹配'},
+  {value: 4096, label: '4096 — 最大常用档位'},
+  {value: 8192, label: '8192 — 极限维度，计算成本极高'}
+]
+
+function filterDimensionOption(input: string, option: { value: number; label: string }) {
+  return String(option.value).includes(input) || option.label.toLowerCase().includes(input.toLowerCase())
+}
 
 function emptyForm(): AiVecStore {
   return {
@@ -165,7 +167,7 @@ function emptyForm(): AiVecStore {
     dimension: undefined as unknown as number,
     distanceMetric: 'cosine',
     metadataSchema: '',
-    instanceKey: ''
+    modelKey: ''
   }
 }
 
@@ -173,32 +175,19 @@ const form = reactive<AiVecStore>(emptyForm())
 
 const rules = {
   collectionName: [{required: true, message: '请输入集合名称'}],
-  dimension: [{
-    validator: (_rule: unknown, value: unknown) => {
-      if (value == null || value === undefined || value === '') {
-        return Promise.reject('请先选择一个 embedding 实例以自动获取维度')
-      }
-      return Promise.resolve()
-    }
-  }],
-  distanceMetric: [{required: true, message: '请选择距离度量'}]
+  dimension: [{required: true, message: '请选择或输入向量维度'}],
+  distanceMetric: [{required: true, message: '请选择距离度量'}],
+  modelKey: [{required: true, message: '请选择 Embedding 模型'}]
 }
 
-const selectedInstanceName = computed(() => {
-  return selectedInstance.value?.instanceName || ''
+const selectedModelInfo = computed(() => {
+  if (!form.modelKey) return ''
+  const m = allModels.value.find(x => x.modelKey === form.modelKey)
+  return m ? `${m.modelName || m.modelKey} (${m.modelKey})` : form.modelKey
 })
 
 function assignFromInitial(src: AiVecStore) {
   Object.assign(form, emptyForm(), src)
-  if (src.instanceKey) {
-    selectedInstance.value = {
-      instanceKey: src.instanceKey,
-      instanceName: src.instanceName
-    } as AiInstance
-    if (src.dimension) {
-      form.dimension = src.dimension
-    }
-  }
 }
 
 watch(() => [open.value, props.initial, props.defaultSourceId] as const, ([isOpen, initial, defaultSourceId]) => {
@@ -211,8 +200,56 @@ watch(() => [open.value, props.initial, props.defaultSourceId] as const, ([isOpe
         form.sourceId = defaultSourceId
       }
     }
+    fetchModelOptions()
   }
 })
+
+async function fetchModelOptions() {
+  modelLoading.value = true
+  try {
+    const resp = await aiModelApi.queryPage({
+      pageNo: 1,
+      pageSize: 200,
+      param: {}
+    })
+    const list = resp.list || []
+    allModels.value = list
+    modelOptions.value = list
+        .filter((x) => String(x.modelType || '').toLowerCase().includes('embedding'))
+        .map((x) => ({
+          value: String(x.modelKey || ''),
+          label: `${x.modelName || x.modelKey} (${x.modelKey})`
+        }))
+        .filter((x) => x.value)
+  } finally {
+    modelLoading.value = false
+  }
+}
+
+async function handleModelChange(modelKey: string) {
+  if (!modelKey) {
+    return
+  }
+  const m = allModels.value.find(x => x.modelKey === modelKey)
+  if (m?.responseLimit && m.responseLimit > 0) {
+    form.dimension = m.responseLimit
+    return
+  }
+  try {
+    const detail = await aiModelApi.queryPage({
+      pageNo: 1,
+      pageSize: 1,
+      param: {modelKey}
+    })
+    const hit = detail.list?.[0] as Record<string, unknown> | undefined
+    const dims = hit?.dimensions ?? hit?.responseLimit
+    if (dims && Number(dims) > 0) {
+      form.dimension = Number(dims)
+    }
+  } catch {
+    /* ignore — user can set manually */
+  }
+}
 
 async function handleOk() {
   await formRef.value?.validate()
@@ -222,52 +259,6 @@ async function handleOk() {
 
 const onCancel = () => {
   open.value = false
-  instanceSelectDialogVisible.value = false
-}
-
-const openInstanceSelectDialog = () => {
-  instanceSelectDialogVisible.value = true
-}
-
-const handleInstanceSelect = async (instance: AiInstance) => {
-  instanceSelectDialogVisible.value = false
-  selectedInstance.value = instance
-  form.instanceKey = instance.instanceKey
-  form.dimension = undefined as unknown as number
-
-  if (instance.dimensions) {
-    form.dimension = instance.dimensions
-    return
-  }
-
-  if (instance.modelKey) {
-    try {
-      const res = await aiModelApi.queryPage({
-        pageNo: 1,
-        pageSize: 1,
-        param: {modelKey: instance.modelKey}
-      })
-      const hit = res.list?.[0] as Record<string, unknown> | undefined
-      const dims = hit?.dimensions ?? hit?.responseLimit
-      if (dims && Number(dims) > 0) {
-        form.dimension = Number(dims)
-      }
-    } catch {
-      /* ignore — will be caught by validation */
-    }
-  }
-
-  if (!form.dimension && instance.id) {
-    try {
-      const detail = await aiInstanceApi.detail(instance.id)
-      if (detail.dimensions && detail.dimensions > 0) {
-        form.dimension = detail.dimensions
-        selectedInstance.value = detail
-      }
-    } catch {
-      /* ignore */
-    }
-  }
 }
 </script>
 
@@ -364,10 +355,6 @@ const handleInstanceSelect = async (instance: AiInstance) => {
   grid-column: span 2;
 }
 
-.dimension-input {
-  width: 100%;
-}
-
 .dimension-hint {
   margin-top: 6px;
   font-size: 12px;
@@ -378,27 +365,6 @@ const handleInstanceSelect = async (instance: AiInstance) => {
 
 .dimension-hint b {
   color: #1677ff;
-}
-
-.dimension-hint-warn {
-  color: #d97706;
-}
-
-.instance-selector {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.instance-selector :deep(.ant-input) {
-  flex: 1;
-}
-
-.select-button {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
 
 .instance-info {
@@ -471,16 +437,6 @@ const handleInstanceSelect = async (instance: AiInstance) => {
 
   .modal-footer-info {
     padding: 12px 20px;
-  }
-
-  .instance-selector {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .select-button {
-    width: 100%;
-    justify-content: center;
   }
 }
 </style>

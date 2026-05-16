@@ -32,14 +32,14 @@
       </div>
     </div>
 
-    <div class="key-section" title="点击复制 Key" @click="copyAgentKey">
+    <div class="key-section" title="点击复制 Key" @click="copyBizKey">
       <div class="key-label">
         <key-outlined/>
         <span>AGENT KEY</span>
       </div>
       <div class="key-value">
-        <code>{{ record.agentKey || '未分配 KEY' }}</code>
-        <copy-outlined v-if="record.agentKey" class="copy-icon"/>
+        <code>{{ record.bizKey || '未分配 KEY' }}</code>
+        <copy-outlined v-if="record.bizKey" class="copy-icon"/>
       </div>
     </div>
 
@@ -127,10 +127,10 @@ const formatTime = (raw?: string) => {
 
 const onConfirmDelete = () => props.record.id && emit('delete', props.record.id)
 
-const copyAgentKey = async () => {
-  if (!props.record.agentKey) return
+const copyBizKey = async () => {
+  if (!props.record.bizKey) return
   try {
-    await navigator.clipboard.writeText(props.record.agentKey)
+    await navigator.clipboard.writeText(props.record.bizKey)
     message.success('Key 已成功复制到剪贴板')
   } catch {
     message.error('复制失败，请手动复制')

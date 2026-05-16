@@ -32,7 +32,7 @@
           <a-input
               v-model:value="form.scopeKey"
               allow-clear
-              placeholder="ALL 或具体 AGENT_KEY"
+              placeholder="ALL 或具体 BIZ_KEY"
           />
         </a-form-item>
 

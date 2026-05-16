@@ -19,7 +19,7 @@ public class AstroChatRequest {
     private String memoryKey;
 
 
-    private String agentKey;
+    private String bizKey;
 
 
     private String instanceKey;

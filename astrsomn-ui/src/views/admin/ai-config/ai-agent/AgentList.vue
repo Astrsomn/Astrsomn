@@ -166,8 +166,8 @@ const tableColumns = [
   {title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const},
   {
     title: 'Agent Key',
-    dataIndex: 'agentKey',
-    key: 'agentKey',
+    dataIndex: 'bizKey',
+    key: 'bizKey',
     ellipsis: true,
     width: 200,
     copyable: true

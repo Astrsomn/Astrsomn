@@ -171,11 +171,11 @@ const currentInstanceCapabilities = computed<string[]>(() => {
   }
 })
 
-const getAgentPreferredChatInstanceKey = (agentKey?: string) => {
-  if (!agentKey) {
+const getAgentPreferredChatInstanceKey = (bizKey?: string) => {
+  if (!bizKey) {
     return undefined
   }
-  const agent = agentOptions.value.find((item) => item.agentKey === agentKey)
+  const agent = agentOptions.value.find((item) => item.bizKey === bizKey)
   const ik = agent?.chatInstanceKey == null ? undefined : String(agent.chatInstanceKey)
   if (!ik) {
     return undefined
@@ -183,17 +183,17 @@ const getAgentPreferredChatInstanceKey = (agentKey?: string) => {
   return chatInstanceOptions.value.some((item) => item.instanceKey === ik) ? ik : undefined
 }
 
-const getDefaultChatInstanceKey = (agentKey?: string) => {
+const getDefaultChatInstanceKey = (bizKey?: string) => {
   return (
-      getAgentPreferredChatInstanceKey(agentKey) ||
+      getAgentPreferredChatInstanceKey(bizKey) ||
       chatInstanceOptions.value.find((item) => item.isDefault === 1)?.instanceKey ||
       chatInstanceOptions.value[0]?.instanceKey ||
       undefined
   )
 }
 
-const syncChatInstanceWithAgent = (agentKey?: string) => {
-  const preferred = getAgentPreferredChatInstanceKey(agentKey)
+const syncChatInstanceWithAgent = (bizKey?: string) => {
+  const preferred = getAgentPreferredChatInstanceKey(bizKey)
   if (preferred) {
     selectedChatInstanceKey.value = preferred
   }
@@ -254,7 +254,7 @@ const resetInputDraftState = () => {
   fileUrlList.value = []
   isDeepThinking.value = false
   isWebSearch.value = false
-  selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
+  selectedAgent.value = agentOptions.value[0]?.bizKey || undefined
   selectedChatInstanceKey.value = getDefaultChatInstanceKey(selectedAgent.value)
 }
 
@@ -557,8 +557,8 @@ const loadOptions = async () => {
     console.log('Agent options loaded:', agentOptions.value)
     console.log('Chat instance options loaded:', chatInstanceOptions.value)
 
-    if (!selectedAgent.value || !agentOptions.value.some((item) => item.agentKey === selectedAgent.value)) {
-      selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
+    if (!selectedAgent.value || !agentOptions.value.some((item) => item.bizKey === selectedAgent.value)) {
+      selectedAgent.value = agentOptions.value[0]?.bizKey || undefined
     }
     if (
         !selectedChatInstanceKey.value ||
@@ -574,9 +574,9 @@ const loadOptions = async () => {
   }
 }
 
-watch(selectedAgent, (agentKey, previousAgentKey) => {
-  if (agentKey && agentKey !== previousAgentKey) {
-    syncChatInstanceWithAgent(agentKey)
+watch(selectedAgent, (bizKey, previousBizKey) => {
+  if (bizKey && bizKey !== previousBizKey) {
+    syncChatInstanceWithAgent(bizKey)
   }
 })
 
@@ -618,7 +618,7 @@ const submitQuestion = async (promptArg?: string) => {
         ...(workspaceEnv ? {[WORKSPACE_ENV_HEADER]: workspaceEnv.trim()} : {})
       },
       body: JSON.stringify({
-        agentKey: selectedAgent.value,
+        bizKey: selectedAgent.value,
         instanceKey: selectedChatInstanceKey.value,
         memoryKey: getMemoryKey(),
         userMessage: prompt,

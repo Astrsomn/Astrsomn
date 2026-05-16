@@ -281,7 +281,7 @@ public class StreamTurnPersistenceHelper {
         session.setPromptTokens(0);
         session.setCompletionTokens(0);
         session.setTotalTokens(0);
-        session.setAgentKey(param.getAgentKey());
+        session.setBizKey(param.getBizKey());
         session.setModelKey(param.getModelKey());
         session.setPromptKey(param.getPromptSetting().getPromptKey());
         session.setInstanceKey(param.getInstanceKey());
@@ -394,7 +394,7 @@ public class StreamTurnPersistenceHelper {
         entity.setMemoryKey(param.getMemoryKey());
         entity.setTurnNo(turnNo);
         entity.setMessageOrder(messageOrder);
-        entity.setAgentKey(param.getAgentKey());
+        entity.setBizKey(param.getBizKey());
         entity.setModelKey(param.getModelKey());
         entity.setPromptKey(param.getPromptSetting().getPromptKey());
         entity.setInstanceKey(param.getInstanceKey());
@@ -428,7 +428,7 @@ public class StreamTurnPersistenceHelper {
         wrapper.setSql("TOTAL_TOKENS = COALESCE(TOTAL_TOKENS, 0) + " + totalTokens);
         wrapper.set(com.astrsomn.api.runtime.common.entity.AiChatSessionEntity::getLastMessageAt, System.currentTimeMillis());
         wrapper.set(com.astrsomn.api.runtime.common.entity.AiChatSessionEntity::getLastMessagePreview, preview);
-        wrapper.set(com.astrsomn.api.runtime.common.entity.AiChatSessionEntity::getAgentKey, param.getAgentKey());
+        wrapper.set(com.astrsomn.api.runtime.common.entity.AiChatSessionEntity::getBizKey, param.getBizKey());
         wrapper.set(com.astrsomn.api.runtime.common.entity.AiChatSessionEntity::getModelKey, param.getModelKey());
         wrapper.set(com.astrsomn.api.runtime.common.entity.AiChatSessionEntity::getPromptKey, param.getPromptSetting().getPromptKey());
         wrapper.set(com.astrsomn.api.runtime.common.entity.AiChatSessionEntity::getInstanceKey, param.getInstanceKey());

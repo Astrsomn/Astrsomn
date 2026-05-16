@@ -9,7 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * 未传 {@code agentKey} 时，使用当前环境下 {@code AI_AGENT.IS_DEFAULT = 1} 的记录，保证有一条入口链路。
+ * 未传 {@code bizKey} 时，使用当前环境下 {@code AI_AGENT.IS_DEFAULT = 1} 的记录，保证有一条入口链路。
  */
 @Component
 @Order(10)
@@ -20,10 +20,10 @@ public class ApplyDatabaseDefaultsChainHandler implements AgentRuntimeChainHandl
 
     @Override
     public void handle(AgentRuntimeContext ctx) {
-        if (StringUtils.isBlank(ctx.getParam().getAgentKey())) {
+        if (StringUtils.isBlank(ctx.getParam().getBizKey())) {
             aiRuntimeDefaultsResolver
-                    .resolveDefaultAgentKey(ctx.getEnvCode())
-                    .ifPresent(key -> ctx.getParam().setAgentKey(key));
+                    .resolveDefaultBizKey(ctx.getEnvCode())
+                    .ifPresent(key -> ctx.getParam().setBizKey(key));
         }
     }
 }

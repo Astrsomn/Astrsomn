@@ -18,5 +18,5 @@ public interface AiInstanceMapper extends BaseMapper<AiInstanceEntity> {
 
     AiInstanceResponseDTO selectDetailDtoById(@Param("id") Long id);
 
-    List<AiInstanceResponseDTO> selectByAgentKeys(@Param("agentKeys") List<String> agentKeys);
+    List<AiInstanceResponseDTO> selectByBizKeys(@Param("bizKeys") List<String> bizKeys);
 }

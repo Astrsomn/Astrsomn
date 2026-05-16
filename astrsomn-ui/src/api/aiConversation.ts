@@ -18,7 +18,7 @@ export type AiChatMessageRow = {
     promptTokens?: number
     completionTokens?: number
     totalTokens?: number
-    agentKey?: string
+    bizKey?: string
     instanceKey?: string
     modelKey?: string
     accountKey?: string

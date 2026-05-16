@@ -3,6 +3,7 @@ package com.astrsomn.server.service.impl;
 import com.astrsomn.api.vector.constant.AiVecDriverEnum;
 import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.vector.entity.AiVecStoreEntity;
+import com.astrsomn.api.runtime.common.dto.instance.AiInstanceCreateRequestDTO;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.vector.exception.AstVecStoreErrorEnum;
@@ -13,6 +14,7 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiVecStoreMapper;
+import com.astrsomn.server.service.AiInstanceService;
 import com.astrsomn.server.service.AiVecSourceService;
 import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
@@ -32,6 +34,7 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final VectorStorePhysicalHandler astroVecStorePhysicalOps;
     private final AiVecSourceService aiVecSourceService;
+    private final AiInstanceService aiInstanceService;
 
     private static void mergeVecStoreUpdate(AiVecStoreEntity target, AiVecStoreUpdateRequestDTO req) {
         if (req.getSourceId() != null) {
@@ -51,6 +54,9 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         }
         if (req.getInstanceKey() != null) {
             target.setInstanceKey(req.getInstanceKey());
+        }
+        if (req.getModelKey() != null) {
+            target.setModelKey(req.getModelKey());
         }
     }
 
@@ -84,6 +90,19 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
     public BaseResponse<String> create(AiVecStoreCreateRequestDTO request) {
         AiVecStoreEntity entity = new AiVecStoreEntity();
         BeanUtils.copyProperties(request, entity);
+
+        // Auto-create embedding instance from modelKey if instanceKey not provided
+        if (StringUtils.isBlank(entity.getInstanceKey()) && StringUtils.isNotBlank(entity.getModelKey())) {
+            String autoInstanceKey = "vec-" + entity.getModelKey() + "-" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+            AiInstanceCreateRequestDTO instReq = new AiInstanceCreateRequestDTO();
+            instReq.setInstanceKey(autoInstanceKey);
+            instReq.setModelKey(entity.getModelKey());
+            instReq.setInstanceName("vec-auto-" + entity.getModelKey());
+            instReq.setStatus("enabled");
+            aiInstanceService.create(instReq);
+            entity.setInstanceKey(autoInstanceKey);
+        }
+
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_CREATE_FAILED);

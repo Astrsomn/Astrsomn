@@ -93,7 +93,7 @@ const submitting = ref(false)
 const agentName = ref('未命名的智能体')
 const description = ref('')
 const status = ref('enabled')
-const agentKey = ref('')
+const bizKey = ref('')
 const enableStream = ref(true)
 const memoryMode = ref('SLIDING_WINDOW')
 const memoryWindowSize = ref('10')
@@ -177,7 +177,7 @@ function onKbRemove(kbKey: string) {
 function buildSubmitPayload(): AiAgent {
   return {
     agentName: agentName.value,
-    agentKey: agentKey.value || undefined,
+    bizKey: bizKey.value || undefined,
     status: status.value,
     enableStream: enableStream.value,
     description: description.value,
@@ -223,7 +223,7 @@ function handleReset() {
   agentName.value = '未命名的智能体'
   description.value = ''
   status.value = 'enabled'
-  agentKey.value = ''
+  bizKey.value = ''
   enableStream.value = true
   memoryMode.value = 'SLIDING_WINDOW'
   memoryWindowSize.value = '10'
@@ -246,7 +246,7 @@ async function backfillFromDetail(detail: AiAgent) {
   agentName.value = detail.agentName || '未命名的智能体'
   description.value = detail.description || ''
   status.value = detail.status || 'enabled'
-  agentKey.value = detail.agentKey || ''
+  bizKey.value = detail.bizKey || ''
   enableStream.value = detail.enableStream ?? true
   memoryMode.value = detail.memoryMode || 'SLIDING_WINDOW'
   memoryWindowSize.value = detail.memoryWindowSize || '10'

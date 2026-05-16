@@ -18,8 +18,8 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
-    @TableField("AGENT_KEY")
-    private String agentKey;
+    @TableField("BIZ_KEY")
+    private String bizKey;
 
     @TableField("AGENT_NAME")
     private String agentName;

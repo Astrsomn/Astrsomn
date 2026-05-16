@@ -40,7 +40,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
     private final AiPromptService aiPromptService;
     private final AiInstanceService aiInstanceService;
 
-    private static final String AGENT_KEY_PREFIX = "AG-";
+    private static final String BIZ_KEY_PREFIX = "AG-";
     private static final int RANDOM_KEY_LENGTH = 16;
 
     @Override
@@ -74,9 +74,9 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         BeanUtils.copyProperties(aiAgent, responseDTO);
 
         // 加载关联的推理实例列表
-        String agentKey = aiAgent.getAgentKey();
-        if (StringUtils.isNotBlank(agentKey)) {
-            List<AiInstanceResponseDTO> instances = aiInstanceService.queryByAgentKeys(List.of(agentKey));
+        String bizKey = aiAgent.getBizKey();
+        if (StringUtils.isNotBlank(bizKey)) {
+            List<AiInstanceResponseDTO> instances = aiInstanceService.queryByBizKeys(List.of(bizKey));
             responseDTO.setInstanceList(instances != null ? instances : Collections.emptyList());
         }
 
@@ -131,16 +131,16 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
 
         List<AiAgentResponseDTO> records = result.getRecords();
         if (records != null && !records.isEmpty()) {
-            List<String> agentKeys = records.stream()
-                    .map(AiAgentResponseDTO::getAgentKey)
+            List<String> bizKeys = records.stream()
+                    .map(AiAgentResponseDTO::getBizKey)
                     .filter(StringUtils::isNotBlank)
                     .collect(Collectors.toList());
-            if (!agentKeys.isEmpty()) {
-                List<AiInstanceResponseDTO> allInstances = aiInstanceService.queryByAgentKeys(agentKeys);
+            if (!bizKeys.isEmpty()) {
+                List<AiInstanceResponseDTO> allInstances = aiInstanceService.queryByBizKeys(bizKeys);
                 Map<String, List<AiInstanceResponseDTO>> grouped = allInstances.stream()
-                        .collect(Collectors.groupingBy(AiInstanceResponseDTO::getAgentKey));
+                        .collect(Collectors.groupingBy(AiInstanceResponseDTO::getBizKey));
                 for (AiAgentResponseDTO dto : records) {
-                    dto.setInstanceList(grouped.getOrDefault(dto.getAgentKey(), Collections.emptyList()));
+                    dto.setInstanceList(grouped.getOrDefault(dto.getBizKey(), Collections.emptyList()));
                 }
             }
         }
@@ -151,10 +151,10 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> createFullAgent(AiAgentCreateRequestDTO request) {
-        String agentKey = request.getAgentKey();
-        if (StringUtils.isBlank(agentKey)) {
-            agentKey = generateUniqueAgentKey();
-            request.setAgentKey(agentKey);
+        String bizKey = request.getBizKey();
+        if (StringUtils.isBlank(bizKey)) {
+            bizKey = generateUniqueBizKey();
+            request.setBizKey(bizKey);
         }
 
         String promptKey = null;
@@ -186,7 +186,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
                 if (StringUtils.isBlank(instanceRequest.getInstanceKey())) {
                     instanceRequest.setInstanceKey(generateUniqueInstanceKey());
                 }
-                instanceRequest.setAgentKey(agentKey);
+                instanceRequest.setBizKey(bizKey);
                 instanceRequest.setEnvCode(request.getEnvCode());
                 instanceRequest.setStatus("enabled");
                 if (StringUtils.isNotBlank(routeStrategy)) {
@@ -199,8 +199,8 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         return BaseResponse.success("完整Agent创建成功");
     }
 
-    private String generateUniqueAgentKey() {
-        return AGENT_KEY_PREFIX + UUID.randomUUID().toString().replace("-", "").substring(0, RANDOM_KEY_LENGTH);
+    private String generateUniqueBizKey() {
+        return BIZ_KEY_PREFIX + UUID.randomUUID().toString().replace("-", "").substring(0, RANDOM_KEY_LENGTH);
     }
 
     private String generateUniquePromptKey() {

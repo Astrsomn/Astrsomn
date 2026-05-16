@@ -28,11 +28,11 @@
         <div class="field-group">
           <label class="field-label">Agent Key</label>
           <AstrsomnKeyGenerator
-              :model-value="agentKey"
-              :prefix="AI_AGENT_KEY_PREFIX"
+              :model-value="bizKey"
+              :prefix="AI_BIZ_KEY_PREFIX"
               class="soft-input"
               placeholder="留空则自动生成"
-              @update:model-value="emit('update:agentKey', $event)"
+              @update:model-value="emit('update:bizKey', $event)"
           />
         </div>
       </div>
@@ -75,11 +75,11 @@ import type {AiPrompt} from '@/api/aiPrompt'
 import PromptCard from '@/views/admin/ai-config/builder/component/left-center/PromptCard.vue'
 import AstrsomnKeyGenerator from '@/components/home/AstrsomnKeyGenerator.vue'
 import IconAvatarPicker from '@/components/home/IconAvatarPicker.vue'
-import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
+import {AI_BIZ_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
 defineProps<{
   agentName: string
-  agentKey: string
+  bizKey: string
   agentAvatar: string
   currentPrompt: AiPrompt | undefined
   improveLoading: boolean
@@ -87,7 +87,7 @@ defineProps<{
 
 const emit = defineEmits<{
   'update:agentName': [value: string]
-  'update:agentKey': [value: string]
+  'update:bizKey': [value: string]
   'update:agentAvatar': [value: string]
   'open-prompt-drawer': []
   'open-prompt-form': []
