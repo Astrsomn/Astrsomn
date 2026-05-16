@@ -51,8 +51,7 @@ public class AiChatSessionEntity extends BaseEntity<Long> {
     @TableField("TOTAL_TOKENS")
     private Integer totalTokens;
 
-    @TableField("BIZ_KEY")
-    private String bizKey;
+
 
     @TableField("INSTANCE_KEY")
     private String instanceKey;

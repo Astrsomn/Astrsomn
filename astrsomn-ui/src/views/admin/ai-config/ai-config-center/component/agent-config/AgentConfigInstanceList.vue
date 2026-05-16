@@ -66,6 +66,13 @@
 
       <!-- 右侧：配置详情 -->
       <div class="split-right">
+        <!-- 未选中实例时的占位提示 -->
+        <div v-if="!isAddingNew && !currentDetailInstance" class="no-selection-placeholder">
+          <CloudServerOutlined class="no-selection-icon"/>
+          <p class="no-selection-text">请从左侧选择一个实例，或点击添加新实例</p>
+        </div>
+
+        <template v-else>
         <div class="detail-header">
           <div>
             <h3 class="detail-title">配置详情</h3>
@@ -324,6 +331,7 @@
             {{ isAddingNew ? '确认添加' : '应用更改' }}
           </a-button>
         </div>
+        </template>
       </div>
     </div>
 
@@ -888,6 +896,29 @@ watch(filteredInstances, (list) => {
   display: flex;
   flex-direction: column;
   gap: 28px;
+}
+
+/* No selection placeholder */
+.no-selection-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 300px;
+  gap: 12px;
+}
+
+.no-selection-icon {
+  font-size: 40px;
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+
+.no-selection-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
 }
 
 .detail-header {

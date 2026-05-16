@@ -73,8 +73,6 @@ public class AiChatMessageEntity extends BaseEntity<Long> {
     private String errorCode;
 
 
-    @TableField("BIZ_KEY")
-    private String bizKey;
 
 
     @TableField("INSTANCE_KEY")
