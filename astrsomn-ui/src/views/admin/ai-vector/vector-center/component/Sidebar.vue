@@ -1,14 +1,26 @@
 <template>
-  <!-- 折叠模式 -->
-  <div v-if="collapsed" class="sidebar-collapsed">
-    <div class="collapsed-header">
-      <PlusOutlined class="collapsed-action-icon" @click="handleAddSource"/>
-      <div class="collapsed-toggle" @click="emit('toggle-collapse')">
-        <RightOutlined/>
-      </div>
-    </div>
+  <div class="sidebar-wrapper">
+  <SidebarShell :collapsed="collapsed">
+    <template #top>
+      <a-tooltip :placement="collapsed ? 'right' : 'bottom'">
+        <template #title>{{ collapsed ? '展开侧边栏' : '收起侧边栏' }}</template>
+        <div class="collapse-toggle" @click="emit('toggle-collapse')">
+          <MenuUnfoldOutlined v-if="collapsed"/>
+          <MenuFoldOutlined v-else/>
+        </div>
+      </a-tooltip>
+      <AstSearchInput
+          v-if="!collapsed"
+          v-model="searchText"
+          class="sidebar-search-pill"
+          layout="fluid"
+          placeholder="搜索数据源..."
+          @search="handleSearch"
+      />
+    </template>
 
-    <div class="collapsed-content">
+    <!-- 折叠模式：源图标列表 -->
+    <div v-if="collapsed" class="collapsed-content">
       <div
           v-for="source in sourceTree"
           :key="source.id"
@@ -20,21 +32,16 @@
         <img v-if="source.providerAvatar" :src="source.providerAvatar" alt="" class="collapsed-source-avatar"/>
         <ClusterOutlined v-else class="collapsed-source-icon"/>
       </div>
+      <a-tooltip placement="right">
+        <template #title>添加数据源</template>
+        <div class="collapsed-add-btn" @click="handleAddSource">
+          <PlusOutlined class="collapsed-add-icon"/>
+        </div>
+      </a-tooltip>
     </div>
 
-    <div class="collapsed-footer">
-      <AppstoreOutlined class="collapsed-footer-icon" title="打开插件市场" @click="goPluginMarketplace"/>
-    </div>
-  </div>
-
-  <!-- 展开模式（原样） -->
-  <div v-else class="sidebar-container">
-    <div class="sidebar-header">
-      <PlusOutlined class="add-icon" @click="handleAddSource"/>
-      <LeftOutlined class="add-icon" title="收起侧栏" @click="emit('toggle-collapse')"/>
-    </div>
-
-    <div class="sidebar-content" @contextmenu="onSidebarBlankContextMenu">
+    <!-- 展开模式：源树 -->
+    <div v-else class="source-tree" @contextmenu="onSidebarBlankContextMenu">
       <div
           v-for="source in sourceTree"
           :key="source.id"
@@ -141,110 +148,103 @@
       </div>
     </div>
 
-    <div class="sidebar-footer">
-      <div class="footer-row">
-        <div class="driver-info">
-          <div class="s-avatars">
-            <template v-if="enabledExtensions.length">
-              <span
-                  v-for="item in enabledExtensions.slice(0, 4)"
-                  :key="item.key"
-                  :title="item.name"
-                  class="s-av s-av-real"
-              >
-                <img v-if="item.avatar" :alt="item.name" :src="item.avatar"/>
-                <span v-else>{{ item.initial }}</span>
-              </span>
-            </template>
-            <span v-else class="s-av">-</span>
-          </div>
-          <span class="s-text">
-            {{ enabledExtensions.length ? `已启用扩展 ${enabledExtensions.length}` : '暂无已启用扩展' }}
-          </span>
-        </div>
-        <AppstoreOutlined class="m-btn" title="打开插件市场" @click="goPluginMarketplace"/>
+    <!-- 添加数据源按钮（展开模式） -->
+    <div v-if="!collapsed" class="add-source-section">
+      <div class="add-source-btn" @click="handleAddSource">
+        <PlusOutlined class="add-source-icon"/>
+        <span>添加数据源</span>
       </div>
     </div>
-    <Teleport to="body">
+
+    <template #footer>
+      <SidebarFooter
+          :collapsed="collapsed"
+          :enabled-extensions="enabledExtensions"
+          @open-marketplace="goPluginMarketplace"
+      />
+    </template>
+  </SidebarShell>
+
+  <Teleport to="body">
+    <div
+        v-if="blankContextMenuVisible"
+        class="blank-context-menu-overlay"
+        @click="closeBlankContextMenu"
+        @contextmenu.prevent="closeBlankContextMenu"
+    >
       <div
-          v-if="blankContextMenuVisible"
-          class="blank-context-menu-overlay"
-          @click="closeBlankContextMenu"
-          @contextmenu.prevent="closeBlankContextMenu"
+          :style="{ left: blankContextMenuX + 'px', top: blankContextMenuY + 'px' }"
+          class="blank-context-menu"
+          @click.stop
       >
-        <div
-            :style="{ left: blankContextMenuX + 'px', top: blankContextMenuY + 'px' }"
-            class="blank-context-menu"
-            @click.stop
-        >
-          <div class="blank-context-menu-item" @click="onBlankMenuAction('addSource')">
-            <PlusOutlined/>
-            <span>新建数据源</span>
-          </div>
-          <div class="blank-context-menu-divider"/>
-          <div class="blank-context-menu-item" @click="onBlankMenuAction('refresh')">
-            <ReloadOutlined/>
-            <span>刷新</span>
-          </div>
+        <div class="blank-context-menu-item" @click="onBlankMenuAction('addSource')">
+          <PlusOutlined/>
+          <span>新建数据源</span>
+        </div>
+        <div class="blank-context-menu-divider"/>
+        <div class="blank-context-menu-item" @click="onBlankMenuAction('refresh')">
+          <ReloadOutlined/>
+          <span>刷新</span>
         </div>
       </div>
-    </Teleport>
-    <VecSourceFormModal
-        :confirm-loading="sourceModalSubmitting"
-        :initial="sourceModalInitial"
-        :mode="sourceModalMode"
-        :open="sourceModalOpen"
-        @submit="handleSourceSubmit"
-        @update:open="onSourceModalOpenChange"
-    />
-    <VecStoreFormModal
-        :confirm-loading="storeModalSubmitting"
-        :default-source-id="storeModalSourceId"
-        :initial="storeModalInitial"
-        :mode="storeModalMode"
-        :open="storeModalOpen"
-        @submit="handleStoreSubmit"
-        @update:open="onStoreModalOpenChange"
-    />
-    <!-- 悬浮面板（折叠模式下 hover source 时弹出） -->
-    <Teleport to="body">
+    </div>
+  </Teleport>
+  <VecSourceFormModal
+      :confirm-loading="sourceModalSubmitting"
+      :initial="sourceModalInitial"
+      :mode="sourceModalMode"
+      :open="sourceModalOpen"
+      @submit="handleSourceSubmit"
+      @update:open="onSourceModalOpenChange"
+  />
+  <VecStoreFormModal
+      :confirm-loading="storeModalSubmitting"
+      :default-source-id="storeModalSourceId"
+      :initial="storeModalInitial"
+      :mode="storeModalMode"
+      :open="storeModalOpen"
+      @submit="handleStoreSubmit"
+      @update:open="onStoreModalOpenChange"
+  />
+  <!-- 悬浮面板（折叠模式下 hover source 时弹出） -->
+  <Teleport to="body">
+    <div
+        v-if="hoverPanelVisible && hoverSource"
+        class="hover-panel-overlay"
+        @mouseenter="onHoverPanelEnter"
+        @mouseleave="onHoverPanelLeave"
+    >
       <div
-          v-if="hoverPanelVisible && hoverSource"
-          class="hover-panel-overlay"
-          @mouseenter="onHoverPanelEnter"
-          @mouseleave="onHoverPanelLeave"
+          class="hover-panel"
+          :style="{ left: hoverPanelX + 'px', top: hoverPanelY + 'px' }"
       >
-        <div
-            class="hover-panel"
-            :style="{ left: hoverPanelX + 'px', top: hoverPanelY + 'px' }"
-        >
-          <SourceCard
-              :ip="hoverSource.ip"
-              :is-checking="checkingSourceMap[String(hoverSource.id)] === true"
-              :is-connected="hoverSource.connected"
-              :is-open="true"
-              :port="hoverSource.port"
-              :provider-avatar="hoverSource.providerAvatar"
-              :source-name="hoverSource.name"
-              :source-type="hoverSource.type"
-              @toggle="selectSource(hoverSource.id)"
+        <SourceCard
+            :ip="hoverSource.ip"
+            :is-checking="checkingSourceMap[String(hoverSource.id)] === true"
+            :is-connected="hoverSource.connected"
+            :is-open="true"
+            :port="hoverSource.port"
+            :provider-avatar="hoverSource.providerAvatar"
+            :source-name="hoverSource.name"
+            :source-type="hoverSource.type"
+            @toggle="selectSource(hoverSource.id)"
+        />
+        <div v-if="hoverSource.dbs.length" class="hover-panel-dbs">
+          <DbNode
+              v-for="db in hoverSource.dbs"
+              :key="db.id"
+              :active="db.active"
+              :db-name="db.dbName"
+              :dim="db.dim"
+              :is-selected="String(selectedStoreId) === String(db.id)"
+              :model-name="db.modelName"
+              @select="onHoverSelectDb(hoverSource.id, db.id)"
           />
-          <div v-if="hoverSource.dbs.length" class="hover-panel-dbs">
-            <DbNode
-                v-for="db in hoverSource.dbs"
-                :key="db.id"
-                :active="db.active"
-                :db-name="db.dbName"
-                :dim="db.dim"
-                :is-selected="String(selectedStoreId) === String(db.id)"
-                :model-name="db.modelName"
-                @select="onHoverSelectDb(hoverSource.id, db.id)"
-            />
-          </div>
-          <div v-else class="hover-panel-empty">暂无数据库</div>
         </div>
+        <div v-else class="hover-panel-empty">暂无数据库</div>
       </div>
-    </Teleport>
+    </div>
+  </Teleport>
   </div>
 </template>
 
@@ -252,17 +252,19 @@
 import {computed, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import {
-  AppstoreOutlined,
   ClusterOutlined,
   DeleteOutlined,
   EditOutlined,
-  LeftOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
   PlusOutlined,
-  ReloadOutlined,
-  RightOutlined
+  ReloadOutlined
 } from '@ant-design/icons-vue'
-import SourceCard from './SourceCard.vue'
-import DbNode from './DbNode.vue'
+import SidebarShell from '@/components/sidebar/SidebarShell.vue'
+import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import SourceCard from './sidebar/SourceCard.vue'
+import DbNode from './sidebar/DbNode.vue'
 import VecSourceFormModal from '@/views/admin/ai-vector/vec-source/VecSourceFormModal.vue'
 import VecStoreFormModal from '@/views/admin/ai-vector/vec-store/VecStoreFormModal.vue'
 import {type AiVecSource, aiVecSourceApi} from '@/api/aiVecSource.ts'
@@ -283,6 +285,11 @@ const emit = defineEmits<{
   changed: []
   'toggle-collapse': []
 }>()
+
+const searchText = ref('')
+const handleSearch = () => {
+  // TODO: 实现搜索逻辑
+}
 
 // 悬浮面板相关
 const hoverSourceId = ref<number | string | null>(null)
@@ -545,8 +552,6 @@ const deleteSource = async (id: number | string) => {
 const handleSourceSubmit = async (payload: AiVecSource) => {
   sourceModalSubmitting.value = true
   try {
-    const provider = String(payload.provider || '').toLowerCase()
-
     if (sourceModalMode.value === 'create') {
       await aiVecSourceApi.create(payload)
     } else {
@@ -714,46 +719,49 @@ watch(
 )
 </script>
 
-<style lang="less" scoped>
-.sidebar-container {
-  height: calc(100vh - 60px);
-  width: 100%;
-  background: var(--bg-card);
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--border-default);
+<style scoped>
+.add-icon {
+  width: 30px;
+  height: 30px;
   border-radius: var(--radius-md);
-  margin: 0;
-  overflow: hidden;
-}
-
-.sidebar-header {
-  padding: 14px 16px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-default);
-
-  .add-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover {
-      background: var(--primary-hover);
-      color: var(--primary);
-    }
-  }
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.sidebar-content {
+.add-icon:hover {
+  background: var(--primary-hover);
+  color: var(--primary);
+}
+
+.collapse-toggle {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.collapse-toggle:hover {
+  color: var(--primary);
+  background: var(--primary-hover);
+}
+
+.ast-sidebar.collapsed .collapse-toggle {
+  width: 36px;
+  height: 36px;
+}
+
+.source-tree {
   flex: 1;
   overflow-y: auto;
   padding: 10px 8px;
@@ -793,191 +801,109 @@ watch(
   margin-bottom: 0;
 }
 
-.sidebar-footer {
-  padding: 12px 14px;
-  border-top: 1px solid var(--border-default);
-
-  .footer-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .driver-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .s-avatars {
-        display: flex;
-
-        .s-av {
-          width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          background: var(--primary-hover);
-          color: var(--primary);
-          font-size: 9px;
-          font-weight: 700;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid var(--bg-card);
-          margin-right: -4px;
-        }
-      }
-
-      .s-text {
-        font-size: 11px;
-        color: var(--text-muted);
-      }
-    }
-
-    .m-btn {
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: color 0.2s;
-
-      &:hover {
-        color: var(--primary);
-      }
-    }
-  }
-}
-
-.sidebar-footer .footer-row .driver-info .s-avatars .s-av.s-av-real {
-  overflow: hidden;
-  padding: 0;
-}
-
-.sidebar-footer .footer-row .driver-info .s-avatars .s-av.s-av-real img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
 :deep(.danger-item) {
   color: var(--error);
-
-  &:hover {
-    color: var(--error) !important;
-    background: rgba(239, 68, 68, 0.1) !important;
-  }
 }
 
-/* 折叠模式 */
-.sidebar-collapsed {
-  height: 100%;
-  width: 56px;
+:deep(.danger-item:hover) {
+  color: var(--error) !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+/* 折叠模式内容 */
+.collapsed-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: var(--bg-card);
-  overflow: hidden;
+  gap: 4px;
+  padding: 8px 0;
+  width: 100%;
+}
 
-  .collapsed-header {
-    padding: 14px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    border-bottom: 1px solid var(--border-default);
+.collapsed-source-item {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
 
-    .collapsed-action-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s;
+.collapsed-source-item:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
 
-      &:hover {
-        background: var(--primary-hover);
-        color: var(--primary);
-      }
-    }
+.collapsed-source-avatar {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  border-radius: var(--radius-lg);
+}
 
-    .collapsed-toggle {
-      width: 24px;
-      height: 24px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s;
+.collapsed-source-icon {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
 
-      &:hover {
-        background: var(--primary-hover);
-        color: var(--primary);
-      }
-    }
-  }
+.collapsed-add-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
 
-  .collapsed-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+.collapsed-add-btn:hover {
+  background: var(--primary-hover);
+  color: var(--primary);
+}
 
-    .collapsed-source-item {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-md);
-      background: var(--bg-input);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
+.collapsed-add-icon {
+  font-size: 16px;
+  color: var(--text-muted);
+}
 
-      &:hover {
-        background: var(--primary-hover);
-        transform: translateY(-1px);
-      }
+.sidebar-search-pill {
+  flex: 1;
+  min-width: 0;
+}
 
-      .collapsed-source-avatar {
-        width: 22px;
-        height: 22px;
-        object-fit: contain;
-        border-radius: var(--radius-lg);
-      }
+.add-source-section {
+  flex-shrink: 0;
+  padding: 8px;
+  border-top: 1px solid var(--border-default);
+}
 
-      .collapsed-source-icon {
-        font-size: 16px;
-        color: var(--text-secondary);
-      }
-    }
-  }
+.add-source-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+}
 
-  .collapsed-footer {
-    padding: 12px 0;
-    border-top: 1px solid var(--border-default);
-    width: 100%;
-    display: flex;
-    justify-content: center;
+.add-source-btn:hover {
+  background: var(--primary-hover);
+  color: var(--primary);
+}
 
-    .collapsed-footer-icon {
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 16px;
-      transition: color 0.2s;
-
-      &:hover {
-        color: var(--primary);
-      }
-    }
-  }
+.add-source-icon {
+  font-size: 14px;
 }
 </style>
 

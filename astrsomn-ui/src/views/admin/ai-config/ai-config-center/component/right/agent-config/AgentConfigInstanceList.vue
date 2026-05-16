@@ -361,12 +361,12 @@ import {
   SearchOutlined,
   SwapOutlined,
 } from '@ant-design/icons-vue'
-import type {AiModel} from '@/api/aiModel'
-import type {AiInstance} from '@/api/aiInstance'
-import type {AiAccount} from '@/api/aiAccount'
+import type {AiModel} from '@/api/aiModel.ts'
+import type {AiInstance} from '@/api/aiInstance.ts'
+import type {AiAccount} from '@/api/aiAccount.ts'
 import ModelSelectorDrawer from '@/views/admin/ai-config/ai-model/selector/ModelSelectorDrawer.vue'
 import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
-import {useInstanceParamVisibility, getTempInfo} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
+import {useInstanceParamVisibility, getTempInfo} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility.ts'
 
 const props = defineProps<{
   instanceList: AiInstance[]
@@ -782,7 +782,7 @@ watch(filteredInstances, (list) => {
   grid-template-columns: 4fr 8fr;
 }
 
-/* Left panel */
+/* Sidebar panel */
 .split-left {
   padding: 16px;
   display: flex;

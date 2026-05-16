@@ -228,11 +228,11 @@ import {
   DeleteOutlined, EditOutlined, ExperimentOutlined, FolderOutlined,
   PlusOutlined, ReloadOutlined, ScissorOutlined, SnippetsOutlined, SyncOutlined
 } from '@ant-design/icons-vue';
-import DocFileCard from '@/views/admin/ai-vector/vector-center/component/DocFileCard.vue';
-import DocFolderCard from '@/views/admin/ai-vector/vector-center/component/DocFolderCard.vue';
+import DocFileCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFileCard.vue';
+import DocFolderCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFolderCard.vue';
 import VecDocFormModal from '@/views/admin/ai-vector/vec-doc/VecDocFormModal.vue'
-import {type AiVecDoc, aiVecDocApi} from '@/api/aiVecDoc'
-import {type AiVecFolder, aiVecFolderApi} from '@/api/aiVecFolder'
+import {type AiVecDoc, aiVecDocApi} from '@/api/aiVecDoc.ts'
+import {type AiVecFolder, aiVecFolderApi} from '@/api/aiVecFolder.ts'
 
 const props = defineProps<{
   docs: AiVecDoc[]

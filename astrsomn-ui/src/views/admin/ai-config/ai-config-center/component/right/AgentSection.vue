@@ -81,7 +81,7 @@ import {
   PlusCircleOutlined,
   RightOutlined,
 } from '@ant-design/icons-vue'
-import {type AiAgent, aiAgentApi, type PageResponse} from '@/api/aiAgent'
+import {type AiAgent, aiAgentApi, type PageResponse} from '@/api/aiAgent.ts'
 
 const props = defineProps<{
   providerKey?: string

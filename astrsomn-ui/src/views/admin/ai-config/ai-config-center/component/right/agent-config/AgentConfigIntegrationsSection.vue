@@ -67,8 +67,8 @@
 <script lang="ts" setup>
 import {ref} from 'vue'
 import {ApiOutlined, DatabaseOutlined, PlusOutlined, SettingOutlined, ToolOutlined} from '@ant-design/icons-vue'
-import type {AiTool} from '@/api/aiTool'
-import type {AiMcp} from '@/api/aiMcp'
+import type {AiTool} from '@/api/aiTool.ts'
+import type {AiMcp} from '@/api/aiMcp.ts'
 import ToolCard from '@/views/admin/ai-config/builder/component/left-center/ToolCard.vue'
 import McpCard from '@/views/admin/ai-config/builder/component/left-center/McpCard.vue'
 import RagCard from '@/views/admin/ai-config/builder/component/left-center/RagCard.vue'

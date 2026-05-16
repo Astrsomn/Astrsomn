@@ -37,7 +37,7 @@
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
 import {message, Modal} from 'ant-design-vue'
-import {type AiVecSegment, aiVecSegmentApi} from '@/api/aiVecSegment'
+import {type AiVecSegment, aiVecSegmentApi} from '@/api/aiVecSegment.ts'
 
 const props = defineProps<{
   segments: AiVecSegment[]

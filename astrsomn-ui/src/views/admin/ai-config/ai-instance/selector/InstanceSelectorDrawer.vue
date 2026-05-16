@@ -1,14 +1,12 @@
 <template>
-  <a-drawer
-      :closable="true"
-      :maskClosable="true"
+  <AstDrawer
       :open="props.open"
-      :title="drawerTitle"
+      @update:open="emit('update:open', $event)"
       :width="560"
-      placement="right"
       root-class-name="instance-select-drawer"
-      @close="handleClose"
   >
+    <template #title>{{ drawerTitle }}</template>
+
     <div class="select-drawer-content">
       <div class="toolbar">
         <a-input
@@ -100,18 +98,18 @@
           <a-empty v-if="!loading && list.length === 0" description="暂无实例"/>
         </div>
       </a-spin>
-
-      <div class="drawer-footer">
-        <AstPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :show-size-changer="true"
-            :total="page.total"
-            @change="onPageChange"
-        />
-      </div>
     </div>
-  </a-drawer>
+
+    <template #footer>
+      <AstPagination
+          :current="page.pageNum"
+          :page-size="page.pageSize"
+          :show-size-changer="true"
+          :total="page.total"
+          @change="onPageChange"
+      />
+    </template>
+  </AstDrawer>
 </template>
 
 <script lang="ts" setup>
@@ -127,6 +125,7 @@ import {
   PlusOutlined,
   SearchOutlined
 } from '@ant-design/icons-vue'
+import AstDrawer from '@/components/home/AstDrawer.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import {type AiInstance, aiInstanceApi, type PageResponse} from '@/api/aiInstance.ts'
 
@@ -223,10 +222,6 @@ const onPageChange = (p: number, size: number) => {
   void fetchList()
 }
 
-const handleClose = () => {
-  emit('update:open', false)
-}
-
 watch(() => props.open, (val) => {
   if (val) {
     keyword.value = ''
@@ -244,8 +239,6 @@ watch(() => props.open, (val) => {
 .select-drawer-content {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 0;
 }
 
 .type-tabs {
@@ -445,11 +438,5 @@ watch(() => props.open, (val) => {
 .status-badge.disabled {
   background: #fee2e2;
   color: #ef4444;
-}
-
-.drawer-footer {
-  flex-shrink: 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-default);
 }
 </style>

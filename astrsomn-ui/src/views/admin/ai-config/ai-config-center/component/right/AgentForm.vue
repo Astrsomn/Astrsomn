@@ -79,20 +79,20 @@
 <script lang="ts" setup>
 import {ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
-import {type AiAgent, aiAgentApi} from '@/api/aiAgent'
-import {type AiInstance, aiInstanceApi} from '@/api/aiInstance'
-import {type AiModel, aiModelApi} from '@/api/aiModel'
-import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt'
-import {type AiTool, aiToolApi} from '@/api/aiTool'
-import {type AiMcp, aiMcpApi} from '@/api/aiMcp'
+import {type AiAgent, aiAgentApi} from '@/api/aiAgent.ts'
+import {type AiInstance, aiInstanceApi} from '@/api/aiInstance.ts'
+import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
+import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt.ts'
+import {type AiTool, aiToolApi} from '@/api/aiTool.ts'
+import {type AiMcp, aiMcpApi} from '@/api/aiMcp.ts'
 import PromptSelectorDrawer from '@/views/admin/ai-config/ai-prompt/selector/PromptSelectorDrawer.vue'
 import PromptFormModal from '@/views/admin/ai-config/ai-prompt/component/PromptFormModal.vue'
 import PromptHistoryModal from '@/views/admin/ai-config/ai-prompt/component/PromptHistoryModal.vue'
-import AgentConfigHeader from './agent-config/AgentConfigHeader.vue'
-import AgentConfigPersonaSection from './agent-config/AgentConfigPersonaSection.vue'
-import AgentConfigInstanceList from './agent-config/AgentConfigInstanceList.vue'
-import AgentConfigIntegrationsSection from './agent-config/AgentConfigIntegrationsSection.vue'
-import AgentConfigPromptImproveModal from './agent-config/AgentConfigPromptImproveModal.vue'
+import AgentConfigHeader from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigHeader.vue'
+import AgentConfigPersonaSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigPersonaSection.vue'
+import AgentConfigInstanceList from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigInstanceList.vue'
+import AgentConfigIntegrationsSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigIntegrationsSection.vue'
+import AgentConfigPromptImproveModal from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigPromptImproveModal.vue'
 
 const props = defineProps<{
   agentName: string
@@ -349,7 +349,7 @@ async function loadAgent() {
   loading.value = true
   try {
     const detail = await aiAgentApi.detail(props.agentId)
-    console.log('[AgentConfig] detail response:', JSON.parse(JSON.stringify(detail)))
+    console.log('[AgentForm] detail response:', JSON.parse(JSON.stringify(detail)))
     detailSnapshot.value = {...detail}
     await backfillFromDetail(detail)
     await loadAvailableModels()

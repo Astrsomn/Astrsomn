@@ -1,7 +1,7 @@
 <template>
-  <div :class="{ collapsed: collapsed }" class="sidebar-content">
-    <!-- 顶部区域：收起/展开按钮 + 搜索框 -->
-    <div class="top-section">
+  <div class="sidebar-wrapper">
+  <SidebarShell :collapsed="collapsed">
+    <template #top>
       <a-tooltip :placement="collapsed ? 'right' : 'bottom'">
         <template #title>{{ collapsed ? '展开侧边栏' : '收起侧边栏' }}</template>
         <div class="collapse-toggle" @click="toggleCollapsed">
@@ -17,13 +17,12 @@
           placeholder="搜索资源..."
           @search="handleSearch"
       />
-    </div>
+    </template>
 
     <!-- 导航列表 -->
     <div class="nav-list">
       <div class="nav-section">
         <div class="provider-list">
-          <!-- 全部选项 -->
           <a-tooltip :disabled="!collapsed" placement="right">
             <template #title>全部</template>
             <div
@@ -37,7 +36,6 @@
               <span class="provider-name">全部</span>
             </div>
           </a-tooltip>
-          <!-- 各模型提供商 -->
           <a-tooltip
               v-for="item in providers"
               :key="item.key"
@@ -68,7 +66,7 @@
       </div>
     </div>
 
-    <!-- 全局管理（固定在底部） -->
+    <!-- 全局管理 -->
     <div class="global-section">
       <a-tooltip
           v-for="item in globalItems"
@@ -88,7 +86,6 @@
         </div>
       </a-tooltip>
 
-      <!-- 展开区域 -->
       <div v-show="extraExpanded && !collapsed" class="extra-items">
         <div
             v-for="item in extraItems"
@@ -102,58 +99,27 @@
           <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
         </div>
       </div>
-      <!-- 展开/收起（收起状态下隐藏） -->
       <div v-show="!collapsed" class="expand-toggle" @click="toggleExtra">
         <span>{{ extraExpanded ? '收起' : '更多功能' }}</span>
         <DownOutlined :class="{ 'rotate-up': extraExpanded }" class="expand-arrow"/>
       </div>
     </div>
 
-    <!-- 底部拓展中心入口 -->
-    <div class="sidebar-footer">
-      <template v-if="!collapsed">
-        <div class="footer-row">
-          <div class="driver-info">
-            <div class="s-avatars">
-              <template v-if="enabledExtensions.length">
-                <span
-                    v-for="item in enabledExtensions.slice(0, 4)"
-                    :key="item.key"
-                    :title="item.name"
-                    class="s-av s-av-real"
-                >
-                  <img v-if="item.avatar" :alt="item.name" :src="item.avatar"/>
-                  <span v-else>{{ item.initial }}</span>
-                </span>
-              </template>
-              <span v-else class="s-av">-</span>
-            </div>
-            <span class="s-text">
-              {{ enabledExtensions.length ? `已启用扩展 ${enabledExtensions.length}` : '暂无已启用扩展' }}
-            </span>
-          </div>
-          <div class="plugin-market-btn" @click="goPluginMarketplace">
-            <AppstoreOutlined class="plugin-market-icon"/>
-            <span>插件市场</span>
-            <span v-if="!providers.length" class="plugin-market-dot"></span>
-          </div>
-        </div>
-      </template>
-      <template v-else>
-        <a-tooltip placement="right">
-          <template #title>插件市场</template>
-          <div class="footer-collapsed" @click="goPluginMarketplace">
-            <AppstoreOutlined class="m-btn"/>
-          </div>
-        </a-tooltip>
-      </template>
-    </div>
+    <template #footer>
+      <SidebarFooter
+          :collapsed="collapsed"
+          :enabled-extensions="enabledExtensions"
+          :show-dot="!providers.length"
+          @open-marketplace="goPluginMarketplace"
+      />
+    </template>
+  </SidebarShell>
 
-    <ExtensionMarketplaceDialog
-        :open="marketplaceOpen"
-        @cancel="marketplaceOpen = false"
-        @update:open="marketplaceOpen = $event"
-    />
+  <ExtensionMarketplaceDialog
+      :open="marketplaceOpen"
+      @cancel="marketplaceOpen = false"
+      @update:open="marketplaceOpen = $event"
+  />
   </div>
 </template>
 
@@ -161,7 +127,6 @@
 import {onMounted, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {
-  AppstoreOutlined,
   CloudServerOutlined,
   CreditCardOutlined,
   DownOutlined,
@@ -172,6 +137,8 @@ import {
   MessageOutlined,
   ToolOutlined
 } from '@ant-design/icons-vue'
+import SidebarShell from '@/components/sidebar/SidebarShell.vue'
+import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts'
 import {aiAccountApi} from '@/api/aiAccount'
 import {aiPromptApi} from '@/api/aiPrompt'
@@ -181,7 +148,7 @@ import {aiTemplateApi} from '@/api/aiTemplate'
 import {aiConversationApi} from '@/api/aiConversation'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {useDictionary} from '@/locales/dictionary'
-import ExtensionMarketplaceDialog from './ExtensionMarketplaceDialog.vue'
+import ExtensionMarketplaceDialog from './left/ExtensionMarketplaceDialog.vue'
 
 const emit = defineEmits<{
   select: [key: string]
@@ -378,36 +345,10 @@ watch(
 </script>
 
 <style scoped>
-.sidebar-content {
-  height: calc(100vh - 60px);
-  display: flex;
-  flex-direction: column;
-  padding: 14px 16px;
-  background: var(--bg-card);
-  transition: padding 0.28s ease;
-}
-
-.sidebar-content.collapsed {
-  padding: 14px 8px;
-  align-items: center;
-}
-
 /* 顶部区域 */
-.top-section {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.top-section .sidebar-search-pill {
+.sidebar-search-pill {
   flex: 1;
   min-width: 0;
-}
-
-.sidebar-content.collapsed .top-section {
-  flex-direction: column;
-  gap: 8px;
 }
 
 .collapse-toggle {
@@ -429,7 +370,7 @@ watch(
   background: var(--primary-hover);
 }
 
-.sidebar-content.collapsed .collapse-toggle {
+.ast-sidebar.collapsed .collapse-toggle {
   width: 36px;
   height: 36px;
 }
@@ -639,125 +580,16 @@ watch(
   transform: rotate(180deg);
 }
 
-/* 底部拓展中心入口 */
-.sidebar-footer {
-  flex-shrink: 0;
-  padding: 12px 0;
-  border-top: 1px solid var(--border-default);
-}
-
-.sidebar-footer .footer-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sidebar-footer .footer-row .driver-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sidebar-footer .footer-row .driver-info .s-avatars {
-  display: flex;
-}
-
-.sidebar-footer .footer-row .driver-info .s-avatars .s-av {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--primary-hover);
-  color: var(--primary);
-  font-size: 9px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--bg-card);
-  margin-right: -4px;
-}
-
-.sidebar-footer .footer-row .driver-info .s-text {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.sidebar-footer .footer-row .m-btn {
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.sidebar-footer .footer-row .m-btn:hover {
-  color: var(--primary);
-}
-
-/* 插件市场按钮 */
-.plugin-market-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-  padding: 6px 12px;
-  border-radius: var(--radius-md);
-  background: var(--primary-hover);
-  color: var(--primary);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  border: 1px solid transparent;
-}
-
-.plugin-market-btn:hover {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: #fff;
-}
-
-.plugin-market-icon {
-  font-size: 13px;
-}
-
-.plugin-market-dot {
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #ff4d4f;
-  box-shadow: 0 0 0 2px var(--primary-hover);
-  animation: dot-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes dot-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.3); }
-}
-
-.sidebar-footer .footer-row .driver-info .s-avatars .s-av.s-av-real {
-  overflow: hidden;
-  padding: 0;
-}
-
-.sidebar-footer .footer-row .driver-info .s-avatars .s-av.s-av-real img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* ── 收起状态：导航列表 ── */
-.sidebar-content.collapsed .nav-list {
+.ast-sidebar.collapsed .nav-list {
   width: 100%;
 }
 
-.sidebar-content.collapsed .provider-list {
+.ast-sidebar.collapsed .provider-list {
   align-items: center;
 }
 
-.sidebar-content.collapsed .provider-card {
+.ast-sidebar.collapsed .provider-card {
   justify-content: center;
   padding: 8px;
   width: 40px;
@@ -765,31 +597,31 @@ watch(
   margin: 0 auto;
 }
 
-.sidebar-content.collapsed .provider-card.is-active::after {
+.ast-sidebar.collapsed .provider-card.is-active::after {
   right: -4px;
 }
 
-.sidebar-content.collapsed .provider-avatar {
+.ast-sidebar.collapsed .provider-avatar {
   margin-right: 0;
 }
 
-.sidebar-content.collapsed .provider-name {
+.ast-sidebar.collapsed .provider-name {
   display: none;
 }
 
-.sidebar-content.collapsed .empty-provider {
+.ast-sidebar.collapsed .empty-provider {
   display: none;
 }
 
 /* ── 收起状态：全局管理 ── */
-.sidebar-content.collapsed .global-section {
+.ast-sidebar.collapsed .global-section {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.sidebar-content.collapsed .global-item {
+.ast-sidebar.collapsed .global-item {
   justify-content: center;
   padding: 10px;
   width: 40px;
@@ -797,50 +629,28 @@ watch(
   margin: 2px auto;
 }
 
-.sidebar-content.collapsed .global-item.is-active::after {
+.ast-sidebar.collapsed .global-item.is-active::after {
   right: -4px;
 }
 
-.sidebar-content.collapsed .global-icon {
+.ast-sidebar.collapsed .global-icon {
   margin-right: 0;
 }
 
-.sidebar-content.collapsed .global-label {
+.ast-sidebar.collapsed .global-label {
   display: none;
 }
 
-.sidebar-content.collapsed .global-count {
+.ast-sidebar.collapsed .global-count {
   display: none;
 }
 
-.sidebar-content.collapsed .expand-toggle {
+.ast-sidebar.collapsed .expand-toggle {
   display: none;
 }
 
-.sidebar-content.collapsed .extra-items {
+.ast-sidebar.collapsed .extra-items {
   display: none;
 }
 
-/* ── 收起状态：底部 footer ── */
-.sidebar-content.collapsed .sidebar-footer {
-  display: flex;
-  justify-content: center;
-}
-
-.footer-collapsed {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: all 0.2s;
-}
-
-.footer-collapsed:hover {
-  color: var(--primary);
-  background: var(--primary-hover);
-}
 </style>

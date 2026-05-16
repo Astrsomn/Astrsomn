@@ -1,8 +1,8 @@
 <template>
   <div class="vector-center-layout">
     <!-- 侧边栏固定 -->
-    <div :class="{ collapsed: sidebarCollapsed }" class="vector-center-sider">
-      <Left
+    <div class="vector-center-sider">
+      <Sidebar
           :collapsed="sidebarCollapsed"
           :selected-store-id="selectedStoreId"
           :sources="sources"
@@ -15,52 +15,27 @@
     </div>
 
     <!-- 主内容区 -->
-    <div class="vector-center-main">
-      <div v-if="!selectedSourceId" class="empty-state">
-        请先在左侧选择数据源
-      </div>
-      <div v-else-if="!selectedStoreId" class="empty-state">
-        请先在左侧选择数据库
-      </div>
-      <template v-else>
-        <!-- 固定顶部 -->
-        <div class="vector-center-top">
-          <RightTop :source="selectedSource" :store="selectedStore" @updated="handleStoreUpdated"/>
-        </div>
-        <!-- 可滚动内容 -->
-        <div class="vector-center-content">
-          <div class="snap-section">
-            <RightCenter
-                :docs="docs"
-                :selected-doc-id="selectedDocId"
-                :store-id="selectedStoreId"
-                @changed="handleDocChanged"
-                @select-doc="handleSelectDoc"
-            />
-            <VectorSearchPanel :store-id="selectedStoreId"/>
-          </div>
-          <div class="snap-section">
-            <RightBottom
-                :doc-id="selectedDocId"
-                :segments="segments"
-                :store-id="selectedStoreId"
-                @changed="handleBottomChanged"
-            />
-          </div>
-        </div>
-      </template>
-    </div>
+    <Main
+        :selected-source-id="selectedSourceId"
+        :selected-store-id="selectedStoreId"
+        :selected-source="selectedSource"
+        :selected-store="selectedStore"
+        :docs="docs"
+        :segments="segments"
+        :selected-doc-id="selectedDocId"
+        @store-updated="handleStoreUpdated"
+        @doc-changed="handleDocChanged"
+        @select-doc="handleSelectDoc"
+        @bottom-changed="handleBottomChanged"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import {onMounted, ref} from 'vue'
-import Left from '@/views/admin/ai-vector/vector-center/component/Left.vue'
-import RightTop from '@/views/admin/ai-vector/vector-center/component/RightTop.vue'
-import RightCenter from '@/views/admin/ai-vector/vector-center/component/RightCenter.vue'
-import RightBottom from '@/views/admin/ai-vector/vector-center/component/RightBottom.vue'
-import VectorSearchPanel from '@/views/admin/ai-vector/vector-center/component/VectorSearchPanel.vue'
-import {useVectorCenterState} from '@/views/admin/ai-vector/vector-center/hooks/useVectorCenterState.ts'
+import Sidebar from '@/views/admin/ai-vector/vector-center/component/Sidebar.vue'
+import Main from '@/views/admin/ai-vector/vector-center/component/Main.vue'
+import {useVectorCenterState} from '@/views/admin/ai-vector/vector-center/hooks/useVectorCenterState'
 
 const sidebarCollapsed = ref(false)
 
@@ -142,18 +117,9 @@ onMounted(async () => {
 
 /* 侧边栏固定 */
 .vector-center-sider {
-  width: 320px;
-  height: 100%;
   overflow: hidden;
   flex-shrink: 0;
-  background-color: var(--bg-card);
-  border-right: 1px solid var(--border-default);
   z-index: 10;
-  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.vector-center-sider.collapsed {
-  width: 56px;
 }
 
 /* 右侧主内容区 */

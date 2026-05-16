@@ -70,7 +70,7 @@ import {
   ClusterOutlined, DeploymentUnitOutlined, 
   DatabaseOutlined, SyncOutlined 
 } from '@ant-design/icons-vue';
-import { aiVecStoreApi } from '@/api/aiVecStore';
+import { aiVecStoreApi } from '@/api/aiVecStore.ts';
 
 const props = defineProps<{ store?: any; source?: any; }>();
 const emit = defineEmits(['updated']);

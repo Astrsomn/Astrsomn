@@ -31,7 +31,7 @@
 
 <script lang="ts" setup>
 import {DeleteOutlined, EditOutlined, FolderOutlined} from '@ant-design/icons-vue';
-import type {AiVecFolder} from '@/api/aiVecFolder';
+import type {AiVecFolder} from '@/api/aiVecFolder.ts';
 
 defineProps<{
   folder: AiVecFolder;

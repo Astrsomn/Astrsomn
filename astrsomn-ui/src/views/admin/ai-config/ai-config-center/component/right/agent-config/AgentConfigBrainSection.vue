@@ -72,10 +72,10 @@
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
 import {RightOutlined, RobotOutlined, SettingOutlined, SwapOutlined} from '@ant-design/icons-vue'
-import type {AiModel} from '@/api/aiModel'
-import type {AiInstance} from '@/api/aiInstance'
-import type {AiAccount} from '@/api/aiAccount'
-import type {TempInfo} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility'
+import type {AiModel} from '@/api/aiModel.ts'
+import type {AiInstance} from '@/api/aiInstance.ts'
+import type {AiAccount} from '@/api/aiAccount.ts'
+import type {TempInfo} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility.ts'
 import InstanceParam from '@/views/admin/ai-config/ai-instance/instance-form/InstanceParam.vue'
 import AgentConfigSectionShell from './AgentConfigSectionShell.vue'
 

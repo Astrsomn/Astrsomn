@@ -124,7 +124,7 @@ import {
   EMBEDDING_PARAM_CODES,
   IMAGE_CAPABILITIES_SET,
   IMAGE_PARAM_CODES,
-} from '@/constants/aiModelEnums'
+} from '@/constants/aiModelEnums.ts'
 
 const props = defineProps<{
   providerKey?: string

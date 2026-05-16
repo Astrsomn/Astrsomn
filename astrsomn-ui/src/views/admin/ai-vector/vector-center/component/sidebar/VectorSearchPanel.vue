@@ -57,7 +57,7 @@
 <script lang="ts" setup>
 import {ref} from 'vue'
 import {message} from 'ant-design-vue'
-import {type AiVecSegmentSearchResult, aiVecSegmentApi} from '@/api/aiVecSegment'
+import {type AiVecSegmentSearchResult, aiVecSegmentApi} from '@/api/aiVecSegment.ts'
 
 const props = defineProps<{
   storeId?: number | string
