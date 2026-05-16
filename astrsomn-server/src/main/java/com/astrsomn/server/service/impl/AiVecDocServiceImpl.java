@@ -102,7 +102,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     }
 
     @Override
-    public BaseResponse<AiVecDocResponseDTO> upload(MultipartFile file, Long collectionId) {
+    public BaseResponse<AiVecDocResponseDTO> upload(MultipartFile file, Long collectionId, Long folderId) {
         if (file == null || file.isEmpty()) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "文件为空");
         }
@@ -147,6 +147,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         entity.setFileRecordId(fileRow.getId());
         entity.setOriginalFileName(originalFileName);
         entity.setContentSummary(originalFileName);
+        entity.setFolderId(folderId);
         entity.setSyncStatus(AiVecDocEnum.SyncStatus.PENDING.getCode());
         entity.setDocIdInStore(null);
 

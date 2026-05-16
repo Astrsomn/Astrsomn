@@ -21,6 +21,7 @@ export type AiVecDoc = {
     vectorizeMsg?: string
     totalSegments?: number
     doneSegments?: number
+    folderId?: number | string | null
     createTime?: string
     updateTime?: string
     createUser?: string
@@ -86,10 +87,11 @@ export const aiVecDocApi = {
         })
     },
 
-    upload: (file: File | Blob, collectionId: number | string): Promise<AiVecDoc> => {
+    upload: (file: File | Blob, collectionId: number | string, folderId?: number | string | null): Promise<AiVecDoc> => {
         const fd = new FormData()
         fd.append('file', file)
         fd.append('collectionId', String(collectionId))
+        if (folderId != null) fd.append('folderId', String(folderId))
         return request({
             url: '/v1/astro/ai-vec-doc/upload',
             method: 'post',

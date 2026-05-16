@@ -19,7 +19,7 @@ public interface AiVecDocService extends IService<AiVecDocEntity> {
     /**
      * 保存上传文件并插入待向量化文档记录。
      */
-    BaseResponse<AiVecDocResponseDTO> upload(MultipartFile file, Long collectionId);
+    BaseResponse<AiVecDocResponseDTO> upload(MultipartFile file, Long collectionId, Long folderId);
 
     /**
      * 将待向量化文档读入、切分、嵌入并写入向量库与切片表。

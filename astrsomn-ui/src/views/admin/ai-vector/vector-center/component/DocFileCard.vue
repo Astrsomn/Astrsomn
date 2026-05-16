@@ -1,6 +1,6 @@
 <template>
-  <a-card :body-style="{ padding: 0 }" :bordered="false" :class="{ active }" class="custom-file-card"
-          @click="$emit('select', file)">
+  <a-card :body-style="{ padding: 0 }" :bordered="false" :class="[{ active, cut }, `size-${size}`]" class="custom-file-card"
+          @click="$emit('select', file)" @contextmenu.prevent="$emit('contextmenu', $event, file)">
     <div class="square-container">
       <div class="inner-content">
 
@@ -66,9 +66,11 @@ const props = defineProps<{
     uploadTime?: string;
   };
   active?: boolean;
+  cut?: boolean;
   vectorizing?: boolean;
   progress?: number;
   progressMsg?: string;
+  size?: 'small' | 'medium' | 'large';
 }>();
 
 defineEmits<{
@@ -77,6 +79,7 @@ defineEmits<{
   vectorize: [file: any]
   're-vectorize': [file: any]
   delete: [file: any]
+  contextmenu: [e: MouseEvent, file: any]
 }>()
 
 const canVectorize = computed(() => !props.vectorizing && props.file.status === '待向量化')
@@ -121,6 +124,11 @@ const getFileExtension = (name: string) => {
   &.active {
     border-color: var(--primary) !important;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  &.cut {
+    opacity: 0.45;
+    filter: grayscale(0.6);
   }
 
   // 核心：强制正方形方案
@@ -278,6 +286,66 @@ const getFileExtension = (name: string) => {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+  }
+
+  // 小图标模式
+  &.size-small {
+    .square-container {
+      padding-top: 80%;
+    }
+    .main-body {
+      .icon-box {
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+        margin-bottom: 8px;
+      }
+      .file-name {
+        font-size: 12px;
+      }
+    }
+    .footer-overlay {
+      font-size: 10px;
+      bottom: 6px;
+    }
+    .status-dot {
+      top: 8px;
+      left: 8px;
+      width: 6px;
+      height: 6px;
+    }
+    .action-group {
+      top: 6px;
+      right: 6px;
+      .action-btn {
+        width: 22px;
+        height: 22px;
+      }
+    }
+  }
+
+  // 大图标模式
+  &.size-large {
+    .square-container {
+      padding-top: 100%;
+    }
+    .main-body {
+      .icon-box {
+        width: 72px;
+        height: 72px;
+        font-size: 40px;
+        margin-bottom: 16px;
+      }
+      .file-name {
+        font-size: 16px;
+        max-width: 90%;
+      }
+    }
+    .footer-overlay {
+      font-size: 12px;
+      bottom: 14px;
+      padding: 0 16px;
     }
   }
 }

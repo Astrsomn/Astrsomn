@@ -49,8 +49,10 @@ public class AiVecDocController extends BaseController {
 
     @PostMapping("/upload")
     public BaseResponse<AiVecDocResponseDTO> upload(
-            @RequestParam("file") MultipartFile file, @RequestParam("collectionId") Long collectionId) {
-        return aiVecDocService.upload(file, collectionId);
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("collectionId") Long collectionId,
+            @RequestParam(value = "folderId", required = false) Long folderId) {
+        return aiVecDocService.upload(file, collectionId, folderId);
     }
 
     @PostMapping("/vectorize")

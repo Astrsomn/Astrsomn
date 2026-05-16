@@ -1,13 +1,37 @@
 <template>
-  <div class="sidebar-container">
-    <div class="sidebar-header">
-      <div class="header-left">
-        <div class="header-icon-box">
-          <DatabaseFilled class="header-icon"/>
-        </div>
-        <span class="header-title">资产目录</span>
+  <!-- 折叠模式 -->
+  <div v-if="collapsed" class="sidebar-collapsed">
+    <div class="collapsed-header">
+      <PlusOutlined class="collapsed-action-icon" @click="handleAddSource"/>
+      <div class="collapsed-toggle" @click="emit('toggle-collapse')">
+        <RightOutlined/>
       </div>
+    </div>
+
+    <div class="collapsed-content">
+      <div
+          v-for="source in sourceTree"
+          :key="source.id"
+          class="collapsed-source-item"
+          @click="selectSource(source.id)"
+          @mouseenter="openHoverPanel(source.id, $event)"
+          @mouseleave="scheduleCloseHoverPanel"
+      >
+        <img v-if="source.providerAvatar" :src="source.providerAvatar" alt="" class="collapsed-source-avatar"/>
+        <ClusterOutlined v-else class="collapsed-source-icon"/>
+      </div>
+    </div>
+
+    <div class="collapsed-footer">
+      <AppstoreOutlined class="collapsed-footer-icon" title="打开插件市场" @click="goPluginMarketplace"/>
+    </div>
+  </div>
+
+  <!-- 展开模式（原样） -->
+  <div v-else class="sidebar-container">
+    <div class="sidebar-header">
       <PlusOutlined class="add-icon" @click="handleAddSource"/>
+      <LeftOutlined class="add-icon" title="收起侧栏" @click="emit('toggle-collapse')"/>
     </div>
 
     <div class="sidebar-content" @contextmenu="onSidebarBlankContextMenu">
@@ -182,6 +206,45 @@
         @submit="handleStoreSubmit"
         @update:open="onStoreModalOpenChange"
     />
+    <!-- 悬浮面板（折叠模式下 hover source 时弹出） -->
+    <Teleport to="body">
+      <div
+          v-if="hoverPanelVisible && hoverSource"
+          class="hover-panel-overlay"
+          @mouseenter="onHoverPanelEnter"
+          @mouseleave="onHoverPanelLeave"
+      >
+        <div
+            class="hover-panel"
+            :style="{ left: hoverPanelX + 'px', top: hoverPanelY + 'px' }"
+        >
+          <SourceCard
+              :ip="hoverSource.ip"
+              :is-checking="checkingSourceMap[String(hoverSource.id)] === true"
+              :is-connected="hoverSource.connected"
+              :is-open="true"
+              :port="hoverSource.port"
+              :provider-avatar="hoverSource.providerAvatar"
+              :source-name="hoverSource.name"
+              :source-type="hoverSource.type"
+              @toggle="selectSource(hoverSource.id)"
+          />
+          <div v-if="hoverSource.dbs.length" class="hover-panel-dbs">
+            <DbNode
+                v-for="db in hoverSource.dbs"
+                :key="db.id"
+                :active="db.active"
+                :db-name="db.dbName"
+                :dim="db.dim"
+                :is-selected="String(selectedStoreId) === String(db.id)"
+                :model-name="db.modelName"
+                @select="onHoverSelectDb(hoverSource.id, db.id)"
+            />
+          </div>
+          <div v-else class="hover-panel-empty">暂无数据库</div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -190,11 +253,13 @@ import {computed, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import {
   AppstoreOutlined,
-  DatabaseFilled,
+  ClusterOutlined,
   DeleteOutlined,
   EditOutlined,
+  LeftOutlined,
   PlusOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  RightOutlined
 } from '@ant-design/icons-vue'
 import SourceCard from './SourceCard.vue'
 import DbNode from './DbNode.vue'
@@ -209,13 +274,74 @@ const props = defineProps<{
   sources: AiVecSource[]
   stores: AiVecStore[]
   selectedStoreId?: number | string
+  collapsed?: boolean
 }>()
 
 const emit = defineEmits<{
   'select-source': [id: number | string]
   'select-store': [id: number | string]
   changed: []
+  'toggle-collapse': []
 }>()
+
+// 悬浮面板相关
+const hoverSourceId = ref<number | string | null>(null)
+const hoverPanelX = ref(0)
+const hoverPanelY = ref(0)
+const hoverPanelVisible = ref(false)
+let hoverCloseTimer: ReturnType<typeof setTimeout> | null = null
+let hoverOpenTimer: ReturnType<typeof setTimeout> | null = null
+
+const clearHoverTimer = () => {
+  if (hoverCloseTimer) {
+    clearTimeout(hoverCloseTimer)
+    hoverCloseTimer = null
+  }
+  if (hoverOpenTimer) {
+    clearTimeout(hoverOpenTimer)
+    hoverOpenTimer = null
+  }
+}
+
+const openHoverPanel = (sourceId: number | string, e: MouseEvent) => {
+  clearHoverTimer()
+  hoverOpenTimer = setTimeout(() => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    hoverSourceId.value = sourceId
+    hoverPanelX.value = rect.right + 6
+    hoverPanelY.value = rect.top
+    hoverPanelVisible.value = true
+  }, 150)
+}
+
+const scheduleCloseHoverPanel = () => {
+  clearHoverTimer()
+  hoverCloseTimer = setTimeout(() => {
+    hoverPanelVisible.value = false
+    hoverSourceId.value = null
+  }, 200)
+}
+
+const onHoverPanelEnter = () => {
+  clearHoverTimer()
+}
+
+const onHoverPanelLeave = () => {
+  scheduleCloseHoverPanel()
+}
+
+const hoverSource = computed(() => {
+  if (hoverSourceId.value == null) return null
+  return sourceTree.value.find(s => String(s.id) === String(hoverSourceId.value)) || null
+})
+
+const onHoverSelectDb = (sourceId: number | string, dbId: number | string) => {
+  pendingStoreSyncSourceKey.value = String(sourceId)
+  emit('select-source', sourceId)
+  emit('select-store', dbId)
+  hoverPanelVisible.value = false
+  hoverSourceId.value = null
+}
 
 const openKeys = ref<Array<number | string>>([])
 
@@ -609,33 +735,6 @@ watch(
   background: var(--bg-card);
   border-bottom: 1px solid var(--border-default);
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    .header-icon-box {
-      width: 30px;
-      height: 30px;
-      background: var(--primary);
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      .header-icon {
-        color: #fff;
-        font-size: 14px;
-      }
-    }
-
-    .header-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-heading);
-    }
-  }
-
   .add-icon {
     width: 30px;
     height: 30px;
@@ -765,6 +864,121 @@ watch(
     background: rgba(239, 68, 68, 0.1) !important;
   }
 }
+
+/* 折叠模式 */
+.sidebar-collapsed {
+  height: 100%;
+  width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-card);
+  overflow: hidden;
+
+  .collapsed-header {
+    padding: 14px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    border-bottom: 1px solid var(--border-default);
+
+    .collapsed-action-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: var(--primary-hover);
+        color: var(--primary);
+      }
+    }
+
+    .collapsed-toggle {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: var(--primary-hover);
+        color: var(--primary);
+      }
+    }
+  }
+
+  .collapsed-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    .collapsed-source-item {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+
+      &:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+      }
+
+      .collapsed-source-avatar {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        border-radius: var(--radius-lg);
+      }
+
+      .collapsed-source-icon {
+        font-size: 16px;
+        color: var(--text-secondary);
+      }
+    }
+  }
+
+  .collapsed-footer {
+    padding: 12px 0;
+    border-top: 1px solid var(--border-default);
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    .collapsed-footer-icon {
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--primary);
+      }
+    }
+  }
+}
 </style>
 
 <style lang="less">
@@ -806,5 +1020,40 @@ watch(
   height: 1px;
   margin: 4px 8px;
   background: var(--border-default, #e2e8f0);
+}
+
+/* 悬浮面板（折叠模式） */
+.hover-panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.hover-panel {
+  position: fixed;
+  width: 280px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+  pointer-events: auto;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.hover-panel-dbs {
+  padding: 4px 0 0;
+  border-top: 1px solid var(--border-default, #e2e8f0);
+  margin-top: 4px;
+}
+
+.hover-panel-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--text-muted, #94a3b8);
+  font-size: 12px;
 }
 </style>

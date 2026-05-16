@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.server.mapper.AiVecFolderMapper">
+
+    <select id="queryList" resultType="com.astrsomn.api.vector.dto.vecfolder.AiVecFolderResponseDTO">
+        SELECT
+            f.*,
+            (SELECT COUNT(*) FROM AI_VEC_FOLDER cf WHERE cf.PARENT_ID = f.ID AND cf.DELETED = 0) AS childCount,
+            (SELECT COUNT(*) FROM AI_VEC_DOC d WHERE d.FOLDER_ID = f.ID AND d.DELETED = 0) AS docCount
+        FROM AI_VEC_FOLDER f
+        WHERE f.DELETED = 0
+        <if test="req != null and req.collectionId != null">
+            AND f.COLLECTION_ID = #{req.collectionId}
+        </if>
+        <if test="req != null and req.parentId != null">
+            AND f.PARENT_ID = #{req.parentId}
+        </if>
+        <if test="req == null or req.parentId == null">
+            AND f.PARENT_ID IS NULL
+        </if>
+        ORDER BY f.SORT_ORDER ASC, f.CREATE_TIME DESC
+    </select>
+
+</mapper>
