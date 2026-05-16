@@ -23,18 +23,18 @@ public class ResolveAgentChainHandler implements AgentRuntimeChainHandler {
 
     @Override
     public void handle(AgentRuntimeContext ctx) {
-        String bizKey = StringUtils.trimToNull(ctx.getParam().getBizKey());
+        String agentKey = StringUtils.trimToNull(ctx.getParam().getAgentKey());
         AiAgentEntity agent = aiAgentMapper.selectOne(
                 new LambdaQueryWrapper<AiAgentEntity>()
-                        .eq(AiAgentEntity::getBizKey, bizKey)
+                        .eq(AiAgentEntity::getAgentKey, agentKey)
                         .eq(AiAgentEntity::getEnvCode, ctx.getEnvCode())
                         .eq(AiAgentEntity::getDeleted, false)
                         .last("LIMIT 1"));
         if (agent == null) {
             throw new IllegalStateException(
-                    "未找到智能体配置: bizKey=" + bizKey + ", envCode=" + ctx.getEnvCode());
+                    "未找到智能体配置: agentKey=" + agentKey + ", envCode=" + ctx.getEnvCode());
         }
         ctx.setAgent(agent);
-        RuntimeChatParamMergeSupport.mergeBizKeysIntoParam(ctx.getParam(), agent);
+        RuntimeChatParamMergeSupport.mergeAgentKeysIntoParam(ctx.getParam(), agent);
     }
 }

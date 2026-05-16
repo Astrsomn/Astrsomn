@@ -72,17 +72,17 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
             ReflectionUtils.makeAccessible(field);
             Astro astro = field.getAnnotation(Astro.class);
 
-            log.debug("{} 解析注解参数 | Bean: {} | Field: {} | bizKey: {} | envCode: {} | promptKey: {}",
-                    LOG_PREFIX, beanName, field.getName(), astro.bizKey(), astro.envCode(), astro.promptKey());
+            log.debug("{} 解析注解参数 | Bean: {} | Field: {} | agentKey: {} | envCode: {} | promptKey: {}",
+                    LOG_PREFIX, beanName, field.getName(), astro.agentKey(), astro.envCode(), astro.promptKey());
 
-            String annotationBizKey = StringUtils.trimToNull(astro.bizKey());
+            String annotationAgentKey = StringUtils.trimToNull(astro.agentKey());
 
-            if (annotationBizKey != null) {
-                // 注解中指定了 bizKey，可以立即处理
-                processField(bean, beanName, field, astro, annotationBizKey);
+            if (annotationAgentKey != null) {
+                // 注解中指定了 agentKey，可以立即处理
+                processField(bean, beanName, field, astro, annotationAgentKey);
             } else {
-                // 注解未指定 bizKey，需要查询数据库，延迟到 ApplicationReadyEvent 后处理
-                log.info("{} 注解未指定 bizKey，延迟注入 | Bean: {} | Field: {}",
+                // 注解未指定 agentKey，需要查询数据库，延迟到 ApplicationReadyEvent 后处理
+                log.info("{} 注解未指定 agentKey，延迟注入 | Bean: {} | Field: {}",
                         LOG_PREFIX, beanName, field.getName());
                 delayedInjections.add(new DelayedInjection(bean, field, beanName, astro));
             }
@@ -98,18 +98,18 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
     /**
      * 处理单个字段注入
      */
-    private void processField(Object bean, String beanName, Field field, Astro astro, String bizKey) {
-        log.debug("{} 解析后的 BizKey | Bean: {} | Field: {} | BizKey: {}",
-                LOG_PREFIX, beanName, field.getName(), bizKey);
+    private void processField(Object bean, String beanName, Field field, Astro astro, String agentKey) {
+        log.debug("{} 解析后的 AgentKey | Bean: {} | Field: {} | AgentKey: {}",
+                LOG_PREFIX, beanName, field.getName(), agentKey);
 
         Object assistant = null;
         try {
             if (!field.getType().isInterface()) {
                 log.warn("{} 字段类型不是接口，降级为启动时实例化 | Bean: {} | Field: {} | Type: {}",
                         LOG_PREFIX, beanName, field.getName(), field.getType().getName());
-                assistant = createAssistantNow(field.getType(), bizKey, beanName, field.getName());
+                assistant = createAssistantNow(field.getType(), agentKey, beanName, field.getName());
             } else {
-                assistant = createLazyAssistantProxy(field.getType(), bizKey, beanName, field.getName());
+                assistant = createLazyAssistantProxy(field.getType(), agentKey, beanName, field.getName());
             }
             log.info("{} 注入延迟 Assistant 代理成功 | Bean: {} | Field: {} | Assistant: {}",
                     LOG_PREFIX, beanName, field.getName(), assistant.getClass().getName());
@@ -121,8 +121,8 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
 
         try {
             field.set(bean, assistant);
-            log.info("{} 成功注入 Assistant | Bean: {} | Field: {} | BizKey: {}",
-                    LOG_PREFIX, beanName, field.getName(), bizKey);
+            log.info("{} 成功注入 Assistant | Bean: {} | Field: {} | AgentKey: {}",
+                    LOG_PREFIX, beanName, field.getName(), agentKey);
         } catch (IllegalAccessException e) {
             log.error("{} 注入失败 | Bean: {} | Field: {} | 错误: {}",
                     LOG_PREFIX, beanName, field.getName(), e.getMessage(), e);
@@ -170,8 +170,8 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
 
         for (DelayedInjection injection : delayedInjections) {
             try {
-                String bizKey = resolveBizKeyFromDatabase(injection.astro);
-                processField(injection.bean, injection.beanName, injection.field, injection.astro, bizKey);
+                String agentKey = resolveAgentKeyFromDatabase(injection.astro);
+                processField(injection.bean, injection.beanName, injection.field, injection.astro, agentKey);
             } catch (Exception e) {
                 log.error("{} 延迟注入失败 | Bean: {} | Field: {} | 错误: {}",
                         LOG_PREFIX, injection.beanName, injection.field.getName(), e.getMessage(), e);
@@ -189,29 +189,29 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
     }
 
     /**
-     * 从数据库解析 BizKey（延迟调用，确保 Flyway 已执行）
+     * 从数据库解析 AgentKey（延迟调用，确保 Flyway 已执行）
      */
-    private String resolveBizKeyFromDatabase(Astro astro) {
+    private String resolveAgentKeyFromDatabase(Astro astro) {
         if (aiRuntimeDefaultsResolver == null || astrsomnProperties == null) {
-            log.error("{} 无法解析 BizKey：必要的依赖未注入", LOG_PREFIX);
-            throw new IllegalStateException(LOG_PREFIX + "无法解析 BizKey：必要的依赖未注入");
+            log.error("{} 无法解析 AgentKey：必要的依赖未注入", LOG_PREFIX);
+            throw new IllegalStateException(LOG_PREFIX + "无法解析 AgentKey：必要的依赖未注入");
         }
 
         String env = EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties);
-        log.debug("{} 注解未指定 bizKey，尝试从环境 [{}] 查询默认 Agent", LOG_PREFIX, env);
+        log.debug("{} 注解未指定 agentKey，尝试从环境 [{}] 查询默认 Agent", LOG_PREFIX, env);
 
-        Optional<String> defaultBizKey = aiRuntimeDefaultsResolver.resolveDefaultBizKey(env);
+        Optional<String> defaultAgentKey = aiRuntimeDefaultsResolver.resolveDefaultAgentKey(env);
 
-        if (defaultBizKey.isPresent()) {
-            log.debug("{} 从数据库查询到默认 BizKey: {}", LOG_PREFIX, defaultBizKey.get());
-            return defaultBizKey.get();
+        if (defaultAgentKey.isPresent()) {
+            log.debug("{} 从数据库查询到默认 AgentKey: {}", LOG_PREFIX, defaultAgentKey.get());
+            return defaultAgentKey.get();
         }
 
-        log.error("{} 无法解析 BizKey：注解未指定且环境 [{}] 无默认配置", LOG_PREFIX, env);
-        throw new IllegalStateException(LOG_PREFIX + "无法解析 BizKey：注解未指定且环境 [" + env + "] 无默认配置");
+        log.error("{} 无法解析 AgentKey：注解未指定且环境 [{}] 无默认配置", LOG_PREFIX, env);
+        throw new IllegalStateException(LOG_PREFIX + "无法解析 AgentKey：注解未指定且环境 [" + env + "] 无默认配置");
     }
 
-    private Object createLazyAssistantProxy(Class<?> serviceClass, String bizKey, String beanName, String fieldName) {
+    private Object createLazyAssistantProxy(Class<?> serviceClass, String agentKey, String beanName, String fieldName) {
         AtomicReference<Object> delegateRef = new AtomicReference<>();
         Object proxy = Proxy.newProxyInstance(
                 serviceClass.getClassLoader(),
@@ -220,7 +220,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
                     if (method.getDeclaringClass() == Object.class) {
                         String name = method.getName();
                         if ("toString".equals(name)) {
-                            return "LazyAstroAssistantProxy(" + serviceClass.getSimpleName() + "," + bizKey + ")";
+                            return "LazyAstroAssistantProxy(" + serviceClass.getSimpleName() + "," + agentKey + ")";
                         }
                         if ("hashCode".equals(name)) {
                             return System.identityHashCode(p);
@@ -235,10 +235,10 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
                         synchronized (delegateRef) {
                             delegate = delegateRef.get();
                             if (delegate == null) {
-                                delegate = createAssistantNow(serviceClass, bizKey, beanName, fieldName);
+                                delegate = createAssistantNow(serviceClass, agentKey, beanName, fieldName);
                                 delegateRef.set(delegate);
-                                log.info("{} 首次调用触发 Assistant 实例化 | Bean: {} | Field: {} | BizKey: {}",
-                                        LOG_PREFIX, beanName, fieldName, bizKey);
+                                log.info("{} 首次调用触发 Assistant 实例化 | Bean: {} | Field: {} | AgentKey: {}",
+                                        LOG_PREFIX, beanName, fieldName, agentKey);
                             }
                         }
                     }
@@ -252,12 +252,12 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         return proxy;
     }
 
-    private Object createAssistantNow(Class<?> serviceClass, String bizKey, String beanName, String fieldName) {
+    private Object createAssistantNow(Class<?> serviceClass, String agentKey, String beanName, String fieldName) {
         log.debug("{} 开始创建 Assistant | Bean: {} | Field: {} | ServiceClass: {}",
                 LOG_PREFIX, beanName, fieldName, serviceClass.getName());
         Object assistant = beanFactory.getBeanProvider(AstroAssistantFactory.class)
                 .getObject()
-                .createAssistant(AstroChatParam.of(serviceClass, bizKey));
+                .createAssistant(AstroChatParam.of(serviceClass, agentKey));
         if (assistant == null) {
             throw new IllegalStateException("assistantFactory returned null for field: " + fieldName);
         }

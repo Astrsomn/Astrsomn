@@ -35,7 +35,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
 
     private final QueryEnvParamHelper queryEnvParamHelper;
 
-    @Astro(bizKey = "AG-ASTRSOMN-PROMPT", envCode = "PRO")
+    @Astro(agentKey = "AG-ASTRSOMN-PROMPT", envCode = "PRO")
     private PromptAssistant promptAssistant;
 
     @Override

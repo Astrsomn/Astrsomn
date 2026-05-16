@@ -23,7 +23,7 @@ public class AstroChatParam<T> {
     private String userMessageText;
     private List<String> fileUrlList;
     private UserMessage userMessage;
-    private String bizKey;
+    private String agentKey;
     private String modelKey;
     private String instanceKey;
     private String memoryKey;
@@ -53,10 +53,10 @@ public class AstroChatParam<T> {
     @Builder.Default
     private transient AtomicBoolean streamTurnPersisted = new AtomicBoolean(false);
 
-    public static <T> AstroChatParam<T> of(Class<T> serviceClass, String bizKey) {
+    public static <T> AstroChatParam<T> of(Class<T> serviceClass, String agentKey) {
         return AstroChatParam.<T>builder()
                 .serviceClass(serviceClass)
-                .bizKey(bizKey)
+                .agentKey(agentKey)
                 .build();
     }
 

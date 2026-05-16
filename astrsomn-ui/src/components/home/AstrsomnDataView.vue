@@ -158,7 +158,7 @@ const processedColumns = computed(() => {
 const resolveKey = (record: any) => {
   if (typeof props.rowKey === 'function') return props.rowKey(record)
   const key = props.rowKey
-  return record?.[key] ?? record?.id ?? record?.bizKey ?? record?.agentName ?? Math.random()
+  return record?.[key] ?? record?.id ?? record?.agentKey ?? record?.bizKey ?? record?.agentName ?? Math.random()
 }
 
 const defaultEnumColors: Record<string, string> = {

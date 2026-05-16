@@ -109,14 +109,14 @@ const iconMap: Record<string, any> = {
 }
 
 const getIcon = (agent: AiAgent) => {
-  const key = agent.bizKey?.toLowerCase() || 'default'
+  const key = agent.agentKey?.toLowerCase() || 'default'
   if (key.includes('translate')) return GlobalOutlined
   if (key.includes('code') || key.includes('audit')) return CodeOutlined
   return CloudServerOutlined
 }
 
 const getIconBg = (agent: AiAgent) => {
-  const key = agent.bizKey?.toLowerCase() || 'default'
+  const key = agent.agentKey?.toLowerCase() || 'default'
   if (key.includes('translate')) return 'icon-blue'
   if (key.includes('code') || key.includes('audit')) return 'icon-purple'
   return 'icon-gray'

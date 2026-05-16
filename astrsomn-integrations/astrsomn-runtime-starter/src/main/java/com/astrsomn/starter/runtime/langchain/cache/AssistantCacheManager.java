@@ -50,7 +50,7 @@ public class AssistantCacheManager {
 
     private String generateConfigHash(AstroChatParam<?> param) {
         StringBuilder sb = new StringBuilder();
-        sb.append(param.getBizKey());
+        sb.append(param.getAgentKey());
         sb.append(param.getConversationSetting().isEnableDeepThinking());
         sb.append(param.getPromptSetting().getPromptKey());
         sb.append(param.getServiceClass().getName());

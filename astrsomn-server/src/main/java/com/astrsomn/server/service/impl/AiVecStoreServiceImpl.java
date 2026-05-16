@@ -58,6 +58,7 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         if (req.getModelKey() != null) {
             target.setModelKey(req.getModelKey());
         }
+
     }
 
     private static boolean physicalChanged(AiVecStoreEntity before, AiVecStoreEntity after, AiVecSourceEntity afterSource) {

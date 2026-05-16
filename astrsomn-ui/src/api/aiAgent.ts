@@ -8,7 +8,7 @@ export type AiAgent = {
     envCode?: string
     createUser?: string
     createTime?: string
-    bizKey?: string
+    agentKey?: string
     agentName?: string
     description?: string
     workflowKey?: string

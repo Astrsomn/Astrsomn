@@ -93,7 +93,7 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         session.setPromptTokens(0);
         session.setCompletionTokens(0);
         session.setTotalTokens(0);
-        session.setBizKey(param.getBizKey());
+        session.setBizKey(param.getAgentKey());
         session.setModelKey(param.getModelKey());
         session.setPromptKey(param.getPromptSetting().getPromptKey());
         session.setInstanceKey(param.getInstanceKey());
@@ -120,7 +120,7 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         wrapper.setSql("TOTAL_TOKENS = COALESCE(TOTAL_TOKENS, 0) + " + totalTokens);
         wrapper.set(AiChatSessionEntity::getLastMessageAt, System.currentTimeMillis());
         wrapper.set(AiChatSessionEntity::getLastMessagePreview, preview);
-        wrapper.set(AiChatSessionEntity::getBizKey, param.getBizKey());
+        wrapper.set(AiChatSessionEntity::getBizKey, param.getAgentKey());
         wrapper.set(AiChatSessionEntity::getModelKey, param.getModelKey());
         wrapper.set(AiChatSessionEntity::getPromptKey, param.getPromptSetting().getPromptKey());
         wrapper.set(AiChatSessionEntity::getInstanceKey, param.getInstanceKey());
@@ -157,7 +157,7 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         entity.setPromptTokens(Math.max(0, promptTokens));
         entity.setCompletionTokens(Math.max(0, completionTokens));
         entity.setTotalTokens(Math.max(0, promptTokens) + Math.max(0, completionTokens));
-        entity.setBizKey(param.getBizKey());
+        entity.setBizKey(param.getAgentKey());
         entity.setModelKey(param.getModelKey());
         entity.setPromptKey(param.getPromptSetting().getPromptKey());
         entity.setInstanceKey(param.getInstanceKey());

@@ -5,13 +5,13 @@
     <a-spin :spinning="loading">
       <div class="config-content">
         <AgentConfigPersonaSection
-            :agent-key="localBizKey"
+            :agent-key="localAgentKey"
             :agent-name="localAgentName"
             :agent-avatar="localAgentAvatar"
             :current-prompt="currentPrompt"
             :improve-loading="improveLoading"
             @update:agent-name="localAgentName = $event"
-            @update:agent-key="localBizKey = $event"
+            @update:agent-key="localAgentKey = $event"
             @update:agent-avatar="localAgentAvatar = $event"
             @open-prompt-drawer="promptDrawerOpen = true"
             @open-prompt-form="promptFormOpen = true"
@@ -108,7 +108,7 @@ const loading = ref(false)
 const submitting = ref(false)
 const detailSnapshot = ref<AiAgent | null>(null)
 const localAgentName = ref('')
-const localBizKey = ref('')
+const localAgentKey = ref('')
 const localAgentDescription = ref('')
 const localAgentAvatar = ref('')
 
@@ -224,7 +224,7 @@ function parseKnowledgeKeys(raw?: string): string[] {
 function resetEmptyForm() {
   detailSnapshot.value = null
   localAgentName.value = props.agentName || '新 Agent'
-  localBizKey.value = ''
+  localAgentKey.value = ''
   localAgentDescription.value = ''
   localAgentAvatar.value = ''
   currentPrompt.value = {promptContent: ''}
@@ -281,27 +281,27 @@ async function resolveMcpsByKeys(keys: string[]): Promise<AiMcp[]> {
   return out
 }
 
-async function loadInstanceListForAgent(bizKey: string): Promise<AiInstance[]> {
-  if (!bizKey) return []
+async function loadInstanceListForAgent(agentKey: string): Promise<AiInstance[]> {
+  if (!agentKey) return []
   const resp = await aiInstanceApi.queryPage({
     pageNo: 1,
     pageSize: 100,
-    param: {bizKey},
+    param: {agentKey},
   })
   return resp.list || []
 }
 
 async function backfillFromDetail(detail: AiAgent) {
   localAgentName.value = detail.agentName || props.agentName || '未命名的智能体'
-  localBizKey.value = detail.bizKey ?? ''
+  localAgentKey.value = detail.agentKey ?? ''
   localAgentDescription.value = detail.description ?? ''
   localAgentAvatar.value = detail.agentAvatar ?? ''
   routeStrategy.value = detail.routeStrategy || 'roundRobin'
 
   if (detail.instanceList && detail.instanceList.length > 0) {
     instanceList.value = detail.instanceList
-  } else if (detail.bizKey) {
-    instanceList.value = await loadInstanceListForAgent(detail.bizKey)
+  } else if (detail.agentKey) {
+    instanceList.value = await loadInstanceListForAgent(detail.agentKey)
   } else {
     instanceList.value = []
   }
@@ -379,7 +379,7 @@ function buildSubmitPayload(): AiAgent {
         status: 'enabled',
         enableStream: true,
         description: '',
-        bizKey: '',
+        agentKey: '',
         memoryMode: 'SLIDING_WINDOW',
         memoryWindowSize: '10',
         knowledgeBaseKeys: '',
@@ -387,7 +387,7 @@ function buildSubmitPayload(): AiAgent {
   return {
     ...base,
     agentName: localAgentName.value.trim(),
-    bizKey: localBizKey.value.trim() || base.bizKey,
+    agentKey: localAgentKey.value.trim() || base.agentKey,
     description: localAgentDescription.value.trim(),
     agentAvatar: localAgentAvatar.value || undefined,
     promptKey: currentPrompt.value?.promptKey,

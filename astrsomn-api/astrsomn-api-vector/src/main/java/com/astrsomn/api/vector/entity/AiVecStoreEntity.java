@@ -35,4 +35,5 @@ public class AiVecStoreEntity extends BaseEntity<Long> {
 
     @TableField("MODEL_KEY")
     private String modelKey;
+
 }

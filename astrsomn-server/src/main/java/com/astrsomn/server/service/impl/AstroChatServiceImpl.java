@@ -31,11 +31,11 @@ public class AstroChatServiceImpl implements AstroChatService {
 
     @Override
     public Flux<String> stream(AstroChatRequest request) {
-        if (request == null || request.getBizKey() == null) {
+        if (request == null || request.getAgentKey() == null) {
             throw new BusinessException(AstroChatErrorEnum.CHAT_PARAM_ERROR);
         }
         try {
-            AstroChatParam<AstroChatAssistant> param = AstroChatParam.of(AstroChatAssistant.class, request.getBizKey());
+            AstroChatParam<AstroChatAssistant> param = AstroChatParam.of(AstroChatAssistant.class, request.getAgentKey());
             param.setInstanceKey(request.getInstanceKey());
             param.setMemoryKey(request.getMemoryKey());
             param.setUserMessageText(request.getUserMessage());
@@ -75,7 +75,7 @@ public class AstroChatServiceImpl implements AstroChatService {
 
         AstroChatParam<AstroChatAssistant> param = AstroChatParam.<AstroChatAssistant>builder()
                 .serviceClass(AstroChatAssistant.class)
-                .bizKey("builder-playground")
+                .agentKey("builder-playground")
                 .memoryKey(memoryKey)
                 .userMessageText(request.getUserMessage())
                 .modelSetting(Optional.ofNullable(request.getModelSetting()).orElse(new ModelSetting()))

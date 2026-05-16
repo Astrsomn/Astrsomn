@@ -36,9 +36,9 @@ public class ModelRouteSetting {
     private String resilienceStrategyId = "noop";
 
     /**
-     * 与 resilience4j.instances 下的实例名拼接或替换；支持占位符 {bizKey}、{instanceKey}、{modelKey}、{endpointIndex}。
+     * 与 resilience4j.instances 下的实例名拼接或替换；支持占位符 {agentKey}、{instanceKey}、{modelKey}、{endpointIndex}。
      */
-    private String resilienceInstanceNameTemplate = "astroModel-{bizKey}";
+    private String resilienceInstanceNameTemplate = "astroModel-{agentKey}";
 
     public static ModelRouteSetting disabled() {
         ModelRouteSetting s = new ModelRouteSetting();

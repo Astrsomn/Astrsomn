@@ -11,9 +11,9 @@ public final class ResilienceInstanceNames {
     public static String resolve(ModelRouteSetting route, ModelRouteContext ctx, int endpointIndex) {
         String t = route.getResilienceInstanceNameTemplate();
         if (t == null || t.isBlank()) {
-            t = "astroModel-{bizKey}";
+            t = "astroModel-{agentKey}";
         }
-        return t.replace("{bizKey}", nz(ctx.bizKey()))
+        return t.replace("{agentKey}", nz(ctx.agentKey()))
                 .replace("{instanceKey}", nz(ctx.instanceKey()))
                 .replace("{modelKey}", nz(ctx.modelKey()))
                 .replace("{endpointIndex}", String.valueOf(endpointIndex));

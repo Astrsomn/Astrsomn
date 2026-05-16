@@ -8,7 +8,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface Astro {
 
-    String bizKey() default "";
+    String agentKey() default "";
 
     String envCode() default "";
 

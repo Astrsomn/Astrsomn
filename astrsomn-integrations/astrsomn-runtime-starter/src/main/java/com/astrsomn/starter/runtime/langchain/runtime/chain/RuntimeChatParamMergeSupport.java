@@ -98,7 +98,7 @@ public final class RuntimeChatParamMergeSupport {
         }
     }
 
-    public static void mergeBizKeysIntoParam(AstroChatParam<?> param, AiAgentEntity agent) {
+    public static void mergeAgentKeysIntoParam(AstroChatParam<?> param, AiAgentEntity agent) {
         if (agent == null || param == null) {
             return;
         }

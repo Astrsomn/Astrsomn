@@ -7,7 +7,7 @@ import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
  */
 public record ModelRouteContext(
         String memoryKey,
-        String bizKey,
+        String agentKey,
         String instanceKey,
         String modelKey
 ) {
@@ -17,7 +17,7 @@ public record ModelRouteContext(
         }
         return new ModelRouteContext(
                 param.getMemoryKey(),
-                param.getBizKey(),
+                param.getAgentKey(),
                 param.getInstanceKey(),
                 param.getModelKey());
     }
