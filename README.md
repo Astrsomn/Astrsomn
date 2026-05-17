@@ -418,10 +418,7 @@ public class MyService {
 
 ### 向量存储
 
-- [Qdrant Vector](astrsomn-vector/astrsomn-vector-qdrant/)
 - [Chroma Vector](astrsomn-vector/astrsomn-vector-chroma/)
-- [Milvus Vector](astrsomn-vector/astrsomn-vector-milvus/)
-- [Redis Vector](astrsomn-vector/astrsomn-vector-redis/)
 
 ***
 
