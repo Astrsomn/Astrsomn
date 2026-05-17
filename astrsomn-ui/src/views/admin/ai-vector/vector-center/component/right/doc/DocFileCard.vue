@@ -1,6 +1,6 @@
 <template>
-  <a-card :body-style="{ padding: 0 }" :bordered="false" :class="[{ active, cut }, `size-${size}`]" class="custom-file-card"
-          @click="$emit('select', file)" @contextmenu.prevent="$emit('contextmenu', $event, file)">
+  <a-card :body-style="{ padding: 0 }" :bordered="false" :class="[{ active, cut, selected }, `size-${size}`]" class="custom-file-card"
+          @click="$emit('select', file, $event)" @contextmenu.prevent="$emit('contextmenu', $event, file)">
     <div class="square-container">
       <div class="inner-content">
 
@@ -67,6 +67,7 @@ const props = defineProps<{
   };
   active?: boolean;
   cut?: boolean;
+  selected?: boolean;
   vectorizing?: boolean;
   progress?: number;
   progressMsg?: string;
@@ -74,7 +75,7 @@ const props = defineProps<{
 }>();
 
 defineEmits<{
-  select: [file: any]
+  select: [file: any, e: MouseEvent]
   edit: [file: any]
   vectorize: [file: any]
   're-vectorize': [file: any]
@@ -124,6 +125,11 @@ const getFileExtension = (name: string) => {
   &.active {
     border-color: var(--primary) !important;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  &.selected {
+    background: rgba(59, 130, 246, 0.08);
+    border-color: var(--primary) !important;
   }
 
   &.cut {

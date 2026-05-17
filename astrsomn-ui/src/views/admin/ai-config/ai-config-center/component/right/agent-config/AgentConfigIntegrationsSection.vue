@@ -115,7 +115,9 @@ function triggerRagAdd() {
 .integrations-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 12px;
+  height: 100%;
+  align-content: center;
 }
 
 @media (max-width: 960px) {
@@ -138,7 +140,7 @@ function triggerRagAdd() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
+  padding: 16px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;

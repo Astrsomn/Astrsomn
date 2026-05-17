@@ -2,45 +2,49 @@
   <div class="config-container">
     <AgentConfigHeader :submitting="submitting" @back="emit('back')" @save="handleSave"/>
 
-    <a-spin :spinning="loading">
+    <a-spin :spinning="loading" class="config-spin">
       <div class="config-content">
-        <AgentConfigPersonaSection
-            :agent-key="localAgentKey"
-            :agent-name="localAgentName"
-            :agent-avatar="localAgentAvatar"
-            :current-prompt="currentPrompt"
-            :improve-loading="improveLoading"
-            @update:agent-name="localAgentName = $event"
-            @update:agent-key="localAgentKey = $event"
-            @update:agent-avatar="localAgentAvatar = $event"
-            @open-prompt-drawer="promptDrawerOpen = true"
-            @open-prompt-form="promptFormOpen = true"
-            @prompt-history="onPromptHistory"
-            @improve-prompt="handleImprovePrompt"
-            @update-prompt-content="onPromptContentUpdate"
-        />
-
-        <AgentConfigInstanceList
-            :instance-list="instanceList"
-            :available-models="availableModels"
-            :route-strategy="routeStrategy"
-            @update:instance-list="instanceList = $event"
-            @update:route-strategy="routeStrategy = $event"
-        />
-
-        <AgentConfigIntegrationsSection
-            :knowledge-keys="knowledgeKeys"
-            :mcps="placedMcps"
-            :tools="placedTools"
-            @tool-add="onToolAdd"
-            @tool-remove="onToolRemove"
-            @mcp-add="onMcpAdd"
-            @mcp-remove="onMcpRemove"
-            @knowledge-add="onKnowledgeAdd"
-            @knowledge-remove="onKnowledgeRemove"
-        />
-
-        <div class="bottom-spacing"></div>
+        <div class="config-left">
+          <AgentConfigPersonaSection
+              :agent-key="localAgentKey"
+              :agent-name="localAgentName"
+              :agent-avatar="localAgentAvatar"
+              :current-prompt="currentPrompt"
+              :improve-loading="improveLoading"
+              @update:agent-name="localAgentName = $event"
+              @update:agent-key="localAgentKey = $event"
+              @update:agent-avatar="localAgentAvatar = $event"
+              @open-prompt-drawer="promptDrawerOpen = true"
+              @open-prompt-form="promptFormOpen = true"
+              @prompt-history="onPromptHistory"
+              @improve-prompt="handleImprovePrompt"
+              @update-prompt-content="onPromptContentUpdate"
+          />
+        </div>
+        <div class="config-right">
+          <div class="config-right-top">
+            <AgentConfigInstanceList
+                :instance-list="instanceList"
+                :available-models="availableModels"
+                :route-strategy="routeStrategy"
+                @update:instance-list="instanceList = $event"
+                @update:route-strategy="routeStrategy = $event"
+            />
+          </div>
+          <div class="config-right-bottom">
+            <AgentConfigIntegrationsSection
+                :knowledge-keys="knowledgeKeys"
+                :mcps="placedMcps"
+                :tools="placedTools"
+                @tool-add="onToolAdd"
+                @tool-remove="onToolRemove"
+                @mcp-add="onMcpAdd"
+                @mcp-remove="onMcpRemove"
+                @knowledge-add="onKnowledgeAdd"
+                @knowledge-remove="onKnowledgeRemove"
+            />
+          </div>
+        </div>
       </div>
     </a-spin>
 
@@ -470,18 +474,54 @@ watch(
 <style scoped>
 .config-container {
   padding: 0;
-  overflow-y: auto;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.config-spin {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.config-spin :deep(.ant-spin-container) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .config-content {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  padding: 32px 40px;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  padding: 24px 32px;
+  overflow: hidden;
 }
 
-.bottom-spacing {
-  height: 40px;
+.config-left {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.config-right {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 7fr 3fr;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.config-right-top,
+.config-right-bottom {
+  min-height: 0;
+  overflow: hidden;
 }
 </style>

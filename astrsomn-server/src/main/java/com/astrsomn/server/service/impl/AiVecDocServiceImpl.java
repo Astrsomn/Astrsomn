@@ -141,6 +141,17 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             throw new BusinessException(AstFileErrorEnum.FILE_RECORD_CREATE_FAILED);
         }
 
+        // 检查同文件夹下是否已存在同名文件
+        Long existCount = count(new LambdaQueryWrapper<AiVecDocEntity>()
+                .eq(AiVecDocEntity::getCollectionId, collectionId)
+                .eq(AiVecDocEntity::getOriginalFileName, originalFileName)
+                .eq(folderId != null, AiVecDocEntity::getFolderId, folderId)
+                .isNull(folderId == null, AiVecDocEntity::getFolderId));
+        if (existCount != null && existCount > 0) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_DUPLICATE_FILE,
+                    "同文件夹下已存在同名文件: " + originalFileName);
+        }
+
         AiVecDocEntity entity = new AiVecDocEntity();
         entity.setCollectionId(collectionId);
         entity.setFilePath(uploadResult.getObjectKey());

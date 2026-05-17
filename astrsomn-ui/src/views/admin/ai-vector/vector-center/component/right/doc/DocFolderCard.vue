@@ -1,10 +1,10 @@
 <template>
-  <a-card :body-style="{ padding: 0 }" :bordered="false" :class="`size-${size}`" class="folder-card"
-          @click="$emit('enter', folder)" @contextmenu.prevent="$emit('contextmenu', $event, folder)">
+  <a-card :body-style="{ padding: 0 }" :bordered="false" :class="[{ selected }, `size-${size}`]" class="folder-card"
+          @click="!editing && $emit('enter', folder, $event)" @contextmenu.prevent="$emit('contextmenu', $event, folder)">
     <div class="square-container">
       <div class="inner-content">
 
-        <div class="action-group">
+        <div class="action-group" v-if="!editing">
           <div class="action-btn" title="重命名" @click.stop="$emit('rename', folder)">
             <edit-outlined/>
           </div>
@@ -17,7 +17,17 @@
           <div class="folder-icon-box">
             <folder-outlined class="folder-icon-svg"/>
           </div>
-          <h3 :title="folder.folderName" class="folder-name">{{ folder.folderName }}</h3>
+          <input
+              v-if="editing"
+              ref="editInputRef"
+              :value="folder.folderName"
+              class="folder-name-input"
+              @blur="$emit('rename-cancel', folder)"
+              @keydown.enter="onConfirmRename($event)"
+              @keydown.escape="$emit('rename-cancel', folder)"
+              @click.stop
+          />
+          <h3 v-else :title="folder.folderName" class="folder-name">{{ folder.folderName }}</h3>
         </div>
 
         <div class="footer-overlay">
@@ -30,20 +40,48 @@
 </template>
 
 <script lang="ts" setup>
+import {nextTick, ref, watch} from 'vue';
 import {DeleteOutlined, EditOutlined, FolderOutlined} from '@ant-design/icons-vue';
-import type {AiVecFolder} from '@/api/aiVecFolder.ts';
+import type {AiVecFolder} from '@/api/aiVecFolder';
 
-defineProps<{
+const props = defineProps<{
   folder: AiVecFolder;
   size?: 'small' | 'medium' | 'large';
+  editing?: boolean;
+  selected?: boolean;
 }>();
 
-defineEmits<{
-  enter: [folder: AiVecFolder]
+const emit = defineEmits<{
+  enter: [folder: AiVecFolder, e: MouseEvent]
   rename: [folder: AiVecFolder]
   delete: [folder: AiVecFolder]
   contextmenu: [e: MouseEvent, folder: AiVecFolder]
-}>()
+  'rename-confirm': [folder: AiVecFolder, newName: string]
+  'rename-cancel': [folder: AiVecFolder]
+}>();
+
+const editInputRef = ref<HTMLInputElement | null>(null);
+
+watch(() => props.editing, (val) => {
+  if (val) {
+    nextTick(() => {
+      if (editInputRef.value) {
+        editInputRef.value.focus();
+        editInputRef.value.select();
+      }
+    });
+  }
+});
+
+const onConfirmRename = (e: KeyboardEvent) => {
+  const input = e.target as HTMLInputElement;
+  const newName = input.value.trim();
+  if (newName && newName !== props.folder.folderName) {
+    emit('rename-confirm', props.folder, newName);
+  } else {
+    emit('rename-cancel', props.folder);
+  }
+};
 </script>
 
 <style lang="less" scoped>
@@ -68,6 +106,11 @@ defineEmits<{
     .folder-icon-box {
       transform: scale(1.1);
     }
+  }
+
+  &.selected {
+    background: rgba(59, 130, 246, 0.08);
+    border-color: var(--primary) !important;
   }
 
   .square-container {
@@ -123,6 +166,20 @@ defineEmits<{
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .folder-name-input {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-heading);
+      margin: 0;
+      max-width: 80%;
+      text-align: center;
+      border: 1px solid var(--primary);
+      border-radius: var(--radius-sm);
+      padding: 2px 6px;
+      outline: none;
+      background: var(--bg-input);
     }
   }
 
@@ -188,6 +245,9 @@ defineEmits<{
       .folder-name {
         font-size: 12px;
       }
+      .folder-name-input {
+        font-size: 12px;
+      }
     }
     .footer-overlay {
       font-size: 10px;
@@ -213,6 +273,10 @@ defineEmits<{
         margin-bottom: 16px;
       }
       .folder-name {
+        font-size: 16px;
+        max-width: 90%;
+      }
+      .folder-name-input {
         font-size: 16px;
         max-width: 90%;
       }
