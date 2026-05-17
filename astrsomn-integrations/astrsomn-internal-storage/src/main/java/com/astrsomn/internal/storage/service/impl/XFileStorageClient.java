@@ -51,13 +51,10 @@ public class XFileStorageClient implements AstrsomnStorageClient {
         return now.format(DATE_PATH_FORMATTER);
     }
 
-    private static String buildSaveFilename(String originalName, String ext, boolean randomFilename) {
+    private static String buildSaveFilename(String originalName, String ext) {
         String safeName = sanitize(originalName);
         if (!ext.isEmpty() && !safeName.toLowerCase().endsWith("." + ext)) {
             safeName = safeName + "." + ext;
-        }
-        if (!randomFilename) {
-            return safeName;
         }
         String uuid = UUID.randomUUID().toString().replace("-", "");
         return uuid + "_" + safeName;
@@ -80,7 +77,7 @@ public class XFileStorageClient implements AstrsomnStorageClient {
         }
 
         String datePath = buildDatePath();
-        String saveFilename = buildSaveFilename(originalName, ext, storageProperties.isRandomFilename());
+        String saveFilename = buildSaveFilename(originalName, ext);
         String platform = storageProperties.getDefaultPlatform();
         log.info(
                 "x-file-storage upload start bizType={} datePath={} filename={} platform={} astrsomn.default-platform={} dromara.default-platform={} activeProfiles={} fileStorageServiceClass={}",
@@ -144,9 +141,19 @@ public class XFileStorageClient implements AstrsomnStorageClient {
             throw new BusinessException(AstFileErrorEnum.FILE_NOT_FOUND, "objectKey 不能为空");
         }
         try {
-            return new ByteArrayInputStream(fileStorageService.download(objectKey).bytes());
+            FileInfo dlInfo = new FileInfo();
+            dlInfo.setPlatform(platform);
+            int lastSlash = objectKey.lastIndexOf('/');
+            if (lastSlash >= 0) {
+                dlInfo.setPath(objectKey.substring(0, lastSlash + 1));
+                dlInfo.setFilename(objectKey.substring(lastSlash + 1));
+            } else {
+                dlInfo.setPath("");
+                dlInfo.setFilename(objectKey);
+            }
+            return new ByteArrayInputStream(fileStorageService.download(dlInfo).bytes());
         } catch (Exception e) {
-            log.error("x-file-storage open stream failed key={}", objectKey, e);
+            log.error("x-file-storage open stream failed key={} platform={}", objectKey, platform, e);
             throw new BusinessException(AstFileErrorEnum.FILE_NOT_FOUND, e.getMessage());
         }
     }

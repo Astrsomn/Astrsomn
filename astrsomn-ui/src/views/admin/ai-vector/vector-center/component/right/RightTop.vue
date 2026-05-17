@@ -43,6 +43,16 @@
             <span class="val">{{ dimension ?? '-' }}D</span>
           </div>
         </a-tooltip>
+        <a-tooltip :title="`切片策略: ${chunkStrategyLabel} / 大小: ${chunkSize} / 重叠: ${chunkOverlap}`">
+          <div class="spec-pill">
+            <scissor-outlined />
+            <span class="val">{{ chunkStrategyLabel }}</span>
+            <span class="dot">·</span>
+            <span class="val">{{ chunkSize }}字</span>
+            <span class="dot">·</span>
+            <span class="val">重叠{{ chunkOverlap }}</span>
+          </div>
+        </a-tooltip>
         <div class="stat-pill">
           <database-outlined />
           <span class="num">{{ vectorCount }}</span>
@@ -66,9 +76,9 @@
 <script lang="ts" setup>
 import { computed, reactive, ref, watch } from 'vue';
 import { message } from 'ant-design-vue';
-import { 
-  ClusterOutlined, DeploymentUnitOutlined, 
-  DatabaseOutlined, SyncOutlined 
+import {
+  ClusterOutlined, DeploymentUnitOutlined,
+  DatabaseOutlined, SyncOutlined, ScissorOutlined
 } from '@ant-design/icons-vue';
 import { aiVecStoreApi } from '@/api/aiVecStore.ts';
 
@@ -80,6 +90,9 @@ const description = ref('');
 const selectedModel = ref('');
 const distanceMetric = ref('');
 const dimension = ref<number | undefined>(undefined);
+const chunkStrategy = ref('');
+const chunkSize = ref(800);
+const chunkOverlap = ref(100);
 
 const stats = reactive({
   docCount: 0,
@@ -94,6 +107,16 @@ const distanceMetricLabel = computed(() => {
   return map[distanceMetric.value] || distanceMetric.value || '-';
 });
 
+const chunkStrategyLabel = computed(() => {
+  const map: Record<string, string> = {
+    RECURSIVE: '递归',
+    FIXED_SIZE: '固定',
+    PARAGRAPH: '段落',
+    SENTENCE: '句子'
+  };
+  return map[chunkStrategy.value] || chunkStrategy.value || '递归';
+});
+
 const vectorCount = computed(() => stats.segmentCount);
 
 watch(() => props.store, async (store) => {
@@ -103,6 +126,9 @@ watch(() => props.store, async (store) => {
   selectedModel.value = store?.modelKey || '';
   distanceMetric.value = store?.distanceMetric || '';
   dimension.value = store?.dimension;
+  chunkStrategy.value = store?.chunkStrategy || 'RECURSIVE';
+  chunkSize.value = store?.chunkSize ?? 800;
+  chunkOverlap.value = store?.chunkOverlap ?? 100;
   if (store?.id) {
     const resp = await aiVecStoreApi.stats(store.id);
     Object.assign(stats, resp);

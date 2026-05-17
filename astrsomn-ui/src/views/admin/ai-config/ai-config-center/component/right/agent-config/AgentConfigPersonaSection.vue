@@ -99,15 +99,11 @@ const emit = defineEmits<{
 
 <style scoped>
 .persona-grid {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 24px;
-}
-
-@media (max-width: 768px) {
-  .persona-grid {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
 }
 
 /* Glass card base */
@@ -118,10 +114,15 @@ const emit = defineEmits<{
   border: 1px solid var(--ac-glass-border);
   border-radius: 12px;
   box-shadow: var(--ac-glass-shadow);
-  padding: 24px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+}
+
+.prompt-card-wrapper {
+  flex: 1;
+  min-height: 0;
 }
 
 /* Card heading with colored bar */

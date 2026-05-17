@@ -2,6 +2,14 @@
   <div class="document-list-container">
     <div class="list-toolbar">
       <div class="toolbar-left">
+        <div class="nav-buttons">
+          <a-tooltip title="后退">
+            <LeftOutlined class="nav-btn" :class="{ disabled: navIndex <= 0 }" @click="goBack"/>
+          </a-tooltip>
+          <a-tooltip title="前进">
+            <RightOutlined class="nav-btn" :class="{ disabled: navIndex >= navHistory.length - 1 }" @click="goForward"/>
+          </a-tooltip>
+        </div>
         <div class="breadcrumb-nav">
           <span class="breadcrumb-item" @click="navigateToRoot">根目录</span>
           <!-- eslint-disable-next-line vue/no-v-for-template-key -->
@@ -14,13 +22,7 @@
       </div>
 
       <div class="toolbar-right">
-        <a-select
-            :options="storeOptions"
-            :value="uploadCollectionId"
-            placeholder="选择集合"
-            style="width: 180px"
-            @update:value="setUploadCollectionId"
-        />
+
         <a-input-search
             :value="keyword"
             class="subtle-search"
@@ -56,14 +58,20 @@
       </div>
     </div>
 
-    <div :class="`file-grid size-${viewSize}`" @contextmenu.prevent="onBlankContextMenu">
+    <div ref="gridRef" :class="`file-grid size-${viewSize}`" @contextmenu.prevent="onBlankContextMenu" @mousedown="onBoxSelectMouseDown">
+      <SelectionOverlay :rect="selectionRect"/>
       <a-dropdown v-for="folder in folders" :key="folder.id" :trigger="['contextmenu']">
         <DocFolderCard
+            :data-select-id="String(folder.id)"
             :folder="folder"
             :size="viewSize"
+            :editing="renamingFolderId === folder.id"
+            :selected="isSelected(String(folder.id))"
             @delete="handleDeleteFolder"
-            @enter="enterFolder"
+            @enter="handleFolderEnter"
             @rename="openRenameFolder"
+            @rename-confirm="handleRenameConfirm"
+            @rename-cancel="handleRenameCancel"
         />
         <template #overlay>
           <a-menu @click="onFolderMenuClick($event, folder)">
@@ -90,17 +98,21 @@
       </a-dropdown>
       <a-dropdown v-for="file in filteredFiles" :key="file.id || file.name" :trigger="['contextmenu']">
         <DocFileCard
+            :data-select-id="String(file.id)"
             :active="String(file.id) === String(props.selectedDocId ?? '')"
             :cut="clipboard?.mode === 'cut' && clipboard.items.some(c => String(c.id) === String(file.id))"
             :file="file"
             :size="viewSize"
+            :selected="isSelected(String(file.id))"
             :vectorizing="!!vectorizingMap[String(file.id)]"
             :progress="vectorizingMap[String(file.id)]?.progress"
             :progress-msg="vectorizingMap[String(file.id)]?.message"
             @delete="handleDelete"
             @edit="openEdit"
             @select="handleSelectDoc"
+            @chunk="handleChunk"
             @vectorize="handleVectorize"
+            @re-chunk="handleReChunk"
             @re-vectorize="handleReVectorize"
         />
         <template #overlay>
@@ -109,9 +121,17 @@
               <template #icon><edit-outlined/></template>
               编辑
             </a-menu-item>
-            <a-menu-item v-if="file.status === '待向量化'" key="vectorize">
+            <a-menu-item v-if="file.status === '待向量化' || file.status === '失败'" key="chunk">
+              <template #icon><block-outlined/></template>
+              切片
+            </a-menu-item>
+            <a-menu-item v-if="file.status === '已切片'" key="vectorize">
               <template #icon><experiment-outlined/></template>
               向量化
+            </a-menu-item>
+            <a-menu-item v-if="file.status === '已切片' || file.status === '已向量化' || file.status === '失败'" key="re-chunk">
+              <template #icon><block-outlined/></template>
+              重新切片
             </a-menu-item>
             <a-menu-item v-if="file.status === '已向量化' || file.status === '失败'" key="re-vectorize">
               <template #icon><sync-outlined/></template>
@@ -224,15 +244,19 @@ import {computed, onUnmounted, reactive, ref, watch} from 'vue';
 import type {UploadProps} from 'ant-design-vue'
 import {message, Modal} from 'ant-design-vue'
 import {
-  AppstoreOutlined, BorderOutlined, CopyOutlined, CreditCardOutlined,
+  AppstoreOutlined, BlockOutlined, BorderOutlined, CopyOutlined, CreditCardOutlined,
   DeleteOutlined, EditOutlined, ExperimentOutlined, FolderOutlined,
-  PlusOutlined, ReloadOutlined, ScissorOutlined, SnippetsOutlined, SyncOutlined
+  LeftOutlined, PlusOutlined, ReloadOutlined, RightOutlined, ScissorOutlined,
+  SnippetsOutlined, SyncOutlined
 } from '@ant-design/icons-vue';
 import DocFileCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFileCard.vue';
 import DocFolderCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFolderCard.vue';
 import VecDocFormModal from '@/views/admin/ai-vector/vec-doc/VecDocFormModal.vue'
+import SelectionOverlay from '@/views/admin/ai-vector/vector-center/component/right/SelectionOverlay.vue'
 import {type AiVecDoc, aiVecDocApi} from '@/api/aiVecDoc.ts'
 import {type AiVecFolder, aiVecFolderApi} from '@/api/aiVecFolder.ts'
+import {useBoxSelection} from '@/views/admin/ai-vector/vector-center/hooks/useBoxSelection'
+import {useClipboardShortcuts} from '@/views/admin/ai-vector/vector-center/hooks/useClipboardShortcuts'
 
 const props = defineProps<{
   docs: AiVecDoc[]
@@ -258,6 +282,11 @@ const folderLoading = ref(false)
 const folderModalOpen = ref(false)
 const folderModalName = ref('')
 const editingFolder = ref<AiVecFolder | null>(null)
+const renamingFolderId = ref<number | string | null>(null)
+
+// 前进后退导航
+const navHistory = ref<Array<{ folderId: number | string | null; path: Array<{ id: number | string; name: string }> }>>([{ folderId: null, path: [] }])
+const navIndex = ref(0)
 const modalMode = ref<'create' | 'edit'>('create')
 const modalInitial = ref<AiVecDoc | null>(null)
 const modalSubmitting = ref(false)
@@ -271,6 +300,21 @@ const blankMenuVisible = ref(false)
 const blankMenuX = ref(0)
 const blankMenuY = ref(0)
 const clipboard = ref<{ items: any[]; mode: 'copy' | 'cut' } | null>(null)
+
+// 框选 & 多选
+const gridRef = ref<HTMLElement | null>(null)
+const {
+  selectedIds,
+  selectionRect,
+  clearSelection,
+  selectAll,
+  toggleSelect,
+  isSelected,
+  onMouseDown: onBoxSelectMouseDown
+} = useBoxSelection({
+  containerRef: gridRef,
+  itemSelector: '[data-select-id]'
+})
 
 // 移动到文件夹弹窗
 const moveModalOpen = ref(false)
@@ -315,15 +359,32 @@ const fetchFolders = async () => {
   }
 }
 
+const pushNavHistory = () => {
+  navHistory.value = navHistory.value.slice(0, navIndex.value + 1)
+  navHistory.value.push({folderId: currentFolderId.value, path: [...folderPath.value]})
+  navIndex.value = navHistory.value.length - 1
+}
+
 const enterFolder = (folder: AiVecFolder) => {
   currentFolderId.value = folder.id!
   folderPath.value.push({id: folder.id!, name: folder.folderName || ''})
+  pushNavHistory()
   void fetchFolders()
+}
+
+const handleFolderEnter = (folder: AiVecFolder, e: MouseEvent) => {
+  if (e.ctrlKey || e.metaKey) {
+    toggleSelect(String(folder.id), true)
+  } else {
+    clearSelection()
+    enterFolder(folder)
+  }
 }
 
 const navigateToRoot = () => {
   currentFolderId.value = null
   folderPath.value = []
+  pushNavHistory()
   void fetchFolders()
 }
 
@@ -335,6 +396,25 @@ const navigateToPath = (index: number) => {
   const target = folderPath.value[index]
   currentFolderId.value = target.id
   folderPath.value = folderPath.value.slice(0, index + 1)
+  pushNavHistory()
+  void fetchFolders()
+}
+
+const goBack = () => {
+  if (navIndex.value <= 0) return
+  navIndex.value--
+  const entry = navHistory.value[navIndex.value]
+  currentFolderId.value = entry.folderId
+  folderPath.value = [...entry.path]
+  void fetchFolders()
+}
+
+const goForward = () => {
+  if (navIndex.value >= navHistory.value.length - 1) return
+  navIndex.value++
+  const entry = navHistory.value[navIndex.value]
+  currentFolderId.value = entry.folderId
+  folderPath.value = [...entry.path]
   void fetchFolders()
 }
 
@@ -345,9 +425,23 @@ const openCreateFolder = () => {
 }
 
 const openRenameFolder = (folder: AiVecFolder) => {
-  editingFolder.value = folder
-  folderModalName.value = folder.folderName || ''
-  folderModalOpen.value = true
+  renamingFolderId.value = folder.id!
+}
+
+const handleRenameConfirm = async (folder: AiVecFolder, newName: string) => {
+  try {
+    await aiVecFolderApi.update({id: folder.id, folderName: newName})
+    message.success('重命名成功')
+    renamingFolderId.value = null
+    await fetchFolders()
+  } catch (error) {
+    const err = error as { message?: string }
+    message.error(err?.message || '重命名失败')
+  }
+}
+
+const handleRenameCancel = () => {
+  renamingFolderId.value = null
 }
 
 const handleFolderSubmit = async () => {
@@ -424,8 +518,10 @@ const filteredFiles = computed(() => {
       .map((doc) => {
         const status = String(doc.syncStatus || '').toUpperCase()
         let statusLabel = '待向量化'
-        if (status === 'STORED') statusLabel = '已向量化'
+        if (status === 'CHUNKING') statusLabel = '切片中'
+        else if (status === 'CHUNKED') statusLabel = '已切片'
         else if (status === 'VECTORING') statusLabel = '向量化中'
+        else if (status === 'STORED') statusLabel = '已向量化'
         else if (status === 'FAILED') statusLabel = '失败'
         return {
           id: doc.id,
@@ -439,6 +535,23 @@ const filteredFiles = computed(() => {
       })
 })
 
+// 键盘快捷键
+useClipboardShortcuts({
+  selectedIds,
+  fileList: filteredFiles,
+  folderList: folders,
+  clipboard,
+  currentFolderId,
+  onSelectAll: () => {
+    const allIds = [
+      ...folders.value.map(f => String(f.id)),
+      ...filteredFiles.value.map(f => String(f.id))
+    ]
+    selectAll(allIds)
+  },
+  onPaste: (targetFolderId) => handlePaste(targetFolderId)
+})
+
 // 自动为已在向量化中的文档启动轮询
 watch(
     () => props.docs,
@@ -447,7 +560,7 @@ watch(
       for (const doc of docs) {
         const id = String(doc.id ?? '')
         const status = String(doc.syncStatus || '').toUpperCase()
-        if (status === 'VECTORING' && id && !vectorizingMap[id]) {
+        if ((status === 'VECTORING' || status === 'CHUNKING') && id && !vectorizingMap[id]) {
           startPolling(id)
         }
       }
@@ -503,12 +616,14 @@ const startPolling = (docId: string) => {
         message: prog.message || '向量化中...'
       }
       const status = String(prog.status || '').toUpperCase()
-      if (status === 'STORED' || status === 'FAILED') {
+      if (status === 'STORED' || status === 'CHUNKED' || status === 'FAILED') {
         stopPolling(docId)
         if (status === 'STORED') {
           message.success('向量化完成')
+        } else if (status === 'CHUNKED') {
+          message.success('切片完成')
         } else {
-          message.error('向量化失败: ' + (prog.message || '未知错误'))
+          message.error('操作失败: ' + (prog.message || '未知错误'))
         }
         emit('changed')
       }
@@ -530,14 +645,40 @@ onUnmounted(() => {
   Object.keys(pollingTimers.value).forEach(stopPolling)
 })
 
+const handleChunk = async (file: any) => {
+  if (file?.id == null) return
+  Modal.confirm({
+    title: '确认执行切片',
+    content: `将对文档 ${file.name || file.id} 执行解析和切片。`,
+    async onOk() {
+      await aiVecDocApi.chunk(file.id)
+      message.info('切片任务已提交')
+      startPolling(String(file.id))
+    }
+  })
+}
+
 const handleVectorize = async (file: any) => {
   if (file?.id == null) return
   Modal.confirm({
     title: '确认执行向量化',
-    content: `将对文档 ${file.name || file.id} 执行向量化并写入向量库。`,
+    content: `将对文档 ${file.name || file.id} 的切片执行向量化并写入向量库。`,
     async onOk() {
       await aiVecDocApi.vectorize(file.id)
       message.info('向量化任务已提交')
+      startPolling(String(file.id))
+    }
+  })
+}
+
+const handleReChunk = async (file: any) => {
+  if (file?.id == null) return
+  Modal.confirm({
+    title: '确认重新切片',
+    content: `将清除文档 ${file.name || file.id} 的旧切片与向量数据并重新切片。`,
+    async onOk() {
+      await aiVecDocApi.reChunk(file.id)
+      message.info('重新切片任务已提交')
       startPolling(String(file.id))
     }
   })
@@ -573,9 +714,41 @@ const handleDelete = async (file: any) => {
   })
 }
 
-const handleSelectDoc = (file: any) => {
+const handleDeleteSelected = (file: any) => {
+  const batchItems = isSelected(String(file.id))
+      ? filteredFiles.value.filter(f => isSelected(String(f.id)))
+      : [file]
+
+  if (batchItems.length === 0) return
+
+  if (batchItems.length === 1) {
+    handleDelete(batchItems[0])
+    return
+  }
+
+  Modal.confirm({
+    title: '确认批量删除',
+    content: `将删除 ${batchItems.length} 个文档，删除后将同步清理切片与向量数据。`,
+    okButtonProps: {danger: true},
+    async onOk() {
+      const ids = batchItems.map(f => f.id).filter(Boolean)
+      await aiVecDocApi.delete(ids)
+      message.success(`已删除 ${ids.length} 个文档`)
+      clearSelection()
+      emit('changed')
+    }
+  })
+}
+
+const handleSelectDoc = (file: any, e?: MouseEvent) => {
   if (file?.id == null) return
-  emit('select-doc', file.id)
+  if (e?.ctrlKey || e?.metaKey) {
+    toggleSelect(String(file.id), true)
+  } else {
+    clearSelection()
+    toggleSelect(String(file.id), false)
+    emit('select-doc', file.id)
+  }
 }
 
 const handleUpload: UploadProps['customRequest'] = async (options) => {
@@ -584,10 +757,30 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
     options.onError?.(new Error('missing store'))
     return
   }
+  const fileName = (options.file as File).name
+  const duplicate = filteredFiles.value.some(f => f.name === fileName)
+  if (duplicate) {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        Modal.confirm({
+          title: '文件名重复',
+          content: `当前文件夹下已存在同名文件"${fileName}"，是否继续上传？`,
+          onOk: () => resolve(),
+          onCancel: () => reject(new Error('cancelled'))
+        })
+      })
+    } catch {
+      options.onError?.(new Error('cancelled'))
+      return
+    }
+  }
   try {
-    await aiVecDocApi.upload(options.file as File, uploadCollectionId.value, currentFolderId.value)
+    const doc = await aiVecDocApi.upload(options.file as File, uploadCollectionId.value, currentFolderId.value)
     options.onSuccess?.({})
     message.success('上传成功')
+    if (doc?.id) {
+      emit('select-doc', doc.id)
+    }
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
@@ -603,6 +796,9 @@ const onBlankContextMenu = (e: MouseEvent) => {
   if (target.closest('.custom-file-card') || target.closest('.folder-card'))
     return
   e.preventDefault()
+  if (!e.ctrlKey && !e.metaKey) {
+    clearSelection()
+  }
   blankMenuX.value = e.clientX
   blankMenuY.value = e.clientY
   blankMenuVisible.value = true
@@ -650,29 +846,45 @@ const onFolderMenuClick = (payload: unknown, folder: AiVecFolder) => {
 
 const onFileMenuClick = (payload: unknown, file: any) => {
   const key = String((payload as { key?: string | number })?.key ?? '')
+
+  // For single-item actions, use the right-clicked file directly
   switch (key) {
     case 'edit':
       openEdit(file)
-      break
+      return
+    case 'chunk':
+      handleChunk(file)
+      return
     case 'vectorize':
       handleVectorize(file)
-      break
+      return
+    case 're-chunk':
+      handleReChunk(file)
+      return
     case 're-vectorize':
       handleReVectorize(file)
-      break
+      return
+    case 'delete':
+      handleDeleteSelected(file)
+      return
+  }
+
+  // For batch-capable actions, use all selected items if the right-clicked file is selected
+  const batchItems = isSelected(String(file.id))
+      ? filteredFiles.value.filter(f => isSelected(String(f.id)))
+      : [file]
+
+  switch (key) {
     case 'move':
-      openMoveModal([file])
+      openMoveModal(batchItems)
       break
     case 'copy':
-      clipboard.value = {items: [file], mode: 'copy'}
-      message.success('已复制 1 个文件')
+      clipboard.value = {items: batchItems, mode: 'copy'}
+      message.success(`已复制 ${batchItems.length} 个文件`)
       break
     case 'cut':
-      clipboard.value = {items: [file], mode: 'cut'}
-      message.success('已剪切 1 个文件')
-      break
-    case 'delete':
-      handleDelete(file)
+      clipboard.value = {items: batchItems, mode: 'cut'}
+      message.success(`已剪切 ${batchItems.length} 个文件`)
       break
   }
 }
@@ -773,6 +985,34 @@ const handlePaste = async (targetFolderId: number | string | null) => {
     align-items: center;
     gap: 12px;
 
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      .nav-btn {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        color: var(--text-secondary);
+        transition: all 0.2s;
+
+        &:hover:not(.disabled) {
+          background: var(--bg-input);
+          color: var(--primary);
+        }
+
+        &.disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+      }
+    }
+
     .section-title {
       font-size: 16px;
       font-weight: 600;
@@ -845,6 +1085,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
 
 /* 布局网格：负责卡片的大小和排列 */
 .file-grid {
+  position: relative;
   display: grid;
   gap: 20px;
   flex: 1;

@@ -78,20 +78,33 @@
                 </a-form-item>
 
                 <a-form-item label="Embedding 模型" name="modelKey">
-                  <a-select
-                      v-model:value="form.modelKey"
-                      :loading="modelLoading"
-                      :options="modelOptions"
-                      allow-clear
-                      placeholder="选择 Embedding 模型"
-                      show-search
-                      size="large"
-                      style="width: 100%"
-                      @change="handleModelChange"
-                  />
-                  <div v-if="selectedModelInfo" class="instance-info">
-                    已选择：{{ selectedModelInfo }}
-                  </div>
+                  <a-space class="w-full">
+                    <a-input
+                        :value="selectedModelDisplay"
+                        disabled
+                        placeholder="请选择 Embedding 模型"
+                        size="large"
+                        style="flex: 1"
+                    />
+                    <a-button size="large" type="primary" @click="modelSelectorOpen = true">
+                      选择实例
+                    </a-button>
+                  </a-space>
+                </a-form-item>
+
+                <a-form-item label="关联账号" name="accountKey">
+                  <a-space class="w-full">
+                    <a-input
+                        :value="form.accountKey || ''"
+                        disabled
+                        placeholder="请选择关联账号"
+                        size="large"
+                        style="flex: 1"
+                    />
+                    <a-button size="large" type="primary" @click="accountSelectorOpen = true">
+                      选择账号
+                    </a-button>
+                  </a-space>
                 </a-form-item>
 
                 <a-form-item class="span-2" label="元数据模式 (JSON)" name="metadataSchema">
@@ -106,6 +119,66 @@
                 </a-form-item>
               </div>
             </div>
+
+            <div class="form-section">
+              <h3 class="section-headline">
+                <ScissorOutlined/>
+                切片与向量化配置
+              </h3>
+
+              <div class="form-grid">
+                <a-form-item label="切片策略" name="chunkStrategy">
+                  <a-select v-model:value="form.chunkStrategy" size="large">
+                    <a-select-option value="RECURSIVE">递归分割（默认）</a-select-option>
+                    <a-select-option value="FIXED_SIZE">固定大小</a-select-option>
+                    <a-select-option value="PARAGRAPH">按段落</a-select-option>
+                    <a-select-option value="SENTENCE">按句子</a-select-option>
+                  </a-select>
+                </a-form-item>
+
+                <a-form-item label="切片大小（字符数）" name="chunkSize">
+                  <a-input-number
+                      v-model:value="form.chunkSize"
+                      :max="4000"
+                      :min="100"
+                      placeholder="默认 800"
+                      size="large"
+                      style="width: 100%"
+                  />
+                </a-form-item>
+
+                <a-form-item label="重叠范围（字符数）" name="chunkOverlap">
+                  <a-input-number
+                      v-model:value="form.chunkOverlap"
+                      :max="500"
+                      :min="0"
+                      placeholder="默认 100"
+                      size="large"
+                      style="width: 100%"
+                  />
+                </a-form-item>
+
+                <a-form-item label="稠密权重" name="denseWeight">
+                  <a-slider
+                      v-model:value="form.denseWeight"
+                      :max="1"
+                      :min="0"
+                      :step="0.05"
+                      :tooltip-formatter="(v: any) => Number(v).toFixed(2)"
+                  />
+                  <div class="dimension-hint">混合检索时稠密向量的权重（0~1），当前暂存值</div>
+                </a-form-item>
+
+                <a-form-item class="span-2" label="指令前缀" name="instructionPrefix">
+                  <a-input
+                      v-model:value="form.instructionPrefix"
+                      placeholder="可选，如 BGE 模型的 query 前缀：为这个句子生成表示以用于检索中文文档"
+                      size="large"
+                  />
+                  <div class="dimension-hint">嵌入时添加到文本前的指令，部分模型（如 BGE、Instructor）需要</div>
+                </a-form-item>
+              </div>
+            </div>
           </div>
         </a-form>
 
@@ -115,16 +188,31 @@
         </div>
       </div>
     </div>
+
+    <ModelSelectorDrawer
+        :open="modelSelectorOpen"
+        fixed-model-type="embedding"
+        @update:open="modelSelectorOpen = $event"
+        @select="handleModelSelect"
+    />
+    <AccountSelectorDrawer
+        :open="accountSelectorOpen"
+        @update:open="accountSelectorOpen = $event"
+        @select="handleAccountSelect"
+    />
   </AstModal>
 </template>
 
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
-import {DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined} from '@ant-design/icons-vue'
+import {DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined, ScissorOutlined} from '@ant-design/icons-vue'
 import type {FormInstance} from 'ant-design-vue'
 import type {AiVecStore} from '@/api/aiVecStore.ts'
 import AstModal from '@/components/home/AstModal.vue'
-import {type AiModel, aiModelApi} from '@/api/aiModel'
+import ModelSelectorDrawer from '@/views/admin/ai-config/ai-model/selector/ModelSelectorDrawer.vue'
+import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
+import type {AiModel} from '@/api/aiModel'
+import type {AiAccount} from '@/api/aiAccount'
 
 const props = defineProps<{
   mode: 'create' | 'edit',
@@ -140,9 +228,9 @@ const open = defineModel<boolean>('open', {required: true})
 const maxWidth = computed(() => 'min(80vw, 1000px)')
 
 const formRef = ref<FormInstance | null>(null)
-const modelLoading = ref(false)
-const modelOptions = ref<Array<{ value: string; label: string }>>([])
-const allModels = ref<AiModel[]>([])
+const modelSelectorOpen = ref(false)
+const accountSelectorOpen = ref(false)
+const selectedModelName = ref('')
 
 const dimensionOptions = [
   {value: 256, label: '256 — 轻量级，适合简单检索'},
@@ -167,7 +255,13 @@ function emptyForm(): AiVecStore {
     dimension: undefined as unknown as number,
     distanceMetric: 'cosine',
     metadataSchema: '',
-    modelKey: ''
+    modelKey: '',
+    accountKey: '',
+    chunkStrategy: 'RECURSIVE',
+    chunkSize: 800,
+    chunkOverlap: 100,
+    denseWeight: 1,
+    instructionPrefix: ''
   }
 }
 
@@ -180,14 +274,16 @@ const rules = {
   modelKey: [{required: true, message: '请选择 Embedding 模型'}]
 }
 
-const selectedModelInfo = computed(() => {
+const selectedModelDisplay = computed(() => {
   if (!form.modelKey) return ''
-  const m = allModels.value.find(x => x.modelKey === form.modelKey)
-  return m ? `${m.modelName || m.modelKey} (${m.modelKey})` : form.modelKey
+  return selectedModelName.value
+      ? `${selectedModelName.value} (${form.modelKey})`
+      : form.modelKey
 })
 
 function assignFromInitial(src: AiVecStore) {
   Object.assign(form, emptyForm(), src)
+  selectedModelName.value = (src as any).instanceName || ''
 }
 
 watch(() => [open.value, props.initial, props.defaultSourceId] as const, ([isOpen, initial, defaultSourceId]) => {
@@ -196,59 +292,26 @@ watch(() => [open.value, props.initial, props.defaultSourceId] as const, ([isOpe
       assignFromInitial(initial)
     } else {
       Object.assign(form, emptyForm())
+      selectedModelName.value = ''
       if (defaultSourceId) {
         form.sourceId = defaultSourceId
       }
     }
-    fetchModelOptions()
   }
 })
 
-async function fetchModelOptions() {
-  modelLoading.value = true
-  try {
-    const resp = await aiModelApi.queryPage({
-      pageNo: 1,
-      pageSize: 200,
-      param: {}
-    })
-    const list = resp.list || []
-    allModels.value = list
-    modelOptions.value = list
-        .filter((x) => String(x.modelType || '').toLowerCase().includes('embedding'))
-        .map((x) => ({
-          value: String(x.modelKey || ''),
-          label: `${x.modelName || x.modelKey} (${x.modelKey})`
-        }))
-        .filter((x) => x.value)
-  } finally {
-    modelLoading.value = false
+function handleModelSelect(model: AiModel) {
+  form.modelKey = model.modelKey || ''
+  selectedModelName.value = model.modelName || ''
+  if (model.responseLimit && model.responseLimit > 0) {
+    form.dimension = model.responseLimit
   }
+  modelSelectorOpen.value = false
 }
 
-async function handleModelChange(modelKey: string) {
-  if (!modelKey) {
-    return
-  }
-  const m = allModels.value.find(x => x.modelKey === modelKey)
-  if (m?.responseLimit && m.responseLimit > 0) {
-    form.dimension = m.responseLimit
-    return
-  }
-  try {
-    const detail = await aiModelApi.queryPage({
-      pageNo: 1,
-      pageSize: 1,
-      param: {modelKey}
-    })
-    const hit = detail.list?.[0] as Record<string, unknown> | undefined
-    const dims = hit?.dimensions ?? hit?.responseLimit
-    if (dims && Number(dims) > 0) {
-      form.dimension = Number(dims)
-    }
-  } catch {
-    /* ignore — user can set manually */
-  }
+function handleAccountSelect(account: AiAccount) {
+  form.accountKey = account.accountKey || ''
+  accountSelectorOpen.value = false
 }
 
 async function handleOk() {

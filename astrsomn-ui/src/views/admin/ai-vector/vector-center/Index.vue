@@ -21,12 +21,10 @@
         :selected-source="selectedSource"
         :selected-store="selectedStore"
         :docs="docs"
-        :segments="segments"
         :selected-doc-id="selectedDocId"
         @store-updated="handleStoreUpdated"
         @doc-changed="handleDocChanged"
         @select-doc="handleSelectDoc"
-        @bottom-changed="handleBottomChanged"
     />
   </div>
 </template>
@@ -43,7 +41,6 @@ const {
   sources,
   stores,
   docs,
-  segments,
   selectedSource,
   selectedStore,
   selectedStoreId,
@@ -53,8 +50,7 @@ const {
   reloadByDoc,
   fetchSources,
   fetchStores,
-  fetchDocs,
-  fetchSegments
+  fetchDocs
 } = useVectorCenterState()
 
 const handleSelectSource = async (sourceId: number | string) => {
@@ -62,24 +58,17 @@ const handleSelectSource = async (sourceId: number | string) => {
   selectedStoreId.value = undefined
   selectedDocId.value = undefined
   docs.value = []
-  segments.value = []
   await fetchStores()
 }
 
 const handleSelectStore = async (storeId: number | string) => {
   selectedStoreId.value = storeId
   selectedDocId.value = undefined
-  segments.value = []
   await fetchDocs()
 }
 
 const handleSelectDoc = async (docId: number | string) => {
   selectedDocId.value = docId || undefined
-  if (!selectedDocId.value) {
-    segments.value = []
-    return
-  }
-  await fetchSegments()
 }
 
 const handleTreeChanged = async () => {
@@ -94,10 +83,6 @@ const handleDocChanged = async () => {
   await reloadByDoc()
 }
 
-const handleBottomChanged = async () => {
-  await fetchSegments()
-}
-
 onMounted(async () => {
   await bootstrap()
 })
@@ -108,7 +93,7 @@ onMounted(async () => {
 .vector-center-layout {
   position: fixed;
   top: 60px;
-  left: 0;
+  left: 56px;
   right: 0;
   bottom: 0;
   overflow: hidden;

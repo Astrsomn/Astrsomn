@@ -19,8 +19,8 @@ export interface PageResponse<T> {
 }
 
 export interface AiVecSegmentQueryRequest {
-    docId?: number
-    collectionId?: number
+    docId?: number | string
+    collectionId?: number | string
     vectorId?: string
     chunkIndex?: number
 }

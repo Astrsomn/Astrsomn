@@ -52,9 +52,10 @@
 | ✅  | **环境初始化**      | 支持快速环境配置与初始化       |
 | ✅  | **依赖快速引入**     | Maven Starter 一键集成 |
 | ✅  | **基本配置功能**     | 提供核心配置管理能力         |
-| ❌  | **工作流模块**      | 规划中，尚未开放可用版本       |
-| ❌  | **向量库集成**      | 部分实现，不稳定           |
-| ❌  | **安全与治理**      | 多租户、限流、监控等功能缺失     |
+| ✅  | **RAG 能力**        | 已完成向量检索与知识库能力      |
+| 🔄  | **工作流模块**      | 计划 2.0 版本发布         |
+| ✅  | **向量库集成**      | 支持 Chroma 向量数据库       |
+| ❌  | **安全与治理**      | 限流、监控等功能待完善        |
 | ⚠️ | **API 兼容性**    | 可能随时变更，不保证向后兼容     |
 
 **⚠️ 请勿用于生产环境！⚠️**
@@ -417,10 +418,7 @@ public class MyService {
 
 ### 向量存储
 
-- [Qdrant Vector](astrsomn-vector/astrsomn-vector-qdrant/)
 - [Chroma Vector](astrsomn-vector/astrsomn-vector-chroma/)
-- [Milvus Vector](astrsomn-vector/astrsomn-vector-milvus/)
-- [Redis Vector](astrsomn-vector/astrsomn-vector-redis/)
 
 ***
 

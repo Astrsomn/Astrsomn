@@ -1,17 +1,12 @@
 <template>
   <header class="agent-config-header">
     <div class="header-left">
-      <div class="header-logo">
-        <img alt="Logo" class="logo-img" src="https://api.dicebear.com/7.x/shapes/svg?seed=Astrsomn">
-        <span class="logo-text">Astrsomn</span>
-      </div>
-      <div class="header-divider"></div>
       <span class="header-title">Agent 配置</span>
     </div>
     <div class="header-right">
       <a-button class="cancel-btn" type="text" @click="emit('back')">取消</a-button>
       <a-button :loading="submitting" class="save-btn" type="primary" @click="emit('save')">
-        保存更改
+        保存
       </a-button>
     </div>
   </header>

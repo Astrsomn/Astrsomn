@@ -1,6 +1,6 @@
 <template>
-  <a-card :body-style="{ padding: 0 }" :bordered="false" :class="[{ active, cut }, `size-${size}`]" class="custom-file-card"
-          @click="$emit('select', file)" @contextmenu.prevent="$emit('contextmenu', $event, file)">
+  <a-card :body-style="{ padding: 0 }" :bordered="false" :class="[{ active, cut, selected }, `size-${size}`]" class="custom-file-card"
+          @click="$emit('select', file, $event)" @contextmenu.prevent="$emit('contextmenu', $event, file)">
     <div class="square-container">
       <div class="inner-content">
 
@@ -8,8 +8,14 @@
           <div class="action-btn" title="编辑" @click.stop="$emit('edit', file)">
             <edit-outlined/>
           </div>
+          <div v-if="canChunk" class="action-btn chunk" title="切片" @click.stop="$emit('chunk', file)">
+            <block-outlined/>
+          </div>
           <div v-if="canVectorize" class="action-btn vectorize" title="向量化" @click.stop="$emit('vectorize', file)">
             <experiment-outlined/>
+          </div>
+          <div v-if="canReChunk" class="action-btn re-chunk" title="重新切片" @click.stop="$emit('re-chunk', file)">
+            <block-outlined/>
           </div>
           <div v-if="canReVectorize" class="action-btn re-vectorize" title="重新向量化" @click.stop="$emit('re-vectorize', file)">
             <sync-outlined/>
@@ -23,7 +29,7 @@
           <div class="progress-ring">
             <a-progress :percent="progress || 0" :size="54" :stroke-color="'#1677ff'" :trail-color="'#f0f0f0'" type="circle"/>
           </div>
-          <span class="progress-msg">{{ progressMsg || '向量化中...' }}</span>
+          <span class="progress-msg">{{ progressMsg || '处理中...' }}</span>
         </div>
 
         <div class="main-body">
@@ -47,6 +53,7 @@
 <script lang="ts" setup>
 import {computed} from 'vue';
 import {
+  BlockOutlined,
   DeleteOutlined,
   EditOutlined,
   ExperimentOutlined,
@@ -67,6 +74,7 @@ const props = defineProps<{
   };
   active?: boolean;
   cut?: boolean;
+  selected?: boolean;
   vectorizing?: boolean;
   progress?: number;
   progressMsg?: string;
@@ -74,15 +82,19 @@ const props = defineProps<{
 }>();
 
 defineEmits<{
-  select: [file: any]
+  select: [file: any, e: MouseEvent]
   edit: [file: any]
+  chunk: [file: any]
   vectorize: [file: any]
+  're-chunk': [file: any]
   're-vectorize': [file: any]
   delete: [file: any]
   contextmenu: [e: MouseEvent, file: any]
 }>()
 
-const canVectorize = computed(() => !props.vectorizing && props.file.status === '待向量化')
+const canChunk = computed(() => !props.vectorizing && (props.file.status === '待向量化' || props.file.status === '失败'))
+const canVectorize = computed(() => !props.vectorizing && props.file.status === '已切片')
+const canReChunk = computed(() => !props.vectorizing && (props.file.status === '已切片' || props.file.status === '已向量化' || props.file.status === '失败'))
 const canReVectorize = computed(() => !props.vectorizing && (props.file.status === '已向量化' || props.file.status === '失败'))
 
 const getFileIcon = (name: string) => {
@@ -124,6 +136,11 @@ const getFileExtension = (name: string) => {
   &.active {
     border-color: var(--primary) !important;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  &.selected {
+    background: rgba(59, 130, 246, 0.08);
+    border-color: var(--primary) !important;
   }
 
   &.cut {
@@ -244,6 +261,14 @@ const getFileExtension = (name: string) => {
 
       &.delete:hover {
         background: var(--error);
+      }
+
+      &.chunk:hover {
+        background: #722ed1;
+      }
+
+      &.re-chunk:hover {
+        background: #722ed1;
       }
 
       &.re-vectorize:hover {

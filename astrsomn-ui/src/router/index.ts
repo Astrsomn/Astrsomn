@@ -29,17 +29,6 @@ const adminChildren: RouteRecordRaw[] = [
                 redirect: '/admin/ai-config/agents'
             },
             {
-                path: 'builder',
-                name: 'AdminBuilder',
-                component: () => import('@/views/admin/ai-config/builder/Index.vue'),
-                meta: {
-                    title: 'Agent Studio',
-                    requiresAuth: true,
-                    showAdminDock: true,
-                    showModuleSidebar: false
-                }
-            },
-            {
                 path: 'ai-account',
                 name: 'AdminAiAccount',
                 component: () => import('@/views/admin/ai-config/ai-account/AccountList.vue'),
@@ -536,7 +525,6 @@ const adminChildren: RouteRecordRaw[] = [
 
 
     {path: 'ai-config-center', redirect: {path: '/admin/ai-config'}},
-    {path: 'builder', redirect: {path: '/admin/ai-config/builder'}},
     {path: 'agents', redirect: {path: '/admin/ai-config/agents'}},
     {path: 'mcp', redirect: {path: '/admin/ai-config/mcp'}},
     {path: 'tools', redirect: {path: '/admin/ai-config/tools'}},

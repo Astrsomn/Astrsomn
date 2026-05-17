@@ -54,7 +54,7 @@ function emitSearch() {
 <style scoped>
 /* 容器基础样式：无背景，轻边框 */
 .toolbar-search-pill {
-  height: 48px;
+  height: 36px;
   background: transparent;
   border-radius: var(--radius-md);
   padding: 0 6px 0 16px;
@@ -64,20 +64,16 @@ function emitSearch() {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 悬浮样式：不要白色，改用阴影和边框强化 */
+/* 悬浮样式：仅边框变色 */
 .toolbar-search-pill:hover {
   border-color: var(--primary, #3b82f6);
-  /* 使用投影来营造“浮起来”的感觉，而不是靠背景填充 */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05),
-  0 1px 2px rgba(0, 0, 0, 0.02);
-  transform: translateY(-1px); /* 轻微上移，增加灵动感 */
 }
 
-/* 聚焦状态：强化主色调呼吸感 */
+/* 聚焦状态 */
 .toolbar-search-pill:focus-within {
   border-color: var(--primary, #3b82f6);
   background: transparent;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary, #3b82f6) 10%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary, #3b82f6) 8%, transparent);
 }
 
 
@@ -92,8 +88,8 @@ function emitSearch() {
   min-width: 0;
   border: none;
   outline: none;
-  font-size: 14px;
-  margin-left: 12px;
+  font-size: 13px;
+  margin-left: 8px;
   background: transparent;
   color: var(--text-primary);
 }
@@ -102,29 +98,24 @@ function emitSearch() {
   color: var(--text-placeholder);
 }
 
-/* 按钮样式：保持主色，强调点击感 */
+/* 按钮样式：浅色，降低视觉权重 */
 .toolbar-search-pill__btn {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
-  background: var(--primary, #3b82f6);
-  color: #fff;
+  background: var(--bg-input, #f1f5f9);
+  color: var(--text-muted, #94a3b8);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px color-mix(in srgb, var(--primary, #3b82f6) 30%, transparent);
+  transition: all 0.15s ease;
 }
 
 .toolbar-search-pill__btn:hover {
-  filter: brightness(1.1);
-  transform: scale(1.08);
-}
-
-.toolbar-search-pill__btn:active {
-  transform: scale(0.92);
+  background: var(--primary-hover, #eff6ff);
+  color: var(--primary, #3b82f6);
 }
 </style>

@@ -11,9 +11,7 @@
     <div class="source-info">
       <div class="source-header-row">
         <span class="source-title">{{ sourceName || '数据源' }}</span>
-        <span :class="isConnected ? 'badge-up' : 'badge-down'" class="status-badge">
-          {{ isConnected ? '已连接' : '未连接' }}
-        </span>
+        <span :class="isConnected ? 'dot-connected' : 'dot-disconnected'" class="status-dot"></span>
       </div>
       <div class="source-conn-row">
         <span class="source-conn">{{ sourceType }} · {{ ip }}:{{ port }}</span>
@@ -47,29 +45,26 @@ defineEmits<{
 .source-card {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
-  margin: 4px 0;
+  gap: 10px;
+  padding: 10px;
+  margin: 2px 0;
   border-radius: var(--radius-md);
-  background: var(--bg-card);
-  border: 1px solid transparent;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.15s;
 
   &:hover {
-    border-color: var(--border-default);
     background: var(--bg-input);
-    transform: translateY(-1px);
   }
 
   &.active {
     background: var(--bg-input);
-    border-color: var(--border-default);
   }
 
   .source-icon-box {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: var(--radius-md);
     background: var(--bg-input);
     display: flex;
@@ -101,28 +96,23 @@ defineEmits<{
       margin-bottom: 4px;
 
       .source-title {
-        font-size: 14px;
-        font-weight: 700;
+        font-size: 13px;
+        font-weight: 600;
         color: var(--text-heading);
       }
 
-      .status-badge {
-        font-size: 10px;
-        font-weight: 600;
-        padding: 2px 8px;
-        border-radius: var(--radius-sm);
-        letter-spacing: 0.02em;
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
 
-        &.badge-up {
-          background: rgba(16, 185, 129, 0.1);
-          color: var(--success);
-          border: 1px solid rgba(16, 185, 129, 0.2);
+        &.dot-connected {
+          background: #22c55e;
         }
 
-        &.badge-down {
-          background: rgba(239, 68, 68, 0.1);
-          color: var(--error);
-          border: 1px solid rgba(239, 68, 68, 0.2);
+        &.dot-disconnected {
+          background: var(--text-muted, #94a3b8);
         }
       }
     }
@@ -133,7 +123,7 @@ defineEmits<{
       justify-content: space-between;
 
       .source-conn {
-        font-size: 12px;
+        font-size: 11px;
         font-family: 'SF Mono', Consolas, monospace;
         color: var(--text-muted);
       }

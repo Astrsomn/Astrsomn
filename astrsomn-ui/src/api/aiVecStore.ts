@@ -9,6 +9,12 @@ export interface AiVecStore {
     metadataSchema?: string
     instanceKey?: string
     modelKey?: string
+    chunkStrategy?: string
+    chunkSize?: number
+    chunkOverlap?: number
+    denseWeight?: number
+    instructionPrefix?: string
+    accountKey?: string
     sourceName?: string
     sourceProvider?: string
     instanceName?: string

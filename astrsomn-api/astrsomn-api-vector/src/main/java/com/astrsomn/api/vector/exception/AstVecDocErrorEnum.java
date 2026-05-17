@@ -42,7 +42,9 @@ public enum AstVecDocErrorEnum implements IError {
     DOC_FILE_NOT_TEXT(130011, "Document file is not supported as UTF-8 text"),
 
 
-    DOC_VECTORIZE_FAILED(130012, "Document vectorization failed");
+    DOC_VECTORIZE_FAILED(130012, "Document vectorization failed"),
+
+    DOC_DUPLICATE_FILE(130013, "Duplicate file in folder");
 
     private final int code;
     private final String message;

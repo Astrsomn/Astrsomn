@@ -1,14 +1,6 @@
 <template>
-  <div class="sidebar-wrapper">
-  <SidebarShell :collapsed="collapsed">
+  <SidebarShell :collapsed="collapsed" @toggle-collapse="emit('toggle-collapse')">
     <template #top>
-      <a-tooltip :placement="collapsed ? 'right' : 'bottom'">
-        <template #title>{{ collapsed ? '展开侧边栏' : '收起侧边栏' }}</template>
-        <div class="collapse-toggle" @click="emit('toggle-collapse')">
-          <MenuUnfoldOutlined v-if="collapsed"/>
-          <MenuFoldOutlined v-else/>
-        </div>
-      </a-tooltip>
       <AstSearchInput
           v-if="!collapsed"
           v-model="searchText"
@@ -60,90 +52,38 @@
               @toggle="selectSource(source.id)"
           />
           <template #overlay>
-            <a-menu @click="onSourceMenuClick($event, source)">
-              <a-menu-item key="addDb">
-                <template #icon>
-                  <PlusOutlined/>
-                </template>
-                新增数据库
-              </a-menu-item>
-              <a-menu-item key="edit">
-                <template #icon>
-                  <EditOutlined/>
-                </template>
-                编辑数据源
-              </a-menu-item>
-              <a-menu-divider/>
-              <a-menu-item key="delete" class="danger-item">
-                <template #icon>
-                  <DeleteOutlined/>
-                </template>
-                删除数据源
-              </a-menu-item>
-            </a-menu>
+            <SourceContextMenu
+                @add-db="handleSourceMenuClick('addDb', source)"
+                @edit="openEditSource(source.id)"
+                @delete="deleteSource(source.id)"
+            />
           </template>
         </a-dropdown>
 
         <transition name="expand">
-          <a-dropdown v-if="openKeys.includes(source.id)" :trigger="['contextmenu']">
-            <div class="db-container">
-              <a-dropdown
-                  v-for="db in source.dbs"
-                  :key="db.id"
-                  :trigger="['contextmenu']"
-              >
-                <DbNode
-                    :active="db.active"
-                    :db-name="db.dbName"
-                    :dim="db.dim"
-                    :is-selected="String(selectedStoreId) === String(db.id)"
-                    :model-name="db.modelName"
-                    @select="selectDb(source.id, db.id)"
+          <div v-if="openKeys.includes(source.id)" class="db-container" @contextmenu.prevent="handleDbContainerContextMenu($event, source)">
+            <a-dropdown
+                v-for="db in source.dbs"
+                :key="db.id"
+                :trigger="['contextmenu']"
+            >
+              <DbNode
+                  :active="db.active"
+                  :db-name="db.dbName"
+                  :dim="db.dim"
+                  :is-selected="String(selectedStoreId) === String(db.id)"
+                  :model-name="db.modelName"
+                  @select="selectDb(source.id, db.id)"
+              />
+              <template #overlay>
+                <DbContextMenu
+                    @edit="openEditStore(db.id)"
+                    @delete="deleteStore(db.id)"
                 />
-                <template #overlay>
-                  <a-menu @click="onDbMenuClick($event, source.id, db)">
-                    <a-menu-item key="edit">
-                      <template #icon>
-                        <EditOutlined/>
-                      </template>
-                      编辑数据库
-                    </a-menu-item>
-                    <a-menu-divider/>
-                    <a-menu-item key="delete" class="danger-item">
-                      <template #icon>
-                        <DeleteOutlined/>
-                      </template>
-                      删除数据库
-                    </a-menu-item>
-                  </a-menu>
-                </template>
-              </a-dropdown>
-              <div v-if="!source.dbs.length" class="db-empty-hint">右键空白区域可新建数据库</div>
-            </div>
-            <template #overlay>
-              <a-menu @click="onDbBlankMenuClick($event, source)">
-                <a-menu-item key="addDb">
-                  <template #icon>
-                    <PlusOutlined/>
-                  </template>
-                  新建数据库
-                </a-menu-item>
-                <a-menu-item key="editSource">
-                  <template #icon>
-                    <EditOutlined/>
-                  </template>
-                  编辑数据源
-                </a-menu-item>
-                <a-menu-divider/>
-                <a-menu-item key="deleteSource" class="danger-item">
-                  <template #icon>
-                    <DeleteOutlined/>
-                  </template>
-                  删除数据源
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown>
+              </template>
+            </a-dropdown>
+            <div v-if="!source.dbs.length" class="db-empty-hint" @contextmenu.prevent="handleDbContainerContextMenu($event, source)">右键空白区域可新建数据库</div>
+          </div>
         </transition>
       </div>
     </div>
@@ -185,6 +125,34 @@
         <div class="blank-context-menu-item" @click="onBlankMenuAction('refresh')">
           <ReloadOutlined/>
           <span>刷新</span>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+  <Teleport to="body">
+    <div
+        v-if="dbContainerMenuVisible"
+        class="blank-context-menu-overlay"
+        @click="closeDbContainerMenu"
+        @contextmenu.prevent="closeDbContainerMenu"
+    >
+      <div
+          :style="{ left: dbContainerMenuX + 'px', top: dbContainerMenuY + 'px' }"
+          class="blank-context-menu"
+          @click.stop
+      >
+        <div class="blank-context-menu-item" @click="onDbContainerMenuAction('addDb')">
+          <PlusOutlined/>
+          <span>新增数据库</span>
+        </div>
+        <div class="blank-context-menu-item" @click="onDbContainerMenuAction('edit')">
+          <EditOutlined/>
+          <span>编辑数据源</span>
+        </div>
+        <div class="blank-context-menu-divider"/>
+        <div class="blank-context-menu-item danger-item" @click="onDbContainerMenuAction('delete')">
+          <DeleteOutlined/>
+          <span>删除数据源</span>
         </div>
       </div>
     </div>
@@ -245,7 +213,6 @@
       </div>
     </div>
   </Teleport>
-  </div>
 </template>
 
 <script lang="ts" setup>
@@ -255,8 +222,6 @@ import {
   ClusterOutlined,
   DeleteOutlined,
   EditOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
   PlusOutlined,
   ReloadOutlined
 } from '@ant-design/icons-vue'
@@ -265,6 +230,8 @@ import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import SourceCard from './sidebar/SourceCard.vue'
 import DbNode from './sidebar/DbNode.vue'
+import SourceContextMenu from './sidebar/SourceContextMenu.vue'
+import DbContextMenu from './sidebar/DbContextMenu.vue'
 import VecSourceFormModal from '@/views/admin/ai-vector/vec-source/VecSourceFormModal.vue'
 import VecStoreFormModal from '@/views/admin/ai-vector/vec-store/VecStoreFormModal.vue'
 import {type AiVecSource, aiVecSourceApi} from '@/api/aiVecSource.ts'
@@ -371,6 +338,10 @@ const pendingStoreSyncSourceKey = ref<string>('')
 const blankContextMenuVisible = ref(false)
 const blankContextMenuX = ref(0)
 const blankContextMenuY = ref(0)
+const dbContainerMenuVisible = ref(false)
+const dbContainerMenuX = ref(0)
+const dbContainerMenuY = ref(0)
+const dbContainerMenuSource = ref<Source | null>(null)
 const router = useRouter()
 
 type Db = {
@@ -489,6 +460,36 @@ const closeBlankContextMenu = () => {
   blankContextMenuVisible.value = false
 }
 
+const handleDbContainerContextMenu = (e: MouseEvent, source: Source) => {
+  if ((e.target as HTMLElement).closest('.db-node')) return
+  e.preventDefault()
+  dbContainerMenuX.value = e.clientX
+  dbContainerMenuY.value = e.clientY
+  dbContainerMenuSource.value = source
+  dbContainerMenuVisible.value = true
+}
+
+const closeDbContainerMenu = () => {
+  dbContainerMenuVisible.value = false
+}
+
+const onDbContainerMenuAction = (action: string) => {
+  const source = dbContainerMenuSource.value
+  closeDbContainerMenu()
+  if (!source) return
+  switch (action) {
+    case 'addDb':
+      handleSourceMenuClick('addDb', source)
+      break
+    case 'edit':
+      openEditSource(source.id)
+      break
+    case 'delete':
+      deleteSource(source.id)
+      break
+  }
+}
+
 const onBlankMenuAction = (action: string) => {
   closeBlankContextMenu()
   if (action === 'addSource') {
@@ -520,17 +521,6 @@ const handleSourceMenuClick = (key: string, source: Source) => {
   }
 }
 
-const handleDbMenuClick = (key: string, _sourceId: number | string, db: Db) => {
-  switch (key) {
-    case 'edit':
-      openEditStore(db.id)
-      break
-    case 'delete':
-      void deleteStore(db.id)
-      break
-  }
-}
-
 const openEditSource = async (id: number | string) => {
   const detail = await aiVecSourceApi.detail(id)
   sourceModalMode.value = 'edit'
@@ -539,6 +529,11 @@ const openEditSource = async (id: number | string) => {
 }
 
 const deleteSource = async (id: number | string) => {
+  const source = sourceTree.value.find(s => String(s.id) === String(id))
+  if (source && source.dbs.length > 0) {
+    message.warning('请先删除该数据源下的所有向量库，再删除数据源')
+    return
+  }
   try {
     const msg = await aiVecSourceApi.delete([id])
     message.success(msg)
@@ -577,6 +572,16 @@ const openEditStore = async (id: number | string) => {
 
 const deleteStore = async (id: number | string) => {
   try {
+    const stats = await aiVecStoreApi.stats(id)
+    if (stats.docCount > 0) {
+      message.warning('请先删除该向量库下的所有文档，再删除向量库')
+      return
+    }
+  } catch {
+    message.error('无法检查向量库状态，请稍后重试')
+    return
+  }
+  try {
     const msg = await aiVecStoreApi.delete([id])
     message.success(msg)
     emit('changed')
@@ -608,41 +613,12 @@ const handleStoreSubmit = async (payload: AiVecStore) => {
   }
 }
 
-const onSourceMenuClick = (payload: unknown, source: Source) => {
-  const key = String((payload as { key?: string | number })?.key ?? '')
-  handleSourceMenuClick(key, source)
-}
-
-const onDbMenuClick = (payload: unknown, sourceId: number | string, db: Db) => {
-  const key = String((payload as { key?: string | number })?.key ?? '')
-  handleDbMenuClick(key, sourceId, db)
-}
-
-const onDbBlankMenuClick = (payload: unknown, source: Source) => {
-  const key = String((payload as { key?: string | number })?.key ?? '')
-  handleDbBlankMenuClick(key, source)
-}
-
 const onSourceModalOpenChange = (value: unknown) => {
   sourceModalOpen.value = Boolean(value)
 }
 
 const onStoreModalOpenChange = (value: unknown) => {
   storeModalOpen.value = Boolean(value)
-}
-
-const handleDbBlankMenuClick = (key: string, source: Source) => {
-  switch (key) {
-    case 'addDb':
-      handleSourceMenuClick('addDb', source)
-      break
-    case 'editSource':
-      openEditSource(source.id)
-      break
-    case 'deleteSource':
-      void deleteSource(source.id)
-      break
-  }
 }
 
 const testConnectionOnFirstExpand = async (id: number | string): Promise<boolean> => {
@@ -737,34 +713,10 @@ watch(
   color: var(--primary);
 }
 
-.collapse-toggle {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 14px;
-}
-
-.collapse-toggle:hover {
-  color: var(--primary);
-  background: var(--primary-hover);
-}
-
-.ast-sidebar.collapsed .collapse-toggle {
-  width: 36px;
-  height: 36px;
-}
-
 .source-tree {
   flex: 1;
   overflow-y: auto;
-  padding: 10px 8px;
+  padding: 6px 8px;
 }
 
 .source-section {
@@ -774,17 +726,14 @@ watch(
 .db-container {
   margin: 0 6px 8px 18px;
   padding-left: 12px;
-  border-left: 1px solid var(--border-default);
   overflow: hidden;
 }
 
 .db-empty-hint {
-  padding: 10px 12px;
-  margin-top: 6px;
-  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  margin-top: 4px;
   color: var(--text-muted);
-  font-size: 12px;
-  background: var(--bg-input);
+  font-size: 11px;
 }
 
 .expand-enter-active,
@@ -881,7 +830,6 @@ watch(
 .add-source-section {
   flex-shrink: 0;
   padding: 8px;
-  border-top: 1px solid var(--border-default);
 }
 
 .add-source-btn {
@@ -894,7 +842,7 @@ watch(
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .add-source-btn:hover {

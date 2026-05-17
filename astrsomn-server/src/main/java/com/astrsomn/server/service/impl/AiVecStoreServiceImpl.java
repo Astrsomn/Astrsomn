@@ -4,6 +4,7 @@ import com.astrsomn.api.vector.constant.AiVecDriverEnum;
 import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceCreateRequestDTO;
+import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.vector.exception.AstVecStoreErrorEnum;
@@ -64,6 +65,21 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         if (req.getModelKey() != null) {
             target.setModelKey(req.getModelKey());
         }
+        if (req.getChunkStrategy() != null) {
+            target.setChunkStrategy(req.getChunkStrategy());
+        }
+        if (req.getChunkSize() != null) {
+            target.setChunkSize(req.getChunkSize());
+        }
+        if (req.getChunkOverlap() != null) {
+            target.setChunkOverlap(req.getChunkOverlap());
+        }
+        if (req.getDenseWeight() != null) {
+            target.setDenseWeight(req.getDenseWeight());
+        }
+        if (req.getInstructionPrefix() != null) {
+            target.setInstructionPrefix(req.getInstructionPrefix());
+        }
 
     }
 
@@ -106,6 +122,9 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
             instReq.setModelKey(entity.getModelKey());
             instReq.setInstanceName("vec-auto-" + entity.getModelKey());
             instReq.setStatus("enabled");
+            if (StringUtils.isNotBlank(request.getAccountKey())) {
+                instReq.setAccountKey(request.getAccountKey());
+            }
             aiInstanceService.create(instReq);
             entity.setInstanceKey(autoInstanceKey);
         }
@@ -114,6 +133,32 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         if (!result) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_CREATE_FAILED);
         }
+
+        // 更新关联实例的 accountKey 和 bizKey
+        String instanceKey = StringUtils.trimToNull(entity.getInstanceKey());
+        String accountKey = StringUtils.trimToNull(request.getAccountKey());
+        if (instanceKey != null) {
+            AiInstanceEntity inst = aiInstanceService.getOne(
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AiInstanceEntity>()
+                            .eq(AiInstanceEntity::getInstanceKey, instanceKey)
+                            .last("LIMIT 1"));
+            if (inst != null) {
+                boolean needUpdate = false;
+                if (accountKey != null && !accountKey.equals(StringUtils.trimToNull(inst.getAccountKey()))) {
+                    inst.setAccountKey(accountKey);
+                    needUpdate = true;
+                }
+                String bizKeyVal = String.valueOf(entity.getId());
+                if (!bizKeyVal.equals(StringUtils.trimToNull(inst.getBizKey()))) {
+                    inst.setBizKey(bizKeyVal);
+                    needUpdate = true;
+                }
+                if (needUpdate) {
+                    aiInstanceService.updateById(inst);
+                }
+            }
+        }
+
         AiVecStoreEntity persisted = getById(entity.getId());
         if (persisted == null) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_CREATE_FAILED);
@@ -176,6 +221,21 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
                 astroVecStorePhysicalOps.createPhysical(persisted);
             }
         }
+
+        // 更新关联实例的 accountKey
+        String accountKey = StringUtils.trimToNull(request.getAccountKey());
+        String instanceKey = StringUtils.trimToNull(after.getInstanceKey());
+        if (accountKey != null && instanceKey != null) {
+            AiInstanceEntity inst = aiInstanceService.getOne(
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AiInstanceEntity>()
+                            .eq(AiInstanceEntity::getInstanceKey, instanceKey)
+                            .last("LIMIT 1"));
+            if (inst != null && !accountKey.equals(StringUtils.trimToNull(inst.getAccountKey()))) {
+                inst.setAccountKey(accountKey);
+                aiInstanceService.updateById(inst);
+            }
+        }
+
         return BaseResponse.success("更新成功");
     }
 

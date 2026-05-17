@@ -38,7 +38,7 @@ defineEmits<{
 <style lang="less" scoped>
 .db-node {
   position: relative;
-  padding: 10px 12px;
+  padding: 8px 10px;
   margin: 4px 0;
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -77,7 +77,7 @@ defineEmits<{
       }
 
       .db-name {
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
         color: var(--text-primary);
       }
@@ -90,7 +90,7 @@ defineEmits<{
       padding-left: 18px;
 
       .model-name {
-        font-size: 11px;
+        font-size: 10px;
         color: var(--text-muted);
       }
 
@@ -102,8 +102,8 @@ defineEmits<{
       }
 
       .model-dim {
-        font-size: 11px;
-        font-weight: 700;
+        font-size: 10px;
+        font-weight: 600;
         color: var(--primary);
         letter-spacing: 0.02em;
       }
@@ -111,27 +111,11 @@ defineEmits<{
   }
 
   .status-pulse {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: var(--success);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-    animation: pulse 2s infinite;
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    flex-shrink: 0;
   }
 }
 </style>

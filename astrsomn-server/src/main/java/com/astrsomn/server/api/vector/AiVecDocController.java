@@ -69,4 +69,14 @@ public class AiVecDocController extends BaseController {
     public BaseResponse<String> reVectorize(@RequestBody AiVecDocVectorizeRequestDTO request) {
         return aiVecDocService.reVectorize(request.getId());
     }
+
+    @PostMapping("/chunk")
+    public BaseResponse<String> chunk(@RequestBody AiVecDocVectorizeRequestDTO request) {
+        return aiVecDocService.chunk(request.getId());
+    }
+
+    @PostMapping("/re-chunk")
+    public BaseResponse<String> reChunk(@RequestBody AiVecDocVectorizeRequestDTO request) {
+        return aiVecDocService.reChunk(request.getId());
+    }
 }
