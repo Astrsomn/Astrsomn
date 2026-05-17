@@ -61,38 +61,29 @@
         </a-dropdown>
 
         <transition name="expand">
-          <a-dropdown v-if="openKeys.includes(source.id)" :trigger="['contextmenu']">
-            <div class="db-container">
-              <a-dropdown
-                  v-for="db in source.dbs"
-                  :key="db.id"
-                  :trigger="['contextmenu']"
-              >
-                <DbNode
-                    :active="db.active"
-                    :db-name="db.dbName"
-                    :dim="db.dim"
-                    :is-selected="String(selectedStoreId) === String(db.id)"
-                    :model-name="db.modelName"
-                    @select="selectDb(source.id, db.id)"
-                />
-                <template #overlay>
-                  <DbContextMenu
-                      @edit="openEditStore(db.id)"
-                      @delete="deleteStore(db.id)"
-                  />
-                </template>
-              </a-dropdown>
-              <div v-if="!source.dbs.length" class="db-empty-hint">右键空白区域可新建数据库</div>
-            </div>
-            <template #overlay>
-              <SourceContextMenu
-                  @add-db="handleSourceMenuClick('addDb', source)"
-                  @edit="openEditSource(source.id)"
-                  @delete="deleteSource(source.id)"
+          <div v-if="openKeys.includes(source.id)" class="db-container" @contextmenu.prevent="handleDbContainerContextMenu($event, source)">
+            <a-dropdown
+                v-for="db in source.dbs"
+                :key="db.id"
+                :trigger="['contextmenu']"
+            >
+              <DbNode
+                  :active="db.active"
+                  :db-name="db.dbName"
+                  :dim="db.dim"
+                  :is-selected="String(selectedStoreId) === String(db.id)"
+                  :model-name="db.modelName"
+                  @select="selectDb(source.id, db.id)"
               />
-            </template>
-          </a-dropdown>
+              <template #overlay>
+                <DbContextMenu
+                    @edit="openEditStore(db.id)"
+                    @delete="deleteStore(db.id)"
+                />
+              </template>
+            </a-dropdown>
+            <div v-if="!source.dbs.length" class="db-empty-hint" @contextmenu.prevent="handleDbContainerContextMenu($event, source)">右键空白区域可新建数据库</div>
+          </div>
         </transition>
       </div>
     </div>
@@ -134,6 +125,34 @@
         <div class="blank-context-menu-item" @click="onBlankMenuAction('refresh')">
           <ReloadOutlined/>
           <span>刷新</span>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+  <Teleport to="body">
+    <div
+        v-if="dbContainerMenuVisible"
+        class="blank-context-menu-overlay"
+        @click="closeDbContainerMenu"
+        @contextmenu.prevent="closeDbContainerMenu"
+    >
+      <div
+          :style="{ left: dbContainerMenuX + 'px', top: dbContainerMenuY + 'px' }"
+          class="blank-context-menu"
+          @click.stop
+      >
+        <div class="blank-context-menu-item" @click="onDbContainerMenuAction('addDb')">
+          <PlusOutlined/>
+          <span>新增数据库</span>
+        </div>
+        <div class="blank-context-menu-item" @click="onDbContainerMenuAction('edit')">
+          <EditOutlined/>
+          <span>编辑数据源</span>
+        </div>
+        <div class="blank-context-menu-divider"/>
+        <div class="blank-context-menu-item danger-item" @click="onDbContainerMenuAction('delete')">
+          <DeleteOutlined/>
+          <span>删除数据源</span>
         </div>
       </div>
     </div>
@@ -201,6 +220,8 @@ import {computed, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import {
   ClusterOutlined,
+  DeleteOutlined,
+  EditOutlined,
   PlusOutlined,
   ReloadOutlined
 } from '@ant-design/icons-vue'
@@ -317,6 +338,10 @@ const pendingStoreSyncSourceKey = ref<string>('')
 const blankContextMenuVisible = ref(false)
 const blankContextMenuX = ref(0)
 const blankContextMenuY = ref(0)
+const dbContainerMenuVisible = ref(false)
+const dbContainerMenuX = ref(0)
+const dbContainerMenuY = ref(0)
+const dbContainerMenuSource = ref<Source | null>(null)
 const router = useRouter()
 
 type Db = {
@@ -435,6 +460,36 @@ const closeBlankContextMenu = () => {
   blankContextMenuVisible.value = false
 }
 
+const handleDbContainerContextMenu = (e: MouseEvent, source: Source) => {
+  if ((e.target as HTMLElement).closest('.db-node')) return
+  e.preventDefault()
+  dbContainerMenuX.value = e.clientX
+  dbContainerMenuY.value = e.clientY
+  dbContainerMenuSource.value = source
+  dbContainerMenuVisible.value = true
+}
+
+const closeDbContainerMenu = () => {
+  dbContainerMenuVisible.value = false
+}
+
+const onDbContainerMenuAction = (action: string) => {
+  const source = dbContainerMenuSource.value
+  closeDbContainerMenu()
+  if (!source) return
+  switch (action) {
+    case 'addDb':
+      handleSourceMenuClick('addDb', source)
+      break
+    case 'edit':
+      openEditSource(source.id)
+      break
+    case 'delete':
+      deleteSource(source.id)
+      break
+  }
+}
+
 const onBlankMenuAction = (action: string) => {
   closeBlankContextMenu()
   if (action === 'addSource') {
@@ -474,6 +529,11 @@ const openEditSource = async (id: number | string) => {
 }
 
 const deleteSource = async (id: number | string) => {
+  const source = sourceTree.value.find(s => String(s.id) === String(id))
+  if (source && source.dbs.length > 0) {
+    message.warning('请先删除该数据源下的所有向量库，再删除数据源')
+    return
+  }
   try {
     const msg = await aiVecSourceApi.delete([id])
     message.success(msg)
@@ -511,6 +571,16 @@ const openEditStore = async (id: number | string) => {
 }
 
 const deleteStore = async (id: number | string) => {
+  try {
+    const stats = await aiVecStoreApi.stats(id)
+    if (stats.docCount > 0) {
+      message.warning('请先删除该向量库下的所有文档，再删除向量库')
+      return
+    }
+  } catch {
+    message.error('无法检查向量库状态，请稍后重试')
+    return
+  }
   try {
     const msg = await aiVecStoreApi.delete([id])
     message.success(msg)
