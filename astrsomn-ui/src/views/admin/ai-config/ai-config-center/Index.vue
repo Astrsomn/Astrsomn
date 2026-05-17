@@ -1,13 +1,12 @@
 <template>
   <div class="config-center-layout">
-    <!-- 左侧侧边栏 -->
-    <div class="config-center-sider">
+
       <Sidebar
           @select="handleSidebarSelect"
           @select-provider="handleSelectProvider"
           @update:collapsed="sidebarCollapsed = $event"
       />
-    </div>
+
 
     <!-- 右侧主内容区域 -->
     <Main
@@ -112,8 +111,5 @@ const handleSidebarSelect = (key: string) => {
   background-color: var(--bg-surface);
 }
 
-.config-center-sider {
-  overflow: hidden;
-  flex-shrink: 0;
-}
+
 </style>

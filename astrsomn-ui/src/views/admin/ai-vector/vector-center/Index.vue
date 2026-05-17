@@ -108,7 +108,7 @@ onMounted(async () => {
 .vector-center-layout {
   position: fixed;
   top: 60px;
-  left: 0;
+  left: 56px;
   right: 0;
   bottom: 0;
   overflow: hidden;

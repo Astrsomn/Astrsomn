@@ -1,14 +1,6 @@
 <template>
-  <div class="sidebar-wrapper">
-  <SidebarShell :collapsed="collapsed">
+  <SidebarShell :collapsed="collapsed" @toggle-collapse="emit('toggle-collapse')">
     <template #top>
-      <a-tooltip :placement="collapsed ? 'right' : 'bottom'">
-        <template #title>{{ collapsed ? '展开侧边栏' : '收起侧边栏' }}</template>
-        <div class="collapse-toggle" @click="emit('toggle-collapse')">
-          <MenuUnfoldOutlined v-if="collapsed"/>
-          <MenuFoldOutlined v-else/>
-        </div>
-      </a-tooltip>
       <AstSearchInput
           v-if="!collapsed"
           v-model="searchText"
@@ -245,7 +237,6 @@
       </div>
     </div>
   </Teleport>
-  </div>
 </template>
 
 <script lang="ts" setup>
@@ -255,8 +246,6 @@ import {
   ClusterOutlined,
   DeleteOutlined,
   EditOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
   PlusOutlined,
   ReloadOutlined
 } from '@ant-design/icons-vue'
@@ -735,30 +724,6 @@ watch(
 .add-icon:hover {
   background: var(--primary-hover);
   color: var(--primary);
-}
-
-.collapse-toggle {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 14px;
-}
-
-.collapse-toggle:hover {
-  color: var(--primary);
-  background: var(--primary-hover);
-}
-
-.ast-sidebar.collapsed .collapse-toggle {
-  width: 36px;
-  height: 36px;
 }
 
 .source-tree {

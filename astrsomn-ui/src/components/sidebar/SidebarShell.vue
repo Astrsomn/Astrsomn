@@ -9,11 +9,19 @@
     <div class="ast-sidebar-footer">
       <slot name="footer"/>
     </div>
+    <a-tooltip :placement="collapsed ? 'right' : 'bottom'">
+      <template #title>{{ collapsed ? '展开侧边栏' : '收起侧边栏' }}</template>
+      <div class="ast-sidebar-collapse-toggle" @click="emit('toggle-collapse')">
+        <RightOutlined v-if="collapsed"/>
+        <LeftOutlined v-else/>
+      </div>
+    </a-tooltip>
   </div>
 </template>
 
 <script lang="ts" setup>
 import {computed} from 'vue'
+import {LeftOutlined, RightOutlined} from '@ant-design/icons-vue'
 
 const props = withDefaults(defineProps<{
   collapsed?: boolean
@@ -25,6 +33,10 @@ const props = withDefaults(defineProps<{
   collapsedWidth: 64,
 })
 
+const emit = defineEmits<{
+  'toggle-collapse': []
+}>()
+
 const currentWidth = computed(() => props.collapsed ? props.collapsedWidth : props.width)
 </script>
 
@@ -34,9 +46,9 @@ const currentWidth = computed(() => props.collapsed ? props.collapsedWidth : pro
   display: flex;
   flex-direction: column;
   background: var(--bg-card);
-  border-right: 1px solid var(--border-default);
-  overflow: hidden;
-  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+  border-right: 1px solid #e5e6eb47;
+  position: relative;
 }
 
 .ast-sidebar-top {
@@ -45,7 +57,7 @@ const currentWidth = computed(() => props.collapsed ? props.collapsedWidth : pro
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 1px solid var(--border-default);
+
 }
 
 .ast-sidebar.collapsed .ast-sidebar-top {
@@ -68,12 +80,40 @@ const currentWidth = computed(() => props.collapsed ? props.collapsedWidth : pro
 .ast-sidebar-footer {
   flex-shrink: 0;
   padding: 12px 14px;
-  border-top: 1px solid var(--border-default);
+
 }
 
 .ast-sidebar.collapsed .ast-sidebar-footer {
   display: flex;
   justify-content: center;
   padding: 12px 8px;
+}
+
+/* 收起/展开按钮 - 悬浮在右边框中间 */
+.ast-sidebar-collapse-toggle {
+  position: absolute;
+  right: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.ast-sidebar-collapse-toggle:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-hover);
 }
 </style>

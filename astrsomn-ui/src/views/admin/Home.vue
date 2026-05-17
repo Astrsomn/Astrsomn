@@ -10,6 +10,8 @@
         switchTarget="chat"
     />
 
+    <ActivityBar />
+
     <main class="shell-content" @scroll="handleScroll">
       <div class="content-wrapper">
         <router-view v-slot="{ Component }">
@@ -19,8 +21,6 @@
         </router-view>
       </div>
     </main>
-
-    <BottomNavigator :auto-hide="bottomNavAutoHide"/>
   </div>
 </template>
 
@@ -28,8 +28,7 @@
 import {computed} from 'vue';
 import {useRoute} from 'vue-router';
 import AppHeader from '@/components/top/AppHeader.vue';
-import BottomNavigator from '@/components/global/BottomNavigator.vue';
-import {appConfig} from '@/config/config.ts';
+import ActivityBar from '@/components/global/ActivityBar.vue';
 
 const route = useRoute();
 
@@ -51,8 +50,6 @@ const headerPageTitle = computed(() => {
   return typeof title === 'string' && title.trim() ? title : '管理后台';
 });
 
-const bottomNavAutoHide = computed(() => appConfig.bottomNavAutoHide);
-
 const handleScroll = () => {
   // 滚动时的处理逻辑
 };
@@ -73,6 +70,7 @@ const handleScroll = () => {
 /* 主体内容区 */
 .shell-content {
   flex: 1;
+  margin-left: 56px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--text-muted) 24%, transparent) transparent;
