@@ -5,75 +5,110 @@
         <h2 class="list-title">切片列表</h2>
         <p class="list-subtitle">doc={{ docId || '-' }} / store={{ storeId || '-' }}</p>
       </div>
+      <AstegmentedButton :buttons="toolbarButtons"/>
     </div>
-    <div class="table-wrapper">
-      <a-table
-          :columns="segmentColumns"
-          :data-source="segmentRows"
-          :loading="loading"
-          :pagination="pagination"
-          row-key="id"
-          size="small"
-          @change="handleTableChange"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'segmentContent'">
-            <a-typography-paragraph :content="record.segmentContent || '-'"
-                                    :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }"/>
-          </template>
-          <template v-else-if="column.key === 'metadataJson'">
-            <a-typography-paragraph :content="record.metadataJson || '-'"
-                                    :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }"/>
-          </template>
-          <template v-if="column.key === 'actions'">
-            <a @click="removeSegment(record)">删除</a>
-          </template>
+
+    <AstDataView
+        :columns="segmentColumns"
+        :data-source="segmentRows"
+        :loading="loading"
+        :row-selection="rowSelection"
+        :scroll="{ x: 1000 }"
+        empty-text="暂无切片数据"
+        mode="table"
+        row-key="id"
+        dense
+    >
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'segmentContent'">
+          <a-typography-paragraph :content="record.segmentContent || '-'"
+                                  :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }"/>
         </template>
-      </a-table>
-    </div>
+        <template v-else-if="column.key === 'metadataJson'">
+          <a-typography-paragraph :content="record.metadataJson || '-'"
+                                  :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }"/>
+        </template>
+        <template v-else-if="column.key === 'actions'">
+          <a-space>
+            <a-button size="small" type="link" @click="handleVectorizeDoc(record)">
+              <template #icon>
+                <experiment-outlined/>
+              </template>
+              向量化
+            </a-button>
+            <a-popconfirm title="确定删除该切片？" @confirm="removeSegment(record)">
+              <a-button danger size="small" type="link">删除</a-button>
+            </a-popconfirm>
+          </a-space>
+        </template>
+      </template>
+    </AstDataView>
+
+    <AstPagination
+        :current="pager.pageNum"
+        :page-size="pager.pageSize"
+        :total="pager.total"
+        @change="onPageChange"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
 import {message, Modal} from 'ant-design-vue'
-import {type AiVecSegment, aiVecSegmentApi} from '@/api/aiVecSegment.ts'
+import {DeleteOutlined, ExperimentOutlined} from '@ant-design/icons-vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import {type AiVecSegment, aiVecSegmentApi} from '@/api/aiVecSegment'
+import {aiVecDocApi} from '@/api/aiVecDoc'
 
 const props = defineProps<{
-  segments: AiVecSegment[]
   storeId?: number | string
   docId?: number | string
 }>()
 
-const emit = defineEmits<{
-  changed: []
-}>()
-
 const segmentColumns = [
-  {title: 'ID', dataIndex: 'id'},
-  {title: 'chunk', dataIndex: 'chunkIndex'},
+  {title: 'chunk', dataIndex: 'chunkIndex', width: 70},
   {title: '内容', dataIndex: 'segmentContent', key: 'segmentContent'},
-  {title: '词数', dataIndex: 'wordCount'},
-  {title: 'vectorId', dataIndex: 'vectorId'},
-  {title: '元数据', dataIndex: 'metadataJson', key: 'metadataJson'},
-  {title: '操作', key: 'actions'}
+  {title: '词数', dataIndex: 'wordCount', width: 80},
+  {title: 'vectorId', dataIndex: 'vectorId', width: 120, copyable: true},
+  {title: '元数据', dataIndex: 'metadataJson', key: 'metadataJson', width: 200},
+  {title: '操作', key: 'actions', width: 160, fixed: 'right'}
 ]
 
 const loading = ref(false)
 const segmentRows = ref<AiVecSegment[]>([])
-const pager = reactive({
-  pageNo: 1,
-  pageSize: 10,
-  total: 0
-})
+const selectedRowKeys = ref<Array<number | string>>([])
+const pager = reactive({pageNum: 1, pageSize: 10, total: 0})
 
-const pagination = computed(() => ({
-  current: pager.pageNo,
-  pageSize: pager.pageSize,
-  total: pager.total,
-  showSizeChanger: true,
-  showTotal: (total: number) => `共 ${total} 条`
+const rowSelection = computed(() => ({
+  fixed: true,
+  columnWidth: 48,
+  selectedRowKeys: selectedRowKeys.value,
+  onChange: (keys: Array<number | string>) => {
+    selectedRowKeys.value = keys
+  }
 }))
+
+const toolbarButtons = computed<SegmentedButton[]>(() => [
+  {
+    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    icon: DeleteOutlined,
+    type: 'danger',
+    plain: true,
+    disabled: selectedRowKeys.value.length === 0,
+    onClick: handleBatchDelete
+  },
+  {
+    label: '向量化',
+    icon: ExperimentOutlined,
+    type: 'primary',
+    plain: true,
+    disabled: !props.docId,
+    onClick: handleVectorizeAll
+  }
+])
 
 const fetchSegmentRows = async () => {
   if (!props.storeId || !props.docId) {
@@ -84,11 +119,11 @@ const fetchSegmentRows = async () => {
   loading.value = true
   try {
     const resp = await aiVecSegmentApi.queryPage({
-      pageNo: pager.pageNo,
+      pageNo: pager.pageNum,
       pageSize: pager.pageSize,
       param: {
-        collectionId: Number(props.storeId),
-        docId: Number(props.docId)
+        collectionId: props.storeId,
+        docId: props.docId
       }
     })
     segmentRows.value = resp.list || []
@@ -98,34 +133,69 @@ const fetchSegmentRows = async () => {
   }
 }
 
+const onPageChange = (page: number, size: number) => {
+  pager.pageNum = page
+  pager.pageSize = size
+  fetchSegmentRows()
+}
+
 watch(
     () => [props.storeId, props.docId],
     () => {
-      pager.pageNo = 1
+      pager.pageNum = 1
+      selectedRowKeys.value = []
       fetchSegmentRows()
     },
     {immediate: true}
 )
 
-const handleTableChange = (page: { current?: number; pageSize?: number }) => {
-  pager.pageNo = page.current || 1
-  pager.pageSize = page.pageSize || 10
-  fetchSegmentRows()
-}
-
 const removeSegment = async (record: AiVecSegment) => {
   if (record.id == null) return
+  await aiVecSegmentApi.delete([record.id])
+  message.success('切片删除成功')
+  selectedRowKeys.value = selectedRowKeys.value.filter(k => k !== record.id)
+  await fetchSegmentRows()
+}
+
+const handleBatchDelete = () => {
+  const n = selectedRowKeys.value.length
+  if (n === 0) return
   Modal.confirm({
-    title: '确认删除切片',
-    content: `将删除切片 ${record.id} 并同步清理向量实体。`,
+    title: `确定删除选中的 ${n} 个切片吗？`,
     okButtonProps: {danger: true},
     async onOk() {
-      const segmentId = record.id
-      if (segmentId == null) return
-      await aiVecSegmentApi.delete([segmentId])
-      message.success('切片删除成功')
-      emit('changed')
+      await aiVecSegmentApi.delete([...selectedRowKeys.value])
+      message.success(`已删除 ${n} 个切片`)
+      selectedRowKeys.value = []
       await fetchSegmentRows()
+    }
+  })
+}
+
+const handleVectorizeDoc = async (record: AiVecSegment) => {
+  const docId = record.docId
+  if (!docId) {
+    message.warning('无法获取文档ID')
+    return
+  }
+  Modal.confirm({
+    title: '确认执行向量化',
+    content: `将对文档 ${docId} 的切片执行向量化并写入向量库。`,
+    async onOk() {
+      await aiVecDocApi.vectorize(docId)
+      message.success('向量化任务已提交')
+    }
+  })
+}
+
+const handleVectorizeAll = () => {
+  if (!props.docId) return
+  Modal.confirm({
+    title: '确认执行向量化',
+    content: `将对当前文档的所有切片执行向量化并写入向量库。`,
+    async onOk() {
+      await aiVecDocApi.vectorize(props.docId!)
+      message.success('向量化任务已提交')
     }
   })
 }
@@ -140,13 +210,12 @@ const removeSegment = async (record: AiVecSegment) => {
   background: var(--bg-card);
 }
 
-/* 头部 */
 .list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .header-info {
@@ -166,11 +235,5 @@ const removeSegment = async (record: AiVecSegment) => {
   font-size: 12px;
   color: var(--text-muted);
   margin: 0;
-}
-
-/* 表格区域内部滚动 */
-.table-wrapper {
-  flex: 1;
-  overflow-y: auto;
 }
 </style>

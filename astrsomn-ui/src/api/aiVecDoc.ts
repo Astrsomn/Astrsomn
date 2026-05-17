@@ -3,6 +3,8 @@ import request from '@/utils/request'
 /** 与后端 {@code AiVecDocEnum.SyncStatus} 一致 */
 export const AiVecDocSyncStatus = {
     PENDING: 'PENDING',
+    CHUNKING: 'CHUNKING',
+    CHUNKED: 'CHUNKED',
     VECTORING: 'VECTORING',
     STORED: 'STORED',
     FAILED: 'FAILED',
@@ -119,6 +121,24 @@ export const aiVecDocApi = {
     reVectorize: (id: number | string): Promise<string> => {
         return request({
             url: '/v1/astro/ai-vec-doc/re-vectorize',
+            method: 'post',
+            data: {id},
+            timeout: 300000
+        })
+    },
+
+    chunk: (id: number | string): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-vec-doc/chunk',
+            method: 'post',
+            data: {id},
+            timeout: 300000
+        })
+    },
+
+    reChunk: (id: number | string): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-vec-doc/re-chunk',
             method: 'post',
             data: {id},
             timeout: 300000

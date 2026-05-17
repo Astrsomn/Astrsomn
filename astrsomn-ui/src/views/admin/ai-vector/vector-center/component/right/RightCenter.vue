@@ -110,7 +110,9 @@
             @delete="handleDelete"
             @edit="openEdit"
             @select="handleSelectDoc"
+            @chunk="handleChunk"
             @vectorize="handleVectorize"
+            @re-chunk="handleReChunk"
             @re-vectorize="handleReVectorize"
         />
         <template #overlay>
@@ -119,9 +121,17 @@
               <template #icon><edit-outlined/></template>
               编辑
             </a-menu-item>
-            <a-menu-item v-if="file.status === '待向量化'" key="vectorize">
+            <a-menu-item v-if="file.status === '待向量化' || file.status === '失败'" key="chunk">
+              <template #icon><block-outlined/></template>
+              切片
+            </a-menu-item>
+            <a-menu-item v-if="file.status === '已切片'" key="vectorize">
               <template #icon><experiment-outlined/></template>
               向量化
+            </a-menu-item>
+            <a-menu-item v-if="file.status === '已切片' || file.status === '已向量化' || file.status === '失败'" key="re-chunk">
+              <template #icon><block-outlined/></template>
+              重新切片
             </a-menu-item>
             <a-menu-item v-if="file.status === '已向量化' || file.status === '失败'" key="re-vectorize">
               <template #icon><sync-outlined/></template>
@@ -234,7 +244,7 @@ import {computed, onUnmounted, reactive, ref, watch} from 'vue';
 import type {UploadProps} from 'ant-design-vue'
 import {message, Modal} from 'ant-design-vue'
 import {
-  AppstoreOutlined, BorderOutlined, CopyOutlined, CreditCardOutlined,
+  AppstoreOutlined, BlockOutlined, BorderOutlined, CopyOutlined, CreditCardOutlined,
   DeleteOutlined, EditOutlined, ExperimentOutlined, FolderOutlined,
   LeftOutlined, PlusOutlined, ReloadOutlined, RightOutlined, ScissorOutlined,
   SnippetsOutlined, SyncOutlined
@@ -508,8 +518,10 @@ const filteredFiles = computed(() => {
       .map((doc) => {
         const status = String(doc.syncStatus || '').toUpperCase()
         let statusLabel = '待向量化'
-        if (status === 'STORED') statusLabel = '已向量化'
+        if (status === 'CHUNKING') statusLabel = '切片中'
+        else if (status === 'CHUNKED') statusLabel = '已切片'
         else if (status === 'VECTORING') statusLabel = '向量化中'
+        else if (status === 'STORED') statusLabel = '已向量化'
         else if (status === 'FAILED') statusLabel = '失败'
         return {
           id: doc.id,
@@ -548,7 +560,7 @@ watch(
       for (const doc of docs) {
         const id = String(doc.id ?? '')
         const status = String(doc.syncStatus || '').toUpperCase()
-        if (status === 'VECTORING' && id && !vectorizingMap[id]) {
+        if ((status === 'VECTORING' || status === 'CHUNKING') && id && !vectorizingMap[id]) {
           startPolling(id)
         }
       }
@@ -604,12 +616,14 @@ const startPolling = (docId: string) => {
         message: prog.message || '向量化中...'
       }
       const status = String(prog.status || '').toUpperCase()
-      if (status === 'STORED' || status === 'FAILED') {
+      if (status === 'STORED' || status === 'CHUNKED' || status === 'FAILED') {
         stopPolling(docId)
         if (status === 'STORED') {
           message.success('向量化完成')
+        } else if (status === 'CHUNKED') {
+          message.success('切片完成')
         } else {
-          message.error('向量化失败: ' + (prog.message || '未知错误'))
+          message.error('操作失败: ' + (prog.message || '未知错误'))
         }
         emit('changed')
       }
@@ -631,14 +645,40 @@ onUnmounted(() => {
   Object.keys(pollingTimers.value).forEach(stopPolling)
 })
 
+const handleChunk = async (file: any) => {
+  if (file?.id == null) return
+  Modal.confirm({
+    title: '确认执行切片',
+    content: `将对文档 ${file.name || file.id} 执行解析和切片。`,
+    async onOk() {
+      await aiVecDocApi.chunk(file.id)
+      message.info('切片任务已提交')
+      startPolling(String(file.id))
+    }
+  })
+}
+
 const handleVectorize = async (file: any) => {
   if (file?.id == null) return
   Modal.confirm({
     title: '确认执行向量化',
-    content: `将对文档 ${file.name || file.id} 执行向量化并写入向量库。`,
+    content: `将对文档 ${file.name || file.id} 的切片执行向量化并写入向量库。`,
     async onOk() {
       await aiVecDocApi.vectorize(file.id)
       message.info('向量化任务已提交')
+      startPolling(String(file.id))
+    }
+  })
+}
+
+const handleReChunk = async (file: any) => {
+  if (file?.id == null) return
+  Modal.confirm({
+    title: '确认重新切片',
+    content: `将清除文档 ${file.name || file.id} 的旧切片与向量数据并重新切片。`,
+    async onOk() {
+      await aiVecDocApi.reChunk(file.id)
+      message.info('重新切片任务已提交')
       startPolling(String(file.id))
     }
   })
@@ -735,9 +775,12 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
     }
   }
   try {
-    await aiVecDocApi.upload(options.file as File, uploadCollectionId.value, currentFolderId.value)
+    const doc = await aiVecDocApi.upload(options.file as File, uploadCollectionId.value, currentFolderId.value)
     options.onSuccess?.({})
     message.success('上传成功')
+    if (doc?.id) {
+      emit('select-doc', doc.id)
+    }
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
@@ -809,8 +852,14 @@ const onFileMenuClick = (payload: unknown, file: any) => {
     case 'edit':
       openEdit(file)
       return
+    case 'chunk':
+      handleChunk(file)
+      return
     case 'vectorize':
       handleVectorize(file)
+      return
+    case 're-chunk':
+      handleReChunk(file)
       return
     case 're-vectorize':
       handleReVectorize(file)

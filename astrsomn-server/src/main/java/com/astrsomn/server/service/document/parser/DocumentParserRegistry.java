@@ -14,6 +14,7 @@ public class DocumentParserRegistry {
     static {
         PARSERS.add(new TxtDocumentParser());
         PARSERS.add(new PdfDocumentParser());
+        PARSERS.add(new DocDocumentParser());
         PARSERS.add(new DocxDocumentParser());
         PARSERS.add(new MarkdownDocumentParser());
     }

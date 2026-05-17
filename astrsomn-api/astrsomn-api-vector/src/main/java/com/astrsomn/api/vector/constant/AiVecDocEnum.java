@@ -18,6 +18,12 @@ public interface AiVecDocEnum {
         PENDING("PENDING", "待向量化"),
 
 
+        CHUNKING("CHUNKING", "切片中"),
+
+
+        CHUNKED("CHUNKED", "已切片"),
+
+
         VECTORING("VECTORING", "向量化中"),
 
 

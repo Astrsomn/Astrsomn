@@ -14,6 +14,7 @@ export interface AiVecStore {
     chunkOverlap?: number
     denseWeight?: number
     instructionPrefix?: string
+    accountKey?: string
     sourceName?: string
     sourceProvider?: string
     instanceName?: string

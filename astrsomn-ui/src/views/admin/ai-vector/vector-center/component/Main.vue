@@ -26,9 +26,7 @@
         <div class="snap-section">
           <RightBottom
               :doc-id="selectedDocId"
-              :segments="segments"
               :store-id="selectedStoreId"
-              @changed="$emit('bottom-changed')"
           />
         </div>
       </div>
@@ -48,7 +46,6 @@ defineProps<{
   selectedSource?: any
   selectedStore?: any
   docs: any[]
-  segments: any[]
   selectedDocId?: number | string
 }>()
 
@@ -56,7 +53,6 @@ defineEmits<{
   'store-updated': []
   'doc-changed': []
   'select-doc': [docId: number | string]
-  'bottom-changed': []
 }>()
 </script>
 

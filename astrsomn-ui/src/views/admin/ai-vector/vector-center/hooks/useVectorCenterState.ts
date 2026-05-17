@@ -93,8 +93,8 @@ export function useVectorCenterState() {
                 pageNo: pageState.segments.pageNo,
                 pageSize: pageState.segments.pageSize,
                 param: {
-                    docId: selectedDocId.value ? Number(selectedDocId.value) : undefined,
-                    collectionId: selectedStoreId.value ? Number(selectedStoreId.value) : undefined
+                    docId: selectedDocId.value,
+                    collectionId: selectedStoreId.value
                 }
             })
             segments.value = resp.list || []

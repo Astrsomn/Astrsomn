@@ -37,4 +37,14 @@ public interface AiVecDocService extends IService<AiVecDocEntity> {
     AiVecDocVectorizeProgressDTO getVectorizeProgress(Long id);
 
     BaseResponse<String> reVectorize(Long id);
+
+    /**
+     * 仅执行切片：解析文件 → 切分 → 保存切片记录（不生成向量）。
+     */
+    BaseResponse<String> chunk(Long id);
+
+    /**
+     * 重新切片：清除旧切片与向量，重新解析并切分。
+     */
+    BaseResponse<String> reChunk(Long id);
 }
