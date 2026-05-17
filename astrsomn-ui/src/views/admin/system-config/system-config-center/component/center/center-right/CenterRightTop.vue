@@ -1,12 +1,12 @@
 <template>
   <div class="panel-card">
     <div class="panel-head">
-      <PieChartOutlined class="head-icon" />
+      <PieChartOutlined class="head-icon"/>
       <h3 class="panel-title">环境分布</h3>
     </div>
     <div class="panel-body">
       <div class="donut-wrap">
-        <div class="donut-ring" :style="{ background: conicGradient }" aria-hidden="true" />
+        <div :style="{ background: conicGradient }" aria-hidden="true" class="donut-ring"/>
         <div class="donut-center">
           <span class="donut-total">{{ distribution.total }}</span>
           <span class="donut-label">总量</span>
@@ -14,7 +14,7 @@
       </div>
       <ul class="legend">
         <li v-for="(row, i) in distribution.items" :key="i" class="legend-row">
-          <span class="legend-dot" :class="`dot--${row.colorToken}`" />
+          <span :class="`dot--${row.colorToken}`" class="legend-dot"/>
           <span class="legend-name">{{ row.label }}</span>
           <span class="legend-meta">
             <span class="legend-val">{{ row.value }}</span>
@@ -26,9 +26,9 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { PieChartOutlined } from '@ant-design/icons-vue'
-import { computed } from 'vue'
+<script lang="ts" setup>
+import {PieChartOutlined} from '@ant-design/icons-vue'
+import {computed} from 'vue'
 
 type DistColorToken = 'green' | 'cyan' | 'violet' | 'amber'
 

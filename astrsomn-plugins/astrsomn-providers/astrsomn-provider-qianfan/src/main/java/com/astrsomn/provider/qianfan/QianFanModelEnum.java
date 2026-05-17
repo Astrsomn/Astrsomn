@@ -1,12 +1,12 @@
 package com.astrsomn.provider.qianfan;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import com.astrsomn.common.base.BaseEnum;
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.constant.AiModelParamEnum;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
+import com.astrsomn.common.base.BaseEnum;
 import com.astrsomn.common.utils.EnumUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,207 +17,206 @@ import java.util.Map;
 public enum QianFanModelEnum {
 
     // --- Chat Models (对话模型) ---
-    ERNIE_BOT("ernie-bot", "ERNIE Bot", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
-            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_BOT("ernie-bot", "ERNIE Bot", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+                    AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    ERNIE_BOT_TURBO("ernie-bot-turbo", "ERNIE Bot Turbo", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
-            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_BOT_TURBO("ernie-bot-turbo", "ERNIE Bot Turbo", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+                    AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    ERNIE_BOT_4("ernie-bot-4", "ERNIE Bot 4.0", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
-            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_BOT_4("ernie-bot-4", "ERNIE Bot 4.0", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+                    AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    ERNIE_BOT_3_5("ernie-bot-3.5", "ERNIE Bot 3.5", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
-            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_BOT_3_5("ernie-bot-3.5", "ERNIE Bot 3.5", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+                    AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
 
     // --- Code Models (代码模型) ---
-    ERNIE_BOT_CODE("ernie-bot-code", "ERNIE Bot Code", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_BOT_CODE("ernie-bot-code", "ERNIE Bot Code", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    ERNIE_BOT_CODE_TURBO("ernie-bot-code-turbo", "ERNIE Bot Code Turbo", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_BOT_CODE_TURBO("ernie-bot-code-turbo", "ERNIE Bot Code Turbo", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
 
     // --- Multimodal Models (多模态模型) ---
-    ERNIE_VISION("ernie-vision", "ERNIE Vision", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.VISION,
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_VISION("ernie-vision", "ERNIE Vision", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.VISION,
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    ERNIE_VISION_PRO("ernie-vision-pro", "ERNIE Vision Pro", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.VISION,
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_VISION_PRO("ernie-vision-pro", "ERNIE Vision Pro", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.VISION,
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
 
     // --- Embedding Models (向量模型) ---
-    BGE_LARGE_ZH("bge-large-zh", "BGE Large ZH", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
-        ),
-        List.of(
-            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
-        )
+    BGE_LARGE_ZH("bge-large-zh", "BGE Large ZH", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
+            ),
+            List.of(
+                    AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
+            )
     ),
-    BGE_BASE_ZH("bge-base-zh", "BGE Base ZH", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
-        ),
-        List.of(
-            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
-        )
+    BGE_BASE_ZH("bge-base-zh", "BGE Base ZH", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
+            ),
+            List.of(
+                    AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
+            )
     ),
-    BGE_SMALL_ZH("bge-small-zh", "BGE Small ZH", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
-        ),
-        List.of(
-            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
-        )
+    BGE_SMALL_ZH("bge-small-zh", "BGE Small ZH", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
+            ),
+            List.of(
+                    AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
+            )
     ),
-    ERNIE_EMBEDDING_V1("ernie-embedding-v1", "ERNIE Embedding V1", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
-        ),
-        List.of(
-            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
-        )
+    ERNIE_EMBEDDING_V1("ernie-embedding-v1", "ERNIE Embedding V1", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
+            ),
+            List.of(
+                    AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS
+            )
     ),
 
     // --- Image Models (图像模型) ---
-    ERNIE_VILG("ernie-vilg", "ERNIE ViLG", AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE
-        ),
-        List.of(
-            AiModelParamEnum.ImageParamEnum.SIZE,
-            AiModelParamEnum.ImageParamEnum.QUALITY,
-            AiModelParamEnum.ImageParamEnum.STYLE
-        )
+    ERNIE_VILG("ernie-vilg", "ERNIE ViLG", AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE
+            ),
+            List.of(
+                    AiModelParamEnum.ImageParamEnum.SIZE,
+                    AiModelParamEnum.ImageParamEnum.QUALITY,
+                    AiModelParamEnum.ImageParamEnum.STYLE
+            )
     ),
-    ERNIE_VILG_V2("ernie-vilg-v2", "ERNIE ViLG V2", AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE,
-            AiModelParamEnum.ImageCapabilitiesEnum.IMAGE_EDITING
-        ),
-        List.of(
-            AiModelParamEnum.ImageParamEnum.SIZE,
-            AiModelParamEnum.ImageParamEnum.QUALITY,
-            AiModelParamEnum.ImageParamEnum.STYLE
-        )
+    ERNIE_VILG_V2("ernie-vilg-v2", "ERNIE ViLG V2", AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE,
+                    AiModelParamEnum.ImageCapabilitiesEnum.IMAGE_EDITING
+            ),
+            List.of(
+                    AiModelParamEnum.ImageParamEnum.SIZE,
+                    AiModelParamEnum.ImageParamEnum.QUALITY,
+                    AiModelParamEnum.ImageParamEnum.STYLE
+            )
     ),
 
     // --- Specialized Models (专用模型) ---
-    ERNIE_BOT_MATH("ernie-bot-math", "ERNIE Bot Math", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_BOT_MATH("ernie-bot-math", "ERNIE Bot Math", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    ERNIE_BOT_MEDICAL("ernie-bot-medical", "ERNIE Bot Medical", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_BOT_MEDICAL("ernie-bot-medical", "ERNIE Bot Medical", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    ERNIE_BOT_FINANCE("ernie-bot-finance", "ERNIE Bot Finance", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    ERNIE_BOT_FINANCE("ernie-bot-finance", "ERNIE Bot Finance", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     );
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final String modelName;
     private final String description;
     private final String modelType;
     private final List<? extends BaseEnum> capabilities;
     private final List<? extends BaseEnum> params;
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    QianFanModelEnum(String modelName, String description, String modelType, 
-                     List<? extends BaseEnum> capabilities, 
+    QianFanModelEnum(String modelName, String description, String modelType,
+                     List<? extends BaseEnum> capabilities,
                      List<? extends BaseEnum> params) {
         this.modelName = modelName;
         this.description = description;
@@ -259,7 +258,7 @@ public enum QianFanModelEnum {
         }
     }
 
-    public AiModelEntity toEntity(String provider){
+    public AiModelEntity toEntity(String provider) {
         AiModelEntity entity = new AiModelEntity();
         entity.setModelKey(this.getModelKey());
         entity.setModelName(this.modelName);

@@ -1,26 +1,26 @@
 <template>
   <div class="content-side">
     <a-form-item
-      label="提示词内容"
-      name="promptContent"
-      class="no-margin-bottom"
+        class="no-margin-bottom"
+        label="提示词内容"
+        name="promptContent"
     >
       <div class="textarea-wrapper">
         <a-textarea
-          v-model:value="form.promptContent"
-          :auto-size="{ minRows: 20, maxRows: 20 }"
-          placeholder="请输入 System 或 User Prompt..."
-          class="content-area"
-          size="large"
+            v-model:value="form.promptContent"
+            :auto-size="{ minRows: 20, maxRows: 20 }"
+            class="content-area"
+            placeholder="请输入 System 或 User Prompt..."
+            size="large"
         />
         <a-button
-          type="primary"
-          class="improve-btn"
-          :loading="loading"
-          @click="handleImprove"
+            :loading="loading"
+            class="improve-btn"
+            type="primary"
+            @click="handleImprove"
         >
           <template #icon>
-            <ThunderboltOutlined />
+            <ThunderboltOutlined/>
           </template>
           美化
         </a-button>
@@ -28,11 +28,11 @@
     </a-form-item>
 
     <a-modal
-      v-model:open="diffModalVisible"
-      title="提示词美化对比"
-      width="800px"
-      :footer="null"
-      class="improve-diff-modal"
+        v-model:open="diffModalVisible"
+        :footer="null"
+        class="improve-diff-modal"
+        title="提示词美化对比"
+        width="800px"
     >
       <div class="diff-container">
         <div class="diff-header">
@@ -58,11 +58,11 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from "vue"
-import { message } from "ant-design-vue"
-import { ThunderboltOutlined } from "@ant-design/icons-vue"
-import { aiPromptApi } from "@/api/aiPrompt"
+<script lang="ts" setup>
+import {ref} from "vue"
+import {message} from "ant-design-vue"
+import {ThunderboltOutlined} from "@ant-design/icons-vue"
+import {aiPromptApi} from "@/api/aiPrompt"
 
 const props = defineProps<{
   form: Record<string, any>
@@ -83,7 +83,7 @@ async function handleImprove() {
   originalContent.value = content
   loading.value = true
   try {
-    const improved = await aiPromptApi.improvePrompt(content)
+    const improved = await aiPromptApi.beautify(content)
     improvedContent.value = improved
     diffModalVisible.value = true
   } catch (error) {

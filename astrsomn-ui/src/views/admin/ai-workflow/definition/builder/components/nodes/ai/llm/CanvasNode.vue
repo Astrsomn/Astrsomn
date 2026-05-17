@@ -1,19 +1,19 @@
 <template>
   <BaseCanvasNode
-    :data="data"
-    fallback-label="LLM"
-    fallback-description="调用大语言模型进行生成"
-    subtitle="Generation"
-    badge="GPT-4o"
-    icon-text="L"
-    icon-background="#dbeafe"
-    icon-color="#2563eb"
-    :theme="{
+      :data="data"
+      :theme="{
       borderColor: '#bfdbfe',
       background: '#ffffff',
       titleColor: '#0f172a',
       descColor: '#475569'
     }"
+      badge="GPT-4o"
+      fallback-description="调用大语言模型进行生成"
+      fallback-label="LLM"
+      icon-background="#dbeafe"
+      icon-color="#2563eb"
+      icon-text="L"
+      subtitle="Generation"
   >
     <div class="prompt">"你是一个专业的分析师，根据上下文输出结果..."</div>
     <div class="meta">
@@ -23,9 +23,10 @@
   </BaseCanvasNode>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseCanvasNode from '../../shared/BaseCanvasNode.vue'
-import type { WorkflowNodeViewData } from '../../shared/node-props'
+import type {WorkflowNodeViewData} from '../../shared/node-props'
+
 defineProps<{ data?: WorkflowNodeViewData }>()
 </script>
 
@@ -38,6 +39,7 @@ defineProps<{ data?: WorkflowNodeViewData }>()
   font-size: 10px;
   color: #64748b;
 }
+
 .meta {
   margin-top: 10px;
   display: flex;

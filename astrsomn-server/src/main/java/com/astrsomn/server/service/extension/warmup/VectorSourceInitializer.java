@@ -1,14 +1,14 @@
 package com.astrsomn.server.service.extension.warmup;
 
+import com.astrsomn.api.vector.constant.AiVecSourceEnum;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.vector.mapper.AstAiVecSourceMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.api.runtime.common.constant.AiVecSourceEnum;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AiVecSourceMapper;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class VectorSourceInitializer {
     private static final String LOG_PREFIX = "[Astrsomn] [向量源定向预热] ====> ";
     private static final String STATUS_ENABLED = AiVecSourceEnum.StatusEnum.ENABLED.getCode();
 
-    private final AiVecSourceMapper vecSourceMapper;
+    private final AstAiVecSourceMapper vecSourceMapper;
     private final QueryEnvParamHelper envParamHelper;
     private final AstroVecSourceFactory vecSourceFactory;
 

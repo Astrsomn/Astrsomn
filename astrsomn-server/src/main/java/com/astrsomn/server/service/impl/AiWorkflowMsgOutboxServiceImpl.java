@@ -1,19 +1,15 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.common.base.ErrorEnum;
-import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.server.service.AiWorkflowMsgOutboxService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.api.workflow.domain.dto.msgoutbox.AstFlowMsgOutboxCreateRequestDTO;
 import com.astrsomn.api.workflow.domain.dto.msgoutbox.AstFlowMsgOutboxQueryRequestDTO;
 import com.astrsomn.api.workflow.domain.dto.msgoutbox.AstFlowMsgOutboxResponseDTO;
 import com.astrsomn.api.workflow.domain.dto.msgoutbox.AstFlowMsgOutboxUpdateRequestDTO;
 import com.astrsomn.api.workflow.domain.entity.AstFlowMsgOutboxEntity;
+import com.astrsomn.common.base.*;
+import com.astrsomn.server.service.AiWorkflowMsgOutboxService;
+import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.workflow.mapper.AstFlowMsgOutboxMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -87,7 +83,6 @@ public class AiWorkflowMsgOutboxServiceImpl extends ServiceImpl<AstFlowMsgOutbox
         IPage<AstFlowMsgOutboxResponseDTO> page = PageUtils.buildPage(request);
         AstFlowMsgOutboxQueryRequestDTO param = request.getParam();
         if (param == null) param = new AstFlowMsgOutboxQueryRequestDTO();
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowMsgOutboxResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

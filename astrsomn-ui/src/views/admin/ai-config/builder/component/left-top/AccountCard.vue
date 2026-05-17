@@ -1,10 +1,10 @@
 <template>
   <div class="node-connector">
-    <div class="account-card" :class="{ 'has-account': account }">
+    <div :class="{ 'has-account': account }" class="account-card">
       <div class="card-header">
         <div class="header-left">
           <div class="icon-badge">
-            <SafetyCertificateOutlined />
+            <SafetyCertificateOutlined/>
           </div>
           <div class="header-info">
             <span class="card-label">账号</span>
@@ -25,23 +25,23 @@
         <div class="card-placeholder">{{ readonly ? '随实例自动关联' : '请选择或添加账号' }}</div>
       </template>
       <div v-if="!readonly" class="card-icon">
-        <DoubleRightOutlined />
+        <DoubleRightOutlined/>
       </div>
       <div v-if="!readonly" class="card-overlay">
         <button class="overlay-btn" title="切换账号" @click.stop="emit('switch')">
-          <SwapOutlined />
+          <SwapOutlined/>
         </button>
         <button class="overlay-btn" title="添加新账号" @click.stop="emit('add')">
-          <PlusOutlined />
+          <PlusOutlined/>
         </button>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { SafetyCertificateOutlined, SwapOutlined, PlusOutlined, DoubleRightOutlined } from '@ant-design/icons-vue'
-import type { AiAccount } from '@/api/aiAccount'
+<script lang="ts" setup>
+import {DoubleRightOutlined, PlusOutlined, SafetyCertificateOutlined, SwapOutlined} from '@ant-design/icons-vue'
+import type {AiAccount} from '@/api/aiAccount'
 
 interface Props {
   account?: AiAccount
@@ -79,10 +79,9 @@ const emit = defineEmits<{
   padding: 16px;
   position: relative;
   overflow: hidden;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s,
-    transform 0.2s;
+  transition: border-color 0.2s,
+  box-shadow 0.2s,
+  transform 0.2s;
   display: flex;
   flex-direction: column;
 }

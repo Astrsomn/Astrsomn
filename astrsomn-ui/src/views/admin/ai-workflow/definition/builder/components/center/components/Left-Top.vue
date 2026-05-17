@@ -1,35 +1,47 @@
 <template>
   <div class="canvas-tools">
     <a-tooltip title="框选模式">
-      <a-button class="tool-btn" :class="{ active: interactionMode === 'box' }" shape="circle" @click="$emit('set-mode', 'box')">
-        <template #icon><BorderOutlined /></template>
+      <a-button :class="{ active: interactionMode === 'box' }" class="tool-btn" shape="circle"
+                @click="$emit('set-mode', 'box')">
+        <template #icon>
+          <BorderOutlined/>
+        </template>
       </a-button>
     </a-tooltip>
     <a-tooltip title="平移模式">
-      <a-button class="tool-btn" :class="{ active: interactionMode === 'pan' }" shape="circle" @click="$emit('set-mode', 'pan')">
-        <template #icon><DragOutlined /></template>
+      <a-button :class="{ active: interactionMode === 'pan' }" class="tool-btn" shape="circle"
+                @click="$emit('set-mode', 'pan')">
+        <template #icon>
+          <DragOutlined/>
+        </template>
       </a-button>
     </a-tooltip>
     <a-tooltip title="清空选择">
       <a-button class="tool-btn" shape="circle" @click="$emit('clear-selection')">
-        <template #icon><CloseCircleOutlined /></template>
+        <template #icon>
+          <CloseCircleOutlined/>
+        </template>
       </a-button>
     </a-tooltip>
     <a-tooltip title="撤销">
-      <a-button class="tool-btn" shape="circle" :disabled="!canUndo" @click="$emit('undo')">
-        <template #icon><UndoOutlined /></template>
+      <a-button :disabled="!canUndo" class="tool-btn" shape="circle" @click="$emit('undo')">
+        <template #icon>
+          <UndoOutlined/>
+        </template>
       </a-button>
     </a-tooltip>
     <a-tooltip title="重做">
-      <a-button class="tool-btn" shape="circle" :disabled="!canRedo" @click="$emit('redo')">
-        <template #icon><RedoOutlined /></template>
+      <a-button :disabled="!canRedo" class="tool-btn" shape="circle" @click="$emit('redo')">
+        <template #icon>
+          <RedoOutlined/>
+        </template>
       </a-button>
     </a-tooltip>
   </div>
 </template>
 
-<script setup lang="ts">
-import { BorderOutlined, CloseCircleOutlined, DragOutlined, RedoOutlined, UndoOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import {BorderOutlined, CloseCircleOutlined, DragOutlined, RedoOutlined, UndoOutlined} from '@ant-design/icons-vue'
 
 defineProps<{
   interactionMode: 'box' | 'pan'

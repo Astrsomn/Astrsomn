@@ -1,16 +1,12 @@
 package com.astrsomn.server.api.vector;
 
-import lombok.RequiredArgsConstructor;
+import com.astrsomn.api.vector.dto.vecdoc.*;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocVectorizeRequestDTO;
 import com.astrsomn.server.service.AiVecDocService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,12 +49,34 @@ public class AiVecDocController extends BaseController {
 
     @PostMapping("/upload")
     public BaseResponse<AiVecDocResponseDTO> upload(
-            @RequestParam("file") MultipartFile file, @RequestParam("collectionId") Long collectionId) {
-        return aiVecDocService.upload(file, collectionId);
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("collectionId") Long collectionId,
+            @RequestParam(value = "folderId", required = false) Long folderId) {
+        return aiVecDocService.upload(file, collectionId, folderId);
     }
 
     @PostMapping("/vectorize")
     public BaseResponse<String> vectorize(@RequestBody AiVecDocVectorizeRequestDTO request) {
         return aiVecDocService.vectorize(request.getId());
+    }
+
+    @GetMapping("/vectorize-progress")
+    public BaseResponse<AiVecDocVectorizeProgressDTO> vectorizeProgress(@RequestParam("id") Long id) {
+        return BaseResponse.success(aiVecDocService.getVectorizeProgress(id));
+    }
+
+    @PostMapping("/re-vectorize")
+    public BaseResponse<String> reVectorize(@RequestBody AiVecDocVectorizeRequestDTO request) {
+        return aiVecDocService.reVectorize(request.getId());
+    }
+
+    @PostMapping("/chunk")
+    public BaseResponse<String> chunk(@RequestBody AiVecDocVectorizeRequestDTO request) {
+        return aiVecDocService.chunk(request.getId());
+    }
+
+    @PostMapping("/re-chunk")
+    public BaseResponse<String> reChunk(@RequestBody AiVecDocVectorizeRequestDTO request) {
+        return aiVecDocService.reChunk(request.getId());
     }
 }

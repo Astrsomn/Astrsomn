@@ -3,53 +3,55 @@
     <div class="card-header">
       <div class="header-left">
         <div class="icon-badge">
-          <PictureOutlined />
+          <PictureOutlined/>
         </div>
         <h3 class="card-title">多模态增强能力</h3>
       </div>
       <button class="add-btn" @click="handleAddImageInstance">
-        <PlusCircleOutlined />
+        <PlusCircleOutlined/>
       </button>
     </div>
     <div class="model-grid">
       <div class="model-item" @click="handleSelectImageModel">
         <div class="model-info">
-          <PictureOutlined class="model-icon" />
-          <span class="model-name">{{ currentImageInstance ? currentImageInstance.instanceName : 'DALL-E 3 图像生成' }}</span>
+          <PictureOutlined class="model-icon"/>
+          <span class="model-name">{{
+              currentImageInstance ? currentImageInstance.instanceName : 'DALL-E 3 图像生成'
+            }}</span>
         </div>
-        <RightOutlined class="model-arrow" />
+        <RightOutlined class="model-arrow"/>
       </div>
       <div class="model-item" @click="handleSelectAudioModel">
         <div class="model-info">
-          <AudioOutlined class="model-icon audio" />
+          <AudioOutlined class="model-icon audio"/>
           <span class="model-name">OpenAI TTS 语音合成</span>
         </div>
-        <RightOutlined class="model-arrow" />
+        <RightOutlined class="model-arrow"/>
       </div>
     </div>
 
-    <InstanceSelector
-      v-model:open="selectDrawerOpen"
-      :disable-ttl-edit="true"
-      default-model-type="image"
-      @select="handleInstanceSelect"
-      @edit="handleInstanceEdit"
+    <InstanceSelectorDrawer
+        v-model:open="selectDrawerOpen"
+        :disable-ttl-edit="true"
+        default-model-type="image"
+        @edit="handleInstanceEdit"
+        @select="handleInstanceSelect"
     />
 
     <InstanceForm
-      v-model:visible="instanceFormVisible"
-      :record="editInstance"
-      @success="handleInstanceFormSuccess"
+        v-model:visible="instanceFormVisible"
+        :record="editInstance"
+        @success="handleInstanceFormSuccess"
     />
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { PictureOutlined, PlusCircleOutlined, RightOutlined, AudioOutlined } from '@ant-design/icons-vue'
-import InstanceSelector from '../../../ai-instance/selector/InstanceSelector.vue'
+<script lang="ts" setup>
+import {ref} from 'vue'
+import {AudioOutlined, PictureOutlined, PlusCircleOutlined, RightOutlined} from '@ant-design/icons-vue'
+import InstanceSelectorDrawer from '../../../ai-instance/selector/InstanceSelectorDrawer.vue'
 import InstanceForm from '../../../ai-instance/InstanceForm.vue'
-import type { AiInstance } from '@/api/aiInstance'
+import type {AiInstance} from '@/api/aiInstance'
 
 defineProps<{
   currentImageInstance?: AiInstance
@@ -102,9 +104,8 @@ const handleInstanceFormSuccess = () => {
   border-radius: var(--ab-glass-radius, 16px);
   box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
   padding: 20px;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: border-color 0.2s,
+  box-shadow 0.2s;
 }
 
 .image-card:hover {
@@ -184,9 +185,8 @@ const handleInstanceFormSuccess = () => {
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
+  transition: background 0.2s,
+  border-color 0.2s;
 }
 
 .model-item:first-child:hover {

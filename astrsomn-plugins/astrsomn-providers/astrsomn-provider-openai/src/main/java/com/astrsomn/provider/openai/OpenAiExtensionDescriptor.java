@@ -1,11 +1,12 @@
 package com.astrsomn.provider.openai;
 
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Properties;
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 
 public class OpenAiExtensionDescriptor extends AstroExtensionDescriptor {
 
@@ -14,6 +15,19 @@ public class OpenAiExtensionDescriptor extends AstroExtensionDescriptor {
     private static final String AVATAR_BASE64 =
             loadClasspathUtf8(OpenAiExtensionDescriptor.class, "/avatar/openai-avatar.base64");
     private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
+
+    private static Properties loadExtensionProperties() {
+        try (InputStream inputStream = OpenAiExtensionDescriptor.class.getResourceAsStream("/extension-openai.properties")) {
+            if (inputStream == null) {
+                return new Properties();
+            }
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load /extension-openai.properties", e);
+        }
+    }
 
     @Override
     public String getExtensionKey() {
@@ -63,18 +77,5 @@ public class OpenAiExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public String getMinServerVersion() {
         return EXTENSION_PROPERTIES.getProperty("minServerVersion", "");
-    }
-
-    private static Properties loadExtensionProperties() {
-        try (InputStream inputStream = OpenAiExtensionDescriptor.class.getResourceAsStream("/extension-openai.properties")) {
-            if (inputStream == null) {
-                return new Properties();
-            }
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties;
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to load /extension-openai.properties", e);
-        }
     }
 }

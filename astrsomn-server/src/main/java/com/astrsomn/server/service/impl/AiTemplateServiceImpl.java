@@ -1,31 +1,32 @@
 package com.astrsomn.server.service.impl;
-import com.astrsomn.api.runtime.common.utils.PageConverter;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
+
 import com.astrsomn.api.runtime.common.dto.template.AiTemplateCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.template.AiTemplateQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.template.AiTemplateResponseDTO;
 import com.astrsomn.api.runtime.common.dto.template.AiTemplateUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiTemplateEntity;
-import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.AiTemplateErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiTemplateMapper;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.server.mapper.AiTemplateMapper;
 import com.astrsomn.server.service.AiTemplateService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import com.astrsomn.api.runtime.common.utils.PageUtils;
+
 @Service
 @RequiredArgsConstructor
 public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTemplateEntity> implements AiTemplateService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
+
     @Override
     public BaseResponse<String> create(AiTemplateCreateRequestDTO request) {
         AiTemplateEntity entity = new AiTemplateEntity();
@@ -82,7 +83,6 @@ public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTempl
         if (param == null) {
             param = new AiTemplateQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiTemplateResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

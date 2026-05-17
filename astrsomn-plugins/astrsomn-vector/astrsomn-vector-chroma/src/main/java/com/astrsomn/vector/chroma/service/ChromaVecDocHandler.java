@@ -1,12 +1,12 @@
 package com.astrsomn.vector.chroma.service;
 
-import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
-import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecSegmentEntity;
+import com.astrsomn.api.vector.entity.AiVecDocEntity;
+import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecDoc;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecSegment;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.vector.chroma.internal.ChromaVecConstants;
+import dev.langchain4j.store.embedding.filter.MetadataFilterBuilder;
 
 public final class ChromaVecDocHandler extends AbstractVecDoc {
 

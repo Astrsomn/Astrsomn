@@ -1,9 +1,9 @@
 package com.astrsomn.internal.storage.service.impl;
 
+import com.astrsomn.api.storage.exception.AstFileErrorEnum;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.internal.storage.config.StorageProperties;
-import com.astrsomn.api.storage.exception.AstFileErrorEnum;
 import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
 import com.astrsomn.internal.storage.service.model.StorageDownloadRequest;
 import com.astrsomn.internal.storage.service.model.StorageUploadRequest;
@@ -34,6 +34,32 @@ public class XFileStorageClient implements AstrsomnStorageClient {
     private final StorageProperties storageProperties;
     private final Environment environment;
 
+    private static String extractExt(String originalName) {
+        int idx = originalName.lastIndexOf('.');
+        if (idx < 0 || idx == originalName.length() - 1) {
+            return "";
+        }
+        return originalName.substring(idx + 1).toLowerCase();
+    }
+
+    private static String sanitize(String originalName) {
+        return originalName.replaceAll("[^a-zA-Z0-9._-]", "_");
+    }
+
+    private static String buildDatePath() {
+        LocalDate now = LocalDate.now();
+        return now.format(DATE_PATH_FORMATTER);
+    }
+
+    private static String buildSaveFilename(String originalName, String ext) {
+        String safeName = sanitize(originalName);
+        if (!ext.isEmpty() && !safeName.toLowerCase().endsWith("." + ext)) {
+            safeName = safeName + "." + ext;
+        }
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return uuid + "_" + safeName;
+    }
+
     @Override
     public StorageUploadResult upload(StorageUploadRequest request) {
         MultipartFile file = request.getFile();
@@ -51,7 +77,7 @@ public class XFileStorageClient implements AstrsomnStorageClient {
         }
 
         String datePath = buildDatePath();
-        String saveFilename = buildSaveFilename(originalName, ext, storageProperties.isRandomFilename());
+        String saveFilename = buildSaveFilename(originalName, ext);
         String platform = storageProperties.getDefaultPlatform();
         log.info(
                 "x-file-storage upload start bizType={} datePath={} filename={} platform={} astrsomn.default-platform={} dromara.default-platform={} activeProfiles={} fileStorageServiceClass={}",
@@ -115,9 +141,19 @@ public class XFileStorageClient implements AstrsomnStorageClient {
             throw new BusinessException(AstFileErrorEnum.FILE_NOT_FOUND, "objectKey 不能为空");
         }
         try {
-            return new ByteArrayInputStream(fileStorageService.download(objectKey).bytes());
+            FileInfo dlInfo = new FileInfo();
+            dlInfo.setPlatform(platform);
+            int lastSlash = objectKey.lastIndexOf('/');
+            if (lastSlash >= 0) {
+                dlInfo.setPath(objectKey.substring(0, lastSlash + 1));
+                dlInfo.setFilename(objectKey.substring(lastSlash + 1));
+            } else {
+                dlInfo.setPath("");
+                dlInfo.setFilename(objectKey);
+            }
+            return new ByteArrayInputStream(fileStorageService.download(dlInfo).bytes());
         } catch (Exception e) {
-            log.error("x-file-storage open stream failed key={}", objectKey, e);
+            log.error("x-file-storage open stream failed key={} platform={}", objectKey, platform, e);
             throw new BusinessException(AstFileErrorEnum.FILE_NOT_FOUND, e.getMessage());
         }
     }
@@ -133,39 +169,20 @@ public class XFileStorageClient implements AstrsomnStorageClient {
             return;
         }
         try {
-            fileStorageService.delete(objectKey);
+            FileInfo fileInfo = new FileInfo();
+            fileInfo.setPlatform(platform);
+            int lastSlash = objectKey.lastIndexOf('/');
+            if (lastSlash >= 0) {
+                fileInfo.setPath(objectKey.substring(0, lastSlash + 1));
+                fileInfo.setFilename(objectKey.substring(lastSlash + 1));
+            } else {
+                fileInfo.setPath("");
+                fileInfo.setFilename(objectKey);
+            }
+            fileStorageService.delete(fileInfo);
         } catch (Exception e) {
             log.warn("x-file-storage delete failed key={} platform={}", objectKey, platform, e);
             throw new BusinessException(AstFileErrorEnum.FILE_DELETE_FAILED, e.getMessage());
         }
-    }
-
-    private static String extractExt(String originalName) {
-        int idx = originalName.lastIndexOf('.');
-        if (idx < 0 || idx == originalName.length() - 1) {
-            return "";
-        }
-        return originalName.substring(idx + 1).toLowerCase();
-    }
-
-    private static String sanitize(String originalName) {
-        return originalName.replaceAll("[^a-zA-Z0-9._-]", "_");
-    }
-
-    private static String buildDatePath() {
-        LocalDate now = LocalDate.now();
-        return now.format(DATE_PATH_FORMATTER);
-    }
-
-    private static String buildSaveFilename(String originalName, String ext, boolean randomFilename) {
-        String safeName = sanitize(originalName);
-        if (!ext.isEmpty() && !safeName.toLowerCase().endsWith("." + ext)) {
-            safeName = safeName + "." + ext;
-        }
-        if (!randomFilename) {
-            return safeName;
-        }
-        String uuid = UUID.randomUUID().toString().replace("-", "");
-        return uuid + "_" + safeName;
     }
 }

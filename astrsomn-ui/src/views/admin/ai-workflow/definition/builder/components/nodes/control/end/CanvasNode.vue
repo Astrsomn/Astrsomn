@@ -1,31 +1,31 @@
 <template>
   <BaseCanvasNode
-    :data="data"
-    fallback-label="结束"
-    fallback-description="流程出口"
-    :target-handles="[{ id: undefined }]"
-    :source-handles="[]"
-    subtitle="Output Result"
-    icon-text="E"
-    icon-background="#0f172a"
-    icon-color="#ffffff"
-    :theme="{
+      :data="data"
+      :source-handles="[]"
+      :target-handles="[{ id: undefined }]"
+      :theme="{
       borderColor: '#e2e8f0',
       background: '#ffffff',
       titleColor: '#0f172a',
       descColor: '#475569'
     }"
+      fallback-description="流程出口"
+      fallback-label="结束"
+      icon-background="#0f172a"
+      icon-color="#ffffff"
+      icon-text="E"
+      subtitle="Output Result"
   >
     <div class="ready">
-      <span class="dot" />
+      <span class="dot"/>
       <span>Stream Ready</span>
     </div>
   </BaseCanvasNode>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseCanvasNode from '../../shared/BaseCanvasNode.vue'
-import type { WorkflowNodeViewData } from '../../shared/node-props'
+import type {WorkflowNodeViewData} from '../../shared/node-props'
 
 defineProps<{ data?: WorkflowNodeViewData }>()
 </script>
@@ -39,6 +39,7 @@ defineProps<{ data?: WorkflowNodeViewData }>()
   font-size: 11px;
   font-weight: 700;
 }
+
 .dot {
   width: 6px;
   height: 6px;

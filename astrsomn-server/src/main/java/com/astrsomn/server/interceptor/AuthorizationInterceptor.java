@@ -1,10 +1,10 @@
 package com.astrsomn.server.interceptor;
 
+import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
+import com.astrsomn.server.util.UserContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
-import com.astrsomn.server.util.UserContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -53,12 +53,16 @@ public class AuthorizationInterceptor extends AbstractSecurityInterceptor implem
         return true;
     }
 
-    /** 用户 / 环境主数据，仅超级管理员 */
+    /**
+     * 用户 / 环境主数据，仅超级管理员
+     */
     private boolean isPlatformAdminPath(String path) {
         return path.startsWith("/v1/astro/system-user") || path.startsWith("/v1/astro/system-env");
     }
 
-    /** AI 配置类接口 */
+    /**
+     * AI 配置类接口
+     */
     private boolean isAiConfigPath(String path) {
         return path.startsWith("/v1/astro/ai-agent")
                 || path.startsWith("/v1/astro/ai-model")

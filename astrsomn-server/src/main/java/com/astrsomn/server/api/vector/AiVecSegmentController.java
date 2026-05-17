@@ -1,16 +1,20 @@
 package com.astrsomn.server.api.vector;
 
-import lombok.RequiredArgsConstructor;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentCreateRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentQueryRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentResponseDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentSearchRequestDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentSearchResultDTO;
+import com.astrsomn.api.vector.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecsegment.AiVecSegmentUpdateRequestDTO;
 import com.astrsomn.server.service.AiVecSegmentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/astro/ai-vec-segment")
@@ -47,5 +51,10 @@ public class AiVecSegmentController extends BaseController {
     @GetMapping("/detail")
     public BaseResponse<AiVecSegmentResponseDTO> detail(@RequestParam("id") Long id) {
         return aiVecSegmentService.detail(id);
+    }
+
+    @PostMapping("/search")
+    public BaseResponse<List<AiVecSegmentSearchResultDTO>> search(@RequestBody AiVecSegmentSearchRequestDTO request) {
+        return BaseResponse.success(aiVecSegmentService.search(request));
     }
 }

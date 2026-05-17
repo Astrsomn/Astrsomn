@@ -1,5 +1,6 @@
 package com.astrsomn.api.runtime.common.entity;
 
+import com.astrsomn.common.base.BaseEntity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -8,7 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import com.astrsomn.common.base.BaseEntity;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -22,99 +22,118 @@ public class AiInstanceEntity extends BaseEntity<Long> {
     @TableField("INSTANCE_KEY")
     private String instanceKey;
 
+    @TableField("BIZ_KEY")
+    private String bizKey;
+
     @TableField("INSTANCE_NAME")
     private String instanceName;
 
     @TableField("MODEL_KEY")
     private String modelKey;
 
-    /**
-     * Resolved from {@code AI_MODEL.MODEL_TYPE} by {@code modelKey} + {@code envCode}; not a column on {@code AI_INSTANCE}.
-     */
+
     @TableField(exist = false)
     private String modelType;
-    /**
-     * The maximum number of tokens allowed in the generated response.
-     */
+
     @TableField("MAX_TOKENS")
     private Integer maxTokens;
 
-    /**
-     * The temperature value controlling the randomness of the output.
-     */
+
     @TableField("TEMPERATURE")
     private Double temperature;
 
-    /**
-     * The presence penalty value to discourage token repetition based on existence.
-     */
+
     @TableField("PRESENCE_PENALTY")
     private Double presencePenalty;
 
-    /**
-     * The frequency penalty value to discourage token repetition based on count.
-     */
+
     @TableField("FREQUENCY_PENALTY")
     private Double frequencyPenalty;
 
-    /**
-     * Custom sequences that will trigger the end of text generation.
-     */
+
     @TableField("STOP_SEQUENCES")
     private String stopSequences;
 
-    /**
-     * The random seed for reproducible output generation.
-     */
+
     @TableField("SEED")
     private Integer seed;
 
-    /**
-     *
-     */
+
     @TableField("TOP_P")
     private Double topP;
 
-    /**
-     *
-     */
+
     @TableField("TOP_K")
     private Integer topK;
 
-    /**
-     *
-     */
+
     @TableField("STYLE")
     private String style;
 
-    /**
-     *
-     */
+
     @TableField("SIZE")
     private String size;
 
-    /**
-     *
-     */
+
     @TableField("DIMENSIONS")
     private Integer dimensions;
 
-    /**
-     *
-     */
+
     @TableField("STATUS")
     private String status;
 
-    /**
-     * 是否为默认预设 (Y/N)
-     */
+
     @TableField("IS_DEFAULT")
     private String isDefault;
 
-    /**
-     * 关联的账号 key，用于动态配置账号信息
-     */
+
     @TableField("ACCOUNT_KEY")
     private String accountKey;
+
+
+    @TableField(value = "MODEL_ROUTE_JSON", exist = false)
+    private String modelRouteJson;
+
+    @TableField("ROUTE_STRATEGY")
+    private String routeStrategy;
+
+    @TableField("ROUTE_WEIGHT")
+    private Integer routeWeight;
+
+    @TableField("RESILIENCE_ENABLED")
+    private String resilienceEnabled;
+
+    @TableField("RESILIENCE_INSTANCE_NAME")
+    private String resilienceInstanceName;
+
+    @TableField("CIRCUIT_BREAKER_ENABLED")
+    private String circuitBreakerEnabled;
+
+    @TableField("CIRCUIT_BREAKER_FAILURE_RATE_THRESHOLD")
+    private Integer circuitBreakerFailureRateThreshold;
+
+    @TableField("CIRCUIT_BREAKER_WAIT_DURATION")
+    private Long circuitBreakerWaitDuration;
+
+    @TableField("RETRY_ENABLED")
+    private String retryEnabled;
+
+    @TableField("RETRY_MAX_ATTEMPTS")
+    private Integer retryMaxAttempts;
+
+    @TableField("RETRY_WAIT_DURATION")
+    private Long retryWaitDuration;
+
+    @TableField("TIMEOUT_ENABLED")
+    private String timeoutEnabled;
+
+    @TableField("TIMEOUT_DURATION")
+    private Long timeoutDuration;
+
+    @TableField("FALLBACK_ENABLED")
+    private String fallbackEnabled;
+
+    @TableField("FALLBACK_INSTANCE_KEY")
+    private String fallbackInstanceKey;
 
 }

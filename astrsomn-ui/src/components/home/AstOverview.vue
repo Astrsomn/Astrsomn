@@ -1,0 +1,126 @@
+<template>
+  <div class="list-overview">
+    <div class="overview-main">
+      <button
+          :aria-label="viewMode === 'grid' ? '切换为列表展示' : '切换为方块展示'"
+          :title="viewMode === 'grid' ? '切换为列表展示' : '切换为方块展示'"
+          class="overview-icon overview-view-toggle"
+          type="button"
+          @click="toggleViewMode"
+      >
+        <UnorderedListOutlined v-if="viewMode === 'grid'"/>
+        <AppstoreOutlined v-else/>
+      </button>
+      <div>
+        <div class="overview-desc">
+          {{ summaryText || `当前页 ${listLength} 条，已选 ${selectedCount} 条` }}
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showActions" class="overview-actions">
+      <a-checkbox
+          :checked="allCurrentSelected"
+          :indeterminate="partCurrentSelected"
+          @change="onToggleSelectAll"
+      >
+        本页全选
+      </a-checkbox>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import {AppstoreOutlined, UnorderedListOutlined} from '@ant-design/icons-vue'
+
+const props = withDefaults(defineProps<{
+  listLength: number
+  selectedCount: number
+  allCurrentSelected: boolean
+  partCurrentSelected: boolean
+  showActions: boolean
+  summaryText?: string
+  viewMode?: 'grid' | 'list'
+}>(), {
+  viewMode: 'grid'
+})
+
+const emit = defineEmits<{
+  'toggle-select-all': [checked: boolean]
+  'update:viewMode': [mode: 'grid' | 'list']
+}>()
+
+const onToggleSelectAll = (e: { target?: { checked?: boolean } }) => {
+  emit('toggle-select-all', Boolean(e?.target?.checked))
+}
+
+const toggleViewMode = () => {
+  emit('update:viewMode', props.viewMode === 'grid' ? 'list' : 'grid')
+}
+</script>
+
+<style scoped>
+.list-overview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 50px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+
+  height: 50px;
+  box-sizing: border-box;
+}
+
+.overview-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.overview-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 15px;
+  background: var(--primary-gradient);
+}
+
+.overview-view-toggle {
+  border: 0;
+  cursor: pointer;
+}
+
+.overview-desc {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.overview-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 560px) {
+  .list-overview {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .overview-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+</style>

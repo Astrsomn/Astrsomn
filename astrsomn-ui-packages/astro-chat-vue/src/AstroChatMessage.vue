@@ -1,16 +1,16 @@
 <template>
-  <div class="message-row" :class="[role, { 'is-streaming': streaming, compact: compact }]">
+  <div :class="[role, { 'is-streaming': streaming, compact: compact }]" class="message-row">
     <div class="avatar-box">
-      <div v-if="role === 'ai'" class="avatar ai-avatar" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="22" height="22">
-          <path fill="currentColor" d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z" />
+      <div v-if="role === 'ai'" aria-hidden="true" class="avatar ai-avatar">
+        <svg height="22" viewBox="0 0 24 24" width="22">
+          <path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z" fill="currentColor"/>
         </svg>
       </div>
-      <div v-else class="avatar user-avatar user-avatar-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="20" height="20">
+      <div v-else aria-hidden="true" class="avatar user-avatar user-avatar-icon">
+        <svg height="20" viewBox="0 0 24 24" width="20">
           <path
-            fill="currentColor"
-            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+              fill="currentColor"
           />
         </svg>
       </div>
@@ -21,52 +21,52 @@
       <div v-if="role === 'ai' && hasStructuredSegments" class="ai-structured">
         <div v-for="(group, gIdx) in displayGroups" :key="gIdx" class="structured-segment-group">
           <div v-if="group.kind === 'chain'" class="chain-timeline">
-            <div class="chain-line-rail" aria-hidden="true" />
+            <div aria-hidden="true" class="chain-line-rail"/>
             <div class="chain-steps">
               <div v-for="(seg, sIdx) in group.segments" :key="sIdx" class="chain-step">
                 <div
-                  class="chain-node"
-                  :class="seg.type === 'thought' ? 'is-thought' : 'is-tool'"
-                  aria-hidden="true"
+                    :class="seg.type === 'thought' ? 'is-thought' : 'is-tool'"
+                    aria-hidden="true"
+                    class="chain-node"
                 >
-                  <svg v-if="seg.type === 'thought'" viewBox="0 0 24 24" width="16" height="16">
+                  <svg v-if="seg.type === 'thought'" height="16" viewBox="0 0 24 24" width="16">
                     <path
-                      fill="currentColor"
-                      d="M12 3c-1.5 0-2.8.8-3.5 2-.1-.02-.2-.03-.33-.03C6.84 4.97 6 5.81 6 6.83c0 .47.18.9.47 1.22A3.98 3.98 0 0 0 5 11v1c0 2.21 1.79 4 4 4 .46 0 .9-.08 1.31-.22.41.14.85.22 1.31.22 2.21 0 4-1.79 4-4v-1c0-1.38-.7-2.6-1.76-3.32.48-.4.76-1 .76-1.68C15 5.35 14.65 5 14.22 5c-.13 0-.24.01-.33.03A4.02 4.02 0 0 0 12 3zm0 2c.97 0 1.86.38 2.53 1H12.8c-.44 0-.8.36-.8.8s.36.8.8.8h2.33c.1.32.17.66.17 1v1c0 1.1-.9 2-2 2s-2-.9-2-2v-1c0-1.66 1.34-3 3-3z"
+                        d="M12 3c-1.5 0-2.8.8-3.5 2-.1-.02-.2-.03-.33-.03C6.84 4.97 6 5.81 6 6.83c0 .47.18.9.47 1.22A3.98 3.98 0 0 0 5 11v1c0 2.21 1.79 4 4 4 .46 0 .9-.08 1.31-.22.41.14.85.22 1.31.22 2.21 0 4-1.79 4-4v-1c0-1.38-.7-2.6-1.76-3.32.48-.4.76-1 .76-1.68C15 5.35 14.65 5 14.22 5c-.13 0-.24.01-.33.03A4.02 4.02 0 0 0 12 3zm0 2c.97 0 1.86.38 2.53 1H12.8c-.44 0-.8.36-.8.8s.36.8.8.8h2.33c.1.32.17.66.17 1v1c0 1.1-.9 2-2 2s-2-.9-2-2v-1c0-1.66 1.34-3 3-3z"
+                        fill="currentColor"
                     />
                   </svg>
-                  <svg v-else viewBox="0 0 24 24" width="16" height="16">
+                  <svg v-else height="16" viewBox="0 0 24 24" width="16">
                     <path
-                      fill="currentColor"
-                      d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6v-2zm0 4h8v2H6v-2zm10-4h2v2h-2v-2zm-4 4h2v2h-2v-2z"
+                        d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6v-2zm0 4h8v2H6v-2zm10-4h2v2h-2v-2zm-4 4h2v2h-2v-2z"
+                        fill="currentColor"
                     />
                   </svg>
                 </div>
                 <div class="chain-card">
                   <button
-                    type="button"
-                    class="chain-card-head"
-                    @click="toggleChainStep(gIdx, sIdx)"
+                      class="chain-card-head"
+                      type="button"
+                      @click="toggleChainStep(gIdx, sIdx)"
                   >
                     <span class="chain-card-title">
-                      <span v-if="streaming && isActiveStreamingThought(gIdx, sIdx, seg)" class="thought-pulse" />
+                      <span v-if="streaming && isActiveStreamingThought(gIdx, sIdx, seg)" class="thought-pulse"/>
                       {{
                         seg.type === 'thought'
-                          ? streaming && isActiveStreamingThought(gIdx, sIdx, seg)
-                            ? '正在深度思考…'
-                            : seg.title || '推理分析'
-                          : seg.title || `调用工具: ${seg.toolName || 'tool'}`
+                            ? streaming && isActiveStreamingThought(gIdx, sIdx, seg)
+                                ? '正在深度思考…'
+                                : seg.title || '推理分析'
+                            : seg.title || `调用工具: ${seg.toolName || 'tool'}`
                       }}
                     </span>
                     <svg
-                      class="chain-chevron"
-                      :class="{ 'is-open': isChainStepOpen(gIdx, sIdx) }"
-                      viewBox="0 0 24 24"
-                      width="14"
-                      height="14"
-                      aria-hidden="true"
+                        :class="{ 'is-open': isChainStepOpen(gIdx, sIdx) }"
+                        aria-hidden="true"
+                        class="chain-chevron"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        width="14"
                     >
-                      <path fill="currentColor" d="M7 10l5 5 5-5H7z" />
+                      <path d="M7 10l5 5 5-5H7z" fill="currentColor"/>
                     </svg>
                   </button>
                   <div v-show="isChainStepOpen(gIdx, sIdx)" class="chain-card-body">
@@ -87,18 +87,18 @@
             <div class="final-answer-card">
               <div v-for="(block, bIdx) in blocksForAnswerGroup(group)" :key="bIdx" class="answer-block-wrap">
                 <div
-                  v-if="block.kind === 'md'"
-                  class="markdown-renderer markdown-in-emerald"
-                  @click="handleCodeCopy"
-                  v-html="renderMarkdownBlock(block.content)"
+                    v-if="block.kind === 'md'"
+                    class="markdown-renderer markdown-in-emerald"
+                    @click="handleCodeCopy"
+                    v-html="renderMarkdownBlock(block.content)"
                 />
                 <div
-                  v-else-if="block.kind === 'html'"
-                  class="markdown-renderer html-embed-block markdown-in-emerald"
-                  v-html="block.content"
+                    v-else-if="block.kind === 'html'"
+                    class="markdown-renderer html-embed-block markdown-in-emerald"
+                    v-html="block.content"
                 />
                 <div v-else-if="block.kind === 'image'" class="image-embed-block">
-                  <img :src="block.content" class="segment-image" alt="" />
+                  <img :src="block.content" alt="" class="segment-image"/>
                 </div>
               </div>
             </div>
@@ -106,8 +106,8 @@
         </div>
 
         <div v-if="!allAnswerBlocks.length && streaming && !error" class="streaming-placeholder structured-placeholder">
-          <div class="typing-loader" aria-hidden="true">
-            <span /><span /><span />
+          <div aria-hidden="true" class="typing-loader">
+            <span/><span/><span/>
           </div>
           <span>正在为您准备回答…</span>
         </div>
@@ -117,14 +117,14 @@
         </div>
 
         <div
-          v-if="!streaming && (answerText || allAnswerBlocks.length > 0) && !error"
-          class="answer-actions structured-actions"
+            v-if="!streaming && (answerText || allAnswerBlocks.length > 0) && !error"
+            class="answer-actions structured-actions"
         >
-          <button type="button" class="text-action" @click="copyFullContent">
-            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+          <button class="text-action" type="button" @click="copyFullContent">
+            <svg aria-hidden="true" height="14" viewBox="0 0 24 24" width="14">
               <path
-                fill="currentColor"
-                d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+                  d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+                  fill="currentColor"
               />
             </svg>
             复制全文
@@ -134,15 +134,15 @@
 
       <!-- AI：无 segments 时沿用单卡片 -->
       <div v-else-if="role === 'ai'" class="ai-card">
-        <section v-if="thoughtTextLegacy" class="thought-section" :class="{ 'is-collapsed': !isThoughtExpanded }">
+        <section v-if="thoughtTextLegacy" :class="{ 'is-collapsed': !isThoughtExpanded }" class="thought-section">
           <button
-            type="button"
-            class="thought-head"
-            :class="{ 'is-interactive': shouldShowThoughtToggle }"
-            @click="toggleThought"
+              :class="{ 'is-interactive': shouldShowThoughtToggle }"
+              class="thought-head"
+              type="button"
+              @click="toggleThought"
           >
             <span class="thought-head-left">
-              <span v-if="streaming" class="thought-pulse" aria-hidden="true" />
+              <span v-if="streaming" aria-hidden="true" class="thought-pulse"/>
               <span class="thought-title">{{ streaming ? '正在深度思考…' : '思考过程' }}</span>
             </span>
             <span v-if="shouldShowThoughtToggle" class="thought-toggle">
@@ -156,8 +156,8 @@
 
         <section class="answer-section">
           <div v-if="!answerBlocks.length && streaming && !error" class="streaming-placeholder">
-            <div class="typing-loader" aria-hidden="true">
-              <span /><span /><span />
+            <div aria-hidden="true" class="typing-loader">
+              <span/><span/><span/>
             </div>
             <span>正在为您准备回答…</span>
           </div>
@@ -169,28 +169,28 @@
           <template v-else-if="answerBlocks.length > 0">
             <div v-for="(block, bIdx) in answerBlocks" :key="bIdx" class="answer-block-wrap">
               <div
-                v-if="block.kind === 'md'"
-                class="markdown-renderer"
-                @click="handleCodeCopy"
-                v-html="renderMarkdownBlock(block.content)"
+                  v-if="block.kind === 'md'"
+                  class="markdown-renderer"
+                  @click="handleCodeCopy"
+                  v-html="renderMarkdownBlock(block.content)"
               />
               <div
-                v-else-if="block.kind === 'html'"
-                class="markdown-renderer html-embed-block"
-                v-html="block.content"
+                  v-else-if="block.kind === 'html'"
+                  class="markdown-renderer html-embed-block"
+                  v-html="block.content"
               />
               <div v-else-if="block.kind === 'image'" class="image-embed-block">
-                <img :src="block.content" class="segment-image" alt="" />
+                <img :src="block.content" alt="" class="segment-image"/>
               </div>
             </div>
           </template>
 
           <div v-if="!streaming && (answerText || answerBlocks.length > 0) && !error" class="answer-actions">
-            <button type="button" class="text-action" @click="copyFullContent">
-              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+            <button class="text-action" type="button" @click="copyFullContent">
+              <svg aria-hidden="true" height="14" viewBox="0 0 24 24" width="14">
                 <path
-                  fill="currentColor"
-                  d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+                    d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+                    fill="currentColor"
                 />
               </svg>
               复制全文
@@ -202,20 +202,20 @@
       <!-- 用户消息 -->
       <div v-else class="user-card">
         <div class="user-bubble">
-          <div v-html="props.content" class="user-html" />
+          <div class="user-html" v-html="props.content"/>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
-import { message } from 'ant-design-vue'
+<script lang="ts" setup>
+import {computed, nextTick, ref, watch} from 'vue'
+import {message} from 'ant-design-vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.min.css'
-import { normalizeAiMarkdown } from './markdownNormalize'
+import {normalizeAiMarkdown} from './markdownNormalize'
 
 /** 与 demo/ChatArea.vue 一致：短语言名 → hljs 注册名 */
 const langAlias: Record<string, string> = {
@@ -229,15 +229,15 @@ const langAlias: Record<string, string> = {
 }
 
 const props = withDefaults(
-  defineProps<{
-    role: 'user' | 'ai'
-    content: string
-    segments?: any[]
-    streaming?: boolean
-    error?: boolean
-    compact?: boolean
-  }>(),
-  { compact: false }
+    defineProps<{
+      role: 'user' | 'ai'
+      content: string
+      segments?: any[]
+      streaming?: boolean
+      error?: boolean
+      compact?: boolean
+    }>(),
+    {compact: false}
 )
 
 const THOUGHT_AUTO_COLLAPSE_CHARS = 180
@@ -248,12 +248,12 @@ const thoughtRef = ref<HTMLElement | null>(null)
 /** 围栏语言：修复流式/换行异常导致的「javaimport」等粘连，并匹配 hljs 语言 key */
 function resolveFenceLang(raw: string): { label: string; hljsKey: string | null } {
   const s = (raw || '').trim()
-  if (!s) return { label: 'text', hljsKey: null }
+  if (!s) return {label: 'text', hljsKey: null}
 
-  if (hljs.getLanguage(s)) return { label: s, hljsKey: s }
+  if (hljs.getLanguage(s)) return {label: s, hljsKey: s}
 
   const token = s.split(/[/\s]/)[0]?.trim() || 'text'
-  if (hljs.getLanguage(token)) return { label: token, hljsKey: token }
+  if (hljs.getLanguage(token)) return {label: token, hljsKey: token}
 
   const gluedSuffixes = [
     'import',
@@ -291,17 +291,17 @@ function resolveFenceLang(raw: string): { label: string; hljsKey: string | null 
   for (const suf of gluedSuffixes) {
     if (s.length > suf.length && s.endsWith(suf)) {
       const cand = s.slice(0, -suf.length)
-      if (hljs.getLanguage(cand)) return { label: cand, hljsKey: cand }
+      if (hljs.getLanguage(cand)) return {label: cand, hljsKey: cand}
     }
   }
 
   for (let len = Math.min(s.length, 28); len >= 2; len--) {
     const pref = s.slice(0, len)
-    if (hljs.getLanguage(pref)) return { label: pref, hljsKey: pref }
+    if (hljs.getLanguage(pref)) return {label: pref, hljsKey: pref}
   }
 
   const short = token.length > 24 ? token.slice(0, 21) + '…' : token
-  return { label: short, hljsKey: null }
+  return {label: short, hljsKey: null}
 }
 
 /** 模型偶发把标题/重复 ``` 行吃进围栏，复制与高亮前尽量剥掉 */
@@ -312,24 +312,24 @@ function unwrapMalformedFenceContent(raw: string, outerLang: string): { code: st
 
   // 首行是 ### 标题、下一行是 ```lang
   if (
-    lines.length >= 3 &&
-    /^#{1,6}\s/.test(lines[0].trim()) &&
-    /^\s*```[\w+-]*\s*$/.test(lines[1])
+      lines.length >= 3 &&
+      /^#{1,6}\s/.test(lines[0].trim()) &&
+      /^\s*```[\w+-]*\s*$/.test(lines[1])
   ) {
     const inner = lines[1].replace(/^\s*```/, '').trim()
     if (inner && hljs.getLanguage(inner)) lang = inner
     code = lines.slice(2).join('\n')
   } else if (
-    lines.length >= 2 &&
-    /^#{1,6}\s/.test(lines[0].trim()) &&
-    /^(import|package|#include|from\s|def\s|async\s|module\s|export\s|public\s|private\s|class\s|interface\s|enum\s|@\w|\/\/|\/\*)/.test(
-      lines[1].trim()
-    )
+      lines.length >= 2 &&
+      /^#{1,6}\s/.test(lines[0].trim()) &&
+      /^(import|package|#include|from\s|def\s|async\s|module\s|export\s|public\s|private\s|class\s|interface\s|enum\s|@\w|\/\/|\/\*)/.test(
+          lines[1].trim()
+      )
   ) {
     code = lines.slice(1).join('\n')
   }
 
-  return { code, lang }
+  return {code, lang}
 }
 
 // html: false — 避免 <dependency> 等被当作 HTML 块吞掉（常见于 Maven/XML 与围栏错位时）
@@ -347,13 +347,13 @@ md.renderer.rules.fence = (tokens, idx) => {
   const content = token.content
   const unwrapped = unwrapMalformedFenceContent(content, rawLang)
   const mapped = langAlias[rawLang.toLowerCase()] || rawLang
-  const { hljsKey } = resolveFenceLang(unwrapped.lang || mapped || '')
+  const {hljsKey} = resolveFenceLang(unwrapped.lang || mapped || '')
   const plain = unwrapped.code
 
   let codeHtml = md.utils.escapeHtml(plain)
   try {
     if (hljsKey) {
-      codeHtml = hljs.highlight(plain, { language: hljsKey, ignoreIllegals: true }).value
+      codeHtml = hljs.highlight(plain, {language: hljsKey, ignoreIllegals: true}).value
     } else if (plain.trim()) {
       codeHtml = hljs.highlightAuto(plain).value
     }
@@ -370,7 +370,7 @@ type AnswerBlock = { kind: 'md' | 'html' | 'image'; content: string }
 type DisplayGroup = { kind: 'chain' | 'answer'; segments: any[] }
 
 const hasStructuredSegments = computed(
-  () => props.role === 'ai' && Array.isArray(props.segments) && props.segments.length > 0
+    () => props.role === 'ai' && Array.isArray(props.segments) && props.segments.length > 0
 )
 
 const displayGroups = computed((): DisplayGroup[] => {
@@ -382,7 +382,7 @@ const displayGroups = computed((): DisplayGroup[] => {
     const isChain = s.type === 'thought' || s.type === 'tool'
     const kind: 'chain' | 'answer' = isChain ? 'chain' : 'answer'
     if (!current || current.kind !== kind) {
-      current = { kind, segments: [s] }
+      current = {kind, segments: [s]}
       groups.push(current)
     } else {
       current.segments.push(s)
@@ -418,7 +418,7 @@ function isChainStepOpen(gIdx: number, sIdx: number) {
 function toggleChainStep(gIdx: number, sIdx: number) {
   const k = chainStepKey(gIdx, sIdx)
   const cur = isChainStepOpen(gIdx, sIdx)
-  chainStepOpen.value = { ...chainStepOpen.value, [k]: !cur }
+  chainStepOpen.value = {...chainStepOpen.value, [k]: !cur}
 }
 
 /** 流式时仅在「最后一段思考」上显示脉冲与「正在深度思考」 */
@@ -450,12 +450,12 @@ function segmentsToAnswerBlocks(segs: any[] | undefined): AnswerBlock[] {
       if (last?.kind === 'md') {
         last.content += text
       } else {
-        blocks.push({ kind: 'md', content: text })
+        blocks.push({kind: 'md', content: text})
       }
     } else if (t === 'html') {
-      blocks.push({ kind: 'html', content: s.content != null ? String(s.content) : '' })
+      blocks.push({kind: 'html', content: s.content != null ? String(s.content) : ''})
     } else if (t === 'image') {
-      blocks.push({ kind: 'image', content: s.content != null ? String(s.content) : '' })
+      blocks.push({kind: 'image', content: s.content != null ? String(s.content) : ''})
     }
   }
   return blocks
@@ -469,10 +469,10 @@ const thoughtTextLegacy = computed(() => {
   if (hasStructuredSegments.value) return ''
   if (!props.segments?.length) return ''
   return props.segments
-    .filter((s) => s.type === 'thought')
-    .map((s) => (s.content != null ? String(s.content) : ''))
-    .filter(Boolean)
-    .join('\n\n')
+      .filter((s) => s.type === 'thought')
+      .map((s) => (s.content != null ? String(s.content) : ''))
+      .filter(Boolean)
+      .join('\n\n')
 })
 
 const shouldShowThoughtToggle = computed(() => thoughtTextLegacy.value.length > THOUGHT_AUTO_COLLAPSE_CHARS)
@@ -480,9 +480,9 @@ const shouldShowThoughtToggle = computed(() => thoughtTextLegacy.value.length > 
 const answerText = computed(() => {
   if (props.segments?.length) {
     const fromSegments = props.segments
-      .filter((s) => s.type !== 'thought' && s.type !== 'tool')
-      .map((s) => (s.content != null ? String(s.content) : ''))
-      .join('')
+        .filter((s) => s.type !== 'thought' && s.type !== 'tool')
+        .map((s) => (s.content != null ? String(s.content) : ''))
+        .join('')
     if (fromSegments) {
       return fromSegments
     }
@@ -493,11 +493,11 @@ const answerText = computed(() => {
 const answerBlocks = computed((): AnswerBlock[] => {
   if (props.role !== 'ai' || hasStructuredSegments.value) return []
   const segs =
-    props.segments?.filter((s) => s.type !== 'thought' && s.type !== 'tool') ?? []
+      props.segments?.filter((s) => s.type !== 'thought' && s.type !== 'tool') ?? []
   if (!segs.length) {
     const c = (props.content || '').trim()
     if (!c) return []
-    return [{ kind: 'md', content: props.content || '' }]
+    return [{kind: 'md', content: props.content || ''}]
   }
   return segmentsToAnswerBlocks(segs)
 })
@@ -505,7 +505,7 @@ const answerBlocks = computed((): AnswerBlock[] => {
 const allAnswerBlocks = computed((): AnswerBlock[] => {
   if (!hasStructuredSegments.value) return answerBlocks.value
   return segmentsToAnswerBlocks(
-    props.segments?.filter((s) => s.type !== 'thought' && s.type !== 'tool') ?? []
+      props.segments?.filter((s) => s.type !== 'thought' && s.type !== 'tool') ?? []
   )
 })
 
@@ -514,23 +514,23 @@ function renderMarkdownBlock(src: string): string {
 }
 
 watch(
-  () => thoughtTextLegacy.value,
-  () => {
-    if (!thoughtTextLegacy.value) {
-      isThoughtExpanded.value = true
-      hasManualThoughtToggle.value = false
-      return
+    () => thoughtTextLegacy.value,
+    () => {
+      if (!thoughtTextLegacy.value) {
+        isThoughtExpanded.value = true
+        hasManualThoughtToggle.value = false
+        return
+      }
+      if (shouldShowThoughtToggle.value && !hasManualThoughtToggle.value) {
+        isThoughtExpanded.value = false
+      }
+      if (props.streaming && isThoughtExpanded.value) {
+        nextTick(() => {
+          const el = thoughtRef.value
+          if (el) el.scrollTop = el.scrollHeight
+        })
+      }
     }
-    if (shouldShowThoughtToggle.value && !hasManualThoughtToggle.value) {
-      isThoughtExpanded.value = false
-    }
-    if (props.streaming && isThoughtExpanded.value) {
-      nextTick(() => {
-        const el = thoughtRef.value
-        if (el) el.scrollTop = el.scrollHeight
-      })
-    }
-  }
 )
 
 const toggleThought = () => {
@@ -757,6 +757,7 @@ const handleCodeCopy = (e: MouseEvent) => {
 .typing-loader span:nth-child(2) {
   animation-delay: 0.15s;
 }
+
 .typing-loader span:nth-child(3) {
   animation-delay: 0.3s;
 }
@@ -813,12 +814,15 @@ const handleCodeCopy = (e: MouseEvent) => {
 .markdown-renderer :deep(h1) {
   font-size: 1.35em;
 }
+
 .markdown-renderer :deep(h2) {
   font-size: 1.2em;
 }
+
 .markdown-renderer :deep(h3) {
   font-size: 1.08em;
 }
+
 .markdown-renderer :deep(h4) {
   font-size: 1em;
 }

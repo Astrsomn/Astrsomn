@@ -1,53 +1,55 @@
 <template>
-  <AdminPageShell title="业务幂等" description="用于防重复提交：按幂等键、业务类型与业务 ID 查询与清理。" empty-text="暂无幂等记录。">
+  <AstPageShell description="用于防重复提交：按幂等键、业务类型与业务 ID 查询与清理。" empty-text="暂无幂等记录。"
+                     title="业务幂等">
     <div class="page-wrap">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill v-model="query.idempotentKey" placeholder="搜索幂等键 idempotentKey" @search="onSearch" />
+              <AstSearchInput v-model="query.idempotentKey" placeholder="搜索幂等键 idempotentKey"
+                                  @search="onSearch"/>
               <a-input
-                v-model:value="query.bizType"
-                class="toolbar-input"
-                allow-clear
-                placeholder="bizType"
-                @pressEnter="onSearch"
+                  v-model:value="query.bizType"
+                  allow-clear
+                  class="toolbar-input"
+                  placeholder="bizType"
+                  @pressEnter="onSearch"
               />
               <a-input
-                v-model:value="query.bizId"
-                class="toolbar-input"
-                allow-clear
-                placeholder="bizId"
-                @pressEnter="onSearch"
+                  v-model:value="query.bizId"
+                  allow-clear
+                  class="toolbar-input"
+                  placeholder="bizId"
+                  @pressEnter="onSearch"
               />
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="segmentedButtons" />
+              <AstegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
         </template>
 
         <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="selectedRowKeys.length"
-            :all-current-selected="allCurrentSelected"
-            :part-current-selected="partCurrentSelected"
-            :show-actions="list.length > 0"
-            :summary-text="`当前页 ${list.length} 条幂等记录，已选 ${selectedRowKeys.length} 条。`"
-            @toggle-select-all="toggleSelectAllCurrentPage"
+          <AstOverview
+              :all-current-selected="allCurrentSelected"
+              :list-length="list.length"
+              :part-current-selected="partCurrentSelected"
+              :selected-count="selectedRowKeys.length"
+              :show-actions="list.length > 0"
+              :summary-text="`当前页 ${list.length} 条幂等记录，已选 ${selectedRowKeys.length} 条。`"
+              @toggle-select-all="toggleSelectAllCurrentPage"
           />
         </template>
 
-        <AstrsomnDataView
-          :data-source="list"
-          :columns="columns"
-          row-key="id"
-          mode="table"
-          :pagination="false"
-          :loading="loading"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1280 }"
+        <AstDataView
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :pagination="false"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1280 }"
+            mode="table"
+            row-key="id"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'idempotentKey'">
@@ -57,64 +59,69 @@
               <span class="mono">{{ record.expireAtMs ?? '—' }}</span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" size="small" @click="openDetail(record.id)">详情</a-button>
-              <a-divider type="vertical" />
-              <a-popconfirm title="确定删除该记录吗？" ok-text="确认" cancel-text="取消" @confirm="() => handleDeleteOne(record.id)">
-                <a-button type="link" size="small" danger>删除</a-button>
+              <a-button size="small" type="link" @click="openDetail(record.id)">详情</a-button>
+              <a-divider type="vertical"/>
+              <a-popconfirm cancel-text="取消" ok-text="确认" title="确定删除该记录吗？"
+                            @confirm="() => handleDeleteOne(record.id)">
+                <a-button danger size="small" type="link">删除</a-button>
               </a-popconfirm>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total" @change="onPageChange" />
+          <AstPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
+                              @change="onPageChange"/>
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
     </div>
 
-    <a-drawer v-model:open="detail.open" title="幂等记录详情" width="720" destroy-on-close>
+    <a-drawer v-model:open="detail.open" destroy-on-close title="幂等记录详情" width="720">
       <template v-if="detail.loading">
-        <a-skeleton active />
+        <a-skeleton active/>
       </template>
       <template v-else>
-        <a-descriptions bordered size="small" :column="1">
+        <a-descriptions :column="1" bordered size="small">
           <a-descriptions-item label="ID">{{ detail.data?.id ?? '—' }}</a-descriptions-item>
-          <a-descriptions-item label="幂等键"><span class="mono">{{ detail.data?.idempotentKey ?? '—' }}</span></a-descriptions-item>
+          <a-descriptions-item label="幂等键"><span class="mono">{{ detail.data?.idempotentKey ?? '—' }}</span>
+          </a-descriptions-item>
           <a-descriptions-item label="业务类型">{{ detail.data?.bizType ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="业务 ID">{{ detail.data?.bizId ?? '—' }}</a-descriptions-item>
-          <a-descriptions-item label="请求 Hash"><span class="mono">{{ detail.data?.requestHash ?? '—' }}</span></a-descriptions-item>
+          <a-descriptions-item label="请求 Hash"><span class="mono">{{ detail.data?.requestHash ?? '—' }}</span>
+          </a-descriptions-item>
           <a-descriptions-item label="结果引用">{{ detail.data?.resultRef ?? '—' }}</a-descriptions-item>
-          <a-descriptions-item label="过期时间(ms)"><span class="mono">{{ detail.data?.expireAtMs ?? '—' }}</span></a-descriptions-item>
+          <a-descriptions-item label="过期时间(ms)"><span class="mono">{{ detail.data?.expireAtMs ?? '—' }}</span>
+          </a-descriptions-item>
           <a-descriptions-item label="环境">{{ detail.data?.envCode ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="创建时间">{{ detail.data?.createTime ?? '—' }}</a-descriptions-item>
           <a-descriptions-item label="更新时间">{{ detail.data?.updateTime ?? '—' }}</a-descriptions-item>
         </a-descriptions>
       </template>
     </a-drawer>
-  </AdminPageShell>
+  </AstPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import { DeleteOutlined, FilterOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
-import { aiWorkflowOpsApi, type BizIdempotentQuery, type BizIdempotentRecord } from '@/api/aiWorkflowOps'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {DeleteOutlined, FilterOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstOverview from '@/components/home/AstOverview.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import {aiWorkflowOpsApi, type BizIdempotentQuery, type BizIdempotentRecord} from '@/api/aiWorkflowOps'
 
 const columns = [
-  { title: 'ID', dataIndex: 'id', key: 'id', width: 120 },
-  { title: '幂等键', key: 'idempotentKey', width: 260, ellipsis: true },
-  { title: '业务类型', dataIndex: 'bizType', key: 'bizType', width: 160, ellipsis: true },
-  { title: '业务 ID', dataIndex: 'bizId', key: 'bizId', width: 180, ellipsis: true },
-  { title: '过期时间(ms)', key: 'expireAtMs', width: 160 },
-  { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180 },
-  { title: '操作', key: 'actions', width: 140, fixed: 'right' as const }
+  {title: 'ID', dataIndex: 'id', key: 'id', width: 120},
+  {title: '幂等键', key: 'idempotentKey', width: 260, ellipsis: true},
+  {title: '业务类型', dataIndex: 'bizType', key: 'bizType', width: 160, ellipsis: true},
+  {title: '业务 ID', dataIndex: 'bizId', key: 'bizId', width: 180, ellipsis: true},
+  {title: '过期时间(ms)', key: 'expireAtMs', width: 160},
+  {title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180},
+  {title: '操作', key: 'actions', width: 140, fixed: 'right' as const}
 ]
 
 const query = reactive<BizIdempotentQuery>({
@@ -135,9 +142,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {

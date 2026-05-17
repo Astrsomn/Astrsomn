@@ -1,14 +1,14 @@
 <template>
-  <article class="plugin-card" :class="{ selected: isSelected }">
+  <article :class="{ selected: isSelected }" class="plugin-card">
     <div class="plugin-main">
       <div class="plugin-icon">
-        <img v-if="item.avatar?.trim()" class="avatar-img" :src="item.avatar" :alt="item.extensionName" />
-        <component :is="iconComponent" v-else />
+        <img v-if="item.avatar?.trim()" :alt="item.extensionName" :src="item.avatar" class="avatar-img"/>
+        <component :is="iconComponent" v-else/>
       </div>
       <div class="plugin-info">
-        <div class="status-row" v-if="showActions">
-          <span class="status-dot" :class="item.applied === 'Y' ? 'enabled' : 'disabled'" />
-          <span class="status-text" :class="item.applied === 'Y' ? 'enabled' : 'disabled'">
+        <div v-if="showActions" class="status-row">
+          <span :class="item.applied === 'Y' ? 'enabled' : 'disabled'" class="status-dot"/>
+          <span :class="item.applied === 'Y' ? 'enabled' : 'disabled'" class="status-text">
             {{ item.applied === 'Y' ? '已启用' : '未启用' }}
           </span>
         </div>
@@ -28,63 +28,81 @@
     <div class="action-row">
       <template v-if="showActions">
         <a-button
-          v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
-          type="default"
-          class="action-btn"
-          @click="$emit('loadModels', item)"
+            v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
+            class="action-btn"
+            type="default"
+            @click="$emit('loadModels', item)"
         >
-          <template #icon><CloudDownloadOutlined /></template>
+          <template #icon>
+            <CloudDownloadOutlined/>
+          </template>
           加载模型
         </a-button>
         <a-button
-          v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
-          danger
-          class="action-btn"
-          @click="$emit('unloadModels', item)"
+            v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
+            class="action-btn"
+            danger
+            @click="$emit('unloadModels', item)"
         >
-          <template #icon><RestOutlined /></template>
+          <template #icon>
+            <RestOutlined/>
+          </template>
           卸载模型
         </a-button>
         <a-popconfirm
-          v-if="item.applied === 'N'"
-          title="确定应用该插件吗？"
-          ok-text="确定"
-          cancel-text="取消"
-          @confirm="$emit('apply', item.id)"
+            v-if="item.applied === 'N'"
+            cancel-text="取消"
+            ok-text="确定"
+            title="确定应用该插件吗？"
+            @confirm="$emit('apply', item.id)"
         >
-          <a-button type="primary" class="action-btn">
-            <template #icon><CaretRightOutlined /></template>
+          <a-button class="action-btn" type="primary">
+            <template #icon>
+              <CaretRightOutlined/>
+            </template>
             启用插件
           </a-button>
         </a-popconfirm>
         <a-popconfirm
-          v-else
-          title="确定取消启用吗？插件将恢复为未启用状态。"
-          ok-text="确定"
-          cancel-text="取消"
-          @confirm="$emit('revokeApply', item.id)"
+            v-else
+            cancel-text="取消"
+            ok-text="确定"
+            title="确定取消启用吗？插件将恢复为未启用状态。"
+            @confirm="$emit('revokeApply', item.id)"
         >
           <a-button class="action-btn">
-            <template #icon><PauseOutlined /></template>
+            <template #icon>
+              <PauseOutlined/>
+            </template>
             禁用插件
           </a-button>
         </a-popconfirm>
         <a-popconfirm
-          v-if="isUninstallable"
-          title="确定卸载该插件吗？"
-          ok-text="确定"
-          cancel-text="取消"
-          @confirm="$emit('uninstall', item.id)"
+            v-if="isUninstallable"
+            cancel-text="取消"
+            ok-text="确定"
+            title="确定卸载该插件吗？"
+            @confirm="$emit('uninstall', item.id)"
         >
-          <a-button danger class="action-btn icon-btn">
-            <template #icon><DeleteOutlined /></template>
+          <a-button class="action-btn icon-btn" danger>
+            <template #icon>
+              <DeleteOutlined/>
+            </template>
           </a-button>
         </a-popconfirm>
-   
+
       </template>
       <template v-else>
-        <a-button type="primary" class="action-btn" @click="$emit('install', item)">
-          <template #icon><DownloadOutlined /></template>
+        <a-button v-if="item.installed" class="action-btn" disabled>
+          <template #icon>
+            <CheckCircleOutlined/>
+          </template>
+          已安装
+        </a-button>
+        <a-button v-else class="action-btn" type="primary" @click="$emit('install', item)">
+          <template #icon>
+            <DownloadOutlined/>
+          </template>
           安装到环境
         </a-button>
       </template>
@@ -92,12 +110,13 @@
   </article>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
 import {
   AppstoreOutlined,
   BuildOutlined,
   CaretRightOutlined,
+  CheckCircleOutlined,
   CloudDownloadOutlined,
   DeleteOutlined,
   DownloadOutlined,
@@ -105,7 +124,12 @@ import {
   RestOutlined,
   RocketOutlined
 } from '@ant-design/icons-vue'
-import { extensionTypeLabel, isUninstallableExtension, preview, type ExtensionRow } from '@/views/admin/system-config/system-extension/model-dialog/extensionDisplay.ts'
+import {
+  type ExtensionRow,
+  extensionTypeLabel,
+  isUninstallableExtension,
+  preview
+} from '@/views/admin/system-config/system-extension/utils/extensionDisplay.ts'
 
 const props = defineProps<{
   item: ExtensionRow
@@ -134,23 +158,22 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 
 <style scoped>
 .plugin-card {
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   padding: 18px;
   transition: all 0.3s ease;
-  background: #fff;
-  border-top: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  background: var(--bg-card);
 }
 
 .plugin-card:hover {
-  border-color: #dbeafe;
+  border-color: var(--primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .plugin-card.selected {
-  border-color: #3b82f6;
-  background: #f8fafc;
+  border-color: var(--primary);
+  background: var(--primary-hover);
 }
 
 .plugin-main {
@@ -164,8 +187,8 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
   width: 64px;
   height: 64px;
   border-radius: 10px;
-  background: #eff6ff;
-  color: #3b82f6;
+  background: var(--primary-hover);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -198,11 +221,11 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 }
 
 .status-dot.enabled {
-  background: #3b82f6;
+  background: var(--primary);
 }
 
 .status-dot.disabled {
-  background: #cbd5e1;
+  background: var(--text-muted);
 }
 
 .status-text {
@@ -211,22 +234,22 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 }
 
 .status-text.enabled {
-  color: #3b82f6;
+  color: var(--primary);
 }
 
 .status-text.disabled {
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .plugin-title {
   margin: 0;
   font-size: 18px;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .plugin-meta {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
@@ -241,18 +264,18 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
   padding: 2px 8px;
   border-radius: 8px;
   font-size: 12px;
-  color: #2563eb;
-  background: #eff6ff;
+  color: var(--primary);
+  background: var(--primary-hover);
 }
 
 .tag.soft {
-  color: #94a3b8;
-  background: #f8fafc;
-  border: 1px solid #f1f5f9;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
 }
 
 .plugin-desc {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 14px;
   line-height: 1.6;
 }

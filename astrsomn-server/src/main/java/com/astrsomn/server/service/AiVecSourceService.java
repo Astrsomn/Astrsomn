@@ -1,15 +1,11 @@
 package com.astrsomn.server.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.dto.vecsource.*;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceSetStatusRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface AiVecSourceService extends IService<AiVecSourceEntity> {
 

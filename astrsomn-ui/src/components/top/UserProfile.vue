@@ -7,17 +7,17 @@
     <template #overlay>
       <a-menu class="custom-dropdown" @click="handleMenuClick">
         <a-menu-item key="home">
-          <home-outlined /> <span>立即聊天</span>
-        </a-menu-item>
-        <a-menu-item key="admin">
-          <setting-outlined /> <span>管理后台</span>
+          <home-outlined/>
+          <span>立即聊天</span>
         </a-menu-item>
         <a-menu-item key="config">
-          <setting-outlined /> <span>配置中心</span>
+          <setting-outlined/>
+          <span>管理后台</span>
         </a-menu-item>
-        <a-menu-divider />
+        <a-menu-divider/>
         <a-menu-item key="logout" class="logout-item">
-          <logout-outlined /> <span>退出登录</span>
+          <logout-outlined/>
+          <span>退出登录</span>
         </a-menu-item>
       </a-menu>
     </template>
@@ -30,14 +30,14 @@ export default {
 }
 </script>
 
-<script setup lang="ts">
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { message } from 'ant-design-vue';
-import { 
-  HomeOutlined, 
-  SettingOutlined, 
-  LogoutOutlined 
+<script lang="ts" setup>
+import {computed} from 'vue';
+import {useRouter} from 'vue-router';
+import {message} from 'ant-design-vue';
+import {
+  HomeOutlined,
+  SettingOutlined,
+  LogoutOutlined
 } from '@ant-design/icons-vue';
 
 const router = useRouter();
@@ -49,15 +49,19 @@ const avatarChar = computed(() => {
       const info = JSON.parse(raw) as { username?: string };
       if (info.username) return info.username.charAt(0).toUpperCase();
     }
-  } catch { /* ignore */ }
+  } catch { /* ignore */
+  }
   return 'U';
 });
 
-const handleMenuClick = ({ key }: { key: string }) => {
+const handleMenuClick = ({key}: { key: string }) => {
   switch (key) {
-    case 'home': router.push('/'); break;
-    case 'admin': router.push('/admin'); break;
-    case 'config': router.push('/admin/system/config'); break;
+    case 'home':
+      router.push('/');
+      break;
+    case 'config':
+      router.push('/admin/system/users');
+      break;
     case 'logout':
       localStorage.clear();
       message.success('已安全退出');

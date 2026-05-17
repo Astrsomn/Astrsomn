@@ -1,15 +1,15 @@
 package com.astrsomn.vector.milvus.service;
 
-import io.milvus.client.MilvusServiceClient;
-import io.milvus.param.ConnectParam;
-import io.milvus.grpc.GetVersionResponse;
-import io.milvus.param.R;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecSource;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecStore;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
 import com.astrsomn.common.utils.StringUtils;
+import io.milvus.client.MilvusServiceClient;
+import io.milvus.grpc.GetVersionResponse;
+import io.milvus.param.ConnectParam;
+import io.milvus.param.R;
 
 public final class MilvusVecSourceHandler extends AbstractVecSource {
 

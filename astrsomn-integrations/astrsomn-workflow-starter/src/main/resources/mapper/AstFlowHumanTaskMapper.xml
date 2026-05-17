@@ -26,10 +26,7 @@
         </if>
         <if test="req != null and req.taskStatus != null and req.taskStatus != ''">
             AND t.TASK_STATUS = #{req.taskStatus}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND t.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         ORDER BY t.UPDATE_TIME DESC, t.ID DESC
     </select>
 
@@ -49,10 +46,7 @@
         t.UPDATE_TIME AS updateTime
         FROM AST_FLOW_HUMAN_TASK t
         WHERE t.ID = #{id}
-        AND (t.DELETED = 0 OR t.DELETED IS NULL)
-        <if test="envCode != null and envCode != ''">
-            AND t.ENV_CODE = #{envCode}
-        </if>
+        AND (t.DELETED = 0 OR t.DELETED IS NULL)
     </select>
 
 </mapper>

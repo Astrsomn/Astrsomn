@@ -1,15 +1,16 @@
 package com.astrsomn.starter.runtime.langchain.runtime.chain.handler;
 
+import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
+import com.astrsomn.common.utils.CryptoUtil;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.langchain.exception.AccountNotFoundException;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeChainHandler;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeContext;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
+import com.astrsomn.starter.runtime.mapper.AstAiAccountMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
-import com.astrsomn.common.utils.CryptoUtil;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AiAccountMapper;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ResolveAccountChainHandler implements AgentRuntimeChainHandler {
 
-    private final AiAccountMapper aiAccountMapper;
+    private final AstAiAccountMapper astAiAccountMapper;
 
     @Override
     public void handle(AgentRuntimeContext ctx) {
@@ -33,15 +34,14 @@ public class ResolveAccountChainHandler implements AgentRuntimeChainHandler {
         if (accountKey == null) {
             return;
         }
-        AiAccountEntity account = aiAccountMapper.selectOne(
+        AiAccountEntity account = astAiAccountMapper.selectOne(
                 new LambdaQueryWrapper<AiAccountEntity>()
                         .eq(AiAccountEntity::getAccountKey, accountKey)
                         .eq(AiAccountEntity::getEnvCode, ctx.getEnvCode())
                         .eq(AiAccountEntity::getDeleted, false)
                         .last("LIMIT 1"));
         if (account == null) {
-            throw new IllegalStateException(
-                    "未找到账号配置: accountKey=" + accountKey + ", envCode=" + ctx.getEnvCode());
+            throw new AccountNotFoundException(accountKey, ctx.getEnvCode());
         }
         // 解密 API Key 和 Secret
         if (account.getApiKey() != null) {

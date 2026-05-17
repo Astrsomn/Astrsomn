@@ -1,53 +1,53 @@
 <template>
-  <AdminPageShell
-    title="向量源"
-    description="配置向量数据库连接信息，支持 Milvus、Pinecone、DashVector 等多种向量引擎。"
-    empty-text="暂无向量源配置。"
+  <AstPageShell
+      description="配置向量数据库连接信息，支持 Milvus、Pinecone、DashVector 等多种向量引擎。"
+      empty-text="暂无向量源配置。"
+      title="向量源"
   >
     <div class="vecsource-page">
-      <AdminListToolbar>
+      <AstListToolbar>
         <template #left>
-          <AstrsomnSearchPill
-            v-model="query.name"
-            placeholder="搜索向量源名称"
-            button-label="搜索"
-            layout="toolbar"
-            @search="fetchList"
+          <AstSearchInput
+              v-model="query.name"
+              button-label="搜索"
+              layout="toolbar"
+              placeholder="搜索向量源名称"
+              @search="fetchList"
           />
 
-          <AstrsomnStateSwitch
-            v-model="query.status"
-            @change="fetchList"
-            :options="[
+          <AstStatusSwitch
+              v-model="query.status"
+              :options="[
               { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
               { label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
               { label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined }
             ]"
+              @change="fetchList"
           />
         </template>
 
         <template #right>
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+          <AstegmentedButton :buttons="toolbarSegmentButtons"/>
         </template>
-      </AdminListToolbar>
+      </AstListToolbar>
 
-      <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条向量源，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
+      <AstOverview
+          :all-current-selected="allCurrentSelected"
+          :list-length="list.length"
+          :part-current-selected="partCurrentSelected"
+          :selected-count="selectedRowKeys.length"
+          :show-actions="list.length > 0"
+          :summary-text="`当前页 ${list.length} 条向量源，已选 ${selectedRowKeys.length} 条。`"
+          @toggle-select-all="toggleSelectAllCurrentPage"
       />
 
       <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1280 }"
+          :columns="columns"
+          :data-source="list"
+          :pagination="false"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1280 }"
+          row-key="id"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'source'">
@@ -70,59 +70,69 @@
             </div>
           </template>
           <template v-else-if="column.key === 'provider'">
-            <span class="type-pill" :class="`type-pill-${String(record.provider || '').toLowerCase()}`">
+            <span :class="`type-pill-${String(record.provider || '').toLowerCase()}`" class="type-pill">
               {{ getProviderLabel(record.provider) }}
             </span>
           </template>
           <template v-else-if="column.key === 'status'">
-            <span class="status-pill" :class="{ off: !isRecordEnabled(record) }">
+            <span :class="{ off: !isRecordEnabled(record) }" class="status-pill">
               {{ isRecordEnabled(record) ? '启用' : '禁用' }}
             </span>
           </template>
           <template v-else-if="column.key === 'actions'">
             <a-popconfirm
-              v-if="isRecordEnabled(record)"
-              title="确定禁用该向量源？将释放运行时连接。"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleSetStatus(record, false)"
+                v-if="isRecordEnabled(record)"
+                cancel-text="取消"
+                ok-text="确认"
+                title="确定禁用该向量源？将释放运行时连接。"
+                @confirm="() => handleSetStatus(record, false)"
             >
-              <a-button type="link" class="action-link">
-                <template #icon><StopOutlined /></template>
+              <a-button class="action-link" type="link">
+                <template #icon>
+                  <StopOutlined/>
+                </template>
                 禁用
               </a-button>
             </a-popconfirm>
             <a-popconfirm
-              v-else
-              title="确定启用该向量源？将加载运行时连接。"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleSetStatus(record, true)"
+                v-else
+                cancel-text="取消"
+                ok-text="确认"
+                title="确定启用该向量源？将加载运行时连接。"
+                @confirm="() => handleSetStatus(record, true)"
             >
-              <a-button type="link" class="action-link">
-                <template #icon><CheckCircleOutlined /></template>
+              <a-button class="action-link" type="link">
+                <template #icon>
+                  <CheckCircleOutlined/>
+                </template>
                 启用
               </a-button>
             </a-popconfirm>
-            <a-divider type="vertical" />
-            <a-button type="link" class="action-link" @click="openEdit(record)">
-              <template #icon><edit-outlined /></template>
+            <a-divider type="vertical"/>
+            <a-button class="action-link" type="link" @click="openEdit(record)">
+              <template #icon>
+                <edit-outlined/>
+              </template>
               编辑
             </a-button>
-            <a-divider type="vertical" />
-            <a-button type="link" class="action-link" @click="testConnection(record)">
-              <template #icon><ReloadOutlined /></template>
+            <a-divider type="vertical"/>
+            <a-button class="action-link" type="link" @click="testConnection(record)">
+              <template #icon>
+                <ReloadOutlined/>
+              </template>
               测试连接
             </a-button>
-            <a-divider type="vertical" />
+            <a-divider type="vertical"/>
             <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
+                cancel-text="取消"
+                ok-text="确认"
+                title="确定删除吗？"
+                @confirm="() => handleDeleteOne(record.id)"
             >
-              <a-button type="link" danger class="action-link">
-                <template #icon><delete-outlined /></template>
+              <a-button class="action-link" danger type="link">
+                <template #icon>
+                  <delete-outlined/>
+                </template>
                 删除
               </a-button>
             </a-popconfirm>
@@ -132,28 +142,28 @@
 
       <div class="pagination-wrap">
         <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :show-size-changer="false"
+            :total="page.total"
+            @change="onPageChange"
         />
       </div>
 
       <VecSourceFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
 import {
   CheckCircleOutlined,
   DeleteOutlined,
@@ -162,14 +172,14 @@ import {
   ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
-import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstListToolbar from '@/components/home/AstListToolbar.vue'
+import AstOverview from '@/components/home/AstOverview.vue'
+import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import VecSourceFormModal from './VecSourceFormModal.vue'
-import { aiVecSourceApi, type AiVecSource, type PageResponse } from '@/api/aiVecSource.ts'
+import {type AiVecSource, aiVecSourceApi, type PageResponse} from '@/api/aiVecSource.ts'
 
 type QueryState = {
   name?: string
@@ -178,11 +188,11 @@ type QueryState = {
 }
 
 const columns = [
-  { title: '向量源名称', key: 'source', width: 240 },
-  { title: '提供商', dataIndex: 'provider', key: 'provider', width: 140 },
-  { title: '连接信息', key: 'connection', width: 380 },
-  { title: '状态', key: 'status', width: 100 },
-  { title: '操作', key: 'actions', width: 300, fixed: 'right' as const }
+  {title: '向量源名称', key: 'source', width: 240},
+  {title: '提供商', dataIndex: 'provider', key: 'provider', width: 140},
+  {title: '连接信息', key: 'connection', width: 380},
+  {title: '状态', key: 'status', width: 100},
+  {title: '操作', key: 'actions', width: 300, fixed: 'right' as const}
 ]
 
 const providerLabelMap: Record<string, string> = {
@@ -229,9 +239,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -365,7 +375,7 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: AiVecSource) => {
   modal.submitting = true
   try {
-    const payload: AiVecSource = { ...form }
+    const payload: AiVecSource = {...form}
 
     let msg: string
     if (modal.mode === 'create') {

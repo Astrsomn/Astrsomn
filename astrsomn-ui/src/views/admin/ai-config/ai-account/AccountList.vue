@@ -1,69 +1,69 @@
 <template>
-  <AdminPageShell
-      title="凭证管理"
-      description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
-      empty-text="暂无账号。"
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
+      description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
+      empty-text="暂无账号。"
+      title="凭证管理"
   >
     <div ref="pageRef" class="account-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
+              <AstSearchInput
                   v-model="query.accountName"
+                  button-label="查询"
                   layout="toolbar"
                   placeholder="账号名称"
-                  button-label="查询"
                   @search="fetchList"
               />
               <div class="provider-filter">
                 <ExtensionSelector
                     v-model:value="query.extensionCode"
-                    placeholder="根据供应商筛选"
                     :allow-clear="true"
-                    size="middle"
                     :only-applied="true"
+                    placeholder="根据供应商筛选"
+                    size="middle"
                     @update:value="onProviderChange"
                 />
               </div>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons"/>
+              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
 
-        <AstrsomnDataView
-            :mode="dataViewMode"
+        <AstDataView
+            :card-columns="currentGridColumns"
+            :card-gap="accountCardGap"
+            :card-min-width="accountCardMinWidth"
+            :columns="columns"
             :data-source="list"
             :loading="loading"
-            :columns="columns"
+            :mode="dataViewMode"
             :row-selection="rowSelection"
-            row-key="id"
             :scroll="{ x: 1180 }"
             empty-text="暂无匹配的账号"
-            :card-columns="currentGridColumns"
-            :card-min-width="accountCardMinWidth"
-            :card-gap="accountCardGap"
+            row-key="id"
         >
           <template #card="{ record }">
             <AccountCard
                 :account="record"
                 :selected="record.id != null && selectedKeySet.has(record.id)"
-                @edit="goEdit"
                 @delete="handleDeleteOne"
-                @show-models="openModelsDrawer"
+                @edit="goEdit"
                 @toggle="onToggleSelect"
+                @show-models="openModelsDrawer"
             />
           </template>
 
           <template #bodyCell="{ column, record }">
-     
+
             <template v-if="column.key === 'callCount'">
               <span class="metric-chip metric-chip--call">
                 <span class="metric-value">{{ Number(record.callCount ?? 0).toLocaleString() }}</span>
@@ -87,7 +87,9 @@
 
             <template v-else-if="column.key === 'remainingTokens'">
               <span class="metric-chip metric-chip--remain">
-                <span class="metric-value">{{ Number((record.accountTokens ?? 0) - (record.totalTokens ?? 0)).toLocaleString() }}</span>
+                <span class="metric-value">{{
+                    Number((record.accountTokens ?? 0) - (record.totalTokens ?? 0)).toLocaleString()
+                  }}</span>
                 <span class="metric-unit">tokens</span>
               </span>
             </template>
@@ -95,34 +97,34 @@
             <template v-else-if="column.key === 'apiKey'">
               <span class="secret-mask">{{ maskSecret(record.apiKey) }}</span>
             </template>
-    
+
             <template v-else-if="column.key === 'actions'">
               <a-space>
-                <a-button type="link" size="small" @click="goEdit(record)">
+                <a-button size="small" type="link" @click="goEdit(record)">
                   <EditOutlined/>
                 </a-button>
-                <a-button type="link" size="small" @click="openModelsDrawer(record)">
+                <a-button size="small" type="link" @click="openModelsDrawer(record)">
                   <LinkOutlined/>
                 </a-button>
                 <a-popconfirm title="确定删除吗？" @confirm="() => handleDeleteOne(record.id)">
-                  <a-button type="link" danger size="small">
+                  <a-button danger size="small" type="link">
                     <DeleteOutlined/>
                   </a-button>
                 </a-popconfirm>
               </a-space>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
+          <AstPagination
               :current="page.pageNum"
               :page-size="page.pageSize"
               :total="page.total"
               @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
       <AccountForm
           v-model:visible="formVisible"
@@ -136,31 +138,31 @@
         :loading="modelsDrawer.loading"
         :models="modelsDrawer.models"
     />
-  </AdminPageShell>
+  </AstPageShell>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import {message, Modal} from 'ant-design-vue'
-import {
-  DeleteOutlined,
-  EditOutlined,
-  LinkOutlined,
-  PlusOutlined,
-  ReloadOutlined
-} from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, {type SegmentedButton} from '@/components/home/AstrsomnSegmentedButton.vue'
-import AccountForm from './AccountForm.vue'
-import AccountModelsDrawer from './AccountModelsDrawer.vue'
-import AccountCard from './AccountCard.vue'
-import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
-import {aiAccountApi, type AiAccount, type PageResponse} from '@/api/aiAccount'
+import {DeleteOutlined, EditOutlined, LinkOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AccountForm from './component/AccountForm.vue'
+import AccountModelsDrawer from './component/AccountModelsDrawer.vue'
+import AccountCard from './component/AccountCard.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
+import {type AiAccount, aiAccountApi, type PageResponse} from '@/api/aiAccount'
 import type {AiModel} from '@/api/aiModel'
+
+const props = withDefaults(defineProps<{
+  initialViewMode?: 'grid' | 'list'
+}>(), {
+  initialViewMode: 'list'
+})
 
 const ACCOUNT_CARD_MIN_WIDTH_PX = 340
 const ACCOUNT_CARD_GAP_PX = 8
@@ -175,7 +177,7 @@ const breadcrumbs = [
 const pageRef = ref<HTMLElement | null>(null)
 const formVisible = ref(false)
 const currentRecord = ref<AiAccount | undefined>(undefined)
-const viewMode = ref<'grid' | 'list'>('list')
+const viewMode = ref<'grid' | 'list'>(props.initialViewMode)
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 const currentGridColumns = ref(3)
 
@@ -186,7 +188,14 @@ type QueryState = {
 }
 
 const columns = [
-{title: '供应商', key: 'providerAvatar', dataIndex: 'providerAvatar', width: 80, align: 'center', enableBase64Render: true},
+  {
+    title: '供应商',
+    key: 'providerAvatar',
+    dataIndex: 'providerAvatar',
+    width: 80,
+    align: 'center',
+    enableBase64Render: true
+  },
   {title: '账号名称', dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true},
   {title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true},
   {title: '调用次数', dataIndex: 'callCount', key: 'callCount', width: 140, align: 'center'},
@@ -196,7 +205,15 @@ const columns = [
 
   {title: '扩展名称', dataIndex: 'extensionName', key: 'extensionName', width: 120, ellipsis: true},
   {title: '请求路径', dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true},
-  {title: '状态', dataIndex: 'status', key: 'status', width: 120, ellipsis: true, tag: true, tagColor: (status: string) => status === 'enabled' ? 'green' : 'red'},
+  {
+    title: '状态',
+    dataIndex: 'status',
+    key: 'status',
+    width: 120,
+    ellipsis: true,
+    tag: true,
+    tagColor: (status: string) => status === 'enabled' ? 'green' : 'red'
+  },
   {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},

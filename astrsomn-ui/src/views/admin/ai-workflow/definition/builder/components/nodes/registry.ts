@@ -1,5 +1,5 @@
-import type { Component } from 'vue'
-import type { WorkflowNodeType } from '../../domain/types.ts'
+import type {Component} from 'vue'
+import type {WorkflowNodeType} from '../../domain/types.ts'
 
 import StartCanvasNode from './control/start/CanvasNode.vue'
 import EndCanvasNode from './control/end/CanvasNode.vue'
@@ -26,30 +26,30 @@ import CodeInspectorPanel from './tool/code/InspectorPanel.vue'
 import ToolsInspectorPanel from './tool/tools/InspectorPanel.vue'
 
 export const nodeCanvasTypes: Record<WorkflowNodeType, Component> = {
-  start: StartCanvasNode,
-  end: EndCanvasNode,
-  parallel: ParallelCanvasNode,
-  llm: LlmCanvasNode,
-  retrieval: RetrievalCanvasNode,
-  'if-else': IfElseCanvasNode,
-  'intent-classifier': IntentClassifierCanvasNode,
-  merge: MergeCanvasNode,
-  http: HttpCanvasNode,
-  code: CodeCanvasNode,
-  tools: ToolsCanvasNode
+    start: StartCanvasNode,
+    end: EndCanvasNode,
+    parallel: ParallelCanvasNode,
+    llm: LlmCanvasNode,
+    retrieval: RetrievalCanvasNode,
+    'if-else': IfElseCanvasNode,
+    'intent-classifier': IntentClassifierCanvasNode,
+    merge: MergeCanvasNode,
+    http: HttpCanvasNode,
+    code: CodeCanvasNode,
+    tools: ToolsCanvasNode
 }
 
 export const nodeInspectorMap: Record<WorkflowNodeType, Component> = {
-  start: StartInspectorPanel,
-  end: EndInspectorPanel,
-  parallel: ParallelInspectorPanel,
-  llm: LlmInspectorPanel,
-  retrieval: RetrievalInspectorPanel,
-  'if-else': IfElseInspectorPanel,
-  'intent-classifier': IntentClassifierInspectorPanel,
-  merge: MergeInspectorPanel,
-  http: HttpInspectorPanel,
-  code: CodeInspectorPanel,
-  tools: ToolsInspectorPanel
+    start: StartInspectorPanel,
+    end: EndInspectorPanel,
+    parallel: ParallelInspectorPanel,
+    llm: LlmInspectorPanel,
+    retrieval: RetrievalInspectorPanel,
+    'if-else': IfElseInspectorPanel,
+    'intent-classifier': IntentClassifierInspectorPanel,
+    merge: MergeInspectorPanel,
+    http: HttpInspectorPanel,
+    code: CodeInspectorPanel,
+    tools: ToolsInspectorPanel
 }
 

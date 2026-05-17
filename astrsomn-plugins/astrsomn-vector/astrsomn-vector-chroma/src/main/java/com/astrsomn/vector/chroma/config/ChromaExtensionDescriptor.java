@@ -1,12 +1,13 @@
 package com.astrsomn.vector.chroma.config;
 
+import com.astrsomn.api.vector.constant.AiVecDriverEnum;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Properties;
-import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 
 public class ChromaExtensionDescriptor extends AstroExtensionDescriptor {
 
@@ -15,6 +16,19 @@ public class ChromaExtensionDescriptor extends AstroExtensionDescriptor {
     private static final String AVATAR_BASE64 =
             loadClasspathUtf8(ChromaExtensionDescriptor.class, "/avatar/chroma-avatar.base64");
     private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
+
+    private static Properties loadExtensionProperties() {
+        try (InputStream inputStream = ChromaExtensionDescriptor.class.getResourceAsStream("/extension-chroma.properties")) {
+            if (inputStream == null) {
+                return new Properties();
+            }
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load /extension-chroma.properties", e);
+        }
+    }
 
     @Override
     public String getExtensionKey() {
@@ -64,18 +78,5 @@ public class ChromaExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public String getMinServerVersion() {
         return EXTENSION_PROPERTIES.getProperty("minServerVersion", "");
-    }
-
-    private static Properties loadExtensionProperties() {
-        try (InputStream inputStream = ChromaExtensionDescriptor.class.getResourceAsStream("/extension-chroma.properties")) {
-            if (inputStream == null) {
-                return new Properties();
-            }
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties;
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to load /extension-chroma.properties", e);
-        }
     }
 }

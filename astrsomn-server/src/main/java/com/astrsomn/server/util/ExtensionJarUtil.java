@@ -1,10 +1,10 @@
 package com.astrsomn.server.util;
 
+import com.astrsomn.system.dto.extension.SystemExtensionMetaData;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
-import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.api.runtime.common.dto.extension.SystemExtensionMetaData;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;

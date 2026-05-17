@@ -25,10 +25,7 @@
         </if>
         <if test="req != null and req.nodeType != null and req.nodeType != ''">
             AND c.NODE_TYPE = #{req.nodeType}
-        </if>
-        <if test="req != null and req.envCode != null and req.envCode != ''">
-            AND c.ENV_CODE = #{req.envCode}
-        </if>
+        </if>
         ORDER BY c.UPDATE_TIME DESC, c.ID DESC
     </select>
 
@@ -47,10 +44,7 @@
         c.UPDATE_TIME AS updateTime
         FROM AST_FLOW_NODE_CONFIG c
         WHERE c.ID = #{id}
-        AND (c.DELETED = 0 OR c.DELETED IS NULL)
-        <if test="envCode != null and envCode != ''">
-            AND c.ENV_CODE = #{envCode}
-        </if>
+        AND (c.DELETED = 0 OR c.DELETED IS NULL)
     </select>
 
 </mapper>

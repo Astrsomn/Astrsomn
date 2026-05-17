@@ -1,33 +1,35 @@
 package com.astrsomn.server.service.impl;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceResponseDTO;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.AiInstanceErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiInstanceMapper;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.server.mapper.AiInstanceMapper;
 import com.astrsomn.server.service.AiInstanceService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import com.astrsomn.api.runtime.common.utils.PageUtils;
+
 import java.util.Arrays;
-import com.astrsomn.api.runtime.common.utils.PageConverter;
+import java.util.Collections;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInstanceEntity> implements AiInstanceService {
 
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiInstanceCreateRequestDTO request) {
@@ -89,8 +91,15 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
         if (param == null) {
             param = new AiInstanceQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiInstanceResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
+    }
+
+    @Override
+    public List<AiInstanceResponseDTO> queryByBizKeys(List<String> bizKeys) {
+        if (bizKeys == null || bizKeys.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return baseMapper.selectByBizKeys(bizKeys);
     }
 }

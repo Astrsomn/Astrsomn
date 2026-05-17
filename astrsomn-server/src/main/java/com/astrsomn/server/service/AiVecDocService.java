@@ -1,14 +1,15 @@
 package com.astrsomn.server.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocCreateRequestDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocQueryRequestDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocResponseDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocUpdateRequestDTO;
+import com.astrsomn.api.vector.dto.vecdoc.AiVecDocVectorizeProgressDTO;
+import com.astrsomn.api.vector.entity.AiVecDocEntity;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecdoc.AiVecDocUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
+import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface AiVecDocService extends IService<AiVecDocEntity> {
@@ -18,7 +19,7 @@ public interface AiVecDocService extends IService<AiVecDocEntity> {
     /**
      * 保存上传文件并插入待向量化文档记录。
      */
-    BaseResponse<AiVecDocResponseDTO> upload(MultipartFile file, Long collectionId);
+    BaseResponse<AiVecDocResponseDTO> upload(MultipartFile file, Long collectionId, Long folderId);
 
     /**
      * 将待向量化文档读入、切分、嵌入并写入向量库与切片表。
@@ -32,4 +33,18 @@ public interface AiVecDocService extends IService<AiVecDocEntity> {
     PageResponse<AiVecDocResponseDTO> queryPage(BasePageRequest<AiVecDocQueryRequestDTO> request);
 
     BaseResponse<AiVecDocResponseDTO> detail(Long id);
+
+    AiVecDocVectorizeProgressDTO getVectorizeProgress(Long id);
+
+    BaseResponse<String> reVectorize(Long id);
+
+    /**
+     * 仅执行切片：解析文件 → 切分 → 保存切片记录（不生成向量）。
+     */
+    BaseResponse<String> chunk(Long id);
+
+    /**
+     * 重新切片：清除旧切片与向量，重新解析并切分。
+     */
+    BaseResponse<String> reChunk(Long id);
 }

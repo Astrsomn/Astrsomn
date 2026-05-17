@@ -4,9 +4,7 @@ import com.astrsomn.common.base.IError;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * AI Chat 领域错误码。
- */
+
 @Getter
 @AllArgsConstructor
 public enum AiChatErrorEnum implements IError {

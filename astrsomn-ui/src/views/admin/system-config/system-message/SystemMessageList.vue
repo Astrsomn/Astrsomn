@@ -1,67 +1,66 @@
 <template>
-  <AdminPageShell
-    title="系统消息"
-    description="管理 SYS_MESSAGE，支持创建通知、更新已读状态、查看来源与错误码。"
-    empty-text="暂无系统消息。"
-    :breadcrumbs="breadcrumbs"
+  <AstPageShell
+      :breadcrumbs="breadcrumbs"
+      description="管理 SYS_MESSAGE，支持创建通知、更新已读状态、查看来源与错误码。"
+      empty-text="暂无系统消息。"
+      title="系统消息"
   >
     <div class="message-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
-                v-model="query.title"
-                placeholder="按标题搜索"
-                layout="toolbar"
-                @search="fetchList"
+              <AstSearchInput
+                  v-model="query.title"
+                  layout="toolbar"
+                  placeholder="按标题搜索"
+                  @search="fetchList"
               />
 
               <a-select
-                v-model:value="query.messageType"
-                class="toolbar-select"
-                placeholder="消息类型"
-                allow-clear
-                :options="messageTypeOptions"
-                @change="onFilterChanged"
+                  v-model:value="query.messageType"
+                  :options="messageTypeOptions"
+                  allow-clear
+                  class="toolbar-select"
+                  placeholder="消息类型"
+                  @change="onFilterChanged"
               />
 
               <a-select
-                v-model:value="query.messageLevel"
-                class="toolbar-select"
-                placeholder="消息级别"
-                allow-clear
-                :options="messageLevelOptions"
-                @change="onFilterChanged"
+                  v-model:value="query.messageLevel"
+                  :options="messageLevelOptions"
+                  allow-clear
+                  class="toolbar-select"
+                  placeholder="消息级别"
+                  @change="onFilterChanged"
               />
 
               <a-select
-                v-model:value="query.readStatus"
-                class="toolbar-select"
-                placeholder="阅读状态"
-                allow-clear
-                :options="readStatusOptions"
-                @change="onFilterChanged"
+                  v-model:value="query.readStatus"
+                  :options="readStatusOptions"
+                  allow-clear
+                  class="toolbar-select"
+                  placeholder="阅读状态"
+                  @change="onFilterChanged"
               />
             </div>
 
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="actionButtons" />
+              <AstegmentedButton :buttons="actionButtons"/>
             </div>
           </div>
         </template>
 
 
-
-        <AstrsomnDataView
-          mode="table"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1320 }"
-          row-key="id"
-          empty-text="暂无匹配的系统消息"
+        <AstDataView
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1320 }"
+            empty-text="暂无匹配的系统消息"
+            mode="table"
+            row-key="id"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'messageType'">
@@ -83,45 +82,45 @@
             </template>
             <template v-else-if="column.key === 'actions'">
               <a-button type="link" @click="goEdit(record)">编辑</a-button>
-              <a-divider type="vertical" />
+              <a-divider type="vertical"/>
               <a-popconfirm title="确定删除该消息吗？" @confirm="() => handleDeleteOne(record.id)">
-                <a-button type="link" danger>删除</a-button>
+                <a-button danger type="link">删除</a-button>
               </a-popconfirm>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+          <AstPagination
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
     </div>
-  </AdminPageShell>
+  </AstPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { message, Modal } from 'ant-design-vue'
-import { DeleteOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
-import { systemMessageApi, type PageResponse, type SystemMessage } from '@/api/systemMessage'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {useRouter} from 'vue-router'
+import {message, Modal} from 'ant-design-vue'
+import {DeleteOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import {type PageResponse, type SystemMessage, systemMessageApi} from '@/api/systemMessage'
 
 const router = useRouter()
 
 const breadcrumbs = [
-  { title: '系统配置', href: '/admin/system-config' },
-  { title: '系统消息' },
+  {title: '系统配置', href: '/admin/system-config'},
+  {title: '系统消息'},
 ]
 
 type QueryState = {
@@ -132,25 +131,25 @@ type QueryState = {
 }
 
 const messageTypeOptions = [
-  { label: '插件已安装', value: 'PLUGIN_INSTALLED' },
-  { label: '插件安装失败', value: 'PLUGIN_INSTALL_FAILED' },
-  { label: '插件已卸载', value: 'PLUGIN_UNINSTALLED' },
-  { label: '上线通知', value: 'DEPLOYMENT_ONLINE' },
-  { label: '调用失败', value: 'API_CALL_FAILED' },
-  { label: '系统通知', value: 'SYSTEM_NOTICE' },
-  { label: '其他', value: 'OTHER' }
+  {label: '插件已安装', value: 'PLUGIN_INSTALLED'},
+  {label: '插件安装失败', value: 'PLUGIN_INSTALL_FAILED'},
+  {label: '插件已卸载', value: 'PLUGIN_UNINSTALLED'},
+  {label: '上线通知', value: 'DEPLOYMENT_ONLINE'},
+  {label: '调用失败', value: 'API_CALL_FAILED'},
+  {label: '系统通知', value: 'SYSTEM_NOTICE'},
+  {label: '其他', value: 'OTHER'}
 ]
 
 const messageLevelOptions = [
-  { label: '信息', value: 'INFO' },
-  { label: '成功', value: 'SUCCESS' },
-  { label: '警告', value: 'WARN' },
-  { label: '错误', value: 'ERROR' }
+  {label: '信息', value: 'INFO'},
+  {label: '成功', value: 'SUCCESS'},
+  {label: '警告', value: 'WARN'},
+  {label: '错误', value: 'ERROR'}
 ]
 
 const readStatusOptions = [
-  { label: '未读', value: 'UNREAD' },
-  { label: '已读', value: 'READ' }
+  {label: '未读', value: 'UNREAD'},
+  {label: '已读', value: 'READ'}
 ]
 
 const messageTypeLabel = (v?: string) => messageTypeOptions.find((x) => x.value === v)?.label || (v || '—')
@@ -164,19 +163,19 @@ const levelColor = (v?: string) => {
 }
 
 const columns = [
-  { title: '标题', key: 'title', width: 260, ellipsis: true },
-  { title: '类型', key: 'messageType', width: 180 },
-  { title: '级别', key: 'messageLevel', width: 100 },
-  { title: '状态', key: 'readStatus', width: 100 },
-  { title: '来源', key: 'source', width: 140, ellipsis: true },
-  { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 180, ellipsis: true },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  {title: '标题', key: 'title', width: 260, ellipsis: true},
+  {title: '类型', key: 'messageType', width: 180},
+  {title: '级别', key: 'messageLevel', width: 100},
+  {title: '状态', key: 'readStatus', width: 100},
+  {title: '来源', key: 'source', width: 140, ellipsis: true},
+  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 180, ellipsis: true},
+  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
 ]
 
 const query = reactive<QueryState>({})
 const list = ref<SystemMessage[]>([])
 const loading = ref(false)
-const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
+const page = reactive({pageNum: 1, pageSize: 10, total: 0})
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const actionButtons = computed<SegmentedButton[]>(() => [
@@ -269,12 +268,12 @@ const onPageChange = (p: number, size: number) => {
 }
 
 const goCreate = () => {
-  void router.push({ name: 'AdminSystemMessageNew' })
+  void router.push({name: 'AdminSystemMessageNew'})
 }
 
 const goEdit = (row: SystemMessage) => {
   if (row.id == null) return
-  void router.push({ name: 'AdminSystemMessageEdit', params: { id: String(row.id) } })
+  void router.push({name: 'AdminSystemMessageEdit', params: {id: String(row.id)}})
 }
 
 const handleDeleteOne = async (id: number | string | undefined) => {

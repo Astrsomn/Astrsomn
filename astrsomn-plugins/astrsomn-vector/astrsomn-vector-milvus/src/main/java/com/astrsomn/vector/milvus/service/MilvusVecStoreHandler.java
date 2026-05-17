@@ -1,5 +1,10 @@
 package com.astrsomn.vector.milvus.service;
 
+import com.astrsomn.api.vector.entity.AiVecDocEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecDoc;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecStore;
+import com.astrsomn.common.utils.StringUtils;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.milvus.MilvusEmbeddingStore;
@@ -11,11 +16,6 @@ import io.milvus.param.R;
 import io.milvus.param.collection.DropCollectionParam;
 import io.milvus.param.collection.GetCollectionStatisticsParam;
 import io.milvus.param.collection.HasCollectionParam;
-import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
-import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecDoc;
-import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecStore;
-import com.astrsomn.common.utils.StringUtils;
 
 public final class MilvusVecStoreHandler extends AbstractVecStore {
 
@@ -25,6 +25,25 @@ public final class MilvusVecStoreHandler extends AbstractVecStore {
     public MilvusVecStoreHandler(MilvusVecSourceHandler source, AiVecStoreEntity entity) {
         super(source, entity);
         this.milvusSource = source;
+    }
+
+    private static MetricType mapMetric(String metric) {
+        if (StringUtils.isBlank(metric)) {
+            return MetricType.COSINE;
+        }
+        switch (metric.trim().toLowerCase()) {
+            case "l2":
+            case "euclidean":
+            case "euclid":
+                return MetricType.L2;
+            case "ip":
+            case "dot":
+            case "dot_product":
+                return MetricType.IP;
+            case "cosine":
+            default:
+                return MetricType.COSINE;
+        }
     }
 
     MilvusVecSourceHandler milvusSource() {
@@ -132,24 +151,5 @@ public final class MilvusVecStoreHandler extends AbstractVecStore {
             throw new IllegalStateException("AiVecStoreEntity.dimension too large");
         }
         return d.intValue();
-    }
-
-    private static MetricType mapMetric(String metric) {
-        if (StringUtils.isBlank(metric)) {
-            return MetricType.COSINE;
-        }
-        switch (metric.trim().toLowerCase()) {
-            case "l2":
-            case "euclidean":
-            case "euclid":
-                return MetricType.L2;
-            case "ip":
-            case "dot":
-            case "dot_product":
-                return MetricType.IP;
-            case "cosine":
-            default:
-                return MetricType.COSINE;
-        }
     }
 }

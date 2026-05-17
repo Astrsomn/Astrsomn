@@ -1,14 +1,14 @@
 <template>
   <teleport to="body">
     <div v-if="visible" class="ctx-mask" @mousedown="onMaskDown">
-      <div class="ctx-menu" :style="{ left: `${position.x}px`, top: `${position.y}px` }" @mousedown.stop>
+      <div :style="{ left: `${position.x}px`, top: `${position.y}px` }" class="ctx-menu" @mousedown.stop>
         <button
-          v-for="item in items"
-          :key="item.key"
-          class="ctx-item"
-          :class="{ danger: item.danger }"
-          :disabled="item.disabled"
-          @click="onAction(item)"
+            v-for="item in items"
+            :key="item.key"
+            :class="{ danger: item.danger }"
+            :disabled="item.disabled"
+            class="ctx-item"
+            @click="onAction(item)"
         >
           <span class="ctx-left">
             <span v-if="item.icon" class="ctx-icon">{{ item.icon }}</span>
@@ -21,8 +21,8 @@
   </teleport>
 </template>
 
-<script setup lang="ts">
-import type { ContextMenuAction, ContextMenuPosition } from './types'
+<script lang="ts" setup>
+import type {ContextMenuAction, ContextMenuPosition} from './types'
 
 defineProps<{
   visible: boolean

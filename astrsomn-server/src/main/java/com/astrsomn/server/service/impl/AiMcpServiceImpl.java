@@ -1,32 +1,32 @@
 package com.astrsomn.server.service.impl;
-import com.astrsomn.api.runtime.common.utils.PageConverter;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
+
 import com.astrsomn.api.runtime.common.dto.mcp.AiMcpCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.mcp.AiMcpQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.mcp.AiMcpResponseDTO;
 import com.astrsomn.api.runtime.common.dto.mcp.AiMcpUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiMcpEntity;
-import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.AiMcpErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiMcpMapper;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.server.mapper.AiMcpMapper;
 import com.astrsomn.server.service.AiMcpService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import com.astrsomn.api.runtime.common.utils.PageUtils;
+
 @Service
 @RequiredArgsConstructor
 public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> implements AiMcpService {
 
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiMcpCreateRequestDTO request) {
@@ -86,7 +86,6 @@ public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> impl
         if (param == null) {
             param = new AiMcpQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiMcpResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

@@ -1,19 +1,15 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.common.base.ErrorEnum;
-import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.server.service.AiWorkflowBizIdempotentService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.api.workflow.domain.dto.bizidempotent.AstFlowBizIdempotentCreateRequestDTO;
 import com.astrsomn.api.workflow.domain.dto.bizidempotent.AstFlowBizIdempotentQueryRequestDTO;
 import com.astrsomn.api.workflow.domain.dto.bizidempotent.AstFlowBizIdempotentResponseDTO;
 import com.astrsomn.api.workflow.domain.dto.bizidempotent.AstFlowBizIdempotentUpdateRequestDTO;
 import com.astrsomn.api.workflow.domain.entity.AstFlowBizIdempotentEntity;
+import com.astrsomn.common.base.*;
+import com.astrsomn.server.service.AiWorkflowBizIdempotentService;
+import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.workflow.mapper.AstFlowBizIdempotentMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -81,7 +77,6 @@ public class AiWorkflowBizIdempotentServiceImpl extends ServiceImpl<AstFlowBizId
         IPage<AstFlowBizIdempotentResponseDTO> page = PageUtils.buildPage(request);
         AstFlowBizIdempotentQueryRequestDTO param = request.getParam();
         if (param == null) param = new AstFlowBizIdempotentQueryRequestDTO();
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowBizIdempotentResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

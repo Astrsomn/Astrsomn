@@ -3,7 +3,7 @@
     <div class="card-header">
       <div class="header-left">
         <div class="icon-badge">
-          <FileTextOutlined />
+          <FileTextOutlined/>
         </div>
         <div class="header-info">
           <h3 class="card-title">人设与指令 (Prompt)</h3>
@@ -12,42 +12,53 @@
       </div>
       <div class="header-actions">
         <button class="action-btn primary" title="选择提示词" @click.stop="emit('select')">
-          <AppstoreOutlined />
+          <AppstoreOutlined/>
         </button>
         <button class="action-btn secondary" title="新建提示词" @click.stop="emit('create')">
-          <PlusOutlined />
+          <PlusOutlined/>
         </button>
-        <button class="action-btn history" title="历史版本" @click.stop="emit('history')" :disabled="!prompt?.promptKey">
-          <HistoryOutlined />
+        <button :disabled="!prompt?.promptKey" class="action-btn history" title="历史版本"
+                @click.stop="emit('history')">
+          <HistoryOutlined/>
         </button>
       </div>
     </div>
     <div class="dashed-frame">
       <textarea
-        class="prompt-textarea custom-scrollbar"
-        v-model="promptContent"
-        rows="6"
-        placeholder="给你的智能体配置一个清晰的角色定位和任务指令..."
+          v-model="promptContent"
+          :rows="textareaRows"
+          class="prompt-textarea custom-scrollbar"
+          placeholder="给你的智能体配置一个清晰的角色定位和任务指令..."
       ></textarea>
-      <button class="improve-btn" title="美化提示词" @click.stop="emit('improve')" :disabled="improveLoading">
-        <ThunderboltOutlined :spin="improveLoading" />
+      <button :disabled="improveLoading" class="improve-btn" title="美化提示词" @click.stop="emit('improve')">
+        <ThunderboltOutlined :spin="improveLoading"/>
         <span class="improve-btn-text">美化</span>
       </button>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { FileTextOutlined, AppstoreOutlined, PlusOutlined, HistoryOutlined, ThunderboltOutlined } from '@ant-design/icons-vue'
-import type { AiPrompt } from '@/api/aiPrompt'
+<script lang="ts" setup>
+import {computed} from 'vue'
+import {
+  AppstoreOutlined,
+  FileTextOutlined,
+  HistoryOutlined,
+  PlusOutlined,
+  ThunderboltOutlined
+} from '@ant-design/icons-vue'
+import type {AiPrompt} from '@/api/aiPrompt'
 
 interface Props {
   prompt?: AiPrompt
   improveLoading?: boolean
+  /** 提示词正文 textarea 行数，默认 6 */
+  textareaRows?: number
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  textareaRows: 6,
+})
 
 const emit = defineEmits<{
   (e: 'select'): void
@@ -77,9 +88,8 @@ const promptContent = computed({
   border-radius: var(--ab-glass-radius, 16px);
   box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
   padding: 20px;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  transition: border-color 0.2s,
+  box-shadow 0.2s;
 }
 
 .prompt-card:hover {

@@ -1,10 +1,10 @@
 <template>
   <div class="node-connector">
-    <div class="model-card" :class="{ 'has-model': model }">
+    <div :class="{ 'has-model': model }" class="model-card">
       <div class="card-header">
         <div class="header-left">
           <div class="icon-badge">
-            <RobotOutlined />
+            <RobotOutlined/>
           </div>
           <div class="header-info">
             <span class="card-label">模型</span>
@@ -23,20 +23,20 @@
         <div class="card-placeholder">{{ readonly ? '随实例自动关联' : '请选择模型' }}</div>
       </template>
       <div v-if="!readonly" class="card-icon">
-        <DoubleRightOutlined />
+        <DoubleRightOutlined/>
       </div>
       <div v-if="!readonly" class="card-overlay">
         <button class="overlay-btn" title="选择模型" @click.stop="emit('select')">
-          <UnorderedListOutlined />
+          <UnorderedListOutlined/>
         </button>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { RobotOutlined, UnorderedListOutlined, DoubleRightOutlined } from '@ant-design/icons-vue'
-import type { AiModel } from '@/api/aiModel'
+<script lang="ts" setup>
+import {DoubleRightOutlined, RobotOutlined, UnorderedListOutlined} from '@ant-design/icons-vue'
+import type {AiModel} from '@/api/aiModel'
 
 interface Props {
   model?: AiModel
@@ -73,10 +73,9 @@ const emit = defineEmits<{
   padding: 16px;
   position: relative;
   overflow: hidden;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s,
-    transform 0.2s;
+  transition: border-color 0.2s,
+  box-shadow 0.2s,
+  transform 0.2s;
   display: flex;
   flex-direction: column;
 }

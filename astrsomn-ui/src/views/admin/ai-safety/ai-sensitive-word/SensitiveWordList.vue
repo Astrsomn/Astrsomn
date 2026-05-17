@@ -1,190 +1,209 @@
 <template>
-  <AdminPageShell
-    title="安全治理"
-    description="配置敏感词、注入检测与风控策略。"
-    empty-text="暂无安全策略。"
-    :breadcrumbs="breadcrumbs"
+  <AstPageShell
+      :breadcrumbs="breadcrumbs"
+      description="配置敏感词、注入检测与风控策略。"
+      empty-text="暂无安全策略。"
+      title="安全治理"
   >
     <div class="sensitive-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-          <div class="search-cluster">
-            <a-input
-              v-model:value="query.word"
-              placeholder="搜索敏感词"
-              class="toolbar-input search-main-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><search-outlined /></template>
-            </a-input>
-            <a-input
-              v-model:value="query.scopeKey"
-              placeholder="作用范围"
-              class="toolbar-input search-sub-input"
-              allow-clear
-              @pressEnter="fetchList"
-            >
-              <template #prefix><appstore-outlined /></template>
-            </a-input>
-          </div>
+              <div class="search-cluster">
+                <a-input
+                    v-model:value="query.word"
+                    allow-clear
+                    class="toolbar-input search-main-input"
+                    placeholder="搜索敏感词"
+                    @pressEnter="fetchList"
+                >
+                  <template #prefix>
+                    <search-outlined/>
+                  </template>
+                </a-input>
+                <a-input
+                    v-model:value="query.scopeKey"
+                    allow-clear
+                    class="toolbar-input search-sub-input"
+                    placeholder="作用范围"
+                    @pressEnter="fetchList"
+                >
+                  <template #prefix>
+                    <appstore-outlined/>
+                  </template>
+                </a-input>
+              </div>
 
-          <div class="status-switch" role="group" aria-label="状态筛选">
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'ENABLED' }"
-              @click="toggleStatusFilter('ENABLED')"
-            >
-              <template #icon><check-circle-outlined /></template>
-              启用
-            </a-button>
-            <a-button
-              class="status-btn"
-              :class="{ active: query.status === 'DISABLED' }"
-              @click="toggleStatusFilter('DISABLED')"
-            >
-              <template #icon><stop-outlined /></template>
-              禁用
-            </a-button>
-          </div>
+              <div aria-label="状态筛选" class="status-switch" role="group">
+                <a-button
+                    :class="{ active: query.status === 'ENABLED' }"
+                    class="status-btn"
+                    @click="toggleStatusFilter('ENABLED')"
+                >
+                  <template #icon>
+                    <check-circle-outlined/>
+                  </template>
+                  启用
+                </a-button>
+                <a-button
+                    :class="{ active: query.status === 'DISABLED' }"
+                    class="status-btn"
+                    @click="toggleStatusFilter('DISABLED')"
+                >
+                  <template #icon>
+                    <stop-outlined/>
+                  </template>
+                  禁用
+                </a-button>
+              </div>
 
-          <a-button class="filter-toggle-btn" @click="showAdvanced = !showAdvanced">
-            <template #icon><filter-outlined /></template>
-            {{ showAdvanced ? '收起筛选' : '更多筛选' }}
-          </a-button>
+              <a-button class="filter-toggle-btn" @click="showAdvanced = !showAdvanced">
+                <template #icon>
+                  <filter-outlined/>
+                </template>
+                {{ showAdvanced ? '收起筛选' : '更多筛选' }}
+              </a-button>
             </div>
 
             <div class="toolbar-right">
-          <a-button type="primary" class="primary-btn" @click="fetchList">
-            <template #icon><search-outlined /></template>
-            查询
-          </a-button>
-          <a-popconfirm
-            v-if="selectedRowKeys.length > 0"
-            title="确定批量删除选中的敏感词规则吗？"
-            ok-text="确认"
-            cancel-text="取消"
-            @confirm="handleBatchDelete"
-          >
-            <a-button danger class="ghost-btn danger-btn">
-              <template #icon><delete-outlined /></template>
-              删除 ({{ selectedRowKeys.length }})
-            </a-button>
-          </a-popconfirm>
-          <a-button danger class="ghost-btn danger-btn" disabled v-else>
-            <template #icon><delete-outlined /></template>
-            删除
-          </a-button>
-          <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
-          <a-button class="ghost-btn" @click="openCreate">
-            <template #icon><plus-outlined /></template>
-            新增
-          </a-button>
+              <a-button class="primary-btn" type="primary" @click="fetchList">
+                <template #icon>
+                  <search-outlined/>
+                </template>
+                查询
+              </a-button>
+              <a-popconfirm
+                  v-if="selectedRowKeys.length > 0"
+                  cancel-text="取消"
+                  ok-text="确认"
+                  title="确定批量删除选中的敏感词规则吗？"
+                  @confirm="handleBatchDelete"
+              >
+                <a-button class="ghost-btn danger-btn" danger>
+                  <template #icon>
+                    <delete-outlined/>
+                  </template>
+                  删除 ({{ selectedRowKeys.length }})
+                </a-button>
+              </a-popconfirm>
+              <a-button v-else class="ghost-btn danger-btn" danger disabled>
+                <template #icon>
+                  <delete-outlined/>
+                </template>
+                删除
+              </a-button>
+              <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
+              <a-button class="ghost-btn" @click="openCreate">
+                <template #icon>
+                  <plus-outlined/>
+                </template>
+                新增
+              </a-button>
             </div>
           </div>
         </template>
 
         <template v-if="showAdvanced" #toolbar-extra>
           <a-select
-            v-model:value="query.matchType"
-            :options="matchTypeOptions"
-            placeholder="匹配类型"
-            class="toolbar-select"
-            allow-clear
+              v-model:value="query.matchType"
+              :options="matchTypeOptions"
+              allow-clear
+              class="toolbar-select"
+              placeholder="匹配类型"
           />
           <a-select
-            v-model:value="query.action"
-            :options="actionOptions"
-            placeholder="处置动作"
-            class="toolbar-select"
-            allow-clear
+              v-model:value="query.action"
+              :options="actionOptions"
+              allow-clear
+              class="toolbar-select"
+              placeholder="处置动作"
           />
           <a-input
-            v-model:value="query.category"
-            placeholder="分类"
-            class="toolbar-input narrow"
-            allow-clear
-            @pressEnter="fetchList"
+              v-model:value="query.category"
+              allow-clear
+              class="toolbar-input narrow"
+              placeholder="分类"
+              @pressEnter="fetchList"
           >
-            <template #prefix><tags-outlined /></template>
+            <template #prefix>
+              <tags-outlined/>
+            </template>
           </a-input>
         </template>
 
 
-
-        <AstrsomnDataView
-          mode="table"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1320 }"
-          row-key="id"
-          empty-text="暂无匹配的安全规则"
+        <AstDataView
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1320 }"
+            empty-text="暂无匹配的安全规则"
+            mode="table"
+            row-key="id"
         >
           <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'word'">
-            <code class="word-text">{{ record.word }}</code>
+            <template v-if="column.key === 'word'">
+              <code class="word-text">{{ record.word }}</code>
+            </template>
+            <template v-else-if="column.key === 'matchType'">
+              <a-tag :color="matchTypeColorMap[record.matchType || ''] || 'default'">
+                {{ matchTypeLabel(record.matchType) }}
+              </a-tag>
+            </template>
+            <template v-else-if="column.key === 'action'">
+              <a-tag :color="actionColorMap[record.action || ''] || 'default'">
+                {{ actionLabel(record.action) }}
+              </a-tag>
+            </template>
+            <template v-else-if="column.key === 'status'">
+              <a-tag :color="record.status === 'ENABLED' ? 'green' : 'default'">
+                {{ statusLabel(record.status) }}
+              </a-tag>
+            </template>
+            <template v-else-if="column.key === 'replacement'">
+              <span>{{ record.replacement || '—' }}</span>
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-button type="link" @click="openEdit(record)">编辑</a-button>
+              <a-divider type="vertical"/>
+              <a-popconfirm
+                  cancel-text="取消"
+                  ok-text="确认"
+                  title="确定删除吗？"
+                  @confirm="() => handleDeleteOne(record.id)"
+              >
+                <a-button danger type="link">删除</a-button>
+              </a-popconfirm>
+            </template>
           </template>
-          <template v-else-if="column.key === 'matchType'">
-            <a-tag :color="matchTypeColorMap[record.matchType || ''] || 'default'">
-              {{ matchTypeLabel(record.matchType) }}
-            </a-tag>
-          </template>
-          <template v-else-if="column.key === 'action'">
-            <a-tag :color="actionColorMap[record.action || ''] || 'default'">
-              {{ actionLabel(record.action) }}
-            </a-tag>
-          </template>
-          <template v-else-if="column.key === 'status'">
-            <a-tag :color="record.status === 'ENABLED' ? 'green' : 'default'">
-              {{ statusLabel(record.status) }}
-            </a-tag>
-          </template>
-          <template v-else-if="column.key === 'replacement'">
-            <span>{{ record.replacement || '—' }}</span>
-          </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="openEdit(record)">编辑</a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger>删除</a-button>
-            </a-popconfirm>
-          </template>
-          </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+          <AstPagination
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
       <SensitiveWordFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message} from 'ant-design-vue'
 import {
   AppstoreOutlined,
   CheckCircleOutlined,
@@ -195,16 +214,16 @@ import {
   StopOutlined,
   TagsOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
 import SensitiveWordFormModal from './SensitiveWordFormModal.vue'
-import { aiSensitiveWordApi, type AiSensitiveWord, type PageResponse } from '@/api/aiSensitiveWord.ts'
+import {type AiSensitiveWord, aiSensitiveWordApi, type PageResponse} from '@/api/aiSensitiveWord.ts'
 
 const breadcrumbs = [
-  { title: 'AI 安全', href: '/admin/ai-safety' },
-  { title: '安全治理' },
+  {title: 'AI 安全', href: '/admin/ai-safety'},
+  {title: '安全治理'},
 ]
 
 type QueryState = {
@@ -217,26 +236,26 @@ type QueryState = {
 }
 
 const matchTypeOptions = [
-  { label: '精确匹配', value: 'EXACT' },
-  { label: '模糊匹配', value: 'FUZZY' },
-  { label: '正则匹配', value: 'REGEX' }
+  {label: '精确匹配', value: 'EXACT'},
+  {label: '模糊匹配', value: 'FUZZY'},
+  {label: '正则匹配', value: 'REGEX'}
 ]
 
 const actionOptions = [
-  { label: '直接拦截', value: 'BLOCK' },
-  { label: '替换文本', value: 'REPLACE' },
-  { label: '仅告警', value: 'WARN' }
+  {label: '直接拦截', value: 'BLOCK'},
+  {label: '替换文本', value: 'REPLACE'},
+  {label: '仅告警', value: 'WARN'}
 ]
 
 const columns = [
-  { title: '敏感词', key: 'word', width: 220, ellipsis: true },
-  { title: '匹配类型', key: 'matchType', width: 120 },
-  { title: '作用范围', dataIndex: 'scopeKey', key: 'scopeKey', width: 160, ellipsis: true },
-  { title: '分类', dataIndex: 'category', key: 'category', width: 120, ellipsis: true },
-  { title: '处置动作', key: 'action', width: 120 },
-  { title: '替换文本', key: 'replacement', width: 160, ellipsis: true },
-  { title: '状态', key: 'status', width: 100 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  {title: '敏感词', key: 'word', width: 220, ellipsis: true},
+  {title: '匹配类型', key: 'matchType', width: 120},
+  {title: '作用范围', dataIndex: 'scopeKey', key: 'scopeKey', width: 160, ellipsis: true},
+  {title: '分类', dataIndex: 'category', key: 'category', width: 120, ellipsis: true},
+  {title: '处置动作', key: 'action', width: 120},
+  {title: '替换文本', key: 'replacement', width: 160, ellipsis: true},
+  {title: '状态', key: 'status', width: 100},
+  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
 ]
 
 const matchTypeColorMap: Record<string, string> = {
@@ -265,9 +284,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -399,7 +418,7 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: AiSensitiveWord) => {
   modal.submitting = true
   try {
-    const payload: AiSensitiveWord = { ...form }
+    const payload: AiSensitiveWord = {...form}
     let msg: string
     if (modal.mode === 'create') {
       delete (payload as { id?: unknown }).id

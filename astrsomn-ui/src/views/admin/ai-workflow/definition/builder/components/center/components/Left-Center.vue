@@ -1,30 +1,30 @@
 <template>
   <div class="palette-dock">
     <div
-      v-for="item in items"
-      :key="item.key"
-      class="dock-group"
-      @mouseenter="openGroup(item.key)"
-      @mouseleave="scheduleClose"
+        v-for="item in items"
+        :key="item.key"
+        class="dock-group"
+        @mouseenter="openGroup(item.key)"
+        @mouseleave="scheduleClose"
     >
-      <button type="button" class="dock-item" :class="`dock-item-${item.key}`" :title="item.description">
-        <component :is="resolveIcon(item.key)" class="dock-icon" :class="`dock-icon-${item.key}`" />
+      <button :class="`dock-item-${item.key}`" :title="item.description" class="dock-item" type="button">
+        <component :is="resolveIcon(item.key)" :class="`dock-icon-${item.key}`" class="dock-icon"/>
       </button>
 
       <div
-        v-if="expandedGroup === item.key"
-        class="dock-children"
-        @mouseenter="cancelClose"
-        @mouseleave="scheduleClose"
+          v-if="expandedGroup === item.key"
+          class="dock-children"
+          @mouseenter="cancelClose"
+          @mouseleave="scheduleClose"
       >
         <button
-          v-for="child in item.children"
-          :key="child.type"
-          type="button"
-          class="child-item"
-          draggable="true"
-          :title="child.description"
-          @dragstart="onDragStart($event, child.type)"
+            v-for="child in item.children"
+            :key="child.type"
+            :title="child.description"
+            class="child-item"
+            draggable="true"
+            type="button"
+            @dragstart="onDragStart($event, child.type)"
         >
           {{ child.label }}
         </button>
@@ -33,23 +33,17 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import {
-  ApartmentOutlined,
-  RobotOutlined,
-  BranchesOutlined,
-  ToolOutlined,
-  MessageOutlined
-} from '@ant-design/icons-vue'
-import { useNodeDnD } from '@/views/admin/ai-workflow/definition/builder/composables/useNodeDnD.ts'
-import type { CanvasPaletteIconItem, WorkflowNodeType } from '../../../domain/types.ts'
+<script lang="ts" setup>
+import {ref} from 'vue'
+import {ApartmentOutlined, BranchesOutlined, MessageOutlined, RobotOutlined, ToolOutlined} from '@ant-design/icons-vue'
+import {useNodeDnD} from '@/views/admin/ai-workflow/definition/builder/composables/useNodeDnD.ts'
+import type {CanvasPaletteIconItem, WorkflowNodeType} from '../../../domain/types.ts'
 
 defineProps<{
   items: CanvasPaletteIconItem[]
 }>()
 
-const { startDrag } = useNodeDnD()
+const {startDrag} = useNodeDnD()
 const expandedGroup = ref<string | null>(null)
 let closeTimer: number | null = null
 

@@ -1,18 +1,18 @@
 package com.astrsomn.server.service.extension.lifecycle;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.entity.SystemExtensionEntity;
+import com.astrsomn.system.exception.SystemExtensionErrorEnum;
 import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
-import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.api.runtime.exception.SystemExtensionErrorEnum;
-import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
-import com.astrsomn.server.service.extension.support.SystemExtensionSourceHelper;
+import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.extension.capability.ExtensionCapabilityResolver;
 import com.astrsomn.server.service.extension.dependency.ExtensionDependencyGuard;
+import com.astrsomn.server.service.extension.support.SystemExtensionSourceHelper;
+import com.astrsomn.starter.runtime.system.mapper.AstSystemExtensionMapper;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -27,11 +27,43 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class SystemExtensionLifecycleOrchestrator {
 
-    private final SystemExtensionMapper systemExtensionMapper;
+    private final AstSystemExtensionMapper astSystemExtensionMapper;
     private final ExtensionStrategyResolver strategyResolver;
     private final ExtensionDependencyGuard dependencyGuard;
     private final ExtensionCapabilityResolver capabilityResolver;
     private final AstrsomnPluginManager pluginManager;
+
+    private static String buildSuccessMessage(String base, List<String> warnings) {
+        List<String> safeWarnings = warnings == null ? List.of() : warnings;
+        if (safeWarnings.isEmpty()) {
+            return base;
+        }
+        List<String> trimmed = new ArrayList<>();
+        for (String warning : safeWarnings) {
+            String w = StringUtils.trimToNull(warning);
+            if (w != null) {
+                trimmed.add(w);
+            }
+        }
+        if (trimmed.isEmpty()) {
+            return base;
+        }
+        return base + "（存在软依赖告警: " + String.join(" | ", trimmed) + "）";
+    }
+
+    private static String sanitizeJarFileName(String original) {
+        if (StringUtils.isBlank(original)) {
+            throw new IllegalArgumentException("文件名无效");
+        }
+        String name = new File(original).getName();
+        if (name.contains("..") || name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
+            throw new IllegalArgumentException("非法文件名");
+        }
+        if (!name.toLowerCase(Locale.ROOT).endsWith(".jar")) {
+            throw new IllegalArgumentException("仅支持 .jar 文件");
+        }
+        return name;
+    }
 
     public BaseResponse<String> apply(Long id) {
         SystemExtensionEntity extension = mustGet(id);
@@ -70,7 +102,7 @@ public class SystemExtensionLifecycleOrchestrator {
         ExtensionLifecycleStrategy strategy = strategyResolver.resolve(extension.getType());
         strategy.uninstall(extension);
 
-        int deleted = systemExtensionMapper.deleteById(id);
+        int deleted = astSystemExtensionMapper.deleteById(id);
         if (deleted <= 0) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UNINSTALL_FAILED);
         }
@@ -94,7 +126,7 @@ public class SystemExtensionLifecycleOrchestrator {
     }
 
     private SystemExtensionEntity mustGet(Long id) {
-        SystemExtensionEntity entity = systemExtensionMapper.selectById(id);
+        SystemExtensionEntity entity = astSystemExtensionMapper.selectById(id);
         if (entity == null) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
         }
@@ -102,28 +134,10 @@ public class SystemExtensionLifecycleOrchestrator {
     }
 
     private void updateRow(SystemExtensionEntity extension) {
-        int updated = systemExtensionMapper.updateById(extension);
+        int updated = astSystemExtensionMapper.updateById(extension);
         if (updated <= 0) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UPDATE_FAILED);
         }
-    }
-
-    private static String buildSuccessMessage(String base, List<String> warnings) {
-        List<String> safeWarnings = warnings == null ? List.of() : warnings;
-        if (safeWarnings.isEmpty()) {
-            return base;
-        }
-        List<String> trimmed = new ArrayList<>();
-        for (String warning : safeWarnings) {
-            String w = StringUtils.trimToNull(warning);
-            if (w != null) {
-                trimmed.add(w);
-            }
-        }
-        if (trimmed.isEmpty()) {
-            return base;
-        }
-        return base + "（存在软依赖告警: " + String.join(" | ", trimmed) + "）";
     }
 
     private void tryDeletePluginJarFromDisk(String jarName) {
@@ -157,20 +171,6 @@ public class SystemExtensionLifecycleOrchestrator {
         } catch (IOException e) {
             log.warn("删除插件 jar 失败（可手动删除）: {}", jarFile.getAbsolutePath(), e);
         }
-    }
-
-    private static String sanitizeJarFileName(String original) {
-        if (StringUtils.isBlank(original)) {
-            throw new IllegalArgumentException("文件名无效");
-        }
-        String name = new File(original).getName();
-        if (name.contains("..") || name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
-            throw new IllegalArgumentException("非法文件名");
-        }
-        if (!name.toLowerCase(Locale.ROOT).endsWith(".jar")) {
-            throw new IllegalArgumentException("仅支持 .jar 文件");
-        }
-        return name;
     }
 }
 

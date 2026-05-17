@@ -2,56 +2,57 @@
   <aside class="left-panel">
     <div class="left-head">
       <h3 class="head-title">{{ currentMode === 'workflow-list' ? '流程列表' : '模型对话' }}</h3>
-      <div class="mode-switcher" role="tablist" aria-label="左侧视图切换">
+      <div aria-label="左侧视图切换" class="mode-switcher" role="tablist">
         <button
-          type="button"
-          class="mode-btn"
-          :class="{ active: currentMode === 'workflow-list' }"
-          title="流程列表"
-          @click="currentMode = 'workflow-list'"
+            :class="{ active: currentMode === 'workflow-list' }"
+            class="mode-btn"
+            title="流程列表"
+            type="button"
+            @click="currentMode = 'workflow-list'"
         >
-          <UnorderedListOutlined />
+          <UnorderedListOutlined/>
         </button>
         <button
-          type="button"
-          class="mode-btn"
-          :class="{ active: currentMode === 'model-chat' }"
-          title="模型对话"
-          @click="currentMode = 'model-chat'"
+            :class="{ active: currentMode === 'model-chat' }"
+            class="mode-btn"
+            title="模型对话"
+            type="button"
+            @click="currentMode = 'model-chat'"
         >
-          <MessageOutlined />
+          <MessageOutlined/>
         </button>
       </div>
     </div>
 
     <div class="left-body">
       <WorkflowListPanel
-        v-if="currentMode === 'workflow-list'"
-        :items="workflowItems"
-        :active-workflow-id="activeWorkflowId"
-        :open-create-dialog-tick="openCreateDialogTick"
-        @select="$emit('select-workflow', $event)"
-        @create="$emit('create-workflow', $event)"
-        @edit="$emit('edit-workflow', $event.item, $event.payload)"
-        @delete="$emit('delete-workflow', $event)"
+          v-if="currentMode === 'workflow-list'"
+          :active-workflow-id="activeWorkflowId"
+          :items="workflowItems"
+          :open-create-dialog-tick="openCreateDialogTick"
+          @create="$emit('create-workflow', $event)"
+          @delete="$emit('delete-workflow', $event)"
+          @edit="$emit('edit-workflow', $event.item, $event.payload)"
+          @select="$emit('select-workflow', $event)"
       />
       <ModelChatPanel
-        v-else
-        :draft="chatDraft"
-        :messages="chatMessages"
-        @update:draft="chatDraft = $event"
-        @send="onSendMessage"
+          v-else
+          :draft="chatDraft"
+          :messages="chatMessages"
+          @send="onSendMessage"
+          @update:draft="chatDraft = $event"
       />
     </div>
   </aside>
 </template>
 
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import { MessageOutlined, UnorderedListOutlined } from '@ant-design/icons-vue'
-import WorkflowListPanel from '@/views/admin/ai-workflow/definition/builder/components/left/component/WorkflowListPanel.vue'
+<script lang="ts" setup>
+import {ref, watch} from 'vue'
+import {MessageOutlined, UnorderedListOutlined} from '@ant-design/icons-vue'
+import WorkflowListPanel
+  from '@/views/admin/ai-workflow/definition/builder/components/left/component/WorkflowListPanel.vue'
 import ModelChatPanel from '@/views/admin/ai-workflow/definition/builder/components/left/component/ModelChatPanel.vue'
-import type { LeftViewMode, WorkflowListItem } from '../../domain/types'
+import type {LeftViewMode, WorkflowListItem} from '../../domain/types'
 
 const props = defineProps<{
   workflowItems: WorkflowListItem[]
@@ -69,7 +70,7 @@ defineEmits<{
 const currentMode = ref<LeftViewMode>('workflow-list')
 const chatDraft = ref('')
 const chatMessages = ref<Array<{ id: string; role: 'user' | 'assistant'; content: string }>>([
-  { id: 'welcome-1', role: 'assistant', content: '你好，我是模型助手。这里先作为模型对话区域占位。' }
+  {id: 'welcome-1', role: 'assistant', content: '你好，我是模型助手。这里先作为模型对话区域占位。'}
 ])
 
 const onSendMessage = () => {
@@ -88,10 +89,10 @@ const onSendMessage = () => {
 }
 
 watch(
-  () => props.openCreateDialogTick,
-  () => {
-    currentMode.value = 'workflow-list'
-  }
+    () => props.openCreateDialogTick,
+    () => {
+      currentMode.value = 'workflow-list'
+    }
 )
 </script>
 

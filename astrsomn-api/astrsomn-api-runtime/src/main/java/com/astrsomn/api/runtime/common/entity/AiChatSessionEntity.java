@@ -19,33 +19,23 @@ public class AiChatSessionEntity extends BaseEntity<Long> {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
-    /**
-     * 会话聚合键，前端每次请求均携带该值。
-     */
+
     @TableField("MEMORY_KEY")
     private String memoryKey;
 
-    /**
-     * 会话标题（可由首条消息摘要生成）。
-     */
+
     @TableField("SESSION_TITLE")
     private String sessionTitle;
 
-    /**
-     * 会话状态：active / archived / deleted。
-     */
+
     @TableField("SESSION_STATUS")
     private String sessionStatus;
 
-    /**
-     * 最后一条消息预览。
-     */
+
     @TableField("LAST_MESSAGE_PREVIEW")
     private String lastMessagePreview;
 
-    /**
-     * 最近一条消息时间戳，毫秒级。
-     */
+
     @TableField("LAST_MESSAGE_AT")
     private Long lastMessageAt;
 
@@ -61,8 +51,7 @@ public class AiChatSessionEntity extends BaseEntity<Long> {
     @TableField("TOTAL_TOKENS")
     private Integer totalTokens;
 
-    @TableField("AGENT_KEY")
-    private String agentKey;
+
 
     @TableField("INSTANCE_KEY")
     private String instanceKey;

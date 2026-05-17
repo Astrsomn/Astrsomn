@@ -1,12 +1,13 @@
 package com.astrsomn.provider.qwen;
 
+import com.astrsomn.api.runtime.common.constant.AiModelEnum;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Properties;
-import com.astrsomn.api.runtime.common.constant.AiModelEnum;
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 
 /**
  * 扩展元数据：通过 Java SPI(ServiceLoader) 被系统注册。
@@ -18,6 +19,19 @@ public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
     private static final String AVATAR_BASE64 =
             loadClasspathUtf8(QwenExtensionDescriptor.class, "/avatar/qwen-avatar.base64");
     private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
+
+    private static Properties loadExtensionProperties() {
+        try (InputStream inputStream = QwenExtensionDescriptor.class.getResourceAsStream("/extension-qwen.properties")) {
+            if (inputStream == null) {
+                return new Properties();
+            }
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties;
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load /extension-qwen.properties", e);
+        }
+    }
 
     @Override
     public String getExtensionKey() {
@@ -67,18 +81,5 @@ public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
     @Override
     public String getMinServerVersion() {
         return EXTENSION_PROPERTIES.getProperty("minServerVersion", "");
-    }
-
-    private static Properties loadExtensionProperties() {
-        try (InputStream inputStream = QwenExtensionDescriptor.class.getResourceAsStream("/extension-qwen.properties")) {
-            if (inputStream == null) {
-                return new Properties();
-            }
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties;
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to load /extension-qwen.properties", e);
-        }
     }
 }

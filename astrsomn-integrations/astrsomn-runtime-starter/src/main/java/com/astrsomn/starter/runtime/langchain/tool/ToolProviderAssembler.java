@@ -1,25 +1,24 @@
 package com.astrsomn.starter.runtime.langchain.tool;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import dev.langchain4j.model.image.ImageModel;
-import dev.langchain4j.service.tool.ToolProvider;
-import lombok.RequiredArgsConstructor;
 import com.astrsomn.api.runtime.common.entity.AiMcpEntity;
 import com.astrsomn.api.runtime.common.entity.AiToolEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ConversationSetting;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ToolSetting;
-import com.astrsomn.starter.runtime.mapper.AiMcpMapper;
-import com.astrsomn.starter.runtime.mapper.AiToolMapper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
-
 import com.astrsomn.starter.runtime.langchain.tool.image.DynamicImageToolProvider;
 import com.astrsomn.starter.runtime.langchain.tool.local.DynamicToolProvider;
 import com.astrsomn.starter.runtime.langchain.tool.local.LocalToolCacheManager;
 import com.astrsomn.starter.runtime.langchain.tool.mcp.DynamicMcpToolProvider;
 import com.astrsomn.starter.runtime.langchain.tool.mcp.McpToolCacheManager;
+import com.astrsomn.starter.runtime.mapper.AstAiMcpMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiToolMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import dev.langchain4j.model.image.ImageModel;
+import dev.langchain4j.service.tool.ToolProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -35,12 +34,13 @@ import java.util.Optional;
 public class ToolProviderAssembler {
 
     private final McpToolCacheManager mcpToolManager;
-    private final AiMcpMapper aiMcpMapper;
-    private final AiToolMapper aiToolMapper;
+    private final AstAiMcpMapper aiMcpMapper;
+    private final AstAiToolMapper astAiToolMapper;
     private final ApplicationContext applicationContext;
     private final LocalToolCacheManager globalToolCache;
     private final AstrsomnProperties astrsomnProperties;
     private final AstroModelFactory astroModelFactory;
+
     public ToolProvider assemble(AstroChatParam<?> param) {
         return Optional.ofNullable(param.getToolSetting())
                 .map(setting -> {
@@ -52,11 +52,11 @@ public class ToolProviderAssembler {
                             .map(keys -> aiMcpMapper.selectList(new LambdaQueryWrapper<AiMcpEntity>()
                                     .in(AiMcpEntity::getMcpKey, keys)
                                     .eq(AiMcpEntity::getEnvCode, env)))
-                            .ifPresent(configs -> providers.add(new DynamicMcpToolProvider(mcpToolManager,configs )));
+                            .ifPresent(configs -> providers.add(new DynamicMcpToolProvider(mcpToolManager, configs)));
 
                     Optional.ofNullable(setting.getToolKeys())
                             .filter(CollectionUtil::isNotEmpty)
-                            .map(keys -> aiToolMapper.selectList(new LambdaQueryWrapper<AiToolEntity>()
+                            .map(keys -> astAiToolMapper.selectList(new LambdaQueryWrapper<AiToolEntity>()
                                     .in(AiToolEntity::getToolKey, keys)
                                     .eq(AiToolEntity::getEnvCode, env)))
                             .ifPresent(configs -> providers.add(new DynamicToolProvider(configs, applicationContext, globalToolCache)));

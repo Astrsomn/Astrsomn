@@ -44,18 +44,18 @@
 
 ***
 
-
 ## 🏗️ 项目施工中 🏗️
 
 | 状态 | 功能模块           | 说明                 |
-| -- | -------------- | ------------------ |
+|----|----------------|--------------------|
 | ✅  | **Agent 生命周期** | 已完成创建、配置、管理能力      |
 | ✅  | **环境初始化**      | 支持快速环境配置与初始化       |
 | ✅  | **依赖快速引入**     | Maven Starter 一键集成 |
 | ✅  | **基本配置功能**     | 提供核心配置管理能力         |
-| ❌  | **工作流模块**      | 规划中，尚未开放可用版本      |
-| ❌  | **向量库集成**      | 部分实现，不稳定           |
-| ❌  | **安全与治理**      | 多租户、限流、监控等功能缺失     |
+| ✅  | **RAG 能力**        | 已完成向量检索与知识库能力      |
+| 🔄  | **工作流模块**      | 计划 2.0 版本发布         |
+| ✅  | **向量库集成**      | 支持 Chroma 向量数据库       |
+| ❌  | **安全与治理**      | 限流、监控等功能待完善        |
 | ⚠️ | **API 兼容性**    | 可能随时变更，不保证向后兼容     |
 
 **⚠️ 请勿用于生产环境！⚠️**
@@ -80,11 +80,10 @@
 > **一行注解，即刻开启 AI 进化**\
 > 基于 LangChain4j 深度封装，面向 Java 的标准化、生产级 AI 集成底座
 
-
 ## ✨ 核心特性
 
 | 特性           | 描述                                                                                    |
-| ------------ | ------------------------------------------------------------------------------------- |
+|--------------|---------------------------------------------------------------------------------------|
 | 🔧 **深度封装**  | 完整封装 LangChain4j 能力（LLM / Embedding / Vector Database / Memory / RAG / Tools / Agent） |
 | 🚀 **零侵入接入** | SpringBoot Starter 自动配置，一行注解即可集成                                                      |
 | 🔌 **可插拔设计** | Provider/Vector 可插拔架构，支持多模型与多向量库治理                                                    |
@@ -98,7 +97,7 @@
 ## 🛠️ 技术栈
 
 | 类别    | 技术                               |
-| ----- | -------------------------------- |
+|-------|----------------------------------|
 | 后端框架  | Spring Boot 3.3.0                |
 | 语言    | Java 17+                         |
 | AI 集成 | LangChain4j 1.11.x               |
@@ -109,14 +108,14 @@
 
 ### 🔑 关键依赖与主版本（快速了解）
 
-| 依赖坐标 | 主版本 | 用途 |
-| --- | --- | --- |
-| `com.astrsomn:astrsomn-runtime-starter` | `0.2.0-SNAPSHOT` | 一站式接入入口，提供注解注入与运行时能力 |
-| `dev.langchain4j:langchain4j-core` | `1.11.x` | LangChain4j 核心抽象与调用能力 |
-| `dev.langchain4j:langchain4j-open-ai` | `1.11.x` | OpenAI 协议模型接入（DeepSeek 等兼容场景） |
-| `dev.langchain4j:langchain4j-community-zhipu-ai` | `1.11.0-beta19` | 智谱模型接入能力 |
-| `org.springframework.boot:spring-boot-starter` | `3.3.x` | Spring Boot 运行与自动配置基础 |
-| `com.baomidou:mybatis-plus-spring-boot3-starter` | `3.5.x` | 数据访问与配置持久化基础能力 |
+| 依赖坐标                                             | 主版本              | 用途                            |
+|--------------------------------------------------|------------------|-------------------------------|
+| `com.astrsomn:astrsomn-runtime-starter`          | `0.2.0-SNAPSHOT` | 一站式接入入口，提供注解注入与运行时能力          |
+| `dev.langchain4j:langchain4j-core`               | `1.11.x`         | LangChain4j 核心抽象与调用能力         |
+| `dev.langchain4j:langchain4j-open-ai`            | `1.11.x`         | OpenAI 协议模型接入（DeepSeek 等兼容场景） |
+| `dev.langchain4j:langchain4j-community-zhipu-ai` | `1.11.0-beta19`  | 智谱模型接入能力                      |
+| `org.springframework.boot:spring-boot-starter`   | `3.3.x`          | Spring Boot 运行与自动配置基础         |
+| `com.baomidou:mybatis-plus-spring-boot3-starter` | `3.5.x`          | 数据访问与配置持久化基础能力                |
 
 > 说明：文档使用"主版本"帮助快速判断兼容范围；精确补丁版本以各模块 `pom.xml` 为准。
 
@@ -159,11 +158,11 @@ Astrsomn
 
 ### 环境要求
 
-| 环境    | 版本要求       |
-| ------- | -------------- |
-| JDK     | 21+            |
-| Maven   | 3.8+           |
-| MySQL   | 8.0+（推荐）   |
+| 环境      | 版本要求      |
+|---------|-----------|
+| JDK     | 21+       |
+| Maven   | 3.8+      |
+| MySQL   | 8.0+（推荐）  |
 | Node.js | 18+（前端开发） |
 
 ---
@@ -187,6 +186,7 @@ CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 编辑 `astrsomn-server/src/main/resources/application-mysql.yml`，修改数据库连接信息：
 
 **必须修改项**：
+
 - `datasource.url` 中的 `host`、`port`、数据库名
 - `datasource.username`
 - `datasource.password`
@@ -358,7 +358,7 @@ public class MyService {
 ## 📚 官方网站与文档
 
 | 类型           | 链接                                                        |
-| ------------ | --------------------------------------------------------- |
+|--------------|-----------------------------------------------------------|
 | 🏠 官方网站      | [astrsomn.com](https://www.astrsomn.com/home.html)        |
 | 📖 官方文档      | [doc.astrsomn.com](https://doc.astrsomn.com)              |
 | 💻 GitHub 仓库 | [Astrsomn/Astrsomn](https://github.com/Astrsomn/Astrsomn) |
@@ -368,7 +368,7 @@ public class MyService {
 ## 📚 文档与资源
 
 | 文档类型      | 链接                                                                        |
-| --------- | ------------------------------------------------------------------------- |
+|-----------|---------------------------------------------------------------------------|
 | 📖 系统设计文档 | [系统设计文档](document/系统设计文档.md)                                              |
 | 🌐 中文介绍站点 | [astrsomn-introduction](astrsomn-introduction/)                           |
 | 📝 英文文档   | [README-EN.md](README-EN.md)                                              |

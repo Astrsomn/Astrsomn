@@ -1,7 +1,7 @@
 package com.astrsomn.api.runtime.common.dto.account;
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
+import lombok.Data;
 
 import java.io.Serializable;
 

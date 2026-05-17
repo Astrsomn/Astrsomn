@@ -1,15 +1,15 @@
 package com.astrsomn.server.config;
 
+import com.astrsomn.api.vector.constant.AiVecDriverEnum;
+import com.astrsomn.api.vector.constant.AiVecSourceEnum;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
+import com.astrsomn.server.service.support.QueryEnvParamHelper;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
+import com.astrsomn.starter.runtime.vector.mapper.AstAiVecSourceMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
-import com.astrsomn.api.runtime.common.constant.AiVecSourceEnum;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
-import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
-import com.astrsomn.starter.runtime.mapper.AiVecSourceMapper;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -29,12 +29,12 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
     private static final String STATUS_DISABLED = AiVecDriverEnum.StatusEnum.DISABLED.getCode();
     private static final String STATUS_ENABLED = AiVecSourceEnum.StatusEnum.ENABLED.getCode();
 
-    private AiVecSourceMapper vecSourceMapper;
+    private AstAiVecSourceMapper vecSourceMapper;
     private AstroVecSourceFactory vecSourceFactory;
     private QueryEnvParamHelper envParamHelper;
 
     @Autowired(required = false)
-    public void setVecSourceMapper(AiVecSourceMapper vecSourceMapper) {
+    public void setVecSourceMapper(AstAiVecSourceMapper vecSourceMapper) {
         this.vecSourceMapper = vecSourceMapper;
     }
 

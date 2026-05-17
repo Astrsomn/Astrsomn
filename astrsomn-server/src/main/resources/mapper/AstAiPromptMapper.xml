@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.server.mapper.AiPromptMapper">
+    <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.prompt.AiPromptResponseDTO">
+        SELECT
+        AP.*
+        FROM
+        `AI_PROMPT` AP
+        INNER JOIN (
+        SELECT
+        ENV_CODE,
+        PROMPT_KEY,
+        MAX(VERSION) AS max_version
+        FROM
+        `AI_PROMPT`
+        WHERE
+        DELETED = 0
+        GROUP BY
+        ENV_CODE,
+        PROMPT_KEY
+        ) LATEST ON AP.ENV_CODE = LATEST.ENV_CODE
+        AND AP.PROMPT_KEY = LATEST.PROMPT_KEY
+        AND AP.VERSION = LATEST.max_version
+        WHERE
+        AP.DELETED = 0
+        <if test="req != null and req.createUser != null and req.createUser != ''">
+            AND AP.CREATE_USER = #{req.createUser}
+        </if>
+        <if test="req != null and req.promptKey != null and req.promptKey != ''">
+            AND AP.PROMPT_KEY = #{req.promptKey}
+        </if>
+        <if test="req != null and req.promptTitle != null and req.promptTitle != ''">
+            AND AP.PROMPT_TITLE LIKE CONCAT('%', #{req.promptTitle}, '%')
+        </if>
+        <if test="req != null and req.scene != null and req.scene != ''">
+            AND JSON_CONTAINS(AP.SCENE, JSON_QUOTE(#{req.scene}))
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND AP.STATUS = #{req.status}
+        </if>
+        ORDER BY
+        AP.CREATE_TIME DESC
+    </select>
+
+    <select id="listHistoryByPromptKey" resultType="com.astrsomn.api.runtime.common.dto.prompt.AiPromptResponseDTO">
+        SELECT AP.*
+        FROM AI_PROMPT AP
+        WHERE AP.DELETED = 0
+          AND AP.PROMPT_KEY = #{promptKey}
+        ORDER BY AP.VERSION DESC,
+                 AP.ID DESC
+    </select>
+
+    <select id="getByUUID" resultType="java.lang.String">
+
+    </select>
+
+    <select id="getLatestPromptContentByPromptKey" resultType="java.lang.String">
+        SELECT AP.PROMPT_CONTENT
+        FROM AI_PROMPT AP
+        WHERE AP.DELETED = 0
+          AND AP.PROMPT_KEY = #{promptKey}
+
+        ORDER BY AP.VERSION DESC,
+                 AP.ID DESC LIMIT 1
+    </select>
+
+    <select id="querySceneRawList" resultType="java.lang.String">
+        SELECT AP.SCENE
+        FROM `AI_PROMPT` AP
+                 INNER JOIN (SELECT ENV_CODE,
+                                    PROMPT_KEY,
+                                    MAX(VERSION) AS max_version
+                             FROM `AI_PROMPT`
+                             WHERE DELETED = 0
+                             GROUP BY ENV_CODE,
+                                      PROMPT_KEY) LATEST ON AP.ENV_CODE = LATEST.ENV_CODE
+            AND AP.PROMPT_KEY = LATEST.PROMPT_KEY
+            AND AP.VERSION = LATEST.max_version
+        WHERE AP.DELETED = 0
+          AND AP.SCENE IS NOT NULL
+          AND AP.SCENE != ''
+        ORDER BY AP.CREATE_TIME DESC
+    </select>
+</mapper>

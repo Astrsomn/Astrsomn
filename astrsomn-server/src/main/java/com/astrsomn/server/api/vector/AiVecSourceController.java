@@ -1,17 +1,16 @@
 package com.astrsomn.server.api.vector;
 
-import lombok.RequiredArgsConstructor;
+import com.astrsomn.api.vector.dto.vecsource.*;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceSetStatusRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceUpdateRequestDTO;
 import com.astrsomn.server.service.AiVecSourceService;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/astro/ai-vec-source")
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class AiVecSourceController extends BaseController {
 
     private final AiVecSourceService aiVecSourceService;
+    private final AstroVecSourceFactory astroVecSourceFactory;
 
     @PostMapping("/create")
     public BaseResponse<String> create(@RequestBody AiVecSourceCreateRequestDTO request) {
@@ -40,7 +40,9 @@ public class AiVecSourceController extends BaseController {
         return aiVecSourceService.testConnection(request);
     }
 
-    /** 启用 / 禁用：更新 STATUS，并注册或移除运行时向量源连接缓存。 */
+    /**
+     * 启用 / 禁用：更新 STATUS，并注册或移除运行时向量源连接缓存。
+     */
     @PostMapping("/set-status")
     public BaseResponse<String> setStatus(@RequestBody AiVecSourceSetStatusRequestDTO request) {
         return aiVecSourceService.setEnabledStatus(request);
@@ -59,5 +61,10 @@ public class AiVecSourceController extends BaseController {
     @GetMapping("/detail")
     public BaseResponse<AiVecSourceResponseDTO> detail(@RequestParam("id") Long id) {
         return aiVecSourceService.detail(id);
+    }
+
+    @GetMapping("/available-drivers")
+    public BaseResponse<List<AiVecDriverDTO>> availableDrivers() {
+        return BaseResponse.success(astroVecSourceFactory.getAvailableDrivers());
     }
 }

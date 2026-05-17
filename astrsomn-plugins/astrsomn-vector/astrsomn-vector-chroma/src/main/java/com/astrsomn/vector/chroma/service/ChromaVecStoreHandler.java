@@ -1,14 +1,14 @@
 package com.astrsomn.vector.chroma.service;
 
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import com.astrsomn.api.runtime.common.entity.AiVecDocEntity;
-import com.astrsomn.api.runtime.common.entity.AiVecStoreEntity;
+import com.astrsomn.api.vector.entity.AiVecDocEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecDoc;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecStore;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.vector.chroma.internal.ChromaCollectionAdmin;
 import com.astrsomn.vector.chroma.internal.ChromaEmbeddingStores;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.store.embedding.EmbeddingStore;
 
 public final class ChromaVecStoreHandler extends AbstractVecStore {
 

@@ -1,131 +1,123 @@
 <template>
-  <AdminPageShell
-    title="FTL 模板管理"
-    description="维护 Freemarker / StringTemplate 模板（AI_TEMPLATE），与 AiTemplateController 对应。"
-    empty-text="暂无模板，请先创建。"
-    :breadcrumbs="breadcrumbs"
+  <AstPageShell
+      :breadcrumbs="breadcrumbs"
+      description="维护 Freemarker / StringTemplate 模板（AI_TEMPLATE），与 AiTemplateController 对应。"
+      empty-text="暂无模板，请先创建。"
+      title="FTL 模板管理"
   >
     <div class="template-page">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-          <AstrsomnSearchPill
-            v-model="query.templateTitle"
-            placeholder="搜索模板标题"
-            @search="fetchList"
-          />
-          <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
+              <AstSearchInput
+                  v-model="query.templateTitle"
+                  placeholder="搜索模板标题"
+                  @search="fetchList"
+              />
+              <AstStatusSwitch v-model="query.status" @change="fetchList"/>
             </div>
             <div class="toolbar-right">
-          <AstrsomnSegmentedButton :buttons="segmentedButtons" />
+              <AstegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
         </template>
 
         <template v-if="showAdvanced" #toolbar-extra>
           <a-input
-            v-model:value="query.category"
-            placeholder="分类"
-            class="toolbar-input narrow"
-            allow-clear
-            @pressEnter="fetchList"
+              v-model:value="query.category"
+              allow-clear
+              class="toolbar-input narrow"
+              placeholder="分类"
+              @pressEnter="fetchList"
           >
-            <template #prefix><tags-outlined /></template>
+            <template #prefix>
+              <tags-outlined/>
+            </template>
           </a-input>
           <a-select
-            v-model:value="query.templateType"
-            :options="templateTypeFilterOptions"
-            placeholder="模板类型"
-            class="toolbar-select narrow-select"
-            allow-clear
+              v-model:value="query.templateType"
+              :options="templateTypeFilterOptions"
+              allow-clear
+              class="toolbar-select narrow-select"
+              placeholder="模板类型"
           />
         </template>
 
 
-
-        <AstrsomnDataView
-          mode="table"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1100 }"
-          row-key="id"
-          empty-text="暂无匹配的模板"
+        <AstDataView
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1100 }"
+            empty-text="暂无匹配的模板"
+            mode="table"
+            row-key="id"
         >
           <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'templateType'">
-            <span>{{ renderTemplateType(String(record.templateType || '')) }}</span>
+            <template v-if="column.key === 'templateType'">
+              <span>{{ renderTemplateType(String(record.templateType || '')) }}</span>
+            </template>
+            <template v-else-if="column.key === 'status'">
+              <span>{{ renderStatus(String(record.status || '')) }}</span>
+            </template>
+            <template v-else-if="column.key === 'content'">
+              <span class="content-preview">{{ previewContent(record.content) }}</span>
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-button type="link" @click="openEdit(record)">编辑</a-button>
+              <a-divider type="vertical"/>
+              <a-popconfirm
+                  cancel-text="取消"
+                  ok-text="确认"
+                  title="确定删除吗？"
+                  @confirm="() => handleDeleteOne(record.id)"
+              >
+                <a-button danger type="link">删除</a-button>
+              </a-popconfirm>
+            </template>
           </template>
-          <template v-else-if="column.key === 'status'">
-            <span>{{ renderStatus(String(record.status || '')) }}</span>
-          </template>
-          <template v-else-if="column.key === 'content'">
-            <span class="content-preview">{{ previewContent(record.content) }}</span>
-          </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-button type="link" @click="openEdit(record)">编辑</a-button>
-            <a-divider type="vertical" />
-            <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
-            >
-              <a-button type="link" danger>删除</a-button>
-            </a-popconfirm>
-          </template>
-          </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+          <AstPagination
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
       <TemplateFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
-import {
-  CheckCircleOutlined,
-  DeleteOutlined,
-  FilterOutlined,
-  KeyOutlined,
-  PlusOutlined,
-  SearchOutlined,
-  StopOutlined,
-  TagsOutlined
-} from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message} from 'ant-design-vue'
+import {DeleteOutlined, FilterOutlined, PlusOutlined, TagsOutlined} from '@ant-design/icons-vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton from '@/components/home/AstegmentedButton.vue'
+import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
 import TemplateFormModal from './TemplateFormModal.vue'
-import { aiTemplateApi, type AiTemplate, type PageResponse } from '@/api/aiTemplate.ts'
+import {type AiTemplate, aiTemplateApi, type PageResponse} from '@/api/aiTemplate.ts'
 
 const breadcrumbs = [
-  { title: 'AI 安全', href: '/admin/ai-safety' },
-  { title: 'FTL 模板管理' },
+  {title: 'AI 安全', href: '/admin/ai-safety'},
+  {title: 'FTL 模板管理'},
 ]
 
 type QueryState = {
@@ -137,13 +129,13 @@ type QueryState = {
 }
 
 const statusOptions = [
-  { label: 'Enabled', value: 'enabled' },
-  { label: 'Disabled', value: 'disabled' }
+  {label: 'Enabled', value: 'enabled'},
+  {label: 'Disabled', value: 'disabled'}
 ]
 
 const templateTypeFilterOptions = [
-  { label: 'Freemarker', value: 'FREEMARKER' },
-  { label: 'StringTemplate', value: 'STRING_TEMPLATE' }
+  {label: 'Freemarker', value: 'FREEMARKER'},
+  {label: 'StringTemplate', value: 'STRING_TEMPLATE'}
 ]
 
 const renderStatus = (status: string) => {
@@ -161,14 +153,14 @@ const previewContent = (raw: string | undefined) => {
 }
 
 const columns = [
-  { title: 'Template Key', dataIndex: 'templateKey', key: 'templateKey', width: 160, ellipsis: true },
-  { title: '标题', dataIndex: 'templateTitle', key: 'templateTitle', width: 180, ellipsis: true },
-  { title: '分类', dataIndex: 'category', key: 'category', width: 100, ellipsis: true },
-  { title: '类型', key: 'templateType', width: 130 },
-  { title: '版本', dataIndex: 'version', key: 'version', width: 72 },
-  { title: '内容预览', key: 'content', width: 260, ellipsis: true },
-  { title: '状态', key: 'status', width: 90 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  {title: 'Template Key', dataIndex: 'templateKey', key: 'templateKey', width: 160, ellipsis: true},
+  {title: '标题', dataIndex: 'templateTitle', key: 'templateTitle', width: 180, ellipsis: true},
+  {title: '分类', dataIndex: 'category', key: 'category', width: 100, ellipsis: true},
+  {title: '类型', key: 'templateType', width: 130},
+  {title: '版本', dataIndex: 'version', key: 'version', width: 72},
+  {title: '内容预览', key: 'content', width: 260, ellipsis: true},
+  {title: '状态', key: 'status', width: 90},
+  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
 ]
 
 const query = reactive<QueryState>({})
@@ -185,9 +177,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -259,7 +251,7 @@ const segmentedButtons = computed(() => {
       onClick: openCreate
     }
   ]
-  
+
   return buttons
 })
 
@@ -318,7 +310,7 @@ const handleDeleteOne = async (id: number | string) => {
 const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
-  
+
   if (confirm('确定批量删除选中的模板吗？')) {
     const msg = await aiTemplateApi.delete(ids)
     message.success(msg)
@@ -330,7 +322,7 @@ const handleBatchDelete = async () => {
 const handleFormSubmit = async (form: AiTemplate) => {
   modal.submitting = true
   try {
-    const payload: AiTemplate = { ...form }
+    const payload: AiTemplate = {...form}
     const v = payload.version
     if (v !== undefined && v !== null) {
       const n = Number(v)
@@ -519,6 +511,7 @@ void fetchList()
   .pagination-wrap {
     justify-content: center;
   }
+
   .toolbar-left,
   .toolbar-right {
     width: 100%;

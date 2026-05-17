@@ -2,93 +2,146 @@ import request from '@/utils/request'
 
 /** 与后端 {@code AiVecDocEnum.SyncStatus} 一致 */
 export const AiVecDocSyncStatus = {
-  PENDING: 'PENDING',
-  STORED: 'STORED',
-  INVALID: 'INVALID'
+    PENDING: 'PENDING',
+    CHUNKING: 'CHUNKING',
+    CHUNKED: 'CHUNKED',
+    VECTORING: 'VECTORING',
+    STORED: 'STORED',
+    FAILED: 'FAILED',
+    INVALID: 'INVALID'
 } as const
 
 export type AiVecDoc = {
-  id?: number | string
-  collectionId?: number | string
-  docIdInStore?: string
-  contentSummary?: string
-  syncStatus?: string
-  filePath?: string
-  originalFileName?: string
-  createTime?: string
-  updateTime?: string
-  createUser?: string
-  updateUser?: string
-  envCode?: string
+    id?: number | string
+    collectionId?: number | string
+    docIdInStore?: string
+    contentSummary?: string
+    syncStatus?: string
+    filePath?: string
+    originalFileName?: string
+    vectorizeProgress?: number
+    vectorizeMsg?: string
+    totalSegments?: number
+    doneSegments?: number
+    folderId?: number | string | null
+    createTime?: string
+    updateTime?: string
+    createUser?: string
+    updateUser?: string
+    envCode?: string
+}
+
+export type AiVecDocVectorizeProgress = {
+    taskId?: string
+    status?: string
+    progress?: number
+    message?: string
+    totalSegments?: number
+    doneSegments?: number
 }
 
 export type PageResponse<T> = {
-  total: number
-  pageSize: number
-  pageNum: number
-  pages: number
-  hasNext: boolean
-  list: T[]
+    total: number
+    pageSize: number
+    pageNum: number
+    pages: number
+    hasNext: boolean
+    list: T[]
 }
 
 export const aiVecDocApi = {
-  queryPage: (payload: unknown): Promise<PageResponse<AiVecDoc>> => {
-    return request({
-      url: '/v1/astro/ai-vec-doc/queryPage',
-      method: 'post',
-      data: payload
-    })
-  },
+    queryPage: (payload: unknown): Promise<PageResponse<AiVecDoc>> => {
+        return request({
+            url: '/v1/astro/ai-vec-doc/queryPage',
+            method: 'post',
+            data: payload
+        })
+    },
 
-  detail: (id: number | string): Promise<AiVecDoc> => {
-    return request({
-      url: `/v1/astro/ai-vec-doc/detail?id=${encodeURIComponent(String(id))}`,
-      method: 'get'
-    })
-  },
+    detail: (id: number | string): Promise<AiVecDoc> => {
+        return request({
+            url: `/v1/astro/ai-vec-doc/detail?id=${encodeURIComponent(String(id))}`,
+            method: 'get'
+        })
+    },
 
-  create: (payload: AiVecDoc): Promise<string> => {
-    return request({
-      url: '/v1/astro/ai-vec-doc/create',
-      method: 'post',
-      data: payload
-    })
-  },
+    create: (payload: AiVecDoc): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-vec-doc/create',
+            method: 'post',
+            data: payload
+        })
+    },
 
-  update: (payload: AiVecDoc): Promise<string> => {
-    return request({
-      url: '/v1/astro/ai-vec-doc/update',
-      method: 'post',
-      data: payload
-    })
-  },
+    update: (payload: AiVecDoc): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-vec-doc/update',
+            method: 'post',
+            data: payload
+        })
+    },
 
-  delete: (ids: Array<number | string>): Promise<string> => {
-    const joined = ids.map((x) => String(x)).join(',')
-    return request({
-      url: `/v1/astro/ai-vec-doc/delete/${joined}`,
-      method: 'delete'
-    })
-  },
+    delete: (ids: Array<number | string>): Promise<string> => {
+        const joined = ids.map((x) => String(x)).join(',')
+        return request({
+            url: `/v1/astro/ai-vec-doc/delete/${joined}`,
+            method: 'delete'
+        })
+    },
 
-  upload: (file: File | Blob, collectionId: number | string): Promise<AiVecDoc> => {
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('collectionId', String(collectionId))
-    return request({
-      url: '/v1/astro/ai-vec-doc/upload',
-      method: 'post',
-      data: fd,
-      timeout: 120000
-    })
-  },
+    upload: (file: File | Blob, collectionId: number | string, folderId?: number | string | null): Promise<AiVecDoc> => {
+        const fd = new FormData()
+        fd.append('file', file)
+        fd.append('collectionId', String(collectionId))
+        if (folderId != null) fd.append('folderId', String(folderId))
+        return request({
+            url: '/v1/astro/ai-vec-doc/upload',
+            method: 'post',
+            data: fd,
+            timeout: 120000
+        })
+    },
 
-  vectorize: (id: number | string): Promise<string> => {
-    return request({
-      url: '/v1/astro/ai-vec-doc/vectorize',
-      method: 'post',
-      data: { id },
-      timeout: 300000
-    })
-  }
+    vectorize: (id: number | string): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-vec-doc/vectorize',
+            method: 'post',
+            data: {id},
+            timeout: 300000
+        })
+    },
+
+    vectorizeProgress: (id: number | string): Promise<AiVecDocVectorizeProgress> => {
+        return request({
+            url: `/v1/astro/ai-vec-doc/vectorize-progress?id=${encodeURIComponent(String(id))}`,
+            method: 'get'
+        })
+    },
+
+    reVectorize: (id: number | string): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-vec-doc/re-vectorize',
+            method: 'post',
+            data: {id},
+            timeout: 300000
+        })
+    },
+
+    chunk: (id: number | string): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-vec-doc/chunk',
+            method: 'post',
+            data: {id},
+            timeout: 300000
+        })
+    },
+
+    reChunk: (id: number | string): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-vec-doc/re-chunk',
+            method: 'post',
+            data: {id},
+            timeout: 300000
+        })
+    }
 }

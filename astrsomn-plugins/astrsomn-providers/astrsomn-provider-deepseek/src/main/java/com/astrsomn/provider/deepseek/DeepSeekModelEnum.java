@@ -1,278 +1,274 @@
 package com.astrsomn.provider.deepseek;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import com.astrsomn.common.base.BaseEnum;
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.constant.AiModelParamEnum;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
+import com.astrsomn.common.base.BaseEnum;
 import com.astrsomn.common.utils.EnumUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 public enum DeepSeekModelEnum {
 
     // --- Chat Models (对话模型) ---
-    DEEPSEEK_CHAT("deepseek-chat", "DeepSeek Chat (V3)", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
-            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.TOP_K,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
-            AiModelParamEnum.ChatParamEnum.SEED,
-            AiModelParamEnum.ChatParamEnum.FREQUENCY_PENALTY,
-            AiModelParamEnum.ChatParamEnum.PRESENCE_PENALTY
-        )
+    DEEPSEEK_CHAT("deepseek-chat", "DeepSeek Chat (V3)", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+                    AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.TOP_K,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
+                    AiModelParamEnum.ChatParamEnum.SEED,
+                    AiModelParamEnum.ChatParamEnum.FREQUENCY_PENALTY,
+                    AiModelParamEnum.ChatParamEnum.PRESENCE_PENALTY
+            )
     ),
-    DEEPSEEK_CHAT_V3("deepseek-chat-v3", "DeepSeek Chat V3", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
-            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.TOP_K,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
-            AiModelParamEnum.ChatParamEnum.SEED,
-            AiModelParamEnum.ChatParamEnum.FREQUENCY_PENALTY,
-            AiModelParamEnum.ChatParamEnum.PRESENCE_PENALTY
-        )
+    DEEPSEEK_CHAT_V3("deepseek-chat-v3", "DeepSeek Chat V3", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+                    AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.TOP_K,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
+                    AiModelParamEnum.ChatParamEnum.SEED,
+                    AiModelParamEnum.ChatParamEnum.FREQUENCY_PENALTY,
+                    AiModelParamEnum.ChatParamEnum.PRESENCE_PENALTY
+            )
     ),
 
     // --- Reasoning Models (推理模型) ---
     DEEPSEEK_R1("deepseek-reasoner", "DeepSeek R1 (Reasoning)",
-                AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING,
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
-            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.TOP_K,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
-            AiModelParamEnum.ChatParamEnum.SEED
-        )
+            AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+                    AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.TOP_K,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
+                    AiModelParamEnum.ChatParamEnum.SEED
+            )
     ),
     DEEPSEEK_R1_PREVIEW("deepseek-reasoner-preview", "DeepSeek R1 Preview",
-                        AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING,
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+            AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
     DEEPSEEK_R1_LITE("deepseek-reasoner-lite", "DeepSeek R1 Lite",
-                    AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING,
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+            AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
 
     // --- Code Models (代码模型) ---
-    DEEPSEEK_CODER("deepseek-coder", "DeepSeek Coder", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
-            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    DEEPSEEK_CODER("deepseek-coder", "DeepSeek Coder", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+                    AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    DEEPSEEK_CODER_V2("deepseek-coder-v2", "DeepSeek Coder V2", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
-            AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.TOP_K,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
-            AiModelParamEnum.ChatParamEnum.SEED,
-            AiModelParamEnum.ChatParamEnum.FREQUENCY_PENALTY,
-            AiModelParamEnum.ChatParamEnum.PRESENCE_PENALTY
-        )
+    DEEPSEEK_CODER_V2("deepseek-coder-v2", "DeepSeek Coder V2", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS,
+                    AiModelParamEnum.ChatCapabilitiesEnum.JSON_MODE
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.TOP_K,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS,
+                    AiModelParamEnum.ChatParamEnum.SEED,
+                    AiModelParamEnum.ChatParamEnum.FREQUENCY_PENALTY,
+                    AiModelParamEnum.ChatParamEnum.PRESENCE_PENALTY
+            )
     ),
-    DEEPSEEK_CODER_INSTRUCT("deepseek-coder-instruct", "DeepSeek Coder Instruct", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    DEEPSEEK_CODER_INSTRUCT("deepseek-coder-instruct", "DeepSeek Coder Instruct", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
 
     // --- Math Models (数学模型) ---
-    DEEPSEEK_MATH("deepseek-math", "DeepSeek Math", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    DEEPSEEK_MATH("deepseek-math", "DeepSeek Math", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    DEEPSEEK_MATH_V2("deepseek-math-v2", "DeepSeek Math V2", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    DEEPSEEK_MATH_V2("deepseek-math-v2", "DeepSeek Math V2", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.DEEP_REASONING
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
 
     // --- Embedding Models (向量模型) ---
     DEEPSEEK_EMBEDDING("deepseek-embed", "DeepSeek Embedding v1",
-                       AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
-        ),
-        List.of(
-            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS,
-            AiModelParamEnum.EmbeddingParamEnum.USER,
-            AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES,
-            AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS,
-            AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH,
-            AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT
-        )
+            AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
+            ),
+            List.of(
+                    AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS,
+                    AiModelParamEnum.EmbeddingParamEnum.USER,
+                    AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES,
+                    AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS,
+                    AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH,
+                    AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT
+            )
     ),
     DEEPSEEK_EMBEDDING_V2("deepseek-embed-v2", "DeepSeek Embedding v2",
-                         AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
-        ),
-        List.of(
-            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS,
-            AiModelParamEnum.EmbeddingParamEnum.USER,
-            AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES,
-            AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS,
-            AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH,
-            AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT
-        )
+            AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
+            ),
+            List.of(
+                    AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS,
+                    AiModelParamEnum.EmbeddingParamEnum.USER,
+                    AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES,
+                    AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS,
+                    AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH,
+                    AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT
+            )
     ),
     DEEPSEEK_EMBEDDING_LITE("deepseek-embed-lite", "DeepSeek Embedding Lite",
-                           AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
-        ),
-        List.of(
-            AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS,
-            AiModelParamEnum.EmbeddingParamEnum.USER,
-            AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES,
-            AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS,
-            AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH,
-            AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT
-        )
+            AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
+            ),
+            List.of(
+                    AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS,
+                    AiModelParamEnum.EmbeddingParamEnum.USER,
+                    AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES,
+                    AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS,
+                    AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH,
+                    AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT
+            )
     ),
 
     // --- Multimodal Models (多模态模型) ---
-    DEEPSEEK_VL("deepseek-vl", "DeepSeek VL (Vision-Language)", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.VISION,
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    DEEPSEEK_VL("deepseek-vl", "DeepSeek VL (Vision-Language)", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.VISION,
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    DEEPSEEK_VL_CHAT("deepseek-vl-chat", "DeepSeek VL Chat", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.VISION,
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    DEEPSEEK_VL_CHAT("deepseek-vl-chat", "DeepSeek VL Chat", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.VISION,
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
 
     // --- Image Models (图像模型) ---
     DEEPSEEK_JANUS("deepseek-janus", "DeepSeek Janus (Multimodal)",
-                   AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE
-        ),
-        List.of(
-            AiModelParamEnum.ImageParamEnum.SIZE,
-            AiModelParamEnum.ImageParamEnum.QUALITY,
-            AiModelParamEnum.ImageParamEnum.STYLE,
-            AiModelParamEnum.ImageParamEnum.RESPONSE_FORMAT,
-            AiModelParamEnum.ImageParamEnum.USER,
-            AiModelParamEnum.ImageParamEnum.MAX_RETRIES,
-            AiModelParamEnum.ImageParamEnum.TIMEOUT_SECONDS
-        )
+            AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE
+            ),
+            List.of(
+                    AiModelParamEnum.ImageParamEnum.SIZE,
+                    AiModelParamEnum.ImageParamEnum.QUALITY,
+                    AiModelParamEnum.ImageParamEnum.STYLE,
+                    AiModelParamEnum.ImageParamEnum.RESPONSE_FORMAT,
+                    AiModelParamEnum.ImageParamEnum.USER,
+                    AiModelParamEnum.ImageParamEnum.MAX_RETRIES,
+                    AiModelParamEnum.ImageParamEnum.TIMEOUT_SECONDS
+            )
     ),
     DEEPSEEK_JANUS_PRO("deepseek-janus-pro", "DeepSeek Janus Pro",
-                      AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE,
-            AiModelParamEnum.ImageCapabilitiesEnum.IMAGE_EDITING
-        ),
-        List.of(
-            AiModelParamEnum.ImageParamEnum.SIZE,
-            AiModelParamEnum.ImageParamEnum.QUALITY,
-            AiModelParamEnum.ImageParamEnum.STYLE,
-            AiModelParamEnum.ImageParamEnum.RESPONSE_FORMAT,
-            AiModelParamEnum.ImageParamEnum.USER,
-            AiModelParamEnum.ImageParamEnum.MAX_RETRIES,
-            AiModelParamEnum.ImageParamEnum.TIMEOUT_SECONDS
-        )
+            AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE,
+                    AiModelParamEnum.ImageCapabilitiesEnum.IMAGE_EDITING
+            ),
+            List.of(
+                    AiModelParamEnum.ImageParamEnum.SIZE,
+                    AiModelParamEnum.ImageParamEnum.QUALITY,
+                    AiModelParamEnum.ImageParamEnum.STYLE,
+                    AiModelParamEnum.ImageParamEnum.RESPONSE_FORMAT,
+                    AiModelParamEnum.ImageParamEnum.USER,
+                    AiModelParamEnum.ImageParamEnum.MAX_RETRIES,
+                    AiModelParamEnum.ImageParamEnum.TIMEOUT_SECONDS
+            )
     ),
 
     // --- Specialized Models (专用模型) ---
-    DEEPSEEK_MOE("deepseek-moe", "DeepSeek MoE", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
-            AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    DEEPSEEK_MOE("deepseek-moe", "DeepSeek MoE", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
+                    AiModelParamEnum.ChatCapabilitiesEnum.TOOLS
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
     DEEPSEEK_R1_0528("deepseek-r1-0528", "DeepSeek R1-0528", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
@@ -290,25 +286,25 @@ public enum DeepSeekModelEnum {
                     AiModelParamEnum.ChatParamEnum.SEED
             )
     ),
-    DEEPSEEK_LIGHT("deepseek-light", "DeepSeek Light", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    DEEPSEEK_LIGHT("deepseek-light", "DeepSeek Light", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
-    DEEPSEEK_TINY("deepseek-tiny", "DeepSeek Tiny", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(), 
-        List.of(
-            AiModelParamEnum.ChatCapabilitiesEnum.STREAMING
-        ),
-        List.of(
-            AiModelParamEnum.ChatParamEnum.TEMPERATURE,
-            AiModelParamEnum.ChatParamEnum.TOP_P,
-            AiModelParamEnum.ChatParamEnum.MAX_TOKENS
-        )
+    DEEPSEEK_TINY("deepseek-tiny", "DeepSeek Tiny", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
+            List.of(
+                    AiModelParamEnum.ChatCapabilitiesEnum.STREAMING
+            ),
+            List.of(
+                    AiModelParamEnum.ChatParamEnum.TEMPERATURE,
+                    AiModelParamEnum.ChatParamEnum.TOP_P,
+                    AiModelParamEnum.ChatParamEnum.MAX_TOKENS
+            )
     ),
 
     DEEPSEEK_V3_0324("deepseek-v3-0324", "DeepSeek V3-0324", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
@@ -347,22 +343,42 @@ public enum DeepSeekModelEnum {
             )
     );
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final String modelName;
     private final String description;
     private final String modelType;
     private final List<? extends BaseEnum> capabilities;
     private final List<? extends BaseEnum> params;
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    DeepSeekModelEnum(String modelName, String description, String modelType, 
-                     List<? extends BaseEnum> capabilities, 
-                     List<? extends BaseEnum> params) {
+    DeepSeekModelEnum(String modelName, String description, String modelType,
+                      List<? extends BaseEnum> capabilities,
+                      List<? extends BaseEnum> params) {
         this.modelName = modelName;
         this.description = description;
         this.modelType = modelType;
         this.capabilities = capabilities;
         this.params = params;
+    }
+
+    /**
+     * 判断指定模型是否支持给定参数编码。
+     */
+    public static boolean isParamAvailable(String modelKey, String targetParamCode) {
+        if (modelKey == null || modelKey.isBlank() || targetParamCode == null || targetParamCode.isBlank()) {
+            return false;
+        }
+        for (DeepSeekModelEnum model : values()) {
+            if (!modelKey.equals(model.getModelName())) {
+                continue;
+            }
+            for (BaseEnum modelParam : model.params) {
+                if (Objects.equals(modelParam.getCode(), targetParamCode)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
     }
 
     public String getModelKey() {
@@ -398,7 +414,7 @@ public enum DeepSeekModelEnum {
         }
     }
 
-    public AiModelEntity toEntity(String provider){
+    public AiModelEntity toEntity(String provider) {
         AiModelEntity entity = new AiModelEntity();
         entity.setModelKey(this.getModelKey());
         entity.setModelName(this.modelName);
@@ -410,27 +426,6 @@ public enum DeepSeekModelEnum {
         entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
         entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
         return entity;
-    }
-
-    /**
-     * 判断指定模型是否支持给定参数编码。
-     */
-    public static boolean isParamAvailable(String modelKey, String targetParamCode) {
-        if (modelKey == null || modelKey.isBlank() || targetParamCode == null || targetParamCode.isBlank()) {
-            return false;
-        }
-        for (DeepSeekModelEnum model : values()) {
-            if (!modelKey.equals(model.getModelName())) {
-                continue;
-            }
-            for (BaseEnum modelParam : model.params) {
-                if (Objects.equals(modelParam.getCode(), targetParamCode)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return false;
     }
 
 

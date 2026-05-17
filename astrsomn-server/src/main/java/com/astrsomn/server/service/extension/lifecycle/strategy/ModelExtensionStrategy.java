@@ -1,16 +1,16 @@
 package com.astrsomn.server.service.extension.lifecycle.strategy;
 
-import lombok.RequiredArgsConstructor;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.entity.SystemExtensionEntity;
+import com.astrsomn.system.exception.SystemExtensionErrorEnum;
 import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
-import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.api.runtime.exception.SystemExtensionErrorEnum;
+import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
 import com.astrsomn.server.service.extension.lifecycle.ExtensionLifecycleStrategy;
 import com.astrsomn.server.service.extension.support.SystemExtensionSourceHelper;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component

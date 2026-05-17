@@ -1,28 +1,28 @@
 <template>
-  <div class="wf-node" :class="{ 'wf-node-active': active }" :style="themeStyles">
+  <div :class="{ 'wf-node-active': active }" :style="themeStyles" class="wf-node">
     <Handle
-      v-for="handle in normalizedTargetHandles"
-      :id="handle.id"
-      :key="`target-${handle.id || 'default'}`"
-      type="target"
-      :position="Position.Left"
-      class="wf-handle"
-      :connectable="true"
-      :style="handle.style"
+        v-for="handle in normalizedTargetHandles"
+        :id="handle.id"
+        :key="`target-${handle.id || 'default'}`"
+        :connectable="true"
+        :position="Position.Left"
+        :style="handle.style"
+        class="wf-handle"
+        type="target"
     />
     <Handle
-      v-for="handle in normalizedSourceHandles"
-      :id="handle.id"
-      :key="`source-${handle.id || 'default'}`"
-      type="source"
-      :position="Position.Right"
-      class="wf-handle"
-      :connectable="true"
-      :style="handle.style"
+        v-for="handle in normalizedSourceHandles"
+        :id="handle.id"
+        :key="`source-${handle.id || 'default'}`"
+        :connectable="true"
+        :position="Position.Right"
+        :style="handle.style"
+        class="wf-handle"
+        type="source"
     />
     <div class="wf-node-header">
       <div class="wf-header-left">
-        <div class="wf-icon-box" :style="{ background: iconBackground, color: iconColor }">
+        <div :style="{ background: iconBackground, color: iconColor }" class="wf-icon-box">
           {{ iconText }}
         </div>
         <div class="wf-title-wrap">
@@ -30,7 +30,7 @@
           <div class="wf-node-subtitle">{{ subtitle }}</div>
         </div>
       </div>
-      <span v-if="badge" class="wf-badge" :style="{ background: badgeBackground, color: badgeColor }">{{ badge }}</span>
+      <span v-if="badge" :style="{ background: badgeBackground, color: badgeColor }" class="wf-badge">{{ badge }}</span>
     </div>
     <div class="wf-node-content">
       <slot>
@@ -40,11 +40,11 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue'
-import { Handle, Position } from '@vue-flow/core'
-import type { CSSProperties } from 'vue'
-import type { WorkflowNodeViewData } from './node-props'
+<script lang="ts" setup>
+import type {CSSProperties} from 'vue'
+import {computed} from 'vue'
+import {Handle, Position} from '@vue-flow/core'
+import type {WorkflowNodeViewData} from './node-props'
 
 type NodeHandle = {
   id?: string
@@ -52,61 +52,61 @@ type NodeHandle = {
 }
 
 const props = withDefaults(
-  defineProps<{
-    data?: WorkflowNodeViewData
-    fallbackLabel: string
-    fallbackDescription: string
-    targetHandles?: NodeHandle[]
-    sourceHandles?: NodeHandle[]
-    theme?: {
-      borderColor: string
-      background: string
-      titleColor: string
-      descColor: string
+    defineProps<{
+      data?: WorkflowNodeViewData
+      fallbackLabel: string
+      fallbackDescription: string
+      targetHandles?: NodeHandle[]
+      sourceHandles?: NodeHandle[]
+      theme?: {
+        borderColor: string
+        background: string
+        titleColor: string
+        descColor: string
+      }
+      subtitle?: string
+      badge?: string
+      iconText?: string
+      iconBackground?: string
+      iconColor?: string
+      badgeBackground?: string
+      badgeColor?: string
+      active?: boolean
+      minWidth?: string
+    }>(),
+    {
+      targetHandles: () => [{id: undefined}],
+      sourceHandles: () => [{id: undefined}],
+      theme: () => ({
+        borderColor: '#dbe3ee',
+        background: '#f8fafc',
+        titleColor: '#1e293b',
+        descColor: '#475569'
+      }),
+      subtitle: 'Workflow Node',
+      badge: '',
+      iconText: 'N',
+      iconBackground: '#eff6ff',
+      iconColor: '#1d4ed8',
+      badgeBackground: '#eff6ff',
+      badgeColor: '#1d4ed8',
+      active: false,
+      minWidth: '240px'
     }
-    subtitle?: string
-    badge?: string
-    iconText?: string
-    iconBackground?: string
-    iconColor?: string
-    badgeBackground?: string
-    badgeColor?: string
-    active?: boolean
-    minWidth?: string
-  }>(),
-  {
-    targetHandles: () => [{ id: undefined }],
-    sourceHandles: () => [{ id: undefined }],
-    theme: () => ({
-      borderColor: '#dbe3ee',
-      background: '#f8fafc',
-      titleColor: '#1e293b',
-      descColor: '#475569'
-    }),
-    subtitle: 'Workflow Node',
-    badge: '',
-    iconText: 'N',
-    iconBackground: '#eff6ff',
-    iconColor: '#1d4ed8',
-    badgeBackground: '#eff6ff',
-    badgeColor: '#1d4ed8',
-    active: false,
-    minWidth: '240px'
-  }
 )
 
 const normalizedTargetHandles = computed(() =>
-  (props.targetHandles || []).map((handle) => ({
-    ...handle,
-    style: { ...handle.style, zIndex: 6 }
-  }))
+    (props.targetHandles || []).map((handle) => ({
+      ...handle,
+      style: {...handle.style, zIndex: 6}
+    }))
 )
 
 const normalizedSourceHandles = computed(() =>
-  (props.sourceHandles || []).map((handle) => ({
-    ...handle,
-    style: { ...handle.style, zIndex: 6 }
-  }))
+    (props.sourceHandles || []).map((handle) => ({
+      ...handle,
+      style: {...handle.style, zIndex: 6}
+    }))
 )
 
 const themeStyles = computed(() => ({

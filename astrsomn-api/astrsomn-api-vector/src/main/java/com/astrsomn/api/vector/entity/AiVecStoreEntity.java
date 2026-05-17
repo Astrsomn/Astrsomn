@@ -1,0 +1,55 @@
+package com.astrsomn.api.vector.entity;
+
+import com.astrsomn.common.base.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.Data;
+
+@Data
+@TableName("AI_VEC_STORE")
+public class AiVecStoreEntity extends BaseEntity<Long> {
+
+    @TableField("ID")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long id;
+
+    @TableField("SOURCE_ID")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long sourceId;
+
+    @TableField("COLLECTION_NAME")
+    private String collectionName;
+
+    @TableField("DIMENSION")
+    private Long dimension;
+
+    @TableField("DISTANCE_METRIC")
+    private String distanceMetric;
+
+    @TableField("METADATA_SCHEMA")
+    private String metadataSchema;
+
+    @TableField("INSTANCE_KEY")
+    private String instanceKey;
+
+    @TableField("MODEL_KEY")
+    private String modelKey;
+
+    @TableField("CHUNK_STRATEGY")
+    private String chunkStrategy;
+
+    @TableField("CHUNK_SIZE")
+    private Integer chunkSize;
+
+    @TableField("CHUNK_OVERLAP")
+    private Integer chunkOverlap;
+
+    @TableField("DENSE_WEIGHT")
+    private java.math.BigDecimal denseWeight;
+
+    @TableField("INSTRUCTION_PREFIX")
+    private String instructionPrefix;
+
+}

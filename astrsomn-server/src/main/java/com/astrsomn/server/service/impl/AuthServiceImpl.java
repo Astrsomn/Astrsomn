@@ -1,16 +1,16 @@
 package com.astrsomn.server.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.api.runtime.common.entity.SystemUserEntity;
+import com.astrsomn.system.dto.auth.LoginRequest;
+import com.astrsomn.system.dto.auth.LoginResponse;
+import com.astrsomn.system.dto.auth.RefreshTokenRequest;
+import com.astrsomn.system.entity.SystemUserEntity;
+import com.astrsomn.system.exception.AuthErrorEnum;
 import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.api.runtime.exception.AuthErrorEnum;
-import com.astrsomn.starter.runtime.mapper.SystemUserMapper;
-import com.astrsomn.api.runtime.common.dto.auth.LoginRequest;
-import com.astrsomn.api.runtime.common.dto.auth.RefreshTokenRequest;
-import com.astrsomn.api.runtime.common.dto.auth.LoginResponse;
 import com.astrsomn.server.service.AuthService;
 import com.astrsomn.server.util.JwtUtil;
+import com.astrsomn.starter.runtime.system.mapper.AstSystemUserMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,16 +20,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Autowired
-    private SystemUserMapper systemUserMapper;
-
+    private AstSystemUserMapper systemUserMapper;
     @Autowired
     private JwtUtil jwtUtil;
-
     @Value("${jwt.expiration:86400000}")
     private Long expiration;
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public LoginResponse login(LoginRequest request) {

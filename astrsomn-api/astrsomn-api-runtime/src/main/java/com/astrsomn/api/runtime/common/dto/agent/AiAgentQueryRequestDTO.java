@@ -1,8 +1,8 @@
 package com.astrsomn.api.runtime.common.dto.agent;
 
 
-import lombok.Data;
 import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
+import lombok.Data;
 
 import java.io.Serializable;
 
@@ -11,5 +11,8 @@ public class AiAgentQueryRequestDTO extends AiAgentEntity implements Serializabl
 
     private String name;
     private String status;
+
+
+    private String extensionCode;
 
 }

@@ -1,9 +1,9 @@
 package com.astrsomn.vector.chroma.internal;
 
+import com.astrsomn.common.utils.StringUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.store.embedding.chroma.ChromaApiVersion;
-import com.astrsomn.common.utils.StringUtils;
 
 import java.util.Map;
 
@@ -14,14 +14,16 @@ public final class ChromaConfigSupport {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private ChromaConfigSupport() {}
+    private ChromaConfigSupport() {
+    }
 
     public static boolean readUseTls(String configJson) {
         if (StringUtils.isBlank(configJson)) {
             return false;
         }
         try {
-            Map<String, Object> m = MAPPER.readValue(configJson.trim(), new TypeReference<Map<String, Object>>() {});
+            Map<String, Object> m = MAPPER.readValue(configJson.trim(), new TypeReference<Map<String, Object>>() {
+            });
             Object v = m.get(ChromaVecConstants.CONFIG_USE_TLS);
             if (v instanceof Boolean) {
                 return (Boolean) v;
@@ -43,7 +45,8 @@ public final class ChromaConfigSupport {
             return ChromaApiVersion.V2;
         }
         try {
-            Map<String, Object> m = MAPPER.readValue(configJson.trim(), new TypeReference<Map<String, Object>>() {});
+            Map<String, Object> m = MAPPER.readValue(configJson.trim(), new TypeReference<Map<String, Object>>() {
+            });
             Object v = m.get(ChromaVecConstants.CONFIG_API_VERSION);
             if (v == null) {
                 return ChromaApiVersion.V2;
@@ -67,13 +70,16 @@ public final class ChromaConfigSupport {
         }
     }
 
-    /** 未配置时返回 {@code null}，由 LangChain4j 使用默认租户名。 */
+    /**
+     * 未配置时返回 {@code null}，由 LangChain4j 使用默认租户名。
+     */
     public static String readTenantName(String configJson) {
         if (StringUtils.isBlank(configJson)) {
             return null;
         }
         try {
-            Map<String, Object> m = MAPPER.readValue(configJson.trim(), new TypeReference<Map<String, Object>>() {});
+            Map<String, Object> m = MAPPER.readValue(configJson.trim(), new TypeReference<Map<String, Object>>() {
+            });
             Object v = m.get(ChromaVecConstants.CONFIG_TENANT_NAME);
             if (v == null) {
                 return null;

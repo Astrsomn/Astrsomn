@@ -1,3 +1,4 @@
 com.astrsomn.starter.runtime.config.AstrsomnPropertiesAutoConfiguration
+com.astrsomn.starter.runtime.config.datasource.AstrsomnDatabaseAutoConfiguration
 com.astrsomn.starter.runtime.config.AstrsomnAutoConfiguration
-
+com.astrsomn.starter.runtime.config.AstrsomnResilienceAutoConfiguration

@@ -1,179 +1,179 @@
 <template>
-  <AdminPageShell
-      title="模型管理"
-      description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
+  <AstPageShell
       :breadcrumbs="breadcrumbs"
+      description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
+      title="模型管理"
   >
     <div class="model-page-container">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill
-                v-model="query.modelName"
-                layout="toolbar"
-                placeholder="搜索模型名称"
-                @search="fetchList"
+              <AstSearchInput
+                  v-model="query.modelName"
+                  layout="toolbar"
+                  placeholder="搜索模型名称"
+                  @search="fetchList"
               />
               <ExtensionSelector
-                v-model:value="query.extensionCode"
-                class="toolbar-provider-select"
-                placeholder="根据供应商筛选"
-                allow-clear
-                @update:value="handleProviderChange"
+                  v-model:value="query.extensionCode"
+                  allow-clear
+                  class="toolbar-provider-select"
+                  placeholder="根据供应商筛选"
+                  @update:value="handleProviderChange"
               />
-          
-              <AstrsomnStateSwitch v-model="query.status" @change="fetchList" />
+
+              <AstStatusSwitch v-model="query.status" @change="fetchList"/>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
         <a-tabs
-                :active-key="modelTypeTab"
-                class="toolbar-model-type-tabs"
-                size="small"
-                @change="handleModelTypeTabChange"
-              >
-                <a-tab-pane key="all" tab="全部" />
-                <a-tab-pane key="chat" tab="对话" />
-                <a-tab-pane key="embedding" tab="向量" />
-                <a-tab-pane key="image" tab="图片" />
-              </a-tabs>
+            :active-key="modelTypeTab"
+            class="toolbar-model-type-tabs"
+            size="small"
+            @change="handleModelTypeTabChange"
+        >
+          <a-tab-pane key="all" tab="全部"/>
+          <a-tab-pane key="chat" tab="对话"/>
+          <a-tab-pane key="embedding" tab="向量"/>
+          <a-tab-pane key="image" tab="图片"/>
+        </a-tabs>
 
-        <AstrsomnDataView
-          mode="table"
-          :data-source="list"
-          :loading="loading"
-          :columns="columns"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1200 }"
-          row-key="id"
-          empty-text="暂无匹配的接入模型"
+        <AstDataView
+            :columns="columns"
+            :data-source="list"
+            :loading="loading"
+            :row-selection="rowSelection"
+            :scroll="{ x: 1200 }"
+            empty-text="暂无匹配的接入模型"
+            mode="table"
+            row-key="id"
         >
           <template #bodyCell="{ column, record }">
-                <template v-if="column.key === 'modelType'">
-                  <div class="model-icon" :class="record.modelType">
-                    <template v-if="record.modelType === 'chat'"><MessageOutlined /></template>
-                    <template v-else-if="record.modelType === 'embedding'"><PartitionOutlined /></template>
-                    <template v-else-if="record.modelType === 'image'"><PictureOutlined /></template>
-                  </div>
+            <template v-if="column.key === 'modelType'">
+              <div :class="record.modelType" class="model-icon">
+                <template v-if="record.modelType === 'chat'">
+                  <MessageOutlined/>
                 </template>
-
-                <template v-else-if="column.key === 'providerAvatar'">
-                  <img
-                    v-if="providerAvatarCell(record)"
-                    class="provider-avatar-cell"
-                    :src="providerAvatarCell(record)"
-                    :alt="record.provider"
-                    aria-hidden="true"
-                  />
-                  <span v-else class="text-secondary">—</span>
+                <template v-else-if="record.modelType === 'embedding'">
+                  <PartitionOutlined/>
                 </template>
-
-                <template v-else-if="column.key === 'modelName'">
-                  <div class="model-info">
-                    <div class="model-header">
-                      <span class="model-title">{{ record.modelName }}</span>
-                    </div>
-                  </div>
+                <template v-else-if="record.modelType === 'image'">
+                  <PictureOutlined/>
                 </template>
+              </div>
+            </template>
 
-                <template v-else-if="column.key === 'status'">
-                  <div class="status-cell">
-                    <a-button
-                        type="text"
-                        size="small"
-                        class="status-indicator"
-                        @click="handleStatusChange(record.id, record.status !== 'enabled')"
-                    >
-                      <template #icon>
-                        <check-circle-outlined v-if="record.status === 'enabled'" style="color: #52c41a" />
-                        <close-circle-outlined v-else style="color: #ff4d4f" />
-                      </template>
-                      <span :style="{ color: record.status === 'enabled' ? '#52c41a' : '#ff4d4f' }">
+            <template v-else-if="column.key === 'providerAvatar'">
+              <img
+                  v-if="providerAvatarCell(record)"
+                  :alt="record.provider"
+                  :src="providerAvatarCell(record)"
+                  aria-hidden="true"
+                  class="provider-avatar-cell"
+              />
+              <span v-else class="text-secondary">—</span>
+            </template>
+
+            <template v-else-if="column.key === 'modelName'">
+              <div class="model-info">
+                <div class="model-header">
+                  <span class="model-title">{{ record.modelName }}</span>
+                </div>
+              </div>
+            </template>
+
+            <template v-else-if="column.key === 'status'">
+              <div class="status-cell">
+                <a-button
+                    class="status-indicator"
+                    size="small"
+                    type="text"
+                    @click="handleStatusChange(record.id, record.status !== 'enabled')"
+                >
+                  <template #icon>
+                    <check-circle-outlined v-if="record.status === 'enabled'" style="color: #52c41a"/>
+                    <close-circle-outlined v-else style="color: #ff4d4f"/>
+                  </template>
+                  <span :style="{ color: record.status === 'enabled' ? '#52c41a' : '#ff4d4f' }">
                         {{ record.status === 'enabled' ? '启用' : '禁用' }}
                       </span>
-                    </a-button>
-                
-                  </div>
-                </template>
+                </a-button>
+
+              </div>
+            </template>
 
 
-
-
-
-                <template v-else-if="column.key === 'runtime'">
-                  <div class="runtime-meta">
+            <template v-else-if="column.key === 'runtime'">
+              <div class="runtime-meta">
                     <span class="runtime-chip">
-                      <thunderbolt-outlined class="cell-icon" />
+                      <thunderbolt-outlined class="cell-icon"/>
                       限额 {{ record.maxQuotaTokens ?? 0 }}
                     </span>
-                    <span class="runtime-chip">权重 {{ record.randomIndex ?? 0 }}</span>
-                    <span class="runtime-chip">离散度 {{ record.topVariance ?? 0 }}</span>
-                  </div>
-                </template>
+                <span class="runtime-chip">权重 {{ record.randomIndex ?? 0 }}</span>
+                <span class="runtime-chip">离散度 {{ record.topVariance ?? 0 }}</span>
+              </div>
+            </template>
 
-       
 
-                <template v-else-if="column.key === 'actions'">
-                  <a-space>
-                    <a-popconfirm title="确定快速生成实例吗？" @confirm="() => handleGenerateInstances([record.id])">
-                      <a-button type="link" size="small">
-                        <swap-outlined />
-                      </a-button>
-                    </a-popconfirm>
-                    <a-button type="link" size="small" @click="openEdit(record)">
-                      <edit-outlined />
-                    </a-button>
-                    <a-popconfirm
-                      title="移除模型将影响下游关联实例，确定吗？"
-                      @confirm="() => handleDeleteOne(record)"
-                    >
-                      <a-button type="link" size="small" danger>
-                        <delete-outlined />
-                      </a-button>
-                    </a-popconfirm>
-                  </a-space>
-                </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-space>
+                <a-popconfirm title="确定快速生成实例吗？" @confirm="() => handleGenerateInstances([record.id])">
+                  <a-button size="small" type="link">
+                    <swap-outlined/>
+                  </a-button>
+                </a-popconfirm>
+                <a-button size="small" type="link" @click="openEdit(record)">
+                  <edit-outlined/>
+                </a-button>
+                <a-popconfirm
+                    title="移除模型将影响下游关联实例，确定吗？"
+                    @confirm="() => handleDeleteOne(record)"
+                >
+                  <a-button danger size="small" type="link">
+                    <delete-outlined/>
+                  </a-button>
+                </a-popconfirm>
+              </a-space>
+            </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination
-            :current="page.pageNum"
-            :page-size="page.pageSize"
-            :total="page.total"
-            @change="onPageChange"
+          <AstPagination
+              :current="page.pageNum"
+              :page-size="page.pageSize"
+              :total="page.total"
+              @change="onPageChange"
           />
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
 
-      <ModelFormModal
+      <ModelForm
           v-model:open="modal.open"
-          :mode="modal.mode"
           :confirm-loading="modal.submitting"
           :initial-data="modalInitialData"
+          :mode="modal.mode"
           :status-options="statusOptions"
           :submit-handler="handleFormSubmit"
       />
 
 
     </div>
-  </AdminPageShell>
+  </AstPageShell>
 </template>
-<script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import { 
-  CalendarOutlined,
+<script lang="ts" setup>
+import {computed, onMounted, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
-  GlobalOutlined,
   MessageOutlined,
   PartitionOutlined,
   PictureOutlined,
@@ -181,24 +181,24 @@ import {
   SearchOutlined,
   SwapOutlined
 } from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnStateSwitch from '@/components/home/AstrsomnStateSwitch.vue'
-import ModelFormModal from './ModelFormModal.vue'
-import ExtensionSelector from '../../system-config/system-extension/selectors/ExtensionSelector.vue'
-import { aiModelApi, type AiModel } from '@/api/aiModel.ts'
-import { useDictionary } from '@/locales/dictionary'
-import { ensureWorkspaceEnvInStorage } from '@/utils/ensureWorkspaceEnvStorage'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
+import ModelForm from './component/ModelForm.vue'
+import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
+import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
+import {useDictionary} from '@/locales/dictionary'
+import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts'
 
 // ... (逻辑部分基本保持与原代码一致，新增工具函数)
 
 const breadcrumbs = [
-  { title: 'AI 配置', href: '/admin/ai-config' },
-  { title: '接入模型管理' },
+  {title: 'AI 配置', href: '/admin/ai-config'},
+  {title: '接入模型管理'},
 ]
 
 const providerDict = useDictionary('ai-model.provider')
@@ -206,29 +206,29 @@ const statusDict = useDictionary('ai-model.status')
 const sourceTypeDict = useDictionary('ai-model.sourceType')
 
 const statusOptions = computed(() => statusDict.value.options())
-const isDefaultOptions = [{ label: '否', value: 'N' }, { label: '是', value: 'Y' }]
+const isDefaultOptions = [{label: '否', value: 'N'}, {label: '是', value: 'Y'}]
 
 const columns = [
-  { title: '类型', key: 'modelType', width: 60 },
-  { title: '供应商', key: 'providerAvatar', width: 80, align: 'center' },
-  { title: '模型信息', key: 'modelName', width: 180 },
-  { title: '模型Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true },
-  { 
-    title: '来源', 
-    dataIndex: 'sourceType', 
-    key: 'sourceType', 
-    width: 100, 
+  {title: '类型', key: 'modelType', width: 60},
+  {title: '供应商', key: 'providerAvatar', width: 80, align: 'center'},
+  {title: '模型信息', key: 'modelName', width: 180},
+  {title: '模型Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true},
+  {
+    title: '来源',
+    dataIndex: 'sourceType',
+    key: 'sourceType',
+    width: 100,
     enum: [
-      { value: 'plugin', label: '插件', color: 'purple' },
-      { value: 'api', label: 'API', color: 'blue' }
-    ] 
+      {value: 'plugin', label: '插件', color: 'purple'},
+      {value: 'api', label: 'API', color: 'blue'}
+    ]
   },
-  { title: '状态', key: 'status', width: 100 },
+  {title: '状态', key: 'status', width: 100},
 
   {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
   {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  { title: '操作', key: 'actions', width: 140, fixed: 'right' }
+  {title: '操作', key: 'actions', width: 140, fixed: 'right'}
 ]
 
 // 简单的颜色映射逻辑
@@ -246,7 +246,6 @@ const getModelTypeLabel = (modelType?: string) => {
   if (modelType === 'embedding') return '向量模型'
   return '对话模型'
 }
-
 
 
 const formatTime = (raw?: string) => {
@@ -267,7 +266,7 @@ const query = reactive<{
 }>({})
 const list = ref<AiModel[]>([])
 const loading = ref(false)
-const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
+const page = reactive({pageNum: 1, pageSize: 10, total: 0})
 const selectedRowKeys = ref<Array<number | string>>([])
 const statusUpdatingId = ref<number | string | null>(null)
 
@@ -288,15 +287,17 @@ const rowSelection = computed(() => ({
   fixed: true,
   columnWidth: 54,
   selectedRowKeys: selectedRowKeys.value,
-  onChange: (keys: any) => { selectedRowKeys.value = keys }
+  onChange: (keys: any) => {
+    selectedRowKeys.value = keys
+  }
 }))
-const modal = reactive({ open: false, mode: 'create' as any, submitting: false })
+const modal = reactive({open: false, mode: 'create' as any, submitting: false})
 const modalInitialData = ref<AiModel | null>(null)
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {
@@ -460,7 +461,7 @@ const handleBatchGenerateInstances = async () => {
 const handleStatusChange = async (id: number | string, checked: boolean) => {
   statusUpdatingId.value = id
   try {
-    await aiModelApi.update({ id, status: checked ? 'enabled' : 'disabled' })
+    await aiModelApi.update({id, status: checked ? 'enabled' : 'disabled'})
     message.success('状态更新成功')
     fetchList()
   } catch (e) {
@@ -569,7 +570,7 @@ onMounted(() => {
   margin-top: 12px;
   display: flex;
   flex-direction: column;
-  min-height:  var(--model-list-panel-max-height);
+  min-height: var(--model-list-panel-max-height);
   max-height: var(--model-list-panel-max-height);
   overflow: hidden;
   background: var(--bg-card);
@@ -660,7 +661,6 @@ onMounted(() => {
 }
 
 
-
 .provider-tag {
   font-size: 11px;
   height: 20px;
@@ -692,7 +692,6 @@ onMounted(() => {
   white-space: nowrap;
   color: var(--text-secondary);
 }
-
 
 
 .capability-tag {
@@ -771,7 +770,9 @@ onMounted(() => {
   font-size: 13px;
 }
 
-.text-secondary { color: var(--text-muted, #bfbfbf); }
+.text-secondary {
+  color: var(--text-muted, #bfbfbf);
+}
 
 :deep(.ant-table-thead > tr > th) {
   background: color-mix(in srgb, var(--bg-surface) 82%, var(--bg-card));

@@ -1,32 +1,34 @@
 package com.astrsomn.server.service.impl;
+
 import cn.hutool.core.lang.UUID;
-import jakarta.annotation.Resource;
 import com.astrsomn.api.runtime.common.langchain.AstroBuilderChatRequest;
 import com.astrsomn.api.runtime.common.langchain.AstroChatAssistant;
 import com.astrsomn.api.runtime.common.langchain.AstroChatRequest;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.*;
-import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.api.runtime.exception.AstroChatErrorEnum;
+import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.AstroChatService;
 import com.astrsomn.starter.runtime.langchain.factory.AstroAssistantFactory;
-
 import com.astrsomn.starter.runtime.langchain.stream.AstroChatStreamUtil;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 
 public class AstroChatServiceImpl implements AstroChatService {
 
     @Resource
-    private  AstroAssistantFactory assistantFactory;
+    private AstroAssistantFactory assistantFactory;
 
     @Resource
-    private  AstroChatStreamUtil chatStreamUtil;
+    private AstroChatStreamUtil chatStreamUtil;
 
 
     @Override
@@ -55,6 +57,7 @@ public class AstroChatServiceImpl implements AstroChatService {
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {
+            log.error("====> [Astrsomn] 对话创建失败, agentKey={}, instanceKey={}", request.getAgentKey(), request.getInstanceKey(), e);
             throw new BusinessException(AstroChatErrorEnum.CHAT_PERMISSION_DENIED, e.getMessage());
         }
     }
@@ -89,12 +92,12 @@ public class AstroChatServiceImpl implements AstroChatService {
                 .build();
 
 
-
         try {
             AstroChatAssistant chatAssistant = assistantFactory.createAssistantDirect(param);
             return chatStreamUtil.convertStreamToFlux(
                     chatAssistant.stream(param.getUserMessage(), memoryKey), param);
         } catch (Exception e) {
+            log.error("====> [Astrsomn] Builder对话创建失败", e);
             throw new BusinessException(AstroChatErrorEnum.CHAT_PERMISSION_DENIED, e.getMessage());
         }
     }

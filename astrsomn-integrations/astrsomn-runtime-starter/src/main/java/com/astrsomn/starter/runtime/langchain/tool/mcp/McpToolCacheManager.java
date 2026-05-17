@@ -1,5 +1,8 @@
 package com.astrsomn.starter.runtime.langchain.tool.mcp;
 
+import com.astrsomn.api.runtime.common.entity.AiMcpEntity;
+import com.astrsomn.starter.runtime.langchain.exception.McpConnectionException;
+import com.astrsomn.starter.runtime.langchain.tool.mcp.protocol.McpProtocolHandler;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.mcp.client.DefaultMcpClient;
 import dev.langchain4j.mcp.client.McpClient;
@@ -7,13 +10,14 @@ import dev.langchain4j.mcp.client.transport.McpTransport;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.api.runtime.common.entity.AiMcpEntity;
-import com.astrsomn.starter.runtime.langchain.tool.mcp.protocol.McpProtocolHandler;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -88,7 +92,7 @@ public class McpToolCacheManager {
                     try {
                         return h.createTransport(config);
                     } catch (IOException e) {
-                        throw new RuntimeException("MCP Transport creation failed", e);
+                        throw new McpConnectionException("MCP Transport creation failed for type: " + config.getType(), e);
                     }
                 })
                 .orElseThrow(() -> new UnsupportedOperationException("不支持的 MCP 类型: " + config.getType()));

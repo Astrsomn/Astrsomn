@@ -1,60 +1,62 @@
 <template>
-  <AdminPageShell title="流程实例" description="跟踪流程执行状态与当前节点。" empty-text="暂无实例。">
+  <AstPageShell description="跟踪流程执行状态与当前节点。" empty-text="暂无实例。" title="流程实例">
     <div class="page-wrap">
-      <AstrsomnDataSection>
+      <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <AstrsomnSearchPill v-model="query.keyword" placeholder="搜索业务主键 / 当前节点" @search="onSearch" />
+              <AstSearchInput v-model="query.keyword" placeholder="搜索业务主键 / 当前节点" @search="onSearch"/>
             </div>
             <div class="toolbar-right">
-              <AstrsomnSegmentedButton :buttons="segmentedButtons" />
+              <AstegmentedButton :buttons="segmentedButtons"/>
             </div>
           </div>
         </template>
 
         <template #overview>
-          <AstrsomnOverview
-            :list-length="list.length"
-            :selected-count="0"
-            :all-current-selected="false"
-            :part-current-selected="false"
-            :show-actions="false"
-            :summary-text="`当前页 ${list.length} 条流程实例。`"
+          <AstOverview
+              :all-current-selected="false"
+              :list-length="list.length"
+              :part-current-selected="false"
+              :selected-count="0"
+              :show-actions="false"
+              :summary-text="`当前页 ${list.length} 条流程实例。`"
           />
         </template>
 
-        <AstrsomnDataView :data-source="list" :columns="columns" row-key="id" mode="table" :pagination="false" :loading="loading">
+        <AstDataView :columns="columns" :data-source="list" :loading="loading" :pagination="false" mode="table"
+                          row-key="id">
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'executionStatus'">
               <a-tag :color="statusColor[record.executionStatus] || 'default'">{{ record.executionStatus }}</a-tag>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" size="small" @click="goDetail(record.id)">详情</a-button>
+              <a-button size="small" type="link" @click="goDetail(record.id)">详情</a-button>
             </template>
           </template>
-        </AstrsomnDataView>
+        </AstDataView>
 
         <template #pagination>
-          <AstrsomnPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total" @change="onPageChange" />
+          <AstPagination :current="page.pageNum" :page-size="page.pageSize" :total="page.total"
+                              @change="onPageChange"/>
         </template>
-      </AstrsomnDataSection>
+      </AstDataSection>
     </div>
-  </AdminPageShell>
+  </AstPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { FilterOutlined } from '@ant-design/icons-vue'
-import { useRouter } from 'vue-router'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AstrsomnDataSection from '@/components/home/AstrsomnDataSection.vue'
-import AstrsomnDataView from '@/components/home/AstrsomnDataView.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
-import AstrsomnPagination from '@/components/home/AstrsomnPagination.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
-import AstrsomnSegmentedButton from '@/components/home/AstrsomnSegmentedButton.vue'
-import { aiWorkflowRuntimeApi, type WorkflowRuntimeRecord } from '@/api/aiWorkflowRuntime'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {FilterOutlined} from '@ant-design/icons-vue'
+import {useRouter} from 'vue-router'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstDataSection from '@/components/home/AstDataSection.vue'
+import AstDataView from '@/components/home/AstDataView.vue'
+import AstOverview from '@/components/home/AstOverview.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstegmentedButton from '@/components/home/AstegmentedButton.vue'
+import {aiWorkflowRuntimeApi, type WorkflowRuntimeRecord} from '@/api/aiWorkflowRuntime'
 
 const statusColor: Record<string, string> = {
   RUNNING: 'processing',
@@ -64,13 +66,13 @@ const statusColor: Record<string, string> = {
 }
 
 const columns = [
-  { title: '实例 ID', dataIndex: 'id', key: 'id', width: 120 },
-  { title: '发布 ID', dataIndex: 'deploymentId', key: 'deploymentId', width: 120 },
-  { title: '业务主键', dataIndex: 'businessKey', key: 'businessKey', width: 180 },
-  { title: '执行状态', key: 'executionStatus', width: 130 },
-  { title: '当前节点', dataIndex: 'currentNodeId', key: 'currentNodeId', width: 160 },
-  { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180 },
-  { title: '操作', key: 'actions', width: 100, fixed: 'right' as const }
+  {title: '实例 ID', dataIndex: 'id', key: 'id', width: 120},
+  {title: '发布 ID', dataIndex: 'deploymentId', key: 'deploymentId', width: 120},
+  {title: '业务主键', dataIndex: 'businessKey', key: 'businessKey', width: 180},
+  {title: '执行状态', key: 'executionStatus', width: 130},
+  {title: '当前节点', dataIndex: 'currentNodeId', key: 'currentNodeId', width: 160},
+  {title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 180},
+  {title: '操作', key: 'actions', width: 100, fixed: 'right' as const}
 ]
 
 const router = useRouter()
@@ -93,7 +95,7 @@ const fetchList = async () => {
     const resp = await aiWorkflowRuntimeApi.instanceQueryPage({
       pageNo: page.pageNum,
       pageSize: page.pageSize,
-      param: { keyword: query.keyword || undefined }
+      param: {keyword: query.keyword || undefined}
     })
     list.value = resp.list || []
     page.total = resp.total || 0
@@ -121,7 +123,7 @@ const onPageChange = (pageNum: number, pageSize: number) => {
 
 const goDetail = (id: unknown) => {
   if (id == null) return
-  void router.push({ name: 'AdminWorkflowInstanceDetail', params: { id: String(id) } })
+  void router.push({name: 'AdminWorkflowInstanceDetail', params: {id: String(id)}})
 }
 
 const segmentedButtons = computed(() => [

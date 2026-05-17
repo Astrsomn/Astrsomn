@@ -1,17 +1,17 @@
 package com.astrsomn.server.api;
 
 
-import lombok.extern.slf4j.Slf4j;
+import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
+import com.astrsomn.system.dto.auth.LoginRequest;
+import com.astrsomn.system.dto.auth.LoginResponse;
+import com.astrsomn.system.dto.auth.RefreshTokenRequest;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.api.runtime.common.constant.SystemUserEnum.UserRoleEnum;
-import com.astrsomn.api.runtime.common.dto.auth.LoginRequest;
-import com.astrsomn.api.runtime.common.dto.auth.RefreshTokenRequest;
-import com.astrsomn.api.runtime.common.dto.auth.LoginResponse;
 import com.astrsomn.server.service.AuthService;
 import com.astrsomn.server.util.UserContext;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +32,7 @@ public class AstroAuthController extends BaseController {
 
 
     @PostMapping("/login")
-    public BaseResponse<LoginResponse> login( @RequestBody LoginRequest request) {
+    public BaseResponse<LoginResponse> login(@RequestBody LoginRequest request) {
         log.info("收到登录请求 - Username: {}", request.getUsername());
         LoginResponse response = authService.login(request);
         return success(response);
@@ -40,7 +40,7 @@ public class AstroAuthController extends BaseController {
 
 
     @PostMapping("/refresh-token")
-    public BaseResponse<String> refreshToken( @RequestBody RefreshTokenRequest request) {
+    public BaseResponse<String> refreshToken(@RequestBody RefreshTokenRequest request) {
         log.info("收到刷新Token请求");
         String newToken = authService.refreshToken(request);
         return success(newToken);

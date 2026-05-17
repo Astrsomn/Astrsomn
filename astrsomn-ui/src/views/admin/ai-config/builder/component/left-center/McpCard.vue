@@ -3,82 +3,84 @@
     <div class="card-header">
       <div class="header-left">
         <div class="icon-badge">
-          <ApiOutlined />
+          <ApiOutlined/>
         </div>
         <h3 class="card-title">MCP 服务</h3>
       </div>
       <button class="add-btn" @click.stop="drawerOpen = true">
-        <PlusOutlined />
+        <PlusOutlined/>
       </button>
     </div>
     <div class="mcp-list">
       <div v-for="m in mcps" :key="m.mcpKey" class="mcp-tag">
         <span class="mcp-letter">{{ (m.serverName || m.mcpKey || 'M').charAt(0).toUpperCase() }}</span>
         <span class="mcp-name">{{ m.serverName || m.mcpKey }}</span>
-        <CloseOutlined class="mcp-close" @click.stop="emit('remove', m.mcpKey!)" />
+        <CloseOutlined class="mcp-close" @click.stop="emit('remove', m.mcpKey!)"/>
       </div>
       <div v-if="!mcps.length" class="empty-hint">暂未绑定 MCP</div>
     </div>
 
     <a-drawer
-      :open="drawerOpen"
-      placement="right"
-      :width="480"
-      title="选择 MCP 服务"
-      @close="drawerOpen = false"
+        :open="drawerOpen"
+        :width="480"
+        placement="right"
+        title="选择 MCP 服务"
+        @close="drawerOpen = false"
     >
       <div class="selector-content">
         <div class="search-bar">
           <a-input
-            v-model:value="keyword"
-            placeholder="服务名 / MCP Key"
-            allow-clear
-            @pressEnter="fetchList"
+              v-model:value="keyword"
+              allow-clear
+              placeholder="服务名 / MCP Key"
+              @pressEnter="fetchList"
           >
-            <template #prefix><SearchOutlined /></template>
+            <template #prefix>
+              <SearchOutlined/>
+            </template>
           </a-input>
           <a-button type="primary" @click="fetchList">搜索</a-button>
         </div>
         <a-spin :spinning="loading">
           <div class="item-list">
             <div
-              v-for="item in list"
-              :key="item.id"
-              class="item-row"
-              :class="{ selected: selectedKeys.has(item.mcpKey || '') }"
-              @click="toggle(item)"
+                v-for="item in list"
+                :key="item.id"
+                :class="{ selected: selectedKeys.has(item.mcpKey || '') }"
+                class="item-row"
+                @click="toggle(item)"
             >
               <div class="item-icon">
-                <ApiOutlined />
+                <ApiOutlined/>
               </div>
               <div class="item-info">
                 <div class="item-name">{{ item.serverName || item.mcpKey }}</div>
                 <div class="item-sub">{{ item.mcpKey }}</div>
               </div>
-              <CheckCircleOutlined v-if="selectedKeys.has(item.mcpKey || '')" class="check-icon" />
+              <CheckCircleOutlined v-if="selectedKeys.has(item.mcpKey || '')" class="check-icon"/>
             </div>
             <div v-if="!list.length && !loading" class="empty-list">暂无数据</div>
           </div>
         </a-spin>
         <a-pagination
-          v-if="page.total > page.pageSize"
-          class="pager"
-          size="small"
-          :current="page.pageNum"
-          :total="page.total"
-          :page-size="page.pageSize"
-          :show-size-changer="false"
-          @change="onPageChange"
+            v-if="page.total > page.pageSize"
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :show-size-changer="false"
+            :total="page.total"
+            class="pager"
+            size="small"
+            @change="onPageChange"
         />
       </div>
     </a-drawer>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import { ApiOutlined, PlusOutlined, CloseOutlined, SearchOutlined, CheckCircleOutlined } from '@ant-design/icons-vue'
-import { aiMcpApi, type AiMcp } from '@/api/aiMcp'
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from 'vue'
+import {ApiOutlined, CheckCircleOutlined, CloseOutlined, PlusOutlined, SearchOutlined} from '@ant-design/icons-vue'
+import {type AiMcp, aiMcpApi} from '@/api/aiMcp'
 
 const props = defineProps<{
   mcps: AiMcp[]
@@ -93,7 +95,7 @@ const drawerOpen = ref(false)
 const keyword = ref('')
 const loading = ref(false)
 const list = ref<AiMcp[]>([])
-const page = reactive({ pageNum: 1, pageSize: 20, total: 0 })
+const page = reactive({pageNum: 1, pageSize: 20, total: 0})
 
 const selectedKeys = computed(() => new Set(props.mcps.map((m) => m.mcpKey).filter(Boolean) as string[]))
 
@@ -103,7 +105,7 @@ async function fetchList() {
     const resp = await aiMcpApi.queryPage({
       pageNo: page.pageNum,
       pageSize: page.pageSize,
-      param: { serverName: keyword.value || undefined, mcpKey: keyword.value || undefined }
+      param: {serverName: keyword.value || undefined, mcpKey: keyword.value || undefined}
     })
     list.value = resp.list || []
     page.total = resp.total || 0
@@ -176,7 +178,9 @@ watch(drawerOpen, (open) => {
   color: #9333ea;
 }
 
-.icon-badge .anticon { font-size: 16px; }
+.icon-badge .anticon {
+  font-size: 16px;
+}
 
 .card-title {
   font-weight: 700;
@@ -199,8 +203,14 @@ watch(drawerOpen, (open) => {
   transition: all 0.2s;
 }
 
-.add-btn:hover { background: #f3e8ff; color: #7e22ce; }
-.add-btn .anticon { font-size: 14px; }
+.add-btn:hover {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.add-btn .anticon {
+  font-size: 14px;
+}
 
 .mcp-list {
   display: flex;
@@ -222,15 +232,24 @@ watch(drawerOpen, (open) => {
   font-weight: 600;
 }
 
-.mcp-letter { font-size: 10px; }
-.mcp-name { font-size: 11px; font-weight: bold; }
+.mcp-letter {
+  font-size: 10px;
+}
+
+.mcp-name {
+  font-size: 11px;
+  font-weight: bold;
+}
 
 .mcp-close {
   font-size: 10px;
   cursor: pointer;
   transition: color 0.2s;
 }
-.mcp-close:hover { color: #ef4444; }
+
+.mcp-close:hover {
+  color: #ef4444;
+}
 
 .empty-hint {
   font-size: 12px;
@@ -292,13 +311,32 @@ watch(drawerOpen, (open) => {
   flex-shrink: 0;
 }
 
-.item-info { flex: 1; min-width: 0; }
-.item-name { font-size: 13px; font-weight: 600; color: #1e293b; }
-.item-sub { font-size: 11px; color: #94a3b8; font-family: ui-monospace, monospace; }
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
 
-.check-icon { color: #9333ea; font-size: 16px; }
+.item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
 
-.pager { text-align: center; flex-shrink: 0; }
+.item-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  font-family: ui-monospace, monospace;
+}
+
+.check-icon {
+  color: #9333ea;
+  font-size: 16px;
+}
+
+.pager {
+  text-align: center;
+  flex-shrink: 0;
+}
 
 .empty-list {
   text-align: center;

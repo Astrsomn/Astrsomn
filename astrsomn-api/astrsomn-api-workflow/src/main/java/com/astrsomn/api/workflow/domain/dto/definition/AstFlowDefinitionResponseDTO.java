@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 public class AstFlowDefinitionResponseDTO extends AstFlowDefinitionEntity {
 
 
-
     private String workflowKey;
     private String workflowName;
     private Integer versionNo;

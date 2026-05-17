@@ -1,11 +1,11 @@
 <template>
   <section class="main-grid">
-    <CenterLeft :traceStats="traceStats" :traceCases="traceCases" />
-    <CenterRight :latestEvents="latestEvents" />
+    <CenterLeft :traceCases="traceCases" :traceStats="traceStats"/>
+    <CenterRight :latestEvents="latestEvents"/>
   </section>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import CenterLeft from './center/center-left.vue'
 import CenterRight from './center/center-right.vue'
 

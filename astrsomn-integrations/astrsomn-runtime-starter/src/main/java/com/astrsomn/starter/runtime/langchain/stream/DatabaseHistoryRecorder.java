@@ -1,19 +1,19 @@
 package com.astrsomn.starter.runtime.langchain.stream;
 
 import com.astrsomn.api.runtime.common.constant.AiChatEnum;
-import com.astrsomn.api.runtime.common.entity.AiChatSessionEntity;
-import dev.langchain4j.model.output.TokenUsage;
-import lombok.RequiredArgsConstructor;
 import com.astrsomn.api.runtime.common.entity.AiChatMessageEntity;
+import com.astrsomn.api.runtime.common.entity.AiChatSessionEntity;
 import com.astrsomn.api.runtime.common.langchain.AstroHistoryRecorder;
 import com.astrsomn.api.runtime.common.langchain.ChatStreamEnum;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AiChatSessionMapper;
-import com.astrsomn.starter.runtime.mapper.AiChatMessageMapper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
+import com.astrsomn.starter.runtime.mapper.AstAiChatMessageMapper;
+import com.astrsomn.starter.runtime.mapper.AstAiChatSessionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import dev.langchain4j.model.output.TokenUsage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +21,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
 
-    private final AiChatMessageMapper mapper;
-    private final AiChatSessionMapper sessionMapper;
+    private final AstAiChatMessageMapper mapper;
+    private final AstAiChatSessionMapper sessionMapper;
     private final AstrsomnProperties astrsomnProperties;
 
+    private static String previewUserInput(AstroChatParam<?> param) {
+        return StringUtils.trimToNull(param.getUserMessageText());
+    }
+
+    private static String blankToNull(String envCode) {
+        return StringUtils.isBlank(envCode) ? null : envCode;
+    }
 
     @Override
     @Transactional
@@ -86,7 +93,7 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         session.setPromptTokens(0);
         session.setCompletionTokens(0);
         session.setTotalTokens(0);
-        session.setAgentKey(param.getAgentKey());
+
         session.setModelKey(param.getModelKey());
         session.setPromptKey(param.getPromptSetting().getPromptKey());
         session.setInstanceKey(param.getInstanceKey());
@@ -113,16 +120,12 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         wrapper.setSql("TOTAL_TOKENS = COALESCE(TOTAL_TOKENS, 0) + " + totalTokens);
         wrapper.set(AiChatSessionEntity::getLastMessageAt, System.currentTimeMillis());
         wrapper.set(AiChatSessionEntity::getLastMessagePreview, preview);
-        wrapper.set(AiChatSessionEntity::getAgentKey, param.getAgentKey());
+
         wrapper.set(AiChatSessionEntity::getModelKey, param.getModelKey());
         wrapper.set(AiChatSessionEntity::getPromptKey, param.getPromptSetting().getPromptKey());
         wrapper.set(AiChatSessionEntity::getInstanceKey, param.getInstanceKey());
         wrapper.set(AiChatSessionEntity::getAccountKey, param.getModelSetting().getAccountKey());
         sessionMapper.update(null, wrapper);
-    }
-
-    private static String previewUserInput(AstroChatParam<?> param) {
-        return StringUtils.trimToNull(param.getUserMessageText());
     }
 
     private String buildSessionTitle(String content) {
@@ -154,7 +157,7 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
         entity.setPromptTokens(Math.max(0, promptTokens));
         entity.setCompletionTokens(Math.max(0, completionTokens));
         entity.setTotalTokens(Math.max(0, promptTokens) + Math.max(0, completionTokens));
-        entity.setAgentKey(param.getAgentKey());
+
         entity.setModelKey(param.getModelKey());
         entity.setPromptKey(param.getPromptSetting().getPromptKey());
         entity.setInstanceKey(param.getInstanceKey());
@@ -163,10 +166,6 @@ public class DatabaseHistoryRecorder implements AstroHistoryRecorder {
             entity.setEnvCode(astrsomnProperties.getEnvCode());
         }
         return entity;
-    }
-
-    private static String blankToNull(String envCode) {
-        return StringUtils.isBlank(envCode) ? null : envCode;
     }
 
 }

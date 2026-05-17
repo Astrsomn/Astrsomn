@@ -1,31 +1,19 @@
 package com.astrsomn.starter.workflow.config;
 
-import com.astrsomn.starter.runtime.config.AstrsomnProperties;
-import com.astrsomn.api.workflow.runtime.spi.AstFlowDomainEventPublisher;
-import com.astrsomn.api.workflow.runtime.spi.AstFlowExecutionStateMachine;
-import com.astrsomn.api.workflow.runtime.spi.AstFlowNodeExecutor;
-import com.astrsomn.api.workflow.runtime.spi.AstFlowNodeExecutorRegistry;
-import com.astrsomn.api.workflow.runtime.spi.AstFlowPlanResolver;
-import com.astrsomn.api.workflow.runtime.spi.AstFlowRuntimeEngine;
+import com.astrsomn.api.workflow.runtime.spi.*;
 import com.astrsomn.api.workflow.runtime.spi.policy.AstFlowRateLimitPolicy;
 import com.astrsomn.api.workflow.runtime.spi.policy.AstFlowRetryPolicy;
 import com.astrsomn.api.workflow.runtime.spi.policy.AstFlowTimeoutPolicy;
+import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.workflow.runtime.engine.DefaultAstFlowRuntimeEngine;
 import com.astrsomn.starter.workflow.runtime.event.LoggingAstFlowDomainEventPublisher;
-import com.astrsomn.starter.workflow.runtime.executor.ConditionNodeExecutor;
-import com.astrsomn.starter.workflow.runtime.executor.EndNodeExecutor;
-import com.astrsomn.starter.workflow.runtime.executor.HumanNodeExecutor;
-import com.astrsomn.starter.workflow.runtime.executor.LlmNodeExecutor;
-import com.astrsomn.starter.workflow.runtime.executor.NoopNodeExecutor;
-import com.astrsomn.starter.workflow.runtime.executor.StartNodeExecutor;
-import com.astrsomn.starter.workflow.runtime.executor.ToolNodeExecutor;
+import com.astrsomn.starter.workflow.runtime.executor.*;
 import com.astrsomn.starter.workflow.runtime.plan.DefaultAstFlowPlanResolver;
 import com.astrsomn.starter.workflow.runtime.policy.NoopAstFlowRateLimitPolicy;
 import com.astrsomn.starter.workflow.runtime.policy.NoopAstFlowRetryPolicy;
 import com.astrsomn.starter.workflow.runtime.policy.NoopAstFlowTimeoutPolicy;
 import com.astrsomn.starter.workflow.runtime.registry.DefaultAstFlowNodeExecutorRegistry;
 import com.astrsomn.starter.workflow.runtime.state.DefaultAstFlowExecutionStateMachine;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -36,46 +24,16 @@ import org.springframework.context.annotation.Bean;
 import java.util.List;
 
 /**
- * Workflow starter 的补充自动配置：
- * 在不改业务方配置的情况下，将 workflow entity 包自动并入 typeAliasesPackage。
+ * Workflow starter 的自动配置。
+ * <p>
+ * mapper 包、entity 包和租户隔离表已通过 {@link WorkflowMybatisContributor} 贡献给 runtime-starter，
+ * 不再需要 BeanPostProcessor hack。
  */
 @AutoConfiguration
 @ConditionalOnClass(AstrsomnProperties.class)
 @ConditionalOnProperty(name = "astrsomn.datasource.url")
 @AutoConfigureBefore(name = "com.astrsomn.starter.runtime.config.AstrsomnAutoConfiguration")
 public class AstrsomnWorkflowAutoConfiguration {
-
-    private static final String WORKFLOW_ENTITY_PACKAGE = "com.astrsomn.workflow.core.domain.entity";
-
-    @Bean
-    public BeanPostProcessor astrsomnWorkflowMybatisDefaultsPostProcessor() {
-        return new BeanPostProcessor() {
-            @Override
-            public Object postProcessAfterInitialization(Object bean, String beanName) {
-                if (!(bean instanceof AstrsomnProperties properties)) {
-                    return bean;
-                }
-
-                AstrsomnProperties.MybatisPlus mybatisPlus = properties.getMybatisPlus();
-                if (mybatisPlus == null) {
-                    return bean;
-                }
-
-                String additionalTypeAliasesPackage = mybatisPlus.getAdditionalTypeAliasesPackage();
-                if (additionalTypeAliasesPackage == null || additionalTypeAliasesPackage.isBlank()) {
-                    mybatisPlus.setAdditionalTypeAliasesPackage(WORKFLOW_ENTITY_PACKAGE);
-                    return bean;
-                }
-
-                if (!additionalTypeAliasesPackage.contains(WORKFLOW_ENTITY_PACKAGE)) {
-                    mybatisPlus.setAdditionalTypeAliasesPackage(
-                            additionalTypeAliasesPackage + "," + WORKFLOW_ENTITY_PACKAGE
-                    );
-                }
-                return bean;
-            }
-        };
-    }
 
     @Bean
     @ConditionalOnMissingBean

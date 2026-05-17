@@ -27,8 +27,8 @@ public class CookieUtil {
         addCookie(response, name, value, maxAge, path, false, false);
     }
 
-    public void addCookie(HttpServletResponse response, String name, String value, int maxAge, 
-                                 String path, boolean httpOnly, boolean secure) {
+    public void addCookie(HttpServletResponse response, String name, String value, int maxAge,
+                          String path, boolean httpOnly, boolean secure) {
         // TODO: 添加Cookie
         Cookie cookie = new Cookie(name, value);
         cookie.setMaxAge(maxAge);

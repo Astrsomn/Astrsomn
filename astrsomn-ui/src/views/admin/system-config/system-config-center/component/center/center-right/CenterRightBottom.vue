@@ -2,14 +2,14 @@
   <div class="stack">
     <section class="panel-card">
       <div class="panel-head">
-        <DashboardOutlined class="head-icon" />
+        <DashboardOutlined class="head-icon"/>
         <h3 class="panel-title">资源使用概览</h3>
       </div>
       <div class="usage-rows">
         <div class="usage-row">
           <div class="usage-row-top">
             <span class="usage-label-wrap">
-              <ApiOutlined class="usage-ico usage-ico--blue" />
+              <ApiOutlined class="usage-ico usage-ico--blue"/>
               <span class="usage-label">API 调用配额</span>
             </span>
             <span class="usage-numbers">
@@ -18,13 +18,13 @@
             <span class="usage-pct">{{ apiPct }}%</span>
           </div>
           <div class="bar-track">
-            <div class="bar-fill bar-fill--blue" :style="{ width: `${apiPct}%` }" />
+            <div :style="{ width: `${apiPct}%` }" class="bar-fill bar-fill--blue"/>
           </div>
         </div>
         <div class="usage-row">
           <div class="usage-row-top">
             <span class="usage-label-wrap">
-              <ThunderboltOutlined class="usage-ico usage-ico--violet" />
+              <ThunderboltOutlined class="usage-ico usage-ico--violet"/>
               <span class="usage-label">并发连接数</span>
             </span>
             <span class="usage-numbers">
@@ -33,13 +33,13 @@
             <span class="usage-pct">{{ concPct }}%</span>
           </div>
           <div class="bar-track">
-            <div class="bar-fill bar-fill--violet" :style="{ width: `${concPct}%` }" />
+            <div :style="{ width: `${concPct}%` }" class="bar-fill bar-fill--violet"/>
           </div>
         </div>
         <div class="usage-row">
           <div class="usage-row-top">
             <span class="usage-label-wrap">
-              <HddOutlined class="usage-ico usage-ico--green" />
+              <HddOutlined class="usage-ico usage-ico--green"/>
               <span class="usage-label">存储空间</span>
             </span>
             <span class="usage-numbers">
@@ -48,7 +48,7 @@
             <span class="usage-pct">{{ storagePct }}%</span>
           </div>
           <div class="bar-track">
-            <div class="bar-fill bar-fill--green" :style="{ width: `${storagePct}%` }" />
+            <div :style="{ width: `${storagePct}%` }" class="bar-fill bar-fill--green"/>
           </div>
         </div>
       </div>
@@ -57,22 +57,22 @@
     <section class="panel-card panel-card--grow">
       <div class="panel-head panel-head--between">
         <div class="panel-head-left">
-          <HistoryOutlined class="head-icon" />
+          <HistoryOutlined class="head-icon"/>
           <h3 class="panel-title">最近变更</h3>
         </div>
-        <button type="button" class="link-btn" @click="emit('view-all-changes')">查看全部 →</button>
+        <button class="link-btn" type="button" @click="emit('view-all-changes')">查看全部 →</button>
       </div>
       <ul class="change-list">
         <li v-for="(row, i) in recentChanges.items" :key="i" class="change-row">
-          <div class="change-icon" :class="`change-icon--${(i % 4) + 1}`">
-            <component :is="row.icon" />
+          <div :class="`change-icon--${(i % 4) + 1}`" class="change-icon">
+            <component :is="row.icon"/>
           </div>
           <div class="change-main">
             <div class="change-title-line">
               <span class="change-title">{{ row.title }}</span>
               <span class="change-time">{{ row.timeText }}</span>
             </div>
-            <span class="env-tag" :class="`env-tag--${row.env}`">{{ envLabel(row.env) }}</span>
+            <span :class="`env-tag--${row.env}`" class="env-tag">{{ envLabel(row.env) }}</span>
           </div>
         </li>
       </ul>
@@ -80,16 +80,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import {
-  ApiOutlined,
-  DashboardOutlined,
-  HistoryOutlined,
-  HddOutlined,
-  ThunderboltOutlined
-} from '@ant-design/icons-vue'
-import { computed } from 'vue'
-import type { Component } from 'vue'
+<script lang="ts" setup>
+import {ApiOutlined, DashboardOutlined, HddOutlined, HistoryOutlined, ThunderboltOutlined} from '@ant-design/icons-vue'
+import type {Component} from 'vue'
+import {computed} from 'vue'
 
 type SystemEnv = 'prod' | 'pre' | 'test' | 'dev'
 
@@ -120,14 +114,14 @@ const emit = defineEmits<{
 }>()
 
 const pct = (used: number, limit: number) =>
-  limit <= 0 ? 0 : Math.min(100, Math.round((used / limit) * 1000) / 10)
+    limit <= 0 ? 0 : Math.min(100, Math.round((used / limit) * 1000) / 10)
 
 const apiPct = computed(() => pct(props.resourceUsage.apiCalls.used, props.resourceUsage.apiCalls.limit))
 const concPct = computed(() =>
-  pct(props.resourceUsage.concurrency.used, props.resourceUsage.concurrency.limit)
+    pct(props.resourceUsage.concurrency.used, props.resourceUsage.concurrency.limit)
 )
 const storagePct = computed(() =>
-  pct(props.resourceUsage.storage.usedGB, props.resourceUsage.storage.limitGB)
+    pct(props.resourceUsage.storage.usedGB, props.resourceUsage.storage.limitGB)
 )
 
 const fmtNum = (n: number) => n.toLocaleString('zh-CN')

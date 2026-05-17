@@ -1,9 +1,5 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.api.runtime.common.dto.chat.session.AiChatSessionCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.chat.session.AiChatSessionQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.chat.session.AiChatSessionResponseDTO;
@@ -12,9 +8,12 @@ import com.astrsomn.api.runtime.common.entity.AiChatSessionEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.AiChatErrorEnum;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.server.mapper.AiChatSessionMapper;
 import com.astrsomn.server.service.AiChatSessionService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.starter.runtime.mapper.AiChatSessionMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,6 @@ import java.util.Arrays;
 public class AiChatSessionServiceImpl extends ServiceImpl<AiChatSessionMapper, AiChatSessionEntity>
         implements AiChatSessionService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(AiChatSessionCreateRequestDTO request) {
@@ -75,7 +73,6 @@ public class AiChatSessionServiceImpl extends ServiceImpl<AiChatSessionMapper, A
         if (param == null) {
             param = new AiChatSessionQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiChatSessionResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

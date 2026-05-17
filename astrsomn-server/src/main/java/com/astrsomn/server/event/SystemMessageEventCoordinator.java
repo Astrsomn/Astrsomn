@@ -1,15 +1,14 @@
 package com.astrsomn.server.event;
 
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessagePushPayload;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageRecordCommand;
-import com.astrsomn.api.runtime.common.entity.SystemMessageEntity;
-import com.astrsomn.starter.runtime.message.SystemMessageRecorder;
+import com.astrsomn.system.dto.systemmessage.SystemMessagePushPayload;
+import com.astrsomn.system.dto.systemmessage.SystemMessageRecordCommand;
+import com.astrsomn.system.entity.SystemMessageEntity;
+import com.astrsomn.starter.runtime.system.message.SystemMessageRecorder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-
-import lombok.RequiredArgsConstructor;
 
 /**
  * 进阶组合：在 starter 的 {@link SystemMessageRecorder}（落库）与

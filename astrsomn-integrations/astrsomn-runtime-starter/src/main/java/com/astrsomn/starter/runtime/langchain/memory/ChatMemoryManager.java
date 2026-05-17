@@ -1,5 +1,8 @@
 package com.astrsomn.starter.runtime.langchain.memory;
 
+import com.astrsomn.api.runtime.common.entity.AiChatMessageEntity;
+import com.astrsomn.api.runtime.common.langchain.ChatStreamEnum;
+import com.astrsomn.starter.runtime.mapper.AstAiChatMessageMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
@@ -7,9 +10,6 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.api.runtime.common.entity.AiChatMessageEntity;
-import com.astrsomn.api.runtime.common.langchain.ChatStreamEnum;
-import com.astrsomn.starter.runtime.mapper.AiChatMessageMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,9 +22,10 @@ import java.util.stream.Collectors;
 @Service
 public class ChatMemoryManager {
 
-    private final AiChatMessageMapper aiChatMessageMapper;
+    private final AstAiChatMessageMapper aiChatMessageMapper;
     private final Map<Object, ChatMemory> memoryCache = new ConcurrentHashMap<>();
-    public ChatMemoryManager(AiChatMessageMapper aiChatMessageMapper) {
+
+    public ChatMemoryManager(AstAiChatMessageMapper aiChatMessageMapper) {
         this.aiChatMessageMapper = aiChatMessageMapper;
     }
 

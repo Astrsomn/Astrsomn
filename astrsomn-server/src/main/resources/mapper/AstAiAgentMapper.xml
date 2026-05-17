@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.astrsomn.server.mapper.AiAgentMapper">
+
+
+    <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.agent.AiAgentResponseDTO">
+        SELECT
+        AA.*,
+        AP.`PROMPT_TITLE` AS promptTitle
+        FROM
+        `AI_AGENT` AA
+        LEFT JOIN (
+        SELECT ENV_CODE, PROMPT_KEY, MAX(VERSION) AS MAX_VERSION
+        FROM `AI_PROMPT`
+        WHERE DELETED = 0
+        GROUP BY ENV_CODE, PROMPT_KEY
+        ) LATEST_P ON LATEST_P.ENV_CODE = AA.ENV_CODE AND LATEST_P.PROMPT_KEY = AA.PROMPT_KEY
+        LEFT JOIN `AI_PROMPT` AP
+        ON AP.PROMPT_KEY = AA.PROMPT_KEY
+        AND AP.ENV_CODE = AA.ENV_CODE
+        AND AP.VERSION = LATEST_P.MAX_VERSION
+        AND (AP.DELETED = 0 OR AP.DELETED IS NULL)
+        WHERE
+        (AA.DELETED = 0 OR AA.DELETED IS NULL)
+        <if test="req != null and req.name != null and req.name != ''">
+            AND AA.AGENT_NAME LIKE CONCAT('%', #{req.name}, '%')
+        </if>
+        <if test="req != null and req.status != null and req.status != ''">
+            AND AA.STATUS = #{req.status}
+        </if>
+        ORDER BY
+        AA.CREATE_TIME DESC
+    </select>
+</mapper>

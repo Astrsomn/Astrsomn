@@ -2,14 +2,14 @@
   <section class="quick-access-root">
     <div class="quick-access-grid">
       <button
-        v-for="(item, index) in moduleCards"
-        :key="item.routeName"
-        type="button"
-        class="quick-access-card card-hover"
-        @click="emit('go-to', item.routeName)"
+          v-for="(item, index) in moduleCards"
+          :key="item.routeName"
+          class="quick-access-card card-hover"
+          type="button"
+          @click="emit('go-to', item.routeName)"
       >
-        <div class="icon-container" :class="`icon-${(index % 4) + 1}`">
-          <component :is="item.icon" />
+        <div :class="`icon-${(index % 4) + 1}`" class="icon-container">
+          <component :is="item.icon"/>
         </div>
         <div class="text-block">
           <h3 class="card-title">{{ item.title }}</h3>
@@ -20,8 +20,8 @@
   </section>
 </template>
 
-<script setup lang="ts">
-import type { Component } from 'vue'
+<script lang="ts" setup>
+import type {Component} from 'vue'
 
 type ModuleCard = {
   title: string

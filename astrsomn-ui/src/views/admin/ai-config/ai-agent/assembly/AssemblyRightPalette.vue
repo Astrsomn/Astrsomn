@@ -1,121 +1,121 @@
 <template>
   <aside class="assembly-palette palette-right">
     <!-- Tab页切换 -->
-    <a-tabs class="palette-tabs" v-model:activeKey="activeTab">
+    <a-tabs v-model:activeKey="activeTab" class="palette-tabs">
       <!-- Prompt Tab -->
       <a-tab-pane key="prompts" tab="Prompt">
         <div class="search-input-wrapper">
-          <SearchOutlined class="search-icon" />
+          <SearchOutlined class="search-icon"/>
           <input
-            v-model="kwPrompt"
-            type="text"
-            placeholder="Prompt名称 / Key"
-            @keyup.enter="$emit('searchPrompt')"
+              v-model="kwPrompt"
+              placeholder="Prompt名称 / Key"
+              type="text"
+              @keyup.enter="$emit('searchPrompt')"
           />
-          <button type="button" class="search-submit-btn" @click="$emit('searchPrompt')">搜索</button>
+          <button class="search-submit-btn" type="button" @click="$emit('searchPrompt')">搜索</button>
         </div>
         <a-pagination
-          v-if="promptPage.total > 0"
-          class="pane-pager-top"
-          size="small"
-          :current="promptPage.current"
-          :total="promptPage.total"
-          :page-size="pageSize"
-          :show-size-changer="false"
-          :hide-on-single-page="true"
-          @change="(p: number) => $emit('prompt-page', p)"
+            v-if="promptPage.total > 0"
+            :current="promptPage.current"
+            :hide-on-single-page="true"
+            :page-size="pageSize"
+            :show-size-changer="false"
+            :total="promptPage.total"
+            class="pane-pager-top"
+            size="small"
+            @change="(p: number) => $emit('prompt-page', p)"
         />
         <div class="chip-scroll">
           <template v-if="prompts.length">
             <AssemblyDragChip
-              v-for="row in prompts"
-              :key="String(row.promptKey ?? row.id)"
-              :payload="{ kind: 'prompt', data: row }"
-              :title="row.promptTitle || row.promptKey || ''"
-              :subtitle="row.promptKey"
-              badge="Prompt"
-              @drag-start="$emit('dragStart', $event)"
-              @drag-end="$emit('dragEnd')"
+                v-for="row in prompts"
+                :key="String(row.promptKey ?? row.id)"
+                :payload="{ kind: 'prompt', data: row }"
+                :subtitle="row.promptKey"
+                :title="row.promptTitle || row.promptKey || ''"
+                badge="Prompt"
+                @drag-start="$emit('dragStart', $event)"
+                @drag-end="$emit('dragEnd')"
             />
           </template>
           <div v-else class="palette-empty">暂无数据</div>
         </div>
       </a-tab-pane>
-      
+
       <!-- 工具Tab -->
       <a-tab-pane key="tools" tab="工具">
         <div class="search-input-wrapper">
-          <SearchOutlined class="search-icon" />
+          <SearchOutlined class="search-icon"/>
           <input
-            v-model="kwTool"
-            type="text"
-            placeholder="工具名 / Tool Key"
-            @keyup.enter="$emit('searchTool')"
+              v-model="kwTool"
+              placeholder="工具名 / Tool Key"
+              type="text"
+              @keyup.enter="$emit('searchTool')"
           />
-          <button type="button" class="search-submit-btn" @click="$emit('searchTool')">搜索</button>
+          <button class="search-submit-btn" type="button" @click="$emit('searchTool')">搜索</button>
         </div>
         <a-pagination
-          v-if="toolPage.total > 0"
-          class="pane-pager-top"
-          size="small"
-          :current="toolPage.current"
-          :total="toolPage.total"
-          :page-size="pageSize"
-          :show-size-changer="false"
-          :hide-on-single-page="true"
-          @change="(p: number) => $emit('tool-page', p)"
+            v-if="toolPage.total > 0"
+            :current="toolPage.current"
+            :hide-on-single-page="true"
+            :page-size="pageSize"
+            :show-size-changer="false"
+            :total="toolPage.total"
+            class="pane-pager-top"
+            size="small"
+            @change="(p: number) => $emit('tool-page', p)"
         />
         <div class="chip-scroll">
           <template v-if="tools.length">
             <AssemblyDragChip
-              v-for="row in tools"
-              :key="String(row.toolKey ?? row.id)"
-              :payload="{ kind: 'tool', data: row }"
-              :title="row.toolName || row.toolKey || ''"
-              :subtitle="row.toolKey"
-              badge="Tool"
-              @drag-start="$emit('dragStart', $event)"
-              @drag-end="$emit('dragEnd')"
+                v-for="row in tools"
+                :key="String(row.toolKey ?? row.id)"
+                :payload="{ kind: 'tool', data: row }"
+                :subtitle="row.toolKey"
+                :title="row.toolName || row.toolKey || ''"
+                badge="Tool"
+                @drag-start="$emit('dragStart', $event)"
+                @drag-end="$emit('dragEnd')"
             />
           </template>
           <div v-else class="palette-empty">暂无数据</div>
         </div>
       </a-tab-pane>
-      
+
       <!-- MCP Tab -->
       <a-tab-pane key="mcps" tab="MCP">
         <div class="search-input-wrapper">
-          <SearchOutlined class="search-icon" />
+          <SearchOutlined class="search-icon"/>
           <input
-            v-model="kwMcp"
-            type="text"
-            placeholder="服务名 / MCP Key"
-            @keyup.enter="$emit('searchMcp')"
+              v-model="kwMcp"
+              placeholder="服务名 / MCP Key"
+              type="text"
+              @keyup.enter="$emit('searchMcp')"
           />
-          <button type="button" class="search-submit-btn" @click="$emit('searchMcp')">搜索</button>
+          <button class="search-submit-btn" type="button" @click="$emit('searchMcp')">搜索</button>
         </div>
         <a-pagination
-          v-if="mcpPage.total > 0"
-          class="pane-pager-top"
-          size="small"
-          :current="mcpPage.current"
-          :total="mcpPage.total"
-          :page-size="pageSize"
-          :show-size-changer="false"
-          :hide-on-single-page="true"
-          @change="(p: number) => $emit('mcp-page', p)"
+            v-if="mcpPage.total > 0"
+            :current="mcpPage.current"
+            :hide-on-single-page="true"
+            :page-size="pageSize"
+            :show-size-changer="false"
+            :total="mcpPage.total"
+            class="pane-pager-top"
+            size="small"
+            @change="(p: number) => $emit('mcp-page', p)"
         />
         <div class="chip-scroll">
           <template v-if="mcps.length">
             <AssemblyDragChip
-              v-for="row in mcps"
-              :key="String(row.mcpKey ?? row.id)"
-              :payload="{ kind: 'mcp', data: row }"
-              :title="row.serverName || row.mcpKey || ''"
-              :subtitle="row.mcpKey"
-              badge="MCP"
-              @drag-start="$emit('dragStart', $event)"
-              @drag-end="$emit('dragEnd')"
+                v-for="row in mcps"
+                :key="String(row.mcpKey ?? row.id)"
+                :payload="{ kind: 'mcp', data: row }"
+                :subtitle="row.mcpKey"
+                :title="row.serverName || row.mcpKey || ''"
+                badge="MCP"
+                @drag-start="$emit('dragStart', $event)"
+                @drag-end="$emit('dragEnd')"
             />
           </template>
           <div v-else class="palette-empty">暂无数据</div>
@@ -125,13 +125,13 @@
   </aside>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { SearchOutlined } from '@ant-design/icons-vue'
-import type { AiTool } from '@/api/aiTool'
-import type { AiMcp } from '@/api/aiMcp'
-import type { AiPrompt } from '@/api/aiPrompt'
-import type { AssemblyDragPayload } from './assemblyTypes'
+<script lang="ts" setup>
+import {ref} from 'vue'
+import {SearchOutlined} from '@ant-design/icons-vue'
+import type {AiTool} from '@/api/aiTool'
+import type {AiMcp} from '@/api/aiMcp'
+import type {AiPrompt} from '@/api/aiPrompt'
+import type {AssemblyDragPayload} from './assemblyTypes'
 import AssemblyDragChip from './AssemblyDragChip.vue'
 
 defineProps<{
@@ -161,14 +161,14 @@ const kwMcp = ref('')
 const kwPrompt = ref('')
 
 function getKeywords() {
-  return { 
-    tool: kwTool.value, 
+  return {
+    tool: kwTool.value,
     mcp: kwMcp.value,
     prompt: kwPrompt.value
   }
 }
 
-defineExpose({ getKeywords })
+defineExpose({getKeywords})
 </script>
 
 <style scoped>

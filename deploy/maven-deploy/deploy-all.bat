@@ -3,31 +3,37 @@ setlocal enabledelayedexpansion
 
 REM ========================================
 REM Astrsomn Maven Deploy Script
-REM Deploy all modules to GitHub Packages
+REM Deploy all modules to Maven Central Repository
 REM ========================================
 
 echo.
 echo ========================================
 echo  Astrsomn Full Deploy Script
 echo ========================================
+echo  Target: Maven Central Repository (Sonatype OSSRH)
+echo ========================================
 echo.
 
 REM Repository root (parent of deploy/maven-deploy)
-pushd "%~dp0..\.."
+pushd "%~dp0\..\.."
 set "PROJECT_ROOT=%CD%"
 popd
 
 echo [1/2] Installing all dependencies to local repository...
 cd /d "%PROJECT_ROOT%"
-call mvn install -DskipTests -pl astrsomn-common,astrsomn-api,astrsomn-integrations,astrsomn-plugins -am
+REM Install all modules including sub-modules
+call mvn install -DskipTests -pl astrsomn-common,astrsomn-api/astrsomn-api-runtime,astrsomn-api/astrsomn-api-storage,astrsomn-api/astrsomn-api-workflow,astrsomn-integrations,astrsomn-plugins -am
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to install dependencies!
+    echo.
+    echo Press any key to exit...
+    pause > nul
     exit /b 1
 )
 
 echo.
-echo [2/2] Deploying all modules to GitHub Packages...
+echo [2/2] Deploying all modules to Maven Central...
 echo.
 
 REM Deploy providers modules
@@ -35,42 +41,57 @@ echo ----------------------------------------
 echo Deploying providers modules...
 echo ----------------------------------------
 cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-openai"
-call mvn deploy -DskipTests
+call mvn deploy -X -DskipTests -Possrh
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-provider-openai!
+    echo.
+    echo Press any key to exit...
+    pause > nul
     exit /b 1
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-qianfan"
-call mvn deploy -DskipTests
+call mvn deploy -X -DskipTests -Possrh
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-provider-qianfan!
+    echo.
+    echo Press any key to exit...
+    pause > nul
     exit /b 1
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-qwen"
-call mvn deploy -DskipTests
+call mvn deploy -X -DskipTests -Possrh
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-provider-qwen!
+    echo.
+    echo Press any key to exit...
+    pause > nul
     exit /b 1
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-zhipu"
-call mvn deploy -DskipTests
+call mvn deploy -X -DskipTests -Possrh
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-provider-zhipu!
+    echo.
+    echo Press any key to exit...
+    pause > nul
     exit /b 1
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers\astrsomn-provider-deepseek"
-call mvn deploy -DskipTests
+call mvn deploy -X -DskipTests -Possrh
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-provider-deepseek!
+    echo.
+    echo Press any key to exit...
+    pause > nul
     exit /b 1
 )
 
@@ -80,26 +101,35 @@ echo ----------------------------------------
 echo Deploying integrations modules...
 echo ----------------------------------------
 cd /d "%PROJECT_ROOT%\astrsomn-integrations\astrsomn-internal-storage"
-call mvn deploy -DskipTests
+call mvn deploy -X -DskipTests -Possrh
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-internal-storage!
+    echo.
+    echo Press any key to exit...
+    pause > nul
     exit /b 1
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-integrations\astrsomn-runtime-starter"
-call mvn deploy -DskipTests
+call mvn deploy -X -DskipTests -Possrh
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-runtime-starter!
+    echo.
+    echo Press any key to exit...
+    pause > nul
     exit /b 1
 )
 
 cd /d "%PROJECT_ROOT%\astrsomn-integrations\astrsomn-workflow-starter"
-call mvn deploy -DskipTests
+call mvn deploy -X -DskipTests -Possrh
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to deploy astrsomn-workflow-starter!
+    echo.
+    echo Press any key to exit...
+    pause > nul
     exit /b 1
 )
 
@@ -108,5 +138,7 @@ echo ========================================
 echo  All modules deployed successfully!
 echo ========================================
 echo.
+echo Press any key to exit...
+pause > nul
 
 endlocal

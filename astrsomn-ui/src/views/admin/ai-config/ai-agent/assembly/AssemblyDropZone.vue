@@ -1,14 +1,13 @@
 <template>
   <div class="slot-wrap">
     <div class="slot-label-row">
-      <component :is="icon" class="slot-icon" />
+      <component :is="icon" class="slot-icon"/>
       <span class="slot-title">{{ title }}</span>
     </div>
     <p v-if="hint" class="slot-hint">{{ hint }}</p>
     <div
-      ref="zoneRef"
-      class="assembly-drop-zone"
-      :class="[
+        ref="zoneRef"
+        :class="[
         variant,
         {
           'is-eligible': eligible,
@@ -16,25 +15,26 @@
           'has-content': hasContent
         }
       ]"
-      @dragover="onDragOver"
-      @dragleave="onDragLeave"
-      @drop="onDrop"
+        class="assembly-drop-zone"
+        @dragleave="onDragLeave"
+        @dragover="onDragOver"
+        @drop="onDrop"
     >
       <div v-if="eligible && draggingPayload && isOver" class="drop-hint-banner">
-        <span class="banner-dot" />
+        <span class="banner-dot"/>
         松开鼠标以放入
       </div>
       <div class="zone-inner">
-        <slot />
+        <slot/>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, ref, type Component } from 'vue'
-import type { AssemblyDragPayload, AssemblySlotKey } from './assemblyTypes'
-import { ASSEMBLY_DRAG_MIME, parseDragPayload, payloadAcceptsSlot } from './assemblyTypes'
+<script lang="ts" setup>
+import {type Component, computed, ref} from 'vue'
+import type {AssemblyDragPayload, AssemblySlotKey} from './assemblyTypes'
+import {ASSEMBLY_DRAG_MIME, parseDragPayload, payloadAcceptsSlot} from './assemblyTypes'
 
 const props = defineProps<{
   slotKey: AssemblySlotKey
@@ -58,7 +58,7 @@ const zoneRef = ref<HTMLElement | null>(null)
 const eligible = computed(() => payloadAcceptsSlot(props.draggingPayload, props.slotKey))
 
 const isOver = computed(
-  () => eligible.value && props.activeDropKey === props.slotKey
+    () => eligible.value && props.activeDropKey === props.slotKey
 )
 
 function onDragOver(ev: DragEvent) {
@@ -94,21 +94,25 @@ function onDrop(ev: DragEvent) {
   min-width: 0;
   max-width: 100%;
 }
+
 .slot-label-row {
   display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 2px;
 }
+
 .slot-icon {
   font-size: 14px;
   opacity: 0.88;
 }
+
 .slot-title {
   font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
 }
+
 .slot-hint {
   margin: 0 0 4px;
   font-size: 12px;
@@ -126,10 +130,9 @@ function onDrop(ev: DragEvent) {
   background: var(--assembly-dz-bg);
   padding: 8px;
   overflow: hidden;
-  transition:
-    border-color 0.18s ease,
-    background 0.18s ease,
-    box-shadow 0.18s ease;
+  transition: border-color 0.18s ease,
+  background 0.18s ease,
+  box-shadow 0.18s ease;
 }
 
 .assembly-drop-zone.is-eligible {

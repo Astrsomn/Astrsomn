@@ -1,14 +1,14 @@
 package com.astrsomn.server.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.api.runtime.common.dto.account.AiAccountCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.account.AiAccountQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.account.AiAccountResponseDTO;
 import com.astrsomn.api.runtime.common.dto.account.AiAccountUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface AiAccountService extends IService<AiAccountEntity> {
 

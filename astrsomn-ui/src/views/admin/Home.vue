@@ -1,34 +1,34 @@
 <template>
   <div class="admin-shell">
-    <AppHeader 
-      :showBrand="!showExtensionBackHeader"
-      :showBack="showExtensionBackHeader"
-      :page-title="headerPageTitle"
-      :showDoc="true"
-      :showSwitch="true"
-      :show-workspace-env="true"
-      switchTarget="chat"
+    <AppHeader
+        :page-title="headerPageTitle"
+        :show-workspace-env="true"
+        :showBack="showExtensionBackHeader"
+        :showBrand="!showExtensionBackHeader"
+        :showDoc="true"
+        :showSwitch="true"
+        switchTarget="chat"
     />
+
+    <ActivityBar />
 
     <main class="shell-content" @scroll="handleScroll">
       <div class="content-wrapper">
         <router-view v-slot="{ Component }">
-          <transition name="page-fade" mode="out-in">
-            <component :is="Component" />
+          <transition mode="out-in" name="page-fade">
+            <component :is="Component"/>
           </transition>
         </router-view>
       </div>
     </main>
-
-    <BottomNav :auto-hide="bottomNavAutoHide" />
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+<script lang="ts" setup>
+import {computed} from 'vue';
+import {useRoute} from 'vue-router';
 import AppHeader from '@/components/top/AppHeader.vue';
-import BottomNav from '@/components/bottom/BottomNav.vue';
+import ActivityBar from '@/components/global/ActivityBar.vue';
 
 const route = useRoute();
 
@@ -39,9 +39,9 @@ const leafMeta = () => {
 
 const showExtensionBackHeader = computed(() => {
   return (
-    route.name === 'AdminSystemExtension' ||
-    route.name === 'AdminWorkflowDefinitionBuilder' ||
-    route.name === 'AdminWorkflowDefinitionEditBuilder'
+      route.name === 'AdminSystemExtension' ||
+      route.name === 'AdminWorkflowDefinitionBuilder' ||
+      route.name === 'AdminWorkflowDefinitionEditBuilder'
   );
 });
 
@@ -49,10 +49,6 @@ const headerPageTitle = computed(() => {
   const title = leafMeta()?.title;
   return typeof title === 'string' && title.trim() ? title : '管理后台';
 });
-
-/** Dock 根页：始终展开底部栏；二级页：用 auto-hide 收起，悬停底部区域唤醒 */
-const showAdminDock = computed(() => leafMeta()?.showAdminDock === true);
-const bottomNavAutoHide = computed(() => !showAdminDock.value);
 
 const handleScroll = () => {
   // 滚动时的处理逻辑
@@ -74,6 +70,7 @@ const handleScroll = () => {
 /* 主体内容区 */
 .shell-content {
   flex: 1;
+  margin-left: 56px;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--text-muted) 24%, transparent) transparent;
@@ -103,7 +100,6 @@ const handleScroll = () => {
 }
 
 
-
 /* 让顶部 Header 覆盖在内容上方，这样 Header 透明时能看到底下页面内容 */
 :deep(.app-header) {
   position: fixed;
@@ -114,6 +110,8 @@ const handleScroll = () => {
 
 /* 响应式适配 */
 @media (max-width: 768px) {
-  .content-wrapper { padding: 0 16px; }
+  .content-wrapper {
+    padding: 0 16px;
+  }
 }
 </style>

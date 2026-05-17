@@ -1,26 +1,20 @@
 package com.astrsomn.api.runtime.common.constant;
 
+import com.astrsomn.common.base.BaseEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import com.astrsomn.common.base.BaseEnum;
 
-/**
- * AI Template Enum
- */
+
 public interface AiTemplateEnum {
 
 
     @Getter
     @AllArgsConstructor
     enum TemplateTypeEnum implements BaseEnum {
-        /**
-         * Freemarker
-         */
+
         FREEMARKER("freeMarker", "FreeMarker (.ftl)"),
 
-        /**
-         * StringTemplate
-         */
+
         STRING_TEMPLATE("stringTemplate", "StringTemplate (.st)");
 
         private final String code;
@@ -30,14 +24,10 @@ public interface AiTemplateEnum {
     @Getter
     @AllArgsConstructor
     enum StatusEnum implements BaseEnum {
-        /**
-         * Enabled
-         */
+
         ENABLED("enabled", "Enabled"),
 
-        /**
-         * Disabled
-         */
+
         DISABLED("disabled", "Disabled");
 
         private final String code;

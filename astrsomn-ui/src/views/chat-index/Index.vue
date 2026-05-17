@@ -1,24 +1,24 @@
 <template>
   <div class="chat-home">
-    <AppHeader 
-      :showBrand="true" 
-      :showBack="false"
-      brandStatus="AI Assistant"
-      :showDoc="true"
-      :showSwitch="true"
-      switchTarget="admin"
+    <AppHeader
+        :showBack="false"
+        :showBrand="true"
+        :showDoc="true"
+        :showSwitch="true"
+        brandStatus="AI Assistant"
+        switchTarget="admin"
     />
 
     <main class="chat-main">
-      <ChatSessionSidebar
-        :loading="sessionLoading"
-        :items="sessionItems"
-        :selected-memory-key="currentMemoryKey"
-        :collapsed="sidebarCollapsed"
-        @update:collapsed="sidebarCollapsed = $event"
-        @open="openSession"
-        @create="createNewSession"
-        @delete="deleteSession"
+      <AstSidebar
+          :collapsed="sidebarCollapsed"
+          :items="sessionItems"
+          :loading="sessionLoading"
+          :selected-memory-key="currentMemoryKey"
+          @create="createNewSession"
+          @delete="deleteSession"
+          @open="openSession"
+          @update:collapsed="sidebarCollapsed = $event"
       />
 
       <section class="chat-content">
@@ -27,22 +27,22 @@
             <h2>今天想聊点什么？</h2>
             <p>输入问题即可开启新会话，你可以选择不同 Agent 与模型实例。</p>
           </div>
-          <ChatInputPanel
-            layout="centered"
-            v-model:selected-agent="selectedAgent"
-            v-model:selected-chat-instance-key="selectedChatInstanceKey"
-            v-model:user-input="userInput"
-            v-model:file-url-list="fileUrlList"
-            v-model:is-deep-thinking="isDeepThinking"
-            v-model:is-web-search="isWebSearch"
-            :is-streaming="isStreaming"
-            :options-loading="optionsLoading"
-            :send-disabled="sendDisabled"
-            :agent-options="agentOptions"
-            :chat-instance-options="chatInstanceOptions"
-            :model-capabilities="currentInstanceCapabilities"
-            @submit="submitQuestion"
-            @stop="stopStreaming"
+          <AstInputPanel
+              v-model:file-url-list="fileUrlList"
+              v-model:is-deep-thinking="isDeepThinking"
+              v-model:is-web-search="isWebSearch"
+              v-model:selected-agent="selectedAgent"
+              v-model:selected-chat-instance-key="selectedChatInstanceKey"
+              v-model:user-input="userInput"
+              :agent-options="agentOptions"
+              :chat-instance-options="chatInstanceOptions"
+              :is-streaming="isStreaming"
+              :model-capabilities="currentInstanceCapabilities"
+              :options-loading="optionsLoading"
+              :send-disabled="sendDisabled"
+              layout="centered"
+              @stop="stopStreaming"
+              @submit="submitQuestion"
           />
         </div>
 
@@ -51,11 +51,11 @@
             <transition-group name="message-fade">
               <div v-for="item in messages" :key="item.id" class="message-wrapper">
                 <AstroChatMessage
-                  :role="item.role"
-                  :content="item.content"
-                  :segments="item.segments"
-                  :streaming="item.streaming"
-                  :error="item.error"
+                    :content="item.content"
+                    :error="item.error"
+                    :role="item.role"
+                    :segments="item.segments"
+                    :streaming="item.streaming"
                 />
                 <div v-if="item.timestamp" :class="['message-timestamp', `message-timestamp-${item.role}`]">
                   {{ formatTimestamp(item.timestamp) }}
@@ -66,50 +66,50 @@
           </div>
         </div>
 
-        <ChatInputPanel
-          v-if="!isNewSessionView"
-          layout="bottom"
-          v-model:selected-agent="selectedAgent"
-          v-model:selected-chat-instance-key="selectedChatInstanceKey"
-          v-model:user-input="userInput"
-          v-model:file-url-list="fileUrlList"
-          v-model:is-deep-thinking="isDeepThinking"
-          v-model:is-web-search="isWebSearch"
-          :is-streaming="isStreaming"
-          :options-loading="optionsLoading"
-          :send-disabled="sendDisabled"
-          :agent-options="agentOptions"
-          :chat-instance-options="chatInstanceOptions"
-          :model-capabilities="currentInstanceCapabilities"
-          @submit="submitQuestion"
-          @stop="stopStreaming"
+        <AstInputPanel
+            v-if="!isNewSessionView"
+            v-model:file-url-list="fileUrlList"
+            v-model:is-deep-thinking="isDeepThinking"
+            v-model:is-web-search="isWebSearch"
+            v-model:selected-agent="selectedAgent"
+            v-model:selected-chat-instance-key="selectedChatInstanceKey"
+            v-model:user-input="userInput"
+            :agent-options="agentOptions"
+            :chat-instance-options="chatInstanceOptions"
+            :is-streaming="isStreaming"
+            :model-capabilities="currentInstanceCapabilities"
+            :options-loading="optionsLoading"
+            :send-disabled="sendDisabled"
+            layout="bottom"
+            @stop="stopStreaming"
+            @submit="submitQuestion"
         />
       </section>
     </main>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { message, Modal } from 'ant-design-vue'
+<script lang="ts" setup>
+import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
+import {message, Modal} from 'ant-design-vue'
 import AppHeader from '@/components/top/AppHeader.vue'
-import ChatInputPanel from '@/views/chat-index/ChatInputPanel.vue'
-import { AstroChatMessage } from '@astrsomn/astro-chat-vue'
-import ChatSessionSidebar from '@/views/chat-index/ChatSessionSidebar.vue'
-import { readAstroStream, buildStreamError, type StreamEvent } from '@astrsomn/astro-chat-core'
-import { adaptSessionToSessionItem, aiChatSessionApi } from '@/api/aiChatSession'
-import { aiInstanceApi, type AiInstance } from '@/api/aiInstance.ts'
-import { aiAgentApi, type AiAgent } from '@/api/aiAgent.ts'
-import { aiConversationApi } from '@/api/aiConversation'
-import type { ChatSessionItem } from '@/components/chat-session/types'
-import { WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
+import AstInputPanel from '@/views/chat-index/component/AstInputPanel.vue'
+import {AstroChatMessage} from '@astrsomn/astro-chat-vue'
+import AstSidebar from '@/views/chat-index/component/AstSidebar.vue'
+import {buildStreamError, readAstroStream, type StreamEvent} from '@astrsomn/astro-chat-core'
+import {adaptSessionToSessionItem, aiChatSessionApi} from '@/api/aiChatSession'
+import {type AiInstance, aiInstanceApi} from '@/api/aiInstance.ts'
+import {type AiAgent, aiAgentApi} from '@/api/aiAgent.ts'
+import {aiConversationApi} from '@/api/aiConversation'
+import type {ChatSessionItem} from '@/views/chat-index/utils/types.ts'
+import {WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
 import {
-  mapTurnBundlesToChatMessages,
-  mergeContentFromSegments,
   type ChatMessage,
   type ChatSegment,
-  type ChatSegmentType
-} from '@/views/chat-index/historyMapper'
+  type ChatSegmentType,
+  mapTurnBundlesToChatMessages,
+  mergeContentFromSegments
+} from '@/views/chat-index/utils/historyMapper.ts'
 
 const CHAT_MEMORY_KEY = 'astrsomn-chat-memory-key'
 const CHAT_DRAFT_KEY_PREFIX = 'astrsomn-chat-draft:'
@@ -148,9 +148,9 @@ const sendDisabled = computed(() => {
     return false
   }
   return (
-    (!userInput.value.trim() && fileUrlList.value.length === 0) ||
-    !selectedChatInstanceKey.value ||
-    !selectedAgent.value
+      (!userInput.value.trim() && fileUrlList.value.length === 0) ||
+      !selectedChatInstanceKey.value ||
+      !selectedAgent.value
   )
 })
 
@@ -160,7 +160,7 @@ const isNewSessionView = computed(() => {
 
 const currentInstanceCapabilities = computed<string[]>(() => {
   const instance = chatInstanceOptions.value.find(
-    (i) => i.instanceKey === selectedChatInstanceKey.value
+      (i) => i.instanceKey === selectedChatInstanceKey.value
   )
   if (!instance?.capabilities) return []
   try {
@@ -185,10 +185,10 @@ const getAgentPreferredChatInstanceKey = (agentKey?: string) => {
 
 const getDefaultChatInstanceKey = (agentKey?: string) => {
   return (
-    getAgentPreferredChatInstanceKey(agentKey) ||
-    chatInstanceOptions.value.find((item) => item.isDefault === 1)?.instanceKey ||
-    chatInstanceOptions.value[0]?.instanceKey ||
-    undefined
+      getAgentPreferredChatInstanceKey(agentKey) ||
+      chatInstanceOptions.value.find((item) => item.isDefault === 1)?.instanceKey ||
+      chatInstanceOptions.value[0]?.instanceKey ||
+      undefined
   )
 }
 
@@ -231,17 +231,17 @@ const restoreDraftState = (memoryKey: string) => {
     const parsed = JSON.parse(raw) as Partial<ChatDraftState>
     userInput.value = typeof parsed.userInput === 'string' ? parsed.userInput : ''
     fileUrlList.value = Array.isArray(parsed.fileUrlList)
-      ? parsed.fileUrlList.filter((item): item is string => typeof item === 'string' && !!item.trim())
-      : []
+        ? parsed.fileUrlList.filter((item): item is string => typeof item === 'string' && !!item.trim())
+        : []
     isDeepThinking.value = parsed.isDeepThinking === true
     isWebSearch.value = parsed.isWebSearch === true
     selectedAgent.value = typeof parsed.selectedAgent === 'string' && parsed.selectedAgent.trim()
-      ? parsed.selectedAgent
-      : undefined
-    selectedChatInstanceKey.value =
-      typeof parsed.selectedChatInstanceKey === 'string' && parsed.selectedChatInstanceKey.trim()
-        ? parsed.selectedChatInstanceKey
+        ? parsed.selectedAgent
         : undefined
+    selectedChatInstanceKey.value =
+        typeof parsed.selectedChatInstanceKey === 'string' && parsed.selectedChatInstanceKey.trim()
+            ? parsed.selectedChatInstanceKey
+            : undefined
     return true
   } catch {
     clearDraftState(memoryKey)
@@ -312,10 +312,10 @@ const resetWelcomeMessage = () => {
 const isChatNotFoundError = (error: unknown) => {
   const text = String((error as { message?: unknown })?.message ?? '').toLowerCase()
   return (
-    text.includes('chat_not_found') ||
-    text.includes('not found') ||
-    text.includes('不存在') ||
-    text.includes('未找到')
+      text.includes('chat_not_found') ||
+      text.includes('not found') ||
+      text.includes('不存在') ||
+      text.includes('未找到')
   )
 }
 
@@ -330,8 +330,8 @@ const loadSessionGroups = async () => {
       }
     })
     sessionItems.value = (resp.list || [])
-      .filter((item) => !!item.memoryKey)
-      .map((item) => adaptSessionToSessionItem(item))
+        .filter((item) => !!item.memoryKey)
+        .map((item) => adaptSessionToSessionItem(item))
   } finally {
     sessionLoading.value = false
   }
@@ -408,7 +408,7 @@ const scrollToBottom = async () => {
   await nextTick()
   const bottom = messagesBottomRef.value
   if (bottom) {
-    bottom.scrollIntoView({ block: 'end' })
+    bottom.scrollIntoView({block: 'end'})
     return
   }
   const container = messagesContainerRef.value
@@ -420,9 +420,9 @@ const scrollToBottom = async () => {
 const mergeMessageContent = (segments: ChatSegment[]) => mergeContentFromSegments(segments)
 
 const appendAssistantContent = async (
-  messageId: string,
-  chunk: string,
-  type: ChatSegmentType = 'text'
+    messageId: string,
+    chunk: string,
+    type: ChatSegmentType = 'text'
 ) => {
   if (!chunk) {
     return
@@ -443,7 +443,7 @@ const appendAssistantContent = async (
   if (lastSegment && lastSegment.type === type) {
     lastSegment.content += chunk
   } else {
-    target.segments.push({ type, content: chunk })
+    target.segments.push({type, content: chunk})
   }
   target.content = mergeMessageContent(target.segments)
   await scrollToBottom()
@@ -482,7 +482,7 @@ const appendToolStreamSegment = async (messageId: string, payloadJson: string) =
   }
 
   const capArgs =
-    argsStr && argsStr.length > 4000 ? `${argsStr.slice(0, 4000)}\n…` : argsStr
+      argsStr && argsStr.length > 4000 ? `${argsStr.slice(0, 4000)}\n…` : argsStr
   const capRes = result.length > 12000 ? `${result.slice(0, 12000)}\n…` : result
 
   const seg: ChatSegment = {
@@ -542,12 +542,12 @@ const loadOptions = async () => {
       aiInstanceApi.queryPage({
         pageNo: 1,
         pageSize: 200,
-        param: { status: 'enabled', modelType: 'chat' }
+        param: {status: 'enabled', modelType: 'chat'}
       }),
       aiAgentApi.queryPage({
         pageNo: 1,
         pageSize: 100,
-        param: { status: 'enabled' }
+        param: {status: 'enabled'}
       })
     ])
 
@@ -561,8 +561,8 @@ const loadOptions = async () => {
       selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
     }
     if (
-      !selectedChatInstanceKey.value ||
-      !chatInstanceOptions.value.some((item) => item.instanceKey === selectedChatInstanceKey.value)
+        !selectedChatInstanceKey.value ||
+        !chatInstanceOptions.value.some((item) => item.instanceKey === selectedChatInstanceKey.value)
     ) {
       selectedChatInstanceKey.value = getDefaultChatInstanceKey(selectedAgent.value)
     }
@@ -574,8 +574,8 @@ const loadOptions = async () => {
   }
 }
 
-watch(selectedAgent, (agentKey, previousAgentKey) => {
-  if (agentKey && agentKey !== previousAgentKey) {
+watch(selectedAgent, (agentKey, previousBizKey) => {
+  if (agentKey && agentKey !== previousBizKey) {
     syncChatInstanceWithAgent(agentKey)
   }
 })
@@ -592,7 +592,7 @@ const submitQuestion = async (promptArg?: string) => {
   const userMessageId = `user-${Date.now()}`
   const assistantMessageId = `ai-${Date.now()}`
   const now = new Date().toISOString()
-  messages.value.push({ id: userMessageId, role: 'user', content: prompt, timestamp: now })
+  messages.value.push({id: userMessageId, role: 'user', content: prompt, timestamp: now})
   messages.value.push({
     id: assistantMessageId,
     role: 'ai',
@@ -614,8 +614,8 @@ const submitQuestion = async (promptArg?: string) => {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'text/event-stream',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(workspaceEnv ? { [WORKSPACE_ENV_HEADER]: workspaceEnv.trim() } : {})
+        ...(token ? {Authorization: `Bearer ${token}`} : {}),
+        ...(workspaceEnv ? {[WORKSPACE_ENV_HEADER]: workspaceEnv.trim()} : {})
       },
       body: JSON.stringify({
         agentKey: selectedAgent.value,
@@ -651,7 +651,7 @@ const submitQuestion = async (promptArg?: string) => {
         const stopText = target.content || '已停止生成'
         target.content = stopText
         if (!target.segments?.length) {
-          target.segments = [{ type: 'text', content: stopText }]
+          target.segments = [{type: 'text', content: stopText}]
         }
       } else {
         // 解析错误响应（须同步 segments，否则 AstroChatMessage 在 segments 存在时会忽略 content）
@@ -675,7 +675,7 @@ const submitQuestion = async (promptArg?: string) => {
 
         const fullText = errorDetail ? `${errorMessage}\n\n原因：${errorDetail}` : errorMessage
         target.content = fullText
-        target.segments = [{ type: 'text', content: fullText }]
+        target.segments = [{type: 'text', content: fullText}]
         target.error = true
       }
     }
@@ -725,12 +725,12 @@ onBeforeUnmount(() => {
 })
 
 watch(
-  [userInput, fileUrlList, isDeepThinking, isWebSearch, selectedAgent, selectedChatInstanceKey],
-  () => {
-    if (!currentMemoryKey.value) return
-    saveDraftState(currentMemoryKey.value)
-  },
-  { deep: true }
+    [userInput, fileUrlList, isDeepThinking, isWebSearch, selectedAgent, selectedChatInstanceKey],
+    () => {
+      if (!currentMemoryKey.value) return
+      saveDraftState(currentMemoryKey.value)
+    },
+    {deep: true}
 )
 </script>
 
@@ -741,9 +741,8 @@ watch(
   display: flex;
   flex-direction: column;
   background-color: var(--bg-base);
-  background-image: 
-    radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.08), transparent 50%),
-    radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.05), transparent 40%);
+  background-image: radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.08), transparent 50%),
+  radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.05), transparent 40%);
   color: var(--text-primary);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -865,7 +864,13 @@ watch(
   .chat-main {
     flex-direction: column;
   }
-  .top-bar { padding: 0 16px; }
-  .brand-name { display: none; }
+
+  .top-bar {
+    padding: 0 16px;
+  }
+
+  .brand-name {
+    display: none;
+  }
 }
 </style>

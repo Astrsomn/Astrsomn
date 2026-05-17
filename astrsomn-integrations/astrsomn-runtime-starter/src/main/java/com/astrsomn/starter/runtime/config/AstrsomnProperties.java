@@ -14,7 +14,7 @@ import java.util.List;
  *   enabled: false
  * }</pre>
  *
- * <p>连接配置使用独立 Bean {@link AstrsomnDatasourceProperties}（前缀 {@code astrsomn.datasource}）。
+ * <p>连接配置使用独立 Bean {@link com.astrsomn.starter.runtime.config.datasource.AstrsomnDatasourceProperties}（前缀 {@code astrsomn.datasource}）。
  * <pre>{@code
  * astrsomn:
  *   enabled: true
@@ -88,7 +88,7 @@ public class AstrsomnProperties {
          * 额外的Mapper XML文件位置。
          * 支持多个路径，用逗号分隔。
          * 会自动与starter默认的mapper路径合并。
-         * 
+         * <p>
          * 示例：classpath:my-mapper/*.xml
          */
         private String additionalMapperLocations;
@@ -97,7 +97,7 @@ public class AstrsomnProperties {
          * 额外的Entity类包路径（类型别名包）。
          * 支持多个包路径，用逗号分隔。
          * 会自动与starter默认的entity包合并。
-         * 
+         * <p>
          * 示例：com.mycompany.entity
          */
         private String additionalTypeAliasesPackage;

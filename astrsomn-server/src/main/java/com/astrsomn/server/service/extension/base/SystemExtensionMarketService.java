@@ -1,8 +1,8 @@
 package com.astrsomn.server.service.extension.base;
 
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.dto.extension.ExtensionMarketplaceItemDTO;
 import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.api.runtime.common.dto.extension.ExtensionMarketplaceItemDTO;
 import com.astrsomn.common.base.PageResponse;
 
 import java.util.Optional;
@@ -19,6 +19,7 @@ public interface SystemExtensionMarketService {
 
     /**
      * 从网络安装插件
+     *
      * @param pluginId
      * @param version
      * @return

@@ -1,43 +1,43 @@
 <template>
-  <AdminPageShell
-    title="向量分段"
-    description="管理文档切片与向量映射，支持分段内容预览。"
-    empty-text="暂无向量分段数据。"
+  <AstPageShell
+      description="管理文档切片与向量映射，支持分段内容预览。"
+      empty-text="暂无向量分段数据。"
+      title="向量分段"
   >
     <div class="vec-segment-page">
-      <AdminListToolbar>
+      <AstListToolbar>
         <template #left>
-          <AstrsomnSearchPill
-            v-model="query.vectorId"
-            placeholder="搜索向量 ID"
-            button-label="搜索"
-            layout="toolbar"
-            @search="fetchList"
+          <AstSearchInput
+              v-model="query.vectorId"
+              button-label="搜索"
+              layout="toolbar"
+              placeholder="搜索向量 ID"
+              @search="fetchList"
           />
         </template>
 
         <template #right>
-          <AstrsomnSegmentedButton :buttons="toolbarSegmentButtons" />
+          <AstegmentedButton :buttons="toolbarSegmentButtons"/>
         </template>
-      </AdminListToolbar>
+      </AstListToolbar>
 
-      <AstrsomnOverview
-        :list-length="list.length"
-        :selected-count="selectedRowKeys.length"
-        :all-current-selected="allCurrentSelected"
-        :part-current-selected="partCurrentSelected"
-        :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条向量分段，已选 ${selectedRowKeys.length} 条。`"
-        @toggle-select-all="toggleSelectAllCurrentPage"
+      <AstOverview
+          :all-current-selected="allCurrentSelected"
+          :list-length="list.length"
+          :part-current-selected="partCurrentSelected"
+          :selected-count="selectedRowKeys.length"
+          :show-actions="list.length > 0"
+          :summary-text="`当前页 ${list.length} 条向量分段，已选 ${selectedRowKeys.length} 条。`"
+          @toggle-select-all="toggleSelectAllCurrentPage"
       />
 
       <a-table
-        :columns="columns"
-        :data-source="list"
-        :pagination="false"
-        row-key="id"
-        :row-selection="rowSelection"
-        :scroll="{ x: 1280 }"
+          :columns="columns"
+          :data-source="list"
+          :pagination="false"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1280 }"
+          row-key="id"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'segmentContent'">
@@ -51,19 +51,23 @@
             </div>
           </template>
           <template v-else-if="column.key === 'actions'">
-            <a-button type="link" class="action-link" @click="openEdit(record)">
-              <template #icon><edit-outlined /></template>
+            <a-button class="action-link" type="link" @click="openEdit(record)">
+              <template #icon>
+                <edit-outlined/>
+              </template>
               编辑
             </a-button>
-            <a-divider type="vertical" />
+            <a-divider type="vertical"/>
             <a-popconfirm
-              title="确定删除吗？"
-              ok-text="确认"
-              cancel-text="取消"
-              @confirm="() => handleDeleteOne(record.id)"
+                cancel-text="取消"
+                ok-text="确认"
+                title="确定删除吗？"
+                @confirm="() => handleDeleteOne(record.id)"
             >
-              <a-button type="link" danger class="action-link">
-                <template #icon><delete-outlined /></template>
+              <a-button class="action-link" danger type="link">
+                <template #icon>
+                  <delete-outlined/>
+                </template>
                 删除
               </a-button>
             </a-popconfirm>
@@ -73,41 +77,36 @@
 
       <div class="pagination-wrap">
         <a-pagination
-          :current="page.pageNum"
-          :page-size="page.pageSize"
-          :total="page.total"
-          :show-size-changer="false"
-          @change="onPageChange"
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :show-size-changer="false"
+            :total="page.total"
+            @change="onPageChange"
         />
       </div>
 
       <VecSegmentFormModal
-        v-model:open="modal.open"
-        :mode="modal.mode"
-        :confirm-loading="modal.submitting"
-        :initial="modalInitial"
-        @submit="handleFormSubmit"
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modalInitial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
       />
     </div>
-  </AdminPageShell>
+  </AstPageShell>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { message, Modal } from 'ant-design-vue'
-import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  ReloadOutlined
-} from '@ant-design/icons-vue'
-import AdminPageShell from '@/components/home/AdminPageShell.vue'
-import AdminListToolbar from '@/components/home/AdminListToolbar.vue'
-import AstrsomnOverview from '@/components/home/AstrsomnOverview.vue'
-import AstrsomnSegmentedButton, { type SegmentedButton } from '@/components/home/AstrsomnSegmentedButton.vue'
-import AstrsomnSearchPill from '@/components/home/AstrsomnSearchPill.vue'
+<script lang="ts" setup>
+import {computed, reactive, ref} from 'vue'
+import {message, Modal} from 'ant-design-vue'
+import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import AstPageShell from '@/components/home/AstPageShell.vue'
+import AstListToolbar from '@/components/home/AstListToolbar.vue'
+import AstOverview from '@/components/home/AstOverview.vue'
+import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import VecSegmentFormModal from './VecSegmentFormModal.vue'
-import { aiVecSegmentApi, type AiVecSegment, type PageResponse } from '@/api/aiVecSegment.ts'
+import {type AiVecSegment, aiVecSegmentApi, type PageResponse} from '@/api/aiVecSegment.ts'
 
 type QueryState = {
   docId?: number
@@ -117,14 +116,14 @@ type QueryState = {
 }
 
 const columns = [
-  { title: '文档 ID', dataIndex: 'docId', key: 'docId', width: 120 },
-  { title: '集合 ID', dataIndex: 'collectionId', key: 'collectionId', width: 120 },
-  { title: '向量 ID', dataIndex: 'vectorId', key: 'vectorId', width: 200, ellipsis: true },
-  { title: '分段序号', dataIndex: 'chunkIndex', key: 'chunkIndex', width: 100 },
-  { title: '字符数', dataIndex: 'wordCount', key: 'wordCount', width: 100 },
-  { title: '分段内容', key: 'segmentContent', width: 400 },
-  { title: '元数据', key: 'metadataJson', width: 200 },
-  { title: '操作', key: 'actions', width: 160, fixed: 'right' as const }
+  {title: '文档 ID', dataIndex: 'docId', key: 'docId', width: 120},
+  {title: '集合 ID', dataIndex: 'collectionId', key: 'collectionId', width: 120},
+  {title: '向量 ID', dataIndex: 'vectorId', key: 'vectorId', width: 200, ellipsis: true},
+  {title: '分段序号', dataIndex: 'chunkIndex', key: 'chunkIndex', width: 100},
+  {title: '字符数', dataIndex: 'wordCount', key: 'wordCount', width: 100},
+  {title: '分段内容', key: 'segmentContent', width: 400},
+  {title: '元数据', key: 'metadataJson', width: 200},
+  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
 ]
 
 const getMetadataInfo = (metadataJson?: string) => {
@@ -136,7 +135,8 @@ const getMetadataInfo = (metadataJson?: string) => {
     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
       return `属性: ${Object.keys(parsed).length}`
     }
-  } catch (error) {}
+  } catch (error) {
+  }
 
   return '已配置'
 }
@@ -153,9 +153,9 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const currentPageIds = computed(() =>
-  list.value
-    .map((item) => item.id)
-    .filter((id): id is number | string => id !== undefined && id !== null)
+    list.value
+        .map((item) => item.id)
+        .filter((id): id is number | string => id !== undefined && id !== null)
 )
 
 const allCurrentSelected = computed(() => {

@@ -1,26 +1,26 @@
 <template>
   <section class="stats-grid">
     <article
-      v-for="(item, index) in safetyStats"
-      :key="item.label"
-      class="stat-card"
+        v-for="(item, index) in safetyStats"
+        :key="item.label"
+        class="stat-card"
     >
-      <div class="icon-container" :class="`icon-${(index % 4) + 1}`">
-        <component :is="item.icon" />
+      <div :class="`icon-${(index % 4) + 1}`" class="icon-container">
+        <component :is="item.icon"/>
       </div>
       <div class="stat-body">
         <h3 class="card-title">{{ item.label }}</h3>
         <div class="stat-value-row">
           <span class="stat-value">{{ item.value }}</span>
         </div>
-        <p class="card-desc" :class="`trend-${item.trend}`">{{ item.hint }}</p>
+        <p :class="`trend-${item.trend}`" class="card-desc">{{ item.hint }}</p>
       </div>
     </article>
   </section>
 </template>
 
-<script setup lang="ts">
-import type { Component } from 'vue'
+<script lang="ts" setup>
+import type {Component} from 'vue'
 
 type Trend = 'up' | 'down' | 'flat'
 
@@ -38,7 +38,7 @@ defineProps<{
 </script>
 
 <style scoped>
-/* 与 system-config Center 快捷入口对齐：4 列、卡片高度与图标尺寸一致 */
+/* 与 system-config InstanceParam 快捷入口对齐：4 列、卡片高度与图标尺寸一致 */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

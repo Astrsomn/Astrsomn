@@ -1,10 +1,10 @@
 package com.astrsomn.starter.runtime.langchain.runtime;
 
-import lombok.RequiredArgsConstructor;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeChainExecutor;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeContext;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**

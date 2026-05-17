@@ -1,12 +1,13 @@
 package com.astrsomn.server.service.extension.support;
 
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.common.utils.StringUtils;
 
 public final class SystemExtensionSourceHelper {
 
-    private SystemExtensionSourceHelper() {}
+    private SystemExtensionSourceHelper() {
+    }
 
     public static String resolveInstallSource(SystemExtensionEntity extension) {
         if (extension == null) {

@@ -1,15 +1,15 @@
 package com.astrsomn.server.api.system;
 
-import lombok.RequiredArgsConstructor;
+import com.astrsomn.system.dto.config.SystemConfigCreateRequestDTO;
+import com.astrsomn.system.dto.config.SystemConfigQueryRequestDTO;
+import com.astrsomn.system.dto.config.SystemConfigResponseDTO;
+import com.astrsomn.system.dto.config.SystemConfigUpdateRequestDTO;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigResponseDTO;
-import com.astrsomn.api.runtime.common.dto.config.SystemConfigUpdateRequestDTO;
 import com.astrsomn.server.service.SystemConfigService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

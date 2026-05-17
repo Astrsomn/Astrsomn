@@ -1,19 +1,15 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.common.base.ErrorEnum;
-import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.server.service.AiWorkflowNodeConfigService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.api.workflow.domain.dto.nodeconfig.AstFlowNodeConfigCreateRequestDTO;
 import com.astrsomn.api.workflow.domain.dto.nodeconfig.AstFlowNodeConfigQueryRequestDTO;
 import com.astrsomn.api.workflow.domain.dto.nodeconfig.AstFlowNodeConfigResponseDTO;
 import com.astrsomn.api.workflow.domain.dto.nodeconfig.AstFlowNodeConfigUpdateRequestDTO;
 import com.astrsomn.api.workflow.domain.entity.AstFlowNodeConfigEntity;
+import com.astrsomn.common.base.*;
+import com.astrsomn.server.service.AiWorkflowNodeConfigService;
+import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.workflow.mapper.AstFlowNodeConfigMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -77,7 +73,6 @@ public class AiWorkflowNodeConfigServiceImpl extends ServiceImpl<AstFlowNodeConf
         IPage<AstFlowNodeConfigResponseDTO> page = PageUtils.buildPage(request);
         AstFlowNodeConfigQueryRequestDTO param = request.getParam();
         if (param == null) param = new AstFlowNodeConfigQueryRequestDTO();
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AstFlowNodeConfigResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

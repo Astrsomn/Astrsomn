@@ -3,24 +3,24 @@
     <div class="chat-viewport">
       <div v-if="messages.length === 0" class="welcome-mini">
         <div class="brand-logo-s">
-          <rocket-filled />
+          <rocket-filled/>
         </div>
         <h4>AI 配置助手</h4>
         <p>模拟流程交互预览</p>
       </div>
 
-      <div v-for="item in messages" :key="item.id" class="msg-group" :class="item.role">
+      <div v-for="item in messages" :key="item.id" :class="item.role" class="msg-group">
         <div class="msg-avatar">
-          <component :is="item.role === 'assistant' ? RobotOutlined : UserOutlined" />
+          <component :is="item.role === 'assistant' ? RobotOutlined : UserOutlined"/>
         </div>
         <div class="msg-content-area">
           <div v-if="item.role === 'assistant' && isDeepThink" class="thought-box-s">
             <div class="thought-tag">
-              <bulb-outlined class="rotating-icon" />
+              <bulb-outlined class="rotating-icon"/>
               <span>Thinking...</span>
             </div>
           </div>
-          
+
           <div class="msg-bubble">
             {{ item.content }}
           </div>
@@ -31,42 +31,44 @@
     <footer class="console-footer-s">
       <div class="console-card-s">
         <div class="feature-bar-s">
-          <div 
-            class="feature-item-s" 
-            :class="{ active: isDeepThink }" 
-            @click="isDeepThink = !isDeepThink"
+          <div
+              :class="{ active: isDeepThink }"
+              class="feature-item-s"
+              @click="isDeepThink = !isDeepThink"
           >
-            <thunderbolt-outlined />
+            <thunderbolt-outlined/>
             <span>深度思考</span>
           </div>
           <div class="feature-item-s">
-            <global-outlined />
+            <global-outlined/>
           </div>
         </div>
 
         <a-textarea
-          :value="draft"
-          :auto-size="{ minRows: 1, maxRows: 4 }"
-          placeholder="发送消息..."
-          class="sidebar-input"
-          @update:value="$emit('update:draft', $event)"
-          @press-enter="handleSend"
+            :auto-size="{ minRows: 1, maxRows: 4 }"
+            :value="draft"
+            class="sidebar-input"
+            placeholder="发送消息..."
+            @update:value="$emit('update:draft', $event)"
+            @press-enter="handleSend"
         />
 
         <div class="console-bottom-s">
           <div class="left-tools">
-            <paper-clip-outlined class="tool-icon" />
+            <paper-clip-outlined class="tool-icon"/>
           </div>
-          
+
           <div class="right-actions">
-            <a-button 
-              type="primary" 
-              size="small"
-              class="send-btn-s"
-              :disabled="!draft"
-              @click="$emit('send')"
+            <a-button
+                :disabled="!draft"
+                class="send-btn-s"
+                size="small"
+                type="primary"
+                @click="$emit('send')"
             >
-              <template #icon><send-outlined /></template>
+              <template #icon>
+                <send-outlined/>
+              </template>
             </a-button>
           </div>
         </div>
@@ -75,11 +77,17 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-import { 
-  RobotOutlined, UserOutlined, SendOutlined, ThunderboltOutlined,
-  GlobalOutlined, PaperClipOutlined, RocketFilled, BulbOutlined
+<script lang="ts" setup>
+import {ref} from 'vue'
+import {
+  BulbOutlined,
+  GlobalOutlined,
+  PaperClipOutlined,
+  RobotOutlined,
+  RocketFilled,
+  SendOutlined,
+  ThunderboltOutlined,
+  UserOutlined
 } from '@ant-design/icons-vue'
 
 defineProps<{
@@ -139,8 +147,15 @@ const handleSend = (e: KeyboardEvent) => {
   margin-bottom: 12px;
 }
 
-.welcome-mini h4 { margin-bottom: 4px; font-weight: 600; }
-.welcome-mini p { font-size: 12px; color: #86909c; }
+.welcome-mini h4 {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.welcome-mini p {
+  font-size: 12px;
+  color: #86909c;
+}
 
 /* 消息组：适配窄屏 */
 .msg-group {
@@ -162,9 +177,15 @@ const handleSend = (e: KeyboardEvent) => {
   flex-shrink: 0;
 }
 
-.user .msg-avatar { background: #1d2129; color: #fff; }
+.user .msg-avatar {
+  background: #1d2129;
+  color: #fff;
+}
 
-.msg-content-area { flex: 1; min-width: 0; }
+.msg-content-area {
+  flex: 1;
+  min-width: 0;
+}
 
 .msg-bubble {
   font-size: 14px;
@@ -221,7 +242,10 @@ const handleSend = (e: KeyboardEvent) => {
   gap: 4px;
 }
 
-.feature-item-s.active { background: #e8f3ff; color: #1677ff; }
+.feature-item-s.active {
+  background: #e8f3ff;
+  color: #1677ff;
+}
 
 /* 深度覆盖文本框 */
 :deep(.sidebar-input) {
@@ -256,6 +280,16 @@ const handleSend = (e: KeyboardEvent) => {
   border-radius: 6px;
 }
 
-.rotating-icon { animation: rotate 2s linear infinite; }
-@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.rotating-icon {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

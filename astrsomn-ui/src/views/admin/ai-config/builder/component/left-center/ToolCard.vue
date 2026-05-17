@@ -3,82 +3,84 @@
     <div class="card-header">
       <div class="header-left">
         <div class="icon-badge">
-          <ToolOutlined />
+          <ToolOutlined/>
         </div>
         <h3 class="card-title">扩展插件 (Tools)</h3>
       </div>
       <button class="add-btn" @click.stop="drawerOpen = true">
-        <PlusOutlined />
+        <PlusOutlined/>
       </button>
     </div>
     <div class="tool-list">
       <div v-for="t in tools" :key="t.toolKey" class="tool-tag">
         <span class="tool-letter">{{ (t.toolName || t.toolKey || 'T').charAt(0).toUpperCase() }}</span>
         <span class="tool-name">{{ t.toolName || t.toolKey }}</span>
-        <CloseOutlined class="tool-close" @click.stop="emit('remove', t.toolKey!)" />
+        <CloseOutlined class="tool-close" @click.stop="emit('remove', t.toolKey!)"/>
       </div>
       <div v-if="!tools.length" class="empty-hint">暂未绑定工具</div>
     </div>
 
     <a-drawer
-      :open="drawerOpen"
-      placement="right"
-      :width="480"
-      title="选择工具"
-      @close="drawerOpen = false"
+        :open="drawerOpen"
+        :width="480"
+        placement="right"
+        title="选择工具"
+        @close="drawerOpen = false"
     >
       <div class="selector-content">
         <div class="search-bar">
           <a-input
-            v-model:value="keyword"
-            placeholder="工具名 / Tool Key"
-            allow-clear
-            @pressEnter="fetchList"
+              v-model:value="keyword"
+              allow-clear
+              placeholder="工具名 / Tool Key"
+              @pressEnter="fetchList"
           >
-            <template #prefix><SearchOutlined /></template>
+            <template #prefix>
+              <SearchOutlined/>
+            </template>
           </a-input>
           <a-button type="primary" @click="fetchList">搜索</a-button>
         </div>
         <a-spin :spinning="loading">
           <div class="item-list">
             <div
-              v-for="item in list"
-              :key="item.id"
-              class="item-row"
-              :class="{ selected: selectedKeys.has(item.toolKey || '') }"
-              @click="toggle(item)"
+                v-for="item in list"
+                :key="item.id"
+                :class="{ selected: selectedKeys.has(item.toolKey || '') }"
+                class="item-row"
+                @click="toggle(item)"
             >
               <div class="item-icon">
-                <ToolOutlined />
+                <ToolOutlined/>
               </div>
               <div class="item-info">
                 <div class="item-name">{{ item.toolName || item.toolKey }}</div>
                 <div class="item-sub">{{ item.toolKey }}</div>
               </div>
-              <CheckCircleOutlined v-if="selectedKeys.has(item.toolKey || '')" class="check-icon" />
+              <CheckCircleOutlined v-if="selectedKeys.has(item.toolKey || '')" class="check-icon"/>
             </div>
             <div v-if="!list.length && !loading" class="empty-list">暂无数据</div>
           </div>
         </a-spin>
         <a-pagination
-          v-if="page.total > page.pageSize"
-          class="pager"
-          size="small"
-          :current="page.pageNum"
-          :total="page.total"
-          :page-size="page.pageSize"
-          :show-size-changer="false"
-          @change="onPageChange"
+            v-if="page.total > page.pageSize"
+            :current="page.pageNum"
+            :page-size="page.pageSize"
+            :show-size-changer="false"
+            :total="page.total"
+            class="pager"
+            size="small"
+            @change="onPageChange"
         />
       </div>
     </a-drawer>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
-import { ToolOutlined, PlusOutlined, CloseOutlined, SearchOutlined, CheckCircleOutlined } from '@ant-design/icons-vue'
-import { aiToolApi, type AiTool } from '@/api/aiTool'
+<script lang="ts" setup>
+import {computed, reactive, ref, watch} from 'vue'
+import {CheckCircleOutlined, CloseOutlined, PlusOutlined, SearchOutlined, ToolOutlined} from '@ant-design/icons-vue'
+import {type AiTool, aiToolApi} from '@/api/aiTool'
 
 const props = defineProps<{
   tools: AiTool[]
@@ -93,7 +95,7 @@ const drawerOpen = ref(false)
 const keyword = ref('')
 const loading = ref(false)
 const list = ref<AiTool[]>([])
-const page = reactive({ pageNum: 1, pageSize: 20, total: 0 })
+const page = reactive({pageNum: 1, pageSize: 20, total: 0})
 
 const selectedKeys = computed(() => new Set(props.tools.map((t) => t.toolKey).filter(Boolean) as string[]))
 
@@ -103,7 +105,7 @@ async function fetchList() {
     const resp = await aiToolApi.queryPage({
       pageNo: page.pageNum,
       pageSize: page.pageSize,
-      param: { toolName: keyword.value || undefined, toolKey: keyword.value || undefined }
+      param: {toolName: keyword.value || undefined, toolKey: keyword.value || undefined}
     })
     list.value = resp.list || []
     page.total = resp.total || 0
@@ -176,7 +178,9 @@ watch(drawerOpen, (open) => {
   color: #2563eb;
 }
 
-.icon-badge .anticon { font-size: 16px; }
+.icon-badge .anticon {
+  font-size: 16px;
+}
 
 .card-title {
   font-weight: 700;
@@ -199,8 +203,14 @@ watch(drawerOpen, (open) => {
   transition: all 0.2s;
 }
 
-.add-btn:hover { background: #dbeafe; color: #1d4ed8; }
-.add-btn .anticon { font-size: 14px; }
+.add-btn:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.add-btn .anticon {
+  font-size: 14px;
+}
 
 .tool-list {
   display: flex;
@@ -222,15 +232,24 @@ watch(drawerOpen, (open) => {
   font-weight: 600;
 }
 
-.tool-letter { font-size: 10px; }
-.tool-name { font-size: 11px; font-weight: bold; }
+.tool-letter {
+  font-size: 10px;
+}
+
+.tool-name {
+  font-size: 11px;
+  font-weight: bold;
+}
 
 .tool-close {
   font-size: 10px;
   cursor: pointer;
   transition: color 0.2s;
 }
-.tool-close:hover { color: #ef4444; }
+
+.tool-close:hover {
+  color: #ef4444;
+}
 
 .empty-hint {
   font-size: 12px;
@@ -292,13 +311,32 @@ watch(drawerOpen, (open) => {
   flex-shrink: 0;
 }
 
-.item-info { flex: 1; min-width: 0; }
-.item-name { font-size: 13px; font-weight: 600; color: #1e293b; }
-.item-sub { font-size: 11px; color: #94a3b8; font-family: ui-monospace, monospace; }
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
 
-.check-icon { color: #2563eb; font-size: 16px; }
+.item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
 
-.pager { text-align: center; flex-shrink: 0; }
+.item-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  font-family: ui-monospace, monospace;
+}
+
+.check-icon {
+  color: #2563eb;
+  font-size: 16px;
+}
+
+.pager {
+  text-align: center;
+  flex-shrink: 0;
+}
 
 .empty-list {
   text-align: center;

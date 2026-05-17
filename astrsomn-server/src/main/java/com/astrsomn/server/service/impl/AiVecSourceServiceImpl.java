@@ -1,44 +1,38 @@
 package com.astrsomn.server.service.impl;
 
+import com.astrsomn.api.vector.constant.AiVecDriverEnum;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.api.vector.exception.AstVecSourceErrorEnum;
+import com.astrsomn.api.vector.dto.vecsource.*;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.server.mapper.AiVecSourceMapper;
+import com.astrsomn.server.service.AiVecSourceService;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.constant.AiVecDriverEnum;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceResponseDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceSetStatusRequestDTO;
-import com.astrsomn.api.runtime.common.dto.vecsource.AiVecSourceUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.api.runtime.exception.AstVecSourceErrorEnum;
-import com.astrsomn.starter.runtime.mapper.AiVecSourceMapper;
-import com.astrsomn.server.service.AiVecSourceService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
-import com.astrsomn.starter.runtime.langchain.vector.AstroVecSourceFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.runtime.common.utils.PageConverter;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVecSourceEntity> implements AiVecSourceService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstroVecSourceFactory astroVecSourceFactory;
 
     @Override
     public BaseResponse<String> create(AiVecSourceCreateRequestDTO request) {
         AiVecSourceEntity entity = new AiVecSourceEntity();
         BeanUtils.copyProperties(request, entity);
-        queryEnvParamHelper.stampEffectiveEnv(entity);
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_CREATE_FAILED);
@@ -104,7 +98,6 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
         if (param == null) {
             param = new AiVecSourceQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<AiVecSourceResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

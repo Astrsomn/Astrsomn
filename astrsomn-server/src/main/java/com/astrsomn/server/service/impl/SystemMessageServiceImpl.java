@@ -1,32 +1,32 @@
 package com.astrsomn.server.service.impl;
+
+import com.astrsomn.system.constant.SystemMessageEnum;
+import com.astrsomn.system.dto.systemmessage.SystemMessageCreateRequestDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageQueryRequestDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageResponseDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageUpdateRequestDTO;
+import com.astrsomn.system.entity.SystemMessageEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.system.exception.SystemMessageErrorEnum;
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
+import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.server.mapper.SystemMessageMapper;
+import com.astrsomn.server.service.SystemMessageService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.api.runtime.common.constant.SystemMessageEnum;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageCreateRequestDTO;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageQueryRequestDTO;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageResponseDTO;
-import com.astrsomn.api.runtime.common.dto.systemmessage.SystemMessageUpdateRequestDTO;
-import com.astrsomn.api.runtime.common.entity.SystemMessageEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.common.base.BusinessException;
-import com.astrsomn.api.runtime.exception.SystemMessageErrorEnum;
-import com.astrsomn.starter.runtime.mapper.SystemMessageMapper;
-import com.astrsomn.server.service.SystemMessageService;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import com.astrsomn.api.runtime.common.utils.PageUtils;
+
 @Service
 @RequiredArgsConstructor
 public class SystemMessageServiceImpl extends ServiceImpl<SystemMessageMapper, SystemMessageEntity> implements
         SystemMessageService {
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
 
     @Override
     public BaseResponse<String> create(SystemMessageCreateRequestDTO request) {
@@ -78,7 +78,6 @@ public class SystemMessageServiceImpl extends ServiceImpl<SystemMessageMapper, S
         if (param == null) {
             param = new SystemMessageQueryRequestDTO();
         }
-        queryEnvParamHelper.stampEffectiveEnv(param);
         IPage<SystemMessageResponseDTO> result = baseMapper.queryPage(page, param);
         return PageConverter.toResponse(result);
     }

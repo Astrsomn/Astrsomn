@@ -1,14 +1,14 @@
 package com.astrsomn.server.service.extension.guard;
 
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.system.entity.SystemExtensionEntity;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.vector.mapper.AstAiVecSourceMapper;
+import com.astrsomn.starter.runtime.system.mapper.AstSystemExtensionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.api.runtime.common.constant.SystemExtensionEnum;
-import com.astrsomn.api.runtime.common.entity.AiVecSourceEntity;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AiVecSourceMapper;
-import com.astrsomn.starter.runtime.mapper.SystemExtensionMapper;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,11 +18,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SystemExtensionVecGuard {
 
-    private final SystemExtensionMapper systemExtensionMapper;
-    private final AiVecSourceMapper aiVecSourceMapper;
+    private final AstSystemExtensionMapper astSystemExtensionMapper;
+    private final AstAiVecSourceMapper aiVecSourceMapper;
 
     public BaseResponse<Void> assertNoVecSourcesUseProvider(Long extensionId) {
-        SystemExtensionEntity ext = systemExtensionMapper.selectById(extensionId);
+        SystemExtensionEntity ext = astSystemExtensionMapper.selectById(extensionId);
         if (ext == null) {
             return BaseResponse.fail("记录不存在", null);
         }

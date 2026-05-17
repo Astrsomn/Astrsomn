@@ -6,9 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 public class PageUtils {
 
-    /**
-     * 根据请求对象构建 MyBatis-Plus 的 Page 对象
-     */
+
     public static <E> IPage<E> buildPage(BasePageRequest<?> request) {
         long current = (request.getPageNo() == null || request.getPageNo() < 1)
                 ? 1L : request.getPageNo().longValue();

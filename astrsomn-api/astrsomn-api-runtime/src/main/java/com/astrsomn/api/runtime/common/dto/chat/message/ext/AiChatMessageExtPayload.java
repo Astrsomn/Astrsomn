@@ -6,9 +6,7 @@ import lombok.Data;
 import java.util.List;
 import java.util.Map;
 
-/**
- * AI_CHAT_MESSAGE.EXT_JSON 的 v1 结构；与流式事件、前端 segment 对齐。
- */
+
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AiChatMessageExtPayload {

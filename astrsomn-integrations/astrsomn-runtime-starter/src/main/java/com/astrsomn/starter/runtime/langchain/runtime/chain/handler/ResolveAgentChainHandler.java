@@ -1,13 +1,14 @@
 package com.astrsomn.starter.runtime.langchain.runtime.chain.handler;
 
+import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.langchain.exception.AgentNotFoundException;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeChainHandler;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.AgentRuntimeContext;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
+import com.astrsomn.starter.runtime.mapper.AstAiAgentMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
-import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.mapper.AiAgentMapper;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ResolveAgentChainHandler implements AgentRuntimeChainHandler {
 
-    private final AiAgentMapper aiAgentMapper;
+    private final AstAiAgentMapper aiAgentMapper;
 
     @Override
     public void handle(AgentRuntimeContext ctx) {
@@ -31,8 +32,7 @@ public class ResolveAgentChainHandler implements AgentRuntimeChainHandler {
                         .eq(AiAgentEntity::getDeleted, false)
                         .last("LIMIT 1"));
         if (agent == null) {
-            throw new IllegalStateException(
-                    "未找到智能体配置: agentKey=" + agentKey + ", envCode=" + ctx.getEnvCode());
+            throw new AgentNotFoundException(agentKey, ctx.getEnvCode());
         }
         ctx.setAgent(agent);
         RuntimeChatParamMergeSupport.mergeAgentKeysIntoParam(ctx.getParam(), agent);

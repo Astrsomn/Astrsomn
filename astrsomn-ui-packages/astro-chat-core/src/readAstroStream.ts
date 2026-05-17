@@ -1,5 +1,5 @@
-import type { StreamEvent } from './types.js'
-import { extractJsonPayloads, normalizeStreamPayload, parseSseEvent } from './streamParser.js'
+import type {StreamEvent} from './types.js'
+import {extractJsonPayloads, normalizeStreamPayload, parseSseEvent} from './streamParser.js'
 
 export type StreamEventHandler = (event: StreamEvent) => boolean | Promise<boolean>
 
@@ -8,85 +8,85 @@ export type StreamEventHandler = (event: StreamEvent) => boolean | Promise<boole
  * @returns true if completed normally, false if handler requested early stop (reader cancelled).
  */
 export async function readAstroStream(
-  response: Response,
-  onEvent: StreamEventHandler
+    response: Response,
+    onEvent: StreamEventHandler
 ): Promise<boolean> {
-  const reader = response.body?.getReader()
-  if (!reader) {
-    throw new Error('未获取到流式响应体')
-  }
-
-  const decoder = new TextDecoder('utf-8')
-  const contentType = response.headers.get('content-type') || ''
-  const isSse = contentType.includes('text/event-stream')
-  let sseBuffer = ''
-  let rawBuffer = ''
-
-  const dispatch = async (event: StreamEvent): Promise<boolean> => {
-    const shouldContinue = await onEvent(event)
-    return shouldContinue !== false
-  }
-
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) {
-      break
+    const reader = response.body?.getReader()
+    if (!reader) {
+        throw new Error('未获取到流式响应体')
     }
 
-    const chunk = decoder.decode(value, { stream: true })
-    if (!chunk) {
-      continue
+    const decoder = new TextDecoder('utf-8')
+    const contentType = response.headers.get('content-type') || ''
+    const isSse = contentType.includes('text/event-stream')
+    let sseBuffer = ''
+    let rawBuffer = ''
+
+    const dispatch = async (event: StreamEvent): Promise<boolean> => {
+        const shouldContinue = await onEvent(event)
+        return shouldContinue !== false
     }
 
-    if (!isSse) {
-      rawBuffer += chunk
-      const { events, remaining } = extractJsonPayloads(rawBuffer)
-      rawBuffer = remaining
-      for (const event of events) {
-        const ok = await dispatch(event)
-        if (!ok) {
-          await reader.cancel()
-          return false
+    while (true) {
+        const {done, value} = await reader.read()
+        if (done) {
+            break
         }
-      }
-      continue
-    }
 
-    sseBuffer += chunk
-    const blocks = sseBuffer.split(/\r?\n\r?\n/)
-    sseBuffer = blocks.pop() || ''
-    for (const block of blocks) {
-      const data = parseSseEvent(block)
-      for (const event of normalizeStreamPayload(data)) {
-        const ok = await dispatch(event)
-        if (!ok) {
-          await reader.cancel()
-          return false
+        const chunk = decoder.decode(value, {stream: true})
+        if (!chunk) {
+            continue
         }
-      }
-    }
-  }
 
-  if (!isSse && rawBuffer.trim()) {
-    for (const event of normalizeStreamPayload(rawBuffer)) {
-      const ok = await dispatch(event)
-      if (!ok) {
-        await reader.cancel()
-        return false
-      }
-    }
-  }
+        if (!isSse) {
+            rawBuffer += chunk
+            const {events, remaining} = extractJsonPayloads(rawBuffer)
+            rawBuffer = remaining
+            for (const event of events) {
+                const ok = await dispatch(event)
+                if (!ok) {
+                    await reader.cancel()
+                    return false
+                }
+            }
+            continue
+        }
 
-  if (isSse && sseBuffer.trim()) {
-    const data = parseSseEvent(sseBuffer)
-    for (const event of normalizeStreamPayload(data)) {
-      const ok = await dispatch(event)
-      if (!ok) {
-        await reader.cancel()
-        return false
-      }
+        sseBuffer += chunk
+        const blocks = sseBuffer.split(/\r?\n\r?\n/)
+        sseBuffer = blocks.pop() || ''
+        for (const block of blocks) {
+            const data = parseSseEvent(block)
+            for (const event of normalizeStreamPayload(data)) {
+                const ok = await dispatch(event)
+                if (!ok) {
+                    await reader.cancel()
+                    return false
+                }
+            }
+        }
     }
-  }
 
-  return true
+    if (!isSse && rawBuffer.trim()) {
+        for (const event of normalizeStreamPayload(rawBuffer)) {
+            const ok = await dispatch(event)
+            if (!ok) {
+                await reader.cancel()
+                return false
+            }
+        }
+    }
+
+    if (isSse && sseBuffer.trim()) {
+        const data = parseSseEvent(sseBuffer)
+        for (const event of normalizeStreamPayload(data)) {
+            const ok = await dispatch(event)
+            if (!ok) {
+                await reader.cancel()
+                return false
+            }
+        }
+    }
+
+    return true
 }

@@ -48,7 +48,7 @@ dromara:
         base-path: ${astrsomn.storage.base-path}
 logging:
   level:
-    com.astrsomn.starter.mapper: debug
+    com.astrsomn: debug
     root: info
   logback:
     rollingpolicy:

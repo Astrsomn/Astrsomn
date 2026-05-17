@@ -1,7 +1,7 @@
 package com.astrsomn.server.event;
 
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
-import com.astrsomn.api.runtime.common.entity.SystemExtensionEntity;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import org.springframework.context.ApplicationEvent;
 
 import java.util.Collections;
@@ -10,16 +10,9 @@ import java.util.Objects;
 
 public class SystemExtensionEvent extends ApplicationEvent {
 
-    public enum EventType {
-        INSTALLED,
-        UNINSTALLED,
-        UPDATED
-    }
-
     private final EventType eventType;
     private final SystemExtensionEntity extension;
     private final List<AiModelEntity> models;
-
     public SystemExtensionEvent(Object source,
                                 EventType eventType,
                                 SystemExtensionEntity extension,
@@ -40,5 +33,11 @@ public class SystemExtensionEvent extends ApplicationEvent {
 
     public List<AiModelEntity> getModels() {
         return models;
+    }
+
+    public enum EventType {
+        INSTALLED,
+        UNINSTALLED,
+        UPDATED
     }
 }

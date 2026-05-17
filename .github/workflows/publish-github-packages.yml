@@ -6,7 +6,7 @@ name: Publish SNAPSHOT to GitHub Packages
 on:
   push:
     branches:
-      - develop
+      - release
     paths:
       - 'pom.xml'
       - '**/pom.xml'
