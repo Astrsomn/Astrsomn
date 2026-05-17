@@ -37,4 +37,19 @@ public class AiVecStoreEntity extends BaseEntity<Long> {
     @TableField("MODEL_KEY")
     private String modelKey;
 
+    @TableField("CHUNK_STRATEGY")
+    private String chunkStrategy;
+
+    @TableField("CHUNK_SIZE")
+    private Integer chunkSize;
+
+    @TableField("CHUNK_OVERLAP")
+    private Integer chunkOverlap;
+
+    @TableField("DENSE_WEIGHT")
+    private java.math.BigDecimal denseWeight;
+
+    @TableField("INSTRUCTION_PREFIX")
+    private String instructionPrefix;
+
 }

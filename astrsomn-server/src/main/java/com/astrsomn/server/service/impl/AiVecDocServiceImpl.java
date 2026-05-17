@@ -1,6 +1,7 @@
 package com.astrsomn.server.service.impl;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
+import com.astrsomn.api.vector.constant.AiVecChunkStrategyEnum;
 import com.astrsomn.api.vector.constant.AiVecDocEnum;
 import com.astrsomn.api.vector.constant.VecDocMetadataKeys;
 import com.astrsomn.api.vector.dto.vecdoc.AiVecDocCreateRequestDTO;
@@ -48,6 +49,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.Metadata;
+import dev.langchain4j.data.document.splitter.DocumentByCharacterSplitter;
+import dev.langchain4j.data.document.splitter.DocumentByParagraphSplitter;
+import dev.langchain4j.data.document.splitter.DocumentBySentenceSplitter;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
@@ -72,8 +76,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEntity> implements AiVecDocService {
 
-    private static final int CHUNK_SIZE = 800;
-    private static final int CHUNK_OVERLAP = 100;
+    private static final int DEFAULT_CHUNK_SIZE = 800;
+    private static final int DEFAULT_CHUNK_OVERLAP = 100;
 
     private final QueryEnvParamHelper queryEnvParamHelper;
     private final AstroVecSourceFactory astroVecSourceFactory;
@@ -288,14 +292,33 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
         updateProgress(docId, 15, "正在分块...");
 
+        // 从集合配置读取切片参数
+        int chunkSize = store.getChunkSize() != null && store.getChunkSize() > 0
+                ? store.getChunkSize() : DEFAULT_CHUNK_SIZE;
+        int chunkOverlap = store.getChunkOverlap() != null && store.getChunkOverlap() >= 0
+                ? store.getChunkOverlap() : DEFAULT_CHUNK_OVERLAP;
+        AiVecChunkStrategyEnum strategy = AiVecChunkStrategyEnum.fromCodeOrDefault(store.getChunkStrategy());
+        String instructionPrefix = StringUtils.trimToNull(store.getInstructionPrefix());
+
         String logicalDocId = UUID.randomUUID().toString().replace("-", "");
-        var splitter = DocumentSplitters.recursive(CHUNK_SIZE, CHUNK_OVERLAP);
-        List<TextSegment> splitSegments = splitter.split(Document.from(fullText));
+        List<TextSegment> splitSegments = switch (strategy) {
+            case FIXED_SIZE -> new DocumentByCharacterSplitter(chunkSize, chunkOverlap)
+                    .split(Document.from(fullText));
+            case PARAGRAPH -> new DocumentByParagraphSplitter(chunkSize, chunkOverlap)
+                    .split(Document.from(fullText));
+            case SENTENCE -> new DocumentBySentenceSplitter(chunkSize, chunkOverlap)
+                    .split(Document.from(fullText));
+            default -> DocumentSplitters.recursive(chunkSize, chunkOverlap)
+                    .split(Document.from(fullText));
+        };
         List<TextSegment> embeddedSegments = new ArrayList<>(splitSegments.size());
         for (TextSegment ts : splitSegments) {
             Metadata meta = ts.metadata() != null ? ts.metadata().copy() : new Metadata();
             meta.put(VecDocMetadataKeys.DOC_ID_IN_STORE, logicalDocId);
-            embeddedSegments.add(TextSegment.from(ts.text(), meta));
+            String segText = instructionPrefix != null
+                    ? instructionPrefix + ts.text()
+                    : ts.text();
+            embeddedSegments.add(TextSegment.from(segText, meta));
         }
 
         int totalSegs = embeddedSegments.size();

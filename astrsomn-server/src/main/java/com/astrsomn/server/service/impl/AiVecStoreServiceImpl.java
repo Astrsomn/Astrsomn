@@ -64,6 +64,21 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         if (req.getModelKey() != null) {
             target.setModelKey(req.getModelKey());
         }
+        if (req.getChunkStrategy() != null) {
+            target.setChunkStrategy(req.getChunkStrategy());
+        }
+        if (req.getChunkSize() != null) {
+            target.setChunkSize(req.getChunkSize());
+        }
+        if (req.getChunkOverlap() != null) {
+            target.setChunkOverlap(req.getChunkOverlap());
+        }
+        if (req.getDenseWeight() != null) {
+            target.setDenseWeight(req.getDenseWeight());
+        }
+        if (req.getInstructionPrefix() != null) {
+            target.setInstructionPrefix(req.getInstructionPrefix());
+        }
 
     }
 

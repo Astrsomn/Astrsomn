@@ -106,6 +106,66 @@
                 </a-form-item>
               </div>
             </div>
+
+            <div class="form-section">
+              <h3 class="section-headline">
+                <ScissorOutlined/>
+                切片与向量化配置
+              </h3>
+
+              <div class="form-grid">
+                <a-form-item label="切片策略" name="chunkStrategy">
+                  <a-select v-model:value="form.chunkStrategy" size="large">
+                    <a-select-option value="RECURSIVE">递归分割（默认）</a-select-option>
+                    <a-select-option value="FIXED_SIZE">固定大小</a-select-option>
+                    <a-select-option value="PARAGRAPH">按段落</a-select-option>
+                    <a-select-option value="SENTENCE">按句子</a-select-option>
+                  </a-select>
+                </a-form-item>
+
+                <a-form-item label="切片大小（字符数）" name="chunkSize">
+                  <a-input-number
+                      v-model:value="form.chunkSize"
+                      :max="4000"
+                      :min="100"
+                      placeholder="默认 800"
+                      size="large"
+                      style="width: 100%"
+                  />
+                </a-form-item>
+
+                <a-form-item label="重叠范围（字符数）" name="chunkOverlap">
+                  <a-input-number
+                      v-model:value="form.chunkOverlap"
+                      :max="500"
+                      :min="0"
+                      placeholder="默认 100"
+                      size="large"
+                      style="width: 100%"
+                  />
+                </a-form-item>
+
+                <a-form-item label="稠密权重" name="denseWeight">
+                  <a-slider
+                      v-model:value="form.denseWeight"
+                      :max="1"
+                      :min="0"
+                      :step="0.05"
+                      :tooltip-formatter="(v: any) => Number(v).toFixed(2)"
+                  />
+                  <div class="dimension-hint">混合检索时稠密向量的权重（0~1），当前暂存值</div>
+                </a-form-item>
+
+                <a-form-item class="span-2" label="指令前缀" name="instructionPrefix">
+                  <a-input
+                      v-model:value="form.instructionPrefix"
+                      placeholder="可选，如 BGE 模型的 query 前缀：为这个句子生成表示以用于检索中文文档"
+                      size="large"
+                  />
+                  <div class="dimension-hint">嵌入时添加到文本前的指令，部分模型（如 BGE、Instructor）需要</div>
+                </a-form-item>
+              </div>
+            </div>
           </div>
         </a-form>
 
@@ -120,7 +180,7 @@
 
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
-import {DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined} from '@ant-design/icons-vue'
+import {DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined, ScissorOutlined} from '@ant-design/icons-vue'
 import type {FormInstance} from 'ant-design-vue'
 import type {AiVecStore} from '@/api/aiVecStore.ts'
 import AstModal from '@/components/home/AstModal.vue'
@@ -167,7 +227,12 @@ function emptyForm(): AiVecStore {
     dimension: undefined as unknown as number,
     distanceMetric: 'cosine',
     metadataSchema: '',
-    modelKey: ''
+    modelKey: '',
+    chunkStrategy: 'RECURSIVE',
+    chunkSize: 800,
+    chunkOverlap: 100,
+    denseWeight: 1,
+    instructionPrefix: ''
   }
 }
 
