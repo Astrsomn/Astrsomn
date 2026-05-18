@@ -51,7 +51,7 @@
           <slot name="actions">
             <DocLangTheme :showDoc="showDoc"/>
             <UserProfile v-if="isLoggedIn"/>
-            <a-button v-else shape="round" size="small" type="primary" @click="handleLogin">登录</a-button>
+            <a-button v-else shape="round" size="small" type="primary" @click="handleLogin">{{ t('login') }}</a-button>
           </slot>
         </div>
       </div>
@@ -70,6 +70,7 @@ import DocLangTheme from './DocLangTheme.vue';
 import UserProfile from './UserProfile.vue';
 
 import WorkspaceEnvSwitcher from './WorkspaceEnvSwitcher.vue';
+import {getDictionaryLocale} from '@/locales/dictionary/registry';
 
 interface Props {
   showBrand?: boolean;
@@ -93,8 +94,18 @@ const route = useRoute();
 const isClicking = ref(false);
 const isLoggedIn = computed(() => !!localStorage.getItem('token'));
 
+const t = (key: string): string => {
+  const isZh = getDictionaryLocale() === 'zh-CN';
+  const translations: Record<string, Record<string, string>> = {
+    'login': { 'zh-CN': '登录', 'en-US': 'Login' },
+    'admin': { 'zh-CN': '管理后台', 'en-US': 'Admin' },
+    'chat': { 'zh-CN': '立即聊天', 'en-US': 'Chat Now' }
+  };
+  return translations[key]?.[getDictionaryLocale()] || key;
+};
 
-const switchActionText = computed(() => props.switchTarget === 'chat' ? '立即聊天' : '管理后台');
+
+const switchActionText = computed(() => props.switchTarget === 'chat' ? t('chat') : t('admin'));
 const switchIcon = computed(() => props.switchTarget === 'chat' ? SwapOutlined : AppstoreOutlined);
 
 const handleSwitch = () => {

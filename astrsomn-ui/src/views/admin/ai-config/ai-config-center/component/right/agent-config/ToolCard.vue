@@ -54,12 +54,12 @@ const selectedToolKeys = computed(() =>
 
 <style scoped>
 .tool-card {
-  background: var(--ab-glass-bg, rgba(255, 255, 255, 0.8));
+  background: var(--bg-card);
   backdrop-filter: blur(var(--ab-glass-haze, 10px));
   -webkit-backdrop-filter: blur(var(--ab-glass-haze, 10px));
-  border: 1px solid var(--ab-glass-border, rgba(255, 255, 255, 0.6));
+  border: 1px solid var(--border-default);
   border-radius: var(--ab-glass-radius, 16px);
-  box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
+  box-shadow: var(--shadow-card);
   padding: 20px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -100,7 +100,7 @@ const selectedToolKeys = computed(() =>
 .card-title {
   font-weight: 700;
   font-size: 14px;
-  color: #334155;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -168,7 +168,7 @@ const selectedToolKeys = computed(() =>
 
 .empty-hint {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-muted);
   padding: 4px 0;
 }
 </style>

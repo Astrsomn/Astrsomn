@@ -3,7 +3,7 @@
  * 整合了原来的 ai-model-orders.ts 和 aiModelCapabilityCodes.ts 文件。
  */
 
-// === 模型提供商顺序 ===
+// === 模型提供商顺序，与后端 AiModelEnum.ProviderEnum 对齐 ===
 export const AI_MODEL_PROVIDER_ORDER = [
     'openai',
     'xai',
@@ -12,6 +12,7 @@ export const AI_MODEL_PROVIDER_ORDER = [
     'alibaba',
     'zhipu',
     'moonshot',
+    'baidu',
     'baichuan',
     'minimax',
     'yi',

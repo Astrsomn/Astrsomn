@@ -337,7 +337,7 @@ async function handleOk() {
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
-  background: #f8fafc;
+  background: var(--bg-surface);
 }
 
 .form-scroll-area::-webkit-scrollbar {
@@ -345,7 +345,7 @@ async function handleOk() {
 }
 
 .form-scroll-area::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: var(--border-input);
   border-radius: 4px;
 }
 
@@ -373,7 +373,7 @@ async function handleOk() {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #334155;
+  color: var(--text-primary);
 }
 
 .form-grid {
@@ -389,33 +389,33 @@ async function handleOk() {
 .dimension-hint {
   margin-top: 6px;
   font-size: 12px;
-  color: #059669;
+  color: var(--success);
   font-weight: 500;
   line-height: 1.5;
 }
 
 .dimension-hint b {
-  color: #1677ff;
+  color: var(--primary);
 }
 
 .instance-info {
   margin-top: 8px;
   font-size: 12px;
-  color: #1677ff;
+  color: var(--primary);
   font-weight: 600;
 }
 
 .json-editor-wrapper {
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--border-input);
   border-radius: 8px;
   overflow: hidden;
-  background: #fafafa;
+  background: var(--bg-input);
   transition: 0.3s;
 }
 
 .json-editor-wrapper:focus-within {
-  border-color: #1677ff;
-  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
 .mono-text {
@@ -433,10 +433,10 @@ async function handleOk() {
 .modal-footer-info {
   flex-shrink: 0;
   padding: 16px 40px;
-  background: #fff;
-  border-top: 1px solid #f0f0f0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-default);
   font-size: 12px;
-  color: #52c41a;
+  color: var(--success);
   display: flex;
   align-items: center;
   gap: 6px;

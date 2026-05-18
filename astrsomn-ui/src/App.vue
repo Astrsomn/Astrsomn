@@ -3,7 +3,7 @@
     <router-view/>
     <SystemMessageNoticeCenter/>
     <footer class="global-footer">
-      <span class="copyright">© 2026 Astrsomn. All rights reserved.</span>
+      <span class="copyright">{{ t.footer.copyright }}</span>
       <span class="divider">|</span>
       <span class="version">版本 v{{ appConfig.version }}</span>
     </footer>
@@ -15,9 +15,11 @@ import {onMounted} from 'vue'
 import {appConfig} from '@/config/config.ts'
 import SystemMessageNoticeCenter from '@/components/global/SystemMessageNoticeCenter.vue'
 import {useGuide} from '@/composables/useGuide.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 import 'driver.js/dist/driver.css'
 
 const {initAutoGuide} = useGuide()
+const t = usePageTranslation('app')
 
 onMounted(() => {
   initAutoGuide()

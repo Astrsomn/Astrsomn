@@ -39,10 +39,10 @@ const emit = defineEmits<{
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--bg-card);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .header-left {
@@ -63,14 +63,14 @@ const emit = defineEmits<{
 }
 
 .back-btn:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--bg-surface);
   color: var(--text-primary);
 }
 
 .header-divider {
   width: 1px;
   height: 16px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--border-default);
 }
 
 .header-title {

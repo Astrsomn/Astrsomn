@@ -237,8 +237,8 @@ function getModelAvatar(modelKey?: string): string {
 
 <style scoped>
 .instance-panel {
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   overflow: hidden;
   height: 100%;
@@ -252,14 +252,14 @@ function getModelAvatar(modelKey?: string): string {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid var(--border-subtle);
   flex-shrink: 0;
 }
 
 .tab-group {
   display: flex;
   gap: 4px;
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--bg-surface);
   border-radius: 8px;
   padding: 3px;
 }
@@ -285,10 +285,10 @@ function getModelAvatar(modelKey?: string): string {
 }
 
 .tab-btn.active {
-  background: #fff;
+  background: var(--bg-card);
   color: var(--text-primary);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 .tab-badge {
@@ -361,7 +361,7 @@ function getModelAvatar(modelKey?: string): string {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--bg-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -412,13 +412,13 @@ function getModelAvatar(modelKey?: string): string {
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  background: rgba(0, 0, 0, 0.01);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
 }
 
 .instance-item:hover {
-  background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(0, 0, 0, 0.08);
+  background: var(--bg-input);
+  border-color: var(--border-default);
 }
 
 .instance-item.active {
@@ -435,7 +435,7 @@ function getModelAvatar(modelKey?: string): string {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--bg-surface);
 }
 
 .model-avatar {
@@ -488,7 +488,7 @@ function getModelAvatar(modelKey?: string): string {
 .model-key {
   font-size: 11px;
   color: var(--text-muted);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--bg-surface);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
@@ -549,7 +549,7 @@ function getModelAvatar(modelKey?: string): string {
 }
 
 .action-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--bg-surface);
   color: var(--text-primary);
 }
 
@@ -562,7 +562,7 @@ function getModelAvatar(modelKey?: string): string {
 .add-more-btn {
   width: 100%;
   padding: 12px;
-  border: 1px dashed rgba(0, 0, 0, 0.1);
+  border: 1px dashed var(--border-default);
   border-radius: 10px;
   background: transparent;
   color: var(--text-muted);

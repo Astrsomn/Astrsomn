@@ -17,6 +17,7 @@ const providerLabels = {
     alibaba: '通义千问',
     zhipu: '智谱 AI',
     moonshot: '月之暗面',
+    baidu: '百度',
     baichuan: '百川智能',
     minimax: 'MiniMax',
     yi: '零一万物',

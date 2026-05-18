@@ -72,10 +72,10 @@
                   <div v-show="isChainStepOpen(gIdx, sIdx)" class="chain-card-body">
                     <p v-if="seg.type === 'thought'" class="chain-thought-text">{{ seg.content }}</p>
                     <template v-else>
-                      <p v-if="seg.args?.trim()" class="tool-args-label">
+                      <p v-if="seg.args?.trim()" class="tool-args-label" />
                       <pre v-if="seg.args?.trim()" class="tool-args-block">{{ seg.args }}</pre>
-                      <p v-if="toolResultText(seg)?.trim()" class="tool-result-label">
-                      <pre v-if="toolResultText(seg)?.trim()" class="tool-result-block">{{ toolResultText(seg) }}</pre>
+                      <p v-if="toolResultText(seg).trim()" class="tool-result-label" />
+                      <pre v-if="toolResultText(seg).trim()" class="tool-result-block">{{ toolResultText(seg) }}</pre>
                     </template>
                   </div>
                 </div>

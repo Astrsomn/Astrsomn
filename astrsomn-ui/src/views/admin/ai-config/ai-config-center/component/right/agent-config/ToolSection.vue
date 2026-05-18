@@ -196,8 +196,8 @@ function triggerRagAdd() {
 
 
 .integration-card {
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   padding: 16px;
   cursor: pointer;
@@ -210,8 +210,8 @@ function triggerRagAdd() {
 }
 
 .integration-card:hover {
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-card);
   transform: translateY(-2px);
 }
 
@@ -297,7 +297,7 @@ function triggerRagAdd() {
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--bg-surface);
   color: var(--text-muted);
   transition: all 0.2s;
 }

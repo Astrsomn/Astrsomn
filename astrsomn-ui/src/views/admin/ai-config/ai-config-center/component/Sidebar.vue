@@ -6,7 +6,7 @@
           v-model="searchText"
           class="sidebar-search-pill"
           layout="fluid"
-          placeholder="搜索资源..."
+          :placeholder="t.sidebar.searchPlaceholder"
           @search="handleSearch"
       />
     </template>
@@ -17,7 +17,7 @@
         <div class="nav-section">
           <div class="provider-list">
             <a-tooltip :disabled="!collapsed" placement="right">
-              <template #title>全部</template>
+              <template #title>{{ t.sidebar.all }}</template>
               <div
                   :class="{ 'is-active': activeItem === 'all' }"
                   class="provider-card"
@@ -26,7 +26,7 @@
                 <div class="provider-avatar">
                   <component :is="CloudServerOutlined" class="all-icon"/>
                 </div>
-                <span class="provider-name">全部</span>
+                <span class="provider-name">{{ t.sidebar.all }}</span>
               </div>
             </a-tooltip>
             <a-tooltip
@@ -50,9 +50,9 @@
             </a-tooltip>
           </div>
           <div v-if="providers.length === 0 && !collapsed" class="empty-provider">
-            <a-empty description="暂无已启用的插件">
+            <a-empty :description="t.sidebar.emptyPlugin">
               <template #extra>
-                <a-button type="link" @click="handleAddPlugin">前往插件市场</a-button>
+                <a-button type="link" @click="handleAddPlugin">{{ t.sidebar.goMarketplace }}</a-button>
               </template>
             </a-empty>
           </div>
@@ -67,14 +67,14 @@
             :disabled="!collapsed"
             placement="right"
         >
-          <template #title>{{ item.label }}</template>
+          <template #title>{{ getItemLabel(item.key) }}</template>
           <div
               :class="{ 'is-active': activeItem === item.key }"
               class="global-item"
               @click="handleSelect(item.key)"
           >
             <component :is="item.icon" class="global-icon"/>
-            <span class="global-label">{{ item.label }}</span>
+            <span class="global-label">{{ getItemLabel(item.key) }}</span>
             <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
           </div>
         </a-tooltip>
@@ -88,7 +88,7 @@
               @click="handleSelect(item.key)"
           >
             <component :is="item.icon" class="global-icon"/>
-            <span class="global-label">{{ item.label }}</span>
+            <span class="global-label">{{ getItemLabel(item.key) }}</span>
             <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
           </div>
         </div>
@@ -135,6 +135,7 @@ import {aiTemplateApi} from '@/api/aiTemplate'
 import {aiConversationApi} from '@/api/aiConversation'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {useDictionary} from '@/locales/dictionary'
+import {usePageTranslation} from '@/locales/pages.ts'
 import ExtensionMarketplaceDialog
   from '@/views/admin/system-config/system-extension/component/ExtensionMarketplaceDialog.vue'
 
@@ -151,6 +152,7 @@ const toggleCollapsed = () => {
 }
 const route = useRoute()
 const providerDict = useDictionary('ai-model.provider')
+const t = usePageTranslation('ai-config-center')
 
 const searchText = ref('')
 const activeItem = ref('')
@@ -166,16 +168,28 @@ const providers = ref<Array<{
 }>>([])
 
 const globalItems = ref([
-  {key: 'ai-account', label: 'AI 账号', icon: CreditCardOutlined, count: undefined as number | undefined},
-  {key: 'prompts', label: '提示词', icon: FileTextOutlined, count: undefined as number | undefined},
-  {key: 'mcp', label: 'MCP', icon: LinkOutlined, count: undefined as number | undefined},
-  {key: 'tools', label: 'Tools', icon: ToolOutlined, count: undefined as number | undefined},
+  {key: 'ai-account', icon: CreditCardOutlined, count: undefined as number | undefined},
+  {key: 'prompts', icon: FileTextOutlined, count: undefined as number | undefined},
+  {key: 'mcp', icon: LinkOutlined, count: undefined as number | undefined},
+  {key: 'tools', icon: ToolOutlined, count: undefined as number | undefined},
 ])
 
 const extraItems = ref([
-  {key: 'ftl', label: 'FTL 模板', icon: FileTextOutlined, count: undefined as number | undefined},
-  {key: 'conversations', label: '对话管理', icon: MessageOutlined, count: undefined as number | undefined},
+  {key: 'ftl', icon: FileTextOutlined, count: undefined as number | undefined},
+  {key: 'conversations', icon: MessageOutlined, count: undefined as number | undefined},
 ])
+
+const getItemLabel = (key: string): string => {
+  const labelMap: Record<string, keyof typeof t.value.sidebar> = {
+    'ai-account': 'aiAccount',
+    'prompts': 'prompts',
+    'mcp': 'mcp',
+    'tools': 'tools',
+    'ftl': 'ftl',
+    'conversations': 'conversations',
+  }
+  return t.value.sidebar[labelMap[key]] || key
+}
 
 const handleSelect = (key: string) => {
   activeItem.value = key

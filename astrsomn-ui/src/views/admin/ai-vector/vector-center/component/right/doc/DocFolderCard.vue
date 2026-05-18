@@ -146,9 +146,9 @@ const onConfirmRename = (e: KeyboardEvent) => {
       align-items: center;
       justify-content: center;
       border-radius: var(--radius-lg);
-      background: rgba(234, 179, 8, 0.1);
+      background: rgba(234, 179, 8, 0.15);
       font-size: 30px;
-      color: #eab308;
+      color: #fbbf24;
       transition: transform 0.3s ease;
 
       .folder-icon-svg, span {

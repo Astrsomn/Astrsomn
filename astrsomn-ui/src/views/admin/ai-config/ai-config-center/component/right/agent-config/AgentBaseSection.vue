@@ -129,15 +129,15 @@ const emit = defineEmits<{
 
 
 .card {
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   overflow: hidden;
   transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-card);
 }
 
 .prompt-card {
@@ -153,7 +153,7 @@ const emit = defineEmits<{
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .card-header-icon {
@@ -213,7 +213,7 @@ const emit = defineEmits<{
   position: relative;
   border-radius: 12px;
   overflow: hidden;
-  border: 2px dashed rgba(0, 0, 0, 0.08);
+  border: 2px dashed var(--border-default);
   padding: 4px;
   transition: border-color 0.2s;
   cursor: pointer;
@@ -276,18 +276,18 @@ const emit = defineEmits<{
   border-radius: 10px;
   font-size: 13px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-default);
+  background: var(--bg-input);
 }
 
 .config-input:hover {
-  border-color: rgba(0, 0, 0, 0.15);
-  background: #fff;
+  border-color: var(--border-subtle);
+  background: var(--bg-card);
 }
 
 .config-input:focus-within {
   border-color: #3b82f6;
-  background: #fff;
+  background: var(--bg-card);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -354,21 +354,21 @@ const emit = defineEmits<{
 }
 
 .prompt-body :deep(.dashed-frame) {
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-default);
+  background: var(--bg-input);
   border-radius: 10px;
   min-height: 180px;
   transition: all 0.2s;
 }
 
 .prompt-body :deep(.dashed-frame:hover) {
-  border-color: rgba(0, 0, 0, 0.12);
-  background: rgba(0, 0, 0, 0.03);
+  border-color: var(--border-subtle);
+  background: var(--bg-surface);
 }
 
 .prompt-body :deep(.dashed-frame:focus-within) {
   border-color: #8b5cf6;
-  background: #fff;
+  background: var(--bg-card);
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
 }
 

@@ -12,15 +12,15 @@
         <AstSearchInput
             v-model="keyword"
             layout="pane"
-            placeholder="搜索模型名称..."
+            :placeholder="t.model.searchPlaceholder"
             @search="handleSearch"
         />
       </div>
       <span class="model-section__count">
         <span class="count-dot" />
-        共 <strong>{{ total }}</strong> 个模型
+        {{ t.model.total.replace('{n}', String(total)) }}
       </span>
-      <a-tooltip title="新增模型">
+      <a-tooltip :title="t.model.create">
         <a-button class="model-section__create-btn" shape="circle" size="large" type="primary" @click="handleCreate">
           <template #icon>
             <PlusOutlined/>
@@ -108,7 +108,7 @@
                     +{{ hiddenParamsCount(model) }}
                   </span>
                 </template>
-                <span v-else class="param-empty">暂无参数配置</span>
+                <span v-else class="param-empty">{{ t.model.noParams }}</span>
               </div>
             </div>
 
@@ -139,8 +139,8 @@
             <div class="empty-state__icon">
               <CloudServerOutlined />
             </div>
-            <p class="empty-state__text">暂无模型</p>
-            <p class="empty-state__hint">点击上方 + 按钮新增一个模型</p>
+            <p class="empty-state__text">{{ t.model.empty }}</p>
+            <p class="empty-state__hint">{{ t.model.emptyHint }}</p>
           </div>
         </div>
       </template>
@@ -194,6 +194,7 @@ import ModelForm from '@/views/admin/ai-config/ai-model/component/ModelForm.vue'
 import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
 import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts'
 import {aiModelCapabilitiesDictionary} from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 import {
   CHAT_CAPABILITIES_SET,
   CHAT_PARAM_CODES,
@@ -219,9 +220,10 @@ const pageSize = ref(18)
 const formOpen = ref(false)
 const editFormOpen = ref(false)
 const editingModel = ref<AiModel | null>(null)
+const t = usePageTranslation('ai-config-center')
 const statusOptions = [
-  {label: '启用', value: 'enabled'},
-  {label: '禁用', value: 'disabled'},
+  {label: t.value.model.status.enabled, value: 'enabled'},
+  {label: t.value.model.status.disabled, value: 'disabled'},
 ]
 
 const handleSearch = () => {

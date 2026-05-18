@@ -30,7 +30,7 @@ public class AstrsomnMetaObjectHandler implements MetaObjectHandler {
             LocalDateTime now = LocalDateTime.now();
             String user = resolveUser();
             String env = resolveEnv();
-            log.info("====>  mybatis自动注入：{} , {}, {}", now, user, env);
+
             setIfNull(entity, "createTime", now);
             setIfNull(entity, "updateTime", now);
             setIfNull(entity, "createUser", user);

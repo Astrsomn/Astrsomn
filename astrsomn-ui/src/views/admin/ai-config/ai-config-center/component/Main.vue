@@ -34,7 +34,7 @@
           />
           <div class="scroll-hint">
             <DownOutlined/>
-            <span>滚动查看接入模型</span>
+            <span>{{ t.main.scrollHint }}</span>
             <DownOutlined/>
           </div>
         </div>
@@ -68,6 +68,7 @@ import AgentSection from './right/AgentSection.vue'
 import ModelSection from './right/ModelSection.vue'
 import AgentForm from './right/AgentForm.vue'
 import type {AiAgent} from '@/api/aiAgent'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const props = defineProps<{
   currentViewType: string
@@ -90,9 +91,11 @@ const showConfig = ref(false)
 const configAgentName = ref('')
 const configAgentId = ref<string | number | undefined>(undefined)
 
+const t = usePageTranslation('ai-config-center')
+
 const handleCreateAgent = () => {
   configAgentId.value = undefined
-  configAgentName.value = '新 Agent'
+  configAgentName.value = t.value.main.newAgent
   showConfig.value = true
   emit('create-agent')
 }

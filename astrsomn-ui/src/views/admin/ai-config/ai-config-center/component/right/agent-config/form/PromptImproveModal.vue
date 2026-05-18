@@ -85,13 +85,13 @@ function onOpen(v: boolean) {
 }
 
 .original-text {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: color-mix(in srgb, var(--error) 5%, var(--bg-card));
+  border: 1px solid var(--error);
 }
 
 .improved-text {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  background: color-mix(in srgb, var(--success) 5%, var(--bg-card));
+  border: 1px solid var(--success);
 }
 
 .diff-footer {

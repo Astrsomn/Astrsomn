@@ -18,7 +18,7 @@ public class CorsFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        log.info("CorsFilter 初始化");
+
     }
 
     @Override
@@ -49,6 +49,6 @@ public class CorsFilter implements Filter {
 
     @Override
     public void destroy() {
-        log.info("CorsFilter 销毁");
+
     }
 }

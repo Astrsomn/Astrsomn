@@ -144,8 +144,8 @@ const handleSave = async () => {
 <style lang="less" scoped>
 .dashboard-header-mini {
   height: 64px;
-  background: #fff;
-  border-bottom: 1px solid #f0f0f0;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-default);
   display: flex;
   align-items: center;
   padding: 0 20px;
@@ -166,7 +166,7 @@ const handleSave = async () => {
 .v-sep {
   width: 1px;
   height: 24px;
-  background: #f0f0f0;
+  background: var(--border-default);
 }
 
 
@@ -174,17 +174,17 @@ const handleSave = async () => {
   gap: 12px;
   min-width: 200px;
   .avatar-mini {
-    width: 32px; height: 32px; background: #f5f5f5; border-radius: 6px;
+    width: 32px; height: 32px; background: var(--bg-input); border-radius: 6px;
     display: flex; align-items: center; justify-content: center;
     img { width: 20px; height: 20px; }
-    span { font-size: 16px; color: #bfbfbf; }
+    span { font-size: 16px; color: var(--text-muted); }
   }
   .title-group {
     display: flex; flex-direction: column;
     .top-meta {
       display: flex; gap: 6px; align-items: center; line-height: 1; margin-bottom: 2px;
-      .type-tag { font-size: 9px; font-weight: 700; color: #1890ff; background: #e6f7ff; padding: 0 4px; border-radius: 2px; }
-      .host-text { font-size: 10px; color: #bfbfbf; font-family: monospace; }
+      .type-tag { font-size: 9px; font-weight: 700; color: var(--primary); background: var(--primary-hover); padding: 0 4px; border-radius: 2px; }
+      .host-text { font-size: 10px; color: var(--text-muted); font-family: monospace; }
     }
   }
 }
@@ -195,11 +195,11 @@ const handleSave = async () => {
   box-shadow: none !important;
   background: transparent !important;
   padding: 0 !important;
-  &:hover, &:focus { background: #f5f5f5 !important; border-radius: 4px; padding: 0 4px !important; }
+  &:hover, &:focus { background: var(--bg-input) !important; border-radius: 4px; padding: 0 4px !important; }
 }
 
-.name-input { font-size: 14px; font-weight: 600; color: #262626; width: 140px; }
-.desc-input { font-size: 13px; color: #8c8c8c; width: 100%; }
+.name-input { font-size: 14px; font-weight: 600; color: var(--text-heading); width: 140px; }
+.desc-input { font-size: 13px; color: var(--text-secondary); width: 100%; }
 
 .desc-section { flex: 1; }
 
@@ -208,20 +208,20 @@ const handleSave = async () => {
   gap: 8px;
   .spec-pill, .stat-pill {
     display: flex; align-items: center; gap: 6px;
-    background: #f8f9fa; padding: 4px 10px; border-radius: 14px;
-    font-size: 12px; color: #595959; border: 1px solid #f0f0f0;
+    background: var(--bg-input); padding: 4px 10px; border-radius: 14px;
+    font-size: 12px; color: var(--text-secondary); border: 1px solid var(--border-default);
     white-space: nowrap;
-    .dot { color: #d9d9d9; }
+    .dot { color: var(--text-muted); }
     .val { font-weight: 500; }
-    .num { font-weight: 700; color: #1890ff; }
-    .unit { font-size: 10px; color: #bfbfbf; }
+    .num { font-weight: 700; color: var(--primary); }
+    .unit { font-size: 10px; color: var(--text-muted); }
   }
 }
 
 
 .actions {
   gap: 12px;
-  .mini-status { margin: 0; font-size: 10px; border: none; background: #f6ffed; color: #52c41a; }
+  .mini-status { margin: 0; font-size: 10px; border: none; background: rgba(16, 185, 129, 0.15); color: var(--success); }
   .mini-save-btn { border-radius: 4px; height: 24px; font-size: 12px; padding: 0 8px; }
 }
 

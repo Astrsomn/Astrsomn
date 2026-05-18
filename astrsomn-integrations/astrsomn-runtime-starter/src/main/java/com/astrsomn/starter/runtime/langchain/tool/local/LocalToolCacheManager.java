@@ -34,8 +34,7 @@ public class LocalToolCacheManager {
         });
     }
 
-    @AllArgsConstructor
-        public record ToolDefinition(ToolSpecification specification, ToolExecutor executor) {
+    public record ToolDefinition(ToolSpecification specification, ToolExecutor executor) {
     }
 
 

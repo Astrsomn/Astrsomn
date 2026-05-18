@@ -54,8 +54,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        log.debug("{} 开始处理 Bean | BeanName: {} | BeanClass: {}",
-                LOG_PREFIX, beanName, bean.getClass().getName());
+
 
         Class<?> targetClass = ClassUtils.getUserClass(bean);
 

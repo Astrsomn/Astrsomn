@@ -480,7 +480,7 @@ watch(() => props.open, (val) => {
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
-  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  border-right: 1px solid var(--border-default);
 }
 
 .modal-right {
@@ -519,16 +519,16 @@ watch(() => props.open, (val) => {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-default);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--bg-input);
 }
 
 .model-picker:hover {
-  border-color: rgba(0, 0, 0, 0.15);
-  background: #fff;
+  border-color: var(--border-subtle);
+  background: var(--bg-card);
 }
 
 .model-picker.selected {
@@ -627,7 +627,7 @@ watch(() => props.open, (val) => {
 .context-btn {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   background: transparent;
   color: var(--text-muted);
@@ -638,7 +638,7 @@ watch(() => props.open, (val) => {
 }
 
 .context-btn:hover {
-  border-color: rgba(0, 0, 0, 0.15);
+  border-color: var(--border-subtle);
   color: var(--text-secondary);
 }
 
@@ -681,9 +681,9 @@ watch(() => props.open, (val) => {
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-subtle);
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.01);
+  background: var(--bg-surface);
 }
 
 .param-card.compact {

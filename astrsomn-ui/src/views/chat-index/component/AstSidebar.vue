@@ -10,11 +10,11 @@
             <template #icon>
               <PlusOutlined/>
             </template>
-            <span>新会话</span>
+            <span>{{ t.sidebar.newChat }}</span>
           </a-button>
         </div>
 
-        <div class="session-title">最近会话</div>
+        <div class="session-title">{{ t.sidebar.recentSessions }}</div>
 
         <div class="session-list-wrap">
           <SessionList
@@ -29,7 +29,7 @@
 
         <div class="sidebar-footer">
           <span class="footer-version">{{ versionText }}</span>
-          <a-button class="settings-btn" type="text" @click="settingsOpen = true">
+          <a-button class="settings-btn" type="text" :title="t.sidebar.settings" @click="settingsOpen = true">
             <SettingOutlined/>
           </a-button>
         </div>
@@ -53,24 +53,24 @@
       @cancel="settingsOpen = false"
       @update:open="settingsOpen = $event"
   >
-    <template #header-title>设置</template>
+    <template #header-title>{{ t.sidebar.settings }}</template>
     <div class="settings-body">
       <div class="setting-item">
-        <span class="setting-label">主题</span>
+        <span class="setting-label">{{ t.sidebar.theme }}</span>
         <a-select :value="appConfig.defaultTheme" size="small" style="width: 120px">
-          <a-select-option value="light">浅色</a-select-option>
-          <a-select-option value="dark">深色</a-select-option>
+          <a-select-option value="light">{{ t.sidebar.light }}</a-select-option>
+          <a-select-option value="dark">{{ t.sidebar.dark }}</a-select-option>
         </a-select>
       </div>
       <div class="setting-item">
-        <span class="setting-label">语言</span>
+        <span class="setting-label">{{ t.sidebar.language }}</span>
         <a-select :value="appConfig.defaultLanguage" size="small" style="width: 120px">
-          <a-select-option value="zh-CN">简体中文</a-select-option>
-          <a-select-option value="en-US">English</a-select-option>
+          <a-select-option value="zh-CN">{{ t.sidebar.chinese }}</a-select-option>
+          <a-select-option value="en-US">{{ t.sidebar.english }}</a-select-option>
         </a-select>
       </div>
       <div class="setting-item">
-        <span class="setting-label">底栏自动隐藏</span>
+        <span class="setting-label">{{ t.sidebar.bottomNavAutoHide }}</span>
         <a-switch :checked="appConfig.bottomNavAutoHide" size="small"/>
       </div>
     </div>
@@ -85,6 +85,7 @@ import AstModal from '@/components/home/AstModal.vue'
 import SessionList from '@/views/chat-index/component/chat-session/SessionList.vue'
 import type {ChatSessionItem} from '@/views/chat-index/utils/types.ts'
 import {appConfig} from '@/config/config.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const props = defineProps<{
   loading: boolean
@@ -105,6 +106,8 @@ const collapsed = computed(() => Boolean(props.collapsed))
 const versionText = computed(() => `Astrsomn v${appConfig.version}`)
 
 const settingsOpen = ref(false)
+
+const t = usePageTranslation('chat-index')
 
 const toggleCollapsed = () => {
   emit('update:collapsed', !collapsed.value)

@@ -5,7 +5,7 @@
         :showBrand="true"
         :showDoc="true"
         :showSwitch="true"
-        brandStatus="AI Assistant"
+        :brandStatus="t('ai-assistant')"
         switchTarget="admin"
     />
 
@@ -24,8 +24,8 @@
       <section class="chat-content">
         <div v-if="isNewSessionView" class="new-session-stage">
           <div class="new-session-intro">
-            <h2>今天想聊点什么？</h2>
-            <p>输入问题即可开启新会话，你可以选择不同 Agent 与模型实例。</p>
+            <h2>{{ pageT.newSession.title }}</h2>
+            <p>{{ pageT.newSession.subtitle }}</p>
           </div>
           <AstInputPanel
               v-model:file-url-list="fileUrlList"
@@ -110,6 +110,7 @@ import {
   mapTurnBundlesToChatMessages,
   mergeContentFromSegments
 } from '@/views/chat-index/utils/historyMapper.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const CHAT_MEMORY_KEY = 'astrsomn-chat-memory-key'
 const CHAT_DRAFT_KEY_PREFIX = 'astrsomn-chat-draft:'
@@ -142,6 +143,29 @@ const sidebarCollapsed = ref(false)
 const messages = ref<ChatMessage[]>([])
 
 let abortController: AbortController | null = null
+
+const pageT = usePageTranslation('chat-index')
+
+const t = (key: string): string => {
+  const translations: Record<string, string> = {
+    'ai-assistant': 'AI Assistant',
+    'delete-session': '删除此会话？',
+    'delete-confirm': '删除后无法恢复',
+    'session-deleted': '会话已删除',
+    'load-session-failed': '加载会话失败',
+    'load-options-failed': '加载聊天配置失败',
+    'chat-not-found': '会话不存在',
+    'chat-not-found-en': 'Chat not found',
+    'just-now': '刚刚',
+    'minutes-ago': '{n}分钟前',
+    'hours-ago': '{n}小时前',
+    'days-ago': '{n}天前',
+    'no-content': '本次没有返回内容。',
+    'stream-error': '流式响应异常',
+    'request-failed': '请求失败，请稍后重试'
+  }
+  return translations[key] || key
+}
 
 const sendDisabled = computed(() => {
   if (isStreaming.value) {
@@ -268,15 +292,15 @@ const formatTimestamp = (timestamp: string): string => {
     const days = Math.floor(diff / 86400000)
 
     if (minutes < 1) {
-      return '刚刚'
+      return pageT.value.messages.justNow
     } else if (minutes < 60) {
-      return `${minutes}分钟前`
+      return pageT.value.messages.minutesAgo.replace('{n}', String(minutes))
     } else if (hours < 24) {
-      return `${hours}小时前`
+      return pageT.value.messages.hoursAgo.replace('{n}', String(hours))
     } else if (days < 7) {
-      return `${days}天前`
+      return pageT.value.messages.daysAgo.replace('{n}', String(days))
     } else {
-      return date.toLocaleDateString('zh-CN', {
+      return date.toLocaleDateString(pageT.value === chatIndexZh ? 'zh-CN' : 'en-US', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -353,7 +377,7 @@ const openSession = async (memoryKey: string) => {
       await scrollToBottom()
       return
     }
-    message.error(error?.message || '加载会话失败')
+    message.error(error?.message || pageT.value.notifications.loadSessionFailed)
   } finally {
     sessionLoading.value = false
   }
@@ -384,8 +408,8 @@ const deleteSession = (session: ChatSessionItem) => {
     return
   }
   Modal.confirm({
-    title: '删除此会话？',
-    content: '删除后无法恢复',
+    title: pageT.value.confirm.deleteSession,
+    content: pageT.value.confirm.deleteConfirm,
     okType: 'danger',
     onOk: async () => {
       try {
@@ -396,9 +420,9 @@ const deleteSession = (session: ChatSessionItem) => {
         if (currentMemoryKey.value === session.memoryKey) {
           createNewSession()
         }
-        message.success('会话已删除')
+        message.success(pageT.value.notifications.sessionDeleted)
       } catch (error: any) {
-        message.error(error?.message || '删除会话失败')
+        message.error(error?.message || pageT.value.notifications.loadSessionFailed)
       }
     }
   })

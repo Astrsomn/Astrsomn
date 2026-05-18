@@ -482,7 +482,7 @@ watch(
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #fafbfc;
+  background: var(--bg-surface);
 }
 
 .config-spin {
