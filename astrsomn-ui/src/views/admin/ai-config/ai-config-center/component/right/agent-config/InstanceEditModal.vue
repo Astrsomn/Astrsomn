@@ -12,64 +12,50 @@
       @update:open="emit('update:open', $event)"
   >
     <template #header-logo>
-      <CloudServerOutlined/>
+      <CloudServerOutlined />
     </template>
     <template #header-title>
-      {{ isEdit ? '编辑推理实例' : '新建推理实例' }}
+      {{ isEdit ? '编辑实例' : '新建实例' }}
     </template>
     <template #header-subtitle>
-      配置模型端点、推理参数与关联账号
+      配置模型端点与推理参数
     </template>
     <template #header-actions>
-      <a-button class="header-action-btn header-action-btn-cancel" @click="handleCancel">取消</a-button>
-      <a-button
-          class="header-action-btn header-action-btn-save"
-          type="primary"
-          @click="handleConfirm"
-      >
-        确认
-      </a-button>
+      <a-button class="cancel-btn" @click="handleCancel">取消</a-button>
+      <a-button class="confirm-btn" type="primary" @click="handleConfirm">确认</a-button>
     </template>
 
     <div class="modal-body">
+      <!-- 左侧：基础配置 -->
       <div class="modal-left">
-        <!-- 实例名称 -->
-        <div class="form-section">
+        <div class="section-title">基础配置</div>
+
+        <div class="form-group">
           <label class="form-label">实例名称</label>
-          <a-input v-model:value="formData.instanceName" placeholder="例如：GPT-4o 主力" size="large"/>
+          <a-input v-model:value="formData.instanceName" placeholder="例如：GPT-4o 主力" size="large" />
         </div>
 
-        <!-- 模型源 -->
-        <div class="form-section">
-          <label class="form-label">模型源</label>
-          <div
-              :class="['model-pick-card', {'has-model': !!formData.modelKey}]"
-              @click="modelDrawerOpen = true"
-          >
+        <div class="form-group">
+          <label class="form-label">模型</label>
+          <div :class="['model-picker', { selected: !!formData.modelKey }]" @click="modelDrawerOpen = true">
             <template v-if="formData.modelKey && selectedModel">
-              <img
-                  v-if="getModelAvatar(formData.modelKey)"
-                  :alt="selectedModel.modelName"
-                  :src="getModelAvatar(formData.modelKey)"
-                  class="model-pick-avatar"
-              />
-              <div class="model-pick-info">
-                <span class="model-pick-name">{{ selectedModel.modelName }}</span>
-                <span class="model-pick-key">{{ formData.modelKey }}</span>
+              <img v-if="getModelAvatar(formData.modelKey)" :src="getModelAvatar(formData.modelKey)" class="model-avatar" />
+              <div class="model-info">
+                <span class="model-name">{{ selectedModel.modelName }}</span>
+                <code class="model-key">{{ formData.modelKey }}</code>
               </div>
-              <SwapOutlined class="model-pick-swap"/>
+              <SwapOutlined class="model-swap" />
             </template>
             <template v-else>
-              <SearchOutlined class="model-pick-placeholder-icon"/>
-              <span class="model-pick-placeholder">点击选择模型</span>
+              <SearchOutlined class="model-placeholder-icon" />
+              <span class="model-placeholder">选择模型</span>
             </template>
           </div>
         </div>
 
-        <!-- 关联账号 -->
-        <div class="form-section">
+        <div class="form-group">
           <label class="form-label">关联账号</label>
-          <div class="account-input-row">
+          <div class="account-row">
             <a-input
                 :value="formData.accountKey"
                 :disabled="true"
@@ -78,48 +64,36 @@
                 size="large"
                 @click="accountDrawerOpen = true"
             />
-            <a-button size="large" type="primary" @click="accountDrawerOpen = true">
-              选择
-            </a-button>
+            <a-button size="large" type="primary" @click="accountDrawerOpen = true">选择</a-button>
           </div>
         </div>
 
-        <!-- 降级备选 -->
-        <div class="form-section">
+        <div class="form-group">
           <label class="form-label">降级备选</label>
           <a-select
               v-model:value="formData.fallbackInstanceKey"
               :options="fallbackOptions"
               allow-clear
-              class="soft-select"
               placeholder="无自动降级"
               size="large"
           />
         </div>
 
-        <!-- 负载均衡权重 -->
-        <div v-if="routeStrategy === 'weightedRandom'" class="form-section">
-          <label class="form-label">实例权重</label>
-          <div class="weight-bar">
-            <a-slider
-                v-model:value="formData.routeWeight"
-                :max="100"
-                :min="1"
-                :step="1"
-                class="weight-slider"
-            />
+        <div v-if="routeStrategy === 'weightedRandom'" class="form-group">
+          <label class="form-label">权重</label>
+          <div class="weight-row">
+            <a-slider v-model:value="formData.routeWeight" :max="100" :min="1" :step="1" class="weight-slider" />
             <span class="weight-value">{{ formData.routeWeight ?? 1 }}</span>
           </div>
         </div>
 
-        <!-- 上下文历史长度 -->
-        <div class="form-section">
-          <label class="form-label">上下文历史长度</label>
-          <div class="context-btn-group">
+        <div class="form-group">
+          <label class="form-label">上下文轮数</label>
+          <div class="context-options">
             <button
                 v-for="opt in contextOptions"
                 :key="opt.value"
-                :class="['context-btn', {active: formData.memoryWindowSize === opt.value}]"
+                :class="['context-btn', { active: formData.memoryWindowSize === opt.value }]"
                 @click="formData.memoryWindowSize = opt.value"
             >
               {{ opt.label }}
@@ -128,28 +102,25 @@
         </div>
       </div>
 
+      <!-- 右侧：推理参数 -->
       <div class="modal-right">
-        <!-- 参数提示 -->
-        <div class="param-section-header">
-          <span class="param-section-title">{{ paramVisibility.paramSectionTitle.value }}</span>
-          <a-tag v-if="formData.modelKey" class="model-key-tag" color="blue">{{ formData.modelKey }}</a-tag>
+        <div class="section-title">
+          <span>推理参数</span>
+          <a-tag v-if="formData.modelKey" class="model-tag" color="blue">{{ formData.modelKey }}</a-tag>
         </div>
 
-        <p v-if="paramVisibility.capabilityHint.value" class="cap-hint">{{ paramVisibility.capabilityHint.value }}</p>
-        <p v-if="paramVisibility.hasParamSchema.value && paramVisibility.unsupportedParamCodes.value.length > 0"
-           class="cap-hint muted">
-          当前模型参数中有 {{ paramVisibility.unsupportedParamCodes.value.length }} 项暂不支持实例侧填写：{{
-            paramVisibility.unsupportedParamCodes.value.join(', ')
-          }}
+        <p v-if="paramVisibility.capabilityHint.value" class="hint-text">{{ paramVisibility.capabilityHint.value }}</p>
+        <p v-if="paramVisibility.hasParamSchema.value && paramVisibility.unsupportedParamCodes.value.length > 0" class="hint-text muted">
+          {{ paramVisibility.unsupportedParamCodes.value.length }} 项参数暂不支持实例侧配置：{{ paramVisibility.unsupportedParamCodes.value.join(', ') }}
         </p>
 
         <!-- 对话模型参数 -->
         <template v-if="paramVisibility.modelKind.value === 'chat'">
-          <div class="param-list">
-            <div v-if="paramVisibility.showChatTemperature.value" class="param-group-card">
-              <div class="p-header">
-                <span class="p-label">采样温度 (Temperature)</span>
-                <a-input-number v-model:value="formData.temperature" :max="2" :min="0" :step="0.1" size="small"/>
+          <div class="params-list">
+            <div v-if="paramVisibility.showChatTemperature.value" class="param-card">
+              <div class="param-header">
+                <span class="param-name">Temperature</span>
+                <a-input-number v-model:value="formData.temperature" :max="2" :min="0" :step="0.1" size="small" />
               </div>
               <a-slider
                   v-model:value="formData.temperature"
@@ -158,29 +129,27 @@
                   :min="0"
                   :step="0.1"
               />
-              <div class="p-desc-bar">
-                {{ getTempInfo(formData.temperature ?? 0.7).text }}
-              </div>
+              <div class="param-hint">{{ getTempInfo(formData.temperature ?? 0.7).text }}</div>
             </div>
 
-            <div v-if="paramVisibility.showChatMaxTokens.value" class="param-group-card">
-              <div class="p-header">
-                <span class="p-label">响应上限 (Max Tokens)</span>
-                <a-input-number v-model:value="formData.maxTokens" :max="128000" :min="1" size="small"/>
+            <div v-if="paramVisibility.showChatMaxTokens.value" class="param-card">
+              <div class="param-header">
+                <span class="param-name">Max Tokens</span>
+                <a-input-number v-model:value="formData.maxTokens" :max="128000" :min="1" size="small" />
               </div>
               <a-slider
                   v-model:value="formData.maxTokens"
-                  :marks="{ 0: '短', 2048: '中等', 4096: '长', 8192: '超长' }"
+                  :marks="{ 0: '短', 2048: '中', 4096: '长', 8192: '超长' }"
                   :max="8192"
                   :min="0"
                   :step="256"
               />
             </div>
 
-            <div v-if="paramVisibility.showChatTopP.value" class="param-group-card">
-              <div class="p-header">
-                <span class="p-label">核采样 (Top P)</span>
-                <a-input-number v-model:value="formData.topP" :max="1" :min="0" :step="0.01" size="small"/>
+            <div v-if="paramVisibility.showChatTopP.value" class="param-card">
+              <div class="param-header">
+                <span class="param-name">Top P</span>
+                <a-input-number v-model:value="formData.topP" :max="1" :min="0" :step="0.01" size="small" />
               </div>
               <a-slider
                   v-model:value="formData.topP"
@@ -191,36 +160,36 @@
               />
             </div>
 
-            <div v-if="paramVisibility.showChatTopK.value" class="param-group-card">
-              <div class="p-header">
-                <span class="p-label">Top K</span>
-                <a-input-number v-model:value="formData.topK" :max="100" :min="0" :step="1" size="small"/>
+            <div v-if="paramVisibility.showChatTopK.value" class="param-card">
+              <div class="param-header">
+                <span class="param-name">Top K</span>
+                <a-input-number v-model:value="formData.topK" :max="100" :min="0" :step="1" size="small" />
               </div>
-              <p class="p-inline-hint">0 表示不启用</p>
+              <span class="param-note">0 = 不启用</span>
             </div>
 
-            <div v-if="paramVisibility.showChatSeed.value" class="param-group-card">
-              <div class="p-header">
-                <span class="p-label">随机种子 (Seed)</span>
-                <a-input-number v-model:value="formData.seed" :max="2147483647" :min="0" :step="1" size="small"/>
+            <div v-if="paramVisibility.showChatSeed.value" class="param-card">
+              <div class="param-header">
+                <span class="param-name">Seed</span>
+                <a-input-number v-model:value="formData.seed" :max="2147483647" :min="0" :step="1" size="small" />
               </div>
             </div>
 
-            <div v-if="paramVisibility.showChatStopSequences.value" class="param-group-card">
-              <div class="p-header">
-                <span class="p-label">停止序列 (Stop)</span>
+            <div v-if="paramVisibility.showChatStopSequences.value" class="param-card">
+              <div class="param-header">
+                <span class="param-name">Stop Sequences</span>
               </div>
-              <a-textarea v-model:value="formData.stopSequences" :rows="2" placeholder="多个序列用英文逗号分隔"/>
+              <a-textarea v-model:value="formData.stopSequences" :rows="2" placeholder="多个序列用英文逗号分隔" />
             </div>
 
-            <div v-if="paramVisibility.showChatPenalties.value" class="penalty-row">
-              <div v-if="paramVisibility.showChatFrequencyPenalty.value" class="mini-param-card">
-                <span class="mini-label">重复惩罚 (Frequency)</span>
-                <a-slider v-model:value="formData.frequencyPenalty" :max="2" :min="-2" :step="0.1"/>
+            <div v-if="paramVisibility.showChatPenalties.value" class="penalty-grid">
+              <div v-if="paramVisibility.showChatFrequencyPenalty.value" class="param-card compact">
+                <span class="param-name">Frequency Penalty</span>
+                <a-slider v-model:value="formData.frequencyPenalty" :max="2" :min="-2" :step="0.1" />
               </div>
-              <div v-if="paramVisibility.showChatPresencePenalty.value" class="mini-param-card">
-                <span class="mini-label">新鲜度 (Presence)</span>
-                <a-slider v-model:value="formData.presencePenalty" :max="2" :min="-2" :step="0.1"/>
+              <div v-if="paramVisibility.showChatPresencePenalty.value" class="param-card compact">
+                <span class="param-name">Presence Penalty</span>
+                <a-slider v-model:value="formData.presencePenalty" :max="2" :min="-2" :step="0.1" />
               </div>
             </div>
           </div>
@@ -228,10 +197,10 @@
 
         <!-- Embedding 模型参数 -->
         <template v-else-if="paramVisibility.modelKind.value === 'embedding'">
-          <div class="param-list">
-            <div v-if="paramVisibility.showEmbeddingDimensions.value" class="param-group-card">
-              <div class="p-header">
-                <span class="p-label">向量维度 (Dimensions)</span>
+          <div class="params-list">
+            <div v-if="paramVisibility.showEmbeddingDimensions.value" class="param-card">
+              <div class="param-header">
+                <span class="param-name">Dimensions</span>
               </div>
               <a-select
                   v-model:value="formData.dimensions"
@@ -244,26 +213,26 @@
                   style="width: 100%"
               />
             </div>
-            <p v-if="!paramVisibility.embeddingHasAnyControl.value" class="cap-hint muted">当前端点未开放向量可调参数。</p>
+            <p v-if="!paramVisibility.embeddingHasAnyControl.value" class="hint-text muted">当前端点未开放向量可调参数</p>
           </div>
         </template>
 
         <!-- 图像模型参数 -->
         <template v-else-if="paramVisibility.modelKind.value === 'image'">
-          <div class="param-list">
-            <div v-if="paramVisibility.showImageSize.value" class="param-group-card">
-              <div class="p-header">
-                <span class="p-label">画幅尺寸 (Size)</span>
+          <div class="params-list">
+            <div v-if="paramVisibility.showImageSize.value" class="param-card">
+              <div class="param-header">
+                <span class="param-name">Size</span>
               </div>
-              <a-input v-model:value="formData.size" allow-clear placeholder="例如 1024x1024" size="large"/>
+              <a-input v-model:value="formData.size" allow-clear placeholder="例如 1024x1024" size="large" />
             </div>
-            <div v-if="paramVisibility.showImageStyle.value" class="param-group-card">
-              <div class="p-header">
-                <span class="p-label">风格 (Style)</span>
+            <div v-if="paramVisibility.showImageStyle.value" class="param-card">
+              <div class="param-header">
+                <span class="param-name">Style</span>
               </div>
-              <a-input v-model:value="formData.style" allow-clear placeholder="例如 vivid / natural" size="large"/>
+              <a-input v-model:value="formData.style" allow-clear placeholder="例如 vivid / natural" size="large" />
             </div>
-            <p v-if="!paramVisibility.imageHasAnyControl.value" class="cap-hint muted">当前端点未开放图像可调参数。</p>
+            <p v-if="!paramVisibility.imageHasAnyControl.value" class="hint-text muted">当前端点未开放图像可调参数</p>
           </div>
         </template>
       </div>
@@ -285,15 +254,15 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref, watch} from 'vue'
-import {CloudServerOutlined, SearchOutlined, SwapOutlined} from '@ant-design/icons-vue'
+import { computed, reactive, ref, watch } from 'vue'
+import { CloudServerOutlined, SearchOutlined, SwapOutlined } from '@ant-design/icons-vue'
 import AstModal from '@/components/home/AstModal.vue'
-import type {AiInstance} from '@/api/aiInstance.ts'
-import type {AiModel} from '@/api/aiModel.ts'
-import type {AiAccount} from '@/api/aiAccount.ts'
+import type { AiInstance } from '@/api/aiInstance.ts'
+import type { AiModel } from '@/api/aiModel.ts'
+import type { AiAccount } from '@/api/aiAccount.ts'
 import ModelSelectorDrawer from '@/views/admin/ai-config/ai-model/selector/ModelSelectorDrawer.vue'
 import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
-import {getTempInfo, useInstanceParamVisibility} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility.ts'
+import { getTempInfo, useInstanceParamVisibility } from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility.ts'
 
 const props = defineProps<{
   open: boolean
@@ -310,7 +279,6 @@ const emit = defineEmits<{
 }>()
 
 const isEdit = computed(() => !!props.record?.instanceKey)
-
 const modelDrawerOpen = ref(false)
 const accountDrawerOpen = ref(false)
 
@@ -344,21 +312,21 @@ const selectedModel = computed(() =>
 const paramVisibility = useInstanceParamVisibility(selectedModel)
 
 const contextOptions = [
-  {value: '10', label: '10 Rounds'},
-  {value: '20', label: '20 Rounds'},
-  {value: 'full', label: 'Full Window'},
+  { value: '10', label: '10 轮' },
+  { value: '20', label: '20 轮' },
+  { value: 'full', label: '完整窗口' },
 ]
 
 const dimensionOptions = [
-  {value: 256, label: '256 — 轻量级，适合简单检索'},
-  {value: 512, label: '512 — 紧凑型，平衡性能与精度'},
-  {value: 768, label: '768 — 常用基线（BGE / text-embedding-ada）'},
-  {value: 1024, label: '1024 — 中高维度，语义表达更丰富'},
-  {value: 1536, label: '1536 — 主流高维（OpenAI text-embedding-3）'},
-  {value: 2048, label: '2048 — 高精度场景'},
-  {value: 3072, label: '3072 — 超高精度，适合专业语义匹配'},
-  {value: 4096, label: '4096 — 最大常用档位'},
-  {value: 8192, label: '8192 — 极限维度，计算成本极高'},
+  { value: 256, label: '256 — 轻量级' },
+  { value: 512, label: '512 — 平衡型' },
+  { value: 768, label: '768 — 常用基线' },
+  { value: 1024, label: '1024 — 中高维度' },
+  { value: 1536, label: '1536 — 主流高维' },
+  { value: 2048, label: '2048 — 高精度' },
+  { value: 3072, label: '3072 — 超高精度' },
+  { value: 4096, label: '4096 — 最大常用' },
+  { value: 8192, label: '8192 — 极限维度' },
 ]
 
 function filterDimensionOption(input: string, option: { value: number; label: string }) {
@@ -370,7 +338,7 @@ const fallbackOptions = computed(() =>
         .filter(i => i.instanceKey !== props.record?.instanceKey)
         .map(inst => ({
           value: inst.instanceKey || '',
-          label: (inst.instanceName || inst.instanceKey || '未命名实例') + (inst.isDefault === 'Y' ? ' (默认)' : ''),
+          label: (inst.instanceName || inst.instanceKey || '未命名') + (inst.isDefault === 'Y' ? ' (默认)' : ''),
         }))
 )
 
@@ -501,22 +469,19 @@ watch(() => props.open, (val) => {
   padding-bottom: 0;
 }
 
-.header-action-btn {
-  height: 38px;
-  min-width: 100px;
-  border-radius: var(--radius-md);
+.cancel-btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.confirm-btn {
+  height: 36px;
   padding: 0 20px;
-  font-weight: 600;
-}
-
-:deep(.header-action-btn-cancel.ant-btn-default) {
-  color: #475569;
-  border-color: #cbd5e1;
-  background: #fff;
-}
-
-:deep(.header-action-btn-save.ant-btn-primary) {
-  box-shadow: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .modal-body {
@@ -527,52 +492,68 @@ watch(() => props.open, (val) => {
 }
 
 .modal-left {
-  padding: 24px 28px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   overflow-y: auto;
-  border-right: 1px solid var(--border-default);
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .modal-right {
-  padding: 24px 28px;
+  padding: 20px 24px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.form-section {
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
 .form-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
-.model-pick-card {
+/* Model picker */
+.model-picker {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
+  background: rgba(0, 0, 0, 0.02);
 }
 
-.model-pick-card:hover {
-  border-color: var(--text-muted);
+.model-picker:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+  background: #fff;
 }
 
-.model-pick-avatar {
+.model-picker.selected {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.02);
+}
+
+.model-avatar {
   width: 28px;
   height: 28px;
   border-radius: 6px;
@@ -580,49 +561,50 @@ watch(() => props.open, (val) => {
   flex-shrink: 0;
 }
 
-.model-pick-info {
+.model-info {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
-.model-pick-name {
-  font-size: 12px;
-  font-weight: 600;
+.model-name {
+  font-size: 13px;
+  font-weight: 500;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.model-pick-key {
-  font-size: 10px;
+.model-key {
+  font-size: 11px;
   color: var(--text-muted);
-  font-family: monospace;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.model-pick-placeholder-icon {
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.model-pick-placeholder {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.model-pick-swap {
+.model-swap {
   color: var(--text-muted);
   font-size: 12px;
   flex-shrink: 0;
 }
 
-.account-input-row {
+.model-placeholder-icon {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.model-placeholder {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Account row */
+.account-row {
   display: flex;
   gap: 8px;
 }
@@ -632,14 +614,11 @@ watch(() => props.open, (val) => {
   cursor: pointer;
 }
 
-.soft-select {
-  border-radius: 8px;
-}
-
-.weight-bar {
+/* Weight */
+.weight-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .weight-slider {
@@ -649,123 +628,113 @@ watch(() => props.open, (val) => {
 
 .weight-value {
   font-size: 14px;
-  font-weight: 700;
-  color: var(--primary);
-  font-family: monospace;
+  font-weight: 600;
+  color: #3b82f6;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
   min-width: 32px;
   text-align: right;
 }
 
-.context-btn-group {
+/* Context options */
+.context-options {
   display: flex;
   gap: 6px;
 }
 
 .context-btn {
   flex: 1;
-  padding: 6px 8px;
-  border: 1px solid var(--border-subtle);
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   background: transparent;
   color: var(--text-muted);
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: all 0.2s;
 }
 
 .context-btn:hover {
-  border-color: var(--text-muted);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: var(--text-secondary);
 }
 
 .context-btn.active {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-  font-weight: 700;
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.04);
+  font-weight: 600;
 }
 
-.param-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.param-section-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.model-key-tag {
-  flex-shrink: 0;
+/* Model tag */
+.model-tag {
+  font-size: 11px;
   max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.cap-hint {
+/* Hint text */
+.hint-text {
   font-size: 12px;
   color: var(--text-muted);
   line-height: 1.5;
   margin: 0;
 }
 
-.cap-hint.muted {
+.hint-text.muted {
   opacity: 0.7;
 }
 
-.param-list {
+/* Params list */
+.params-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
-.param-group-card {
+.param-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.01);
 }
 
-.p-header {
+.param-card.compact {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.param-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.p-label {
+.param-name {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
-.p-desc-bar {
+.param-hint {
   font-size: 11px;
   font-weight: 500;
   color: var(--text-muted);
 }
 
-.p-inline-hint {
+.param-note {
   font-size: 11px;
   color: var(--text-muted);
-  margin: 0;
 }
 
-.penalty-row {
+.penalty-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-}
-
-.mini-param-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.mini-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
 }
 </style>

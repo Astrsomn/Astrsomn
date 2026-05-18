@@ -1,79 +1,116 @@
 <template>
-  <div class="instance-engine glass-panel">
-    <!-- Tab 栏 -->
-    <div class="engine-tab-bar">
+  <div class="instance-panel">
+    <!-- 头部：Tab + 操作栏 -->
+    <div class="panel-header">
       <div class="tab-group">
         <button
             v-for="mt in modelTypeOptions"
             :key="mt.value"
-            :class="['tab-btn', {active: activeTab === mt.value}]"
+            :class="['tab-btn', { active: activeTab === mt.value }]"
             @click="onTabChange(mt.value)"
         >
-          {{ mt.label }}
-          <span v-if="countByType(mt.value) > 0" class="tab-count">{{ countByType(mt.value) }}</span>
+          <span class="tab-text">{{ mt.label }}</span>
+          <span v-if="countByType(mt.value) > 0" class="tab-badge">{{ countByType(mt.value) }}</span>
         </button>
       </div>
-      <div class="tab-actions">
-        <span class="strategy-label">负载均衡:</span>
-        <a-select
-            :value="props.routeStrategy || 'roundRobin'"
-            :options="routeStrategyOptions"
-            class="strategy-select"
-            size="middle"
-            @change="onStrategyChange"
-        />
-        <a-button class="add-instance-btn" size="middle" type="primary" @click="startAdd">
-          <PlusOutlined/>
+      <div class="header-actions">
+        <div class="strategy-wrapper">
+          <span class="strategy-label">策略</span>
+          <a-select
+              :value="props.routeStrategy || 'roundRobin'"
+              :options="routeStrategyOptions"
+              class="strategy-select"
+              size="small"
+              @change="onStrategyChange"
+          />
+        </div>
+        <a-button class="add-btn" size="small" type="primary" @click="startAdd">
+          <template #icon><PlusOutlined /></template>
+          添加
         </a-button>
       </div>
     </div>
 
-    <!-- 空状态 -->
-    <div v-if="filteredInstances.length === 0" class="empty-state">
-      <CloudServerOutlined class="empty-icon"/>
-      <p class="empty-text">暂无 {{ activeTabLabel }} 推理实例</p>
-      <a-button type="primary" @click="startAdd">添加第一个实例</a-button>
-    </div>
-
-    <!-- 实例卡片列表 -->
-    <div v-else class="instance-card-list">
-      <div
-          v-for="(instance, idx) in filteredInstances"
-          :key="instance.instanceKey || idx"
-          class="instance-card"
-          @click="editInstance(instance)"
-      >
-        <img
-            v-if="getModelAvatar(instance.modelKey)"
-            :alt="getModelLabel(instance.modelKey)"
-            :src="getModelAvatar(instance.modelKey)"
-            class="instance-avatar"
-        />
-        <div v-else :class="['status-dot', instance.status === 'enabled' ? 'active' : 'inactive']"></div>
-        <div class="instance-info">
-          <p class="instance-name">{{ instance.instanceName || getModelLabel(instance.modelKey) || '未命名实例' }}</p>
-          <p class="instance-model">{{ instance.modelKey }}</p>
+    <!-- 内容区 -->
+    <div class="panel-body">
+      <!-- 空状态 -->
+      <div v-if="filteredInstances.length === 0" class="empty-state">
+        <div class="empty-icon-wrapper">
+          <CloudServerOutlined />
         </div>
-        <div class="instance-actions">
-          <a-tag v-if="instance.isDefault === 'Y'" class="default-tag" color="blue">默认</a-tag>
-          <a-button
-              class="delete-btn"
-              danger
-              size="small"
-              type="text"
-              @click.stop="removeInstance(instance)"
-          >
-            <DeleteOutlined/>
-          </a-button>
-        </div>
+        <p class="empty-title">暂无{{ activeTabLabel }}实例</p>
+        <p class="empty-desc">添加第一个推理实例开始使用</p>
+        <a-button class="empty-add-btn" type="primary" @click="startAdd">
+          <template #icon><PlusOutlined /></template>
+          添加实例
+        </a-button>
       </div>
 
-      <button class="add-dashed-btn" @click="startAdd">
-        + 添加新{{ activeTabLabel }}实例
-      </button>
+      <!-- 实例列表 -->
+      <div v-else class="instance-list">
+        <div
+            v-for="(instance, idx) in filteredInstances"
+            :key="instance.instanceKey || idx"
+            :class="['instance-item', { active: instance.status === 'enabled' }]"
+            @click="editInstance(instance)"
+        >
+          <div class="instance-icon">
+            <img
+                v-if="getModelAvatar(instance.modelKey)"
+                :alt="getModelLabel(instance.modelKey)"
+                :src="getModelAvatar(instance.modelKey)"
+                class="model-avatar"
+            />
+            <div v-else class="model-placeholder">
+              <ApartmentOutlined />
+            </div>
+          </div>
+          <div class="instance-content">
+            <div class="instance-header">
+              <span class="instance-name">{{ instance.instanceName || getModelLabel(instance.modelKey) || '未命名' }}</span>
+              <a-tag v-if="instance.isDefault === 'Y'" class="default-badge" color="blue">默认</a-tag>
+            </div>
+            <div class="instance-meta">
+              <code class="model-key">{{ instance.modelKey }}</code>
+              <span v-if="instance.status === 'enabled'" class="status-indicator active">
+                <span class="status-dot"></span>
+                启用
+              </span>
+              <span v-else class="status-indicator inactive">
+                <span class="status-dot"></span>
+                禁用
+              </span>
+            </div>
+          </div>
+          <div class="instance-actions">
+            <a-button
+                class="action-btn"
+                type="text"
+                size="small"
+                @click.stop="editInstance(instance)"
+            >
+              <template #icon><EditOutlined /></template>
+            </a-button>
+            <a-button
+                class="action-btn delete"
+                type="text"
+                size="small"
+                danger
+                @click.stop="removeInstance(instance)"
+            >
+              <template #icon><DeleteOutlined /></template>
+            </a-button>
+          </div>
+        </div>
+
+        <button class="add-more-btn" @click="startAdd">
+          <PlusOutlined />
+          <span>添加{{ activeTabLabel }}实例</span>
+        </button>
+      </div>
     </div>
 
-    <!-- 实例编辑弹窗 -->
+    <!-- 编辑弹窗 -->
     <InstanceEditModal
         :available-models="availableModels"
         :instance-list="instanceList"
@@ -88,10 +125,10 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, computed} from 'vue'
-import {PlusOutlined, DeleteOutlined, CloudServerOutlined} from '@ant-design/icons-vue'
-import type {AiModel} from '@/api/aiModel.ts'
-import type {AiInstance} from '@/api/aiInstance.ts'
+import { ref, computed } from 'vue'
+import { PlusOutlined, DeleteOutlined, CloudServerOutlined, EditOutlined, ApartmentOutlined } from '@ant-design/icons-vue'
+import type { AiModel } from '@/api/aiModel.ts'
+import type { AiInstance } from '@/api/aiInstance.ts'
 import InstanceEditModal from './InstanceEditModal.vue'
 
 const props = defineProps<{
@@ -107,8 +144,8 @@ const emit = defineEmits<{
 
 // ── Tab ──
 const modelTypeOptions = [
-  {value: 'chat', label: '对话模型实例'},
-  {value: 'image', label: '图像模型实例'},
+  { value: 'chat', label: '对话模型' },
+  { value: 'image', label: '图像模型' },
 ]
 const activeTab = ref('chat')
 const activeTabLabel = computed(() => modelTypeOptions.find(t => t.value === activeTab.value)?.label || '')
@@ -141,13 +178,11 @@ function editInstance(instance: AiInstance) {
 
 function onModalConfirm(instance: AiInstance) {
   if (editingInstance.value?.instanceKey) {
-    // Edit existing
     const newList = props.instanceList.map(inst =>
-        inst.instanceKey === editingInstance.value!.instanceKey ? {...inst, ...instance} : inst
+        inst.instanceKey === editingInstance.value!.instanceKey ? { ...inst, ...instance } : inst
     )
     emit('update:instanceList', newList)
   } else {
-    // Add new
     const isFirstOfType = !props.instanceList.some(i => i.modelType === instance.modelType)
     const newInstance = {
       ...instance,
@@ -157,7 +192,7 @@ function onModalConfirm(instance: AiInstance) {
     let newList: AiInstance[]
     if (newInstance.isDefault === 'Y') {
       const cleared = props.instanceList.map(inst => {
-        if (inst.modelType === instance.modelType) return {...inst, isDefault: 'N'}
+        if (inst.modelType === instance.modelType) return { ...inst, isDefault: 'N' }
         return inst
       })
       newList = [...cleared, newInstance]
@@ -175,11 +210,11 @@ function removeInstance(instance: AiInstance) {
 
 // ── Helpers ──
 const routeStrategyOptions = [
-  {value: 'roundRobin', label: '轮询 (Round Robin)'},
-  {value: 'random', label: '随机 (Random)'},
-  {value: 'weightedRandom', label: '加权随机 (Weighted)'},
-  {value: 'stickyMemory', label: '粘性会话 (Sticky)'},
-  {value: 'failoverOrdered', label: '故障转移 (Failover)'},
+  { value: 'roundRobin', label: '轮询' },
+  { value: 'random', label: '随机' },
+  { value: 'weightedRandom', label: '加权随机' },
+  { value: 'stickyMemory', label: '粘性会话' },
+  { value: 'failoverOrdered', label: '故障转移' },
 ]
 
 function onStrategyChange(val: string) {
@@ -201,7 +236,9 @@ function getModelAvatar(modelKey?: string): string {
 </script>
 
 <style scoped>
-.glass-panel {
+.instance-panel {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 12px;
   overflow: hidden;
   height: 100%;
@@ -209,18 +246,22 @@ function getModelAvatar(modelKey?: string): string {
   flex-direction: column;
 }
 
-/* Tab bar */
-.engine-tab-bar {
+/* Panel header */
+.panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
   flex-shrink: 0;
 }
 
 .tab-group {
   display: flex;
-  gap: 24px;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  padding: 3px;
 }
 
 .tab-btn {
@@ -228,11 +269,15 @@ function getModelAvatar(modelKey?: string): string {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  color: var(--ac-tab-inactive);
-  padding: 4px 0;
-  transition: all 0.2s;
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .tab-btn:hover {
@@ -240,52 +285,66 @@ function getModelAvatar(modelKey?: string): string {
 }
 
 .tab-btn.active {
-  color: var(--ac-tab-active);
+  background: #fff;
+  color: var(--text-primary);
   font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.tab-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 5px;
-  background: var(--ac-tab-dot);
-  border-radius: 50%;
-}
-
-.tab-count {
-  margin-left: 4px;
+.tab-badge {
   font-size: 10px;
-  opacity: 0.5;
-  font-weight: 400;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 1px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
 }
 
-.tab-actions {
+.tab-btn.active .tab-badge {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
+
+.strategy-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .strategy-label {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-weight: 500;
 }
 
 .strategy-select {
-  width: 200px;
+  width: 160px;
 }
 
-.add-instance-btn {
-  width: 32px;
+.add-btn {
   height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 500;
   border-radius: 8px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+}
+
+/* Panel body */
+.panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* Empty state */
@@ -294,138 +353,232 @@ function getModelAvatar(modelKey?: string): string {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
-  flex: 1;
+  padding: 48px 24px;
+  height: 100%;
 }
 
-.empty-icon {
-  font-size: 40px;
+.empty-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
-.empty-text {
+.empty-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.empty-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+.empty-add-btn {
+  height: 36px;
+  padding: 0 16px;
   font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* Instance card list */
-.instance-card-list {
-  flex: 1;
-  min-height: 0;
-  padding: 0 20px 16px;
+/* Instance list */
+.instance-list {
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
+  height: 100%;
 }
 
-.instance-card {
+.instance-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s;
-  border: 1px solid var(--border-subtle);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: rgba(0, 0, 0, 0.01);
 }
 
-.instance-card:hover {
-  background: var(--bg-elevated);
-  border-color: var(--text-muted);
+.instance-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+.instance-item.active {
+  border-color: rgba(59, 130, 246, 0.15);
+  background: rgba(59, 130, 246, 0.02);
+}
+
+.instance-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  overflow: hidden;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.04);
 }
 
-.instance-avatar {
+.model-avatar {
   width: 28px;
   height: 28px;
-  border-radius: 6px;
   object-fit: contain;
-  flex-shrink: 0;
 }
 
-.status-dot.active {
-  background: var(--ac-status-active);
-  box-shadow: 0 0 8px rgba(52, 211, 153, 0.5);
+.model-placeholder {
+  font-size: 18px;
+  color: var(--text-muted);
 }
 
-.status-dot.inactive {
-  background: var(--ac-status-inactive);
-}
-
-.instance-info {
+.instance-content {
   flex: 1;
   min-width: 0;
 }
 
+.instance-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
 .instance-name {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 2px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.instance-model {
+.default-badge {
   font-size: 10px;
+  font-weight: 500;
+  padding: 0 6px;
+  height: 18px;
+  line-height: 18px;
+  border-radius: 4px;
+}
+
+.instance-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.model-key {
+  font-size: 11px;
   color: var(--text-muted);
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: monospace;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-indicator.active {
+  color: #10b981;
+}
+
+.status-indicator.inactive {
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-indicator.active .status-dot {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+.status-indicator.inactive .status-dot {
+  background: var(--text-muted);
 }
 
 .instance-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.default-tag {
-  font-size: 10px;
-}
-
-.delete-btn {
-  color: var(--text-muted);
+  gap: 4px;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity 0.2s;
 }
 
-.instance-card:hover .delete-btn {
+.instance-item:hover .instance-actions {
   opacity: 1;
 }
 
-.delete-btn:hover {
-  color: var(--error);
+.action-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--text-muted);
+  transition: all 0.2s;
 }
 
-.add-dashed-btn {
+.action-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+}
+
+.action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+/* Add more button */
+.add-more-btn {
   width: 100%;
-  padding: 10px;
-  border: 1px dashed var(--border-subtle);
+  padding: 12px;
+  border: 1px dashed rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   background: transparent;
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
-  transition: color 0.15s;
-  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
-.add-dashed-btn:hover {
-  border-color: var(--text-muted);
-  color: var(--text-secondary);
+.add-more-btn:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.02);
 }
 </style>

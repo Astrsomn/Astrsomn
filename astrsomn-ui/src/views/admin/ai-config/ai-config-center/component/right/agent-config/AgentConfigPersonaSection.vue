@@ -1,55 +1,76 @@
 <template>
   <div class="persona-grid">
-    <!-- 左卡片：身份标识 -->
-    <div class="glass-card identity-card">
-      <div class="card-heading">
-        <div class="heading-bar identity-bar"></div>
-        <h2 class="heading-title">身份标识</h2>
+    <!-- 身份标识卡片 -->
+    <div class="card identity-card">
+      <div class="card-header">
+        <div class="card-header-icon">
+          <UserOutlined />
+        </div>
+        <div class="card-header-text">
+          <h3 class="card-title">身份标识</h3>
+          <p class="card-desc">基础配置信息</p>
+        </div>
       </div>
-      <div class="card-fields">
-        <div class="field-group avatar-field">
-          <label class="field-label">头像</label>
-          <AstIconPicker
-              :model-value="agentAvatar"
-              :name="agentName"
-              :size="56"
-              @update:model-value="emit('update:agentAvatar', $event)"
-          />
+      <div class="card-body">
+        <div class="avatar-row">
+          <div class="avatar-wrapper">
+            <AstIconPicker
+                :model-value="agentAvatar"
+                :name="agentName"
+                :size="48"
+                @update:model-value="emit('update:agentAvatar', $event)"
+            />
+          </div>
+          <div class="avatar-hint">
+            <span class="hint-label">头像</span>
+            <span class="hint-text">点击更换</span>
+          </div>
         </div>
         <div class="field-group">
-          <label class="field-label">Agent 名称</label>
+          <label class="field-label">
+            <span class="label-text">名称</span>
+            <span class="label-required">*</span>
+          </label>
           <a-input
               :value="agentName"
-              class="soft-input"
+              class="config-input"
               placeholder="例如：翻译助手"
               @update:value="emit('update:agentName', $event)"
           />
         </div>
         <div class="field-group">
-          <label class="field-label">Agent Key</label>
+          <label class="field-label">
+            <span class="label-text">Key</span>
+            <span class="label-optional">留空自动生成</span>
+          </label>
           <AstKeyGenerator
               :model-value="agentKey"
               :prefix="AI_AGENT_KEY_PREFIX"
-              class="soft-input"
-              placeholder="留空则自动生成"
+              class="config-input"
+              placeholder="agent_key"
               @update:model-value="emit('update:agentKey', $event)"
           />
         </div>
       </div>
     </div>
 
-    <!-- 右卡片：系统指令 -->
-    <div class="glass-card prompt-card-wrapper">
-      <div class="card-heading">
-        <div class="heading-bar prompt-bar"></div>
-        <h2 class="heading-title">系统指令 (Prompt)</h2>
+    <!-- 系统指令卡片 -->
+    <div class="card prompt-card">
+      <div class="card-header">
+        <div class="card-header-icon icon-purple">
+          <CodeOutlined />
+        </div>
+        <div class="card-header-text">
+          <h3 class="card-title">系统提示词</h3>
+          <p class="card-desc">定义智能体的行为和能力</p>
+        </div>
         <a-button
             :loading="improveLoading"
-            class="improve-trigger"
+            class="ai-optimize-btn"
             size="small"
             @click="emit('improve-prompt')"
         >
-          <ThunderboltOutlined/>
+          <template #icon><ThunderboltOutlined /></template>
           AI 优化
         </a-button>
       </div>
@@ -57,7 +78,7 @@
         <PromptCard
             :improve-loading="improveLoading"
             :prompt="currentPrompt"
-            :textarea-rows="6"
+            :textarea-rows="8"
             @create="emit('open-prompt-form')"
             @history="emit('prompt-history')"
             @improve="emit('improve-prompt')"
@@ -70,12 +91,12 @@
 </template>
 
 <script lang="ts" setup>
-import {ThunderboltOutlined} from '@ant-design/icons-vue'
-import type {AiPrompt} from '@/api/aiPrompt.ts'
+import { ThunderboltOutlined, UserOutlined, CodeOutlined } from '@ant-design/icons-vue'
+import type { AiPrompt } from '@/api/aiPrompt.ts'
 import PromptCard from '@/views/admin/ai-config/builder/component/left-center/PromptCard.vue'
 import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import AstIconPicker from '@/components/home/AstIconPicker.vue'
-import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes.ts'
+import { AI_AGENT_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes.ts'
 
 defineProps<{
   agentName: string
@@ -106,62 +127,120 @@ const emit = defineEmits<{
   min-height: 0;
 }
 
-/* Glass card base */
-.glass-card {
-  background: var(--ac-glass-bg);
-  backdrop-filter: var(--ac-glass-backdrop);
-  -webkit-backdrop-filter: var(--ac-glass-backdrop);
-  border: 1px solid var(--ac-glass-border);
+/* Card base */
+.card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 12px;
-  box-shadow: var(--ac-glass-shadow);
+  overflow: hidden;
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.prompt-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Card header */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.card-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 130, 246, 0.08);
+  color: #3b82f6;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.card-header-icon.icon-purple {
+  background: rgba(139, 92, 246, 0.08);
+  color: #8b5cf6;
+}
+
+.card-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.card-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Card body */
+.card-body {
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.prompt-card-wrapper {
-  flex: 1;
-  min-height: 0;
-}
-
-/* Card heading with colored bar */
-.card-heading {
+/* Avatar row */
+.avatar-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.heading-bar {
-  width: 4px;
-  height: 16px;
-  border-radius: 999px;
-  flex-shrink: 0;
-}
-
-.identity-bar {
-  background: var(--primary);
-}
-
-.prompt-bar {
-  background: #a855f7;
-}
-
-.heading-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-  flex: 1;
-}
-
-/* Fields */
-.card-fields {
-  display: flex;
-  flex-direction: column;
   gap: 16px;
 }
 
+.avatar-wrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px dashed rgba(0, 0, 0, 0.08);
+  padding: 4px;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+
+.avatar-wrapper:hover {
+  border-color: #3b82f6;
+}
+
+.avatar-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hint-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.hint-text {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Field group */
 .field-group {
   display: flex;
   flex-direction: column;
@@ -169,53 +248,88 @@ const emit = defineEmits<{
 }
 
 .field-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.label-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.label-required {
+  font-size: 12px;
+  color: #ef4444;
+}
+
+.label-optional {
   font-size: 11px;
   color: var(--text-muted);
-  margin-left: 2px;
+  margin-left: auto;
 }
 
-.soft-input {
+/* Input styling */
+.config-input {
+  height: 40px;
+  border-radius: 10px;
+  font-size: 13px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.config-input:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+  background: #fff;
+}
+
+.config-input:focus-within {
+  border-color: #3b82f6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* AI optimize button */
+.ai-optimize-btn {
+  height: 32px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 500;
   border-radius: 8px;
-  transition: all 0.2s;
-}
-
-.soft-input:focus-within {
-  border-color: var(--primary) !important;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08) !important;
-}
-
-.avatar-field {
-  align-items: flex-start;
-}
-
-/* Improve button in heading */
-.improve-trigger {
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: #fff;
   border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
 }
 
-.improve-trigger:hover {
-  filter: brightness(1.1);
+.ai-optimize-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  filter: brightness(1.05);
   color: #fff;
 }
 
-.improve-trigger:disabled {
-  opacity: 0.6;
-  filter: none;
+.ai-optimize-btn:active {
+  transform: translateY(0);
 }
 
-/* Prompt body: suppress PromptCard's own card shell */
+.ai-optimize-btn:disabled {
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Prompt body */
 .prompt-body {
   flex: 1;
   min-height: 0;
+  padding: 16px 20px 20px;
   display: flex;
 }
 
@@ -227,6 +341,7 @@ const emit = defineEmits<{
   box-shadow: none;
   padding: 0;
   gap: 12px;
+  width: 100%;
 }
 
 .prompt-body :deep(.prompt-card:hover) {
@@ -239,10 +354,22 @@ const emit = defineEmits<{
 }
 
 .prompt-body :deep(.dashed-frame) {
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-input);
-  border-radius: 8px;
-  min-height: 140px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 10px;
+  min-height: 180px;
+  transition: all 0.2s;
+}
+
+.prompt-body :deep(.dashed-frame:hover) {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.prompt-body :deep(.dashed-frame:focus-within) {
+  border-color: #8b5cf6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
 }
 
 .prompt-body :deep(.improve-btn) {
