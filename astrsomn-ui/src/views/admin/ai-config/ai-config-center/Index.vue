@@ -34,7 +34,7 @@ const globalComponents: Record<string, any> = {
   'prompts': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-prompt/PromptList.vue')),
   'mcp': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-mcp/McpList.vue')),
   'tools': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-tool/ToolList.vue')),
-  'ftl': defineAsyncComponent(() => import('@/views/admin/ai-safety/ai-template/TemplateList.vue')),
+  'ftl': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-template/TemplateList.vue')),
   'conversations': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-conversation/ConversationList.vue')),
 }
 

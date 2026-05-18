@@ -102,7 +102,7 @@ onMounted(async () => {
 
 /* 侧边栏固定 */
 .vector-center-sider {
-  overflow: hidden;
+
   flex-shrink: 0;
   z-index: 10;
 }

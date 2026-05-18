@@ -135,7 +135,7 @@ import {aiTemplateApi} from '@/api/aiTemplate'
 import {aiConversationApi} from '@/api/aiConversation'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {useDictionary} from '@/locales/dictionary'
-import ExtensionMarketplaceDialog from './left/ExtensionMarketplaceDialog.vue'
+import ExtensionMarketplaceDialog from '@/views/admin/system-config/system-extension/component/ExtensionMarketplaceDialog.vue'
 
 const emit = defineEmits<{
   select: [key: string]
