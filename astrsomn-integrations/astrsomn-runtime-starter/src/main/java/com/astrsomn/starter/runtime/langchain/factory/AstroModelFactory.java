@@ -32,9 +32,7 @@ public class AstroModelFactory {
         initSpiHandlers();
     }
 
-    /**
-     * 完全通过 Java SPI 加载处理器
-     */
+    
     private void initSpiHandlers() {
         log.info("[Astro] Initializing handlers via SPI...");
         ServiceLoader<ModelProviderHandler> loader = ServiceLoader.load(ModelProviderHandler.class);
@@ -62,9 +60,7 @@ public class AstroModelFactory {
         return handler.createModel(modelClass, param);
     }
 
-    /**
-     * 按厂商 code（与 {@link AiModelEnum.ProviderEnum#getCode()} 一致）解析 SPI 注册的处理器。
-     */
+    
     public Optional<ModelProviderHandler> getHandler(String extensionCode) {
         if (StringUtils.isEmpty(extensionCode)) {
             return Optional.empty();

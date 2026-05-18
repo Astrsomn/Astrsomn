@@ -1,22 +1,18 @@
 package com.astrsomn.vector.chroma.internal;
 
-import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.common.utils.StringUtils;
 import dev.langchain4j.store.embedding.chroma.ChromaApiVersion;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 
-/**
- * 统一构建 {@link ChromaEmbeddingStore}，保证 testConnection、集合 CRUD、向量读写使用同一套连接参数（含 API V2、租户、库、TLS）。
- */
+
 public final class ChromaEmbeddingStores {
 
     private ChromaEmbeddingStores() {
     }
 
-    /**
-     * 与 {@link #buildForCollection} 一致的 HTTP(S) 基址，用于日志与诊断。
-     */
+    
     public static String resolveBaseUrl(AiVecSourceEntity entity) {
         AiVecSourceConnectionProperties conn = AiVecSourceConnectionProperties.from(entity);
         boolean useTls = ChromaConfigSupport.readUseTls(entity.getConfigJson());

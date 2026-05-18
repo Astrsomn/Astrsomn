@@ -30,9 +30,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * 负责解析并注入 @Astro 注解标记的 AI Assistant 实例。
- */
+
 @Slf4j
 @Component
 public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOrdered, BeanFactoryAware, ApplicationListener<ApplicationReadyEvent> {
@@ -56,8 +54,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        log.debug("{} 开始处理 Bean | BeanName: {} | BeanClass: {}",
-                LOG_PREFIX, beanName, bean.getClass().getName());
+
 
         Class<?> targetClass = ClassUtils.getUserClass(bean);
 
@@ -95,9 +92,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         return bean;
     }
 
-    /**
-     * 处理单个字段注入
-     */
+    
     private void processField(Object bean, String beanName, Field field, Astro astro, String agentKey) {
         log.debug("{} 解析后的 AgentKey | Bean: {} | Field: {} | AgentKey: {}",
                 LOG_PREFIX, beanName, field.getName(), agentKey);
@@ -130,9 +125,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         }
     }
 
-    /**
-     * ApplicationReadyEvent 触发后处理延迟注入
-     */
+    
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         if (delayedInjections.isEmpty()) {
@@ -142,9 +135,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         delayedProcessInjections();
     }
 
-    /**
-     * 延迟处理注入，等待数据库表创建完成
-     */
+    
     private void delayedProcessInjections() {
         try {
             doProcessInjections();
@@ -162,9 +153,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         }
     }
 
-    /**
-     * 执行延迟注入处理
-     */
+    
     private void doProcessInjections() {
         log.info("{} 开始处理延迟注入 | 待处理字段数: {}", LOG_PREFIX, delayedInjections.size());
 
@@ -188,9 +177,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         return PriorityOrdered.LOWEST_PRECEDENCE;
     }
 
-    /**
-     * 从数据库解析 AgentKey（延迟调用，确保 Flyway 已执行）
-     */
+    
     private String resolveAgentKeyFromDatabase(Astro astro) {
         if (aiRuntimeDefaultsResolver == null || astrsomnProperties == null) {
             log.error("{} 无法解析 AgentKey：必要的依赖未注入", LOG_PREFIX);
@@ -271,20 +258,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         this.beanFactory = beanFactory;
     }
 
-    /**
-     * 延迟注入信息
-     */
-    private static class DelayedInjection {
-        final Object bean;
-        final Field field;
-        final String beanName;
-        final Astro astro;
 
-        DelayedInjection(Object bean, Field field, String beanName, Astro astro) {
-            this.bean = bean;
-            this.field = field;
-            this.beanName = beanName;
-            this.astro = astro;
-        }
+    private record DelayedInjection(Object bean, Field field, String beanName, Astro astro) {
     }
 }

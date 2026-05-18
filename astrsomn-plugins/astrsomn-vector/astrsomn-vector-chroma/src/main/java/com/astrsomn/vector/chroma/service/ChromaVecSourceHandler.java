@@ -1,10 +1,10 @@
 package com.astrsomn.vector.chroma.service;
 
-import com.astrsomn.api.vector.entity.AiVecSourceEntity;
-import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecSource;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecStore;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.vector.chroma.internal.ChromaConfigSupport;
 import com.astrsomn.vector.chroma.internal.ChromaEmbeddingStores;
@@ -89,7 +89,7 @@ public final class ChromaVecSourceHandler extends AbstractVecSource {
 
     @Override
     public void shutdown() {
-        // ChromaEmbeddingStore 会在内部管理连接，不需要显式关闭
+
     }
 
     @Override

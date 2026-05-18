@@ -34,7 +34,7 @@
           />
           <div class="scroll-hint">
             <DownOutlined/>
-            <span>滚动查看接入模型</span>
+            <span>{{ t.main.scrollHint }}</span>
             <DownOutlined/>
           </div>
         </div>
@@ -62,13 +62,13 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, defineAsyncComponent, nextTick, ref, watch} from 'vue'
-import {useRoute} from 'vue-router'
+import {nextTick, ref, watch} from 'vue'
 import {DownOutlined} from '@ant-design/icons-vue'
 import AgentSection from './right/AgentSection.vue'
 import ModelSection from './right/ModelSection.vue'
 import AgentForm from './right/AgentForm.vue'
 import type {AiAgent} from '@/api/aiAgent'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const props = defineProps<{
   currentViewType: string
@@ -91,9 +91,11 @@ const showConfig = ref(false)
 const configAgentName = ref('')
 const configAgentId = ref<string | number | undefined>(undefined)
 
+const t = usePageTranslation('ai-config-center')
+
 const handleCreateAgent = () => {
   configAgentId.value = undefined
-  configAgentName.value = '新 Agent'
+  configAgentName.value = t.value.main.newAgent
   showConfig.value = true
   emit('create-agent')
 }
@@ -170,7 +172,7 @@ watch(
   background-color: var(--bg-surface);
 }
 
-/* 视图切换动画 */
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -186,7 +188,7 @@ watch(
   transform: translateY(-10px);
 }
 
-/* 磁吸翻页容器 */
+
 .provider-detail-view {
   height: 100%;
   overflow-y: auto;
@@ -197,7 +199,7 @@ watch(
   scroll-snap-type: none;
 }
 
-/* 每一页占满视口高度 */
+
 .snap-page {
   min-height: calc(100vh - 60px);
   scroll-snap-align: start;
@@ -205,7 +207,7 @@ watch(
   flex-direction: column;
 }
 
-/* 底部滚动提示 */
+
 .scroll-hint {
   flex-shrink: 0;
   display: flex;

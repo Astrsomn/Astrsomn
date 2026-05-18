@@ -1,13 +1,13 @@
 package com.astrsomn.server.service;
 
+import com.astrsomn.common.base.BasePageRequest;
+import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.system.dto.user.SystemUserCreateRequestDTO;
 import com.astrsomn.system.dto.user.SystemUserQueryRequestDTO;
 import com.astrsomn.system.dto.user.SystemUserResponseDTO;
 import com.astrsomn.system.dto.user.SystemUserUpdateRequestDTO;
 import com.astrsomn.system.entity.SystemUserEntity;
-import com.astrsomn.common.base.BasePageRequest;
-import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.common.base.PageResponse;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface SystemUserService extends IService<SystemUserEntity> {

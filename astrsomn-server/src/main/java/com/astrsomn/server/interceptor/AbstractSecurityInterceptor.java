@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
-/**
- * 认证/鉴权拦截器公共响应能力。
- */
+
 @Slf4j
 public abstract class AbstractSecurityInterceptor {
 

@@ -1,10 +1,10 @@
 package com.astrsomn.starter.runtime.system.message;
 
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.system.mapper.AstSystemMessageMapper;
 import com.astrsomn.system.constant.SystemMessageEnum;
 import com.astrsomn.system.dto.systemmessage.SystemMessageRecordCommand;
 import com.astrsomn.system.entity.SystemMessageEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.system.mapper.AstSystemMessageMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -12,13 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
-/**
- * 仅负责将系统消息落库，供各模块（插件、定时任务、编排层）在<strong>不依赖 app 服务层</strong> 的情况下写入
- * {@code SYS_MESSAGE}。推送给前端的场景应在业务应用（如 astrsomn-server）中
- * 通过「事件 + SSE」等方式组合，本类不依赖 Web 层。
- * <p>
- * 与 app 中 HTTP 暴露的 system-message 服务可并存，内部/插件类优先本入口以减少依赖。
- */
+
 @Component
 @RequiredArgsConstructor
 public class SystemMessageRecorder {
@@ -41,9 +35,7 @@ public class SystemMessageRecorder {
         return e;
     }
 
-    /**
-     * 写入并返回表行；插入失败时抛出 {@link IllegalStateException}。
-     */
+
     @Transactional(rollbackFor = Exception.class)
     public SystemMessageEntity record(SystemMessageRecordCommand command) {
         Objects.requireNonNull(command, "command");

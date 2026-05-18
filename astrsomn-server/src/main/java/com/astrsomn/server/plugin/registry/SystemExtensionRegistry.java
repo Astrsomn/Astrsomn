@@ -1,10 +1,10 @@
 package com.astrsomn.server.plugin.registry;
 
-import com.astrsomn.system.constant.SystemExtensionEnum;
-import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.starter.runtime.system.mapper.AstSystemExtensionMapper;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +31,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
     private ApplicationContext applicationContext;
     private AstSystemExtensionMapper astSystemExtensionMapper;
 
-    /**
-     * 合并 Spring Bean 和 SPI 加载的扩展描述符（Bean 优先）
-     */
+    
     public static Map<String, AstroExtensionDescriptor> mergeDescriptors(ApplicationContext applicationContext) {
         Stream<AstroExtensionDescriptor> beanStream = applicationContext.getBeansOfType(AstroExtensionDescriptor.class).values().stream();
         Stream<AstroExtensionDescriptor> spiStream = StreamSupport.stream(ServiceLoader.load(AstroExtensionDescriptor.class).spliterator(), false);
@@ -57,9 +55,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
         this.astSystemExtensionMapper = astSystemExtensionMapper;
     }
 
-    /**
-     * ApplicationReadyEvent 触发后执行注册逻辑
-     */
+    
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         if (applicationContext == null || astSystemExtensionMapper == null) {
@@ -69,9 +65,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
         delayedRegisterExtensions();
     }
 
-    /**
-     * 延迟注册扩展，等待数据库表创建完成
-     */
+    
     private void delayedRegisterExtensions() {
         try {
             doRegisterExtensions();
@@ -89,9 +83,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
         }
     }
 
-    /**
-     * 执行扩展注册
-     */
+    
     private void doRegisterExtensions() {
         // 注册 Spring Bean 扩展
         registerSpringBeanExtensions();
@@ -99,9 +91,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
         registerSpiExtensions();
     }
 
-    /**
-     * 注册 Spring Bean 扩展
-     */
+    
     private void registerSpringBeanExtensions() {
         Map<String, AstroExtensionDescriptor> beanMap = applicationContext.getBeansOfType(AstroExtensionDescriptor.class);
         if (beanMap.isEmpty()) {
@@ -115,9 +105,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
                 SystemExtensionEnum.InstallSourceEnum.CLASSPATH_DEPENDENCY));
     }
 
-    /**
-     * 注册 SPI 扩展
-     */
+    
     private void registerSpiExtensions() {
         Iterable<AstroExtensionDescriptor> spiDescriptors = ServiceLoader.load(AstroExtensionDescriptor.class);
         boolean hasSpiExtensions = false;
@@ -136,9 +124,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
         }
     }
 
-    /**
-     * 执行单个描述符的数据库同步
-     */
+    
     private void processRegistration(
             String key,
             AstroExtensionDescriptor descriptor,
@@ -172,9 +158,7 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
         }
     }
 
-    /**
-     * 构建系统扩展实体
-     */
+    
     private SystemExtensionEntity buildEntity(
             AstroExtensionDescriptor d,
             String key,

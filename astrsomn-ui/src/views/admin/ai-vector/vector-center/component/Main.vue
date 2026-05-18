@@ -57,7 +57,7 @@ defineEmits<{
 </script>
 
 <style scoped>
-/* 右侧主内容区 */
+
 .vector-center-main {
   flex: 1;
   min-height: 0;
@@ -68,12 +68,12 @@ defineEmits<{
   background-color: var(--bg-surface);
 }
 
-/* 右侧顶部固定 */
+
 .vector-center-top {
   flex-shrink: 0;
 }
 
-/* 右侧可滚动内容区 */
+
 .vector-center-content {
   flex: 1;
   overflow-y: auto;
@@ -81,7 +81,7 @@ defineEmits<{
   scroll-snap-type: y mandatory;
 }
 
-/* 磁吸分区 */
+
 .snap-section {
   min-height: 100%;
   scroll-snap-align: start;

@@ -13,7 +13,7 @@ public class PageUtils {
         long size = (request.getPageSize() == null || request.getPageSize() < 1)
                 ? 10L : request.getPageSize().longValue();
 
-        // 生产级建议：增加最大分页限制保护数据库
+
         if (size > 100) size = 100L;
 
         return new Page<>(current, size);

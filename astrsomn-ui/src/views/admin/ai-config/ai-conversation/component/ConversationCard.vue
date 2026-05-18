@@ -140,7 +140,7 @@ const handleCheckboxChange = () => emit('select', props.conversation.memoryKey)
   color: #262626;
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* 最多显示两行内容 */
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

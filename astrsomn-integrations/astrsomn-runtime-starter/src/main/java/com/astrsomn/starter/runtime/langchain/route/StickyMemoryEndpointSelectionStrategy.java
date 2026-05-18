@@ -5,9 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * 按 memoryKey 与 agentKey 哈希粘性到某一端点；若该端点不可用则在环上向后探测。
- */
+
 @Component
 public class StickyMemoryEndpointSelectionStrategy implements EndpointSelectionStrategy {
 

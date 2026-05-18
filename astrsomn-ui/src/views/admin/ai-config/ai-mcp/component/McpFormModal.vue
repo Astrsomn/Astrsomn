@@ -1,13 +1,14 @@
 <template>
   <AstModal
       :body-height="'80vh'"
-      :closable="false"
+      :confirm-loading="confirmLoading"
+      :confirm-text="mode === 'create' ? '保存并同步服务' : '保存修改'"
       :destroy-on-close="true"
       :header-height="'72px'"
       :max-width="'80vw'"
       :open="open"
       :width="'80vw'"
-      @cancel="onCancel"
+      @confirm="handleOk"
       @update:open="onOpenChange"
   >
     <template #header-logo>
@@ -24,15 +25,6 @@
 
     <template #header-subtitle>
       连接外部工具能力，扩展智能体的专业技能边界
-    </template>
-
-    <template #header-actions>
-      <div class="header-actions">
-        <a-button class="btn-flat" @click="onCancel">取消</a-button>
-        <a-button :loading="confirmLoading" class="btn-submit" type="primary" @click="handleOk">
-          {{ mode === 'create' ? '保存并同步服务' : '保存修改' }}
-        </a-button>
-      </div>
     </template>
 
     <a-form
@@ -266,13 +258,10 @@ async function handleOk() {
   emit('submit', payload)
 }
 
-const onCancel = () => {
-  open.value = false
-}
 </script>
 
 <style scoped>
-/* 图标样式 */
+
 .icon-box {
   width: 42px;
   height: 42px;
@@ -297,14 +286,7 @@ const onCancel = () => {
   background: linear-gradient(135deg, #722ed1, #b37feb);
 }
 
-/* 头部操作按钮 */
-.header-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
 
-/* 核心布局 */
 .professional-form {
   height: 100%;
   display: flex;
@@ -323,7 +305,7 @@ const onCancel = () => {
   gap: 0;
 }
 
-/* 左侧区域 */
+
 .form-left {
   width: 45%;
   padding: 24px 32px;
@@ -332,7 +314,7 @@ const onCancel = () => {
   background: #fafbfc;
 }
 
-/* 右侧区域 */
+
 .form-right {
   width: 55%;
   padding: 24px 32px;
@@ -340,7 +322,7 @@ const onCancel = () => {
   background: #fff;
 }
 
-/* 区域卡片 */
+
 .section-card {
   height: 100%;
 }
@@ -357,14 +339,14 @@ const onCancel = () => {
   border-bottom: 1px solid #e2e8f0;
 }
 
-/* 表单字段 */
+
 .form-fields {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* 协议配置区 */
+
 .protocol-box {
   animation: fadeIn 0.3s ease;
 }
@@ -394,25 +376,7 @@ const onCancel = () => {
   box-shadow: none;
 }
 
-/* 按钮样式 */
-.btn-flat {
-  border: none;
-  color: #64748b;
-  font-weight: 600;
-}
 
-.btn-flat:hover {
-  color: #475569;
-}
-
-.btn-submit {
-  border-radius: 8px;
-  font-weight: 600;
-  height: 38px;
-  padding: 0 24px;
-}
-
-/* 其他 */
 .custom-alert {
   margin-bottom: 16px;
 }

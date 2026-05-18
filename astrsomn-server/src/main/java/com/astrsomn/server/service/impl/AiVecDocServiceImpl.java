@@ -1,26 +1,24 @@
 package com.astrsomn.server.service.impl;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
-import com.astrsomn.api.vector.constant.AiVecChunkStrategyEnum;
-import com.astrsomn.api.vector.constant.AiVecDocEnum;
-import com.astrsomn.api.vector.constant.VecDocMetadataKeys;
-import com.astrsomn.api.vector.dto.vecdoc.AiVecDocCreateRequestDTO;
-import com.astrsomn.api.vector.dto.vecdoc.AiVecDocQueryRequestDTO;
-import com.astrsomn.api.vector.dto.vecdoc.AiVecDocResponseDTO;
-import com.astrsomn.api.vector.dto.vecdoc.AiVecDocUpdateRequestDTO;
-import com.astrsomn.api.vector.dto.vecdoc.AiVecDocVectorizeProgressDTO;
-import com.astrsomn.api.runtime.common.entity.*;
+import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
+import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
+import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.vector.exception.AstVecDocErrorEnum;
 import com.astrsomn.api.storage.entity.AstFileRecordEntity;
 import com.astrsomn.api.storage.exception.AstFileErrorEnum;
+import com.astrsomn.api.vector.constant.AiVecChunkStrategyEnum;
+import com.astrsomn.api.vector.constant.AiVecDocEnum;
+import com.astrsomn.api.vector.constant.VecDocMetadataKeys;
+import com.astrsomn.api.vector.dto.vecdoc.*;
 import com.astrsomn.api.vector.entity.AiVecDocEntity;
 import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
+import com.astrsomn.api.vector.exception.AstVecDocErrorEnum;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
@@ -36,19 +34,19 @@ import com.astrsomn.server.service.AiVecDocService;
 import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.AstroFileRecordService;
+import com.astrsomn.server.service.document.chunk.ChunkStrategy;
+import com.astrsomn.server.service.document.chunk.ChunkStrategyResolver;
+import com.astrsomn.server.service.document.parser.DocumentParserRegistry;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
 import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
-import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
-import com.astrsomn.server.service.document.parser.DocumentParserRegistry;
 import com.astrsomn.starter.runtime.mapper.AstAiAccountMapper;
 import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
 import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
+import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.astrsomn.server.service.document.chunk.ChunkStrategy;
-import com.astrsomn.server.service.document.chunk.ChunkStrategyResolver;
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.embedding.Embedding;
@@ -826,8 +824,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "未找到模型: " + modelKey);
         }
         String modelType = StringUtils.trimToNull(model.getModelType());
-        if (modelType == null
-                || !AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode().equalsIgnoreCase(modelType)) {
+        if (!AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode().equalsIgnoreCase(modelType)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "模型类型必须为 embedding");
         }
 

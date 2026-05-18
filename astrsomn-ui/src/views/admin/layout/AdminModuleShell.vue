@@ -146,7 +146,7 @@ const go = (to: string) => {
 </script>
 
 <style scoped>
-/* 1. 基础容器：干净、稳定 */
+
 .module-shell {
   display: flex;
   width: 100%;
@@ -170,7 +170,7 @@ const go = (to: string) => {
   scrollbar-gutter: stable;
 }
 
-/* 隐藏滚动条但保留功能 */
+
 .module-sider-scroll::-webkit-scrollbar {
   width: 4px;
 }
@@ -197,13 +197,13 @@ const go = (to: string) => {
   text-transform: uppercase;
 }
 
-/* 2. Menu 样式重塑：扁平化、去叠色 */
+
 .module-sider-menu {
   border: none !important;
   background: transparent !important;
 }
 
-/* 一级菜单样式 */
+
 :deep(.ant-menu-submenu-title) {
   margin: 2px 0 !important;
   height: 42px !important;
@@ -229,14 +229,14 @@ const go = (to: string) => {
   margin-right: 10px;
 }
 
-/* 3. 二级菜单：取消背景色，改为引导线风格 */
+
 :deep(.ant-menu-sub) {
   background: transparent !important;
   position: relative;
-  padding-left: 10px !important; /* 缩进产生层级感 */
+  padding-left: 10px !important;
 }
 
-/* 引导线：模拟飞书/大厂设计 */
+
 :deep(.ant-menu-sub)::before {
   content: "";
   position: absolute;
@@ -253,11 +253,11 @@ const go = (to: string) => {
   margin: 2px 0 !important;
   border-radius: var(--radius-md) !important;
   width: 100% !important;
-  padding-left: 32px !important; /* 给图标留空间 */
+  padding-left: 32px !important;
   color: var(--text-secondary) !important;
 }
 
-/* 选中项态 */
+
 :deep(.ant-menu-item-selected) {
   background-color: var(--primary-hover) !important;
   color: var(--primary) !important;
@@ -265,7 +265,7 @@ const go = (to: string) => {
   position: relative;
 }
 
-/* 选中提示条：显示在右侧 */
+
 :deep(.ant-menu-item-selected)::after {
   content: "";
   position: absolute;
@@ -288,7 +288,7 @@ const go = (to: string) => {
   opacity: 0.7;
 }
 
-/* 4. 底部重新设计：官网入口 + 极简信息 */
+
 .module-sider-foot {
   padding: 16px;
   border-top: 1px solid var(--border-default);
@@ -362,7 +362,7 @@ const go = (to: string) => {
   letter-spacing: 0.5px;
 }
 
-/* 内容区 */
+
 .module-content {
   flex: 1;
   background: var(--bg-card);

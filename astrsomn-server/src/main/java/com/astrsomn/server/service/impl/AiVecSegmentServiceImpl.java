@@ -1,17 +1,18 @@
 package com.astrsomn.server.service.impl;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
-import com.astrsomn.api.runtime.common.entity.*;
+import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
+import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
+import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
-import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
-import com.astrsomn.api.vector.dto.vecsegment.*;
-import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
-import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.api.vector.dto.vecsegment.*;
+import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.vector.exception.AstVecDocErrorEnum;
 import com.astrsomn.api.vector.exception.AstVecSegmentErrorEnum;
 import com.astrsomn.api.vector.exception.AstVecStoreErrorEnum;
@@ -25,6 +26,7 @@ import com.astrsomn.server.service.AiVecSegmentService;
 import com.astrsomn.server.service.AiVecStoreService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
+import com.astrsomn.starter.runtime.langchain.runtime.chain.RuntimeChatParamMergeSupport;
 import com.astrsomn.starter.runtime.mapper.AstAiAccountMapper;
 import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
 import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
@@ -239,7 +241,7 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "未找到模型: " + modelKey);
         }
         String modelType = StringUtils.trimToNull(model.getModelType());
-        if (modelType == null || !AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode().equalsIgnoreCase(modelType)) {
+        if (!AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode().equalsIgnoreCase(modelType)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "模型类型必须为 embedding");
         }
 

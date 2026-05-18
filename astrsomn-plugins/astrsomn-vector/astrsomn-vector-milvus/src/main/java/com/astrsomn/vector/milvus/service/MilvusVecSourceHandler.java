@@ -1,10 +1,10 @@
 package com.astrsomn.vector.milvus.service;
 
-import com.astrsomn.api.vector.entity.AiVecSourceEntity;
-import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecSource;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecStore;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.common.utils.StringUtils;
 import io.milvus.client.MilvusServiceClient;
 import io.milvus.grpc.GetVersionResponse;

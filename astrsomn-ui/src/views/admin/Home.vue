@@ -51,12 +51,12 @@ const headerPageTitle = computed(() => {
 });
 
 const handleScroll = () => {
-  // 滚动时的处理逻辑
+
 };
 </script>
 
 <style scoped>
-/* 基础布局 */
+
 .admin-shell {
   height: 100vh;
   background-color: var(--bg-base);
@@ -67,7 +67,7 @@ const handleScroll = () => {
   overflow: hidden;
 }
 
-/* 主体内容区 */
+
 .shell-content {
   flex: 1;
   margin-left: 56px;
@@ -100,7 +100,7 @@ const handleScroll = () => {
 }
 
 
-/* 让顶部 Header 覆盖在内容上方，这样 Header 透明时能看到底下页面内容 */
+
 :deep(.app-header) {
   position: fixed;
   top: 0;
@@ -108,7 +108,7 @@ const handleScroll = () => {
   right: 0;
 }
 
-/* 响应式适配 */
+
 @media (max-width: 768px) {
   .content-wrapper {
     padding: 0 16px;

@@ -6,7 +6,7 @@
           v-model="searchText"
           class="sidebar-search-pill"
           layout="fluid"
-          placeholder="搜索资源..."
+          :placeholder="t.sidebar.searchPlaceholder"
           @search="handleSearch"
       />
     </template>
@@ -17,7 +17,7 @@
         <div class="nav-section">
           <div class="provider-list">
             <a-tooltip :disabled="!collapsed" placement="right">
-              <template #title>全部</template>
+              <template #title>{{ t.sidebar.all }}</template>
               <div
                   :class="{ 'is-active': activeItem === 'all' }"
                   class="provider-card"
@@ -26,7 +26,7 @@
                 <div class="provider-avatar">
                   <component :is="CloudServerOutlined" class="all-icon"/>
                 </div>
-                <span class="provider-name">全部</span>
+                <span class="provider-name">{{ t.sidebar.all }}</span>
               </div>
             </a-tooltip>
             <a-tooltip
@@ -50,9 +50,9 @@
             </a-tooltip>
           </div>
           <div v-if="providers.length === 0 && !collapsed" class="empty-provider">
-            <a-empty description="暂无已启用的插件">
+            <a-empty :description="t.sidebar.emptyPlugin">
               <template #extra>
-                <a-button type="link" @click="handleAddPlugin">前往插件市场</a-button>
+                <a-button type="link" @click="handleAddPlugin">{{ t.sidebar.goMarketplace }}</a-button>
               </template>
             </a-empty>
           </div>
@@ -67,14 +67,14 @@
             :disabled="!collapsed"
             placement="right"
         >
-          <template #title>{{ item.label }}</template>
+          <template #title>{{ getItemLabel(item.key) }}</template>
           <div
               :class="{ 'is-active': activeItem === item.key }"
               class="global-item"
               @click="handleSelect(item.key)"
           >
             <component :is="item.icon" class="global-icon"/>
-            <span class="global-label">{{ item.label }}</span>
+            <span class="global-label">{{ getItemLabel(item.key) }}</span>
             <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
           </div>
         </a-tooltip>
@@ -88,7 +88,7 @@
               @click="handleSelect(item.key)"
           >
             <component :is="item.icon" class="global-icon"/>
-            <span class="global-label">{{ item.label }}</span>
+            <span class="global-label">{{ getItemLabel(item.key) }}</span>
             <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
           </div>
         </div>
@@ -135,7 +135,9 @@ import {aiTemplateApi} from '@/api/aiTemplate'
 import {aiConversationApi} from '@/api/aiConversation'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {useDictionary} from '@/locales/dictionary'
-import ExtensionMarketplaceDialog from './left/ExtensionMarketplaceDialog.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+import ExtensionMarketplaceDialog
+  from '@/views/admin/system-config/system-extension/component/ExtensionMarketplaceDialog.vue'
 
 const emit = defineEmits<{
   select: [key: string]
@@ -150,6 +152,7 @@ const toggleCollapsed = () => {
 }
 const route = useRoute()
 const providerDict = useDictionary('ai-model.provider')
+const t = usePageTranslation('ai-config-center')
 
 const searchText = ref('')
 const activeItem = ref('')
@@ -165,16 +168,28 @@ const providers = ref<Array<{
 }>>([])
 
 const globalItems = ref([
-  {key: 'ai-account', label: 'AI 账号', icon: CreditCardOutlined, count: undefined as number | undefined},
-  {key: 'prompts', label: '提示词', icon: FileTextOutlined, count: undefined as number | undefined},
-  {key: 'mcp', label: 'MCP', icon: LinkOutlined, count: undefined as number | undefined},
-  {key: 'tools', label: 'Tools', icon: ToolOutlined, count: undefined as number | undefined},
+  {key: 'ai-account', icon: CreditCardOutlined, count: undefined as number | undefined},
+  {key: 'prompts', icon: FileTextOutlined, count: undefined as number | undefined},
+  {key: 'mcp', icon: LinkOutlined, count: undefined as number | undefined},
+  {key: 'tools', icon: ToolOutlined, count: undefined as number | undefined},
 ])
 
 const extraItems = ref([
-  {key: 'ftl', label: 'FTL 模板', icon: FileTextOutlined, count: undefined as number | undefined},
-  {key: 'conversations', label: '对话管理', icon: MessageOutlined, count: undefined as number | undefined},
+  {key: 'ftl', icon: FileTextOutlined, count: undefined as number | undefined},
+  {key: 'conversations', icon: MessageOutlined, count: undefined as number | undefined},
 ])
+
+const getItemLabel = (key: string): string => {
+  const labelMap: Record<string, keyof typeof t.value.sidebar> = {
+    'ai-account': 'aiAccount',
+    'prompts': 'prompts',
+    'mcp': 'mcp',
+    'tools': 'tools',
+    'ftl': 'ftl',
+    'conversations': 'conversations',
+  }
+  return t.value.sidebar[labelMap[key]] || key
+}
 
 const handleSelect = (key: string) => {
   activeItem.value = key
@@ -255,9 +270,9 @@ const fetchProviders = async () => {
 const updateActiveItem = () => {
   const currentPath = route.path
 
-  // 如果是 ai-config-center 页面
+
   if (currentPath === '/admin/ai-config-center') {
-    // 先检查是否是全局管理视图
+
     const view = route.query.view as string | undefined
     const globalKeys = [...globalItems.value.map(item => item.key), ...extraItems.value.map(item => item.key)]
     if (view && globalKeys.includes(view)) {
@@ -265,19 +280,19 @@ const updateActiveItem = () => {
       return
     }
 
-    // 再检查是否是模型提供商
+
     const provider = route.query.provider as string | undefined
     if (provider && providers.value.some(p => p.key === provider.toLowerCase())) {
       activeItem.value = provider.toLowerCase()
       return
     }
 
-    // 默认选中"全部"
+
     activeItem.value = 'all'
     return
   }
 
-  // 检查是否是全局管理页面
+
   const pathParts = currentPath.split('/')
   const lastPart = pathParts[pathParts.length - 1]
   const globalKeys = [...globalItems.value.map(item => item.key), ...extraItems.value.map(item => item.key)]
@@ -286,7 +301,7 @@ const updateActiveItem = () => {
     return
   }
 
-  // 默认选中"全部"
+
   activeItem.value = 'all'
 }
 
@@ -295,7 +310,7 @@ const fetchCount = async (api: { queryPage: (p: unknown) => Promise<{ total?: nu
     const resp = await api.queryPage({pageNo: 1, pageSize: 1})
     list.value[idx].count = resp.total ?? 0
   } catch {
-    // ignore
+
   }
 }
 
@@ -327,7 +342,7 @@ watch(
 </script>
 
 <style scoped>
-/* 顶部区域 */
+
 .sidebar-search-pill {
   flex: 1;
   min-width: 0;
@@ -372,7 +387,7 @@ watch(
 }
 
 
-/* 导航列表 */
+
 .nav-list {
   flex: 1;
   overflow-y: auto;
@@ -393,7 +408,7 @@ watch(
   letter-spacing: 0.05em;
 }
 
-/* 提供商列表 */
+
 .provider-list {
   display: flex;
   flex-direction: column;
@@ -478,7 +493,7 @@ watch(
   white-space: nowrap;
 }
 
-/* 全局管理区域（固定在底部） */
+
 .global-section {
   margin-top: auto;
   padding-top: 12px;
@@ -544,13 +559,13 @@ watch(
   line-height: 18px;
 }
 
-/* 空状态提示 */
+
 .empty-provider {
   padding: 24px 0;
   text-align: center;
 }
 
-/* ── 收起状态：导航列表 ── */
+
 .ast-sidebar.collapsed .nav-list {
   width: 100%;
 }
@@ -583,7 +598,7 @@ watch(
   display: none;
 }
 
-/* ── 收起状态：全局管理 ── */
+
 .ast-sidebar.collapsed .global-section {
   width: 100%;
   display: flex;

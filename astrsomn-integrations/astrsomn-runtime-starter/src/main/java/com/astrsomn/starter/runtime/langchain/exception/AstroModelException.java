@@ -2,9 +2,7 @@ package com.astrsomn.starter.runtime.langchain.exception;
 
 import java.util.Map;
 
-/**
- * 模型调用相关异常基类。
- */
+
 public class AstroModelException extends AstroException {
 
     public AstroModelException(ErrorCode errorCode) {

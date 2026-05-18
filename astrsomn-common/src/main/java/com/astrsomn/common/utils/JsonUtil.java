@@ -27,7 +27,7 @@ public class JsonUtil {
             return null;
         }
         try {
-            // 构造泛型类型：List<clazz>
+
             JavaType javaType = MAPPER.getTypeFactory().constructCollectionType(List.class, clazz);
             return MAPPER.readValue(json, javaType);
         } catch (Exception e) {
@@ -43,10 +43,10 @@ public class JsonUtil {
         if (input instanceof String) {
             return parseArray((String) input, clazz);
         }
-        // 如果输入已经是对象（比如 JsonNode 或其他），先转为字符串再解析，或者直接转换
+
         try {
             JavaType javaType = MAPPER.getTypeFactory().constructCollectionType(List.class, clazz);
-            // convertValue 可以处理从 Object 到 Target 的转换，无需先转字符串
+
             return MAPPER.convertValue(input, javaType);
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse JSON array from object", e);
@@ -68,11 +68,11 @@ public class JsonUtil {
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             if (!first) sb.append(",");
 
-            // 处理 Key (强制转为字符串并转义)
+
             String key = String.valueOf(entry.getKey());
             sb.append("\"").append(escape(key)).append("\":");
 
-            // 处理 Value
+
             serializeValue(entry.getValue(), sb);
 
             first = false;

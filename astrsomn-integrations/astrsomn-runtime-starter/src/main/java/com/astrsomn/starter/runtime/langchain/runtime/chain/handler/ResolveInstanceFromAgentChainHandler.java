@@ -13,15 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Agent-Instance 一对多场景下，从 Agent 关联的推理实例中选择一个 instanceKey。
- * <p>
- * 仅当调用方未显式设置 instanceKey 时生效；选择策略由 Agent 的 ROUTE_STRATEGY 决定。
- */
+
 @Slf4j
 @Component
 @Order(35)

@@ -11,9 +11,7 @@ import io.github.resilience4j.retry.RetryRegistry;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-/**
- * 使用 Spring 容器中的 Resilience4j 注册表；仅当存在对应命名的 {@link CircuitBreaker} / {@link Retry} 实例时才装饰。
- */
+
 public class RegistryResilienceDecorationStrategy implements ResilienceDecorationStrategy {
 
     private final CircuitBreakerRegistry circuitBreakerRegistry;

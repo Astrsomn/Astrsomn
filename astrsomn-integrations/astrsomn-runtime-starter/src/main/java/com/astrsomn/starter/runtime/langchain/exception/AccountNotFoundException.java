@@ -1,8 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.exception;
 
-/**
- * 按 accountKey 未找到账号配置。
- */
+
 public class AccountNotFoundException extends AstroConfigException {
 
     public AccountNotFoundException(String accountKey, String envCode) {

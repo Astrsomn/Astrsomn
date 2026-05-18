@@ -16,8 +16,8 @@ public class AiAccountResponseDTO {
     private String accountName;
     private String extensionCode;
     private String apiUrl;
-    //    private String apiKey;
-//    private String apiSecret;
+
+
     private Long accountTokens;
     private Long callCount;
     private Long promptTokens;

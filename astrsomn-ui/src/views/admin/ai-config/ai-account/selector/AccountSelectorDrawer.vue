@@ -108,7 +108,7 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, watch, onMounted} from 'vue'
+import {onMounted, reactive, ref, watch} from 'vue'
 import {KeyOutlined, PlusOutlined, UserOutlined} from '@ant-design/icons-vue'
 import {type AiAccount, aiAccountApi, type PageResponse} from '@/api/aiAccount'
 import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension'
@@ -121,9 +121,9 @@ import AccountForm from '@/views/admin/ai-config/ai-account/component/AccountFor
 const props = withDefaults(defineProps<{
   open: boolean
   onlyEnabled?: boolean
-  /** 按供应商 extensionCode 快速过滤 */
+
   providerFilter?: string
-  /** 初始页码 */
+
   pageNum?: number
 }>(), {
   onlyEnabled: true,
@@ -147,7 +147,7 @@ const page = reactive({
 const filterExtensionCode = ref<string | undefined>(undefined)
 const accountFormOpen = ref(false)
 
-// --- provider avatar map ---
+
 const extensionMap = ref<Record<string, SystemExtension>>({})
 
 async function loadExtensions() {
@@ -164,7 +164,7 @@ async function loadExtensions() {
     }
     extensionMap.value = map
   } catch {
-    // silent
+
   }
 }
 
@@ -179,12 +179,12 @@ function formatTokens(val: number): string {
   return String(val)
 }
 
-// --- sync providerFilter prop to local filter ---
+
 watch(() => props.providerFilter, (val) => {
   filterExtensionCode.value = val || undefined
 }, {immediate: true})
 
-// re-fetch when filter changes
+
 watch(filterExtensionCode, () => {
   page.pageNum = 1
   void fetchList()
@@ -256,7 +256,7 @@ onMounted(() => {
   gap: 12px;
 }
 
-/* --- toolbar: search + add --- */
+
 .toolbar-row {
   display: flex;
   gap: 10px;
@@ -285,7 +285,7 @@ onMounted(() => {
   filter: brightness(1.1);
 }
 
-/* --- filter bar --- */
+
 .filter-bar {
   display: flex;
   gap: 12px;
@@ -295,7 +295,7 @@ onMounted(() => {
   flex: 1;
 }
 
-/* --- list area (scrollable) --- */
+
 .list-spin {
   flex: 1;
   min-height: 0;

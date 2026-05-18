@@ -159,7 +159,7 @@ defineExpose({getKeywords})
   flex-shrink: 0;
 }
 
-/* 与 InstanceList 一致的 pill 搜索条（侧栏全宽） */
+
 .search-input-wrapper {
   width: 100%;
   height: 52px;

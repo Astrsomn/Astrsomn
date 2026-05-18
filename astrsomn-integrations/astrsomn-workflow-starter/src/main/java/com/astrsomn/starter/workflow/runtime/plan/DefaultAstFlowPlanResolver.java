@@ -15,10 +15,10 @@ public class DefaultAstFlowPlanResolver implements AstFlowPlanResolver {
 
     @Override
     public AstFlowExecutablePlan resolve(AstFlowTestRunRequestDTO request) {
-        // Pseudo-code for future deployment resolution:
-        // 1. if request.id != null -> load draft/deployment by id
-        // 2. if request.workflowKey != null -> load latest deployment by key
-        // 3. parse compiled plan json -> build executable graph
+
+
+
+
         String planId = request.getWorkflowKey() == null ? UUID.randomUUID().toString() : request.getWorkflowKey();
 
         AstFlowExecutableNode startNode = AstFlowExecutableNode.builder()

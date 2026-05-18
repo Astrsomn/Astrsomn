@@ -23,12 +23,7 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.List;
 
-/**
- * Workflow starter 的自动配置。
- * <p>
- * mapper 包、entity 包和租户隔离表已通过 {@link WorkflowMybatisContributor} 贡献给 runtime-starter，
- * 不再需要 BeanPostProcessor hack。
- */
+
 @AutoConfiguration
 @ConditionalOnClass(AstrsomnProperties.class)
 @ConditionalOnProperty(name = "astrsomn.datasource.url")

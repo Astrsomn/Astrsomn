@@ -1,12 +1,8 @@
 package com.astrsomn.server.service.extension.base.impl;
 
-import com.astrsomn.system.constant.SystemExtensionEnum;
-import com.astrsomn.system.dto.extension.*;
-import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.system.exception.SystemExtensionErrorEnum;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
@@ -20,6 +16,10 @@ import com.astrsomn.server.service.extension.base.SystemExtensionService;
 import com.astrsomn.server.service.extension.lifecycle.SystemExtensionLifecycleOrchestrator;
 import com.astrsomn.server.util.ExtensionJarUtil;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.dto.extension.*;
+import com.astrsomn.system.entity.SystemExtensionEntity;
+import com.astrsomn.system.exception.SystemExtensionErrorEnum;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -51,9 +51,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     private final ApplicationContext applicationContext;
     private final PluginDirectoryExtensionSyncService pluginDirectoryExtensionSyncService;
 
-    /**
-     * 库中 AVATAR 为空时，按 extensionKey 用内置 {@link AstroExtensionDescriptor} 补全（已安装列表/详情与 SPI 展示一致）。
-     */
+    
     private static void fillAvatarFromDescriptors(
             SystemExtensionResponseDTO dto, Map<String, AstroExtensionDescriptor> descriptorsByKey) {
         if (dto == null || StringUtils.isNotBlank(dto.getAvatar())) {
@@ -255,9 +253,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         }
     }
 
-    /**
-     * 提取实体构建逻辑，保持主流程简洁
-     */
+    
     private SystemExtensionEntity buildExtensionEntity(
             String key, String jarName, String stem, SystemExtensionMetaData meta) {
 

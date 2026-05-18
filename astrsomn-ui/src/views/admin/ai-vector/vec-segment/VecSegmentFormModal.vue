@@ -158,7 +158,7 @@ const onCancel = () => {
 </script>
 
 <style scoped>
-/* 弹窗基础：统一风格 */
+
 .vec-segment-modal :deep(.ant-modal-content) {
   padding: 0;
   border-radius: 20px;
@@ -166,9 +166,9 @@ const onCancel = () => {
 }
 
 .modal-header-gradient {
-  background: #fff;
+  background: var(--bg-card);
   padding: 32px 40px;
-  border-bottom: 1px solid #f0f2f5;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .header-content {
@@ -186,30 +186,30 @@ const onCancel = () => {
 .icon-box {
   width: 48px;
   height: 48px;
-  background: #1677ff;
+  background: var(--primary);
   color: white;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  box-shadow: 0 8px 16px rgba(22, 119, 255, 0.2);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
 }
 
 .text-group h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
-  color: #111;
+  color: var(--text-heading);
 }
 
 .text-group p {
   margin: 4px 0 0;
-  color: #999;
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
-/* 容器高度控制 */
+
 .professional-form {
   height: 500px;
   display: flex;
@@ -227,11 +227,11 @@ const onCancel = () => {
 }
 
 .form-body-container::-webkit-scrollbar-thumb {
-  background: #eee;
+  background: var(--border-input);
   border-radius: 4px;
 }
 
-/* 内部组件样式 */
+
 .section-headline {
   font-size: 15px;
   font-weight: 600;
@@ -239,7 +239,7 @@ const onCancel = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .form-grid {
@@ -252,18 +252,18 @@ const onCancel = () => {
   grid-column: span 2;
 }
 
-/* JSON 编辑器 */
+
 .json-editor-wrapper {
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--border-input);
   border-radius: 8px;
   overflow: hidden;
-  background: #fafafa;
+  background: var(--bg-input);
   transition: 0.3s;
 }
 
 .json-editor-wrapper:focus-within {
-  border-color: #1677ff;
-  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
 .mono-text {
@@ -278,11 +278,11 @@ const onCancel = () => {
   box-shadow: none;
 }
 
-/* 底部操作 */
+
 .modal-footer-action {
   padding: 16px 40px;
-  background: #fff;
-  border-top: 1px solid #f0f0f0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-default);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -290,7 +290,7 @@ const onCancel = () => {
 
 .footer-left {
   font-size: 12px;
-  color: #52c41a;
+  color: var(--success);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -298,7 +298,7 @@ const onCancel = () => {
 
 .btn-flat {
   border: none;
-  color: #999;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 

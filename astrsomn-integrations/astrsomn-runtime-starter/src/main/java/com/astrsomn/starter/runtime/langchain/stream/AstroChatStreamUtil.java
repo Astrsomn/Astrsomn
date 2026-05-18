@@ -27,9 +27,7 @@ public class AstroChatStreamUtil {
 
     private final StreamTurnPersistenceHelper streamTurnPersistenceHelper;
 
-    /**
-     * 与 StreamTurnPersistenceHelper#classifyTool 保持一致
-     */
+    
     private static ToolStreamKind classifyToolForStream(String toolName) {
         if (toolName == null) {
             return ToolStreamKind.GENERIC;
@@ -102,9 +100,7 @@ public class AstroChatStreamUtil {
         sb.append("]");
     }
 
-    /**
-     * 关键：对字符串进行 JSON 标准转义
-     */
+    
     private static String escape(String s) {
         if (s == null) return "";
         StringBuilder sb = new StringBuilder();
@@ -245,10 +241,7 @@ public class AstroChatStreamUtil {
         )));
     }
 
-    /**
-     * 工具执行完成后的 SSE：与 {@link StreamTurnPersistenceHelper} 的 {@code classifyTool} 规则一致，
-     * 图片 / HTML 类工具仍走原 image、html 通道，其余走 {@code tool} JSON，供前端链式展示。
-     */
+    
     private void handleToolOutput(FluxSink<String> sink, ToolExecution toolExecution) {
         if (toolExecution == null || toolExecution.request() == null) {
             return;

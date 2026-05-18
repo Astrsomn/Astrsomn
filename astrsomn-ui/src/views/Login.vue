@@ -16,23 +16,23 @@
     <section class="login-left">
       <div class="brand-visual-bg"></div>
       <div class="brand-content">
-        <div class="tagline">Enterprise AI Framework</div>
+        <div class="tagline">{{ t.brand.tagline }}</div>
         <h1 class="brand-title">
-          封装复杂 AI<br/>
-          <span class="gradient-text">释放 Java 创造力</span>
+          {{ t.brand.title }}<br/>
+          <span class="gradient-text">{{ t.brand.titleHighlight }}</span>
         </h1>
         <div class="brand-features">
           <div class="feature-item">
             <check-circle-filled class="icon"/>
-            <span>基于 <strong>LangChain4j</strong> 深度构建</span>
+            <span v-html="t.brand.feature1"></span>
           </div>
           <div class="feature-item">
             <check-circle-filled class="icon"/>
-            <span>生产级 LLM 应用开发解决方案</span>
+            <span>{{ t.brand.feature2 }}</span>
           </div>
           <div class="feature-item">
             <check-circle-filled class="icon"/>
-            <span>为 Java 开发者而生的 AI 基础设施</span>
+            <span>{{ t.brand.feature3 }}</span>
           </div>
         </div>
       </div>
@@ -41,8 +41,8 @@
     <section class="login-right">
       <div class="login-card">
         <div class="card-header">
-          <h2 class="welcome-title">欢迎回来</h2>
-          <p class="welcome-sub">请使用您的内部账号访问系统</p>
+          <h2 class="welcome-title">{{ t.form.welcomeTitle }}</h2>
+          <p class="welcome-sub">{{ t.form.welcomeSubtitle }}</p>
         </div>
 
         <a-form
@@ -52,11 +52,11 @@
             layout="vertical"
             @finish="handleLogin"
         >
-          <a-form-item label="用户名" name="username">
+          <a-form-item :label="t.form.username" name="username">
             <a-input
                 v-model:value="formState.username"
                 class="custom-input"
-                placeholder="Admin / User"
+                :placeholder="t.form.usernamePlaceholder"
                 size="large"
             >
               <template #prefix>
@@ -65,11 +65,11 @@
             </a-input>
           </a-form-item>
 
-          <a-form-item label="密码" name="password">
+          <a-form-item :label="t.form.password" name="password">
             <a-input-password
                 v-model:value="formState.password"
                 class="custom-input"
-                placeholder="••••••••"
+                :placeholder="t.form.passwordPlaceholder"
                 size="large"
             >
               <template #prefix>
@@ -79,8 +79,8 @@
           </a-form-item>
 
           <div class="form-options">
-            <a-checkbox>记住我</a-checkbox>
-            <a class="forget-pwd">忘记密码？</a>
+            <a-checkbox>{{ t.form.rememberMe }}</a-checkbox>
+            <a class="forget-pwd">{{ t.form.forgetPassword }}</a>
           </div>
 
           <a-form-item>
@@ -92,7 +92,7 @@
                 size="large"
                 type="primary"
             >
-              即刻进入系统
+              {{ t.form.submit }}
             </a-button>
           </a-form-item>
         </a-form>
@@ -100,7 +100,7 @@
     </section>
 
     <footer class="login-footer">
-      <p>© 2026 Astrsomn 星梦科技 · 让 AI 开发回归简单</p>
+      <p>{{ t.footer.copyright }}</p>
     </footer>
   </div>
 </template>
@@ -113,9 +113,11 @@ import {login} from '@/api/auth'
 import {CheckCircleFilled, LockOutlined, UserOutlined} from '@ant-design/icons-vue'
 import logoUrl from '@/assets/Astrsomn-logo.png'
 import DocLangTheme from '@/components/top/DocLangTheme.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const router = useRouter()
 const loading = ref(false)
+const t = usePageTranslation('login')
 
 const formState = reactive({
   username: '',
@@ -123,8 +125,8 @@ const formState = reactive({
 })
 
 const rules = {
-  username: [{required: true, message: '请输入用户名'}],
-  password: [{required: true, message: '请输入密码'}]
+  username: [{required: true, message: t.value.messages.validationUsername}],
+  password: [{required: true, message: t.value.messages.validationPassword}]
 }
 
 const goHome = () => router.push('/')
@@ -140,10 +142,10 @@ const handleLogin = async () => {
     localStorage.setItem('token', res.token)
     localStorage.setItem('userInfo', JSON.stringify(res.userInfo))
 
-    message.success('验证成功')
+    message.success(t.value.messages.loginSuccess)
     router.push('/admin')
   } catch (e: any) {
-    message.error(e?.message || '登录失败')
+    message.error(e?.message || t.value.messages.loginFailed)
   } finally {
     loading.value = false
   }
@@ -161,7 +163,7 @@ const handleLogin = async () => {
   overflow: hidden;
 }
 
-/* 顶部玻璃态导航 */
+
 .glass-header {
   position: absolute;
   top: 0;
@@ -249,7 +251,7 @@ const handleLogin = async () => {
   font-size: 16px;
 }
 
-/* 左侧品牌区：光效与文字排版 */
+
 .login-left {
   flex: 1.2;
   position: relative;
@@ -319,7 +321,7 @@ const handleLogin = async () => {
   font-size: 18px;
 }
 
-/* 右侧表单区：悬浮卡片感 */
+
 .login-right {
   flex: 1;
   display: flex;
@@ -356,7 +358,7 @@ const handleLogin = async () => {
   font-size: 14px;
 }
 
-/* 输入框定制 */
+
 :deep(.custom-input) {
   border-radius: 12px !important;
   background: var(--bg-input) !important;
@@ -404,7 +406,7 @@ const handleLogin = async () => {
   box-shadow: 0 12px 24px rgba(0, 123, 255, 0.3);
 }
 
-/* 页脚 */
+
 .login-footer {
   position: absolute;
   bottom: 24px;

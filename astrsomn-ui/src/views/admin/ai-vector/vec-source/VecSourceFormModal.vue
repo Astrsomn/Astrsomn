@@ -345,7 +345,7 @@ function onOpenChange(val: boolean) {
 
 .json-editor-wrapper:focus-within {
   border-color: var(--success);
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+  box-shadow: var(--success-shadow);
 }
 
 .mono-text {

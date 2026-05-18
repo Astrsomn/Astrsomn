@@ -27,13 +27,12 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
 public class MybatisPlusConfig {
 
-    // ==================== 收集所有 contributor 的配置 ====================
+
 
     @Bean
     public Set<String> astrsomnTenantTables(List<AstrsomnMybatisContributor> contributors) {
@@ -47,7 +46,7 @@ public class MybatisPlusConfig {
         return tables;
     }
 
-    // ==================== MyBatis-Plus 拦截器 ====================
+
 
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnDatasourceProperties datasourceProperties,
@@ -67,11 +66,9 @@ public class MybatisPlusConfig {
         return interceptor;
     }
 
-    // ==================== Mapper 扫描 ====================
 
-    /**
-     * 动态扫描所有 contributor 贡献的 mapper 包。
-     */
+
+    
     @Bean
     public MapperScannerConfigurer astrsomnMapperScannerConfigurer(List<AstrsomnMybatisContributor> contributors) {
         Set<String> packages = new LinkedHashSet<>();
@@ -87,7 +84,7 @@ public class MybatisPlusConfig {
         return configurer;
     }
 
-    // ==================== SqlSessionFactory ====================
+
 
     @Bean(name = AstrsomnRuntimeBeans.SQL_SESSION_FACTORY)
     public SqlSessionFactory astrsomnSqlSessionFactory(
@@ -102,7 +99,7 @@ public class MybatisPlusConfig {
         MybatisSqlSessionFactoryBean factoryBean = new MybatisSqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource);
 
-        // ---- 合并 mapper XML 位置 ----
+
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         List<String> mapperLocations = new ArrayList<>();
         mapperLocations.add("classpath*:mapper/*.xml");
@@ -119,9 +116,9 @@ public class MybatisPlusConfig {
         }
         factoryBean.setMapperLocations(mapperResources.toArray(new Resource[0]));
 
-        // ---- 合并 typeAliases 包 ----
+
         Set<String> typeAliasesPackages = new LinkedHashSet<>();
-        // 保留原有默认（兼容）
+
         typeAliasesPackages.add("com.astrsomn.core.common.entity");
         for (AstrsomnMybatisContributor c : contributors) {
             typeAliasesPackages.addAll(c.getTypeAliasesPackages());
@@ -133,10 +130,10 @@ public class MybatisPlusConfig {
         }
         factoryBean.setTypeAliasesPackage(String.join(",", typeAliasesPackages));
 
-        // ---- 插件 ----
+
         factoryBean.setPlugins(mybatisPlusInterceptor);
 
-        // ---- MyBatis-Plus 全局配置 ----
+
         MybatisConfiguration mybatisConfiguration = new MybatisConfiguration();
         GlobalConfig globalConfig = GlobalConfigUtils.defaults()
                 .setSqlInjector(new DefaultSqlInjector());

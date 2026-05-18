@@ -184,7 +184,7 @@ defineExpose({getKeywords})
   padding-inline: 8px;
 }
 
-/* 与 InstanceList 一致的 pill 搜索条（侧栏全宽） */
+
 .search-input-wrapper {
   width: 100%;
   height: 52px;

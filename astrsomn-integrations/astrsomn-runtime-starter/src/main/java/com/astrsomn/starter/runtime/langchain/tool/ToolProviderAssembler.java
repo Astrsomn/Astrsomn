@@ -5,7 +5,6 @@ import com.astrsomn.api.runtime.common.entity.AiMcpEntity;
 import com.astrsomn.api.runtime.common.entity.AiToolEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ConversationSetting;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ToolSetting;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
 import com.astrsomn.starter.runtime.langchain.tool.image.DynamicImageToolProvider;
@@ -26,9 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 根据 {@link ToolSetting} 查询 MCP / 本地工具配置并组装为 {@link UnionToolProvider}。
- */
+
 @Component
 @RequiredArgsConstructor
 public class ToolProviderAssembler {

@@ -3,7 +3,6 @@ package com.astrsomn.provider.qianfan;
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
 import com.astrsomn.api.runtime.common.langchain.extension.model.AbstractModelProviderHandler;
 import com.astrsomn.common.UnknowModelException;
 import com.astrsomn.common.utils.CollectionUtils;
@@ -18,10 +17,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * 百度千帆；凭证使用 {@link ModelSetting#apiKey} 与 {@code apiSecret}。
- * 具体模型名、端点等可按业务在 builder 上扩展。
- */
+
 public class QianFanProviderHandler extends AbstractModelProviderHandler {
 
     @Override

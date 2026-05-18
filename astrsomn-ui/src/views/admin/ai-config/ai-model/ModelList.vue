@@ -194,7 +194,6 @@ import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
 import {useDictionary} from '@/locales/dictionary'
 import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts'
 
-// ... (逻辑部分基本保持与原代码一致，新增工具函数)
 
 const breadcrumbs = [
   {title: 'AI 配置', href: '/admin/ai-config'},
@@ -231,7 +230,7 @@ const columns = [
   {title: '操作', key: 'actions', width: 140, fixed: 'right'}
 ]
 
-// 简单的颜色映射逻辑
+
 const getProviderColor = (provider: string) => {
   const colors: Record<string, string> = {
     'openai': 'green',
@@ -755,7 +754,7 @@ onMounted(() => {
   padding: 12px 8px 8px;
 }
 
-/* 压缩表格行高 */
+
 :deep(.ant-table-tbody > tr > td) {
   padding: 8px 12px;
 }

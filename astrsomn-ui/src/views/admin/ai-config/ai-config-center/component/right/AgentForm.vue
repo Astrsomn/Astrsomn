@@ -1,11 +1,12 @@
 <template>
   <div class="config-container">
-    <AgentConfigHeader :submitting="submitting" @back="emit('back')" @save="handleSave"/>
+    <AgentConfigHeader :submitting="submitting" @back="emit('back')" @save="handleSave" />
 
     <a-spin :spinning="loading" class="config-spin">
       <div class="config-content">
+        <!-- 左侧：身份与提示词配置 -->
         <div class="config-left">
-          <AgentConfigPersonaSection
+          <AgentBaseSection
               :agent-key="localAgentKey"
               :agent-name="localAgentName"
               :agent-avatar="localAgentAvatar"
@@ -21,9 +22,11 @@
               @update-prompt-content="onPromptContentUpdate"
           />
         </div>
+
+        <!-- 右侧：实例与集成配置 -->
         <div class="config-right">
           <div class="config-right-top">
-            <AgentConfigInstanceList
+            <InstanceListSection
                 :instance-list="instanceList"
                 :available-models="availableModels"
                 :route-strategy="routeStrategy"
@@ -32,7 +35,7 @@
             />
           </div>
           <div class="config-right-bottom">
-            <AgentConfigIntegrationsSection
+            <ToolSection
                 :knowledge-keys="knowledgeKeys"
                 :mcps="placedMcps"
                 :tools="placedTools"
@@ -70,7 +73,7 @@
         @update:open="historyModalOpen = $event"
     />
 
-    <AgentConfigPromptImproveModal
+    <PromptImproveModal
         :improved-content="improvedContent"
         :open="diffModalVisible"
         :original-content="originalContent"
@@ -92,11 +95,15 @@ import {type AiMcp, aiMcpApi} from '@/api/aiMcp.ts'
 import PromptSelectorDrawer from '@/views/admin/ai-config/ai-prompt/selector/PromptSelectorDrawer.vue'
 import PromptFormModal from '@/views/admin/ai-config/ai-prompt/component/PromptFormModal.vue'
 import PromptHistoryModal from '@/views/admin/ai-config/ai-prompt/component/PromptHistoryModal.vue'
-import AgentConfigHeader from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigHeader.vue'
-import AgentConfigPersonaSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigPersonaSection.vue'
-import AgentConfigInstanceList from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigInstanceList.vue'
-import AgentConfigIntegrationsSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigIntegrationsSection.vue'
-import AgentConfigPromptImproveModal from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigPromptImproveModal.vue'
+import AgentConfigHeader
+  from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigHeader.vue'
+import AgentBaseSection
+  from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentBaseSection.vue'
+import InstanceListSection
+  from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/InstanceListSection.vue'
+import ToolSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/ToolSection.vue'
+import PromptImproveModal
+  from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/form/PromptImproveModal.vue'
 
 const props = defineProps<{
   agentName: string
@@ -181,7 +188,7 @@ async function handleImprovePrompt() {
     improvedContent.value = improved
     diffModalVisible.value = true
   } catch {
-    message.error('美化失败，请重试')
+    message.error('优化失败，请重试')
   } finally {
     improveLoading.value = false
   }
@@ -192,15 +199,14 @@ async function handleApplyImproved() {
     currentPrompt.value.promptContent = improvedContent.value
   }
   diffModalVisible.value = false
-  // 美化后立即保存提示词（新建或更新）
   try {
-    const saved = await aiPromptApi.submit({...currentPrompt.value, promptContent: improvedContent.value})
+    const saved = await aiPromptApi.submit({ ...currentPrompt.value, promptContent: improvedContent.value })
     currentPrompt.value = saved
     loadedPromptContent.value = saved.promptContent ?? improvedContent.value
   } catch {
-    // 提示词保存失败不阻塞，handleSave 会重试
+
   }
-  message.success('已应用美化后的提示词')
+  message.success('已应用优化后的提示词')
 }
 
 function onKnowledgeAdd(key: string) {
@@ -220,7 +226,7 @@ function parseKnowledgeKeys(raw?: string): string[] {
     const arr = JSON.parse(t) as unknown
     if (Array.isArray(arr)) return arr.map((x) => String(x)).filter(Boolean)
   } catch {
-    /* comma-separated */
+
   }
   return t.split(',').map((s) => s.trim()).filter(Boolean)
 }
@@ -231,7 +237,7 @@ function resetEmptyForm() {
   localAgentKey.value = ''
   localAgentDescription.value = ''
   localAgentAvatar.value = ''
-  currentPrompt.value = {promptContent: ''}
+  currentPrompt.value = { promptContent: '' }
   loadedPromptContent.value = ''
   placedTools.value = []
   placedMcps.value = []
@@ -246,13 +252,13 @@ async function resolvePromptByKey(promptKey: string): Promise<AiPrompt | undefin
   const direct = await aiPromptApi.queryPage({
     pageNo: 1,
     pageSize: 1,
-    param: {promptKey: key},
+    param: { promptKey: key },
   })
   if (direct.list?.[0]?.promptKey === key) return direct.list[0]
   const wide = await aiPromptApi.queryPage({
     pageNo: 1,
     pageSize: 100,
-    param: {promptKey: key},
+    param: { promptKey: key },
   })
   return (wide.list || []).find((p) => p.promptKey === key)
 }
@@ -263,7 +269,7 @@ async function resolveToolsByKeys(keys: string[]): Promise<AiTool[]> {
     const resp = await aiToolApi.queryPage({
       pageNo: 1,
       pageSize: 20,
-      param: {toolKey: key},
+      param: { toolKey: key },
     })
     const hit = (resp.list || []).find((t) => t.toolKey === key)
     if (hit) out.push(hit)
@@ -277,7 +283,7 @@ async function resolveMcpsByKeys(keys: string[]): Promise<AiMcp[]> {
     const resp = await aiMcpApi.queryPage({
       pageNo: 1,
       pageSize: 20,
-      param: {mcpKey: key},
+      param: { mcpKey: key },
     })
     const hit = (resp.list || []).find((m) => m.mcpKey === key)
     if (hit) out.push(hit)
@@ -290,13 +296,13 @@ async function loadInstanceListForAgent(agentKey: string): Promise<AiInstance[]>
   const resp = await aiInstanceApi.queryPage({
     pageNo: 1,
     pageSize: 100,
-    param: {agentKey},
+    param: { agentKey },
   })
   return resp.list || []
 }
 
 async function backfillFromDetail(detail: AiAgent) {
-  localAgentName.value = detail.agentName || props.agentName || '未命名的智能体'
+  localAgentName.value = detail.agentName || props.agentName || '未命名智能体'
   localAgentKey.value = detail.agentKey ?? ''
   localAgentDescription.value = detail.description ?? ''
   localAgentAvatar.value = detail.agentAvatar ?? ''
@@ -320,7 +326,7 @@ async function backfillFromDetail(detail: AiAgent) {
       }
     } else {
       const resolved = await resolvePromptByKey(detail.promptKey)
-      currentPrompt.value = resolved ?? {promptKey: detail.promptKey, promptContent: ''}
+      currentPrompt.value = resolved ?? { promptKey: detail.promptKey, promptContent: '' }
     }
   } else {
     currentPrompt.value = undefined
@@ -353,8 +359,7 @@ async function loadAgent() {
   loading.value = true
   try {
     const detail = await aiAgentApi.detail(props.agentId)
-    console.log('[AgentForm] detail response:', JSON.parse(JSON.stringify(detail)))
-    detailSnapshot.value = {...detail}
+    detailSnapshot.value = { ...detail }
     await backfillFromDetail(detail)
     await loadAvailableModels()
   } catch (e: any) {
@@ -368,7 +373,7 @@ async function loadAgent() {
 
 async function loadAvailableModels() {
   try {
-    const resp = await aiModelApi.queryPage({pageNo: 1, pageSize: 100, param: {status: 'enabled'}})
+    const resp = await aiModelApi.queryPage({ pageNo: 1, pageSize: 100, param: { status: 'enabled' } })
     availableModels.value = resp.list || []
   } catch {
     availableModels.value = []
@@ -378,7 +383,7 @@ async function loadAvailableModels() {
 function buildSubmitPayload(): AiAgent {
   const snap = detailSnapshot.value
   const base: AiAgent = snap
-      ? {...snap}
+      ? { ...snap }
       : {
         status: 'enabled',
         enableStream: true,
@@ -417,15 +422,14 @@ async function handleSave() {
     const p = currentPrompt.value
     const content = p?.promptContent?.trim() || ''
     if (content && content !== String(loadedPromptContent.value ?? '').trim()) {
-      // 内容有变化（直接输入或选了又改）→ 美化 + 保存（新建或更新）
-      const saved = await aiPromptApi.submit({...p, promptContent: content})
+      const saved = await aiPromptApi.submit({ ...p, promptContent: content })
       currentPrompt.value = saved
       loadedPromptContent.value = saved.promptContent ?? content
     }
 
     const payload = buildSubmitPayload()
     if (props.agentId != null && props.agentId !== '') {
-      await aiAgentApi.update({...payload, id: props.agentId})
+      await aiAgentApi.update({ ...payload, id: props.agentId })
       message.success('智能体已保存')
     } else {
       await aiAgentApi.createFullAgent(payload)
@@ -434,7 +438,7 @@ async function handleSave() {
     emit('saved')
     emit('back')
   } catch (e: any) {
-    message.error(e?.message || '提交失败')
+    message.error(e?.message || '保存失败')
   } finally {
     submitting.value = false
   }
@@ -457,7 +461,7 @@ watch(
     () => {
       void loadAgent()
     },
-    {immediate: true}
+    { immediate: true }
 )
 
 watch(
@@ -467,7 +471,7 @@ watch(
         localAgentName.value = name || '新 Agent'
       }
     },
-    {immediate: true}
+    { immediate: true }
 )
 </script>
 
@@ -478,6 +482,7 @@ watch(
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--bg-surface);
 }
 
 .config-spin {
@@ -498,9 +503,9 @@ watch(
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 24px;
-  padding: 24px 32px;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 20px;
+  padding: 20px 24px;
   overflow: hidden;
 }
 
@@ -514,7 +519,7 @@ watch(
 .config-right {
   min-height: 0;
   display: grid;
-  grid-template-rows: 7fr 3fr;
+  grid-template-rows: 1fr auto;
   gap: 16px;
   overflow: hidden;
 }
@@ -523,5 +528,17 @@ watch(
 .config-right-bottom {
   min-height: 0;
   overflow: hidden;
+}
+
+
+@media (max-width: 1200px) {
+  .config-content {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .config-right {
+    grid-template-rows: auto auto;
+  }
 }
 </style>

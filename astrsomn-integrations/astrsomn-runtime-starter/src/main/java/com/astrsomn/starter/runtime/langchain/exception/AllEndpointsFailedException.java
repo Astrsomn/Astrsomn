@@ -2,9 +2,7 @@ package com.astrsomn.starter.runtime.langchain.exception;
 
 import java.util.Map;
 
-/**
- * 故障转移尝试次数耗尽，所有端点均调用失败。
- */
+
 public class AllEndpointsFailedException extends AstroRouteException {
 
     public AllEndpointsFailedException(int attempts) {

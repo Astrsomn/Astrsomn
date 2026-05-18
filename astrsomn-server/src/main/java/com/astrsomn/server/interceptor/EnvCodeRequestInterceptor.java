@@ -1,10 +1,10 @@
 package com.astrsomn.server.interceptor;
 
-import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.util.UserContext;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvScope;
+import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-/**
- * 解析前端 {@value #HEADER_ENV_CODE}，写入 {@link EnvScope}。
- * <p>超级管理员可切换任意环境；其余角色固定为账号所属 {@code envCode}（与实例默认环境对齐）。
- */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor

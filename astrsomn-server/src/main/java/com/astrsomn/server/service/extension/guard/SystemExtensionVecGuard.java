@@ -1,19 +1,17 @@
 package com.astrsomn.server.service.extension.guard;
 
-import com.astrsomn.system.constant.SystemExtensionEnum;
 import com.astrsomn.api.vector.entity.AiVecSourceEntity;
-import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.vector.mapper.AstAiVecSourceMapper;
 import com.astrsomn.starter.runtime.system.mapper.AstSystemExtensionMapper;
+import com.astrsomn.starter.runtime.vector.mapper.AstAiVecSourceMapper;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/**
- * 向量库扩展：撤销应用 / 卸载前校验是否仍有向量源引用该 {@code provider}（与 extensionKey 对齐）。
- */
+
 @Component
 @RequiredArgsConstructor
 public class SystemExtensionVecGuard {

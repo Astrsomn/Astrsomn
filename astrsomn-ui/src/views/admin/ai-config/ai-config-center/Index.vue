@@ -34,11 +34,11 @@ const globalComponents: Record<string, any> = {
   'prompts': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-prompt/PromptList.vue')),
   'mcp': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-mcp/McpList.vue')),
   'tools': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-tool/ToolList.vue')),
-  'ftl': defineAsyncComponent(() => import('@/views/admin/ai-safety/ai-template/TemplateList.vue')),
+  'ftl': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-template/TemplateList.vue')),
   'conversations': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-conversation/ConversationList.vue')),
 }
 
-// 当前选中的视图类型
+
 const currentViewKey = computed(() => {
   const viewKey = route.query.view as string | undefined
   const provider = route.query.provider as string | undefined
@@ -50,7 +50,7 @@ const currentViewKey = computed(() => {
   return provider || 'all'
 })
 
-// 当前视图类型
+
 const currentViewType = computed(() => {
   const viewKey = route.query.view as string | undefined
   if (viewKey && Object.keys(globalComponents).includes(viewKey)) {
@@ -59,19 +59,19 @@ const currentViewType = computed(() => {
   return 'agent'
 })
 
-// 当前提供商
+
 const currentProviderKey = computed(() => {
   const provider = route.query.provider as string | undefined
   return provider || 'all'
 })
 
-// 当前全局组件
+
 const currentGlobalComponent = computed(() => {
   const viewKey = route.query.view as string | undefined
   return viewKey && globalComponents[viewKey] ? globalComponents[viewKey] : null
 })
 
-// 从路由 query 中读取视图模式，传给全局管理子组件
+
 const initialViewMode = computed<'grid' | 'list'>(() => {
   const vm = route.query.viewMode as string | undefined
   return vm === 'grid' ? 'grid' : 'list'

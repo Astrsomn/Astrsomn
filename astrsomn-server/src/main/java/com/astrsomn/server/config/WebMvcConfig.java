@@ -27,12 +27,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
-        // 1. 日志拦截器 - 拦截所有请求
+
         registry.addInterceptor(loggingInterceptor)
                 .addPathPatterns("/**")
                 .order(1);
 
-        // 2. 认证拦截器 - 排除登录接口和静态资源
+
         registry.addInterceptor(authenticationInterceptor)
                 .addPathPatterns("/api/**", "/v1/astro/**")
                 .excludePathPatterns(
@@ -48,7 +48,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 )
                 .order(2);
 
-        // 2b. 工作空间环境（请求头 X-Astrsomn-Env-Code）→ EnvScope，须在认证之后
+
         registry.addInterceptor(envCodeRequestInterceptor)
                 .addPathPatterns("/api/**", "/v1/astro/**")
                 .excludePathPatterns(
@@ -64,7 +64,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 )
                 .order(3);
 
-        // 3. 权限拦截器 - 拦截需要权限的接口
+
         registry.addInterceptor(authorizationInterceptor)
                 .addPathPatterns(
                         "/v1/astro/ai-agent/**",
@@ -85,7 +85,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 )
                 .order(4);
 
-        // 4. 限流拦截器 - 拦截所有API请求
+
         registry.addInterceptor(rateLimitingInterceptor)
                 .addPathPatterns("/api/**", "/v1/astro/**")
                 .order(5);

@@ -13,7 +13,7 @@ import java.util.*;
 @Getter
 public enum DeepSeekModelEnum {
 
-    // --- Chat Models (对话模型) ---
+
     DEEPSEEK_CHAT("deepseek-chat", "DeepSeek Chat (V3)", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -47,7 +47,7 @@ public enum DeepSeekModelEnum {
             )
     ),
 
-    // --- Reasoning Models (推理模型) ---
+
     DEEPSEEK_R1("deepseek-reasoner", "DeepSeek R1 (Reasoning)",
             AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
@@ -90,7 +90,7 @@ public enum DeepSeekModelEnum {
             )
     ),
 
-    // --- Code Models (代码模型) ---
+
     DEEPSEEK_CODER("deepseek-coder", "DeepSeek Coder", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -131,7 +131,7 @@ public enum DeepSeekModelEnum {
             )
     ),
 
-    // --- Math Models (数学模型) ---
+
     DEEPSEEK_MATH("deepseek-math", "DeepSeek Math", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -155,7 +155,7 @@ public enum DeepSeekModelEnum {
             )
     ),
 
-    // --- Embedding Models (向量模型) ---
+
     DEEPSEEK_EMBEDDING("deepseek-embed", "DeepSeek Embedding v1",
             AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
             List.of(
@@ -199,7 +199,7 @@ public enum DeepSeekModelEnum {
             )
     ),
 
-    // --- Multimodal Models (多模态模型) ---
+
     DEEPSEEK_VL("deepseek-vl", "DeepSeek VL (Vision-Language)", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.VISION,
@@ -225,7 +225,7 @@ public enum DeepSeekModelEnum {
             )
     ),
 
-    // --- Image Models (图像模型) ---
+
     DEEPSEEK_JANUS("deepseek-janus", "DeepSeek Janus (Multimodal)",
             AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(),
             List.of(
@@ -258,7 +258,7 @@ public enum DeepSeekModelEnum {
             )
     ),
 
-    // --- Specialized Models (专用模型) ---
+
     DEEPSEEK_MOE("deepseek-moe", "DeepSeek MoE", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -360,9 +360,7 @@ public enum DeepSeekModelEnum {
         this.params = params;
     }
 
-    /**
-     * 判断指定模型是否支持给定参数编码。
-     */
+    
     public static boolean isParamAvailable(String modelKey, String targetParamCode) {
         if (modelKey == null || modelKey.isBlank() || targetParamCode == null || targetParamCode.isBlank()) {
             return false;
@@ -385,16 +383,12 @@ public enum DeepSeekModelEnum {
         return modelName;
     }
 
-    /**
-     * 将 capabilities 转换为 JSON 字符串
-     */
+    
     public String getCapabilities() {
         return EnumUtils.toCapabilitiesJson(capabilities);
     }
 
-    /**
-     * 将 params 转换为 JSON 字符串（包含默认值配置）
-     */
+    
     public String getParams() {
         try {
             List<Map<String, Object>> paramList = new ArrayList<>();

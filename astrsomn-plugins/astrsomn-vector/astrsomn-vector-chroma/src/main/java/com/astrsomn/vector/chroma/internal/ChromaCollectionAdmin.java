@@ -1,7 +1,7 @@
 package com.astrsomn.vector.chroma.internal;
 
-import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.common.utils.StringUtils;
 import dev.langchain4j.store.embedding.chroma.ChromaApiVersion;
 
@@ -13,10 +13,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
-/**
- * 使用与 {@link ChromaEmbeddingStores} 一致的基址与租户/库解析，对 Chroma REST 做集合存在性检查与删除（不经过 LangChain4j
- * {@code EmbeddingStore#removeAll}，避免删后重建空集合）。
- */
+
 public final class ChromaCollectionAdmin {
 
     private static final String DEFAULT_TENANT = "default";
@@ -48,9 +45,7 @@ public final class ChromaCollectionAdmin {
         throw new IllegalStateException("Chroma collection exists check failed: HTTP " + code);
     }
 
-    /**
-     * 删除集合；若集合已不存在则视为成功（幂等）。
-     */
+    
     public static void deleteCollection(AiVecSourceEntity sourceEntity, String collectionName) {
         if (StringUtils.isBlank(collectionName)) {
             return;

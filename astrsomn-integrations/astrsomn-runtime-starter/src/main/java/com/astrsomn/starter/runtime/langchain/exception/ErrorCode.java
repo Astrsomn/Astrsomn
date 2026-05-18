@@ -3,17 +3,7 @@ package com.astrsomn.starter.runtime.langchain.exception;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Astrsomn Runtime 统一错误码枚举。
- * <p>
- * 分段规则：
- * <ul>
- *   <li>1xxx — 配置类（Agent/Instance/Model/Account 加载与校验）</li>
- *   <li>2xxx — 模型调用类（Provider 查找、API 调用、内容审核）</li>
- *   <li>3xxx — 路由类（端点选择、故障转移）</li>
- *   <li>4xxx — 工具类（MCP、本地工具、RAG）</li>
- * </ul>
- */
+
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {

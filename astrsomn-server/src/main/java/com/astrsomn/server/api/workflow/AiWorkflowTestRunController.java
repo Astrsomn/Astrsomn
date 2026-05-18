@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Workflow 测试运行控制器（骨架）。
- */
+
 @RestController
 @RequestMapping("/v1/astro/ai-workflow")
 @RequiredArgsConstructor

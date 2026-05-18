@@ -89,7 +89,7 @@ const currentWidth = computed(() => props.collapsed ? props.collapsedWidth : pro
   padding: 12px 8px;
 }
 
-/* 收起/展开按钮 - 悬浮在右边框中间 */
+
 .ast-sidebar-collapse-toggle {
   position: absolute;
   right: -14px;

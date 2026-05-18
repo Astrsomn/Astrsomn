@@ -1,16 +1,16 @@
 package com.astrsomn.server.api;
 
 
-import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
-import com.astrsomn.system.dto.auth.LoginRequest;
-import com.astrsomn.system.dto.auth.LoginResponse;
-import com.astrsomn.system.dto.auth.RefreshTokenRequest;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.server.service.AuthService;
 import com.astrsomn.server.util.UserContext;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
+import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
+import com.astrsomn.system.dto.auth.LoginRequest;
+import com.astrsomn.system.dto.auth.LoginResponse;
+import com.astrsomn.system.dto.auth.RefreshTokenRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -81,9 +81,7 @@ public class AstroAuthController extends BaseController {
         return success(response);
     }
 
-    /**
-     * 当前请求生效的数据环境（与租户/写入填充一致）。超级管理员可通过请求头切换工作空间。
-     */
+    
     @GetMapping("/workspace-env")
     public BaseResponse<Map<String, Object>> workspaceEnv() {
         Map<String, Object> m = new LinkedHashMap<>();

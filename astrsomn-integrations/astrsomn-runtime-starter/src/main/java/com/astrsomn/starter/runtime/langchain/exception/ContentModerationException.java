@@ -1,8 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.exception;
 
-/**
- * 内容审核拦截。
- */
+
 public class ContentModerationException extends AstroModelException {
 
     public ContentModerationException() {

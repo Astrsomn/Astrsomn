@@ -93,11 +93,11 @@ const emit = defineEmits<{
 }
 
 .account-card.has-account {
-  /* 设计稿无左侧色条，保留数据态 */
+
 }
 
 .account-card:not(.has-account) {
-  /* 占位 */
+
 }
 
 .card-header {

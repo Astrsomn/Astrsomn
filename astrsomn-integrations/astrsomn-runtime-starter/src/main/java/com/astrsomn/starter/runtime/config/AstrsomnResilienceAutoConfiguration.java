@@ -11,9 +11,7 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.Optional;
 
-/**
- * 当 classpath 存在 Resilience4j 且宿主注册了 {@link CircuitBreakerRegistry} 时，注册 {@code registry} 韧性策略。
- */
+
 @AutoConfiguration
 @ConditionalOnClass(name = "io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry")
 public class AstrsomnResilienceAutoConfiguration {

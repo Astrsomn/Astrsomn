@@ -1,20 +1,16 @@
 package com.astrsomn.server.event;
 
+import com.astrsomn.starter.runtime.system.message.SystemMessageRecorder;
 import com.astrsomn.system.dto.systemmessage.SystemMessagePushPayload;
 import com.astrsomn.system.dto.systemmessage.SystemMessageRecordCommand;
 import com.astrsomn.system.entity.SystemMessageEntity;
-import com.astrsomn.starter.runtime.system.message.SystemMessageRecorder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
-/**
- * 进阶组合：在 starter 的 {@link SystemMessageRecorder}（落库）与
- * 本包内的「Spring 事件 → SSE」之间搭桥，供业务在<strong>同一次调用</strong>中完成「写表 + 通知前端」，
- * 且保持事件层不触及 Mapper。仅推送、不写库时可用 {@link #pushOnly} / {@link #pushFromEntity}。
- */
+
 @Service
 @RequiredArgsConstructor
 public class SystemMessageEventCoordinator {

@@ -10,13 +10,11 @@ import lombok.Getter;
 
 import java.util.*;
 
-/**
- * 智谱 GLM 占位清单；可按实际开放模型名扩展。
- */
+
 @Getter
 public enum ZhipuModelEnum {
 
-    // --- GLM-4 系列对话模型 ---
+
     GLM_4_PLUS("glm-4-plus", "GLM-4 Plus", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -121,7 +119,7 @@ public enum ZhipuModelEnum {
             )
     ),
 
-    // --- GLM-4V 系列多模态模型 ---
+
     GLM_4V_PLUS("glm-4v-plus", "GLM-4V Plus", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.VISION,
@@ -160,7 +158,7 @@ public enum ZhipuModelEnum {
             )
     ),
 
-    // --- GLM-Z1 系列推理模型 (Deep Thinking) ---
+
     GLM_Z1_AIRX("glm-z1-airx", "GLM-Z1 AirX", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -214,7 +212,7 @@ public enum ZhipuModelEnum {
             )
     ),
 
-    // --- 代码模型 ---
+
     CODEGEEX_4("codegeex-4", "CodeGeeX-4", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -228,7 +226,7 @@ public enum ZhipuModelEnum {
             )
     ),
 
-    // --- 向量模型 ---
+
     EMBEDDING_3("embedding-3", "Embedding-3", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
@@ -246,7 +244,7 @@ public enum ZhipuModelEnum {
             )
     ),
 
-    // --- CogView 系列图像模型 ---
+
     COGVIEW_3_PLUS("cogview-3-plus", "CogView-3 Plus", AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE
@@ -293,9 +291,7 @@ public enum ZhipuModelEnum {
         this.params = params;
     }
 
-    /**
-     * 按 modelKey + paramCode 判断模型是否支持指定参数。
-     */
+    
     public static boolean isParamAvailable(String modelKey, String targetParamCode) {
         if (modelKey == null || modelKey.isBlank() || targetParamCode == null || targetParamCode.isBlank()) {
             return false;
@@ -318,16 +314,12 @@ public enum ZhipuModelEnum {
         return modelName;
     }
 
-    /**
-     * 将 capabilities 转换为 JSON 字符串
-     */
+    
     public String getCapabilities() {
         return EnumUtils.toCapabilitiesJson(capabilities);
     }
 
-    /**
-     * 将 params 转换为 JSON 字符串（包含默认值配置）
-     */
+    
     public String getParams() {
         try {
             List<Map<String, Object>> paramList = new ArrayList<>();
@@ -347,9 +339,7 @@ public enum ZhipuModelEnum {
         }
     }
 
-    /**
-     * 转换为 AiModelEntity
-     */
+    
     public AiModelEntity toEntity(String provider) {
         AiModelEntity entity = new AiModelEntity();
         entity.setModelKey(this.getModelKey());

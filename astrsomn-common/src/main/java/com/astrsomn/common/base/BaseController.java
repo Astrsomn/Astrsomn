@@ -16,8 +16,8 @@ public class BaseController {
             return new long[0];
         }
 
-        // 注意：如果分隔符是正则特殊字符（如 | .），split 需要转义，这里假设传入的是普通字符
-        // 为了安全，可以使用 Pattern.quote 或者直接按字符分割
+
+
         return Arrays.stream(idsStr.split(Pattern.quote(delimiter)))
                 .map(String::trim)
                 .filter(StringUtils::isNotBlank)

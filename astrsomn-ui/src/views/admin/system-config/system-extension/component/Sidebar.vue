@@ -71,7 +71,7 @@ function openMarketplace() {
 </script>
 
 <style scoped>
-/* 侧边栏主体 - 与 AdminModuleShell 保持一致的宽度 */
+
 .extension-sider {
   width: 260px;
   background: var(--bg-card);
@@ -87,7 +87,7 @@ function openMarketplace() {
   height: 100%;
 }
 
-/* 顶部品牌区 */
+
 .sider-header {
   padding: 20px 16px 12px;
 }
@@ -124,7 +124,7 @@ function openMarketplace() {
   color: var(--text-muted);
 }
 
-/* 菜单区 */
+
 .sider-menu-container {
   flex: 1;
   padding: 0 10px 8px;
@@ -168,7 +168,7 @@ function openMarketplace() {
   background: var(--primary);
 }
 
-/* 底部区域 */
+
 .sider-footer {
   padding: 14px 12px;
   border-top: 1px solid var(--border-default);

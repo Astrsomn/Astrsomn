@@ -1,19 +1,19 @@
 <template>
   <a-modal
-      :closable="false"
-      :footer="null"
-      :open="open"
-      :width="modalWidth"
-      centered
-      destroy-on-close
-      wrap-class-name="extension-model-sync-wrap"
-      @update:open="onUpdateOpen"
+    :closable="false"
+    :footer="null"
+    :open="open"
+    :width="modalWidth"
+    centered
+    destroy-on-close
+    wrap-class-name="extension-model-sync-wrap"
+    @update:open="onUpdateOpen"
   >
     <div class="ems-shell">
       <header class="ems-modal-header">
         <div class="ems-header-left">
           <div class="ems-logo-box ems-logo-unload">
-            <DeleteOutlined/>
+            <DeleteOutlined />
           </div>
           <div class="ems-title-group">
             <span class="ems-main-title">确认卸载模型</span>
@@ -22,16 +22,14 @@
         </div>
         <div class="ems-header-actions">
           <div class="ems-header-action-pair">
-            <a-button class="ems-header-action-btn ems-header-btn-cancel" @click="emit('cancel')">
-              取消
-            </a-button>
+            <a-button class="ems-header-action-btn ems-header-btn-cancel" @click="emit('cancel')">取消</a-button>
             <a-button
-                :disabled="okDisabled"
-                :loading="confirming"
-                class="ems-header-action-btn ems-header-btn-ok"
-                danger
-                type="primary"
-                @click="handleOk"
+              :disabled="okDisabled"
+              :loading="confirming"
+              class="ems-header-action-btn ems-header-btn-ok"
+              danger
+              type="primary"
+              @click="handleOk"
             >
               确认卸载模型
             </a-button>
@@ -41,43 +39,73 @@
 
       <div class="ems-body-scroll">
         <div v-if="previewError" class="ems-modal-alert">
-          <a-alert :message="previewError" show-icon type="error"/>
+          <a-alert :message="previewError" show-icon type="error" />
         </div>
         <a-spin v-else :spinning="loadingPreview">
           <template v-if="unloadPreview">
             <p v-if="emptyHint" class="ems-hint">{{ emptyHint }}</p>
-            <p class="ems-summary ems-summary-danger">
-              已选择 {{ selectedCount }} 个模型将从本环境删除。
-            </p>
+
+            <div class="ems-summary-row">
+              <p class="ems-summary ems-summary-danger">
+                已选择 <strong>{{ selectedCount }}</strong> 个模型将从本环境删除。
+              </p>
+              <a-button size="small" type="link" danger @click="toggleSelectAll">
+                {{ allSelected ? '取消全选' : '全选' }}
+              </a-button>
+            </div>
 
             <div class="ems-preview-section">
-              <div class="ems-preview-section-title">将卸载（删除）</div>
-              <a-table
-                  v-if="(unloadPreview.toRemove?.length ?? 0) > 0"
-                  :columns="commonColumns"
-                  :data-source="unloadPreview.toRemove"
-                  :pagination="false"
-                  :row-key="'modelKey'"
-                  :row-selection="rowSelection"
-                  :scroll="{ y: 280 }"
-                  class="ems-preview-table"
-                  size="small"
-              />
+              <div class="ems-preview-section-title">
+                <span>将卸载（删除）</span>
+                <span class="ems-count-badge danger">{{ unloadPreview.toRemove?.length ?? 0 }}</span>
+              </div>
+              <div v-if="(unloadPreview.toRemove?.length ?? 0) > 0" class="ems-card-grid">
+                <div
+                  v-for="model in unloadPreview.toRemove"
+                  :key="model.modelKey"
+                  :class="{ selected: selectedRowKeys.includes(model.modelKey!) }"
+                  class="ems-model-card"
+                  @click="toggleModel(model.modelKey!)"
+                >
+                  <div class="ems-card-accent" :style="{ background: modelTypeColor(model.modelType) }"></div>
+                  <div class="ems-card-body">
+                    <div class="ems-card-header">
+                      <span class="ems-card-type" :style="{ color: modelTypeColor(model.modelType) }">
+                        {{ modelTypeLabel(model.modelType) }}
+                      </span>
+                      <a-checkbox :checked="selectedRowKeys.includes(model.modelKey!)" @click.stop="toggleModel(model.modelKey!)" />
+                    </div>
+                    <div class="ems-card-name">{{ model.modelName || model.modelKey }}</div>
+                    <div class="ems-card-key">{{ model.modelKey }}</div>
+                    <div v-if="model.provider" class="ems-card-provider">{{ model.provider }}</div>
+                  </div>
+                </div>
+              </div>
               <div v-else class="ems-preview-empty">无</div>
             </div>
 
             <div class="ems-preview-section">
-              <div class="ems-preview-section-title">因实例引用将保留</div>
-              <a-table
-                  v-if="(unloadPreview.keptReferenced?.length ?? 0) > 0"
-                  :columns="commonColumns"
-                  :data-source="unloadPreview.keptReferenced"
-                  :pagination="false"
-                  :row-key="'modelKey'"
-                  :scroll="{ y: 200 }"
-                  class="ems-preview-table ems-table-disabled"
-                  size="small"
-              />
+              <div class="ems-preview-section-title">
+                <span>因实例引用将保留</span>
+                <span class="ems-count-badge muted">{{ unloadPreview.keptReferenced?.length ?? 0 }}</span>
+              </div>
+              <div v-if="(unloadPreview.keptReferenced?.length ?? 0) > 0" class="ems-card-grid">
+                <div
+                  v-for="model in unloadPreview.keptReferenced"
+                  :key="model.modelKey"
+                  class="ems-model-card skipped"
+                >
+                  <div class="ems-card-accent" :style="{ background: modelTypeColor(model.modelType), opacity: 0.35 }"></div>
+                  <div class="ems-card-body">
+                    <span class="ems-card-type" :style="{ color: modelTypeColor(model.modelType), opacity: 0.5 }">
+                      {{ modelTypeLabel(model.modelType) }}
+                    </span>
+                    <div class="ems-card-name">{{ model.modelName || model.modelKey }}</div>
+                    <div class="ems-card-key">{{ model.modelKey }}</div>
+                    <div v-if="model.provider" class="ems-card-provider">{{ model.provider }}</div>
+                  </div>
+                </div>
+              </div>
               <div v-else class="ems-preview-empty">无</div>
             </div>
           </template>
@@ -88,12 +116,12 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, h, ref, watch} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {DeleteOutlined} from '@ant-design/icons-vue'
 import type {ExtensionModelUnloadPreview} from '@/api/systemExtension.ts'
-import {formatExtensionModelPreviewRow} from '../../utils/extensionModelSyncPreview.ts'
+import {modelTypeColor, modelTypeLabel} from '../../utils/extensionDisplay.ts'
 
-const open = defineModel<boolean>('open', {required: true})
+const open = defineModel<boolean>('open', { required: true })
 
 const props = defineProps<{
   extensionLabel: string
@@ -110,31 +138,26 @@ const emit = defineEmits<{
 const modalWidth = 'min(92vw, 820px)'
 const confirming = ref(false)
 
-// 选中的 Key 列表
 const selectedRowKeys = ref<string[]>([])
 
-// 监听数据变化，默认全部勾选待删除项
 watch(
-    () => props.unloadPreview,
-    (newPreview) => {
-      if (newPreview?.toRemove) {
-        selectedRowKeys.value = newPreview.toRemove.map(m => m.modelKey)
-      } else {
-        selectedRowKeys.value = []
-      }
-    },
-    {immediate: true}
+  () => props.unloadPreview,
+  (newPreview) => {
+    if (newPreview?.toRemove) {
+      selectedRowKeys.value = newPreview.toRemove.map((m) => m.modelKey!)
+    } else {
+      selectedRowKeys.value = []
+    }
+  },
+  { immediate: true },
 )
 
-// 表格选择配置
-const rowSelection = computed(() => ({
-  selectedRowKeys: selectedRowKeys.value,
-  onChange: (keys: string[]) => {
-    selectedRowKeys.value = keys
-  },
-}))
-
 const selectedCount = computed(() => selectedRowKeys.value.length)
+
+const allSelected = computed(() => {
+  const list = props.unloadPreview?.toRemove ?? []
+  return list.length > 0 && list.every((m) => selectedRowKeys.value.includes(m.modelKey!))
+})
 
 const okDisabled = computed(() => {
   if (props.loadingPreview || props.previewError) return true
@@ -150,23 +173,28 @@ const emptyHint = computed(() => {
   return ''
 })
 
+function toggleModel(key: string) {
+  const idx = selectedRowKeys.value.indexOf(key)
+  if (idx === -1) {
+    selectedRowKeys.value = [...selectedRowKeys.value, key]
+  } else {
+    selectedRowKeys.value = selectedRowKeys.value.filter((k) => k !== key)
+  }
+}
+
+function toggleSelectAll() {
+  const list = props.unloadPreview?.toRemove ?? []
+  if (allSelected.value) {
+    selectedRowKeys.value = []
+  } else {
+    selectedRowKeys.value = list.map((m) => m.modelKey!)
+  }
+}
+
 function onUpdateOpen(v: boolean) {
   open.value = v
   if (!v) emit('cancel')
 }
-
-// 通用的列定义，移除了固定的 width: 600
-const commonColumns = [
-  {
-    title: '模型详细信息',
-    dataIndex: 'modelKey',
-    render: (_, record: any) => {
-      return h('div', {
-        style: {padding: '2px 0', fontSize: '13px'}
-      }, formatExtensionModelPreviewRow(record))
-    }
-  }
-]
 
 async function handleOk() {
   if (selectedRowKeys.value.length === 0) return
@@ -182,22 +210,26 @@ async function handleOk() {
 <style scoped>
 @import '../../utils/extensionModelSyncDialog.css';
 
-/* 1. 解决间距问题：增加单元格内边距 */
-.ems-preview-table :deep(.ant-table-cell) {
-  padding: 10px 12px !important;
+.ems-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
 }
 
-/* 2. 勾选框列宽度自适应调整 */
-.ems-preview-table :deep(.ant-table-selection-column) {
-  width: 46px;
-  text-align: center;
+.ems-summary {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
 }
 
-/* 危险操作的汇总文案颜色 */
+.ems-summary strong {
+  font-weight: 700;
+  font-size: 15px;
+}
+
 .ems-summary-danger {
   color: var(--error);
-  font-weight: 500;
-  margin-bottom: 16px;
 }
 
 .ems-preview-section {
@@ -206,19 +238,135 @@ async function handleOk() {
 
 .ems-preview-section-title {
   font-weight: 600;
-  margin-bottom: 12px;
+  font-size: 13px;
   color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* 已保留列表的样式微调 */
-.ems-table-disabled :deep(.ant-table-cell) {
+.ems-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--error);
+}
+
+.ems-count-badge.muted {
+  background: var(--bg-surface);
   color: var(--text-muted);
+}
+
+
+.ems-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+}
+
+
+.ems-model-card {
+  display: flex;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.ems-model-card:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: var(--bg-elevated);
+}
+
+.ems-model-card.selected {
+  border-color: var(--error);
+  background: rgba(239, 68, 68, 0.06);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.18);
+}
+
+.ems-model-card.skipped {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.ems-model-card.skipped:hover {
+  border-color: var(--border-default);
+  background: var(--bg-card);
+}
+
+.ems-card-accent {
+  width: 3px;
+  flex-shrink: 0;
+  border-radius: 0;
+}
+
+.ems-card-body {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ems-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ems-card-type {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.ems-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ems-card-key {
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ems-card-provider {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  padding: 1px 6px;
+  background: var(--bg-surface);
+  border-radius: 4px;
+  align-self: flex-start;
 }
 
 .ems-preview-empty {
-  padding: 16px;
+  padding: 24px;
   text-align: center;
   color: var(--text-muted);
   border: 1px dashed var(--border-default);
+  border-radius: 8px;
+  font-size: 13px;
 }
 </style>

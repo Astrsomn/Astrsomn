@@ -1,0 +1,47 @@
+export const aiConfigCenterTranslation = {
+  sidebar: {
+    searchPlaceholder: 'Search resources...',
+    all: 'All',
+    emptyPlugin: 'No enabled plugins',
+    goMarketplace: 'Go to Marketplace',
+    aiAccount: 'AI Account',
+    prompts: 'Prompts',
+    mcp: 'MCP',
+    tools: 'Tools',
+    ftl: 'FTL Templates',
+    conversations: 'Conversation Management',
+  },
+  main: {
+    scrollHint: 'Scroll to view models',
+    newAgent: 'New Agent',
+  },
+  agent: {
+    allAgents: 'All Agents',
+    stats: {
+      todayCalls: 'Today Calls',
+      tokenUsage: 'Token Usage',
+      avgLatency: 'Avg Latency',
+      successRate: 'Success Rate',
+    },
+    status: {
+      enabled: 'Running',
+      disabled: 'Draft',
+    },
+    noPrompt: 'No system prompt',
+    create: 'Create Agent',
+    edit: 'Edit',
+    empty: 'No Agents',
+  },
+  model: {
+    searchPlaceholder: 'Search model name...',
+    total: 'Total {n} models',
+    create: 'Add Model',
+    status: {
+      enabled: 'Enabled',
+      disabled: 'Disabled',
+    },
+    noParams: 'No parameters',
+    empty: 'No models',
+    emptyHint: 'Click + button above to add a model',
+  },
+}

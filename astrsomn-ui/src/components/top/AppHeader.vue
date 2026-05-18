@@ -51,7 +51,7 @@
           <slot name="actions">
             <DocLangTheme :showDoc="showDoc"/>
             <UserProfile v-if="isLoggedIn"/>
-            <a-button v-else shape="round" size="small" type="primary" @click="handleLogin">登录</a-button>
+            <a-button v-else shape="round" size="small" type="primary" @click="handleLogin">{{ t('login') }}</a-button>
           </slot>
         </div>
       </div>
@@ -63,13 +63,14 @@
 import {computed, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router';
 import {AppstoreOutlined, ArrowLeftOutlined, SwapOutlined} from '@ant-design/icons-vue';
-// Vetur occasionally misses Vue SFC default exports in script setup files.
-// @ts-ignore
+
+
 import DocLangTheme from './DocLangTheme.vue';
-// @ts-ignore
+
 import UserProfile from './UserProfile.vue';
-// @ts-ignore
+
 import WorkspaceEnvSwitcher from './WorkspaceEnvSwitcher.vue';
+import {getDictionaryLocale} from '@/locales/dictionary/registry';
 
 interface Props {
   showBrand?: boolean;
@@ -93,8 +94,18 @@ const route = useRoute();
 const isClicking = ref(false);
 const isLoggedIn = computed(() => !!localStorage.getItem('token'));
 
-// 💡 动态文字逻辑：根据目标判断
-const switchActionText = computed(() => props.switchTarget === 'chat' ? '立即聊天' : '管理后台');
+const t = (key: string): string => {
+  const isZh = getDictionaryLocale() === 'zh-CN';
+  const translations: Record<string, Record<string, string>> = {
+    'login': { 'zh-CN': '登录', 'en-US': 'Login' },
+    'admin': { 'zh-CN': '管理后台', 'en-US': 'Admin' },
+    'chat': { 'zh-CN': '立即聊天', 'en-US': 'Chat Now' }
+  };
+  return translations[key]?.[getDictionaryLocale()] || key;
+};
+
+
+const switchActionText = computed(() => props.switchTarget === 'chat' ? t('chat') : t('admin'));
 const switchIcon = computed(() => props.switchTarget === 'chat' ? SwapOutlined : AppstoreOutlined);
 
 const handleSwitch = () => {
@@ -138,7 +149,7 @@ const handleLogin = () => {
   padding: 0 24px;
 }
 
-/* --- 左侧区域 --- */
+
 .header-left {
   display: flex;
   align-items: center;
@@ -164,7 +175,7 @@ const handleLogin = () => {
   object-fit: contain;
 }
 
-/* 💡 翻转交互设计 */
+
 .brand-interactive-wrapper {
   background: transparent;
   border: none;
@@ -172,7 +183,7 @@ const handleLogin = () => {
   cursor: pointer;
   outline: none;
   height: 40px;
-  perspective: 1000px; /* 3D 视距 */
+  perspective: 1000px;
   overflow: hidden;
 }
 
@@ -196,7 +207,7 @@ const handleLogin = () => {
   backface-visibility: hidden;
 }
 
-/* 正面：Logo 文字 */
+
 .layer-front .brand-name {
   font-size: 18px;
   font-weight: 800;
@@ -212,7 +223,7 @@ const handleLogin = () => {
   line-height: 1.2;
 }
 
-/* 反面：功能文字 */
+
 .layer-back {
   flex-direction: row !important;
   align-items: center;
@@ -229,7 +240,7 @@ const handleLogin = () => {
   font-size: 14px;
   font-weight: 700;
   color: var(--primary);
-  letter-spacing: 1px; /* 加宽间距更显高级 */
+  letter-spacing: 1px;
   text-shadow: 0 0 12px var(--primary-glow);
 }
 
@@ -238,7 +249,7 @@ const handleLogin = () => {
   color: var(--primary);
 }
 
-/* --- 右侧区域 --- */
+
 .header-right {
   display: flex;
   align-items: center;
@@ -251,7 +262,7 @@ const handleLogin = () => {
   background: var(--border-subtle);
 }
 
-/* --- 返回导航 (修复对齐和动画) --- */
+
 .page-nav-area {
   display: flex;
   align-items: center;
@@ -291,7 +302,7 @@ const handleLogin = () => {
   gap: 12px;
 }
 
-/* Header 左侧品牌/返回切换动画 */
+
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: opacity 0.22s ease,

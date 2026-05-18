@@ -4,17 +4,13 @@ import com.baomidou.mybatisplus.annotation.DbType;
 
 import java.util.Locale;
 
-/**
- * Maps {@code spring.datasource.url} to MyBatis-Plus {@link DbType}. Only MySQL and H2 are supported.
- */
+
 public final class JdbcUrlDbSupport {
 
     private JdbcUrlDbSupport() {
     }
 
-    /**
-     * @throws IllegalArgumentException if URL is blank or not mysql/h2
-     */
+    
     public static DbType resolveMybatisDbType(String jdbcUrl) {
         String raw = jdbcUrl != null ? jdbcUrl.trim() : "";
         if (raw.isEmpty()) {

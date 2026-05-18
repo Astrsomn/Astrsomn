@@ -5,7 +5,6 @@ import dev.langchain4j.agent.tool.ToolSpecifications;
 import dev.langchain4j.service.tool.DefaultToolExecutor;
 import dev.langchain4j.service.tool.ToolExecutor;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -35,11 +34,7 @@ public class LocalToolCacheManager {
         });
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class ToolDefinition {
-        private final ToolSpecification specification;
-        private final ToolExecutor executor;
+    public record ToolDefinition(ToolSpecification specification, ToolExecutor executor) {
     }
 
 

@@ -49,7 +49,7 @@ const avatarChar = computed(() => {
       const info = JSON.parse(raw) as { username?: string };
       if (info.username) return info.username.charAt(0).toUpperCase();
     }
-  } catch { /* ignore */
+  } catch {
   }
   return 'U';
 });

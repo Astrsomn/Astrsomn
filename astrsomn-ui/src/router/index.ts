@@ -123,21 +123,11 @@ const adminChildren: RouteRecordRaw[] = [
         path: 'ai-safety',
         component: () => import('@/views/admin/layout/AdminModuleLayout.vue'),
         children: [
-            {
-                path: '',
-                name: 'AdminAiSafetyCenter',
-                component: () => import('@/views/admin/ai-safety/ai-safety-center/Index.vue'),
-                meta: {
-                    title: '安全治理中心',
-                    requiresAuth: true,
-                    showAdminDock: true,
-                    showModuleSidebar: false
-                }
-            },
+
             {
                 path: 'templates',
                 name: 'AdminTemplates',
-                component: () => import('@/views/admin/ai-safety/ai-template/TemplateList.vue'),
+                component: () => import('@/views/admin/ai-config/ai-template/TemplateList.vue'),
                 meta: {
                     title: 'FTL 模板管理',
                     requiresAuth: true,
@@ -148,7 +138,7 @@ const adminChildren: RouteRecordRaw[] = [
             {
                 path: 'security',
                 name: 'AdminSecurity',
-                component: () => import('@/views/admin/ai-safety/ai-sensitive-word/SensitiveWordList.vue'),
+                component: () => import('@/views/admin/ai-config/ai-sensitive-word/SensitiveWordList.vue'),
                 meta: {
                     title: '安全治理',
                     requiresAuth: true,
@@ -159,7 +149,7 @@ const adminChildren: RouteRecordRaw[] = [
             {
                 path: 'tracing',
                 name: 'AdminTracing',
-                component: () => import('@/views/admin/ai-safety/ai-trace-log/TraceList.vue'),
+                component: () => import('@/views/admin/ai-config/ai-trace-log/TraceList.vue'),
                 meta: {
                     title: '链路追踪',
                     requiresAuth: true,
@@ -492,30 +482,8 @@ const adminChildren: RouteRecordRaw[] = [
         ]
     },
 
-    {
-        path: 'vec-source',
-        name: 'AdminVecSource',
-        component: () => import('@/views/admin/ai-vector/vec-source/VecSourceList.vue'),
-        meta: {title: '向量源', requiresAuth: true, showAdminDock: false, showModuleSidebar: false}
-    },
-    {
-        path: 'vec-store',
-        name: 'AdminVecStore',
-        component: () => import('@/views/admin/ai-vector/vec-store/VecStoreList.vue'),
-        meta: {title: '向量存储', requiresAuth: true, showAdminDock: false, showModuleSidebar: false}
-    },
-    {
-        path: 'vec-doc',
-        name: 'AdminVecDoc',
-        component: () => import('@/views/admin/ai-vector/vec-doc/VecDocList.vue'),
-        meta: {title: '向量文档', requiresAuth: true, showAdminDock: false, showModuleSidebar: false}
-    },
-    {
-        path: 'vec-segment',
-        name: 'AdminVecSegment',
-        component: () => import('@/views/admin/ai-vector/vec-segment/VecSegmentList.vue'),
-        meta: {title: '向量分段', requiresAuth: true, showAdminDock: false, showModuleSidebar: false}
-    },
+
+
     {
         path: 'vec-center',
         name: 'AdminVectorBuilder',

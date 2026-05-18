@@ -1,13 +1,14 @@
 <template>
   <AstModal
-      :closable="true"
+      :confirm-loading="confirmLoading"
+      :confirm-text="'确定'"
       :open="open"
       body-height="80vh"
       main-padding="0"
       max-width="80vw"
       width="80vw"
       wrap-class-name="prompt-form-fsm-wrap"
-      @cancel="onCancel"
+      @confirm="handleOk"
       @update:open="onFsmOpenUpdate"
   >
     <template #header-logo>
@@ -19,15 +20,6 @@
     <template #header-subtitle>
       维护展示信息、场景分类与提示词正文
     </template>
-    <template #header-actions>
-      <a-space>
-        <a-button @click="onCancel">取消</a-button>
-        <a-button :loading="confirmLoading" type="primary" @click="handleOk">
-          确定
-        </a-button>
-      </a-space>
-    </template>
-
     <div class="prompt-form-body">
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
         <div class="editor-layout">
@@ -107,10 +99,6 @@ async function handleOk() {
     emit("submit", payload);
   } catch (err) {
   }
-}
-
-function onCancel() {
-  open.value = false;
 }
 
 function onFsmOpenUpdate(v: boolean) {

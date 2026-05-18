@@ -158,9 +158,9 @@ const onCancel = () => {
 }
 
 .modal-header-gradient {
-  background: #fff;
+  background: var(--bg-card);
   padding: 32px 40px;
-  border-bottom: 1px solid #f0f2f5;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .header-content {
@@ -178,7 +178,7 @@ const onCancel = () => {
 .icon-box {
   width: 48px;
   height: 48px;
-  background: #3b82f6;
+  background: var(--primary);
   color: white;
   border-radius: 12px;
   display: flex;
@@ -192,12 +192,12 @@ const onCancel = () => {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
-  color: #111;
+  color: var(--text-heading);
 }
 
 .text-group p {
   margin: 4px 0 0;
-  color: #999;
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
@@ -218,7 +218,7 @@ const onCancel = () => {
 }
 
 .form-body-container::-webkit-scrollbar-thumb {
-  background: #eee;
+  background: var(--border-input);
   border-radius: 4px;
 }
 
@@ -229,7 +229,7 @@ const onCancel = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .form-grid {
@@ -244,8 +244,8 @@ const onCancel = () => {
 
 .modal-footer-action {
   padding: 16px 40px;
-  background: #fff;
-  border-top: 1px solid #f0f0f0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-default);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -253,7 +253,7 @@ const onCancel = () => {
 
 .footer-left {
   font-size: 12px;
-  color: #52c41a;
+  color: var(--success);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -261,7 +261,7 @@ const onCancel = () => {
 
 .btn-flat {
   border: none;
-  color: #999;
+  color: var(--text-secondary);
   font-weight: 600;
 }
 
@@ -270,12 +270,12 @@ const onCancel = () => {
   font-weight: 600;
   height: 38px;
   padding: 0 24px;
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
 .btn-submit:hover, .btn-submit:focus {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--primary);
+  border-color: var(--primary);
 }
 </style>

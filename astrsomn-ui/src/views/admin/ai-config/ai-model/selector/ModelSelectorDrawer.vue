@@ -100,7 +100,7 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, reactive, watch} from 'vue'
+import {reactive, ref, watch} from 'vue'
 import {
   AppstoreOutlined,
   AudioOutlined,

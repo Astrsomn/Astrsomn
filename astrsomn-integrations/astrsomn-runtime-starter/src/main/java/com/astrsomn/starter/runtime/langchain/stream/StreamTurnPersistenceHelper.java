@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * 将一轮流式对话（思考、工具、正文、错误）写入 {@code AI_CHAT_MESSAGE}。
- */
+
 @Service
 @RequiredArgsConstructor
 public class StreamTurnPersistenceHelper {

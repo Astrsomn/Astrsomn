@@ -174,6 +174,11 @@
       @submit="handleStoreSubmit"
       @update:open="onStoreModalOpenChange"
   />
+  <ExtensionMarketplaceDialog
+      :open="marketplaceOpen"
+      @cancel="marketplaceOpen = false"
+      @update:open="marketplaceOpen = $event"
+  />
   <!-- 悬浮面板（折叠模式下 hover source 时弹出） -->
   <Teleport to="body">
     <div
@@ -218,13 +223,7 @@
 <script lang="ts" setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
-import {
-  ClusterOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  ReloadOutlined
-} from '@ant-design/icons-vue'
+import {ClusterOutlined, DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
@@ -237,7 +236,8 @@ import VecStoreFormModal from '@/views/admin/ai-vector/vec-store/VecStoreFormMod
 import {type AiVecSource, aiVecSourceApi} from '@/api/aiVecSource.ts'
 import {type AiVecStore, aiVecStoreApi} from '@/api/aiVecStore.ts'
 import {systemExtensionApi} from '@/api/systemExtension.ts'
-import {useRouter} from 'vue-router'
+import ExtensionMarketplaceDialog
+  from '@/views/admin/system-config/system-extension/component/ExtensionMarketplaceDialog.vue'
 
 const props = defineProps<{
   sources: AiVecSource[]
@@ -255,10 +255,10 @@ const emit = defineEmits<{
 
 const searchText = ref('')
 const handleSearch = () => {
-  // TODO: 实现搜索逻辑
+
 }
 
-// 悬浮面板相关
+
 const hoverSourceId = ref<number | string | null>(null)
 const hoverPanelX = ref(0)
 const hoverPanelY = ref(0)
@@ -342,7 +342,7 @@ const dbContainerMenuVisible = ref(false)
 const dbContainerMenuX = ref(0)
 const dbContainerMenuY = ref(0)
 const dbContainerMenuSource = ref<Source | null>(null)
-const router = useRouter()
+const marketplaceOpen = ref(false)
 
 type Db = {
   id: number | string
@@ -674,10 +674,7 @@ const fetchEnabledExtensions = async () => {
 }
 
 const goPluginMarketplace = () => {
-  void router.push({
-    path: '/admin/system/extensions',
-    query: {panel: 'marketplace'}
-  })
+  marketplaceOpen.value = true
 }
 
 onMounted(() => {
@@ -726,7 +723,7 @@ watch(
 .db-container {
   margin: 0 6px 8px 18px;
   padding-left: 12px;
-  overflow: hidden;
+
 }
 
 .db-empty-hint {
@@ -759,7 +756,7 @@ watch(
   background: rgba(239, 68, 68, 0.1) !important;
 }
 
-/* 折叠模式内容 */
+
 .collapsed-content {
   display: flex;
   flex-direction: column;
@@ -896,7 +893,7 @@ watch(
   background: var(--border-default, #e2e8f0);
 }
 
-/* 悬浮面板（折叠模式） */
+
 .hover-panel-overlay {
   position: fixed;
   inset: 0;

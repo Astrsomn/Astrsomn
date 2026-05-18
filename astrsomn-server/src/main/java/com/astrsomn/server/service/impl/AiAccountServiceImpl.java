@@ -169,9 +169,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         }
     }
 
-    /**
-     * 获取解密后的AI账号信息（内部使用）
-     */
+    
     public AiAccountEntity getDecryptedAccount(Long id) {
         AiAccountEntity entity = getById(id);
         if (entity != null) {
@@ -185,9 +183,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         return entity;
     }
 
-    /**
-     * 获取解密后的AI账号信息（内部使用）
-     */
+    
     public AiAccountEntity getDecryptedAccountByKey(String accountKey, String envCode) {
         AiAccountEntity entity = getOne(new LambdaQueryWrapper<AiAccountEntity>()
                 .eq(AiAccountEntity::getAccountKey, accountKey)
@@ -203,9 +199,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         return entity;
     }
 
-    /**
-     * 同环境下是否存在 AI_INSTANCE 引用该 accountKey。
-     */
+    
     private boolean isAccountKeyReferencedByModel(String accountKey, String envCode) {
         if (StringUtils.isBlank(accountKey) || StringUtils.isBlank(envCode)) {
             return false;

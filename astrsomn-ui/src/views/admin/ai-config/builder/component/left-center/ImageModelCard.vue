@@ -74,7 +74,7 @@ const handleSelectImageModel = () => {
 }
 
 const handleSelectAudioModel = () => {
-  /* 音频模型选择待接 */
+
 }
 
 const handleInstanceSelect = (instance: AiInstance) => {

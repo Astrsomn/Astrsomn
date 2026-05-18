@@ -10,7 +10,7 @@
             @dragleave.prevent="canUploadImage && onDragLeave"
             @drop.prevent="canUploadImage && onDrop"
         >
-          <div v-if="isDragging" class="drag-overlay">拖拽文件到这里上传</div>
+          <div v-if="isDragging" class="drag-overlay">{{ t.inputPanel.dragUpload }}</div>
 
           <AstroChatComposer
               :disabled="isStreaming"
@@ -18,7 +18,7 @@
               :model-value="draft"
               :send-disabled="sendDisabled"
               density="comfortable"
-              placeholder="问点什么吧..."
+              :placeholder="t.inputPanel.placeholder"
               variant="nested"
               @paste="handlePaste"
               @stop="emit('stop')"
@@ -36,11 +36,11 @@
                       class="preview-image"
                   />
                   <div v-else class="preview-file">{{ item.name }}</div>
-                  <div v-if="item.status === 'uploading'" class="preview-uploading">上传中...</div>
-                  <div v-if="item.isImage && item.status === 'success'" class="preview-view-hint" title="点击查看大图">
+                  <div v-if="item.status === 'uploading'" class="preview-uploading">{{ t.inputPanel.uploading }}</div>
+                  <div v-if="item.isImage && item.status === 'success'" class="preview-view-hint" :title="t.inputPanel.viewImage">
                     <EyeOutlined/>
                   </div>
-                  <button class="preview-remove" title="移除图片" type="button" @click="removeUploadedFile(item.id)">
+                  <button class="preview-remove" :title="t.inputPanel.removeImage" type="button" @click="removeUploadedFile(item.id)">
                     <CloseCircleFilled/>
                   </button>
                 </div>
@@ -53,7 +53,7 @@
                     :loading="optionsLoading"
                     :value="selectedAgent"
                     class="panel-select"
-                    placeholder="选择 Agent"
+                    :placeholder="t.inputPanel.selectAgent"
                     @update:value="emit('update:selectedAgent', $event)"
                 >
                   <a-select-option
@@ -82,7 +82,7 @@
                       class="panel-select instance-select-inner"
                       dropdown-class-name="custom-dropdown"
                       option-label-prop="label"
-                      placeholder="选择对话实例"
+                      :placeholder="t.inputPanel.selectInstance"
                       @update:value="emit('update:selectedChatInstanceKey', $event)"
                   >
                     <a-select-option
@@ -115,7 +115,7 @@
                   :show-upload-list="false"
                   class="upload-trigger"
               >
-                <button class="icon-btn" title="上传图片">
+                <button class="icon-btn" :title="t.inputPanel.uploadImage">
                   <PaperClipOutlined/>
                 </button>
               </a-upload>
@@ -128,7 +128,7 @@
                     @click="emit('update:isDeepThinking', !isDeepThinking)"
                 >
                   <BulbOutlined/>
-                  深度思考
+                  {{ t.inputPanel.deepThinking }}
                 </div>
                 <div
                     :class="{ active: isWebSearch }"
@@ -136,7 +136,7 @@
                     @click="emit('update:isWebSearch', !isWebSearch)"
                 >
                   <GlobalOutlined/>
-                  联网搜索
+                  {{ t.inputPanel.webSearch }}
                 </div>
               </div>
             </template>
@@ -157,6 +157,7 @@ import type {AiInstance} from '@/api/aiInstance.ts'
 import type {UploadProps} from 'ant-design-vue'
 import {message} from 'ant-design-vue'
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const props = withDefaults(defineProps<{
   layout?: 'bottom' | 'centered'
@@ -172,7 +173,7 @@ const props = withDefaults(defineProps<{
   agentOptions: AiAgent[]
   chatInstanceOptions: AiInstance[]
   modelCapabilities?: string[]
-  /** 自定义上传；默认走 /v1/astro/file/upload */
+
   uploadFile?: (file: File) => Promise<string>
 }>(), {
   layout: 'bottom',
@@ -213,6 +214,8 @@ const uploadedFiles = ref<UploadedFile[]>([])
 const isDragging = ref(false)
 const dragDepth = ref(0)
 
+const t = usePageTranslation('chat-index')
+
 function instanceAvatarHtml(inst: AiInstance): string {
   const raw = inst.providerAvatar
   return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
@@ -239,7 +242,7 @@ const canDeepThinking = computed(() =>
     props.modelCapabilities.length === 0 || hasCapability('deep_reasoning')
 )
 
-/** 本地草稿：与父级 userInput 同步，但发送时先在此清空，避免仅依赖 v-model 时 a-textarea 不刷新 */
+
 const draft = ref('')
 
 watch(
@@ -309,16 +312,16 @@ const isAllowedFileType = (file: File) => {
 
 const validateUploadFile = (file: File): boolean => {
   if (uploadedFiles.value.length >= MAX_UPLOAD_COUNT) {
-    message.warning(`最多上传 ${MAX_UPLOAD_COUNT} 张图片`)
+    message.warning(t.value.notifications.maxImages.replace('{n}', String(MAX_UPLOAD_COUNT)))
     return false
   }
   if (!isAllowedFileType(file)) {
-    message.warning('仅支持 PNG/JPG/JPEG/WEBP/GIF 图片')
+    message.warning(t.value.notifications.invalidFileType)
     return false
   }
   const maxBytes = MAX_FILE_SIZE_MB * 1024 * 1024
   if (file.size > maxBytes) {
-    message.warning(`单张图片大小不能超过 ${MAX_FILE_SIZE_MB}MB`)
+    message.warning(t.value.notifications.fileTooLarge.replace('{n}', String(MAX_FILE_SIZE_MB)))
     return false
   }
   return true
@@ -343,7 +346,7 @@ async function defaultChatUpload(file: File): Promise<string> {
   })) as UploadResponse
   const fileUrl = data?.fileUrl?.trim()
   if (!fileUrl) {
-    throw new Error('上传成功但未返回文件地址')
+    throw new Error(t.value.notifications.uploadSuccessNoUrl)
   }
   return fileUrl
 }
@@ -351,7 +354,7 @@ async function defaultChatUpload(file: File): Promise<string> {
 const uploadSingleFile = async (file: File) => {
   if (!validateUploadFile(file)) return
   if (hasDuplicateFile(file)) {
-    message.warning(`图片 ${file.name} 已添加，请勿重复上传`)
+    message.warning(t.value.notifications.duplicateFile.replace('{name}', file.name))
     return
   }
   const fileHash = createFileHash(file)
@@ -403,7 +406,7 @@ const uploadRequest: UploadProps['customRequest'] = async (option) => {
     await uploadSingleFile(option.file as File)
     option.onSuccess?.({}, new XMLHttpRequest())
   } catch (error: any) {
-    message.error(error?.message || '文件上传失败')
+    message.error(error?.message || t.value.notifications.uploadFailed)
     option.onError?.(error)
   }
 }
@@ -427,7 +430,7 @@ const handlePaste = async (event: ClipboardEvent) => {
     try {
       await uploadSingleFile(file)
     } catch (error: any) {
-      message.error(error?.message || `文件 ${file.name} 上传失败`)
+      message.error(error?.message || t.value.notifications.fileUploadFailed.replace('{name}', file.name))
       break
     }
   }
@@ -703,7 +706,7 @@ onBeforeUnmount(() => {
   color: var(--text-secondary) !important;
 }
 
-/* 下拉挂载到 body，需全局类名 */
+
 :global(.custom-dropdown .inst-opt-row) {
   display: flex;
   align-items: center;

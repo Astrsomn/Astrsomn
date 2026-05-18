@@ -1,15 +1,7 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.system.constant.SystemUserEnum.AdminEnum;
-import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
-import com.astrsomn.system.dto.user.SystemUserCreateRequestDTO;
-import com.astrsomn.system.dto.user.SystemUserQueryRequestDTO;
-import com.astrsomn.system.dto.user.SystemUserResponseDTO;
-import com.astrsomn.system.dto.user.SystemUserUpdateRequestDTO;
-import com.astrsomn.system.entity.SystemUserEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.system.exception.SystemUserErrorEnum;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
@@ -17,6 +9,14 @@ import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.SystemUserMapper;
 import com.astrsomn.server.service.SystemUserService;
+import com.astrsomn.system.constant.SystemUserEnum.AdminEnum;
+import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
+import com.astrsomn.system.dto.user.SystemUserCreateRequestDTO;
+import com.astrsomn.system.dto.user.SystemUserQueryRequestDTO;
+import com.astrsomn.system.dto.user.SystemUserResponseDTO;
+import com.astrsomn.system.dto.user.SystemUserUpdateRequestDTO;
+import com.astrsomn.system.entity.SystemUserEntity;
+import com.astrsomn.system.exception.SystemUserErrorEnum;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +32,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
 
     private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
-    /**
-     * 统一角色与 ADMIN_FLAG：管理员类（超管、环境管理员）为 Y，普通用户为 N。
-     */
+    
     private static void applyUserRole(SystemUserEntity entity) {
         UserRoleEnum role = UserRoleEnum.fromCode(entity.getUserRole());
         entity.setUserRole(role.getCode());

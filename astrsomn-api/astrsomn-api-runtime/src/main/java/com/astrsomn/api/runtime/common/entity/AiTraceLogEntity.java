@@ -47,8 +47,8 @@ public class AiTraceLogEntity extends BaseEntity<Long> {
     @TableField("SNAPSHOT_CONTENT")
     private String snapshotContent;
 
-    // --- 执行数据 ---
-    @TableField("NODE_TYPE") // LLM, RAG, MCP, TOOL
+
+    @TableField("NODE_TYPE")
     private String nodeType;
 
     @TableField("INPUT_DATA")
@@ -63,6 +63,6 @@ public class AiTraceLogEntity extends BaseEntity<Long> {
     @TableField("DURATION")
     private Long duration;
 
-    @TableField("STATUS") // SUCCESS, FAIL
+    @TableField("STATUS")
     private String status;
 }

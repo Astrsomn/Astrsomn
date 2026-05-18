@@ -17,10 +17,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * 流式模型组合：在「建立流」阶段做选点与故障转移；收到任意分片后不再切换节点。
- * 不在此路径套用 {@link ResilienceDecorationStrategy}（异步分片与熔断语义不匹配）。
- */
+
 public class CompositeStreamingChatModel implements StreamingChatModel {
 
     private final List<StreamingChatModel> delegates;

@@ -23,8 +23,8 @@ const style = computed(() => {
 <style scoped>
 .selection-rect {
   position: absolute;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid var(--primary);
   border-radius: 2px;
   pointer-events: none;
   z-index: 50;

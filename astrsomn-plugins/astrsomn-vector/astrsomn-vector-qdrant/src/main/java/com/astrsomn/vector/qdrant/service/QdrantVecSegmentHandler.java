@@ -1,7 +1,7 @@
 package com.astrsomn.vector.qdrant.service;
 
-import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecSegment;
+import com.astrsomn.api.vector.entity.AiVecSegmentEntity;
 import com.astrsomn.common.utils.StringUtils;
 
 public final class QdrantVecSegmentHandler extends AbstractVecSegment {

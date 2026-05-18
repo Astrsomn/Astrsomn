@@ -10,10 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 
-/**
- * Astrsomn 专用数据源，配置前缀 {@code astrsomn.datasource.*}。
- * <p>不与宿主 {@code spring.datasource} 抢占 {@code @Primary}，便于业务系统自建主库。</p>
- */
+
 @Slf4j
 @Configuration
 public class AstrsomnDataSourceConfiguration {

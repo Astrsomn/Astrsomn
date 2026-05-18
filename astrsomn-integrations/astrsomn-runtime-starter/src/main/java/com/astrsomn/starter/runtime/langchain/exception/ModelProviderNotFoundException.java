@@ -1,8 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.exception;
 
-/**
- * SPI 找不到指定厂商的 ModelProviderHandler。
- */
+
 public class ModelProviderNotFoundException extends AstroModelException {
 
     public ModelProviderNotFoundException(String extensionCode) {

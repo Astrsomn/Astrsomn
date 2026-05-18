@@ -1,17 +1,15 @@
 package com.astrsomn.provider.qwen;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
-import com.astrsomn.system.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.langchain.extension.AstroExtensionDescriptor;
+import com.astrsomn.system.constant.SystemExtensionEnum;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Properties;
 
-/**
- * 扩展元数据：通过 Java SPI(ServiceLoader) 被系统注册。
- */
+
 public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
 
     private static final String DEFAULT_NAME = "Qwen Model Provider";

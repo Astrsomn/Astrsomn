@@ -231,7 +231,7 @@ const page = reactive({
 const selectedRowKeys = ref<Array<number | string>>([])
 const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 
-// maskSecret 函数已在 AccountCard 组件中实现
+
 
 const currentPageIds = computed(() =>
     list.value
@@ -565,5 +565,5 @@ const openModelsDrawer = async (account: AiAccount) => {
   color: var(--text-muted, #bfbfbf);
 }
 
-/* drawer styles moved to AccountModelsDrawer.vue */
+
 </style>

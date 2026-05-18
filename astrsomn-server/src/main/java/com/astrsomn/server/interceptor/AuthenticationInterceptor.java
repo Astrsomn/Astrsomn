@@ -1,9 +1,9 @@
 package com.astrsomn.server.interceptor;
 
-import com.astrsomn.system.entity.SystemUserEntity;
 import com.astrsomn.server.util.JwtUtil;
 import com.astrsomn.server.util.UserContext;
 import com.astrsomn.starter.runtime.system.mapper.AstSystemUserMapper;
+import com.astrsomn.system.entity.SystemUserEntity;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,12 +56,11 @@ public class AuthenticationInterceptor extends AbstractSecurityInterceptor imple
         UserContext.set("envCode", user.getEnvCode());
         UserContext.setToken(token);
         UserContext.setClientIp(request.getRemoteAddr());
-        // 同步到 starter 上下文，供 MetaObjectHandler 自动填充读取
+
         com.astrsomn.starter.runtime.context.UserContext.setUserId(user.getId());
         com.astrsomn.starter.runtime.context.UserContext.setUsername(user.getUsername());
 
-        log.info("用户认证成功 - URI: {}, Username: {}, UserId: {}",
-                request.getRequestURI(), username, userId);
+
 
         return true;
     }

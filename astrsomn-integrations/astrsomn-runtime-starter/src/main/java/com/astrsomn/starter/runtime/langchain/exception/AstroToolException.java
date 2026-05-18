@@ -2,9 +2,7 @@ package com.astrsomn.starter.runtime.langchain.exception;
 
 import java.util.Map;
 
-/**
- * 工具调用相关异常基类。
- */
+
 public class AstroToolException extends AstroException {
 
     public AstroToolException(ErrorCode errorCode, String detail) {

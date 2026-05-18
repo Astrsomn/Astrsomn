@@ -10,7 +10,7 @@
           <span>{{ props.providerName.slice(0, 1).toUpperCase() }}</span>
         </div>
         <div class="header-info">
-          <h2 class="list-title">{{ props.providerName || '所有 Agents' }}</h2>
+          <h2 class="list-title">{{ props.providerName || t.agent.allAgents }}</h2>
           <p v-if="props.providerDescription" class="list-subtitle">{{ props.providerDescription }}</p>
         </div>
       </div>
@@ -21,7 +21,7 @@
           </div>
           <div class="stat-body">
             <span class="stat-value">12.8K</span>
-            <span class="stat-label">今日调用量</span>
+            <span class="stat-label">{{ t.agent.stats.todayCalls }}</span>
           </div>
         </div>
         <div class="stat-card">
@@ -30,7 +30,7 @@
           </div>
           <div class="stat-body">
             <span class="stat-value">2.4M</span>
-            <span class="stat-label">Token 消耗</span>
+            <span class="stat-label">{{ t.agent.stats.tokenUsage }}</span>
           </div>
         </div>
         <div class="stat-card">
@@ -39,7 +39,7 @@
           </div>
           <div class="stat-body">
             <span class="stat-value">320<span class="stat-unit">ms</span></span>
-            <span class="stat-label">平均延迟</span>
+            <span class="stat-label">{{ t.agent.stats.avgLatency }}</span>
           </div>
         </div>
         <div class="stat-card">
@@ -48,7 +48,7 @@
           </div>
           <div class="stat-body">
             <span class="stat-value">99.2<span class="stat-unit">%</span></span>
-            <span class="stat-label">成功率</span>
+            <span class="stat-label">{{ t.agent.stats.successRate }}</span>
           </div>
         </div>
       </div>
@@ -75,12 +75,12 @@
           <div class="card-header-text">
             <h3 class="card-title">{{ agent.agentName }}</h3>
             <a-tag :class="['status-dot-tag', agent.status]" size="small">
-              {{ agent.status === 'enabled' ? '运行中' : '草稿' }}
+              {{ agent.status === 'enabled' ? t.agent.status.enabled : t.agent.status.disabled }}
             </a-tag>
           </div>
         </div>
 
-        <p class="card-prompt">{{ agent.promptContent || agent.promptTitle || '暂无系统指令' }}</p>
+        <p class="card-prompt">{{ agent.promptContent || agent.promptTitle || t.agent.noPrompt }}</p>
 
         <div class="card-meta">
           <span v-if="agent.instanceList?.length" class="meta-chip">
@@ -93,19 +93,19 @@
             <ApiOutlined/> {{ agent.mcpKeys.split(',').filter(Boolean).length }}
           </span>
           <span class="meta-spacer"></span>
-          <span class="edit-link">编辑 <RightOutlined/></span>
+          <span class="edit-link">{{ t.agent.edit }} <RightOutlined/></span>
         </div>
       </div>
 
       <!-- 添加卡片 -->
       <div class="add-card" @click="handleCreate">
         <PlusOutlined class="add-icon"/>
-        <span class="add-text">新建 Agent</span>
+        <span class="add-text">{{ t.agent.create }}</span>
       </div>
     </div>
 
     <div v-if="!loading && agents.length === 0" class="empty-container">
-      <a-empty description="暂无 Agent"/>
+      <a-empty :description="t.agent.empty"/>
     </div>
   </div>
 </template>
@@ -132,6 +132,7 @@ import {
   ToolOutlined,
 } from '@ant-design/icons-vue'
 import {type AiAgent, aiAgentApi, type PageResponse} from '@/api/aiAgent.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const props = defineProps<{
   providerKey?: string
@@ -144,8 +145,9 @@ const emit = defineEmits(['select', 'create'])
 
 const loading = ref(false)
 const agents = ref<AiAgent[]>([])
+const t = usePageTranslation('ai-config-center')
 
-// ── Avatar helpers ──
+
 const avatarIconMap: Record<string, any> = {
   RobotOutlined, RocketOutlined, ThunderboltOutlined, StarOutlined,
   HeartOutlined, FireOutlined, CrownOutlined, GlobalOutlined,
@@ -164,7 +166,7 @@ function getAvatarComponent(val?: string) {
   return avatarIconMap[val || ''] || RobotOutlined
 }
 
-// ── Fetch ──
+
 const fetchAgents = async () => {
   loading.value = true
   try {
@@ -198,7 +200,7 @@ void fetchAgents()
   overflow-y: auto;
 }
 
-/* ── Header ── */
+
 .list-header {
   display: flex;
   justify-content: space-between;
@@ -257,7 +259,7 @@ void fetchAgents()
   margin: 0;
 }
 
-/* Stats */
+
 .header-stats {
   display: flex;
   gap: 10px;
@@ -331,7 +333,7 @@ void fetchAgents()
   font-weight: 500;
 }
 
-/* ── Loading / Empty ── */
+
 .loading-container {
   display: flex;
   justify-content: center;
@@ -343,14 +345,14 @@ void fetchAgents()
   padding: 60px;
 }
 
-/* ── Card Grid ── */
+
 .agent-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
 }
 
-/* ── Agent Card ── */
+
 .agent-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -369,7 +371,7 @@ void fetchAgents()
   transform: translateY(-1px);
 }
 
-/* Card header */
+
 .card-header {
   display: flex;
   align-items: center;
@@ -453,7 +455,7 @@ void fetchAgents()
   color: #9ca3af;
 }
 
-/* Prompt content */
+
 .card-prompt {
   font-size: 11px;
   color: var(--text-muted);
@@ -467,7 +469,7 @@ void fetchAgents()
   min-height: 35px;
 }
 
-/* Meta row */
+
 .card-meta {
   display: flex;
   align-items: center;
@@ -514,7 +516,7 @@ void fetchAgents()
   font-size: 8px;
 }
 
-/* ── Add Card ── */
+
 .add-card {
   border: 2px dashed var(--border-subtle);
   background: transparent;

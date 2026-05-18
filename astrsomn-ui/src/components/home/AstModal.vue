@@ -1,6 +1,6 @@
 <template>
   <a-modal
-      :closable="closable"
+      :closable="false"
       :destroy-on-close="destroyOnClose"
       :footer="footer"
       :open="open"
@@ -28,6 +28,24 @@
         <div v-if="$slots['header-actions']" class="fsm-header-actions">
           <slot name="header-actions"/>
         </div>
+        <div v-else class="fsm-header-actions">
+          <a-button
+              v-if="confirmText"
+              :disabled="confirmDisabled"
+              :loading="confirmLoading"
+              class="fsm-confirm-btn"
+              type="primary"
+              @click="emit('confirm')"
+          >
+            <template #icon>
+              <component :is="confirmIcon" />
+            </template>
+            {{ confirmText }}
+          </a-button>
+          <a-button class="fsm-close-btn" type="text" @click="handleClose">
+            <CloseOutlined />
+          </a-button>
+        </div>
       </header>
       <div :style="mainAreaStyle" class="fsm-main">
         <slot/>
@@ -37,35 +55,41 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, type CSSProperties} from 'vue'
+import {type Component, computed, type CSSProperties} from 'vue'
+import {CheckOutlined, CloseOutlined} from '@ant-design/icons-vue'
 
 const BASE_WRAP_CLASS = 'astrsomn-fullscreen-shell'
 
 interface Props {
   open: boolean
-  /** 传给 a-modal 的 width，如 `100%`、`1200` */
+
   width?: string | number
-  /** 弹层内容区高度，如 `100vh`、`90vh`、`800px` */
+
   bodyHeight?: string
-  /** 弹层内容区最大高度，如 `800px`、`90vh` */
+
   maxBodyHeight?: string
-  /** .ant-modal 最大宽度，如 `100vw`、`min(100vw, 1400px)` */
+
   maxWidth?: string
-  /** 顶栏最小高度，如 `72px` */
+
   headerHeight?: string
-  /** .ant-modal-content 背景色 */
+
   contentBackground?: string
-  /** 主区域 padding */
+
   mainPadding?: string
-  /** 主区域背景色 */
+
   mainBackground?: string
-  closable?: boolean
   destroyOnClose?: boolean
   footer?: null
-  /** 追加在基础 wrap class 之后 */
+
   wrapClassName?: string
-  /** 会与尺寸 CSS 变量合并，同名键优先生效 */
+
   wrapStyle?: CSSProperties
+
+  confirmText?: string
+
+  confirmIcon?: Component
+  confirmLoading?: boolean
+  confirmDisabled?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -77,15 +101,16 @@ const props = withDefaults(defineProps<Props>(), {
   contentBackground: 'var(--bg-card, #f8fafc)',
   mainPadding: '0px',
   mainBackground: 'var(--bg-surface, #f8fafc)',
-  closable: false,
   destroyOnClose: true,
   footer: null,
   wrapStyle: () => ({}),
+  confirmIcon: () => CheckOutlined,
 })
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
   cancel: []
+  confirm: []
 }>()
 
 const wrapClass = computed(() =>
@@ -105,10 +130,15 @@ const mainAreaStyle = computed(() => ({
   padding: props.mainPadding,
   background: props.mainBackground,
 }))
+
+function handleClose() {
+  emit('update:open', false)
+  emit('cancel')
+}
 </script>
 
 <style scoped>
-/* 全屏弹层：顶对齐，尺寸由 wrap 上的 CSS 变量控制 */
+
 :global(.astrsomn-fullscreen-shell.ant-modal-wrap) {
   display: flex;
   align-items: center;
@@ -198,7 +228,30 @@ const mainAreaStyle = computed(() => ({
 .fsm-header-actions {
   display: flex;
   align-items: center;
+  gap: 8px;
   flex-shrink: 0;
+}
+
+.fsm-confirm-btn {
+  height: 36px;
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 0 16px;
+}
+
+.fsm-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted, #94a3b8);
+}
+
+.fsm-close-btn:hover {
+  color: var(--text-primary, #0f172a);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .fsm-main {

@@ -1,8 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.exception;
 
-/**
- * 模型 API 调用失败（包装原始异常）。
- */
+
 public class ModelCallException extends AstroModelException {
 
     public ModelCallException(String detail, Throwable cause) {

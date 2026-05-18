@@ -6,11 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 从扩展描述文案解析依赖声明。
- * 支持格式:
- * deps:hard=extA,extB;soft=extC
- */
+
 @Component
 public class ExtensionDependencyParser {
 

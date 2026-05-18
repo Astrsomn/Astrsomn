@@ -294,7 +294,7 @@ const getFileExtension = (name: string) => {
   .vectorizing-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(255, 255, 255, 0.88);
+    background: var(--bg-card);
     display: flex;
     flex-direction: column;
     align-items: center;

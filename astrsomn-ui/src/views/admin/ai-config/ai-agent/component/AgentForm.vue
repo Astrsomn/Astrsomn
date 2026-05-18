@@ -92,7 +92,12 @@ import AssemblyCanvas from '../assembly/AssemblyCanvas.vue'
 import {fetchInstancesPaged, fetchMcpsPaged, fetchPromptsPaged, fetchToolsPaged} from '../assembly/assemblyFetch.ts'
 import type {AiAgent} from '@/api/aiAgent.ts'
 import {aiAgentApi} from '@/api/aiAgent.ts'
-import type {AssemblyAgentForm, AssemblyDragPayload, AssemblySlotKey, InstanceModelType} from '../assembly/assemblyTypes.ts'
+import type {
+  AssemblyAgentForm,
+  AssemblyDragPayload,
+  AssemblySlotKey,
+  InstanceModelType
+} from '../assembly/assemblyTypes.ts'
 
 interface Props {
   visible: boolean
@@ -122,34 +127,34 @@ const headerFormSegmentButtons = computed<SegmentedButton[]>(() => [
   },
 ])
 
-// 动态计算 pageSize，基于容器高度保守估算
+
 const calculatePageSize = () => {
-  // 容器高度：calc(100vh - 100px)
+
   const containerHeight = window.innerHeight - 100
 
-  // 减去 tab 栏、搜索框、分页按钮的高度
-  const headerHeight = 100 // tab栏 + 搜索框 + 分页按钮
+
+  const headerHeight = 100
   const availableHeight = containerHeight - headerHeight
 
-  // 每个芯片的估算高度（包括间距）
-  const chipHeight = 60 // 保守估算，包括上下间距
 
-  // 计算最大可容纳的芯片数量，保守一点，取整后减1
+  const chipHeight = 60
+
+
   const maxChips = Math.floor(availableHeight / chipHeight) - 1
 
-  // 确保至少显示 3 个
+
   return Math.max(3, maxChips)
 }
 
-// 初始计算 pageSize
+
 const pageSize = ref(calculatePageSize())
 
-// 监听窗口大小变化，重新计算 pageSize
+
 window.addEventListener('resize', () => {
   const oldPageSize = pageSize.value
   pageSize.value = calculatePageSize()
 
-  // 如果 pageSize 发生变化，重置页码并重新加载数据
+
   if (oldPageSize !== pageSize.value) {
     resetPagination()
     void loadAll()

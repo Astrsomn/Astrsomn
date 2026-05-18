@@ -1,8 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.exception;
 
-/**
- * 按 agentKey 未找到智能体配置。
- */
+
 public class AgentNotFoundException extends AstroConfigException {
 
     public AgentNotFoundException(String agentKey, String envCode) {

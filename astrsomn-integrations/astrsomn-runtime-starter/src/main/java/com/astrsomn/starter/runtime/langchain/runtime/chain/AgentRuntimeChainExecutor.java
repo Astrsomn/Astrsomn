@@ -8,9 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 按顺序执行所有 {@link AgentRuntimeChainHandler}，保证每一环都被调用到。
- */
+
 @Slf4j
 @Component
 public class AgentRuntimeChainExecutor {

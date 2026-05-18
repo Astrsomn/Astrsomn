@@ -8,9 +8,7 @@ import com.astrsomn.common.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 从 {@link ModelSetting} 复制连接字段，用于为每个 endpoint 构建独立 LangChain4j 模型实例。
- */
+
 public final class ModelSettingRoutingSupport {
 
     private ModelSettingRoutingSupport() {

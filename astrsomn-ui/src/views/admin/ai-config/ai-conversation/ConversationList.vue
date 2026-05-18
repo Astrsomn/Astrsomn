@@ -93,9 +93,9 @@ const handleRecoverConversation = async (memoryKey: string) => {
   try {
     const conversations = await aiConversationApi.recoverByMemoryKey(memoryKey)
     if (conversations && conversations.length > 0) {
-      // 取最新的一条作为主要信息
+
       selectedConversation.value = conversations[conversations.length - 1]
-      // 同时保存整个对话列表，用于显示完整的对话历史
+
       selectedConversationList.value = conversations
     }
   } catch (error) {

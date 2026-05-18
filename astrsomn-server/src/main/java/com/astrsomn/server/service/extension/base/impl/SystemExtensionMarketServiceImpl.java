@@ -1,11 +1,11 @@
 package com.astrsomn.server.service.extension.base.impl;
 
-import com.astrsomn.system.dto.extension.ExtensionMarketplaceItemDTO;
-import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.extension.base.SystemExtensionMarketService;
 import com.astrsomn.server.service.extension.base.SystemExtensionService;
+import com.astrsomn.system.dto.extension.ExtensionMarketplaceItemDTO;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
@@ -21,9 +21,7 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * 插件市场目录：调用外部 API 获取插件列表。
- */
+
 @Component
 @RequiredArgsConstructor
 public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketService {

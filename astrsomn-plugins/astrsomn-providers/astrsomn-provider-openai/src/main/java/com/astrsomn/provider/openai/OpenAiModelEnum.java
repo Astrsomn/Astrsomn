@@ -13,13 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 占位模型清单，可按业务在枚举中增补；与库表 {@code AI_MODEL} 对齐时建议以库为准。
- */
+
 @Getter
 public enum OpenAiModelEnum {
 
-    // --- GPT-4.1 系列 ---
+
     GPT_4_1("gpt-4.1", "GPT-4.1", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -69,7 +67,7 @@ public enum OpenAiModelEnum {
             )
     ),
 
-    // --- GPT-4o 系列 ---
+
     GPT_4O("gpt-4o", "GPT-4o", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -116,7 +114,7 @@ public enum OpenAiModelEnum {
             )
     ),
 
-    // --- GPT-4 / GPT-4 Turbo ---
+
     GPT_4_TURBO("gpt-4-turbo", "GPT-4 Turbo", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -147,7 +145,7 @@ public enum OpenAiModelEnum {
             )
     ),
 
-    // --- GPT-3.5 系列 ---
+
     GPT_3_5_TURBO("gpt-3.5-turbo", "GPT-3.5 Turbo", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -163,7 +161,7 @@ public enum OpenAiModelEnum {
             )
     ),
 
-    // --- o 系列推理模型 ---
+
     O1("o1", "O1", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -236,7 +234,7 @@ public enum OpenAiModelEnum {
             )
     ),
 
-    // --- Embedding Models ---
+
     TEXT_EMBEDDING_3_LARGE("text-embedding-3-large", "text-embedding-3-large", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
@@ -262,7 +260,7 @@ public enum OpenAiModelEnum {
             )
     ),
 
-    // --- Image Models ---
+
     GPT_IMAGE_1("gpt-image-1", "GPT Image 1", AiModelEnum.ModelTypeEnum.IMAGE_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ImageCapabilitiesEnum.TEXT_TO_IMAGE,
@@ -316,16 +314,12 @@ public enum OpenAiModelEnum {
         return modelName;
     }
 
-    /**
-     * 将 capabilities 转换为 JSON 字符串
-     */
+    
     public String getCapabilities() {
         return EnumUtils.toCapabilitiesJson(capabilities);
     }
 
-    /**
-     * 将 params 转换为 JSON 字符串（包含默认值配置）
-     */
+    
     public String getParams() {
         try {
             List<Map<String, Object>> paramList = new ArrayList<>();

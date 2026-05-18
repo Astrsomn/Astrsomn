@@ -1,22 +1,22 @@
 package com.astrsomn.server.service.impl;
 
-import com.astrsomn.api.vector.constant.AiVecDriverEnum;
-import com.astrsomn.api.vector.entity.AiVecSourceEntity;
-import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceCreateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
-import com.astrsomn.api.vector.exception.AstVecStoreErrorEnum;
+import com.astrsomn.api.vector.constant.AiVecDriverEnum;
 import com.astrsomn.api.vector.dto.vecstore.*;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
+import com.astrsomn.api.vector.exception.AstVecStoreErrorEnum;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiVecStoreMapper;
-import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
-import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.server.service.AiInstanceService;
 import com.astrsomn.server.service.AiVecSourceService;
 import com.astrsomn.server.service.AiVecStoreService;
@@ -98,9 +98,7 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
             if (!Objects.equals(before.getDimension(), after.getDimension())) {
                 return true;
             }
-            if (!Objects.equals(trimNorm(before.getDistanceMetric()), trimNorm(after.getDistanceMetric()))) {
-                return true;
-            }
+            return !Objects.equals(trimNorm(before.getDistanceMetric()), trimNorm(after.getDistanceMetric()));
         }
         return false;
     }

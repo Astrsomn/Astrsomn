@@ -234,7 +234,7 @@ const parsedConversation = computed<ChatMessage[] | null>(() => {
   max-width: calc(100% - 48px);
 }
 
-/* —— AI 统一卡片 —— */
+
 .ai-card {
   border-radius: 16px;
   border: 1px solid var(--chat-ai-card-border);
@@ -255,7 +255,7 @@ const parsedConversation = computed<ChatMessage[] | null>(() => {
   word-break: break-word;
 }
 
-/* 用户气泡 */
+
 .user-card {
   display: flex;
   justify-content: flex-end;

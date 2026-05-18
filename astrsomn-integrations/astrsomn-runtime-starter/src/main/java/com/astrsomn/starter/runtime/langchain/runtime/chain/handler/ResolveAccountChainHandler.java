@@ -1,7 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.runtime.chain.handler;
 
 import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
 import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.starter.runtime.langchain.exception.AccountNotFoundException;
@@ -14,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-/**
- * 根据模型上的账号 Key 加载凭证，合并进 {@link ModelSetting}。
- * 若模型未配置 {@code ACCOUNT_KEY} 则跳过，不中断链（由下游工厂决定是否报错）。
- */
+
 @Component
 @Order(60)
 @RequiredArgsConstructor
