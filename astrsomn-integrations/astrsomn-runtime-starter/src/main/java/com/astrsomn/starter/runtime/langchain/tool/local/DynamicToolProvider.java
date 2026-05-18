@@ -38,14 +38,14 @@ public class DynamicToolProvider implements ToolProvider {
                 LocalToolCacheManager.ToolDefinition definition =
                         globalToolCache.getOrCompute(bean, config.getBeanName(), config.getMethodName());
 
-                ToolSpecification spec = definition.getSpecification();
+                ToolSpecification spec = definition.specification();
 
                 // 如果数据库有自定义描述，按需覆盖（spec 是不可变的，需 rebuild）
                 if (config.getDescription() != null) {
                     spec = spec.toBuilder().description(config.getDescription()).build();
                 }
 
-                builder.add(spec, definition.getExecutor());
+                builder.add(spec, definition.executor());
 
             } catch (Exception e) {
                 log.error("组装工具 [{}] 失败", config.getToolName(), e);

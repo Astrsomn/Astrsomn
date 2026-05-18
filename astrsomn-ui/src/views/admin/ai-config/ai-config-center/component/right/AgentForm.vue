@@ -84,22 +84,26 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
-import { message } from 'ant-design-vue'
-import { type AiAgent, aiAgentApi } from '@/api/aiAgent.ts'
-import { type AiInstance, aiInstanceApi } from '@/api/aiInstance.ts'
-import { type AiModel, aiModelApi } from '@/api/aiModel.ts'
-import { type AiPrompt, aiPromptApi } from '@/api/aiPrompt.ts'
-import { type AiTool, aiToolApi } from '@/api/aiTool.ts'
-import { type AiMcp, aiMcpApi } from '@/api/aiMcp.ts'
+import {ref, watch} from 'vue'
+import {message} from 'ant-design-vue'
+import {type AiAgent, aiAgentApi} from '@/api/aiAgent.ts'
+import {type AiInstance, aiInstanceApi} from '@/api/aiInstance.ts'
+import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
+import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt.ts'
+import {type AiTool, aiToolApi} from '@/api/aiTool.ts'
+import {type AiMcp, aiMcpApi} from '@/api/aiMcp.ts'
 import PromptSelectorDrawer from '@/views/admin/ai-config/ai-prompt/selector/PromptSelectorDrawer.vue'
 import PromptFormModal from '@/views/admin/ai-config/ai-prompt/component/PromptFormModal.vue'
 import PromptHistoryModal from '@/views/admin/ai-config/ai-prompt/component/PromptHistoryModal.vue'
-import AgentConfigHeader from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigHeader.vue'
-import AgentBaseSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentBaseSection.vue'
-import InstanceListSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/InstanceListSection.vue'
+import AgentConfigHeader
+  from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigHeader.vue'
+import AgentBaseSection
+  from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentBaseSection.vue'
+import InstanceListSection
+  from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/InstanceListSection.vue'
 import ToolSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/ToolSection.vue'
-import PromptImproveModal from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/form/PromptImproveModal.vue'
+import PromptImproveModal
+  from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/form/PromptImproveModal.vue'
 
 const props = defineProps<{
   agentName: string

@@ -1,19 +1,18 @@
 package com.astrsomn.server.service.extension.guard;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
-import com.astrsomn.system.constant.SystemExtensionEnum;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
-import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.server.service.extension.base.SystemExtensionService;
 import com.astrsomn.server.service.support.QueryEnvParamHelper;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
 import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
 import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
 import com.astrsomn.starter.runtime.system.mapper.AstSystemExtensionMapper;
+import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;

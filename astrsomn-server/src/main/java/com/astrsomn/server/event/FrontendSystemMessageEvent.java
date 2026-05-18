@@ -1,7 +1,6 @@
 package com.astrsomn.server.event;
 
 import com.astrsomn.system.dto.systemmessage.SystemMessagePushPayload;
-import com.astrsomn.starter.runtime.system.message.SystemMessageRecorder;
 import org.springframework.context.ApplicationEvent;
 
 import java.util.Objects;

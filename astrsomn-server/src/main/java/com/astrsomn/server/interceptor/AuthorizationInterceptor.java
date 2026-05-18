@@ -1,7 +1,7 @@
 package com.astrsomn.server.interceptor;
 
-import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
 import com.astrsomn.server.util.UserContext;
+import com.astrsomn.system.constant.SystemUserEnum.UserRoleEnum;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

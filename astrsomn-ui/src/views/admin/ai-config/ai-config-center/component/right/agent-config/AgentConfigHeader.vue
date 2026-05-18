@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons-vue'
+import {ArrowLeftOutlined, SaveOutlined} from '@ant-design/icons-vue'
 
 defineProps<{
   submitting: boolean

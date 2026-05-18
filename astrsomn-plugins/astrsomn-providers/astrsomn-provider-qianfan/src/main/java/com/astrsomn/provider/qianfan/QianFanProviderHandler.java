@@ -3,7 +3,6 @@ package com.astrsomn.provider.qianfan;
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
-import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelSetting;
 import com.astrsomn.api.runtime.common.langchain.extension.model.AbstractModelProviderHandler;
 import com.astrsomn.common.UnknowModelException;
 import com.astrsomn.common.utils.CollectionUtils;

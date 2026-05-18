@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, type CSSProperties, type Component} from 'vue'
+import {type Component, computed, type CSSProperties} from 'vue'
 import {CheckOutlined, CloseOutlined} from '@ant-design/icons-vue'
 
 const BASE_WRAP_CLASS = 'astrsomn-fullscreen-shell'

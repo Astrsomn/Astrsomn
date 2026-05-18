@@ -26,8 +26,7 @@ public class AstrsomnMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         Object originalObject = metaObject.getOriginalObject();
-        if (originalObject instanceof BaseEntity) {
-            BaseEntity<?> entity = (BaseEntity<?>) originalObject;
+        if (originalObject instanceof BaseEntity<?> entity) {
             LocalDateTime now = LocalDateTime.now();
             String user = resolveUser();
             String env = resolveEnv();
@@ -44,8 +43,7 @@ public class AstrsomnMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void updateFill(MetaObject metaObject) {
         Object originalObject = metaObject.getOriginalObject();
-        if (originalObject instanceof BaseEntity) {
-            BaseEntity<?> entity = (BaseEntity<?>) originalObject;
+        if (originalObject instanceof BaseEntity<?> entity) {
             LocalDateTime now = LocalDateTime.now();
             String user = resolveUser();
 

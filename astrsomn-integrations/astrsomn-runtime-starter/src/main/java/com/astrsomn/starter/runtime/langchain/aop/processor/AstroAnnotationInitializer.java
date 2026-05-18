@@ -259,18 +259,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         this.beanFactory = beanFactory;
     }
 
-    
-    private static class DelayedInjection {
-        final Object bean;
-        final Field field;
-        final String beanName;
-        final Astro astro;
 
-        DelayedInjection(Object bean, Field field, String beanName, Astro astro) {
-            this.bean = bean;
-            this.field = field;
-            this.beanName = beanName;
-            this.astro = astro;
-        }
+    private record DelayedInjection(Object bean, Field field, String beanName, Astro astro) {
     }
 }

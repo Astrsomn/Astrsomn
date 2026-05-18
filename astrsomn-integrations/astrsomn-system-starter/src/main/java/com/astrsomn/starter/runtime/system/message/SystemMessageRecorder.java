@@ -1,10 +1,10 @@
 package com.astrsomn.starter.runtime.system.message;
 
+import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.starter.runtime.system.mapper.AstSystemMessageMapper;
 import com.astrsomn.system.constant.SystemMessageEnum;
 import com.astrsomn.system.dto.systemmessage.SystemMessageRecordCommand;
 import com.astrsomn.system.entity.SystemMessageEntity;
-import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.starter.runtime.system.mapper.AstSystemMessageMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;

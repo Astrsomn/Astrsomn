@@ -66,10 +66,6 @@ public class IpUtil {
         }
 
 
-        if (ip.startsWith("192.168.")) {
-            return true;
-        }
-
-        return false;
+        return ip.startsWith("192.168.");
     }
 }

@@ -1,9 +1,9 @@
 package com.astrsomn.server.interceptor;
 
-import com.astrsomn.system.entity.SystemUserEntity;
 import com.astrsomn.server.util.JwtUtil;
 import com.astrsomn.server.util.UserContext;
 import com.astrsomn.starter.runtime.system.mapper.AstSystemUserMapper;
+import com.astrsomn.system.entity.SystemUserEntity;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

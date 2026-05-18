@@ -62,8 +62,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, defineAsyncComponent, nextTick, ref, watch} from 'vue'
-import {useRoute} from 'vue-router'
+import {nextTick, ref, watch} from 'vue'
 import {DownOutlined} from '@ant-design/icons-vue'
 import AgentSection from './right/AgentSection.vue'
 import ModelSection from './right/ModelSection.vue'

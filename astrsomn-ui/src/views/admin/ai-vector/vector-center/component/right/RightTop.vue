@@ -74,13 +74,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, watch } from 'vue';
-import { message } from 'ant-design-vue';
-import {
-  ClusterOutlined, DeploymentUnitOutlined,
-  DatabaseOutlined, SyncOutlined, ScissorOutlined
-} from '@ant-design/icons-vue';
-import { aiVecStoreApi } from '@/api/aiVecStore.ts';
+import {computed, reactive, ref, watch} from 'vue';
+import {message} from 'ant-design-vue';
+import {ClusterOutlined, DatabaseOutlined, DeploymentUnitOutlined, ScissorOutlined} from '@ant-design/icons-vue';
+import {aiVecStoreApi} from '@/api/aiVecStore.ts';
 
 const props = defineProps<{ store?: any; source?: any; }>();
 const emit = defineEmits(['updated']);

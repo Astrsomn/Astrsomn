@@ -195,7 +195,6 @@ import {useDictionary} from '@/locales/dictionary'
 import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts'
 
 
-
 const breadcrumbs = [
   {title: 'AI 配置', href: '/admin/ai-config'},
   {title: '接入模型管理'},

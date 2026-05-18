@@ -62,7 +62,7 @@ public class ModelRouteCompositeFactory {
                     param.setModelSetting(ms);
                     param.getModelSetting().setModelRouteSetting(ModelRouteSetting.disabled());
                     param.setChatModelListeners(List.of());
-                    delegates.add((StreamingChatModel) handler.createModel(StreamingChatModel.class, param));
+                    delegates.add(handler.createModel(StreamingChatModel.class, param));
                 }
             } finally {
                 param.setModelSetting(originalMs);
@@ -81,7 +81,7 @@ public class ModelRouteCompositeFactory {
                     param.setModelSetting(ms);
                     param.getModelSetting().setModelRouteSetting(ModelRouteSetting.disabled());
                     param.setChatModelListeners(List.of());
-                    delegates.add((ChatModel) handler.createModel(ChatModel.class, param));
+                    delegates.add(handler.createModel(ChatModel.class, param));
                 }
             } finally {
                 param.setModelSetting(originalMs);

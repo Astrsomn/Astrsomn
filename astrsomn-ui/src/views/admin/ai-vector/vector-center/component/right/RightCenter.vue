@@ -244,10 +244,22 @@ import {computed, onUnmounted, reactive, ref, watch} from 'vue';
 import type {UploadProps} from 'ant-design-vue'
 import {message, Modal} from 'ant-design-vue'
 import {
-  AppstoreOutlined, BlockOutlined, BorderOutlined, CopyOutlined, CreditCardOutlined,
-  DeleteOutlined, EditOutlined, ExperimentOutlined, FolderOutlined,
-  LeftOutlined, PlusOutlined, ReloadOutlined, RightOutlined, ScissorOutlined,
-  SnippetsOutlined, SyncOutlined
+  AppstoreOutlined,
+  BlockOutlined,
+  BorderOutlined,
+  CopyOutlined,
+  CreditCardOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ExperimentOutlined,
+  FolderOutlined,
+  LeftOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  RightOutlined,
+  ScissorOutlined,
+  SnippetsOutlined,
+  SyncOutlined
 } from '@ant-design/icons-vue';
 import DocFileCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFileCard.vue';
 import DocFolderCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFolderCard.vue';

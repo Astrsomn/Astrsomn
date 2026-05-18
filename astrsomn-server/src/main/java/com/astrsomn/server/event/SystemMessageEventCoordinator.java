@@ -1,9 +1,9 @@
 package com.astrsomn.server.event;
 
+import com.astrsomn.starter.runtime.system.message.SystemMessageRecorder;
 import com.astrsomn.system.dto.systemmessage.SystemMessagePushPayload;
 import com.astrsomn.system.dto.systemmessage.SystemMessageRecordCommand;
 import com.astrsomn.system.entity.SystemMessageEntity;
-import com.astrsomn.starter.runtime.system.message.SystemMessageRecorder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

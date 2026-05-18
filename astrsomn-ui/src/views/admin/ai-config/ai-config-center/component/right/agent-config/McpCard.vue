@@ -31,9 +31,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import { ApiOutlined, CloseOutlined, PlusOutlined } from '@ant-design/icons-vue'
-import { type AiMcp } from '@/api/aiMcp.ts'
+import {computed, ref} from 'vue'
+import {ApiOutlined, CloseOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import {type AiMcp} from '@/api/aiMcp.ts'
 import McpSelectorDrawer from '@/views/admin/ai-config/ai-mcp/selector/McpSelectorDrawer.vue'
 
 const props = defineProps<{

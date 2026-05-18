@@ -79,10 +79,17 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-import { ApiOutlined, DatabaseOutlined, PlusOutlined, SettingOutlined, ToolOutlined, AppstoreOutlined } from '@ant-design/icons-vue'
-import type { AiTool } from '@/api/aiTool.ts'
-import type { AiMcp } from '@/api/aiMcp.ts'
+import {ref} from 'vue'
+import {
+  ApiOutlined,
+  AppstoreOutlined,
+  DatabaseOutlined,
+  PlusOutlined,
+  SettingOutlined,
+  ToolOutlined
+} from '@ant-design/icons-vue'
+import type {AiTool} from '@/api/aiTool.ts'
+import type {AiMcp} from '@/api/aiMcp.ts'
 import ToolCard from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/ToolCard.vue'
 import McpCard from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/McpCard.vue'
 import RagCard from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/RagCard.vue'

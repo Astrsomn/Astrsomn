@@ -75,9 +75,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, watch } from 'vue'
-import { ApiOutlined, CheckCircleFilled, CodeOutlined } from '@ant-design/icons-vue'
-import { type AiMcp, aiMcpApi } from '@/api/aiMcp.ts'
+import {computed, reactive, ref, watch} from 'vue'
+import {ApiOutlined, CheckCircleFilled, CodeOutlined} from '@ant-design/icons-vue'
+import {type AiMcp, aiMcpApi} from '@/api/aiMcp.ts'
 import AstDrawer from '@/components/home/AstDrawer.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import AstPagination from '@/components/home/AstPagination.vue'

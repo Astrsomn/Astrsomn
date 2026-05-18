@@ -11,7 +11,7 @@ public class AstrsomnStarterRuntimeCondition implements Condition {
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
         Boolean enabled = context.getEnvironment().getProperty("astrsomn.enabled", Boolean.class, Boolean.TRUE);
-        if (!Boolean.TRUE.equals(enabled)) {
+        if (!enabled) {
             return false;
         }
         String jdbcUrl = context.getEnvironment().getProperty("astrsomn.datasource.url");

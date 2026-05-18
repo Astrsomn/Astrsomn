@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
 
-    private byte[] cachedBody;
+    private final byte[] cachedBody;
 
     public CachedBodyHttpServletRequest(HttpServletRequest request) throws IOException {
         super(request);

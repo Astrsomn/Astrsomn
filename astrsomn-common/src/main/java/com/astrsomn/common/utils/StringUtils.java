@@ -2,6 +2,7 @@ package com.astrsomn.common.utils;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -109,7 +110,7 @@ public class StringUtils {
 
 
     public static boolean equals(String s1, String s2) {
-        return (s1 == s2) || (s1 != null && s1.equals(s2));
+        return Objects.equals(s1, s2);
     }
 
 

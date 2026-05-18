@@ -30,8 +30,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-import { CloseOutlined, DatabaseOutlined, PlusOutlined } from '@ant-design/icons-vue'
+import {ref} from 'vue'
+import {CloseOutlined, DatabaseOutlined, PlusOutlined} from '@ant-design/icons-vue'
 import VecStoreSelectorDrawer from '@/views/admin/ai-vector/selector/VecStoreSelectorDrawer.vue'
 
 defineProps<{

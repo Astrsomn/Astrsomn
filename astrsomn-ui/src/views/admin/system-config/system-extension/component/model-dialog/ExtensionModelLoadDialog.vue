@@ -117,10 +117,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue'
-import { CloudUploadOutlined } from '@ant-design/icons-vue'
-import type { ExtensionModelLoadPreview } from '@/api/systemExtension.ts'
-import { modelTypeColor, modelTypeLabel } from '../../utils/extensionDisplay.ts'
+import {computed, ref, watch} from 'vue'
+import {CloudUploadOutlined} from '@ant-design/icons-vue'
+import type {ExtensionModelLoadPreview} from '@/api/systemExtension.ts'
+import {modelTypeColor, modelTypeLabel} from '../../utils/extensionDisplay.ts'
 
 const open = defineModel<boolean>('open', { required: true })
 

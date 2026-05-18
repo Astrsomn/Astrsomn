@@ -1,10 +1,9 @@
 package com.astrsomn.server.service.vector;
 
+import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
 import com.astrsomn.api.vector.constant.AiVecDriverEnum;
 import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.vector.entity.AiVecStoreEntity;
-import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
-import com.astrsomn.api.runtime.common.langchain.extension.vector.VecStore;
 import com.astrsomn.api.vector.exception.AstVecStoreErrorEnum;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;

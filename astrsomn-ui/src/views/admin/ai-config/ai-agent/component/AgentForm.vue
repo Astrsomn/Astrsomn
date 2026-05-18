@@ -92,7 +92,12 @@ import AssemblyCanvas from '../assembly/AssemblyCanvas.vue'
 import {fetchInstancesPaged, fetchMcpsPaged, fetchPromptsPaged, fetchToolsPaged} from '../assembly/assemblyFetch.ts'
 import type {AiAgent} from '@/api/aiAgent.ts'
 import {aiAgentApi} from '@/api/aiAgent.ts'
-import type {AssemblyAgentForm, AssemblyDragPayload, AssemblySlotKey, InstanceModelType} from '../assembly/assemblyTypes.ts'
+import type {
+  AssemblyAgentForm,
+  AssemblyDragPayload,
+  AssemblySlotKey,
+  InstanceModelType
+} from '../assembly/assemblyTypes.ts'
 
 interface Props {
   visible: boolean

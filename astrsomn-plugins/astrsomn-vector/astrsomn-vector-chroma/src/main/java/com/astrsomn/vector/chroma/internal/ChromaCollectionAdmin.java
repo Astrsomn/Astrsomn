@@ -1,7 +1,7 @@
 package com.astrsomn.vector.chroma.internal;
 
-import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.support.AiVecSourceConnectionProperties;
+import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.common.utils.StringUtils;
 import dev.langchain4j.store.embedding.chroma.ChromaApiVersion;
 

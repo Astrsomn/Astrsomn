@@ -91,12 +91,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ThunderboltOutlined, UserOutlined, CodeOutlined } from '@ant-design/icons-vue'
-import type { AiPrompt } from '@/api/aiPrompt.ts'
+import {CodeOutlined, ThunderboltOutlined, UserOutlined} from '@ant-design/icons-vue'
+import type {AiPrompt} from '@/api/aiPrompt.ts'
 import PromptCard from '@/views/admin/ai-config/builder/component/left-center/PromptCard.vue'
 import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import AstIconPicker from '@/components/home/AstIconPicker.vue'
-import { AI_AGENT_KEY_PREFIX } from '@/constants/aiConfigKeyPrefixes.ts'
+import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes.ts'
 
 defineProps<{
   agentName: string

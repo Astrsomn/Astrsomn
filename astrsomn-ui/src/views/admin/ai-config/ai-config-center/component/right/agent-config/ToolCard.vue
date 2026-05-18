@@ -31,9 +31,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-import { CloseOutlined, PlusOutlined, ToolOutlined } from '@ant-design/icons-vue'
-import { type AiTool } from '@/api/aiTool.ts'
+import {computed, ref} from 'vue'
+import {CloseOutlined, PlusOutlined, ToolOutlined} from '@ant-design/icons-vue'
+import {type AiTool} from '@/api/aiTool.ts'
 import ToolSelectorDrawer from '@/views/admin/ai-config/ai-tool/selector/ToolSelectorDrawer.vue'
 
 const props = defineProps<{

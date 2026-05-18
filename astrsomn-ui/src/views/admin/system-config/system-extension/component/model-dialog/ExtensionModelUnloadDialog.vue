@@ -116,10 +116,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue'
-import { DeleteOutlined } from '@ant-design/icons-vue'
-import type { ExtensionModelUnloadPreview } from '@/api/systemExtension.ts'
-import { modelTypeColor, modelTypeLabel } from '../../utils/extensionDisplay.ts'
+import {computed, ref, watch} from 'vue'
+import {DeleteOutlined} from '@ant-design/icons-vue'
+import type {ExtensionModelUnloadPreview} from '@/api/systemExtension.ts'
+import {modelTypeColor, modelTypeLabel} from '../../utils/extensionDisplay.ts'
 
 const open = defineModel<boolean>('open', { required: true })
 

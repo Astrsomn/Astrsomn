@@ -125,10 +125,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
-import { PlusOutlined, DeleteOutlined, CloudServerOutlined, EditOutlined, ApartmentOutlined } from '@ant-design/icons-vue'
-import type { AiModel } from '@/api/aiModel.ts'
-import type { AiInstance } from '@/api/aiInstance.ts'
+import {computed, ref} from 'vue'
+import {ApartmentOutlined, CloudServerOutlined, DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import type {AiModel} from '@/api/aiModel.ts'
+import type {AiInstance} from '@/api/aiInstance.ts'
 import InstanceEditModal from './form/InstanceEditModal.vue'
 
 const props = defineProps<{

@@ -250,15 +250,18 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, watch } from 'vue'
-import { CloudServerOutlined, SearchOutlined, SwapOutlined } from '@ant-design/icons-vue'
+import {computed, reactive, ref, watch} from 'vue'
+import {CloudServerOutlined, SearchOutlined, SwapOutlined} from '@ant-design/icons-vue'
 import AstModal from '@/components/home/AstModal.vue'
-import type { AiInstance } from '@/api/aiInstance.ts'
-import type { AiModel } from '@/api/aiModel.ts'
-import type { AiAccount } from '@/api/aiAccount.ts'
+import type {AiInstance} from '@/api/aiInstance.ts'
+import type {AiModel} from '@/api/aiModel.ts'
+import type {AiAccount} from '@/api/aiAccount.ts'
 import ModelSelectorDrawer from '@/views/admin/ai-config/ai-model/selector/ModelSelectorDrawer.vue'
 import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
-import { getTempInfo, useInstanceParamVisibility } from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility.ts'
+import {
+  getTempInfo,
+  useInstanceParamVisibility
+} from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility.ts'
 
 const props = defineProps<{
   open: boolean

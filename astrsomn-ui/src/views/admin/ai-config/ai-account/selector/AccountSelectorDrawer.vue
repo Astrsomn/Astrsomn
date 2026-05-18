@@ -108,7 +108,7 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, watch, onMounted} from 'vue'
+import {onMounted, reactive, ref, watch} from 'vue'
 import {KeyOutlined, PlusOutlined, UserOutlined} from '@ant-design/icons-vue'
 import {type AiAccount, aiAccountApi, type PageResponse} from '@/api/aiAccount'
 import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension'

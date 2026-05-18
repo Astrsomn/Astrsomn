@@ -1,9 +1,9 @@
 package com.astrsomn.vector.milvus.service;
 
-import com.astrsomn.api.vector.entity.AiVecDocEntity;
-import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecDoc;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.AbstractVecStore;
+import com.astrsomn.api.vector.entity.AiVecDocEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.common.utils.StringUtils;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;

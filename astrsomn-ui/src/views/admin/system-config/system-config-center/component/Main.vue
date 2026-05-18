@@ -34,11 +34,11 @@
 </template>
 
 <script lang="ts" setup>
+import type {Component} from 'vue'
 import {computed, defineAsyncComponent} from 'vue'
 import {useRouter} from 'vue-router'
 import {AlertOutlined, ApiOutlined, ClusterOutlined, SettingOutlined, UserOutlined} from '@ant-design/icons-vue'
 import {message} from 'ant-design-vue'
-import type {Component} from 'vue'
 import Top from './Top.vue'
 import Center from './Center.vue'
 import {useSystemConfigCenter} from '../useSystemConfigCenter'

@@ -1,6 +1,5 @@
 package com.astrsomn.server.api.system;
 
-import com.astrsomn.system.dto.systemmessage.SystemMessagePushPayload;
 import com.astrsomn.server.event.SystemMessageSseBroadcaster;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

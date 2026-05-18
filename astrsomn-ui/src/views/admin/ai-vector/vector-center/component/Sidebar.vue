@@ -223,13 +223,7 @@
 <script lang="ts" setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
-import {
-  ClusterOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  ReloadOutlined
-} from '@ant-design/icons-vue'
+import {ClusterOutlined, DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
@@ -242,7 +236,8 @@ import VecStoreFormModal from '@/views/admin/ai-vector/vec-store/VecStoreFormMod
 import {type AiVecSource, aiVecSourceApi} from '@/api/aiVecSource.ts'
 import {type AiVecStore, aiVecStoreApi} from '@/api/aiVecStore.ts'
 import {systemExtensionApi} from '@/api/systemExtension.ts'
-import ExtensionMarketplaceDialog from '@/views/admin/system-config/system-extension/component/ExtensionMarketplaceDialog.vue'
+import ExtensionMarketplaceDialog
+  from '@/views/admin/system-config/system-extension/component/ExtensionMarketplaceDialog.vue'
 
 const props = defineProps<{
   sources: AiVecSource[]

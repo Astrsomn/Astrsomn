@@ -3,8 +3,8 @@ package com.astrsomn.starter.runtime.context;
 
 public class UserContext {
 
-    private static ThreadLocal<String> username = new ThreadLocal<>();
-    private static ThreadLocal<Long> userId = new ThreadLocal<>();
+    private static final ThreadLocal<String> username = new ThreadLocal<>();
+    private static final ThreadLocal<Long> userId = new ThreadLocal<>();
 
     
     public static String getUsername() {
