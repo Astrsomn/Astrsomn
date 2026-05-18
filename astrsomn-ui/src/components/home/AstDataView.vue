@@ -106,7 +106,7 @@ const props = withDefaults(defineProps<{
   tableRowHeight?: string
   tableHeaderHeight?: string
   dateFormatter?: (value: string) => string
-  /** 是否支持 base64 图片渲染 */
+
   enableBase64Render?: boolean
 }>(), {
   columns: () => [],

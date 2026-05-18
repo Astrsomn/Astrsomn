@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * 维护与浏览器之间的 SSE 长连接，仅负责把 {@link SystemMessagePushPayload} 以命名事件
- * {@link FrontendSystemMessageEvent#SSE_EVENT_NAME} 推送到所有已注册连接。
- */
+
 @Slf4j
 @Component
 public class SystemMessageSseBroadcaster {

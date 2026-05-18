@@ -510,7 +510,7 @@ watch(() => props.open, (val) => {
   color: var(--text-secondary);
 }
 
-/* Model picker */
+
 .model-picker {
   display: flex;
   align-items: center;
@@ -583,7 +583,7 @@ watch(() => props.open, (val) => {
   color: var(--text-muted);
 }
 
-/* Account row */
+
 .account-row {
   display: flex;
   gap: 8px;
@@ -594,7 +594,7 @@ watch(() => props.open, (val) => {
   cursor: pointer;
 }
 
-/* Weight */
+
 .weight-row {
   display: flex;
   align-items: center;
@@ -615,7 +615,7 @@ watch(() => props.open, (val) => {
   text-align: right;
 }
 
-/* Context options */
+
 .context-options {
   display: flex;
   gap: 6px;
@@ -646,7 +646,7 @@ watch(() => props.open, (val) => {
   font-weight: 600;
 }
 
-/* Model tag */
+
 .model-tag {
   font-size: 11px;
   max-width: 180px;
@@ -654,7 +654,7 @@ watch(() => props.open, (val) => {
   text-overflow: ellipsis;
 }
 
-/* Hint text */
+
 .hint-text {
   font-size: 12px;
   color: var(--text-muted);
@@ -666,7 +666,7 @@ watch(() => props.open, (val) => {
   opacity: 0.7;
 }
 
-/* Params list */
+
 .params-list {
   display: flex;
   flex-direction: column;

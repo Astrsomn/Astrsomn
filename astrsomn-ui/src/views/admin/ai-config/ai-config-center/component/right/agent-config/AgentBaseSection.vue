@@ -127,7 +127,7 @@ const emit = defineEmits<{
   min-height: 0;
 }
 
-/* Card base */
+
 .card {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -147,7 +147,7 @@ const emit = defineEmits<{
   flex-direction: column;
 }
 
-/* Card header */
+
 .card-header {
   display: flex;
   align-items: center;
@@ -194,7 +194,7 @@ const emit = defineEmits<{
   line-height: 1.4;
 }
 
-/* Card body */
+
 .card-body {
   padding: 20px;
   display: flex;
@@ -202,7 +202,7 @@ const emit = defineEmits<{
   gap: 16px;
 }
 
-/* Avatar row */
+
 .avatar-row {
   display: flex;
   align-items: center;
@@ -240,7 +240,7 @@ const emit = defineEmits<{
   color: var(--text-muted);
 }
 
-/* Field group */
+
 .field-group {
   display: flex;
   flex-direction: column;
@@ -270,7 +270,7 @@ const emit = defineEmits<{
   margin-left: auto;
 }
 
-/* Input styling */
+
 .config-input {
   height: 40px;
   border-radius: 10px;
@@ -291,7 +291,7 @@ const emit = defineEmits<{
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* AI optimize button */
+
 .ai-optimize-btn {
   height: 32px;
   padding: 0 14px;
@@ -325,7 +325,7 @@ const emit = defineEmits<{
   box-shadow: none;
 }
 
-/* Prompt body */
+
 .prompt-body {
   flex: 1;
   min-height: 0;

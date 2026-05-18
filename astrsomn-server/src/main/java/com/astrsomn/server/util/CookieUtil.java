@@ -29,7 +29,7 @@ public class CookieUtil {
 
     public void addCookie(HttpServletResponse response, String name, String value, int maxAge,
                           String path, boolean httpOnly, boolean secure) {
-        // TODO: 添加Cookie
+
         Cookie cookie = new Cookie(name, value);
         cookie.setMaxAge(maxAge);
         cookie.setPath(path);

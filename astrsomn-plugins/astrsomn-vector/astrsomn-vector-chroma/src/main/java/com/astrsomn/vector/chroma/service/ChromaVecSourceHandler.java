@@ -89,7 +89,7 @@ public final class ChromaVecSourceHandler extends AbstractVecSource {
 
     @Override
     public void shutdown() {
-        // ChromaEmbeddingStore 会在内部管理连接，不需要显式关闭
+
     }
 
     @Override

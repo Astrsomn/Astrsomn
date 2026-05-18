@@ -12,9 +12,7 @@ import com.astrsomn.common.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 将各层业务数据以「仅补 null」方式合并进 {@link AstroChatParam}，避免覆盖调用方已设值。
- */
+
 public final class RuntimeChatParamMergeSupport {
 
     private RuntimeChatParamMergeSupport() {
@@ -77,9 +75,7 @@ public final class RuntimeChatParamMergeSupport {
         }
     }
 
-    /**
-     * 从实例扩展 JSON 合并路由配置；若调用方已配置启用且含 endpoints 则跳过。
-     */
+    
     public static void mergeModelRouteFromJson(ModelSetting target, String routeJson) {
         if (target == null || StringUtils.isBlank(routeJson)) {
             return;

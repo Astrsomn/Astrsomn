@@ -322,7 +322,7 @@ const providerAvatarMarkup = computed(() => {
   box-shadow: 0 4px 12px var(--card-accent-soft);
 }
 
-/* 悬浮按钮组 */
+
 .card-actions {
   position: absolute;
   top: 60px;
@@ -372,7 +372,7 @@ const providerAvatarMarkup = computed(() => {
   border-color: rgba(239, 68, 68, 0.2);
 }
 
-/* 主体内容 */
+
 .toc-card-body {
   padding: 24px;
   position: relative;
@@ -405,7 +405,7 @@ const providerAvatarMarkup = computed(() => {
   display: block;
 }
 
-/* 图标盒 - 潮流霓虹配色 */
+
 .type-icon-box {
   width: 54px;
   height: 54px;
@@ -512,7 +512,7 @@ const providerAvatarMarkup = computed(() => {
   opacity: 0.9;
 }
 
-/* 进度条样式 (Chat) */
+
 .mini-progress-item {
   margin-bottom: 12px;
 }
@@ -546,7 +546,7 @@ const providerAvatarMarkup = computed(() => {
   background: linear-gradient(90deg, #818cf8, #4f46e5);
 }
 
-/* 能力网格 (Embedding) */
+
 .capability-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -660,7 +660,7 @@ const providerAvatarMarkup = computed(() => {
   font-weight: 800;
 }
 
-/* 底部 Meta */
+
 .toc-card-meta {
   display: flex;
   justify-content: space-between;

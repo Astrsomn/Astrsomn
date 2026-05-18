@@ -133,7 +133,7 @@ function triggerRagAdd() {
   height: 100%;
 }
 
-/* Section header */
+
 .section-header {
   display: flex;
   align-items: center;
@@ -172,7 +172,7 @@ function triggerRagAdd() {
   line-height: 1.4;
 }
 
-/* Grid layout */
+
 .integrations-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -187,7 +187,7 @@ function triggerRagAdd() {
   }
 }
 
-/* Integration card */
+
 .integration-card {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -208,7 +208,7 @@ function triggerRagAdd() {
   transform: translateY(-2px);
 }
 
-/* Icon wrapper */
+
 .card-icon-wrapper {
   width: 44px;
   height: 44px;
@@ -239,7 +239,7 @@ function triggerRagAdd() {
   color: #8b5cf6;
 }
 
-/* Card content */
+
 .card-content {
   flex: 1;
 }
@@ -278,7 +278,7 @@ function triggerRagAdd() {
   color: var(--text-muted);
 }
 
-/* Action button */
+
 .card-action {
   position: absolute;
   top: 16px;
@@ -308,7 +308,7 @@ function triggerRagAdd() {
   background: #8b5cf6;
 }
 
-/* Hidden child card */
+
 .sr-card {
   position: absolute;
   width: 1px;

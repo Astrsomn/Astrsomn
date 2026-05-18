@@ -13,12 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-/**
- * 从库中解析「一条」默认链路：默认智能体、默认对话模型（按环境隔离）。
- * <p>
- * 约定：{@code AI_AGENT.IS_DEFAULT = 1}、{@code AI_MODEL.IS_DEFAULT = 1} 且 {@code MODEL_TYPE = chat}，
- * 每个 {@code ENV_CODE} 各至多一条，避免歧义。
- */
+
 @Component
 @RequiredArgsConstructor
 public class AiRuntimeDefaultsResolver {

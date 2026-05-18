@@ -19,9 +19,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * OpenAI 官方 API（及兼容端点）；可通过 {@code baseUrl} 指向代理或第三方兼容服务。
- */
+
 public class OpenAiProviderHandler extends AbstractModelProviderHandler {
 
     private static void applyEmbeddingSetting(

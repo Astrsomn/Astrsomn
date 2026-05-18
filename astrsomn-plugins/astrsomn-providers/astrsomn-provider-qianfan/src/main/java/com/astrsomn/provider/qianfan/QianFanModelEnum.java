@@ -16,7 +16,7 @@ import java.util.Map;
 @Getter
 public enum QianFanModelEnum {
 
-    // --- Chat Models (对话模型) ---
+
     ERNIE_BOT("ernie-bot", "ERNIE Bot", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -66,7 +66,7 @@ public enum QianFanModelEnum {
             )
     ),
 
-    // --- Code Models (代码模型) ---
+
     ERNIE_BOT_CODE("ernie-bot-code", "ERNIE Bot Code", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -90,7 +90,7 @@ public enum QianFanModelEnum {
             )
     ),
 
-    // --- Multimodal Models (多模态模型) ---
+
     ERNIE_VISION("ernie-vision", "ERNIE Vision", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.VISION,
@@ -116,7 +116,7 @@ public enum QianFanModelEnum {
             )
     ),
 
-    // --- Embedding Models (向量模型) ---
+
     BGE_LARGE_ZH("bge-large-zh", "BGE Large ZH", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
@@ -229,16 +229,12 @@ public enum QianFanModelEnum {
         return modelName;
     }
 
-    /**
-     * 将 capabilities 转换为 JSON 字符串
-     */
+    
     public String getCapabilities() {
         return EnumUtils.toCapabilitiesJson(capabilities);
     }
 
-    /**
-     * 将 params 转换为 JSON 字符串（包含默认值配置）
-     */
+    
     public String getParams() {
         try {
             List<Map<String, Object>> paramList = new ArrayList<>();

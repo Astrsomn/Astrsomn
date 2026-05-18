@@ -163,7 +163,7 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
   box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15);
 }
 
-/* ---- icon ---- */
+
 .plugin-icon {
   width: 36px;
   height: 36px;
@@ -184,7 +184,7 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
   object-fit: cover;
 }
 
-/* ---- info ---- */
+
 .plugin-info {
   flex: 1;
   min-width: 0;
@@ -269,7 +269,7 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
   text-overflow: ellipsis;
 }
 
-/* ---- desc ---- */
+
 .plugin-desc {
   width: 180px;
   flex-shrink: 0;
@@ -286,7 +286,7 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
   overflow: hidden;
 }
 
-/* ---- actions ---- */
+
 .action-row {
   display: flex;
   gap: 6px;
@@ -307,7 +307,7 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
   padding: 0;
 }
 
-/* ---- responsive ---- */
+
 @media (max-width: 1100px) {
   .plugin-desc {
     display: none;

@@ -142,7 +142,7 @@ const emit = defineEmits<{
   (e: 'update:routeStrategy', value: string): void
 }>()
 
-// ── Tab ──
+
 const modelTypeOptions = [
   { value: 'chat', label: '对话模型' },
   { value: 'image', label: '图像模型' },
@@ -246,7 +246,7 @@ function getModelAvatar(modelKey?: string): string {
   flex-direction: column;
 }
 
-/* Panel header */
+
 .panel-header {
   display: flex;
   align-items: center;
@@ -340,14 +340,14 @@ function getModelAvatar(modelKey?: string): string {
   gap: 6px;
 }
 
-/* Panel body */
+
 .panel-body {
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
 
-/* Empty state */
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -394,7 +394,7 @@ function getModelAvatar(modelKey?: string): string {
   gap: 6px;
 }
 
-/* Instance list */
+
 .instance-list {
   padding: 12px;
   display: flex;
@@ -558,7 +558,7 @@ function getModelAvatar(modelKey?: string): string {
   color: #ef4444;
 }
 
-/* Add more button */
+
 .add-more-btn {
   width: 100%;
   padding: 12px;

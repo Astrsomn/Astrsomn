@@ -11,9 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 
-/**
- * 注册 {@link DatabaseStartupValidator}；仅在 Astrsomn 数据源与 SqlSessionFactory 已就绪时生效。
- */
+
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(prefix = "astrsomn.data-base.validation", name = "enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnBean(value = SqlSessionFactory.class, name = AstrsomnRuntimeBeans.SQL_SESSION_FACTORY)

@@ -219,7 +219,7 @@ const saveDraftState = (memoryKey = currentMemoryKey.value) => {
   try {
     sessionStorage.setItem(getDraftStorageKey(memoryKey), JSON.stringify(draftState))
   } catch {
-    // Ignore storage write failures.
+
   }
 }
 
@@ -449,7 +449,7 @@ const appendAssistantContent = async (
   await scrollToBottom()
 }
 
-/** 后端 SSE type=tool，content 为 JSON：toolName / args / result */
+
 const appendToolStreamSegment = async (messageId: string, payloadJson: string) => {
   const raw = (payloadJson || '').trim()
   if (!raw) {
@@ -654,7 +654,7 @@ const submitQuestion = async (promptArg?: string) => {
           target.segments = [{type: 'text', content: stopText}]
         }
       } else {
-        // 解析错误响应（须同步 segments，否则 AstroChatMessage 在 segments 存在时会忽略 content）
+
         let errorMessage = '请求失败，请稍后重试'
         let errorDetail = ''
 
@@ -680,7 +680,7 @@ const submitQuestion = async (promptArg?: string) => {
       }
     }
     if (error?.name !== 'AbortError') {
-      // 解析错误消息用于弹窗
+
       let errorMessage = '聊天请求失败'
       if (error?.response?.data?.message) {
         errorMessage = error.response.data.message
@@ -735,7 +735,7 @@ watch(
 </script>
 
 <style scoped>
-/* 容器与背景 */
+
 .chat-home {
   height: 100vh;
   display: flex;
@@ -747,7 +747,7 @@ watch(
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 聊天主体 */
+
 .chat-main {
   flex: 1;
   position: relative;
@@ -859,7 +859,7 @@ watch(
   text-align: right;
 }
 
-/* 响应式调整 */
+
 @media (max-width: 640px) {
   .chat-main {
     flex-direction: column;

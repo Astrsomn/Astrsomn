@@ -230,7 +230,7 @@ const onConfirmRename = (e: KeyboardEvent) => {
     z-index: 1;
   }
 
-  // 小图标模式
+
   &.size-small {
     .square-container {
       padding-top: 80%;

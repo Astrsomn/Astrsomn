@@ -265,14 +265,14 @@ async function handleOk() {
   color: var(--text-muted);
 }
 
-/* ---- card grid ---- */
+
 .ems-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 8px;
 }
 
-/* ---- model card ---- */
+
 .ems-model-card {
   display: flex;
   border: 1px solid var(--border-default);

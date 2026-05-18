@@ -20,9 +20,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * 智谱 AI；LangChain4j 使用 {@code model} 与 {@code baseUrl}，与 {@link AstroChatParam} 中 {@code modelName}/{@code apiUrl} 对应。
- */
+
 public class ZhipuProviderHandler extends AbstractModelProviderHandler {
 
     private static void applyChatSetting(ZhipuAiChatModel.ZhipuAiChatModelBuilder builder, AstroChatParam<?> param) {

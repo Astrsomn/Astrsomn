@@ -12,9 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-/**
- * 加载 Agent 实体，并把 Agent 上的引用类字段合并进参数（不覆盖调用方已设值）。
- */
+
 @Component
 @Order(30)
 @RequiredArgsConstructor

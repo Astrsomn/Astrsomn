@@ -16,7 +16,7 @@ import java.util.Map;
 @Getter
 public enum QwenModelEnum {
 
-    // --- Chat Models (对话模型) ---
+
     QWEN_TURBO("qwen-turbo", "Qwen Turbo", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -87,7 +87,7 @@ public enum QwenModelEnum {
             )
     ),
 
-    // --- Code Models (代码模型) ---
+
     QWEN_CODE("qwen-code", "Qwen Code", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -111,7 +111,7 @@ public enum QwenModelEnum {
             )
     ),
 
-    // --- Multimodal Models (多模态模型) ---
+
     QWEN_VL("qwen-vl", "Qwen VL", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.VISION,
@@ -137,7 +137,7 @@ public enum QwenModelEnum {
             )
     ),
 
-    // --- Embedding Models (向量模型) ---
+
     QWEN_EMBEDDING("qwen-embedding", "Qwen Embedding", AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.EmbeddingCapabilityEnum.TEXT_EMBEDDING
@@ -155,7 +155,7 @@ public enum QwenModelEnum {
             )
     ),
 
-    // --- Specialized Models (专用模型) ---
+
     QWEN_MATH("qwen-math", "Qwen Math", AiModelEnum.ModelTypeEnum.CHAT_MODEL.getCode(),
             List.of(
                     AiModelParamEnum.ChatCapabilitiesEnum.STREAMING,
@@ -211,16 +211,12 @@ public enum QwenModelEnum {
         return modelName;
     }
 
-    /**
-     * 将 capabilities 转换为 JSON 字符串
-     */
+    
     public String getCapabilities() {
         return EnumUtils.toCapabilitiesJson(capabilities);
     }
 
-    /**
-     * 将 params 转换为 JSON 字符串（包含默认值配置）
-     */
+    
     public String getParams() {
         try {
             List<Map<String, Object>> paramList = new ArrayList<>();

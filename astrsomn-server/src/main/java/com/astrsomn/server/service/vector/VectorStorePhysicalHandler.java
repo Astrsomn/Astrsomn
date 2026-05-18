@@ -17,9 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * 将 {@link AiVecStoreEntity} 的增删映射到向量引擎侧集合（{@link VecStore#createCollection()} / {@link VecStore#dropCollection()}）。
- */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,9 +28,7 @@ public class VectorStorePhysicalHandler {
     private final AstroVecSourceFactory vecSourceFactory;
     private final AiVecSourceService vecSourceService;
 
-    /**
-     * 创建物理 Collection
-     */
+    
     public void createPhysical(AiVecStoreEntity store) {
         validateParams(store);
         AiVecSourceEntity source = requireEnabledSource(store.getSourceId());
@@ -55,9 +51,7 @@ public class VectorStorePhysicalHandler {
         }
     }
 
-    /**
-     * 删除物理 Collection
-     */
+    
     public void dropPhysical(AiVecStoreEntity snapshot) {
         if (Objects.isNull(snapshot) || Objects.isNull(snapshot.getSourceId()) || StringUtils.isBlank(snapshot.getCollectionName())) {
             return;

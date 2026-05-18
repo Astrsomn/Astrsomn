@@ -103,7 +103,7 @@ const handlePointerEnter = () => {
 
 const handlePointerLeave = (event?: MouseEvent) => {
   if (!isAutoHideEnabled.value) return;
-  // Ignore pointer transitions inside dock container to avoid flicker.
+
   if (event?.currentTarget instanceof HTMLElement && event.relatedTarget instanceof Node) {
     if (event.currentTarget.contains(event.relatedTarget)) return;
   }
@@ -129,7 +129,7 @@ const handleScroll = () => {
   const viewportBottom = currentScrollY + window.innerHeight;
   const bottomThreshold = 8;
 
-  // 只有页面可滚动时，才判定“滚动到底部”
+
   isAtBottom.value =
       maxScrollableDistance > bottomThreshold &&
       viewportBottom >= documentHeight - bottomThreshold;
@@ -181,7 +181,7 @@ onUnmounted(() => {
   transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* 底部唤醒热区：悬浮到操作栏预期位置即可唤醒 */
+
 .dock-wake-zone {
   position: absolute;
   bottom: 0;
@@ -192,7 +192,7 @@ onUnmounted(() => {
   pointer-events: auto;
 }
 
-/* 默认隐藏状态：下移并透明 */
+
 .dock-main {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(20px) saturate(180%);
@@ -208,7 +208,7 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-/* 激活状态 */
+
 .dock-active .dock-main {
   transform: translateY(0) scale(1);
   opacity: 1;
@@ -221,7 +221,7 @@ onUnmounted(() => {
   gap: 8px;
 }
 
-/* 导航项基础样式 */
+
 .nav-item {
   display: flex;
   flex-direction: column;
@@ -256,7 +256,7 @@ onUnmounted(() => {
   letter-spacing: 0.02em;
 }
 
-/* 中心按钮特别强化 */
+
 .center-btn {
   position: relative;
   width: 56px;
@@ -304,7 +304,7 @@ onUnmounted(() => {
   transform: translateY(0);
 }
 
-/* 底部横条 */
+
 .home-indicator {
   position: relative;
   width: 120px;
@@ -342,7 +342,7 @@ onUnmounted(() => {
   width: 120px;
 }
 
-/* 呼吸灯效果 */
+
 .pulse-ring {
   position: absolute;
   width: 100%;
@@ -365,7 +365,7 @@ onUnmounted(() => {
   }
 }
 
-/* 响应式 */
+
 @media (max-width: 640px) {
   .nav-text {
     display: none;
@@ -382,7 +382,7 @@ onUnmounted(() => {
   }
 }
 
-/* 深色模式适配 - 使用CSS变量 */
+
 @media (prefers-color-scheme: dark) {
   .dock-main {
     background: rgba(15, 23, 42, 0.8);
@@ -423,7 +423,7 @@ onUnmounted(() => {
   }
 }
 
-/* 使用CSS变量的深色模式支持 */
+
 :root.dark .dock-main {
   background: rgba(15, 23, 42, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -462,7 +462,7 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 浅色模式支持 */
+
 :root.light .dock-main {
   background: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(0, 0, 0, 0.08);

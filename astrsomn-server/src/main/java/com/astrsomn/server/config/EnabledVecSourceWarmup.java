@@ -57,9 +57,7 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
         delayedWarmup();
     }
 
-    /**
-     * 延迟预热，等待数据库表创建完成
-     */
+    
     private void delayedWarmup() {
         try {
             doWarmup();
@@ -77,9 +75,7 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
         }
     }
 
-    /**
-     * 执行向量源预热
-     */
+    
     private void doWarmup() {
         String env = envParamHelper.effectiveEnvCode();
         List<AiVecSourceEntity> sources = fetchEnabledSources(env);
@@ -124,9 +120,7 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
                 LOG_PREFIX, env, sources.size(), successCount.get(), disableCount.get(), skipCount.get());
     }
 
-    /**
-     * 获取已启用的向量源列表
-     */
+    
     private List<AiVecSourceEntity> fetchEnabledSources(String env) {
         return vecSourceMapper.selectList(new LambdaQueryWrapper<AiVecSourceEntity>()
                 .eq(AiVecSourceEntity::getDeleted, Boolean.FALSE)
@@ -134,9 +128,7 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
                 .eq(Objects.nonNull(env), AiVecSourceEntity::getEnvCode, env));
     }
 
-    /**
-     * 注册向量源
-     */
+    
     private boolean registerSource(AiVecSourceEntity source) {
         try {
             vecSourceFactory.registerOrRefresh(source);
@@ -148,9 +140,7 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
         }
     }
 
-    /**
-     * 测试向量源连接并处理失败情况
-     */
+    
     private boolean checkConnection(VecSource vecSource, AiVecSourceEntity source) {
         try {
             if (vecSource.testConnection()) {
@@ -164,9 +154,7 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
         return false;
     }
 
-    /**
-     * 预热失败处理：清理缓存并禁用
-     */
+    
     private void handleFailure(AiVecSourceEntity source, String detail, Throwable ex) {
         Long id = source.getId();
         if (Objects.isNull(id)) return;

@@ -89,7 +89,7 @@ const searchQuery = ref('')
 const typeFilter = ref(props.defaultType || 'all')
 const selectedKeys = ref<string[]>([])
 
-// 监听open变化，当打开时设置默认类型
+
 watch(() => open.value, (isOpen) => {
   if (isOpen && props.defaultType) {
     typeFilter.value = props.defaultType

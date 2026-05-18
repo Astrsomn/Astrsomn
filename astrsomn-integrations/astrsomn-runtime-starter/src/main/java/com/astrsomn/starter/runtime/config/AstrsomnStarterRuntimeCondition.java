@@ -5,11 +5,7 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
-/**
- * {@link AstrsomnAutoConfiguration} 启用条件：{@code astrsomn.enabled=true}（默认）
- * <p>
- * 且 {@code astrsomn.datasource.url} 已配置并为支持的 MySQL/H2 JDBC URL。
- */
+
 public class AstrsomnStarterRuntimeCondition implements Condition {
 
     @Override

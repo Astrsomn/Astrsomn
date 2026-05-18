@@ -2,9 +2,7 @@ package com.astrsomn.starter.runtime.langchain.exception;
 
 import java.util.Map;
 
-/**
- * 配置加载或校验失败。
- */
+
 public class AstroConfigException extends AstroException {
 
     public AstroConfigException(ErrorCode errorCode) {

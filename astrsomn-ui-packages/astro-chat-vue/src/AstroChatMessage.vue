@@ -72,9 +72,9 @@
                   <div v-show="isChainStepOpen(gIdx, sIdx)" class="chain-card-body">
                     <p v-if="seg.type === 'thought'" class="chain-thought-text">{{ seg.content }}</p>
                     <template v-else>
-                      <p v-if="seg.args?.trim()" class="tool-args-label">// Input Arguments</p>
+                      <p v-if="seg.args?.trim()" class="tool-args-label">
                       <pre v-if="seg.args?.trim()" class="tool-args-block">{{ seg.args }}</pre>
-                      <p v-if="toolResultText(seg)?.trim()" class="tool-result-label">// Output Result</p>
+                      <p v-if="toolResultText(seg)?.trim()" class="tool-result-label">
                       <pre v-if="toolResultText(seg)?.trim()" class="tool-result-block">{{ toolResultText(seg) }}</pre>
                     </template>
                   </div>
@@ -217,7 +217,7 @@ import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.min.css'
 import {normalizeAiMarkdown} from './markdownNormalize'
 
-/** 与 demo/ChatArea.vue 一致：短语言名 → hljs 注册名 */
+
 const langAlias: Record<string, string> = {
   js: 'javascript',
   ts: 'typescript',
@@ -245,7 +245,7 @@ const isThoughtExpanded = ref(true)
 const hasManualThoughtToggle = ref(false)
 const thoughtRef = ref<HTMLElement | null>(null)
 
-/** 围栏语言：修复流式/换行异常导致的「javaimport」等粘连，并匹配 hljs 语言 key */
+
 function resolveFenceLang(raw: string): { label: string; hljsKey: string | null } {
   const s = (raw || '').trim()
   if (!s) return {label: 'text', hljsKey: null}
@@ -304,13 +304,13 @@ function resolveFenceLang(raw: string): { label: string; hljsKey: string | null 
   return {label: short, hljsKey: null}
 }
 
-/** 模型偶发把标题/重复 ``` 行吃进围栏，复制与高亮前尽量剥掉 */
+
 function unwrapMalformedFenceContent(raw: string, outerLang: string): { code: string; lang: string } {
   let code = raw
   let lang = outerLang || ''
   const lines = code.split('\n')
 
-  // 首行是 ### 标题、下一行是 ```lang
+
   if (
       lines.length >= 3 &&
       /^#{1,6}\s/.test(lines[0].trim()) &&
@@ -332,14 +332,14 @@ function unwrapMalformedFenceContent(raw: string, outerLang: string): { code: st
   return {code, lang}
 }
 
-// html: false — 避免 <dependency> 等被当作 HTML 块吞掉（常见于 Maven/XML 与围栏错位时）
+
 const md = new MarkdownIt({
   html: false,
   linkify: true,
   breaks: true
 })
 
-/** 与 demo/ChatArea.vue：自定义 fence，结构为 code-block-wrapper + vscode-code-block + 复制按钮 */
+
 md.renderer.rules.fence = (tokens, idx) => {
   const token = tokens[idx]
   if (!token) return ''
@@ -358,7 +358,7 @@ md.renderer.rules.fence = (tokens, idx) => {
       codeHtml = hljs.highlightAuto(plain).value
     }
   } catch {
-    /* 保持转义后的纯文本 */
+
   }
 
   const langClass = hljsKey ? ` language-${hljsKey}` : ''
@@ -391,7 +391,7 @@ const displayGroups = computed((): DisplayGroup[] => {
   return groups
 })
 
-/** 链式步骤折叠：key `${gIdx}-${sIdx}`，未设置时按内容长度默认 */
+
 const chainStepOpen = ref<Record<string, boolean>>({})
 
 function chainStepKey(gIdx: number, sIdx: number) {
@@ -421,7 +421,7 @@ function toggleChainStep(gIdx: number, sIdx: number) {
   chainStepOpen.value = {...chainStepOpen.value, [k]: !cur}
 }
 
-/** 流式时仅在「最后一段思考」上显示脉冲与「正在深度思考」 */
+
 function isActiveStreamingThought(gIdx: number, sIdx: number, seg: any) {
   if (!props.streaming || seg?.type !== 'thought') return false
   let lastG = -1
@@ -620,7 +620,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   max-width: calc(100% - 48px);
 }
 
-/* —— AI 统一卡片 —— */
+
 .ai-card {
   border-radius: 16px;
   border: 1px solid var(--chat-ai-card-border);
@@ -701,7 +701,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   word-break: break-word;
 }
 
-/* 收起：限制高度、底部渐变，不出现顶部裁剪与内部滚动条 */
+
 .thought-section.is-collapsed .thought-scroll {
   max-height: 5.25rem;
   overflow: hidden;
@@ -720,7 +720,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   pointer-events: none;
 }
 
-/* 展开且内容长时由整块区域滚动（可选上限，避免占满屏） */
+
 .thought-section:not(.is-collapsed) .thought-scroll {
   max-height: min(40vh, 200px);
   overflow-y: auto;
@@ -867,7 +867,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   border-radius: 6px;
 }
 
-/* 代码块：对齐 demo/ChatArea.vue（Atom One Dark + VS Code 式布局） */
+
 .markdown-renderer :deep(.code-block-wrapper) {
   position: relative;
   margin: 12px 0;
@@ -957,7 +957,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   background: var(--chat-action-hover-bg);
 }
 
-/* 错误：与正文同一卡片内仅 plain text，无额外边框/复制区 */
+
 .ai-error-plain {
   padding: 16px 18px 12px;
   font-size: 15px;
@@ -967,7 +967,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   word-break: break-word;
 }
 
-/* 用户气泡：右对齐，小圆角在靠对话内侧 */
+
 .user-card {
   display: flex;
   justify-content: flex-end;
@@ -994,7 +994,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   color: var(--chat-user-link);
 }
 
-/* —— 链式时间线 + 翠绿回答 —— */
+
 .ai-structured {
   display: flex;
   flex-direction: column;
@@ -1162,7 +1162,7 @@ const handleCodeCopy = (e: MouseEvent) => {
   overflow-x: auto;
 }
 
-/* 仅主列头像：回答区不再嵌套第二个头像，避免双头像 */
+
 .answer-row-final {
   width: 100%;
   min-width: 0;

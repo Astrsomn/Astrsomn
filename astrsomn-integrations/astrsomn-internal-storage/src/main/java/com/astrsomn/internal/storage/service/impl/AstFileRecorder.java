@@ -17,13 +17,13 @@ public class AstFileRecorder implements FileRecorder {
 
     @Override
     public boolean save(FileInfo fileInfo) {
-        // 上传时已由业务层保存记录，此处无需重复写入
+
         return true;
     }
 
     @Override
     public void update(FileInfo fileInfo) {
-        // 业务层自行维护记录更新
+
     }
 
     @Override
@@ -63,11 +63,11 @@ public class AstFileRecorder implements FileRecorder {
 
     @Override
     public void saveFilePart(FilePartInfo filePartInfo) {
-        // 分片上传暂不使用
+
     }
 
     @Override
     public void deleteFilePartByUploadId(String uploadId) {
-        // 分片上传暂不使用
+
     }
 }

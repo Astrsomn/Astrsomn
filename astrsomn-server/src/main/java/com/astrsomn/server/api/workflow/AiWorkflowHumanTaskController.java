@@ -12,9 +12,7 @@ import com.astrsomn.server.service.AiWorkflowHumanTaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Workflow 人工任务控制器（骨架）。
- */
+
 @RestController
 @RequestMapping("/v1/astro/ai-workflow/human-task")
 @RequiredArgsConstructor

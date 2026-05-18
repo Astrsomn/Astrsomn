@@ -17,9 +17,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-/**
- * 多 {@link ChatModel} 组合：同步路径支持 {@link ResilienceDecorationStrategy}；跨节点故障转移在组合层完成。
- */
+
 public class CompositeChatModel implements ChatModel {
 
     private final List<ChatModel> delegates;

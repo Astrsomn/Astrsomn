@@ -34,7 +34,7 @@ function onStart(ev: DragEvent) {
   try {
     ev.dataTransfer!.setData('text/plain', props.subtitle || props.title)
   } catch {
-    /* ignore */
+
   }
   emit('dragStart', props.payload)
 }

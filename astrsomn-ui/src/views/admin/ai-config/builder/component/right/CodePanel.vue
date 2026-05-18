@@ -34,14 +34,14 @@ const codeTemplate = `public class TaskService {
     private final AstroAssistantFactory assistantFactory;
 
     public String createTask() {
-        // 1. 构建参数
+
         var param = AstroChatRequest.of(TaskCreateAssistant.class, "deepseek-sensor");
         param.setToolStrategy(new ToolStrategy());
 
-        // 2. 创建 Assistant
+
         TaskCreateAssistant assistant = assistantFactory.createAssistant(param);
 
-        // 3. 发起对话
+
         return assistant.chat("帮我创建一个任务", UUID.fastUUID().toString());
     }
 }`;

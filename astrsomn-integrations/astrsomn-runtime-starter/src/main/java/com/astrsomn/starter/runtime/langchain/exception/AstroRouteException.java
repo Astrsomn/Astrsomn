@@ -2,9 +2,7 @@ package com.astrsomn.starter.runtime.langchain.exception;
 
 import java.util.Map;
 
-/**
- * 路由相关异常基类。
- */
+
 public class AstroRouteException extends AstroException {
 
     public AstroRouteException(ErrorCode errorCode) {

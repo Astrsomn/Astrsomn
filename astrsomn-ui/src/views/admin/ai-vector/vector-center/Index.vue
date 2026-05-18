@@ -89,7 +89,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* 整体布局占满视口，阻止父容器滚动 */
+
 .vector-center-layout {
   position: fixed;
   top: 60px;
@@ -100,14 +100,14 @@ onMounted(async () => {
   display: flex;
 }
 
-/* 侧边栏固定 */
+
 .vector-center-sider {
 
   flex-shrink: 0;
   z-index: 10;
 }
 
-/* 右侧主内容区 */
+
 .vector-center-main {
   flex: 1;
   height: 100%;
@@ -117,12 +117,12 @@ onMounted(async () => {
   background-color: var(--bg-surface);
 }
 
-/* 右侧顶部固定 */
+
 .vector-center-top {
   flex-shrink: 0;
 }
 
-/* 右侧可滚动内容区 */
+
 .vector-center-content {
   flex: 1;
   overflow-y: auto;
@@ -130,7 +130,7 @@ onMounted(async () => {
   scroll-snap-type: y mandatory;
 }
 
-/* 磁吸分区 */
+
 .snap-section {
   min-height: 100%;
   scroll-snap-align: start;

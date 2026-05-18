@@ -62,31 +62,31 @@ const BASE_WRAP_CLASS = 'astrsomn-fullscreen-shell'
 
 interface Props {
   open: boolean
-  /** 传给 a-modal 的 width，如 `100%`、`1200` */
+
   width?: string | number
-  /** 弹层内容区高度，如 `100vh`、`90vh`、`800px` */
+
   bodyHeight?: string
-  /** 弹层内容区最大高度，如 `800px`、`90vh` */
+
   maxBodyHeight?: string
-  /** .ant-modal 最大宽度，如 `100vw`、`min(100vw, 1400px)` */
+
   maxWidth?: string
-  /** 顶栏最小高度，如 `72px` */
+
   headerHeight?: string
-  /** .ant-modal-content 背景色 */
+
   contentBackground?: string
-  /** 主区域 padding */
+
   mainPadding?: string
-  /** 主区域背景色 */
+
   mainBackground?: string
   destroyOnClose?: boolean
   footer?: null
-  /** 追加在基础 wrap class 之后 */
+
   wrapClassName?: string
-  /** 会与尺寸 CSS 变量合并，同名键优先生效 */
+
   wrapStyle?: CSSProperties
-  /** 确认按钮文字，设置后会在头部显示确认按钮 */
+
   confirmText?: string
-  /** 确认按钮图标，默认 CheckOutlined */
+
   confirmIcon?: Component
   confirmLoading?: boolean
   confirmDisabled?: boolean
@@ -138,7 +138,7 @@ function handleClose() {
 </script>
 
 <style scoped>
-/* 全屏弹层：顶对齐，尺寸由 wrap 上的 CSS 变量控制 */
+
 :global(.astrsomn-fullscreen-shell.ant-modal-wrap) {
   display: flex;
   align-items: center;

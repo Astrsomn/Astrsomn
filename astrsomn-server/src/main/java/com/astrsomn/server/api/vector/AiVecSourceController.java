@@ -40,9 +40,7 @@ public class AiVecSourceController extends BaseController {
         return aiVecSourceService.testConnection(request);
     }
 
-    /**
-     * 启用 / 禁用：更新 STATUS，并注册或移除运行时向量源连接缓存。
-     */
+    
     @PostMapping("/set-status")
     public BaseResponse<String> setStatus(@RequestBody AiVecSourceSetStatusRequestDTO request) {
         return aiVecSourceService.setEnabledStatus(request);

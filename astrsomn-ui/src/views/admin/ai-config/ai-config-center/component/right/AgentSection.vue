@@ -145,7 +145,7 @@ const emit = defineEmits(['select', 'create'])
 const loading = ref(false)
 const agents = ref<AiAgent[]>([])
 
-// ── Avatar helpers ──
+
 const avatarIconMap: Record<string, any> = {
   RobotOutlined, RocketOutlined, ThunderboltOutlined, StarOutlined,
   HeartOutlined, FireOutlined, CrownOutlined, GlobalOutlined,
@@ -164,7 +164,7 @@ function getAvatarComponent(val?: string) {
   return avatarIconMap[val || ''] || RobotOutlined
 }
 
-// ── Fetch ──
+
 const fetchAgents = async () => {
   loading.value = true
   try {
@@ -198,7 +198,7 @@ void fetchAgents()
   overflow-y: auto;
 }
 
-/* ── Header ── */
+
 .list-header {
   display: flex;
   justify-content: space-between;
@@ -257,7 +257,7 @@ void fetchAgents()
   margin: 0;
 }
 
-/* Stats */
+
 .header-stats {
   display: flex;
   gap: 10px;
@@ -331,7 +331,7 @@ void fetchAgents()
   font-weight: 500;
 }
 
-/* ── Loading / Empty ── */
+
 .loading-container {
   display: flex;
   justify-content: center;
@@ -343,14 +343,14 @@ void fetchAgents()
   padding: 60px;
 }
 
-/* ── Card Grid ── */
+
 .agent-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
 }
 
-/* ── Agent Card ── */
+
 .agent-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -369,7 +369,7 @@ void fetchAgents()
   transform: translateY(-1px);
 }
 
-/* Card header */
+
 .card-header {
   display: flex;
   align-items: center;
@@ -453,7 +453,7 @@ void fetchAgents()
   color: #9ca3af;
 }
 
-/* Prompt content */
+
 .card-prompt {
   font-size: 11px;
   color: var(--text-muted);
@@ -467,7 +467,7 @@ void fetchAgents()
   min-height: 35px;
 }
 
-/* Meta row */
+
 .card-meta {
   display: flex;
   align-items: center;
@@ -514,7 +514,7 @@ void fetchAgents()
   font-size: 8px;
 }
 
-/* ── Add Card ── */
+
 .add-card {
   border: 2px dashed var(--border-subtle);
   background: transparent;

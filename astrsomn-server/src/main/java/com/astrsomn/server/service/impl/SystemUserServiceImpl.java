@@ -32,9 +32,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
 
     private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
-    /**
-     * 统一角色与 ADMIN_FLAG：管理员类（超管、环境管理员）为 Y，普通用户为 N。
-     */
+    
     private static void applyUserRole(SystemUserEntity entity) {
         UserRoleEnum role = UserRoleEnum.fromCode(entity.getUserRole());
         entity.setUserRole(role.getCode());

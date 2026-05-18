@@ -7,9 +7,7 @@ import dev.langchain4j.store.embedding.chroma.ChromaApiVersion;
 
 import java.util.Map;
 
-/**
- * 从向量源 {@code CONFIG_JSON} 解析 Chroma 专用选项（与 {@link com.astrsomn.vector.qdrant.internal.QdrantConfigSupport} 同模式）。
- */
+
 public final class ChromaConfigSupport {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -37,9 +35,7 @@ public final class ChromaConfigSupport {
         }
     }
 
-    /**
-     * 未配置时默认 {@link ChromaApiVersion#V2}，以适配 Chroma 0.7+；仅旧实例可显式配置 {@code "apiVersion": "V1"}。
-     */
+    
     public static ChromaApiVersion readApiVersion(String configJson) {
         if (StringUtils.isBlank(configJson)) {
             return ChromaApiVersion.V2;
@@ -70,9 +66,7 @@ public final class ChromaConfigSupport {
         }
     }
 
-    /**
-     * 未配置时返回 {@code null}，由 LangChain4j 使用默认租户名。
-     */
+    
     public static String readTenantName(String configJson) {
         if (StringUtils.isBlank(configJson)) {
             return null;

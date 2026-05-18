@@ -189,15 +189,15 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
 
     @Override
     public <T> T createModel(Class<T> modelClass, AstroChatParam<?> param) {
-        // 1. 参数前置校验，防止后续深层调用出现 NPE
+
         if (modelClass == null || param == null || param.getModelSetting() == null) {
             throw new IllegalArgumentException("Model class and parameters must not be null");
         }
 
         Object model;
 
-        // 2. 逻辑分支判断：注意 StreamingChatModel 通常是 ChatModel 的子类
-        // 建议先判断最具体的接口
+
+
         if (StreamingChatModel.class.isAssignableFrom(modelClass)) {
             model = getStreamModel(param);
         } else if (ChatModel.class.isAssignableFrom(modelClass)) {
@@ -210,7 +210,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
             throw new UnknowModelException("Failed to initialize: " + modelClass.getName() + " is not supported by DeepSeek provider.");
         }
 
-        // 3. 安全的类型转换
+
         try {
             return modelClass.cast(model);
         } catch (ClassCastException e) {

@@ -18,9 +18,9 @@ public class ToolNodeExecutor implements AstFlowNodeExecutor {
 
     @Override
     public AstFlowNodeExecuteResult execute(AstFlowNodeExecutionContext context) {
-        // Pseudo-code for future tool invocation:
-        // toolResult = toolRouter.invoke(toolName, context.variables)
-        // context.variables.put("toolOutput", toolResult)
+
+
+
         Map<String, Object> output = new HashMap<>();
         output.put("toolOutput", "mock-tool-output");
 

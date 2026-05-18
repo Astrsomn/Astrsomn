@@ -170,7 +170,7 @@ watch(
   background-color: var(--bg-surface);
 }
 
-/* 视图切换动画 */
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -186,7 +186,7 @@ watch(
   transform: translateY(-10px);
 }
 
-/* 磁吸翻页容器 */
+
 .provider-detail-view {
   height: 100%;
   overflow-y: auto;
@@ -197,7 +197,7 @@ watch(
   scroll-snap-type: none;
 }
 
-/* 每一页占满视口高度 */
+
 .snap-page {
   min-height: calc(100vh - 60px);
   scroll-snap-align: start;
@@ -205,7 +205,7 @@ watch(
   flex-direction: column;
 }
 
-/* 底部滚动提示 */
+
 .scroll-hint {
   flex-shrink: 0;
   display: flex;

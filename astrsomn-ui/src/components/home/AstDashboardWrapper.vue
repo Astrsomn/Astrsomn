@@ -22,7 +22,7 @@
 
 .dashboard-main {
   max-width: 1600px;
-  /* 高度在 600px 到 800px 之间，理想高度是视口高度减去 60px */
+
   height: clamp(600px, calc(100vh - 60px), 800px);
   width: 100%;
 
@@ -30,6 +30,6 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  /* 移除了 min-height, max-height 和 height: auto */
+
 }
 </style>

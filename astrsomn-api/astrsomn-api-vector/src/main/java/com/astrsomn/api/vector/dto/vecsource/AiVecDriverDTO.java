@@ -21,8 +21,6 @@ public class AiVecDriverDTO {
 
     private String author;
 
-    /**
-     * 来源：classpath / plugin
-     */
+    
     private String source;
 }

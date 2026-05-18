@@ -111,7 +111,7 @@ const handleSend = (e: KeyboardEvent) => {
 </script>
 
 <style scoped>
-/* 容器：针对侧边栏宽度优化 */
+
 .sidebar-chat-panel {
   width: 100%;
   height: 100%;
@@ -121,11 +121,11 @@ const handleSend = (e: KeyboardEvent) => {
   border-left: 1px solid #f0f0f0;
 }
 
-/* 消息流：移除 15% 的 Padding */
+
 .chat-viewport {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 16px; /* 窄屏改用固定内边距 */
+  padding: 20px 16px;
 }
 
 .welcome-mini {
@@ -157,12 +157,12 @@ const handleSend = (e: KeyboardEvent) => {
   color: #86909c;
 }
 
-/* 消息组：适配窄屏 */
+
 .msg-group {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
-  width: 100%; /* 撑满侧边栏 */
+  width: 100%;
 }
 
 .msg-avatar {
@@ -194,7 +194,7 @@ const handleSend = (e: KeyboardEvent) => {
   word-wrap: break-word;
 }
 
-/* 紧凑思考态 */
+
 .thought-box-s {
   background: #f7f8fa;
   padding: 4px 8px;
@@ -211,7 +211,7 @@ const handleSend = (e: KeyboardEvent) => {
   color: #86909c;
 }
 
-/* 输入框区域：侧边栏核心适配 */
+
 .console-footer-s {
   padding: 12px 12px 24px;
   border-top: 1px solid #f0f0f0;
@@ -247,7 +247,7 @@ const handleSend = (e: KeyboardEvent) => {
   color: #1677ff;
 }
 
-/* 深度覆盖文本框 */
+
 :deep(.sidebar-input) {
   border: none !important;
   box-shadow: none !important;

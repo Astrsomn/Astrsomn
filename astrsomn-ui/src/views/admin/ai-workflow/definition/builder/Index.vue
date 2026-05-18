@@ -194,7 +194,7 @@ const normalizeGraphSnapshot = (graphJson?: string) => {
     const normalized = {
       nodes: (parsed.nodes || []).map(stripTransientNodeState).sort((a, b) => String(a.id).localeCompare(String(b.id))),
       edges: (parsed.edges || []).map(stripTransientEdgeState).sort((a, b) => String(a.id).localeCompare(String(b.id))),
-      // Viewport is runtime interaction state (pan/zoom), not a semantic graph change.
+
       viewport: {x: 0, y: 0, zoom: 1},
       meta: {
         canvasConfig: normalizeCanvasConfigSnapshot((parsed.meta?.canvasConfig as Record<string, unknown>) || {})
@@ -324,7 +324,7 @@ const persistAutoSaveEnabledSetting = () => {
   try {
     localStorage.setItem(AUTO_SAVE_SETTING_KEY, autoSaveEnabled.value ? '1' : '0')
   } catch {
-    // ignore persistence failures
+
   }
 }
 

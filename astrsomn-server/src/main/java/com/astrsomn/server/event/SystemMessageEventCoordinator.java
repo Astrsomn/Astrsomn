@@ -10,11 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
-/**
- * 进阶组合：在 starter 的 {@link SystemMessageRecorder}（落库）与
- * 本包内的「Spring 事件 → SSE」之间搭桥，供业务在<strong>同一次调用</strong>中完成「写表 + 通知前端」，
- * 且保持事件层不触及 Mapper。仅推送、不写库时可用 {@link #pushOnly} / {@link #pushFromEntity}。
- */
+
 @Service
 @RequiredArgsConstructor
 public class SystemMessageEventCoordinator {

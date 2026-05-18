@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 模型类扩展：停用厂商下全部模型、卸载前校验实例引用（避免与 {@link SystemExtensionService} 循环依赖）。
- */
+
 @Component
 @RequiredArgsConstructor
 public class SystemExtensionModelGuard {
@@ -53,9 +51,7 @@ public class SystemExtensionModelGuard {
         return Optional.empty();
     }
 
-    /**
-     * 将当前环境下该扩展对应厂商的全部模型状态设为 disabled。
-     */
+    
     public BaseResponse<String> disableAllModelsForExtension(Long extensionId) {
         BaseResponse<ProviderEnv> resolved = resolveProviderEnv(extensionId);
         if (!resolved.isSuccess() || resolved.getData() == null) {
@@ -73,9 +69,7 @@ public class SystemExtensionModelGuard {
         return BaseResponse.success(String.format("已将 %d 条模型状态设为停用（disabled）。", rows));
     }
 
-    /**
-     * 模型类扩展卸载插件前：当前环境下 {@code AI_MODEL} 仍存在该厂商记录则拒绝（需先「卸载模型」清空表内数据）。
-     */
+    
     public BaseResponse<Void> assertNoAiModelsForProviderExtension(Long extensionId) {
         SystemExtensionEntity ext = astSystemExtensionMapper.selectById(extensionId);
         if (ext == null) {
@@ -110,9 +104,7 @@ public class SystemExtensionModelGuard {
         return BaseResponse.success(null);
     }
 
-    /**
-     * 模型类扩展卸载插件前：若有实例引用该厂商任一模型则拒绝。
-     */
+    
     public BaseResponse<Void> assertNoInstancesUseProviderModels(Long extensionId) {
         SystemExtensionEntity ext = astSystemExtensionMapper.selectById(extensionId);
         if (ext == null) {

@@ -11,9 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/**
- * 向量库扩展：撤销应用 / 卸载前校验是否仍有向量源引用该 {@code provider}（与 extensionKey 对齐）。
- */
+
 @Component
 @RequiredArgsConstructor
 public class SystemExtensionVecGuard {

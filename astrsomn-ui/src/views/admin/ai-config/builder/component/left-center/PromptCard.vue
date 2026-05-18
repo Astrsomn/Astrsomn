@@ -52,7 +52,7 @@ import type {AiPrompt} from '@/api/aiPrompt'
 interface Props {
   prompt?: AiPrompt
   improveLoading?: boolean
-  /** 提示词正文 textarea 行数，默认 6 */
+
   textareaRows?: number
 }
 

@@ -156,18 +156,18 @@ watch(
 </script>
 
 <style scoped>
-/* ---- header icon override ---- */
+
 :deep(.vecstore-selector-drawer .header-icon) {
   background: linear-gradient(135deg, #10b981, #059669);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-/* ---- footer ---- */
+
 :deep(.drawer-footer) {
   justify-content: center;
 }
 
-/* ---- content ---- */
+
 .select-drawer-content {
   display: flex;
   flex-direction: column;
@@ -180,14 +180,14 @@ watch(
   flex-shrink: 0;
 }
 
-/* ---- list ---- */
+
 .item-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-/* scrollbar */
+
 .item-list::-webkit-scrollbar {
   width: 4px;
 }
@@ -197,7 +197,7 @@ watch(
   border-radius: 2px;
 }
 
-/* ---- card ---- */
+
 .item-card {
   display: flex;
   align-items: flex-start;
@@ -318,7 +318,7 @@ watch(
   gap: 4px;
 }
 
-/* ---- right check ---- */
+
 .item-right {
   flex-shrink: 0;
   display: flex;
@@ -338,7 +338,7 @@ watch(
   border: 2px solid #e5e7eb;
 }
 
-/* ---- empty state ---- */
+
 .empty-state {
   text-align: center;
   padding: 48px 24px;

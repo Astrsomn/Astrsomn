@@ -14,16 +14,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 将接入层文本与文件 URL 组装为 LangChain4j {@link UserMessage}；若 {@code param.userMessage} 已存在则跳过。
- */
+
 @Component
 @Order(15)
 public class ResolveUserMessageChainHandler implements AgentRuntimeChainHandler {
 
-    /**
-     * 供跳过责任链的场景（如 {@code createAssistantDirect}）在调用前显式组装。
-     */
+    
     public static <T> void resolveUserMessage(AstroChatParam<T> param) {
         if (param == null || param.getUserMessage() != null) {
             return;
@@ -32,9 +28,7 @@ public class ResolveUserMessageChainHandler implements AgentRuntimeChainHandler 
         param.setUserMessage(built);
     }
 
-    /**
-     * 纯文本 + URL 列表 → 多模态 {@link UserMessage}；无任何有效输入时返回 {@code null}。
-     */
+    
     public static UserMessage assembleFromTextAndUrls(String userMessageText, List<String> fileUrlList) {
         String text = StringUtils.trimToNull(userMessageText);
         List<Content> parts = new ArrayList<>();

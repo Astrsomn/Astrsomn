@@ -15,9 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * TODO [向量源初始化器] Vector 扩展应用后增量预热：仅处理当前 env + enabled 向量源。
- */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,9 +28,7 @@ public class VectorSourceInitializer {
     private final QueryEnvParamHelper envParamHelper;
     private final AstroVecSourceFactory vecSourceFactory;
 
-    /**
-     * 为指定的厂商定向预热已启用的向量源
-     */
+    
     public void warmupEnabledSourcesByProvider(String extensionCode) {
         Optional.ofNullable(StringUtils.trimToNull(extensionCode))
                 .ifPresent(provider -> {
@@ -49,9 +45,7 @@ public class VectorSourceInitializer {
                 });
     }
 
-    /**
-     * 根据厂商和环境查询符合条件的向量源
-     */
+    
     private List<AiVecSourceEntity> fetchSourcesByProvider(String provider, String env) {
         return vecSourceMapper.selectList(new LambdaQueryWrapper<AiVecSourceEntity>()
                 .eq(AiVecSourceEntity::getExtensionCode, provider)
@@ -60,9 +54,7 @@ public class VectorSourceInitializer {
                 .eq(Objects.nonNull(env), AiVecSourceEntity::getEnvCode, env));
     }
 
-    /**
-     * 安全注册向量源，隔离异常防止中断
-     */
+    
     private void safeRegister(AiVecSourceEntity source) {
         try {
             vecSourceFactory.registerOrRefresh(source);

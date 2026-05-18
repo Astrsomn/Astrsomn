@@ -188,7 +188,7 @@ watch(
   white-space: nowrap;
 }
 
-/* ── 收起状态 ── */
+
 .ast-sidebar.collapsed .nav-items {
   align-items: center;
 }

@@ -203,7 +203,7 @@ async function handleOk() {
 </script>
 
 <style scoped>
-/* Header */
+
 .logo-box {
   width: 42px;
   height: 42px;
@@ -231,7 +231,7 @@ async function handleOk() {
   color: #94a3b8;
 }
 
-/* 布局主体 */
+
 .main-content {
   flex: 1;
   display: flex;
@@ -248,7 +248,7 @@ async function handleOk() {
   padding: 20px;
 }
 
-/* 左侧信息面板 */
+
 .info-pane {
   flex: 1;
   min-width: 0;
@@ -268,7 +268,7 @@ async function handleOk() {
   gap: 16px;
 }
 
-/* 右侧代码面板 */
+
 .code-pane {
   width: 50%;
   flex-shrink: 0;
@@ -279,7 +279,7 @@ async function handleOk() {
   padding: 0;
 }
 
-/* 编辑器样式 */
+
 .editor-shell {
   border: 1px solid #d9d9d9;
   border-radius: 8px;
@@ -291,7 +291,7 @@ async function handleOk() {
   min-height: 0;
 }
 
-/* 移除form-item的默认margin */
+
 .code-pane :deep(.ant-form-item) {
   margin-bottom: 0;
   margin-top: 0;
@@ -342,7 +342,7 @@ async function handleOk() {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-/* 响应式 */
+
 @media (max-width: 1024px) {
   .main-content {
     flex-direction: column;

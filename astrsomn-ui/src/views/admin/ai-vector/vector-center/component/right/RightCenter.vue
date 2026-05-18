@@ -274,7 +274,7 @@ const viewSize = ref<'small' | 'medium' | 'large'>(localStorage.getItem('doc-vie
 const uploadCollectionId = ref<number | string | undefined>()
 const modalOpen = ref(false)
 
-// 文件夹相关
+
 const folders = ref<AiVecFolder[]>([])
 const currentFolderId = ref<number | string | null>(null)
 const folderPath = ref<Array<{ id: number | string; name: string }>>([])
@@ -284,24 +284,24 @@ const folderModalName = ref('')
 const editingFolder = ref<AiVecFolder | null>(null)
 const renamingFolderId = ref<number | string | null>(null)
 
-// 前进后退导航
+
 const navHistory = ref<Array<{ folderId: number | string | null; path: Array<{ id: number | string; name: string }> }>>([{ folderId: null, path: [] }])
 const navIndex = ref(0)
 const modalMode = ref<'create' | 'edit'>('create')
 const modalInitial = ref<AiVecDoc | null>(null)
 const modalSubmitting = ref(false)
 
-// 向量化进度追踪
+
 const vectorizingMap = reactive<Record<string, { progress: number; message: string }>>({})
 const pollingTimers = ref<Record<string, ReturnType<typeof setInterval>>>({})
 
-// 右键菜单 & 剪贴板
+
 const blankMenuVisible = ref(false)
 const blankMenuX = ref(0)
 const blankMenuY = ref(0)
 const clipboard = ref<{ items: any[]; mode: 'copy' | 'cut' } | null>(null)
 
-// 框选 & 多选
+
 const gridRef = ref<HTMLElement | null>(null)
 const {
   selectedIds,
@@ -316,7 +316,7 @@ const {
   itemSelector: '[data-select-id]'
 })
 
-// 移动到文件夹弹窗
+
 const moveModalOpen = ref(false)
 const moveTargetFiles = ref<any[]>([])
 const moveTargetFolderId = ref<number | string | null>(null)
@@ -343,7 +343,7 @@ const setViewSize = (size: 'small' | 'medium' | 'large') => {
   localStorage.setItem('doc-view-size', size)
 }
 
-// 文件夹操作
+
 const fetchFolders = async () => {
   if (!props.storeId) {
     folders.value = []
@@ -505,11 +505,11 @@ const filteredFiles = computed(() => {
   const kw = keyword.value.trim().toLowerCase()
   return list
       .filter((doc) => {
-        // 文件夹筛选：当在某个文件夹内时，只显示该文件夹的文档
+
         if (currentFolderId.value != null) {
           if (String(doc.folderId ?? '') !== String(currentFolderId.value)) return false
         } else {
-          // 在根目录时，不显示已归入文件夹的文档
+
           if (doc.folderId != null) return false
         }
         if (!kw) return true
@@ -535,7 +535,7 @@ const filteredFiles = computed(() => {
       })
 })
 
-// 键盘快捷键
+
 useClipboardShortcuts({
   selectedIds,
   fileList: filteredFiles,
@@ -552,7 +552,7 @@ useClipboardShortcuts({
   onPaste: (targetFolderId) => handlePaste(targetFolderId)
 })
 
-// 自动为已在向量化中的文档启动轮询
+
 watch(
     () => props.docs,
     (docs) => {
@@ -628,7 +628,7 @@ const startPolling = (docId: string) => {
         emit('changed')
       }
     } catch {
-      // ignore polling errors
+
     }
   }, 2000)
 }
@@ -789,7 +789,7 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
   }
 }
 
-// ========== 右键菜单处理 ==========
+
 
 const onBlankContextMenu = (e: MouseEvent) => {
   const target = e.target as HTMLElement
@@ -847,7 +847,7 @@ const onFolderMenuClick = (payload: unknown, folder: AiVecFolder) => {
 const onFileMenuClick = (payload: unknown, file: any) => {
   const key = String((payload as { key?: string | number })?.key ?? '')
 
-  // For single-item actions, use the right-clicked file directly
+
   switch (key) {
     case 'edit':
       openEdit(file)
@@ -869,7 +869,7 @@ const onFileMenuClick = (payload: unknown, file: any) => {
       return
   }
 
-  // For batch-capable actions, use all selected items if the right-clicked file is selected
+
   const batchItems = isSelected(String(file.id))
       ? filteredFiles.value.filter(f => isSelected(String(f.id)))
       : [file]
@@ -889,7 +889,7 @@ const onFileMenuClick = (payload: unknown, file: any) => {
   }
 }
 
-// ========== 移动 & 粘贴逻辑 ==========
+
 
 const openMoveModal = async (files: any[]) => {
   moveTargetFiles.value = files
@@ -936,7 +936,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   const docIds = clipboard.value.items.map(f => f.id ?? f.raw?.id).filter(Boolean)
   if (!docIds.length) return
 
-  // 剪切模式下，检查是否粘贴到同一位置（空操作）
+
   if (clipboard.value.mode === 'cut') {
     const allSameLocation = clipboard.value.items.every(f => {
       const currentFolderId = f.raw?.folderId ?? null
@@ -952,7 +952,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   try {
     await aiVecFolderApi.moveDocs(docIds, targetFolderId)
     message.success(`已粘贴 ${docIds.length} 个文件`)
-    // 先清空剪贴板再刷新，使 UI 立即移除灰色状态
+
     if (clipboard.value.mode === 'cut') {
       clipboard.value = null
     }
@@ -973,7 +973,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   flex-direction: column;
 }
 
-/* 工具栏样式 */
+
 .list-toolbar {
   display: flex;
   justify-content: space-between;
@@ -1083,7 +1083,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   }
 }
 
-/* 布局网格：负责卡片的大小和排列 */
+
 .file-grid {
   position: relative;
   display: grid;
@@ -1108,7 +1108,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   }
 }
 
-/* 视图切换 */
+
 .view-toggle {
   display: flex;
   align-items: center;

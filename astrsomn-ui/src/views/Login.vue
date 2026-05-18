@@ -161,7 +161,7 @@ const handleLogin = async () => {
   overflow: hidden;
 }
 
-/* 顶部玻璃态导航 */
+
 .glass-header {
   position: absolute;
   top: 0;
@@ -249,7 +249,7 @@ const handleLogin = async () => {
   font-size: 16px;
 }
 
-/* 左侧品牌区：光效与文字排版 */
+
 .login-left {
   flex: 1.2;
   position: relative;
@@ -319,7 +319,7 @@ const handleLogin = async () => {
   font-size: 18px;
 }
 
-/* 右侧表单区：悬浮卡片感 */
+
 .login-right {
   flex: 1;
   display: flex;
@@ -356,7 +356,7 @@ const handleLogin = async () => {
   font-size: 14px;
 }
 
-/* 输入框定制 */
+
 :deep(.custom-input) {
   border-radius: 12px !important;
   background: var(--bg-input) !important;
@@ -404,7 +404,7 @@ const handleLogin = async () => {
   box-shadow: 0 12px 24px rgba(0, 123, 255, 0.3);
 }
 
-/* 页脚 */
+
 .login-footer {
   position: absolute;
   bottom: 24px;

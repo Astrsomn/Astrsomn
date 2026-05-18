@@ -31,9 +31,7 @@ public class McpToolCacheManager {
     private final Map<Long, List<ToolSpecification>> toolCache = new ConcurrentHashMap<>();
     private final List<McpProtocolHandler> protocolHandlers;
 
-    /**
-     * 获取或创建 MCP 客户端，并同步刷新工具缓存
-     */
+    
     public McpClient getOrCreateClient(AiMcpEntity config) {
         return clientCache.computeIfAbsent(config.getId(), id -> {
             log.info("{} 初始化客户端 | 名称: {} | 类型: {}", LOG_PREFIX, config.getServerName(), config.getType());
@@ -43,16 +41,12 @@ public class McpToolCacheManager {
         });
     }
 
-    /**
-     * 获取已缓存的工具列表规格
-     */
+    
     public List<ToolSpecification> getCachedTools(Long mcpId) {
         return toolCache.getOrDefault(mcpId, Collections.emptyList());
     }
 
-    /**
-     * 刷新特定客户端的工具元数据缓存
-     */
+    
     public void refreshTools(Long mcpId, McpClient client) {
         try {
             List<ToolSpecification> specs = client.listTools();
@@ -63,9 +57,7 @@ public class McpToolCacheManager {
         }
     }
 
-    /**
-     * 移除并销毁客户端
-     */
+    
     public void removeClient(Long mcpId) {
         toolCache.remove(mcpId);
         Optional.ofNullable(clientCache.remove(mcpId)).ifPresent(client -> {

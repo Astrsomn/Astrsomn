@@ -21,9 +21,7 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * 插件市场目录：调用外部 API 获取插件列表。
- */
+
 @Component
 @RequiredArgsConstructor
 public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketService {

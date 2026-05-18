@@ -14,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-/**
- * 按 modelKey 加载模型定义，合并连接相关字段（URL、厂商等）。
- */
+
 @Component
 @Order(50)
 @RequiredArgsConstructor

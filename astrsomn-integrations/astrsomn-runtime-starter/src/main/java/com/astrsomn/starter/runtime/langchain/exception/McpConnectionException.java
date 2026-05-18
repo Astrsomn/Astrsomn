@@ -1,8 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.exception;
 
-/**
- * MCP 连接失败。
- */
+
 public class McpConnectionException extends AstroToolException {
 
     public McpConnectionException(String detail, Throwable cause) {

@@ -81,9 +81,7 @@ public class AstroAuthController extends BaseController {
         return success(response);
     }
 
-    /**
-     * 当前请求生效的数据环境（与租户/写入填充一致）。超级管理员可通过请求头切换工作空间。
-     */
+    
     @GetMapping("/workspace-env")
     public BaseResponse<Map<String, Object>> workspaceEnv() {
         Map<String, Object> m = new LinkedHashMap<>();

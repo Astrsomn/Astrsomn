@@ -107,7 +107,7 @@ import {
 const props = defineProps<{ record: any; selected?: boolean }>()
 const emit = defineEmits(['edit', 'delete', 'toggle'])
 
-// 逻辑保留
+
 const onToggle = (e: any) => {
   emit('toggle', props.record.id, Boolean(e?.target?.checked))
 }
@@ -121,7 +121,7 @@ const providerAvatarMarkup = computed(() => {
 
 const formatTime = (raw?: string) => {
   if (!raw) return '--'
-  // 保持原有的简化逻辑，仅展示日期和小时
+
   return raw.replace('T', ' ').slice(0, 16)
 }
 
@@ -139,7 +139,7 @@ const copyAgentKey = async () => {
 </script>
 
 <style scoped>
-/* 核心容器 */
+
 .agent-card-v3 {
   --primary-blue: var(--primary);
   --light-blue: var(--primary-hover);
@@ -159,7 +159,7 @@ const copyAgentKey = async () => {
   box-shadow: var(--shadow-card);
 }
 
-/* 装饰性背景微光 */
+
 .aurora-glow {
   position: absolute;
   top: -60px;
@@ -171,7 +171,7 @@ const copyAgentKey = async () => {
   pointer-events: none;
 }
 
-/* 悬浮与选中状态 */
+
 .agent-card-v3:hover {
   transform: translateY(-4px);
   border-color: var(--primary-light);
@@ -184,7 +184,7 @@ const copyAgentKey = async () => {
   box-shadow: 0 0 0 2px var(--primary-hover);
 }
 
-/* 顶部栏 */
+
 .card-top-bar {
   padding: 16px 16px 0;
   display: flex;
@@ -219,7 +219,7 @@ const copyAgentKey = async () => {
   border-radius: 50%;
 }
 
-/* 头部 */
+
 .card-header {
   padding: 16px;
   display: flex;
@@ -286,7 +286,7 @@ const copyAgentKey = async () => {
   margin-top: 2px;
 }
 
-/* Key 区块 - 方案三标志性设计 */
+
 .key-section {
   margin: 0 16px 16px;
   padding: 12px;
@@ -326,7 +326,7 @@ const copyAgentKey = async () => {
   opacity: 0.5;
 }
 
-/* 正文与配置 */
+
 .card-body {
   padding: 0 16px 16px;
   flex: 1;
@@ -405,7 +405,7 @@ const copyAgentKey = async () => {
   text-overflow: ellipsis;
 }
 
-/* 底部操作 */
+
 .card-footer {
   display: flex;
   border-top: 1px solid var(--border-default);
@@ -447,7 +447,7 @@ const copyAgentKey = async () => {
   align-self: center;
 }
 
-/* 禁用状态 */
+
 .is-disabled {
   opacity: 0.7;
 }

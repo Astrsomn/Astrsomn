@@ -9,9 +9,7 @@ import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * 单次解析过程中的可变上下文：贯穿整条责任链，供各节点写入查询结果。
- */
+
 @Getter
 public class AgentRuntimeContext {
 

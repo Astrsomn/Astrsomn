@@ -12,9 +12,7 @@ import com.astrsomn.server.service.AiWorkflowInstanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Workflow 实例控制器（骨架）。
- */
+
 @RestController
 @RequestMapping("/v1/astro/ai-workflow/instance")
 @RequiredArgsConstructor

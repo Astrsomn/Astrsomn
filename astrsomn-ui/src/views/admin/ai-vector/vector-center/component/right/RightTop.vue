@@ -146,7 +146,7 @@ const handleSave = async () => {
 
 <style lang="less" scoped>
 .dashboard-header-mini {
-  height: 64px; /* 严格控制在 60-70px 之间 */
+  height: 64px;
   background: #fff;
   border-bottom: 1px solid #f0f0f0;
   display: flex;
@@ -172,7 +172,7 @@ const handleSave = async () => {
   background: #f0f0f0;
 }
 
-/* 左侧标题组 */
+
 .main-info {
   gap: 12px;
   min-width: 200px;
@@ -192,7 +192,7 @@ const handleSave = async () => {
   }
 }
 
-/* 输入框统一极简样式 */
+
 .ultra-minimal-input {
   border: none !important;
   box-shadow: none !important;
@@ -206,7 +206,7 @@ const handleSave = async () => {
 
 .desc-section { flex: 1; }
 
-/* 只读参数 pills */
+
 .specs-inline {
   gap: 8px;
   .spec-pill, .stat-pill {
@@ -221,7 +221,7 @@ const handleSave = async () => {
   }
 }
 
-/* 操作区 */
+
 .actions {
   gap: 12px;
   .mini-status { margin: 0; font-size: 10px; border: none; background: #f6ffed; color: #52c41a; }
@@ -229,6 +229,6 @@ const handleSave = async () => {
 }
 
 @media (max-width: 1200px) {
-  .specs-inline { display: none; } /* 屏幕太窄时隐藏参数区 */
+  .specs-inline { display: none; }
 }
 </style>

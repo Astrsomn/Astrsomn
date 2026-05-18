@@ -6,9 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * vector-starter 的 MyBatis 配置贡献。
- */
+
 @Component
 public class VectorMybatisContributor implements AstrsomnMybatisContributor {
 

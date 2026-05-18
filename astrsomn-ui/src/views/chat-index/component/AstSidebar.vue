@@ -265,7 +265,7 @@ const toggleCollapsed = () => {
   background: var(--bg-card);
 }
 
-/* settings modal — low-key, no shadow / border / bg emphasis */
+
 :global(.settings-modal-wrap .ant-modal-content) {
   box-shadow: none;
   border: none;

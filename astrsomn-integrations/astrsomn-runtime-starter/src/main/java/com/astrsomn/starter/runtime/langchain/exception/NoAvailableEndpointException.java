@@ -1,8 +1,6 @@
 package com.astrsomn.starter.runtime.langchain.exception;
 
-/**
- * 没有可用端点（选择策略返回 -1，或所有端点已被排除）。
- */
+
 public class NoAvailableEndpointException extends AstroRouteException {
 
     public NoAvailableEndpointException() {

@@ -255,9 +255,9 @@ const fetchProviders = async () => {
 const updateActiveItem = () => {
   const currentPath = route.path
 
-  // 如果是 ai-config-center 页面
+
   if (currentPath === '/admin/ai-config-center') {
-    // 先检查是否是全局管理视图
+
     const view = route.query.view as string | undefined
     const globalKeys = [...globalItems.value.map(item => item.key), ...extraItems.value.map(item => item.key)]
     if (view && globalKeys.includes(view)) {
@@ -265,19 +265,19 @@ const updateActiveItem = () => {
       return
     }
 
-    // 再检查是否是模型提供商
+
     const provider = route.query.provider as string | undefined
     if (provider && providers.value.some(p => p.key === provider.toLowerCase())) {
       activeItem.value = provider.toLowerCase()
       return
     }
 
-    // 默认选中"全部"
+
     activeItem.value = 'all'
     return
   }
 
-  // 检查是否是全局管理页面
+
   const pathParts = currentPath.split('/')
   const lastPart = pathParts[pathParts.length - 1]
   const globalKeys = [...globalItems.value.map(item => item.key), ...extraItems.value.map(item => item.key)]
@@ -286,7 +286,7 @@ const updateActiveItem = () => {
     return
   }
 
-  // 默认选中"全部"
+
   activeItem.value = 'all'
 }
 
@@ -295,7 +295,7 @@ const fetchCount = async (api: { queryPage: (p: unknown) => Promise<{ total?: nu
     const resp = await api.queryPage({pageNo: 1, pageSize: 1})
     list.value[idx].count = resp.total ?? 0
   } catch {
-    // ignore
+
   }
 }
 
@@ -327,7 +327,7 @@ watch(
 </script>
 
 <style scoped>
-/* 顶部区域 */
+
 .sidebar-search-pill {
   flex: 1;
   min-width: 0;
@@ -372,7 +372,7 @@ watch(
 }
 
 
-/* 导航列表 */
+
 .nav-list {
   flex: 1;
   overflow-y: auto;
@@ -393,7 +393,7 @@ watch(
   letter-spacing: 0.05em;
 }
 
-/* 提供商列表 */
+
 .provider-list {
   display: flex;
   flex-direction: column;
@@ -478,7 +478,7 @@ watch(
   white-space: nowrap;
 }
 
-/* 全局管理区域（固定在底部） */
+
 .global-section {
   margin-top: auto;
   padding-top: 12px;
@@ -544,13 +544,13 @@ watch(
   line-height: 18px;
 }
 
-/* 空状态提示 */
+
 .empty-provider {
   padding: 24px 0;
   text-align: center;
 }
 
-/* ── 收起状态：导航列表 ── */
+
 .ast-sidebar.collapsed .nav-list {
   width: 100%;
 }
@@ -583,7 +583,7 @@ watch(
   display: none;
 }
 
-/* ── 收起状态：全局管理 ── */
+
 .ast-sidebar.collapsed .global-section {
   width: 100%;
   display: flex;

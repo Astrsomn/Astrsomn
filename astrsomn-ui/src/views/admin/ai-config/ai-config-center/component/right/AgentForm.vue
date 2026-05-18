@@ -200,7 +200,7 @@ async function handleApplyImproved() {
     currentPrompt.value = saved
     loadedPromptContent.value = saved.promptContent ?? improvedContent.value
   } catch {
-    // Save failure doesn't block, handleSave will retry
+
   }
   message.success('已应用优化后的提示词')
 }
@@ -222,7 +222,7 @@ function parseKnowledgeKeys(raw?: string): string[] {
     const arr = JSON.parse(t) as unknown
     if (Array.isArray(arr)) return arr.map((x) => String(x)).filter(Boolean)
   } catch {
-    /* comma-separated */
+
   }
   return t.split(',').map((s) => s.trim()).filter(Boolean)
 }
@@ -526,7 +526,7 @@ watch(
   overflow: hidden;
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 1200px) {
   .config-content {
     grid-template-columns: 1fr;

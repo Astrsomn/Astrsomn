@@ -172,7 +172,7 @@ const props = withDefaults(defineProps<{
   agentOptions: AiAgent[]
   chatInstanceOptions: AiInstance[]
   modelCapabilities?: string[]
-  /** 自定义上传；默认走 /v1/astro/file/upload */
+
   uploadFile?: (file: File) => Promise<string>
 }>(), {
   layout: 'bottom',
@@ -239,7 +239,7 @@ const canDeepThinking = computed(() =>
     props.modelCapabilities.length === 0 || hasCapability('deep_reasoning')
 )
 
-/** 本地草稿：与父级 userInput 同步，但发送时先在此清空，避免仅依赖 v-model 时 a-textarea 不刷新 */
+
 const draft = ref('')
 
 watch(
@@ -703,7 +703,7 @@ onBeforeUnmount(() => {
   color: var(--text-secondary) !important;
 }
 
-/* 下拉挂载到 body，需全局类名 */
+
 :global(.custom-dropdown .inst-opt-row) {
   display: flex;
   align-items: center;

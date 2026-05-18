@@ -4,9 +4,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-/**
- * 按配置顺序依次尝试：第 {@code attemptIndex} 次故障转移优先选下一顺位可用端点。
- */
+
 @Component
 public class FailoverOrderedEndpointSelectionStrategy implements EndpointSelectionStrategy {
 

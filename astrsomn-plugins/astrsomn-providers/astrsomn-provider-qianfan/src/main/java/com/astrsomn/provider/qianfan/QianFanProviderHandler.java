@@ -18,10 +18,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * 百度千帆；凭证使用 {@link ModelSetting#apiKey} 与 {@code apiSecret}。
- * 具体模型名、端点等可按业务在 builder 上扩展。
- */
+
 public class QianFanProviderHandler extends AbstractModelProviderHandler {
 
     @Override

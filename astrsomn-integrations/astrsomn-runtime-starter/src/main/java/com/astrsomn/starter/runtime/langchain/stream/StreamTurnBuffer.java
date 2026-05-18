@@ -7,9 +7,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 按流式回调顺序收集思考片段、正文片段与工具执行，供落库时保持与时间线一致。
- */
+
 public final class StreamTurnBuffer {
 
     private final List<Segment> segments = new ArrayList<>();

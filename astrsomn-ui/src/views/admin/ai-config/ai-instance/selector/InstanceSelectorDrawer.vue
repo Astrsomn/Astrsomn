@@ -134,7 +134,7 @@ const props = defineProps<{
   disableTtlEdit?: boolean
   defaultModelType?: string
   fixedModelType?: string
-  /** Narrow list to instances whose model key matches (backend LIKE on full key). */
+
   filterModelKey?: string
 }>()
 

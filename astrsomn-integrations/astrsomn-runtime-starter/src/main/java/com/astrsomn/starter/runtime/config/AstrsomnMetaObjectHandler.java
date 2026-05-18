@@ -12,12 +12,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
-/**
- * MyBatis-Plus 字段自动填充：创建/更新时间、创建/更新人、环境编码（INSERT 时）。
- * <p>
- * 通过反射方式实现，不需要在 {@link BaseEntity} 上配置 {@code @TableField(fill = ...)} 注解，
- * 保持 BaseEntity 的纯净性。
- */
+
 @Slf4j
 @Component
 public class AstrsomnMetaObjectHandler implements MetaObjectHandler {

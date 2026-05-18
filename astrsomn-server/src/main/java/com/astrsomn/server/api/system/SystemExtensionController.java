@@ -25,7 +25,7 @@ public class SystemExtensionController extends BaseController {
     private final SystemExtensionModelSyncService systemExtensionModelSyncService;
     private final SystemExtensionModelGuard systemExtensionModelGuard;
 
-    // ==================================== SystemExtensionService ====================================
+
 
     @PostMapping("/create")
     public BaseResponse<String> create(@RequestBody SystemExtensionCreateRequestDTO request) {
@@ -82,7 +82,7 @@ public class SystemExtensionController extends BaseController {
         return systemExtensionService.uninstall(id);
     }
 
-    // ==================================== SystemExtensionModelSyncService ====================================
+
 
     @GetMapping("/load-models/preview")
     public BaseResponse<com.astrsomn.system.dto.extension.ExtensionModelLoadPreviewDTO> previewLoadModels(@RequestParam("id") Long id) {
@@ -104,7 +104,7 @@ public class SystemExtensionController extends BaseController {
         return systemExtensionModelSyncService.unloadModels(id, modelKeys);
     }
 
-    // ==================================== SystemExtensionModelGuard ====================================
+
 
     @PostMapping("/disable-provider-models")
     public BaseResponse<String> disableProviderModels(@RequestParam("id") Long id) {

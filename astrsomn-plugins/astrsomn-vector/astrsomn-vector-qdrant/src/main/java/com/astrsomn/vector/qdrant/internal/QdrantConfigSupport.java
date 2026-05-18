@@ -33,11 +33,7 @@ public final class QdrantConfigSupport {
         }
     }
 
-    /**
-     * 是否在 {@link io.qdrant.client.QdrantGrpcClient.Builder#build()} 时做客户端与服务端版本兼容检查。
-     * 缺省为 {@code false}，避免在测试连接或网络异常时于 build 阶段额外阻塞；若需严格校验可在 {@code CONFIG_JSON} 中设
-     * {@code "checkCompatibility": true}。
-     */
+    
     public static boolean readCheckCompatibility(String configJson) {
         if (StringUtils.isBlank(configJson)) {
             return false;

@@ -13,9 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-/**
- * 启动后校验 Astrsomn 数据源连通性与 Schema 就绪状态。
- */
+
 @Slf4j
 public class DatabaseStartupValidator {
 

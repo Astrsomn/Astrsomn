@@ -105,7 +105,7 @@ const renderEnabled = (f: string) => f === 'enabled' ? 'Active' : 'Paused'
 const previewContent = (raw?: string) => {
   if (!raw) return '暂无描述内容配置。该智能体尚未定义具体的 Prompt 指令...'
   const clean = raw.replace(/\s+/g, ' ').trim()
-  // 增加字数限制以填充 400px 的空间感
+
   return clean.length > 120 ? `${clean.slice(0, 120)}...` : clean
 }
 

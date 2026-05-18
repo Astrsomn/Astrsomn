@@ -22,14 +22,7 @@ public class AstroVecSourceFactory {
 
     private static final String LOG_PREFIX = "[Astrsomn] [向量工厂] ====> ";
 
-    /**
-     * 变量名	                级别  	核心职责    	存储内容
-     * classpathDrivers	        静态底座	提供基础能力	原生驱动类
-     * pluginDriverOverrides	动态扩展	插件能力覆盖	插件驱动类
-     * pluginDriverOwningJar	管理辅助	插件卸载追踪	驱动 -> 插件包名
-     * activeSources	        运行性能	避免重复连接	连接句柄对象
-     * activeSourceFingerprints	状态一致性	感知配置变更	配置信息的字符串
-     */
+    
     private final Map<String, VecDriver> classpathDrivers;
     private final ConcurrentHashMap<String, VecDriver> pluginDriverOverrides = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> pluginDriverOwningJar = new ConcurrentHashMap<>();
@@ -40,9 +33,7 @@ public class AstroVecSourceFactory {
         this.classpathDrivers = loadClasspathDrivers();
     }
 
-    /**
-     * SPI 加载本地 Classpath 驱动
-     */
+    
     private static Map<String, VecDriver> loadClasspathDrivers() {
         ServiceLoader<VecDriver> loader = ServiceLoader.load(VecDriver.class);
 
@@ -68,9 +59,7 @@ public class AstroVecSourceFactory {
                 ));
     }
 
-    /**
-     * 注册插件驱动
-     */
+    
     public void applyPluginDrivers(String jarName, List<VecDriver> drivers) {
         if (StringUtils.isBlank(jarName) || Objects.isNull(drivers)) return;
 
@@ -84,9 +73,7 @@ public class AstroVecSourceFactory {
                 });
     }
 
-    /**
-     * 移除指定 Jar 关联的插件驱动
-     */
+    
     public void removePluginDrivers(String jarName) {
         if (StringUtils.isBlank(jarName)) return;
 
@@ -101,9 +88,7 @@ public class AstroVecSourceFactory {
         });
     }
 
-    /**
-     * 获取所有可用驱动元信息（classpath + 插件）
-     */
+    
     public List<AiVecDriverDTO> getAvailableDrivers() {
         Map<String, AiVecDriverDTO> merged = new LinkedHashMap<>();
 
@@ -134,18 +119,14 @@ public class AstroVecSourceFactory {
         return builder.build();
     }
 
-    /**
-     * 解析驱动：优先插件，后本地
-     */
+    
     public Optional<VecDriver> resolveDriver(String extensionCode) {
         return Optional.ofNullable(StringUtils.trimToNull(extensionCode))
                 .map(p -> Optional.ofNullable(pluginDriverOverrides.get(p))
                         .orElseGet(() -> classpathDrivers.get(p)));
     }
 
-    /**
-     * 绑定数据源句柄
-     */
+    
     public VecSource bindSource(AiVecSourceEntity entity) {
         return Optional.ofNullable(entity)
                 .map(e -> StringUtils.trimToNull(e.getExtensionCode()))
@@ -160,9 +141,7 @@ public class AstroVecSourceFactory {
                         "未找到对应的向量驱动: " + (entity != null ? entity.getExtensionCode() : "null")));
     }
 
-    /**
-     * 维护运行时连接缓存
-     */
+    
     public synchronized void registerOrRefresh(AiVecSourceEntity entity) {
         if (Objects.isNull(entity) || Objects.isNull(entity.getId())) return;
 
@@ -187,9 +166,7 @@ public class AstroVecSourceFactory {
         log.info("{} 缓存已刷新 | ID: {} | Provider: {}", LOG_PREFIX, id, entity.getExtensionCode());
     }
 
-    /**
-     * 移除缓存并释放资源
-     */
+    
     public synchronized void removeActiveSource(Long sourceId) {
         Optional.ofNullable(sourceId)
                 .map(activeSources::remove)
@@ -200,16 +177,12 @@ public class AstroVecSourceFactory {
                 });
     }
 
-    /**
-     * 获取活跃句柄
-     */
+    
     public Optional<VecSource> tryGetActiveSource(Long sourceId) {
         return Optional.ofNullable(sourceId).map(activeSources::get);
     }
 
-    /**
-     * 测试连接（不影响长连接缓存）
-     */
+    
     public boolean testConnection(AiVecSourceEntity entity) {
         if (Objects.isNull(entity)) return false;
 
@@ -247,9 +220,7 @@ public class AstroVecSourceFactory {
     }
 
 
-    /**
-     * 辅助快速构建流
-     */
+    
     private java.util.stream.Stream<String> StreamOf(String... args) {
         return Arrays.stream(args);
     }

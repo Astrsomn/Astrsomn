@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-/**
- * 根据模型上的账号 Key 加载凭证，合并进 {@link ModelSetting}。
- * 若模型未配置 {@code ACCOUNT_KEY} 则跳过，不中断链（由下游工厂决定是否报错）。
- */
+
 @Component
 @Order(60)
 @RequiredArgsConstructor

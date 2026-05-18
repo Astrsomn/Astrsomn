@@ -15,9 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 在 SPI {@link ModelProviderHandler} 之上构建多节点 {@link ChatModel}/{@link StreamingChatModel}。
- */
+
 @Component
 @RequiredArgsConstructor
 public class ModelRouteCompositeFactory {

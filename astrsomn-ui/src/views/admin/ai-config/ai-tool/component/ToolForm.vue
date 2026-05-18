@@ -206,7 +206,7 @@ async function handleOk() {
 </script>
 
 <style scoped>
-/* 图标样式 */
+
 .icon-box {
   width: 42px;
   height: 42px;
@@ -227,7 +227,7 @@ async function handleOk() {
   background: linear-gradient(135deg, #fa8c16, #ffd666);
 }
 
-/* 核心布局 */
+
 .professional-form {
   height: 100%;
   display: flex;
@@ -246,7 +246,7 @@ async function handleOk() {
   gap: 0;
 }
 
-/* 左侧区域 */
+
 .form-left {
   width: 45%;
   padding: 24px 32px;
@@ -255,7 +255,7 @@ async function handleOk() {
   background: #fafbfc;
 }
 
-/* 右侧区域 */
+
 .form-right {
   width: 55%;
   padding: 24px 32px;
@@ -263,7 +263,7 @@ async function handleOk() {
   background: #fff;
 }
 
-/* 区域卡片 */
+
 .section-card {
   height: 100%;
 }
@@ -280,14 +280,14 @@ async function handleOk() {
   border-bottom: 1px solid #e2e8f0;
 }
 
-/* 表单字段 */
+
 .form-fields {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* 提示块 */
+
 .impl-hint {
   background: #f0f5ff;
   border: 1px solid #adc6ff;
@@ -310,7 +310,7 @@ async function handleOk() {
   opacity: 0.8;
 }
 
-/* 其他 */
+
 .mt-16 {
   margin-top: 16px;
 }

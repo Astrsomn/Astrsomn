@@ -88,9 +88,7 @@ public class JwtUtil {
         return expiration.before(new Date());
     }
 
-    /**
-     * @deprecated 请使用 {@link AuthServiceImpl#refreshToken} 内基于库表重新签发
-     */
+    
     @Deprecated
     public String refreshToken(String token) {
         Claims claims = parseToken(token);

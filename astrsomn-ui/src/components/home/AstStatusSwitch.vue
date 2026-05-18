@@ -24,7 +24,7 @@
 import {computed} from 'vue';
 import {AppstoreOutlined, CheckCircleOutlined, StopOutlined} from '@ant-design/icons-vue';
 
-// 定义 Props
+
 const props = withDefaults(defineProps<{
   modelValue: string | number | undefined;
   options?: Array<{
@@ -41,16 +41,16 @@ const props = withDefaults(defineProps<{
   ]
 });
 
-// 定义 Emit
+
 const emit = defineEmits(['update:modelValue', 'change']);
 
-// 选项配置 - 使用 props 传入或默认值
+
 const options = props.options;
 
-// 计算当前激活的索引
+
 const activeIndex = computed(() => {
   const index = options.findIndex(opt => {
-    // 处理 undefined 值的情况
+
     if (opt.value === undefined && props.modelValue === undefined) {
       return true;
     }
@@ -59,12 +59,12 @@ const activeIndex = computed(() => {
   return index >= 0 ? index : 0;
 });
 
-// 计算当前激活的主题色
+
 const activeColor = computed(() => {
   return options[activeIndex.value]?.color || '#1676fd';
 });
 
-// 切换处理
+
 const handleSelect = (value: string | number, index: number) => {
   if (value !== props.modelValue) {
     emit('update:modelValue', value);
@@ -120,7 +120,7 @@ const handleSelect = (value: string | number, index: number) => {
   font-size: 14px;
 }
 
-/* 核心：弹性滑块设计 */
+
 .trio-slider {
   position: absolute;
   top: var(--gap);
@@ -132,16 +132,16 @@ const handleSelect = (value: string | number, index: number) => {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
 
-  /* 弹性反馈动画控制 */
+
   transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
   border-color 0.3s ease;
 
-  /* 基于 CSS 变量的位移 */
+
   transform: translateX(calc(var(--active-index) * var(--item-width)));
   border: 2px solid var(--active-color);
 }
 
-/* 悬浮微动效 */
+
 .trio-item:hover:not(.is-active) {
   color: var(--text-primary);
 }

@@ -267,14 +267,14 @@ function removeMcpTag(key?: string) {
   background: var(--assembly-canvas-bg);
   border: 1px solid var(--assembly-canvas-border);
   border-radius: 12px;
-  padding: 0; /* 取消外层大内边距，让内部结构更紧凑 */
+  padding: 0;
   height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* 顶部配置面板 */
+
 .canvas-header {
   background: var(--assembly-canvas-header-bg);
   padding: 24px 30px;
@@ -339,7 +339,7 @@ function removeMcpTag(key?: string) {
   flex: 2;
 }
 
-/* 按钮样式 */
+
 .action-btn {
   height: 38px;
   border-radius: 8px;
@@ -356,7 +356,7 @@ function removeMcpTag(key?: string) {
   box-shadow: var(--assembly-btn-primary-shadow);
 }
 
-/* 拖拽区域堆叠 */
+
 .drop-stack {
   flex: 1;
   padding: 24px 30px;
@@ -366,21 +366,21 @@ function removeMcpTag(key?: string) {
   overflow-y: auto;
 }
 
-/* 主网格：对话核心占两列，系统提示词占一列 */
+
 .drop-grid-main {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 20px;
 }
 
-/* 次要网格：四列布局 */
+
 .drop-grid-secondary {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
-/* 响应式调整 */
+
 @media (max-width: 1024px) {
   .drop-grid-main {
     grid-template-columns: 1fr;
@@ -395,9 +395,9 @@ function removeMcpTag(key?: string) {
   }
 }
 
-/* 深度定制 DropZone 内容填充 */
+
 :deep(.assembly-drop-zone) {
-  padding: 0 !important; /* 强制覆盖，让子元素卡片占满 */
+  padding: 0 !important;
   border-radius: 10px !important;
   background: var(--assembly-drop-zone-inner-bg);
   overflow: hidden;
@@ -405,7 +405,7 @@ function removeMcpTag(key?: string) {
 
 .placed-card-fill {
   width: 100%;
-  min-height: 80px; /* 确保高度足以占满 DropZone */
+  min-height: 80px;
   display: flex;
   align-items: center;
   padding: 16px 20px;
@@ -466,7 +466,7 @@ function removeMcpTag(key?: string) {
   letter-spacing: 0.5px;
 }
 
-/* 底部区域 */
+
 .knowledge-section {
   padding: 16px 30px 24px;
   background: var(--assembly-knowledge-section-bg);

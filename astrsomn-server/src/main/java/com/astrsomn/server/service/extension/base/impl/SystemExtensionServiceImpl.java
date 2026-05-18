@@ -51,9 +51,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     private final ApplicationContext applicationContext;
     private final PluginDirectoryExtensionSyncService pluginDirectoryExtensionSyncService;
 
-    /**
-     * 库中 AVATAR 为空时，按 extensionKey 用内置 {@link AstroExtensionDescriptor} 补全（已安装列表/详情与 SPI 展示一致）。
-     */
+    
     private static void fillAvatarFromDescriptors(
             SystemExtensionResponseDTO dto, Map<String, AstroExtensionDescriptor> descriptorsByKey) {
         if (dto == null || StringUtils.isNotBlank(dto.getAvatar())) {
@@ -255,9 +253,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         }
     }
 
-    /**
-     * 提取实体构建逻辑，保持主流程简洁
-     */
+    
     private SystemExtensionEntity buildExtensionEntity(
             String key, String jarName, String stem, SystemExtensionMetaData meta) {
 

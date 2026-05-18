@@ -4,9 +4,7 @@ import com.astrsomn.api.runtime.common.langchain.buildParam.setting.ModelRouteSe
 
 import java.util.function.Supplier;
 
-/**
- * 对单次模型调用套 Resilience4j 等装饰；跨节点故障转移由组合模型自行循环，本策略只做「单端点单次调用」包装。
- */
+
 public interface ResilienceDecorationStrategy {
 
     String getId();

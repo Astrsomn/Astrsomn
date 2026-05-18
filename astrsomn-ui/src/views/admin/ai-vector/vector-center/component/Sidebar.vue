@@ -260,10 +260,10 @@ const emit = defineEmits<{
 
 const searchText = ref('')
 const handleSearch = () => {
-  // TODO: 实现搜索逻辑
+
 }
 
-// 悬浮面板相关
+
 const hoverSourceId = ref<number | string | null>(null)
 const hoverPanelX = ref(0)
 const hoverPanelY = ref(0)
@@ -761,7 +761,7 @@ watch(
   background: rgba(239, 68, 68, 0.1) !important;
 }
 
-/* 折叠模式内容 */
+
 .collapsed-content {
   display: flex;
   flex-direction: column;
@@ -898,7 +898,7 @@ watch(
   background: var(--border-default, #e2e8f0);
 }
 
-/* 悬浮面板（折叠模式） */
+
 .hover-panel-overlay {
   position: fixed;
   inset: 0;

@@ -31,9 +31,9 @@ const props = withDefaults(
       placeholder?: string
       size?: 'large' | 'middle' | 'small'
       allowClear?: boolean
-      /** 扩展类型：MODEL_PROVIDER 或 VECTOR_STORE */
+
       extensionType?: 'MODEL_PROVIDER' | 'VECTOR_STORE'
-      /** 是否只查询已启用的扩展 */
+
       onlyApplied?: boolean
     }>(),
     {
@@ -52,7 +52,7 @@ const emit = defineEmits<{
 const loading = ref(false)
 const catalog = ref<SystemExtension[]>([])
 
-// 数据转换逻辑保持不变
+
 function rowKey(it: SystemExtension): string {
   return String(it.extensionCode?.trim() || it.extensionKey?.trim() || '')
 }
@@ -82,7 +82,7 @@ const optionsWithFallback = computed((): OptRow[] => {
   return base
 })
 
-// 辅助方法：根据选中的 key 获取对应的 avatar
+
 function getSelectedAvatar(val: string) {
   const target = optionsWithFallback.value.find(o => o.key === val)
   return target?.avatar || ''
@@ -132,7 +132,7 @@ function onUpdate(v: string | undefined) {
   border-radius: var(--radius-md);
 }
 
-/* 容器高度与圆角适配 Astrsomn 风格 */
+
 .model-provider-select :deep(.ant-select-selector) {
   height: 50px !important;
   background: var(--bg-surface, #ffffff) !important;
@@ -144,7 +144,7 @@ function onUpdate(v: string | undefined) {
   transition: all 0.3s ease !important;
 }
 
-/* 选中后的内容布局 */
+
 .selected-content {
   display: flex;
   align-items: center;
@@ -170,7 +170,7 @@ function onUpdate(v: string | undefined) {
   overflow: hidden;
 }
 
-/* 关键：强制 SVG 尺寸 */
+
 .opt-avatar :deep(svg),
 .opt-avatar :deep(img) {
   width: 100% !important;
@@ -192,7 +192,7 @@ function onUpdate(v: string | undefined) {
   font-weight: 500;
 }
 
-/* 修正 Ant Design 默认选中文本样式 */
+
 .model-provider-select :deep(.ant-select-selection-item) {
   line-height: 50px !important;
   display: flex !important;
@@ -203,7 +203,7 @@ function onUpdate(v: string | undefined) {
   line-height: 50px !important;
 }
 
-/* 搜索输入框样式调整，避免点击时闪烁 */
+
 .model-provider-select :deep(.ant-select-search__field) {
   display: flex;
   align-items: center;
@@ -238,7 +238,7 @@ function onUpdate(v: string | undefined) {
   justify-content: center !important;
 }
 
-/* 确保下拉菜单中搜索框样式一致 */
+
 .model-provider-select :deep(.ant-select-dropdown .ant-select-search__field) {
   text-align: left;
   justify-content: flex-start;

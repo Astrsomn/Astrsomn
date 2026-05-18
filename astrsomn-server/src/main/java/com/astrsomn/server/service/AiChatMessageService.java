@@ -27,8 +27,6 @@ public interface AiChatMessageService extends IService<AiChatMessageEntity> {
 
     BaseResponse<List<AiChatMessageResponseDTO>> recoverByMemoryKey(String memoryKey);
 
-    /**
-     * 按 {@code TURN_NO} 分组后的会话复原，子消息顺序为 {@code MESSAGE_ORDER}。
-     */
+    
     BaseResponse<List<AiChatTurnBundleDTO>> recoverTurnsByMemoryKey(String memoryKey);
 }

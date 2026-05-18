@@ -17,9 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.jar.JarFile;
 
-/**
- * 使用独立 {@link URLClassLoader} 读取 jar 内 SPI，避免与当前进程已加载的同名类冲突；读取后关闭加载器。
- */
+
 @Slf4j
 public final class ExtensionJarMetadataReader {
 
@@ -28,9 +26,7 @@ public final class ExtensionJarMetadataReader {
     private ExtensionJarMetadataReader() {
     }
 
-    /**
-     * 尝试从 JAR 文件中加载系统扩展元数据
-     */
+    
     public static Optional<SystemExtensionMetaData> tryLoad(File jar) {
         if (Objects.isNull(jar) || !jar.isFile()) return Optional.empty();
 
@@ -52,9 +48,7 @@ public final class ExtensionJarMetadataReader {
         }
     }
 
-    /**
-     * 仅从目标 jar 的 META-INF/services 读取 SPI，避免父 ClassLoader 里的 SPI 干扰。
-     */
+    
     private static <T> Optional<T> findFirstSpiInJar(Class<T> serviceClass, ClassLoader cl, JarFile jarFile, String jarName) {
         String spiPath = "META-INF/services/" + serviceClass.getName();
         var entry = jarFile.getJarEntry(spiPath);
@@ -117,9 +111,7 @@ public final class ExtensionJarMetadataReader {
         }
     }
 
-    /**
-     * 清洗数据并构建元数据实体
-     */
+    
     private static SystemExtensionMetaData buildMetaData(AstroExtensionDescriptor d, String extensionCode) {
         return new SystemExtensionMetaData(
                 StringUtils.trimToNull(d.getExtensionKey()),

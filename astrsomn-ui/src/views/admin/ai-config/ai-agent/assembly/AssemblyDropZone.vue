@@ -43,7 +43,7 @@ const props = defineProps<{
   variant: 'chat' | 'emb' | 'img' | 'tool' | 'mcp' | 'kb'
   icon: Component
   draggingPayload: AssemblyDragPayload | null
-  /** 当前指针悬停的投放区（由父级在 dragover 时更新） */
+
   activeDropKey: AssemblySlotKey | null
   hasContent?: boolean
 }>()
@@ -176,7 +176,7 @@ function onDrop(ev: DragEvent) {
   border-style: solid;
 }
 
-/* 悬停高亮：避免 transform 与过大外扩 shadow 导致横向撑出滚动条 */
+
 .assembly-drop-zone.chat.is-over {
   border-color: var(--assembly-dz-chat-over-border);
   background: var(--assembly-dz-chat-over-bg);

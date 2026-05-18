@@ -23,7 +23,7 @@ public class AstrsomnPluginManager {
     private final AstroVecSourceFactory astroVecSourceFactory;
     private final String pluginPath = "./plugins";
 
-    // 缓存已加载的插件及其类加载器，用于卸载与热更新
+
     private final Map<String, PluginClassLoader> pluginCache = new ConcurrentHashMap<>();
     private final Map<String, List<ModelProviderHandler>> pluginHandlers = new ConcurrentHashMap<>();
     private final Map<String, List<VecDriver>> pluginVecDrivers = new ConcurrentHashMap<>();
@@ -75,14 +75,14 @@ public class AstrsomnPluginManager {
     }
 
     public void unloadPlugin(String jarName) {
-        // 从模型工厂注销处理器
+
         Optional.ofNullable(pluginHandlers.remove(jarName))
                 .ifPresent(handlers -> handlers.forEach(h -> astroModelFactory.unregisterHandler(h.getProvider())));
 
         pluginVecDrivers.remove(jarName);
         astroVecSourceFactory.removePluginDrivers(jarName);
 
-        // 关闭并移除类加载器释放资源
+
         Optional.ofNullable(pluginCache.remove(jarName))
                 .ifPresent(loader -> {
                     try {
@@ -93,9 +93,7 @@ public class AstrsomnPluginManager {
                 });
     }
 
-    /**
-     * 自该 jar 通过 SPI 加载的 {@link VecDriver} 实例（卸载前可用于解析元数据）。
-     */
+    
     public List<VecDriver> getVecDriversForJar(String jarName) {
         if (jarName == null) {
             return List.of();
@@ -105,7 +103,7 @@ public class AstrsomnPluginManager {
 
     private void loadPlugin(File jar) throws Exception {
         URL[] urls = {jar.toURI().toURL()};
-        // 传入 ContextClassLoader 作为父加载器以保证类可见性
+
         PluginClassLoader classLoader = new PluginClassLoader(urls, Thread.currentThread().getContextClassLoader());
 
         // 通过 SPI 发现并实例化插件实现

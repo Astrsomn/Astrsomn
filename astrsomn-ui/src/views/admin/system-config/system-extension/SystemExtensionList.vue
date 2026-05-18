@@ -50,7 +50,7 @@ watch(
 </script>
 
 <style scoped>
-/* 布局容器：与 AdminModuleShell 保持一致 */
+
 .extension-page {
   padding: 0;
   height: calc(100vh - 70px);
@@ -66,7 +66,7 @@ watch(
   overflow: hidden;
 }
 
-/* 主内容区 */
+
 .extension-content {
   flex: 1;
   background: var(--bg-card);
@@ -77,7 +77,7 @@ watch(
   padding: 24px;
 }
 
-/* 滚动条样式 */
+
 .extension-content::-webkit-scrollbar {
   width: 6px;
 }

@@ -158,7 +158,7 @@ const onCancel = () => {
 </script>
 
 <style scoped>
-/* 弹窗基础：统一风格 */
+
 .vec-segment-modal :deep(.ant-modal-content) {
   padding: 0;
   border-radius: 20px;
@@ -209,7 +209,7 @@ const onCancel = () => {
   font-size: 13px;
 }
 
-/* 容器高度控制 */
+
 .professional-form {
   height: 500px;
   display: flex;
@@ -231,7 +231,7 @@ const onCancel = () => {
   border-radius: 4px;
 }
 
-/* 内部组件样式 */
+
 .section-headline {
   font-size: 15px;
   font-weight: 600;
@@ -252,7 +252,7 @@ const onCancel = () => {
   grid-column: span 2;
 }
 
-/* JSON 编辑器 */
+
 .json-editor-wrapper {
   border: 1px solid #d9d9d9;
   border-radius: 8px;
@@ -278,7 +278,7 @@ const onCancel = () => {
   box-shadow: none;
 }
 
-/* 底部操作 */
+
 .modal-footer-action {
   padding: 16px 40px;
   background: #fff;

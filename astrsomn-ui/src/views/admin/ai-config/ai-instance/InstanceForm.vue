@@ -119,7 +119,7 @@ const selectedKeys = ref<string[]>([]);
 const searchDraft = ref('');
 const searchQuery = ref('');
 const typeFilter = ref('all');
-/** 与模型列表一致：按 AI_MODEL.extensionCode（扩展 key）筛选 */
+
 const providerFilter = ref<string | undefined>(undefined);
 const pageSizeOptions = [
   {label: '每页 12', value: 12},
@@ -172,7 +172,7 @@ const form = reactive<AiInstance>({
   accountKey: ''
 });
 
-/** 新建时跟随所选 modelName；用户改过预设名称后不再自动覆盖 */
+
 const presetNameUserEdited = ref(false);
 const syncingPresetNameFromModel = ref(false);
 

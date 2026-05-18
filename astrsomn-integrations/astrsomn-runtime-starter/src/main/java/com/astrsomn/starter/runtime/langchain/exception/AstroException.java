@@ -6,12 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Astrsomn Runtime 异常基类。
- * <p>
- * 所有框架异常均继承此类，调用方可通过 {@code catch (AstroException)} 统一捕获，
- * 也可按子类型或 {@link #errorCode} 做差异化处理。
- */
+
 @Getter
 public class AstroException extends RuntimeException {
 
@@ -48,9 +43,7 @@ public class AstroException extends RuntimeException {
         this.context = context != null ? Collections.unmodifiableMap(context) : Collections.emptyMap();
     }
 
-    /**
-     * 获取上下文中的指定字段。
-     */
+    
     public Object getContextValue(String key) {
         return context.get(key);
     }

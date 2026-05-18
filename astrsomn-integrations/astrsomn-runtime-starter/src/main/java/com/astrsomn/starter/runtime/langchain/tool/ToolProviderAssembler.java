@@ -26,9 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 根据 {@link ToolSetting} 查询 MCP / 本地工具配置并组装为 {@link UnionToolProvider}。
- */
+
 @Component
 @RequiredArgsConstructor
 public class ToolProviderAssembler {

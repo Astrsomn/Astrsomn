@@ -52,7 +52,7 @@ function emitSearch() {
 </script>
 
 <style scoped>
-/* 容器基础样式：无背景，轻边框 */
+
 .toolbar-search-pill {
   height: 36px;
   background: transparent;
@@ -64,12 +64,12 @@ function emitSearch() {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 悬浮样式：仅边框变色 */
+
 .toolbar-search-pill:hover {
   border-color: var(--primary, #3b82f6);
 }
 
-/* 聚焦状态 */
+
 .toolbar-search-pill:focus-within {
   border-color: var(--primary, #3b82f6);
   background: transparent;
@@ -98,7 +98,7 @@ function emitSearch() {
   color: var(--text-placeholder);
 }
 
-/* 按钮样式：浅色，降低视觉权重 */
+
 .toolbar-search-pill__btn {
   width: 28px;
   height: 28px;

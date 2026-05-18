@@ -44,9 +44,7 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
         delayedScanAndRegisterTools(event.getApplicationContext());
     }
 
-    /**
-     * 延迟扫描并注册工具组，等待数据库表创建完成
-     */
+    
     private void delayedScanAndRegisterTools(ConfigurableApplicationContext context) {
         try {
             doScanAndRegisterTools(context);
@@ -64,9 +62,7 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
         }
     }
 
-    /**
-     * 执行工具组扫描和注册
-     */
+    
     private void doScanAndRegisterTools(ConfigurableApplicationContext context) {
         Map<String, Object> beansWithAnnotation = context.getBeansWithAnnotation(AstroToolGroup.class);
 
@@ -77,9 +73,7 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
         });
     }
 
-    /**
-     * 扫描并注册工具组内的所有工具方法
-     */
+    
     private void scanAndRegisterTools(Object bean, String beanName, AstroToolGroup groupAnno) {
         Class<?> beanClass = ClassUtils.getUserClass(bean);
 
@@ -103,9 +97,7 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
         });
     }
 
-    /**
-     * 执行工具信息的更新或插入（Upsert）
-     */
+    
     private void upsertTool(Object bean, String beanName, AstroToolGroup groupAnno, Method method) {
         Tool toolAnno = method.getAnnotation(Tool.class);
         String toolKey = generateToolKey(groupAnno, beanName, method);
@@ -127,9 +119,7 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
         }
     }
 
-    /**
-     * 填充工具实体数据
-     */
+    
     private void fillToolEntity(AiToolEntity entity, Object bean, String beanName,
                                 AstroToolGroup group, Method method, Tool tool, String toolKey) {
         // 优先取 Tool 注解名，否则取方法名
@@ -150,9 +140,7 @@ public class AstroToolGroupInitializer implements ApplicationListener<Applicatio
         entity.setStatus(ENABLED);
     }
 
-    /**
-     * 生成唯一的工具标识符 (GroupValue:MethodName)
-     */
+    
     private String generateToolKey(AstroToolGroup group, String beanName, Method method) {
         String prefix = StringUtils.hasText(group.value()) ? group.value() : beanName;
         return prefix + ":" + method.getName();

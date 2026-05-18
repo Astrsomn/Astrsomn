@@ -43,9 +43,7 @@ public class SensitiveWordPostInitializer implements ApplicationListener<Applica
         delayedLoadDatabaseWords();
     }
 
-    /**
-     * 延迟加载词库，等待数据库表创建完成
-     */
+    
     private void delayedLoadDatabaseWords() {
         try {
             loadDatabaseWords();
@@ -63,9 +61,7 @@ public class SensitiveWordPostInitializer implements ApplicationListener<Applica
         }
     }
 
-    /**
-     * 从数据库抓取并刷新词库
-     */
+    
     private void loadDatabaseWords() {
         log.info("{} 开始注入词库...", LOG_PREFIX);
 

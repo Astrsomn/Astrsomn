@@ -97,7 +97,7 @@ const breadcrumbs = [
 
 type QueryState = {
   envName?: string
-  /** 对应后端 Query DTO 的 envCode，匹配 ENV_KEY */
+
   envCode?: string
 }
 
@@ -266,7 +266,7 @@ const handleBatchDelete = async () => {
     selectedRowKeys.value = []
     void fetchList()
   } catch (error) {
-    // 用户取消删除，不执行任何操作
+
   }
 }
 

@@ -343,7 +343,7 @@ const handleFormSubmit = async (payload: AiModel) => {
 
 const handleEditItem = async (model: AiModel) => {
   if (editFormOpen.value) {
-    // Switching from one edit to another: close first so the watch fires on re-open
+
     editFormOpen.value = false
     await new Promise(r => setTimeout(r, 50))
   }
@@ -367,12 +367,9 @@ void fetchModels()
 </script>
 
 <style scoped>
-/* =====================================================================
-   ModelSection — Glassmorphism Card Grid
-   Fixed cards · Scale hover · Overflow reveal · GPU smooth
-   ===================================================================== */
 
-/* ----- Glass tokens (theme-adaptive via color-mix) ----- */
+
+
 .model-section {
   --ms-glass-bg: color-mix(in srgb, var(--bg-card) 50%, transparent);
   --ms-glass-bg-hover: color-mix(in srgb, var(--bg-card) 76%, transparent);
@@ -394,7 +391,7 @@ void fetchModels()
   min-height: 0;
 }
 
-/* ----- Ambient orbs ----- */
+
 .model-section__ambient {
   position: absolute;
   inset: 0;
@@ -427,9 +424,7 @@ void fetchModels()
   opacity: 0.08;
 }
 
-/* =====================================================================
-   TOOLBAR
-   ===================================================================== */
+
 .model-section__toolbar {
   display: flex;
   align-items: center;
@@ -503,7 +498,7 @@ void fetchModels()
   color: #fff;
 }
 
-/* Count */
+
 .model-section__count {
   display: flex;
   align-items: center;
@@ -527,7 +522,7 @@ void fetchModels()
   font-weight: 600;
 }
 
-/* Create button */
+
 .model-section__create-btn {
   flex-shrink: 0;
   box-shadow: 0 2px 12px rgba(59, 130, 246, 0.25);
@@ -543,9 +538,7 @@ void fetchModels()
   transform: scale(0.94);
 }
 
-/* =====================================================================
-   BODY
-   ===================================================================== */
+
 .model-section__body {
   flex: 1;
   min-height: 0;
@@ -557,9 +550,7 @@ void fetchModels()
   padding: 80px 0;
 }
 
-/* =====================================================================
-   GRID
-   ===================================================================== */
+
 .model-section__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(284px, 1fr));
@@ -567,9 +558,7 @@ void fetchModels()
   align-items: start;
 }
 
-/* =====================================================================
-   CARD — Fixed height, scale-on-hover, overflow reveal
-   ===================================================================== */
+
 .model-card {
   --stagger-delay: var(--stagger, 0ms);
 
@@ -610,7 +599,7 @@ void fetchModels()
   }
 }
 
-/* ---- Hover: scale up individually, no row shift ---- */
+
 .model-card:hover {
   transform: scale(1.045);
   background: var(--ms-glass-bg-hover);
@@ -621,7 +610,7 @@ void fetchModels()
   z-index: 5;
 }
 
-/* ---- Shine sweep ---- */
+
 .model-card::after {
   content: '';
   position: absolute;
@@ -643,15 +632,13 @@ void fetchModels()
   opacity: 1;
 }
 
-/* ---- Active press ---- */
+
 .model-card:active {
   transform: scale(1.02);
   transition: transform 0.1s ease;
 }
 
-/* =====================================================================
-   CARD INNER — clipped fixed-height zone
-   ===================================================================== */
+
 .model-card__inner {
   display: flex;
   flex-direction: column;
@@ -664,9 +651,7 @@ void fetchModels()
   z-index: 0;
 }
 
-/* =====================================================================
-   CARD HEAD
-   ===================================================================== */
+
 .model-card__head {
   display: flex;
   align-items: center;
@@ -736,7 +721,7 @@ void fetchModels()
   z-index: 1;
 }
 
-/* ----- Meta ----- */
+
 .model-card__meta {
   flex: 1;
   min-width: 0;
@@ -765,7 +750,7 @@ void fetchModels()
   letter-spacing: 0.02em;
 }
 
-/* ----- Status ----- */
+
 .model-card__status {
   flex-shrink: 0;
 }
@@ -812,7 +797,7 @@ void fetchModels()
   opacity: 0.7;
 }
 
-/* ----- Divider ----- */
+
 .model-card__divider {
   height: 1px;
   flex-shrink: 0;
@@ -824,9 +809,7 @@ void fetchModels()
   );
 }
 
-/* =====================================================================
-   CAPS + PARAMS inside inner
-   ===================================================================== */
+
 .model-card__caps {
   display: flex;
   flex-wrap: wrap;
@@ -924,9 +907,7 @@ void fetchModels()
   font-style: italic;
 }
 
-/* =====================================================================
-   OVERFLOW — hidden items that reveal on hover (outside inner)
-   ===================================================================== */
+
 .model-card__overflow {
   display: flex;
   flex-wrap: wrap;
@@ -963,9 +944,7 @@ void fetchModels()
   padding-bottom: 14px;
 }
 
-/* =====================================================================
-   EMPTY STATE
-   ===================================================================== */
+
 .model-section__empty {
   display: flex;
   justify-content: center;
@@ -1008,9 +987,7 @@ void fetchModels()
   margin: 0;
 }
 
-/* =====================================================================
-   PAGINATION
-   ===================================================================== */
+
 .model-section__pagination {
   margin-top: 24px;
   display: flex;

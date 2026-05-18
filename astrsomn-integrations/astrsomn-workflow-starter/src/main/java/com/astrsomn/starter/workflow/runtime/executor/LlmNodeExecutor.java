@@ -18,9 +18,9 @@ public class LlmNodeExecutor implements AstFlowNodeExecutor {
 
     @Override
     public AstFlowNodeExecuteResult execute(AstFlowNodeExecutionContext context) {
-        // Pseudo-code for future provider invocation:
-        // llmResult = llmClient.chat(promptTemplate, context.variables)
-        // context.variables.put("llmOutput", llmResult.text())
+
+
+
         Map<String, Object> output = new HashMap<>();
         output.put("llmOutput", "mock-llm-output");
 
