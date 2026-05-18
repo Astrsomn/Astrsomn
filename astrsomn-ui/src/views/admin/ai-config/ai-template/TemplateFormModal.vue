@@ -1,9 +1,11 @@
 <template>
   <AstModal
       :body-height="'80vh'"
+      :confirm-loading="confirmLoading"
+      :confirm-text="'保存模板'"
       :open="open"
       width="80vw"
-      @cancel="onCancel"
+      @confirm="handleOk"
       @update:open="(value) => open = value"
   >
     <template #header-logo>
@@ -17,20 +19,6 @@
     <template #header-subtitle>
       <span class="sub-title">配置模板的基本信息和代码内容</span>
     </template>
-    <template #header-actions>
-      <div class="header-action-pair">
-        <a-button class="header-action-btn header-action-btn-cancel" @click="onCancel">取消</a-button>
-        <a-button
-            :loading="confirmLoading"
-            class="header-action-btn header-action-btn-save"
-            type="primary"
-            @click="handleOk"
-        >
-          保存模板
-        </a-button>
-      </div>
-    </template>
-
     <div class="main-content">
       <section class="info-pane">
         <div class="pane-card ">
@@ -212,9 +200,6 @@ async function handleOk() {
   emit('submit', {...form})
 }
 
-function onCancel() {
-  open.value = false
-}
 </script>
 
 <style scoped>
@@ -244,55 +229,6 @@ function onCancel() {
 .sub-title {
   font-size: 12px;
   color: #94a3b8;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-}
-
-.header-action-pair {
-  display: inline-flex;
-  align-items: stretch;
-}
-
-.header-action-btn {
-  height: 40px;
-  min-width: 120px;
-  padding: 0 22px;
-  font-weight: 600;
-}
-
-.header-action-pair :deep(.header-action-btn-cancel.ant-btn) {
-  border-top-left-radius: 14px;
-  border-bottom-left-radius: 14px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default) {
-  color: #475569;
-  border-color: #cbd5e1;
-  background: #fff;
-  border-right: none;
-}
-
-.header-action-pair :deep(.header-action-btn-cancel.ant-btn-default:hover) {
-  color: #334155;
-  border-color: #94a3b8;
-  background: #f8fafc;
-}
-
-.header-action-pair :deep(.header-action-btn-save.ant-btn) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: 14px;
-  border-bottom-right-radius: 14px;
-}
-
-.header-action-pair :deep(.header-action-btn-save.ant-btn-primary) {
-  margin-left: -1px;
-  box-shadow: none;
 }
 
 /* 布局主体 */

@@ -1,10 +1,14 @@
 <template>
   <AstModal
       :body-height="'auto'"
-      :closable="true"
+      :confirm-loading="confirmLoading"
+      :confirm-text="mode === 'create' ? '创建' : '保存'"
       :max-width="'90vw'"
       :open="open"
       :width="'600px'"
+      @cancel="$emit('cancel')"
+      @confirm="handleSubmit"
+      @update:open="$emit('update:open', $event)"
   >
     <template #header-title>{{ mode === 'create' ? '新增配置' : '编辑配置' }}</template>
     <template #header-subtitle>{{ mode === 'create' ? '创建新的系统配置项' : '修改系统配置项' }}</template>
@@ -57,12 +61,6 @@
         />
       </a-form-item>
 
-      <div class="form-actions">
-        <a-button @click="$emit('cancel')">取消</a-button>
-        <a-button :loading="confirmLoading" type="primary" @click="handleSubmit">
-          {{ mode === 'create' ? '创建' : '保存' }}
-        </a-button>
-      </div>
     </a-form>
   </AstModal>
 </template>
@@ -120,18 +118,4 @@ const handleSubmit = () => {
   padding: 20px 0;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-default);
-}
-
-.form-actions :deep(.ant-btn) {
-  height: 40px;
-  padding: 0 24px;
-  border-radius: 10px;
-}
 </style>

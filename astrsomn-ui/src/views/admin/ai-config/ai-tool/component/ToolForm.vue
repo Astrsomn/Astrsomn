@@ -1,13 +1,14 @@
 <template>
   <AstModal
       :body-height="'80vh'"
-      :closable="false"
+      :confirm-loading="confirmLoading"
+      :confirm-text="mode === 'create' ? '注册工具并发布' : '保存修改'"
       :destroy-on-close="true"
       :header-height="'72px'"
       :max-width="'80vw'"
       :open="open"
       :width="'80vw'"
-      @cancel="onCancel"
+      @confirm="handleOk"
       @update:open="onOpenChange"
   >
     <template #header-logo>
@@ -23,15 +24,6 @@
 
     <template #header-subtitle>
       定义 AI 智能体可调用的外部函数或界面渲染组件
-    </template>
-
-    <template #header-actions>
-      <div class="header-actions">
-        <a-button class="btn-flat" @click="onCancel">取消</a-button>
-        <a-button :loading="confirmLoading" class="btn-submit" type="primary" @click="handleOk">
-          {{ mode === 'create' ? '注册工具并发布' : '保存修改' }}
-        </a-button>
-      </div>
     </template>
 
     <a-form
@@ -211,9 +203,6 @@ async function handleOk() {
   emit('submit', payload)
 }
 
-const onCancel = () => {
-  open.value = false
-}
 </script>
 
 <style scoped>
@@ -236,13 +225,6 @@ const onCancel = () => {
 
 .icon-box.html {
   background: linear-gradient(135deg, #fa8c16, #ffd666);
-}
-
-/* 头部操作按钮 */
-.header-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
 }
 
 /* 核心布局 */
@@ -326,24 +308,6 @@ const onCancel = () => {
   color: #2f54eb;
   margin: 0;
   opacity: 0.8;
-}
-
-/* 按钮样式 */
-.btn-flat {
-  border: none;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.btn-flat:hover {
-  color: #475569;
-}
-
-.btn-submit {
-  border-radius: 8px;
-  font-weight: 600;
-  height: 38px;
-  padding: 0 24px;
 }
 
 /* 其他 */

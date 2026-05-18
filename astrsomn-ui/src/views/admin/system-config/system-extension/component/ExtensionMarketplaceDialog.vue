@@ -16,10 +16,6 @@
     </template>
     <template #header-title>插件市场</template>
     <template #header-subtitle>浏览、安装和管理插件扩展</template>
-    <template #header-actions>
-      <a-button @click="emit('cancel')">关闭</a-button>
-    </template>
-
     <div class="marketplace-shell">
       <Sidebar
           :selected-menu-keys="selectedMenuKeys"

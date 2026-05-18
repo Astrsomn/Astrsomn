@@ -1,6 +1,6 @@
 <template>
   <AstModal
-      :closable="false"
+      :confirm-text="'确认'"
       :max-width="'min(80vw, 1400px)'"
       :open="open"
       body-height="80vh"
@@ -9,6 +9,7 @@
       width="80vw"
       wrap-class-name="instance-edit-modal-wrap"
       @cancel="handleCancel"
+      @confirm="handleConfirm"
       @update:open="emit('update:open', $event)"
   >
     <template #header-logo>
@@ -20,11 +21,6 @@
     <template #header-subtitle>
       配置模型端点与推理参数
     </template>
-    <template #header-actions>
-      <a-button class="cancel-btn" @click="handleCancel">取消</a-button>
-      <a-button class="confirm-btn" type="primary" @click="handleConfirm">确认</a-button>
-    </template>
-
     <div class="modal-body">
       <!-- 左侧：基础配置 -->
       <div class="modal-left">
@@ -444,7 +440,6 @@ function handleConfirm() {
     instance.id = props.record.id
   }
   emit('confirm', instance)
-  emit('update:open', false)
 }
 
 watch(() => props.open, (val) => {
@@ -467,21 +462,6 @@ watch(() => props.open, (val) => {
 :global(.instance-edit-modal-wrap .ant-modal) {
   top: 0;
   padding-bottom: 0;
-}
-
-.cancel-btn {
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 8px;
-  font-size: 13px;
-}
-
-.confirm-btn {
-  height: 36px;
-  padding: 0 20px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
 }
 
 .modal-body {

@@ -1,6 +1,7 @@
 <template>
   <AstModal
-      :closable="false"
+      :confirm-loading="confirmLoading"
+      :confirm-text="'保存配置'"
       :max-width="maxWidth"
       :open="open"
       body-height="75vh"
@@ -8,7 +9,7 @@
       max-body-height="720px"
       width="80vw"
       wrap-class-name="vec-store-form-wrap"
-      @cancel="onCancel"
+      @confirm="handleOk"
       @update:open="emit('update:open', $event)"
   >
     <template #header-logo>
@@ -20,18 +21,6 @@
     <template #header-subtitle>
       管理向量集合配置，定义维度、距离度量和元数据模式
     </template>
-    <template #header-actions>
-      <a-button class="header-action-btn header-action-btn-cancel" @click="onCancel">取消</a-button>
-      <a-button
-          :loading="confirmLoading"
-          class="header-action-btn header-action-btn-save"
-          type="primary"
-          @click="handleOk"
-      >
-        保存配置
-      </a-button>
-    </template>
-
     <div class="vec-store-form-shell">
       <div class="form-scroll-area">
         <a-form
@@ -320,9 +309,6 @@ async function handleOk() {
   emit('submit', payload)
 }
 
-const onCancel = () => {
-  open.value = false
-}
 </script>
 
 <style scoped>
@@ -335,24 +321,6 @@ const onCancel = () => {
 :global(.vec-store-form-wrap .ant-modal) {
   top: 0;
   padding-bottom: 0;
-}
-
-.header-action-btn {
-  height: 38px;
-  min-width: 110px;
-  border-radius: var(--radius-md, 8px);
-  padding: 0 20px;
-  font-weight: 600;
-}
-
-:deep(.header-action-btn-cancel.ant-btn-default) {
-  color: #475569;
-  border-color: #cbd5e1;
-  background: #fff;
-}
-
-:deep(.header-action-btn-save.ant-btn-primary) {
-  box-shadow: none;
 }
 
 .vec-store-form-shell {

@@ -1,6 +1,7 @@
 <template>
   <AstModal
-      :closable="true"
+      :confirm-loading="confirmLoading"
+      :confirm-text="props.mode !== 'view' ? '确认并保存端点' : undefined"
       :max-width="maxWidth"
       :open="open"
       body-height="90vh"
@@ -9,6 +10,7 @@
       width="80vw"
       wrap-class-name="model-form-fsm-wrap"
       @cancel="onCancel"
+      @confirm="handleSubmit"
       @update:open="emit('update:open', $event)"
   >
     <template #header-logo>
@@ -233,16 +235,6 @@
         <div class="footer-left">
           <LockOutlined/>
           端点变更将影响下游所有推理实例
-        </div>
-        <div class="footer-right">
-          <a-button :loading="confirmLoading" class="btn-submit" type="primary" @click="handleSubmit">
-            确认并保存端点
-          </a-button>
-        </div>
-      </div>
-      <div v-else class="modal-footer-action">
-        <div class="footer-right">
-          <a-button type="primary" @click="emit('update:open', false)">关闭</a-button>
         </div>
       </div>
     </div>
@@ -892,7 +884,6 @@ const onCancel = () => emit('update:open', false)
   background: var(--bg-card, #fff);
   border-top: 1px solid var(--border-default, #e2e8f0);
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
@@ -902,13 +893,6 @@ const onCancel = () => emit('update:open', false)
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.btn-submit {
-  border-radius: 8px;
-  font-weight: 600;
-  padding: 0 24px;
-  height: 38px;
 }
 
 </style>

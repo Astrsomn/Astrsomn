@@ -1,6 +1,7 @@
 <template>
   <AstModal
-      :closable="false"
+      :confirm-loading="submitting"
+      :confirm-text="'保存预设'"
       :max-width="maxWidth"
       :open="visible"
       body-height="90vh"
@@ -8,7 +9,7 @@
       max-body-height="800px"
       width="80vw"
       wrap-class-name="instance-form-fsm-wrap"
-      @cancel="handleCancel"
+      @confirm="onSubmit"
       @update:open="emit('update:visible', $event)"
   >
     <template #header-logo>
@@ -20,18 +21,6 @@
     <template #header-subtitle>
       配置 Astrsomn 核心引擎的运行策略与端点映射
     </template>
-    <template #header-actions>
-      <a-button class="header-action-btn header-action-btn-cancel" @click="handleCancel">取消</a-button>
-      <a-button
-          :loading="submitting"
-          class="header-action-btn header-action-btn-save"
-          type="primary"
-          @click="onSubmit"
-      >
-        保存预设
-      </a-button>
-    </template>
-
     <div class="instance-form-shell">
       <div class="main-content">
         <Left
@@ -323,8 +312,6 @@ const onSelectModelCard = (record: AiModel) => {
   applyModelSelection(record);
 };
 
-const handleCancel = () => emit('update:visible', false);
-
 const onAccountSelect = (account: any) => {
   if (account.accountKey) {
     form.accountKey = account.accountKey;
@@ -345,7 +332,7 @@ const onSubmit = async () => {
     await api(form);
     message.success('预设配置已同步至 Astrsomn 引擎');
     emit('success');
-    handleCancel();
+    emit('update:visible', false);
   } finally {
     submitting.value = false;
   }
@@ -405,24 +392,6 @@ watch(typeFilter, () => {
 :global(.instance-form-fsm-wrap .ant-modal) {
   top: 0;
   padding-bottom: 0;
-}
-
-.header-action-btn {
-  height: 38px;
-  min-width: 110px;
-  border-radius: var(--radius-md);
-  padding: 0 20px;
-  font-weight: 600;
-}
-
-:deep(.header-action-btn-cancel.ant-btn-default) {
-  color: #475569;
-  border-color: #cbd5e1;
-  background: #fff;
-}
-
-:deep(.header-action-btn-save.ant-btn-primary) {
-  box-shadow: none;
 }
 
 .instance-form-shell {
