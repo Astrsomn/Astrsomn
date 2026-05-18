@@ -6,7 +6,7 @@
       <div class="config-content">
         <!-- 左侧：身份与提示词配置 -->
         <div class="config-left">
-          <AgentConfigPersonaSection
+          <AgentBaseSection
               :agent-key="localAgentKey"
               :agent-name="localAgentName"
               :agent-avatar="localAgentAvatar"
@@ -26,7 +26,7 @@
         <!-- 右侧：实例与集成配置 -->
         <div class="config-right">
           <div class="config-right-top">
-            <AgentConfigInstanceList
+            <InstanceListSection
                 :instance-list="instanceList"
                 :available-models="availableModels"
                 :route-strategy="routeStrategy"
@@ -35,7 +35,7 @@
             />
           </div>
           <div class="config-right-bottom">
-            <AgentConfigIntegrationsSection
+            <ToolSection
                 :knowledge-keys="knowledgeKeys"
                 :mcps="placedMcps"
                 :tools="placedTools"
@@ -73,7 +73,7 @@
         @update:open="historyModalOpen = $event"
     />
 
-    <AgentConfigPromptImproveModal
+    <PromptImproveModal
         :improved-content="improvedContent"
         :open="diffModalVisible"
         :original-content="originalContent"
@@ -96,10 +96,10 @@ import PromptSelectorDrawer from '@/views/admin/ai-config/ai-prompt/selector/Pro
 import PromptFormModal from '@/views/admin/ai-config/ai-prompt/component/PromptFormModal.vue'
 import PromptHistoryModal from '@/views/admin/ai-config/ai-prompt/component/PromptHistoryModal.vue'
 import AgentConfigHeader from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigHeader.vue'
-import AgentConfigPersonaSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigPersonaSection.vue'
-import AgentConfigInstanceList from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigInstanceList.vue'
-import AgentConfigIntegrationsSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigIntegrationsSection.vue'
-import AgentConfigPromptImproveModal from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentConfigPromptImproveModal.vue'
+import AgentBaseSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/AgentBaseSection.vue'
+import InstanceListSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/InstanceListSection.vue'
+import ToolSection from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/ToolSection.vue'
+import PromptImproveModal from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/form/PromptImproveModal.vue'
 
 const props = defineProps<{
   agentName: string

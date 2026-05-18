@@ -129,7 +129,7 @@ import { ref, computed } from 'vue'
 import { PlusOutlined, DeleteOutlined, CloudServerOutlined, EditOutlined, ApartmentOutlined } from '@ant-design/icons-vue'
 import type { AiModel } from '@/api/aiModel.ts'
 import type { AiInstance } from '@/api/aiInstance.ts'
-import InstanceEditModal from './InstanceEditModal.vue'
+import InstanceEditModal from './form/InstanceEditModal.vue'
 
 const props = defineProps<{
   instanceList: AiInstance[]

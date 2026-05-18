@@ -1,0 +1,383 @@
+<template>
+  <AstDrawer
+    :open="open"
+    :width="520"
+    root-class-name="mcp-selector-drawer"
+    @update:open="emit('update:open', $event)"
+  >
+    <template #icon>
+      <ApiOutlined />
+    </template>
+    <template #title>选择 MCP 服务</template>
+    <template #subtitle>mcp.selector</template>
+
+    <div class="select-drawer-content">
+      <div class="search-bar">
+        <AstSearchInput
+          v-model="keyword"
+          layout="fluid"
+          placeholder="搜索服务名或 MCP Key…"
+          style="flex: 1"
+          @search="handleSearch"
+        />
+      </div>
+
+      <a-spin :spinning="loading">
+        <div class="item-list">
+          <div
+            v-for="item in list"
+            :key="item.id"
+            :class="['item-card', { selected: activeSet.has(item.mcpKey || '') }]"
+            @click="toggle(item)"
+          >
+            <div class="item-left">
+              <div class="item-dot" :class="typeClass(item.type)"></div>
+              <div class="item-body">
+                <div class="item-head">
+                  <span class="item-name">{{ item.serverName || item.mcpKey }}</span>
+                  <span class="item-type-tag" :class="typeClass(item.type)">{{ item.type || 'UNKNOWN' }}</span>
+                </div>
+                <code class="item-key">{{ item.mcpKey }}</code>
+                <div v-if="item.description" class="item-desc">{{ item.description }}</div>
+                <div class="item-meta">
+                  <span v-if="item.command" class="meta-chip" title="启动命令">
+                    <CodeOutlined /> {{ item.command }}
+                  </span>
+                  <span :class="['status-dot', item.enabled === 1 ? 'on' : 'off']"></span>
+                  <span class="status-label">{{ item.enabled === 1 ? '启用' : '停用' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="item-right">
+              <CheckCircleFilled v-if="activeSet.has(item.mcpKey || '')" class="check-on" />
+              <div v-else class="check-off"></div>
+            </div>
+          </div>
+          <div v-if="!list.length && !loading" class="empty-state">
+            <div class="empty-icon"><ApiOutlined /></div>
+            <p class="empty-title">未找到匹配的 MCP 服务</p>
+            <p class="empty-hint">尝试调整搜索关键词，或确认服务已注册</p>
+          </div>
+        </div>
+      </a-spin>
+    </div>
+
+    <template #footer>
+      <AstPagination
+        :current="page.pageNum"
+        :page-size="page.pageSize"
+        :show-size-changer="false"
+        :total="page.total"
+        @change="onPageChange"
+      />
+    </template>
+  </AstDrawer>
+</template>
+
+<script lang="ts" setup>
+import { computed, reactive, ref, watch } from 'vue'
+import { ApiOutlined, CheckCircleFilled, CodeOutlined } from '@ant-design/icons-vue'
+import { type AiMcp, aiMcpApi } from '@/api/aiMcp.ts'
+import AstDrawer from '@/components/home/AstDrawer.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
+
+const props = defineProps<{
+  open: boolean
+  selectedKeys?: string[]
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:open', value: boolean): void
+  (e: 'add', mcp: AiMcp): void
+  (e: 'remove', mcpKey: string): void
+}>()
+
+const keyword = ref('')
+const loading = ref(false)
+const list = ref<AiMcp[]>([])
+const page = reactive({ pageNum: 1, pageSize: 10, total: 0 })
+
+const activeSet = computed(() => new Set(props.selectedKeys ?? []))
+
+function typeClass(t?: string) {
+  const map: Record<string, string> = { SSE: 't-sse', STEAMABLE: 't-stream', STDIO: 't-stdio' }
+  return map[t || ''] || 't-unknown'
+}
+
+async function fetchList() {
+  loading.value = true
+  try {
+    const resp = await aiMcpApi.queryPage({
+      pageNo: page.pageNum,
+      pageSize: page.pageSize,
+      param: { serverName: keyword.value || undefined, mcpKey: keyword.value || undefined },
+    })
+    list.value = resp.list || []
+    page.total = resp.total || 0
+  } finally {
+    loading.value = false
+  }
+}
+
+function handleSearch() {
+  page.pageNum = 1
+  void fetchList()
+}
+
+function toggle(item: AiMcp) {
+  if (!item.mcpKey) return
+  if (activeSet.value.has(item.mcpKey)) {
+    emit('remove', item.mcpKey)
+  } else {
+    emit('add', item)
+  }
+}
+
+function onPageChange(p: number, size: number) {
+  page.pageNum = p
+  page.pageSize = size
+  void fetchList()
+}
+
+watch(
+  () => props.open,
+  (open) => {
+    if (open) {
+      keyword.value = ''
+      page.pageNum = 1
+      void fetchList()
+    }
+  },
+)
+</script>
+
+<style scoped>
+/* ---- header icon override ---- */
+:deep(.mcp-selector-drawer .header-icon) {
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+/* ---- footer ---- */
+:deep(.drawer-footer) {
+  justify-content: center;
+}
+
+/* ---- content ---- */
+.select-drawer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+.search-bar {
+  display: flex;
+  flex-shrink: 0;
+}
+
+/* ---- list ---- */
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* scrollbar */
+.item-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.item-list::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 2px;
+}
+
+/* ---- card ---- */
+.item-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #f0f0f2;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.item-card:hover {
+  border-color: #c4b5fd;
+  background: #faf9ff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.item-card.selected {
+  border-color: #a78bfa;
+  background: #f5f3ff;
+}
+
+.item-left {
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.item-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.item-dot.t-sse     { background: #10b981; }
+.item-dot.t-stream  { background: #f59e0b; }
+.item-dot.t-stdio   { background: #3b82f6; }
+.item-dot.t-unknown { background: #9ca3af; }
+
+.item-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.item-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+}
+
+.item-type-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+.item-type-tag.t-sse     { background: #ecfdf5; color: #059669; }
+.item-type-tag.t-stream  { background: #fffbeb; color: #d97706; }
+.item-type-tag.t-stdio   { background: #eff6ff; color: #2563eb; }
+.item-type-tag.t-unknown { background: #f3f4f6; color: #6b7280; }
+
+.item-key {
+  display: block;
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.item-desc {
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.meta-chip {
+  font-size: 10px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 7px;
+  border-radius: 4px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-dot.on  { background: #10b981; }
+.status-dot.off { background: #d1d5db; }
+
+.status-label {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* ---- right check ---- */
+.item-right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 2px;
+}
+
+.check-on {
+  color: #7c3aed;
+  font-size: 18px;
+}
+
+.check-off {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+}
+
+/* ---- empty state ---- */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  border-radius: 12px;
+  background: #f5f3ff;
+  color: #a78bfa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.empty-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 0 0 4px;
+}
+
+.empty-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+}
+</style>
