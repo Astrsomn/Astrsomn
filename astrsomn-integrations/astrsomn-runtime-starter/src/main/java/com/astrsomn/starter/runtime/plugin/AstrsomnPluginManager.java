@@ -1,11 +1,10 @@
 package com.astrsomn.starter.runtime.plugin;
 
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.PluginVecDriverHandler;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecDriver;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
-import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -16,17 +15,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class AstrsomnPluginManager {
 
     private final AstroModelFactory astroModelFactory;
-    private final AstroVecSourceFactory astroVecSourceFactory;
+    private final List<PluginVecDriverHandler> vecDriverHandlers;
     private final String pluginPath = "./plugins";
-
 
     private final Map<String, PluginClassLoader> pluginCache = new ConcurrentHashMap<>();
     private final Map<String, List<ModelProviderHandler>> pluginHandlers = new ConcurrentHashMap<>();
     private final Map<String, List<VecDriver>> pluginVecDrivers = new ConcurrentHashMap<>();
+
+    public AstrsomnPluginManager(AstroModelFactory astroModelFactory,
+                                  List<PluginVecDriverHandler> vecDriverHandlers) {
+        this.astroModelFactory = astroModelFactory;
+        this.vecDriverHandlers = vecDriverHandlers != null ? vecDriverHandlers : List.of();
+    }
 
     @PostConstruct
     public void init() {
@@ -80,8 +83,7 @@ public class AstrsomnPluginManager {
                 .ifPresent(handlers -> handlers.forEach(h -> astroModelFactory.unregisterHandler(h.getProvider())));
 
         pluginVecDrivers.remove(jarName);
-        astroVecSourceFactory.removePluginDrivers(jarName);
-
+        vecDriverHandlers.forEach(h -> h.removePluginDrivers(jarName));
 
         Optional.ofNullable(pluginCache.remove(jarName))
                 .ifPresent(loader -> {
@@ -93,7 +95,6 @@ public class AstrsomnPluginManager {
                 });
     }
 
-    
     public List<VecDriver> getVecDriversForJar(String jarName) {
         if (jarName == null) {
             return List.of();
@@ -129,7 +130,9 @@ public class AstrsomnPluginManager {
             pluginCache.put(jar.getName(), classLoader);
             pluginHandlers.put(jar.getName(), loadedHandlers);
             pluginVecDrivers.put(jar.getName(), loadedVecDrivers);
-            astroVecSourceFactory.applyPluginDrivers(jar.getName(), loadedVecDrivers);
+            if (!loadedVecDrivers.isEmpty()) {
+                vecDriverHandlers.forEach(h -> h.applyPluginDrivers(jar.getName(), loadedVecDrivers));
+            }
         } else {
             log.warn("文件 {} 未发现 ModelProviderHandler 或 VecDriver 的 SPI 配置", jar.getName());
             classLoader.close();

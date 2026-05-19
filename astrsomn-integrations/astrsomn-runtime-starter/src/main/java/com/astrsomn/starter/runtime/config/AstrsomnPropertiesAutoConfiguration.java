@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
@@ -16,7 +17,6 @@ import org.springframework.context.annotation.Bean;
 @Slf4j
 @AutoConfiguration
 @AutoConfigureBefore(AstrsomnAutoConfiguration.class)
-@ConditionalOnClass(SystemUserEntity.class)
 public class AstrsomnPropertiesAutoConfiguration {
 
     @Bean
@@ -37,8 +37,8 @@ public class AstrsomnPropertiesAutoConfiguration {
         return new AstrsomnResilienceProperties();
     }
 
-    
     @Bean
+    @ConditionalOnClass(SystemUserEntity.class)
     public Object astrsomnCryptoInitializer(AstrsomnProperties astrsomnProperties) {
         initCrypto(astrsomnProperties);
         initDefaultUser(astrsomnProperties);

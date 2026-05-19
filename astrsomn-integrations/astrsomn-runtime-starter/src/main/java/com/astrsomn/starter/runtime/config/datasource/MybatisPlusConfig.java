@@ -20,6 +20,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -48,10 +49,10 @@ public class MybatisPlusConfig {
 
 
 
-    @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor(AstrsomnDatasourceProperties datasourceProperties,
-                                                         Set<String> astrsomnTenantTables,
-                                                         AstrsomnProperties properties) {
+    @Bean(name = AstrsomnRuntimeBeans.MYBATIS_PLUS_INTERCEPTOR)
+    public MybatisPlusInterceptor astrsomnMybatisPlusInterceptor(AstrsomnDatasourceProperties datasourceProperties,
+                                                                 Set<String> astrsomnTenantTables,
+                                                                 AstrsomnProperties properties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
         String jdbcUrl = datasourceProperties != null ? datasourceProperties.getUrl() : null;
@@ -70,6 +71,7 @@ public class MybatisPlusConfig {
 
     
     @Bean
+    @ConditionalOnBean(AstrsomnMybatisContributor.class)
     public MapperScannerConfigurer astrsomnMapperScannerConfigurer(List<AstrsomnMybatisContributor> contributors) {
         Set<String> packages = new LinkedHashSet<>();
         for (AstrsomnMybatisContributor c : contributors) {
@@ -87,11 +89,12 @@ public class MybatisPlusConfig {
 
 
     @Bean(name = AstrsomnRuntimeBeans.SQL_SESSION_FACTORY)
+    @ConditionalOnBean(AstrsomnMybatisContributor.class)
     public SqlSessionFactory astrsomnSqlSessionFactory(
             @Qualifier(AstrsomnRuntimeBeans.DATA_SOURCE) DataSource dataSource,
             ObjectProvider<SchemaInitializer> schemaInitializer,
             AstrsomnProperties properties,
-            MybatisPlusInterceptor mybatisPlusInterceptor,
+            @Qualifier(AstrsomnRuntimeBeans.MYBATIS_PLUS_INTERCEPTOR) MybatisPlusInterceptor mybatisPlusInterceptor,
             List<AstrsomnMybatisContributor> contributors,
             ObjectProvider<MetaObjectHandler> metaObjectHandlerProvider) throws Exception {
         schemaInitializer.ifAvailable(initializer -> initializer.initialize(dataSource));
