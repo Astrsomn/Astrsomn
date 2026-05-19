@@ -8,6 +8,7 @@ import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.api.vector.exception.AstVecSourceErrorEnum;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.api.runtime.common.langchain.extension.vector.PluginVecDriverHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,7 @@ import java.util.stream.StreamSupport;
 
 @Slf4j
 @Component
-public class AstroVecSourceFactory {
+public class AstroVecSourceFactory implements PluginVecDriverHandler {
 
     private static final String LOG_PREFIX = "[Astrsomn] [向量工厂] ====> ";
 
