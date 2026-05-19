@@ -9,6 +9,9 @@ public final class AstrsomnRuntimeBeans {
     
     public static final String SQL_SESSION_FACTORY = "astrsomnSqlSessionFactory";
 
+    
+    public static final String MYBATIS_PLUS_INTERCEPTOR = "astrsomnMybatisPlusInterceptor";
+
     private AstrsomnRuntimeBeans() {
     }
 }
