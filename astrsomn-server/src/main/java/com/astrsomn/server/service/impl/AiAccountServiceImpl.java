@@ -71,13 +71,8 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         }
         AiAccountResponseDTO dto = new AiAccountResponseDTO();
         BeanUtils.copyProperties(entity, dto);
-//        if (entity.getApiKey() != null) {
-//            dto.setApiKey(CryptoUtil.decrypt(entity.getApiKey()));
-//        }
-//        if (entity.getApiSecret() != null) {
-//            dto.setApiSecret(CryptoUtil.decrypt(entity.getApiSecret()));
-//        }
-        dto.setAccountKeyImmutable(isAccountKeyReferencedByModel(entity.getAccountKey(), entity.getEnvCode()));
+
+        dto.setAccountKeyImmutable(isAccountKeyReferencedByInstance(entity.getAccountKey(), entity.getEnvCode()));
         return BaseResponse.success(dto);
     }
 
@@ -92,14 +87,14 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         }
         AiAccountEntity entity = new AiAccountEntity();
         BeanUtils.copyProperties(request, entity);
-        // 加密API Key和Secret
+
         if (request.getApiKey() != null) {
             entity.setApiKey(CryptoUtil.encrypt(request.getApiKey()));
         }
         if (request.getApiSecret() != null) {
             entity.setApiSecret(CryptoUtil.encrypt(request.getApiSecret()));
         }
-        if (isAccountKeyReferencedByModel(existing.getAccountKey(), existing.getEnvCode())) {
+        if (isAccountKeyReferencedByInstance(existing.getAccountKey(), existing.getEnvCode())) {
             entity.setAccountKey(existing.getAccountKey());
         }
         if (request.getStatus() != null) {
@@ -169,38 +164,8 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         }
     }
 
-    
-    public AiAccountEntity getDecryptedAccount(Long id) {
-        AiAccountEntity entity = getById(id);
-        if (entity != null) {
-            if (entity.getApiKey() != null) {
-                entity.setApiKey(CryptoUtil.decrypt(entity.getApiKey()));
-            }
-            if (entity.getApiSecret() != null) {
-                entity.setApiSecret(CryptoUtil.decrypt(entity.getApiSecret()));
-            }
-        }
-        return entity;
-    }
 
-    
-    public AiAccountEntity getDecryptedAccountByKey(String accountKey, String envCode) {
-        AiAccountEntity entity = getOne(new LambdaQueryWrapper<AiAccountEntity>()
-                .eq(AiAccountEntity::getAccountKey, accountKey)
-                .eq(AiAccountEntity::getEnvCode, envCode));
-        if (entity != null) {
-            if (entity.getApiKey() != null) {
-                entity.setApiKey(CryptoUtil.decrypt(entity.getApiKey()));
-            }
-            if (entity.getApiSecret() != null) {
-                entity.setApiSecret(CryptoUtil.decrypt(entity.getApiSecret()));
-            }
-        }
-        return entity;
-    }
-
-    
-    private boolean isAccountKeyReferencedByModel(String accountKey, String envCode) {
+    private boolean isAccountKeyReferencedByInstance(String accountKey, String envCode) {
         if (StringUtils.isBlank(accountKey) || StringUtils.isBlank(envCode)) {
             return false;
         }

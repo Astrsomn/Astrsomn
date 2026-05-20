@@ -24,5 +24,5 @@ public interface AiInstanceService extends IService<AiInstanceEntity> {
 
     PageResponse<AiInstanceResponseDTO> queryPage(BasePageRequest<AiInstanceQueryRequestDTO> request);
 
-    List<AiInstanceResponseDTO> queryByBizKeys(List<String> bizKeys);
+    List<AiInstanceResponseDTO> queryByBizKey(String bizKey);
 }

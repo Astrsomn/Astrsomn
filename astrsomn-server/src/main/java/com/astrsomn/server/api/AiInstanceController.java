@@ -40,8 +40,7 @@ public class AiInstanceController extends BaseController {
     }
 
     @PostMapping("/queryPage")
-    public PageResponse<AiInstanceResponseDTO> queryPage(
-            @RequestBody BasePageRequest<AiInstanceQueryRequestDTO> request) {
+    public PageResponse<AiInstanceResponseDTO> queryPage(@RequestBody BasePageRequest<AiInstanceQueryRequestDTO> request) {
         return aiInstanceService.queryPage(request);
     }
 

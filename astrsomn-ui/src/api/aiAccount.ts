@@ -50,7 +50,7 @@ export const aiAccountApi = {
 
     queryModelsByAccountKey: (payload: unknown): Promise<PageResponse<AiModel>> => {
         return request({
-            url: '/v1/astro/ai-account/queryModelsByAccountKey',
+            url: '/v1/astro/ai-account/queryInstancesByAccountKey',
             method: 'post',
             data: payload
         })

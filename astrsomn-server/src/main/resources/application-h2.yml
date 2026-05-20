@@ -11,16 +11,4 @@ astrsomn:
       connection-timeout: 30000
       maximum-pool-size: 10
       minimum-idle: 5
-  storage:
-    type: local
-    default-platform: local-plus
-  mybatis-plus:
-    # workflow-starter 默认会自动补这个包；这里显式写出便于排查与覆盖
-    additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
-  data-base:
-    # 启动后校验连通性及必选表；默认失败仅 ERROR 日志，不中断启动（fail-fast=true 时才会中止）
-    validation:
-      enabled: true
-      fail-fast: false
-      required-tables:
-        - SYS_ENV
+

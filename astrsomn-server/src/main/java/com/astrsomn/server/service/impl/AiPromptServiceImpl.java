@@ -12,6 +12,7 @@ import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.JsonUtil;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.astrsomn.assistant.PromptAssistant;
@@ -33,7 +34,7 @@ import java.util.*;
 public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEntity> implements AiPromptService {
 
 
-    private final QueryEnvParamHelper queryEnvParamHelper;
+
 
     @Astro(agentKey = "AG-ASTRSOMN-PROMPT", envCode = "PRO")
     private PromptAssistant promptAssistant;
@@ -44,14 +45,13 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         AiPromptEntity entity = new AiPromptEntity();
         BeanUtils.copyProperties(request, entity);
 
-        String env = StringUtils.defaultIfBlank(entity.getEnvCode(), queryEnvParamHelper.effectiveEnvCode());
-        entity.setEnvCode(env);
+
+
         if (entity.getVersion() == null) {
             entity.setVersion(1);
         }
         long exists = lambdaQuery()
                 .eq(AiPromptEntity::getPromptKey, entity.getPromptKey())
-                .eq(AiPromptEntity::getEnvCode, env)
                 .count();
         if (exists > 0) {
             throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
@@ -109,15 +109,15 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         next.setId(null);
         next.setCreateTime(null);
         next.setUpdateTime(null);
-        String env = StringUtils.defaultIfBlank(current.getEnvCode(), queryEnvParamHelper.effectiveEnvCode());
-        next.setEnvCode(env);
+
+
         String requestedPromptKey = StringUtils.trimToNull(request.getPromptKey());
         String nextPromptKey = StringUtils.defaultIfBlank(requestedPromptKey, current.getPromptKey());
         next.setPromptKey(nextPromptKey);
         if (!StringUtils.equals(nextPromptKey, current.getPromptKey())) {
             long exists = lambdaQuery()
                     .eq(AiPromptEntity::getPromptKey, nextPromptKey)
-                    .eq(AiPromptEntity::getEnvCode, env)
+
                     .count();
             if (exists > 0) {
                 throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
@@ -125,7 +125,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         }
         AiPromptEntity top = lambdaQuery()
                 .eq(AiPromptEntity::getPromptKey, nextPromptKey)
-                .eq(AiPromptEntity::getEnvCode, env)
+
                 .orderByDesc(AiPromptEntity::getVersion)
                 .last("LIMIT 1")
                 .one();
@@ -157,9 +157,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         if (StringUtils.isBlank(promptKey)) {
             throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
-        if (StringUtils.isBlank(envCode)) {
-            envCode = queryEnvParamHelper.effectiveEnvCode();
-        }
+
         List<AiPromptResponseDTO> list = baseMapper.listHistoryByPromptKey(promptKey.trim(), envCode);
         return BaseResponse.success(list);
     }
@@ -171,14 +169,14 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
             throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
 
-        String env = queryEnvParamHelper.effectiveEnvCode();
+
         String promptKey = StringUtils.trimToNull(request.getPromptKey());
 
         AiPromptEntity entity = new AiPromptEntity();
         entity.setPromptContent(request.getPromptContent());
         entity.setPromptTitle(request.getPromptTitle());
         entity.setScene(request.getScene());
-        entity.setEnvCode(env);
+
 
         if (promptKey == null) {
             // 无 promptKey → 新建
@@ -189,7 +187,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
             entity.setPromptKey(promptKey);
             AiPromptEntity top = lambdaQuery()
                     .eq(AiPromptEntity::getPromptKey, promptKey)
-                    .eq(AiPromptEntity::getEnvCode, env)
+
                     .orderByDesc(AiPromptEntity::getVersion)
                     .last("LIMIT 1")
                     .one();
@@ -218,9 +216,9 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
 
     @Override
     public BaseResponse<List<String>> querySceneTags() {
-        String envCode = queryEnvParamHelper.effectiveEnvCode();
-        List<String> rawScenes = baseMapper.querySceneRawList(envCode);
-        if (rawScenes == null || rawScenes.isEmpty()) {
+
+        List<String> rawScenes = baseMapper.querySceneRawList();
+        if (CollectionUtils.isEmpty(rawScenes)) {
             return BaseResponse.success(new ArrayList<>());
         }
         Set<String> tags = new LinkedHashSet<>();
@@ -230,12 +228,12 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
             }
             try {
                 List<String> parsed = JsonUtil.parseArray(rawScene, String.class);
-                if (parsed == null || parsed.isEmpty()) {
+                if (CollectionUtils.isEmpty(parsed)) {
                     continue;
                 }
                 for (String tag : parsed) {
                     String normalized = StringUtils.trimToNull(tag);
-                    if (normalized != null) {
+                    if (Objects.nonNull(normalized)) {
                         tags.add(normalized);
                     }
                 }

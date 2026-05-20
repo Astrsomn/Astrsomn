@@ -1,5 +1,6 @@
 package com.astrsomn.server.service.impl;
 
+import com.astrsomn.api.runtime.common.constant.AiPromptEnum;
 import com.astrsomn.api.runtime.common.dto.agent.AiAgentCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.agent.AiAgentQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.agent.AiAgentResponseDTO;
@@ -11,6 +12,7 @@ import com.astrsomn.api.runtime.common.dto.prompt.AiPromptQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.prompt.AiPromptResponseDTO;
 import com.astrsomn.api.runtime.common.dto.prompt.AiPromptUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
+import com.astrsomn.api.runtime.common.utils.KeyGenerator;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
 import com.astrsomn.api.runtime.exception.AiAgentErrorEnum;
@@ -41,8 +43,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
     private final AiPromptService aiPromptService;
     private final AiInstanceService aiInstanceService;
 
-    private static final String AGENT_KEY_PREFIX = "AG-";
-    private static final int RANDOM_KEY_LENGTH = 16;
+
 
     @Override
     public BaseResponse<String> create(AiAgentCreateRequestDTO request) {
@@ -77,7 +78,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         // 加载关联的推理实例列表
         String agentKey = aiAgent.getAgentKey();
         if (StringUtils.isNotBlank(agentKey)) {
-            List<AiInstanceResponseDTO> instances = aiInstanceService.queryByBizKeys(List.of(agentKey));
+            List<AiInstanceResponseDTO> instances = aiInstanceService.queryByBizKeys(agentKey);
             responseDTO.setInstanceList(instances != null ? instances : Collections.emptyList());
         }
 
@@ -190,7 +191,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
             } else {
                 // 新建实例
                 if (StringUtils.isBlank(inst.getInstanceKey())) {
-                    inst.setInstanceKey(generateUniqueInstanceKey());
+                    inst.setInstanceKey(KeyGenerator.generateUniqueInstanceKey());
                 }
                 aiInstanceService.save(inst);
             }
@@ -240,7 +241,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
     public BaseResponse<String> createFullAgent(AiAgentCreateRequestDTO request) {
         String agentKey = request.getAgentKey();
         if (StringUtils.isBlank(agentKey)) {
-            agentKey = generateUniqueAgentKey();
+            agentKey = KeyGenerator.generateUniqueAgentKey();
             request.setAgentKey(agentKey);
         }
 
@@ -248,12 +249,12 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         String promptContent = request.getPromptContent();
         if (StringUtils.isNotBlank(promptContent)) {
             AiPromptCreateRequestDTO promptRequest = new AiPromptCreateRequestDTO();
-            promptKey = generateUniquePromptKey();
+            promptKey = KeyGenerator.generateUniquePromptKey();
             promptRequest.setPromptKey(promptKey);
             promptRequest.setPromptTitle(request.getAgentName());
             promptRequest.setPromptContent(promptContent);
             promptRequest.setEnvCode(request.getEnvCode());
-            promptRequest.setStatus("enabled");
+            promptRequest.setStatus(AiPromptEnum.StatusEnum.ENABLED.getCode());
             aiPromptService.create(promptRequest);
         }
 
@@ -271,7 +272,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
             String routeStrategy = request.getRouteStrategy();
             for (AiInstanceCreateRequestDTO instanceRequest : instanceList) {
                 if (StringUtils.isBlank(instanceRequest.getInstanceKey())) {
-                    instanceRequest.setInstanceKey(generateUniqueInstanceKey());
+                    instanceRequest.setInstanceKey(KeyGenerator.generateUniqueInstanceKey());
                 }
                 instanceRequest.setBizKey(agentKey);
                 instanceRequest.setEnvCode(request.getEnvCode());
@@ -286,15 +287,4 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         return BaseResponse.success("完整Agent创建成功");
     }
 
-    private String generateUniqueAgentKey() {
-        return AGENT_KEY_PREFIX + UUID.randomUUID().toString().replace("-", "").substring(0, RANDOM_KEY_LENGTH);
-    }
-
-    private String generateUniquePromptKey() {
-        return "PR-" + UUID.randomUUID().toString().replace("-", "").substring(0, RANDOM_KEY_LENGTH);
-    }
-
-    private String generateUniqueInstanceKey() {
-        return "INS-" + UUID.randomUUID().toString().replace("-", "").substring(0, RANDOM_KEY_LENGTH);
-    }
 }

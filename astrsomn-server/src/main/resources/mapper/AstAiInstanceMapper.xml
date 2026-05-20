@@ -101,10 +101,7 @@
         ) AS providerAvatar
         FROM `AI_INSTANCE` AI
         WHERE (AI.DELETED = 0 OR AI.DELETED IS NULL)
-        AND AI.BIZ_KEY IN
-        <foreach collection="bizKeys" item="key" open="(" separator="," close=")">
-            #{key}
-        </foreach>
+        AND AI.BIZ_KEY = #{bizKey}
         ORDER BY AI.CREATE_TIME ASC
     </select>
 

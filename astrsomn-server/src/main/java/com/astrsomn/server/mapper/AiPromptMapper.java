@@ -22,5 +22,5 @@ public interface AiPromptMapper extends BaseMapper<AiPromptEntity> {
 
     String getLatestPromptContentByPromptKey(@Param("promptKey") String promptKey);
 
-    List<String> querySceneRawList(@Param("envCode") String envCode);
+    List<String> querySceneRawList();
 }

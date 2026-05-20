@@ -22,9 +22,4 @@ public interface AiAccountService extends IService<AiAccountEntity> {
 
     PageResponse<AiAccountResponseDTO> queryPage(BasePageRequest<AiAccountQueryRequestDTO> request);
 
-    
-    AiAccountEntity getDecryptedAccount(Long id);
-
-    
-    AiAccountEntity getDecryptedAccountByKey(String accountKey, String envCode);
 }

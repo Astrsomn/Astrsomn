@@ -56,9 +56,7 @@ public class AiPromptController extends BaseController {
     }
 
     @GetMapping("/history")
-    public BaseResponse<List<AiPromptResponseDTO>> history(
-            @RequestParam("promptKey") String promptKey,
-            @RequestParam(value = "envCode", required = false) String envCode) {
+    public BaseResponse<List<AiPromptResponseDTO>> history(@RequestParam("promptKey") String promptKey, @RequestParam(value = "envCode", required = false) String envCode) {
         return aiPromptService.history(promptKey, envCode);
     }
 
