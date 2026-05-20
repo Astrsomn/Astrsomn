@@ -30,11 +30,11 @@ public class BaseResponse<T> implements Serializable {
     }
 
     public static BaseResponse<?> success() {
-        return new BaseResponse<>(true, "操作成功");
+        return new BaseResponse<>(true, "success");
     }
 
     public static <T> BaseResponse<T> success(T data) {
-        return new BaseResponse<>(true, "操作成功", data);
+        return new BaseResponse<>(true, "success", data);
     }
 
 

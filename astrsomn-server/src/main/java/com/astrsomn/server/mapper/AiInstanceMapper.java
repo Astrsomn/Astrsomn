@@ -13,10 +13,9 @@ import java.util.List;
 @Mapper
 public interface AiInstanceMapper extends BaseMapper<AiInstanceEntity> {
 
-    IPage<AiInstanceResponseDTO> queryPage(IPage<AiInstanceResponseDTO> page,
-                                           @Param("req") AiInstanceQueryRequestDTO param);
+    IPage<AiInstanceResponseDTO> queryPage(IPage<AiInstanceResponseDTO> page, @Param("req") AiInstanceQueryRequestDTO param);
 
     AiInstanceResponseDTO selectDetailDtoById(@Param("id") Long id);
 
-    List<AiInstanceResponseDTO> selectByBizKeys(@Param("bizKeys") List<String> bizKeys);
+    List<AiInstanceResponseDTO> selectByBizKeys(@Param("bizKey") String bizKey);
 }

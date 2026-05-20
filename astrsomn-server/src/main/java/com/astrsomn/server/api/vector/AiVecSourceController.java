@@ -5,7 +5,7 @@ import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.server.service.AiVecSourceService;
+import com.astrsomn.server.service.vector.AiVecSourceService;
 import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

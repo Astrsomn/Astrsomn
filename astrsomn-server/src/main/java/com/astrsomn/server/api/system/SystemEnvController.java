@@ -4,7 +4,7 @@ import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.server.service.SystemEnvService;
+import com.astrsomn.server.service.system.SystemEnvService;
 import com.astrsomn.system.dto.env.SystemEnvCreateRequestDTO;
 import com.astrsomn.system.dto.env.SystemEnvQueryRequestDTO;
 import com.astrsomn.system.dto.env.SystemEnvResponseDTO;

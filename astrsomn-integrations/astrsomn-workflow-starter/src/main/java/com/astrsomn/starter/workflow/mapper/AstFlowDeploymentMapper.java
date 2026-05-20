@@ -15,5 +15,5 @@ public interface AstFlowDeploymentMapper extends BaseMapper<AstFlowDeploymentEnt
             IPage<AstFlowDeploymentResponseDTO> page,
             @Param("req") AstFlowDeploymentQueryRequestDTO param);
 
-    AstFlowDeploymentResponseDTO detail(@Param("id") Long id, @Param("envCode") String envCode);
+    AstFlowDeploymentResponseDTO detail(@Param("id") Long id);
 }

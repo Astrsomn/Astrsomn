@@ -11,6 +11,5 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface AiAccountMapper extends BaseMapper<AiAccountEntity> {
 
-    IPage<AiAccountResponseDTO> queryPage(IPage<AiAccountResponseDTO> page,
-                                          @Param("req") AiAccountQueryRequestDTO param);
+    IPage<AiAccountResponseDTO> queryPage(IPage<AiAccountResponseDTO> page, @Param("req") AiAccountQueryRequestDTO param);
 }

@@ -15,5 +15,5 @@ public interface AstFlowMsgOutboxMapper extends BaseMapper<AstFlowMsgOutboxEntit
             IPage<AstFlowMsgOutboxResponseDTO> page,
             @Param("req") AstFlowMsgOutboxQueryRequestDTO param);
 
-    AstFlowMsgOutboxResponseDTO detail(@Param("id") Long id, @Param("envCode") String envCode);
+    AstFlowMsgOutboxResponseDTO detail(@Param("id") Long id);
 }

@@ -4,9 +4,7 @@ import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.server.service.extension.base.SystemExtensionModelSyncService;
-import com.astrsomn.server.service.extension.base.SystemExtensionService;
-import com.astrsomn.server.service.extension.guard.SystemExtensionModelGuard;
+import com.astrsomn.server.service.system.extension.base.SystemExtensionService;
 import com.astrsomn.system.dto.extension.SystemExtensionCreateRequestDTO;
 import com.astrsomn.system.dto.extension.SystemExtensionQueryRequestDTO;
 import com.astrsomn.system.dto.extension.SystemExtensionResponseDTO;
@@ -22,8 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class SystemExtensionController extends BaseController {
 
     private final SystemExtensionService systemExtensionService;
-    private final SystemExtensionModelSyncService systemExtensionModelSyncService;
-    private final SystemExtensionModelGuard systemExtensionModelGuard;
 
 
 
@@ -80,34 +76,5 @@ public class SystemExtensionController extends BaseController {
     @PostMapping("/uninstall")
     public BaseResponse<String> uninstall(@RequestParam("id") Long id) {
         return systemExtensionService.uninstall(id);
-    }
-
-
-
-    @GetMapping("/load-models/preview")
-    public BaseResponse<com.astrsomn.system.dto.extension.ExtensionModelLoadPreviewDTO> previewLoadModels(@RequestParam("id") Long id) {
-        return systemExtensionModelSyncService.previewLoadModels(id);
-    }
-
-    @PostMapping("/load-models")
-    public BaseResponse<String> loadModels(@RequestParam("id") Long id, @RequestParam(value = "modelKeys", required = false) String modelKeys) {
-        return systemExtensionModelSyncService.loadModels(id, modelKeys);
-    }
-
-    @GetMapping("/unload-models/preview")
-    public BaseResponse<com.astrsomn.system.dto.extension.ExtensionModelUnloadPreviewDTO> previewUnloadModels(@RequestParam("id") Long id) {
-        return systemExtensionModelSyncService.previewUnloadModels(id);
-    }
-
-    @PostMapping("/unload-models")
-    public BaseResponse<String> unloadModels(@RequestParam("id") Long id, @RequestParam(value = "modelKeys", required = false) String modelKeys) {
-        return systemExtensionModelSyncService.unloadModels(id, modelKeys);
-    }
-
-
-
-    @PostMapping("/disable-provider-models")
-    public BaseResponse<String> disableProviderModels(@RequestParam("id") Long id) {
-        return systemExtensionModelGuard.disableAllModelsForExtension(id);
     }
 }

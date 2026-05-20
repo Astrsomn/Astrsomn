@@ -17,6 +17,7 @@ import reactor.core.publisher.FluxSink;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,7 +32,7 @@ public class AstroChatStreamUtil {
 
     
     private static ToolStreamKind classifyToolForStream(String toolName) {
-        if (toolName == null) {
+        if (Objects.isNull(toolName)) {
             return ToolStreamKind.GENERIC;
         }
         String n = toolName.toLowerCase();

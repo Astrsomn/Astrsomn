@@ -51,9 +51,6 @@
                  AP.ID DESC
     </select>
 
-    <select id="getByUUID" resultType="java.lang.String">
-
-    </select>
 
     <select id="getLatestPromptContentByPromptKey" resultType="java.lang.String">
         SELECT AP.PROMPT_CONTENT

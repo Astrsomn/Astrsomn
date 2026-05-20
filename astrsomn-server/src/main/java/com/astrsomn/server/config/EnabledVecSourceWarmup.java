@@ -4,7 +4,7 @@ import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
 import com.astrsomn.api.vector.constant.AiVecDriverEnum;
 import com.astrsomn.api.vector.constant.AiVecSourceEnum;
 import com.astrsomn.api.vector.entity.AiVecSourceEntity;
-import com.astrsomn.server.service.support.QueryEnvParamHelper;
+
 import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import com.astrsomn.starter.runtime.vector.mapper.AstAiVecSourceMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -31,7 +31,6 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
 
     private AstAiVecSourceMapper vecSourceMapper;
     private AstroVecSourceFactory vecSourceFactory;
-    private QueryEnvParamHelper envParamHelper;
 
     @Autowired(required = false)
     public void setVecSourceMapper(AstAiVecSourceMapper vecSourceMapper) {
@@ -43,62 +42,55 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
         this.vecSourceFactory = vecSourceFactory;
     }
 
-    @Autowired(required = false)
-    public void setEnvParamHelper(QueryEnvParamHelper envParamHelper) {
-        this.envParamHelper = envParamHelper;
-    }
-
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        if (vecSourceMapper == null || vecSourceFactory == null || envParamHelper == null) {
+        if (vecSourceMapper == null || vecSourceFactory == null) {
             log.warn("{} 必要依赖未注入，跳过向量源预热", LOG_PREFIX);
             return;
         }
-        delayedWarmup();
+        warmup();
     }
 
-    
-    private void delayedWarmup() {
+    private void warmup() {
         try {
             doWarmup();
         } catch (Exception e) {
-            log.warn("{} 向量源预热失败，将在延迟后重试 | 异常: {}", LOG_PREFIX, e.getMessage());
+            log.warn("{} 向量源预热失败，将在 2s 后重试 | 异常: {}", LOG_PREFIX, e.getMessage());
             try {
                 TimeUnit.SECONDS.sleep(2);
-                doWarmup();
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
                 log.error("{} 向量源预热重试被中断", LOG_PREFIX);
+                return;
+            }
+            try {
+                doWarmup();
             } catch (Exception e2) {
                 log.error("{} 向量源预热重试失败 | 异常: {}", LOG_PREFIX, e2.getMessage());
             }
         }
     }
 
-    
     private void doWarmup() {
-        String env = envParamHelper.effectiveEnvCode();
-        List<AiVecSourceEntity> sources = fetchEnabledSources(env);
+        List<AiVecSourceEntity> sources = fetchEnabledSources();
 
         if (sources.isEmpty()) {
-            log.debug("{} 当前环境 [{}] 没有需要预热的启用向量源", LOG_PREFIX, env);
+            log.debug("{} 没有需要预热的启用向量源", LOG_PREFIX);
             return;
         }
 
-        log.info("{} 开始执行预热任务 | 环境: {} | 待处理数量: {}", LOG_PREFIX, env, sources.size());
+        log.info("{} 开始执行预热任务 | 待处理数量: {}", LOG_PREFIX, sources.size());
 
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger skipCount = new AtomicInteger(0);
         AtomicInteger disableCount = new AtomicInteger(0);
 
         sources.forEach(source -> {
-            // 1. 注册向量源
             if (!registerSource(source)) {
                 skipCount.incrementAndGet();
                 return;
             }
 
-            // 2. 获取并测试实例
             vecSourceFactory.tryGetActiveSource(source.getId())
                     .ifPresentOrElse(
                             vecSource -> {
@@ -116,19 +108,16 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
                     );
         });
 
-        log.info("{} 向量源预热完成 | 环境: {} | 总数: {} | 成功: {} | 禁用: {} | 跳过: {}",
-                LOG_PREFIX, env, sources.size(), successCount.get(), disableCount.get(), skipCount.get());
+        log.info("{} 向量源预热完成 | 总数: {} | 成功: {} | 禁用: {} | 跳过: {}",
+                LOG_PREFIX, sources.size(), successCount.get(), disableCount.get(), skipCount.get());
     }
 
-    
-    private List<AiVecSourceEntity> fetchEnabledSources(String env) {
+    private List<AiVecSourceEntity> fetchEnabledSources() {
         return vecSourceMapper.selectList(new LambdaQueryWrapper<AiVecSourceEntity>()
                 .eq(AiVecSourceEntity::getDeleted, Boolean.FALSE)
-                .eq(AiVecSourceEntity::getStatus, STATUS_ENABLED)
-                .eq(Objects.nonNull(env), AiVecSourceEntity::getEnvCode, env));
+                .eq(AiVecSourceEntity::getStatus, STATUS_ENABLED));
     }
 
-    
     private boolean registerSource(AiVecSourceEntity source) {
         try {
             vecSourceFactory.registerOrRefresh(source);
@@ -140,24 +129,28 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
         }
     }
 
-    
     private boolean checkConnection(VecSource vecSource, AiVecSourceEntity source) {
         try {
             if (vecSource.testConnection()) {
                 log.debug("{} 连接成功 | ID: {} | 名称: {}", LOG_PREFIX, source.getId(), source.getName());
                 return true;
             }
-            handleFailure(source, "连接测试返回 false (不可达)", null);
+            handleFailure(source, "连接测试返回 false (不可达)");
         } catch (Throwable ex) {
             handleFailure(source, "连接测试异常: " + ex.getMessage(), ex);
         }
         return false;
     }
 
-    
-    private void handleFailure(AiVecSourceEntity source, String detail, Throwable ex) {
+    private void handleFailure(AiVecSourceEntity source, String reason) {
+        handleFailure(source, reason, null);
+    }
+
+    private void handleFailure(AiVecSourceEntity source, String reason, Throwable ex) {
         Long id = source.getId();
-        if (Objects.isNull(id)) return;
+        if (Objects.isNull(id)) {
+            return;
+        }
 
         vecSourceFactory.removeActiveSource(id);
 
@@ -165,12 +158,12 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
                 .eq(AiVecSourceEntity::getId, id)
                 .set(AiVecSourceEntity::getStatus, STATUS_DISABLED));
 
-        if (Objects.nonNull(ex)) {
+        if (ex != null) {
             log.warn("{} 预热失败已禁用 (rows={}) | ID: {} | 名称: {} | 原因: {}",
-                    LOG_PREFIX, rows, id, source.getName(), detail, ex);
+                    LOG_PREFIX, rows, id, source.getName(), reason, ex);
         } else {
             log.warn("{} 预热失败已禁用 (rows={}) | ID: {} | 名称: {} | 原因: {}",
-                    LOG_PREFIX, rows, id, source.getName(), detail);
+                    LOG_PREFIX, rows, id, source.getName(), reason);
         }
     }
 }

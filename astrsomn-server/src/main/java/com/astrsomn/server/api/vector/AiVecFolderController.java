@@ -6,7 +6,7 @@ import com.astrsomn.api.vector.dto.vecfolder.AiVecFolderResponseDTO;
 import com.astrsomn.api.vector.dto.vecfolder.AiVecFolderUpdateRequestDTO;
 import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BaseResponse;
-import com.astrsomn.server.service.AiVecFolderService;
+import com.astrsomn.server.service.vector.AiVecFolderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

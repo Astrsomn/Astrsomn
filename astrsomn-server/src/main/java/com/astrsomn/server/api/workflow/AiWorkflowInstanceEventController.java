@@ -8,7 +8,7 @@ import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.server.service.AiWorkflowInstanceEventService;
+import com.astrsomn.server.service.workflow.AiWorkflowInstanceEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

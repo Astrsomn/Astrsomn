@@ -4,7 +4,7 @@ import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
-import com.astrsomn.server.service.SystemMessageService;
+import com.astrsomn.server.service.system.SystemMessageService;
 import com.astrsomn.system.dto.systemmessage.SystemMessageCreateRequestDTO;
 import com.astrsomn.system.dto.systemmessage.SystemMessageQueryRequestDTO;
 import com.astrsomn.system.dto.systemmessage.SystemMessageResponseDTO;
