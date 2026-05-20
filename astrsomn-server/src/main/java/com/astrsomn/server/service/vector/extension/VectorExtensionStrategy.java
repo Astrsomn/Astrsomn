@@ -1,12 +1,10 @@
-package com.astrsomn.server.service.system.extension.lifecycle.strategy;
+package com.astrsomn.server.service.vector.extension;
 
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.server.service.system.extension.guard.SystemExtensionVecGuard;
 import com.astrsomn.server.service.system.extension.lifecycle.ExtensionLifecycleStrategy;
 import com.astrsomn.server.service.system.extension.support.SystemExtensionSourceHelper;
-import com.astrsomn.server.service.system.extension.warmup.VectorSourceInitializer;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
 import com.astrsomn.system.constant.SystemExtensionEnum;
 import com.astrsomn.system.entity.SystemExtensionEntity;
@@ -66,4 +64,3 @@ public class VectorExtensionStrategy implements ExtensionLifecycleStrategy {
         }
     }
 }
-

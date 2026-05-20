@@ -1,4 +1,4 @@
-package com.astrsomn.server.service.system.extension.base.impl;
+package com.astrsomn.server.service.ai.extension;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
@@ -9,7 +9,6 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.ai.AiModelService;
-import com.astrsomn.server.service.system.extension.base.SystemExtensionModelSyncService;
 import com.astrsomn.server.service.system.extension.base.SystemExtensionService;
 
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;

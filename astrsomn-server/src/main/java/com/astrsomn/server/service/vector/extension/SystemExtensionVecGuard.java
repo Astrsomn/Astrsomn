@@ -1,4 +1,4 @@
-package com.astrsomn.server.service.system.extension.guard;
+package com.astrsomn.server.service.vector.extension;
 
 import com.astrsomn.api.vector.entity.AiVecSourceEntity;
 import com.astrsomn.common.base.BaseResponse;
@@ -42,4 +42,3 @@ public class SystemExtensionVecGuard {
         return BaseResponse.success(null);
     }
 }
-

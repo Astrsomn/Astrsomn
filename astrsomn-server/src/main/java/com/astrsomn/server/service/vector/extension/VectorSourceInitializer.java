@@ -1,4 +1,4 @@
-package com.astrsomn.server.service.system.extension.warmup;
+package com.astrsomn.server.service.vector.extension;
 
 import com.astrsomn.api.vector.constant.AiVecSourceEnum;
 import com.astrsomn.api.vector.entity.AiVecSourceEntity;
@@ -28,7 +28,7 @@ public class VectorSourceInitializer {
 
     private final AstroVecSourceFactory vecSourceFactory;
 
-    
+
     public void warmupEnabledSourcesByProvider(String extensionCode) {
         Optional.ofNullable(StringUtils.trimToNull(extensionCode))
                 .ifPresent(provider -> {
@@ -45,7 +45,7 @@ public class VectorSourceInitializer {
                 });
     }
 
-    
+
     private List<AiVecSourceEntity> fetchSourcesByProvider(String provider) {
         return vecSourceMapper.selectList(new LambdaQueryWrapper<AiVecSourceEntity>()
                 .eq(AiVecSourceEntity::getExtensionCode, provider)
@@ -54,7 +54,7 @@ public class VectorSourceInitializer {
                 );
     }
 
-    
+
     private void safeRegister(AiVecSourceEntity source) {
         try {
             vecSourceFactory.registerOrRefresh(source);
@@ -64,4 +64,3 @@ public class VectorSourceInitializer {
         }
     }
 }
-

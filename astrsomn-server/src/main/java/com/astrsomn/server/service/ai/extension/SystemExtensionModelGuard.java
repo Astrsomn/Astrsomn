@@ -1,4 +1,4 @@
-package com.astrsomn.server.service.system.extension.guard;
+package com.astrsomn.server.service.ai.extension;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
@@ -50,7 +50,7 @@ public class SystemExtensionModelGuard {
         return Optional.empty();
     }
 
-    
+
     public BaseResponse<String> disableAllModelsForExtension(Long extensionId) {
         BaseResponse<ProviderEnv> resolved = resolveProviderEnv(extensionId);
         if (!resolved.isSuccess() || resolved.getData() == null) {
@@ -68,7 +68,7 @@ public class SystemExtensionModelGuard {
         return BaseResponse.success(String.format("已将 %d 条模型状态设为停用（disabled）。", rows));
     }
 
-    
+
     public BaseResponse<Void> assertNoAiModelsForProviderExtension(Long extensionId) {
         SystemExtensionEntity ext = astSystemExtensionMapper.selectById(extensionId);
         if (ext == null) {
@@ -103,7 +103,7 @@ public class SystemExtensionModelGuard {
         return BaseResponse.success(null);
     }
 
-    
+
     public BaseResponse<Void> assertNoInstancesUseProviderModels(Long extensionId) {
         SystemExtensionEntity ext = astSystemExtensionMapper.selectById(extensionId);
         if (ext == null) {
@@ -186,4 +186,3 @@ public class SystemExtensionModelGuard {
     private record ProviderEnv(String extensionCode, String envCode) {
     }
 }
-

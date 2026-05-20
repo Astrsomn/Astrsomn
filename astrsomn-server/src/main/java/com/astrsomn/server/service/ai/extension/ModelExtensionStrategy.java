@@ -1,9 +1,8 @@
-package com.astrsomn.server.service.system.extension.lifecycle.strategy;
+package com.astrsomn.server.service.ai.extension;
 
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.server.service.system.extension.guard.SystemExtensionModelGuard;
 import com.astrsomn.server.service.system.extension.lifecycle.ExtensionLifecycleStrategy;
 import com.astrsomn.server.service.system.extension.support.SystemExtensionSourceHelper;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
@@ -65,4 +64,3 @@ public class ModelExtensionStrategy implements ExtensionLifecycleStrategy {
         }
     }
 }
-
