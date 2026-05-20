@@ -44,7 +44,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         AiPromptEntity entity = new AiPromptEntity();
         BeanUtils.copyProperties(request, entity);
 
-        if (entity.getVersion() == null) {
+        if (Objects.isNull(entity.getVersion())) {
             entity.setVersion(1);
         }
         long exists = lambdaQuery()
@@ -62,13 +62,13 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
 
     @Override
     public BaseResponse<String> delete(long[] ids) {
-        if (ids == null || ids.length == 0) {
+        if (Objects.isNull(ids) || ids.length == 0) {
             throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
         Set<String> seen = new LinkedHashSet<>();
         for (long id : ids) {
             AiPromptEntity row = getById(id);
-            if (row == null) {
+            if (Objects.isNull(row)) {
                 continue;
             }
             String pair = row.getEnvCode() + "\0" + row.getPromptKey();
@@ -84,7 +84,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     @Override
     public BaseResponse<AiPromptResponseDTO> detail(Long id) {
         AiPromptEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AiPromptErrorEnum.PROMPT_NOT_FOUND);
         }
         AiPromptResponseDTO responseDTO = new AiPromptResponseDTO();
@@ -94,11 +94,11 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
 
     @Override
     public BaseResponse<String> update(AiPromptUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
         AiPromptEntity current = getById(request.getId());
-        if (current == null) {
+        if (Objects.isNull(current)) {
             throw new BusinessException(AiPromptErrorEnum.PROMPT_NOT_FOUND);
         }
         AiPromptEntity next = new AiPromptEntity();
@@ -127,7 +127,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
                 .last("LIMIT 1")
                 .one();
         int base = 0;
-        if (top != null && top.getVersion() != null) {
+        if (Objects.nonNull(top) && Objects.nonNull(top.getVersion())) {
             base = top.getVersion();
         }
         next.setVersion(base + 1);
@@ -142,7 +142,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     public PageResponse<AiPromptResponseDTO> queryPage(BasePageRequest<AiPromptQueryRequestDTO> request) {
         IPage<AiPromptResponseDTO> page = PageUtils.buildPage(request);
         AiPromptQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiPromptQueryRequestDTO();
         }
         IPage<AiPromptResponseDTO> result = baseMapper.queryPage(page, param);
@@ -162,7 +162,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     @Override
     public BaseResponse<AiPromptResponseDTO> submit(AiPromptUpdateRequestDTO request) {
         String rawContent = StringUtils.trimToNull(request.getPromptContent());
-        if (rawContent == null) {
+        if (Objects.isNull(rawContent)) {
             throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
 
@@ -175,7 +175,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
         entity.setScene(request.getScene());
 
 
-        if (promptKey == null) {
+        if (Objects.isNull(promptKey)) {
             // 无 promptKey → 新建
             entity.setPromptKey(KeyGenerator.generateUniquePromptKey());
             entity.setVersion(1);
@@ -204,7 +204,7 @@ public class AiPromptServiceImpl extends ServiceImpl<AiPromptMapper, AiPromptEnt
     @Override
     public BaseResponse<String> beautify(String promptContent) {
         String rawContent = StringUtils.trimToNull(promptContent);
-        if (rawContent == null) {
+        if (Objects.isNull(rawContent)) {
             throw new BusinessException(AiPromptErrorEnum.PROMPT_PARAM_ERROR);
         }
         String result = promptAssistant.submit(rawContent, UUID.randomUUID().toString());

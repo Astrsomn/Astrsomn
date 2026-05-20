@@ -23,6 +23,7 @@ import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.internal.storage.config.StorageProperties;
 import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
@@ -62,6 +63,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -100,20 +102,20 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
     @Override
     public BaseResponse<AiVecDocResponseDTO> upload(MultipartFile file, Long collectionId, Long folderId) {
-        if (file == null || file.isEmpty()) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "文件为空");
+        if (Objects.isNull(file) || file.isEmpty()) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "File is empty");
         }
-        if (collectionId == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "collectionId 不能为空");
+        if (Objects.isNull(collectionId)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "collectionId is required");
         }
         com.astrsomn.api.vector.entity.AiVecStoreEntity store = aiVecStoreService.getById(collectionId);
-        if (store == null) {
+        if (Objects.isNull(store)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_STORE_NOT_FOUND);
         }
 
         String originalFileName = file.getOriginalFilename();
-        if (originalFileName == null || !DocumentParserRegistry.isSupported(originalFileName)) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_TEXT, "支持的格式: .txt, .pdf, .doc, .docx, .md");
+        if (Objects.isNull(originalFileName) || !DocumentParserRegistry.isSupported(originalFileName)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_TEXT, "Supported formats: .txt, .pdf, .doc, .docx, .md");
         }
 
         StorageUploadResult uploadResult = astrsomnStorageClient.upload(StorageUploadRequest.builder()
@@ -144,9 +146,9 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
                 .eq(AiVecDocEntity::getOriginalFileName, originalFileName)
                 .eq(folderId != null, AiVecDocEntity::getFolderId, folderId)
                 .isNull(folderId == null, AiVecDocEntity::getFolderId));
-        if (existCount != null && existCount > 0) {
+        if (Objects.nonNull(existCount) && existCount > 0) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_DUPLICATE_FILE,
-                    "同文件夹下已存在同名文件: " + originalFileName);
+                    "Duplicate file in folder: " + originalFileName);
         }
 
         AiVecDocEntity entity = new AiVecDocEntity();
@@ -171,39 +173,39 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
     @Override
     public BaseResponse<String> vectorize(Long id) {
-        if (id == null) {
+        if (Objects.isNull(id)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR);
         }
         AiVecDocEntity doc = getById(id);
-        if (doc == null) {
+        if (Objects.isNull(doc)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_NOT_FOUND);
         }
         String statusRaw = StringUtils.trimToNull(doc.getSyncStatus());
-        if (statusRaw == null
+        if (Objects.isNull(statusRaw)
                 || (!AiVecDocEnum.SyncStatus.PENDING.getCode().equalsIgnoreCase(statusRaw)
                     && !AiVecDocEnum.SyncStatus.CHUNKED.getCode().equalsIgnoreCase(statusRaw))) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_STATUS_INVALID);
         }
-        if (doc.getCollectionId() == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "文档未关联向量集合");
+        if (Objects.isNull(doc.getCollectionId())) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Document not associated with a vector collection");
         }
         if (StringUtils.isBlank(doc.getFilePath())) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_READABLE, "文件路径为空");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_READABLE, "File path is empty");
         }
 
         com.astrsomn.api.vector.entity.AiVecStoreEntity store = aiVecStoreService.getById(doc.getCollectionId());
-        if (store == null) {
+        if (Objects.isNull(store)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_STORE_NOT_FOUND);
         }
         if (StringUtils.isBlank(store.getInstanceKey())) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "向量集合未配置嵌入实例 instanceKey");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Vector store has no embedding instanceKey configured");
         }
 
         String taskId = UUID.randomUUID().toString().replace("-", "");
         doc.setSyncStatus(AiVecDocEnum.SyncStatus.VECTORING.getCode());
         doc.setVectorizeTaskId(taskId);
         doc.setVectorizeProgress(0);
-        doc.setVectorizeMsg("准备中...");
+        doc.setVectorizeMsg("Preparing...");
         doc.setTotalSegments(0);
         doc.setDoneSegments(0);
         updateById(doc);
@@ -216,7 +218,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     @Override
     public AiVecDocVectorizeProgressDTO getVectorizeProgress(Long id) {
         AiVecDocEntity doc = getById(id);
-        if (doc == null) {
+        if (Objects.isNull(doc)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_NOT_FOUND);
         }
         AiVecDocVectorizeProgressDTO dto = new AiVecDocVectorizeProgressDTO();
@@ -233,7 +235,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     public void doVectorizeAsync(Long docId, String taskId) {
         try {
             AiVecDocEntity doc = getById(docId);
-            if (doc != null && AiVecDocEnum.SyncStatus.CHUNKED.getCode().equalsIgnoreCase(doc.getSyncStatus())) {
+            if (Objects.nonNull(doc) && AiVecDocEnum.SyncStatus.CHUNKED.getCode().equalsIgnoreCase(doc.getSyncStatus())) {
                 doVectorizeFromChunks(docId);
             } else {
                 doVectorizeSync(docId);
@@ -243,21 +245,21 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             markVectorizeFailed(docId, e.getMessage());
         } catch (Exception e) {
             log.error("vectorize async unexpected error docId={}", docId, e);
-            markVectorizeFailed(docId, "向量化异常: " + e.getMessage());
+            markVectorizeFailed(docId, "Vectorization error: " + e.getMessage());
         }
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void doVectorizeSync(Long docId) {
         AiVecDocEntity doc = getById(docId);
-        if (doc == null) {
+        if (Objects.isNull(doc)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_NOT_FOUND);
         }
 
-        updateProgress(docId, 5, "正在解析文档...");
+        updateProgress(docId, 5, "Parsing document...");
 
         com.astrsomn.api.vector.entity.AiVecStoreEntity store = aiVecStoreService.getById(doc.getCollectionId());
-        if (store == null) {
+        if (Objects.isNull(store)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_STORE_NOT_FOUND);
         }
 
@@ -274,7 +276,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         EmbeddingModel embeddingModel = resolveEmbeddingModel(store);
 
         String fullText;
-        String fileName = doc.getOriginalFileName() != null ? doc.getOriginalFileName() : "unknown.txt";
+        String fileName = Objects.nonNull(doc.getOriginalFileName()) ? doc.getOriginalFileName() : "unknown.txt";
         try (InputStream inputStream = openDocInputStream(doc)) {
             fullText = DocumentParserRegistry.parseFile(fileName, inputStream);
         } catch (IOException e) {
@@ -283,15 +285,14 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         }
 
         if (StringUtils.isBlank(fullText)) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "文件内容为空");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "File content is empty");
         }
 
-        updateProgress(docId, 15, "正在分块...");
+        updateProgress(docId, 15, "Splitting into chunks...");
 
-        // 从集合配置读取切片参数
-        int chunkSize = store.getChunkSize() != null && store.getChunkSize() > 0
+        int chunkSize = Objects.nonNull(store.getChunkSize()) && store.getChunkSize() > 0
                 ? store.getChunkSize() : DEFAULT_CHUNK_SIZE;
-        int chunkOverlap = store.getChunkOverlap() != null && store.getChunkOverlap() >= 0
+        int chunkOverlap = Objects.nonNull(store.getChunkOverlap()) && store.getChunkOverlap() >= 0
                 ? store.getChunkOverlap() : DEFAULT_CHUNK_OVERLAP;
         AiVecChunkStrategyEnum strategy = AiVecChunkStrategyEnum.fromCodeOrDefault(store.getChunkStrategy());
         String instructionPrefix = StringUtils.trimToNull(store.getInstructionPrefix());
@@ -301,9 +302,9 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         List<TextSegment> splitSegments = chunkStrategy.split(Document.from(fullText), chunkSize, chunkOverlap);
         List<TextSegment> embeddedSegments = new ArrayList<>(splitSegments.size());
         for (TextSegment ts : splitSegments) {
-            Metadata meta = ts.metadata() != null ? ts.metadata().copy() : new Metadata();
+            Metadata meta = Objects.nonNull(ts.metadata()) ? ts.metadata().copy() : new Metadata();
             meta.put(VecDocMetadataKeys.DOC_ID_IN_STORE, logicalDocId);
-            String segText = instructionPrefix != null
+            String segText = Objects.nonNull(instructionPrefix)
                     ? instructionPrefix + ts.text()
                     : ts.text();
             embeddedSegments.add(TextSegment.from(segText, meta));
@@ -311,7 +312,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
         int totalSegs = embeddedSegments.size();
         updateTotalSegments(docId, totalSegs);
-        updateProgress(docId, 20, "共 " + totalSegs + " 个切片，正在生成向量...");
+        updateProgress(docId, 20, totalSegs + " chunks, generating embeddings...");
 
         int batchSize = 10;
         List<Embedding> allEmbeddings = new ArrayList<>(totalSegs);
@@ -326,17 +327,17 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
                 throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, e.getMessage());
             }
             List<Embedding> batchEmbeddings = embedResp.content();
-            if (batchEmbeddings == null || batchEmbeddings.size() != batch.size()) {
-                throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "嵌入结果数量与切片不一致");
+            if (Objects.isNull(batchEmbeddings) || batchEmbeddings.size() != batch.size()) {
+                throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "Embedding result count does not match chunk count");
             }
             allEmbeddings.addAll(batchEmbeddings);
 
             int done = end;
             int progress = 20 + (int) ((done * 60.0) / totalSegs);
-            updateDoneSegments(docId, done, progress, "正在生成向量... (" + done + "/" + totalSegs + ")");
+            updateDoneSegments(docId, done, progress, "Generating embeddings... (" + done + "/" + totalSegs + ")");
         }
 
-        updateProgress(docId, 80, "正在写入向量库...");
+        updateProgress(docId, 80, "Writing to vector store...");
 
         List<String> vectorIds;
         try {
@@ -345,11 +346,11 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             log.error("embedding store add failed docId={}", docId, e);
             throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, e.getMessage());
         }
-        if (vectorIds == null || vectorIds.size() != embeddedSegments.size()) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "向量库返回 ID 数量与切片不一致");
+        if (Objects.isNull(vectorIds) || vectorIds.size() != embeddedSegments.size()) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "Vector store returned ID count does not match chunk count");
         }
 
-        updateProgress(docId, 90, "正在保存切片记录...");
+        updateProgress(docId, 90, "Saving segment records...");
 
         List<AiVecSegmentEntity> rows = new ArrayList<>(embeddedSegments.size());
         long idx = 0;
@@ -366,7 +367,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         }
         boolean segOk = aiVecSegmentService.saveBatch(rows);
         if (!segOk) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "切片落库失败");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "Failed to save segment records");
         }
 
         String summary = fullText.length() > 500 ? fullText.substring(0, 500) : fullText;
@@ -376,7 +377,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         doc.setSyncStatus(AiVecDocEnum.SyncStatus.STORED.getCode());
         doc.setContentSummary(summary);
         doc.setVectorizeProgress(100);
-        doc.setVectorizeMsg("向量化完成");
+        doc.setVectorizeMsg("Vectorization complete");
         updateById(doc);
     }
 
@@ -420,31 +421,31 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
     @Override
     public BaseResponse<String> chunk(Long id) {
-        if (id == null) {
+        if (Objects.isNull(id)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR);
         }
         AiVecDocEntity doc = getById(id);
-        if (doc == null) {
+        if (Objects.isNull(doc)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_NOT_FOUND);
         }
         String statusRaw = StringUtils.trimToNull(doc.getSyncStatus());
-        if (statusRaw == null
+        if (Objects.isNull(statusRaw)
                 || (!AiVecDocEnum.SyncStatus.PENDING.getCode().equalsIgnoreCase(statusRaw)
                     && !AiVecDocEnum.SyncStatus.FAILED.getCode().equalsIgnoreCase(statusRaw))) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_STATUS_INVALID, "仅支持对待向量化或失败的文档执行切片");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_STATUS_INVALID, "Only PENDING or FAILED documents can be chunked");
         }
-        if (doc.getCollectionId() == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "文档未关联向量集合");
+        if (Objects.isNull(doc.getCollectionId())) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Document not associated with a vector collection");
         }
         if (StringUtils.isBlank(doc.getFilePath())) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_READABLE, "文件路径为空");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_READABLE, "File path is empty");
         }
 
         String taskId = UUID.randomUUID().toString().replace("-", "");
         doc.setSyncStatus(AiVecDocEnum.SyncStatus.CHUNKING.getCode());
         doc.setVectorizeTaskId(taskId);
         doc.setVectorizeProgress(0);
-        doc.setVectorizeMsg("准备切片...");
+        doc.setVectorizeMsg("Preparing to chunk...");
         doc.setTotalSegments(0);
         doc.setDoneSegments(0);
         updateById(doc);
@@ -463,26 +464,26 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             markVectorizeFailed(docId, e.getMessage());
         } catch (Exception e) {
             log.error("chunk async unexpected error docId={}", docId, e);
-            markVectorizeFailed(docId, "切片异常: " + e.getMessage());
+            markVectorizeFailed(docId, "Chunk error: " + e.getMessage());
         }
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void doChunkSync(Long docId) {
         AiVecDocEntity doc = getById(docId);
-        if (doc == null) {
+        if (Objects.isNull(doc)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_NOT_FOUND);
         }
 
-        updateProgress(docId, 5, "正在解析文档...");
+        updateProgress(docId, 5, "Parsing document...");
 
         com.astrsomn.api.vector.entity.AiVecStoreEntity store = aiVecStoreService.getById(doc.getCollectionId());
-        if (store == null) {
+        if (Objects.isNull(store)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_STORE_NOT_FOUND);
         }
 
         String fullText;
-        String fileName = doc.getOriginalFileName() != null ? doc.getOriginalFileName() : "unknown.txt";
+        String fileName = Objects.nonNull(doc.getOriginalFileName()) ? doc.getOriginalFileName() : "unknown.txt";
         try (InputStream inputStream = openDocInputStream(doc)) {
             fullText = DocumentParserRegistry.parseFile(fileName, inputStream);
         } catch (IOException e) {
@@ -491,14 +492,14 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         }
 
         if (StringUtils.isBlank(fullText)) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "文件内容为空");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "File content is empty");
         }
 
-        updateProgress(docId, 30, "正在分块...");
+        updateProgress(docId, 30, "Splitting into chunks...");
 
-        int chunkSize = store.getChunkSize() != null && store.getChunkSize() > 0
+        int chunkSize = Objects.nonNull(store.getChunkSize()) && store.getChunkSize() > 0
                 ? store.getChunkSize() : DEFAULT_CHUNK_SIZE;
-        int chunkOverlap = store.getChunkOverlap() != null && store.getChunkOverlap() >= 0
+        int chunkOverlap = Objects.nonNull(store.getChunkOverlap()) && store.getChunkOverlap() >= 0
                 ? store.getChunkOverlap() : DEFAULT_CHUNK_OVERLAP;
         AiVecChunkStrategyEnum strategy = AiVecChunkStrategyEnum.fromCodeOrDefault(store.getChunkStrategy());
         String instructionPrefix = StringUtils.trimToNull(store.getInstructionPrefix());
@@ -508,9 +509,9 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         List<TextSegment> splitSegments = chunkStrategy.split(Document.from(fullText), chunkSize, chunkOverlap);
         List<TextSegment> processedSegments = new ArrayList<>(splitSegments.size());
         for (TextSegment ts : splitSegments) {
-            Metadata meta = ts.metadata() != null ? ts.metadata().copy() : new Metadata();
+            Metadata meta = Objects.nonNull(ts.metadata()) ? ts.metadata().copy() : new Metadata();
             meta.put(VecDocMetadataKeys.DOC_ID_IN_STORE, logicalDocId);
-            String segText = instructionPrefix != null
+            String segText = Objects.nonNull(instructionPrefix)
                     ? instructionPrefix + ts.text()
                     : ts.text();
             processedSegments.add(TextSegment.from(segText, meta));
@@ -518,7 +519,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
         int totalSegs = processedSegments.size();
         updateTotalSegments(docId, totalSegs);
-        updateProgress(docId, 60, "共 " + totalSegs + " 个切片，正在保存...");
+        updateProgress(docId, 60, totalSegs + " chunks, saving...");
 
         List<AiVecSegmentEntity> rows = new ArrayList<>(totalSegs);
         long idx = 0;
@@ -532,10 +533,10 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             rows.add(row);
         }
 
-        updateProgress(docId, 80, "正在保存切片记录...");
+        updateProgress(docId, 80, "Saving segment records...");
         boolean segOk = aiVecSegmentService.saveBatch(rows);
         if (!segOk) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "切片落库失败");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "Failed to save segment records");
         }
 
         String summary = fullText.length() > 500 ? fullText.substring(0, 500) : fullText;
@@ -545,7 +546,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         doc.setSyncStatus(AiVecDocEnum.SyncStatus.CHUNKED.getCode());
         doc.setContentSummary(summary);
         doc.setVectorizeProgress(100);
-        doc.setVectorizeMsg("切片完成");
+        doc.setVectorizeMsg("Chunking complete");
         doc.setDoneSegments(totalSegs);
         updateById(doc);
     }
@@ -555,14 +556,14 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     @Transactional(rollbackFor = Exception.class)
     public void doVectorizeFromChunks(Long docId) {
         AiVecDocEntity doc = getById(docId);
-        if (doc == null) {
+        if (Objects.isNull(doc)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_NOT_FOUND);
         }
 
-        updateProgress(docId, 5, "正在加载切片...");
+        updateProgress(docId, 5, "Loading chunks...");
 
         com.astrsomn.api.vector.entity.AiVecStoreEntity store = aiVecStoreService.getById(doc.getCollectionId());
-        if (store == null) {
+        if (Objects.isNull(store)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_STORE_NOT_FOUND);
         }
 
@@ -585,12 +586,12 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
                 new LambdaQueryWrapper<AiVecSegmentEntity>()
                         .eq(AiVecSegmentEntity::getDocId, docId)
                         .orderByAsc(AiVecSegmentEntity::getChunkIndex));
-        if (dbSegments == null || dbSegments.isEmpty()) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "未找到切片记录，请先执行切片");
+        if (CollectionUtils.isEmpty(dbSegments)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "No segment records found, run chunk first");
         }
 
         String logicalDocId = StringUtils.trimToNull(doc.getDocIdInStore());
-        if (logicalDocId == null) {
+        if (Objects.isNull(logicalDocId)) {
             logicalDocId = UUID.randomUUID().toString().replace("-", "");
         }
 
@@ -599,14 +600,14 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         for (AiVecSegmentEntity seg : dbSegments) {
             Metadata meta = new Metadata();
             meta.put(VecDocMetadataKeys.DOC_ID_IN_STORE, logicalDocId);
-            String segText = instructionPrefix != null
+            String segText = Objects.nonNull(instructionPrefix)
                     ? instructionPrefix + seg.getSegmentContent()
                     : seg.getSegmentContent();
             embeddedSegments.add(TextSegment.from(segText, meta));
         }
 
         updateTotalSegments(docId, totalSegs);
-        updateProgress(docId, 10, "共 " + totalSegs + " 个切片，正在生成向量...");
+        updateProgress(docId, 10, totalSegs + " chunks, generating embeddings...");
 
         int batchSize = 10;
         List<Embedding> allEmbeddings = new ArrayList<>(totalSegs);
@@ -621,17 +622,17 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
                 throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, e.getMessage());
             }
             List<Embedding> batchEmbeddings = embedResp.content();
-            if (batchEmbeddings == null || batchEmbeddings.size() != batch.size()) {
-                throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "嵌入结果数量与切片不一致");
+            if (Objects.isNull(batchEmbeddings) || batchEmbeddings.size() != batch.size()) {
+                throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "Embedding result count does not match chunk count");
             }
             allEmbeddings.addAll(batchEmbeddings);
 
             int done = end;
             int progress = 10 + (int) ((done * 60.0) / totalSegs);
-            updateDoneSegments(docId, done, progress, "正在生成向量... (" + done + "/" + totalSegs + ")");
+            updateDoneSegments(docId, done, progress, "Generating embeddings... (" + done + "/" + totalSegs + ")");
         }
 
-        updateProgress(docId, 75, "正在写入向量库...");
+        updateProgress(docId, 75, "Writing to vector store...");
 
         List<String> vectorIds;
         try {
@@ -640,11 +641,11 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             log.error("embedding store add failed docId={}", docId, e);
             throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, e.getMessage());
         }
-        if (vectorIds == null || vectorIds.size() != embeddedSegments.size()) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "向量库返回 ID 数量与切片不一致");
+        if (Objects.isNull(vectorIds) || vectorIds.size() != embeddedSegments.size()) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "Vector store returned ID count does not match chunk count");
         }
 
-        updateProgress(docId, 90, "正在更新切片记录...");
+        updateProgress(docId, 90, "Updating segment records...");
 
         for (int i = 0; i < dbSegments.size(); i++) {
             AiVecSegmentEntity seg = dbSegments.get(i);
@@ -652,7 +653,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         }
         boolean segOk = aiVecSegmentService.updateBatchById(dbSegments);
         if (!segOk) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "更新切片向量ID失败");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "Failed to update segment vector IDs");
         }
 
         doc = new AiVecDocEntity();
@@ -660,7 +661,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         doc.setDocIdInStore(logicalDocId);
         doc.setSyncStatus(AiVecDocEnum.SyncStatus.STORED.getCode());
         doc.setVectorizeProgress(100);
-        doc.setVectorizeMsg("向量化完成");
+        doc.setVectorizeMsg("Vectorization complete");
         updateById(doc);
     }
 
@@ -669,39 +670,40 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> reChunk(Long id) {
-        if (id == null) {
+        if (Objects.isNull(id)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR);
         }
         AiVecDocEntity doc = getById(id);
-        if (doc == null) {
+        if (Objects.isNull(doc)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_NOT_FOUND);
         }
         String status = StringUtils.trimToNull(doc.getSyncStatus());
-        if (status == null) {
+        if (Objects.isNull(status)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_STATUS_INVALID);
         }
         String upperStatus = status.toUpperCase();
-        if (!"CHUNKED".equals(upperStatus) && !"STORED".equals(upperStatus) && !"FAILED".equals(upperStatus)) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_STATUS_INVALID, "仅支持对已切片、已入库或失败的文档重新切片");
+        if (!AiVecDocEnum.SyncStatus.CHUNKED.getCode().equalsIgnoreCase(upperStatus)
+                && !AiVecDocEnum.SyncStatus.STORED.getCode().equalsIgnoreCase(upperStatus)
+                && !AiVecDocEnum.SyncStatus.FAILED.getCode().equalsIgnoreCase(upperStatus)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_STATUS_INVALID, "Only CHUNKED, STORED or FAILED documents can be re-chunked");
         }
 
         com.astrsomn.api.vector.entity.AiVecStoreEntity store = aiVecStoreService.getById(doc.getCollectionId());
-        if (store == null) {
+        if (Objects.isNull(store)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_STORE_NOT_FOUND);
         }
 
-        // Delete old vectors if STORED
-        if ("STORED".equals(upperStatus) && StringUtils.isNotBlank(doc.getDocIdInStore())) {
+        if (AiVecDocEnum.SyncStatus.STORED.getCode().equalsIgnoreCase(upperStatus) && StringUtils.isNotBlank(doc.getDocIdInStore())) {
             try {
                 VecSource vecSource = astroVecSourceFactory.tryGetActiveSource(store.getSourceId())
                         .orElse(null);
-                if (vecSource != null) {
+                if (Objects.nonNull(vecSource)) {
                     VecStore vecStore = vecSource.openStore(store);
                     var vecDoc = vecStore.bindDoc(doc);
                     vecDoc.deleteAllEmbeddingsInStore();
                 }
             } catch (Exception e) {
-                log.warn("reChunk: 删除旧向量失败 docId={}, 继续执行", id, e);
+                log.warn("reChunk: failed to delete old vectors docId={}, continuing", id, e);
             }
         }
 
@@ -715,7 +717,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         doc.setDocIdInStore(null);
         doc.setVectorizeTaskId(taskId);
         doc.setVectorizeProgress(0);
-        doc.setVectorizeMsg("准备重新切片...");
+        doc.setVectorizeMsg("Preparing to re-chunk...");
         doc.setTotalSegments(0);
         doc.setDoneSegments(0);
         updateById(doc);
@@ -728,56 +730,55 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> reVectorize(Long id) {
-        if (id == null) {
+        if (Objects.isNull(id)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR);
         }
         AiVecDocEntity doc = getById(id);
-        if (doc == null) {
+        if (Objects.isNull(doc)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_NOT_FOUND);
         }
         String status = StringUtils.trimToNull(doc.getSyncStatus());
-        if (status == null) {
+        if (Objects.isNull(status)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_STATUS_INVALID);
         }
         String upperStatus = status.toUpperCase();
-        if (!"STORED".equals(upperStatus) && !"FAILED".equals(upperStatus) && !"CHUNKED".equals(upperStatus)) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_STATUS_INVALID, "仅支持对已切片、已入库或失败的文档重新向量化");
+        if (!AiVecDocEnum.SyncStatus.STORED.getCode().equalsIgnoreCase(upperStatus)
+                && !AiVecDocEnum.SyncStatus.FAILED.getCode().equalsIgnoreCase(upperStatus)
+                && !AiVecDocEnum.SyncStatus.CHUNKED.getCode().equalsIgnoreCase(upperStatus)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_STATUS_INVALID, "Only CHUNKED, STORED or FAILED documents can be re-vectorized");
         }
-        if (doc.getCollectionId() == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "文档未关联向量集合");
+        if (Objects.isNull(doc.getCollectionId())) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Document not associated with a vector collection");
         }
 
         com.astrsomn.api.vector.entity.AiVecStoreEntity store = aiVecStoreService.getById(doc.getCollectionId());
-        if (store == null) {
+        if (Objects.isNull(store)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_STORE_NOT_FOUND);
         }
 
-        // 物理删除旧向量
-        if ("STORED".equals(upperStatus) && StringUtils.isNotBlank(doc.getDocIdInStore())) {
+        if (AiVecDocEnum.SyncStatus.STORED.getCode().equalsIgnoreCase(upperStatus) && StringUtils.isNotBlank(doc.getDocIdInStore())) {
             try {
                 VecSource vecSource = astroVecSourceFactory.tryGetActiveSource(store.getSourceId())
                         .orElse(null);
-                if (vecSource != null) {
+                if (Objects.nonNull(vecSource)) {
                     VecStore vecStore = vecSource.openStore(store);
                     var vecDoc = vecStore.bindDoc(doc);
                     vecDoc.deleteAllEmbeddingsInStore();
                 }
             } catch (Exception e) {
-                log.warn("reVectorize: 删除旧向量失败 docId={}, 继续执行", id, e);
+                log.warn("reVectorize: failed to delete old vectors docId={}, continuing", id, e);
             }
         }
 
-        // 删除旧 segment 记录
         aiVecSegmentService.remove(new LambdaQueryWrapper<AiVecSegmentEntity>()
                 .eq(AiVecSegmentEntity::getDocId, id));
 
-        // 重置文档状态
         String taskId = UUID.randomUUID().toString().replace("-", "");
         doc.setSyncStatus(AiVecDocEnum.SyncStatus.VECTORING.getCode());
         doc.setDocIdInStore(null);
         doc.setVectorizeTaskId(taskId);
         doc.setVectorizeProgress(0);
-        doc.setVectorizeMsg("准备重新向量化...");
+        doc.setVectorizeMsg("Preparing to re-vectorize...");
         doc.setTotalSegments(0);
         doc.setDoneSegments(0);
         updateById(doc);
@@ -796,12 +797,12 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
                                 .eq(AiInstanceEntity::getDeleted, false)
                                 .last("LIMIT 1"));
-        if (instance == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "未找到嵌入实例: " + store.getInstanceKey());
+        if (Objects.isNull(instance)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Embedding instance not found: " + store.getInstanceKey());
         }
         String modelKey = StringUtils.trimToNull(instance.getModelKey());
-        if (modelKey == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "嵌入实例未配置 MODEL_KEY");
+        if (Objects.isNull(modelKey)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Embedding instance has no MODEL_KEY configured");
         }
         AiModelEntity model =
                 aiModelMapper.selectOne(
@@ -810,12 +811,12 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
                                 .eq(AiModelEntity::getDeleted, false)
                                 .last("LIMIT 1"));
-        if (model == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "未找到模型: " + modelKey);
+        if (Objects.isNull(model)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Model not found: " + modelKey);
         }
         String modelType = StringUtils.trimToNull(model.getModelType());
         if (!AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode().equalsIgnoreCase(modelType)) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "模型类型必须为 embedding");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Model type must be embedding");
         }
 
         AstroChatParam<EmbeddingModel> param =
@@ -827,15 +828,15 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         RuntimeChatParamMergeSupport.mergeModelSettingFromModel(param.getModelSetting(), model);
 
         String accountKey = StringUtils.trimToNull(instance.getAccountKey());
-        if (accountKey != null) {
+        if (Objects.nonNull(accountKey)) {
             AiAccountEntity account =
                     astAiAccountMapper.selectOne(
                             new LambdaQueryWrapper<AiAccountEntity>()
                                     .eq(AiAccountEntity::getAccountKey, accountKey)
                                     .eq(AiAccountEntity::getDeleted, false)
                                     .last("LIMIT 1"));
-            if (account == null) {
-                throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "未找到账号: " + accountKey);
+            if (Objects.isNull(account)) {
+                throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Account not found: " + accountKey);
             }
             RuntimeChatParamMergeSupport.mergeModelSettingFromAccount(param.getModelSetting(), account);
         }
@@ -845,13 +846,13 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
     private InputStream openDocInputStream(AiVecDocEntity doc) {
         String key = StringUtils.trimToNull(doc.getFilePath());
-        if (key == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_READABLE, "文件路径为空");
+        if (Objects.isNull(key)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_READABLE, "File path is empty");
         }
         String platform = storageProperties.getDefaultPlatform();
-        if (doc.getFileRecordId() != null) {
+        if (Objects.nonNull(doc.getFileRecordId())) {
             AstFileRecordEntity fileRow = astroFileRecordService.getById(doc.getFileRecordId());
-            if (fileRow != null && StringUtils.isNotBlank(fileRow.getPlatform())) {
+            if (Objects.nonNull(fileRow) && StringUtils.isNotBlank(fileRow.getPlatform())) {
                 platform = fileRow.getPlatform();
             }
         }
@@ -864,19 +865,19 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> delete(long[] ids) {
-        if (ids == null || ids.length == 0) {
+        if (Objects.isNull(ids) || ids.length == 0) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR);
         }
         for (long id : ids) {
             AiVecDocEntity doc = getById(id);
-            if (doc == null) {
+            if (Objects.isNull(doc)) {
                 continue;
             }
             List<AiVecSegmentEntity> segments =
                     aiVecSegmentService.list(
                             new LambdaQueryWrapper<AiVecSegmentEntity>()
                                     .eq(AiVecSegmentEntity::getDocId, id));
-            if (segments != null && !segments.isEmpty()) {
+            if (!CollectionUtils.isEmpty(segments)) {
                 long[] segmentIds = segments.stream()
                         .map(AiVecSegmentEntity::getId)
                         .filter(java.util.Objects::nonNull)
@@ -897,9 +898,9 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             return;
         }
         String platform = storageProperties.getDefaultPlatform();
-        if (doc.getFileRecordId() != null) {
+        if (Objects.nonNull(doc.getFileRecordId())) {
             AstFileRecordEntity fileRow = astroFileRecordService.getById(doc.getFileRecordId());
-            if (fileRow != null) {
+            if (Objects.nonNull(fileRow)) {
                 if (StringUtils.isNotBlank(fileRow.getPlatform())) {
                     platform = fileRow.getPlatform();
                 }
@@ -915,11 +916,11 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
     @Override
     public BaseResponse<String> update(AiVecDocUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR);
         }
         AiVecDocEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_NOT_FOUND);
         }
         AiVecDocEntity entity = new AiVecDocEntity();
@@ -935,7 +936,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     public PageResponse<AiVecDocResponseDTO> queryPage(BasePageRequest<AiVecDocQueryRequestDTO> request) {
         IPage<AiVecDocResponseDTO> page = PageUtils.buildPage(request);
         AiVecDocQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiVecDocQueryRequestDTO();
         }
         IPage<AiVecDocResponseDTO> result = baseMapper.queryPage(page, param);
@@ -945,7 +946,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     @Override
     public BaseResponse<AiVecDocResponseDTO> detail(Long id) {
         AiVecDocEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_NOT_FOUND);
         }
         AiVecDocResponseDTO responseDTO = new AiVecDocResponseDTO();

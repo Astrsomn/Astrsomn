@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +58,7 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
     @Override
     public BaseResponse<AiInstanceResponseDTO> detail(Long id) {
         AiInstanceResponseDTO dto = baseMapper.selectDetailDtoById(id);
-        if (dto == null) {
+        if (Objects.isNull(dto)) {
             throw new BusinessException(AiInstanceErrorEnum.INSTANCE_NOT_FOUND);
         }
         return BaseResponse.success(dto);
@@ -65,11 +66,11 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
 
     @Override
     public BaseResponse<String> update(AiInstanceUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiInstanceErrorEnum.INSTANCE_PARAM_ERROR);
         }
         AiInstanceEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AiInstanceErrorEnum.INSTANCE_NOT_FOUND);
         }
         AiInstanceEntity entity = new AiInstanceEntity();
@@ -87,7 +88,7 @@ public class AiInstanceServiceImpl extends ServiceImpl<AiInstanceMapper, AiInsta
     public PageResponse<AiInstanceResponseDTO> queryPage(BasePageRequest<AiInstanceQueryRequestDTO> request) {
         IPage<AiInstanceResponseDTO> page = PageUtils.buildPage(request);
         AiInstanceQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiInstanceQueryRequestDTO();
         }
         IPage<AiInstanceResponseDTO> result = baseMapper.queryPage(page, param);

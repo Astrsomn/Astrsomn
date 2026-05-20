@@ -4,6 +4,7 @@ import com.astrsomn.api.runtime.common.dto.model.AiModelCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.model.AiModelQueryRequestDTO;
 import com.astrsomn.api.runtime.common.dto.model.AiModelResponseDTO;
 import com.astrsomn.api.runtime.common.dto.model.AiModelUpdateRequestDTO;
+import com.astrsomn.api.runtime.common.constant.AiInstanceEnum;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
@@ -63,28 +64,28 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
 
     @Override
     public BaseResponse<String> generateInstances(long[] modelIds) {
-        if (modelIds == null || modelIds.length == 0) {
-            return BaseResponse.success("成功生成0个实例");
+        if (Objects.isNull(modelIds) || modelIds.length == 0) {
+            return BaseResponse.success("Generated 0 instances");
         }
         List<Long> ids = Arrays.stream(modelIds).boxed().toList();
         List<AiModelEntity> models = listByIds(ids);
         if (models.isEmpty()) {
-            return BaseResponse.success("成功生成0个实例");
+            return BaseResponse.success("Generated 0 instances");
         }
         Map<Long, AiModelEntity> modelMap = models.stream()
-                .filter(model -> model.getId() != null)
+                .filter(model -> Objects.nonNull(model.getId()))
                 .collect(Collectors.toMap(AiModelEntity::getId, Function.identity(), (left, right) -> left));
         int created = 0;
         for (Long modelId : ids) {
             AiModelEntity model = modelMap.get(modelId);
-            if (model == null || StringUtils.isBlank(model.getModelKey())) {
+            if (Objects.isNull(model) || StringUtils.isBlank(model.getModelKey())) {
                 continue;
             }
             AiInstanceEntity instance = new AiInstanceEntity();
             instance.setInstanceName(StringUtils.isBlank(model.getModelName()) ? model.getModelKey() : model.getModelName());
             instance.setInstanceKey(generateUniqueInstanceKey(model.getEnvCode()));
             instance.setModelKey(model.getModelKey());
-            instance.setStatus("enabled");
+            instance.setStatus(AiInstanceEnum.StatusEnum.ENABLED.getCode());
             instance.setEnvCode(model.getEnvCode());
             int inserted = aiInstanceMapper.insert(instance);
             if (inserted <= 0) {
@@ -92,14 +93,14 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
             }
             created++;
         }
-        return BaseResponse.success("成功生成" + created + "个实例");
+        return BaseResponse.success("Generated " + created + " instances");
     }
 
     @Override
     public PageResponse<AiModelResponseDTO> queryPage(BasePageRequest<AiModelQueryRequestDTO> request) {
         IPage<AiModelResponseDTO> page = PageUtils.buildPage(request);
         AiModelQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiModelQueryRequestDTO();
         }
         IPage<AiModelResponseDTO> result = baseMapper.queryPage(page, param);
@@ -109,7 +110,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
     @Override
     public BaseResponse<AiModelResponseDTO> detail(Long longId) {
         AiModelResponseDTO responseDTO = baseMapper.selectModelWithReferenceStatus(longId);
-        if (responseDTO == null) {
+        if (Objects.isNull(responseDTO)) {
             throw new BusinessException(AiModelErrorEnum.MODEL_NOT_FOUND);
         }
         return BaseResponse.success(responseDTO);
@@ -117,11 +118,11 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
 
     @Override
     public BaseResponse<String> updateModel(AiModelUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiModelErrorEnum.MODEL_PARAM_ERROR);
         }
         AiModelEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AiModelErrorEnum.MODEL_NOT_FOUND);
         }
         AiModelEntity entity = new AiModelEntity();
@@ -134,7 +135,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
                     ? EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties)
                     : existing.getEnvCode());
         }
-        if (entity.getIsDefault() == null) {
+        if (Objects.isNull(entity.getIsDefault())) {
             entity.setIsDefault(DEFAULT_NO);
         }
 
@@ -161,7 +162,7 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
         if (StringUtils.isBlank(entity.getEnvCode())) {
             entity.setEnvCode(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
         }
-        if (entity.getIsDefault() == null) {
+        if (Objects.isNull(entity.getIsDefault())) {
             entity.setIsDefault(DEFAULT_NO);
         }
 
@@ -210,17 +211,17 @@ public class AiModelServiceImpl extends ServiceImpl<AiModelMapper, AiModelEntity
             return;
         }
         if (StringUtils.isBlank(modelType)) {
-            throw new BusinessException(AiModelErrorEnum.MODEL_PARAM_ERROR, "默认模型必须指定模型类型");
+            throw new BusinessException(AiModelErrorEnum.MODEL_PARAM_ERROR, "Default model must specify model type");
         }
         if (StringUtils.isBlank(envCode)) {
-            throw new BusinessException(AiModelErrorEnum.MODEL_PARAM_ERROR, "默认模型必须指定环境编码");
+            throw new BusinessException(AiModelErrorEnum.MODEL_PARAM_ERROR, "Default model must specify environment code");
         }
         LambdaUpdateWrapper<AiModelEntity> clearDefaultWrapper = new LambdaUpdateWrapper<AiModelEntity>()
                 .eq(AiModelEntity::getEnvCode, envCode.trim())
                 .eq(AiModelEntity::getModelType, modelType.trim())
                 .eq(AiModelEntity::getIsDefault, DEFAULT_YES)
                 .set(AiModelEntity::getIsDefault, DEFAULT_NO);
-        if (excludeId != null) {
+        if (Objects.nonNull(excludeId)) {
             clearDefaultWrapper.ne(AiModelEntity::getId, excludeId);
         }
         update(clearDefaultWrapper);

@@ -20,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +52,7 @@ public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> i
     @Override
     public BaseResponse<AiToolResponseDTO> detail(Long id) {
         AiToolEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AiToolErrorEnum.TOOL_NOT_FOUND);
         }
         AiToolResponseDTO responseDTO = new AiToolResponseDTO();
@@ -61,11 +62,11 @@ public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> i
 
     @Override
     public BaseResponse<String> update(AiToolUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiToolErrorEnum.TOOL_PARAM_ERROR);
         }
         AiToolEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AiToolErrorEnum.TOOL_NOT_FOUND);
         }
         AiToolEntity entity = new AiToolEntity();
@@ -81,7 +82,7 @@ public class AiToolServiceImpl extends ServiceImpl<AiToolMapper, AiToolEntity> i
     public PageResponse<AiToolResponseDTO> queryPage(BasePageRequest<AiToolQueryRequestDTO> request) {
         IPage<AiToolResponseDTO> page = PageUtils.buildPage(request);
         AiToolQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiToolQueryRequestDTO();
         }
         IPage<AiToolResponseDTO> result = baseMapper.queryPage(page, param);

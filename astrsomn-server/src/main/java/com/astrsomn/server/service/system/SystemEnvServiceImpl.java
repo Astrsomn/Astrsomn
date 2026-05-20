@@ -19,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Service
 public class SystemEnvServiceImpl extends ServiceImpl<SystemEnvMapper, SystemEnvEntity> implements SystemEnvService {
@@ -45,7 +46,7 @@ public class SystemEnvServiceImpl extends ServiceImpl<SystemEnvMapper, SystemEnv
     @Override
     public BaseResponse<SystemEnvResponseDTO> detail(Long id) {
         SystemEnvEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(SystemEnvErrorEnum.ENV_NOT_FOUND);
         }
         SystemEnvResponseDTO responseDTO = new SystemEnvResponseDTO();
@@ -55,11 +56,11 @@ public class SystemEnvServiceImpl extends ServiceImpl<SystemEnvMapper, SystemEnv
 
     @Override
     public BaseResponse<String> update(SystemEnvUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(SystemEnvErrorEnum.ENV_PARAM_ERROR);
         }
         SystemEnvEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(SystemEnvErrorEnum.ENV_NOT_FOUND);
         }
         SystemEnvEntity entity = new SystemEnvEntity();

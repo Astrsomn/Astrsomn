@@ -6,7 +6,9 @@ import com.astrsomn.api.vector.dto.vecfolder.AiVecFolderResponseDTO;
 import com.astrsomn.api.vector.dto.vecfolder.AiVecFolderUpdateRequestDTO;
 import com.astrsomn.api.vector.entity.AiVecDocEntity;
 import com.astrsomn.api.vector.entity.AiVecFolderEntity;
+import com.astrsomn.api.vector.exception.AstVecFolderErrorEnum;
 import com.astrsomn.common.base.BaseResponse;
+import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiVecFolderMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -28,35 +31,35 @@ public class AiVecFolderServiceImpl extends ServiceImpl<AiVecFolderMapper, AiVec
 
     @Override
     public BaseResponse<String> create(AiVecFolderCreateRequestDTO request) {
-        if (request.getCollectionId() == null) {
-            return BaseResponse.fail("collectionId 不能为空");
+        if (Objects.isNull(request.getCollectionId())) {
+            throw new BusinessException(AstVecFolderErrorEnum.FOLDER_PARAM_ERROR, "collectionId is required");
         }
         if (StringUtils.isBlank(request.getFolderName())) {
-            return BaseResponse.fail("文件夹名称不能为空");
+            throw new BusinessException(AstVecFolderErrorEnum.FOLDER_PARAM_ERROR, "Folder name is required");
         }
         AiVecFolderEntity entity = new AiVecFolderEntity();
         BeanUtils.copyProperties(request, entity);
         boolean result = save(entity);
         if (!result) {
-            return BaseResponse.fail("创建文件夹失败");
+            throw new BusinessException(AstVecFolderErrorEnum.FOLDER_CREATE_FAILED);
         }
         return BaseResponse.success("success");
     }
 
     @Override
     public BaseResponse<String> update(AiVecFolderUpdateRequestDTO request) {
-        if (request.getId() == null) {
-            return BaseResponse.fail("id 不能为空");
+        if (Objects.isNull(request.getId())) {
+            throw new BusinessException(AstVecFolderErrorEnum.FOLDER_PARAM_ERROR, "id is required");
         }
         AiVecFolderEntity existing = getById(request.getId());
-        if (existing == null) {
-            return BaseResponse.fail("文件夹不存在");
+        if (Objects.isNull(existing)) {
+            throw new BusinessException(AstVecFolderErrorEnum.FOLDER_NOT_FOUND);
         }
         AiVecFolderEntity entity = new AiVecFolderEntity();
         BeanUtils.copyProperties(request, entity);
         boolean result = updateById(entity);
         if (!result) {
-            return BaseResponse.fail("更新文件夹失败");
+            throw new BusinessException(AstVecFolderErrorEnum.FOLDER_UPDATE_FAILED);
         }
         return BaseResponse.success("success");
     }
@@ -64,15 +67,14 @@ public class AiVecFolderServiceImpl extends ServiceImpl<AiVecFolderMapper, AiVec
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> delete(long[] ids) {
-        if (ids == null || ids.length == 0) {
-            return BaseResponse.fail("id 不能为空");
+        if (Objects.isNull(ids) || ids.length == 0) {
+            throw new BusinessException(AstVecFolderErrorEnum.FOLDER_PARAM_ERROR, "ids is required");
         }
         for (long id : ids) {
             AiVecFolderEntity folder = getById(id);
-            if (folder == null) {
+            if (Objects.isNull(folder)) {
                 continue;
             }
-            // 将子文件夹的 parentId 置空
             List<AiVecFolderEntity> children = list(
                     new LambdaQueryWrapper<AiVecFolderEntity>()
                             .eq(AiVecFolderEntity::getParentId, id));
@@ -80,7 +82,6 @@ public class AiVecFolderServiceImpl extends ServiceImpl<AiVecFolderMapper, AiVec
                 child.setParentId(null);
                 updateById(child);
             }
-            // 将关联文档的 folderId 置空
             List<AiVecDocEntity> docs = aiVecDocService.list(
                     new LambdaQueryWrapper<AiVecDocEntity>()
                             .eq(AiVecDocEntity::getFolderId, id));
@@ -101,17 +102,17 @@ public class AiVecFolderServiceImpl extends ServiceImpl<AiVecFolderMapper, AiVec
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> moveDocs(long[] docIds, Long folderId) {
-        if (docIds == null || docIds.length == 0) {
-            return BaseResponse.fail("文档 ID 不能为空");
+        if (Objects.isNull(docIds) || docIds.length == 0) {
+            throw new BusinessException(AstVecFolderErrorEnum.FOLDER_PARAM_ERROR, "docIds is required");
         }
         for (long docId : docIds) {
             AiVecDocEntity doc = aiVecDocService.getById(docId);
-            if (doc == null) {
+            if (Objects.isNull(doc)) {
                 continue;
             }
             doc.setFolderId(folderId);
             aiVecDocService.updateById(doc);
         }
-        return BaseResponse.success("移动成功");
+        return BaseResponse.success("success");
     }
 }

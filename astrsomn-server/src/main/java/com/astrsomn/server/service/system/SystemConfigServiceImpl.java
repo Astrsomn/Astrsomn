@@ -64,7 +64,7 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
             throw new BusinessException(SystemConfigErrorEnum.CONFIG_PARAM_ERROR);
         }
         SystemConfigEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(SystemConfigErrorEnum.CONFIG_NOT_FOUND);
         }
         SystemConfigEntity entity = new SystemConfigEntity();
@@ -80,7 +80,7 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     public PageResponse<SystemConfigResponseDTO> queryPage(BasePageRequest<SystemConfigQueryRequestDTO> request) {
         IPage<SystemConfigResponseDTO> page = PageUtils.buildPage(request);
         SystemConfigQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new SystemConfigQueryRequestDTO();
         }
         IPage<SystemConfigResponseDTO> result = baseMapper.queryPage(page, param);

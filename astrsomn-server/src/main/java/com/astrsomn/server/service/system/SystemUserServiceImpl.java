@@ -24,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +66,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     @Override
     public BaseResponse<SystemUserResponseDTO> detail(Long id) {
         SystemUserEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(SystemUserErrorEnum.USER_NOT_FOUND);
         }
         SystemUserResponseDTO responseDTO = new SystemUserResponseDTO();
@@ -75,14 +76,14 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
 
     @Override
     public BaseResponse<String> update(SystemUserUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(SystemUserErrorEnum.USER_PARAM_ERROR);
         }
         SystemUserEntity entity = new SystemUserEntity();
         BeanUtils.copyProperties(request, entity);
         applyUserRole(entity);
         SystemUserEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(SystemUserErrorEnum.USER_NOT_FOUND);
         }
         if (StringUtils.isBlank(entity.getPassword())) {
@@ -104,7 +105,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     public PageResponse<SystemUserResponseDTO> queryPage(BasePageRequest<SystemUserQueryRequestDTO> request) {
         IPage<SystemUserResponseDTO> page = PageUtils.buildPage(request);
         SystemUserQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new SystemUserQueryRequestDTO();
         }
         IPage<SystemUserResponseDTO> result = baseMapper.queryPage(page, param);

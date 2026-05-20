@@ -10,6 +10,7 @@ import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiAccountMapper;
@@ -39,10 +40,10 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         AiAccountEntity entity = new AiAccountEntity();
         BeanUtils.copyProperties(request, entity);
         // 加密API Key和Secret
-        if (request.getApiKey() != null) {
+        if (Objects.nonNull(request.getApiKey())) {
             entity.setApiKey(CryptoUtil.encrypt(request.getApiKey()));
         }
-        if (request.getApiSecret() != null) {
+        if (Objects.nonNull(request.getApiSecret())) {
             entity.setApiSecret(CryptoUtil.encrypt(request.getApiSecret()));
         }
 
@@ -65,7 +66,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
     @Override
     public BaseResponse<AiAccountResponseDTO> detail(Long id) {
         AiAccountEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AiAccountErrorEnum.ACCOUNT_NOT_FOUND);
         }
         AiAccountResponseDTO dto = new AiAccountResponseDTO();
@@ -77,26 +78,26 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
 
     @Override
     public BaseResponse<String> update(AiAccountUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiAccountErrorEnum.ACCOUNT_PARAM_ERROR);
         }
         AiAccountEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AiAccountErrorEnum.ACCOUNT_NOT_FOUND);
         }
         AiAccountEntity entity = new AiAccountEntity();
         BeanUtils.copyProperties(request, entity);
 
-        if (request.getApiKey() != null) {
+        if (Objects.nonNull(request.getApiKey())) {
             entity.setApiKey(CryptoUtil.encrypt(request.getApiKey()));
         }
-        if (request.getApiSecret() != null) {
+        if (Objects.nonNull(request.getApiSecret())) {
             entity.setApiSecret(CryptoUtil.encrypt(request.getApiSecret()));
         }
         if (isAccountKeyReferencedByInstance(existing.getAccountKey(), existing.getEnvCode())) {
             entity.setAccountKey(existing.getAccountKey());
         }
-        if (request.getStatus() != null) {
+        if (Objects.nonNull(request.getStatus())) {
             entity.setStatus(request.getStatus());
         }
         if (StringUtils.isNotBlank(request.getExtensionCode())) {
@@ -114,7 +115,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
     public PageResponse<AiAccountResponseDTO> queryPage(BasePageRequest<AiAccountQueryRequestDTO> request) {
         IPage<AiAccountResponseDTO> page = PageUtils.buildPage(request);
         AiAccountQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiAccountQueryRequestDTO();
         }
 
@@ -124,7 +125,7 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
     }
 
     private void fillAccountUsageStats(List<AiAccountResponseDTO> records) {
-        if (records == null || records.isEmpty()) {
+        if (CollectionUtils.isEmpty(records)) {
             return;
         }
 
@@ -138,29 +139,23 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         }
 
         List<AiAccountUsageStatsDTO> statsList = aiChatMessageMapper.selectUsageByAccountKeys( accountKeys);
-        Map<String, AiAccountUsageStatsDTO> statsMap = (statsList == null ? Collections.<AiAccountUsageStatsDTO>emptyList() : statsList)
+        Map<String, AiAccountUsageStatsDTO> statsMap = Optional.ofNullable(statsList)
+                .orElse(Collections.emptyList())
                 .stream()
                 .filter(Objects::nonNull)
                 .filter(item -> StringUtils.isNotBlank(item.getAccountKey()))
                 .collect(Collectors.toMap(AiAccountUsageStatsDTO::getAccountKey, Function.identity(), (left, right) -> left));
 
-        for (AiAccountResponseDTO dto : records) {
-            if (dto == null || StringUtils.isBlank(dto.getAccountKey())) {
-                continue;
-            }
-            AiAccountUsageStatsDTO stats = statsMap.get(dto.getAccountKey());
-            if (stats == null) {
-                dto.setCallCount(0L);
-                dto.setPromptTokens(0L);
-                dto.setCompletionTokens(0L);
-                dto.setTotalTokens(0L);
-                continue;
-            }
-            dto.setCallCount(stats.getCallCount() == null ? 0L : stats.getCallCount());
-            dto.setPromptTokens(stats.getPromptTokens() == null ? 0L : stats.getPromptTokens());
-            dto.setCompletionTokens(stats.getCompletionTokens() == null ? 0L : stats.getCompletionTokens());
-            dto.setTotalTokens(stats.getTotalTokens() == null ? 0L : stats.getTotalTokens());
-        }
+        records.stream()
+                .filter(Objects::nonNull)
+                .filter(dto -> StringUtils.isNotBlank(dto.getAccountKey()))
+                .forEach(dto -> {
+                    AiAccountUsageStatsDTO stats = statsMap.get(dto.getAccountKey());
+                    dto.setCallCount(Optional.ofNullable(stats).map(AiAccountUsageStatsDTO::getCallCount).orElse(0L));
+                    dto.setPromptTokens(Optional.ofNullable(stats).map(AiAccountUsageStatsDTO::getPromptTokens).orElse(0L));
+                    dto.setCompletionTokens(Optional.ofNullable(stats).map(AiAccountUsageStatsDTO::getCompletionTokens).orElse(0L));
+                    dto.setTotalTokens(Optional.ofNullable(stats).map(AiAccountUsageStatsDTO::getTotalTokens).orElse(0L));
+                });
     }
 
 

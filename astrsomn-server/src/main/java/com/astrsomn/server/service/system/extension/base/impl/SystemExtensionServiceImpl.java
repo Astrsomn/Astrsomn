@@ -38,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -54,15 +55,15 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     
     private static void fillAvatarFromDescriptors(
             SystemExtensionResponseDTO dto, Map<String, AstroExtensionDescriptor> descriptorsByKey) {
-        if (dto == null || StringUtils.isNotBlank(dto.getAvatar())) {
+        if (Objects.isNull(dto) || StringUtils.isNotBlank(dto.getAvatar())) {
             return;
         }
         String key = StringUtils.trimToNull(dto.getExtensionKey());
-        if (key == null) {
+        if (Objects.isNull(key)) {
             return;
         }
         AstroExtensionDescriptor d = descriptorsByKey.get(key);
-        if (d == null) {
+        if (Objects.isNull(d)) {
             return;
         }
         String svg = d.getAvatar();
@@ -76,16 +77,16 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         SystemExtensionEntity entity = new SystemExtensionEntity();
         BeanUtils.copyProperties(request, entity);
         if (StringUtils.isBlank(entity.getStatus())) {
-            entity.setStatus("INSTALLED");
+            entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
         }
         if (StringUtils.isBlank(entity.getApplied())) {
-            entity.setApplied("N");
+            entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
         }
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_CREATE_FAILED);
         }
-        return BaseResponse.success("安装成功，待应用");
+        return BaseResponse.success("Installed, pending apply");
     }
 
     @Override
@@ -100,7 +101,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     @Override
     public BaseResponse<SystemExtensionResponseDTO> detail(Long id) {
         SystemExtensionEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
         }
         SystemExtensionResponseDTO responseDTO = new SystemExtensionResponseDTO();
@@ -111,11 +112,11 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
 
     @Override
     public BaseResponse<String> update(SystemExtensionUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR);
         }
         SystemExtensionEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
         }
         SystemExtensionEntity entity = new SystemExtensionEntity();
@@ -131,13 +132,13 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     public PageResponse<SystemExtensionResponseDTO> queryPage(BasePageRequest<SystemExtensionQueryRequestDTO> request) {
         IPage<SystemExtensionResponseDTO> page = PageUtils.buildPage(request);
         SystemExtensionQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new SystemExtensionQueryRequestDTO();
         }
         IPage<SystemExtensionResponseDTO> result = baseMapper.queryPage(page, param);
         Map<String, AstroExtensionDescriptor> descriptorsByKey =
                 SystemExtensionRegistry.mergeDescriptors(applicationContext);
-        if (result.getRecords() != null) {
+        if (Objects.nonNull(result.getRecords())) {
             for (SystemExtensionResponseDTO row : result.getRecords()) {
                 fillAvatarFromDescriptors(row, descriptorsByKey);
             }
@@ -165,89 +166,85 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class) // 建议开启事务
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> uploadJar(MultipartFile file) {
 
-        // 1. 基础校验
-        if (file == null || file.isEmpty()) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "请选择 jar 文件");
+        // Validate input
+        if (Objects.isNull(file) || file.isEmpty()) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "Please select a jar file");
         }
 
         String originalName = file.getOriginalFilename();
         String safeJarName = ExtensionJarUtil.sanitizeJarFileName(originalName);
 
-        // 校验后缀，防止 substring 报错
         if (!safeJarName.toLowerCase().endsWith(".jar")) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "仅支持 .jar 格式文件");
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "Only .jar files are supported");
         }
 
         File pluginsDir = pluginManager.getPluginsDirectory();
         File destFile = new File(pluginsDir, safeJarName);
         if (destFile.exists()) {
-            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "plugins 目录下已存在同名文件: " + safeJarName);
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "File already exists in plugins directory: " + safeJarName);
         }
 
         String stem = safeJarName.substring(0, safeJarName.length() - 4);
         File tempJar = null;
 
         try {
-            // 2. 暂存并解析文件
+            // Stage and parse the uploaded file
             try {
                 tempJar = File.createTempFile("astro-ext-upload-", ".jar");
                 file.transferTo(tempJar);
             } catch (IOException e) {
-                log.error("暂存上传 jar 失败", e);
-                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UPLOAD_FAILED, "保存临时文件失败");
+                log.error("Failed to save uploaded jar to temp file", e);
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UPLOAD_FAILED, "Failed to save temp file");
             }
 
             Optional<SystemExtensionMetaData> jarMeta = ExtensionJarMetadataReader.tryLoad(tempJar);
             if (jarMeta.isEmpty()) {
-                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "未读取到扩展描述符，请确认 jar 内包含 AstroExtensionDescriptor SPI 配置");
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "Extension descriptor not found; ensure the jar contains AstroExtensionDescriptor SPI configuration");
             }
 
-            // 3. 业务逻辑校验（Key 冲突检查）
             String key = ExtensionJarUtil.resolveExtensionKeyForUpload(jarMeta, stem);
             if (StringUtils.isBlank(key)) {
-                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "extensionKey 无效");
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "Extension key is invalid");
             }
 
             boolean exists = baseMapper.exists(new LambdaQueryWrapper<SystemExtensionEntity>()
                     .eq(SystemExtensionEntity::getExtensionKey, key));
             if (exists) {
-                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "扩展 Key 已存在: " + key);
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_PARAM_ERROR, "Extension key already exists: " + key);
             }
 
-            // 4. 移动文件到目标目录
+            // Move file to target plugins directory
             try {
                 if (!pluginsDir.exists()) {
                     Files.createDirectories(pluginsDir.toPath());
                 }
                 Files.move(tempJar.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                log.error("移动插件 jar 失败: {}", safeJarName, e);
-                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UPLOAD_FAILED, "移动文件失败");
+                log.error("Failed to move plugin jar: {}", safeJarName, e);
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_UPLOAD_FAILED, "Failed to move file");
             }
 
-            // 5. 构建并保存实体
+            // Build and persist entity
             SystemExtensionEntity entity = buildExtensionEntity(key, safeJarName, stem, jarMeta.get());
 
-            // 从最终文件应用 Manifest 默认值
+            // Apply manifest defaults from the final file
             ExtensionJarUtil.applyManifestDefaults(destFile, entity);
 
             if (!save(entity)) {
-                // 手动清理已移动的文件（如果没开事务的话）
                 FileUtils.deleteQuietly(destFile);
-                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_CREATE_FAILED, "登记扩展记录失败");
+                throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_CREATE_FAILED, "Failed to register extension record");
             }
 
-            // 6. 刷新插件容器
+            // Refresh plugin container
             refreshPluginSafely();
 
-            return BaseResponse.success("上传成功并已登记。");
+            return BaseResponse.success("Uploaded and registered successfully");
 
         } finally {
-            // 确保临时文件一定被清理
-            if (tempJar != null && tempJar.exists()) {
+            if (Objects.nonNull(tempJar) && tempJar.exists()) {
                 FileUtils.deleteQuietly(tempJar);
             }
         }
@@ -261,7 +258,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         entity.setExtensionKey(key);
         entity.setJarName(jarName);
 
-        // 上传接口仅接收文件，扩展元数据统一从 jar 内描述符读取。
+        // Extension metadata is read from the jar descriptor
         entity.setExtensionName(StringUtils.trimToNull(meta.extensionName()));
         entity.setType(StringUtils.trimToNull(meta.type()));
         entity.setVersion(StringUtils.trimToNull(meta.version()));
@@ -272,7 +269,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
         entity.setChangelog(StringUtils.trimToNull(meta.changelog()));
         entity.setMinServerVersion(StringUtils.trimToNull(meta.minServerVersion()));
 
-        // 填充缺失默认值
+        // Fill missing defaults
         if (StringUtils.isBlank(entity.getExtensionName())) entity.setExtensionName(stem);
         if (StringUtils.isBlank(entity.getType()))
             entity.setType(SystemExtensionEnum.ExtensionTypeEnum.MODEL_PROVIDER.getCode());
@@ -281,7 +278,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
 
         entity.setApplied(SystemExtensionEnum.ApplyStatusEnum.N.getCode());
         entity.setStatus(SystemExtensionEnum.ExtensionInstallStatusEnum.INSTALLED.getCode());
-        // 上传进入 plugins 目录并受平台托管的扩展，显式标记来源与发现方式。
+        // Mark source and discovery mechanism for platform-managed extensions
         entity.setDiscoveryMechanism(SystemExtensionEnum.DiscoveryMechanismEnum.SPI.getCode());
         entity.setInstallSource(SystemExtensionEnum.InstallSourceEnum.PLUGIN_JAR_UPLOAD.getCode());
 
@@ -293,7 +290,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             pluginManager.reloadPlugins();
             pluginDirectoryExtensionSyncService.syncDiscoveredPlugins();
         } catch (Exception e) {
-            log.error("上传后 reloadPlugins 失败，请手动重试: {}", e.getMessage());
+            log.error("Post-upload reloadPlugins failed, retry manually: {}", e.getMessage());
         }
     }
 

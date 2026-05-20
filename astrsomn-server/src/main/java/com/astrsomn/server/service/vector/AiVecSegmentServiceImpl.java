@@ -47,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -75,12 +76,12 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> delete(long[] ids) {
-        if (ids == null || ids.length == 0) {
+        if (Objects.isNull(ids) || ids.length == 0) {
             throw new BusinessException(AstVecSegmentErrorEnum.SEGMENT_PARAM_ERROR);
         }
         for (long id : ids) {
             AiVecSegmentEntity segment = getById(id);
-            if (segment == null) {
+            if (Objects.isNull(segment)) {
                 continue;
             }
             deleteVectorBySegment(segment);
@@ -90,11 +91,11 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
     }
 
     private void deleteVectorBySegment(AiVecSegmentEntity segment) {
-        if (segment.getCollectionId() == null || segment.getVectorId() == null || segment.getVectorId().isBlank()) {
+        if (Objects.isNull(segment.getCollectionId()) || Objects.isNull(segment.getVectorId()) || segment.getVectorId().isBlank()) {
             return;
         }
         AiVecStoreEntity store = aiVecStoreService.getById(segment.getCollectionId());
-        if (store == null || store.getSourceId() == null) {
+        if (Objects.isNull(store) || Objects.isNull(store.getSourceId())) {
             return;
         }
         VecSource vecSource = astroVecSourceFactory.tryGetActiveSource(store.getSourceId())
@@ -110,11 +111,11 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
 
     @Override
     public BaseResponse<String> update(AiVecSegmentUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AstVecSegmentErrorEnum.SEGMENT_PARAM_ERROR);
         }
         AiVecSegmentEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AstVecSegmentErrorEnum.SEGMENT_NOT_FOUND);
         }
         AiVecSegmentEntity entity = new AiVecSegmentEntity();
@@ -130,7 +131,7 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
     public PageResponse<AiVecSegmentResponseDTO> queryPage(BasePageRequest<AiVecSegmentQueryRequestDTO> request) {
         IPage<AiVecSegmentResponseDTO> page = PageUtils.buildPage(request);
         AiVecSegmentQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiVecSegmentQueryRequestDTO();
         }
         IPage<AiVecSegmentResponseDTO> result = baseMapper.queryPage(page, param);
@@ -140,7 +141,7 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
     @Override
     public BaseResponse<AiVecSegmentResponseDTO> detail(Long id) {
         AiVecSegmentEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AstVecSegmentErrorEnum.SEGMENT_NOT_FOUND);
         }
         AiVecSegmentResponseDTO responseDTO = new AiVecSegmentResponseDTO();
@@ -150,15 +151,15 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
 
     @Override
     public List<AiVecSegmentSearchResultDTO> search(AiVecSegmentSearchRequestDTO request) {
-        if (request.getCollectionId() == null) {
-            throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR, "collectionId 不能为空");
+        if (Objects.isNull(request.getCollectionId())) {
+            throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR, "collectionId is required");
         }
         if (StringUtils.isBlank(request.getQueryText())) {
-            throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR, "queryText 不能为空");
+            throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR, "queryText is required");
         }
 
         AiVecStoreEntity store = aiVecStoreService.getById(request.getCollectionId());
-        if (store == null) {
+        if (Objects.isNull(store)) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_NOT_FOUND);
         }
 
@@ -173,11 +174,11 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
         Response<Embedding> embedResp = embeddingModel.embed(request.getQueryText());
         Embedding queryEmbedding = embedResp.content();
 
-        int topK = request.getTopK() != null && request.getTopK() > 0 ? request.getTopK() : 5;
+        int topK = Objects.nonNull(request.getTopK()) && request.getTopK() > 0 ? request.getTopK() : 5;
         var searchReqBuilder = EmbeddingSearchRequest.builder()
                 .queryEmbedding(queryEmbedding)
                 .maxResults(topK);
-        if (request.getMinScore() != null && request.getMinScore() > 0) {
+        if (Objects.nonNull(request.getMinScore()) && request.getMinScore() > 0) {
             searchReqBuilder.minScore(request.getMinScore());
         }
 
@@ -189,15 +190,15 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
             AiVecSegmentSearchResultDTO dto = new AiVecSegmentSearchResultDTO();
             dto.setScore(match.score());
             TextSegment segment = match.embedded();
-            if (segment != null) {
+            if (Objects.nonNull(segment)) {
                 dto.setSegmentContent(segment.text());
             }
             String vectorId = match.embeddingId();
-            if (vectorId != null) {
+            if (Objects.nonNull(vectorId)) {
                 AiVecSegmentEntity dbSegment = getOne(new LambdaQueryWrapper<AiVecSegmentEntity>()
                         .eq(AiVecSegmentEntity::getVectorId, vectorId)
                         .last("LIMIT 1"));
-                if (dbSegment != null) {
+                if (Objects.nonNull(dbSegment)) {
                     dto.setSegmentId(dbSegment.getId());
                     dto.setDocId(dbSegment.getDocId());
                     dto.setMetadataJson(dbSegment.getMetadataJson());
@@ -217,12 +218,12 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
 
                         .eq(AiInstanceEntity::getDeleted, false)
                         .last("LIMIT 1"));
-        if (instance == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "未找到嵌入实例: " + store.getInstanceKey());
+        if (Objects.isNull(instance)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Embedding instance not found: " + store.getInstanceKey());
         }
         String modelKey = StringUtils.trimToNull(instance.getModelKey());
-        if (modelKey == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "嵌入实例未配置 MODEL_KEY");
+        if (Objects.isNull(modelKey)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Embedding instance has no MODEL_KEY configured");
         }
         AiModelEntity model = aiModelMapper.selectOne(
                 new LambdaQueryWrapper<AiModelEntity>()
@@ -230,12 +231,12 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
 
                         .eq(AiModelEntity::getDeleted, false)
                         .last("LIMIT 1"));
-        if (model == null) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "未找到模型: " + modelKey);
+        if (Objects.isNull(model)) {
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Model not found: " + modelKey);
         }
         String modelType = StringUtils.trimToNull(model.getModelType());
         if (!AiModelEnum.ModelTypeEnum.EMBEDDING_MODEL.getCode().equalsIgnoreCase(modelType)) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "模型类型必须为 embedding");
+            throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Model type must be embedding");
         }
 
         AstroChatParam<EmbeddingModel> param =
@@ -247,13 +248,13 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
         RuntimeChatParamMergeSupport.mergeModelSettingFromModel(param.getModelSetting(), model);
 
         String accountKey = StringUtils.trimToNull(instance.getAccountKey());
-        if (accountKey != null) {
+        if (Objects.nonNull(accountKey)) {
             AiAccountEntity account = astAiAccountMapper.selectOne(
                     new LambdaQueryWrapper<AiAccountEntity>()
                             .eq(AiAccountEntity::getAccountKey, accountKey)
                             .eq(AiAccountEntity::getDeleted, false)
                             .last("LIMIT 1"));
-            if (account != null) {
+            if (Objects.nonNull(account)) {
                 RuntimeChatParamMergeSupport.mergeModelSettingFromAccount(param.getModelSetting(), account);
             }
         }

@@ -1,5 +1,6 @@
 package com.astrsomn.server.service.vector;
 
+import com.astrsomn.api.runtime.common.constant.AiInstanceEnum;
 import com.astrsomn.api.runtime.common.dto.instance.AiInstanceCreateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.vector.VecSource;
@@ -41,40 +42,40 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
     private final AstroVecSourceFactory astroVecSourceFactory;
 
     private static void mergeVecStoreUpdate(AiVecStoreEntity target, AiVecStoreUpdateRequestDTO req) {
-        if (req.getSourceId() != null) {
+        if (Objects.nonNull(req.getSourceId())) {
             target.setSourceId(req.getSourceId());
         }
-        if (req.getCollectionName() != null) {
+        if (Objects.nonNull(req.getCollectionName())) {
             target.setCollectionName(req.getCollectionName());
         }
-        if (req.getDimension() != null) {
+        if (Objects.nonNull(req.getDimension())) {
             target.setDimension(req.getDimension());
         }
-        if (req.getDistanceMetric() != null) {
+        if (Objects.nonNull(req.getDistanceMetric())) {
             target.setDistanceMetric(req.getDistanceMetric());
         }
-        if (req.getMetadataSchema() != null) {
+        if (Objects.nonNull(req.getMetadataSchema())) {
             target.setMetadataSchema(req.getMetadataSchema());
         }
-        if (req.getInstanceKey() != null) {
+        if (Objects.nonNull(req.getInstanceKey())) {
             target.setInstanceKey(req.getInstanceKey());
         }
-        if (req.getModelKey() != null) {
+        if (Objects.nonNull(req.getModelKey())) {
             target.setModelKey(req.getModelKey());
         }
-        if (req.getChunkStrategy() != null) {
+        if (Objects.nonNull(req.getChunkStrategy())) {
             target.setChunkStrategy(req.getChunkStrategy());
         }
-        if (req.getChunkSize() != null) {
+        if (Objects.nonNull(req.getChunkSize())) {
             target.setChunkSize(req.getChunkSize());
         }
-        if (req.getChunkOverlap() != null) {
+        if (Objects.nonNull(req.getChunkOverlap())) {
             target.setChunkOverlap(req.getChunkOverlap());
         }
-        if (req.getDenseWeight() != null) {
+        if (Objects.nonNull(req.getDenseWeight())) {
             target.setDenseWeight(req.getDenseWeight());
         }
-        if (req.getInstructionPrefix() != null) {
+        if (Objects.nonNull(req.getInstructionPrefix())) {
             target.setInstructionPrefix(req.getInstructionPrefix());
         }
 
@@ -116,7 +117,7 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
             instReq.setInstanceKey(autoInstanceKey);
             instReq.setModelKey(entity.getModelKey());
             instReq.setInstanceName("vec-auto-" + entity.getModelKey());
-            instReq.setStatus("enabled");
+            instReq.setStatus(AiInstanceEnum.StatusEnum.ENABLED.getCode());
             if (StringUtils.isNotBlank(request.getAccountKey())) {
                 instReq.setAccountKey(request.getAccountKey());
             }
@@ -132,14 +133,14 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         // 更新关联实例的 accountKey 和 bizKey
         String instanceKey = StringUtils.trimToNull(entity.getInstanceKey());
         String accountKey = StringUtils.trimToNull(request.getAccountKey());
-        if (instanceKey != null) {
+        if (Objects.nonNull(instanceKey)) {
             AiInstanceEntity inst = aiInstanceService.getOne(
                     new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AiInstanceEntity>()
                             .eq(AiInstanceEntity::getInstanceKey, instanceKey)
                             .last("LIMIT 1"));
-            if (inst != null) {
+            if (Objects.nonNull(inst)) {
                 boolean needUpdate = false;
-                if (accountKey != null && !accountKey.equals(StringUtils.trimToNull(inst.getAccountKey()))) {
+                if (Objects.nonNull(accountKey) && !accountKey.equals(StringUtils.trimToNull(inst.getAccountKey()))) {
                     inst.setAccountKey(accountKey);
                     needUpdate = true;
                 }
@@ -155,7 +156,7 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         }
 
         AiVecStoreEntity persisted = getById(entity.getId());
-        if (persisted == null) {
+        if (Objects.isNull(persisted)) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_CREATE_FAILED);
         }
         try {
@@ -172,12 +173,12 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
 
     @Override
     public BaseResponse<String> delete(long[] ids) {
-        if (ids == null || ids.length == 0) {
+        if (Objects.isNull(ids) || ids.length == 0) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR);
         }
         for (long id : ids) {
             AiVecStoreEntity snap = getById(id);
-            if (snap != null) {
+            if (Objects.nonNull(snap)) {
                 astroVecStorePhysicalOps.dropPhysical(snap);
             }
             removeById(id);
@@ -187,11 +188,11 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
 
     @Override
     public BaseResponse<String> update(AiVecStoreUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR);
         }
         AiVecStoreEntity before = getById(request.getId());
-        if (before == null) {
+        if (Objects.isNull(before)) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_NOT_FOUND);
         }
         AiVecStoreEntity after = new AiVecStoreEntity();
@@ -199,8 +200,8 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         mergeVecStoreUpdate(after, request);
 
         AiVecSourceEntity afterSrc = aiVecSourceService.getById(after.getSourceId());
-        if (afterSrc == null) {
-            throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR, "向量数据源不存在");
+        if (Objects.isNull(afterSrc)) {
+            throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR, "Vector data source not found");
         }
         boolean physical = physicalChanged(before, after, afterSrc);
         if (physical) {
@@ -212,20 +213,19 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         }
         if (physical) {
             AiVecStoreEntity persisted = getById(request.getId());
-            if (persisted != null) {
+            if (Objects.nonNull(persisted)) {
                 astroVecStorePhysicalOps.createPhysical(persisted);
             }
         }
 
-        // 更新关联实例的 accountKey
         String accountKey = StringUtils.trimToNull(request.getAccountKey());
         String instanceKey = StringUtils.trimToNull(after.getInstanceKey());
-        if (accountKey != null && instanceKey != null) {
+        if (Objects.nonNull(accountKey) && Objects.nonNull(instanceKey)) {
             AiInstanceEntity inst = aiInstanceService.getOne(
                     new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AiInstanceEntity>()
                             .eq(AiInstanceEntity::getInstanceKey, instanceKey)
                             .last("LIMIT 1"));
-            if (inst != null && !accountKey.equals(StringUtils.trimToNull(inst.getAccountKey()))) {
+            if (Objects.nonNull(inst) && !accountKey.equals(StringUtils.trimToNull(inst.getAccountKey()))) {
                 inst.setAccountKey(accountKey);
                 aiInstanceService.updateById(inst);
             }
@@ -238,7 +238,7 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
     public PageResponse<AiVecStoreResponseDTO> queryPage(BasePageRequest<AiVecStoreQueryRequestDTO> request) {
         IPage<AiVecStoreResponseDTO> page = PageUtils.buildPage(request);
         AiVecStoreQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiVecStoreQueryRequestDTO();
         }
         IPage<AiVecStoreResponseDTO> result = baseMapper.queryPage(page, param);
@@ -248,7 +248,7 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
     @Override
     public BaseResponse<AiVecStoreResponseDTO> detail(Long id) {
         AiVecStoreResponseDTO responseDTO = baseMapper.selectDetailDtoById(id);
-        if (responseDTO == null) {
+        if (Objects.isNull(responseDTO)) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_NOT_FOUND);
         }
         return BaseResponse.success(responseDTO);
@@ -256,30 +256,29 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
 
     @Override
     public BaseResponse<AiVecStoreStatsResponseDTO> stats(Long id) {
-        if (id == null) {
+        if (Objects.isNull(id)) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_PARAM_ERROR);
         }
 
         AiVecStoreStatsResponseDTO stats = baseMapper.selectStoreStats(id);
-        if (stats == null) {
+        if (Objects.isNull(stats)) {
             throw new BusinessException(AstVecStoreErrorEnum.STORE_NOT_FOUND);
         }
-        if (stats.getDocCount() == null) {
+        if (Objects.isNull(stats.getDocCount())) {
             stats.setDocCount(0L);
         }
-        if (stats.getSegmentCount() == null) {
+        if (Objects.isNull(stats.getSegmentCount())) {
             stats.setSegmentCount(0L);
         }
-        if (stats.getTotalWordCount() == null) {
+        if (Objects.isNull(stats.getTotalWordCount())) {
             stats.setTotalWordCount(0L);
         }
 
-        // 物理层统计
         try {
             AiVecStoreEntity store = getById(id);
-            if (store != null && store.getSourceId() != null) {
+            if (Objects.nonNull(store) && Objects.nonNull(store.getSourceId())) {
                 VecSource vs = astroVecSourceFactory.tryGetActiveSource(store.getSourceId()).orElse(null);
-                if (vs != null) {
+                if (Objects.nonNull(vs)) {
                     VecStore vecStore = vs.openStore(store);
                     stats.setPhysicalVectorCount(vecStore.count());
                     stats.setCollectionExists(vecStore.exists());
@@ -289,7 +288,7 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
                 }
             }
         } catch (Exception e) {
-            log.warn("查询物理层统计失败 storeId={}", id, e);
+            log.warn("Failed to query physical layer stats storeId={}", id, e);
             stats.setPhysicalVectorCount(-1L);
             stats.setCollectionExists(false);
         }

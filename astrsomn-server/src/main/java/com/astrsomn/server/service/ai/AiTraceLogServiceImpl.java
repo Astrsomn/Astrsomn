@@ -19,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class AiTraceLogServiceImpl extends ServiceImpl<AiTraceLogMapper, AiTraceLogEntity> implements AiTraceLogService {
@@ -37,22 +40,20 @@ public class AiTraceLogServiceImpl extends ServiceImpl<AiTraceLogMapper, AiTrace
 
     @Override
     public BaseResponse<String> delete(long[] ids) {
-        if (ids == null || ids.length == 0) {
+        if (Objects.isNull(ids) || ids.length == 0) {
             throw new BusinessException(AiTraceLogErrorEnum.TRACE_LOG_PARAM_ERROR);
         }
-        for (long id : ids) {
-            removeById(id);
-        }
+        Arrays.stream(ids).forEach(this::removeById);
         return BaseResponse.success("success");
     }
 
     @Override
     public BaseResponse<String> update(AiTraceLogUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiTraceLogErrorEnum.TRACE_LOG_PARAM_ERROR);
         }
         AiTraceLogEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AiTraceLogErrorEnum.TRACE_LOG_NOT_FOUND);
         }
         AiTraceLogEntity entity = new AiTraceLogEntity();
@@ -68,7 +69,7 @@ public class AiTraceLogServiceImpl extends ServiceImpl<AiTraceLogMapper, AiTrace
     public PageResponse<AiTraceLogResponseDTO> queryPage(BasePageRequest<AiTraceLogQueryRequestDTO> request) {
         IPage<AiTraceLogResponseDTO> page = PageUtils.buildPage(request);
         AiTraceLogQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiTraceLogQueryRequestDTO();
         }
         IPage<AiTraceLogResponseDTO> result = baseMapper.queryPage(page, param);
@@ -78,7 +79,7 @@ public class AiTraceLogServiceImpl extends ServiceImpl<AiTraceLogMapper, AiTrace
     @Override
     public BaseResponse<AiTraceLogResponseDTO> detail(Long id) {
         AiTraceLogEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AiTraceLogErrorEnum.TRACE_LOG_NOT_FOUND);
         }
         AiTraceLogResponseDTO responseDTO = new AiTraceLogResponseDTO();

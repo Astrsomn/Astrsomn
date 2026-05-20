@@ -20,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +50,7 @@ public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTempl
     @Override
     public BaseResponse<AiTemplateResponseDTO> detail(Long id) {
         AiTemplateEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AiTemplateErrorEnum.TEMPLATE_NOT_FOUND);
         }
         AiTemplateResponseDTO responseDTO = new AiTemplateResponseDTO();
@@ -59,11 +60,11 @@ public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTempl
 
     @Override
     public BaseResponse<String> update(AiTemplateUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiTemplateErrorEnum.TEMPLATE_PARAM_ERROR);
         }
         AiTemplateEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AiTemplateErrorEnum.TEMPLATE_NOT_FOUND);
         }
         AiTemplateEntity entity = new AiTemplateEntity();
@@ -79,7 +80,7 @@ public class AiTemplateServiceImpl extends ServiceImpl<AiTemplateMapper, AiTempl
     public PageResponse<AiTemplateResponseDTO> queryPage(BasePageRequest<AiTemplateQueryRequestDTO> request) {
         IPage<AiTemplateResponseDTO> page = PageUtils.buildPage(request);
         AiTemplateQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiTemplateQueryRequestDTO();
         }
         IPage<AiTemplateResponseDTO> result = baseMapper.queryPage(page, param);

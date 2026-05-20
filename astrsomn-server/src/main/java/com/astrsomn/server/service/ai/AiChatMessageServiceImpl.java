@@ -14,6 +14,8 @@ import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.CollectionUtils;
+import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiChatMessageMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +56,7 @@ public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, A
     @Override
     public BaseResponse<AiChatMessageResponseDTO> detail(Long id) {
         AiChatMessageEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AiChatErrorEnum.CHAT_NOT_FOUND);
         }
         AiChatMessageResponseDTO responseDTO = new AiChatMessageResponseDTO();
@@ -63,11 +66,11 @@ public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, A
 
     @Override
     public BaseResponse<String> update(AiChatMessageUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiChatErrorEnum.CHAT_PARAM_ERROR);
         }
         AiChatMessageEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AiChatErrorEnum.CHAT_NOT_FOUND);
         }
         AiChatMessageEntity entity = new AiChatMessageEntity();
@@ -83,7 +86,7 @@ public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, A
     public PageResponse<AiChatMessageResponseDTO> queryPage(BasePageRequest<AiChatMessageQueryRequestDTO> request) {
         IPage<AiChatMessageResponseDTO> page = PageUtils.buildPage(request);
         AiChatMessageQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiChatMessageQueryRequestDTO();
         }
         IPage<AiChatMessageResponseDTO> result = baseMapper.queryPage(page, param);
@@ -93,12 +96,12 @@ public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, A
 
     @Override
     public BaseResponse<List<AiChatMessageResponseDTO>> recoverByMemoryKey(String memoryKey) {
-        if (memoryKey == null || memoryKey.isEmpty()) {
+        if (StringUtils.isBlank(memoryKey)) {
             throw new BusinessException(AiChatErrorEnum.CHAT_PARAM_ERROR);
         }
 
         List<AiChatMessageResponseDTO> responseDTOs = baseMapper.recoverByMemoryKey(memoryKey);
-        if (responseDTOs == null || responseDTOs.isEmpty()) {
+        if (CollectionUtils.isEmpty(responseDTOs)) {
             throw new BusinessException(AiChatErrorEnum.CHAT_NOT_FOUND);
         }
 
@@ -107,11 +110,11 @@ public class AiChatMessageServiceImpl extends ServiceImpl<AiChatMessageMapper, A
 
     @Override
     public BaseResponse<List<AiChatTurnBundleDTO>> recoverTurnsByMemoryKey(String memoryKey) {
-        if (memoryKey == null || memoryKey.isEmpty()) {
+        if (StringUtils.isBlank(memoryKey)) {
             throw new BusinessException(AiChatErrorEnum.CHAT_PARAM_ERROR);
         }
         List<AiChatMessageResponseDTO> rows = baseMapper.recoverByMemoryKey(memoryKey);
-        if (rows == null || rows.isEmpty()) {
+        if (CollectionUtils.isEmpty(rows)) {
             throw new BusinessException(AiChatErrorEnum.CHAT_NOT_FOUND);
         }
         return BaseResponse.success(AiChatMessageRestoreUtil.bundleByTurn(rows));

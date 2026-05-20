@@ -2,6 +2,7 @@ package com.astrsomn.server.service.system.extension.base.impl;
 
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.server.service.system.extension.base.SystemExtensionMarketService;
 import com.astrsomn.server.service.system.extension.base.SystemExtensionService;
 import com.astrsomn.system.dto.extension.ExtensionMarketplaceItemDTO;
@@ -18,7 +19,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -58,7 +64,7 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
                             new org.springframework.core.ParameterizedTypeReference<PageResponse<ExtensionMarketplaceItemDTO>>() {
                             })
                     .getBody();
-            if (resp == null || resp.getList() == null || resp.getList().isEmpty()) {
+            if (Objects.isNull(resp) || CollectionUtils.isEmpty(resp.getList())) {
                 return resp != null ? resp : PageResponse.empty();
             }
             markInstalledExtensions(resp.getList());
@@ -72,7 +78,7 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
     private void markInstalledExtensions(List<ExtensionMarketplaceItemDTO> items) {
         Set<String> keys = items.stream()
                 .map(ExtensionMarketplaceItemDTO::getExtensionKey)
-                .filter(k -> k != null && !k.isEmpty())
+                .filter(k -> Objects.nonNull(k) && !k.isEmpty())
                 .collect(Collectors.toSet());
         if (keys.isEmpty()) return;
 
@@ -86,7 +92,7 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
                 .collect(Collectors.toSet());
 
         for (ExtensionMarketplaceItemDTO item : items) {
-            if (item.getExtensionKey() != null && installedKeys.contains(item.getExtensionKey())) {
+            if (Objects.nonNull(item.getExtensionKey()) && installedKeys.contains(item.getExtensionKey())) {
                 item.setInstalled(true);
             }
         }
@@ -101,7 +107,7 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
             // 下载 jar 包
             byte[] jarBytes = restTemplate.getForObject(url, byte[].class);
             if (jarBytes == null || jarBytes.length == 0) {
-                return BaseResponse.fail("下载插件失败，文件为空", null);
+                return BaseResponse.fail("Plugin download failed: empty file", null);
             }
 
             // 创建 MultipartFile 实现类
@@ -155,7 +161,7 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
                     multipartFile
             );
         } catch (Exception e) {
-            return BaseResponse.fail("安装插件失败：" + e.getMessage(), null);
+            return BaseResponse.fail("Plugin installation failed: " + e.getMessage(), null);
         }
     }
 }

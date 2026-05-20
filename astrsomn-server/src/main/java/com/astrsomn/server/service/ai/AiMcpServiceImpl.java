@@ -20,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +52,7 @@ public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> impl
     @Override
     public BaseResponse<AiMcpResponseDTO> detail(Long id) {
         AiMcpEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AiMcpErrorEnum.MCP_NOT_FOUND);
         }
         AiMcpResponseDTO responseDTO = new AiMcpResponseDTO();
@@ -61,11 +62,11 @@ public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> impl
 
     @Override
     public BaseResponse<String> update(AiMcpUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiMcpErrorEnum.MCP_PARAM_ERROR);
         }
         AiMcpEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AiMcpErrorEnum.MCP_NOT_FOUND);
         }
         AiMcpEntity entity = new AiMcpEntity();
@@ -82,7 +83,7 @@ public class AiMcpServiceImpl extends ServiceImpl<AiMcpMapper, AiMcpEntity> impl
     public PageResponse<AiMcpResponseDTO> queryPage(BasePageRequest<AiMcpQueryRequestDTO> request) {
         IPage<AiMcpResponseDTO> page = PageUtils.buildPage(request);
         AiMcpQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiMcpQueryRequestDTO();
         }
         IPage<AiMcpResponseDTO> result = baseMapper.queryPage(page, param);

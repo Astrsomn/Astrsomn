@@ -20,6 +20,7 @@ import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiAgentMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -73,7 +74,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         String agentKey = aiAgent.getAgentKey();
         if (StringUtils.isNotBlank(agentKey)) {
             List<AiInstanceResponseDTO> instances = aiInstanceService.queryByBizKey(agentKey);
-            responseDTO.setInstanceList(instances != null ? instances : Collections.emptyList());
+            responseDTO.setInstanceList(Optional.ofNullable(instances).orElse(Collections.emptyList()));
         }
 
         String promptKey = aiAgent.getPromptKey();
@@ -111,7 +112,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
                 .eq(AiAgentEntity::getAgentKey, agentKey)
                 .one();
 
-        if (existingAgent == null) {
+        if (Objects.isNull(existingAgent)) {
             return createAgent(request, agentKey);
         } else {
             return updateAgent(request, existingAgent);
@@ -184,7 +185,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
                 .last("LIMIT 1")
                 .one();
         AiPromptUpdateRequestDTO updateRequest = new AiPromptUpdateRequestDTO();
-        if (latestPrompt != null) {
+        if (Objects.nonNull(latestPrompt)) {
             updateRequest.setId(latestPrompt.getId());
         }
         updateRequest.setPromptKey(promptKey);
@@ -195,7 +196,7 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
 
     private void saveInstances(AiAgentCreateRequestDTO request, String agentKey) {
         List<AiInstanceCreateRequestDTO> instanceList = request.getInstanceList();
-        if (instanceList == null || instanceList.isEmpty()) {
+        if (CollectionUtils.isEmpty(instanceList)) {
             return;
         }
         String routeStrategy = request.getRouteStrategy();

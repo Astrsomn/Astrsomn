@@ -8,6 +8,7 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.SystemMessageMapper;
+import java.util.Objects;
 import com.astrsomn.system.constant.SystemMessageEnum;
 import com.astrsomn.system.dto.systemmessage.SystemMessageCreateRequestDTO;
 import com.astrsomn.system.dto.systemmessage.SystemMessageQueryRequestDTO;
@@ -43,7 +44,7 @@ public class SystemMessageServiceImpl extends ServiceImpl<SystemMessageMapper, S
 
     @Override
     public BaseResponse<String> delete(long[] ids) {
-        if (ids == null || ids.length == 0) {
+        if (Objects.isNull(ids) || ids.length == 0) {
             throw new BusinessException(SystemMessageErrorEnum.SYSTEM_MESSAGE_PARAM_ERROR);
         }
         for (long id : ids) {
@@ -54,11 +55,11 @@ public class SystemMessageServiceImpl extends ServiceImpl<SystemMessageMapper, S
 
     @Override
     public BaseResponse<String> update(SystemMessageUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(SystemMessageErrorEnum.SYSTEM_MESSAGE_PARAM_ERROR);
         }
         SystemMessageEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(SystemMessageErrorEnum.SYSTEM_MESSAGE_NOT_FOUND);
         }
         SystemMessageEntity entity = new SystemMessageEntity();
@@ -74,7 +75,7 @@ public class SystemMessageServiceImpl extends ServiceImpl<SystemMessageMapper, S
     public PageResponse<SystemMessageResponseDTO> queryPage(BasePageRequest<SystemMessageQueryRequestDTO> request) {
         IPage<SystemMessageResponseDTO> page = PageUtils.buildPage(request);
         SystemMessageQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new SystemMessageQueryRequestDTO();
         }
         IPage<SystemMessageResponseDTO> result = baseMapper.queryPage(page, param);
@@ -84,7 +85,7 @@ public class SystemMessageServiceImpl extends ServiceImpl<SystemMessageMapper, S
     @Override
     public BaseResponse<SystemMessageResponseDTO> detail(Long id) {
         SystemMessageEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(SystemMessageErrorEnum.SYSTEM_MESSAGE_NOT_FOUND);
         }
         SystemMessageResponseDTO responseDTO = new SystemMessageResponseDTO();

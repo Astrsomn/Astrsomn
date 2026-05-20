@@ -20,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +51,7 @@ public class AiSensitiveWordServiceImpl extends ServiceImpl<AiSensitiveWordMappe
     @Override
     public BaseResponse<AiSensitiveWordResponseDTO> detail(Long id) {
         AiSensitiveWordEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AiSensitiveWordErrorEnum.SENSITIVE_WORD_NOT_FOUND);
         }
         AiSensitiveWordResponseDTO responseDTO = new AiSensitiveWordResponseDTO();
@@ -60,11 +61,11 @@ public class AiSensitiveWordServiceImpl extends ServiceImpl<AiSensitiveWordMappe
 
     @Override
     public BaseResponse<String> update(AiSensitiveWordUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiSensitiveWordErrorEnum.SENSITIVE_WORD_PARAM_ERROR);
         }
         AiSensitiveWordEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AiSensitiveWordErrorEnum.SENSITIVE_WORD_NOT_FOUND);
         }
         AiSensitiveWordEntity entity = new AiSensitiveWordEntity();
@@ -80,7 +81,7 @@ public class AiSensitiveWordServiceImpl extends ServiceImpl<AiSensitiveWordMappe
     public PageResponse<AiSensitiveWordResponseDTO> queryPage(BasePageRequest<AiSensitiveWordQueryRequestDTO> request) {
         IPage<AiSensitiveWordResponseDTO> page = PageUtils.buildPage(request);
         AiSensitiveWordQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiSensitiveWordQueryRequestDTO();
         }
         IPage<AiSensitiveWordResponseDTO> result = baseMapper.queryPage(page, param);

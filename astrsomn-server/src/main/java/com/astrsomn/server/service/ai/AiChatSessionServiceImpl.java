@@ -20,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -49,11 +50,11 @@ public class AiChatSessionServiceImpl extends ServiceImpl<AiChatSessionMapper, A
 
     @Override
     public BaseResponse<String> update(AiChatSessionUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiChatErrorEnum.CHAT_PARAM_ERROR);
         }
         AiChatSessionEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AiChatErrorEnum.CHAT_NOT_FOUND);
         }
         AiChatSessionEntity entity = new AiChatSessionEntity();
@@ -69,7 +70,7 @@ public class AiChatSessionServiceImpl extends ServiceImpl<AiChatSessionMapper, A
     public PageResponse<AiChatSessionResponseDTO> queryPage(BasePageRequest<AiChatSessionQueryRequestDTO> request) {
         IPage<AiChatSessionResponseDTO> page = PageUtils.buildPage(request);
         AiChatSessionQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiChatSessionQueryRequestDTO();
         }
         IPage<AiChatSessionResponseDTO> result = baseMapper.queryPage(page, param);
@@ -79,7 +80,7 @@ public class AiChatSessionServiceImpl extends ServiceImpl<AiChatSessionMapper, A
     @Override
     public BaseResponse<AiChatSessionResponseDTO> detail(Long id) {
         AiChatSessionEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AiChatErrorEnum.CHAT_NOT_FOUND);
         }
         AiChatSessionResponseDTO responseDTO = new AiChatSessionResponseDTO();

@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,13 +39,13 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_CREATE_FAILED);
         }
         AiVecSourceEntity persisted = getById(entity.getId());
-        if (persisted == null) {
+        if (Objects.isNull(persisted)) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_CREATE_FAILED);
         }
         try {
             astroVecSourceFactory.registerOrRefresh(persisted);
         } catch (Exception e) {
-            log.warn("向量源启用注册失败，回滚创建记录 id={}: {}", entity.getId(), e.getMessage());
+            log.warn("Vector source registration failed, rolling back created record id={}: {}", entity.getId(), e.getMessage());
             removeById(entity.getId());
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_CREATE_FAILED, e.getMessage());
         }
@@ -52,7 +54,7 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
 
     @Override
     public BaseResponse<String> delete(long[] ids) {
-        if (ids == null || ids.length == 0) {
+        if (Objects.isNull(ids) || ids.length == 0) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_PARAM_ERROR);
         }
         for (long id : ids) {
@@ -64,11 +66,11 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
 
     @Override
     public BaseResponse<String> update(AiVecSourceUpdateRequestDTO request) {
-        if (request.getId() == null) {
+        if (Objects.isNull(request.getId())) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_PARAM_ERROR);
         }
         AiVecSourceEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_NOT_FOUND);
         }
         AiVecSourceEntity entity = new AiVecSourceEntity();
@@ -78,13 +80,13 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_UPDATE_FAILED);
         }
         AiVecSourceEntity persisted = getById(request.getId());
-        if (persisted == null) {
+        if (Objects.isNull(persisted)) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_NOT_FOUND);
         }
         try {
             astroVecSourceFactory.registerOrRefresh(persisted);
         } catch (Exception e) {
-            log.error("向量源运行时注册失败 id={}: {}", request.getId(), e.getMessage());
+            log.error("Vector source runtime registration failed id={}: {}", request.getId(), e.getMessage());
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_UPDATE_FAILED, e.getMessage());
         }
         return BaseResponse.success("success");
@@ -94,7 +96,7 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
     public PageResponse<AiVecSourceResponseDTO> queryPage(BasePageRequest<AiVecSourceQueryRequestDTO> request) {
         IPage<AiVecSourceResponseDTO> page = PageUtils.buildPage(request);
         AiVecSourceQueryRequestDTO param = request.getParam();
-        if (param == null) {
+        if (Objects.isNull(param)) {
             param = new AiVecSourceQueryRequestDTO();
         }
         IPage<AiVecSourceResponseDTO> result = baseMapper.queryPage(page, param);
@@ -104,7 +106,7 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
     @Override
     public BaseResponse<AiVecSourceResponseDTO> detail(Long id) {
         AiVecSourceEntity entity = getById(id);
-        if (entity == null) {
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_NOT_FOUND);
         }
         AiVecSourceResponseDTO responseDTO = new AiVecSourceResponseDTO();
@@ -114,11 +116,11 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
 
     @Override
     public BaseResponse<String> setEnabledStatus(AiVecSourceSetStatusRequestDTO request) {
-        if (request == null || request.getId() == null || request.getEnabled() == null) {
+        if (Objects.isNull(request) || Objects.isNull(request.getId()) || Objects.isNull(request.getEnabled())) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_PARAM_ERROR);
         }
         AiVecSourceEntity existing = getById(request.getId());
-        if (existing == null) {
+        if (Objects.isNull(existing)) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_NOT_FOUND);
         }
         String newStatus =
@@ -132,7 +134,7 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_UPDATE_FAILED);
         }
         AiVecSourceEntity persisted = getById(request.getId());
-        if (persisted == null) {
+        if (Objects.isNull(persisted)) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_NOT_FOUND);
         }
         if (Boolean.TRUE.equals(request.getEnabled())) {
@@ -144,13 +146,13 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
                         .set(AiVecSourceEntity::getStatus, AiVecDriverEnum.StatusEnum.DISABLED.getCode());
                 update(revert);
                 astroVecSourceFactory.removeActiveSource(request.getId());
-                log.warn("向量源启用失败，已回滚为禁用 id={}: {}", request.getId(), e.getMessage());
+                log.warn("Vector source enable failed, rolled back to disabled id={}: {}", request.getId(), e.getMessage());
                 throw new BusinessException(AstVecSourceErrorEnum.SOURCE_UPDATE_FAILED, e.getMessage());
             }
-            return BaseResponse.success("已启用并加载连接");
+            return BaseResponse.success("Enabled and connected");
         }
         astroVecSourceFactory.removeActiveSource(request.getId());
-        return BaseResponse.success("已禁用并释放连接");
+        return BaseResponse.success("Disabled and disconnected");
     }
 
     @Override
@@ -176,7 +178,7 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
                         entity.getExtensionCode(),
                         entity.getHost(),
                         entity.getPort());
-                return BaseResponse.success("连接测试成功");
+                return BaseResponse.success("Connection test succeeded");
             }
             log.warn(
                     "[AiVecSource] testConnection failed in {}ms: provider={}, host={}, port={}",
@@ -184,11 +186,11 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
                     entity.getExtensionCode(),
                     entity.getHost(),
                     entity.getPort());
-            return BaseResponse.fail("连接测试失败");
+            return BaseResponse.fail("Connection test failed");
         } catch (Exception e) {
             long elapsedMs = (System.nanoTime() - t0) / 1_000_000L;
             log.error("[AiVecSource] testConnection error in {}ms: {}", elapsedMs, e.getMessage(), e);
-            return BaseResponse.fail("连接测试失败: " + e.getMessage());
+            return BaseResponse.fail("Connection test failed: " + e.getMessage());
         }
     }
 }
