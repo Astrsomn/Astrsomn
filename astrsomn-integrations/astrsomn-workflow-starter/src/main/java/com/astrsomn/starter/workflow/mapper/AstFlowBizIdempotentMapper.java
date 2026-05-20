@@ -15,5 +15,5 @@ public interface AstFlowBizIdempotentMapper extends BaseMapper<AstFlowBizIdempot
             IPage<AstFlowBizIdempotentResponseDTO> page,
             @Param("req") AstFlowBizIdempotentQueryRequestDTO param);
 
-    AstFlowBizIdempotentResponseDTO detail(@Param("id") Long id, @Param("envCode") String envCode);
+    AstFlowBizIdempotentResponseDTO detail(@Param("id") Long id);
 }

@@ -15,5 +15,5 @@ public interface AstFlowInstanceMapper extends BaseMapper<AstFlowInstanceEntity>
             IPage<AstFlowInstanceResponseDTO> page,
             @Param("req") AstFlowInstanceQueryRequestDTO param);
 
-    AstFlowInstanceResponseDTO detail(@Param("id") Long id, @Param("envCode") String envCode);
+    AstFlowInstanceResponseDTO detail(@Param("id") Long id);
 }

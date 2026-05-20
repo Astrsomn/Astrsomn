@@ -16,5 +16,5 @@ public interface AiVecStoreMapper extends BaseMapper<AiVecStoreEntity> {
 
     AiVecStoreResponseDTO selectDetailDtoById(@Param("id") Long id);
 
-    AiVecStoreStatsResponseDTO selectStoreStats(@Param("storeId") Long storeId, @Param("envCode") String envCode);
+    AiVecStoreStatsResponseDTO selectStoreStats(@Param("storeId") Long storeId);
 }

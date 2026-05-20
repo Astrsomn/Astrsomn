@@ -7,7 +7,6 @@ import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.vector.exception.AstVecStoreErrorEnum;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.server.service.AiVecSourceService;
 import com.astrsomn.starter.runtime.vector.AstroVecSourceFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

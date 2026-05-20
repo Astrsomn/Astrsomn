@@ -4,7 +4,7 @@ import com.astrsomn.common.base.BaseController;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
-import com.astrsomn.server.service.extension.base.SystemExtensionMarketService;
+import com.astrsomn.server.service.system.extension.base.SystemExtensionMarketService;
 import com.astrsomn.system.dto.extension.ExtensionMarketplaceItemDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

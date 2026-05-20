@@ -15,5 +15,5 @@ public interface AstFlowNodeHistoryMapper extends BaseMapper<AstFlowNodeHistoryE
             IPage<AstFlowNodeHistoryResponseDTO> page,
             @Param("req") AstFlowNodeHistoryQueryRequestDTO param);
 
-    AstFlowNodeHistoryResponseDTO detail(@Param("id") Long id, @Param("envCode") String envCode);
+    AstFlowNodeHistoryResponseDTO detail(@Param("id") Long id);
 }

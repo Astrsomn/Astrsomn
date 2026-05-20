@@ -15,5 +15,5 @@ public interface AstFlowNodeConfigMapper extends BaseMapper<AstFlowNodeConfigEnt
             IPage<AstFlowNodeConfigResponseDTO> page,
             @Param("req") AstFlowNodeConfigQueryRequestDTO param);
 
-    AstFlowNodeConfigResponseDTO detail(@Param("id") Long id, @Param("envCode") String envCode);
+    AstFlowNodeConfigResponseDTO detail(@Param("id") Long id);
 }

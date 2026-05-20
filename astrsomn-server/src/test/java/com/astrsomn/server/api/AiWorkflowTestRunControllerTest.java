@@ -4,7 +4,7 @@ import com.astrsomn.api.workflow.domain.dto.runtime.AstFlowTestRunRequestDTO;
 import com.astrsomn.api.workflow.domain.dto.runtime.AstFlowTestRunResponseDTO;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.server.api.workflow.AiWorkflowTestRunController;
-import com.astrsomn.server.service.AiWorkflowTestRunService;
+import com.astrsomn.server.service.workflow.AiWorkflowTestRunService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;

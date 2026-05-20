@@ -1,0 +1,87 @@
+package com.astrsomn.server.service.workflow;
+
+import com.astrsomn.api.runtime.common.utils.PageConverter;
+import com.astrsomn.api.runtime.common.utils.PageUtils;
+import com.astrsomn.api.workflow.domain.dto.nodehistory.AstFlowNodeHistoryCreateRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.nodehistory.AstFlowNodeHistoryQueryRequestDTO;
+import com.astrsomn.api.workflow.domain.dto.nodehistory.AstFlowNodeHistoryResponseDTO;
+import com.astrsomn.api.workflow.domain.dto.nodehistory.AstFlowNodeHistoryUpdateRequestDTO;
+import com.astrsomn.api.workflow.domain.entity.AstFlowNodeHistoryEntity;
+import com.astrsomn.common.base.*;
+import com.astrsomn.starter.workflow.mapper.AstFlowNodeHistoryMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+
+@Service
+@RequiredArgsConstructor
+public class AiWorkflowNodeHistoryServiceImpl extends ServiceImpl<AstFlowNodeHistoryMapper, AstFlowNodeHistoryEntity> implements AiWorkflowNodeHistoryService {
+
+
+    @Override
+    public BaseResponse<String> create(AstFlowNodeHistoryCreateRequestDTO request) {
+        AstFlowNodeHistoryEntity entity = new AstFlowNodeHistoryEntity();
+        entity.setInstanceId(request.getInstanceId());
+        entity.setFlowDefinitionId(request.getFlowDefinitionId());
+        entity.setVersion(request.getVersion());
+        entity.setHistoryType(request.getHistoryType());
+        entity.setNodeId(request.getNodeId());
+        entity.setNodeName(request.getNodeName());
+        entity.setInputData(request.getInputData());
+        entity.setOutputData(request.getOutputData());
+        entity.setSnapshotJson(request.getSnapshotJson());
+        entity.setExecutionMs(request.getExecutionMs());
+        boolean result = save(entity);
+        if (!result) throw new BusinessException(ErrorEnum.BUSINESS_ERROR, "节点历史创建失败");
+        return BaseResponse.success("success");
+    }
+
+    @Override
+    public BaseResponse<String> delete(long[] ids) {
+        if (ids == null || ids.length == 0) throw new BusinessException(ErrorEnum.PARAM_ERROR, "缺少待删除ID");
+        boolean result = removeByIds(Arrays.asList(Arrays.stream(ids).boxed().toArray(Long[]::new)));
+        if (!result) throw new BusinessException(ErrorEnum.BUSINESS_ERROR, "节点历史删除失败");
+        return BaseResponse.success("success");
+    }
+
+    @Override
+    public BaseResponse<String> update(AstFlowNodeHistoryUpdateRequestDTO request) {
+        if (request.getId() == null) throw new BusinessException(ErrorEnum.PARAM_ERROR, "缺少节点历史ID");
+        if (getById(request.getId()) == null) throw new BusinessException(ErrorEnum.NOT_FOUND, "节点历史不存在");
+        AstFlowNodeHistoryEntity entity = new AstFlowNodeHistoryEntity();
+        entity.setId(request.getId());
+        entity.setInstanceId(request.getInstanceId());
+        entity.setFlowDefinitionId(request.getFlowDefinitionId());
+        entity.setVersion(request.getVersion());
+        entity.setHistoryType(request.getHistoryType());
+        entity.setNodeId(request.getNodeId());
+        entity.setNodeName(request.getNodeName());
+        entity.setInputData(request.getInputData());
+        entity.setOutputData(request.getOutputData());
+        entity.setSnapshotJson(request.getSnapshotJson());
+        entity.setExecutionMs(request.getExecutionMs());
+        boolean result = updateById(entity);
+        if (!result) throw new BusinessException(ErrorEnum.BUSINESS_ERROR, "节点历史更新失败");
+        return BaseResponse.success("success");
+    }
+
+    @Override
+    public BaseResponse<AstFlowNodeHistoryResponseDTO> detail(Long id) {
+
+        AstFlowNodeHistoryResponseDTO detail = baseMapper.detail(id);
+        if (detail == null) throw new BusinessException(ErrorEnum.NOT_FOUND, "节点历史不存在");
+        return BaseResponse.success(detail);
+    }
+
+    @Override
+    public PageResponse<AstFlowNodeHistoryResponseDTO> queryPage(BasePageRequest<AstFlowNodeHistoryQueryRequestDTO> request) {
+        IPage<AstFlowNodeHistoryResponseDTO> page = PageUtils.buildPage(request);
+        AstFlowNodeHistoryQueryRequestDTO param = request.getParam();
+        if (param == null) param = new AstFlowNodeHistoryQueryRequestDTO();
+        IPage<AstFlowNodeHistoryResponseDTO> result = baseMapper.queryPage(page, param);
+        return PageConverter.toResponse(result);
+    }
+}

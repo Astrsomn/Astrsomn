@@ -15,5 +15,5 @@ public interface AstFlowHumanTaskMapper extends BaseMapper<AstFlowHumanTaskEntit
             IPage<AstFlowHumanTaskResponseDTO> page,
             @Param("req") AstFlowHumanTaskQueryRequestDTO param);
 
-    AstFlowHumanTaskResponseDTO detail(@Param("id") Long id, @Param("envCode") String envCode);
+    AstFlowHumanTaskResponseDTO detail(@Param("id") Long id);
 }

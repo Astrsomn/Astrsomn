@@ -15,9 +15,6 @@ public interface AiPromptMapper extends BaseMapper<AiPromptEntity> {
 
     IPage<AiPromptResponseDTO> queryPage(IPage<AiPromptResponseDTO> page, @Param("req") AiPromptQueryRequestDTO param);
 
-    String getByUUID(@Param("promptUuid") String promptUuid);
-
-
     List<AiPromptResponseDTO> listHistoryByPromptKey(@Param("promptKey") String promptKey, @Param("envCode") String envCode);
 
     String getLatestPromptContentByPromptKey(@Param("promptKey") String promptKey);

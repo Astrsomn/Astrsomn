@@ -15,5 +15,5 @@ public interface AstFlowTimerJobMapper extends BaseMapper<AstFlowTimerJobEntity>
             IPage<AstFlowTimerJobResponseDTO> page,
             @Param("req") AstFlowTimerJobQueryRequestDTO param);
 
-    AstFlowTimerJobResponseDTO detail(@Param("id") Long id, @Param("envCode") String envCode);
+    AstFlowTimerJobResponseDTO detail(@Param("id") Long id);
 }
