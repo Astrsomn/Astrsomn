@@ -2,8 +2,17 @@ import request from '@/utils/request'
 
 import type {AiInstance} from './aiInstance'
 
+export type AiPromptEntity = {
+    promptKey?: string
+    promptTitle?: string
+    promptContent?: string
+    status?: string
+    version?: number
+}
+
 export type AiAgent = {
     instanceList?: AiInstance[]
+    promptEntity?: AiPromptEntity
     id?: number | string
     envCode?: string
     createUser?: string
@@ -12,8 +21,6 @@ export type AiAgent = {
     agentName?: string
     description?: string
     workflowKey?: string
-    /** 推理实例列表（一对多关系） */
-    instanceList?: AiInstance[]
     /** 对话模型实例（旧版兼容） */
     chatInstanceKey?: string
     /** 前端展示用（列表联表或本地缓存，不必提交） */
@@ -76,6 +83,14 @@ export const aiAgentApi = {
     create: (payload: AiAgent): Promise<string> => {
         return request({
             url: '/v1/astro/ai-agent/create',
+            method: 'post',
+            data: payload
+        })
+    },
+
+    saveOrUpdate: (payload: AiAgent): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-agent/saveOrUpdate',
             method: 'post',
             data: payload
         })

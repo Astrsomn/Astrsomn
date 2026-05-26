@@ -393,6 +393,18 @@ function buildSubmitPayload(): AiAgent {
         memoryWindowSize: '10',
         knowledgeBaseKeys: '',
       }
+
+  const promptContent = currentPrompt.value?.promptContent?.trim() || ''
+  const promptEntity = promptContent
+      ? {
+          promptKey: currentPrompt.value?.promptKey,
+          promptTitle: currentPrompt.value?.promptTitle || localAgentName.value.trim(),
+          promptContent,
+          status: currentPrompt.value?.status,
+          version: currentPrompt.value?.version,
+        }
+      : undefined
+
   return {
     ...base,
     agentName: localAgentName.value.trim(),
@@ -405,6 +417,7 @@ function buildSubmitPayload(): AiAgent {
     mcpKeys: placedMcps.value.map((m) => m.mcpKey).filter(Boolean).join(','),
     instanceList: instanceList.value,
     routeStrategy: routeStrategy.value,
+    promptEntity,
   }
 }
 
@@ -419,22 +432,9 @@ async function handleSave() {
   }
   submitting.value = true
   try {
-    const p = currentPrompt.value
-    const content = p?.promptContent?.trim() || ''
-    if (content && content !== String(loadedPromptContent.value ?? '').trim()) {
-      const saved = await aiPromptApi.submit({ ...p, promptContent: content })
-      currentPrompt.value = saved
-      loadedPromptContent.value = saved.promptContent ?? content
-    }
-
     const payload = buildSubmitPayload()
-    if (props.agentId != null && props.agentId !== '') {
-      await aiAgentApi.update({ ...payload, id: props.agentId })
-      message.success('智能体已保存')
-    } else {
-      await aiAgentApi.createFullAgent(payload)
-      message.success('智能体已创建')
-    }
+    await aiAgentApi.saveOrUpdate(payload)
+    message.success('智能体已保存')
     emit('saved')
     emit('back')
   } catch (e: any) {
