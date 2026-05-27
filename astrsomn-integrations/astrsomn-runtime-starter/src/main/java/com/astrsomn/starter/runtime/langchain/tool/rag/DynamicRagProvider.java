@@ -3,7 +3,6 @@ package com.astrsomn.starter.runtime.langchain.tool.rag;
 
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.RagSetting;
-import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -16,21 +15,23 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DynamicRagProvider {
 
-
-    private final AstroModelFactory astroModelFactory;
     private final VectorStoreRegistry vectorStoreRegistry;
 
     public ContentRetriever createRetriever(AstroChatParam param) {
-        EmbeddingModel embeddingModel = astroModelFactory.createModel(param, EmbeddingModel.class);
         EmbeddingStore<TextSegment> embeddingStore = vectorStoreRegistry.getStore(param);
+        EmbeddingModel embeddingModel = vectorStoreRegistry.getEmbeddingModel(param);
         RagSetting rag = param.getRagSetting() != null ? param.getRagSetting() : new RagSetting();
+
+        int maxResults = rag.getMaxResults() != null && rag.getMaxResults() > 0
+                ? rag.getMaxResults() : 5;
+        double minScore = rag.getMinScore() != null && rag.getMinScore() > 0
+                ? rag.getMinScore() : 0.0;
+
         return EmbeddingStoreContentRetriever.builder()
                 .embeddingStore(embeddingStore)
                 .embeddingModel(embeddingModel)
-                .maxResults(rag.getMaxResults())
-                .minScore(rag.getMinScore())
+                .maxResults(maxResults)
+                .minScore(minScore)
                 .build();
     }
-
-
 }

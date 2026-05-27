@@ -114,11 +114,16 @@ public final class QdrantVecStoreHandler extends AbstractVecStore {
         if (embeddingStoreCache == null) {
             synchronized (this) {
                 if (embeddingStoreCache == null) {
-                    embeddingStoreCache = QdrantEmbeddingStore.builder()
+                    EmbeddingStore<TextSegment> raw = QdrantEmbeddingStore.builder()
                             .client(qdrantSource.qdrantClient())
                             .collectionName(collectionNameRequired())
                             .payloadTextKey(QdrantVecConstants.DEFAULT_PAYLOAD_TEXT_KEY)
                             .build();
+                    embeddingStoreCache = new FixedQdrantEmbeddingStore(
+                            raw,
+                            qdrantSource.qdrantClient(),
+                            collectionNameRequired(),
+                            QdrantVecConstants.DEFAULT_PAYLOAD_TEXT_KEY);
                 }
             }
         }
