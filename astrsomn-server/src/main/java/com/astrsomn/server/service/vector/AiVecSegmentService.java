@@ -22,4 +22,6 @@ public interface AiVecSegmentService extends IService<AiVecSegmentEntity> {
     BaseResponse<AiVecSegmentResponseDTO> detail(Long id);
 
     List<AiVecSegmentSearchResultDTO> search(AiVecSegmentSearchRequestDTO request);
+
+    BaseResponse<AiVecSegmentResponseDTO> vectorize(Long id);
 }

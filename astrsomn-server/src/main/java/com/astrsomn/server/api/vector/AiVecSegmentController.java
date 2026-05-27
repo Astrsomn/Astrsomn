@@ -52,4 +52,9 @@ public class AiVecSegmentController extends BaseController {
     public BaseResponse<List<AiVecSegmentSearchResultDTO>> search(@RequestBody AiVecSegmentSearchRequestDTO request) {
         return BaseResponse.success(aiVecSegmentService.search(request));
     }
+
+    @PostMapping("/vectorize")
+    public BaseResponse<AiVecSegmentResponseDTO> vectorize(@RequestBody AiVecSegmentVectorizeRequestDTO request) {
+        return aiVecSegmentService.vectorize(request.getId());
+    }
 }
