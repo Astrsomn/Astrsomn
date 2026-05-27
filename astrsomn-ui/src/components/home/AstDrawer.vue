@@ -6,6 +6,7 @@
       :open="props.open"
       :root-class-name="mergedRootClassName"
       :width="props.width"
+      :z-index="props.zIndex"
       placement="right"
       @close="closeDrawer"
   >
@@ -58,6 +59,7 @@ interface Props {
   destroyOnClose?: boolean
   showClose?: boolean
   rootClassName?: string
+  zIndex?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {

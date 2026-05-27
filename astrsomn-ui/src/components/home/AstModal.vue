@@ -7,6 +7,7 @@
       :width="width"
       :wrap-class-name="wrapClass"
       :wrap-style="mergedWrapStyle"
+      :z-index="props.zIndex"
       @cancel="emit('cancel')"
       @update:open="emit('update:open', $event)"
   >
@@ -90,6 +91,8 @@ interface Props {
   confirmIcon?: Component
   confirmLoading?: boolean
   confirmDisabled?: boolean
+
+  zIndex?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {

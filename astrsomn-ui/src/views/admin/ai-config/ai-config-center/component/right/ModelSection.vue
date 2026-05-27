@@ -486,20 +486,6 @@ void fetchModels()
   opacity: 0.5;
 }
 
-.model-section__search :deep(.toolbar-search-pill__btn) {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
-  color: var(--primary-light);
-  transition: all 0.25s ease;
-}
-
-.model-section__search :deep(.toolbar-search-pill__btn:hover) {
-  background: var(--primary);
-  color: #fff;
-}
-
 
 .model-section__count {
   display: flex;

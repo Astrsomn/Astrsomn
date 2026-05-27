@@ -11,7 +11,6 @@
       <div class="dialog-header">
         <AstSearchInput
             v-model="searchQuery"
-            button-label="搜索"
             layout="toolbar"
             placeholder="搜索实例名称或标识..."
             @search="fetchInstances"

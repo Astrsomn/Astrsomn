@@ -9,17 +9,13 @@
 
     <div class="select-drawer-content">
       <div class="toolbar">
-        <a-input
-            v-model:value="keyword"
-            allow-clear
+        <AstSearchInput
+            v-model="keyword"
             class="toolbar-search"
+            layout="fluid"
             placeholder="搜索实例名称"
-            @pressEnter="handleSearch"
-        >
-          <template #prefix>
-            <SearchOutlined/>
-          </template>
-        </a-input>
+            @search="handleSearch"
+        />
         <a-select
             v-model:value="queryStatus"
             allow-clear
@@ -30,7 +26,6 @@
           <a-select-option value="enabled">启用</a-select-option>
           <a-select-option value="disabled">禁用</a-select-option>
         </a-select>
-        <a-button type="primary" @click="handleSearch">查询</a-button>
         <a-button @click="emit('create')">
           <template #icon>
             <PlusOutlined/>
@@ -123,10 +118,10 @@ import {
   PartitionOutlined,
   PictureOutlined,
   PlusOutlined,
-  SearchOutlined
 } from '@ant-design/icons-vue'
 import AstDrawer from '@/components/home/AstDrawer.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type AiInstance, aiInstanceApi, type PageResponse} from '@/api/aiInstance.ts'
 
 const props = defineProps<{

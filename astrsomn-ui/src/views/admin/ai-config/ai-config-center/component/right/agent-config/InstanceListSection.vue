@@ -54,7 +54,7 @@
             :class="['instance-item', { active: instance.status === 'enabled' }]"
             @click="editInstance(instance)"
         >
-          <div class="instance-icon">
+          <div class="instance-icon" @click.stop="setDefault(instance)">
             <img
                 v-if="getModelAvatar(instance.modelKey)"
                 :alt="getModelLabel(instance.modelKey)"
@@ -83,6 +83,16 @@
             </div>
           </div>
           <div class="instance-actions">
+            <a-tooltip v-if="instance.isDefault !== 'Y'" title="设为默认">
+              <a-button
+                  class="action-btn default"
+                  type="text"
+                  size="small"
+                  @click.stop="setDefault(instance)"
+              >
+                <template #icon><StarOutlined /></template>
+              </a-button>
+            </a-tooltip>
             <a-button
                 class="action-btn"
                 type="text"
@@ -126,7 +136,7 @@
 
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
-import {ApartmentOutlined, CloudServerOutlined, DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import {ApartmentOutlined, CloudServerOutlined, DeleteOutlined, EditOutlined, PlusOutlined, StarOutlined} from '@ant-design/icons-vue'
 import type {AiModel} from '@/api/aiModel.ts'
 import type {AiInstance} from '@/api/aiInstance.ts'
 import InstanceEditModal from './form/InstanceEditModal.vue'
@@ -206,6 +216,14 @@ function onModalConfirm(instance: AiInstance) {
 
 function removeInstance(instance: AiInstance) {
   const newList = props.instanceList.filter(i => i !== instance)
+  emit('update:instanceList', newList)
+}
+
+function setDefault(instance: AiInstance) {
+  const newList = props.instanceList.map(inst => ({
+    ...inst,
+    isDefault: inst === instance ? 'Y' : (inst.modelType === instance.modelType ? 'N' : inst.isDefault),
+  }))
   emit('update:instanceList', newList)
 }
 
@@ -552,6 +570,11 @@ function getModelAvatar(modelKey?: string): string {
 .action-btn:hover {
   background: var(--bg-surface);
   color: var(--text-primary);
+}
+
+.action-btn.default:hover {
+  background: rgba(250, 176, 5, 0.1);
+  color: #fab005;
 }
 
 .action-btn.delete:hover {
