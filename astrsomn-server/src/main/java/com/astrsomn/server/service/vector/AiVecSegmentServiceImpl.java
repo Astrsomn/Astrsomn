@@ -20,6 +20,7 @@ import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
+import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.mapper.AiVecSegmentMapper;
 
@@ -255,6 +256,12 @@ public class AiVecSegmentServiceImpl extends ServiceImpl<AiVecSegmentMapper, AiV
                             .eq(AiAccountEntity::getDeleted, false)
                             .last("LIMIT 1"));
             if (Objects.nonNull(account)) {
+                if (account.getApiKey() != null) {
+                    account.setApiKey(CryptoUtil.decrypt(account.getApiKey()));
+                }
+                if (account.getApiSecret() != null) {
+                    account.setApiSecret(CryptoUtil.decrypt(account.getApiSecret()));
+                }
                 RuntimeChatParamMergeSupport.mergeModelSettingFromAccount(param.getModelSetting(), account);
             }
         }

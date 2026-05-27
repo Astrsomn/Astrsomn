@@ -24,6 +24,7 @@ import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.CollectionUtils;
+import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.internal.storage.config.StorageProperties;
 import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
@@ -837,6 +838,12 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
                                     .last("LIMIT 1"));
             if (Objects.isNull(account)) {
                 throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Account not found: " + accountKey);
+            }
+            if (account.getApiKey() != null) {
+                account.setApiKey(CryptoUtil.decrypt(account.getApiKey()));
+            }
+            if (account.getApiSecret() != null) {
+                account.setApiSecret(CryptoUtil.decrypt(account.getApiSecret()));
             }
             RuntimeChatParamMergeSupport.mergeModelSettingFromAccount(param.getModelSetting(), account);
         }
