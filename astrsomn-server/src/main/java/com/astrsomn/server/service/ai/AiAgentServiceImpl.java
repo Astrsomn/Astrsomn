@@ -78,8 +78,11 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         }
 
         String promptKey = aiAgent.getPromptKey();
-        AiPromptEntity prompt = aiPromptService.getOne(new LambdaQueryWrapper<AiPromptEntity>()
-                .eq(AiPromptEntity::getPromptKey, promptKey));
+        AiPromptEntity prompt = aiPromptService.lambdaQuery()
+                .eq(AiPromptEntity::getPromptKey, promptKey)
+                .orderByDesc(AiPromptEntity::getVersion)
+                .last("LIMIT 1")
+                .one();
         responseDTO.setPrompt(prompt);
         return BaseResponse.success(responseDTO);
     }
@@ -187,6 +190,9 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         AiPromptUpdateRequestDTO updateRequest = new AiPromptUpdateRequestDTO();
         if (Objects.nonNull(latestPrompt)) {
             updateRequest.setId(latestPrompt.getId());
+            updateRequest.setStatus(latestPrompt.getStatus());
+        } else {
+            updateRequest.setStatus(AiPromptEnum.StatusEnum.ENABLED.getCode());
         }
         updateRequest.setPromptKey(promptKey);
         updateRequest.setPromptTitle(agentName);

@@ -23,11 +23,11 @@
 
       <div class="toolbar-right">
 
-        <a-input-search
-            :value="keyword"
+        <AstSearchInput
+            v-model="keyword"
             class="subtle-search"
+            layout="fluid"
             placeholder="搜索文件名..."
-            @update:value="setKeyword"
         />
         <div class="view-toggle">
           <a-tooltip title="小图标">
@@ -265,6 +265,7 @@ import DocFileCard from '@/views/admin/ai-vector/vector-center/component/right/d
 import DocFolderCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFolderCard.vue';
 import VecDocFormModal from '@/views/admin/ai-vector/vec-doc/VecDocFormModal.vue'
 import SelectionOverlay from '@/views/admin/ai-vector/vector-center/component/right/SelectionOverlay.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type AiVecDoc, aiVecDocApi} from '@/api/aiVecDoc.ts'
 import {type AiVecFolder, aiVecFolderApi} from '@/api/aiVecFolder.ts'
 import {useBoxSelection} from '@/views/admin/ai-vector/vector-center/hooks/useBoxSelection'
@@ -336,10 +337,6 @@ const moveFolderOptions = ref<Array<{ label: string; value: number | string }>>(
 
 const setUploadCollectionId = (value: number | string | undefined) => {
   uploadCollectionId.value = value
-}
-
-const setKeyword = (value: string) => {
-  keyword.value = value
 }
 
 const setFolderModalName = (value: string) => {
@@ -1075,17 +1072,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
 
     .subtle-search {
       width: 240px;
-
-      :deep(.ant-input) {
-        border-radius: var(--radius-md);
-        border-color: var(--border-input);
-        background: var(--bg-input);
-        color: var(--text-primary);
-      }
-
-      :deep(.ant-input::placeholder) {
-        color: var(--text-placeholder);
-      }
+      height: 38px;
     }
 
     .import-btn {

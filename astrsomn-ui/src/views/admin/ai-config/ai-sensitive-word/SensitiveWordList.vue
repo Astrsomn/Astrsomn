@@ -10,30 +10,23 @@
         <template #toolbar>
           <div class="toolbar">
             <div class="toolbar-left">
-              <div class="search-cluster">
-                <a-input
-                    v-model:value="query.word"
-                    allow-clear
-                    class="toolbar-input search-main-input"
-                    placeholder="搜索敏感词"
-                    @pressEnter="fetchList"
-                >
-                  <template #prefix>
-                    <search-outlined/>
-                  </template>
-                </a-input>
-                <a-input
-                    v-model:value="query.scopeKey"
-                    allow-clear
-                    class="toolbar-input search-sub-input"
-                    placeholder="作用范围"
-                    @pressEnter="fetchList"
-                >
-                  <template #prefix>
-                    <appstore-outlined/>
-                  </template>
-                </a-input>
-              </div>
+              <AstSearchInput
+                  v-model="query.word"
+                  layout="toolbar"
+                  placeholder="搜索敏感词"
+                  @search="fetchList"
+              />
+              <a-input
+                  v-model:value="query.scopeKey"
+                  allow-clear
+                  class="toolbar-input"
+                  placeholder="作用范围"
+                  @pressEnter="fetchList"
+              >
+                <template #prefix>
+                  <appstore-outlined/>
+                </template>
+              </a-input>
 
               <div aria-label="状态筛选" class="status-switch" role="group">
                 <a-button
@@ -67,12 +60,6 @@
             </div>
 
             <div class="toolbar-right">
-              <a-button class="primary-btn" type="primary" @click="fetchList">
-                <template #icon>
-                  <search-outlined/>
-                </template>
-                查询
-              </a-button>
               <a-popconfirm
                   v-if="selectedRowKeys.length > 0"
                   cancel-text="取消"
@@ -210,7 +197,6 @@ import {
   DeleteOutlined,
   FilterOutlined,
   PlusOutlined,
-  SearchOutlined,
   StopOutlined,
   TagsOutlined
 } from '@ant-design/icons-vue'
@@ -218,6 +204,7 @@ import AstPageShell from '@/components/home/AstPageShell.vue'
 import AstDataSection from '@/components/home/AstDataSection.vue'
 import AstDataView from '@/components/home/AstDataView.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import SensitiveWordFormModal from './SensitiveWordFormModal.vue'
 import {type AiSensitiveWord, aiSensitiveWordApi, type PageResponse} from '@/api/aiSensitiveWord.ts'
 
@@ -469,40 +456,7 @@ void fetchList()
   flex-wrap: wrap;
 }
 
-.search-cluster {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 6px;
-  border-radius: 16px;
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper),
-.search-cluster :deep(.ant-select-selector) {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused),
-.search-cluster :deep(.ant-select-focused .ant-select-selector),
-.search-cluster :deep(.ant-select-selector:hover) {
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface)) !important;
-}
-
 .toolbar-input {
-  width: 200px;
-}
-
-.search-main-input {
-  width: 320px;
-}
-
-.search-sub-input {
   width: 220px;
 }
 
@@ -511,7 +465,6 @@ void fetchList()
   width: 180px;
 }
 
-.primary-btn,
 .ghost-btn {
   height: 40px;
   border-radius: 12px;
@@ -567,19 +520,8 @@ void fetchList()
 @media (max-width: 720px) {
   .toolbar-input,
   .toolbar-input.narrow,
-  .search-main-input,
-  .search-sub-input,
   .toolbar-select {
     width: 100%;
-  }
-
-  .search-cluster,
-  .status-switch {
-    width: 100%;
-  }
-
-  .search-cluster {
-    padding: 8px;
   }
 
   .status-switch {

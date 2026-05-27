@@ -2,7 +2,7 @@
   <AstDrawer
       :open="props.open"
       :width="640"
-      root-class-name="model-select-drawer"
+      :root-class-name="mergedRootClass"
       @update:open="handleClose"
   >
     <template #icon>
@@ -20,17 +20,12 @@
             size="middle"
             @update:value="onProviderChange"
         />
-        <a-input
-            v-model:value="keyword"
-            allow-clear
+        <AstSearchInput
+            v-model="keyword"
+            layout="fluid"
             placeholder="搜索模型名称或 Key"
-            size="large"
-            @pressEnter="handleSearch"
-        >
-          <template #prefix>
-            <SearchOutlined/>
-          </template>
-        </a-input>
+            @search="handleSearch"
+        />
       </div>
 
       <a-spin :spinning="loading">
@@ -100,7 +95,7 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, watch} from 'vue'
+import {computed, reactive, ref, watch} from 'vue'
 import {
   AppstoreOutlined,
   AudioOutlined,
@@ -114,7 +109,6 @@ import {
   MessageOutlined,
   PartitionOutlined,
   PictureOutlined,
-  SearchOutlined,
   ToolOutlined,
 } from '@ant-design/icons-vue'
 import {type AiModel, aiModelApi, type PageResponse} from '@/api/aiModel.ts'
@@ -123,6 +117,7 @@ import {aiModelCapabilitiesDictionary} from '@/locales/zh-CN/dictionary/ai-confi
 import {WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
 import AstDrawer from '@/components/home/AstDrawer.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 
 const CAP_ICON_MAP: Record<string, any> = {
@@ -142,7 +137,12 @@ const CAP_ICON_MAP: Record<string, any> = {
 const props = defineProps<{
   open: boolean
   fixedModelType?: string
+  rootClassName?: string
 }>()
+
+const mergedRootClass = computed(() =>
+    ['model-select-drawer', props.rootClassName].filter(Boolean).join(' ')
+)
 
 const emit = defineEmits<{
   (e: 'update:open', value: boolean): void

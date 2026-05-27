@@ -120,6 +120,19 @@ public final class RuntimeChatParamMergeSupport {
             }
         }
         param.setToolSetting(tool);
+
+        List<String> knowledgeKeys = parseStringList(agent.getKnowledgeBaseKeys());
+        if (knowledgeKeys != null && !knowledgeKeys.isEmpty()) {
+            RagSetting ragSetting = param.getRagSetting();
+            if (ragSetting == null) {
+                ragSetting = new RagSetting();
+            }
+            ragSetting.setEnabled(true);
+            if (ragSetting.getKnowledgeKeys() == null || ragSetting.getKnowledgeKeys().isEmpty()) {
+                ragSetting.setKnowledgeKeys(knowledgeKeys);
+            }
+            param.setRagSetting(ragSetting);
+        }
     }
 
     private static boolean isEmpty(List<?> list) {

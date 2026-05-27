@@ -8,9 +8,16 @@
       <AstegmentedButton :buttons="toolbarButtons"/>
     </div>
 
+    <AstSearchInput
+        v-model="keyword"
+        layout="fluid"
+        placeholder="搜索切片内容..."
+        class="segment-search"
+    />
+
     <AstDataView
         :columns="segmentColumns"
-        :data-source="segmentRows"
+        :data-source="filteredSegments"
         :loading="loading"
         :row-selection="rowSelection"
         :scroll="{ x: 1000 }"
@@ -24,17 +31,21 @@
           <a-typography-paragraph :content="record.segmentContent || '-'"
                                   :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }"/>
         </template>
+        <template v-else-if="column.key === 'status'">
+          <a-tag v-if="record.vectorId" color="green">已向量化</a-tag>
+          <a-tag v-else color="default">待向量化</a-tag>
+        </template>
         <template v-else-if="column.key === 'metadataJson'">
           <a-typography-paragraph :content="record.metadataJson || '-'"
                                   :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }"/>
         </template>
         <template v-else-if="column.key === 'actions'">
           <a-space>
-            <a-button size="small" type="link" @click="handleVectorizeDoc(record)">
+            <a-button size="small" type="link" @click="handleVectorizeSegment(record)">
               <template #icon>
                 <experiment-outlined/>
               </template>
-              向量化
+              {{ record.vectorId ? '重新向量化' : '向量化' }}
             </a-button>
             <a-popconfirm title="确定删除该切片？" @confirm="removeSegment(record)">
               <a-button danger size="small" type="link">删除</a-button>
@@ -60,6 +71,7 @@ import {DeleteOutlined, ExperimentOutlined} from '@ant-design/icons-vue'
 import AstDataView from '@/components/home/AstDataView.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type AiVecSegment, aiVecSegmentApi} from '@/api/aiVecSegment'
 import {aiVecDocApi} from '@/api/aiVecDoc'
 
@@ -71,6 +83,7 @@ const props = defineProps<{
 const segmentColumns = [
   {title: 'chunk', dataIndex: 'chunkIndex', width: 70},
   {title: '内容', dataIndex: 'segmentContent', key: 'segmentContent'},
+  {title: '状态', key: 'status', width: 100},
   {title: '词数', dataIndex: 'wordCount', width: 80},
   {title: 'vectorId', dataIndex: 'vectorId', width: 120, copyable: true},
   {title: '元数据', dataIndex: 'metadataJson', key: 'metadataJson', width: 200},
@@ -78,9 +91,18 @@ const segmentColumns = [
 ]
 
 const loading = ref(false)
+const keyword = ref('')
 const segmentRows = ref<AiVecSegment[]>([])
 const selectedRowKeys = ref<Array<number | string>>([])
 const pager = reactive({pageNum: 1, pageSize: 10, total: 0})
+
+const filteredSegments = computed(() => {
+  const kw = keyword.value.trim().toLowerCase()
+  if (!kw) return segmentRows.value
+  return segmentRows.value.filter(row =>
+      (row.segmentContent || '').toLowerCase().includes(kw)
+  )
+})
 
 const rowSelection = computed(() => ({
   fixed: true,
@@ -143,6 +165,7 @@ watch(
     () => [props.storeId, props.docId],
     () => {
       pager.pageNum = 1
+      keyword.value = ''
       selectedRowKeys.value = []
       fetchSegmentRows()
     },
@@ -172,18 +195,19 @@ const handleBatchDelete = () => {
   })
 }
 
-const handleVectorizeDoc = async (record: AiVecSegment) => {
-  const docId = record.docId
-  if (!docId) {
-    message.warning('无法获取文档ID')
+const handleVectorizeSegment = async (record: AiVecSegment) => {
+  if (record.id == null) {
+    message.warning('无法获取切片ID')
     return
   }
+  const isRe = !!record.vectorId
   Modal.confirm({
-    title: '确认执行向量化',
-    content: `将对文档 ${docId} 的切片执行向量化并写入向量库。`,
+    title: isRe ? '确认重新向量化' : '确认向量化',
+    content: isRe ? '将对该切片重新生成向量并更新向量库。' : '将对该切片生成向量并写入向量库。',
     async onOk() {
-      await aiVecDocApi.vectorize(docId)
-      message.success('向量化任务已提交')
+      await aiVecSegmentApi.vectorize(record.id!)
+      message.success('切片向量化完成')
+      await fetchSegmentRows()
     }
   })
 }
@@ -235,5 +259,9 @@ const handleVectorizeAll = () => {
   font-size: 12px;
   color: var(--text-muted);
   margin: 0;
+}
+
+.segment-search {
+  margin-bottom: 16px;
 }
 </style>

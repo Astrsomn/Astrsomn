@@ -3,6 +3,7 @@
       :confirm-text="'确认'"
       :max-width="'min(80vw, 1400px)'"
       :open="open"
+      :z-index="1000"
       body-height="80vh"
       main-padding="0"
       max-body-height="800px"
@@ -26,60 +27,78 @@
       <div class="modal-left">
         <div class="section-title">基础配置</div>
 
+        <!-- 实例名称 — 全宽 -->
         <div class="form-group">
-          <label class="form-label">实例名称</label>
+          <label class="form-label">实例名称 <span class="required">*</span></label>
           <a-input v-model:value="formData.instanceName" placeholder="例如：GPT-4o 主力" size="large" />
         </div>
 
-        <div class="form-group">
-          <label class="form-label">模型</label>
-          <div :class="['model-picker', { selected: !!formData.modelKey }]" @click="modelDrawerOpen = true">
-            <template v-if="formData.modelKey && selectedModel">
-              <img v-if="getModelAvatar(formData.modelKey)" :src="getModelAvatar(formData.modelKey)" class="model-avatar" />
-              <div class="model-info">
-                <span class="model-name">{{ selectedModel.modelName }}</span>
-                <code class="model-key">{{ formData.modelKey }}</code>
-              </div>
-              <SwapOutlined class="model-swap" />
-            </template>
-            <template v-else>
-              <SearchOutlined class="model-placeholder-icon" />
-              <span class="model-placeholder">选择模型</span>
-            </template>
+        <!-- Bento 双卡片：模型 + 账号 -->
+        <div class="bento-row">
+          <div class="form-group">
+            <label class="form-label">模型 <span class="required">*</span></label>
+            <div :class="['bento-card', { filled: !!formData.modelKey }]" @click="modelDrawerOpen = true">
+              <template v-if="formData.modelKey && selectedModel">
+                <img v-if="getModelAvatar(formData.modelKey)" :src="getModelAvatar(formData.modelKey)" class="bento-card-avatar" />
+                <div v-else class="bento-card-icon"><RobotOutlined /></div>
+                <div class="bento-card-body">
+                  <span class="bento-card-title">{{ selectedModel.modelName }}</span>
+                  <code class="bento-card-key">{{ formData.modelKey }}</code>
+                </div>
+                <SwapOutlined class="bento-card-swap" />
+              </template>
+              <template v-else>
+                <div class="bento-card-icon"><SearchOutlined /></div>
+                <div class="bento-card-body">
+                  <span class="bento-card-title">选择模型</span>
+                  <span class="bento-card-hint">点击选择模型端点</span>
+                </div>
+                <RightOutlined class="bento-card-arrow" />
+              </template>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">关联账号 <span class="required">*</span></label>
+            <div :class="['bento-card', { filled: !!formData.accountKey }]" @click="accountDrawerOpen = true">
+              <template v-if="formData.accountKey">
+                <div class="bento-card-icon"><KeyOutlined /></div>
+                <div class="bento-card-body">
+                  <span class="bento-card-title">{{ formData.accountName || formData.accountKey }}</span>
+                  <code class="bento-card-key">{{ formData.accountKey }}</code>
+                </div>
+                <SwapOutlined class="bento-card-swap" />
+              </template>
+              <template v-else>
+                <div class="bento-card-icon"><UserOutlined /></div>
+                <div class="bento-card-body">
+                  <span class="bento-card-title">选择关联账号</span>
+                  <span class="bento-card-hint">点击选择 API 账号</span>
+                </div>
+                <RightOutlined class="bento-card-arrow" />
+              </template>
+            </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">关联账号</label>
-          <div class="account-row">
-            <a-input
-                :value="formData.accountKey"
-                :disabled="true"
-                :placeholder="formData.accountKey || '请选择关联账号'"
-                class="account-input"
+        <!-- 降级 + 权重 同行 -->
+        <div class="form-row">
+          <div class="form-group" style="flex:1">
+            <label class="form-label">降级备选</label>
+            <a-select
+                v-model:value="formData.fallbackInstanceKey"
+                :options="fallbackOptions"
+                allow-clear
+                placeholder="无自动降级"
                 size="large"
-                @click="accountDrawerOpen = true"
             />
-            <a-button size="large" type="primary" @click="accountDrawerOpen = true">选择</a-button>
           </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">降级备选</label>
-          <a-select
-              v-model:value="formData.fallbackInstanceKey"
-              :options="fallbackOptions"
-              allow-clear
-              placeholder="无自动降级"
-              size="large"
-          />
-        </div>
-
-        <div v-if="routeStrategy === 'weightedRandom'" class="form-group">
-          <label class="form-label">权重</label>
-          <div class="weight-row">
-            <a-slider v-model:value="formData.routeWeight" :max="100" :min="1" :step="1" class="weight-slider" />
-            <span class="weight-value">{{ formData.routeWeight ?? 1 }}</span>
+          <div v-if="routeStrategy === 'weightedRandom'" class="form-group" style="flex:1">
+            <label class="form-label">权重</label>
+            <div class="weight-row">
+              <a-slider v-model:value="formData.routeWeight" :max="100" :min="1" :step="1" class="weight-slider" />
+              <span class="weight-value">{{ formData.routeWeight ?? 1 }}</span>
+            </div>
           </div>
         </div>
 
@@ -100,136 +119,163 @@
 
       <!-- 右侧：推理参数 -->
       <div class="modal-right">
-        <div class="section-title">
-          <span>推理参数</span>
-          <a-tag v-if="formData.modelKey" class="model-tag" color="blue">{{ formData.modelKey }}</a-tag>
+        <!-- 折叠态 -->
+        <div v-if="!showInferenceParams" class="params-collapsed">
+          <div class="params-collapsed-icon">
+            <SettingOutlined />
+          </div>
+          <h3 class="params-collapsed-title">推理参数</h3>
+          <p class="params-collapsed-desc">
+            <template v-if="formData.modelKey && selectedModel">
+              {{ paramKindLabel }} · {{ selectedModel.modelName }}
+            </template>
+            <template v-else>
+              选择模型后可配置推理参数
+            </template>
+          </p>
+          <p class="params-collapsed-hint">Temperature、Top P、Max Tokens 等高级参数，日常使用无需调整</p>
+          <a-button :disabled="!formData.modelKey" type="primary" @click="showInferenceParams = true">
+            <template #icon><SettingOutlined /></template>
+            展开配置
+          </a-button>
         </div>
 
-        <p v-if="paramVisibility.capabilityHint.value" class="hint-text">{{ paramVisibility.capabilityHint.value }}</p>
-        <p v-if="paramVisibility.hasParamSchema.value && paramVisibility.unsupportedParamCodes.value.length > 0" class="hint-text muted">
-          {{ paramVisibility.unsupportedParamCodes.value.length }} 项参数暂不支持实例侧配置：{{ paramVisibility.unsupportedParamCodes.value.join(', ') }}
-        </p>
-
-        <!-- 对话模型参数 -->
-        <template v-if="paramVisibility.modelKind.value === 'chat'">
-          <div class="params-list">
-            <div v-if="paramVisibility.showChatTemperature.value" class="param-card">
-              <div class="param-header">
-                <span class="param-name">Temperature</span>
-                <a-input-number v-model:value="formData.temperature" :max="2" :min="0" :step="0.1" size="small" />
-              </div>
-              <a-slider
-                  v-model:value="formData.temperature"
-                  :marks="{ 0: '严谨', 0.7: '平衡', 1.5: '创意', 2: '随机' }"
-                  :max="2"
-                  :min="0"
-                  :step="0.1"
-              />
-              <div class="param-hint">{{ getTempInfo(formData.temperature ?? 0.7).text }}</div>
-            </div>
-
-            <div v-if="paramVisibility.showChatMaxTokens.value" class="param-card">
-              <div class="param-header">
-                <span class="param-name">Max Tokens</span>
-                <a-input-number v-model:value="formData.maxTokens" :max="128000" :min="1" size="small" />
-              </div>
-              <a-slider
-                  v-model:value="formData.maxTokens"
-                  :marks="{ 0: '短', 2048: '中', 4096: '长', 8192: '超长' }"
-                  :max="8192"
-                  :min="0"
-                  :step="256"
-              />
-            </div>
-
-            <div v-if="paramVisibility.showChatTopP.value" class="param-card">
-              <div class="param-header">
-                <span class="param-name">Top P</span>
-                <a-input-number v-model:value="formData.topP" :max="1" :min="0" :step="0.01" size="small" />
-              </div>
-              <a-slider
-                  v-model:value="formData.topP"
-                  :marks="{ 0: '极窄', 0.5: '标准', 1: '完整' }"
-                  :max="1"
-                  :min="0"
-                  :step="0.05"
-              />
-            </div>
-
-            <div v-if="paramVisibility.showChatTopK.value" class="param-card">
-              <div class="param-header">
-                <span class="param-name">Top K</span>
-                <a-input-number v-model:value="formData.topK" :max="100" :min="0" :step="1" size="small" />
-              </div>
-              <span class="param-note">0 = 不启用</span>
-            </div>
-
-            <div v-if="paramVisibility.showChatSeed.value" class="param-card">
-              <div class="param-header">
-                <span class="param-name">Seed</span>
-                <a-input-number v-model:value="formData.seed" :max="2147483647" :min="0" :step="1" size="small" />
-              </div>
-            </div>
-
-            <div v-if="paramVisibility.showChatStopSequences.value" class="param-card">
-              <div class="param-header">
-                <span class="param-name">Stop Sequences</span>
-              </div>
-              <a-textarea v-model:value="formData.stopSequences" :rows="2" placeholder="多个序列用英文逗号分隔" />
-            </div>
-
-            <div v-if="paramVisibility.showChatPenalties.value" class="penalty-grid">
-              <div v-if="paramVisibility.showChatFrequencyPenalty.value" class="param-card compact">
-                <span class="param-name">Frequency Penalty</span>
-                <a-slider v-model:value="formData.frequencyPenalty" :max="2" :min="-2" :step="0.1" />
-              </div>
-              <div v-if="paramVisibility.showChatPresencePenalty.value" class="param-card compact">
-                <span class="param-name">Presence Penalty</span>
-                <a-slider v-model:value="formData.presencePenalty" :max="2" :min="-2" :step="0.1" />
-              </div>
-            </div>
+        <!-- 展开态 -->
+        <template v-else>
+          <div class="section-title">
+            <span>推理参数</span>
+            <a-tag v-if="formData.modelKey" class="model-tag" color="blue">{{ formData.modelKey }}</a-tag>
+            <a-button size="small" type="text" @click="showInferenceParams = false">
+              <template #icon><CloseOutlined /></template>
+            </a-button>
           </div>
-        </template>
 
-        <!-- Embedding 模型参数 -->
-        <template v-else-if="paramVisibility.modelKind.value === 'embedding'">
-          <div class="params-list">
-            <div v-if="paramVisibility.showEmbeddingDimensions.value" class="param-card">
-              <div class="param-header">
-                <span class="param-name">Dimensions</span>
-              </div>
-              <a-select
-                  v-model:value="formData.dimensions"
-                  :filter-option="filterDimensionOption"
-                  :options="dimensionOptions"
-                  allow-clear
-                  placeholder="选择或输入维度"
-                  show-search
-                  size="large"
-                  style="width: 100%"
-              />
-            </div>
-            <p v-if="!paramVisibility.embeddingHasAnyControl.value" class="hint-text muted">当前端点未开放向量可调参数</p>
-          </div>
-        </template>
+          <p v-if="paramVisibility.capabilityHint.value" class="hint-text">{{ paramVisibility.capabilityHint.value }}</p>
+          <p v-if="paramVisibility.hasParamSchema.value && paramVisibility.unsupportedParamCodes.value.length > 0" class="hint-text muted">
+            {{ paramVisibility.unsupportedParamCodes.value.length }} 项参数暂不支持实例侧配置：{{ paramVisibility.unsupportedParamCodes.value.join(', ') }}
+          </p>
 
-        <!-- 图像模型参数 -->
-        <template v-else-if="paramVisibility.modelKind.value === 'image'">
-          <div class="params-list">
-            <div v-if="paramVisibility.showImageSize.value" class="param-card">
-              <div class="param-header">
-                <span class="param-name">Size</span>
+          <!-- 对话模型参数 -->
+          <template v-if="paramVisibility.modelKind.value === 'chat'">
+            <div class="params-list">
+              <div v-if="paramVisibility.showChatTemperature.value" class="param-card">
+                <div class="param-header">
+                  <span class="param-name">Temperature</span>
+                  <a-input-number v-model:value="formData.temperature" :max="2" :min="0" :step="0.1" size="small" />
+                </div>
+                <a-slider
+                    v-model:value="formData.temperature"
+                    :marks="{ 0: '严谨', 0.7: '平衡', 1.5: '创意', 2: '随机' }"
+                    :max="2"
+                    :min="0"
+                    :step="0.1"
+                />
+                <div class="param-hint">{{ getTempInfo(formData.temperature ?? 0.7).text }}</div>
               </div>
-              <a-input v-model:value="formData.size" allow-clear placeholder="例如 1024x1024" size="large" />
-            </div>
-            <div v-if="paramVisibility.showImageStyle.value" class="param-card">
-              <div class="param-header">
-                <span class="param-name">Style</span>
+
+              <div v-if="paramVisibility.showChatMaxTokens.value" class="param-card">
+                <div class="param-header">
+                  <span class="param-name">Max Tokens</span>
+                  <a-input-number v-model:value="formData.maxTokens" :max="128000" :min="1" size="small" />
+                </div>
+                <a-slider
+                    v-model:value="formData.maxTokens"
+                    :marks="{ 0: '短', 2048: '中', 4096: '长', 8192: '超长' }"
+                    :max="8192"
+                    :min="0"
+                    :step="256"
+                />
               </div>
-              <a-input v-model:value="formData.style" allow-clear placeholder="例如 vivid / natural" size="large" />
+
+              <div v-if="paramVisibility.showChatTopP.value" class="param-card">
+                <div class="param-header">
+                  <span class="param-name">Top P</span>
+                  <a-input-number v-model:value="formData.topP" :max="1" :min="0" :step="0.01" size="small" />
+                </div>
+                <a-slider
+                    v-model:value="formData.topP"
+                    :marks="{ 0: '极窄', 0.5: '标准', 1: '完整' }"
+                    :max="1"
+                    :min="0"
+                    :step="0.05"
+                />
+              </div>
+
+              <div v-if="paramVisibility.showChatTopK.value" class="param-card">
+                <div class="param-header">
+                  <span class="param-name">Top K</span>
+                  <a-input-number v-model:value="formData.topK" :max="100" :min="0" :step="1" size="small" />
+                </div>
+                <span class="param-note">0 = 不启用</span>
+              </div>
+
+              <div v-if="paramVisibility.showChatSeed.value" class="param-card">
+                <div class="param-header">
+                  <span class="param-name">Seed</span>
+                  <a-input-number v-model:value="formData.seed" :max="2147483647" :min="0" :step="1" size="small" />
+                </div>
+              </div>
+
+              <div v-if="paramVisibility.showChatStopSequences.value" class="param-card">
+                <div class="param-header">
+                  <span class="param-name">Stop Sequences</span>
+                </div>
+                <a-textarea v-model:value="formData.stopSequences" :rows="2" placeholder="多个序列用英文逗号分隔" />
+              </div>
+
+              <div v-if="paramVisibility.showChatPenalties.value" class="penalty-grid">
+                <div v-if="paramVisibility.showChatFrequencyPenalty.value" class="param-card compact">
+                  <span class="param-name">Frequency Penalty</span>
+                  <a-slider v-model:value="formData.frequencyPenalty" :max="2" :min="-2" :step="0.1" />
+                </div>
+                <div v-if="paramVisibility.showChatPresencePenalty.value" class="param-card compact">
+                  <span class="param-name">Presence Penalty</span>
+                  <a-slider v-model:value="formData.presencePenalty" :max="2" :min="-2" :step="0.1" />
+                </div>
+              </div>
             </div>
-            <p v-if="!paramVisibility.imageHasAnyControl.value" class="hint-text muted">当前端点未开放图像可调参数</p>
-          </div>
+          </template>
+
+          <!-- Embedding 模型参数 -->
+          <template v-else-if="paramVisibility.modelKind.value === 'embedding'">
+            <div class="params-list">
+              <div v-if="paramVisibility.showEmbeddingDimensions.value" class="param-card">
+                <div class="param-header">
+                  <span class="param-name">Dimensions</span>
+                </div>
+                <a-select
+                    v-model:value="formData.dimensions"
+                    :filter-option="filterDimensionOption"
+                    :options="dimensionOptions"
+                    allow-clear
+                    placeholder="选择或输入维度"
+                    show-search
+                    size="large"
+                    style="width: 100%"
+                />
+              </div>
+              <p v-if="!paramVisibility.embeddingHasAnyControl.value" class="hint-text muted">当前端点未开放向量可调参数</p>
+            </div>
+          </template>
+
+          <!-- 图像模型参数 -->
+          <template v-else-if="paramVisibility.modelKind.value === 'image'">
+            <div class="params-list">
+              <div v-if="paramVisibility.showImageSize.value" class="param-card">
+                <div class="param-header">
+                  <span class="param-name">Size</span>
+                </div>
+                <a-input v-model:value="formData.size" allow-clear placeholder="例如 1024x1024" size="large" />
+              </div>
+              <div v-if="paramVisibility.showImageStyle.value" class="param-card">
+                <div class="param-header">
+                  <span class="param-name">Style</span>
+                </div>
+                <a-input v-model:value="formData.style" allow-clear placeholder="例如 vivid / natural" size="large" />
+              </div>
+              <p v-if="!paramVisibility.imageHasAnyControl.value" class="hint-text muted">当前端点未开放图像可调参数</p>
+            </div>
+          </template>
         </template>
       </div>
     </div>
@@ -238,12 +284,14 @@
   <ModelSelectorDrawer
       :fixed-model-type="modelType"
       :open="modelDrawerOpen"
+      root-class-name="instance-modal-drawer"
       @select="onModelDrawerSelect"
       @update:open="modelDrawerOpen = $event"
   />
   <AccountSelectorDrawer
       :open="accountDrawerOpen"
       :provider-filter="selectedModel?.extensionCode"
+      root-class-name="instance-modal-drawer"
       @select="onAccountSelect"
       @update:open="accountDrawerOpen = $event"
   />
@@ -251,7 +299,8 @@
 
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
-import {CloudServerOutlined, SearchOutlined, SwapOutlined} from '@ant-design/icons-vue'
+import {CloudServerOutlined, CloseOutlined, KeyOutlined, RightOutlined, RobotOutlined, SearchOutlined, SettingOutlined, SwapOutlined, UserOutlined} from '@ant-design/icons-vue'
+import {message} from 'ant-design-vue'
 import AstModal from '@/components/home/AstModal.vue'
 import type {AiInstance} from '@/api/aiInstance.ts'
 import type {AiModel} from '@/api/aiModel.ts'
@@ -280,6 +329,7 @@ const emit = defineEmits<{
 const isEdit = computed(() => !!props.record?.instanceKey)
 const modelDrawerOpen = ref(false)
 const accountDrawerOpen = ref(false)
+const showInferenceParams = ref(false)
 
 const formData = reactive({
   modelType: 'chat' as string,
@@ -309,6 +359,14 @@ const selectedModel = computed(() =>
 )
 
 const paramVisibility = useInstanceParamVisibility(selectedModel)
+
+const paramKindLabel = computed(() => {
+  const kind = paramVisibility.modelKind.value
+  if (kind === 'chat') return '对话模型'
+  if (kind === 'embedding') return '向量模型'
+  if (kind === 'image') return '图像模型'
+  return '推理配置'
+})
 
 const contextOptions = [
   { value: '10', label: '10 轮' },
@@ -414,6 +472,18 @@ function handleCancel() {
 }
 
 function handleConfirm() {
+  if (!formData.instanceName.trim()) {
+    message.warning('请输入实例名称')
+    return
+  }
+  if (!formData.modelKey) {
+    message.warning('请选择模型')
+    return
+  }
+  if (!formData.accountKey) {
+    message.warning('请选择关联账号')
+    return
+  }
   const instance: AiInstance = {
     modelType: formData.modelType,
     modelKey: formData.modelKey,
@@ -449,8 +519,10 @@ watch(() => props.open, (val) => {
   if (!val) return
   if (props.record) {
     populateFromRecord(props.record)
+    showInferenceParams.value = true
   } else {
     resetForm()
+    showInferenceParams.value = false
   }
 })
 </script>
@@ -467,28 +539,35 @@ watch(() => props.open, (val) => {
   padding-bottom: 0;
 }
 
+/* 选择模型/账号的抽屉必须浮在模态框上方 */
+:global(.instance-modal-drawer) {
+  z-index: 2000 !important;
+}
+
 .modal-body {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  grid-template-columns: 1fr 1fr;
   height: 100%;
+  min-height: 0;
   overflow: hidden;
 }
 
 .modal-left {
-  padding: 20px 24px;
+  padding: 24px 28px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   overflow-y: auto;
+  min-height: 0;
   border-right: 1px solid var(--border-default);
 }
 
 .modal-right {
-  padding: 20px 24px;
+  padding: 24px 28px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  min-height: 0;
 }
 
 .section-title {
@@ -513,55 +592,89 @@ watch(() => props.open, (val) => {
   color: var(--text-secondary);
 }
 
+.required {
+  color: #ef4444;
+  font-weight: 600;
+}
 
-.model-picker {
+/* ── Bento 双卡片行 ── */
+.bento-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-row {
+  display: flex;
+  gap: 14px;
+}
+
+/* ── Bento 卡片 ── */
+.bento-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 2px dashed var(--border-default);
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s;
   background: var(--bg-input);
+  min-height: 72px;
 }
 
-.model-picker:hover {
-  border-color: var(--border-subtle);
+.bento-card:hover {
+  border-color: var(--primary);
   background: var(--bg-card);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px -4px rgba(59, 130, 246, 0.12);
 }
 
-.model-picker.selected {
-  border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.02);
+.bento-card.filled {
+  border-style: solid;
+  border-color: var(--primary);
+  background: rgba(59, 130, 246, 0.03);
 }
 
-.model-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+.bento-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(124, 58, 237, 0.12) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.bento-card-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   object-fit: contain;
   flex-shrink: 0;
 }
 
-.model-info {
+.bento-card-body {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
-.model-name {
-  font-size: 13px;
-  font-weight: 500;
+.bento-card-title {
+  font-size: 14px;
+  font-weight: 600;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.model-key {
+.bento-card-key {
   font-size: 11px;
   color: var(--text-muted);
   font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
@@ -570,34 +683,92 @@ watch(() => props.open, (val) => {
   white-space: nowrap;
 }
 
-.model-swap {
+.bento-card-hint {
+  font-size: 11px;
   color: var(--text-muted);
-  font-size: 12px;
-  flex-shrink: 0;
+  opacity: 0.7;
 }
 
-.model-placeholder-icon {
+.bento-card-swap {
   color: var(--text-muted);
   font-size: 14px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
 }
 
-.model-placeholder {
-  font-size: 13px;
+.bento-card:hover .bento-card-swap {
+  opacity: 1;
+}
+
+.bento-card-arrow {
   color: var(--text-muted);
+  font-size: 13px;
+  flex-shrink: 0;
+  transition: all 0.15s;
 }
 
-
-.account-row {
-  display: flex;
-  gap: 8px;
+.bento-card:hover .bento-card-arrow {
+  color: var(--primary);
+  transform: translateX(2px);
 }
 
-.account-input {
+/* ── 右侧折叠态 ── */
+.params-collapsed {
   flex: 1;
-  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 40px 20px;
 }
 
+.params-collapsed-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--primary);
+}
 
+.params-collapsed-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.params-collapsed-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.params-collapsed-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+  max-width: 260px;
+  line-height: 1.5;
+}
+
+/* ── 展开态 ── */
+.modal-right .section-title {
+  margin-bottom: 12px;
+}
+
+.modal-right .params-list {
+  margin-top: 4px;
+}
+
+/* ── 权重 ── */
 .weight-row {
   display: flex;
   align-items: center;
@@ -618,7 +789,7 @@ watch(() => props.open, (val) => {
   text-align: right;
 }
 
-
+/* ── 上下文轮数 ── */
 .context-options {
   display: flex;
   gap: 6px;
@@ -626,9 +797,9 @@ watch(() => props.open, (val) => {
 
 .context-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border: 1px solid var(--border-default);
-  border-radius: 8px;
+  border-radius: 10px;
   background: transparent;
   color: var(--text-muted);
   font-size: 12px;
@@ -649,14 +820,13 @@ watch(() => props.open, (val) => {
   font-weight: 600;
 }
 
-
+/* ── 参数面板 ── */
 .model-tag {
   font-size: 11px;
   max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 
 .hint-text {
   font-size: 12px;
@@ -668,7 +838,6 @@ watch(() => props.open, (val) => {
 .hint-text.muted {
   opacity: 0.7;
 }
-
 
 .params-list {
   display: flex;

@@ -63,14 +63,10 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
             if (!field.isAnnotationPresent(Astro.class)) return;
 
             hasAstroField[0] = true;
-            log.info("{} 发现 @Astro 注解字段 | Bean: {} | Field: {} | FieldType: {}",
-                    LOG_PREFIX, beanName, field.getName(), field.getType().getName());
 
             ReflectionUtils.makeAccessible(field);
             Astro astro = field.getAnnotation(Astro.class);
 
-            log.debug("{} 解析注解参数 | Bean: {} | Field: {} | agentKey: {} | envCode: {} | promptKey: {}",
-                    LOG_PREFIX, beanName, field.getName(), astro.agentKey(), astro.envCode(), astro.promptKey());
 
             String annotationAgentKey = StringUtils.trimToNull(astro.agentKey());
 
@@ -79,14 +75,12 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
                 processField(bean, beanName, field, astro, annotationAgentKey);
             } else {
                 // 注解未指定 agentKey，需要查询数据库，延迟到 ApplicationReadyEvent 后处理
-                log.info("{} 注解未指定 agentKey，延迟注入 | Bean: {} | Field: {}",
-                        LOG_PREFIX, beanName, field.getName());
                 delayedInjections.add(new DelayedInjection(bean, field, beanName, astro));
             }
         });
 
         if (!hasAstroField[0]) {
-            log.debug("{} Bean 无 @Astro 注解字段 | BeanName: {}", LOG_PREFIX, beanName);
+
         }
 
         return bean;
@@ -100,24 +94,16 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         Object assistant = null;
         try {
             if (!field.getType().isInterface()) {
-                log.warn("{} 字段类型不是接口，降级为启动时实例化 | Bean: {} | Field: {} | Type: {}",
-                        LOG_PREFIX, beanName, field.getName(), field.getType().getName());
                 assistant = createAssistantNow(field.getType(), agentKey, beanName, field.getName());
             } else {
                 assistant = createLazyAssistantProxy(field.getType(), agentKey, beanName, field.getName());
             }
-            log.info("{} 注入延迟 Assistant 代理成功 | Bean: {} | Field: {} | Assistant: {}",
-                    LOG_PREFIX, beanName, field.getName(), assistant.getClass().getName());
         } catch (Exception e) {
-            log.error("{} Assistant 创建失败 | Bean: {} | Field: {} | 错误: {}",
-                    LOG_PREFIX, beanName, field.getName(), e.getMessage(), e);
             throw e;
         }
 
         try {
             field.set(bean, assistant);
-            log.info("{} 成功注入 Assistant | Bean: {} | Field: {} | AgentKey: {}",
-                    LOG_PREFIX, beanName, field.getName(), agentKey);
         } catch (IllegalAccessException e) {
             log.error("{} 注入失败 | Bean: {} | Field: {} | 错误: {}",
                     LOG_PREFIX, beanName, field.getName(), e.getMessage(), e);
@@ -129,7 +115,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         if (delayedInjections.isEmpty()) {
-            log.debug("{} 无延迟注入字段", LOG_PREFIX);
+
             return;
         }
         delayedProcessInjections();
@@ -140,15 +126,15 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
         try {
             doProcessInjections();
         } catch (Exception e) {
-            log.warn("{} 延迟注入失败，将在延迟后重试 | 异常: {}", LOG_PREFIX, e.getMessage());
+
             try {
                 TimeUnit.SECONDS.sleep(2);
                 doProcessInjections();
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt();
-                log.error("{} 延迟注入重试被中断", LOG_PREFIX);
+
             } catch (Exception e2) {
-                log.error("{} 延迟注入重试失败 | 异常: {}", LOG_PREFIX, e2.getMessage());
+
             }
         }
     }
@@ -162,13 +148,11 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
                 String agentKey = resolveAgentKeyFromDatabase(injection.astro);
                 processField(injection.bean, injection.beanName, injection.field, injection.astro, agentKey);
             } catch (Exception e) {
-                log.error("{} 延迟注入失败 | Bean: {} | Field: {} | 错误: {}",
-                        LOG_PREFIX, injection.beanName, injection.field.getName(), e.getMessage(), e);
             }
         }
 
         delayedInjections.clear();
-        log.info("{} 延迟注入处理完成", LOG_PREFIX);
+
     }
 
     @Override
@@ -180,7 +164,7 @@ public class AstroAnnotationInitializer implements BeanPostProcessor, PriorityOr
     
     private String resolveAgentKeyFromDatabase(Astro astro) {
         if (aiRuntimeDefaultsResolver == null || astrsomnProperties == null) {
-            log.error("{} 无法解析 AgentKey：必要的依赖未注入", LOG_PREFIX);
+
             throw new IllegalStateException(LOG_PREFIX + "无法解析 AgentKey：必要的依赖未注入");
         }
 

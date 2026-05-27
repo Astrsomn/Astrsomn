@@ -1,21 +1,19 @@
 <template>
   <div class="search-panel">
     <div class="search-bar">
-      <a-input-search
-          v-model:value="queryText"
-          :loading="searching"
-          placeholder="输入问题进行语义检索..."
-          size="large"
-          @search="handleSearch"
-      >
-        <template #addonBefore>
-          <a-select v-model:value="topK" style="width: 80px" size="small">
-            <a-select-option :value="3">Top 3</a-select-option>
-            <a-select-option :value="5">Top 5</a-select-option>
-            <a-select-option :value="10">Top 10</a-select-option>
-          </a-select>
-        </template>
-      </a-input-search>
+      <div class="search-row">
+        <AstSearchInput
+            v-model="queryText"
+            layout="fluid"
+            placeholder="输入问题进行语义检索..."
+            @search="handleSearch"
+        />
+        <a-select v-model:value="topK" size="small" style="width: 80px; flex-shrink: 0;">
+          <a-select-option :value="3">Top 3</a-select-option>
+          <a-select-option :value="5">Top 5</a-select-option>
+          <a-select-option :value="10">Top 10</a-select-option>
+        </a-select>
+      </div>
     </div>
 
     <div v-if="results.length > 0" class="search-results">
@@ -57,6 +55,7 @@
 <script lang="ts" setup>
 import {ref} from 'vue'
 import {message} from 'ant-design-vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {aiVecSegmentApi, type AiVecSegmentSearchResult} from '@/api/aiVecSegment.ts'
 
 const props = defineProps<{
@@ -105,8 +104,16 @@ const handleSearch = async () => {
   padding: 0 24px 16px;
 }
 
-.search-bar {
+.search-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
   margin-bottom: 16px;
+}
+
+.search-row :deep(.toolbar-search-pill) {
+  flex: 1;
+  min-width: 0;
 }
 
 .search-results {

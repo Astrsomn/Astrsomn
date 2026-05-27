@@ -16,6 +16,13 @@ public class AiAgentResponseDTO extends AiAgentEntity {
 
     private AiPromptEntity prompt;
 
-
     private List<AiInstanceResponseDTO> instanceList;
+
+    private String promptTitle;
+
+    private String promptContent;
+
+    private String modelName;
+
+    private String providerAvatar;
 }

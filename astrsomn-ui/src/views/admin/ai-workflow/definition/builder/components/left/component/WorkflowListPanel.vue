@@ -1,17 +1,12 @@
 <template>
   <div class="workflow-list-panel">
     <div class="panel-head">
-      <a-input
-          :value="keyword"
-          allow-clear
+      <AstSearchInput
+          v-model="keyword"
           class="panel-search"
+          layout="fluid"
           placeholder="搜索流程..."
-          @update:value="onKeywordChange"
-      >
-        <template #prefix>
-          <SearchOutlined/>
-        </template>
-      </a-input>
+      />
     </div>
 
     <div v-if="!filteredItems.length" class="empty-tip">暂无流程，请先创建流程。</div>
@@ -117,7 +112,8 @@
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
-import {CopyOutlined, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined} from '@ant-design/icons-vue'
+import {CopyOutlined, DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import type {WorkflowListItem} from '../../../domain/types'
 
 const props = defineProps<{
@@ -290,10 +286,6 @@ const onDelete = (item: WorkflowListItem) => {
   emit('delete', item)
 }
 
-const onKeywordChange = (value: string) => {
-  keyword.value = value || ''
-}
-
 const copyWorkflowKey = async (workflowKey?: string) => {
   const text = (workflowKey || '').trim()
   if (!text) {
@@ -340,18 +332,12 @@ const copyWorkflowKey = async (workflowKey?: string) => {
 }
 
 .panel-search {
+  height: 42px;
   border-radius: 10px;
 }
 
-:deep(.panel-search .ant-input) {
-
-  border: 0;
-  height: 34px;
+.panel-search :deep(.toolbar-search-pill__input) {
   font-size: 13px;
-}
-
-:deep(.panel-search .ant-input-prefix) {
-  color: #9aa7b6;
 }
 
 .empty-tip {

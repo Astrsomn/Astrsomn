@@ -371,21 +371,6 @@ watch(
   font-size: 13px;
 }
 
-.sidebar-search-pill :deep(.toolbar-search-pill__btn) {
-  width: 28px;
-  height: 28px;
-  background: transparent;
-  color: var(--text-muted);
-  box-shadow: none;
-}
-
-.sidebar-search-pill :deep(.toolbar-search-pill__btn:hover) {
-  background: var(--primary-hover);
-  color: var(--primary);
-  filter: none;
-  transform: none;
-}
-
 
 
 .nav-list {

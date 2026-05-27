@@ -24,6 +24,7 @@ import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.CollectionUtils;
+import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.internal.storage.config.StorageProperties;
 import com.astrsomn.internal.storage.service.AstrsomnStorageClient;
@@ -337,6 +338,8 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             updateDoneSegments(docId, done, progress, "Generating embeddings... (" + done + "/" + totalSegs + ")");
         }
 
+        ensureCollectionDimension(vecStore, store, allEmbeddings.get(0));
+
         updateProgress(docId, 80, "Writing to vector store...");
 
         List<String> vectorIds;
@@ -351,6 +354,9 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         }
 
         updateProgress(docId, 90, "Saving segment records...");
+
+        aiVecSegmentService.remove(new LambdaQueryWrapper<AiVecSegmentEntity>()
+                .eq(AiVecSegmentEntity::getDocId, docId));
 
         List<AiVecSegmentEntity> rows = new ArrayList<>(embeddedSegments.size());
         long idx = 0;
@@ -534,6 +540,8 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         }
 
         updateProgress(docId, 80, "Saving segment records...");
+        aiVecSegmentService.remove(new LambdaQueryWrapper<AiVecSegmentEntity>()
+                .eq(AiVecSegmentEntity::getDocId, docId));
         boolean segOk = aiVecSegmentService.saveBatch(rows);
         if (!segOk) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_FAILED, "Failed to save segment records");
@@ -632,6 +640,8 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             updateDoneSegments(docId, done, progress, "Generating embeddings... (" + done + "/" + totalSegs + ")");
         }
 
+        ensureCollectionDimension(vecStore, store, allEmbeddings.get(0));
+
         updateProgress(docId, 75, "Writing to vector store...");
 
         List<String> vectorIds;
@@ -707,10 +717,6 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             }
         }
 
-        // Delete old segments
-        aiVecSegmentService.remove(new LambdaQueryWrapper<AiVecSegmentEntity>()
-                .eq(AiVecSegmentEntity::getDocId, id));
-
         // Reset doc
         String taskId = UUID.randomUUID().toString().replace("-", "");
         doc.setSyncStatus(AiVecDocEnum.SyncStatus.CHUNKING.getCode());
@@ -769,9 +775,6 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
                 log.warn("reVectorize: failed to delete old vectors docId={}, continuing", id, e);
             }
         }
-
-        aiVecSegmentService.remove(new LambdaQueryWrapper<AiVecSegmentEntity>()
-                .eq(AiVecSegmentEntity::getDocId, id));
 
         String taskId = UUID.randomUUID().toString().replace("-", "");
         doc.setSyncStatus(AiVecDocEnum.SyncStatus.VECTORING.getCode());
@@ -838,10 +841,30 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             if (Objects.isNull(account)) {
                 throw new BusinessException(AstVecDocErrorEnum.DOC_PARAM_ERROR, "Account not found: " + accountKey);
             }
+            if (account.getApiKey() != null) {
+                account.setApiKey(CryptoUtil.decrypt(account.getApiKey()));
+            }
+            if (account.getApiSecret() != null) {
+                account.setApiSecret(CryptoUtil.decrypt(account.getApiSecret()));
+            }
             RuntimeChatParamMergeSupport.mergeModelSettingFromAccount(param.getModelSetting(), account);
         }
 
         return astroModelFactory.createModel(param, EmbeddingModel.class);
+    }
+
+    private void ensureCollectionDimension(VecStore vecStore, com.astrsomn.api.vector.entity.AiVecStoreEntity store, Embedding embedding) {
+        int actualDim = embedding.vector().length;
+        Long configuredDim = store.getDimension();
+        if (configuredDim != null && configuredDim.intValue() == actualDim) {
+            return;
+        }
+        log.info("Collection dimension mismatch: configured={}, actual={}, recreating collection {}",
+                configuredDim, actualDim, store.getCollectionName());
+        vecStore.dropCollection();
+        store.setDimension((long) actualDim);
+        aiVecStoreService.updateById(store);
+        vecStore.createCollection();
     }
 
     private InputStream openDocInputStream(AiVecDocEntity doc) {

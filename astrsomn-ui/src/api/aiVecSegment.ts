@@ -74,5 +74,10 @@ export const aiVecSegmentApi = {
     async search(params: AiVecSegmentSearchRequest): Promise<AiVecSegmentSearchResult[]> {
         const res = await request.post<AiVecSegmentSearchResult[]>('/v1/astro/ai-vec-segment/search', params)
         return res
+    },
+
+    async vectorize(id: number | string): Promise<AiVecSegment> {
+        const res = await request.post<AiVecSegment>('/v1/astro/ai-vec-segment/vectorize', { id })
+        return res
     }
 }

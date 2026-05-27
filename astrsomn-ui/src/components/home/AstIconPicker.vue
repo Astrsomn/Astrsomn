@@ -25,16 +25,11 @@
       <a-tabs v-model:activeKey="activeTab">
         <a-tab-pane key="icon" tab="图标选择">
           <div class="icon-search">
-            <a-input
-                v-model:value="searchText"
-                allow-clear
+            <AstSearchInput
+                v-model="searchText"
+                layout="fluid"
                 placeholder="搜索图标..."
-                size="small"
-            >
-              <template #prefix>
-                <SearchOutlined/>
-              </template>
-            </a-input>
+            />
           </div>
           <div class="icon-grid">
             <div
@@ -81,10 +76,10 @@
 
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {
   EditOutlined,
   PlusOutlined,
-  SearchOutlined,
   RobotOutlined,
   RocketOutlined,
   ThunderboltOutlined,
