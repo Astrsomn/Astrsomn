@@ -317,12 +317,13 @@ async function backfillFromDetail(detail: AiAgent) {
   }
 
   if (detail.promptKey) {
-    if (detail.promptContent) {
+    const prompt = (detail as any).prompt
+    if (prompt?.promptContent) {
       currentPrompt.value = {
-        promptKey: detail.promptKey,
-        promptTitle: detail.promptTitle,
-        promptContent: detail.promptContent,
-        version: detail.promptVersion,
+        promptKey: prompt.promptKey || detail.promptKey,
+        promptTitle: prompt.promptTitle || '',
+        promptContent: prompt.promptContent,
+        version: prompt.version ?? 1,
       }
     } else {
       const resolved = await resolvePromptByKey(detail.promptKey)
@@ -359,7 +360,8 @@ async function loadAgent() {
   loading.value = true
   try {
     const detail = await aiAgentApi.detail(props.agentId)
-    detailSnapshot.value = { ...detail }
+    const { prompt: _prompt, ...clean } = detail as any
+    detailSnapshot.value = clean as AiAgent
     await backfillFromDetail(detail)
     await loadAvailableModels()
   } catch (e: any) {

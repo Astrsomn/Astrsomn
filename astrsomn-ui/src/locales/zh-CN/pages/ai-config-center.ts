@@ -31,6 +31,14 @@ export const aiConfigCenterTranslation = {
     create: '新建 Agent',
     edit: '编辑',
     empty: '暂无 Agent',
+    deleteConfirm: '确定删除该智能体吗？',
+    batchDeleteConfirm: '确定删除选中的 {n} 个智能体吗？',
+    deleteSuccess: '删除成功',
+    batchActions: {
+      selected: '已选 {n} 项',
+      delete: '批量删除',
+      cancel: '取消选择',
+    },
   },
   model: {
     searchPlaceholder: '搜索模型名称...',

@@ -58,14 +58,28 @@
       <a-spin size="large"/>
     </div>
 
-    <div v-else class="agent-grid">
+    <div v-if="!loading" class="agent-grid-section">
+      <div v-if="selectedCount > 0" class="batch-action-bar">
+        <span class="batch-count">{{ t.agent.batchActions.selected.replace('{n}', String(selectedCount)) }}</span>
+        <a-button danger size="small" @click="handleBatchDelete">{{ t.agent.batchActions.delete }}</a-button>
+        <a-button size="small" @click="clearSelection">{{ t.agent.batchActions.cancel }}</a-button>
+      </div>
+
+      <div class="agent-grid">
       <!-- Agent 卡片 -->
       <div
           v-for="agent in agents"
           :key="agent.id"
           class="agent-card"
+          :class="{ 'card-selected': selectedKeys.has(agent.id!) }"
           @click="handleSelect(agent)"
       >
+        <a-checkbox
+          :checked="selectedKeys.has(agent.id!)"
+          class="card-checkbox"
+          @click.stop="toggleSelect(agent.id!)"
+        />
+
         <div class="card-header">
           <div class="card-avatar">
             <img v-if="isImageAvatar(agent.agentAvatar)" :src="agent.agentAvatar" alt="avatar" class="card-avatar-img"/>
@@ -82,6 +96,11 @@
 
         <p class="card-prompt">{{ agent.promptContent || agent.promptTitle || t.agent.noPrompt }}</p>
 
+        <div v-if="agent.modelName" class="card-model-row">
+          <CloudServerOutlined class="card-model-icon"/>
+          <span class="card-model-name">{{ agent.modelName }}</span>
+        </div>
+
         <div class="card-meta">
           <span v-if="agent.instanceList?.length" class="meta-chip">
             <CloudServerOutlined/> {{ agent.instanceList.length }}
@@ -93,6 +112,14 @@
             <ApiOutlined/> {{ agent.mcpKeys.split(',').filter(Boolean).length }}
           </span>
           <span class="meta-spacer"></span>
+          <a-popconfirm
+            :title="t.agent.deleteConfirm"
+            ok-text="确认"
+            cancel-text="取消"
+            @confirm="handleDeleteOne(agent.id!)"
+          >
+            <button class="action-delete-btn" @click.stop><DeleteOutlined /></button>
+          </a-popconfirm>
           <span class="edit-link">{{ t.agent.edit }} <RightOutlined/></span>
         </div>
       </div>
@@ -103,21 +130,19 @@
         <span class="add-text">{{ t.agent.create }}</span>
       </div>
     </div>
-
-    <div v-if="!loading && agents.length === 0" class="empty-container">
-      <a-empty :description="t.agent.empty"/>
-    </div>
+  </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {ref, watch} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {
   ApiOutlined,
   CloudServerOutlined,
   CodeOutlined,
   CrownOutlined,
   DashboardOutlined,
+  DeleteOutlined,
   FireOutlined,
   FundOutlined,
   GlobalOutlined,
@@ -131,6 +156,7 @@ import {
   ThunderboltOutlined,
   ToolOutlined,
 } from '@ant-design/icons-vue'
+import {Modal, message} from 'ant-design-vue'
 import {type AiAgent, aiAgentApi, type PageResponse} from '@/api/aiAgent.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
 
@@ -186,8 +212,57 @@ const fetchAgents = async () => {
   }
 }
 
+const selectedKeys = ref<Set<string | number>>(new Set())
+const selectedCount = computed(() => selectedKeys.value.size)
+
+function toggleSelect(id: string | number) {
+  const next = new Set(selectedKeys.value)
+  if (next.has(id)) {
+    next.delete(id)
+  } else {
+    next.add(id)
+  }
+  selectedKeys.value = next
+}
+
+function clearSelection() {
+  selectedKeys.value = new Set()
+}
+
 const handleSelect = (agent: AiAgent) => emit('select', agent)
 const handleCreate = () => emit('create')
+
+async function handleDeleteOne(id: string | number) {
+  try {
+    await aiAgentApi.delete([id])
+    message.success(t.value.agent.deleteSuccess)
+    selectedKeys.value.delete(id)
+    selectedKeys.value = new Set(selectedKeys.value)
+    await fetchAgents()
+  } catch (e: any) {
+    message.error(e?.message || '删除失败')
+  }
+}
+
+async function handleBatchDelete() {
+  const ids = Array.from(selectedKeys.value)
+  if (ids.length === 0) return
+  Modal.confirm({
+    title: t.value.agent.batchDeleteConfirm.replace('{n}', String(ids.length)),
+    okText: '确认',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        await aiAgentApi.delete(ids)
+        message.success(t.value.agent.deleteSuccess)
+        selectedKeys.value = new Set()
+        await fetchAgents()
+      } catch (e: any) {
+        message.error(e?.message || '删除失败')
+      }
+    },
+  })
+}
 
 watch(() => props.providerKey, () => void fetchAgents())
 void fetchAgents()
@@ -354,6 +429,7 @@ void fetchAgents()
 
 
 .agent-card {
+  position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
@@ -552,5 +628,100 @@ void fetchAgents()
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
+}
+
+
+.agent-grid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+
+.batch-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+}
+
+.batch-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-right: auto;
+}
+.card-checkbox {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.agent-card:hover .card-checkbox,
+.agent-card.card-selected .card-checkbox {
+  opacity: 1;
+}
+
+.card-selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+
+.card-model-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: -4px;
+}
+
+.card-model-icon {
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.card-model-name {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.action-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  padding: 0;
+  opacity: 0;
+}
+
+.agent-card:hover .action-delete-btn {
+  opacity: 1;
+}
+
+.action-delete-btn:hover {
+  color: #ef4444;
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
 }
 </style>

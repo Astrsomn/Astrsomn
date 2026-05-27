@@ -6,7 +6,27 @@
     <select id="queryPage" resultType="com.astrsomn.api.runtime.common.dto.agent.AiAgentResponseDTO">
         SELECT
         AA.*,
-        AP.`PROMPT_TITLE` AS promptTitle
+        AP.`PROMPT_TITLE` AS promptTitle,
+        AP.`PROMPT_CONTENT` AS promptContent,
+        (SELECT AI2.INSTANCE_NAME
+         FROM AI_INSTANCE AI2
+         WHERE AI2.BIZ_KEY = AA.AGENT_KEY
+           AND AI2.IS_DEFAULT = 'Y'
+           AND (AI2.DELETED = 0 OR AI2.DELETED IS NULL)
+         LIMIT 1) AS modelName,
+        (SELECT SE.AVATAR
+         FROM AI_INSTANCE AI2
+         JOIN AI_MODEL M ON M.MODEL_KEY = AI2.MODEL_KEY AND M.ENV_CODE = AI2.ENV_CODE
+         JOIN SYS_EXTENSION SE ON (SE.DELETED = 0 OR SE.DELETED IS NULL)
+           AND (SE.EXTENSION_CODE = M.EXTENSION_CODE OR SE.EXTENSION_KEY = M.EXTENSION_CODE)
+         WHERE AI2.BIZ_KEY = AA.AGENT_KEY
+           AND AI2.IS_DEFAULT = 'Y'
+           AND (AI2.DELETED = 0 OR AI2.DELETED IS NULL)
+           AND (M.DELETED = 0 OR M.DELETED IS NULL)
+           AND M.EXTENSION_CODE IS NOT NULL
+           AND M.EXTENSION_CODE != ''
+         ORDER BY CASE WHEN SE.EXTENSION_CODE = M.EXTENSION_CODE THEN 0 ELSE 1 END
+         LIMIT 1) AS providerAvatar
         FROM
         `AI_AGENT` AA
         LEFT JOIN (

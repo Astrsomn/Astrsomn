@@ -252,6 +252,7 @@
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
 import {CloudServerOutlined, SearchOutlined, SwapOutlined} from '@ant-design/icons-vue'
+import {message} from 'ant-design-vue'
 import AstModal from '@/components/home/AstModal.vue'
 import type {AiInstance} from '@/api/aiInstance.ts'
 import type {AiModel} from '@/api/aiModel.ts'
@@ -414,6 +415,18 @@ function handleCancel() {
 }
 
 function handleConfirm() {
+  if (!formData.instanceName.trim()) {
+    message.warning('请输入实例名称')
+    return
+  }
+  if (!formData.modelKey) {
+    message.warning('请选择模型')
+    return
+  }
+  if (!formData.accountKey) {
+    message.warning('请选择关联账号')
+    return
+  }
   const instance: AiInstance = {
     modelType: formData.modelType,
     modelKey: formData.modelKey,

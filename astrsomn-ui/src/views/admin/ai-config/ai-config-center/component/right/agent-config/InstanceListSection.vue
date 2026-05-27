@@ -201,6 +201,7 @@ function onModalConfirm(instance: AiInstance) {
     }
     emit('update:instanceList', newList)
   }
+  modalOpen.value = false
 }
 
 function removeInstance(instance: AiInstance) {

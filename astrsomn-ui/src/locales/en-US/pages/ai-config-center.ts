@@ -31,6 +31,14 @@ export const aiConfigCenterTranslation = {
     create: 'Create Agent',
     edit: 'Edit',
     empty: 'No Agents',
+    deleteConfirm: 'Delete this agent?',
+    batchDeleteConfirm: 'Delete {n} selected agents?',
+    deleteSuccess: 'Deleted successfully',
+    batchActions: {
+      selected: '{n} selected',
+      delete: 'Delete',
+      cancel: 'Cancel',
+    },
   },
   model: {
     searchPlaceholder: 'Search model name...',
