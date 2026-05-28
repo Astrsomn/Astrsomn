@@ -25,6 +25,6 @@ export const loginPageTranslation = {
     loginFailed: '登录失败',
   },
   footer: {
-    copyright: '© 2026 Astrsomn 星梦科技 · 让 AI 开发回归简单',
+    copyright: '© 2026 Astrsomn  · 让 AI 开发回归简单',
   },
 }

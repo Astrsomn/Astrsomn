@@ -1,5 +1,5 @@
 
-# 🌟 Astrsomn 星梦
+# 🌟 Astrsomn
 
 <p align="center">
   <img src="astrsomn-ui/src/assets/Astrsomn-logo.png" alt="Astrsomn Logo" width="200"/>
@@ -33,7 +33,7 @@
 
 ## 📖 项目介绍
 
-**Astrsomn（星梦）** 是一个基于 LangChain4j 封装的 Java AI 集成框架：你只需引入一个 Starter 依赖，就能快速接入多模型能力。\
+**Astrsomn** 是一个基于 LangChain4j 封装的 Java AI 集成框架：你只需引入一个 Starter 依赖，就能快速接入多模型能力。\
 框架把 LangChain4j 的复杂工程配置（模型接入、Provider 选择、运行参数等）标准化并可视化，降低上手门槛。
 
 你可以直接获得这些能力：
