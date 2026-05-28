@@ -48,14 +48,14 @@
 ## 🏗️ 项目施工中 🏗️
 
 | 状态 | 功能模块           | 说明                 |
-| ---- | -------------- | ------------------ |
+| ---- | -------------- |--------------------|
 | ✅  | **Agent 生命周期** | 已完成创建、配置、管理能力      |
 | ✅  | **环境初始化**      | 支持快速环境配置与初始化       |
 | ✅  | **依赖快速引入**     | Maven Starter 一键集成 |
 | ✅  | **基本配置功能**     | 提供核心配置管理能力         |
 | ✅  | **RAG 能力**     | 已完成向量检索与知识库能力      |
 | 🔄 | **工作流模块**      | 计划 2.0 版本发布        |
-| ✅  | **向量库集成**      | 支持 Chroma 向量数据库    |
+| ✅  | **向量库集成**      | 支持 Qdrant 向量数据库    |
 | ❌  | **安全与治理**      | 限流、监控等功能待完善        |
 | ⚠️ | **API 兼容性**    | 可能随时变更，不保证向后兼容     |
 
@@ -204,22 +204,16 @@ CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 astrsomn:
   enabled: true
   datasource:
+    # 启动前请改成你的实例：单行 jdbc:mysql URL
     url: jdbc:mysql://127.0.0.1:3306/astro_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
     username: root
-    password: your_password
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10
       minimum-idle: 5
-  mybatis-plus:
-    additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
-  data-base:
-    validation:
-      enabled: true
-      fail-fast: false
-      required-tables:
-        - SYS_ENV
+
 ```
 
 ##### 1.3 启动后端

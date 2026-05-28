@@ -13,7 +13,7 @@ import java.util.Properties;
 public class QwenExtensionDescriptor extends AstroExtensionDescriptor {
 
     private static final String DEFAULT_NAME = "Qwen Model Provider";
-    private static final String DEFAULT_VERSION = "0.1.0-alpha.1";
+    private static final String DEFAULT_VERSION = "0.2.0-SNAPSHOT";
     private static final String AVATAR_BASE64 =
             loadClasspathUtf8(QwenExtensionDescriptor.class, "/avatar/qwen-avatar.base64");
     private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();

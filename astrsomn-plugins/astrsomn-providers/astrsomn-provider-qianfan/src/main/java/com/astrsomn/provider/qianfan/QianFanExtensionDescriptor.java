@@ -11,7 +11,7 @@ import java.util.Properties;
 public class QianFanExtensionDescriptor extends AstroExtensionDescriptor {
 
     private static final String DEFAULT_NAME = "Baidu Qianfan Model Provider";
-    private static final String DEFAULT_VERSION = "0.1.0-alpha.1";
+    private static final String DEFAULT_VERSION = "0.2.0-SNAPSHOT";
     private static final String AVATAR_BASE64 =
             loadClasspathUtf8(QianFanExtensionDescriptor.class, "/avatar/wenxin-avatar.base64");
     private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
@@ -66,7 +66,7 @@ public class QianFanExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getDescription() {
-        return "千帆大模型平台接入；需配置 apiKey + secretKey（对应 ModelSetting.apiKey / apiSecret）。";
+        return "Baidu Qianfan model provider — requires apiKey and secretKey configuration.";
     }
 
     @Override

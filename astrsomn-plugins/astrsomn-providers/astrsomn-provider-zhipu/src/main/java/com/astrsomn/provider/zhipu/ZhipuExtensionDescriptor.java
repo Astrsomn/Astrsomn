@@ -11,7 +11,7 @@ import java.util.Properties;
 public class ZhipuExtensionDescriptor extends AstroExtensionDescriptor {
 
     private static final String DEFAULT_NAME = "Zhipu GLM Model Provider";
-    private static final String DEFAULT_VERSION = "0.1.0-alpha.1";
+    private static final String DEFAULT_VERSION = "0.2.0-SNAPSHOT";
     private static final String AVATAR_BASE64 =
             loadClasspathUtf8(ZhipuExtensionDescriptor.class, "/avatar/chatglm-avatar.base64");
     private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
@@ -66,7 +66,7 @@ public class ZhipuExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getDescription() {
-        return "智谱 GLM 对话与向量模型；参数与模型列表可按业务扩展。";
+        return "Zhipu (GLM) model provider — chat and embedding models.";
     }
 
     @Override

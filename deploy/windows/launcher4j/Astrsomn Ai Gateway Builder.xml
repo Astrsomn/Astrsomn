@@ -2,7 +2,7 @@
 <launch4jConfig>
     <dontWrapJar>false</dontWrapJar>
     <headerType>gui</headerType>
-    <jar>E:\project\astrsomn\Astrsomn\deploy\windows\output\astrsomn-server-0.1.0-alpha.1.jar</jar>
+    <jar>E:\project\astrsomn\Astrsomn\deploy\windows\output\astrsomn-server-0.2.0-SNAPSHOT.jar</jar>
     <outfile>E:\Project\astrsomn\astrsomn-launcher\distribution\windows\astrsomn.exe</outfile>
     <errTitle></errTitle>
     <cmdLine></cmdLine>
@@ -25,11 +25,11 @@
     </jre>
     <versionInfo>
         <fileVersion>0.1.0.1</fileVersion>
-        <txtFileVersion>0.1.0-alpha.1</txtFileVersion>
+        <txtFileVersion>0.2.0-SNAPSHOT</txtFileVersion>
         <fileDescription>Astrsom Ai Gateway</fileDescription>
         <copyright>Copyright @ 2025-2026 Astrsomn</copyright>
         <productVersion>0.1.0.1</productVersion>
-        <txtProductVersion>v0.1.0-alpha.1</txtProductVersion>
+        <txtProductVersion>v0.2.0-SNAPSHOT</txtProductVersion>
         <productName>Astrsom Ai Gateway</productName>
         <companyName></companyName>
         <internalName>Astrsom Ai Gateway</internalName>

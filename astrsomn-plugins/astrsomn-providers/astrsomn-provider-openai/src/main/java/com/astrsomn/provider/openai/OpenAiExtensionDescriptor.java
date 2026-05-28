@@ -11,7 +11,7 @@ import java.util.Properties;
 public class OpenAiExtensionDescriptor extends AstroExtensionDescriptor {
 
     private static final String DEFAULT_NAME = "OpenAI Model Provider";
-    private static final String DEFAULT_VERSION = "0.1.0-alpha.1";
+    private static final String DEFAULT_VERSION = "0.2.0-SNAPSHOT";
     private static final String AVATAR_BASE64 =
             loadClasspathUtf8(OpenAiExtensionDescriptor.class, "/avatar/openai-avatar.base64");
     private static final Properties EXTENSION_PROPERTIES = loadExtensionProperties();
@@ -66,7 +66,7 @@ public class OpenAiExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getDescription() {
-        return "OpenAI 及 OpenAI 兼容 API；可在本模块扩展 Image 等能力。";
+        return "OpenAI and OpenAI-compatible API provider — supports chat, embedding, and image generation.";
     }
 
     @Override
