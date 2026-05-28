@@ -44,11 +44,11 @@ pom.xml 核心配置参考：
   
     
       ossrh 
-      https://s01.oss.sonatype.org/content/repositories/snapshots
+      https://central.sonatype.com/repository/maven-snapshots/
     
     
       ossrh
-      https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/
+      https://central.sonatype.com/api/v1/publisher
     
   
 
