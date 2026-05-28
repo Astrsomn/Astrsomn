@@ -1,13 +1,15 @@
-
-# 🌟 Astrsomn 星梦
+# 🌟 Astrsomn
 
 <p align="center">
   <img src="astrsomn-ui/src/assets/Astrsomn-logo.png" alt="Astrsomn Logo" width="200"/>
 </p>
 
+> **One annotation to unleash AI evolution**  
+> Built on LangChain4j, providing standardized, production-grade AI integration for Java
 
 <p align="center">
-  <a href="README-EN.md"><img src="https://img.shields.io/badge/Language-English-blue.svg" alt="English"></a>
+  <a href="README.md"><img src="https://img.shields.io/badge/Language-English-blue.svg" alt="English"></a>
+  <a href="README-CN.md"><img src="https://img.shields.io/badge/Language-Chinese-red.svg" alt="Chinese"></a>
   <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="Apache 2.0 License"></a>
   <a href="https://github.com/langchain4j/langchain4j"><img src="https://img.shields.io/badge/Powered%20by-LangChain4j-orange.svg" alt="Powered by LangChain4j"></a>
   <a href="https://maven.apache.org/"><img src="https://img.shields.io/badge/Build-Maven-blue.svg" alt="Maven Build"></a>
@@ -17,186 +19,186 @@
   <a href="https://github.com/Astrsomn/Astrsomn/network/members"><img src="https://img.shields.io/github/forks/Astrsomn/Astrsomn.svg" alt="GitHub Forks"></a>
 </p>
 
-## ⚡ 30 秒快速了解
+## ⚡ 30 Second Quick Overview
 
-- **这是什么**：一个基于 LangChain4j 封装的 Java AI Starter
-- **你能得到什么**：一行注解 `@Astro` 快速发起模型调用，支持多 Provider 可插拔切换
-- **它解决什么问题**：把 LangChain4j 的复杂配置收敛为标准化配置，并提供可视化管理能力
-- **怎么开始**：先引入 `astrsomn-runtime-starter` 和 Provider，再按 `快速开始` 完成 YAML 配置与启动
+- **What is it**: A Java AI Starter built on LangChain4j
+- **What you get**: One annotation `@Astro` to quickly invoke AI models, supporting pluggable Provider switching
+- **What problem it solves**: Converges complex LangChain4j configurations into standardized configurations with visual management capabilities
+- **How to start**: First add `astrsomn-runtime-starter` and Provider dependencies, then complete YAML configuration and startup following "Quick Start"
 
 > [!WARNING]
-> ## 当前为半成品（开发中）
-> 这个项目目前**尚未完成**，仍在快速迭代阶段，功能、配置和 API 都可能发生变化。  
-> **请勿用于生产环境**，仅建议用于学习、体验与反馈。
+> ## Work in Progress (Not Production Ready)
+> This project is currently **incomplete** and under active development. Features, configuration, and APIs may change frequently.  
+> **Do not use in production**. It is currently intended for learning, evaluation, and feedback only.
 
-***
+---
 
-## 📖 项目介绍
+## 📖 Project Introduction
 
-**Astrsomn（星梦）** 是一个基于 LangChain4j 封装的 Java AI 集成框架：你只需引入一个 Starter 依赖，就能快速接入多模型能力。\
-框架把 LangChain4j 的复杂工程配置（模型接入、Provider 选择、运行参数等）标准化并可视化，降低上手门槛。
+**Astrsomn** is a Java AI integration framework built on LangChain4j: simply add one Starter dependency to quickly access multi-model capabilities.  
+The framework standardizes and visualizes complex LangChain4j engineering configurations (model access, Provider selection, runtime parameters, etc.), lowering the barrier to entry.
 
-你可以直接获得这些能力：
+You get these capabilities out of the box:
 
-- 一行注解 `@Astro` 即可在业务代码中发起模型调用
-- 通过 `runtime-starter + provider` 快速切换 DeepSeek、Zhipu 等模型
-- 把原本分散的 LangChain4j 配置收敛为统一配置项，并支持可视化管理
-- 保持对原生 LangChain4j 能力的兼容，便于渐进扩展到 Agent / RAG / Tools
+- One annotation `@Astro` to invoke AI models in your business code
+- Quickly switch between DeepSeek, Zhipu and other models via `runtime-starter + provider`
+- Converge scattered LangChain4j configurations into unified configuration items with visual management support
+- Maintain compatibility with native LangChain4j capabilities for progressive expansion to Agent / RAG / Tools
 
-***
+---
 
-## 🏗️ 项目施工中 🏗️
+## 🏗️ Under Construction 🏗️
 
-| 状态 | 功能模块           | 说明                 |
-| ---- | -------------- | ------------------ |
-| ✅  | **Agent 生命周期** | 已完成创建、配置、管理能力      |
-| ✅  | **环境初始化**      | 支持快速环境配置与初始化       |
-| ✅  | **依赖快速引入**     | Maven Starter 一键集成 |
-| ✅  | **基本配置功能**     | 提供核心配置管理能力         |
-| ✅  | **RAG 能力**     | 已完成向量检索与知识库能力      |
-| 🔄 | **工作流模块**      | 计划 2.0 版本发布        |
-| ✅  | **向量库集成**      | 支持 Chroma 向量数据库    |
-| ❌  | **安全与治理**      | 限流、监控等功能待完善        |
-| ⚠️ | **API 兼容性**    | 可能随时变更，不保证向后兼容     |
+| Status | Feature Module | Description |
+|--------|----------------|-------------|
+| ✅ | **Agent Lifecycle** | Creation, configuration, and management capabilities completed |
+| ✅ | **Environment Initialization** | Supports quick environment configuration and initialization |
+| ✅ | **Dependency Quick Import** | Maven Starter one-click integration |
+| ✅ | **Basic Configuration** | Core configuration management capabilities provided |
+| ✅ | **RAG Capabilities** | Vector retrieval and knowledge base capabilities completed |
+| 🔄 | **Workflow Module** | Planned for version 2.0 |
+| ✅ | **Vector Database Integration** | Qdrant vector database supported |
+| ❌ | **Security & Governance** | Rate limiting, monitoring and other features pending |
+| ⚠️ | **API Compatibility** | May change at any time, no backward compatibility guaranteed |
 
-**⚠️ 请勿用于生产环境！⚠️**
+**⚠️ NOT FOR PRODUCTION USE! ⚠️**
 
-本项目正在积极开发中，欢迎各位朋友一起参与完善！
-详见 [贡献指南](#🤝-贡献指南)
+This project is under active development. Welcome to join us and contribute!
+See [Contributing](#🤝-Contributing)
 
-***
+---
 
-你可以把 Astrsomn 理解为一套完整闭环：
+You can think of Astrsomn as a complete ecosystem:
 
-- `core`：统一抽象与通用能力
-- `starter`：Spring Boot 自动装配与接入层
-- `providers`：模型提供方能力实现
-- `vector`：向量存储能力实现
-- `server`：服务化运行与治理
-- `ui`：可视化配置与运维
+- `core`: Unified abstraction and common capabilities
+- `starter`: Spring Boot auto-configuration and access layer
+- `providers`: Model provider implementations
+- `vector`: Vector storage implementations
+- `server`: Service-oriented runtime and governance
+- `ui`: Visual configuration and operations
 
-**适用场景**：RAG 知识库、智能对话、MCP 工具接入、企业 AI 中台等。
+**Application scenarios**: RAG knowledge base, intelligent dialogue, MCP tool integration, enterprise AI platform, etc.
 
-***
+---
 
-> **一行注解，即刻开启 AI 进化**\
-> 基于 LangChain4j 深度封装，面向 Java 的标准化、生产级 AI 集成底座
+> **One annotation to unleash AI evolution**  
+> Built on LangChain4j, providing standardized, production-grade AI integration for Java
 
-## ✨ 核心特性
+## ✨ Core Features
 
-| 特性            | 描述                                                                                    |
-| ------------- | ------------------------------------------------------------------------------------- |
-| 🔧 **深度封装**   | 完整封装 LangChain4j 能力（LLM / Embedding / Vector Database / Memory / RAG / Tools / Agent） |
-| 🚀 **零侵入接入**  | SpringBoot Starter 自动配置，一行注解即可集成                                                      |
-| 🔌 **可插拔设计**  | Provider/Vector 可插拔架构，支持多模型与多向量库治理                                                    |
-| 📡 **流式响应**   | 支持流式响应、工具调用、记忆、RAG、编排等完整链路                                                            |
-| 📊 **可观测能力**  | 面向生产的可观测与可维护能力（配置、日志、成本、缓存）                                                           |
-| 🔒 **企业级特性**  | 支持多模型、多租户、限流、监控、日志等企业级特性                                                              |
-| 🛡️ **高可用保障** | 内置熔断、降级、故障转移机制，确保服务稳定性与可靠性                                                            |
-| 🔗 **原生兼容**   | 完全兼容原生 LangChain4j，无缝扩展                                                               |
+| Feature | Description |
+|---------|-------------|
+| 🔧 **Deep Encapsulation** | Full encapsulation of LangChain4j capabilities (LLM / Embedding / Vector Database / Memory / RAG / Tools / Agent) |
+| 🚀 **Zero-Invasion Integration** | SpringBoot Starter auto-configuration, integrate with one annotation |
+| 🔌 **Plugable Design** | Provider/Vector pluggable architecture, supports multi-model and multi-vector database governance |
+| 📡 **Streaming Response** | Supports streaming response, tool calling, memory, RAG, orchestration and other complete workflows |
+| 📊 **Observability** | Production-ready observability and maintainability (configuration, logging, cost, caching) |
+| 🔒 **Enterprise Features** | Multi-model, multi-tenant, rate limiting, monitoring, logging and other enterprise-grade features |
+| 🛡️ **High Availability** | Built-in circuit breaker, fallback, and failover mechanisms for service stability |
+| 🔗 **Native Compatibility** | Fully compatible with native LangChain4j, seamless extension |
 
-***
+---
 
-## 🛠️ 技术栈
+## 🛠️ Tech Stack
 
-| 类别    | 技术                               |
-| ----- | -------------------------------- |
-| 后端框架  | Spring Boot 3.3.0                |
-| 语言    | Java 17+                         |
-| AI 集成 | LangChain4j 1.11.x               |
-| 前端框架  | Vue 3 + TypeScript               |
-| 构建工具  | Maven                            |
-| 数据库   | MySQL / H2                       |
-| 向量数据库 | Qdrant / Milvus / Chroma / Redis |
+| Category | Technology |
+|----------|------------|
+| Backend Framework | Spring Boot 3.3.0 |
+| Language | Java 17+ |
+| AI Integration | LangChain4j 1.11.x |
+| Frontend Framework | Vue 3 + TypeScript |
+| Build Tool | Maven |
+| Database | MySQL / H2 |
+| Vector Database | Qdrant / Milvus / Chroma / Redis |
 
-### 🔑 关键依赖与主版本（快速了解）
+### 🔑 Key Dependencies and Versions (Quick Reference)
 
-| 依赖坐标                                             | 主版本              | 用途                            |
-| ------------------------------------------------ | ---------------- | ----------------------------- |
-| `com.astrsomn:astrsomn-runtime-starter`          | `0.2.0-SNAPSHOT` | 一站式接入入口，提供注解注入与运行时能力          |
-| `dev.langchain4j:langchain4j-core`               | `1.11.x`         | LangChain4j 核心抽象与调用能力         |
-| `dev.langchain4j:langchain4j-open-ai`            | `1.11.x`         | OpenAI 协议模型接入（DeepSeek 等兼容场景） |
-| `dev.langchain4j:langchain4j-community-zhipu-ai` | `1.11.0-beta19`  | 智谱模型接入能力                      |
-| `org.springframework.boot:spring-boot-starter`   | `3.3.x`          | Spring Boot 运行与自动配置基础         |
-| `com.baomidou:mybatis-plus-spring-boot3-starter` | `3.5.x`          | 数据访问与配置持久化基础能力                |
+| Dependency | Main Version | Purpose |
+|------------|--------------|---------|
+| `com.astrsomn:astrsomn-runtime-starter` | `0.2.0-SNAPSHOT` | One-stop access entry, provides annotation injection and runtime capabilities |
+| `dev.langchain4j:langchain4j-core` | `1.11.x` | LangChain4j core abstraction and invocation capabilities |
+| `dev.langchain4j:langchain4j-open-ai` | `1.11.x` | OpenAI protocol model access (DeepSeek and other compatible scenarios) |
+| `dev.langchain4j:langchain4j-community-zhipu-ai` | `1.11.0-beta19` | Zhipu AI model access |
+| `org.springframework.boot:spring-boot-starter` | `3.3.x` | Spring Boot runtime and auto-configuration foundation |
+| `com.baomidou:mybatis-plus-spring-boot3-starter` | `3.5.x` | Data access and configuration persistence capabilities |
 
-> 说明：文档使用"主版本"帮助快速判断兼容范围；精确补丁版本以各模块 `pom.xml` 为准。
+> Note: Documentation uses "main version" to help quickly determine compatibility range; exact patch versions are in each module's `pom.xml`.
 
-***
+---
 
-## 🧩 模块结构
+## 🧩 Module Architecture
 
 ```text
 Astrsomn
-├── astrsomn-common                    # 通用基础模块（工具类、基础实体、异常定义）
-├── astrsomn-api                       # API 接口定义层
-│   ├── astrsomn-api-runtime           # 运行时 API（异常枚举、错误码）
-│   ├── astrsomn-api-storage           # 存储 API（文件处理等）
-│   └── astrsomn-api-workflow          # 工作流 API（规划中）
-├── astrsomn-integrations              # 集成层（Spring Boot Starter）
-│   ├── astrsomn-runtime-starter       # 运行时 Starter（AI 模型、工具、MCP 等）
-│   │   └── route                      # 模型路由模块（高可用保障）
-│   │       ├── ModelRouteCompositeFactory      # 路由组合工厂
-│   │       ├── CompositeChatModel              # 组合聊天模型（故障转移）
-│   │       ├── CompositeStreamingChatModel    # 组合流式模型
-│   │       ├── EndpointSelectionStrategy       # 端点选择策略（负载均衡）
-│   │       └── ResilienceDecorationStrategy    # 弹性装饰策略（熔断、降级）
-│   ├── astrsomn-workflow-starter      # 工作流 Starter（规划中）
-│   └── astrsomn-internal-storage      # 内部存储实现
-├── astrsomn-plugins                   # 插件生态
-│   ├── astrsomn-providers             # 模型提供方实现（当前可用：DeepSeek / Zhipu）
-│   └── astrsomn-vector                # 向量存储实现（规划中）
-├── astrsomn-server                    # 服务端应用（HTTP 接口、服务化运行）
-└── astrsomn-ui                        # 前端控制台（Vue 3 + TypeScript）
+├── astrsomn-common                    # Common base module (utilities, base entities, exception definitions)
+├── astrsomn-api                       # API interface definition layer
+│   ├── astrsomn-api-runtime           # Runtime API (exception enums, error codes)
+│   ├── astrsomn-api-storage           # Storage API (file handling, etc.)
+│   └── astrsomn-api-workflow          # Workflow API (planned)
+├── astrsomn-integrations              # Integration layer (Spring Boot Starter)
+│   ├── astrsomn-runtime-starter       # Runtime Starter (AI models, tools, MCP, etc.)
+│   │   └── route                      # Model routing module (high availability)
+│   │       ├── ModelRouteCompositeFactory      # Route composite factory
+│   │       ├── CompositeChatModel              # Composite chat model (failover)
+│   │       ├── CompositeStreamingChatModel    # Composite streaming model
+│   │       ├── EndpointSelectionStrategy       # Endpoint selection strategy (load balancing)
+│   │       └── ResilienceDecorationStrategy    # Resilience decoration strategy (circuit breaker, fallback)
+│   ├── astrsomn-workflow-starter      # Workflow Starter (planned)
+│   └── astrsomn-internal-storage      # Internal storage implementation
+├── astrsomn-plugins                   # Plugin ecosystem
+│   ├── astrsomn-providers             # Model provider implementations (currently available: DeepSeek / Zhipu)
+│   └── astrsomn-vector                # Vector storage implementations (planned)
+├── astrsomn-server                    # Server application (HTTP interface, service-oriented operation)
+└── astrsomn-ui                        # Frontend console (Vue 3 + TypeScript)
 ```
 
-***
+---
 
-## 🔗 依赖分层
+## 🔗 Dependency Hierarchy
 
-当前按以下方向演进（便于后续 SPI 与自定义 ClassLoader 增强）：
+The framework evolves in the following direction (facilitating future SPI and custom ClassLoader enhancements):
 
-- `server` 依赖：`integrations`、`plugins`
-- `integrations` 依赖：`api`、`common`
-- `plugins` 依赖：`api`
-- `api` 依赖：`common`
+- `server` depends on: `integrations`, `plugins`
+- `integrations` depends on: `api`, `common`
+- `plugins` depends on: `api`
+- `api` depends on: `common`
 
-***
+---
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 环境要求
+### Requirements
 
-| 环境      | 版本要求      |
-| ------- | --------- |
-| JDK     | 21+       |
-| Maven   | 3.8+      |
-| MySQL   | 8.0+（推荐）  |
-| Node.js | 18+（前端开发） |
+| Environment | Version |
+|-------------|---------|
+| JDK | 21+ |
+| Maven | 3.8+ |
+| MySQL | 8.0+ (recommended) |
+| Node.js | 18+ (for frontend development) |
 
-***
+---
 
-### 一、项目启动
+### Part 1: Start the Project
 
-克隆仓库后，在本地同时运行后端服务和前端控制台。
+After cloning the repository, run both the backend service and frontend console locally.
 
-#### 1. 后端
+#### 1. Backend
 
-##### 1.1 准备数据库
+##### 1.1 Prepare Database
 
-确保 MySQL 可访问（本机或远程均可），创建数据库：
+Ensure MySQL is accessible (local or remote), create database:
 
 ```sql
 CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 ```
 
-##### 1.2 修改配置
+##### 1.2 Update Configuration
 
-编辑 `astrsomn-server/src/main/resources/application-mysql.yml`，修改数据库连接信息：
+Edit `astrsomn-server/src/main/resources/application-mysql.yml`, modify database connection:
 
-**必须修改项**：
+**Required changes**:
 
-- `datasource.url` 中的 `host`、`port`、数据库名
+- `host`, `port`, database name in `datasource.url`
 - `datasource.username`
 - `datasource.password`
 
@@ -204,37 +206,30 @@ CREATE DATABASE astro_ai DEFAULT CHARACTER SET utf8mb4;
 astrsomn:
   enabled: true
   datasource:
+    # Change to your instance before startup: single-line jdbc:mysql URL
     url: jdbc:mysql://127.0.0.1:3306/astro_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
     username: root
-    password: your_password
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10
       minimum-idle: 5
-  mybatis-plus:
-    additional-type-aliases-package: com.astrsomn.workflow.core.domain.entity
-  data-base:
-    validation:
-      enabled: true
-      fail-fast: false
-      required-tables:
-        - SYS_ENV
 ```
 
-##### 1.3 启动后端
+##### 1.3 Start Backend
 
-在 IDE 中运行 `astrsomn-server` 模块的 `AstrsomnServerApplication.java`。
+Run `AstrsomnServerApplication.java` in the `astrsomn-server` module from your IDE.
 
-- 首次启动会自动执行 Flyway 迁移（默认开启）。
-- 确认成功：日志中出现 `Started ...`，监听端口为 `4481`（默认）。
+- Flyway migration runs automatically on first startup (enabled by default).
+- Confirm success: Log shows `Started ...`, listening on port `4481` (default).
 
-#### 2. 前端
+#### 2. Frontend
 
-前端分为基础组件包（`astrsomn-ui-packages`）和主应用（`astrsomn-ui`）。
-组件包需先手动构建，主应用通过 `file:` 协议引用它们。
+The frontend consists of base component packages (`astrsomn-ui-packages`) and the main application (`astrsomn-ui`).
+Component packages need to be built manually first, then the main application references them via `file:` protocol.
 
-##### 2.1 构建基础组件包
+##### 2.1 Build Base Component Package
 
 ```bash
 cd astrsomn-ui-packages/astro-chat-core
@@ -242,9 +237,9 @@ npm install
 npm run build
 ```
 
-> `astro-chat-vue` 是纯源码导出（`exports` 直接指向 `./src/index.ts`），无需单独构建。
+> `astro-chat-vue` is pure source export (`exports` points directly to `./src/index.ts`), no separate build needed.
 
-##### 2.2 启动前端主应用
+##### 2.2 Start Frontend Application
 
 ```bash
 cd astrsomn-ui
@@ -252,17 +247,17 @@ npm install
 npm run dev
 ```
 
-前端默认运行在 `http://localhost:3000`（默认端口），确保后端 `4481` 端口可访问。
+Frontend runs at `http://localhost:3000` (default), ensure backend port `4481` is accessible.
 
-***
+---
 
-### 二、作为依赖接入你的项目
+### Part 2: Integrate into Your Project
 
-如果你想在自己的业务项目中接入 Astrsomn 的 AI 能力，按以下步骤操作。
+If you want to integrate Astrsomn's AI capabilities into your own project, follow these steps.
 
-#### 1. 引入 Maven 依赖
+#### 1. Add Maven Dependencies
 
-**1) runtime-starter**：
+**1) runtime-starter**:
 
 ```xml
 <dependency>
@@ -272,7 +267,7 @@ npm run dev
 </dependency>
 ```
 
-**2) 选择并引入可用 Provider（至少一个）**：
+**2) Select and add available Providers (at least one)**:
 
 ```xml
 <!-- DeepSeek Provider -->
@@ -290,13 +285,13 @@ npm run dev
 </dependency>
 ```
 
-> 当前仅验证并支持：`astrsomn-runtime-starter` + `astrsomn-provider-deepseek` / `astrsomn-provider-zhipu`。
-> 其他 Starter/Provider 将在后续版本逐步开放。
+> Currently verified and supported: `astrsomn-runtime-starter` + `astrsomn-provider-deepseek` / `astrsomn-provider-zhipu`.
+> Other Starters/Providers will be gradually released in subsequent versions.
 
-**3) 以下依赖需要由使用方项目自行提供（runtime-starter 中为 provided）**：
+**3) The following dependencies need to be provided by the user project (marked as provided in runtime-starter)**:
 
 ```xml
-<!-- Spring Boot 基础 -->
+<!-- Spring Boot Basics -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter</artifactId>
@@ -317,28 +312,28 @@ npm run dev
     <version>3.5.5</version>
 </dependency>
 
-<!-- 数据库驱动（至少一个；MySQL 示例） -->
+<!-- Database Driver (at least one; MySQL example) -->
 <dependency>
     <groupId>com.mysql</groupId>
     <artifactId>mysql-connector-j</artifactId>
 </dependency>
 
-<!-- 配置校验 -->
+<!-- Configuration Validation -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-validation</artifactId>
 </dependency>
 
-<!-- 响应式流能力（按需） -->
+<!-- Reactive Stream Capabilities (optional) -->
 <dependency>
     <groupId>io.projectreactor</groupId>
     <artifactId>reactor-core</artifactId>
 </dependency>
 ```
 
-#### 2. 添加配置
+#### 2. Add Configuration
 
-确保激活 `mysql` profile，在你的 `application.yml` 中添加：
+Ensure `mysql` profile is activated, add to your `application.yml`:
 
 ```yml
 spring:
@@ -346,9 +341,9 @@ spring:
     active: mysql
 ```
 
-然后在 `application-mysql.yml` 中配置数据库连接，格式参考上方「1.2 修改配置」。
+Then configure database connection in `application-mysql.yml`, format reference "1.2 Update Configuration" above.
 
-#### 3. 在业务代码中使用 `@Astro`
+#### 3. Use `@Astro` in Business Code
 
 ```java
 @Service
@@ -357,81 +352,81 @@ public class MyService {
     private AstroChatAssistant assistant;
 
     public void demo() {
-        String response = assistant.chat("你好，请介绍一下自己");
+        String response = assistant.chat("Hello, please introduce yourself");
     }
 }
 ```
 
-***
+---
 
-## 📚 官方网站与文档
+## 📚 Official Website & Documentation
 
-| 类型           | 链接                                                        |
-| ------------ | --------------------------------------------------------- |
-| 🏠 官方网站      | [astrsomn.com](https://www.astrsomn.com/home.html)        |
-| 📖 官方文档      | [doc.astrsomn.com](https://doc.astrsomn.com)              |
-| 💻 GitHub 仓库 | [Astrsomn/Astrsomn](https://github.com/Astrsomn/Astrsomn) |
+| Type | Link |
+|------|------|
+| 🏠 Official Website | [astrsomn.com](https://www.astrsomn.com/home.html) |
+| 📖 Documentation | [doc.astrsomn.com](https://doc.astrsomn.com) |
+| 💻 GitHub Repository | [Astrsomn/Astrsomn](https://github.com/Astrsomn/Astrsomn) |
 
-***
+---
 
-## 📚 文档与资源
+## 📚 Documentation & Resources
 
-| 文档类型      | 链接                                                                        |
-| --------- | ------------------------------------------------------------------------- |
-| 📖 系统设计文档 | [系统设计文档](document/系统设计文档.md)                                              |
-| 🌐 中文介绍站点 | [astrsomn-introduction](astrsomn-introduction/)                           |
-| 📝 英文文档   | [README-EN.md](README-EN.md)                                              |
-| 📋 版本路线规划 | [版本路线规划-1x到2x](document/2026-04-17/版本路线规划-1x到2x.md)                       |
-| 🗂️ 工作流设计 | [AI工作流标准化路线图](document/2026-04-26/ai-workflow-standardization-roadmap.md) |
-| 📐 向量存储设计 | [向量存储扩展设计规范](document/2026-04-06/向量存储扩展设计规范.md)                           |
-| 📊 扩展系统架构 | [扩展系统架构分析](document/2026-04-15/扩展系统架构分析.md)                               |
+| Document Type | Link |
+|---------------|------|
+| 📖 System Design | [System Design Document](document/系统设计文档.md) |
+| 🌐 Introduction Site | [astrsomn-introduction](astrsomn-introduction/) |
+| 📝 Chinese Documentation | [README-CN.md](README-CN.md) |
+| 📋 Version Roadmap | [Version Roadmap 1.x to 2.x](document/2026-04-17/版本路线规划-1x到2x.md) |
+| 🗂️ Workflow Design | [AI Workflow Standardization Roadmap](document/2026-04-26/ai-workflow-standardization-roadmap.md) |
+| 📐 Vector Storage Design | [Vector Storage Extension Specification](document/2026-04-06/向量存储扩展设计规范.md) |
+| 📊 Extension Architecture | [Extension System Architecture Analysis](document/2026-04-15/扩展系统架构分析.md) |
 
-***
+---
 
-## 🤝 贡献指南
+## 🤝 Contributing
 
-欢迎贡献代码！我们非常感谢任何形式的贡献，包括但不限于：
+We welcome contributions! We appreciate any form of contribution including but not limited to:
 
-### 贡献方式
+### Ways to Contribute
 
-- 💡 [提交 Issue](https://github.com/Astrsomn/Astrsomn/issues) - 报告 bug 或提出功能建议
-- 📝 [提交 Pull Request](https://github.com/Astrsomn/Astrsomn/pulls) - 贡献代码
-- 📖 完善文档 - 帮助改进项目文档
-- 🗣️ 社区交流 - 在讨论区分享使用经验
+- 💡 [Submit Issues](https://github.com/Astrsomn/Astrsomn/issues) - Report bugs or suggest features
+- 📝 [Submit Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - Contribute code
+- 📖 Improve Documentation - Help improve project documentation
+- 🗣️ Community Engagement - Share experiences in discussions
 
-### 贡献流程
+### Contribution Process
 
-1. **Fork 本仓库** → [Astrsomn/Astrsomn](https://github.com/Astrsomn/Astrsomn)
-2. **创建功能分支** (`git checkout -b feature/your-feature`)
-3. **提交更改** (`git commit -m 'Add some feature'`)
-4. **推送到分支** (`git push origin feature/your-feature`)
-5. **创建 Pull Request** → [提交 PR](https://github.com/Astrsomn/Astrsomn/pulls)
+1. **Fork the repository** → [Astrsomn/Astrsomn](https://github.com/Astrsomn/Astrsomn)
+2. **Create a feature branch** (`git checkout -b feature/your-feature`)
+3. **Commit changes** (`git commit -m 'Add some feature'`)
+4. **Push to branch** (`git push origin feature/your-feature`)
+5. **Create Pull Request** → [Submit PR](https://github.com/Astrsomn/Astrsomn/pulls)
 
-### 贡献规范
+### Contribution Guidelines
 
-- 请遵循 [代码风格指南](document/2026-04-02/开源完善总方案.md)
-- 提交前请确保通过所有测试
-- 提供清晰的 commit 信息和 PR 描述
+- Follow the [Code Style Guide](document/2026-04-02/开源完善总方案.md)
+- Ensure all tests pass before submitting
+- Provide clear commit messages and PR descriptions
 
-***
+---
 
-## 📦 扩展生态
+## 📦 Extension Ecosystem
 
-### 模型提供方
+### Model Providers
 
 - [DeepSeek Provider](astrsomn-plugins/astrsomn-providers/astrsomn-provider-deepseek/)
 - [Zhipu Provider](astrsomn-plugins/astrsomn-providers/astrsomn-provider-zhipu/)
-- OpenAI Provider（待开放）
-- Qwen Provider（待开放）
-- Qianfan Provider（待开放）
+- OpenAI Provider (coming soon)
+- Qwen Provider (coming soon)
+- Qianfan Provider (coming soon)
 
-### 向量存储
+### Vector Storage
 
 - [Chroma Vector](astrsomn-vector/astrsomn-vector-chroma/)
 
-***
+---
 
-## 💬 社区与交流
+## 💬 Community & Support
 
 <p align="center">
   <a href="https://github.com/Astrsomn/Astrsomn/discussions"><img src="https://img.shields.io/badge/Discussions-GitHub-blue?style=flat-square&logo=github" alt="GitHub Discussions"></a>
@@ -440,12 +435,32 @@ public class MyService {
   <a href="mailto:astrsomn@outlook.com"><img src="https://img.shields.io/badge/Email-astrsomn@outlook.com-red?style=flat-square&logo=gmail" alt="Email"></a>
 </p>
 
-- 💬 **讨论区**：[GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - 分享使用经验、交流想法
-- 🐛 **问题反馈**：[GitHub Issues](https://github.com/Astrsomn/Astrsomn/issues) - 报告 Bug、提出功能建议
-- 🔧 **贡献代码**：[Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - 欢迎提交 PR
-- 📧 **联系邮箱**：<astrsomn@outlook.com>
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/Astrsomn/Astrsomn/discussions) - Share experiences and ideas
+- 🐛 **Issues**: [GitHub Issues](https://github.com/Astrsomn/Astrsomn/issues) - Report bugs and suggest features
+- 🔧 **Contributions**: [Pull Requests](https://github.com/Astrsomn/Astrsomn/pulls) - Welcome to submit PRs
+- 📧 **Email**: astrsomn@outlook.com
 
-***
+---
+
+## 📄 License
+
+```
+Copyright 2024 Astrsomn Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
+
+---
 
 <p align="center">
   Made with ❤️ by the Astrsomn Team

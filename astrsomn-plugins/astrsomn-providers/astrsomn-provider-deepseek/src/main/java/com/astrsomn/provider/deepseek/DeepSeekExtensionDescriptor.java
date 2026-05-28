@@ -12,7 +12,7 @@ import java.util.Properties;
 public class DeepSeekExtensionDescriptor extends AstroExtensionDescriptor {
 
     private static final String DEFAULT_NAME = "DeepSeek Model Provider";
-    private static final String DEFAULT_VERSION = "0.1.0-alpha.1";
+    private static final String DEFAULT_VERSION = "0.2.0-SNAPSHOT";
     private static final String DEFAULT_CHANGELOG = "";
     private static final String DEFAULT_MIN_SERVER_VERSION = "";
     private static final String AVATAR_BASE64 =
@@ -64,7 +64,7 @@ public class DeepSeekExtensionDescriptor extends AstroExtensionDescriptor {
 
     @Override
     public String getDescription() {
-        return "DeepSeek provider (OpenAI-compatible API); 模型清单与调用细节可在本模块内扩展。";
+        return "DeepSeek model provider — chat and embedding models via OpenAI-compatible API.";
     }
 
     @Override
