@@ -23,10 +23,10 @@ set "MODULES_DIR=%PROJECT_ROOT%\astrsomn-integrations"
 REM List of modules to deploy
 set MODULES= astrsomn-internal-storage astrsomn-runtime-starter astrsomn-workflow-starter
 
-echo [1/2] Installing all dependencies to local repository...
+echo [1/2] Installing all modules to local repository...
 cd /d "%PROJECT_ROOT%"
-REM Install all modules including sub-modules
-call mvn install -DskipTests -pl astrsomn-common,astrsomn-api/astrsomn-api-runtime,astrsomn-api/astrsomn-api-storage,astrsomn-api/astrsomn-api-workflow,astrsomn-integrations -am
+REM Install entire project including all sub-modules to ensure inter-module dependencies are resolved
+call mvn clean install -DskipTests
 if errorlevel 1 (
     echo.
     echo [ERROR] Failed to install dependencies!
