@@ -21,7 +21,6 @@
               @changed="$emit('doc-changed')"
               @select-doc="$emit('select-doc', $event)"
           />
-          <VectorSearchPanel :store-id="selectedStoreId"/>
         </div>
         <div class="snap-section">
           <RightBottom
@@ -38,7 +37,6 @@
 import RightTop from '@/views/admin/ai-vector/vector-center/component/right/RightTop.vue'
 import RightCenter from '@/views/admin/ai-vector/vector-center/component/right/RightCenter.vue'
 import RightBottom from '@/views/admin/ai-vector/vector-center/component/right/RightBottom.vue'
-import VectorSearchPanel from '@/views/admin/ai-vector/vector-center/component/sidebar/VectorSearchPanel.vue'
 
 defineProps<{
   selectedSourceId?: number | string

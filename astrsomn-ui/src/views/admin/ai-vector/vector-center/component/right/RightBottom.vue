@@ -25,6 +25,8 @@
         mode="table"
         row-key="id"
         dense
+        table-row-height="22px"
+        table-header-height="28px"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'segmentContent'">
@@ -85,7 +87,7 @@ const segmentColumns = [
   {title: '内容', dataIndex: 'segmentContent', key: 'segmentContent'},
   {title: '状态', key: 'status', width: 100},
   {title: '词数', dataIndex: 'wordCount', width: 80},
-  {title: 'vectorId', dataIndex: 'vectorId', width: 120, copyable: true},
+
   {title: '元数据', dataIndex: 'metadataJson', key: 'metadataJson', width: 200},
   {title: '操作', key: 'actions', width: 160, fixed: 'right'}
 ]
@@ -263,5 +265,44 @@ const handleVectorizeAll = () => {
 
 .segment-search {
   margin-bottom: 16px;
+}
+
+/* ---- table beautify ---- */
+:deep(.data-view-table) {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+}
+
+:deep(.ant-table-thead > tr > th) {
+  background: var(--bg-elevated) !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-color: var(--border-default) !important;
+}
+
+:deep(.ant-table-tbody > tr > td) {
+  border-color: var(--border-subtle) !important;
+  color: var(--text-primary);
+}
+
+:deep(.ant-table-tbody > tr:hover > td) {
+  background: var(--primary-hover) !important;
+}
+
+:deep(.ant-tag) {
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  line-height: 18px;
+  padding: 0 6px;
+}
+
+:deep(.ant-btn-link) {
+  padding: 0 6px;
+}
+
+:deep(.ant-typography-expand) {
+  font-size: 11px;
 }
 </style>
