@@ -128,52 +128,23 @@
             <version>0.22.0</version>
         </dependency>
 
+        <!-- JWT -->
         <dependency>
-            <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-provider-deepseek</artifactId>
-            <version>${project.version}</version>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
         </dependency>
-
         <dependency>
-            <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-provider-zhipu</artifactId>
-            <version>${project.version}</version>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
         </dependency>
-
         <dependency>
-            <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-provider-qianfan</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-provider-qwen</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-vector-qdrant</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-vector-milvus</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-vector-chroma</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.astrsomn</groupId>
-            <artifactId>astrsomn-vector-redis</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
         </dependency>
 
     </dependencies>

@@ -100,6 +100,17 @@
         @cancel="resetUnloadSyncModal"
         @update:open="(v) => (unloadSyncModal.open = v)"
     />
+
+    <VersionSelectDialog
+        :extension-name="versionDialog.extensionName"
+        :installed-version="versionDialog.installedVersion"
+        :latest-version="versionDialog.latestVersion"
+        :open="versionDialog.open"
+        :plugin-id="versionDialog.pluginId"
+        @cancel="versionDialog.open = false"
+        @confirm="handleVersionConfirm"
+        @update:open="(v) => (versionDialog.open = v)"
+    />
   </div>
 </template>
 
@@ -122,6 +133,8 @@ import ExtensionModelLoadDialog
   from '@/views/admin/system-config/system-extension/component/model-dialog/ExtensionModelLoadDialog.vue'
 import ExtensionModelUnloadDialog
   from '@/views/admin/system-config/system-extension/component/model-dialog/ExtensionModelUnloadDialog.vue'
+import VersionSelectDialog
+  from '@/views/admin/system-config/system-extension/component/VersionSelectDialog.vue'
 import ExtensionCard from './ExtensionCard.vue'
 
 type ExtensionPanel = 'marketplace' | 'installed'
@@ -180,8 +193,16 @@ const unloadSyncModal = reactive({
   unloadPreview: null as ExtensionModelUnloadPreview | null
 })
 
+const versionDialog = reactive({
+  open: false,
+  pluginId: '',
+  extensionName: '',
+  installedVersion: '' as string | undefined,
+  latestVersion: '' as string | undefined
+})
+
 function rowKey(record: ExtensionRow) {
-  const base = record.id != null ? String(record.id) : String(record.extensionKey ?? '')
+  const base = record.id != null ? String(record.id) : String(record.pluginId ?? record.extensionKey ?? '')
   return `${record.type || 'UNKNOWN'}-${base}`
 }
 
@@ -260,22 +281,30 @@ async function fetchActiveList() {
 }
 
 async function installFromCatalog(item: ExtensionRow) {
-  const payload: SystemExtension = {
-    extensionKey: item.extensionKey,
-    extensionName: item.extensionName,
-    type: item.type,
-    version: item.version,
-    author: item.author,
-    description: item.description,
-    jarName: item.jarName,
-    extensionCode: item.extensionCode,
-    avatar: item.avatar,
-    applied: 'N',
-    status: 'INSTALLED'
+  if (!item.pluginId) {
+    message.error('插件信息不完整，无法安装')
+    return
   }
-  const msg = await systemExtensionApi.create(payload)
-  message.success(msg)
-  message.info('可在「已安装插件」中查看、应用插件或加载模型。')
+  // Open version selector dialog instead of installing directly
+  versionDialog.pluginId = item.pluginId
+  versionDialog.extensionName = item.extensionName || item.pluginId
+  versionDialog.installedVersion = item.installedVersion
+  versionDialog.latestVersion = item.latestVersion || item.version
+  versionDialog.open = true
+}
+
+async function handleVersionConfirm(pluginId: string, version: string) {
+  try {
+    const msg = await extensionMarketplaceApi.install(pluginId, version)
+    message.success(msg)
+    message.info('可在「已安装插件」中查看、应用插件或加载模型。')
+    await fetchMarketplaceList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || '安装失败')
+  } finally {
+    versionDialog.open = false
+  }
 }
 
 async function handleBatchDelete() {
@@ -366,7 +395,7 @@ async function openLoadModelsPreview(record: ExtensionRow) {
   if (id == null) return
   loadSyncModal.open = true
   loadSyncModal.extensionId = id
-  loadSyncModal.extensionLabel = String(record.extensionName || record.extensionKey || id)
+  loadSyncModal.extensionLabel = String(record.extensionName || record.extensionKey || record.pluginId || id)
   loadSyncModal.previewError = ''
   loadSyncModal.loadPreview = null
   loadSyncModal.loadingPreview = true
@@ -386,7 +415,7 @@ async function openUnloadModelsPreview(record: ExtensionRow) {
   if (id == null) return
   unloadSyncModal.open = true
   unloadSyncModal.extensionId = id
-  unloadSyncModal.extensionLabel = String(record.extensionName || record.extensionKey || id)
+  unloadSyncModal.extensionLabel = String(record.extensionName || record.extensionKey || record.pluginId || id)
   unloadSyncModal.previewError = ''
   unloadSyncModal.unloadPreview = null
   unloadSyncModal.loadingPreview = true
