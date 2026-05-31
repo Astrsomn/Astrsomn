@@ -42,8 +42,14 @@ export function extensionTypeLabel(type: string | undefined) {
 }
 
 export function isUninstallableExtension(record: ExtensionRow | undefined) {
-    const source = record?.installSource
-    return source === 'PLUGIN_JAR_UPLOAD' || source === 'PLUGIN_JAR_DISCOVERED'
+    if (!record) return false
+    const source = record.installSource
+    if (source) {
+        return source === 'PLUGIN_JAR_UPLOAD' || source === 'PLUGIN_JAR_DISCOVERED'
+    }
+    // Backward compatibility: if installSource is null but jarName exists, treat as PLUGIN_JAR_UPLOAD
+    // Mirrors SystemExtensionSourceHelper.resolveInstallSource()
+    return !!record.jarName
 }
 
 const MODEL_TYPE_META: Record<string, { color: string; label: string }> = {

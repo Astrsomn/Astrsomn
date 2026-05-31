@@ -58,6 +58,8 @@
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
         <deploy.skip>${project.packaging == 'pom'}</deploy.skip>
+        <langchain4j.integration.version>1.11.0-beta19</langchain4j.integration.version>
+        <langchain4j.version>1.11.0</langchain4j.version>
     </properties>
 
     <modules>

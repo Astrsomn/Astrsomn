@@ -13,7 +13,7 @@
       </div>
       <div class="info-tags">
         <span class="tag type-tag">{{ extensionTypeLabel(item.type) }}</span>
-        <span class="tag code-tag">{{ item.extensionCode || 'Provider' }}</span>
+        <span class="tag code-tag">{{ item.extensionCode || item.providerCode || 'Provider' }}</span>
         <span class="tag jar-tag">{{ item.jarName || 'classpath dependency' }}</span>
       </div>
     </div>
@@ -87,7 +87,7 @@
         </a-button>
         <a-button v-else size="small" class="action-btn" type="primary" @click="$emit('install', item)">
           <template #icon><DownloadOutlined /></template>
-          安装到环境
+          安装
         </a-button>
       </template>
     </div>
