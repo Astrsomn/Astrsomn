@@ -15,17 +15,23 @@ public class PluginClassLoader extends URLClassLoader {
             Class<?> c = findLoadedClass(name);
 
             if (c == null) {
-                // 核心契约类强制由父加载器（主程序）加载，确保接口一致性
+                // 核心契约类优先由父加载器加载，确保接口一致性；
+                // 但如果父加载器没有（如 langchain4j-qdrant 等集成库），回退到插件 JAR 查找
                 if (isCoreClass(name)) {
-                    return super.loadClass(name, resolve);
-                }
-
-                try {
+                    try {
+                        c = super.loadClass(name, false);
+                    } catch (ClassNotFoundException e) {
+                        // 父加载器没有，尝试从插件自身 JAR 查找（fat JAR 场景）
+                        c = findClass(name);
+                    }
+                } else {
                     // 插件优先逻辑：先尝试从插件自身的 JAR 包中寻找类
-                    c = findClass(name);
-                } catch (ClassNotFoundException e) {
-                    // 插件内未找到时，回归双亲委派标准逻辑
-                    c = super.loadClass(name, resolve);
+                    try {
+                        c = findClass(name);
+                    } catch (ClassNotFoundException e) {
+                        // 插件内未找到时，回归双亲委派标准逻辑
+                        c = super.loadClass(name, false);
+                    }
                 }
             }
 
