@@ -16,13 +16,13 @@
             <CloudUploadOutlined />
           </div>
           <div class="ems-title-group">
-            <span class="ems-main-title">确认加载模型</span>
-            <span class="ems-sub-title">{{ extensionLabel || '扩展' }}</span>
+            <span class="ems-main-title">{{ t.loadDialog.title }}</span>
+            <span class="ems-sub-title">{{ extensionLabel || t.loadDialog.extension }}</span>
           </div>
         </div>
         <div class="ems-header-actions">
           <div class="ems-header-action-pair">
-            <a-button class="ems-header-action-btn ems-header-btn-cancel" @click="emit('cancel')">取消</a-button>
+            <a-button class="ems-header-action-btn ems-header-btn-cancel" @click="emit('cancel')">{{ t.loadDialog.cancel }}</a-button>
             <a-button
               :disabled="okDisabled"
               :loading="confirming"
@@ -30,7 +30,7 @@
               type="primary"
               @click="handleOk"
             >
-              确认加载模型
+              {{ t.loadDialog.confirm }}
             </a-button>
           </div>
         </div>
@@ -45,19 +45,17 @@
             <p v-if="emptyHint" class="ems-hint">{{ emptyHint }}</p>
 
             <div class="ems-summary-row">
-              <p class="ems-summary">已选择 <strong>{{ selectedCount }}</strong> 个模型将写入本环境。</p>
+              <p class="ems-summary" v-html="selectedCountHtml"></p>
               <a-button size="small" type="link" @click="toggleSelectAll">
-                {{ allSelected ? '取消全选' : '全选' }}
+                {{ allSelected ? t.loadDialog.deselectAll : t.loadDialog.selectAll }}
               </a-button>
             </div>
 
-            <div v-if="(loadPreview.skippedInvalidCount ?? 0) > 0" class="ems-hint" style="color: var(--error); margin-bottom: 12px;">
-              厂商返回条目中有 {{ loadPreview.skippedInvalidCount }} 条数据异常，将跳过。
-            </div>
+            <div v-if="(loadPreview.skippedInvalidCount ?? 0) > 0" class="ems-hint" style="color: var(--error); margin-bottom: 12px;" v-html="invalidCountHtml"></div>
 
             <div class="ems-preview-section">
               <div class="ems-preview-section-title">
-                <span>将保存（新增）</span>
+                <span>{{ t.loadDialog.toCreate }}</span>
                 <span class="ems-count-badge">{{ loadPreview.toCreate?.length ?? 0 }}</span>
               </div>
               <div v-if="(loadPreview.toCreate?.length ?? 0) > 0" class="ems-card-grid">
@@ -82,12 +80,12 @@
                   </div>
                 </div>
               </div>
-              <div v-else class="ems-preview-empty">无新模型可新增</div>
+              <div v-else class="ems-preview-empty">{{ t.loadDialog.noNewModels }}</div>
             </div>
 
             <div class="ems-preview-section">
               <div class="ems-preview-section-title">
-                <span>已存在将跳过</span>
+                <span>{{ t.loadDialog.skippedExisting }}</span>
                 <span class="ems-count-badge muted">{{ loadPreview.skippedExisting?.length ?? 0 }}</span>
               </div>
               <div v-if="(loadPreview.skippedExisting?.length ?? 0) > 0" class="ems-card-grid">
@@ -107,7 +105,7 @@
                   </div>
                 </div>
               </div>
-              <div v-else class="ems-preview-empty">无</div>
+              <div v-else class="ems-preview-empty">{{ t.loadDialog.none }}</div>
             </div>
           </template>
         </a-spin>
@@ -121,6 +119,9 @@ import {computed, ref, watch} from 'vue'
 import {CloudUploadOutlined} from '@ant-design/icons-vue'
 import type {ExtensionModelLoadPreview} from '@/api/systemExtension.ts'
 import {modelTypeColor, modelTypeLabel} from '../../utils/extensionDisplay.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('system-extension')
 
 const open = defineModel<boolean>('open', { required: true })
 
@@ -155,6 +156,15 @@ watch(
 
 const selectedCount = computed(() => selectedRowKeys.value.length)
 
+const selectedCountHtml = computed(() => {
+  return t.value.loadDialog.selectedCount.replace('{count}', `<strong>${selectedCount.value}</strong>`)
+})
+
+const invalidCountHtml = computed(() => {
+  if (!props.loadPreview?.skippedInvalidCount) return ''
+  return t.value.loadDialog.invalidCount.replace('{count}', String(props.loadPreview!.skippedInvalidCount))
+})
+
 const allSelected = computed(() => {
   const list = props.loadPreview?.toCreate ?? []
   return list.length > 0 && list.every((m) => selectedRowKeys.value.includes(m.modelKey!))
@@ -170,7 +180,7 @@ const emptyHint = computed(() => {
   if (!props.loadPreview) return ''
   const p = props.loadPreview
   const total = (p.toCreate?.length ?? 0) + (p.skippedExisting?.length ?? 0) + (p.skippedInvalidCount ?? 0)
-  if (total === 0) return '厂商未返回可用模型条目。'
+  if (total === 0) return t.value.loadDialog.noModelsFromProvider
   return ''
 })
 
@@ -254,7 +264,7 @@ async function handleOk() {
   border-radius: 10px;
   font-size: 11px;
   font-weight: 600;
-  background: rgba(59, 130, 246, 0.15);
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
   color: var(--primary);
 }
 
@@ -283,14 +293,14 @@ async function handleOk() {
 }
 
 .ems-model-card:hover {
-  border-color: rgba(59, 130, 246, 0.35);
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
   background: var(--bg-elevated);
 }
 
 .ems-model-card.selected {
   border-color: var(--primary);
-  background: rgba(59, 130, 246, 0.08);
-  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .ems-model-card.skipped {

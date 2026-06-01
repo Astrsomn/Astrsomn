@@ -5,51 +5,51 @@
         <div class="config-section">
           <h3 class="section-title">
             <InfoCircleOutlined/>
-            基础定义
+            {{ t.left.sectionTitle }}
           </h3>
           <div class="basic-form-grid">
-            <a-form-item :rules="[{ required: true, message: '请输入名称' }]" class="span-2" label="预设名称"
+            <a-form-item :rules="[{ required: true, message: t.left.presetName.required }]" class="span-2" :label="t.left.presetName.label"
                          name="instanceName">
               <a-input
                   v-model:value="form.instanceName"
-                  placeholder="默认与端点名称一致，可改为任意展示名"
+                  :placeholder="t.left.presetName.placeholder"
                   size="large"
                   @update:value="emit('preset-name-input')"
               />
             </a-form-item>
 
-            <a-form-item :rules="[{ required: true, message: '请输入实例标识' }, ...instanceKeyRules]" class="span-2" label="实例标识 (instanceKey)"
+            <a-form-item :rules="[{ required: true, message: t.left.instanceKey.required }, ...instanceKeyRules]" class="span-2" :label="t.left.instanceKey.label"
                          name="instanceKey">
               <AstKeyGenerator
                   v-model="form.instanceKey"
                   :disabled="isEdit"
                   :prefix="AI_INSTANCE_KEY_PREFIX"
-                  placeholder="请输入实例标识"
+                  :placeholder="t.left.instanceKey.placeholder"
                   size="large"
               />
             </a-form-item>
 
-            <a-form-item class="span-2" label="运行状态">
+            <a-form-item class="span-2" :label="t.left.status.label">
               <AstegmentedButton :buttons="statusButtons" block/>
             </a-form-item>
 
-            <a-form-item class="span-2" label="默认预设">
+            <a-form-item class="span-2" :label="t.left.defaultPreset.label">
               <AstegmentedButton :buttons="defaultButtons" block/>
             </a-form-item>
 
-            <a-form-item :rules="[{ required: true, message: '请选择关联账号' }]" class="span-2" label="关联账号"
+            <a-form-item :rules="[{ required: true, message: t.left.account.required }]" class="span-2" :label="t.left.account.label"
                          name="accountKey">
               <a-space class="w-full">
                 <a-input
                     v-model:value="form.accountKey"
                     :disabled="true"
-                    :placeholder="form.accountKey ? form.accountKey : '请选择关联账号'"
+                    :placeholder="form.accountKey ? form.accountKey : t.left.account.placeholder"
                     class="cursor-pointer flex-1"
                     size="large"
                     @click="emit('open-account-selector')"
                 />
                 <a-button size="large" type="primary" @click="emit('open-account-selector')">
-                  选择账号
+                  {{ t.left.account.selectButton }}
                 </a-button>
               </a-space>
             </a-form-item>
@@ -79,6 +79,9 @@ import AstegmentedButton from '@/components/home/AstegmentedButton.vue'
 import {AI_INSTANCE_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
 import type {AiAccount} from '@/api/aiAccount'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-instance')
 
 const props = defineProps<{
   form: Record<string, any>
@@ -94,18 +97,18 @@ const emit = defineEmits<{
 
 const statusButtons = computed(() => [
   {
-    label: '立即激活',
+    label: t.value.left.status.activate,
     icon: ThunderboltOutlined,
-    type: props.form.status === 'enabled' ? 'primary' : 'default',
+    type: (props.form.status === 'enabled' ? 'primary' : 'default') as 'primary' | 'default',
     plain: props.form.status !== 'enabled',
     onClick: () => {
       props.form.status = 'enabled'
     }
   },
   {
-    label: '暂存停用',
+    label: t.value.left.status.deactivate,
     icon: PauseCircleOutlined,
-    type: props.form.status === 'disabled' ? 'default' : 'default',
+    type: 'default' as const,
     plain: props.form.status !== 'disabled',
     onClick: () => {
       props.form.status = 'disabled'
@@ -115,18 +118,18 @@ const statusButtons = computed(() => [
 
 const defaultButtons = computed(() => [
   {
-    label: '是',
+    label: t.value.left.defaultPreset.yes,
     icon: CheckOutlined,
-    type: props.form.isDefault === 'Y' ? 'primary' : 'default',
+    type: (props.form.isDefault === 'Y' ? 'primary' : 'default') as 'primary' | 'default',
     plain: props.form.isDefault !== 'Y',
     onClick: () => {
       props.form.isDefault = 'Y'
     }
   },
   {
-    label: '否',
+    label: t.value.left.defaultPreset.no,
     icon: CloseOutlined,
-    type: props.form.isDefault === 'N' ? 'default' : 'default',
+    type: 'default' as const,
     plain: props.form.isDefault !== 'N',
     onClick: () => {
       props.form.isDefault = 'N'
@@ -164,15 +167,15 @@ function handleAccountSelect(account: AiAccount) {
 }
 
 .glass-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: var(--radius-md);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-default);
 }
 
 .section-title {
   font-size: 15px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary);
   margin-bottom: 16px;
   display: flex;
   align-items: center;

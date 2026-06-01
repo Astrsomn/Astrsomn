@@ -5,7 +5,7 @@
         <div class="icon-badge">
           <PictureOutlined/>
         </div>
-        <h3 class="card-title">多模态增强能力</h3>
+        <h3 class="card-title">{{ t.imageModelCard.title }}</h3>
       </div>
       <button class="add-btn" @click="handleAddImageInstance">
         <PlusCircleOutlined/>
@@ -16,7 +16,7 @@
         <div class="model-info">
           <PictureOutlined class="model-icon"/>
           <span class="model-name">{{
-              currentImageInstance ? currentImageInstance.instanceName : 'DALL-E 3 图像生成'
+              currentImageInstance ? currentImageInstance.instanceName : t.imageModelCard.dalleGeneration
             }}</span>
         </div>
         <RightOutlined class="model-arrow"/>
@@ -24,7 +24,7 @@
       <div class="model-item" @click="handleSelectAudioModel">
         <div class="model-info">
           <AudioOutlined class="model-icon audio"/>
-          <span class="model-name">OpenAI TTS 语音合成</span>
+          <span class="model-name">{{ t.imageModelCard.ttsSynthesis }}</span>
         </div>
         <RightOutlined class="model-arrow"/>
       </div>
@@ -52,6 +52,9 @@ import {AudioOutlined, PictureOutlined, PlusCircleOutlined, RightOutlined} from 
 import InstanceSelectorDrawer from '../../../ai-instance/selector/InstanceSelectorDrawer.vue'
 import InstanceForm from '../../../ai-instance/InstanceForm.vue'
 import type {AiInstance} from '@/api/aiInstance'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-builder')
 
 defineProps<{
   currentImageInstance?: AiInstance
@@ -97,20 +100,20 @@ const handleInstanceFormSuccess = () => {
 
 <style scoped>
 .image-card {
-  background: var(--ab-glass-bg, rgba(255, 255, 255, 0.8));
+  background: var(--ab-glass-bg);
   backdrop-filter: blur(var(--ab-glass-haze, 10px));
   -webkit-backdrop-filter: blur(var(--ab-glass-haze, 10px));
-  border: 1px solid var(--ab-glass-border, rgba(255, 255, 255, 0.6));
+  border: 1px solid var(--ab-glass-border);
   border-radius: var(--ab-glass-radius, 16px);
-  box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
+  box-shadow: var(--ab-glass-shadow);
   padding: 20px;
   transition: border-color 0.2s,
   box-shadow 0.2s;
 }
 
 .image-card:hover {
-  border-color: var(--ab-hover-line, #3b82f6);
-  box-shadow: var(--ab-hover-shadow, 0 0 15px rgba(59, 130, 246, 0.15));
+  border-color: var(--ab-hover-line);
+  box-shadow: var(--ab-hover-shadow, 0 0 15px color-mix(in srgb, var(--primary) 15%, transparent));
 }
 
 .card-header {
@@ -145,7 +148,7 @@ const handleInstanceFormSuccess = () => {
 .card-title {
   font-weight: 700;
   font-size: 14px;
-  color: #334155;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -178,8 +181,8 @@ const handleInstanceFormSuccess = () => {
   flex: 1;
   min-width: 0;
   padding: 8px 16px;
-  background: rgba(239, 246, 255, 0.5);
-  border: 1px solid #bfdbfe;
+  background: color-mix(in srgb, var(--bg-container) 50%, transparent);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -194,8 +197,8 @@ const handleInstanceFormSuccess = () => {
 }
 
 .model-item:nth-child(2) {
-  background: rgba(255, 247, 237, 0.5);
-  border-color: #fed7aa;
+  background: color-mix(in srgb, var(--bg-elevated) 50%, transparent);
+  border-color: var(--border-default);
 }
 
 .model-item:nth-child(2):hover {
@@ -222,7 +225,7 @@ const handleInstanceFormSuccess = () => {
 .model-name {
   font-size: 12px;
   font-weight: 700;
-  color: #475569;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -230,7 +233,7 @@ const handleInstanceFormSuccess = () => {
 
 .model-arrow {
   font-size: 10px;
-  color: #cbd5e1;
+  color: var(--text-hint);
   flex-shrink: 0;
 }
 </style>

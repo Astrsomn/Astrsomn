@@ -1,6 +1,6 @@
 <template>
   <div class="module-shell">
-    <aside v-if="showModuleSidebar" aria-label="模块导航" class="module-sider">
+    <aside v-if="showModuleSidebar" :aria-label="t.layout.moduleNav" class="module-sider">
       <div class="module-sider-scroll">
         <nav class="module-sider-inner">
           <a-menu
@@ -46,7 +46,7 @@
       <div class="module-sider-foot">
         <a class="official-btn" href="https://www.astrsomn.com/home.html" target="_blank">
           <GlobalOutlined class="btn-icon"/>
-          <span>访问官方网站</span>
+          <span>{{ t.layout.visitOfficialSite }}</span>
         </a>
 
         <div class="version-info">
@@ -73,6 +73,7 @@ import {computed, provide, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {GlobalOutlined} from '@ant-design/icons-vue'; // 确保安装了 antd-icons
 import {appConfig} from '@/config/config.ts';
+import {usePageTranslation} from '@/locales/pages.ts';
 import type {AdminModuleNavGroup} from './utils/adminModuleTypes.ts';
 
 const props = defineProps<{
@@ -81,6 +82,7 @@ const props = defineProps<{
 
 const route = useRoute();
 const router = useRouter();
+const t = usePageTranslation('common');
 
 provide('adminInModuleLayout', true);
 
@@ -350,9 +352,9 @@ const go = (to: string) => {
 .status-dot {
   width: 6px;
   height: 6px;
-  background: #22c55e;
+  background: var(--success);
   border-radius: 50%;
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--success) 40%, transparent);
 }
 
 .env-label {

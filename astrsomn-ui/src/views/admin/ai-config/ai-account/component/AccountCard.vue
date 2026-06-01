@@ -20,13 +20,13 @@
         <div class="avatar-glow">
           <CustomerServiceOutlined/>
         </div>
-        <div class="live-badge" title="在线">
+        <div class="live-badge" :title="t.card.onlineTitle">
           <span class="live-dot"></span>
         </div>
       </div>
 
       <h3 :title="account.accountName" class="title">
-        {{ account.accountName || 'AI 助手实例' }}
+        {{ account.accountName || t.card.defaultName }}
       </h3>
 
       <div class="token-capsule">
@@ -39,7 +39,7 @@
       </div>
 
       <div class="description-box">
-        <div class="model-label">已启用的模型</div>
+        <div class="model-label">{{ t.card.enabledModels }}</div>
         <div class="model-tags">
           <template v-if="usedModels.length > 0">
             <span v-for="m in usedModels.slice(0, 3)" :key="m" class="model-chip">
@@ -49,9 +49,9 @@
               +{{ usedModels.length - 3 }}
             </span>
           </template>
-          <span v-else class="empty-text">暂未关联模型</span>
+          <span v-else class="empty-text">{{ t.card.noModels }}</span>
           <button class="manage-link" @click.stop="emitShowModels">
-            管理
+            {{ t.card.manage }}
             <RightOutlined style="font-size: 10px;"/>
           </button>
         </div>
@@ -70,7 +70,7 @@
         <button class="action-circle-btn" @click="onEdit">
           <edit-outlined/>
         </button>
-        <a-popconfirm title="确定要释放该助手吗？" @confirm="onDelete">
+        <a-popconfirm :title="t.card.deleteConfirm" @confirm="onDelete">
           <button class="action-circle-btn delete">
             <delete-outlined/>
           </button>
@@ -90,6 +90,9 @@ import {
   TransactionOutlined,
   UserOutlined
 } from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-account')
 
 interface AiAccount {
   id?: number | string;
@@ -183,7 +186,7 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 
 .status-chip.prod,
 .status-chip.dev {
-  background: rgba(59, 130, 246, 0.1);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .status-chip.prod .status-dot,
@@ -233,7 +236,7 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
   justify-content: center;
   font-size: 24px;
   color: white;
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--primary) 30%, transparent);
   border: 1px solid var(--border-default);
 }
 
@@ -285,7 +288,7 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
 
 .token-capsule:hover {
   border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .token-icon {
@@ -439,24 +442,24 @@ const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
   background: var(--primary-color);
   color: #fff;
   border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .action-circle-btn.delete:hover {
   background: var(--error);
   border-color: var(--error);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--error) 20%, transparent);
 }
 
 @keyframes live-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 70%, transparent);
   }
   70% {
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 0%, transparent);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
   }
 }
 </style>

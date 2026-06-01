@@ -11,11 +11,11 @@
     </template>
 
     <template #title>
-      {{ mode === 'create' ? '新建向量源' : '编辑向量源' }}
+      {{ mode === 'create' ? t.vecSource.form.createTitle : t.vecSource.form.editTitle }}
     </template>
 
     <template #subtitle>
-      选择数据源类型并配置连接参数
+      {{ t.vecSource.form.subtitle }}
     </template>
 
     <a-form
@@ -28,25 +28,25 @@
       <div class="form-section">
         <h3 class="section-headline">
           <IdcardOutlined/>
-          基本信息
+          {{ t.vecSource.form.basicInfo }}
         </h3>
 
-        <a-form-item label="名称" name="name">
-          <a-input v-model:value="form.name" placeholder="如：Milvus-Production" size="large"/>
+        <a-form-item :label="t.vecSource.form.name.label" name="name">
+          <a-input v-model:value="form.name" :placeholder="t.vecSource.form.name.placeholder" size="large"/>
         </a-form-item>
 
-        <a-form-item label="数据源类型" name="extensionCode">
+        <a-form-item :label="t.vecSource.form.extensionCode.label" name="extensionCode">
           <ExtensionSelector
               :value="form.extensionCode"
               allow-clear
               extension-type="VECTOR_STORE"
-              placeholder="选择扩展数据源类型"
+              :placeholder="t.vecSource.form.extensionCode.placeholder"
               size="large"
               @update:value="onExtensionChange"
           />
         </a-form-item>
 
-        <a-form-item label="状态" name="status">
+        <a-form-item :label="t.vecSource.form.status.label" name="status">
           <a-segmented
               v-model:value="form.status"
               :options="statusOptions"
@@ -60,12 +60,12 @@
       <div class="form-section">
         <h3 class="section-headline">
           <LinkOutlined/>
-          连接配置
+          {{ t.vecSource.form.connectionConfig }}
         </h3>
 
         <a-alert
             v-if="!form.extensionCode"
-            message="请先选择数据源类型"
+            :message="t.vecSource.form.selectSourceFirst"
             show-icon
             style="margin-bottom: 12px"
             type="info"
@@ -102,7 +102,7 @@
           </a-form-item>
 
           <a-collapse v-model:activeKey="advancedKeys" ghost>
-            <a-collapse-panel key="adv" header="扩展配置">
+            <a-collapse-panel key="adv" :header="t.vecSource.form.advancedConfig">
               <a-form-item :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }" name="configJson">
                 <div class="json-editor-wrapper">
                   <a-textarea
@@ -124,13 +124,13 @@
         <template #icon>
           <ApiTwoTone/>
         </template>
-        测试连接
+        {{ t.vecSource.form.testConnection }}
       </a-button>
       <a-button :loading="confirmLoading" type="primary" @click="handleOk">
         <template #icon>
           <CheckCircleOutlined/>
         </template>
-        保存
+        {{ t.vecSource.form.save }}
       </a-button>
     </template>
   </AstDrawer>
@@ -156,6 +156,9 @@ import AstDrawer from '@/components/home/AstDrawer.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import type {AiVecSource} from '@/api/aiVecSource.ts'
 import {aiVecSourceApi} from '@/api/aiVecSource.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{ mode: 'create' | 'edit'; confirmLoading: boolean; initial: AiVecSource | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecSource] }>()
@@ -166,10 +169,10 @@ const syncingInitial = ref(false)
 const advancedKeys = ref<string | string[]>([])
 const testLoading = ref(false)
 
-const statusOptions = [
-  {label: '启用', value: 'enabled'},
-  {label: '停用', value: 'disabled'}
-]
+const statusOptions = computed(() => [
+  {label: t.value.vecSource.form.enabled, value: 'enabled'},
+  {label: t.value.vecSource.form.disabled, value: 'disabled'}
+])
 
 type ParamMeta = {
   label: string
@@ -179,18 +182,14 @@ type ParamMeta = {
   prefix?: typeof GlobalOutlined
 }
 
-const paramMeta: Record<string, ParamMeta> = {
-  host: {
-    label: '主机',
-    placeholder: 'localhost',
-    prefix: GlobalOutlined
-  },
-  port: {label: '端口', placeholder: '6333', prefix: ApiOutlined},
-  databaseName: {label: '数据库', placeholder: 'default', wide: true},
-  username: {label: '用户名', placeholder: 'root', prefix: UserOutlined},
-  password: {label: '密码', placeholder: '••••••', password: true, prefix: LockOutlined},
-  token: {label: 'Token', placeholder: 'API Key', password: true, prefix: KeyOutlined}
-}
+const paramMeta = computed<Record<string, ParamMeta>>(() => ({
+  host: {label: t.value.vecSource.form.paramMeta.host.label, placeholder: t.value.vecSource.form.paramMeta.host.placeholder, prefix: GlobalOutlined},
+  port: {label: t.value.vecSource.form.paramMeta.port.label, placeholder: t.value.vecSource.form.paramMeta.port.placeholder, prefix: ApiOutlined},
+  databaseName: {label: t.value.vecSource.form.paramMeta.databaseName.label, placeholder: t.value.vecSource.form.paramMeta.databaseName.placeholder, wide: true},
+  username: {label: t.value.vecSource.form.paramMeta.username.label, placeholder: t.value.vecSource.form.paramMeta.username.placeholder, prefix: UserOutlined},
+  password: {label: t.value.vecSource.form.paramMeta.password.label, placeholder: t.value.vecSource.form.paramMeta.password.placeholder, password: true, prefix: LockOutlined},
+  token: {label: t.value.vecSource.form.paramMeta.token.label, placeholder: t.value.vecSource.form.paramMeta.token.placeholder, password: true, prefix: KeyOutlined}
+}))
 
 type FormRow = AiVecSource & Record<string, string | undefined>
 
@@ -222,17 +221,17 @@ const paramCodes = computed(() => {
   return providerParamMap[provider] || ['host', 'port']
 })
 
-const visibleParamCodes = computed(() => paramCodes.value.filter((c) => Boolean(paramMeta[c])))
+const visibleParamCodes = computed(() => paramCodes.value.filter((c) => Boolean(paramMeta.value[c])))
 
 const formRules = computed<Record<string, Rule[]>>(() => {
   const r: Record<string, Rule[]> = {
-    name: [{required: true, message: '请输入向量源名称'}],
-    extensionCode: [{required: true, message: '请选择数据源类型'}]
+    name: [{required: true, message: t.value.vecSource.form.validation.nameRequired}],
+    extensionCode: [{required: true, message: t.value.vecSource.form.validation.extensionCodeRequired}]
   }
   for (const code of paramCodes.value) {
-    if (!paramMeta[code]) continue
+    if (!paramMeta.value[code]) continue
     if (code === 'host' || code === 'port') {
-      r[code] = [{required: true, message: `请填写${paramMeta[code].label}`}]
+      r[code] = [{required: true, message: t.value.vecSource.form.validation.fieldRequired.replace('{label}', paramMeta.value[code].label)}]
     }
   }
   return r
@@ -292,7 +291,7 @@ const testConnection = async () => {
     message.success(msg)
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '测试连接失败')
+    message.error(err?.message || t.value.vecSource.form.testFailed)
   } finally {
     testLoading.value = false
   }

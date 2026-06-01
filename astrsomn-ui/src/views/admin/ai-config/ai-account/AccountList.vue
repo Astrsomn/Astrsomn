@@ -4,9 +4,9 @@
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
-      description="维护 AI_ACCOUNT：供应商账号、API 凭证与额度，供模型路由等使用。"
-      empty-text="暂无账号。"
-      title="凭证管理"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div ref="pageRef" class="account-page">
       <AstDataSection>
@@ -15,9 +15,9 @@
             <div class="toolbar-left">
               <AstSearchInput
                   v-model="query.accountName"
-                  button-label="查询"
+                  :button-label="t.list.searchButton"
                   layout="toolbar"
-                  placeholder="账号名称"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
               <div class="provider-filter">
@@ -25,7 +25,7 @@
                     v-model:value="query.extensionCode"
                     :allow-clear="true"
                     :only-applied="true"
-                    placeholder="根据供应商筛选"
+                    :placeholder="t.list.filterProviderPlaceholder"
                     size="middle"
                     @update:value="onProviderChange"
                 />
@@ -48,7 +48,7 @@
             :mode="dataViewMode"
             :row-selection="rowSelection"
             :scroll="{ x: 1180 }"
-            empty-text="暂无匹配的账号"
+            :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
           <template #card="{ record }">
@@ -67,7 +67,7 @@
             <template v-if="column.key === 'callCount'">
               <span class="metric-chip metric-chip--call">
                 <span class="metric-value">{{ Number(record.callCount ?? 0).toLocaleString() }}</span>
-                <span class="metric-unit">次</span>
+                <span class="metric-unit">{{ t.list.metricCallUnit }}</span>
               </span>
             </template>
 
@@ -106,7 +106,7 @@
                 <a-button size="small" type="link" @click="openModelsDrawer(record)">
                   <LinkOutlined/>
                 </a-button>
-                <a-popconfirm title="确定删除吗？" @confirm="() => handleDeleteOne(record.id)">
+                <a-popconfirm :title="t.list.deleteConfirm" @confirm="() => handleDeleteOne(record.id)">
                   <a-button danger size="small" type="link">
                     <DeleteOutlined/>
                   </a-button>
@@ -157,6 +157,9 @@ import AccountCard from './component/AccountCard.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import {type AiAccount, aiAccountApi, type PageResponse} from '@/api/aiAccount'
 import type {AiModel} from '@/api/aiModel'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-account')
 
 const props = withDefaults(defineProps<{
   initialViewMode?: 'grid' | 'list'
@@ -169,10 +172,10 @@ const ACCOUNT_CARD_GAP_PX = 8
 const accountCardMinWidth = `${ACCOUNT_CARD_MIN_WIDTH_PX}px`
 const accountCardGap = `${ACCOUNT_CARD_GAP_PX}px`
 
-const breadcrumbs = [
-  {title: 'AI 配置', href: '/admin/ai-config'},
-  {title: '凭证管理'},
-]
+const breadcrumbs = computed(() => [
+  {title: t.value.list.breadcrumbAiConfig, href: '/admin/ai-config'},
+  {title: t.value.list.breadcrumbTitle},
+])
 
 const pageRef = ref<HTMLElement | null>(null)
 const formVisible = ref(false)
@@ -187,26 +190,26 @@ type QueryState = {
   extensionCode?: string
 }
 
-const columns = [
+const columns = computed(() => [
   {
-    title: '供应商',
+    title: t.value.list.colProvider,
     key: 'providerAvatar',
     dataIndex: 'providerAvatar',
     width: 80,
     align: 'center',
     enableBase64Render: true
   },
-  {title: '账号名称', dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true},
-  {title: '账号 Key', dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true},
-  {title: '调用次数', dataIndex: 'callCount', key: 'callCount', width: 140, align: 'center'},
-  {title: '总消耗', dataIndex: 'totalTokens', key: 'totalTokens', width: 170, align: 'center'},
-  {title: '总限量', dataIndex: 'accountTokens', key: 'accountTokens', width: 170, align: 'center'},
-  {title: '剩余额度', key: 'remainingTokens', width: 170, align: 'center'},
+  {title: t.value.list.colAccountName, dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true},
+  {title: t.value.list.colAccountKey, dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true},
+  {title: t.value.list.colCallCount, dataIndex: 'callCount', key: 'callCount', width: 140, align: 'center'},
+  {title: t.value.list.colTotalTokens, dataIndex: 'totalTokens', key: 'totalTokens', width: 170, align: 'center'},
+  {title: t.value.list.colAccountTokens, dataIndex: 'accountTokens', key: 'accountTokens', width: 170, align: 'center'},
+  {title: t.value.list.colRemainingTokens, key: 'remainingTokens', width: 170, align: 'center'},
 
-  {title: '扩展名称', dataIndex: 'extensionName', key: 'extensionName', width: 120, ellipsis: true},
-  {title: '请求路径', dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true},
+  {title: t.value.list.colExtensionName, dataIndex: 'extensionName', key: 'extensionName', width: 120, ellipsis: true},
+  {title: t.value.list.colApiUrl, dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true},
   {
-    title: '状态',
+    title: t.value.list.colStatus,
     dataIndex: 'status',
     key: 'status',
     width: 120,
@@ -214,11 +217,11 @@ const columns = [
     tag: true,
     tagColor: (status: string) => status === 'enabled' ? 'green' : 'red'
   },
-  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
-  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  {title: '操作', key: 'actions', width: 220, fixed: 'right' as const}
-]
+  {title: t.value.list.colEnvCode, dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: t.value.list.colCreateTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: t.value.list.colCreateUser, dataIndex: 'createUser', key: 'createUser', width: 150},
+  {title: t.value.list.colActions, key: 'actions', width: 220, fixed: 'right' as const}
+])
 
 const query = reactive<QueryState>({})
 const list = ref<AiAccount[]>([])
@@ -269,26 +272,26 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '重置',
+    label: t.value.list.btnReset,
     icon: ReloadOutlined,
     onClick: resetFilters
   },
   {
-    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    label: selectedRowKeys.value.length > 0 ? t.value.list.btnDeleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.btnDelete,
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
       if (selectedRowKeys.value.length === 0) return
       Modal.confirm({
-        title: `确定批量删除选中的 ${selectedRowKeys.value.length} 个账号吗？`,
-        okText: '确认',
-        cancelText: '取消',
+        title: t.value.list.batchDeleteConfirm.replace('{n}', String(selectedRowKeys.value.length)),
+        okText: t.value.list.confirmOk,
+        cancelText: t.value.list.confirmCancel,
         onOk: () => handleBatchDelete()
       })
     }
   },
   {
-    label: '新增',
+    label: t.value.list.btnCreate,
     type: 'primary',
     icon: PlusOutlined,
     onClick: goCreate
@@ -433,7 +436,7 @@ const providerAvatarCell = (record: AiAccount) => {
 
 const openModelsDrawer = async (account: AiAccount) => {
   if (!account.accountKey) {
-    message.error('accountKey 不能为空，无法加载关联模型')
+    message.error(t.value.list.errorAccountKeyEmpty)
     return
   }
   modelsDrawer.account = account
@@ -452,7 +455,7 @@ const openModelsDrawer = async (account: AiAccount) => {
     const resp: PageResponse<AiModel> = await aiAccountApi.queryModelsByAccountKey(payload)
     modelsDrawer.models = resp.list || []
   } catch {
-    message.error('加载关联模型失败')
+    message.error(t.value.list.errorLoadModels)
   } finally {
     modelsDrawer.loading = false
   }
@@ -562,7 +565,7 @@ const openModelsDrawer = async (account: AiAccount) => {
 }
 
 .text-secondary {
-  color: var(--text-muted, #bfbfbf);
+  color: var(--text-muted);
 }
 
 

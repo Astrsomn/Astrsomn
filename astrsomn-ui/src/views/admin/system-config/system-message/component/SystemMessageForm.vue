@@ -1,7 +1,7 @@
 <template>
   <AstPageShell
-      :title="isEdit ? '编辑系统消息' : '新建系统消息'"
-      description="维护系统通知内容，支持类型、级别、关联引用与错误码。"
+      :title="isEdit ? t.form.editTitle : t.form.createTitle"
+      :description="t.form.description"
       empty-text=""
   >
     <div class="form-page">
@@ -10,77 +10,77 @@
           <template #icon>
             <arrow-left-outlined/>
           </template>
-          返回列表
+          {{ t.form.btnBack }}
         </a-button>
       </div>
 
       <a-form :model="form" class="message-form" layout="vertical" @finish="onSubmit">
         <a-row :gutter="16">
           <a-col :md="12" :xs="24">
-            <a-form-item :rules="[{ required: true, message: '请选择消息类型' }]" label="消息类型" name="messageType">
+            <a-form-item :rules="[{ required: true, message: t.form.validationMessageType }]" :label="t.form.labelMessageType" name="messageType">
               <a-select v-model:value="form.messageType" :options="messageTypeOptions" allow-clear/>
             </a-form-item>
           </a-col>
           <a-col :md="12" :xs="24">
-            <a-form-item :rules="[{ required: true, message: '请选择消息级别' }]" label="消息级别" name="messageLevel">
+            <a-form-item :rules="[{ required: true, message: t.form.validationMessageLevel }]" :label="t.form.labelMessageLevel" name="messageLevel">
               <a-select v-model:value="form.messageLevel" :options="messageLevelOptions" allow-clear/>
             </a-form-item>
           </a-col>
 
           <a-col :md="12" :xs="24">
-            <a-form-item label="已读状态" name="readStatus">
+            <a-form-item :label="t.form.labelReadStatus" name="readStatus">
               <a-select v-model:value="form.readStatus" :options="readStatusOptions" allow-clear/>
             </a-form-item>
           </a-col>
           <a-col :md="12" :xs="24">
-            <a-form-item label="来源" name="source">
-              <a-input v-model:value="form.source" allow-clear placeholder="如 SYSTEM / extension-key / service-name"/>
+            <a-form-item :label="t.form.labelSource" name="source">
+              <a-input v-model:value="form.source" allow-clear :placeholder="t.form.placeholderSource"/>
             </a-form-item>
           </a-col>
 
           <a-col :xs="24">
-            <a-form-item :rules="[{ required: true, message: '请输入标题' }]" label="标题" name="title">
-              <a-input v-model:value="form.title" allow-clear placeholder="列表展示标题"/>
+            <a-form-item :rules="[{ required: true, message: t.form.validationTitle }]" :label="t.form.labelTitle" name="title">
+              <a-input v-model:value="form.title" allow-clear :placeholder="t.form.placeholderTitle"/>
             </a-form-item>
           </a-col>
 
           <a-col :xs="24">
-            <a-form-item label="正文" name="content">
+            <a-form-item :label="t.form.labelContent" name="content">
               <a-textarea
                   v-model:value="form.content"
                   :auto-size="{ minRows: 4, maxRows: 10 }"
-                  placeholder="可填文本或 JSON"
+                  :placeholder="t.form.placeholderContent"
               />
             </a-form-item>
           </a-col>
 
           <a-col :md="8" :xs="24">
-            <a-form-item label="关联类型" name="refType">
+            <a-form-item :label="t.form.labelRefType" name="refType">
               <a-select v-model:value="form.refType" :options="refTypeOptions" allow-clear/>
             </a-form-item>
           </a-col>
           <a-col :md="8" :xs="24">
-            <a-form-item label="关联ID" name="refId">
-              <a-input v-model:value="refIdText" allow-clear placeholder="数字ID"/>
+            <a-form-item :label="t.form.labelRefId" name="refId">
+              <a-input v-model:value="refIdText" allow-clear :placeholder="t.form.placeholderRefId"/>
             </a-form-item>
           </a-col>
           <a-col :md="8" :xs="24">
-            <a-form-item label="关联Key" name="refKey">
-              <a-input v-model:value="form.refKey" allow-clear placeholder="如 traceId / extensionKey"/>
+            <a-form-item :label="t.form.labelRefKey" name="refKey">
+              <a-input v-model:value="form.refKey" allow-clear :placeholder="t.form.placeholderRefKey"/>
             </a-form-item>
           </a-col>
 
           <a-col :md="12" :xs="24">
-            <a-form-item label="错误码" name="errorCode">
-              <a-input v-model:value="form.errorCode" allow-clear placeholder="调用失败时可选"/>
+            <a-form-item :label="t.form.labelErrorCode" name="errorCode">
+              <a-input v-model:value="form.errorCode" allow-clear :placeholder="t.form.placeholderErrorCode"/>
             </a-form-item>
           </a-col>
         </a-row>
 
         <div class="form-actions">
-          <a-button class="ghost-btn" @click="goBack">取消</a-button>
+          <a-button class="ghost-btn" @click="goBack">{{ t.form.btnCancel }}</a-button>
           <a-button :loading="submitting" class="primary-btn" html-type="submit" type="primary">
-            {{ isEdit ? '保存' : '创建' }}
+            {{ isEdit ? t.form.btnSave : t.form.btnCreate }}
           </a-button>
         </div>
       </a-form>
@@ -95,46 +95,38 @@ import {message} from 'ant-design-vue'
 import {ArrowLeftOutlined} from '@ant-design/icons-vue'
 import AstPageShell from '@/components/home/AstPageShell.vue'
 import {type SystemMessage, systemMessageApi} from '@/api/systemMessage.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+import {getDictionary} from '@/locales/dictionary/registry.ts'
 
 const route = useRoute()
 const router = useRouter()
+const t = usePageTranslation('system-message')
+const messageTypeDict = getDictionary('system.message.type')
+const messageLevelDict = getDictionary('system.message.level')
+const readStatusDict = getDictionary('system.message.readStatus')
+const refTypeDict = getDictionary('system.message.refType')
 
 const submitting = ref(false)
 const loading = ref(false)
 
 const isEdit = computed(() => route.name === 'AdminSystemMessageEdit')
 
-const messageTypeOptions = [
-  {label: '插件已安装', value: 'PLUGIN_INSTALLED'},
-  {label: '插件安装失败', value: 'PLUGIN_INSTALL_FAILED'},
-  {label: '插件已卸载', value: 'PLUGIN_UNINSTALLED'},
-  {label: '上线通知', value: 'DEPLOYMENT_ONLINE'},
-  {label: '调用失败', value: 'API_CALL_FAILED'},
-  {label: '系统通知', value: 'SYSTEM_NOTICE'},
-  {label: '其他', value: 'OTHER'}
-]
-
-const messageLevelOptions = [
-  {label: '信息', value: 'INFO'},
-  {label: '成功', value: 'SUCCESS'},
-  {label: '警告', value: 'WARN'},
-  {label: '错误', value: 'ERROR'}
-]
-
-const readStatusOptions = [
-  {label: '未读', value: 'UNREAD'},
-  {label: '已读', value: 'READ'}
-]
-
-const refTypeOptions = [
-  {label: '扩展/插件', value: 'EXTENSION'},
-  {label: '模型实例', value: 'AI_INSTANCE'},
-  {label: 'Agent', value: 'AI_AGENT'},
-  {label: '对话', value: 'AI_CONVERSATION'},
-  {label: 'MCP', value: 'AI_MCP'},
-  {label: '系统', value: 'SYSTEM'},
-  {label: '其他', value: 'OTHER'}
-]
+const messageTypeOptions = computed(() => messageTypeDict.order.map(key => ({
+  label: messageTypeDict.getLabel(key) ?? key,
+  value: key
+})))
+const messageLevelOptions = computed(() => messageLevelDict.order.map(key => ({
+  label: messageLevelDict.getLabel(key) ?? key,
+  value: key
+})))
+const readStatusOptions = computed(() => readStatusDict.order.map(key => ({
+  label: readStatusDict.getLabel(key) ?? key,
+  value: key
+})))
+const refTypeOptions = computed(() => refTypeDict.order.map(key => ({
+  label: refTypeDict.getLabel(key) ?? key,
+  value: key
+})))
 
 const form = reactive<SystemMessage>({
   messageType: 'SYSTEM_NOTICE',
@@ -167,7 +159,7 @@ const loadDetail = async (id: string) => {
     applyForm(detail)
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '加载失败')
+    message.error(err?.message || t.value.form.loadFailed)
     goBack()
   } finally {
     loading.value = false
@@ -179,16 +171,16 @@ const goBack = () => {
 }
 
 const parseRefId = () => {
-  const t = refIdText.value.trim()
-  if (!t) {
+  const val = refIdText.value.trim()
+  if (!val) {
     form.refId = undefined
     return true
   }
-  if (!/^\d+$/.test(t)) {
-    message.warning('关联ID需为数字')
+  if (!/^\d+$/.test(val)) {
+    message.warning(t.value.form.refIdMustBeNumber)
     return false
   }
-  form.refId = t
+  form.refId = val
   return true
 }
 
@@ -208,7 +200,7 @@ const onSubmit = async () => {
     goBack()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
+    message.error(err?.message || t.value.form.saveFailed)
   } finally {
     submitting.value = false
   }

@@ -17,19 +17,19 @@
           <span v-else class="sf-av">-</span>
         </div>
         <span class="sf-text">
-          {{ enabledExtensions.length ? `已启用扩展 ${enabledExtensions.length}` : '暂无已启用扩展' }}
+          {{ enabledExtensions.length ? t.sidebar.enabledExtensions.replace('{count}', String(enabledExtensions.length)) : t.sidebar.noExtensions }}
         </span>
       </div>
       <div class="sf-marketplace-btn" @click="emit('open-marketplace')">
         <AppstoreOutlined class="sf-marketplace-icon"/>
-        <span>{{ marketplaceLabel }}</span>
+        <span>{{ effectiveMarketplaceLabel }}</span>
         <span v-if="showDot" class="sf-dot"></span>
       </div>
     </div>
   </template>
   <template v-else>
     <a-tooltip placement="right">
-      <template #title>{{ marketplaceLabel }}</template>
+      <template #title>{{ effectiveMarketplaceLabel }}</template>
       <div class="sf-collapsed-btn" @click="emit('open-marketplace')">
         <AppstoreOutlined class="sf-collapsed-icon"/>
       </div>
@@ -38,9 +38,13 @@
 </template>
 
 <script lang="ts" setup>
+import {computed} from 'vue'
 import {AppstoreOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 
-withDefaults(defineProps<{
+const t = usePageTranslation('common')
+
+const props = withDefaults(defineProps<{
   enabledExtensions: Array<{ key: string; name: string; avatar: string; initial: string }>
   collapsed?: boolean
   showDot?: boolean
@@ -48,12 +52,14 @@ withDefaults(defineProps<{
 }>(), {
   collapsed: false,
   showDot: false,
-  marketplaceLabel: '插件市场',
+  marketplaceLabel: '',
 })
 
 const emit = defineEmits<{
   'open-marketplace': []
 }>()
+
+const effectiveMarketplaceLabel = computed(() => props.marketplaceLabel || t.value.sidebar.marketplace)
 </script>
 
 <style scoped>

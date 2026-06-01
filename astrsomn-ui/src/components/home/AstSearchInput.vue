@@ -1,7 +1,7 @@
 <template>
   <div :class="rootClass" class="toolbar-search-pill">
     <input
-        :placeholder="placeholder"
+        :placeholder="effectivePlaceholder"
         :value="displayValue"
         class="toolbar-search-pill__input"
         type="text"
@@ -17,8 +17,11 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
 import {SearchOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 export type ToolbarSearchPillLayout = 'toolbar' | 'pane' | 'fluid'
+
+const t = usePageTranslation('common')
 
 const props = withDefaults(
     defineProps<{
@@ -29,7 +32,7 @@ const props = withDefaults(
     }>(),
     {
       modelValue: '',
-      placeholder: '搜索内容...',
+      placeholder: '',
       layout: 'toolbar',
       btnColor: '#ffffff',
     }
@@ -40,6 +43,7 @@ const emit = defineEmits<{
   search: []
 }>()
 
+const effectivePlaceholder = computed(() => props.placeholder || t.value.searchInput.placeholder)
 const displayValue = computed(() => props.modelValue ?? '')
 const rootClass = computed(() => `toolbar-search-pill--${props.layout}`)
 const btnStyle = computed(() => ({ background: props.btnColor }))
@@ -75,7 +79,7 @@ function emitSearch() {
 .toolbar-search-pill:focus-within {
   border-color: var(--primary);
   background: var(--bg-card);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .toolbar-search-pill__input {

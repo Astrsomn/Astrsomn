@@ -5,22 +5,22 @@
       <div class="inner-content">
 
         <div class="action-group">
-          <div class="action-btn" title="编辑" @click.stop="$emit('edit', file)">
+          <div class="action-btn" :title="t.vectorCenter.docFileCard.edit" @click.stop="$emit('edit', file)">
             <edit-outlined/>
           </div>
-          <div v-if="canChunk" class="action-btn chunk" title="切片" @click.stop="$emit('chunk', file)">
+          <div v-if="canChunk" class="action-btn chunk" :title="t.vectorCenter.docFileCard.chunk" @click.stop="$emit('chunk', file)">
             <block-outlined/>
           </div>
-          <div v-if="canVectorize" class="action-btn vectorize" title="向量化" @click.stop="$emit('vectorize', file)">
+          <div v-if="canVectorize" class="action-btn vectorize" :title="t.vectorCenter.docFileCard.vectorize" @click.stop="$emit('vectorize', file)">
             <experiment-outlined/>
           </div>
-          <div v-if="canReChunk" class="action-btn re-chunk" title="重新切片" @click.stop="$emit('re-chunk', file)">
+          <div v-if="canReChunk" class="action-btn re-chunk" :title="t.vectorCenter.docFileCard.reChunk" @click.stop="$emit('re-chunk', file)">
             <block-outlined/>
           </div>
-          <div v-if="canReVectorize" class="action-btn re-vectorize" title="重新向量化" @click.stop="$emit('re-vectorize', file)">
+          <div v-if="canReVectorize" class="action-btn re-vectorize" :title="t.vectorCenter.docFileCard.reVectorize" @click.stop="$emit('re-vectorize', file)">
             <sync-outlined/>
           </div>
-          <div class="action-btn delete" title="删除" @click.stop="$emit('delete', file)">
+          <div class="action-btn delete" :title="t.vectorCenter.docFileCard.delete" @click.stop="$emit('delete', file)">
             <delete-outlined/>
           </div>
         </div>
@@ -29,11 +29,11 @@
           <div class="progress-ring">
             <a-progress :percent="progress || 0" :size="54" :stroke-color="'#1677ff'" :trail-color="'#f0f0f0'" type="circle"/>
           </div>
-          <span class="progress-msg">{{ progressMsg || '处理中...' }}</span>
+          <span class="progress-msg">{{ progressMsg || t.vectorCenter.docFileCard.processing }}</span>
         </div>
 
         <div class="main-body">
-          <div :class="file.status === '已向量化' ? 'ready' : 'pending'" class="status-dot"></div>
+          <div :class="file.statusCode === 'STORED' ? 'ready' : 'pending'" class="status-dot"></div>
           <div :class="getFileExtension(file.name)" class="icon-box">
             <component :is="getFileIcon(file.name)" class="file-icon-svg"/>
           </div>
@@ -62,6 +62,9 @@ import {
   FileTextOutlined,
   SyncOutlined
 } from '@ant-design/icons-vue';
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{
   file: {
@@ -70,6 +73,7 @@ const props = defineProps<{
     segments: number;
     size: string;
     status: string;
+    statusCode?: string;
     uploadTime?: string;
   };
   active?: boolean;
@@ -92,10 +96,10 @@ defineEmits<{
   contextmenu: [e: MouseEvent, file: any]
 }>()
 
-const canChunk = computed(() => !props.vectorizing && (props.file.status === '待向量化' || props.file.status === '失败'))
-const canVectorize = computed(() => !props.vectorizing && props.file.status === '已切片')
-const canReChunk = computed(() => !props.vectorizing && (props.file.status === '已切片' || props.file.status === '已向量化' || props.file.status === '失败'))
-const canReVectorize = computed(() => !props.vectorizing && (props.file.status === '已向量化' || props.file.status === '失败'))
+const canChunk = computed(() => !props.vectorizing && (props.file.statusCode === 'PENDING' || props.file.statusCode === 'FAILED'))
+const canVectorize = computed(() => !props.vectorizing && props.file.statusCode === 'CHUNKED')
+const canReChunk = computed(() => !props.vectorizing && (props.file.statusCode === 'CHUNKED' || props.file.statusCode === 'STORED' || props.file.statusCode === 'FAILED'))
+const canReVectorize = computed(() => !props.vectorizing && (props.file.statusCode === 'STORED' || props.file.statusCode === 'FAILED'))
 
 const getFileIcon = (name: string) => {
   const ext = name.split('.').pop()?.toLowerCase();
@@ -135,11 +139,11 @@ const getFileExtension = (name: string) => {
 
   &.active {
     border-color: var(--primary) !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
   }
 
   &.selected {
-    background: rgba(59, 130, 246, 0.08);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
     border-color: var(--primary) !important;
   }
 
@@ -148,11 +152,10 @@ const getFileExtension = (name: string) => {
     filter: grayscale(0.6);
   }
 
-  // 核心：强制正方形方案
   .square-container {
     position: relative;
     width: 100%;
-    padding-top: 100%; // 关键：利用 padding 实现 1:1 比例
+    padding-top: 100%;
 
     .inner-content {
       position: absolute;
@@ -210,12 +213,12 @@ const getFileExtension = (name: string) => {
       }
 
       &.pdf {
-        background: rgba(239, 68, 68, 0.1);
+        background: color-mix(in srgb, var(--error) 10%, transparent);
         color: #ef4444;
       }
 
       &.md {
-        background: rgba(59, 130, 246, 0.1);
+        background: color-mix(in srgb, var(--primary) 10%, transparent);
         color: var(--primary);
       }
     }
@@ -314,7 +317,6 @@ const getFileExtension = (name: string) => {
     }
   }
 
-  // 小图标模式
   &.size-small {
     .square-container {
       padding-top: 80%;
@@ -350,7 +352,6 @@ const getFileExtension = (name: string) => {
     }
   }
 
-  // 大图标模式
   &.size-large {
     .square-container {
       padding-top: 100%;

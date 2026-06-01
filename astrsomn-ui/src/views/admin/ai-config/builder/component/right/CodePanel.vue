@@ -3,16 +3,16 @@
     <div class="code-header">
       <div class="header-left">
         <code-outlined class="header-icon"/>
-        <span class="header-title">后端调用代码</span>
+        <span class="header-title">{{ t.codePanel.title }}</span>
       </div>
       <button class="copy-btn" @click="copyCode">
         <template v-if="copied">
           <check-outlined/>
-          已复制
+          {{ t.codePanel.copied }}
         </template>
         <template v-else>
           <copy-outlined/>
-          复制
+          {{ t.codePanel.copy }}
         </template>
       </button>
     </div>
@@ -26,6 +26,9 @@
 import {ref} from 'vue';
 import {message} from 'ant-design-vue';
 import {CheckOutlined, CodeOutlined, CopyOutlined} from '@ant-design/icons-vue';
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-builder')
 
 const copied = ref(false);
 
@@ -50,12 +53,12 @@ const copyCode = async () => {
   try {
     await navigator.clipboard.writeText(codeTemplate);
     copied.value = true;
-    message.success('代码已复制到剪贴板');
+    message.success(t.value.codePanel.codeCopied);
     setTimeout(() => {
       copied.value = false;
     }, 2000);
   } catch {
-    message.error('复制失败，请手动选择代码复制');
+    message.error(t.value.codePanel.copyFailed);
   }
 };
 </script>
@@ -109,7 +112,7 @@ const copyCode = async () => {
 }
 
 .copy-btn:hover {
-  background: rgba(99, 102, 241, 0.1);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
   border-color: var(--primary);
   color: var(--primary);
 }

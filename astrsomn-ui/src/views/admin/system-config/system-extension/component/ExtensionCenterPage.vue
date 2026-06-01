@@ -5,7 +5,7 @@
         <AstSearchInput
             v-model="activeQuery.keyword"
             layout="toolbar"
-            placeholder="搜索插件名称 / Provider / 能力"
+            :placeholder="t.center.searchPlaceholder"
             @search="onSearch"
         />
 
@@ -21,21 +21,21 @@
             <template #icon>
               <upload-outlined/>
             </template>
-            导入插件
+            {{ t.center.importPlugin }}
           </a-button>
         </a-upload>
         <a-popconfirm
             v-if="isInstalledTab && selectedRowKeys.length > 0"
-            cancel-text="取消"
-            ok-text="确认"
-            title="确定批量删除选中的扩展吗？"
+            :cancel-text="t.card.cancel"
+            :ok-text="t.card.confirm"
+            :title="t.center.confirmBatchDelete"
             @confirm="handleBatchDelete"
         >
           <a-button class="ghost-btn" danger>
             <template #icon>
               <delete-outlined/>
             </template>
-            批量删除
+            {{ t.center.batchDelete }}
           </a-button>
         </a-popconfirm>
       </div>
@@ -44,10 +44,10 @@
 
     <div class="type-tab-row">
       <a-tabs :active-key="activeQuery.type" class="type-tabs" @change="onTypeChange">
-        <a-tab-pane key="ALL" tab="全部"/>
-        <a-tab-pane key="MODEL_PROVIDER" tab="模型"/>
-        <a-tab-pane key="VECTOR_STORE" tab="向量库"/>
-        <a-tab-pane key="MCP" tab="MCP"/>
+        <a-tab-pane key="ALL" :tab="t.center.all"/>
+        <a-tab-pane key="MODEL_PROVIDER" :tab="t.center.model"/>
+        <a-tab-pane key="VECTOR_STORE" :tab="t.center.vectorStore"/>
+        <a-tab-pane key="MCP" :tab="t.center.mcp"/>
       </a-tabs>
       <a-pagination
           :current="activeQuery.pageNo"
@@ -77,7 +77,7 @@
       </transition-group>
     </div>
     <div v-else class="extension-empty">
-      <a-empty :description="isInstalledTab ? '暂无已安装扩展' : '暂无市场插件'"/>
+      <a-empty :description="isInstalledTab ? t.center.emptyInstalled : t.center.emptyMarketplace"/>
     </div>
 
     <ExtensionModelLoadDialog
@@ -136,6 +136,9 @@ import ExtensionModelUnloadDialog
 import VersionSelectDialog
   from '@/views/admin/system-config/system-extension/component/VersionSelectDialog.vue'
 import ExtensionCard from './ExtensionCard.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('system-extension')
 
 type ExtensionPanel = 'marketplace' | 'installed'
 type QueryState = { keyword: string; type: string; pageNo: number; pageSize: number }
@@ -164,10 +167,10 @@ const selectedRowKeys = ref<string[]>([])
 const jarUploading = ref(false)
 
 const typeFilterOptions = [
-  {label: '全部类型', value: 'ALL'},
-  {label: '模型', value: 'MODEL_PROVIDER'},
-  {label: '向量库', value: 'VECTOR_STORE'},
-  {label: 'MCP', value: 'MCP'}
+  {label: t.value.center.allTypeFilter, value: 'ALL'},
+  {label: t.value.center.model, value: 'MODEL_PROVIDER'},
+  {label: t.value.center.vectorStore, value: 'VECTOR_STORE'},
+  {label: t.value.center.mcp, value: 'MCP'}
 ]
 
 const isInstalledTab = computed(() => activeTabLocal.value === 'installed')
@@ -282,7 +285,7 @@ async function fetchActiveList() {
 
 async function installFromCatalog(item: ExtensionRow) {
   if (!item.pluginId) {
-    message.error('插件信息不完整，无法安装')
+    message.error(t.value.center.pluginInfoIncomplete)
     return
   }
   // Open version selector dialog instead of installing directly
@@ -297,11 +300,11 @@ async function handleVersionConfirm(pluginId: string, version: string) {
   try {
     const msg = await extensionMarketplaceApi.install(pluginId, version)
     message.success(msg)
-    message.info('可在「已安装插件」中查看、应用插件或加载模型。')
+    message.info(t.value.center.viewInInstalled)
     await fetchMarketplaceList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '安装失败')
+    message.error(err?.message || t.value.center.installFailed)
   } finally {
     versionDialog.open = false
   }
@@ -327,7 +330,7 @@ async function handleApply(id: number | string | undefined) {
     await fetchInstalledList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '应用失败')
+    message.error(err?.message || t.value.center.applyFailed)
   }
 }
 
@@ -339,7 +342,7 @@ async function handleRevokeApply(id: number | string | undefined) {
     await fetchInstalledList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '取消应用失败')
+    message.error(err?.message || t.value.center.revokeApplyFailed)
   }
 }
 
@@ -352,7 +355,7 @@ async function handleUninstall(id: number | string | undefined) {
     await fetchInstalledList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '卸载失败')
+    message.error(err?.message || t.value.center.uninstallFailed)
   }
 }
 
@@ -361,11 +364,11 @@ async function onBeforeUploadJar(file: File) {
   try {
     const msg = await systemExtensionApi.uploadJar(file)
     message.success(msg)
-    message.info('可在「已安装插件」中查看并应用。')
+    message.info(t.value.center.viewAndApply)
     await fetchInstalledList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '上传失败')
+    message.error(err?.message || t.value.center.uploadFailed)
   } finally {
     jarUploading.value = false
   }
@@ -404,7 +407,7 @@ async function openLoadModelsPreview(record: ExtensionRow) {
     loadSyncModal.loadPreview = data ?? {toCreate: [], skippedExisting: [], skippedInvalidCount: 0}
   } catch (e: unknown) {
     const err = e as { message?: string }
-    loadSyncModal.previewError = err?.message || '加载预览失败'
+    loadSyncModal.previewError = err?.message || t.value.center.loadPreviewFailed
   } finally {
     loadSyncModal.loadingPreview = false
   }
@@ -424,7 +427,7 @@ async function openUnloadModelsPreview(record: ExtensionRow) {
     unloadSyncModal.unloadPreview = data ?? {toRemove: [], keptReferenced: []}
   } catch (e: unknown) {
     const err = e as { message?: string }
-    unloadSyncModal.previewError = err?.message || '卸载预览失败'
+    unloadSyncModal.previewError = err?.message || t.value.center.unloadPreviewFailed
   } finally {
     unloadSyncModal.loadingPreview = false
   }
@@ -440,7 +443,7 @@ async function confirmLoadModels(selectedModelKeys: string[]) {
     await fetchInstalledList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '加载模型失败')
+    message.error(err?.message || t.value.center.loadModelsFailed)
     throw e
   }
 }
@@ -455,7 +458,7 @@ async function confirmUnloadModels(selectedModelKeys: string[]) {
     await fetchInstalledList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '卸载模型失败')
+    message.error(err?.message || t.value.center.unloadModelsFailed)
     throw e
   }
 }

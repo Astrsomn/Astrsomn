@@ -1,9 +1,9 @@
 <template>
   <AstPageShell
       :breadcrumbs="breadcrumbs"
-      description="管理 SYS_MESSAGE，支持创建通知、更新已读状态、查看来源与错误码。"
-      empty-text="暂无系统消息。"
-      title="系统消息"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div class="message-page">
       <AstDataSection>
@@ -13,7 +13,7 @@
               <AstSearchInput
                   v-model="query.title"
                   layout="toolbar"
-                  placeholder="按标题搜索"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
 
@@ -22,7 +22,7 @@
                   :options="messageTypeOptions"
                   allow-clear
                   class="toolbar-select"
-                  placeholder="消息类型"
+                  :placeholder="t.list.filterMessageType"
                   @change="onFilterChanged"
               />
 
@@ -31,7 +31,7 @@
                   :options="messageLevelOptions"
                   allow-clear
                   class="toolbar-select"
-                  placeholder="消息级别"
+                  :placeholder="t.list.filterMessageLevel"
                   @change="onFilterChanged"
               />
 
@@ -40,7 +40,7 @@
                   :options="readStatusOptions"
                   allow-clear
                   class="toolbar-select"
-                  placeholder="阅读状态"
+                  :placeholder="t.list.filterReadStatus"
                   @change="onFilterChanged"
               />
             </div>
@@ -58,7 +58,7 @@
             :loading="loading"
             :row-selection="rowSelection"
             :scroll="{ x: 1320 }"
-            empty-text="暂无匹配的系统消息"
+            :empty-text="t.list.emptyMatch"
             mode="table"
             row-key="id"
         >
@@ -71,7 +71,7 @@
             </template>
             <template v-else-if="column.key === 'readStatus'">
               <a-tag :color="record.readStatus === 'READ' ? 'green' : 'orange'">
-                {{ record.readStatus === 'READ' ? '已读' : '未读' }}
+                {{ readStatusDict.getLabel(record.readStatus) }}
               </a-tag>
             </template>
             <template v-else-if="column.key === 'title'">
@@ -81,10 +81,10 @@
               <span>{{ record.source || 'SYSTEM' }}</span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" @click="goEdit(record)">编辑</a-button>
+              <a-button type="link" @click="goEdit(record)">{{ t.list.btnEdit }}</a-button>
               <a-divider type="vertical"/>
-              <a-popconfirm title="确定删除该消息吗？" @confirm="() => handleDeleteOne(record.id)">
-                <a-button danger type="link">删除</a-button>
+              <a-popconfirm :title="t.list.confirmDelete" @confirm="() => handleDeleteOne(record.id)">
+                <a-button danger type="link">{{ t.list.btnDelete }}</a-button>
               </a-popconfirm>
             </template>
           </template>
@@ -115,12 +115,18 @@ import AstPagination from '@/components/home/AstPagination.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
 import {type PageResponse, type SystemMessage, systemMessageApi} from '@/api/systemMessage'
+import {usePageTranslation} from '@/locales/pages.ts'
+import {getDictionary} from '@/locales/dictionary/registry.ts'
 
 const router = useRouter()
+const t = usePageTranslation('system-message')
+const messageTypeDict = getDictionary('system.message.type')
+const messageLevelDict = getDictionary('system.message.level')
+const readStatusDict = getDictionary('system.message.readStatus')
 
 const breadcrumbs = [
-  {title: '系统配置', href: '/admin/system-config'},
-  {title: '系统消息'},
+  {title: t.value.list.breadcrumbParent, href: '/admin/system-config'},
+  {title: t.value.list.breadcrumb},
 ]
 
 type QueryState = {
@@ -130,30 +136,23 @@ type QueryState = {
   readStatus?: string
 }
 
-const messageTypeOptions = [
-  {label: '插件已安装', value: 'PLUGIN_INSTALLED'},
-  {label: '插件安装失败', value: 'PLUGIN_INSTALL_FAILED'},
-  {label: '插件已卸载', value: 'PLUGIN_UNINSTALLED'},
-  {label: '上线通知', value: 'DEPLOYMENT_ONLINE'},
-  {label: '调用失败', value: 'API_CALL_FAILED'},
-  {label: '系统通知', value: 'SYSTEM_NOTICE'},
-  {label: '其他', value: 'OTHER'}
-]
+const messageTypeOptions = computed(() => messageTypeDict.order.map(key => ({
+  label: messageTypeDict.getLabel(key) ?? key,
+  value: key
+})))
 
-const messageLevelOptions = [
-  {label: '信息', value: 'INFO'},
-  {label: '成功', value: 'SUCCESS'},
-  {label: '警告', value: 'WARN'},
-  {label: '错误', value: 'ERROR'}
-]
+const messageLevelOptions = computed(() => messageLevelDict.order.map(key => ({
+  label: messageLevelDict.getLabel(key) ?? key,
+  value: key
+})))
 
-const readStatusOptions = [
-  {label: '未读', value: 'UNREAD'},
-  {label: '已读', value: 'READ'}
-]
+const readStatusOptions = computed(() => readStatusDict.order.map(key => ({
+  label: readStatusDict.getLabel(key) ?? key,
+  value: key
+})))
 
-const messageTypeLabel = (v?: string) => messageTypeOptions.find((x) => x.value === v)?.label || (v || '—')
-const messageLevelLabel = (v?: string) => messageLevelOptions.find((x) => x.value === v)?.label || (v || '—')
+const messageTypeLabel = (v?: string) => messageTypeDict.getLabel(v) ?? v ?? '—'
+const messageLevelLabel = (v?: string) => messageLevelDict.getLabel(v) ?? v ?? '—'
 
 const levelColor = (v?: string) => {
   if (v === 'SUCCESS') return 'green'
@@ -162,15 +161,15 @@ const levelColor = (v?: string) => {
   return 'blue'
 }
 
-const columns = [
-  {title: '标题', key: 'title', width: 260, ellipsis: true},
-  {title: '类型', key: 'messageType', width: 180},
-  {title: '级别', key: 'messageLevel', width: 100},
-  {title: '状态', key: 'readStatus', width: 100},
-  {title: '来源', key: 'source', width: 140, ellipsis: true},
-  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 180, ellipsis: true},
-  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
-]
+const columns = computed(() => [
+  {title: t.value.list.columnTitle, key: 'title', width: 260, ellipsis: true},
+  {title: t.value.list.columnType, key: 'messageType', width: 180},
+  {title: t.value.list.columnLevel, key: 'messageLevel', width: 100},
+  {title: t.value.list.columnStatus, key: 'readStatus', width: 100},
+  {title: t.value.list.columnSource, key: 'source', width: 140, ellipsis: true},
+  {title: t.value.list.columnCreateTime, dataIndex: 'createTime', key: 'createTime', width: 180, ellipsis: true},
+  {title: t.value.list.columnActions, key: 'actions', width: 160, fixed: 'right' as const}
+])
 
 const query = reactive<QueryState>({})
 const list = ref<SystemMessage[]>([])
@@ -180,14 +179,14 @@ const selectedRowKeys = ref<Array<number | string>>([])
 
 const actionButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '重置',
+    label: t.value.list.btnReset,
     type: 'primary',
     icon: ReloadOutlined,
     plain: true,
     onClick: resetFilters
   },
   {
-    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    label: selectedRowKeys.value.length > 0 ? t.value.list.btnBatchDeleteCount.replace('{count}', String(selectedRowKeys.value.length)) : t.value.list.btnBatchDelete,
     type: 'danger',
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
@@ -195,7 +194,7 @@ const actionButtons = computed<SegmentedButton[]>(() => [
     onClick: handleBatchDelete
   },
   {
-    label: '新增',
+    label: t.value.list.btnCreate,
     type: 'primary',
     icon: PlusOutlined,
     onClick: goCreate
@@ -288,9 +287,9 @@ const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
   Modal.confirm({
-    title: '确定批量删除选中的系统消息吗？',
-    okText: '确认',
-    cancelText: '取消',
+    title: t.value.list.confirmBatchDelete,
+    okText: t.value.list.btnConfirm,
+    cancelText: t.value.list.btnCancel,
     onOk: async () => {
       const msg = await systemMessageApi.delete(ids)
       message.success(msg)

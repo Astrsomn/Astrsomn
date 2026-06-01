@@ -114,8 +114,8 @@
           <span class="meta-spacer"></span>
           <a-popconfirm
             :title="t.agent.deleteConfirm"
-            ok-text="确认"
-            cancel-text="取消"
+            :ok-text="t.agent.confirm"
+            :cancel-text="t.agent.cancel"
             @confirm="handleDeleteOne(agent.id!)"
           >
             <button class="action-delete-btn" @click.stop><DeleteOutlined /></button>
@@ -240,7 +240,7 @@ async function handleDeleteOne(id: string | number) {
     selectedKeys.value = new Set(selectedKeys.value)
     await fetchAgents()
   } catch (e: any) {
-    message.error(e?.message || '删除失败')
+    message.error(e?.message || t.value.agent.deleteFailed)
   }
 }
 
@@ -249,8 +249,8 @@ async function handleBatchDelete() {
   if (ids.length === 0) return
   Modal.confirm({
     title: t.value.agent.batchDeleteConfirm.replace('{n}', String(ids.length)),
-    okText: '确认',
-    cancelText: '取消',
+    okText: t.value.agent.confirm,
+    cancelText: t.value.agent.cancel,
     onOk: async () => {
       try {
         await aiAgentApi.delete(ids)
@@ -258,7 +258,7 @@ async function handleBatchDelete() {
         selectedKeys.value = new Set()
         await fetchAgents()
       } catch (e: any) {
-        message.error(e?.message || '删除失败')
+        message.error(e?.message || t.value.agent.deleteFailed)
       }
     },
   })
@@ -363,23 +363,23 @@ void fetchAgents()
 }
 
 .stat-icon-blue {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
 }
 
 .stat-icon-purple {
-  background: rgba(168, 85, 247, 0.1);
+  background: color-mix(in srgb, #a855f7 10%, transparent);
   color: #a855f7;
 }
 
 .stat-icon-green {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
 }
 
 .stat-icon-orange {
-  background: rgba(249, 115, 22, 0.1);
-  color: #f97316;
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  color: var(--warning);
 }
 
 .stat-body {
@@ -443,7 +443,7 @@ void fetchAgents()
 
 .agent-card:hover {
   border-color: var(--primary);
-  box-shadow: 0 4px 20px -4px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 4px 20px -4px color-mix(in srgb, var(--primary) 15%, transparent);
   transform: translateY(-1px);
 }
 
@@ -522,13 +522,13 @@ void fetchAgents()
 }
 
 .status-dot-tag.enabled {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
 }
 
 .status-dot-tag.disabled {
-  background: rgba(107, 114, 128, 0.1);
-  color: #9ca3af;
+  background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+  color: var(--text-muted);
 }
 
 
@@ -611,7 +611,7 @@ void fetchAgents()
 .add-card:hover {
   border-color: var(--primary);
   color: var(--primary);
-  background: rgba(59, 130, 246, 0.02);
+  background: color-mix(in srgb, var(--primary) 2%, transparent);
 }
 
 .add-icon {
@@ -720,8 +720,8 @@ void fetchAgents()
 }
 
 .action-delete-btn:hover {
-  color: #ef4444;
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.08);
+  color: var(--error);
+  border-color: var(--error);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
 }
 </style>

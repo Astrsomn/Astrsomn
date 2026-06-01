@@ -1,11 +1,11 @@
 <template>
-  <aside aria-label="扩展中心导航" class="extension-sider">
+  <aside :aria-label="t.sidebar.title" class="extension-sider">
     <div class="sider-wrapper">
       <header class="sider-header">
         <div class="brand-info">
           <div class="brand-logo">A</div>
           <div class="brand-text">
-            <h2 class="sider-title">扩展中心</h2>
+            <h2 class="sider-title">{{ t.sidebar.title }}</h2>
             <span class="sider-version">v{{ appConfig.version }}</span>
           </div>
         </div>
@@ -17,13 +17,13 @@
             <template #icon>
               <inbox-outlined/>
             </template>
-            已安装插件
+            {{ t.sidebar.installed }}
           </a-menu-item>
           <a-menu-item key="marketplace">
             <template #icon>
               <appstore-outlined/>
             </template>
-            云端仓库
+            {{ t.sidebar.cloudRepo }}
           </a-menu-item>
         </a-menu>
       </div>
@@ -35,12 +35,12 @@
               <rocket-filled/>
             </div>
             <div class="promo-text">
-              <div class="promo-title">官方插件市场</div>
-              <div class="promo-slogan">探索更多无限可能</div>
+              <div class="promo-title">{{ t.sidebar.promoTitle }}</div>
+              <div class="promo-slogan">{{ t.sidebar.promoSlogan }}</div>
             </div>
           </div>
           <div class="promo-action">
-            <span>立即访问</span>
+            <span>{{ t.sidebar.visitNow }}</span>
             <right-outlined/>
           </div>
         </div>
@@ -52,6 +52,9 @@
 <script lang="ts" setup>
 import {AppstoreOutlined, InboxOutlined, RightOutlined, RocketFilled} from '@ant-design/icons-vue'
 import {appConfig} from '@/config/config.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('system-extension')
 
 defineProps<{
   selectedMenuKeys: string[]

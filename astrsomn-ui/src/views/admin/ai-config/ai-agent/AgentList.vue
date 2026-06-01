@@ -4,8 +4,8 @@
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
-      description="管理 Agent 配置、执行策略与发布状态。"
-      title="智能体管理"
+      :description="t.list.description"
+      :title="t.list.title"
   >
     <div ref="pageRef" class="agent-page">
       <AstDataSection>
@@ -15,7 +15,7 @@
               <AstSearchInput
                   v-model="query.agentName"
                   layout="toolbar"
-                  placeholder="搜索智能体名称"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
               <AstStatusSwitch v-model="query.status" @change="fetchList"/>
@@ -36,7 +36,7 @@
             :mode="dataViewMode"
             :row-selection="tableRowSelection"
             :scroll="{ x: 980 }"
-            empty-text="暂无匹配的智能体"
+            :empty-text="t.list.emptyText"
             row-key="id"
         >
           <template #card="{ record }">
@@ -62,7 +62,7 @@
             </template>
             <template v-else-if="column.key === 'status'">
               <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
-                {{ record.status === 'enabled' ? '启用' : '禁用' }}
+                {{ record.status === 'enabled' ? t.list.status.enabled : t.list.status.disabled }}
               </a-tag>
             </template>
 
@@ -71,7 +71,7 @@
                 <a-button size="small" type="link" @click="openEdit(record)">
                   <EditOutlined/>
                 </a-button>
-                <a-popconfirm title="确定删除该智能体吗？" @confirm="handleDeleteFromRecord(record)">
+                <a-popconfirm :title="t.list.deleteConfirm" @confirm="handleDeleteFromRecord(record)">
                   <a-button danger size="small" type="link">
                     <DeleteOutlined/>
                   </a-button>
@@ -99,6 +99,7 @@
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import {useRouter} from 'vue-router'
 import {message} from 'ant-design-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import {
   ClockCircleOutlined,
   ClusterOutlined,
@@ -118,6 +119,8 @@ import AstegmentedButton from '@/components/home/AstegmentedButton.vue'
 import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
 import AgentCard from './component/AgentCard.vue'
 import {type AiAgent, aiAgentApi, type PageResponse} from '@/api/aiAgent.ts'
+
+const t = usePageTranslation('ai-agent')
 
 const AGENT_CARD_MIN_WIDTH_PX = 360
 const AGENT_GRID_GAP_PX = 12
@@ -148,10 +151,10 @@ const selectedKeys = ref<Set<string | number>>(new Set())
 const currentGridColumns = ref(resolveGridColumns())
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
 
-const breadcrumbs = [
-  {title: 'AI 配置', href: '/admin/ai-config'},
-  {title: '智能体管理'},
-]
+const breadcrumbs = computed(() => [
+  {title: t.value.list.breadcrumb.aiConfig, href: '/admin/ai-config'},
+  {title: t.value.list.breadcrumb.agentManagement},
+])
 
 const handleViewToggle = () => {
   viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
@@ -162,8 +165,8 @@ const allCurrentSelected = computed(() => list.value.length > 0 && selectedKeys.
 const partCurrentSelected = computed(() => selectedKeys.value.size > 0 && selectedKeys.value.size < list.value.length)
 const tableSelectedRowKeys = computed<Array<string | number>>(() => Array.from(selectedKeys.value))
 
-const tableColumns = [
-  {title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const},
+const tableColumns = computed(() => [
+  {title: t.value.list.column.provider, key: 'providerAvatar', width: 80, align: 'center' as const},
   {
     title: 'Agent Key',
     dataIndex: 'agentKey',
@@ -172,12 +175,12 @@ const tableColumns = [
     width: 200,
     copyable: true
   },
-  {title: '智能体名称', dataIndex: 'agentName', key: 'agentName', ellipsis: true, width: 200},
-  {title: '模型实例', dataIndex: 'chatInstanceName', key: 'chatInstanceName', ellipsis: true, width: 180},
-  {title: '提示词策略', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true, width: 180},
-  {title: '状态', dataIndex: 'status', key: 'status', width: 100},
+  {title: t.value.list.column.agentName, dataIndex: 'agentName', key: 'agentName', ellipsis: true, width: 200},
+  {title: t.value.list.column.chatInstanceName, dataIndex: 'chatInstanceName', key: 'chatInstanceName', ellipsis: true, width: 180},
+  {title: t.value.list.column.promptTitle, dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true, width: 180},
+  {title: t.value.list.column.status, dataIndex: 'status', key: 'status', width: 100},
   {
-    title: '环境',
+    title: t.value.list.column.envCode,
     dataIndex: 'envCode',
     key: 'envCode',
     width: 120,
@@ -187,16 +190,16 @@ const tableColumns = [
     icon: ClusterOutlined
   },
   {
-    title: '创建时间',
+    title: t.value.list.column.createTime,
     dataIndex: 'createTime',
     key: 'createTime',
     width: 200,
     dateFormat: true,
     icon: ClockCircleOutlined
   },
-  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150, icon: UserOutlined},
-  {title: '操作', key: 'actions', width: 120, fixed: 'right' as const}
-]
+  {title: t.value.list.column.createUser, dataIndex: 'createUser', key: 'createUser', width: 150, icon: UserOutlined},
+  {title: t.value.list.column.actions, key: 'actions', width: 120, fixed: 'right' as const}
+])
 
 const providerAvatarCell = (record: AiAgent) => {
   const raw = record?.providerAvatar
@@ -267,16 +270,16 @@ const openCreate = () => {
 }
 
 const toolbarSegmentButtons = computed(() => [
-  {label: '重置', plain: true, icon: ReloadOutlined, onClick: resetFilters},
+  {label: t.value.list.reset, plain: true, icon: ReloadOutlined, onClick: resetFilters},
   {
-    label: selectedCount.value > 0 ? `删除 (${selectedCount.value})` : '删除',
+    label: selectedCount.value > 0 ? t.value.list.deleteCount.replace('{n}', String(selectedCount.value)) : t.value.list.delete,
     icon: DeleteOutlined,
     onClick: () => handleBatchDelete(Array.from(selectedKeys.value)),
     disabled: selectedCount.value === 0,
     type: 'danger',
     plain: true
   },
-  {label: '新增', type: 'primary', icon: PlusOutlined, onClick: openCreate, plain: true},
+  {label: t.value.list.create, type: 'primary', icon: PlusOutlined, onClick: openCreate, plain: true},
 ])
 
 const openEdit = (record: AiAgent) => {
@@ -287,14 +290,14 @@ const openEdit = (record: AiAgent) => {
 
 const handleDeleteOne = async (id: number | string) => {
   await aiAgentApi.delete([id])
-  message.success('已删除')
+  message.success(t.value.list.deleted)
   void fetchList()
 }
 
 const handleBatchDelete = async (ids: Array<number | string>) => {
   if (ids.length === 0) return
   await aiAgentApi.delete(ids)
-  message.success('已删除')
+  message.success(t.value.list.deleted)
   void fetchList()
 }
 
@@ -404,11 +407,10 @@ void fetchList()
   display: inline-flex;
   align-items: stretch;
   border-radius: 14px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
+  border: 1px solid var(--border-default);
+  background: var(--bg-card);
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05),
-  0 4px 10px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-card);
 }
 
 .status-switch :deep(.status-btn.ant-btn) {
@@ -416,18 +418,18 @@ void fetchList()
   border-radius: 0;
   border: none;
   box-shadow: none;
-  color: #64748b;
+  color: var(--text-muted);
   background: transparent;
   font-weight: 600;
 }
 
 .status-switch :deep(.status-btn-last.ant-btn) {
-  border-left: 1px solid #e2e8f0;
+  border-left: 1px solid var(--border-default);
 }
 
 .status-switch :deep(.status-btn.active.ant-btn) {
-  color: #1d4ed8;
-  background: #eff6ff;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
 }
 
 .provider-avatar-cell {
@@ -444,7 +446,7 @@ void fetchList()
 }
 
 .text-secondary {
-  color: var(--text-muted, #bfbfbf);
+  color: var(--text-muted);
 }
 
 @media (max-width: 720px) {

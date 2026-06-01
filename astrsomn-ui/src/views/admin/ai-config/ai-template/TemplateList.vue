@@ -1,9 +1,9 @@
 <template>
   <AstPageShell
       :breadcrumbs="breadcrumbs"
-      description="维护 Freemarker / StringTemplate 模板（AI_TEMPLATE），与 AiTemplateController 对应。"
-      empty-text="暂无模板，请先创建。"
-      title="FTL 模板管理"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div class="template-page">
       <AstDataSection>
@@ -12,7 +12,7 @@
             <div class="toolbar-left">
               <AstSearchInput
                   v-model="query.templateTitle"
-                  placeholder="搜索模板标题"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
               <AstStatusSwitch v-model="query.status" @change="fetchList"/>
@@ -28,7 +28,7 @@
               v-model:value="query.category"
               allow-clear
               class="toolbar-input narrow"
-              placeholder="分类"
+              :placeholder="t.list.categoryPlaceholder"
               @pressEnter="fetchList"
           >
             <template #prefix>
@@ -40,7 +40,7 @@
               :options="templateTypeFilterOptions"
               allow-clear
               class="toolbar-select narrow-select"
-              placeholder="模板类型"
+              :placeholder="t.list.templateTypePlaceholder"
           />
         </template>
 
@@ -51,7 +51,7 @@
             :loading="loading"
             :row-selection="rowSelection"
             :scroll="{ x: 1100 }"
-            empty-text="暂无匹配的模板"
+            :empty-text="t.list.emptyMatchText"
             mode="table"
             row-key="id"
         >
@@ -66,15 +66,15 @@
               <span class="content-preview">{{ previewContent(record.content) }}</span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" @click="openEdit(record)">编辑</a-button>
+              <a-button type="link" @click="openEdit(record)">{{ t.list.edit }}</a-button>
               <a-divider type="vertical"/>
               <a-popconfirm
-                  cancel-text="取消"
-                  ok-text="确认"
-                  title="确定删除吗？"
+                  :cancel-text="t.list.cancel"
+                  :ok-text="t.list.confirm"
+                  :title="t.list.deleteConfirm"
                   @confirm="() => handleDeleteOne(record.id)"
               >
-                <a-button danger type="link">删除</a-button>
+                <a-button danger type="link">{{ t.list.delete }}</a-button>
               </a-popconfirm>
             </template>
           </template>
@@ -114,11 +114,14 @@ import AstegmentedButton from '@/components/home/AstegmentedButton.vue'
 import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
 import TemplateFormModal from './TemplateFormModal.vue'
 import {type AiTemplate, aiTemplateApi, type PageResponse} from '@/api/aiTemplate.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 
-const breadcrumbs = [
-  {title: 'AI 安全', href: '/admin/ai-safety'},
-  {title: 'FTL 模板管理'},
-]
+const t = usePageTranslation('ai-template')
+
+const breadcrumbs = computed(() => [
+  {title: t.value.list.breadcrumb.aiSafety, href: '/admin/ai-safety'},
+  {title: t.value.list.breadcrumb.templateManagement},
+])
 
 type QueryState = {
   templateTitle?: string
@@ -128,22 +131,22 @@ type QueryState = {
   status?: string
 }
 
-const statusOptions = [
-  {label: 'Enabled', value: 'enabled'},
-  {label: 'Disabled', value: 'disabled'}
-]
+const statusOptions = computed(() => [
+  {label: t.value.list.status.enabled, value: 'enabled'},
+  {label: t.value.list.status.disabled, value: 'disabled'}
+])
 
-const templateTypeFilterOptions = [
-  {label: 'Freemarker', value: 'FREEMARKER'},
-  {label: 'StringTemplate', value: 'STRING_TEMPLATE'}
-]
+const templateTypeFilterOptions = computed(() => [
+  {label: t.value.list.templateType.freemarker, value: 'FREEMARKER'},
+  {label: t.value.list.templateType.stringTemplate, value: 'STRING_TEMPLATE'}
+])
 
 const renderStatus = (status: string) => {
-  return statusOptions.find((x) => x.value === status)?.label ?? status
+  return statusOptions.value.find((x) => x.value === status)?.label ?? status
 }
 
-const renderTemplateType = (t: string) => {
-  return templateTypeFilterOptions.find((x) => x.value === t)?.label ?? t
+const renderTemplateType = (tp: string) => {
+  return templateTypeFilterOptions.value.find((x) => x.value === tp)?.label ?? tp
 }
 
 const previewContent = (raw: string | undefined) => {
@@ -152,16 +155,16 @@ const previewContent = (raw: string | undefined) => {
   return one.length > 80 ? `${one.slice(0, 80)}…` : one
 }
 
-const columns = [
-  {title: 'Template Key', dataIndex: 'templateKey', key: 'templateKey', width: 160, ellipsis: true},
-  {title: '标题', dataIndex: 'templateTitle', key: 'templateTitle', width: 180, ellipsis: true},
-  {title: '分类', dataIndex: 'category', key: 'category', width: 100, ellipsis: true},
-  {title: '类型', key: 'templateType', width: 130},
-  {title: '版本', dataIndex: 'version', key: 'version', width: 72},
-  {title: '内容预览', key: 'content', width: 260, ellipsis: true},
-  {title: '状态', key: 'status', width: 90},
-  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
-]
+const columns = computed(() => [
+  {title: t.value.list.column.templateKey, dataIndex: 'templateKey', key: 'templateKey', width: 160, ellipsis: true},
+  {title: t.value.list.column.templateTitle, dataIndex: 'templateTitle', key: 'templateTitle', width: 180, ellipsis: true},
+  {title: t.value.list.column.category, dataIndex: 'category', key: 'category', width: 100, ellipsis: true},
+  {title: t.value.list.column.templateType, key: 'templateType', width: 130},
+  {title: t.value.list.column.version, dataIndex: 'version', key: 'version', width: 72},
+  {title: t.value.list.column.content, key: 'content', width: 260, ellipsis: true},
+  {title: t.value.list.column.status, key: 'status', width: 90},
+  {title: t.value.list.column.actions, key: 'actions', width: 160, fixed: 'right' as const}
+])
 
 const query = reactive<QueryState>({})
 const showAdvanced = ref(false)
@@ -234,18 +237,18 @@ const modalInitial = ref<AiTemplate | null>(null)
 const segmentedButtons = computed(() => {
   const buttons = [
     {
-      label: '重置',
+      label: t.value.list.reset,
       icon: FilterOutlined,
       onClick: resetFilters
     },
     {
-      label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+      label: selectedRowKeys.value.length > 0 ? t.value.list.deleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.delete,
       icon: DeleteOutlined,
       disabled: selectedRowKeys.value.length === 0,
       onClick: handleBatchDelete
     },
     {
-      label: '新增',
+      label: t.value.list.create,
       icon: PlusOutlined,
       type: 'primary',
       onClick: openCreate
@@ -311,7 +314,7 @@ const handleBatchDelete = async () => {
   const ids = [...selectedRowKeys.value]
   if (ids.length === 0) return
 
-  if (confirm('确定批量删除选中的模板吗？')) {
+  if (confirm(t.value.list.batchDeleteConfirm)) {
     const msg = await aiTemplateApi.delete(ids)
     message.success(msg)
     selectedRowKeys.value = []
@@ -342,7 +345,7 @@ const handleFormSubmit = async (form: AiTemplate) => {
     void fetchList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
+    message.error(err?.message || t.value.list.saveFailed)
   } finally {
     modal.submitting = false
   }
@@ -477,7 +480,7 @@ void fetchList()
 }
 
 .content-preview {
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-tertiary);
   font-size: 12px;
 }
 

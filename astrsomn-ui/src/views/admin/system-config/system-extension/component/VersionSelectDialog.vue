@@ -11,17 +11,17 @@
       @cancel="emit('cancel')"
       @update:open="emit('update:open', $event)"
   >
-    <template #header-title>选择版本</template>
-    <template #header-subtitle>{{ extensionName }} — 请选择要安装的版本</template>
+    <template #header-title>{{ t.version.title }}</template>
+    <template #header-subtitle>{{ t.version.subtitle.replace('{name}', extensionName) }}</template>
 
     <div class="version-dialog-body">
       <div v-if="loading" class="version-loading">
         <a-spin />
-        <span>加载版本列表...</span>
+        <span>{{ t.version.loading }}</span>
       </div>
 
       <div v-else-if="versions.length === 0" class="version-empty">
-        <a-empty description="暂无可用的版本" />
+        <a-empty :description="t.version.empty" />
       </div>
 
       <div v-else class="version-list">
@@ -33,11 +33,11 @@
         >
           <div class="version-left">
             <span class="version-tag">{{ v.version }}</span>
-            <span v-if="v.version === installedVersion" class="installed-badge">当前版本</span>
-            <span v-if="v.version === latestVersion" class="latest-badge">最新</span>
+            <span v-if="v.version === installedVersion" class="installed-badge">{{ t.version.currentVersion }}</span>
+            <span v-if="v.version === latestVersion" class="latest-badge">{{ t.version.latest }}</span>
           </div>
           <div class="version-right">
-            <span class="version-downloads">{{ v.downloadCount || 0 }} 次下载</span>
+            <span class="version-downloads">{{ t.version.downloads.replace('{count}', String(v.downloadCount || 0)) }}</span>
           </div>
           <div v-if="v.changelog" class="version-changelog">
             {{ v.changelog }}
@@ -47,14 +47,14 @@
     </div>
 
     <div class="version-footer">
-      <a-button @click="emit('cancel')">取消</a-button>
+      <a-button @click="emit('cancel')">{{ t.version.cancel }}</a-button>
       <a-button
           :disabled="!selectedVersion || selectedVersion === installedVersion"
           :loading="installing"
           type="primary"
           @click="handleConfirm"
       >
-        {{ selectedVersion === installedVersion ? '已安装此版本' : '安装' }}
+        {{ selectedVersion === installedVersion ? t.version.installedVersion : t.version.install }}
       </a-button>
     </div>
   </AstModal>
@@ -65,6 +65,9 @@ import {ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import AstModal from '@/components/home/AstModal.vue'
 import {extensionMarketplaceApi, type ExtensionMarketplaceVersion} from '@/api/extensionMarketplace.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('system-extension')
 
 const props = defineProps<{
   open: boolean
@@ -99,7 +102,7 @@ async function fetchVersions(pluginId: string) {
     }
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '获取版本列表失败')
+    message.error(err?.message || t.value.version.fetchVersionsFailed)
   } finally {
     loading.value = false
   }
@@ -168,7 +171,7 @@ function handleConfirm() {
 
 .version-item.selected {
   border-color: var(--primary);
-  background: rgba(59, 130, 246, 0.06);
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
 }
 
 .version-item.installed {
@@ -194,15 +197,15 @@ function handleConfirm() {
   border-radius: 5px;
   font-size: 11px;
   color: var(--primary);
-  background: rgba(59, 130, 246, 0.12);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .latest-badge {
   padding: 1px 7px;
   border-radius: 5px;
   font-size: 11px;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.12);
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
 }
 
 .version-right {

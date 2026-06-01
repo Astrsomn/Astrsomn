@@ -3,19 +3,19 @@
     <div class="builder-body">
       <div class="builder-left-viewport">
         <div class="builder-topbar">
-          <a-tooltip title="返回">
+          <a-tooltip :title="t.index.back">
             <button class="topbar-icon-btn" @click="handleCancel">
               <LeftOutlined/>
             </button>
           </a-tooltip>
-          <span class="topbar-title">{{ isEdit ? '编辑智能体' : '新建智能体' }}</span>
+          <span class="topbar-title">{{ isEdit ? t.index.editAgent : t.index.createAgent }}</span>
           <div class="topbar-actions">
-            <a-tooltip title="重置">
+            <a-tooltip :title="t.index.reset">
               <button :disabled="submitting" class="topbar-icon-btn" @click="handleReset">
                 <ReloadOutlined/>
               </button>
             </a-tooltip>
-            <a-tooltip :title="isEdit ? '保存' : '发布'">
+            <a-tooltip :title="isEdit ? t.index.save : t.index.publish">
               <button :disabled="submitting" class="topbar-icon-btn primary" @click="handleSubmit">
                 <span v-if="submitting" class="spinner"></span>
                 <RocketOutlined v-else/>
@@ -79,6 +79,9 @@ import LeftTop from './component/LeftTop.vue'
 import LeftCenter from './component/LeftCenter.vue'
 import Right from './component/Right.vue'
 import {BUILDER_CHAT_CONTEXT} from './component/builderChatInjection'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-builder')
 
 const route = useRoute()
 const router = useRouter()
@@ -90,7 +93,7 @@ const agentId = computed(() => route.query.id as string | undefined)
 const isEdit = computed(() => !!agentId.value)
 const submitting = ref(false)
 
-const agentName = ref('未命名的智能体')
+const agentName = ref(t.value.index.unnamedAgent)
 const description = ref('')
 const status = ref('enabled')
 const agentKey = ref('')
@@ -194,7 +197,7 @@ function buildSubmitPayload(): AiAgent {
 
 async function handleSubmit() {
   if (!agentName.value.trim()) {
-    message.warning('请输入智能体名称')
+    message.warning(t.value.index.agentNameRequired)
     return
   }
   submitting.value = true
@@ -202,14 +205,14 @@ async function handleSubmit() {
     const payload = buildSubmitPayload()
     if (isEdit.value) {
       await aiAgentApi.update({...payload, id: agentId.value as string})
-      message.success('智能体已保存')
+      message.success(t.value.index.agentSaved)
     } else {
       await aiAgentApi.create(payload)
-      message.success('智能体已发布')
+      message.success(t.value.index.agentPublished)
     }
     router.push('/admin/ai-config/agents')
   } catch (e: any) {
-    message.error(e?.message || '提交失败')
+    message.error(e?.message || t.value.index.submitFailed)
   } finally {
     submitting.value = false
   }
@@ -220,7 +223,7 @@ function handleCancel() {
 }
 
 function handleReset() {
-  agentName.value = '未命名的智能体'
+  agentName.value = t.value.index.unnamedAgent
   description.value = ''
   status.value = 'enabled'
   agentKey.value = ''
@@ -243,7 +246,7 @@ function handleReset() {
 }
 
 async function backfillFromDetail(detail: AiAgent) {
-  agentName.value = detail.agentName || '未命名的智能体'
+  agentName.value = detail.agentName || t.value.index.unnamedAgent
   description.value = detail.description || ''
   status.value = detail.status || 'enabled'
   agentKey.value = detail.agentKey || ''
@@ -356,7 +359,7 @@ async function initEdit() {
     const detail = await aiAgentApi.detail(agentId.value)
     await backfillFromDetail(detail)
   } catch (e: any) {
-    message.error(e?.message || '加载智能体详情失败')
+    message.error(e?.message || t.value.index.loadDetailFailed)
   }
 }
 
@@ -472,14 +475,14 @@ onMounted(() => {
 
 .topbar-icon-btn.primary:hover {
   filter: brightness(1.1);
-  box-shadow: 0 2px 12px rgba(59, 130, 246, 0.45);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--primary) 45%, transparent);
 }
 
 .spinner {
   display: inline-block;
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid color-mix(in srgb, #fff 30%, transparent);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.6s linear infinite;

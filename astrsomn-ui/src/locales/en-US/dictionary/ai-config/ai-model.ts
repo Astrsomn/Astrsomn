@@ -22,7 +22,9 @@ const providerLabels = {
     tencent: 'Tencent',
     deepseek: 'DeepSeek',
     ollama: 'Ollama (local)',
-    qianfan: 'Baidu Qianfan'
+    qianfan: 'Baidu Qianfan',
+    xiaomi: 'Xiaomi (MiMo)',
+    volcengine: 'Volcengine (Doubao)'
 } as const
 
 export const aiModelProviderDictionary = createEnumDictionary({

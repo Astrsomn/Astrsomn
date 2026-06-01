@@ -16,7 +16,7 @@
       </div>
 
       <h3 :title="record.toolName" class="title">
-        {{ record.toolName || record.toolKey || '工具' }}
+        {{ record.toolName || record.toolKey || t.card.tool }}
       </h3>
 
       <div class="key-capsule-btn" @click="copyKey(record.toolKey)">
@@ -37,7 +37,7 @@
           <span class="detail-value mono">{{ record.beanName }}</span>
         </div>
         <div v-if="record.methodName" class="detail-item">
-          <span class="detail-label">方法</span>
+          <span class="detail-label">{{ t.card.method }}</span>
           <span class="detail-value mono">{{ record.methodName }}</span>
         </div>
       </div>
@@ -48,7 +48,7 @@
         <button class="action-circle-btn" @click="emit('edit', record)">
           <edit-outlined/>
         </button>
-        <a-popconfirm title="确定删除吗？" @confirm="emit('delete', record.id)">
+        <a-popconfirm :title="t.card.deleteConfirm" @confirm="emit('delete', record.id)">
           <button class="action-circle-btn delete">
             <delete-outlined/>
           </button>
@@ -62,6 +62,9 @@
 import {CopyOutlined, DeleteOutlined, EditOutlined, ToolOutlined} from '@ant-design/icons-vue'
 import {message} from 'ant-design-vue'
 import type {AiTool} from '@/api/aiTool.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-tool')
 
 defineProps<{
   record: AiTool
@@ -70,15 +73,15 @@ defineProps<{
 const emit = defineEmits(['edit', 'delete'])
 
 const preview = (raw?: string) => {
-  if (!raw) return '暂无描述内容配置...'
-  const t = raw.replace(/\s+/g, ' ').trim()
-  return t.length > 120 ? `${t.slice(0, 120)}...` : t
+  if (!raw) return t.value.card.noDescription
+  const txt = raw.replace(/\s+/g, ' ').trim()
+  return txt.length > 120 ? `${txt.slice(0, 120)}...` : txt
 }
 
 const copyKey = async (key?: string) => {
   if (!key) return
   await navigator.clipboard.writeText(key)
-  message.success('Key已复制')
+  message.success(t.value.card.keyCopied)
 }
 </script>
 
@@ -131,7 +134,7 @@ const copyKey = async (key?: string) => {
 }
 
 .status-chip.active {
-  background: rgba(34, 197, 94, 0.15);
+  background: color-mix(in srgb, var(--success) 15%, transparent);
 }
 
 .status-chip.active .status-dot {
@@ -179,7 +182,7 @@ const copyKey = async (key?: string) => {
   justify-content: center;
   font-size: 24px;
   color: white;
-  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 20px color-mix(in srgb, #10b981 30%, transparent);
   border: 1px solid var(--border-default);
 }
 
@@ -224,7 +227,7 @@ const copyKey = async (key?: string) => {
 .key-capsule-btn:hover {
   background: var(--bg-card);
   border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .key-capsule-btn .label {
@@ -340,12 +343,12 @@ const copyKey = async (key?: string) => {
   background: var(--primary-color);
   color: #fff;
   border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .action-circle-btn.delete:hover {
   background: var(--error);
   border-color: var(--error);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--error) 20%, transparent);
 }
 </style>

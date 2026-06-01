@@ -7,6 +7,7 @@ import {onBeforeUnmount, onMounted, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {notification} from 'ant-design-vue'
 import {WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 type SystemMessagePushPayload = {
   id?: number | string
@@ -20,6 +21,7 @@ type SystemMessagePushPayload = {
 }
 
 const route = useRoute()
+const t = usePageTranslation('common')
 let source: EventSource | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 let reconnectAttempt = 0
@@ -55,14 +57,14 @@ const openNotice = (payload: SystemMessagePushPayload) => {
   }
 
   const type = levelToNoticeType(payload.messageLevel)
-  const title = payload.title || '系统消息'
-  const description = [payload.content, payload.source ? `来源：${payload.source}` : '', payload.envCode ? `环境：${payload.envCode}` : '']
+  const title = payload.title || t.value.systemMessage.defaultTitle
+  const description = [payload.content, payload.source ? t.value.systemMessage.source + '：' + payload.source : '', payload.envCode ? t.value.systemMessage.env + '：' + payload.envCode : '']
       .filter(Boolean)
       .join(' | ')
 
   notification[type]({
     message: title,
-    description: description || '收到一条系统通知',
+    description: description || t.value.systemMessage.defaultDescription,
     placement: 'topRight',
     duration: 6
   })

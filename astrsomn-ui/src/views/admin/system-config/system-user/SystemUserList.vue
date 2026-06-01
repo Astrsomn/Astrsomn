@@ -1,9 +1,9 @@
 <template>
   <AstPageShell
       :breadcrumbs="breadcrumbs"
-      description="SYSTEM_USER：角色分超级管理员 / 环境管理员 / 普通用户（USER_ROLE）。"
-      empty-text="暂无用户数据。"
-      title="用户管理"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div class="user-page">
       <AstDataSection>
@@ -12,32 +12,32 @@
             <div class="toolbar-left">
               <AstSearchInput
                   v-model="query.username"
-                  placeholder="搜索用户名"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
 
 
-              <div aria-label="角色筛选" class="status-switch" role="group">
+              <div :aria-label="t.list.roleFilterLabel" class="status-switch" role="group">
                 <a-button
                     :class="{ active: query.userRole === 'SUPER_ADMIN' }"
                     class="status-btn"
                     @click="toggleRoleFilter('SUPER_ADMIN')"
                 >
-                  超级管理员
+                  {{ t.list.roleSuperAdmin }}
                 </a-button>
                 <a-button
                     :class="{ active: query.userRole === 'ENV_ADMIN' }"
                     class="status-btn"
                     @click="toggleRoleFilter('ENV_ADMIN')"
                 >
-                  环境管理员
+                  {{ t.list.roleEnvAdmin }}
                 </a-button>
                 <a-button
                     :class="{ active: query.userRole === 'USER' }"
                     class="status-btn"
                     @click="toggleRoleFilter('USER')"
                 >
-                  普通用户
+                  {{ t.list.roleUser }}
                 </a-button>
               </div>
             </div>
@@ -46,30 +46,30 @@
 
               <a-popconfirm
                   v-if="selectedRowKeys.length > 0"
-                  cancel-text="取消"
-                  ok-text="确认"
-                  title="确定批量删除选中的用户吗？"
+                  :cancel-text="t.list.btnCancel"
+                  :ok-text="t.list.btnConfirm"
+                  :title="t.list.confirmBatchDelete"
                   @confirm="handleBatchDelete"
               >
                 <a-button class="ghost-btn danger-btn" danger>
                   <template #icon>
                     <delete-outlined/>
                   </template>
-                  删除 ({{ selectedRowKeys.length }})
+                  {{ t.list.btnBatchDeleteCount.replace('{count}', String(selectedRowKeys.length)) }}
                 </a-button>
               </a-popconfirm>
               <a-button v-else class="ghost-btn danger-btn" danger disabled>
                 <template #icon>
                   <delete-outlined/>
                 </template>
-                删除
+                {{ t.list.btnDelete }}
               </a-button>
-              <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
+              <a-button class="ghost-btn" @click="resetFilters">{{ t.list.btnReset }}</a-button>
               <a-button class="ghost-btn" @click="openCreate">
                 <template #icon>
                   <plus-outlined/>
                 </template>
-                新增
+                {{ t.list.btnCreate }}
               </a-button>
             </div>
           </div>
@@ -82,7 +82,7 @@
             :loading="loading"
             :row-selection="rowSelection"
             :scroll="{ x: 1020 }"
-            empty-text="暂无匹配的用户"
+            :empty-text="t.list.emptyMatch"
             mode="table"
             row-key="id"
         >
@@ -94,15 +94,15 @@
               <span>{{ record.envCode || '—' }}</span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" @click="openEdit(record)">编辑</a-button>
+              <a-button type="link" @click="openEdit(record)">{{ t.list.btnEdit }}</a-button>
               <a-divider type="vertical"/>
               <a-popconfirm
-                  cancel-text="取消"
-                  ok-text="确认"
-                  title="确定删除吗？"
+                  :cancel-text="t.list.btnCancel"
+                  :ok-text="t.list.btnConfirm"
+                  :title="t.list.confirmDelete"
                   @confirm="() => handleDeleteOne(record.id)"
               >
-                <a-button danger type="link">删除</a-button>
+                <a-button danger type="link">{{ t.list.btnDelete }}</a-button>
               </a-popconfirm>
             </template>
           </template>
@@ -140,10 +140,15 @@ import AstPagination from '@/components/home/AstPagination.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import SystemUserForm from './component/SystemUserForm.vue'
 import {type PageResponse, type SystemUser, systemUserApi} from '@/api/systemUser.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+import {getDictionary} from '@/locales/dictionary/registry.ts'
+
+const t = usePageTranslation('system-user')
+const roleDict = getDictionary('system.user.role')
 
 const breadcrumbs = [
-  {title: '系统配置', href: '/admin/system-config'},
-  {title: '用户管理'},
+  {title: t.value.list.breadcrumbParent, href: '/admin/system-config'},
+  {title: t.value.list.breadcrumb},
 ]
 
 type QueryState = {
@@ -153,24 +158,17 @@ type QueryState = {
 }
 
 function roleLabel(code: string | undefined) {
-  if (!code) return '—'
-  const m: Record<string, string> = {
-    SUPER_ADMIN: '超级管理员',
-    ENV_ADMIN: '环境管理员',
-    USER: '普通用户'
-  }
-  return m[code] || code
+  return roleDict.getLabel(code) ?? code ?? '—'
 }
 
-const columns = [
-  {title: '用户名', dataIndex: 'username', key: 'username', width: 160, ellipsis: true},
-  {title: '角色', key: 'userRole', width: 120},
-  {title: '环境', key: 'envCode', width: 88, ellipsis: true},
-  {title: '邮箱', dataIndex: 'email', key: 'email', width: 200, ellipsis: true},
-  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-
-  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
-]
+const columns = computed(() => [
+  {title: t.value.list.columnUsername, dataIndex: 'username', key: 'username', width: 160, ellipsis: true},
+  {title: t.value.list.columnRole, key: 'userRole', width: 120},
+  {title: t.value.list.columnEnv, key: 'envCode', width: 88, ellipsis: true},
+  {title: t.value.list.columnEmail, dataIndex: 'email', key: 'email', width: 200, ellipsis: true},
+  {title: t.value.list.columnCreateTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: t.value.list.columnActions, key: 'actions', width: 160, fixed: 'right' as const}
+])
 
 const query = reactive<QueryState>({})
 const list = ref<SystemUser[]>([])
@@ -313,7 +311,7 @@ const handleFormSubmit = async (form: SystemUser) => {
     void fetchList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
+    message.error(err?.message || t.value.list.saveFailed)
   } finally {
     modal.submitting = false
   }

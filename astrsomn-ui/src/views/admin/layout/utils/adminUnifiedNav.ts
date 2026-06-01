@@ -1,3 +1,5 @@
+import {computed} from 'vue';
+import {usePageTranslation} from '@/locales/pages.ts';
 import type {AdminModuleNavGroup} from '@/views/admin/layout/utils/adminModuleTypes.ts';
 import {
     ApiOutlined,
@@ -25,64 +27,64 @@ const baseSafety = '/admin/ai-safety';
 const baseWorkflow = '/admin/ai-workflow';
 const baseSystem = '/admin/system';
 
-/**
- * 管理侧栏：三层分类（组 → 子项），与 /admin/ai-config、/admin/ai-safety、/admin/system 下子路由一一对应。
- */
-export const adminUnifiedNav: AdminModuleNavGroup[] = [
-    {
-        key: 'ai-config',
-        label: 'AI 配置',
-        icon: RobotOutlined,
-        children: [
-            {to: `${baseAi}/agents`, label: '智能体', icon: TeamOutlined},
-            {to: `${baseAi}/ai-instance`, label: '推理配置', icon: CloudServerOutlined},
-            {to: `${baseAi}/models`, label: '模型接入', icon: DatabaseOutlined},
-            {to: `${baseAi}/ai-account`, label: 'AI 账号', icon: KeyOutlined},
-            {to: `${baseAi}/mcp`, label: 'MCP', icon: ApiOutlined},
-            {to: `${baseAi}/tools`, label: 'Tools', icon: ToolOutlined},
-            {to: `${baseAi}/prompts`, label: '提示词', icon: FileTextOutlined},
-            {to: `${baseAi}/conversations`, label: '对话管理', icon: MessageOutlined}
-        ]
-    },
-    {
-        key: 'ai-safety',
-        label: '安全与治理×',
-        icon: SecurityScanOutlined,
-        children: [
-            {to: `${baseSafety}/templates`, label: 'FTL 模板', icon: CodeOutlined},
-            {to: `${baseSafety}/security`, label: '敏感词', icon: SafetyCertificateOutlined},
-            {to: `${baseSafety}/tracing`, label: '链路追踪', icon: BranchesOutlined}
-        ]
-    },
-    {
-        key: 'ai-workflow',
-        label: '工作流×',
-        icon: BranchesOutlined,
-        children: [
-            {to: `${baseWorkflow}/definitions`, label: '流程定义', icon: AppstoreAddOutlined},
-            {to: `${baseWorkflow}/deployments`, label: '流程发布', icon: CloudServerOutlined},
-            {to: `${baseWorkflow}/instances`, label: '流程实例', icon: DatabaseOutlined},
-            {to: `${baseWorkflow}/node-configs`, label: '节点配置', icon: ControlOutlined},
-            {to: `${baseWorkflow}/node-history`, label: '节点历史', icon: FileTextOutlined},
-            {to: `${baseWorkflow}/human-tasks`, label: '人工任务', icon: TeamOutlined},
-            {to: `${baseWorkflow}/publish`, label: '发布接口', icon: CloudServerOutlined},
-            {to: `${baseWorkflow}/test-run`, label: '测试运行', icon: ApiOutlined},
-            {to: `${baseWorkflow}/biz-idempotent`, label: '业务幂等', icon: KeyOutlined},
-            {to: `${baseWorkflow}/instance-events`, label: '实例事件', icon: FileTextOutlined},
-            {to: `${baseWorkflow}/msg-outbox`, label: '消息 Outbox', icon: MessageOutlined},
-            {to: `${baseWorkflow}/timer-jobs`, label: '定时任务', icon: ControlOutlined}
-        ]
-    },
-    {
-        key: 'system',
-        label: '系统管理',
-        icon: SettingOutlined,
-        children: [
-            {to: `${baseSystem}/users`, label: '用户管理', icon: UserOutlined},
-            {to: `${baseSystem}/env`, label: '环境管理', icon: GlobalOutlined},
-            {to: `${baseSystem}/config`, label: '系统配置', icon: ControlOutlined},
-            {to: `${baseSystem}/messages`, label: '系统消息', icon: MessageOutlined},
-            {to: `${baseSystem}/extensions`, label: '系统扩展', icon: AppstoreAddOutlined}
-        ]
-    }
-];
+export function useAdminUnifiedNav() {
+    const t = usePageTranslation('common');
+    return computed<AdminModuleNavGroup[]>(() => [
+        {
+            key: 'ai-config',
+            label: t.value.nav.aiConfig,
+            icon: RobotOutlined,
+            children: [
+                {to: `${baseAi}/agents`, label: t.value.nav.agents, icon: TeamOutlined},
+                {to: `${baseAi}/ai-instance`, label: t.value.nav.aiInstance, icon: CloudServerOutlined},
+                {to: `${baseAi}/models`, label: t.value.nav.models, icon: DatabaseOutlined},
+                {to: `${baseAi}/ai-account`, label: t.value.nav.aiAccount, icon: KeyOutlined},
+                {to: `${baseAi}/mcp`, label: t.value.nav.mcp, icon: ApiOutlined},
+                {to: `${baseAi}/tools`, label: t.value.nav.tools, icon: ToolOutlined},
+                {to: `${baseAi}/prompts`, label: t.value.nav.prompts, icon: FileTextOutlined},
+                {to: `${baseAi}/conversations`, label: t.value.nav.conversations, icon: MessageOutlined}
+            ]
+        },
+        {
+            key: 'ai-safety',
+            label: t.value.nav.aiSafety,
+            icon: SecurityScanOutlined,
+            children: [
+                {to: `${baseSafety}/templates`, label: t.value.nav.templates, icon: CodeOutlined},
+                {to: `${baseSafety}/security`, label: t.value.nav.security, icon: SafetyCertificateOutlined},
+                {to: `${baseSafety}/tracing`, label: t.value.nav.tracing, icon: BranchesOutlined}
+            ]
+        },
+        {
+            key: 'ai-workflow',
+            label: t.value.nav.aiWorkflow,
+            icon: BranchesOutlined,
+            children: [
+                {to: `${baseWorkflow}/definitions`, label: t.value.nav.definitions, icon: AppstoreAddOutlined},
+                {to: `${baseWorkflow}/deployments`, label: t.value.nav.deployments, icon: CloudServerOutlined},
+                {to: `${baseWorkflow}/instances`, label: t.value.nav.instances, icon: DatabaseOutlined},
+                {to: `${baseWorkflow}/node-configs`, label: t.value.nav.nodeConfigs, icon: ControlOutlined},
+                {to: `${baseWorkflow}/node-history`, label: t.value.nav.nodeHistory, icon: FileTextOutlined},
+                {to: `${baseWorkflow}/human-tasks`, label: t.value.nav.humanTasks, icon: TeamOutlined},
+                {to: `${baseWorkflow}/publish`, label: t.value.nav.publish, icon: CloudServerOutlined},
+                {to: `${baseWorkflow}/test-run`, label: t.value.nav.testRun, icon: ApiOutlined},
+                {to: `${baseWorkflow}/biz-idempotent`, label: t.value.nav.bizIdempotent, icon: KeyOutlined},
+                {to: `${baseWorkflow}/instance-events`, label: t.value.nav.instanceEvents, icon: FileTextOutlined},
+                {to: `${baseWorkflow}/msg-outbox`, label: t.value.nav.msgOutbox, icon: MessageOutlined},
+                {to: `${baseWorkflow}/timer-jobs`, label: t.value.nav.timerJobs, icon: ControlOutlined}
+            ]
+        },
+        {
+            key: 'system',
+            label: t.value.nav.system,
+            icon: SettingOutlined,
+            children: [
+                {to: `${baseSystem}/users`, label: t.value.nav.users, icon: UserOutlined},
+                {to: `${baseSystem}/env`, label: t.value.nav.env, icon: GlobalOutlined},
+                {to: `${baseSystem}/config`, label: t.value.nav.config, icon: ControlOutlined},
+                {to: `${baseSystem}/messages`, label: t.value.nav.messages, icon: MessageOutlined},
+                {to: `${baseSystem}/extensions`, label: t.value.nav.extensions, icon: AppstoreAddOutlined}
+            ]
+        }
+    ]);
+}

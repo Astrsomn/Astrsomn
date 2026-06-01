@@ -37,6 +37,7 @@
     0 10px 24px rgba(0, 0, 0, 0.32),
     0 20px 48px rgba(0, 0, 0, 0.22);
     --success: #10b981;
+    --warning: #f59e0b;
     --error: #ef4444;
 
     /* ── Shadow ── */
@@ -388,6 +389,7 @@
     0 6px 16px rgba(15, 23, 42, 0.08),
     0 16px 40px rgba(15, 23, 42, 0.1);
     --success-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+    --warning: #d97706;
 
     --chat-input-placeholder: var(--text-placeholder);
     --chat-send-btn-bg: var(--primary);

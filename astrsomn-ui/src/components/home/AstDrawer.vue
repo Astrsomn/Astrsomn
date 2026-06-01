@@ -120,7 +120,7 @@ const closeDrawer = () => {
   justify-content: center;
   color: white;
   font-size: 24px;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 25%, transparent);
   flex-shrink: 0;
 }
 

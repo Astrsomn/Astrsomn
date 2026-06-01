@@ -5,7 +5,7 @@
         <AstSearchInput
             v-model="queryText"
             layout="fluid"
-            placeholder="输入问题进行语义检索..."
+            :placeholder="t.vectorCenter.searchPanel.searchPlaceholder"
             @search="handleSearch"
         />
         <a-select v-model:value="topK" size="small" style="width: 80px; flex-shrink: 0;">
@@ -18,8 +18,8 @@
 
     <div v-if="results.length > 0" class="search-results">
       <div class="results-header">
-        <span class="results-title">检索结果</span>
-        <span class="results-count">{{ results.length }} 条</span>
+        <span class="results-title">{{ t.vectorCenter.searchPanel.resultsTitle }}</span>
+        <span class="results-count">{{ t.vectorCenter.searchPanel.resultsCount.replace('{count}', String(results.length)) }}</span>
       </div>
       <div
           v-for="(item, index) in results"
@@ -40,14 +40,14 @@
           {{ item.segmentContent || '-' }}
         </div>
         <div v-if="item.docId" class="result-meta">
-          <span>文档 ID: {{ item.docId }}</span>
-          <span v-if="item.segmentId">切片 ID: {{ item.segmentId }}</span>
+          <span>{{ t.vectorCenter.searchPanel.docId }} {{ item.docId }}</span>
+          <span v-if="item.segmentId">{{ t.vectorCenter.searchPanel.segmentId }} {{ item.segmentId }}</span>
         </div>
       </div>
     </div>
 
     <div v-else-if="searched && !searching" class="search-empty">
-      未找到相关结果
+      {{ t.vectorCenter.searchPanel.noResults }}
     </div>
   </div>
 </template>
@@ -57,6 +57,9 @@ import {ref} from 'vue'
 import {message} from 'ant-design-vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {aiVecSegmentApi, type AiVecSegmentSearchResult} from '@/api/aiVecSegment.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{
   storeId?: number | string
@@ -78,7 +81,7 @@ const getScoreColor = (score?: number) => {
 const handleSearch = async () => {
   if (!queryText.value.trim()) return
   if (!props.storeId) {
-    message.warning('请先选择数据库')
+    message.warning(t.value.vectorCenter.searchPanel.selectStoreFirst)
     return
   }
   searching.value = true
@@ -91,7 +94,7 @@ const handleSearch = async () => {
     })
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '检索失败')
+    message.error(err?.message || t.value.vectorCenter.searchPanel.searchFailed)
     results.value = []
   } finally {
     searching.value = false

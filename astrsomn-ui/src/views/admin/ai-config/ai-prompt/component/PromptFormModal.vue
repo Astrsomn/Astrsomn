@@ -1,7 +1,7 @@
 <template>
   <AstModal
       :confirm-loading="confirmLoading"
-      :confirm-text="'确定'"
+      :confirm-text="t.form.confirmText"
       :open="open"
       body-height="80vh"
       main-padding="0"
@@ -15,10 +15,10 @@
       <component :is="mode === 'create' ? PlusCircleOutlined : FormOutlined"/>
     </template>
     <template #header-title>
-      {{ mode === 'create' ? '新增提示词' : '编辑提示词' }}
+      {{ mode === 'create' ? t.form.createTitle : t.form.editTitle }}
     </template>
     <template #header-subtitle>
-      维护展示信息、场景分类与提示词正文
+      {{ t.form.subtitle }}
     </template>
     <div class="prompt-form-body">
       <a-form ref="formRef" :model="form" :rules="rules" layout="vertical">
@@ -39,6 +39,9 @@ import AstModal from "@/components/home/AstModal.vue";
 import PromptConfigLeft from "./PromptConfigLeft.vue";
 import PromptContentRight from "./PromptContentRight.vue";
 import {aiPromptApi} from "@/api/aiPrompt.ts";
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-prompt')
 
 const props = defineProps<{
   mode: "create" | "edit";
@@ -65,11 +68,11 @@ const sceneOptions = computed(() =>
     sceneTagLibrary.value.map((tag) => ({label: tag, value: tag})),
 );
 
-const rules = {
-  promptTitle: [{required: true, message: "请输入标题"}],
-  promptContent: [{required: true, message: "请输入提示词内容"}],
-  status: [{required: true, message: "请选择启用状态"}],
-};
+const rules = computed(() => ({
+  promptTitle: [{required: true, message: t.value.form.validation.titleRequired}],
+  promptContent: [{required: true, message: t.value.form.validation.contentRequired}],
+  status: [{required: true, message: t.value.form.validation.statusRequired}],
+}));
 
 watch(
     [() => open.value, () => props.initial],

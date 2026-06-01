@@ -1,8 +1,8 @@
 <template>
   <AstPageShell
       :breadcrumbs="breadcrumbs"
-      description="统一管理 AI 模型供应商、接入地址及路由策略，为上层实例提供底座支持。"
-      title="模型管理"
+      :description="t.list.description"
+      :title="t.list.title"
   >
     <div class="model-page-container">
       <AstDataSection>
@@ -12,14 +12,14 @@
               <AstSearchInput
                   v-model="query.modelName"
                   layout="toolbar"
-                  placeholder="搜索模型名称"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
               <ExtensionSelector
                   v-model:value="query.extensionCode"
                   allow-clear
                   class="toolbar-provider-select"
-                  placeholder="根据供应商筛选"
+                  :placeholder="t.list.providerFilterPlaceholder"
                   @update:value="handleProviderChange"
               />
 
@@ -37,10 +37,10 @@
             size="small"
             @change="handleModelTypeTabChange"
         >
-          <a-tab-pane key="all" tab="全部"/>
-          <a-tab-pane key="chat" tab="对话"/>
-          <a-tab-pane key="embedding" tab="向量"/>
-          <a-tab-pane key="image" tab="图片"/>
+          <a-tab-pane key="all" :tab="t.list.tabAll"/>
+          <a-tab-pane key="chat" :tab="t.list.tabChat"/>
+          <a-tab-pane key="embedding" :tab="t.list.tabEmbedding"/>
+          <a-tab-pane key="image" :tab="t.list.tabImage"/>
         </a-tabs>
 
         <AstDataView
@@ -49,7 +49,7 @@
             :loading="loading"
             :row-selection="rowSelection"
             :scroll="{ x: 1200 }"
-            empty-text="暂无匹配的接入模型"
+            :empty-text="t.list.emptyText"
             mode="table"
             row-key="id"
         >
@@ -100,7 +100,7 @@
                     <close-circle-outlined v-else style="color: #ff4d4f"/>
                   </template>
                   <span :style="{ color: record.status === 'enabled' ? '#52c41a' : '#ff4d4f' }">
-                        {{ record.status === 'enabled' ? '启用' : '禁用' }}
+                        {{ record.status === 'enabled' ? t.list.statusEnabled : t.list.statusDisabled }}
                       </span>
                 </a-button>
 
@@ -112,17 +112,17 @@
               <div class="runtime-meta">
                     <span class="runtime-chip">
                       <thunderbolt-outlined class="cell-icon"/>
-                      限额 {{ record.maxQuotaTokens ?? 0 }}
+                      {{ t.list.runtimeQuota }} {{ record.maxQuotaTokens ?? 0 }}
                     </span>
-                <span class="runtime-chip">权重 {{ record.randomIndex ?? 0 }}</span>
-                <span class="runtime-chip">离散度 {{ record.topVariance ?? 0 }}</span>
+                <span class="runtime-chip">{{ t.list.runtimeWeight }} {{ record.randomIndex ?? 0 }}</span>
+                <span class="runtime-chip">{{ t.list.runtimeVariance }} {{ record.topVariance ?? 0 }}</span>
               </div>
             </template>
 
 
             <template v-else-if="column.key === 'actions'">
               <a-space>
-                <a-popconfirm title="确定快速生成实例吗？" @confirm="() => handleGenerateInstances([record.id])">
+                <a-popconfirm :title="t.list.confirmGenerateInstance" @confirm="() => handleGenerateInstances([record.id])">
                   <a-button size="small" type="link">
                     <swap-outlined/>
                   </a-button>
@@ -131,7 +131,7 @@
                   <edit-outlined/>
                 </a-button>
                 <a-popconfirm
-                    title="移除模型将影响下游关联实例，确定吗？"
+                    :title="t.list.confirmRemoveModel"
                     @confirm="() => handleDeleteOne(record)"
                 >
                   <a-button danger size="small" type="link">
@@ -193,42 +193,44 @@ import ExtensionSelector from '@/views/admin/system-config/system-extension/sele
 import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
 import {useDictionary} from '@/locales/dictionary'
 import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 
+const t = usePageTranslation('ai-model')
 
-const breadcrumbs = [
-  {title: 'AI 配置', href: '/admin/ai-config'},
-  {title: '接入模型管理'},
-]
+const breadcrumbs = computed(() => [
+  {title: t.value.list.breadcrumbAiConfig, href: '/admin/ai-config'},
+  {title: t.value.list.breadcrumbCurrent},
+])
 
 const providerDict = useDictionary('ai-model.provider')
 const statusDict = useDictionary('ai-model.status')
 const sourceTypeDict = useDictionary('ai-model.sourceType')
 
 const statusOptions = computed(() => statusDict.value.options())
-const isDefaultOptions = [{label: '否', value: 'N'}, {label: '是', value: 'Y'}]
+const isDefaultOptions = computed(() => [{label: t.value.list.isDefaultNo, value: 'N'}, {label: t.value.list.isDefaultYes, value: 'Y'}])
 
-const columns = [
-  {title: '类型', key: 'modelType', width: 60},
-  {title: '供应商', key: 'providerAvatar', width: 80, align: 'center'},
-  {title: '模型信息', key: 'modelName', width: 180},
-  {title: '模型Key', dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true},
+const columns = computed(() => [
+  {title: t.value.list.columnType, key: 'modelType', width: 60},
+  {title: t.value.list.columnProvider, key: 'providerAvatar', width: 80, align: 'center'},
+  {title: t.value.list.columnModelInfo, key: 'modelName', width: 180},
+  {title: t.value.list.columnModelKey, dataIndex: 'modelKey', key: 'modelKey', width: 150, copyable: true},
   {
-    title: '来源',
+    title: t.value.list.columnSource,
     dataIndex: 'sourceType',
     key: 'sourceType',
     width: 100,
     enum: [
-      {value: 'plugin', label: '插件', color: 'purple'},
-      {value: 'api', label: 'API', color: 'blue'}
+      {value: 'plugin', label: t.value.list.sourcePlugin, color: 'purple'},
+      {value: 'api', label: t.value.list.sourceApi, color: 'blue'}
     ]
   },
-  {title: '状态', key: 'status', width: 100},
+  {title: t.value.list.columnStatus, key: 'status', width: 100},
 
-  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
-  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  {title: '操作', key: 'actions', width: 140, fixed: 'right'}
-]
+  {title: t.value.list.columnEnv, dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: t.value.list.columnCreateTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: t.value.list.columnCreateUser, dataIndex: 'createUser', key: 'createUser', width: 150},
+  {title: t.value.list.columnActions, key: 'actions', width: 140, fixed: 'right'}
+])
 
 
 const getProviderColor = (provider: string) => {
@@ -242,8 +244,8 @@ const getProviderColor = (provider: string) => {
 }
 
 const getModelTypeLabel = (modelType?: string) => {
-  if (modelType === 'embedding') return '向量模型'
-  return '对话模型'
+  if (modelType === 'embedding') return t.value.list.modelTypeEmbedding
+  return t.value.list.modelTypeChat
 }
 
 
@@ -366,14 +368,14 @@ const openCreate = () => {
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '搜索',
+    label: t.value.list.btnSearch,
     type: 'primary',
     icon: SearchOutlined,
     plain: true,
     onClick: () => void fetchList()
   },
   {
-    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    label: selectedRowKeys.value.length > 0 ? t.value.list.btnDeleteCount.replace('{count}', String(selectedRowKeys.value.length)) : t.value.list.btnDelete,
     icon: DeleteOutlined,
     type: 'danger',
     plain: true,
@@ -382,13 +384,13 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
       const n = selectedRowKeys.value.length
       if (n === 0) return
       Modal.confirm({
-        title: `确定删除选中的 ${n} 个接入模型吗？`,
+        title: t.value.list.confirmBatchDeleteTitle.replace('{count}', String(n)),
         onOk: () => handleBatchDelete()
       })
     }
   },
   {
-    label: selectedRowKeys.value.length > 0 ? `生成实例 (${selectedRowKeys.value.length})` : '生成实例',
+    label: selectedRowKeys.value.length > 0 ? t.value.list.btnGenerateInstanceCount.replace('{count}', String(selectedRowKeys.value.length)) : t.value.list.btnGenerateInstance,
     type: 'primary',
     icon: SwapOutlined,
     disabled: selectedRowKeys.value.length === 0,
@@ -396,14 +398,14 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
       const n = selectedRowKeys.value.length
       if (n === 0) return
       Modal.confirm({
-        title: `确定为选中的 ${n} 个模型快速生成实例吗？`,
+        title: t.value.list.confirmBatchGenerateTitle.replace('{count}', String(n)),
         onOk: () => handleBatchGenerateInstances()
       })
     },
     plain: true
   },
   {
-    label: '创建',
+    label: t.value.list.btnCreate,
     type: 'primary',
     icon: PlusOutlined,
     onClick: openCreate,
@@ -440,7 +442,7 @@ const handleDeleteOne = async (record: AiModel) => {
 const handleBatchDelete = async () => {
   const selectedModels = list.value.filter((item) => selectedRowKeys.value.includes(item.id as number | string))
   await aiModelApi.delete([...selectedRowKeys.value])
-  message.success('删除成功')
+  message.success(t.value.list.msgDeleteSuccess)
   selectedRowKeys.value = []
   fetchList()
 }
@@ -449,7 +451,7 @@ const handleGenerateInstances = async (ids: Array<number | string | undefined>) 
   const validIds = ids.filter((id): id is number | string => id !== undefined && id !== null)
   if (validIds.length === 0) return
   const msg = await aiModelApi.generateInstances(validIds)
-  message.success(msg || '实例生成成功')
+  message.success(msg || t.value.list.msgInstanceGenerated)
   fetchList()
 }
 
@@ -461,10 +463,10 @@ const handleStatusChange = async (id: number | string, checked: boolean) => {
   statusUpdatingId.value = id
   try {
     await aiModelApi.update({id, status: checked ? 'enabled' : 'disabled'})
-    message.success('状态更新成功')
+    message.success(t.value.list.msgStatusUpdateSuccess)
     fetchList()
   } catch (e) {
-    message.error('状态更新失败')
+    message.error(t.value.list.msgStatusUpdateFailed)
   } finally {
     statusUpdatingId.value = null
   }
@@ -478,7 +480,7 @@ const handleFormSubmit = async (payload: AiModel) => {
   modal.submitting = true
   try {
     modal.mode === 'create' ? await aiModelApi.create(payload) : await aiModelApi.update(payload)
-    message.success('操作成功')
+    message.success(t.value.list.msgOperationSuccess)
     modal.open = false
     fetchList()
   } finally {
@@ -576,7 +578,7 @@ onMounted(() => {
   border-radius: var(--radius-xl);
   padding: 10px;
   border: 1px solid var(--border-default);
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 16px 32px color-mix(in srgb, var(--text-primary) 4%, transparent);
 }
 
 .table-card-scroll {
@@ -765,12 +767,12 @@ onMounted(() => {
 }
 
 .total-text {
-  color: var(--text-muted, #8c8c8c);
+  color: var(--text-muted);
   font-size: 13px;
 }
 
 .text-secondary {
-  color: var(--text-muted, #bfbfbf);
+  color: var(--text-muted);
 }
 
 :deep(.ant-table-thead > tr > th) {

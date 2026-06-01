@@ -4,9 +4,9 @@
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
-      description="管理 MCP 服务接入（SSE / STDIO / STEAMABLE），对接 AiMcpController。"
-      empty-text="暂无 MCP 服务。"
-      title="AI MCP"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div ref="pageRef" class="mcp-page">
       <AstDataSection>
@@ -15,17 +15,17 @@
             <div class="toolbar-left">
               <AstSearchInput
                   v-model="query.mcpKey"
-                  button-label="搜索"
+                  :button-label="t.list.searchButton"
                   layout="toolbar"
-                  placeholder="搜索 MCP Key"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
               <AstStatusSwitch
                   v-model="query.enabled"
                   :options="[
-                  { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
-                  { label: '启用', value: 1, color: '#10b981', icon: CheckCircleOutlined },
-                  { label: '禁用', value: 0, color: '#f43f5e', icon: StopOutlined }
+                  { label: t.list.status.all, value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
+                  { label: t.list.status.enabled, value: 1, color: '#10b981', icon: CheckCircleOutlined },
+                  { label: t.list.status.disabled, value: 0, color: '#f43f5e', icon: StopOutlined }
                 ]"
                   @change="fetchList"
               />
@@ -47,7 +47,7 @@
             :mode="dataViewMode"
             :row-selection="rowSelection"
             :scroll="{ x: 1280 }"
-            empty-text="暂无匹配的 MCP 服务"
+            :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
           <template #card="{ record }">
@@ -60,7 +60,7 @@
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'enabled'">
               <span :class="{ off: record.enabled !== 1 }" class="status-pill">
-                {{ record.enabled === 1 ? '启用' : '停用' }}
+                {{ record.enabled === 1 ? t.list.statusPill.enabled : t.list.statusPill.disabled }}
               </span>
             </template>
             <template v-if="column.key === 'actions'">
@@ -71,9 +71,9 @@
               </a-button>
               <a-divider type="vertical"/>
               <a-popconfirm
-                  cancel-text="取消"
-                  ok-text="确认"
-                  title="确定删除吗？"
+                  :cancel-text="t.list.cancel"
+                  :ok-text="t.list.confirm"
+                  :title="t.list.deleteConfirm"
                   @confirm="() => handleDeleteOne(record.id)"
               >
                 <a-button class="action-link" danger type="link">
@@ -110,6 +110,7 @@
 <script lang="ts" setup>
 import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
 import {message, Modal} from 'ant-design-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import {
   CheckCircleOutlined,
   DeleteOutlined,
@@ -128,6 +129,8 @@ import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import McpFormModal from './component/McpFormModal.vue'
 import McpCard from './component/McpCard.vue'
 import {type AiMcp, aiMcpApi, type PageResponse} from '@/api/aiMcp'
+
+const t = usePageTranslation('ai-mcp')
 
 const props = withDefaults(defineProps<{
   initialViewMode?: 'grid' | 'list'
@@ -151,10 +154,10 @@ type QueryState = {
   enabled?: number
 }
 
-const breadcrumbs = [
-  {title: 'AI 配置', href: '/admin/ai-config'},
-  {title: 'AI MCP'},
-]
+const breadcrumbs = computed(() => [
+  {title: t.value.list.breadcrumb.aiConfig, href: '/admin/ai-config'},
+  {title: t.value.list.breadcrumb.aiMcp},
+])
 
 const typeFilterOptions = [
   {label: 'SSE', value: 'SSE'},
@@ -162,14 +165,14 @@ const typeFilterOptions = [
   {label: 'STEAMABLE', value: 'STEAMABLE'}
 ]
 
-const columns = [
-  {title: 'MCP Key', dataIndex: 'mcpKey', key: 'mcpKey', width: 180, ellipsis: true, copyable: true},
-  {title: '服务名称', dataIndex: 'serverName', key: 'serverName', width: 240},
-  {title: '类型', dataIndex: 'type', key: 'type', width: 120},
-  {title: '启用', key: 'enabled', width: 90},
-  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true},
-  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
-]
+const columns = computed(() => [
+  {title: t.value.list.column.mcpKey, dataIndex: 'mcpKey', key: 'mcpKey', width: 180, ellipsis: true, copyable: true},
+  {title: t.value.list.column.serverName, dataIndex: 'serverName', key: 'serverName', width: 240},
+  {title: t.value.list.column.type, dataIndex: 'type', key: 'type', width: 120},
+  {title: t.value.list.column.enabled, key: 'enabled', width: 90},
+  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true},
+  {title: t.value.list.column.actions, key: 'actions', width: 160, fixed: 'right' as const}
+])
 
 const typeLabelMap: Record<string, string> = {
   SSE: 'SSE',
@@ -184,68 +187,69 @@ const normalizeText = (value?: string, fallback = '—') => {
 
 const getTypeLabel = (type?: string) => typeLabelMap[String(type || '').toUpperCase()] || normalizeText(type)
 
-const getJsonEntryCountLabel = (raw?: string, label = '项') => {
+const getJsonEntryCountLabel = (raw?: string, label?: string) => {
+  const effectiveLabel = label || t.value.list.item
   const text = String(raw || '').trim()
-  if (!text) return `${label}: 0`
+  if (!text) return t.value.list.itemCount.replace('{label}', effectiveLabel).replace('{count}', '0')
 
   try {
     const parsed = JSON.parse(text)
     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return `${label}: ${Object.keys(parsed).length}`
+      return t.value.list.itemCount.replace('{label}', effectiveLabel).replace('{count}', String(Object.keys(parsed).length))
     }
   } catch (error) {
   }
 
-  return `${label}: 已配置`
+  return t.value.list.itemConfigured.replace('{label}', effectiveLabel)
 }
 
 const getArgsLabel = (args?: string) => {
   const text = String(args || '').trim()
-  if (!text) return '参数: 0'
+  if (!text) return t.value.list.argsCount.replace('{count}', '0')
 
   try {
     const parsed = JSON.parse(text)
     if (Array.isArray(parsed)) {
-      return `参数: ${parsed.length}`
+      return t.value.list.argsCount.replace('{count}', String(parsed.length))
     }
   } catch (error) {
   }
 
   const segmentCount = text.split(/\s+/).filter(Boolean).length
-  return `参数: ${segmentCount || 1}`
+  return t.value.list.argsCount.replace('{count}', String(segmentCount || 1))
 }
 
 const getConnectionPrimary = (record: AiMcp) => {
   if (record.type === 'SSE') {
-    return normalizeText(record.sseAddress, '未配置 SSE 地址')
+    return normalizeText(record.sseAddress, t.value.list.sseAddressNotConfigured)
   }
 
-  return normalizeText(record.command, '未配置执行命令')
+  return normalizeText(record.command, t.value.list.commandNotConfigured)
 }
 
 const getConnectionDetails = (record: AiMcp) => {
   if (record.type === 'SSE') {
-    return [getJsonEntryCountLabel(record.requestHeaderConfig, '请求头')]
+    return [getJsonEntryCountLabel(record.requestHeaderConfig, t.value.list.requestHeaders)]
   }
 
   return [
     getArgsLabel(record.args),
-    getJsonEntryCountLabel(record.envVars, '环境变量')
+    getJsonEntryCountLabel(record.envVars, t.value.list.envVars)
   ]
 }
 
 const copyMcpKey = async (value?: string) => {
   const text = String(value || '').trim()
   if (!text) {
-    message.warning('当前没有可复制的 MCP Key')
+    message.warning(t.value.list.noKeyToCopy)
     return
   }
 
   try {
     await navigator.clipboard.writeText(text)
-    message.success('MCP Key 已复制')
+    message.success(t.value.list.keyCopied)
   } catch (error) {
-    message.error('复制失败，请手动复制')
+    message.error(t.value.list.copyFailed)
   }
 }
 
@@ -307,14 +311,14 @@ const resetFilters = () => {
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '重置',
+    label: t.value.list.reset,
     type: 'primary',
     plain: true,
     icon: ReloadOutlined,
     onClick: resetFilters
   },
   {
-    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    label: selectedRowKeys.value.length > 0 ? t.value.list.deleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.delete,
     type: 'danger',
     plain: true,
     icon: DeleteOutlined,
@@ -323,13 +327,13 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
       const n = selectedRowKeys.value.length
       if (n === 0) return
       Modal.confirm({
-        title: `确定删除选中的 ${n} 个 MCP 吗？`,
+        title: t.value.list.batchDeleteConfirm.replace('{n}', String(n)),
         onOk: () => handleBatchDelete()
       })
     }
   },
   {
-    label: '新增',
+    label: t.value.list.create,
     type: 'primary',
     icon: PlusOutlined,
     onClick: openCreate
@@ -456,7 +460,7 @@ const handleFormSubmit = async (form: AiMcp) => {
     void fetchList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
+    message.error(err?.message || t.value.list.saveFailed)
   } finally {
     modal.submitting = false
   }
@@ -593,13 +597,13 @@ void fetchList()
 }
 
 .cell-title {
-  color: var(--text-primary, #111827);
+  color: var(--text-primary);
   font-weight: 600;
   line-height: 1.5;
 }
 
 .cell-subtitle {
-  color: var(--text-secondary, #6b7280);
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
@@ -622,8 +626,8 @@ void fetchList()
   max-width: 100%;
   padding: 4px 10px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--bg-surface) 80%, white);
-  color: var(--text-primary, #111827);
+  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+  color: var(--text-primary);
 }
 
 .copyable-key {
@@ -637,13 +641,13 @@ void fetchList()
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary, #6b7280);
+  color: var(--text-secondary);
 }
 
 .copy-btn:hover,
 .copy-btn:focus {
   color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 8%, white) !important;
+  background: color-mix(in srgb, var(--primary) 8%, transparent) !important;
 }
 
 .type-pill,
@@ -693,8 +697,8 @@ void fetchList()
 
 .detail-pill {
   justify-content: flex-start;
-  color: var(--text-secondary, #6b7280);
-  background: color-mix(in srgb, var(--bg-surface) 85%, white);
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--bg-surface) 85%, transparent);
 }
 
 .action-link {

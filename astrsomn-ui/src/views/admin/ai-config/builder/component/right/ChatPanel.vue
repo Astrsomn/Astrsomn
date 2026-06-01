@@ -23,7 +23,7 @@
           :show-char-count="false"
           density="compact"
           layout="embedded"
-          placeholder="发送指令测试 Agent…"
+          :placeholder="t.chatPanel.placeholder"
           variant="full"
           @stop="stopStreaming"
           @submit="onSubmit"
@@ -37,7 +37,7 @@
                 @click="isDeepThinking = !isDeepThinking"
             >
               <BulbOutlined/>
-              深度思考
+              {{ t.chatPanel.deepThinking }}
             </div>
             <div
                 :class="{ active: isWebSearch }"
@@ -45,7 +45,7 @@
                 @click="isWebSearch = !isWebSearch"
             >
               <GlobalOutlined/>
-              联网
+              {{ t.chatPanel.webSearch }}
             </div>
           </div>
         </template>
@@ -63,6 +63,9 @@ import {message} from 'ant-design-vue'
 import {BUILDER_CHAT_CONTEXT} from '../builderChatInjection'
 import {buildAstroBuilderChatRequest} from '../buildAstroBuilderChatRequest'
 import {WORKSPACE_ENV_HEADER, WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-builder')
 
 type ChatSegmentType = 'text' | 'thought' | 'html'
 
@@ -103,7 +106,7 @@ const sendDisabled = computed(() => {
 
 const mergeMessageContent = (segments: ChatSegment[]) =>
     segments
-        .map((segment) => (segment.type === 'thought' ? `[思考]\n${segment.content}` : segment.content))
+        .map((segment) => (segment.type === 'thought' ? `${t.value.chatPanel.thoughtPrefix}\n${segment.content}` : segment.content))
         .join('\n')
 
 const scrollToBottom = async () => {
@@ -142,7 +145,7 @@ const applyStreamEvent = async (messageId: string, event: StreamEvent): Promise<
       return true
     case 'error':
       target.error = true
-      await appendAssistantContent(messageId, event.content || '流式响应异常')
+      await appendAssistantContent(messageId, event.content || t.value.chatPanel.streamError)
       return false
     case 'thought':
       await appendAssistantContent(messageId, event.content, 'thought')
@@ -171,7 +174,7 @@ const onSubmit = async () => {
       enableNetwork: isWebSearch.value
     })
   } catch (e: unknown) {
-    message.warning((e as Error)?.message || '无法发起预览')
+    message.warning((e as Error)?.message || t.value.chatPanel.cannotStartPreview)
     return
   }
 
@@ -218,24 +221,24 @@ const onSubmit = async () => {
     await readAstroStream(response, (event) => applyStreamEvent(assistantMessageId, event))
     const target = messages.value.find((item) => item.id === assistantMessageId)
     if (target && !target.content) {
-      target.content = '本次没有返回内容。'
+      target.content = t.value.chatPanel.noContent
     }
   } catch (error: unknown) {
     const target = messages.value.find((item) => item.id === assistantMessageId)
     if (target) {
       if ((error as { name?: string })?.name === 'AbortError') {
-        const stopText = target.content || '已停止生成'
+        const stopText = target.content || t.value.chatPanel.stopped
         target.content = stopText
         target.segments = [{type: 'text', content: stopText}]
       } else {
-        const msg = (error as Error)?.message || '请求失败'
+        const msg = (error as Error)?.message || t.value.chatPanel.requestFailed
         target.content = msg
         target.segments = [{type: 'text', content: msg}]
         target.error = true
       }
     }
     if ((error as { name?: string })?.name !== 'AbortError') {
-      message.error((error as Error)?.message || '预览请求失败')
+      message.error((error as Error)?.message || t.value.chatPanel.previewFailed)
     }
   } finally {
     const target = messages.value.find((item) => item.id === assistantMessageId)
@@ -279,7 +282,7 @@ onBeforeUnmount(() => {
 .chat-composer-wrap {
   flex-shrink: 0;
   padding: 12px 16px 16px;
-  border-top: 1px solid color-mix(in srgb, var(--border-default, #e2e8f0) 50%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--border-default) 50%, transparent);
   background: transparent;
 }
 
@@ -292,9 +295,9 @@ onBeforeUnmount(() => {
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 12px;
-  background: var(--bg-input, #f1f5f9);
-  border: 1px solid var(--border-default, #e2e8f0);
-  color: var(--text-muted, #64748b);
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -304,13 +307,13 @@ onBeforeUnmount(() => {
 }
 
 .feature-tag:hover {
-  border-color: var(--text-muted, #64748b);
+  border-color: var(--text-muted);
 }
 
 .feature-tag.active {
-  background: var(--primary-hover, rgba(59, 130, 246, 0.12));
-  border-color: var(--primary, #3b82f6);
-  color: var(--primary, #3b82f6);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -322,7 +325,7 @@ onBeforeUnmount(() => {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--border-default, #e2e8f0);
+  background: var(--border-default);
   border-radius: 10px;
 }
 </style>

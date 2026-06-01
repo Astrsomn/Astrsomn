@@ -4,7 +4,7 @@
       :body-style="{ maxHeight: '72vh', overflowY: 'auto' }"
       :footer="null"
       destroy-on-close
-      title="历史版本"
+      :title="t.history.title"
       width="920px"
       @cancel="open = false"
   >
@@ -25,7 +25,7 @@
           <span>{{ formatTime(record.createTime) }}</span>
         </template>
         <template v-else-if="column.key === 'actions'">
-          <a-button size="small" type="link" @click="openDetail(record)">查看内容</a-button>
+          <a-button size="small" type="link" @click="openDetail(record)">{{ t.history.viewContent }}</a-button>
         </template>
       </template>
     </a-table>
@@ -33,14 +33,14 @@
     <a-modal
         v-model:open="detailOpen"
         :footer="null"
-        :title="`版本 ${detailRow?.version ?? '—'} 内容`"
+        :title="t.history.versionContentTitle.replace('{version}', String(detailRow?.version ?? '—'))"
         destroy-on-close
         width="720px"
     >
       <a-descriptions :column="1" bordered class="mb-3" size="small">
-        <a-descriptions-item label="标题">{{ detailRow?.promptTitle || '—' }}</a-descriptions-item>
-        <a-descriptions-item label="场景">{{ detailRow?.scene || '—' }}</a-descriptions-item>
-        <a-descriptions-item label="状态">{{ renderEnabled(String(detailRow?.status || '')) }}</a-descriptions-item>
+        <a-descriptions-item :label="t.history.detailLabels.title">{{ detailRow?.promptTitle || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="t.history.detailLabels.scene">{{ detailRow?.scene || '—' }}</a-descriptions-item>
+        <a-descriptions-item :label="t.history.detailLabels.status">{{ renderEnabled(String(detailRow?.status || '')) }}</a-descriptions-item>
       </a-descriptions>
       <a-textarea
           :auto-size="{ minRows: 14, maxRows: 28 }"
@@ -53,9 +53,12 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, watch} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-prompt')
 
 const props = defineProps<{
   promptKey?: string
@@ -69,13 +72,13 @@ const rows = ref<AiPrompt[]>([])
 const detailOpen = ref(false)
 const detailRow = ref<AiPrompt | null>(null)
 
-const enabledFilterOptions = [
-  {label: '启用', value: 'enabled'},
-  {label: '停用', value: 'disabled'}
-]
+const enabledFilterOptions = computed(() => [
+  {label: t.value.history.statusOptions.enabled, value: 'enabled'},
+  {label: t.value.history.statusOptions.disabled, value: 'disabled'}
+])
 
 const renderEnabled = (f: string) => {
-  return enabledFilterOptions.find((x) => x.value === f)?.label ?? f
+  return enabledFilterOptions.value.find((x) => x.value === f)?.label ?? f
 }
 
 const formatTime = (v: unknown) => {
@@ -84,14 +87,14 @@ const formatTime = (v: unknown) => {
   return String(v)
 }
 
-const columns = [
-  {title: '版本', dataIndex: 'version', key: 'version', width: 72},
-  {title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true},
-  {title: '场景', dataIndex: 'scene', key: 'scene', width: 120, ellipsis: true},
-  {title: '状态', key: 'status', width: 90},
-  {title: '创建时间', key: 'createTime', width: 180},
-  {title: '操作', key: 'actions', width: 100, fixed: 'right' as const}
-]
+const columns = computed(() => [
+  {title: t.value.history.columns.version, dataIndex: 'version', key: 'version', width: 72},
+  {title: t.value.history.columns.title, dataIndex: 'promptTitle', key: 'promptTitle', ellipsis: true},
+  {title: t.value.history.columns.scene, dataIndex: 'scene', key: 'scene', width: 120, ellipsis: true},
+  {title: t.value.history.columns.status, key: 'status', width: 90},
+  {title: t.value.history.columns.createTime, key: 'createTime', width: 180},
+  {title: t.value.history.columns.actions, key: 'actions', width: 100, fixed: 'right' as const}
+])
 
 function openDetail(record: AiPrompt) {
   detailRow.value = record
@@ -109,7 +112,7 @@ async function load() {
     rows.value = await aiPromptApi.history(pk, props.envCode)
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '加载历史失败')
+    message.error(err?.message || t.value.history.loadFailed)
     rows.value = []
   } finally {
     loading.value = false

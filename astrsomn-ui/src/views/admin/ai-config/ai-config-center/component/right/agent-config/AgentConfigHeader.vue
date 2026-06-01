@@ -5,12 +5,12 @@
         <ArrowLeftOutlined />
       </a-button>
       <div class="header-divider"></div>
-      <span class="header-title">智能体配置</span>
+      <span class="header-title">{{ t.agent.configTitle }}</span>
     </div>
     <div class="header-right">
       <a-button :loading="submitting" class="save-btn" type="primary" @click="emit('save')">
         <template #icon><SaveOutlined /></template>
-        保存
+        {{ t.agent.save }}
       </a-button>
     </div>
   </header>
@@ -18,6 +18,7 @@
 
 <script lang="ts" setup>
 import {ArrowLeftOutlined, SaveOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 defineProps<{
   submitting: boolean
@@ -27,6 +28,8 @@ const emit = defineEmits<{
   back: []
   save: []
 }>()
+
+const t = usePageTranslation('ai-config-center')
 </script>
 
 <style scoped>
@@ -97,12 +100,12 @@ const emit = defineEmits<{
   align-items: center;
   gap: 6px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--text-primary) 5%, transparent);
 }
 
 .save-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .save-btn:active {

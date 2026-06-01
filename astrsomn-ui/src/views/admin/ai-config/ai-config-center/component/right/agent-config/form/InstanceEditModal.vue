@@ -1,6 +1,6 @@
 <template>
   <AstModal
-      :confirm-text="'确认'"
+      :confirm-text="t.agent.confirm"
       :max-width="'min(80vw, 1400px)'"
       :open="open"
       :z-index="1000"
@@ -17,26 +17,26 @@
       <CloudServerOutlined />
     </template>
     <template #header-title>
-      {{ isEdit ? '编辑实例' : '新建实例' }}
+      {{ isEdit ? t.agent.editInstance : t.agent.createInstance }}
     </template>
     <template #header-subtitle>
-      配置模型端点与推理参数
+      {{ t.agent.configureModelEndpoint }}
     </template>
     <div class="modal-body">
       <!-- 左侧：基础配置 -->
       <div class="modal-left">
-        <div class="section-title">基础配置</div>
+        <div class="section-title">{{ t.agent.basicConfig }}</div>
 
         <!-- 实例名称 — 全宽 -->
         <div class="form-group">
-          <label class="form-label">实例名称 <span class="required">*</span></label>
-          <a-input v-model:value="formData.instanceName" placeholder="例如：GPT-4o 主力" size="large" />
+          <label class="form-label">{{ t.agent.instanceName }} <span class="required">*</span></label>
+          <a-input v-model:value="formData.instanceName" :placeholder="t.agent.instanceNamePlaceholder" size="large" />
         </div>
 
         <!-- Bento 双卡片：模型 + 账号 -->
         <div class="bento-row">
           <div class="form-group">
-            <label class="form-label">模型 <span class="required">*</span></label>
+            <label class="form-label">{{ t.agent.model }} <span class="required">*</span></label>
             <div :class="['bento-card', { filled: !!formData.modelKey }]" @click="modelDrawerOpen = true">
               <template v-if="formData.modelKey && selectedModel">
                 <img v-if="getModelAvatar(formData.modelKey)" :src="getModelAvatar(formData.modelKey)" class="bento-card-avatar" />
@@ -50,8 +50,8 @@
               <template v-else>
                 <div class="bento-card-icon"><SearchOutlined /></div>
                 <div class="bento-card-body">
-                  <span class="bento-card-title">选择模型</span>
-                  <span class="bento-card-hint">点击选择模型端点</span>
+                  <span class="bento-card-title">{{ t.agent.selectModel }}</span>
+                  <span class="bento-card-hint">{{ t.agent.clickSelectModel }}</span>
                 </div>
                 <RightOutlined class="bento-card-arrow" />
               </template>
@@ -59,7 +59,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">关联账号 <span class="required">*</span></label>
+            <label class="form-label">{{ t.agent.linkedAccount }} <span class="required">*</span></label>
             <div :class="['bento-card', { filled: !!formData.accountKey }]" @click="accountDrawerOpen = true">
               <template v-if="formData.accountKey">
                 <div class="bento-card-icon"><KeyOutlined /></div>
@@ -72,8 +72,8 @@
               <template v-else>
                 <div class="bento-card-icon"><UserOutlined /></div>
                 <div class="bento-card-body">
-                  <span class="bento-card-title">选择关联账号</span>
-                  <span class="bento-card-hint">点击选择 API 账号</span>
+                  <span class="bento-card-title">{{ t.agent.selectAccount }}</span>
+                  <span class="bento-card-hint">{{ t.agent.clickSelectAccount }}</span>
                 </div>
                 <RightOutlined class="bento-card-arrow" />
               </template>
@@ -84,17 +84,17 @@
         <!-- 降级 + 权重 同行 -->
         <div class="form-row">
           <div class="form-group" style="flex:1">
-            <label class="form-label">降级备选</label>
+            <label class="form-label">{{ t.agent.fallback }}</label>
             <a-select
                 v-model:value="formData.fallbackInstanceKey"
                 :options="fallbackOptions"
                 allow-clear
-                placeholder="无自动降级"
+                :placeholder="t.agent.noAutoFallback"
                 size="large"
             />
           </div>
           <div v-if="routeStrategy === 'weightedRandom'" class="form-group" style="flex:1">
-            <label class="form-label">权重</label>
+            <label class="form-label">{{ t.agent.weight }}</label>
             <div class="weight-row">
               <a-slider v-model:value="formData.routeWeight" :max="100" :min="1" :step="1" class="weight-slider" />
               <span class="weight-value">{{ formData.routeWeight ?? 1 }}</span>
@@ -103,7 +103,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">上下文轮数</label>
+          <label class="form-label">{{ t.agent.contextRounds }}</label>
           <div class="context-options">
             <button
                 v-for="opt in contextOptions"
@@ -124,26 +124,26 @@
           <div class="params-collapsed-icon">
             <SettingOutlined />
           </div>
-          <h3 class="params-collapsed-title">推理参数</h3>
+          <h3 class="params-collapsed-title">{{ t.agent.inferenceParams }}</h3>
           <p class="params-collapsed-desc">
             <template v-if="formData.modelKey && selectedModel">
               {{ paramKindLabel }} · {{ selectedModel.modelName }}
             </template>
             <template v-else>
-              选择模型后可配置推理参数
+              {{ t.agent.selectModelToConfig }}
             </template>
           </p>
-          <p class="params-collapsed-hint">Temperature、Top P、Max Tokens 等高级参数，日常使用无需调整</p>
+          <p class="params-collapsed-hint">{{ t.agent.paramHint }}</p>
           <a-button :disabled="!formData.modelKey" type="primary" @click="showInferenceParams = true">
             <template #icon><SettingOutlined /></template>
-            展开配置
+            {{ t.agent.expandConfig }}
           </a-button>
         </div>
 
         <!-- 展开态 -->
         <template v-else>
           <div class="section-title">
-            <span>推理参数</span>
+            <span>{{ t.agent.inferenceParams }}</span>
             <a-tag v-if="formData.modelKey" class="model-tag" color="blue">{{ formData.modelKey }}</a-tag>
             <a-button size="small" type="text" @click="showInferenceParams = false">
               <template #icon><CloseOutlined /></template>
@@ -152,7 +152,7 @@
 
           <p v-if="paramVisibility.capabilityHint.value" class="hint-text">{{ paramVisibility.capabilityHint.value }}</p>
           <p v-if="paramVisibility.hasParamSchema.value && paramVisibility.unsupportedParamCodes.value.length > 0" class="hint-text muted">
-            {{ paramVisibility.unsupportedParamCodes.value.length }} 项参数暂不支持实例侧配置：{{ paramVisibility.unsupportedParamCodes.value.join(', ') }}
+            {{ paramVisibility.unsupportedParamCodes.value.length }} {{ t.agent.unsupportedParams }}：{{ paramVisibility.unsupportedParamCodes.value.join(', ') }}
           </p>
 
           <!-- 对话模型参数 -->
@@ -165,7 +165,7 @@
                 </div>
                 <a-slider
                     v-model:value="formData.temperature"
-                    :marks="{ 0: '严谨', 0.7: '平衡', 1.5: '创意', 2: '随机' }"
+                    :marks="{ 0: t.agent.strict, 0.7: t.agent.balanced, 1.5: t.agent.creative, 2: t.agent.randomLabel }"
                     :max="2"
                     :min="0"
                     :step="0.1"
@@ -180,7 +180,7 @@
                 </div>
                 <a-slider
                     v-model:value="formData.maxTokens"
-                    :marks="{ 0: '短', 2048: '中', 4096: '长', 8192: '超长' }"
+                    :marks="{ 0: t.agent.short, 2048: t.agent.medium, 4096: t.agent.longLabel, 8192: t.agent.extraLong }"
                     :max="8192"
                     :min="0"
                     :step="256"
@@ -194,7 +194,7 @@
                 </div>
                 <a-slider
                     v-model:value="formData.topP"
-                    :marks="{ 0: '极窄', 0.5: '标准', 1: '完整' }"
+                    :marks="{ 0: t.agent.veryNarrow, 0.5: t.agent.standard, 1: t.agent.complete }"
                     :max="1"
                     :min="0"
                     :step="0.05"
@@ -206,7 +206,7 @@
                   <span class="param-name">Top K</span>
                   <a-input-number v-model:value="formData.topK" :max="100" :min="0" :step="1" size="small" />
                 </div>
-                <span class="param-note">0 = 不启用</span>
+                <span class="param-note">{{ t.agent.disabledLabel }}</span>
               </div>
 
               <div v-if="paramVisibility.showChatSeed.value" class="param-card">
@@ -220,7 +220,7 @@
                 <div class="param-header">
                   <span class="param-name">Stop Sequences</span>
                 </div>
-                <a-textarea v-model:value="formData.stopSequences" :rows="2" placeholder="多个序列用英文逗号分隔" />
+                <a-textarea v-model:value="formData.stopSequences" :rows="2" :placeholder="t.agent.commaSeparated" />
               </div>
 
               <div v-if="paramVisibility.showChatPenalties.value" class="penalty-grid">
@@ -248,13 +248,13 @@
                     :filter-option="filterDimensionOption"
                     :options="dimensionOptions"
                     allow-clear
-                    placeholder="选择或输入维度"
+                    :placeholder="t.agent.selectOrInputDimension"
                     show-search
                     size="large"
                     style="width: 100%"
                 />
               </div>
-              <p v-if="!paramVisibility.embeddingHasAnyControl.value" class="hint-text muted">当前端点未开放向量可调参数</p>
+              <p v-if="!paramVisibility.embeddingHasAnyControl.value" class="hint-text muted">{{ t.agent.noEmbeddingParams }}</p>
             </div>
           </template>
 
@@ -265,15 +265,15 @@
                 <div class="param-header">
                   <span class="param-name">Size</span>
                 </div>
-                <a-input v-model:value="formData.size" allow-clear placeholder="例如 1024x1024" size="large" />
+                <a-input v-model:value="formData.size" allow-clear :placeholder="t.agent.sizeExample" size="large" />
               </div>
               <div v-if="paramVisibility.showImageStyle.value" class="param-card">
                 <div class="param-header">
                   <span class="param-name">Style</span>
                 </div>
-                <a-input v-model:value="formData.style" allow-clear placeholder="例如 vivid / natural" size="large" />
+                <a-input v-model:value="formData.style" allow-clear :placeholder="t.agent.styleExample" size="large" />
               </div>
-              <p v-if="!paramVisibility.imageHasAnyControl.value" class="hint-text muted">当前端点未开放图像可调参数</p>
+              <p v-if="!paramVisibility.imageHasAnyControl.value" class="hint-text muted">{{ t.agent.noImageParams }}</p>
             </div>
           </template>
         </template>
@@ -311,6 +311,7 @@ import {
   getTempInfo,
   useInstanceParamVisibility
 } from '@/views/admin/ai-config/ai-instance/useInstanceParamVisibility.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const props = defineProps<{
   open: boolean
@@ -325,6 +326,8 @@ const emit = defineEmits<{
   'update:open': [value: boolean]
   confirm: [instance: AiInstance]
 }>()
+
+const t = usePageTranslation('ai-config-center')
 
 const isEdit = computed(() => !!props.record?.instanceKey)
 const modelDrawerOpen = ref(false)
@@ -362,29 +365,29 @@ const paramVisibility = useInstanceParamVisibility(selectedModel)
 
 const paramKindLabel = computed(() => {
   const kind = paramVisibility.modelKind.value
-  if (kind === 'chat') return '对话模型'
-  if (kind === 'embedding') return '向量模型'
-  if (kind === 'image') return '图像模型'
-  return '推理配置'
+  if (kind === 'chat') return t.value.agent.chatModel
+  if (kind === 'embedding') return t.value.agent.embeddingModel
+  if (kind === 'image') return t.value.agent.imageModel
+  return t.value.agent.inferenceConfig
 })
 
-const contextOptions = [
-  { value: '10', label: '10 轮' },
-  { value: '20', label: '20 轮' },
-  { value: 'full', label: '完整窗口' },
-]
+const contextOptions = computed(() => [
+  { value: '10', label: t.value.agent.rounds10 },
+  { value: '20', label: t.value.agent.rounds20 },
+  { value: 'full', label: t.value.agent.fullWindow },
+])
 
-const dimensionOptions = [
-  { value: 256, label: '256 — 轻量级' },
-  { value: 512, label: '512 — 平衡型' },
-  { value: 768, label: '768 — 常用基线' },
-  { value: 1024, label: '1024 — 中高维度' },
-  { value: 1536, label: '1536 — 主流高维' },
-  { value: 2048, label: '2048 — 高精度' },
-  { value: 3072, label: '3072 — 超高精度' },
-  { value: 4096, label: '4096 — 最大常用' },
-  { value: 8192, label: '8192 — 极限维度' },
-]
+const dimensionOptions = computed(() => [
+  { value: 256, label: t.value.agent.dim256 },
+  { value: 512, label: t.value.agent.dim512 },
+  { value: 768, label: t.value.agent.dim768 },
+  { value: 1024, label: t.value.agent.dim1024 },
+  { value: 1536, label: t.value.agent.dim1536 },
+  { value: 2048, label: t.value.agent.dim2048 },
+  { value: 3072, label: t.value.agent.dim3072 },
+  { value: 4096, label: t.value.agent.dim4096 },
+  { value: 8192, label: t.value.agent.dim8192 },
+])
 
 function filterDimensionOption(input: string, option: { value: number; label: string }) {
   return String(option.value).includes(input) || option.label.toLowerCase().includes(input.toLowerCase())
@@ -395,7 +398,7 @@ const fallbackOptions = computed(() =>
         .filter(i => i.instanceKey !== props.record?.instanceKey)
         .map(inst => ({
           value: inst.instanceKey || '',
-          label: (inst.instanceName || inst.instanceKey || '未命名') + (inst.isDefault === 'Y' ? ' (默认)' : ''),
+          label: (inst.instanceName || inst.instanceKey || t.value.agent.unnamed) + (inst.isDefault === 'Y' ? ` ${t.value.agent.defaultSuffix}` : ''),
         }))
 )
 
@@ -473,15 +476,15 @@ function handleCancel() {
 
 function handleConfirm() {
   if (!formData.instanceName.trim()) {
-    message.warning('请输入实例名称')
+    message.warning(t.value.agent.instanceNameRequired)
     return
   }
   if (!formData.modelKey) {
-    message.warning('请选择模型')
+    message.warning(t.value.agent.selectModelRequired)
     return
   }
   if (!formData.accountKey) {
-    message.warning('请选择关联账号')
+    message.warning(t.value.agent.selectAccountRequired)
     return
   }
   const instance: AiInstance = {
@@ -593,7 +596,7 @@ watch(() => props.open, (val) => {
 }
 
 .required {
-  color: #ef4444;
+  color: var(--error);
   font-weight: 600;
 }
 
@@ -627,20 +630,20 @@ watch(() => props.open, (val) => {
   border-color: var(--primary);
   background: var(--bg-card);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px -4px rgba(59, 130, 246, 0.12);
+  box-shadow: 0 4px 16px -4px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .bento-card.filled {
   border-style: solid;
   border-color: var(--primary);
-  background: rgba(59, 130, 246, 0.03);
+  background: color-mix(in srgb, var(--primary) 3%, transparent);
 }
 
 .bento-card-icon {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(124, 58, 237, 0.12) 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 12%, transparent) 0%, color-mix(in srgb, #7c3aed 12%, transparent) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -729,7 +732,7 @@ watch(() => props.open, (val) => {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 10%, transparent) 0%, color-mix(in srgb, #7c3aed 10%, transparent) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -783,7 +786,7 @@ watch(() => props.open, (val) => {
 .weight-value {
   font-size: 14px;
   font-weight: 600;
-  color: #3b82f6;
+  color: var(--primary);
   font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
   min-width: 32px;
   text-align: right;
@@ -814,9 +817,9 @@ watch(() => props.open, (val) => {
 }
 
 .context-btn.active {
-  border-color: #3b82f6;
-  color: #3b82f6;
-  background: rgba(59, 130, 246, 0.04);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 4%, transparent);
   font-weight: 600;
 }
 

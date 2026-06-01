@@ -4,15 +4,15 @@
       :width="520"
       @update:open="handleClose"
   >
-    <template #title>选择账号</template>
-    <template #subtitle>AI Account</template>
+    <template #title>{{ t.selector.title }}</template>
+    <template #subtitle>{{ t.selector.subtitle }}</template>
 
     <div class="select-drawer-content">
       <div class="toolbar-row">
         <AstSearchInput
             :model-value="keyword"
             class="toolbar-search"
-            placeholder="搜索账号名称"
+            :placeholder="t.selector.searchPlaceholder"
             @update:model-value="keyword = $event"
             @search="handleSearch"
         />
@@ -25,7 +25,7 @@
         <ExtensionSelector
             v-model:value="filterExtensionCode"
             :allow-clear="true"
-            placeholder="全部供应商"
+            :placeholder="t.selector.filterProviderPlaceholder"
             size="middle"
         />
       </div>
@@ -59,31 +59,31 @@
 
             <div class="account-stats">
               <div v-if="account.accountTokens != null" class="stat-item">
-                <span class="stat-label">额度</span>
+                <span class="stat-label">{{ t.selector.statQuota }}</span>
                 <span class="stat-value">{{ formatTokens(account.accountTokens) }}</span>
               </div>
               <div v-if="account.totalTokens != null" class="stat-item">
-                <span class="stat-label">已用</span>
+                <span class="stat-label">{{ t.selector.statUsed }}</span>
                 <span class="stat-value">{{ formatTokens(account.totalTokens) }}</span>
               </div>
               <div v-if="account.callCount != null" class="stat-item">
-                <span class="stat-label">调用</span>
+                <span class="stat-label">{{ t.selector.statCalls }}</span>
                 <span class="stat-value">{{ account.callCount }}</span>
               </div>
             </div>
 
             <div class="account-meta">
               <span v-if="account.usedModelCount" class="model-count">
-                关联 {{ account.usedModelCount }} 个模型
+                {{ t.selector.linkedModels.replace('{n}', String(account.usedModelCount)) }}
               </span>
               <span :class="account.envCode?.toLowerCase()" class="env-badge">
-                {{ account.envCode || '无环境' }}
+                {{ account.envCode || t.selector.noEnv }}
               </span>
               <span :class="['status-dot', account.status === 'enabled' ? 'enabled' : 'disabled']"/>
             </div>
           </div>
 
-          <a-empty v-if="!loading && list.length === 0" description="暂无账号"/>
+          <a-empty v-if="!loading && list.length === 0" :description="t.selector.emptyText"/>
         </div>
       </a-spin>
 
@@ -117,6 +117,9 @@ import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import AccountForm from '@/views/admin/ai-config/ai-account/component/AccountForm.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-account')
 
 const props = withDefaults(defineProps<{
   open: boolean
@@ -277,7 +280,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary, #3b82f6) 30%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
 .add-btn:hover {
@@ -318,17 +321,17 @@ onMounted(() => {
 }
 
 .account-item {
-  background: var(--bg-card, #fff);
-  border: 1px solid var(--border-default, #e2e8f0);
-  border-radius: var(--radius-lg, 12px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 16px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .account-item:hover {
-  border-color: var(--primary, #3b82f6);
-  box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.06));
+  border-color: var(--primary);
+  box-shadow: var(--shadow-card);
 }
 
 .account-item-main {
@@ -366,7 +369,7 @@ onMounted(() => {
 
 .account-name {
   font-weight: 600;
-  color: var(--text-primary, #1e293b);
+  color: var(--text-primary);
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -375,7 +378,7 @@ onMounted(() => {
 
 .account-key {
   font-size: 12px;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   font-family: 'JetBrains Mono', monospace;
   display: flex;
   align-items: center;
@@ -421,7 +424,7 @@ onMounted(() => {
 
 .model-count {
   font-size: 12px;
-  color: var(--text-hint, #94a3b8);
+  color: var(--text-muted);
 }
 
 .env-badge {
@@ -432,13 +435,13 @@ onMounted(() => {
 }
 
 .env-badge.prod {
-  background: rgba(239, 68, 68, 0.12);
+  background: color-mix(in srgb, var(--error) 12%, transparent);
   color: var(--error);
 }
 
 .env-badge.dev {
-  background: rgba(14, 165, 233, 0.12);
-  color: #38bdf8;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
 }
 
 .status-dot {

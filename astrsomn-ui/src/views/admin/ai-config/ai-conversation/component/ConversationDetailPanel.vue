@@ -2,11 +2,11 @@
   <div class="right-panel">
     <div v-if="selectedConversation" class="conversation-detail">
       <div class="detail-header">
-        <h3>对话详情</h3>
+        <h3>{{ t.detail.title }}</h3>
         <div class="detail-info">
           <span class="info-item">Memory Key: {{ selectedConversation.memoryKey }}</span>
-          <span class="info-item">创建时间: {{ formatTime(selectedConversation.createTime) }}</span>
-          <span class="info-item">状态: 
+          <span class="info-item">{{ t.detail.createTime }}: {{ formatTime(selectedConversation.createTime) }}</span>
+          <span class="info-item">{{ t.detail.status }}:
             <span :class="`status-pill-${String(selectedConversation.status || '').toLowerCase()}`" class="status-pill">
               {{ getStatusLabel(selectedConversation.status) }}
             </span>
@@ -34,7 +34,6 @@
             </div>
 
             <div class="message-body">
-              <!-- AI 消息 -->
               <div v-if="message.role === 'ai'" class="ai-card">
                 <div class="answer-section">
                   <div class="markdown-renderer">
@@ -43,7 +42,6 @@
                 </div>
               </div>
 
-              <!-- 用户消息 -->
               <div v-else class="user-card">
                 <div class="user-bubble">
                   <div class="user-html">{{ message.content }}</div>
@@ -53,12 +51,12 @@
           </div>
         </div>
         <div v-else class="empty-content">
-          <a-empty description="暂无对话内容"/>
+          <a-empty :description="t.detail.emptyContent"/>
         </div>
       </div>
     </div>
     <div v-else class="empty-detail">
-      <a-empty description="请选择一个对话组查看详情"/>
+      <a-empty :description="t.detail.emptyDetail"/>
     </div>
   </div>
 </template>
@@ -66,6 +64,9 @@
 <script lang="ts" setup>
 import {computed, defineProps} from 'vue'
 import {AiConversation} from '@/api/aiConversation.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-conversation')
 
 type ChatMessage = {
   role: 'user' | 'ai'
@@ -85,8 +86,8 @@ const normalizeText = (value?: string, fallback = '—') => {
 
 const getStatusLabel = (status?: string) => {
   const statusMap: Record<string, string> = {
-    enabled: '启用',
-    disabled: '禁用'
+    enabled: t.value.detail.statusEnabled,
+    disabled: t.value.detail.statusDisabled
   }
   return statusMap[String(status || '').toLowerCase()] || normalizeText(status)
 }
@@ -267,7 +268,7 @@ const parsedConversation = computed<ChatMessage[] | null>(() => {
   border-radius: 16px 4px 16px 16px;
   background: var(--primary-gradient);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(0, 123, 255, 0.28);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
 .user-html {

@@ -15,7 +15,7 @@
       </div>
       <div class="header-actions">
         <div class="strategy-wrapper">
-          <span class="strategy-label">策略</span>
+          <span class="strategy-label">{{ t.agent.strategy }}</span>
           <a-select
               :value="props.routeStrategy || 'roundRobin'"
               :options="routeStrategyOptions"
@@ -26,7 +26,7 @@
         </div>
         <a-button class="add-btn" size="small" type="primary" @click="startAdd">
           <template #icon><PlusOutlined /></template>
-          添加
+          {{ t.agent.add }}
         </a-button>
       </div>
     </div>
@@ -38,11 +38,11 @@
         <div class="empty-icon-wrapper">
           <CloudServerOutlined />
         </div>
-        <p class="empty-title">暂无{{ activeTabLabel }}实例</p>
-        <p class="empty-desc">添加第一个推理实例开始使用</p>
+        <p class="empty-title">{{ t.agent.noInstance }}</p>
+        <p class="empty-desc">{{ t.agent.addFirstInstance }}</p>
         <a-button class="empty-add-btn" type="primary" @click="startAdd">
           <template #icon><PlusOutlined /></template>
-          添加实例
+          {{ t.agent.addInstance }}
         </a-button>
       </div>
 
@@ -67,23 +67,23 @@
           </div>
           <div class="instance-content">
             <div class="instance-header">
-              <span class="instance-name">{{ instance.instanceName || getModelLabel(instance.modelKey) || '未命名' }}</span>
-              <a-tag v-if="instance.isDefault === 'Y'" class="default-badge" color="blue">默认</a-tag>
+              <span class="instance-name">{{ instance.instanceName || getModelLabel(instance.modelKey) || t.agent.unnamed }}</span>
+              <a-tag v-if="instance.isDefault === 'Y'" class="default-badge" color="blue">{{ t.agent.defaultPreset }}</a-tag>
             </div>
             <div class="instance-meta">
               <code class="model-key">{{ instance.modelKey }}</code>
               <span v-if="instance.status === 'enabled'" class="status-indicator active">
                 <span class="status-dot"></span>
-                启用
+                {{ t.agent.status.enabled }}
               </span>
               <span v-else class="status-indicator inactive">
                 <span class="status-dot"></span>
-                禁用
+                {{ t.agent.status.disabled }}
               </span>
             </div>
           </div>
           <div class="instance-actions">
-            <a-tooltip v-if="instance.isDefault !== 'Y'" title="设为默认">
+            <a-tooltip v-if="instance.isDefault !== 'Y'" :title="t.agent.setAsDefault">
               <a-button
                   class="action-btn default"
                   type="text"
@@ -115,7 +115,7 @@
 
         <button class="add-more-btn" @click="startAdd">
           <PlusOutlined />
-          <span>添加{{ activeTabLabel }}实例</span>
+          <span>{{ t.agent.addTypeInstance }}</span>
         </button>
       </div>
     </div>
@@ -140,6 +140,7 @@ import {ApartmentOutlined, CloudServerOutlined, DeleteOutlined, EditOutlined, Pl
 import type {AiModel} from '@/api/aiModel.ts'
 import type {AiInstance} from '@/api/aiInstance.ts'
 import InstanceEditModal from './form/InstanceEditModal.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const props = defineProps<{
   instanceList: AiInstance[]
@@ -152,10 +153,12 @@ const emit = defineEmits<{
   (e: 'update:routeStrategy', value: string): void
 }>()
 
+const t = usePageTranslation('ai-config-center')
+
 
 const modelTypeOptions = [
-  { value: 'chat', label: '对话模型' },
-  { value: 'image', label: '图像模型' },
+  { value: 'chat', label: t.value.agent.chatModel },
+  { value: 'image', label: t.value.agent.imageModel },
 ]
 const activeTab = ref('chat')
 const activeTabLabel = computed(() => modelTypeOptions.find(t => t.value === activeTab.value)?.label || '')
@@ -229,11 +232,11 @@ function setDefault(instance: AiInstance) {
 
 // ── Helpers ──
 const routeStrategyOptions = [
-  { value: 'roundRobin', label: '轮询' },
-  { value: 'random', label: '随机' },
-  { value: 'weightedRandom', label: '加权随机' },
-  { value: 'stickyMemory', label: '粘性会话' },
-  { value: 'failoverOrdered', label: '故障转移' },
+  { value: 'roundRobin', label: t.value.agent.strategyRoundRobin },
+  { value: 'random', label: t.value.agent.strategyRandom },
+  { value: 'weightedRandom', label: t.value.agent.strategyWeightedRandom },
+  { value: 'stickyMemory', label: t.value.agent.strategyStickyMemory },
+  { value: 'failoverOrdered', label: t.value.agent.strategyFailover },
 ]
 
 function onStrategyChange(val: string) {
@@ -241,7 +244,7 @@ function onStrategyChange(val: string) {
 }
 
 function getModelLabel(modelKey?: string): string {
-  if (!modelKey) return '未选择'
+  if (!modelKey) return t.value.agent.notSelected
   const m = props.availableModels.find(x => x.modelKey === modelKey)
   return m?.modelName || modelKey
 }
@@ -313,8 +316,8 @@ function getModelAvatar(modelKey?: string): string {
 .tab-badge {
   font-size: 10px;
   font-weight: 600;
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
   padding: 1px 6px;
   border-radius: 10px;
   min-width: 18px;
@@ -322,8 +325,8 @@ function getModelAvatar(modelKey?: string): string {
 }
 
 .tab-btn.active .tab-badge {
-  background: #3b82f6;
-  color: #fff;
+  background: var(--primary);
+  color: var(--text-heading);
 }
 
 .header-actions {
@@ -441,8 +444,8 @@ function getModelAvatar(modelKey?: string): string {
 }
 
 .instance-item.active {
-  border-color: rgba(59, 130, 246, 0.15);
-  background: rgba(59, 130, 246, 0.02);
+  border-color: color-mix(in srgb, var(--primary) 15%, transparent);
+  background: color-mix(in srgb, var(--primary) 2%, transparent);
 }
 
 .instance-icon {
@@ -522,7 +525,7 @@ function getModelAvatar(modelKey?: string): string {
 }
 
 .status-indicator.active {
-  color: #10b981;
+  color: var(--success);
 }
 
 .status-indicator.inactive {
@@ -536,8 +539,8 @@ function getModelAvatar(modelKey?: string): string {
 }
 
 .status-indicator.active .status-dot {
-  background: #10b981;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+  background: var(--success);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--success) 40%, transparent);
 }
 
 .status-indicator.inactive .status-dot {
@@ -573,13 +576,13 @@ function getModelAvatar(modelKey?: string): string {
 }
 
 .action-btn.default:hover {
-  background: rgba(250, 176, 5, 0.1);
-  color: #fab005;
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  color: var(--warning);
 }
 
 .action-btn.delete:hover {
-  background: rgba(239, 68, 68, 0.08);
-  color: #ef4444;
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  color: var(--error);
 }
 
 
@@ -601,8 +604,8 @@ function getModelAvatar(modelKey?: string): string {
 }
 
 .add-more-btn:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
-  background: rgba(59, 130, 246, 0.02);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 2%, transparent);
 }
 </style>

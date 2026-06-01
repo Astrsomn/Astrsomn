@@ -22,10 +22,19 @@
 
     <modules>
         <module>astrsomn-provider-deepseek</module>
-        <module>astrsomn-provider-qwen</module>
+        <module>astrsomn-provider-ali</module>
         <module>astrsomn-provider-openai</module>
         <module>astrsomn-provider-qianfan</module>
         <module>astrsomn-provider-zhipu</module>
+        <module>astrsomn-provider-anthropic</module>
+        <module>astrsomn-provider-gemini</module>
+        <module>astrsomn-provider-minimax</module>
+        <module>astrsomn-provider-xiaomi</module>
+        <module>astrsomn-provider-volcengine</module>
+        <module>astrsomn-provider-tencent</module>
+        <module>astrsomn-provider-moonshot</module>
+        <module>astrsomn-provider-baichuan</module>
+        <module>astrsomn-provider-ollama</module>
     </modules>
 
 

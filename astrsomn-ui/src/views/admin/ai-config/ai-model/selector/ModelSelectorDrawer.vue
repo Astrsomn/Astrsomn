@@ -8,22 +8,22 @@
     <template #icon>
       <AppstoreOutlined/>
     </template>
-    <template #title>选择模型</template>
-    <template #subtitle>为实例选择一个推理端点</template>
+    <template #title>{{ t.selector.title }}</template>
+    <template #subtitle>{{ t.selector.subtitle }}</template>
 
     <div class="select-drawer-content">
       <div class="search-bar">
         <ExtensionSelector
             :allow-clear="true"
             :value="providerFilter"
-            placeholder="全部提供商"
+            :placeholder="t.selector.providerPlaceholder"
             size="middle"
             @update:value="onProviderChange"
         />
         <AstSearchInput
             v-model="keyword"
             layout="fluid"
-            placeholder="搜索模型名称或 Key"
+            :placeholder="t.selector.searchPlaceholder"
             @search="handleSearch"
         />
       </div>
@@ -72,12 +72,12 @@
             <div class="model-meta">
               <span class="provider-tag">{{ model.extensionCode }}</span>
               <a-tag :color="model.status === 'enabled' ? 'green' : 'red'" class="status-tag">
-                {{ model.status === 'enabled' ? '启用' : '禁用' }}
+                {{ model.status === 'enabled' ? t.selector.statusEnabled : t.selector.statusDisabled }}
               </a-tag>
             </div>
           </div>
 
-          <a-empty v-if="!loading && list.length === 0" description="暂无模型"/>
+          <a-empty v-if="!loading && list.length === 0" :description="t.selector.emptyText"/>
         </div>
       </a-spin>
     </div>
@@ -119,6 +119,9 @@ import AstDrawer from '@/components/home/AstDrawer.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-model')
 
 const CAP_ICON_MAP: Record<string, any> = {
   streaming: CaretRightOutlined,
@@ -286,13 +289,13 @@ watch(() => props.open, (val) => {
 .model-item:hover {
   border-color: var(--primary);
   background: var(--primary-hover);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .model-item.selected {
   border-color: var(--primary);
   background: var(--primary-hover);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
 .model-item-left {

@@ -1,10 +1,10 @@
 <template>
   <div class="vector-center-main">
     <div v-if="!selectedSourceId" class="empty-state">
-      请先在左侧选择数据源
+      {{ t.vectorCenter.main.selectSource }}
     </div>
     <div v-else-if="!selectedStoreId" class="empty-state">
-      请先在左侧选择数据库
+      {{ t.vectorCenter.main.selectStore }}
     </div>
     <template v-else>
       <!-- 固定顶部 -->
@@ -34,9 +34,12 @@
 </template>
 
 <script lang="ts" setup>
+import {usePageTranslation} from '@/locales/pages.ts'
 import RightTop from '@/views/admin/ai-vector/vector-center/component/right/RightTop.vue'
 import RightCenter from '@/views/admin/ai-vector/vector-center/component/right/RightCenter.vue'
 import RightBottom from '@/views/admin/ai-vector/vector-center/component/right/RightBottom.vue'
+
+const t = usePageTranslation('ai-vector')
 
 defineProps<{
   selectedSourceId?: number | string

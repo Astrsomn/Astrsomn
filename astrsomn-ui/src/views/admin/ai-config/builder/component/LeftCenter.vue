@@ -3,7 +3,7 @@
     <div class="section-header">
       <div class="section-title">
         <span class="title-indicator"></span>
-        <h2 class="title-text">功能增强模组</h2>
+        <h2 class="title-text">{{ t.leftCenter.sectionTitle }}</h2>
       </div>
     </div>
 
@@ -65,13 +65,13 @@
         v-model:open="diffModalVisible"
         :footer="null"
         destroy-on-close
-        title="提示词美化对比"
+        :title="t.leftCenter.diffModalTitle"
         width="800px"
     >
       <div class="diff-container">
         <div class="diff-header">
-          <div class="diff-title original">原内容（已删除）</div>
-          <div class="diff-title improved">美化后</div>
+          <div class="diff-title original">{{ t.leftCenter.diffOriginalTitle }}</div>
+          <div class="diff-title improved">{{ t.leftCenter.diffImprovedTitle }}</div>
         </div>
         <div class="diff-content">
           <div class="diff-original">
@@ -84,8 +84,8 @@
       </div>
       <div class="diff-footer">
         <a-space>
-          <a-button @click="diffModalVisible = false">取消</a-button>
-          <a-button type="primary" @click="handleApplyImproved">使用美化后内容</a-button>
+          <a-button @click="diffModalVisible = false">{{ t.leftCenter.diffCancelButton }}</a-button>
+          <a-button type="primary" @click="handleApplyImproved">{{ t.leftCenter.diffApplyButton }}</a-button>
         </a-space>
       </div>
     </a-modal>
@@ -107,6 +107,9 @@ import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt'
 import type {AiInstance} from '@/api/aiInstance'
 import type {AiTool} from '@/api/aiTool'
 import type {AiMcp} from '@/api/aiMcp'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-builder')
 
 defineProps<{
   tools: AiTool[]
@@ -155,7 +158,7 @@ const handleCreatePrompt = () => {
 
 const handleHistoryPrompt = () => {
   if (!currentPrompt.value?.promptKey) {
-    message.warning('请先选择一个提示词')
+    message.warning(t.value.leftCenter.selectPromptFirst)
     return
   }
   historyModalOpen.value = true
@@ -164,7 +167,7 @@ const handleHistoryPrompt = () => {
 const handleImprovePrompt = async () => {
   const content = currentPrompt.value?.promptContent
   if (!content?.trim()) {
-    message.warning('请先输入提示词内容')
+    message.warning(t.value.leftCenter.enterPromptContentFirst)
     return
   }
   originalContent.value = content
@@ -174,7 +177,7 @@ const handleImprovePrompt = async () => {
     improvedContent.value = improved
     diffModalVisible.value = true
   } catch {
-    message.error('美化失败，请重试')
+    message.error(t.value.leftCenter.beautifyFailed)
   } finally {
     improveLoading.value = false
   }
@@ -186,7 +189,7 @@ const handleApplyImproved = () => {
     emit('update:prompt', currentPrompt.value)
   }
   diffModalVisible.value = false
-  message.success('已应用美化后的提示词')
+  message.success(t.value.leftCenter.beautifyApplied)
 }
 
 const handlePromptSelect = (prompt: AiPrompt) => {
@@ -255,14 +258,14 @@ const handleKbRemove = (kbKey: string) => {
 .title-indicator {
   width: 6px;
   height: 16px;
-  background: #d1d5db;
+  background: var(--border-strong);
   border-radius: 4px;
 }
 
 .title-text {
   font-weight: 700;
   font-size: 14px;
-  color: #1e293b;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -313,15 +316,15 @@ const handleKbRemove = (kbKey: string) => {
 }
 
 .diff-container {
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
 }
 
 .diff-header {
   display: flex;
-  background: #f5f5f5;
-  border-bottom: 1px solid #e8e8e8;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .diff-title {
@@ -332,14 +335,14 @@ const handleKbRemove = (kbKey: string) => {
 }
 
 .diff-title.original {
-  background: #fff1f0;
-  color: #ff4d4f;
-  border-right: 1px solid #e8e8e8;
+  background: color-mix(in srgb, var(--error) 6%, var(--bg-card));
+  color: var(--error);
+  border-right: 1px solid var(--border-default);
 }
 
 .diff-title.improved {
-  background: #f6ffed;
-  color: #52c41a;
+  background: color-mix(in srgb, var(--success) 6%, var(--bg-card));
+  color: var(--success);
 }
 
 .diff-content {
@@ -353,12 +356,11 @@ const handleKbRemove = (kbKey: string) => {
   flex: 1;
   padding: 16px;
   overflow: auto;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .diff-original {
-  background: #fffafafa;
-  border-right: 1px solid #e8e8e8;
+  border-right: 1px solid var(--border-default);
 }
 
 .diff-text {
@@ -371,19 +373,19 @@ const handleKbRemove = (kbKey: string) => {
 }
 
 .original-text {
-  color: #ff4d4f;
+  color: var(--error);
   text-decoration: line-through;
   opacity: 0.8;
 }
 
 .improved-text {
-  color: #52c41a;
+  color: var(--success);
 }
 
 .diff-footer {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid var(--border-default);
   text-align: right;
 }
 </style>

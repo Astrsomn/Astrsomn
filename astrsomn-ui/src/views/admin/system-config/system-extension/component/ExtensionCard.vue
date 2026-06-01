@@ -8,7 +8,7 @@
     <div class="plugin-info">
       <div class="info-head">
         <span v-if="showActions" :class="item.applied === 'Y' ? 'enabled' : 'disabled'" class="status-dot" />
-        <h3 class="plugin-title">{{ item.extensionName || '未命名扩展' }}</h3>
+        <h3 class="plugin-title">{{ item.extensionName || t.card.unnamedExtension }}</h3>
         <span class="plugin-meta">By {{ item.author || 'Astrsomn' }} · {{ item.version || 'v1.0.0' }}</span>
       </div>
       <div class="info-tags">
@@ -32,7 +32,7 @@
           @click="$emit('loadModels', item)"
         >
           <template #icon><CloudDownloadOutlined /></template>
-          加载模型
+          {{ t.card.loadModels }}
         </a-button>
         <a-button
           v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
@@ -42,37 +42,37 @@
           @click="$emit('unloadModels', item)"
         >
           <template #icon><RestOutlined /></template>
-          卸载模型
+          {{ t.card.unloadModels }}
         </a-button>
         <a-popconfirm
           v-if="item.applied === 'N'"
-          cancel-text="取消"
-          ok-text="确定"
-          title="确定应用该插件吗？"
+          :cancel-text="t.card.cancel"
+          :ok-text="t.card.confirm"
+          :title="t.card.confirmApply"
           @confirm="$emit('apply', item.id)"
         >
           <a-button size="small" class="action-btn" type="primary">
             <template #icon><CaretRightOutlined /></template>
-            启用
+            {{ t.card.apply }}
           </a-button>
         </a-popconfirm>
         <a-popconfirm
           v-else
-          cancel-text="取消"
-          ok-text="确定"
-          title="确定取消启用吗？插件将恢复为未启用状态。"
+          :cancel-text="t.card.cancel"
+          :ok-text="t.card.confirm"
+          :title="t.card.confirmDisable"
           @confirm="$emit('revokeApply', item.id)"
         >
           <a-button size="small" class="action-btn">
             <template #icon><PauseOutlined /></template>
-            禁用
+            {{ t.card.disable }}
           </a-button>
         </a-popconfirm>
         <a-popconfirm
           v-if="isUninstallable"
-          cancel-text="取消"
-          ok-text="确定"
-          title="确定卸载该插件吗？"
+          :cancel-text="t.card.cancel"
+          :ok-text="t.card.confirm"
+          :title="t.card.confirmUninstall"
           @confirm="$emit('uninstall', item.id)"
         >
           <a-button size="small" class="action-btn icon-only" danger>
@@ -83,11 +83,11 @@
       <template v-else>
         <a-button v-if="item.installed" size="small" class="action-btn" disabled>
           <template #icon><CheckCircleOutlined /></template>
-          已安装
+          {{ t.card.installed }}
         </a-button>
         <a-button v-else size="small" class="action-btn" type="primary" @click="$emit('install', item)">
           <template #icon><DownloadOutlined /></template>
-          安装
+          {{ t.card.install }}
         </a-button>
       </template>
     </div>
@@ -96,6 +96,7 @@
 
 <script lang="ts" setup>
 import {computed} from 'vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import {
   AppstoreOutlined,
   BuildOutlined,
@@ -114,6 +115,8 @@ import {
   isUninstallableExtension,
   preview,
 } from '@/views/admin/system-config/system-extension/utils/extensionDisplay.ts'
+
+const t = usePageTranslation('system-extension')
 
 const props = defineProps<{
   item: ExtensionRow
@@ -153,14 +156,14 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 }
 
 .plugin-card:hover {
-  border-color: rgba(59, 130, 246, 0.35);
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
   background: var(--bg-elevated);
 }
 
 .plugin-card.selected {
   border-color: var(--primary);
-  background: rgba(59, 130, 246, 0.08);
-  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
 
@@ -209,7 +212,7 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 
 .status-dot.enabled {
   background: var(--primary);
-  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--primary) 50%, transparent);
 }
 
 .status-dot.disabled {
@@ -249,7 +252,7 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 
 .type-tag {
   color: var(--primary);
-  background: rgba(59, 130, 246, 0.12);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .code-tag {
@@ -262,7 +265,7 @@ const isUninstallable = computed(() => isUninstallableExtension(props.item))
 .jar-tag {
   color: var(--text-muted);
   background: transparent;
-  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--border-subtle);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   max-width: 160px;
   overflow: hidden;

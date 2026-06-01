@@ -1,7 +1,7 @@
 <template>
   <AstModal
       :confirm-loading="confirmLoading"
-      :confirm-text="'保存配置'"
+      :confirm-text="t.vecStore.form.confirmText"
       :max-width="maxWidth"
       :open="open"
       body-height="75vh"
@@ -16,10 +16,10 @@
       <DatabaseOutlined/>
     </template>
     <template #header-title>
-      {{ mode === 'create' ? '创建向量存储' : '编辑向量存储' }}
+      {{ mode === 'create' ? t.vecStore.form.createTitle : t.vecStore.form.editTitle }}
     </template>
     <template #header-subtitle>
-      管理向量集合配置，定义维度、距离度量和元数据模式
+      {{ t.vecStore.form.subtitle }}
     </template>
     <div class="vec-store-form-shell">
       <div class="form-scroll-area">
@@ -34,69 +34,69 @@
             <div class="form-section">
               <h3 class="section-headline">
                 <IdcardOutlined/>
-                基本配置
+                {{ t.vecStore.form.basicConfig }}
               </h3>
 
               <div class="form-grid">
-                <a-form-item label="集合名称" name="collectionName">
-                  <a-input v-model:value="form.collectionName" placeholder="例如：document_embeddings" size="large"/>
+                <a-form-item :label="t.vecStore.form.collectionName.label" name="collectionName">
+                  <a-input v-model:value="form.collectionName" :placeholder="t.vecStore.form.collectionName.placeholder" size="large"/>
                 </a-form-item>
 
-                <a-form-item label="向量维度" name="dimension">
+                <a-form-item :label="t.vecStore.form.dimension.label" name="dimension">
                   <a-select
                       v-model:value="form.dimension"
                       :filter-option="filterDimensionOption"
                       :options="dimensionOptions"
                       allow-clear
-                      placeholder="选择或输入维度"
+                      :placeholder="t.vecStore.form.dimension.placeholder"
                       show-search
                       size="large"
                       style="width: 100%"
                   />
                   <div v-if="form.modelKey && form.dimension" class="dimension-hint">
-                    由模型 <b>{{ form.modelKey }}</b> 推荐（{{ form.dimension }} 维），可手动覆盖
+                    {{ t.vecStore.form.dimensionHint.replace('{model}', form.modelKey).replace('{dim}', String(form.dimension)) }}
                   </div>
                 </a-form-item>
 
-                <a-form-item label="距离度量" name="distanceMetric">
+                <a-form-item :label="t.vecStore.form.distanceMetric.label" name="distanceMetric">
                   <a-select v-model:value="form.distanceMetric" size="large">
-                    <a-select-option value="cosine">余弦相似度 (cosine)</a-select-option>
-                    <a-select-option value="euclidean">欧氏距离 (euclidean)</a-select-option>
-                    <a-select-option value="manhattan">曼哈顿距离 (manhattan)</a-select-option>
+                    <a-select-option value="cosine">{{ t.vecStore.form.cosine }}</a-select-option>
+                    <a-select-option value="euclidean">{{ t.vecStore.form.euclidean }}</a-select-option>
+                    <a-select-option value="manhattan">{{ t.vecStore.form.manhattan }}</a-select-option>
                   </a-select>
                 </a-form-item>
 
-                <a-form-item label="Embedding 模型" name="modelKey">
+                <a-form-item :label="t.vecStore.form.modelKey.label" name="modelKey">
                   <a-space class="w-full">
                     <a-input
                         :value="selectedModelDisplay"
                         disabled
-                        placeholder="请选择 Embedding 模型"
+                        :placeholder="t.vecStore.form.modelKey.placeholder"
                         size="large"
                         style="flex: 1"
                     />
                     <a-button size="large" type="primary" @click="modelSelectorOpen = true">
-                      选择实例
+                      {{ t.vecStore.form.modelKey.selectBtn }}
                     </a-button>
                   </a-space>
                 </a-form-item>
 
-                <a-form-item label="关联账号" name="accountKey">
+                <a-form-item :label="t.vecStore.form.accountKey.label" name="accountKey">
                   <a-space class="w-full">
                     <a-input
                         :value="form.accountKey || ''"
                         disabled
-                        placeholder="请选择关联账号"
+                        :placeholder="t.vecStore.form.accountKey.placeholder"
                         size="large"
                         style="flex: 1"
                     />
                     <a-button size="large" type="primary" @click="accountSelectorOpen = true">
-                      选择账号
+                      {{ t.vecStore.form.accountKey.selectBtn }}
                     </a-button>
                   </a-space>
                 </a-form-item>
 
-                <a-form-item class="span-2" label="元数据模式 (JSON)" name="metadataSchema">
+                <a-form-item :label="t.vecStore.form.metadataSchema.label" class="span-2" name="metadataSchema">
                   <div class="json-editor-wrapper">
                     <a-textarea
                         v-model:value="form.metadataSchema"
@@ -112,42 +112,42 @@
             <div class="form-section">
               <h3 class="section-headline">
                 <ScissorOutlined/>
-                切片与向量化配置
+                {{ t.vecStore.form.chunkConfig }}
               </h3>
 
               <div class="form-grid">
-                <a-form-item label="切片策略" name="chunkStrategy">
+                <a-form-item :label="t.vecStore.form.chunkStrategy.label" name="chunkStrategy">
                   <a-select v-model:value="form.chunkStrategy" size="large">
-                    <a-select-option value="RECURSIVE">递归分割（默认）</a-select-option>
-                    <a-select-option value="FIXED_SIZE">固定大小</a-select-option>
-                    <a-select-option value="PARAGRAPH">按段落</a-select-option>
-                    <a-select-option value="SENTENCE">按句子</a-select-option>
+                    <a-select-option value="RECURSIVE">{{ t.vecStore.form.chunkRecursive }}</a-select-option>
+                    <a-select-option value="FIXED_SIZE">{{ t.vecStore.form.chunkFixedSize }}</a-select-option>
+                    <a-select-option value="PARAGRAPH">{{ t.vecStore.form.chunkParagraph }}</a-select-option>
+                    <a-select-option value="SENTENCE">{{ t.vecStore.form.chunkSentence }}</a-select-option>
                   </a-select>
                 </a-form-item>
 
-                <a-form-item label="切片大小（字符数）" name="chunkSize">
+                <a-form-item :label="t.vecStore.form.chunkSize.label" name="chunkSize">
                   <a-input-number
                       v-model:value="form.chunkSize"
                       :max="4000"
                       :min="100"
-                      placeholder="默认 800"
+                      :placeholder="t.vecStore.form.chunkSize.placeholder"
                       size="large"
                       style="width: 100%"
                   />
                 </a-form-item>
 
-                <a-form-item label="重叠范围（字符数）" name="chunkOverlap">
+                <a-form-item :label="t.vecStore.form.chunkOverlap.label" name="chunkOverlap">
                   <a-input-number
                       v-model:value="form.chunkOverlap"
                       :max="500"
                       :min="0"
-                      placeholder="默认 100"
+                      :placeholder="t.vecStore.form.chunkOverlap.placeholder"
                       size="large"
                       style="width: 100%"
                   />
                 </a-form-item>
 
-                <a-form-item label="稠密权重" name="denseWeight">
+                <a-form-item :label="t.vecStore.form.denseWeight.label" name="denseWeight">
                   <a-slider
                       v-model:value="form.denseWeight"
                       :max="1"
@@ -155,16 +155,16 @@
                       :step="0.05"
                       :tooltip-formatter="(v: any) => Number(v).toFixed(2)"
                   />
-                  <div class="dimension-hint">混合检索时稠密向量的权重（0~1），当前暂存值</div>
+                  <div class="dimension-hint">{{ t.vecStore.form.denseWeight.hint }}</div>
                 </a-form-item>
 
-                <a-form-item class="span-2" label="指令前缀" name="instructionPrefix">
+                <a-form-item :label="t.vecStore.form.instructionPrefix.label" class="span-2" name="instructionPrefix">
                   <a-input
                       v-model:value="form.instructionPrefix"
-                      placeholder="可选，如 BGE 模型的 query 前缀：为这个句子生成表示以用于检索中文文档"
+                      :placeholder="t.vecStore.form.instructionPrefix.placeholder"
                       size="large"
                   />
-                  <div class="dimension-hint">嵌入时添加到文本前的指令，部分模型（如 BGE、Instructor）需要</div>
+                  <div class="dimension-hint">{{ t.vecStore.form.instructionPrefix.hint }}</div>
                 </a-form-item>
               </div>
             </div>
@@ -173,7 +173,7 @@
 
         <div class="modal-footer-info">
           <SafetyCertificateOutlined/>
-          数据安全加密存储
+          {{ t.vecStore.form.securityInfo }}
         </div>
       </div>
     </div>
@@ -202,6 +202,9 @@ import ModelSelectorDrawer from '@/views/admin/ai-config/ai-model/selector/Model
 import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
 import type {AiModel} from '@/api/aiModel'
 import type {AiAccount} from '@/api/aiAccount'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{
   mode: 'create' | 'edit',
@@ -221,17 +224,17 @@ const modelSelectorOpen = ref(false)
 const accountSelectorOpen = ref(false)
 const selectedModelName = ref('')
 
-const dimensionOptions = [
-  {value: 256, label: '256 — 轻量级，适合简单检索'},
-  {value: 512, label: '512 — 紧凑型，平衡性能与精度'},
-  {value: 768, label: '768 — 常用基线（BGE / text-embedding-ada）'},
-  {value: 1024, label: '1024 — 中高维度，语义表达更丰富'},
-  {value: 1536, label: '1536 — 主流高维（OpenAI text-embedding-3）'},
-  {value: 2048, label: '2048 — 高精度场景'},
-  {value: 3072, label: '3072 — 超高精度，适合专业语义匹配'},
-  {value: 4096, label: '4096 — 最大常用档位'},
-  {value: 8192, label: '8192 — 极限维度，计算成本极高'}
-]
+const dimensionOptions = computed(() => [
+  {value: 256, label: t.value.vecStore.form.dimLabels[256]},
+  {value: 512, label: t.value.vecStore.form.dimLabels[512]},
+  {value: 768, label: t.value.vecStore.form.dimLabels[768]},
+  {value: 1024, label: t.value.vecStore.form.dimLabels[1024]},
+  {value: 1536, label: t.value.vecStore.form.dimLabels[1536]},
+  {value: 2048, label: t.value.vecStore.form.dimLabels[2048]},
+  {value: 3072, label: t.value.vecStore.form.dimLabels[3072]},
+  {value: 4096, label: t.value.vecStore.form.dimLabels[4096]},
+  {value: 8192, label: t.value.vecStore.form.dimLabels[8192]},
+])
 
 function filterDimensionOption(input: string, option: { value: number; label: string }) {
   return String(option.value).includes(input) || option.label.toLowerCase().includes(input.toLowerCase())
@@ -256,12 +259,12 @@ function emptyForm(): AiVecStore {
 
 const form = reactive<AiVecStore>(emptyForm())
 
-const rules = {
-  collectionName: [{required: true, message: '请输入集合名称'}],
-  dimension: [{required: true, message: '请选择或输入向量维度'}],
-  distanceMetric: [{required: true, message: '请选择距离度量'}],
-  modelKey: [{required: true, message: '请选择 Embedding 模型'}]
-}
+const rules = computed(() => ({
+  collectionName: [{required: true, message: t.value.vecStore.form.validation.collectionNameRequired}],
+  dimension: [{required: true, message: t.value.vecStore.form.validation.dimensionRequired}],
+  distanceMetric: [{required: true, message: t.value.vecStore.form.validation.distanceMetricRequired}],
+  modelKey: [{required: true, message: t.value.vecStore.form.validation.modelKeyRequired}]
+}))
 
 const selectedModelDisplay = computed(() => {
   if (!form.modelKey) return ''
@@ -415,7 +418,7 @@ async function handleOk() {
 
 .json-editor-wrapper:focus-within {
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
 .mono-text {

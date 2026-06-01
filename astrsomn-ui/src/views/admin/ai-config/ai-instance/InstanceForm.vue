@@ -1,7 +1,7 @@
 <template>
   <AstModal
       :confirm-loading="submitting"
-      :confirm-text="'保存预设'"
+      :confirm-text="t.form.saveButton"
       :max-width="maxWidth"
       :open="visible"
       body-height="90vh"
@@ -16,10 +16,10 @@
       <ThunderboltFilled/>
     </template>
     <template #header-title>
-      {{ isEdit ? '编辑推理预设' : '新建推理预设' }}
+      {{ isEdit ? t.form.editTitle : t.form.createTitle }}
     </template>
     <template #header-subtitle>
-      配置 Astrsomn 核心引擎的运行策略与端点映射
+      {{ t.form.subtitle }}
     </template>
     <div class="instance-form-shell">
       <div class="main-content">
@@ -97,6 +97,9 @@ import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts';
 import {type AiModel, aiModelApi} from '@/api/aiModel';
 import {type AiInstance, aiInstanceApi} from '@/api/aiInstance';
 import {getTempInfo, useInstanceParamVisibility} from './useInstanceParamVisibility';
+import {usePageTranslation} from '@/locales/pages.ts';
+
+const t = usePageTranslation('ai-instance')
 
 interface Props {
   visible: boolean;
@@ -121,11 +124,11 @@ const searchQuery = ref('');
 const typeFilter = ref('all');
 
 const providerFilter = ref<string | undefined>(undefined);
-const pageSizeOptions = [
-  {label: '每页 12', value: 12},
-  {label: '每页 24', value: 24},
-  {label: '每页 36', value: 36}
-];
+const pageSizeOptions = computed(() => [
+  {label: t.value.form.pageSizeOption.perPage12, value: 12},
+  {label: t.value.form.pageSizeOption.perPage24, value: 24},
+  {label: t.value.form.pageSizeOption.perPage36, value: 36}
+]);
 const modelPager = reactive({
   pageNo: 1,
   pageSize: 12,
@@ -138,10 +141,10 @@ function providerAvatarCell(record: AiModel): string {
   return typeof raw === 'string' && raw.trim() ? raw.trim() : '';
 }
 
-function modelTypeLabel(t?: string) {
-  if (t === 'embedding') return '向量';
-  if (t === 'image') return '图像';
-  return '对话';
+function modelTypeLabel(t2?: string) {
+  if (t2 === 'embedding') return t.value.modelType.embedding;
+  if (t2 === 'image') return t.value.modelType.image;
+  return t.value.modelType.chat;
 }
 
 async function onProviderFilterChange(v: string | undefined) {
@@ -249,7 +252,7 @@ const instanceKeyRules = [
       if (value == null || String(value).trim() === '') return Promise.resolve();
       return /^[a-zA-Z0-9_-]+$/.test(String(value).trim())
           ? Promise.resolve()
-          : Promise.reject('仅字母、数字、下划线、连字符');
+          : Promise.reject(t.value.form.validation.instanceKeyRule);
     }
   }
 ];
@@ -319,18 +322,18 @@ const onAccountSelect = (account: any) => {
 };
 
 const onSubmit = async () => {
-  if (!String(form.instanceName || '').trim()) return message.warning('请输入名称');
-  if (!String(form.instanceKey || '').trim()) return message.warning('请输入实例标识');
-  if (!String(form.accountKey || '').trim()) return message.warning('请选择关联账号');
+  if (!String(form.instanceName || '').trim()) return message.warning(t.value.form.validation.nameRequired);
+  if (!String(form.instanceKey || '').trim()) return message.warning(t.value.form.validation.instanceKeyRequired);
+  if (!String(form.accountKey || '').trim()) return message.warning(t.value.form.validation.accountKeyRequired);
   if (form.instanceKey && !/^[a-zA-Z0-9_-]+$/.test(String(form.instanceKey).trim())) {
-    return message.warning('实例标识仅支持字母、数字、下划线、连字符');
+    return message.warning(t.value.form.validation.instanceKeyPattern);
   }
-  if (!form.modelKey) return message.warning('请先选择一个模型端点');
+  if (!form.modelKey) return message.warning(t.value.form.validation.modelRequired);
   submitting.value = true;
   try {
     const api = isEdit.value ? aiInstanceApi.update : aiInstanceApi.create;
     await api(form);
-    message.success('预设配置已同步至 Astrsomn 引擎');
+    message.success(t.value.form.saveSuccess);
     emit('success');
     emit('update:visible', false);
   } finally {
@@ -405,7 +408,7 @@ watch(typeFilter, () => {
 .main-content {
   flex: 1;
   display: flex;
-  background: #f8fafc;
+  background: var(--bg-secondary);
   min-height: 0;
   gap: 0;
   align-items: stretch;

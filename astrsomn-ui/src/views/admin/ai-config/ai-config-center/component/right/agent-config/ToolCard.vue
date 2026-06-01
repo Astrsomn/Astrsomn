@@ -5,7 +5,7 @@
         <div class="icon-badge">
           <ToolOutlined/>
         </div>
-        <h3 class="card-title">扩展插件 (Tools)</h3>
+        <h3 class="card-title">{{ t.agent.extensionToolsLabel }}</h3>
       </div>
       <button class="add-btn" @click.stop="drawerOpen = true">
         <PlusOutlined/>
@@ -17,7 +17,7 @@
         <span class="tool-name">{{ t.toolName || t.toolKey }}</span>
         <CloseOutlined class="tool-close" @click.stop="emit('remove', t.toolKey!)"/>
       </div>
-      <div v-if="!tools.length" class="empty-hint">暂未绑定工具</div>
+      <div v-if="!tools.length" class="empty-hint">{{ t.agent.noToolsBound }}</div>
     </div>
 
     <ToolSelectorDrawer
@@ -35,6 +35,7 @@ import {computed, ref} from 'vue'
 import {CloseOutlined, PlusOutlined, ToolOutlined} from '@ant-design/icons-vue'
 import {type AiTool} from '@/api/aiTool.ts'
 import ToolSelectorDrawer from '@/views/admin/ai-config/ai-tool/selector/ToolSelectorDrawer.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const props = defineProps<{
   tools: AiTool[]
@@ -44,6 +45,8 @@ const emit = defineEmits<{
   (e: 'add', tool: AiTool): void
   (e: 'remove', toolKey: string): void
 }>()
+
+const t = usePageTranslation('ai-config-center')
 
 const drawerOpen = ref(false)
 
@@ -65,8 +68,8 @@ const selectedToolKeys = computed(() =>
 }
 
 .tool-card:hover {
-  border-color: var(--ab-hover-line, #3b82f6);
-  box-shadow: var(--ab-hover-shadow, 0 0 15px rgba(59, 130, 246, 0.15));
+  border-color: var(--primary);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
 .card-header {
@@ -85,12 +88,12 @@ const selectedToolKeys = computed(() =>
 .icon-badge {
   width: 32px;
   height: 32px;
-  background: #dbeafe;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2563eb;
+  color: var(--primary);
 }
 
 .icon-badge .anticon {
@@ -107,9 +110,9 @@ const selectedToolKeys = computed(() =>
 .add-btn {
   width: 28px;
   height: 28px;
-  background: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #bfdbfe;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -119,8 +122,8 @@ const selectedToolKeys = computed(() =>
 }
 
 .add-btn:hover {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  color: var(--primary);
 }
 
 .add-btn .anticon {
@@ -136,9 +139,9 @@ const selectedToolKeys = computed(() =>
 
 .tool-tag {
   padding: 4px 8px;
-  background: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #bfdbfe;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -163,7 +166,7 @@ const selectedToolKeys = computed(() =>
 }
 
 .tool-close:hover {
-  color: #ef4444;
+  color: var(--error);
 }
 
 .empty-hint {

@@ -2,7 +2,7 @@
   <div class="right-bottom-container">
     <div class="list-header">
       <div class="header-info">
-        <h2 class="list-title">切片列表</h2>
+        <h2 class="list-title">{{ t.vectorCenter.rightBottom.segmentList }}</h2>
         <p class="list-subtitle">doc={{ docId || '-' }} / store={{ storeId || '-' }}</p>
       </div>
       <AstegmentedButton :buttons="toolbarButtons"/>
@@ -11,17 +11,17 @@
     <AstSearchInput
         v-model="keyword"
         layout="fluid"
-        placeholder="搜索切片内容..."
+        :placeholder="t.vectorCenter.rightBottom.searchPlaceholder"
         class="segment-search"
     />
 
     <AstDataView
-        :columns="segmentColumns"
+        :columns="columns"
         :data-source="filteredSegments"
         :loading="loading"
         :row-selection="rowSelection"
         :scroll="{ x: 1000 }"
-        empty-text="暂无切片数据"
+        :empty-text="t.vectorCenter.rightBottom.emptyText"
         mode="table"
         row-key="id"
         dense
@@ -31,15 +31,15 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'segmentContent'">
           <a-typography-paragraph :content="record.segmentContent || '-'"
-                                  :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }"/>
+                                  :ellipsis="{ rows: 2, expandable: true, symbol: t.vectorCenter.rightBottom.expand }"/>
         </template>
         <template v-else-if="column.key === 'status'">
-          <a-tag v-if="record.vectorId" color="green">已向量化</a-tag>
-          <a-tag v-else color="default">待向量化</a-tag>
+          <a-tag v-if="record.vectorId" color="green">{{ t.vectorCenter.rightBottom.vectorized }}</a-tag>
+          <a-tag v-else color="default">{{ t.vectorCenter.rightBottom.pendingVectorize }}</a-tag>
         </template>
         <template v-else-if="column.key === 'metadataJson'">
           <a-typography-paragraph :content="record.metadataJson || '-'"
-                                  :ellipsis="{ rows: 2, expandable: true, symbol: '展开' }"/>
+                                  :ellipsis="{ rows: 2, expandable: true, symbol: t.vectorCenter.rightBottom.expand }"/>
         </template>
         <template v-else-if="column.key === 'actions'">
           <a-space>
@@ -47,10 +47,10 @@
               <template #icon>
                 <experiment-outlined/>
               </template>
-              {{ record.vectorId ? '重新向量化' : '向量化' }}
+              {{ record.vectorId ? t.vectorCenter.rightBottom.reVectorize : t.vectorCenter.rightBottom.vectorize }}
             </a-button>
-            <a-popconfirm title="确定删除该切片？" @confirm="removeSegment(record)">
-              <a-button danger size="small" type="link">删除</a-button>
+            <a-popconfirm :title="t.vectorCenter.rightBottom.confirmDelete" @confirm="removeSegment(record)">
+              <a-button danger size="small" type="link">{{ t.vectorCenter.rightBottom.deleteBtn }}</a-button>
             </a-popconfirm>
           </a-space>
         </template>
@@ -76,21 +76,22 @@ import AstegmentedButton, {type SegmentedButton} from '@/components/home/Astegme
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type AiVecSegment, aiVecSegmentApi} from '@/api/aiVecSegment'
 import {aiVecDocApi} from '@/api/aiVecDoc'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{
   storeId?: number | string
   docId?: number | string
 }>()
 
-const segmentColumns = [
-  {title: 'chunk', dataIndex: 'chunkIndex', width: 70},
-  {title: '内容', dataIndex: 'segmentContent', key: 'segmentContent'},
-  {title: '状态', key: 'status', width: 100},
-  {title: '词数', dataIndex: 'wordCount', width: 80},
-
-  {title: '元数据', dataIndex: 'metadataJson', key: 'metadataJson', width: 200},
-  {title: '操作', key: 'actions', width: 160, fixed: 'right'}
-]
+const columns = computed(() => [
+  {title: t.value.vectorCenter.rightBottom.column.content, dataIndex: 'segmentContent', key: 'segmentContent'},
+  {title: t.value.vectorCenter.rightBottom.column.status, key: 'status', width: 100},
+  {title: t.value.vectorCenter.rightBottom.column.wordCount, dataIndex: 'wordCount', width: 80},
+  {title: t.value.vectorCenter.rightBottom.column.metadata, dataIndex: 'metadataJson', key: 'metadataJson', width: 200},
+  {title: t.value.vectorCenter.rightBottom.column.actions, key: 'actions', width: 160, fixed: 'right' as const}
+])
 
 const loading = ref(false)
 const keyword = ref('')
@@ -117,7 +118,7 @@ const rowSelection = computed(() => ({
 
 const toolbarButtons = computed<SegmentedButton[]>(() => [
   {
-    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    label: selectedRowKeys.value.length > 0 ? t.value.vectorCenter.rightBottom.deleteCount.replace('{count}', String(selectedRowKeys.value.length)) : t.value.vectorCenter.rightBottom.deleteBtn,
     icon: DeleteOutlined,
     type: 'danger',
     plain: true,
@@ -125,7 +126,7 @@ const toolbarButtons = computed<SegmentedButton[]>(() => [
     onClick: handleBatchDelete
   },
   {
-    label: '向量化',
+    label: t.value.vectorCenter.rightBottom.vectorize,
     icon: ExperimentOutlined,
     type: 'primary',
     plain: true,
@@ -177,7 +178,7 @@ watch(
 const removeSegment = async (record: AiVecSegment) => {
   if (record.id == null) return
   await aiVecSegmentApi.delete([record.id])
-  message.success('切片删除成功')
+  message.success(t.value.vectorCenter.rightBottom.deleteSegmentSuccess)
   selectedRowKeys.value = selectedRowKeys.value.filter(k => k !== record.id)
   await fetchSegmentRows()
 }
@@ -186,11 +187,11 @@ const handleBatchDelete = () => {
   const n = selectedRowKeys.value.length
   if (n === 0) return
   Modal.confirm({
-    title: `确定删除选中的 ${n} 个切片吗？`,
+    title: t.value.vectorCenter.rightBottom.confirmBatchDelete.replace('{n}', String(n)),
     okButtonProps: {danger: true},
     async onOk() {
       await aiVecSegmentApi.delete([...selectedRowKeys.value])
-      message.success(`已删除 ${n} 个切片`)
+      message.success(t.value.vectorCenter.rightBottom.batchDeleted.replace('{n}', String(n)))
       selectedRowKeys.value = []
       await fetchSegmentRows()
     }
@@ -199,16 +200,16 @@ const handleBatchDelete = () => {
 
 const handleVectorizeSegment = async (record: AiVecSegment) => {
   if (record.id == null) {
-    message.warning('无法获取切片ID')
+    message.warning(t.value.vectorCenter.rightBottom.cannotGetSegmentId)
     return
   }
   const isRe = !!record.vectorId
   Modal.confirm({
-    title: isRe ? '确认重新向量化' : '确认向量化',
-    content: isRe ? '将对该切片重新生成向量并更新向量库。' : '将对该切片生成向量并写入向量库。',
+    title: isRe ? t.value.vectorCenter.rightBottom.confirmReVectorize : t.value.vectorCenter.rightBottom.confirmVectorize,
+    content: isRe ? t.value.vectorCenter.rightBottom.reVectorizeContent : t.value.vectorCenter.rightBottom.vectorizeContent,
     async onOk() {
       await aiVecSegmentApi.vectorize(record.id!)
-      message.success('切片向量化完成')
+      message.success(t.value.vectorCenter.rightBottom.vectorizeComplete)
       await fetchSegmentRows()
     }
   })
@@ -217,11 +218,11 @@ const handleVectorizeSegment = async (record: AiVecSegment) => {
 const handleVectorizeAll = () => {
   if (!props.docId) return
   Modal.confirm({
-    title: '确认执行向量化',
-    content: `将对当前文档的所有切片执行向量化并写入向量库。`,
+    title: t.value.vectorCenter.rightBottom.confirmBatchVectorize,
+    content: t.value.vectorCenter.rightBottom.batchVectorizeContent,
     async onOk() {
       await aiVecDocApi.vectorize(props.docId!)
-      message.success('向量化任务已提交')
+      message.success(t.value.vectorCenter.rightBottom.vectorizeSubmitted)
     }
   })
 }

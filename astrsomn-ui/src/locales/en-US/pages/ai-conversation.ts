@@ -1,0 +1,36 @@
+export const aiConversationTranslation = {
+  list: {
+    emptyText: 'No conversation records.',
+    searchButton: 'Search',
+    searchPlaceholder: 'Search Memory Key',
+    statusAll: 'All',
+    statusEnabled: 'Enabled',
+    statusDisabled: 'Disabled',
+    batchDelete: 'Batch Delete',
+    batchDeleteConfirm: 'Are you sure you want to delete the selected {n} conversation groups?',
+    reset: 'Reset',
+    fetchDetailFailed: 'Failed to fetch conversation details',
+  },
+  detail: {
+    title: 'Conversation Details',
+    createTime: 'Created At',
+    status: 'Status',
+    statusEnabled: 'Enabled',
+    statusDisabled: 'Disabled',
+    emptyContent: 'No conversation content',
+    emptyDetail: 'Select a conversation group to view details',
+  },
+  card: {
+    recover: 'Recover',
+    delete: 'Delete',
+    conversationCount: '{n} conversations',
+    noContent: 'No content',
+    keyCopied: 'Memory Key copied',
+    copyFailed: 'Copy failed',
+    deleteConfirmTitle: 'Delete this conversation?',
+    deleteConfirmContent: 'This action cannot be undone',
+  },
+  panel: {
+    summaryText: '{total} conversation groups on this page, {selected} selected.',
+  },
+}

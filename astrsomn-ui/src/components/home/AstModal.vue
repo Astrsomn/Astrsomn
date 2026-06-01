@@ -207,8 +207,8 @@ function handleClose() {
   color: #fff;
   font-size: 22px;
   flex-shrink: 0;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset,
-  0 2px 6px rgba(29, 78, 216, 0.35);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--bg-surface) 20%, transparent) inset,
+  0 2px 6px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
 .fsm-title-group {
@@ -254,7 +254,7 @@ function handleClose() {
 
 .fsm-close-btn:hover {
   color: var(--text-primary, #0f172a);
-  background: rgba(0, 0, 0, 0.04);
+  background: color-mix(in srgb, var(--shadow-color, #000) 4%, transparent);
 }
 
 .fsm-main {

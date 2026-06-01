@@ -2,7 +2,7 @@
   <AstModal
       :body-height="'80vh'"
       :confirm-loading="confirmLoading"
-      :confirm-text="'保存模板'"
+      :confirm-text="t.form.confirmText"
       :open="open"
       width="80vw"
       @confirm="handleOk"
@@ -14,10 +14,10 @@
       </div>
     </template>
     <template #header-title>
-      <span class="main-title">{{ mode === 'create' ? '新增 FTL/ST 模板' : '编辑 FTL/ST 模板' }}</span>
+      <span class="main-title">{{ mode === 'create' ? t.form.createTitle : t.form.editTitle }}</span>
     </template>
     <template #header-subtitle>
-      <span class="sub-title">配置模板的基本信息和代码内容</span>
+      <span class="sub-title">{{ t.form.subtitle }}</span>
     </template>
     <div class="main-content">
       <section class="info-pane">
@@ -30,45 +30,45 @@
               layout="vertical"
           >
             <div class="form-grid">
-              <a-form-item label="Template Key" name="templateKey">
+              <a-form-item :label="t.form.templateKeyLabel" name="templateKey">
                 <a-input
                     v-model:value="form.templateKey"
                     :disabled="mode === 'edit'"
-                    placeholder="同一逻辑多版本共用的 Key"
+                    :placeholder="t.form.templateKeyPlaceholder"
                     size="large"
                 />
               </a-form-item>
 
-              <a-form-item label="标题" name="templateTitle">
-                <a-input v-model:value="form.templateTitle" placeholder="展示名称" size="large"/>
+              <a-form-item :label="t.form.templateTitleLabel" name="templateTitle">
+                <a-input v-model:value="form.templateTitle" :placeholder="t.form.templateTitlePlaceholder" size="large"/>
               </a-form-item>
 
-              <a-form-item label="分类" name="category">
-                <a-input v-model:value="form.category" allow-clear placeholder="可选" size="large"/>
+              <a-form-item :label="t.form.categoryLabel" name="category">
+                <a-input v-model:value="form.category" allow-clear :placeholder="t.form.categoryPlaceholder" size="large"/>
               </a-form-item>
 
-              <a-form-item label="模板类型" name="templateType">
+              <a-form-item :label="t.form.templateTypeLabel" name="templateType">
                 <a-select
                     v-model:value="form.templateType"
                     :options="templateTypeOptions"
-                    placeholder="选择引擎"
+                    :placeholder="t.form.templateTypePlaceholder"
                     size="large"
                 />
               </a-form-item>
 
-              <a-form-item label="版本号" name="version">
+              <a-form-item :label="t.form.versionLabel" name="version">
                 <a-input-number
                     v-model:value="form.version"
                     :disabled="true"
                     :min="1"
                     :precision="0"
                     class="w-full"
-                    placeholder="默认 1"
+                    :placeholder="t.form.versionPlaceholder"
                     size="large"
                 />
               </a-form-item>
 
-              <a-form-item label="状态" name="status">
+              <a-form-item :label="t.form.statusLabel" name="status">
                 <a-select v-model:value="form.status" :options="statusOptions" size="large"/>
               </a-form-item>
             </div>
@@ -81,11 +81,11 @@
           <div class="editor-shell">
             <div class="editor-toolbar">
               <span class="editor-title">
-                {{ form.templateType === 'FREEMARKER' ? 'FTL Code Editor' : 'Template Code Editor' }}
+                {{ form.templateType === 'FREEMARKER' ? t.form.editorTitleFtl : t.form.editorTitleSt }}
               </span>
               <span class="editor-hint">
                 {{
-                  form.templateType === 'FREEMARKER' ? '使用专用代码编辑框编辑 .ftl 模板' : '编辑 StringTemplate 正文'
+                  form.templateType === 'FREEMARKER' ? t.form.editorHintFtl : t.form.editorHintSt
                 }}
               </span>
             </div>
@@ -113,6 +113,9 @@ import {oneDark} from '@codemirror/theme-one-dark'
 import {CodeOutlined} from '@ant-design/icons-vue'
 import AstModal from '@/components/home/AstModal.vue'
 import type {AiTemplate} from '@/api/aiTemplate.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-template')
 
 const props = defineProps<{
   mode: 'create' | 'edit'
@@ -128,15 +131,15 @@ const open = defineModel<boolean>('open', {required: true})
 
 const formRef = ref<FormInstance | null>(null)
 
-const statusOptions = [
-  {label: '启用', value: 'enabled'},
-  {label: '禁用', value: 'disabled'}
-]
+const statusOptions = computed(() => [
+  {label: t.value.form.status.enabled, value: 'enabled'},
+  {label: t.value.form.status.disabled, value: 'disabled'}
+])
 
-const templateTypeOptions = [
-  {label: 'Freemarker (.ftl)', value: 'FREEMARKER'},
-  {label: 'StringTemplate (.st)', value: 'STRING_TEMPLATE'}
-]
+const templateTypeOptions = computed(() => [
+  {label: t.value.form.templateType.freemarker, value: 'FREEMARKER'},
+  {label: t.value.form.templateType.stringTemplate, value: 'STRING_TEMPLATE'}
+])
 
 function emptyForm(): AiTemplate {
   return {
@@ -152,13 +155,13 @@ function emptyForm(): AiTemplate {
 
 const form = reactive<AiTemplate>(emptyForm())
 
-const rules = {
+const rules = computed(() => ({
   templateKey: [],
-  templateTitle: [{required: true, message: '请输入标题'}],
-  content: [{required: true, message: '请输入模板内容'}],
-  templateType: [{required: true, message: '请选择模板类型'}],
-  status: [{required: true, message: '请选择状态'}]
-}
+  templateTitle: [{required: true, message: t.value.form.validation.templateTitleRequired}],
+  content: [{required: true, message: t.value.form.validation.contentRequired}],
+  templateType: [{required: true, message: t.value.form.validation.templateTypeRequired}],
+  status: [{required: true, message: t.value.form.validation.statusRequired}]
+}))
 
 const editorExtensions = computed(() => {
   if (form.templateType === 'FREEMARKER') {
@@ -215,20 +218,20 @@ async function handleOk() {
   color: #fff;
   font-size: 22px;
   flex-shrink: 0;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset,
-  0 2px 6px rgba(29, 78, 216, 0.35);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--primary) 20%, transparent) inset,
+  0 2px 6px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
 .main-title {
   display: block;
   font-size: 18px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .sub-title {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-tertiary);
 }
 
 
@@ -281,7 +284,7 @@ async function handleOk() {
 
 
 .editor-shell {
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
   background: #0f172a;
@@ -313,7 +316,7 @@ async function handleOk() {
   gap: 12px;
   padding: 10px 12px;
   background: #111827;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid color-mix(in srgb, var(--text-quaternary) 8%, transparent);
   flex-shrink: 0;
 }
 

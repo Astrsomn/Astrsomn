@@ -7,7 +7,7 @@
       <div class="trio-slider"></div>
 
       <div
-          v-for="(option, index) in options"
+          v-for="(option, index) in effectiveOptions"
           :key="option.value"
           :class="{ 'is-active': modelValue === option.value }"
           class="trio-item"
@@ -23,7 +23,9 @@
 <script lang="ts" setup>
 import {computed} from 'vue';
 import {AppstoreOutlined, CheckCircleOutlined, StopOutlined} from '@ant-design/icons-vue';
+import {usePageTranslation} from '@/locales/pages.ts';
 
+const t = usePageTranslation('common')
 
 const props = withDefaults(defineProps<{
   modelValue: string | number | undefined;
@@ -34,23 +36,25 @@ const props = withDefaults(defineProps<{
     icon?: any;
   }>;
 }>(), {
-  options: () => [
-    {label: '全部', value: undefined, color: '#1676fd', icon: AppstoreOutlined},
-    {label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined},
-    {label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined},
-  ]
+  options: () => []
 });
 
 
 const emit = defineEmits(['update:modelValue', 'change']);
 
+const defaultOptions = computed(() => [
+  {label: t.value.statusSwitch.all, value: undefined as string | number | undefined, color: '#1676fd', icon: AppstoreOutlined},
+  {label: t.value.statusSwitch.enabled, value: 'enabled' as string | number | undefined, color: '#10b981', icon: CheckCircleOutlined},
+  {label: t.value.statusSwitch.disabled, value: 'disabled' as string | number | undefined, color: '#f43f5e', icon: StopOutlined},
+])
 
-const options = props.options;
-
+const effectiveOptions = computed(() => {
+  if (props.options && props.options.length > 0) return props.options
+  return defaultOptions.value
+})
 
 const activeIndex = computed(() => {
-  const index = options.findIndex(opt => {
-
+  const index = effectiveOptions.value.findIndex((opt: { value: string | number | undefined }) => {
     if (opt.value === undefined && props.modelValue === undefined) {
       return true;
     }
@@ -59,13 +63,11 @@ const activeIndex = computed(() => {
   return index >= 0 ? index : 0;
 });
 
-
 const activeColor = computed(() => {
-  return options[activeIndex.value]?.color || '#1676fd';
+  return effectiveOptions.value[activeIndex.value]?.color || '#1676fd';
 });
 
-
-const handleSelect = (value: string | number, index: number) => {
+const handleSelect = (value: string | number | undefined) => {
   if (value !== props.modelValue) {
     emit('update:modelValue', value);
     emit('change', value);

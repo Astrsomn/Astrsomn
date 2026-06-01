@@ -5,9 +5,9 @@
         <div class="icon-badge">
           <DatabaseOutlined/>
         </div>
-        <h3 class="card-title">知识库 (RAG)</h3>
+        <h3 class="card-title">{{ t.agent.knowledgeBaseLabel }}</h3>
       </div>
-      <button class="action-btn primary" title="选择知识库" @click.stop="drawerOpen = true">
+      <button class="action-btn primary" :title="t.agent.selectKnowledgeBase" @click.stop="drawerOpen = true">
         <PlusOutlined/>
       </button>
     </div>
@@ -16,7 +16,7 @@
         <span class="kb-name">{{ k }}</span>
         <CloseOutlined class="kb-close" @click.stop="emit('remove', k)"/>
       </div>
-      <div v-if="!knowledgeKeys.length" class="empty-hint">暂未关联知识库</div>
+      <div v-if="!knowledgeKeys.length" class="empty-hint">{{ t.agent.noKnowledgeBase }}</div>
     </div>
 
     <VecStoreSelectorDrawer
@@ -33,6 +33,7 @@
 import {ref} from 'vue'
 import {CloseOutlined, DatabaseOutlined, PlusOutlined} from '@ant-design/icons-vue'
 import VecStoreSelectorDrawer from '@/views/admin/ai-vector/vec-store/selector/VecStoreSelectorDrawer.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 defineProps<{
   knowledgeKeys: string[]
@@ -42,6 +43,8 @@ const emit = defineEmits<{
   (e: 'add', kbKey: string, title?: string): void
   (e: 'remove', kbKey: string): void
 }>()
+
+const t = usePageTranslation('ai-config-center')
 
 const drawerOpen = ref(false)
 </script>
@@ -63,8 +66,8 @@ const drawerOpen = ref(false)
 }
 
 .rag-card:hover {
-  border-color: var(--ab-hover-line, #3b82f6);
-  box-shadow: var(--ab-hover-shadow, 0 0 15px rgba(59, 130, 246, 0.15));
+  border-color: var(--primary);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
 .card-header {
@@ -121,14 +124,14 @@ const drawerOpen = ref(false)
 }
 
 .action-btn.primary {
-  background: #10b981;
-  color: #fff;
-  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.35);
+  background: var(--success);
+  color: var(--text-heading);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--success) 35%, transparent);
 }
 
 .action-btn.primary:hover {
-  color: #fff;
-  background: #059669;
+  color: var(--text-heading);
+  background: var(--success);
 }
 
 .action-btn .anticon {
@@ -166,7 +169,7 @@ const drawerOpen = ref(false)
 }
 
 .kb-close:hover {
-  color: #ef4444;
+  color: var(--error);
 }
 
 .empty-hint {

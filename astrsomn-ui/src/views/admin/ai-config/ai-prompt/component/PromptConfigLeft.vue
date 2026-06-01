@@ -1,19 +1,19 @@
 <template>
   <div class="config-side">
-    <a-form-item label="标题" name="promptTitle">
-      <a-input v-model:value="form.promptTitle" placeholder="标题" size="large"/>
+    <a-form-item :label="t.configLeft.titleLabel" name="promptTitle">
+      <a-input v-model:value="form.promptTitle" :placeholder="t.configLeft.titlePlaceholder" size="large"/>
     </a-form-item>
 
-    <a-form-item label="Prompt Key" name="promptKey">
+    <a-form-item :label="t.configLeft.promptKeyLabel" name="promptKey">
       <AstKeyGenerator
           v-model="form.promptKey"
           :prefix="AI_PROMPT_KEY_PREFIX"
-          placeholder="唯一标识（选填）"
+          :placeholder="t.configLeft.promptKeyPlaceholder"
           size="large"
       />
     </a-form-item>
 
-    <a-form-item label="状态" name="status">
+    <a-form-item :label="t.configLeft.statusLabel" name="status">
       <a-segmented
           v-model:value="form.status"
           :options="statusOptions"
@@ -23,14 +23,14 @@
       />
     </a-form-item>
 
-    <a-form-item label="场景" name="scene">
+    <a-form-item :label="t.configLeft.sceneLabel" name="scene">
       <a-select
           v-model:value="form.scene"
           :options="sceneOptions"
           :token-separators="[' ', '\n', '\t']"
           allow-clear
           mode="tags"
-          placeholder="输入后按空格生成标签，可从下拉库多选"
+          :placeholder="t.configLeft.scenePlaceholder"
           size="large"
       />
     </a-form-item>
@@ -38,18 +38,22 @@
 </template>
 
 <script lang="ts" setup>
+import {computed} from 'vue'
 import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import {AI_PROMPT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-prompt')
 
 defineProps<{
   form: Record<string, any>
   sceneOptions?: Array<{ label: string; value: string }>
 }>()
 
-const statusOptions = [
-  {label: '启用', value: 'enabled'},
-  {label: '停用', value: 'disabled'}
-]
+const statusOptions = computed(() => [
+  {label: t.value.configLeft.statusOptions.enabled, value: 'enabled'},
+  {label: t.value.configLeft.statusOptions.disabled, value: 'disabled'}
+])
 </script>
 
 <style scoped>

@@ -4,20 +4,23 @@
       <template #icon>
         <EditOutlined/>
       </template>
-      编辑数据库
+      {{ t.vectorCenter.contextMenu.editDatabase }}
     </a-menu-item>
     <a-menu-divider/>
     <a-menu-item key="delete" class="danger-item">
       <template #icon>
         <DeleteOutlined/>
       </template>
-      删除数据库
+      {{ t.vectorCenter.contextMenu.deleteDatabase }}
     </a-menu-item>
   </a-menu>
 </template>
 
 <script lang="ts" setup>
 import {DeleteOutlined, EditOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const emit = defineEmits<{
   edit: []

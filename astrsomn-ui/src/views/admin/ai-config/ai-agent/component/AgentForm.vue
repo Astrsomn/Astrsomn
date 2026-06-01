@@ -8,10 +8,10 @@
       <ThunderboltFilled/>
     </template>
     <template #header-title>
-      {{ isEdit ? '编辑智能体' : '新建智能体' }}
+      {{ isEdit ? t.form.editTitle : t.form.createTitle }}
     </template>
     <template #header-subtitle>
-      通过拖拽组装模型实例、工具与知识库，定义 Astrsomn 智能体策略
+      {{ t.form.subtitle }}
     </template>
     <template #header-actions>
       <AstegmentedButton :buttons="headerFormSegmentButtons"/>
@@ -80,6 +80,7 @@
 import {computed, onMounted, reactive, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import {CloseOutlined, CloudUploadOutlined, SaveOutlined, ThunderboltFilled,} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import AstModal from '@/components/home/AstModal.vue'
 import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
 import type {AiInstance} from '@/api/aiInstance.ts'
@@ -107,19 +108,21 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits(['update:visible', 'success'])
 
+const t = usePageTranslation('ai-agent')
+
 const loading = ref(false)
 
 const isEdit = computed(() => !!props.recordId)
 
 const headerFormSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '取消',
+    label: t.value.form.cancel,
     icon: CloseOutlined,
     disabled: loading.value,
     onClick: handleCancel,
   },
   {
-    label: isEdit.value ? '保存' : '发布',
+    label: isEdit.value ? t.value.form.save : t.value.form.publish,
     type: 'primary',
     icon: isEdit.value ? SaveOutlined : CloudUploadOutlined,
     loading: loading.value,
@@ -247,7 +250,7 @@ async function loadAll() {
   try {
     await Promise.all([loadChat(), loadImage(), loadTools(), loadMcps(), loadPrompts()])
   } catch {
-    message.error('加载资源失败')
+    message.error(t.value.form.loadResourceFailed)
   }
 }
 
@@ -304,7 +307,7 @@ async function initEditState() {
     const detail = await aiAgentApi.detail(props.recordId)
     applyAgentDetail(detail)
   } catch (e: any) {
-    message.error(e?.message || '加载智能体详情失败')
+    message.error(e?.message || t.value.form.loadDetailFailed)
   } finally {
     loading.value = false
   }
@@ -343,7 +346,7 @@ async function onLeftSearch(modelType: InstanceModelType, _keyword: string) {
     if (modelType === 'chat') await loadChat()
     else await loadImage()
   } catch {
-    message.error('查询失败')
+    message.error(t.value.form.queryFailed)
   }
 }
 
@@ -352,7 +355,7 @@ async function onSearchTool() {
   try {
     await loadTools()
   } catch {
-    message.error('查询工具失败')
+    message.error(t.value.form.queryToolFailed)
   }
 }
 
@@ -361,7 +364,7 @@ async function onSearchMcp() {
   try {
     await loadMcps()
   } catch {
-    message.error('查询 MCP 失败')
+    message.error(t.value.form.queryMcpFailed)
   }
 }
 
@@ -370,7 +373,7 @@ async function onSearchPrompt() {
   try {
     await loadPrompts()
   } catch {
-    message.error('查询 Prompt 失败')
+    message.error(t.value.form.queryPromptFailed)
   }
 }
 
@@ -379,10 +382,10 @@ function onCanvasDrop(p: AssemblyDragPayload) {
     const row = p.data
     if (p.instanceModelType === 'chat') {
       chatInstance.value = {...row}
-      message.success('已装入对话推理预设')
+      message.success(t.value.form.chatInstancePlaced)
     } else {
       imageInstance.value = {...row}
-      message.success('已装入图像推理预设')
+      message.success(t.value.form.imageInstancePlaced)
     }
     return
   }
@@ -390,38 +393,38 @@ function onCanvasDrop(p: AssemblyDragPayload) {
     const key = p.data.toolKey
     if (!key) return
     if (placedTools.value.some((x) => x.toolKey === key)) {
-      message.info('该工具已在列表中')
+      message.info(t.value.form.toolAlreadyExists)
       return
     }
     placedTools.value = [...placedTools.value, {...p.data}]
-    message.success('已添加工具')
+    message.success(t.value.form.toolAdded)
     return
   }
   if (p.kind === 'mcp') {
     const mkey = p.data.mcpKey
     if (!mkey) return
     if (placedMcps.value.some((x) => x.mcpKey === mkey)) {
-      message.info('该 MCP 已在列表中')
+      message.info(t.value.form.mcpAlreadyExists)
       return
     }
     placedMcps.value = [...placedMcps.value, {...p.data}]
-    message.success('已添加 MCP')
+    message.success(t.value.form.mcpAdded)
     return
   }
   if (p.kind === 'knowledgeBase') {
     const kb = p.data.kbKey?.trim()
     if (!kb) return
     if (knowledgeKeys.value.includes(kb)) {
-      message.info('该知识库索引已存在')
+      message.info(t.value.form.knowledgeKeyAlreadyExists)
       return
     }
     knowledgeKeys.value = [...knowledgeKeys.value, kb]
-    message.success('已添加知识库索引')
+    message.success(t.value.form.knowledgeKeyAdded)
     return
   }
   if (p.kind === 'prompt') {
     promptInstance.value = {...p.data}
-    message.success('已添加提示词')
+    message.success(t.value.form.promptAdded)
   }
 }
 
@@ -468,7 +471,7 @@ function handleReset() {
     memoryWindowSize: '10'
   }
   resetPagination()
-  message.info('已重置组装区与列表页码')
+  message.info(t.value.form.resetAssembly)
   void loadAll()
 }
 
@@ -500,16 +503,16 @@ async function handleSubmit() {
         ...(payload as AiAgent),
         id: props.recordId as string | number
       })
-      message.success('智能体已更新')
+      message.success(t.value.form.agentUpdated)
     } else {
       await aiAgentApi.create(payload as AiAgent)
-      message.success('发布成功')
+      message.success(t.value.form.publishSuccess)
       handleReset()
     }
     emit('success')
     emit('update:visible', false)
   } catch (e: any) {
-    message.error(e.message || '发布失败')
+    message.error(e.message || t.value.form.publishFailed)
   } finally {
     loading.value = false
   }

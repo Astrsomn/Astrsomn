@@ -8,7 +8,7 @@
     <template #icon>
       <ApiOutlined />
     </template>
-    <template #title>选择 MCP 服务</template>
+    <template #title>{{ t.selector.title }}</template>
     <template #subtitle>mcp.selector</template>
 
     <div class="select-drawer-content">
@@ -16,7 +16,7 @@
         <AstSearchInput
           v-model="keyword"
           layout="fluid"
-          placeholder="搜索服务名或 MCP Key…"
+          :placeholder="t.selector.searchPlaceholder"
           style="flex: 1"
           @search="handleSearch"
         />
@@ -40,11 +40,11 @@
                 <code class="item-key">{{ item.mcpKey }}</code>
                 <div v-if="item.description" class="item-desc">{{ item.description }}</div>
                 <div class="item-meta">
-                  <span v-if="item.command" class="meta-chip" title="启动命令">
+                  <span v-if="item.command" class="meta-chip" :title="t.selector.startCommand">
                     <CodeOutlined /> {{ item.command }}
                   </span>
                   <span :class="['status-dot', item.enabled === 1 ? 'on' : 'off']"></span>
-                  <span class="status-label">{{ item.enabled === 1 ? '启用' : '停用' }}</span>
+                  <span class="status-label">{{ item.enabled === 1 ? t.selector.statusLabel.enabled : t.selector.statusLabel.disabled }}</span>
                 </div>
               </div>
             </div>
@@ -55,8 +55,8 @@
           </div>
           <div v-if="!list.length && !loading" class="empty-state">
             <div class="empty-icon"><ApiOutlined /></div>
-            <p class="empty-title">未找到匹配的 MCP 服务</p>
-            <p class="empty-hint">尝试调整搜索关键词，或确认服务已注册</p>
+            <p class="empty-title">{{ t.selector.emptyTitle }}</p>
+            <p class="empty-hint">{{ t.selector.emptyHint }}</p>
           </div>
         </div>
       </a-spin>
@@ -78,9 +78,12 @@
 import {computed, reactive, ref, watch} from 'vue'
 import {ApiOutlined, CheckCircleFilled, CodeOutlined} from '@ant-design/icons-vue'
 import {type AiMcp, aiMcpApi} from '@/api/aiMcp.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 import AstDrawer from '@/components/home/AstDrawer.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
+
+const t = usePageTranslation('ai-mcp')
 
 const props = defineProps<{
   open: boolean
@@ -156,7 +159,7 @@ watch(
 
 :deep(.mcp-selector-drawer .header-icon) {
   background: linear-gradient(135deg, #a855f7, #7c3aed);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 4px 12px color-mix(in srgb, #7c3aed 30%, transparent);
 }
 
 
@@ -190,7 +193,7 @@ watch(
 }
 
 .item-list::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
+  background: var(--border-default);
   border-radius: 2px;
 }
 
@@ -201,22 +204,22 @@ watch(
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;
-  background: #fff;
-  border: 1px solid #f0f0f2;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.12s ease;
 }
 
 .item-card:hover {
-  border-color: #c4b5fd;
-  background: #faf9ff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border-default));
+  background: var(--bg-elevated);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--shadow-color, #000) 4%, transparent);
 }
 
 .item-card.selected {
-  border-color: #a78bfa;
-  background: #f5f3ff;
+  border-color: color-mix(in srgb, var(--primary) 60%, var(--border-default));
+  background: var(--bg-elevated);
 }
 
 .item-left {
@@ -254,7 +257,7 @@ watch(
 .item-name {
   font-size: 13px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
   line-height: 1.4;
 }
 
@@ -277,13 +280,13 @@ watch(
   display: block;
   font-size: 11px;
   font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-bottom: 4px;
 }
 
 .item-desc {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-muted);
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -302,8 +305,8 @@ watch(
 .meta-chip {
   font-size: 10px;
   font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-  color: #6b7280;
-  background: #f3f4f6;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
   padding: 2px 7px;
   border-radius: 4px;
   max-width: 200px;
@@ -326,7 +329,7 @@ watch(
 
 .status-label {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 
@@ -338,7 +341,7 @@ watch(
 }
 
 .check-on {
-  color: #7c3aed;
+  color: var(--primary);
   font-size: 18px;
 }
 
@@ -346,7 +349,7 @@ watch(
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-default);
 }
 
 
@@ -360,8 +363,8 @@ watch(
   height: 48px;
   margin: 0 auto 12px;
   border-radius: 12px;
-  background: #f5f3ff;
-  color: #a78bfa;
+  background: var(--bg-elevated);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -371,13 +374,13 @@ watch(
 .empty-title {
   font-size: 13px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 0 0 4px;
 }
 
 .empty-hint {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin: 0;
 }
 </style>

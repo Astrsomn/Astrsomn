@@ -15,8 +15,8 @@
             <FileTextOutlined/>
           </div>
           <div class="text-group">
-            <h2>{{ mode === 'create' ? '添加向量文档' : '编辑向量文档' }}</h2>
-            <p>管理向量知识库中的文档记录，支持文档入库状态追踪</p>
+            <h2>{{ mode === 'create' ? t.vecDoc.form.createTitle : t.vecDoc.form.editTitle }}</h2>
+            <p>{{ t.vecDoc.form.subtitle }}</p>
           </div>
         </div>
       </div>
@@ -33,31 +33,31 @@
         <div class="form-section">
           <h3 class="section-headline">
             <IdcardOutlined/>
-            1. 基础信息
+            {{ t.vecDoc.form.basicInfo }}
           </h3>
 
           <div class="form-grid">
-            <a-form-item label="集合 ID" name="collectionId">
-              <a-input v-model:value="form.collectionId" placeholder="所属向量集合的 ID" size="large"/>
+            <a-form-item :label="t.vecDoc.form.collectionId.label" name="collectionId">
+              <a-input v-model:value="form.collectionId" :placeholder="t.vecDoc.form.collectionId.placeholder" size="large"/>
             </a-form-item>
 
-            <a-form-item label="存储文档 ID" name="docIdInStore">
-              <a-input v-model:value="form.docIdInStore" placeholder="向量库中的唯一标识" size="large"/>
+            <a-form-item :label="t.vecDoc.form.docIdInStore.label" name="docIdInStore">
+              <a-input v-model:value="form.docIdInStore" :placeholder="t.vecDoc.form.docIdInStore.placeholder" size="large"/>
             </a-form-item>
 
-            <a-form-item label="同步状态" name="syncStatus">
-              <a-select v-model:value="form.syncStatus" allow-clear placeholder="选择同步状态" size="large">
-                <a-select-option :value="AiVecDocSyncStatus.PENDING">待向量化</a-select-option>
-                <a-select-option :value="AiVecDocSyncStatus.STORED">已入库</a-select-option>
-                <a-select-option :value="AiVecDocSyncStatus.INVALID">已失效</a-select-option>
+            <a-form-item :label="t.vecDoc.form.syncStatus.label" name="syncStatus">
+              <a-select v-model:value="form.syncStatus" allow-clear :placeholder="t.vecDoc.form.syncStatus.placeholder" size="large">
+                <a-select-option :value="AiVecDocSyncStatus.PENDING">{{ t.vecDoc.form.pending }}</a-select-option>
+                <a-select-option :value="AiVecDocSyncStatus.STORED">{{ t.vecDoc.form.stored }}</a-select-option>
+                <a-select-option :value="AiVecDocSyncStatus.INVALID">{{ t.vecDoc.form.invalid }}</a-select-option>
               </a-select>
             </a-form-item>
 
-            <a-form-item class="span-2" label="内容摘要" name="contentSummary">
+            <a-form-item :label="t.vecDoc.form.contentSummary.label" class="span-2" name="contentSummary">
               <a-textarea
                   v-model:value="form.contentSummary"
                   :auto-size="{ minRows: 3, maxRows: 5 }"
-                  placeholder="文档内容摘要或路径"
+                  :placeholder="t.vecDoc.form.contentSummary.placeholder"
               />
             </a-form-item>
           </div>
@@ -68,17 +68,17 @@
     <div class="modal-footer-action">
       <div class="footer-left">
         <SafetyCertificateOutlined/>
-        文档信息受系统级保护
+        {{ t.vecDoc.form.securityInfo }}
       </div>
       <div class="footer-right">
-        <a-button class="btn-flat" @click="onCancel">取消</a-button>
+        <a-button class="btn-flat" @click="onCancel">{{ t.vecDoc.form.cancel }}</a-button>
         <a-button
             :loading="confirmLoading"
             class="btn-submit"
             type="primary"
             @click="handleOk"
         >
-          保存配置
+          {{ t.vecDoc.form.save }}
         </a-button>
       </div>
     </div>
@@ -86,10 +86,13 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, watch} from 'vue'
+import {computed, reactive, ref, watch} from 'vue'
 import {FileTextOutlined, IdcardOutlined, SafetyCertificateOutlined} from '@ant-design/icons-vue'
 import type {FormInstance} from 'ant-design-vue'
 import {type AiVecDoc, AiVecDocSyncStatus} from '@/api/aiVecDoc.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiVecDoc | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecDoc] }>()
@@ -108,22 +111,20 @@ function emptyForm(): AiVecDoc {
 
 const form = reactive<AiVecDoc>(emptyForm())
 
-const rules = {
-  collectionId: [{required: true, message: '请输入集合 ID'}],
-  docIdInStore: [
-    {
-      validator: async (_rule: unknown, value: string) => {
-        const st = String(form.syncStatus || '').toUpperCase()
-        if (st === AiVecDocSyncStatus.STORED && !String(value || '').trim()) {
-          return Promise.reject(new Error('已入库状态需填写存储文档 ID'))
-        }
-        return Promise.resolve()
+const rules = computed(() => ({
+  collectionId: [{required: true, message: t.value.vecDoc.form.validation.collectionIdRequired}],
+  docIdInStore: [{
+    validator: async (_rule: unknown, value: string) => {
+      const st = String(form.syncStatus || '').toUpperCase()
+      if (st === AiVecDocSyncStatus.STORED && !String(value || '').trim()) {
+        return Promise.reject(new Error(t.value.vecDoc.form.validation.storedDocIdRequired))
       }
+      return Promise.resolve()
     }
-  ],
-  contentSummary: [{required: true, message: '请输入内容摘要'}],
-  syncStatus: [{required: true, message: '请选择同步状态'}]
-}
+  }],
+  contentSummary: [{required: true, message: t.value.vecDoc.form.validation.contentSummaryRequired}],
+  syncStatus: [{required: true, message: t.value.vecDoc.form.validation.syncStatusRequired}]
+}))
 
 function assignFromInitial(src: AiVecDoc) {
   Object.assign(form, emptyForm(), src)
@@ -185,7 +186,7 @@ const onCancel = () => {
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 16px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .text-group h2 {

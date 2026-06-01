@@ -14,8 +14,8 @@
     <template #header-logo>
       <AppstoreOutlined/>
     </template>
-    <template #header-title>插件市场</template>
-    <template #header-subtitle>浏览、安装和管理插件扩展</template>
+    <template #header-title>{{ t.marketplace.title }}</template>
+    <template #header-subtitle>{{ t.marketplace.subtitle }}</template>
     <div class="marketplace-shell">
       <Sidebar
           :selected-menu-keys="selectedMenuKeys"
@@ -36,9 +36,12 @@
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
 import {AppstoreOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import AstModal from '@/components/home/AstModal.vue'
 import ExtensionCenterPage from '@/views/admin/system-config/system-extension/component/ExtensionCenterPage.vue'
 import Sidebar from '@/views/admin/system-config/system-extension/component/Sidebar.vue'
+
+const t = usePageTranslation('system-extension')
 
 type ExtensionPanel = 'marketplace' | 'installed'
 

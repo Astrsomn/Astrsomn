@@ -4,71 +4,71 @@
       :width="560"
       @update:open="emit('update:visible', $event)"
   >
-    <template #title>{{ isEdit ? '编辑账号' : '新建账号' }}</template>
-    <template #subtitle>AI Account 配置</template>
+    <template #title>{{ isEdit ? t.form.titleEdit : t.form.titleCreate }}</template>
+    <template #subtitle>{{ t.form.subtitle }}</template>
 
     <a-spin :spinning="loading">
 
 
       <a-form :model="form" layout="vertical">
-        <a-form-item label="账号 Key" name="accountKey">
+        <a-form-item :label="t.form.labelAccountKey" name="accountKey">
           <AstKeyGenerator
               v-model="form.accountKey"
               :disabled="accountKeyImmutable"
-              :placeholder="accountKeyImmutable ? '' : '系统自动生成'"
+              :placeholder="accountKeyImmutable ? '' : t.form.placeholderAccountKey"
               :prefix="AI_ACCOUNT_KEY_PREFIX"
           />
         </a-form-item>
 
         <a-form-item
-            :rules="[{ required: true, message: '请选择供应商' }]"
-            label="模型供应商"
+            :rules="[{ required: true, message: t.form.validationSelectProvider }]"
+            :label="t.form.labelExtensionCode"
             name="extensionCode"
         >
           <ExtensionSelector
               v-model:value="form.extensionCode"
               :allow-clear="true"
               :only-applied="true"
-              placeholder="请选择供应商"
+              :placeholder="t.form.placeholderExtensionCode"
               size="middle"
           />
         </a-form-item>
-        <a-form-item label="启用状态" name="status">
+        <a-form-item :label="t.form.labelStatus" name="status">
           <a-segmented
               v-model:value="form.status"
-              :options="[{label:'已启用', value:'enabled'}, {label:'已禁用', value:'disabled'}]"
+              :options="statusOptions"
               block
               class="status-segmented"
               size="large"
           />
         </a-form-item>
         <a-form-item
-            :rules="[{ required: true, message: '请定义凭证展示名称' }]"
-            label="展示名称"
+            :rules="[{ required: true, message: t.form.validationAccountName }]"
+            :label="t.form.labelAccountName"
             name="accountName"
         >
-          <a-input v-model:value="form.accountName" allow-clear placeholder="请输入账号名称"/>
+          <a-input v-model:value="form.accountName" allow-clear :placeholder="t.form.placeholderAccountName"/>
         </a-form-item>
 
 
-        <a-form-item label="API URL" name="apiUrl">
+        <a-form-item :label="t.form.labelApiUrl" name="apiUrl">
           <a-input
               v-model:value="form.apiUrl"
               allow-clear
-              placeholder="例如：https://api.openai.com/v1"
+              :placeholder="t.form.placeholderApiUrl"
           />
         </a-form-item>
 
-        <a-form-item label="API Key" name="apiKey">
-          <a-input-password v-model:value="form.apiKey" placeholder="请输入 API Key"/>
+        <a-form-item :label="t.form.labelApiKey" name="apiKey">
+          <a-input-password v-model:value="form.apiKey" :placeholder="t.form.placeholderApiKey"/>
         </a-form-item>
 
-        <a-form-item label="API Secret" name="apiSecret">
-          <a-input-password v-model:value="form.apiSecret" placeholder="请输入 Secret 密钥"/>
+        <a-form-item :label="t.form.labelApiSecret" name="apiSecret">
+          <a-input-password v-model:value="form.apiSecret" :placeholder="t.form.placeholderApiSecret"/>
         </a-form-item>
 
-        <a-form-item label="消耗上限 (Tokens)" name="accountTokens">
-          <a-input-number v-model:value="form.accountTokens" :min="0" class="w-full" placeholder="无限制"/>
+        <a-form-item :label="t.form.labelAccountTokens" name="accountTokens">
+          <a-input-number v-model:value="form.accountTokens" :min="0" class="w-full" :placeholder="t.form.placeholderAccountTokens"/>
         </a-form-item>
 
 
@@ -77,9 +77,9 @@
     </a-spin>
 
     <template #footer>
-      <a-button @click="handleCancel">取消</a-button>
+      <a-button @click="handleCancel">{{ t.form.btnCancel }}</a-button>
       <a-button :loading="submitting" type="primary" @click="onSubmit">
-        {{ isEdit ? '保存' : '创建' }}
+        {{ isEdit ? t.form.btnSubmitSave : t.form.btnSubmitCreate }}
       </a-button>
     </template>
   </AstDrawer>
@@ -93,6 +93,9 @@ import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import {type AiAccount, aiAccountApi} from '@/api/aiAccount.ts'
 import {AI_ACCOUNT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-account')
 
 interface Props {
   visible: boolean
@@ -106,6 +109,11 @@ const loading = ref(false)
 const submitting = ref(false)
 const accountKeyImmutable = ref(false)
 const isEdit = computed(() => !!props.record?.id)
+
+const statusOptions = computed(() => [
+  {label: t.value.form.statusEnabled, value: 'enabled'},
+  {label: t.value.form.statusDisabled, value: 'disabled'}
+])
 
 const form = reactive<AiAccount>({
   accountKey: '',
@@ -131,7 +139,7 @@ const loadDetail = async (id: string | number) => {
     })
     accountKeyImmutable.value = detail.accountKeyImmutable === true
   } catch (e: any) {
-    message.error(e?.message || '详情加载失败')
+    message.error(e?.message || t.value.form.errorLoadDetail)
   } finally {
     loading.value = false
   }
@@ -139,7 +147,7 @@ const loadDetail = async (id: string | number) => {
 
 const onSubmit = async () => {
   if (!form.accountName?.trim()) {
-    message.error('请填写账户名称')
+    message.error(t.value.form.errorAccountNameRequired)
     return
   }
   submitting.value = true
@@ -147,11 +155,11 @@ const onSubmit = async () => {
     const payload = {...form}
     if (!isEdit.value) delete payload.id
     const msg = isEdit.value ? await aiAccountApi.update(payload) : await aiAccountApi.create(payload)
-    message.success(msg || '操作成功')
+    message.success(msg || t.value.form.successOperation)
     emit('update:visible', false)
     emit('success')
   } catch (e: any) {
-    message.error(e?.message || '提交失败')
+    message.error(e?.message || t.value.form.errorSubmit)
   } finally {
     submitting.value = false
   }

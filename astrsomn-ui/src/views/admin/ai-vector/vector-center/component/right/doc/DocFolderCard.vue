@@ -5,10 +5,10 @@
       <div class="inner-content">
 
         <div class="action-group" v-if="!editing">
-          <div class="action-btn" title="重命名" @click.stop="$emit('rename', folder)">
+          <div class="action-btn" :title="t.vectorCenter.docFolderCard.rename" @click.stop="$emit('rename', folder)">
             <edit-outlined/>
           </div>
-          <div class="action-btn delete" title="删除" @click.stop="$emit('delete', folder)">
+          <div class="action-btn delete" :title="t.vectorCenter.docFolderCard.delete" @click.stop="$emit('delete', folder)">
             <delete-outlined/>
           </div>
         </div>
@@ -31,7 +31,7 @@
         </div>
 
         <div class="footer-overlay">
-          <span class="doc-count">{{ folder.docCount ?? 0 }} 个文档</span>
+          <span class="doc-count">{{ t.vectorCenter.docFolderCard.docCount.replace('{count}', String(folder.docCount ?? 0)) }}</span>
         </div>
 
       </div>
@@ -43,6 +43,9 @@
 import {nextTick, ref, watch} from 'vue';
 import {DeleteOutlined, EditOutlined, FolderOutlined} from '@ant-design/icons-vue';
 import type {AiVecFolder} from '@/api/aiVecFolder';
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{
   folder: AiVecFolder;
@@ -109,7 +112,7 @@ const onConfirmRename = (e: KeyboardEvent) => {
   }
 
   &.selected {
-    background: rgba(59, 130, 246, 0.08);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
     border-color: var(--primary) !important;
   }
 
@@ -146,7 +149,7 @@ const onConfirmRename = (e: KeyboardEvent) => {
       align-items: center;
       justify-content: center;
       border-radius: var(--radius-lg);
-      background: rgba(234, 179, 8, 0.15);
+      background: color-mix(in srgb, #fbbf24 15%, transparent);
       font-size: 30px;
       color: #fbbf24;
       transition: transform 0.3s ease;
@@ -263,7 +266,6 @@ const onConfirmRename = (e: KeyboardEvent) => {
     }
   }
 
-  // 大图标模式
   &.size-large {
     .main-body {
       .folder-icon-box {
