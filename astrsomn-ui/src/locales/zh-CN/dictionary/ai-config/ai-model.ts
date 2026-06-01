@@ -25,7 +25,9 @@ const providerLabels = {
     tencent: '腾讯混元',
     deepseek: 'DeepSeek',
     ollama: 'Ollama',
-    qianfan: '百度千帆'
+    qianfan: '百度千帆',
+    xiaomi: '小米',
+    volcengine: '火山引擎'
 } as const;
 
 export const aiModelProviderDictionary = createEnumDictionary({

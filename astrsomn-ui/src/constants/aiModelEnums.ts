@@ -20,7 +20,9 @@ export const AI_MODEL_PROVIDER_ORDER = [
     'tencent',
     'deepseek',
     'ollama',
-    'qianfan'
+    'qianfan',
+    'xiaomi',
+    'volcengine'
 ] as const
 
 export type AiModelExtensionCode = (typeof AI_MODEL_PROVIDER_ORDER)[number]

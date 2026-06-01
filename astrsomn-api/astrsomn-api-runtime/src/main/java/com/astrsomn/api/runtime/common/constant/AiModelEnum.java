@@ -61,7 +61,11 @@ public interface AiModelEnum {
         LOCAL("ollama", "Ollama"),
 
 
-        QIANFAN("qianfan", "Qianfan");
+        QIANFAN("qianfan", "Qianfan"),
+
+        XIAOMI("xiaomi", "Xiaomi"),
+
+        VOLCENGINE("volcengine", "Volcengine");
 
         private final String code;
         private final String desc;
