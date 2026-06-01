@@ -16,13 +16,13 @@
             <DeleteOutlined />
           </div>
           <div class="ems-title-group">
-            <span class="ems-main-title">确认卸载模型</span>
-            <span class="ems-sub-title">{{ extensionLabel || '扩展' }}</span>
+            <span class="ems-main-title">{{ t.unloadDialog.title }}</span>
+            <span class="ems-sub-title">{{ extensionLabel || t.unloadDialog.extension }}</span>
           </div>
         </div>
         <div class="ems-header-actions">
           <div class="ems-header-action-pair">
-            <a-button class="ems-header-action-btn ems-header-btn-cancel" @click="emit('cancel')">取消</a-button>
+            <a-button class="ems-header-action-btn ems-header-btn-cancel" @click="emit('cancel')">{{ t.unloadDialog.cancel }}</a-button>
             <a-button
               :disabled="okDisabled"
               :loading="confirming"
@@ -31,7 +31,7 @@
               type="primary"
               @click="handleOk"
             >
-              确认卸载模型
+              {{ t.unloadDialog.confirm }}
             </a-button>
           </div>
         </div>
@@ -46,17 +46,15 @@
             <p v-if="emptyHint" class="ems-hint">{{ emptyHint }}</p>
 
             <div class="ems-summary-row">
-              <p class="ems-summary ems-summary-danger">
-                已选择 <strong>{{ selectedCount }}</strong> 个模型将从本环境删除。
-              </p>
+              <p class="ems-summary ems-summary-danger" v-html="selectedCountHtml"></p>
               <a-button size="small" type="link" danger @click="toggleSelectAll">
-                {{ allSelected ? '取消全选' : '全选' }}
+                {{ allSelected ? t.unloadDialog.deselectAll : t.unloadDialog.selectAll }}
               </a-button>
             </div>
 
             <div class="ems-preview-section">
               <div class="ems-preview-section-title">
-                <span>将卸载（删除）</span>
+                <span>{{ t.unloadDialog.toRemove }}</span>
                 <span class="ems-count-badge danger">{{ unloadPreview.toRemove?.length ?? 0 }}</span>
               </div>
               <div v-if="(unloadPreview.toRemove?.length ?? 0) > 0" class="ems-card-grid">
@@ -81,12 +79,12 @@
                   </div>
                 </div>
               </div>
-              <div v-else class="ems-preview-empty">无</div>
+              <div v-else class="ems-preview-empty">{{ t.unloadDialog.none }}</div>
             </div>
 
             <div class="ems-preview-section">
               <div class="ems-preview-section-title">
-                <span>因实例引用将保留</span>
+                <span>{{ t.unloadDialog.keptReferenced }}</span>
                 <span class="ems-count-badge muted">{{ unloadPreview.keptReferenced?.length ?? 0 }}</span>
               </div>
               <div v-if="(unloadPreview.keptReferenced?.length ?? 0) > 0" class="ems-card-grid">
@@ -106,7 +104,7 @@
                   </div>
                 </div>
               </div>
-              <div v-else class="ems-preview-empty">无</div>
+              <div v-else class="ems-preview-empty">{{ t.unloadDialog.none }}</div>
             </div>
           </template>
         </a-spin>
@@ -120,6 +118,9 @@ import {computed, ref, watch} from 'vue'
 import {DeleteOutlined} from '@ant-design/icons-vue'
 import type {ExtensionModelUnloadPreview} from '@/api/systemExtension.ts'
 import {modelTypeColor, modelTypeLabel} from '../../utils/extensionDisplay.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('system-extension')
 
 const open = defineModel<boolean>('open', { required: true })
 
@@ -154,6 +155,10 @@ watch(
 
 const selectedCount = computed(() => selectedRowKeys.value.length)
 
+const selectedCountHtml = computed(() => {
+  return t.value.unloadDialog.selectedCount.replace('{count}', `<strong>${selectedCount.value}</strong>`)
+})
+
 const allSelected = computed(() => {
   const list = props.unloadPreview?.toRemove ?? []
   return list.length > 0 && list.every((m) => selectedRowKeys.value.includes(m.modelKey!))
@@ -169,7 +174,7 @@ const emptyHint = computed(() => {
   if (!props.unloadPreview) return ''
   const p = props.unloadPreview
   const total = (p.toRemove?.length ?? 0) + (p.keptReferenced?.length ?? 0)
-  if (total === 0) return '当前环境下该厂商暂无模型记录。'
+  if (total === 0) return t.value.unloadDialog.noModelsInEnv
   return ''
 })
 
@@ -256,7 +261,7 @@ async function handleOk() {
   border-radius: 10px;
   font-size: 11px;
   font-weight: 600;
-  background: rgba(239, 68, 68, 0.15);
+  background: color-mix(in srgb, var(--error) 15%, transparent);
   color: var(--error);
 }
 
@@ -285,14 +290,14 @@ async function handleOk() {
 }
 
 .ems-model-card:hover {
-  border-color: rgba(239, 68, 68, 0.3);
+  border-color: color-mix(in srgb, var(--error) 30%, transparent);
   background: var(--bg-elevated);
 }
 
 .ems-model-card.selected {
   border-color: var(--error);
-  background: rgba(239, 68, 68, 0.06);
-  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.18);
+  background: color-mix(in srgb, var(--error) 6%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--error) 18%, transparent);
 }
 
 .ems-model-card.skipped {

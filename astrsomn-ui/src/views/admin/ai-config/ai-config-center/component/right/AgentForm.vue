@@ -92,6 +92,7 @@ import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
 import {type AiPrompt, aiPromptApi} from '@/api/aiPrompt.ts'
 import {type AiTool, aiToolApi} from '@/api/aiTool.ts'
 import {type AiMcp, aiMcpApi} from '@/api/aiMcp.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 import PromptSelectorDrawer from '@/views/admin/ai-config/ai-prompt/selector/PromptSelectorDrawer.vue'
 import PromptFormModal from '@/views/admin/ai-config/ai-prompt/component/PromptFormModal.vue'
 import PromptHistoryModal from '@/views/admin/ai-config/ai-prompt/component/PromptHistoryModal.vue'
@@ -114,6 +115,8 @@ const emit = defineEmits<{
   (e: 'back'): void
   (e: 'saved'): void
 }>()
+
+const t = usePageTranslation('ai-config-center')
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -169,7 +172,7 @@ function onPromptContentUpdate(content: string) {
 
 function onPromptHistory() {
   if (!currentPrompt.value?.promptKey) {
-    message.warning('请先选择一个提示词')
+    message.warning(t.value.agent.selectPromptFirst)
     return
   }
   historyModalOpen.value = true
@@ -178,7 +181,7 @@ function onPromptHistory() {
 async function handleImprovePrompt() {
   const content = currentPrompt.value?.promptContent
   if (!content?.trim()) {
-    message.warning('请先输入提示词内容')
+    message.warning(t.value.agent.enterPromptContentFirst)
     return
   }
   originalContent.value = content
@@ -188,7 +191,7 @@ async function handleImprovePrompt() {
     improvedContent.value = improved
     diffModalVisible.value = true
   } catch {
-    message.error('优化失败，请重试')
+    message.error(t.value.agent.improveFailed)
   } finally {
     improveLoading.value = false
   }
@@ -206,7 +209,7 @@ async function handleApplyImproved() {
   } catch {
 
   }
-  message.success('已应用优化后的提示词')
+  message.success(t.value.agent.improveApplied)
 }
 
 function onKnowledgeAdd(key: string) {
@@ -233,7 +236,7 @@ function parseKnowledgeKeys(raw?: string): string[] {
 
 function resetEmptyForm() {
   detailSnapshot.value = null
-  localAgentName.value = props.agentName || '新 Agent'
+  localAgentName.value = props.agentName || t.value.main.newAgent
   localAgentKey.value = ''
   localAgentDescription.value = ''
   localAgentAvatar.value = ''
@@ -302,7 +305,7 @@ async function loadInstanceListForAgent(agentKey: string): Promise<AiInstance[]>
 }
 
 async function backfillFromDetail(detail: AiAgent) {
-  localAgentName.value = detail.agentName || props.agentName || '未命名智能体'
+  localAgentName.value = detail.agentName || props.agentName || t.value.agent.unnamedAgent
   localAgentKey.value = detail.agentKey ?? ''
   localAgentDescription.value = detail.description ?? ''
   localAgentAvatar.value = detail.agentAvatar ?? ''
@@ -365,7 +368,7 @@ async function loadAgent() {
     await backfillFromDetail(detail)
     await loadAvailableModels()
   } catch (e: any) {
-    message.error(e?.message || '加载智能体详情失败')
+    message.error(e?.message || t.value.agent.loadDetailFailed)
     resetEmptyForm()
     await loadAvailableModels()
   } finally {
@@ -425,22 +428,22 @@ function buildSubmitPayload(): AiAgent {
 
 async function handleSave() {
   if (!localAgentName.value.trim()) {
-    message.warning('请输入智能体名称')
+    message.warning(t.value.agent.nameRequired)
     return
   }
   if (instanceList.value.length === 0) {
-    message.warning('请至少添加一个推理实例')
+    message.warning(t.value.agent.instanceRequired)
     return
   }
   submitting.value = true
   try {
     const payload = buildSubmitPayload()
     await aiAgentApi.saveOrUpdate(payload)
-    message.success('智能体已保存')
+    message.success(t.value.agent.saved)
     emit('saved')
     emit('back')
   } catch (e: any) {
-    message.error(e?.message || '保存失败')
+    message.error(e?.message || t.value.agent.saveFailed)
   } finally {
     submitting.value = false
   }
@@ -470,7 +473,7 @@ watch(
     () => props.agentName,
     (name) => {
       if (props.agentId == null || props.agentId === '') {
-        localAgentName.value = name || '新 Agent'
+        localAgentName.value = name || t.value.main.newAgent
       }
     },
     { immediate: true }

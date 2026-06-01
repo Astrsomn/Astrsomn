@@ -8,16 +8,16 @@
       <a-menu class="custom-dropdown" @click="handleMenuClick">
         <a-menu-item key="home">
           <home-outlined/>
-          <span>立即聊天</span>
+          <span>{{ t.userProfile.chatNow }}</span>
         </a-menu-item>
         <a-menu-item key="config">
           <setting-outlined/>
-          <span>管理后台</span>
+          <span>{{ t.userProfile.admin }}</span>
         </a-menu-item>
         <a-menu-divider/>
         <a-menu-item key="logout" class="logout-item">
           <logout-outlined/>
-          <span>退出登录</span>
+          <span>{{ t.userProfile.logout }}</span>
         </a-menu-item>
       </a-menu>
     </template>
@@ -39,6 +39,9 @@ import {
   SettingOutlined,
   LogoutOutlined
 } from '@ant-design/icons-vue';
+import {usePageTranslation} from '@/locales/pages.ts';
+
+const t = usePageTranslation('common')
 
 const router = useRouter();
 
@@ -64,7 +67,7 @@ const handleMenuClick = ({key}: { key: string }) => {
       break;
     case 'logout':
       localStorage.clear();
-      message.success('已安全退出');
+      message.success(t.value.userProfile.logoutSuccess);
       router.push('/login');
       break;
   }

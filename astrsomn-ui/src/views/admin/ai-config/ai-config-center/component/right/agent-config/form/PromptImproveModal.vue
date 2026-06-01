@@ -3,14 +3,14 @@
       :footer="null"
       :open="open"
       destroy-on-close
-      title="提示词美化对比"
+      :title="t.agent.promptDiffTitle"
       width="800px"
       @update:open="onOpen"
   >
     <div class="diff-container">
       <div class="diff-header">
-        <div class="diff-title original">原内容</div>
-        <div class="diff-title improved">美化后</div>
+        <div class="diff-title original">{{ t.agent.originalContent }}</div>
+        <div class="diff-title improved">{{ t.agent.improvedContent }}</div>
       </div>
       <div class="diff-content">
         <div class="diff-original">
@@ -23,14 +23,16 @@
     </div>
     <div class="diff-footer">
       <a-space>
-        <a-button @click="onOpen(false)">取消</a-button>
-        <a-button type="primary" @click="emit('apply')">使用美化后内容</a-button>
+        <a-button @click="onOpen(false)">{{ t.agent.cancel }}</a-button>
+        <a-button type="primary" @click="emit('apply')">{{ t.agent.useImprovedContent }}</a-button>
       </a-space>
     </div>
   </a-modal>
 </template>
 
 <script lang="ts" setup>
+import {usePageTranslation} from '@/locales/pages.ts'
+
 defineProps<{
   open: boolean
   originalContent: string
@@ -41,6 +43,8 @@ const emit = defineEmits<{
   'update:open': [open: boolean]
   apply: []
 }>()
+
+const t = usePageTranslation('ai-config-center')
 
 function onOpen(v: boolean) {
   emit('update:open', v)

@@ -2,7 +2,7 @@
   <div class="content-side">
     <a-form-item
         class="no-margin-bottom"
-        label="提示词内容"
+        :label="t.contentRight.contentLabel"
         name="promptContent"
     >
       <div class="textarea-wrapper">
@@ -10,7 +10,7 @@
             v-model:value="form.promptContent"
             :auto-size="{ minRows: 20, maxRows: 20 }"
             class="content-area"
-            placeholder="请输入 System 或 User Prompt..."
+            :placeholder="t.contentRight.contentPlaceholder"
             size="large"
         />
         <a-button
@@ -22,7 +22,7 @@
           <template #icon>
             <ThunderboltOutlined/>
           </template>
-          美化
+          {{ t.contentRight.beautifyButton }}
         </a-button>
       </div>
     </a-form-item>
@@ -31,13 +31,13 @@
         v-model:open="diffModalVisible"
         :footer="null"
         class="improve-diff-modal"
-        title="提示词美化对比"
+        :title="t.contentRight.diffModalTitle"
         width="800px"
     >
       <div class="diff-container">
         <div class="diff-header">
-          <div class="diff-title original">原内容（已删除）</div>
-          <div class="diff-title improved">美化后</div>
+          <div class="diff-title original">{{ t.contentRight.diffOriginalTitle }}</div>
+          <div class="diff-title improved">{{ t.contentRight.diffImprovedTitle }}</div>
         </div>
         <div class="diff-content">
           <div class="diff-original">
@@ -50,8 +50,8 @@
       </div>
       <div class="diff-footer">
         <a-space>
-          <a-button @click="diffModalVisible = false">取消</a-button>
-          <a-button type="primary" @click="handleApply">使用美化后内容</a-button>
+          <a-button @click="diffModalVisible = false">{{ t.contentRight.diffCancelButton }}</a-button>
+          <a-button type="primary" @click="handleApply">{{ t.contentRight.diffApplyButton }}</a-button>
         </a-space>
       </div>
     </a-modal>
@@ -63,6 +63,9 @@ import {ref} from "vue"
 import {message} from "ant-design-vue"
 import {ThunderboltOutlined} from "@ant-design/icons-vue"
 import {aiPromptApi} from "@/api/aiPrompt"
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-prompt')
 
 const props = defineProps<{
   form: Record<string, any>
@@ -76,7 +79,7 @@ const improvedContent = ref("")
 async function handleImprove() {
   const content = props.form.promptContent
   if (!content?.trim()) {
-    message.warning("请先输入提示词内容")
+    message.warning(t.value.contentRight.contentRequiredWarning)
     return
   }
 
@@ -87,7 +90,7 @@ async function handleImprove() {
     improvedContent.value = improved
     diffModalVisible.value = true
   } catch (error) {
-    message.error("美化失败，请重试")
+    message.error(t.value.contentRight.beautifyFailed)
   } finally {
     loading.value = false
   }
@@ -96,7 +99,7 @@ async function handleImprove() {
 function handleApply() {
   props.form.promptContent = improvedContent.value
   diffModalVisible.value = false
-  message.success("已应用美化后的提示词")
+  message.success(t.value.contentRight.beautifyApplied)
 }
 </script>
 
@@ -111,8 +114,8 @@ function handleApply() {
 .content-area {
   font-family: "Fira Code", ui-monospace, monospace;
   font-size: 14px;
-  background-color: #1e293b;
-  color: #e2e8f0;
+  background-color: var(--bg-code, #1e293b);
+  color: var(--text-code, #e2e8f0);
   padding: 16px;
   border-radius: 12px;
   line-height: 1.6;
@@ -121,7 +124,7 @@ function handleApply() {
 }
 
 .content-area::placeholder {
-  color: #64748b;
+  color: var(--text-code-placeholder, #64748b);
 }
 
 .no-margin-bottom {
@@ -141,25 +144,25 @@ function handleApply() {
   z-index: 10;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px color-mix(in srgb, #667eea 40%, transparent);
   transition: all 0.3s ease;
 }
 
 .improve-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 6px 16px color-mix(in srgb, #667eea 50%, transparent);
 }
 
 .diff-container {
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
 }
 
 .diff-header {
   display: flex;
-  background: #f5f5f5;
-  border-bottom: 1px solid #e8e8e8;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .diff-title {
@@ -170,14 +173,14 @@ function handleApply() {
 }
 
 .diff-title.original {
-  background: #fff1f0;
-  color: #ff4d4f;
-  border-right: 1px solid #e8e8e8;
+  background: color-mix(in srgb, var(--error) 5%, var(--bg-card));
+  color: var(--error);
+  border-right: 1px solid var(--border-default);
 }
 
 .diff-title.improved {
-  background: #f6ffed;
-  color: #52c41a;
+  background: color-mix(in srgb, var(--success) 5%, var(--bg-card));
+  color: var(--success);
 }
 
 .diff-content {
@@ -191,12 +194,11 @@ function handleApply() {
   flex: 1;
   padding: 16px;
   overflow: auto;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .diff-original {
-  background: #fffafafa;
-  border-right: 1px solid #e8e8e8;
+  border-right: 1px solid var(--border-default);
 }
 
 .diff-text {
@@ -209,19 +211,19 @@ function handleApply() {
 }
 
 .original-text {
-  color: #ff4d4f;
+  color: var(--error);
   text-decoration: line-through;
   opacity: 0.8;
 }
 
 .improved-text {
-  color: #52c41a;
+  color: var(--success);
 }
 
 .diff-footer {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid var(--border-default);
   text-align: right;
 }
 </style>

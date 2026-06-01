@@ -1,9 +1,9 @@
 <template>
   <AstPageShell
       :breadcrumbs="breadcrumbs"
-      description="管理运行环境（SYSTEM_ENV），对接 SystemEnvController。"
-      empty-text="暂无环境配置。"
-      title="环境管理"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div class="env-page">
       <AstDataSection>
@@ -13,9 +13,9 @@
 
               <AstSearchInput
                   v-model="query.envName"
-                  button-label="搜索"
+                  :button-label="t.list.searchButton"
                   layout="toolbar"
-                  placeholder="搜索环境名称"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
             </div>
@@ -33,7 +33,7 @@
             :loading="loading"
             :row-selection="rowSelection"
             :scroll="{ x: 800 }"
-            empty-text="暂无匹配的环境"
+            :empty-text="t.list.emptyMatch"
             mode="table"
             row-key="id"
         >
@@ -42,15 +42,15 @@
               <span class="desc-preview">{{ preview(record.description) }}</span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" @click="openEdit(record)">编辑</a-button>
+              <a-button type="link" @click="openEdit(record)">{{ t.list.btnEdit }}</a-button>
               <a-divider type="vertical"/>
               <a-popconfirm
-                  cancel-text="取消"
-                  ok-text="确认"
-                  title="确定删除吗？"
+                  :cancel-text="t.list.btnCancel"
+                  :ok-text="t.list.btnConfirm"
+                  :title="t.list.confirmDelete"
                   @confirm="() => handleDeleteOne(record.id)"
               >
-                <a-button danger type="link">删除</a-button>
+                <a-button danger type="link">{{ t.list.btnDelete }}</a-button>
               </a-popconfirm>
             </template>
           </template>
@@ -81,6 +81,7 @@
 import {computed, reactive, ref} from 'vue'
 import {message, Modal} from 'ant-design-vue'
 import {DeleteOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import AstPageShell from '@/components/home/AstPageShell.vue'
 import AstDataSection from '@/components/home/AstDataSection.vue'
 import AstDataView from '@/components/home/AstDataView.vue'
@@ -90,9 +91,11 @@ import AstegmentedButton, {type SegmentedButton} from '@/components/home/Astegme
 import SystemEnvForm from './component/SystemEnvForm.vue'
 import {type PageResponse, type SystemEnv, systemEnvApi} from '@/api/systemEnv.ts'
 
+const t = usePageTranslation('system-env')
+
 const breadcrumbs = [
-  {title: '系统配置', href: '/admin/system-config'},
-  {title: '环境管理'},
+  {title: t.value.list.breadcrumbParent, href: '/admin/system-config'},
+  {title: t.value.list.breadcrumb},
 ]
 
 type QueryState = {
@@ -107,12 +110,12 @@ const preview = (raw: string | undefined) => {
   return t.length > 48 ? `${t.slice(0, 48)}…` : t
 }
 
-const columns = [
-  {title: '环境名称', dataIndex: 'envName', key: 'envName', width: 180, ellipsis: true},
-  {title: '环境 Key', dataIndex: 'envKey', key: 'envKey', width: 140, ellipsis: true, copyable: true},
-  {title: '描述', key: 'description', width: 260, ellipsis: true},
-  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
-]
+const columns = computed(() => [
+  {title: t.value.list.columnEnvName, dataIndex: 'envName', key: 'envName', width: 180, ellipsis: true},
+  {title: t.value.list.columnEnvKey, dataIndex: 'envKey', key: 'envKey', width: 140, ellipsis: true, copyable: true},
+  {title: t.value.list.columnDescription, key: 'description', width: 260, ellipsis: true},
+  {title: t.value.list.columnActions, key: 'actions', width: 160, fixed: 'right' as const}
+])
 
 const query = reactive<QueryState>({})
 const list = ref<SystemEnv[]>([])
@@ -128,13 +131,13 @@ const selectedRowKeys = ref<Array<number | string>>([])
 
 const actionButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '重置',
+    label: t.value.list.btnReset,
     type: 'primary',
     onClick: resetFilters,
     plain: true
   },
   {
-    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    label: selectedRowKeys.value.length > 0 ? t.value.list.btnBatchDeleteCount.replace('{count}', String(selectedRowKeys.value.length)) : t.value.list.btnBatchDelete,
     type: 'danger',
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
@@ -142,7 +145,7 @@ const actionButtons = computed<SegmentedButton[]>(() => [
     plain: true
   },
   {
-    label: '新增',
+    label: t.value.list.btnCreate,
     type: 'primary',
     icon: PlusOutlined,
     onClick: openCreate,
@@ -253,11 +256,11 @@ const handleBatchDelete = async () => {
   try {
     await new Promise<void>((resolve, reject) => {
       const modal = Modal.confirm({
-        title: '确定批量删除选中的环境吗？',
-        okText: '确认',
-        cancelText: '取消',
+        title: t.value.list.confirmBatchDelete,
+        okText: t.value.list.btnConfirm,
+        cancelText: t.value.list.btnCancel,
         onOk: () => resolve(),
-        onCancel: () => reject(new Error('取消删除'))
+        onCancel: () => reject(new Error(t.value.list.cancelDelete))
       })
     })
 
@@ -288,7 +291,7 @@ const handleFormSubmit = async (form: SystemEnv) => {
     void fetchList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
+    message.error(err?.message || t.value.list.saveFailed)
   } finally {
     modal.submitting = false
   }
@@ -381,7 +384,7 @@ void fetchList()
 }
 
 .desc-preview {
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-muted);
   font-size: 12px;
 }
 

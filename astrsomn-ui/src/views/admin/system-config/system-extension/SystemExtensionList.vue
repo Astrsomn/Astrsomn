@@ -1,5 +1,5 @@
 <template>
-  <AstPageShell empty-text="暂无系统扩展。">
+  <AstPageShell :empty-text="t.list.emptyText">
     <div class="extension-page">
       <div class="extension-shell">
         <Sidebar
@@ -22,6 +22,9 @@ import AstPageShell from '@/components/home/AstPageShell.vue'
 import ExtensionCenterPage from './component/ExtensionCenterPage.vue'
 import Sidebar from './component/Sidebar.vue'
 import {useRoute} from 'vue-router'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('system-extension')
 
 type ExtensionPanel = 'marketplace' | 'installed'
 const route = useRoute()

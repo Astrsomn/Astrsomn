@@ -1,25 +1,25 @@
 <template>
   <AstPageShell
 
-      empty-text="暂无对话记录。"
+      :empty-text="t.list.emptyText"
   >
     <div class="conversation-page">
       <AstListToolbar>
         <template #left>
           <AstSearchInput
               v-model="query.memoryKey"
-              button-label="搜索"
+              :button-label="t.list.searchButton"
               layout="toolbar"
-              placeholder="搜索 Memory Key"
+              :placeholder="t.list.searchPlaceholder"
               @search="fetchList"
           />
 
           <AstStatusSwitch
               v-model="query.status"
               :options="[
-              { label: '全部', value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
-              { label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
-              { label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined }
+              { label: t.list.statusAll, value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
+              { label: t.list.statusEnabled, value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
+              { label: t.list.statusDisabled, value: 'disabled', color: '#f43f5e', icon: StopOutlined }
             ]"
               @change="fetchList"
           />
@@ -31,7 +31,6 @@
       </AstListToolbar>
 
       <div class="conversation-container">
-        <!-- 左侧列表区域 -->
         <ConversationListPanel
             v-model:selectedRowKeys="selectedRowKeys"
             :list="list"
@@ -42,7 +41,6 @@
             @recover="handleRecoverConversation"
         />
 
-        <!-- 右侧对话内容区域 -->
         <ConversationDetailPanel
             :selectedConversation="selectedConversation"
             :selectedConversationList="selectedConversationList"
@@ -65,6 +63,9 @@ import ConversationListPanel from './component/ConversationListPanel.vue'
 import ConversationDetailPanel from './component/ConversationDetailPanel.vue'
 import {type AiConversation, aiConversationApi} from '@/api/aiConversation'
 import {type AiChatSession, aiChatSessionApi, type PageResponse} from '@/api/aiChatSession'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-conversation')
 
 type QueryState = {
   memoryKey?: string
@@ -99,8 +100,8 @@ const handleRecoverConversation = async (memoryKey: string) => {
       selectedConversationList.value = conversations
     }
   } catch (error) {
-    console.error('获取对话详情失败:', error)
-    message.error('获取对话详情失败')
+    console.error(t.value.list.fetchDetailFailed + ':', error)
+    message.error(t.value.list.fetchDetailFailed)
   } finally {
     loading.value = false
   }
@@ -120,7 +121,7 @@ const resetFilters = () => {
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '批量删除',
+    label: t.value.list.batchDelete,
     type: 'danger',
     plain: true,
     icon: DeleteOutlined,
@@ -129,13 +130,13 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
       const n = selectedRowKeys.value.length
       if (n === 0) return
       Modal.confirm({
-        title: `确定删除选中的 ${n} 个对话组吗？`,
+        title: t.value.list.batchDeleteConfirm.replace('{n}', String(n)),
         onOk: () => handleBatchDelete()
       })
     }
   },
   {
-    label: '重置',
+    label: t.value.list.reset,
     type: 'primary',
     plain: true,
     icon: ReloadOutlined,

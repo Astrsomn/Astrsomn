@@ -9,7 +9,7 @@
       <DeploymentUnitOutlined/>
     </template>
     <template #title>
-      {{ props.account?.accountName || '关联模型库' }}
+      {{ props.account?.accountName || t.modelsDrawer.defaultTitle }}
     </template>
     <template #title-extra>
       <a-tag v-if="props.account?.envCode" :class="['env-tag', props.account.envCode.toLowerCase()]">
@@ -36,17 +36,17 @@
               </div>
               <div :class="['status-indicator', item.status]">
                 <span class="dot"></span>
-                {{ item.status === 'enabled' ? '运行中' : '已禁用' }}
+                {{ item.status === 'enabled' ? t.modelsDrawer.statusEnabled : t.modelsDrawer.statusDisabled }}
               </div>
             </div>
 
             <div class="m-card-body">
               <div class="info-row">
-                <span class="info-label">模型标识</span>
+                <span class="info-label">{{ t.modelsDrawer.labelModelKey }}</span>
                 <code class="info-value mono">{{ item.modelKey }}</code>
               </div>
               <div class="info-row">
-                <span class="info-label">供应商</span>
+                <span class="info-label">{{ t.modelsDrawer.labelProvider }}</span>
                 <div class="provider-wrapper">
                   <span :data-provider="item.extensionCode?.toLowerCase()" class="provider-tag">
                     {{ item.extensionCode }}
@@ -62,9 +62,9 @@
         <div v-else-if="!props.loading" class="empty-wrapper">
           <a-empty :image="simpleImage">
             <template #description>
-              <span class="empty-text">当前账号尚未关联任何模型资产</span>
+              <span class="empty-text">{{ t.modelsDrawer.emptyDescription }}</span>
             </template>
-            <a-button ghost size="small" type="primary">去关联</a-button>
+            <a-button ghost size="small" type="primary">{{ t.modelsDrawer.btnAssociate }}</a-button>
           </a-empty>
         </div>
       </div>
@@ -81,6 +81,9 @@ import {DeploymentUnitOutlined, KeyOutlined} from '@ant-design/icons-vue'
 import AstDrawer from '@/components/home/AstDrawer.vue'
 import type {AiAccount} from '@/api/aiAccount.ts'
 import type {AiModel} from '@/api/aiModel.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-account')
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
 
@@ -123,7 +126,7 @@ const emit = defineEmits<{
 
 .model-card-item {
   cursor: pointer;
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: var(--radius-md);
   padding: 20px;
   border: 1px solid var(--border-default);
@@ -134,8 +137,8 @@ const emit = defineEmits<{
 
 .model-card-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.05);
-  border-color: #e2e8f0;
+  box-shadow: 0 12px 20px -8px color-mix(in srgb, var(--text-secondary) 5%, transparent);
+  border-color: var(--border-default);
 }
 
 .m-card-head {
@@ -154,13 +157,13 @@ const emit = defineEmits<{
 .m-name {
   font-size: 15px;
   font-weight: 700;
-  color: #334155;
+  color: var(--text-primary);
 }
 
 .m-type-badge {
   font-size: 10px;
-  color: #64748b;
-  background: #f1f5f9;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
   padding: 1px 6px;
   border-radius: 4px;
   width: fit-content;
@@ -175,11 +178,11 @@ const emit = defineEmits<{
 }
 
 .status-indicator.enabled {
-  color: #10b981;
+  color: var(--success);
 }
 
 .status-indicator.disabled {
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .status-indicator .dot {
@@ -190,7 +193,7 @@ const emit = defineEmits<{
 }
 
 .status-indicator.enabled .dot {
-  box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 0 color-mix(in srgb, var(--success) 40%, transparent);
   animation: pulse 2s infinite;
 }
 
@@ -208,16 +211,16 @@ const emit = defineEmits<{
 
 .info-label {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .info-value.mono {
   font-family: 'SFMono-Regular', Consolas, monospace;
   font-size: 12px;
-  background: #f8fafc;
+  background: var(--bg-elevated);
   padding: 2px 8px;
   border-radius: 6px;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .provider-tag {
@@ -227,23 +230,23 @@ const emit = defineEmits<{
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
 }
 
 .provider-tag[data-provider*="openai"] {
-  background: #dcfce7;
-  color: #15803d;
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  color: var(--success);
 }
 
 .provider-tag[data-provider*="claude"] {
-  background: #ffedd5;
-  color: #c2410c;
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+  color: var(--warning);
 }
 
 .provider-tag[data-provider*="azure"] {
-  background: #e0f2fe;
-  color: #0369a1;
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  color: var(--primary);
 }
 
 .m-card-footer-line {
@@ -252,32 +255,32 @@ const emit = defineEmits<{
   left: 20px;
   right: 20px;
   height: 2px;
-  background: #f8fafc;
+  background: var(--bg-elevated);
 }
 
 .empty-wrapper {
   padding: 60px 0;
-  background: white;
+  background: var(--bg-card);
   border-radius: 20px;
 }
 
 .empty-text {
-  color: #cbd5e1;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
 @keyframes pulse {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 70%, transparent);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--success) 0%, transparent);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
   }
 }
 </style>

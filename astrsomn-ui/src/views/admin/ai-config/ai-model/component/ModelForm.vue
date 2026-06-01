@@ -1,7 +1,7 @@
 <template>
   <AstModal
       :confirm-loading="confirmLoading"
-      :confirm-text="props.mode !== 'view' ? '确认并保存端点' : undefined"
+      :confirm-text="props.mode !== 'view' ? t.form.confirmText : undefined"
       :max-width="maxWidth"
       :open="open"
       body-height="90vh"
@@ -22,10 +22,10 @@
       </span>
     </template>
     <template #header-title>
-      {{ mode === 'create' ? '注册接入端点' : mode === 'view' ? '查看端点配置' : '编辑端点配置' }}
+      {{ mode === 'create' ? t.form.createTitle : mode === 'view' ? t.form.viewTitle : t.form.editTitle }}
     </template>
     <template #header-subtitle>
-      左侧填写基础信息，右侧配置能力与推理参数
+      {{ t.form.subtitle }}
     </template>
 
     <div class="model-form-shell">
@@ -41,67 +41,67 @@
             <div class="form-section">
               <h3 class="section-headline">
                 <IdcardOutlined/>
-                基础信息
+                {{ t.form.sectionBasicInfo }}
               </h3>
               <div class="form-grid">
-                <a-form-item label="模型 Key" name="modelKey">
+                <a-form-item :label="t.form.labelModelKey" name="modelKey">
                   <a-tooltip
                       v-if="modelKeyImmutable || props.mode === 'view' || isPluginModel"
-                      :title="isPluginModel ? '插件模型不可修改' : (modelKeyImmutable ? '已有推理实例在同环境下引用该端点 Key，不可修改' : '查看模式下不可修改')"
+                      :title="isPluginModel ? t.form.tooltipPluginImmutable : (modelKeyImmutable ? t.form.tooltipKeyImmutable : t.form.tooltipViewMode)"
                   >
-                    <a-input v-model:value="form.modelKey" disabled placeholder="生成模型Key" size="large"/>
+                    <a-input v-model:value="form.modelKey" disabled :placeholder="t.form.placeholderModelKey" size="large"/>
                   </a-tooltip>
                   <AstKeyGenerator
                       v-else
                       v-model="form.modelKey"
                       :prefix="AI_MODEL_KEY_PREFIX"
-                      placeholder="建议留空，系统将自动生成唯一索引"
+                      :placeholder="t.form.placeholderModelKeyAuto"
                       size="large"
                   />
                 </a-form-item>
-                <a-form-item label="模型来源" name="sourceType">
+                <a-form-item :label="t.form.labelSourceType" name="sourceType">
                   <a-select v-model:value="form.sourceType" :disabled="props.mode === 'view'" size="large">
-                    <a-select-option value="user_custom">用户自定义模型</a-select-option>
-                    <a-select-option value="plugin">插件模型</a-select-option>
+                    <a-select-option value="user_custom">{{ t.form.optionUserCustom }}</a-select-option>
+                    <a-select-option value="plugin">{{ t.form.optionPluginModel }}</a-select-option>
                   </a-select>
                 </a-form-item>
 
-                <a-form-item label="Provider" name="provider">
+                <a-form-item :label="t.form.labelProvider" name="provider">
                   <ExtensionSelector
                       v-model:value="form.extensionCode"
                       :disabled="props.mode === 'view' || isPluginModel"
-                      placeholder="请选择端点所属服务商"
+                      :placeholder="t.form.placeholderProvider"
                       size="large"
                   />
                 </a-form-item>
 
-                <a-form-item label="启用状态" name="status">
+                <a-form-item :label="t.form.labelStatus" name="status">
                   <a-segmented
                       v-model:value="form.status"
                       :disabled="props.mode === 'view'"
-                      :options="[{label:'已启用', value:'enabled'}, {label:'已禁用', value:'disabled'}]"
+                      :options="[{label: t.form.optionEnabled, value:'enabled'}, {label: t.form.optionDisabled, value:'disabled'}]"
                       block
                       class="status-segmented"
                       size="large"
                   />
                 </a-form-item>
 
-                <a-form-item label="模型类型" name="modelType">
+                <a-form-item :label="t.form.labelModelType" name="modelType">
                   <a-segmented v-model:value="form.modelType"
                                :disabled="props.mode === 'view' || isPluginModel"
-                               :options="[{label:'对话端点', value:'chat'}, {label:'向量端点', value:'embedding'}, {label:'图像端点', value:'image'}, {label:'语音端点', value:'voice'}]" block size="large"/>
+                               :options="[{label: t.form.optionChat, value:'chat'}, {label: t.form.optionEmbedding, value:'embedding'}, {label: t.form.optionImage, value:'image'}, {label: t.form.optionVoice, value:'voice'}]" block size="large"/>
                 </a-form-item>
 
-                <a-form-item label="模型名称" name="modelName">
+                <a-form-item :label="t.form.labelModelName" name="modelName">
                   <a-input v-model:value="form.modelName" :disabled="props.mode === 'view' || isPluginModel"
-                           placeholder="例如：OpenAI 官方端点 或 私有部署 Llama3" size="large"/>
+                           :placeholder="t.form.placeholderModelName" size="large"/>
                 </a-form-item>
 
 
               </div>
               <h3 class="section-headline">
                 <ThunderboltOutlined/>
-                能力配置 (Capabilities)
+                {{ t.form.sectionCapabilities }}
               </h3>
 
               <div v-if="form.modelType === 'chat' || form.modelType === 'voice'" class="capability-panel-section">
@@ -176,17 +176,17 @@
               <div class="param-schema-section">
                 <h3 class="section-headline">
                   <SettingOutlined/>
-                  推理参数配置 (Parameter Schema)
+                  {{ t.form.sectionParamSchema }}
                 </h3>
-                <p class="section-desc">控制实例层可填写的参数范围。未启用的参数在实例层将被禁用或忽略。</p>
+                <p class="section-desc">{{ t.form.paramSchemaDesc }}</p>
 
                 <div class="param-table">
                   <div class="param-table-header">
-                    <div class="param-col param-col--id">参数名</div>
-                    <div class="param-col param-col--desc">说明与映射</div>
+                    <div class="param-col param-col--id">{{ t.form.paramColumnName }}</div>
+                    <div class="param-col param-col--desc">{{ t.form.paramColumnDesc }}</div>
 
 
-                    <div class="param-col param-col--toggle">启用</div>
+                    <div class="param-col param-col--toggle">{{ t.form.paramColumnToggle }}</div>
                   </div>
                   <div class="param-table-body">
                     <div v-for="param in currentParams" :key="param.id" class="param-row">
@@ -211,18 +211,18 @@
               <div class="runtime-params-box">
                 <div class="box-title">
                   <ControlOutlined/>
-                  资源限制
+                  {{ t.form.sectionResourceLimit }}
                 </div>
                 <div class="param-grid">
                   <div class="param-item">
-                    <span class="pl">单次响应上限 (Token)</span>
+                    <span class="pl">{{ t.form.labelResponseLimit }}</span>
                     <a-input-number v-model:value="form.responseLimit" :disabled="props.mode === 'view' || isPluginModel" :min="0" block
-                                    placeholder="默认 4096"/>
+                                    :placeholder="t.form.placeholderResponseLimit"/>
                   </div>
                   <div class="param-item">
-                    <span class="pl">累计配额上限 (Token)</span>
+                    <span class="pl">{{ t.form.labelMaxQuotaTokens }}</span>
                     <a-input-number v-model:value="form.maxQuotaTokens" :disabled="props.mode === 'view' || isPluginModel" :min="0" block
-                                    placeholder="0 表示无限制"/>
+                                    :placeholder="t.form.placeholderMaxQuotaTokens"/>
                   </div>
                 </div>
               </div>
@@ -234,7 +234,7 @@
       <div v-if="props.mode !== 'view'" class="modal-footer-action">
         <div class="footer-left">
           <LockOutlined/>
-          端点变更将影响下游所有推理实例
+          {{ t.form.footerWarning }}
         </div>
       </div>
     </div>
@@ -270,6 +270,9 @@ import {
   IMAGE_CAPABILITIES_CODES,
   IMAGE_CAPABILITIES_SET
 } from '@/constants/aiModelEnums.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-model')
 
 const props = withDefaults(
     defineProps<{
@@ -290,15 +293,15 @@ const formRef = ref<FormInstance | null>(null)
 const modelKeyImmutable = ref(false)
 const maxWidth = computed(() => 'min(80vw, 1600px)')
 
-const PARAM_TEMPLATES = {
+const PARAM_TEMPLATES = computed(() => ({
   chat: [
-    {id: 'temperature', desc: '采样温度', mapping: 'temperature', default: '0.7', range: '0-2.0', active: true},
-    {id: 'top_p', desc: '核采样阈值', mapping: 'top_p', default: '1.0', range: '0-1.0', active: true},
-    {id: 'top_k', desc: 'Top-K 采样', mapping: 'top_k', default: '', range: 'int', active: false},
-    {id: 'max_tokens', desc: '最大生成长度', mapping: 'max_tokens', default: '2048', range: '1-32k', active: true},
+    {id: 'temperature', desc: t.value.form.paramDescTemperature, mapping: 'temperature', default: '0.7', range: '0-2.0', active: true},
+    {id: 'top_p', desc: t.value.form.paramDescTopP, mapping: 'top_p', default: '1.0', range: '0-1.0', active: true},
+    {id: 'top_k', desc: t.value.form.paramDescTopK, mapping: 'top_k', default: '', range: 'int', active: false},
+    {id: 'max_tokens', desc: t.value.form.paramDescMaxTokens, mapping: 'max_tokens', default: '2048', range: '1-32k', active: true},
     {
       id: 'presence_penalty',
-      desc: '话题存在惩罚',
+      desc: t.value.form.paramDescPresencePenalty,
       mapping: 'presence_penalty',
       default: '0',
       range: '-2-2',
@@ -306,35 +309,35 @@ const PARAM_TEMPLATES = {
     },
     {
       id: 'frequency_penalty',
-      desc: '频率重复惩罚',
+      desc: t.value.form.paramDescFrequencyPenalty,
       mapping: 'frequency_penalty',
       default: '0',
       range: '-2-2',
       active: false
     },
-    {id: 'stop_sequences', desc: '停止符', mapping: 'stop_sequences', default: '', range: 'Array', active: false},
-    {id: 'seed', desc: '随机种子', mapping: 'seed', default: '', range: 'int', active: false},
-    {id: 'logit_bias', desc: 'Token 偏好偏差', mapping: 'logit_bias', default: '', range: 'Object', active: false}
+    {id: 'stop_sequences', desc: t.value.form.paramDescStopSequences, mapping: 'stop_sequences', default: '', range: 'Array', active: false},
+    {id: 'seed', desc: t.value.form.paramDescSeed, mapping: 'seed', default: '', range: 'int', active: false},
+    {id: 'logit_bias', desc: t.value.form.paramDescLogitBias, mapping: 'logit_bias', default: '', range: 'Object', active: false}
   ],
   embedding: [
-    {id: 'dimensions', desc: '向量输出维度', mapping: 'dimensions', default: '1536', range: 'int', active: true},
-    {id: 'model_name', desc: '模型名称', mapping: 'model_name', default: '', range: 'string', active: false},
-    {id: 'user', desc: '终端用户标识', mapping: 'user', default: '', range: 'string', active: false}
+    {id: 'dimensions', desc: t.value.form.paramDescDimensions, mapping: 'dimensions', default: '1536', range: 'int', active: true},
+    {id: 'model_name', desc: t.value.form.paramDescModelName, mapping: 'model_name', default: '', range: 'string', active: false},
+    {id: 'user', desc: t.value.form.paramDescUser, mapping: 'user', default: '', range: 'string', active: false}
   ],
   image: [
-    {id: 'size', desc: '图片尺寸', mapping: 'size', default: '1024x1024', range: 'string', active: true},
-    {id: 'quality', desc: '生成质量', mapping: 'quality', default: 'standard', range: 'standard/hd', active: true},
-    {id: 'style', desc: '画面风格', mapping: 'style', default: 'vivid', range: 'vivid/natural', active: true},
+    {id: 'size', desc: t.value.form.paramDescSize, mapping: 'size', default: '1024x1024', range: 'string', active: true},
+    {id: 'quality', desc: t.value.form.paramDescQuality, mapping: 'quality', default: 'standard', range: 'standard/hd', active: true},
+    {id: 'style', desc: t.value.form.paramDescStyle, mapping: 'style', default: 'vivid', range: 'vivid/natural', active: true},
     {
       id: 'response_format',
-      desc: '响应格式',
+      desc: t.value.form.paramDescResponseFormat,
       mapping: 'response_format',
       default: 'url',
       range: 'url/b64_json',
       active: false
     }
   ]
-}
+}))
 
 function capOptionRow(code: string) {
   const titleZh = aiModelCapabilitiesDictionary.getLabel(code) ?? code
@@ -354,7 +357,7 @@ const embeddingOrphanCapabilities = ref<string[]>([])
 const imageCapabilities = ref<string[]>([])
 const imageOrphanCapabilities = ref<string[]>([])
 
-const currentParams = ref<any[]>(JSON.parse(JSON.stringify(PARAM_TEMPLATES.chat)))
+const currentParams = ref<any[]>(JSON.parse(JSON.stringify(PARAM_TEMPLATES.value.chat)))
 
 const isPluginModel = computed(() => form.sourceType === 'plugin')
 
@@ -364,10 +367,10 @@ const form = reactive<AiModel>({
   capabilities: '', param: '', randomIndex: 0, topVariance: 0, maxQuotaTokens: 0, sourceType: 'user_custom'
 })
 
-const rules = {
-  modelName: [{required: true, message: '请输入模型名称'}],
-  extensionCode: [{required: true, message: '请选择供应商'}],
-}
+const rules = computed(() => ({
+  modelName: [{required: true, message: t.value.form.validationModelName}],
+  extensionCode: [{required: true, message: t.value.form.validationProvider}],
+}))
 
 function toggleInList(list: string[], val: string) {
   const i = list.indexOf(val)
@@ -404,7 +407,7 @@ function partitionConfig(caps: string[], params: any[], modelType: string) {
     if (params && params.length > 0) {
       currentParams.value = params
     } else {
-      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.chat))
+      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.value.chat))
     }
   } else if (modelType === 'embedding') {
     embeddingCapabilities.value = caps.filter((c) => EMBEDDING_CAPABILITIES_SET.has(c))
@@ -412,7 +415,7 @@ function partitionConfig(caps: string[], params: any[], modelType: string) {
     if (params && params.length > 0) {
       currentParams.value = params
     } else {
-      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.embedding))
+      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.value.embedding))
     }
   } else if (modelType === 'image') {
     imageCapabilities.value = caps.filter((c) => IMAGE_CAPABILITIES_SET.has(c))
@@ -420,7 +423,7 @@ function partitionConfig(caps: string[], params: any[], modelType: string) {
     if (params && params.length > 0) {
       currentParams.value = params
     } else {
-      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.image))
+      currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.value.image))
     }
   }
 }
@@ -586,17 +589,17 @@ const onCancel = () => emit('update:open', false)
 }
 
 .model-form-pane--left {
-  background: var(--bg-card, #fff);
+  background: var(--bg-card);
 }
 
 .model-form-pane--right {
-  background: var(--bg-surface, #f8fafc);
+  background: var(--bg-surface);
 }
 
 .model-form-divider {
   width: 1px;
   flex-shrink: 0;
-  background: var(--border-default, #e2e8f0);
+  background: var(--border-default);
   align-self: stretch;
 }
 
@@ -605,7 +608,7 @@ const onCancel = () => emit('update:open', false)
 }
 
 .model-form-pane::-webkit-scrollbar-thumb {
-  background: var(--border-default, #e2e8f0);
+  background: var(--border-default);
   border-radius: 4px;
 }
 
@@ -616,12 +619,12 @@ const onCancel = () => emit('update:open', false)
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--text-heading, #444);
+  color: var(--text-heading);
 }
 
 .section-desc {
   font-size: 12px;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   margin: -8px 0 16px 0;
 }
 
@@ -636,12 +639,12 @@ const onCancel = () => emit('update:open', false)
 }
 
 :deep(.ant-segmented-item-selected) {
-  background-color: var(--primary, #1890ff) !important;
+  background-color: var(--primary) !important;
   color: white !important;
 }
 
 :deep(.ant-segmented-item-selected:hover) {
-  background-color: var(--primary, #40a9ff) !important;
+  background-color: var(--primary) !important;
   color: white !important;
 }
 
@@ -674,8 +677,8 @@ const onCancel = () => emit('update:open', false)
 .custom-cap-tag {
   min-height: 72px;
   padding: 12px 14px;
-  background: var(--bg-card, #fff);
-  border: 1px solid var(--border-default, #e2e8f0);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 10px;
   cursor: pointer;
   transition: border-color 0.2s,
@@ -695,7 +698,7 @@ const onCancel = () => emit('update:open', false)
   flex-shrink: 0;
   margin-top: 2px;
   font-size: 16px;
-  color: var(--primary, #0061ff);
+  color: var(--primary);
 }
 
 .custom-cap-tag__text {
@@ -710,7 +713,7 @@ const onCancel = () => emit('update:open', false)
 .custom-cap-tag__title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-heading, #334155);
+  color: var(--text-heading);
   line-height: 1.4;
   word-break: break-word;
 }
@@ -718,33 +721,33 @@ const onCancel = () => emit('update:open', false)
 .custom-cap-tag__field {
   font-size: 11px;
   font-weight: 500;
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   line-height: 1.35;
   word-break: break-all;
 }
 
 .custom-cap-tag:hover {
-  border-color: var(--primary, #0061ff);
-  box-shadow: 0 1px 4px rgba(0, 97, 255, 0.12);
+  border-color: var(--primary);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .custom-cap-tag:hover .custom-cap-tag__title {
-  color: var(--primary, #0061ff);
+  color: var(--primary);
 }
 
 .custom-cap-tag.active {
-  background: #eff6ff;
-  border-color: var(--primary, #0061ff);
-  box-shadow: 0 1px 4px rgba(0, 97, 255, 0.18);
+  background: color-mix(in srgb, var(--primary) 8%, var(--bg-card));
+  border-color: var(--primary);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
 .custom-cap-tag.active .custom-cap-tag__title {
-  color: #1d4ed8;
+  color: var(--primary);
 }
 
 .custom-cap-tag.active .custom-cap-tag__field {
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .param-schema-section {
@@ -752,8 +755,8 @@ const onCancel = () => emit('update:open', false)
 }
 
 .param-table {
-  background: var(--bg-card, #fff);
-  border: 1px solid var(--border-default, #e2e8f0);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -763,11 +766,11 @@ const onCancel = () => emit('update:open', false)
   grid-template-columns: 120px 1fr 100px 100px 60px;
   gap: 12px;
   padding: 12px 16px;
-  background: var(--bg-surface, #f8fafc);
-  border-bottom: 1px solid var(--border-default, #e2e8f0);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default);
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-muted, #64748b);
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
@@ -781,12 +784,12 @@ const onCancel = () => emit('update:open', false)
   grid-template-columns: 120px 1fr 100px 100px 60px;
   gap: 12px;
   padding: 10px 16px;
-  border-bottom: 1px solid var(--border-default, #f1f5f9);
+  border-bottom: 1px solid var(--border-default);
   align-items: center;
 }
 
 .param-row:hover {
-  background: var(--bg-surface, #f8fafc);
+  background: var(--bg-surface);
 }
 
 .param-col {
@@ -798,14 +801,14 @@ const onCancel = () => emit('update:open', false)
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-heading, #334155);
+  color: var(--text-heading);
 }
 
 .param-id {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-heading, #334155);
+  color: var(--text-heading);
 }
 
 .param-col--desc {
@@ -817,13 +820,13 @@ const onCancel = () => emit('update:open', false)
 
 .param-desc {
   font-size: 12px;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .param-mapping {
   font-size: 10px;
-  color: var(--text-muted, #94a3b8);
-  background: var(--bg-surface, #f1f5f9);
+  color: var(--text-muted);
+  background: var(--bg-surface);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -835,7 +838,7 @@ const onCancel = () => emit('update:open', false)
 
 .param-range {
   font-size: 10px;
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-muted);
   text-align: center;
 }
 
@@ -845,8 +848,8 @@ const onCancel = () => emit('update:open', false)
 
 .runtime-params-box {
   margin-top: 24px;
-  background: var(--bg-card, #fff);
-  border: 1px solid var(--border-default, #e2e8f0);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 16px;
   padding: 16px;
 }
@@ -855,7 +858,7 @@ const onCancel = () => emit('update:open', false)
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: var(--text-heading, #111);
+  color: var(--text-heading);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -875,21 +878,21 @@ const onCancel = () => emit('update:open', false)
 
 .pl {
   font-size: 11px;
-  color: var(--text-muted, #999);
+  color: var(--text-muted);
 }
 
 .modal-footer-action {
   flex-shrink: 0;
   padding: 14px 24px;
-  background: var(--bg-card, #fff);
-  border-top: 1px solid var(--border-default, #e2e8f0);
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-default);
   display: flex;
   align-items: center;
 }
 
 .footer-left {
   font-size: 12px;
-  color: #52c41a;
+  color: var(--success);
   display: flex;
   align-items: center;
   gap: 4px;

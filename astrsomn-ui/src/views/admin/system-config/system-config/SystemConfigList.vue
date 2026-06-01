@@ -1,9 +1,9 @@
 <template>
   <AstPageShell
       :breadcrumbs="breadcrumbs"
-      description="管理系统配置项（SYSTEM_CONFIG），支持按分组维护运行时参数。"
-      empty-text="暂无系统配置。"
-      title="系统配置"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div class="config-page">
       <AstDataSection>
@@ -12,7 +12,7 @@
             <div class="toolbar-left">
               <AstSearchInput
                   v-model="query.configKey"
-                  placeholder="配置 Key"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
 
@@ -35,7 +35,7 @@
             :loading="loading"
             :row-selection="rowSelection"
             :scroll="{ x: 1400 }"
-            empty-text="暂无匹配的系统配置"
+            :empty-text="t.list.emptyMatch"
             mode="table"
             row-key="id"
         >
@@ -53,22 +53,22 @@
             </template>
             <template v-else-if="column.key === 'isSystem'">
               <a-tag :color="record.isSystem ? 'blue' : 'default'">
-                {{ record.isSystem ? '系统内置' : '自定义' }}
+                {{ isSystemDict.getLabel(record.isSystem ? 'Y' : 'N') }}
               </a-tag>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" @click="openEdit(record)">编辑</a-button>
+              <a-button type="link" @click="openEdit(record)">{{ t.list.btnEdit }}</a-button>
               <a-divider type="vertical"/>
               <a-popconfirm
                   v-if="!record.isSystem"
-                  cancel-text="取消"
-                  ok-text="确认"
-                  title="确定删除吗？"
+                  :cancel-text="t.list.btnCancel"
+                  :ok-text="t.list.btnConfirm"
+                  :title="t.list.confirmDelete"
                   @confirm="() => handleDeleteOne(record.id)"
               >
-                <a-button danger type="link">删除</a-button>
+                <a-button danger type="link">{{ t.list.btnDelete }}</a-button>
               </a-popconfirm>
-              <a-button v-else disabled type="link">删除</a-button>
+              <a-button v-else disabled type="link">{{ t.list.btnDelete }}</a-button>
             </template>
           </template>
         </AstDataView>
@@ -107,10 +107,16 @@ import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
 import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
 import SystemConfigForm from './component/SystemConfigForm.vue'
 import {type PageResponse, type SystemConfig, systemConfigApi} from '@/api/systemConfig.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+import {getDictionary} from '@/locales/dictionary/registry.ts'
+
+const t = usePageTranslation('system-config')
+const statusDict = getDictionary('system.config.status')
+const isSystemDict = getDictionary('system.config.isSystem')
 
 const breadcrumbs = [
-  {title: '系统配置', href: '/admin/system-config'},
-  {title: '系统配置'},
+  {title: t.value.list.breadcrumb, href: '/admin/system-config'},
+  {title: t.value.list.breadcrumb},
 ]
 
 type QueryState = {
@@ -119,15 +125,15 @@ type QueryState = {
   status?: string
 }
 
-const columns = [
-  {title: '配置 Key', dataIndex: 'configKey', key: 'configKey', width: 220, ellipsis: true, copyable: true},
-  {title: '配置分组', dataIndex: 'configGroup', key: 'configGroup', width: 160, ellipsis: true},
-  {title: '配置值', key: 'configValue', width: 280, ellipsis: true},
-  {title: '状态', key: 'status', width: 100},
-  {title: '属性', key: 'isSystem', width: 110},
-  {title: '描述', dataIndex: 'description', key: 'description', width: 200, ellipsis: true},
-  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
-]
+const columns = computed(() => [
+  {title: t.value.list.columnConfigKey, dataIndex: 'configKey', key: 'configKey', width: 220, ellipsis: true, copyable: true},
+  {title: t.value.list.columnConfigGroup, dataIndex: 'configGroup', key: 'configGroup', width: 160, ellipsis: true},
+  {title: t.value.list.columnConfigValue, key: 'configValue', width: 280, ellipsis: true},
+  {title: t.value.list.columnStatus, key: 'status', width: 100},
+  {title: t.value.list.columnAttribute, key: 'isSystem', width: 110},
+  {title: t.value.list.columnDescription, dataIndex: 'description', key: 'description', width: 200, ellipsis: true},
+  {title: t.value.list.columnActions, key: 'actions', width: 160, fixed: 'right' as const}
+])
 
 const query = reactive<QueryState>({})
 const list = ref<SystemConfig[]>([])
@@ -139,17 +145,17 @@ const page = reactive({
   total: 0
 })
 
-const statusOptions = [
-  {label: '全部', value: undefined, color: '#3b82f6', icon: AppstoreOutlined},
-  {label: '启用', value: 'ENABLED', color: '#10b981', icon: CheckCircleOutlined},
-  {label: '禁用', value: 'DISABLED', color: '#f43f5e', icon: StopOutlined}
-]
+const statusOptions = computed(() => [
+  {label: t.value.list.statusAll, value: undefined, color: '#3b82f6', icon: AppstoreOutlined},
+  {label: t.value.list.statusEnabled, value: 'ENABLED', color: '#10b981', icon: CheckCircleOutlined},
+  {label: t.value.list.statusDisabled, value: 'DISABLED', color: '#f43f5e', icon: StopOutlined}
+])
 
 const selectedRowKeys = ref<Array<number | string>>([])
 
 const actionButtons = computed<SegmentedButton[]>(() => [
   {
-    label: `删除 (${selectedRowKeys.value.length})`,
+    label: t.value.list.btnBatchDelete.replace('{count}', String(selectedRowKeys.value.length)),
     type: 'danger',
     icon: DeleteOutlined,
     plain: true,
@@ -157,13 +163,13 @@ const actionButtons = computed<SegmentedButton[]>(() => [
     onClick: handleBatchDelete
   },
   {
-    label: '重置',
+    label: t.value.list.btnReset,
     type: 'default',
     plain: true,
     onClick: resetFilters
   },
   {
-    label: '新增',
+    label: t.value.list.btnCreate,
     type: 'primary',
     icon: PlusOutlined,
     plain: true,
@@ -223,9 +229,7 @@ const preview = (raw: string | undefined) => {
 }
 
 const statusLabel = (value: string | undefined) => {
-  if (value === 'ENABLED') return '启用'
-  if (value === 'DISABLED') return '禁用'
-  return value ?? '—'
+  return statusDict.getLabel(value) ?? value ?? '—'
 }
 
 const modal = reactive({
@@ -296,7 +300,7 @@ const handleBatchDelete = async () => {
   })
 
   if (nonSystemIds.length === 0) {
-    message.warning('没有可删除的配置项（系统内置配置不可删除）')
+    message.warning(t.value.list.noDeletableConfig)
     return
   }
 
@@ -313,10 +317,10 @@ const handleBatchDelete = async () => {
   }).$modal
   if (modal) {
     modal.confirm({
-      title: '确认删除',
-      content: `确定要删除选中的 ${nonSystemIds.length} 个配置项吗？`,
-      okText: '确认',
-      cancelText: '取消',
+      title: t.value.list.confirmBatchDeleteTitle,
+      content: t.value.list.confirmBatchDeleteContent.replace('{count}', String(nonSystemIds.length)),
+      okText: t.value.list.btnConfirm,
+      cancelText: t.value.list.btnCancel,
       onOk: async () => {
         const msg = await systemConfigApi.delete(nonSystemIds)
         message.success(msg)
@@ -350,7 +354,7 @@ const handleFormSubmit = async (form: SystemConfig) => {
     void fetchList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
+    message.error(err?.message || t.value.list.saveFailed)
   } finally {
     modal.submitting = false
   }
@@ -471,7 +475,7 @@ void fetchList()
 }
 
 .config-value {
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--text-secondary);
 }
 
 @media (max-width: 720px) {

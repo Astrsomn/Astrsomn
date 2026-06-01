@@ -8,7 +8,7 @@
                 :allow-clear="true"
                 :value="providerFilter"
                 class="instance-provider-select"
-                placeholder="全部提供商"
+                :placeholder="t.modelParam.providerPlaceholder"
                 size="middle"
                 @update:value="emit('provider-change', $event)"
             />
@@ -16,7 +16,7 @@
               <AstSearchInput
                   :model-value="searchDraft"
                   layout="fluid"
-                  placeholder="名称、Model Key..."
+                  :placeholder="t.modelParam.searchPlaceholder"
                   @search="emit('search')"
                   @update:model-value="emit('update:searchDraft', $event)"
               />
@@ -25,14 +25,14 @@
         </div>
         <a-tabs v-if="!isEdit" :active-key="typeFilter" class="model-type-tabs"
                 @update:activeKey="emit('update:typeFilter', $event)">
-          <a-tab-pane key="all" tab="全部类型"/>
-          <a-tab-pane key="chat" tab="对话"/>
-          <a-tab-pane key="embedding" tab="向量"/>
-          <a-tab-pane key="image" tab="图像"/>
+          <a-tab-pane key="all" :tab="t.modelParam.tab.all"/>
+          <a-tab-pane key="chat" :tab="t.modelParam.tab.chat"/>
+          <a-tab-pane key="embedding" :tab="t.modelParam.tab.embedding"/>
+          <a-tab-pane key="image" :tab="t.modelParam.tab.image"/>
         </a-tabs>
         <div v-if="isEdit" class="edit-locked-hint">
           <LockOutlined/>
-          编辑模式下不可更换模型端点
+          {{ t.modelParam.editLockedHint }}
         </div>
       </div>
 
@@ -55,7 +55,7 @@
                 <div class="model-select-radio"><span class="dot"/></div>
 
                 <div class="endpoint-main">
-                  <div :title="record.modelName" class="endpoint-name">{{ record.modelName || '未命名端点' }}</div>
+                  <div :title="record.modelName" class="endpoint-name">{{ record.modelName || t.modelParam.unnamed }}</div>
                   <div class="endpoint-meta">
                     <div :class="record.modelType" class="inst-model-type-icon">
                       <MessageOutlined v-if="record.modelType === 'chat'"/>
@@ -69,9 +69,9 @@
               </button>
             </div>
           </a-spin>
-          <div v-if="modelList.length === 0 && !modelsLoading" class="model-list-empty">暂无可选端点</div>
-          <div v-else-if="modelsLoadingMore" class="model-list-loading-more">加载更多中...</div>
-          <div v-else-if="!hasNext && modelList.length > 0" class="model-list-loading-more">已全部加载</div>
+          <div v-if="modelList.length === 0 && !modelsLoading" class="model-list-empty">{{ t.modelParam.empty }}</div>
+          <div v-else-if="modelsLoadingMore" class="model-list-loading-more">{{ t.modelParam.loadingMore }}</div>
+          <div v-else-if="!hasNext && modelList.length > 0" class="model-list-loading-more">{{ t.modelParam.allLoaded }}</div>
         </div>
       </div>
 
@@ -92,6 +92,9 @@ import {LockOutlined, MessageOutlined, PartitionOutlined, PictureOutlined} from 
 import AstPagination from '@/components/home/AstPagination.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-instance')
 
 const props = defineProps<{
   isEdit?: boolean
@@ -149,9 +152,9 @@ const onPaginationChange = (page: number, size: number) => {
 }
 
 .glass-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: var(--radius-md);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-default);
 }
 
 .pane-header {
@@ -181,7 +184,7 @@ const onPaginationChange = (page: number, size: number) => {
 
 .field-label {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .instance-provider-select {
@@ -217,7 +220,7 @@ const onPaginationChange = (page: number, size: number) => {
 
 .meta-count {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .model-list-body {
@@ -243,9 +246,9 @@ const onPaginationChange = (page: number, size: number) => {
 
 .model-select-card {
   width: 100%;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-default);
   border-radius: 12px;
-  background: #fff;
+  background: var(--bg-card);
   padding: 10px 12px;
   display: flex;
   align-items: center;
@@ -256,14 +259,14 @@ const onPaginationChange = (page: number, size: number) => {
 }
 
 .model-select-card.is-active {
-  border-color: #60a5fa;
-  background: #eff6ff;
+  border-color: var(--primary);
+  background: var(--primary-hover, color-mix(in srgb, var(--primary) 5%, transparent));
 }
 
 .model-select-radio {
   width: 16px;
   height: 16px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border-default);
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -279,11 +282,11 @@ const onPaginationChange = (page: number, size: number) => {
 }
 
 .model-select-card.is-active .model-select-radio {
-  border-color: #3b82f6;
+  border-color: var(--primary);
 }
 
 .model-select-card.is-active .model-select-radio .dot {
-  background: #3b82f6;
+  background: var(--primary);
 }
 
 .inst-provider-avatar-cell {
@@ -303,8 +306,8 @@ const onPaginationChange = (page: number, size: number) => {
 }
 
 .inst-provider-avatar-cell--empty {
-  color: #cbd5e1;
-  background: #f8fafc;
+  color: var(--text-tertiary);
+  background: var(--bg-secondary);
   border-radius: 6px;
 }
 
@@ -318,7 +321,7 @@ const onPaginationChange = (page: number, size: number) => {
 .endpoint-name {
   font-size: 13px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -356,12 +359,12 @@ const onPaginationChange = (page: number, size: number) => {
 
 .inst-model-type-label {
   font-size: 12px;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .model-list-empty, .model-list-loading-more {
   text-align: center;
-  color: #94a3b8;
+  color: var(--text-tertiary);
   font-size: 12px;
   padding: 12px 0;
 }
@@ -381,7 +384,7 @@ const onPaginationChange = (page: number, size: number) => {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-tertiary);
   padding: 8px 0;
 }
 </style>

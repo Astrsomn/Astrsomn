@@ -14,7 +14,7 @@
           </div>
           <a-input 
             v-model:value="libraryName" 
-            placeholder="知识库名称" 
+            :placeholder="t.vectorCenter.rightTop.libraryNamePlaceholder"
             class="ultra-minimal-input name-input"
           />
         </div>
@@ -25,7 +25,7 @@
       <div class="section desc-section">
         <a-input 
           v-model:value="description" 
-          placeholder="点击添加描述信息..." 
+          :placeholder="t.vectorCenter.rightTop.descriptionPlaceholder" 
           class="ultra-minimal-input desc-input"
         />
       </div>
@@ -33,7 +33,7 @@
       <div class="v-sep"></div>
 
       <div class="section specs-inline">
-        <a-tooltip title="Embedding 模型 / 距离策略 / 维度">
+        <a-tooltip :title="t.vectorCenter.rightTop.specTooltip">
           <div class="spec-pill">
             <deployment-unit-outlined />
             <span class="val">{{ selectedModel || '-' }}</span>
@@ -43,14 +43,14 @@
             <span class="val">{{ dimension ?? '-' }}D</span>
           </div>
         </a-tooltip>
-        <a-tooltip :title="`切片策略: ${chunkStrategyLabel} / 大小: ${chunkSize} / 重叠: ${chunkOverlap}`">
+        <a-tooltip :title="t.vectorCenter.rightTop.chunkTooltip.replace('{strategy}', chunkStrategyLabel).replace('{size}', String(chunkSize)).replace('{overlap}', String(chunkOverlap))">
           <div class="spec-pill">
             <scissor-outlined />
             <span class="val">{{ chunkStrategyLabel }}</span>
             <span class="dot">·</span>
-            <span class="val">{{ chunkSize }}字</span>
+            <span class="val">{{ chunkSize }}{{ t.vectorCenter.rightTop.chars }}</span>
             <span class="dot">·</span>
-            <span class="val">重叠{{ chunkOverlap }}</span>
+            <span class="val">{{ t.vectorCenter.rightTop.overlap }}{{ chunkOverlap }}</span>
           </div>
         </a-tooltip>
         <div class="stat-pill">
@@ -62,10 +62,10 @@
 
       <div class="section actions">
         <a-tag :color="stats.collectionExists === false ? 'error' : 'success'" class="mini-status">
-          {{ stats.collectionExists === false ? '集合不存在' : '运行中' }}
+          {{ stats.collectionExists === false ? t.vectorCenter.rightTop.collectionNotExists : t.vectorCenter.rightTop.running }}
         </a-tag>
         <a-button type="primary" size="small" @click="handleSave" class="mini-save-btn">
-          保存
+          {{ t.vectorCenter.rightTop.save }}
         </a-button>
       </div>
 
@@ -78,6 +78,9 @@ import {computed, reactive, ref, watch} from 'vue';
 import {message} from 'ant-design-vue';
 import {ClusterOutlined, DatabaseOutlined, DeploymentUnitOutlined, ScissorOutlined} from '@ant-design/icons-vue';
 import {aiVecStoreApi} from '@/api/aiVecStore.ts';
+import {usePageTranslation} from '@/locales/pages.ts';
+
+const t = usePageTranslation('ai-vector');
 
 const props = defineProps<{ store?: any; source?: any; }>();
 const emit = defineEmits(['updated']);
@@ -100,18 +103,22 @@ const stats = reactive({
 });
 
 const distanceMetricLabel = computed(() => {
-  const map: Record<string, string> = { cosine: '余弦', euclidean: '欧氏', dot: '点积' };
+  const map: Record<string, string> = {
+    cosine: t.value.vectorCenter.rightTop.distanceMetric.cosine,
+    euclidean: t.value.vectorCenter.rightTop.distanceMetric.euclidean,
+    dot: t.value.vectorCenter.rightTop.distanceMetric.dot
+  };
   return map[distanceMetric.value] || distanceMetric.value || '-';
 });
 
 const chunkStrategyLabel = computed(() => {
   const map: Record<string, string> = {
-    RECURSIVE: '递归',
-    FIXED_SIZE: '固定',
-    PARAGRAPH: '段落',
-    SENTENCE: '句子'
+    RECURSIVE: t.value.vectorCenter.rightTop.chunkStrategy.RECURSIVE,
+    FIXED_SIZE: t.value.vectorCenter.rightTop.chunkStrategy.FIXED_SIZE,
+    PARAGRAPH: t.value.vectorCenter.rightTop.chunkStrategy.PARAGRAPH,
+    SENTENCE: t.value.vectorCenter.rightTop.chunkStrategy.SENTENCE
   };
-  return map[chunkStrategy.value] || chunkStrategy.value || '递归';
+  return map[chunkStrategy.value] || chunkStrategy.value || t.value.vectorCenter.rightTop.chunkStrategy.default;
 });
 
 const vectorCount = computed(() => stats.segmentCount);
@@ -135,9 +142,9 @@ watch(() => props.store, async (store) => {
 const handleSave = async () => {
   try {
     await aiVecStoreApi.update({ ...props.store, collectionName: libraryName.value, metadataSchema: description.value });
-    message.success('已保存');
+    message.success(t.value.vectorCenter.rightTop.saved);
     emit('updated');
-  } catch (e: any) { message.error('失败'); }
+  } catch (e: any) { message.error(t.value.vectorCenter.rightTop.saveFailed); }
 };
 </script>
 
@@ -221,7 +228,7 @@ const handleSave = async () => {
 
 .actions {
   gap: 12px;
-  .mini-status { margin: 0; font-size: 10px; border: none; background: rgba(16, 185, 129, 0.15); color: var(--success); }
+  .mini-status { margin: 0; font-size: 10px; border: none; background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
   .mini-save-btn { border-radius: 4px; height: 24px; font-size: 12px; padding: 0 8px; }
 }
 

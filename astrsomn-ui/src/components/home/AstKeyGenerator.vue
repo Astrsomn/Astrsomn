@@ -1,7 +1,7 @@
 <template>
   <a-input
       :disabled="disabled"
-      :placeholder="placeholder"
+      :placeholder="effectivePlaceholder"
       :size="size"
       :value="keySuffix"
       @update:value="onSuffixChange"
@@ -11,10 +11,10 @@
     </template>
     <template #suffix>
       <a-space :size="4">
-        <a-tooltip title="随机生成 Key">
+        <a-tooltip :title="t.keyGenerator.randomKey">
           <ReloadOutlined class="input-action-icon" @click="generateRandomKey"/>
         </a-tooltip>
-        <a-tooltip title="清空 Key">
+        <a-tooltip :title="t.keyGenerator.clearKey">
           <CloseCircleOutlined v-if="keySuffix" class="input-action-icon input-action-icon--danger" @click="clearKey"/>
         </a-tooltip>
       </a-space>
@@ -25,6 +25,9 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
 import {CloseCircleOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('common')
 
 const props = withDefaults(
     defineProps<{
@@ -38,12 +41,14 @@ const props = withDefaults(
     {
       modelValue: '',
       prefix: '',
-      placeholder: '请输入 Key',
+      placeholder: '',
       size: 'large',
       disabled: false,
       randomLength: 8
     }
 )
+
+const effectivePlaceholder = computed(() => props.placeholder || t.value.keyGenerator.placeholder)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void

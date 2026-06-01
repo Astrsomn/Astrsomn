@@ -22,6 +22,7 @@ import {type SystemConfig, systemConfigApi} from '@/api/systemConfig'
 import {type SystemEnv, systemEnvApi} from '@/api/systemEnv'
 import {type SystemMessage, systemMessageApi} from '@/api/systemMessage'
 import {type SystemUser, systemUserApi, type SystemUserQueryParam} from '@/api/systemUser'
+import {getDictionary} from '@/locales/dictionary/registry'
 
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
@@ -422,11 +423,17 @@ export function useSystemConfigCenter() {
             message.info('当前页无数据可导出')
             return
         }
+        const envDict = getDictionary('system.config-center.env')
+        const statusDict = getDictionary('system.config-center.status')
         const header = ['系统名称', '系统标识', '负责人', '环境', '状态', '今日调用量', '错误率', '最后访问']
-        const statusLabel = (s: SystemStatusUi) =>
-            s === 'online' ? '在线' : s === 'offline' ? '离线' : '维护中'
-        const envLabel = (e: SystemEnvUi) =>
-            e === 'prod' ? '生产' : e === 'pre' ? '预生产' : e === 'test' ? '测试' : '开发'
+        const envLabel = (e: SystemEnvUi) => {
+            const code = e === 'prod' ? 'PROD' : e === 'pre' ? 'PRE' : e === 'test' ? 'TEST' : 'DEV'
+            return envDict.getLabel(code) ?? code
+        }
+        const statusLabel = (s: SystemStatusUi) => {
+            const code = s === 'online' ? 'ONLINE' : s === 'offline' ? 'OFFLINE' : 'MAINTENANCE'
+            return statusDict.getLabel(code) ?? code
+        }
         const lines = [
             header.join(','),
             ...rows.map((r) =>

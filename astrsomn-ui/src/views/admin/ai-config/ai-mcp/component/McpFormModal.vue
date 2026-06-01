@@ -2,7 +2,7 @@
   <AstModal
       :body-height="'80vh'"
       :confirm-loading="confirmLoading"
-      :confirm-text="mode === 'create' ? '保存并同步服务' : '保存修改'"
+      :confirm-text="mode === 'create' ? t.form.createConfirmText : t.form.editConfirmText"
       :destroy-on-close="true"
       :header-height="'72px'"
       :max-width="'80vw'"
@@ -20,11 +20,11 @@
     </template>
 
     <template #header-title>
-      {{ mode === 'create' ? '注册 MCP 服务' : '编辑 MCP 配置' }}
+      {{ mode === 'create' ? t.form.createTitle : t.form.editTitle }}
     </template>
 
     <template #header-subtitle>
-      连接外部工具能力，扩展智能体的专业技能边界
+      {{ t.form.subtitle }}
     </template>
 
     <a-form
@@ -41,13 +41,13 @@
             <div class="section-card">
               <h3 class="section-title">
                 <IdcardOutlined/>
-                基础设定
+                {{ t.form.sectionTitle.basic }}
               </h3>
 
               <a-alert
                   v-if="mode === 'create'"
                   class="custom-alert"
-                  message="MCP Key 可留空，系统将根据名称自动生成唯一标识。"
+                  :message="t.form.alert"
                   show-icon
                   type="info"
               />
@@ -55,39 +55,39 @@
               <div class="form-fields">
                 <a-row :gutter="16">
                   <a-col :span="16">
-                    <a-form-item label="服务展示名称" name="serverName">
-                      <a-input v-model:value="form.serverName" placeholder="例如：Google Search API" size="large"/>
+                    <a-form-item :label="t.form.serverName.label" name="serverName">
+                      <a-input v-model:value="form.serverName" :placeholder="t.form.serverName.placeholder" size="large"/>
                     </a-form-item>
                   </a-col>
                   <a-col :span="8">
-                    <a-form-item label="服务状态" name="enabled">
+                    <a-form-item :label="t.form.status.label" name="enabled">
                       <a-select v-model:value="form.enabled" size="large">
-                        <a-select-option :value="1">已启用</a-select-option>
-                        <a-select-option :value="0">已禁用</a-select-option>
+                        <a-select-option :value="1">{{ t.form.status.enabled }}</a-select-option>
+                        <a-select-option :value="0">{{ t.form.status.disabled }}</a-select-option>
                       </a-select>
                     </a-form-item>
                   </a-col>
                 </a-row>
 
-                <a-form-item label="MCP Key (识别码)" name="mcpKey">
+                <a-form-item :label="t.form.mcpKey.label" name="mcpKey">
                   <AstKeyGenerator
                       v-model="form.mcpKey"
                       :disabled="mode === 'edit'"
                       :prefix="AI_MCP_KEY_PREFIX"
-                      placeholder="留空则服务端自动生成"
+                      :placeholder="t.form.mcpKey.placeholder"
                       size="large"
                   />
                 </a-form-item>
 
-                <a-form-item label="协议类型" name="type">
+                <a-form-item :label="t.form.type.label" name="type">
                   <a-segmented v-model:value="form.type" :options="mcpTypeOptions" block size="large"/>
                 </a-form-item>
 
-                <a-form-item label="服务描述" name="description">
+                <a-form-item :label="t.form.description.label" name="description">
                   <a-textarea
                       v-model:value="form.description"
                       :auto-size="{ minRows: 4, maxRows: 6 }"
-                      placeholder="详述此 MCP 服务的功能及用途..."
+                      :placeholder="t.form.description.placeholder"
                   />
                 </a-form-item>
               </div>
@@ -101,14 +101,14 @@
                 <LinkOutlined v-if="form.type === 'SSE'"/>
                 <CodeOutlined v-else-if="form.type === 'STDIO'"/>
                 <RocketOutlined v-else/>
-                {{ form.type }} 通讯配置
+                {{ t.form.sectionTitle.protocol.replace('{type}', form.type) }}
               </h3>
 
               <!-- SSE 协议配置 -->
               <div v-if="form.type === 'SSE'" class="protocol-box">
                 <div class="form-fields">
-                  <a-form-item label="SSE 服务地址" name="sseAddress">
-                    <a-input v-model:value="form.sseAddress" placeholder="https://mcp-server.example.com/sse"
+                  <a-form-item :label="t.form.sse.addressLabel" name="sseAddress">
+                    <a-input v-model:value="form.sseAddress" :placeholder="t.form.sse.addressPlaceholder"
                              size="large">
                       <template #prefix>
                         <GlobalOutlined style="color: #bfbfbf"/>
@@ -116,7 +116,7 @@
                     </a-input>
                   </a-form-item>
 
-                  <a-form-item label="请求头配置 (Headers JSON)" name="requestHeaderConfig">
+                  <a-form-item :label="t.form.sse.headersLabel" name="requestHeaderConfig">
                     <div class="json-editor-wrapper">
                       <a-textarea
                           v-model:value="form.requestHeaderConfig"
@@ -132,24 +132,24 @@
               <!-- STDIO 协议配置 -->
               <div v-else-if="form.type === 'STDIO'" class="protocol-box">
                 <div class="form-fields">
-                  <a-form-item label="执行命令" name="command">
-                    <a-input v-model:value="form.command" placeholder="npx / python / node" size="large">
+                  <a-form-item :label="t.form.stdio.commandLabel" name="command">
+                    <a-input v-model:value="form.command" :placeholder="t.form.stdio.commandPlaceholder" size="large">
                       <template #prefix>
                         <RightSquareOutlined style="color: #bfbfbf"/>
                       </template>
                     </a-input>
                   </a-form-item>
 
-                  <a-form-item label="启动参数" name="args">
+                  <a-form-item :label="t.form.stdio.argsLabel" name="args">
                     <a-textarea
                         v-model:value="form.args"
                         :auto-size="{ minRows: 3, maxRows: 4 }"
                         class="mono-text"
-                        placeholder="请输入启动参数，支持空格分隔或 JSON 数组格式"
+                        :placeholder="t.form.stdio.argsPlaceholder"
                     />
                   </a-form-item>
 
-                  <a-form-item label="环境变量 (Environment Variables)" name="envVars">
+                  <a-form-item :label="t.form.stdio.envVarsLabel" name="envVars">
                     <div class="json-editor-wrapper">
                       <a-textarea
                           v-model:value="form.envVars"
@@ -165,7 +165,7 @@
               <!-- STEAMABLE 协议配置 -->
               <div v-else class="protocol-box">
                 <div class="form-fields">
-                  <a-form-item label="Steamable 配置" name="steamableConfig">
+                  <a-form-item :label="t.form.steamable.configLabel" name="steamableConfig">
                     <div class="json-editor-wrapper">
                       <a-textarea
                           v-model:value="form.steamableConfig"
@@ -186,7 +186,7 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, watch} from 'vue'
+import {computed, reactive, ref, watch} from 'vue'
 import {
   ApiOutlined,
   CodeOutlined,
@@ -197,6 +197,7 @@ import {
   RightSquareOutlined,
   RocketOutlined
 } from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import type {FormInstance} from 'ant-design-vue'
 import type {AiMcp} from '@/api/aiMcp.ts'
 import AstModal from '@/components/home/AstModal.vue'
@@ -207,13 +208,15 @@ const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, in
 const emit = defineEmits<{ submit: [payload: AiMcp] }>()
 const open = defineModel<boolean>('open', {required: true})
 
+const t = usePageTranslation('ai-mcp')
+
 const formRef = ref<FormInstance | null>(null)
 
-const mcpTypeOptions = [
-  {label: 'SSE (远程)', value: 'SSE'},
-  {label: 'STDIO (本地)', value: 'STDIO'},
-  {label: 'STEAMABLE', value: 'STEAMABLE'}
-]
+const mcpTypeOptions = computed(() => [
+  {label: t.value.form.type.sse, value: 'SSE'},
+  {label: t.value.form.type.stdio, value: 'STDIO'},
+  {label: t.value.form.type.steamable, value: 'STEAMABLE'}
+])
 
 function emptyForm(): AiMcp {
   return {
@@ -225,11 +228,11 @@ function emptyForm(): AiMcp {
 
 const form = reactive<AiMcp>(emptyForm())
 
-const rules = {
-  serverName: [{required: true, message: '请输入服务名称'}],
-  type: [{required: true, message: '请选择协议类型'}],
-  sseAddress: [{required: true, message: 'SSE 地址不能为空', trigger: 'blur'}]
-}
+const rules = computed(() => ({
+  serverName: [{required: true, message: t.value.form.validation.serverNameRequired}],
+  type: [{required: true, message: t.value.form.validation.typeRequired}],
+  sseAddress: [{required: true, message: t.value.form.validation.sseAddressRequired, trigger: 'blur'}]
+}))
 
 const onOpenChange = (val: boolean) => {
   open.value = val
@@ -310,8 +313,8 @@ async function handleOk() {
   width: 45%;
   padding: 24px 32px;
   overflow-y: auto;
-  border-right: 1px solid #e2e8f0;
-  background: #fafbfc;
+  border-right: 1px solid var(--border-default);
+  background: var(--bg-elevated);
 }
 
 
@@ -319,7 +322,7 @@ async function handleOk() {
   width: 55%;
   padding: 24px 32px;
   overflow-y: auto;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 
@@ -334,9 +337,9 @@ async function handleOk() {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1e293b;
+  color: var(--text-heading);
   padding-bottom: 12px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-default);
 }
 
 
@@ -352,16 +355,16 @@ async function handleOk() {
 }
 
 .json-editor-wrapper {
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
-  background: #fafafa;
+  background: var(--bg-elevated);
   transition: 0.3s;
 }
 
 .json-editor-wrapper:focus-within {
-  border-color: #1890ff;
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .mono-text {

@@ -2,8 +2,8 @@
   <div class="list-overview">
     <div class="overview-main">
       <button
-          :aria-label="viewMode === 'grid' ? '切换为列表展示' : '切换为方块展示'"
-          :title="viewMode === 'grid' ? '切换为列表展示' : '切换为方块展示'"
+          :aria-label="viewMode === 'grid' ? t.overview.switchToList : t.overview.switchToGrid"
+          :title="viewMode === 'grid' ? t.overview.switchToList : t.overview.switchToGrid"
           class="overview-icon overview-view-toggle"
           type="button"
           @click="toggleViewMode"
@@ -13,7 +13,7 @@
       </button>
       <div>
         <div class="overview-desc">
-          {{ summaryText || `当前页 ${listLength} 条，已选 ${selectedCount} 条` }}
+          {{ summaryText || t.overview.defaultSummary.replace('{listLength}', String(listLength)).replace('{selectedCount}', String(selectedCount)) }}
         </div>
       </div>
     </div>
@@ -24,7 +24,7 @@
           :indeterminate="partCurrentSelected"
           @change="onToggleSelectAll"
       >
-        本页全选
+        {{ t.overview.selectAllOnPage }}
       </a-checkbox>
     </div>
   </div>
@@ -32,6 +32,9 @@
 
 <script lang="ts" setup>
 import {AppstoreOutlined, UnorderedListOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('common')
 
 const props = withDefaults(defineProps<{
   listLength: number

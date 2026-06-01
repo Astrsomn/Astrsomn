@@ -4,9 +4,9 @@
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
-      description="管理本地工具与调用配置（AI_TOOL），对接 AiToolController。"
-      empty-text="暂无可用工具。"
-      title="AI Tools"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div ref="pageRef" class="tool-page">
       <AstDataSection>
@@ -15,17 +15,17 @@
             <div class="toolbar-left">
               <AstSearchInput
                   v-model="query.toolName"
-                  button-label="搜索"
+                  :button-label="t.list.searchButton"
                   layout="toolbar"
-                  placeholder="搜索工具名称"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
               <AstStatusSwitch
                   v-model="query.enableFlag"
                   :options="[
-                  { label: '全部', value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
-                  { label: '启用', value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
-                  { label: '禁用', value: 'disabled', color: '#f43f5e', icon: StopOutlined }
+                  { label: t.list.status.all, value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
+                  { label: t.list.status.enabled, value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
+                  { label: t.list.status.disabled, value: 'disabled', color: '#f43f5e', icon: StopOutlined }
                 ]"
                   @change="fetchList"
               />
@@ -47,7 +47,7 @@
             :mode="dataViewMode"
             :row-selection="rowSelection"
             :scroll="{ x: 1180 }"
-            empty-text="暂无匹配的工具记录"
+            :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
           <template #card="{ record }">
@@ -70,9 +70,9 @@
                   <EditOutlined/>
                 </a-button>
                 <a-popconfirm
-                    cancel-text="取消"
-                    ok-text="确认"
-                    title="确定删除吗？"
+                    :cancel-text="t.list.cancel"
+                    :ok-text="t.list.confirm"
+                    :title="t.list.deleteConfirm"
                     @confirm="() => handleDeleteOne(record.id)"
                 >
                   <a-button danger size="small" type="link">
@@ -126,6 +126,9 @@ import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import ToolForm from './component/ToolForm.vue'
 import ToolCard from './component/ToolCard.vue'
 import {type AiTool, aiToolApi, type PageResponse} from '@/api/aiTool.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-tool')
 
 const props = withDefaults(defineProps<{
   initialViewMode?: 'grid' | 'list'
@@ -150,42 +153,42 @@ type QueryState = {
   enableFlag?: string
 }
 
-const breadcrumbs = [
-  {title: 'AI 配置', href: '/admin/ai-config'},
-  {title: 'AI Tools'},
-]
+const breadcrumbs = computed(() => [
+  {title: t.value.list.breadcrumb.aiConfig, href: '/admin/ai-config'},
+  {title: t.value.list.breadcrumb.aiTools},
+])
 
 const typeFilterOptions = [
   {label: 'HTML', value: 'html'},
   {label: 'Method', value: 'method'}
 ]
 
-const enableFilterOptions = [
-  {label: '启用', value: 'enabled'},
-  {label: '停用', value: 'disabled'}
-]
+const enableFilterOptions = computed(() => [
+  {label: t.value.list.enableFilter.enabled, value: 'enabled'},
+  {label: t.value.list.enableFilter.disabled, value: 'disabled'}
+])
 
-const renderEnable = (f: string) => enableFilterOptions.find((x) => x.value === f)?.label ?? f
+const renderEnable = (f: string) => enableFilterOptions.value.find((x) => x.value === f)?.label ?? f
 
 const preview = (raw: string | undefined) => {
   if (!raw) return '—'
-  const t = raw.replace(/\s+/g, ' ').trim()
-  return t.length > 48 ? `${t.slice(0, 48)}…` : t
+  const txt = raw.replace(/\s+/g, ' ').trim()
+  return txt.length > 48 ? `${txt.slice(0, 48)}…` : txt
 }
 
-const columns = [
+const columns = computed(() => [
   {title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 180, ellipsis: true, copyable: true},
-  {title: '名称', dataIndex: 'toolName', key: 'toolName', width: 140, ellipsis: true},
-  {title: '类型', dataIndex: 'type', key: 'type', width: 90},
+  {title: t.value.list.column.toolName, dataIndex: 'toolName', key: 'toolName', width: 140, ellipsis: true},
+  {title: t.value.list.column.type, dataIndex: 'type', key: 'type', width: 90},
   {title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 140, ellipsis: true},
-  {title: '方法', dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true},
-  {title: '描述', key: 'description', width: 200, ellipsis: true},
-  {title: '状态', key: 'enableFlag', width: 80},
-  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
-  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  {title: '操作', key: 'actions', width: 100, fixed: 'right' as const}
-]
+  {title: t.value.list.column.methodName, dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true},
+  {title: t.value.list.column.description, key: 'description', width: 200, ellipsis: true},
+  {title: t.value.list.column.status, key: 'enableFlag', width: 80},
+  {title: t.value.list.column.envCode, dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: t.value.list.column.createUser, dataIndex: 'createUser', key: 'createUser', width: 150},
+  {title: t.value.list.column.actions, key: 'actions', width: 100, fixed: 'right' as const}
+])
 
 const query = reactive<QueryState>({})
 const list = ref<AiTool[]>([])
@@ -278,12 +281,12 @@ const resetFilters = () => {
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '重置',
+    label: t.value.list.reset,
     icon: ReloadOutlined,
     onClick: resetFilters
   },
   {
-    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    label: selectedRowKeys.value.length > 0 ? t.value.list.deleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.delete,
     type: 'danger',
     plain: true,
     icon: DeleteOutlined,
@@ -292,13 +295,13 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
       const n = selectedRowKeys.value.length
       if (n === 0) return
       Modal.confirm({
-        title: `确定删除选中的 ${n} 个工具吗？`,
+        title: t.value.list.batchDeleteConfirm.replace('{n}', String(n)),
         onOk: () => handleBatchDelete()
       })
     }
   },
   {
-    label: '新增',
+    label: t.value.list.create,
     type: 'primary',
     icon: PlusOutlined,
     onClick: openCreate
@@ -391,7 +394,7 @@ const handleFormSubmit = async (form: AiTool) => {
     void fetchList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
+    message.error(err?.message || t.value.list.saveFailed)
   } finally {
     modal.submitting = false
   }
@@ -517,7 +520,7 @@ void fetchList()
 }
 
 .desc-preview {
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--text-tertiary);
   font-size: 12px;
 }
 

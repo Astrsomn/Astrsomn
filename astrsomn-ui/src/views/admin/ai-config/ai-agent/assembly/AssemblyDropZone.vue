@@ -22,7 +22,7 @@
     >
       <div v-if="eligible && draggingPayload && isOver" class="drop-hint-banner">
         <span class="banner-dot"/>
-        松开鼠标以放入
+        {{ t.dropZone.releaseToDrop }}
       </div>
       <div class="zone-inner">
         <slot/>
@@ -35,6 +35,9 @@
 import {type Component, computed, ref} from 'vue'
 import type {AssemblyDragPayload, AssemblySlotKey} from './assemblyTypes'
 import {ASSEMBLY_DRAG_MIME, parseDragPayload, payloadAcceptsSlot} from './assemblyTypes'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-agent')
 
 const props = defineProps<{
   slotKey: AssemblySlotKey

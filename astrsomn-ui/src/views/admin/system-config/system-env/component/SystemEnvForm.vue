@@ -2,7 +2,7 @@
   <a-modal
       v-model:open="open"
       :confirm-loading="confirmLoading"
-      :title="mode === 'create' ? '新增环境' : '编辑环境'"
+      :title="mode === 'create' ? t.form.createTitle : t.form.editTitle"
       width="560px"
       @cancel="onCancel"
       @ok="handleOk"
@@ -14,20 +14,20 @@
         class="env-form"
         layout="vertical"
     >
-      <a-form-item label="环境名称" name="envName">
-        <a-input v-model:value="form.envName" placeholder="展示名称"/>
+      <a-form-item :label="t.form.labelEnvName" name="envName">
+        <a-input v-model:value="form.envName" :placeholder="t.form.placeholderEnvName"/>
       </a-form-item>
 
-      <a-form-item label="环境 Key" name="envKey">
+      <a-form-item :label="t.form.labelEnvKey" name="envKey">
         <a-input
             v-model:value="form.envKey"
             :disabled="mode === 'edit'"
-            placeholder="如 DEV、SIT、UAT、PRO"
+            :placeholder="t.form.placeholderEnvKey"
         />
       </a-form-item>
 
-      <a-form-item label="描述" name="description">
-        <a-textarea v-model:value="form.description" :auto-size="{ minRows: 2, maxRows: 6 }" placeholder="可选"/>
+      <a-form-item :label="t.form.labelDescription" name="description">
+        <a-textarea v-model:value="form.description" :auto-size="{ minRows: 2, maxRows: 6 }" :placeholder="t.form.placeholderDescription"/>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -36,7 +36,10 @@
 <script lang="ts" setup>
 import {reactive, ref, watch} from 'vue'
 import type {FormInstance} from 'ant-design-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import type {SystemEnv} from '@/api/systemEnv.ts'
+
+const t = usePageTranslation('system-env')
 
 const props = defineProps<{
   mode: 'create' | 'edit'
@@ -63,8 +66,8 @@ function emptyForm(): SystemEnv {
 const form = reactive<SystemEnv>(emptyForm())
 
 const rules = {
-  envName: [{required: true, message: '请输入环境名称'}],
-  envKey: [{required: true, message: '请输入环境 Key'}]
+  envName: [{required: true, message: t.value.form.validationEnvName}],
+  envKey: [{required: true, message: t.value.form.validationEnvKey}]
 }
 
 function assignFromInitial(src: SystemEnv) {

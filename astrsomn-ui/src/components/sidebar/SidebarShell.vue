@@ -10,7 +10,7 @@
       <slot name="footer"/>
     </div>
     <a-tooltip :placement="collapsed ? 'right' : 'bottom'">
-      <template #title>{{ collapsed ? '展开侧边栏' : '收起侧边栏' }}</template>
+      <template #title>{{ collapsed ? t.sidebar.expandSidebar : t.sidebar.collapseSidebar }}</template>
       <div class="ast-sidebar-collapse-toggle" @click="emit('toggle-collapse')">
         <RightOutlined v-if="collapsed"/>
         <LeftOutlined v-else/>
@@ -22,6 +22,9 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
 import {LeftOutlined, RightOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('common')
 
 const props = withDefaults(defineProps<{
   collapsed?: boolean
@@ -46,7 +49,7 @@ const currentWidth = computed(() => props.collapsed ? props.collapsedWidth : pro
   display: flex;
   flex-direction: column;
   background: var(--bg-card);
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 2px 0 8px color-mix(in srgb, var(--shadow-color, #000) 4%, transparent);
   border-right: 1px solid #e5e6eb47;
   position: relative;
 }
@@ -108,7 +111,7 @@ const currentWidth = computed(() => props.collapsed ? props.collapsedWidth : pro
   cursor: pointer;
   transition: all 0.2s;
   font-size: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--shadow-color, #000) 8%, transparent);
 }
 
 .ast-sidebar-collapse-toggle:hover {

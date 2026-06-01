@@ -4,16 +4,16 @@
       <a-form :colon="false" class="agent-assembly-form" layout="vertical">
         <div class="header-row">
           <div class="form-group-main">
-            <a-form-item class="fi-name" label="名称">
-              <a-input v-model:value="agentForm.agentName" allow-clear placeholder="智能体名称"/>
+            <a-form-item class="fi-name" :label="t.canvas.nameLabel">
+              <a-input v-model:value="agentForm.agentName" allow-clear :placeholder="t.canvas.namePlaceholder"/>
             </a-form-item>
-            <a-form-item class="fi-stream" label="Streamable">
+            <a-form-item class="fi-stream" :label="t.canvas.streamableLabel">
               <a-switch v-model:checked="agentForm.enableStream"/>
             </a-form-item>
-            <a-form-item class="fi-mem" label="记忆模式">
+            <a-form-item class="fi-mem" :label="t.canvas.memoryModeLabel">
               <a-select v-model:value="agentForm.memoryMode" :options="memoryModeOptions"/>
             </a-form-item>
-            <a-form-item class="fi-win" label="窗口大小">
+            <a-form-item class="fi-win" :label="t.canvas.windowSizeLabel">
               <a-input-number v-model:value="memoryWindowNum" :min="0"/>
             </a-form-item>
           </div>
@@ -22,24 +22,24 @@
         </div>
 
         <div class="header-row row-meta">
-          <a-form-item class="fi-status" label="状态">
-            <a-select v-model:value="agentForm.status" placeholder="选择状态">
-              <a-select-option value="enabled">启用</a-select-option>
-              <a-select-option value="disabled">禁用</a-select-option>
+          <a-form-item class="fi-status" :label="t.canvas.statusLabel">
+            <a-select v-model:value="agentForm.status" :placeholder="t.canvas.statusPlaceholder">
+              <a-select-option value="enabled">{{ t.canvas.enabled }}</a-select-option>
+              <a-select-option value="disabled">{{ t.canvas.disabled }}</a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item class="fi-key" label="标识符 (Agent Key)">
+          <a-form-item class="fi-key" :label="t.canvas.agentKeyLabel">
             <AstKeyGenerator
                 v-model="agentForm.agentKey"
                 :prefix="AI_AGENT_KEY_PREFIX"
-                placeholder="唯一 ID"
+                :placeholder="t.canvas.agentKeyPlaceholder"
             />
           </a-form-item>
-          <a-form-item class="fi-desc" label="角色描述">
+          <a-form-item class="fi-desc" :label="t.canvas.descriptionLabel">
             <a-textarea
                 v-model:value="agentForm.description"
                 :auto-size="{ minRows: 1, maxRows: 3 }"
-                placeholder="定义 AI 的行为准则..."
+                :placeholder="t.canvas.descriptionPlaceholder"
             />
           </a-form-item>
         </div>
@@ -55,7 +55,7 @@
             :icon="MessageOutlined"
             class="canvas-slot slot-chat"
             slot-key="chatInstance"
-            title="对话核心 (Chat)"
+            :title="t.canvas.chatCoreTitle"
             variant="chat"
             @drop="$emit('drop', $event)"
             @hover="$emit('hover', $event)"
@@ -69,10 +69,10 @@
                 <div class="p-title">{{ chatInstance.instanceName || chatInstance.instanceKey }}</div>
                 <div class="p-sub">{{ chatInstance.modelKey }}</div>
               </div>
-              <a-button danger size="small" type="link" @click="$emit('clear', 'chatInstance')">移除</a-button>
+              <a-button danger size="small" type="link" @click="$emit('clear', 'chatInstance')">{{ t.canvas.remove }}</a-button>
             </div>
           </template>
-          <div v-else class="placeholder-minimal">请拖入对话模型</div>
+          <div v-else class="placeholder-minimal">{{ t.canvas.dragChatModel }}</div>
         </AssemblyDropZone>
 
         <AssemblyDropZone
@@ -82,7 +82,7 @@
             :icon="FileTextOutlined"
             class="canvas-slot slot-prompt"
             slot-key="promptInstance"
-            title="系统提示词 (Prompt)"
+            :title="t.canvas.promptTitle"
             variant="chat"
             @drop="$emit('drop', $event)"
             @hover="$emit('hover', $event)"
@@ -96,10 +96,10 @@
                 <div class="p-title">{{ promptInstance.promptTitle || promptInstance.promptKey }}</div>
                 <div class="p-sub">{{ promptInstance.promptKey }}</div>
               </div>
-              <a-button danger size="small" type="link" @click="$emit('clear', 'promptInstance')">移除</a-button>
+              <a-button danger size="small" type="link" @click="$emit('clear', 'promptInstance')">{{ t.canvas.remove }}</a-button>
             </div>
           </template>
-          <div v-else class="placeholder-minimal">请拖入提示词</div>
+          <div v-else class="placeholder-minimal">{{ t.canvas.dragPrompt }}</div>
         </AssemblyDropZone>
       </div>
 
@@ -111,7 +111,7 @@
             :icon="PictureOutlined"
             class="canvas-slot"
             slot-key="imageInstance"
-            title="多媒体支持"
+            :title="t.canvas.mediaSupportTitle"
             variant="img"
             @drop="$emit('drop', $event)"
             @hover="$emit('hover', $event)"
@@ -121,9 +121,9 @@
               <div class="p-title">{{ imageInstance.instanceName || imageInstance.instanceKey }}</div>
               <div class="p-sub">{{ imageInstance.modelKey }}</div>
             </div>
-            <a-button danger size="small" type="link" @click="$emit('clear', 'imageInstance')">移除</a-button>
+            <a-button danger size="small" type="link" @click="$emit('clear', 'imageInstance')">{{ t.canvas.remove }}</a-button>
           </div>
-          <div v-else class="placeholder-minimal">未配置图像</div>
+          <div v-else class="placeholder-minimal">{{ t.canvas.imageNotConfigured }}</div>
         </AssemblyDropZone>
 
         <AssemblyDropZone
@@ -133,7 +133,7 @@
             :icon="ToolOutlined"
             class="canvas-slot"
             slot-key="tools"
-            title="插件工具 (Tools)"
+            :title="t.canvas.toolsTitle"
             variant="tool"
             @drop="$emit('drop', $event)"
             @hover="$emit('hover', $event)"
@@ -143,7 +143,7 @@
               {{ t.toolName || t.toolKey }}
             </a-tag>
           </div>
-          <div v-else class="placeholder-minimal">拖入 Tool</div>
+          <div v-else class="placeholder-minimal">{{ t.canvas.dragTool }}</div>
         </AssemblyDropZone>
 
         <AssemblyDropZone
@@ -153,7 +153,7 @@
             :icon="ApiOutlined"
             class="canvas-slot"
             slot-key="mcps"
-            title="MCP 服务"
+            :title="t.canvas.mcpTitle"
             variant="mcp"
             @drop="$emit('drop', $event)"
             @hover="$emit('hover', $event)"
@@ -163,7 +163,7 @@
               {{ m.serverName || m.mcpKey }}
             </a-tag>
           </div>
-          <div v-else class="placeholder-minimal">拖入 MCP</div>
+          <div v-else class="placeholder-minimal">{{ t.canvas.dragMcp }}</div>
         </AssemblyDropZone>
       </div>
     </div>
@@ -176,7 +176,7 @@
           :icon="BookOutlined"
           class="canvas-slot"
           slot-key="knowledgeBase"
-          title="关联知识库"
+          :title="t.canvas.knowledgeTitle"
           variant="kb"
           @drop="$emit('drop', $event)"
           @hover="$emit('hover', $event)"
@@ -186,7 +186,7 @@
             {{ k }}
           </a-tag>
         </div>
-        <div v-else class="placeholder-minimal">未关联知识库</div>
+        <div v-else class="placeholder-minimal">{{ t.canvas.knowledgeNotLinked }}</div>
       </AssemblyDropZone>
     </div>
   </main>
@@ -202,6 +202,7 @@ import {
   PictureOutlined,
   ToolOutlined
 } from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import type {AiInstance} from '@/api/aiInstance'
 import type {AiTool} from '@/api/aiTool'
 import type {AiMcp} from '@/api/aiMcp'
@@ -211,12 +212,14 @@ import AssemblyDropZone from './AssemblyDropZone.vue'
 import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes'
 
-const memoryModeOptions = [
-  {label: '禁用', value: 'NONE'},
-  {label: '滑动窗口', value: 'SLIDING_WINDOW'},
-  {label: '长期向量', value: 'VECTOR'},
-  {label: '混合模式', value: 'hybrid'}
-]
+const t = usePageTranslation('ai-agent')
+
+const memoryModeOptions = computed(() => [
+  {label: t.value.canvas.memoryMode.none, value: 'NONE'},
+  {label: t.value.canvas.memoryMode.slidingWindow, value: 'SLIDING_WINDOW'},
+  {label: t.value.canvas.memoryMode.vector, value: 'VECTOR'},
+  {label: t.value.canvas.memoryMode.hybrid, value: 'hybrid'}
+])
 
 const props = defineProps<{
   draggingPayload: AssemblyDragPayload | null

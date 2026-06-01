@@ -4,9 +4,9 @@
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
-      description="同一 Prompt Key 共用一个逻辑提示词；每次保存生成新版本，列表按 Key 聚合展示当前最新版本。"
-      empty-text="暂无提示词，请先创建。"
-      title="提示词管理"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div ref="pageRef" class="prompt-page">
       <AstDataSection>
@@ -15,9 +15,9 @@
             <div class="toolbar-left">
               <AstSearchInput
                   v-model="query.promptTitle"
-                  button-label="查询"
+                  :button-label="t.list.searchButton"
                   layout="toolbar"
-                  placeholder="搜索标题"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
               <PromptSceneTagSelector v-model="query.sceneTags" @change="fetchList"/>
@@ -40,7 +40,7 @@
             :mode="dataViewMode"
             :row-selection="rowSelection"
             :scroll="{ x: 1180 }"
-            empty-text="暂无匹配的提示词"
+            :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
           <template #card="{ record }">
@@ -56,7 +56,7 @@
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
               <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
-                {{ record.status === 'enabled' ? '启用' : '禁用' }}
+                {{ record.status === 'enabled' ? t.list.status.enabled : t.list.status.disabled }}
               </a-tag>
             </template>
             <template v-else-if="column.key === 'version'">
@@ -73,7 +73,7 @@
                 <a-button size="small" type="link" @click="openEdit(record)">
                   <EditOutlined/>
                 </a-button>
-                <a-popconfirm cancel-text="取消" ok-text="确认" title="确定删除吗？"
+                <a-popconfirm :cancel-text="t.list.cancel" :ok-text="t.list.confirm" :title="t.list.deleteConfirm"
                               @confirm="() => handleDeleteOne(record.id)">
                   <a-button danger size="small" type="link">
                     <DeleteOutlined/>
@@ -127,6 +127,9 @@ import PromptHistoryModal from './component/PromptHistoryModal.vue'
 import PromptCard from './component/PromptCard.vue'
 import PromptSceneTagSelector from './component/PromptSceneTagSelector.vue'
 import {type AiPrompt, aiPromptApi, type PageResponse} from '@/api/aiPrompt'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-prompt')
 
 const props = withDefaults(defineProps<{
   initialViewMode?: 'grid' | 'list'
@@ -139,10 +142,10 @@ const PROMPT_CARD_GAP_PX = 12
 const promptCardMinWidth = `${PROMPT_CARD_MIN_WIDTH_PX}px`
 const promptCardGap = `${PROMPT_CARD_GAP_PX}px`
 
-const breadcrumbs = [
-  {title: 'AI 配置', href: '/admin/ai-config'},
-  {title: '提示词管理'},
-]
+const breadcrumbs = computed(() => [
+  {title: t.value.list.breadcrumb.aiConfig, href: '/admin/ai-config'},
+  {title: t.value.list.breadcrumb.promptManagement},
+])
 
 type QueryState = {
   promptTitle?: string
@@ -156,18 +159,18 @@ type QueryState = {
 const query = reactive<QueryState>({})
 const loading = ref(false)
 const list = ref<AiPrompt[]>([])
-const columns = [
+const columns = computed(() => [
   {title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 180, ellipsis: true, copyable: true},
-  {title: '标题', dataIndex: 'promptTitle', key: 'promptTitle', width: 220, ellipsis: true},
-  {title: '场景', dataIndex: 'scene', key: 'scene', width: 140, ellipsis: true},
-  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true},
-  {title: '状态', dataIndex: 'status', key: 'status', width: 100},
-  {title: '版本', dataIndex: 'version', key: 'version', width: 90},
-  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
-  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  {title: '操作', key: 'actions', width: 150, fixed: 'right' as const}
-]
+  {title: t.value.list.column.promptTitle, dataIndex: 'promptTitle', key: 'promptTitle', width: 220, ellipsis: true},
+  {title: t.value.list.column.scene, dataIndex: 'scene', key: 'scene', width: 140, ellipsis: true},
+  {title: t.value.list.column.envCode, dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true},
+  {title: t.value.list.column.status, dataIndex: 'status', key: 'status', width: 100},
+  {title: t.value.list.column.version, dataIndex: 'version', key: 'version', width: 90},
+  {title: t.value.list.column.envCode, dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: t.value.list.column.createUser, dataIndex: 'createUser', key: 'createUser', width: 150},
+  {title: t.value.list.column.actions, key: 'actions', width: 150, fixed: 'right' as const}
+])
 
 const page = reactive({
   pageNum: 1,
@@ -241,26 +244,26 @@ const resetFilters = () => {
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: '重置',
+    label: t.value.list.reset,
     icon: ReloadOutlined,
     onClick: resetFilters
   },
   {
-    label: selectedRowKeys.value.length > 0 ? `删除 (${selectedRowKeys.value.length})` : '删除',
+    label: selectedRowKeys.value.length > 0 ? t.value.list.deleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.delete,
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
       if (selectedRowKeys.value.length === 0) return
       Modal.confirm({
-        title: '将删除选中项对应的 Prompt Key 下全部历史版本，确定吗？',
-        okText: '确认',
-        cancelText: '取消',
+        title: t.value.list.batchDeleteConfirm,
+        okText: t.value.list.confirm,
+        cancelText: t.value.list.cancel,
         onOk: () => handleBatchDelete()
       })
     }
   },
   {
-    label: '新增',
+    label: t.value.list.create,
     type: 'primary',
     icon: PlusOutlined,
     onClick: openCreate
@@ -369,7 +372,7 @@ const handleFormSubmit = async (form: AiPrompt) => {
     void fetchList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
+    message.error(err?.message || t.value.list.saveFailed)
   } finally {
     modal.submitting = false
   }

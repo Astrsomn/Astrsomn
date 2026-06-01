@@ -11,7 +11,7 @@
                 v-model="agentNameLocal"
                 class="agent-name-input header-input"
                 maxlength="50"
-                placeholder="智能体名称"
+                :placeholder="t.agentCard.namePlaceholder"
                 @input="handleAgentNameInput"
             />
           </div>
@@ -24,7 +24,7 @@
           v-model="descriptionLocal"
           class="agent-name-input desc-input"
           maxlength="100"
-          placeholder="智能体描述"
+          :placeholder="t.agentCard.descriptionPlaceholder"
           @input="handleDescriptionInput"
       />
 
@@ -35,6 +35,9 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
 import {DoubleRightOutlined, RobotOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-builder')
 
 interface Props {
   agentName?: string
@@ -88,7 +91,7 @@ const handleDescriptionInput = (event: Event) => {
   overflow: hidden;
   transition: box-shadow 0.2s,
   transform 0.2s;
-  box-shadow: var(--ab-btn-glow, 0 4px 15px rgba(59, 130, 246, 0.3));
+  box-shadow: var(--ab-btn-glow, 0 4px 15px color-mix(in srgb, var(--primary) 30%, transparent));
   color: white;
   cursor: pointer;
   display: flex;
@@ -97,7 +100,7 @@ const handleDescriptionInput = (event: Event) => {
 
 .agent-card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
 .card-header {
@@ -117,7 +120,7 @@ const handleDescriptionInput = (event: Event) => {
   width: 40px;
   height: 40px;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.2);
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -139,12 +142,12 @@ const handleDescriptionInput = (event: Event) => {
 .card-label {
   font-size: 10px;
   font-weight: bold;
-  color: rgba(255, 255, 255, 0.8);
+  color: color-mix(in srgb, white 80%, transparent);
   text-transform: uppercase;
 }
 
 .card-icon {
-  color: rgba(255, 255, 255, 0.3);
+  color: color-mix(in srgb, white 30%, transparent);
   font-size: 16px;
   position: absolute;
   top: 50%;
@@ -158,9 +161,9 @@ const handleDescriptionInput = (event: Event) => {
 .agent-name-input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid color-mix(in srgb, white 30%, transparent);
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, white 10%, transparent);
   color: white;
   font-size: 14px;
   font-weight: 500;
@@ -187,19 +190,19 @@ const handleDescriptionInput = (event: Event) => {
 }
 
 .agent-name-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: color-mix(in srgb, white 60%, transparent);
 }
 
 .agent-name-input:focus {
   outline: none;
   border-color: white;
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, white 20%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, white 10%, transparent);
 }
 
 .card-subtitle {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: color-mix(in srgb, white 70%, transparent);
   margin-top: 4px;
 }
 </style>

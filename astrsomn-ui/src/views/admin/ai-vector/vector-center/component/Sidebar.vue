@@ -6,7 +6,7 @@
           v-model="searchText"
           class="sidebar-search-pill"
           layout="fluid"
-          placeholder="搜索数据源..."
+          :placeholder="t.vectorCenter.sidebar.searchPlaceholder"
           @search="handleSearch"
       />
     </template>
@@ -25,7 +25,7 @@
         <ClusterOutlined v-else class="collapsed-source-icon"/>
       </div>
       <a-tooltip placement="right">
-        <template #title>添加数据源</template>
+        <template #title>{{ t.vectorCenter.sidebar.addSourceTooltip }}</template>
         <div class="collapsed-add-btn" @click="handleAddSource">
           <PlusOutlined class="collapsed-add-icon"/>
         </div>
@@ -82,7 +82,7 @@
                 />
               </template>
             </a-dropdown>
-            <div v-if="!source.dbs.length" class="db-empty-hint" @contextmenu.prevent="handleDbContainerContextMenu($event, source)">右键空白区域可新建数据库</div>
+            <div v-if="!source.dbs.length" class="db-empty-hint" @contextmenu.prevent="handleDbContainerContextMenu($event, source)">{{ t.vectorCenter.sidebar.dbEmptyHint }}</div>
           </div>
         </transition>
       </div>
@@ -92,7 +92,7 @@
     <div v-if="!collapsed" class="add-source-section">
       <div class="add-source-btn" @click="handleAddSource">
         <PlusOutlined class="add-source-icon"/>
-        <span>添加数据源</span>
+        <span>{{ t.vectorCenter.sidebar.addSource }}</span>
       </div>
     </div>
 
@@ -119,12 +119,12 @@
       >
         <div class="blank-context-menu-item" @click="onBlankMenuAction('addSource')">
           <PlusOutlined/>
-          <span>新建数据源</span>
+          <span>{{ t.vectorCenter.sidebar.newSource }}</span>
         </div>
         <div class="blank-context-menu-divider"/>
         <div class="blank-context-menu-item" @click="onBlankMenuAction('refresh')">
           <ReloadOutlined/>
-          <span>刷新</span>
+          <span>{{ t.vectorCenter.sidebar.refresh }}</span>
         </div>
       </div>
     </div>
@@ -143,16 +143,16 @@
       >
         <div class="blank-context-menu-item" @click="onDbContainerMenuAction('addDb')">
           <PlusOutlined/>
-          <span>新增数据库</span>
+          <span>{{ t.vectorCenter.sidebar.newDatabase }}</span>
         </div>
         <div class="blank-context-menu-item" @click="onDbContainerMenuAction('edit')">
           <EditOutlined/>
-          <span>编辑数据源</span>
+          <span>{{ t.vectorCenter.sidebar.editSource }}</span>
         </div>
         <div class="blank-context-menu-divider"/>
         <div class="blank-context-menu-item danger-item" @click="onDbContainerMenuAction('delete')">
           <DeleteOutlined/>
-          <span>删除数据源</span>
+          <span>{{ t.vectorCenter.sidebar.deleteSource }}</span>
         </div>
       </div>
     </div>
@@ -214,7 +214,7 @@
               @select="onHoverSelectDb(hoverSource.id, db.id)"
           />
         </div>
-        <div v-else class="hover-panel-empty">暂无数据库</div>
+        <div v-else class="hover-panel-empty">{{ t.vectorCenter.sidebar.noDatabase }}</div>
       </div>
     </div>
   </Teleport>
@@ -224,6 +224,7 @@
 import {computed, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import {ClusterOutlined, DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
@@ -238,6 +239,8 @@ import {type AiVecStore, aiVecStoreApi} from '@/api/aiVecStore.ts'
 import {systemExtensionApi} from '@/api/systemExtension.ts'
 import ExtensionMarketplaceDialog
   from '@/views/admin/system-config/system-extension/component/ExtensionMarketplaceDialog.vue'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{
   sources: AiVecSource[]
@@ -531,7 +534,7 @@ const openEditSource = async (id: number | string) => {
 const deleteSource = async (id: number | string) => {
   const source = sourceTree.value.find(s => String(s.id) === String(id))
   if (source && source.dbs.length > 0) {
-    message.warning('请先删除该数据源下的所有向量库，再删除数据源')
+    message.warning(t.value.vectorCenter.sidebar.deleteSourceWithStores)
     return
   }
   try {
@@ -540,7 +543,7 @@ const deleteSource = async (id: number | string) => {
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '删除数据源失败')
+    message.error(err?.message || t.value.vectorCenter.sidebar.deleteSourceFailed)
   }
 }
 
@@ -556,7 +559,7 @@ const handleSourceSubmit = async (payload: AiVecSource) => {
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '保存数据源失败')
+    message.error(err?.message || t.value.vectorCenter.sidebar.saveSourceFailed)
   } finally {
     sourceModalSubmitting.value = false
   }
@@ -574,11 +577,11 @@ const deleteStore = async (id: number | string) => {
   try {
     const stats = await aiVecStoreApi.stats(id)
     if (stats.docCount > 0) {
-      message.warning('请先删除该向量库下的所有文档，再删除向量库')
+      message.warning(t.value.vectorCenter.sidebar.deleteStoreWithDocs)
       return
     }
   } catch {
-    message.error('无法检查向量库状态，请稍后重试')
+    message.error(t.value.vectorCenter.sidebar.checkStoreFailed)
     return
   }
   try {
@@ -587,7 +590,7 @@ const deleteStore = async (id: number | string) => {
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '删除数据库失败')
+    message.error(err?.message || t.value.vectorCenter.sidebar.deleteStoreFailed)
   }
 }
 
@@ -607,7 +610,7 @@ const handleStoreSubmit = async (payload: AiVecStore) => {
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '保存数据库失败')
+    message.error(err?.message || t.value.vectorCenter.sidebar.saveStoreFailed)
   } finally {
     storeModalSubmitting.value = false
   }
@@ -630,7 +633,7 @@ const testConnectionOnFirstExpand = async (id: number | string): Promise<boolean
     await aiVecSourceApi.testConnection(detail, 25000)
     firstExpandCheckedMap.value[sourceKey] = true
     sourceConnectedOverride.value[sourceKey] = true
-    message.success('连接成功，已展开数据库列表')
+    message.success(t.value.vectorCenter.sidebar.connectionSuccess)
     return true
   } catch (error) {
     sourceConnectedOverride.value[sourceKey] = false
@@ -639,8 +642,8 @@ const testConnectionOnFirstExpand = async (id: number | string): Promise<boolean
     const isTimeout = err?.code === 'ECONNABORTED' || raw.toLowerCase().includes('timeout')
     message.warning(
         isTimeout
-            ? '连接超时（25s），请检查数据源网络或服务状态后重试'
-            : (err?.message || '连接失败，已自动收起，请检查配置后重试')
+            ? t.value.vectorCenter.sidebar.connectionTimeout
+            : (err?.message || t.value.vectorCenter.sidebar.connectionFailed)
     )
     return false
   } finally {
@@ -660,7 +663,7 @@ const fetchEnabledExtensions = async () => {
     })
     const rows = (resp.list || []).filter((item) => String(item.applied || '').toUpperCase() === 'Y')
     enabledExtensions.value = rows.map((item) => {
-      const name = String(item.extensionName || item.extensionKey || '扩展')
+      const name = String(item.extensionName || item.extensionKey || t.value.vectorCenter.sidebar.extension)
       return {
         key: String(item.id ?? item.extensionKey ?? name),
         name,
@@ -753,7 +756,7 @@ watch(
 
 :deep(.danger-item:hover) {
   color: var(--error) !important;
-  background: rgba(239, 68, 68, 0.1) !important;
+  background: color-mix(in srgb, var(--error) 10%, transparent) !important;
 }
 
 
@@ -866,7 +869,7 @@ watch(
   border: 1px solid var(--border-default, #e2e8f0);
   border-radius: 8px;
   padding: 4px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12), 0 3px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--shadow-color, #000) 12%, transparent), 0 3px 6px color-mix(in srgb, var(--shadow-color, #000) 8%, transparent);
   z-index: 1001;
 }
 
@@ -908,7 +911,7 @@ watch(
   border: 1px solid var(--border-default, #e2e8f0);
   border-radius: 10px;
   padding: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--shadow-color, #000) 12%, transparent), 0 4px 8px color-mix(in srgb, var(--shadow-color, #000) 6%, transparent);
   z-index: 1000;
   pointer-events: auto;
   max-height: calc(100vh - 120px);

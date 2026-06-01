@@ -2,7 +2,7 @@
   <AstModal
       :body-height="'auto'"
       :confirm-loading="confirmLoading"
-      :confirm-text="mode === 'create' ? '创建' : '保存'"
+      :confirm-text="mode === 'create' ? t.form.btnCreate : t.form.btnSave"
       :max-width="'90vw'"
       :open="open"
       :width="'600px'"
@@ -10,8 +10,8 @@
       @confirm="handleSubmit"
       @update:open="$emit('update:open', $event)"
   >
-    <template #header-title>{{ mode === 'create' ? '新增配置' : '编辑配置' }}</template>
-    <template #header-subtitle>{{ mode === 'create' ? '创建新的系统配置项' : '修改系统配置项' }}</template>
+    <template #header-title>{{ mode === 'create' ? t.form.createTitle : t.form.editTitle }}</template>
+    <template #header-subtitle>{{ mode === 'create' ? t.form.createSubtitle : t.form.editSubtitle }}</template>
 
     <a-form
         ref="formRef"
@@ -19,45 +19,45 @@
         class="config-form"
         layout="vertical"
     >
-      <a-form-item :required="true" label="配置 Key">
+      <a-form-item :required="true" :label="t.form.labelConfigKey">
         <a-input
             v-model:value="formData.configKey"
             :disabled="mode === 'edit'"
             :maxlength="128"
-            placeholder="请输入配置 Key"
+            :placeholder="t.form.placeholderConfigKey"
         />
       </a-form-item>
 
-      <a-form-item :required="true" label="配置分组">
+      <a-form-item :required="true" :label="t.form.labelConfigGroup">
         <a-input
             v-model:value="formData.configGroup"
             :maxlength="64"
-            placeholder="请输入配置分组"
+            :placeholder="t.form.placeholderConfigGroup"
         />
       </a-form-item>
 
-      <a-form-item :required="true" label="配置值">
+      <a-form-item :required="true" :label="t.form.labelConfigValue">
         <a-textarea
             v-model:value="formData.configValue"
             :maxlength="2000"
             :rows="4"
-            placeholder="请输入配置值"
+            :placeholder="t.form.placeholderConfigValue"
         />
       </a-form-item>
 
-      <a-form-item :required="true" label="状态">
-        <a-select v-model:value="formData.status" placeholder="请选择状态">
-          <a-select-option value="ENABLED">启用</a-select-option>
-          <a-select-option value="DISABLED">禁用</a-select-option>
+      <a-form-item :required="true" :label="t.form.labelStatus">
+        <a-select v-model:value="formData.status" :placeholder="t.form.placeholderStatus">
+          <a-select-option value="ENABLED">{{ t.form.optionEnabled }}</a-select-option>
+          <a-select-option value="DISABLED">{{ t.form.optionDisabled }}</a-select-option>
         </a-select>
       </a-form-item>
 
-      <a-form-item label="描述">
+      <a-form-item :label="t.form.labelDescription">
         <a-textarea
             v-model:value="formData.description"
             :maxlength="256"
             :rows="2"
-            placeholder="请输入配置描述"
+            :placeholder="t.form.placeholderDescription"
         />
       </a-form-item>
 
@@ -70,6 +70,9 @@ import {reactive, ref, watch} from 'vue'
 import type {FormInstance} from 'ant-design-vue'
 import AstModal from '@/components/home/AstModal.vue'
 import type {SystemConfig} from '@/api/systemConfig.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('system-config')
 
 const props = defineProps<{
   mode: 'create' | 'edit'

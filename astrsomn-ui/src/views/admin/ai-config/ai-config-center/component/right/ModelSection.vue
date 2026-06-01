@@ -441,8 +441,8 @@ void fetchModels()
   border: 1px solid var(--ms-glass-border);
   border-radius: 16px;
   box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    0 4px 24px color-mix(in srgb, var(--text-primary) 10%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--bg-card) 3%, transparent);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -513,13 +513,13 @@ void fetchModels()
 
 .model-section__create-btn {
   flex-shrink: 0;
-  box-shadow: 0 2px 12px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--primary) 25%, transparent);
   transition: transform 0.25s var(--ms-ease-spring), box-shadow 0.25s ease;
 }
 
 .model-section__create-btn:hover {
   transform: scale(1.08);
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--primary) 40%, transparent);
 }
 
 .model-section__create-btn:active {
@@ -593,7 +593,7 @@ void fetchModels()
   background: var(--ms-glass-bg-hover);
   border-color: var(--ms-glass-border-hover);
   box-shadow:
-    0 12px 48px rgba(0, 0, 0, 0.26),
+    0 12px 48px color-mix(in srgb, var(--text-primary) 26%, transparent),
     0 0 0 1px var(--ms-glow-ring);
   z-index: 5;
 }
@@ -607,7 +607,7 @@ void fetchModels()
   background: linear-gradient(
     135deg,
     transparent 30%,
-    rgba(255, 255, 255, 0.04) 50%,
+    color-mix(in srgb, var(--bg-card) 4%, transparent) 50%,
     transparent 70%
   );
   opacity: 0;
@@ -669,32 +669,32 @@ void fetchModels()
 }
 
 .model-card__icon.chat {
-  background: rgba(59, 130, 246, 0.10);
-  color: #60a5fa;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary-light);
 }
 .model-card__icon.chat::after {
-  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  background: linear-gradient(135deg, var(--primary), #6366f1);
 }
 
 .model-card__icon.embedding {
-  background: rgba(16, 185, 129, 0.10);
-  color: #34d399;
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
 }
 .model-card__icon.embedding::after {
-  background: linear-gradient(135deg, #10b981, #06b6d4);
+  background: linear-gradient(135deg, var(--success), #06b6d4);
 }
 
 .model-card__icon.image {
-  background: rgba(245, 158, 11, 0.10);
-  color: #f59e0b;
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  color: var(--warning);
 }
 .model-card__icon.image::after {
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  background: linear-gradient(135deg, var(--warning), var(--error));
 }
 
 .model-card__icon:not(.chat):not(.embedding):not(.image) {
-  background: rgba(148, 163, 184, 0.10);
-  color: #94a3b8;
+  background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+  color: var(--text-muted);
 }
 .model-card__icon:not(.chat):not(.embedding):not(.image)::after {
   background: linear-gradient(135deg, #64748b, #475569);
@@ -762,7 +762,7 @@ void fetchModels()
   background: #22c55e;
   position: relative;
   z-index: 1;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--success) 50%, transparent);
 }
 
 .status-pulse {
@@ -781,7 +781,7 @@ void fetchModels()
 
 .status-disabled-icon {
   font-size: 16px;
-  color: #ef4444;
+  color: var(--error);
   opacity: 0.7;
 }
 

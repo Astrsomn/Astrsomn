@@ -8,15 +8,15 @@
     <template #icon>
       <ToolOutlined />
     </template>
-    <template #title>选择工具</template>
-    <template #subtitle>为智能体添加可调用的工具能力</template>
+    <template #title>{{ t.selector.title }}</template>
+    <template #subtitle>{{ t.selector.subtitle }}</template>
 
     <div class="select-drawer-content">
       <div class="search-bar">
         <AstSearchInput
           v-model="keyword"
           layout="fluid"
-          placeholder="搜索工具名或 Tool Key…"
+          :placeholder="t.selector.searchPlaceholder"
           style="flex: 1"
           @search="handleSearch"
         />
@@ -40,7 +40,7 @@
               <div class="item-head">
                 <span class="item-name">{{ item.toolName || item.toolKey }}</span>
                 <span :class="['status-dot', item.enableFlag === 'enabled' ? 'on' : 'off']" />
-                <span class="status-label">{{ item.enableFlag === 'enabled' ? '启用' : '禁用' }}</span>
+                <span class="status-label">{{ item.enableFlag === 'enabled' ? t.selector.statusLabel.enabled : t.selector.statusLabel.disabled }}</span>
               </div>
               <code class="item-key">{{ item.toolKey }}</code>
               <div v-if="item.description" class="item-desc">{{ item.description }}</div>
@@ -62,8 +62,8 @@
 
           <div v-if="!list.length && !loading" class="empty-state">
             <div class="empty-icon"><ToolOutlined /></div>
-            <p class="empty-title">未找到匹配的工具</p>
-            <p class="empty-hint">尝试调整搜索关键词，或确认工具已注册</p>
+            <p class="empty-title">{{ t.selector.emptyTitle }}</p>
+            <p class="empty-hint">{{ t.selector.emptyHint }}</p>
           </div>
         </div>
       </a-spin>
@@ -88,6 +88,9 @@ import {type AiTool, aiToolApi} from '@/api/aiTool.ts'
 import AstDrawer from '@/components/home/AstDrawer.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-tool')
 
 const props = defineProps<{
   open: boolean
@@ -162,7 +165,7 @@ watch(
 <style scoped>
 :deep(.tool-selector-drawer .header-icon) {
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px color-mix(in srgb, #3b82f6 30%, transparent);
 }
 
 :deep(.drawer-footer) {
@@ -206,13 +209,13 @@ watch(
 .item-card:hover {
   border-color: var(--primary);
   background: var(--primary-hover);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .item-card.selected {
   border-color: var(--primary);
   background: var(--primary-hover);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
 /* ── icon ── */
@@ -229,18 +232,18 @@ watch(
 }
 
 .item-icon.t-method {
-  background: rgba(59, 130, 246, 0.08);
-  color: #3b82f6;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
 }
 
 .item-icon.t-html {
-  background: rgba(245, 158, 11, 0.08);
+  background: color-mix(in srgb, #f59e0b 8%, transparent);
   color: #f59e0b;
 }
 
 .item-icon.t-unknown {
-  background: rgba(107, 114, 128, 0.08);
-  color: #6b7280;
+  background: color-mix(in srgb, var(--text-muted) 8%, transparent);
+  color: var(--text-muted);
 }
 
 /* ── body ── */
@@ -273,7 +276,7 @@ watch(
   flex-shrink: 0;
 }
 
-.status-dot.on  { background: #10b981; box-shadow: 0 0 4px rgba(16, 185, 129, 0.3); }
+.status-dot.on  { background: #10b981; box-shadow: 0 0 4px color-mix(in srgb, #10b981 30%, transparent); }
 .status-dot.off { background: #9ca3af; }
 
 .status-label {
@@ -320,12 +323,12 @@ watch(
 }
 
 .meta-chip.t-method {
-  background: rgba(59, 130, 246, 0.08);
-  color: #3b82f6;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
 }
 
 .meta-chip.t-html {
-  background: rgba(245, 158, 11, 0.08);
+  background: color-mix(in srgb, #f59e0b 8%, transparent);
   color: #d97706;
 }
 

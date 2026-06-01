@@ -1,11 +1,14 @@
 <template>
   <AstPageShell
-      description="监控大模型调用链路与日志输出（功能接入中）。"
-      empty-text="暂无链路数据。"
-      title="链路追踪"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   />
 </template>
 
 <script lang="ts" setup>
 import AstPageShell from '@/components/home/AstPageShell.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-trace-log')
 </script>

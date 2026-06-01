@@ -4,26 +4,29 @@
       <template #icon>
         <PlusOutlined/>
       </template>
-      新增数据库
+      {{ t.vectorCenter.contextMenu.addDatabase }}
     </a-menu-item>
     <a-menu-item key="edit">
       <template #icon>
         <EditOutlined/>
       </template>
-      编辑数据源
+      {{ t.vectorCenter.contextMenu.editSource }}
     </a-menu-item>
     <a-menu-divider/>
     <a-menu-item key="delete" class="danger-item">
       <template #icon>
         <DeleteOutlined/>
       </template>
-      删除数据源
+      {{ t.vectorCenter.contextMenu.deleteSource }}
     </a-menu-item>
   </a-menu>
 </template>
 
 <script lang="ts" setup>
 import {DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const emit = defineEmits<{
   'add-db': []

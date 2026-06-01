@@ -37,7 +37,7 @@
     width: 42px;
     height: 42px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -45,13 +45,13 @@
     font-size: 22px;
     flex-shrink: 0;
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset,
-    0 2px 6px rgba(29, 78, 216, 0.35);
+    0 2px 6px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
 .ems-logo-box.ems-logo-unload {
-    background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--error) 70%, #000) 0%, var(--error) 100%);
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset,
-    0 2px 6px rgba(185, 28, 28, 0.35);
+    0 2px 6px color-mix(in srgb, var(--error) 35%, transparent);
 }
 
 .ems-title-group {
@@ -68,7 +68,7 @@
 .ems-sub-title {
     display: block;
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--text-muted);
 }
 
 .ems-header-actions {

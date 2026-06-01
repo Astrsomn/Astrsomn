@@ -6,7 +6,7 @@
         :part-current-selected="partCurrentSelected"
         :selected-count="selectedRowKeys.length"
         :show-actions="list.length > 0"
-        :summary-text="`当前页 ${list.length} 条对话组，已选 ${selectedRowKeys.length} 条。`"
+        :summary-text="t.panel.summaryText.replace('{total}', String(list.length)).replace('{selected}', String(selectedRowKeys.length))"
         @toggle-select-all="toggleSelectAllCurrentPage"
     />
 
@@ -35,6 +35,9 @@ import {computed, defineEmits, defineProps} from 'vue'
 import AstOverview from '@/components/home/AstOverview.vue'
 import SessionList from '@/views/chat-index/component/chat-session/SessionList.vue'
 import {adaptSessionToSessionItem, type AiChatSession} from '@/api/aiChatSession.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-conversation')
 
 const props = defineProps<{
   loading: boolean

@@ -3,22 +3,22 @@
     <div class="list-toolbar">
       <div class="toolbar-left">
         <div class="nav-buttons">
-          <a-tooltip title="后退">
+          <a-tooltip :title="t.vectorCenter.rightCenter.back">
             <LeftOutlined class="nav-btn" :class="{ disabled: navIndex <= 0 }" @click="goBack"/>
           </a-tooltip>
-          <a-tooltip title="前进">
+          <a-tooltip :title="t.vectorCenter.rightCenter.forward">
             <RightOutlined class="nav-btn" :class="{ disabled: navIndex >= navHistory.length - 1 }" @click="goForward"/>
           </a-tooltip>
         </div>
         <div class="breadcrumb-nav">
-          <span class="breadcrumb-item" @click="navigateToRoot">根目录</span>
+          <span class="breadcrumb-item" @click="navigateToRoot">{{ t.vectorCenter.rightCenter.rootDir }}</span>
           <!-- eslint-disable-next-line vue/no-v-for-template-key -->
           <template v-for="(crumb, idx) in folderPath" :key="crumb.id">
             <span class="breadcrumb-sep">/</span>
             <span class="breadcrumb-item" @click="navigateToPath(idx)">{{ crumb.name }}</span>
           </template>
         </div>
-        <div class="count-badge">{{ filteredFiles.length }} 文档</div>
+        <div class="count-badge">{{ t.vectorCenter.rightCenter.docCount.replace('{count}', String(filteredFiles.length)) }}</div>
       </div>
 
       <div class="toolbar-right">
@@ -27,16 +27,16 @@
             v-model="keyword"
             class="subtle-search"
             layout="fluid"
-            placeholder="搜索文件名..."
+            :placeholder="t.vectorCenter.rightCenter.searchPlaceholder"
         />
         <div class="view-toggle">
-          <a-tooltip title="小图标">
+          <a-tooltip :title="t.vectorCenter.rightCenter.smallIcon">
             <AppstoreOutlined :class="{ active: viewSize === 'small' }" class="toggle-icon" @click="setViewSize('small')"/>
           </a-tooltip>
-          <a-tooltip title="中图标">
+          <a-tooltip :title="t.vectorCenter.rightCenter.mediumIcon">
             <BorderOutlined :class="{ active: viewSize === 'medium' }" class="toggle-icon" @click="setViewSize('medium')"/>
           </a-tooltip>
-          <a-tooltip title="大图标">
+          <a-tooltip :title="t.vectorCenter.rightCenter.largeIcon">
             <CreditCardOutlined :class="{ active: viewSize === 'large' }" class="toggle-icon" @click="setViewSize('large')"/>
           </a-tooltip>
         </div>
@@ -44,17 +44,17 @@
           <template #icon>
             <folder-outlined/>
           </template>
-          新建文件夹
+          {{ t.vectorCenter.rightCenter.newFolder }}
         </a-button>
         <a-upload :custom-request="handleUpload" :show-upload-list="false">
           <a-button class="import-btn" type="primary">
             <template #icon>
               <plus-outlined/>
             </template>
-            导入文档
+            {{ t.vectorCenter.rightCenter.importDoc }}
           </a-button>
         </a-upload>
-        <a-button class="import-btn" @click="openCreate">新增记录</a-button>
+        <a-button class="import-btn" @click="openCreate">{{ t.vectorCenter.rightCenter.newRecord }}</a-button>
       </div>
     </div>
 
@@ -77,21 +77,21 @@
           <a-menu @click="onFolderMenuClick($event, folder)">
             <a-menu-item key="open">
               <template #icon><folder-outlined/></template>
-              打开
+              {{ t.vectorCenter.rightCenter.open }}
             </a-menu-item>
             <a-menu-item key="rename">
               <template #icon><edit-outlined/></template>
-              重命名
+              {{ t.vectorCenter.rightCenter.rename }}
             </a-menu-item>
             <a-menu-divider/>
             <a-menu-item key="paste">
               <template #icon><snippets-outlined/></template>
-              粘贴到此文件夹
+              {{ t.vectorCenter.rightCenter.pasteHere }}
             </a-menu-item>
             <a-menu-divider/>
             <a-menu-item key="delete" class="danger-item">
               <template #icon><delete-outlined/></template>
-              删除
+              {{ t.vectorCenter.rightCenter.delete }}
             </a-menu-item>
           </a-menu>
         </template>
@@ -119,41 +119,41 @@
           <a-menu @click="onFileMenuClick($event, file)">
             <a-menu-item key="edit">
               <template #icon><edit-outlined/></template>
-              编辑
+              {{ t.vectorCenter.rightCenter.edit }}
             </a-menu-item>
-            <a-menu-item v-if="file.status === '待向量化' || file.status === '失败'" key="chunk">
+            <a-menu-item v-if="file.statusCode === 'PENDING' || file.statusCode === 'FAILED'" key="chunk">
               <template #icon><block-outlined/></template>
-              切片
+              {{ t.vectorCenter.rightCenter.chunk }}
             </a-menu-item>
-            <a-menu-item v-if="file.status === '已切片'" key="vectorize">
+            <a-menu-item v-if="file.statusCode === 'CHUNKED'" key="vectorize">
               <template #icon><experiment-outlined/></template>
-              向量化
+              {{ t.vectorCenter.rightCenter.vectorize }}
             </a-menu-item>
-            <a-menu-item v-if="file.status === '已切片' || file.status === '已向量化' || file.status === '失败'" key="re-chunk">
+            <a-menu-item v-if="file.statusCode === 'CHUNKED' || file.statusCode === 'STORED' || file.statusCode === 'FAILED'" key="re-chunk">
               <template #icon><block-outlined/></template>
-              重新切片
+              {{ t.vectorCenter.rightCenter.reChunk }}
             </a-menu-item>
-            <a-menu-item v-if="file.status === '已向量化' || file.status === '失败'" key="re-vectorize">
+            <a-menu-item v-if="file.statusCode === 'STORED' || file.statusCode === 'FAILED'" key="re-vectorize">
               <template #icon><sync-outlined/></template>
-              重新向量化
+              {{ t.vectorCenter.rightCenter.reVectorize }}
             </a-menu-item>
             <a-menu-divider/>
             <a-menu-item key="move">
               <template #icon><folder-outlined/></template>
-              移动到文件夹...
+              {{ t.vectorCenter.rightCenter.moveToFolder }}
             </a-menu-item>
             <a-menu-item key="copy">
               <template #icon><copy-outlined/></template>
-              复制
+              {{ t.vectorCenter.rightCenter.copy }}
             </a-menu-item>
             <a-menu-item key="cut">
               <template #icon><scissor-outlined/></template>
-              剪切
+              {{ t.vectorCenter.rightCenter.cut }}
             </a-menu-item>
             <a-menu-divider/>
             <a-menu-item key="delete" class="danger-item">
               <template #icon><delete-outlined/></template>
-              删除
+              {{ t.vectorCenter.rightCenter.delete }}
             </a-menu-item>
           </a-menu>
         </template>
@@ -169,13 +169,13 @@
     />
     <a-modal
         :open="folderModalOpen"
-        :title="editingFolder ? '重命名文件夹' : '新建文件夹'"
+        :title="editingFolder ? t.vectorCenter.rightCenter.renameFolderTitle : t.vectorCenter.rightCenter.createFolderTitle"
         @cancel="folderModalOpen = false"
         @ok="handleFolderSubmit"
     >
       <a-input
           :value="folderModalName"
-          placeholder="请输入文件夹名称"
+          :placeholder="t.vectorCenter.rightCenter.folderNamePlaceholder"
           @update:value="setFolderModalName"
           @keyup.enter="handleFolderSubmit"
       />
@@ -184,14 +184,14 @@
     <!-- 移动到文件夹弹窗 -->
     <a-modal
         :open="moveModalOpen"
-        title="移动到文件夹"
+        :title="t.vectorCenter.rightCenter.moveFolderTitle"
         @cancel="moveModalOpen = false"
         @ok="handleMoveConfirm"
     >
       <a-select
           :value="moveTargetFolderId"
           :options="moveFolderOptions"
-          placeholder="选择目标文件夹（留空则移至根目录）"
+          :placeholder="t.vectorCenter.rightCenter.moveFolderPlaceholder"
           allow-clear
           style="width: 100%"
           @update:value="setMoveTargetFolderId"
@@ -213,11 +213,11 @@
         >
           <div class="vec-context-menu-item" @click="onBlankMenuAction('newFolder')">
             <folder-outlined/>
-            <span>新建文件夹</span>
+            <span>{{ t.vectorCenter.rightCenter.contextNewFolder }}</span>
           </div>
           <div class="vec-context-menu-item" @click="onBlankMenuAction('newRecord')">
             <plus-outlined/>
-            <span>新建记录</span>
+            <span>{{ t.vectorCenter.rightCenter.contextNewRecord }}</span>
           </div>
           <div class="vec-context-menu-divider"/>
           <div
@@ -226,12 +226,12 @@
               @click="onBlankMenuAction('paste')"
           >
             <snippets-outlined/>
-            <span>粘贴</span>
+            <span>{{ t.vectorCenter.rightCenter.paste }}</span>
           </div>
           <div class="vec-context-menu-divider"/>
           <div class="vec-context-menu-item" @click="onBlankMenuAction('refresh')">
             <reload-outlined/>
-            <span>刷新</span>
+            <span>{{ t.vectorCenter.rightCenter.contextRefresh }}</span>
           </div>
         </div>
       </div>
@@ -270,6 +270,9 @@ import {type AiVecDoc, aiVecDocApi} from '@/api/aiVecDoc.ts'
 import {type AiVecFolder, aiVecFolderApi} from '@/api/aiVecFolder.ts'
 import {useBoxSelection} from '@/views/admin/ai-vector/vector-center/hooks/useBoxSelection'
 import {useClipboardShortcuts} from '@/views/admin/ai-vector/vector-center/hooks/useClipboardShortcuts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{
   docs: AiVecDoc[]
@@ -440,12 +443,12 @@ const openRenameFolder = (folder: AiVecFolder) => {
 const handleRenameConfirm = async (folder: AiVecFolder, newName: string) => {
   try {
     await aiVecFolderApi.update({id: folder.id, folderName: newName})
-    message.success('重命名成功')
+    message.success(t.value.vectorCenter.rightCenter.renameSuccess)
     renamingFolderId.value = null
     await fetchFolders()
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '重命名失败')
+    message.error(err?.message || t.value.vectorCenter.rightCenter.renameFailed)
   }
 }
 
@@ -456,37 +459,37 @@ const handleRenameCancel = () => {
 const handleFolderSubmit = async () => {
   const name = folderModalName.value.trim()
   if (!name) {
-    message.warning('文件夹名称不能为空')
+    message.warning(t.value.vectorCenter.rightCenter.folderNameEmpty)
     return
   }
   try {
     if (editingFolder.value) {
       await aiVecFolderApi.update({id: editingFolder.value.id, folderName: name})
-      message.success('重命名成功')
+      message.success(t.value.vectorCenter.rightCenter.renameSuccess)
     } else {
       await aiVecFolderApi.create({
         collectionId: props.storeId,
         folderName: name,
         parentId: currentFolderId.value
       })
-      message.success('文件夹创建成功')
+      message.success(t.value.vectorCenter.rightCenter.folderCreated)
     }
     folderModalOpen.value = false
     await fetchFolders()
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '操作失败')
+    message.error(err?.message || t.value.vectorCenter.rightCenter.operationFailed)
   }
 }
 
 const handleDeleteFolder = (folder: AiVecFolder) => {
   Modal.confirm({
-    title: '确认删除文件夹',
-    content: `删除文件夹"${folder.folderName}"后，其中的文档将回到根目录。`,
+    title: t.value.vectorCenter.rightCenter.deleteFolderTitle,
+    content: t.value.vectorCenter.rightCenter.deleteFolderContent.replace('{name}', folder.folderName),
     okButtonProps: {danger: true},
     async onOk() {
       await aiVecFolderApi.delete([folder.id!])
-      message.success('文件夹已删除')
+      message.success(t.value.vectorCenter.rightCenter.folderDeleted)
       await fetchFolders()
     }
   })
@@ -506,8 +509,17 @@ watch(
 const storeOptions = computed(() =>
     props.storeId == null
         ? []
-        : [{label: `当前集合 (${props.storeId})`, value: props.storeId}]
+        : [{label: t.value.vectorCenter.rightCenter.currentCollection.replace('{id}', String(props.storeId)), value: props.storeId}]
 )
+
+const statusLabelMap = computed<Record<string, string>>(() => ({
+  PENDING: t.value.vectorCenter.rightCenter.statusPending,
+  CHUNKING: t.value.vectorCenter.rightCenter.statusChunking,
+  CHUNKED: t.value.vectorCenter.rightCenter.statusChunked,
+  VECTORING: t.value.vectorCenter.rightCenter.statusVectoring,
+  STORED: t.value.vectorCenter.rightCenter.statusStored,
+  FAILED: t.value.vectorCenter.rightCenter.statusFailed,
+}))
 
 const filteredFiles = computed(() => {
   const list = props.docs || []
@@ -526,18 +538,14 @@ const filteredFiles = computed(() => {
       })
       .map((doc) => {
         const status = String(doc.syncStatus || '').toUpperCase()
-        let statusLabel = '待向量化'
-        if (status === 'CHUNKING') statusLabel = '切片中'
-        else if (status === 'CHUNKED') statusLabel = '已切片'
-        else if (status === 'VECTORING') statusLabel = '向量化中'
-        else if (status === 'STORED') statusLabel = '已向量化'
-        else if (status === 'FAILED') statusLabel = '失败'
+        let statusLabel = statusLabelMap.value[status] || statusLabelMap.value.PENDING
         return {
           id: doc.id,
           name: doc.originalFileName || `doc-${doc.id}`,
           segments: 0,
-          size: doc.filePath ? '已上传' : '待上传',
+          size: doc.filePath ? t.value.vectorCenter.rightCenter.sizeUploaded : t.value.vectorCenter.rightCenter.sizePending,
           status: statusLabel,
+          statusCode: status,
           uploadTime: doc.createTime,
           raw: doc
         }
@@ -608,7 +616,7 @@ const handleSubmit = async (payload: AiVecDoc) => {
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '保存文档失败')
+    message.error(err?.message || t.value.vectorCenter.rightCenter.saveDocFailed)
   } finally {
     modalSubmitting.value = false
   }
@@ -616,23 +624,23 @@ const handleSubmit = async (payload: AiVecDoc) => {
 
 const startPolling = (docId: string) => {
   if (pollingTimers.value[docId]) return
-  vectorizingMap[docId] = {progress: 0, message: '准备中...'}
+  vectorizingMap[docId] = {progress: 0, message: t.value.vectorCenter.rightCenter.preparing}
   pollingTimers.value[docId] = setInterval(async () => {
     try {
       const prog = await aiVecDocApi.vectorizeProgress(docId)
       vectorizingMap[docId] = {
         progress: prog.progress || 0,
-        message: prog.message || '向量化中...'
+        message: prog.message || t.value.vectorCenter.rightCenter.vectorizing
       }
       const status = String(prog.status || '').toUpperCase()
       if (status === 'STORED' || status === 'CHUNKED' || status === 'FAILED') {
         stopPolling(docId)
         if (status === 'STORED') {
-          message.success('向量化完成')
+          message.success(t.value.vectorCenter.rightCenter.vectorizeComplete)
         } else if (status === 'CHUNKED') {
-          message.success('切片完成')
+          message.success(t.value.vectorCenter.rightCenter.chunkComplete)
         } else {
-          message.error('操作失败: ' + (prog.message || '未知错误'))
+          message.error(t.value.vectorCenter.rightCenter.operationError.replace('{msg}', prog.message || t.value.vectorCenter.rightCenter.operationFailed))
         }
         emit('changed')
       }
@@ -657,11 +665,11 @@ onUnmounted(() => {
 const handleChunk = async (file: any) => {
   if (file?.id == null) return
   Modal.confirm({
-    title: '确认执行切片',
-    content: `将对文档 ${file.name || file.id} 执行解析和切片。`,
+    title: t.value.vectorCenter.rightCenter.confirmChunk,
+    content: t.value.vectorCenter.rightCenter.confirmChunkContent.replace('{name}', file.name || String(file.id)),
     async onOk() {
       await aiVecDocApi.chunk(file.id)
-      message.info('切片任务已提交')
+      message.info(t.value.vectorCenter.rightCenter.chunkSubmitted)
       startPolling(String(file.id))
     }
   })
@@ -670,11 +678,11 @@ const handleChunk = async (file: any) => {
 const handleVectorize = async (file: any) => {
   if (file?.id == null) return
   Modal.confirm({
-    title: '确认执行向量化',
-    content: `将对文档 ${file.name || file.id} 的切片执行向量化并写入向量库。`,
+    title: t.value.vectorCenter.rightCenter.confirmVectorize,
+    content: t.value.vectorCenter.rightCenter.confirmVectorizeContent.replace('{name}', file.name || String(file.id)),
     async onOk() {
       await aiVecDocApi.vectorize(file.id)
-      message.info('向量化任务已提交')
+      message.info(t.value.vectorCenter.rightCenter.vectorizeSubmitted)
       startPolling(String(file.id))
     }
   })
@@ -683,11 +691,11 @@ const handleVectorize = async (file: any) => {
 const handleReChunk = async (file: any) => {
   if (file?.id == null) return
   Modal.confirm({
-    title: '确认重新切片',
-    content: `将清除文档 ${file.name || file.id} 的旧切片与向量数据并重新切片。`,
+    title: t.value.vectorCenter.rightCenter.confirmReChunk,
+    content: t.value.vectorCenter.rightCenter.confirmReChunkContent.replace('{name}', file.name || String(file.id)),
     async onOk() {
       await aiVecDocApi.reChunk(file.id)
-      message.info('重新切片任务已提交')
+      message.info(t.value.vectorCenter.rightCenter.reChunkSubmitted)
       startPolling(String(file.id))
     }
   })
@@ -696,11 +704,11 @@ const handleReChunk = async (file: any) => {
 const handleReVectorize = async (file: any) => {
   if (file?.id == null) return
   Modal.confirm({
-    title: '确认重新向量化',
-    content: `将清除文档 ${file.name || file.id} 的旧向量数据并重新执行向量化。`,
+    title: t.value.vectorCenter.rightCenter.confirmReVectorize,
+    content: t.value.vectorCenter.rightCenter.confirmReVectorizeContent.replace('{name}', file.name || String(file.id)),
     async onOk() {
       await aiVecDocApi.reVectorize(file.id)
-      message.info('重新向量化任务已提交')
+      message.info(t.value.vectorCenter.rightCenter.reVectorizeSubmitted)
       startPolling(String(file.id))
     }
   })
@@ -709,12 +717,12 @@ const handleReVectorize = async (file: any) => {
 const handleDelete = async (file: any) => {
   if (file?.id == null) return
   Modal.confirm({
-    title: '确认删除文档',
-    content: `删除后将同步清理切片与向量数据：${file.name || file.id}`,
+    title: t.value.vectorCenter.rightCenter.confirmDeleteDoc,
+    content: t.value.vectorCenter.rightCenter.confirmDeleteDocContent.replace('{name}', file.name || String(file.id)),
     okButtonProps: {danger: true},
     async onOk() {
       await aiVecDocApi.delete([file.id])
-      message.success('文档删除成功')
+      message.success(t.value.vectorCenter.rightCenter.docDeleted)
       emit('changed')
       if (String(props.selectedDocId ?? '') === String(file.id)) {
         emit('select-doc', '')
@@ -736,13 +744,13 @@ const handleDeleteSelected = (file: any) => {
   }
 
   Modal.confirm({
-    title: '确认批量删除',
-    content: `将删除 ${batchItems.length} 个文档，删除后将同步清理切片与向量数据。`,
+    title: t.value.vectorCenter.rightCenter.confirmBatchDelete,
+    content: t.value.vectorCenter.rightCenter.confirmBatchDeleteContent.replace('{count}', String(batchItems.length)),
     okButtonProps: {danger: true},
     async onOk() {
       const ids = batchItems.map(f => f.id).filter(Boolean)
       await aiVecDocApi.delete(ids)
-      message.success(`已删除 ${ids.length} 个文档`)
+      message.success(t.value.vectorCenter.rightCenter.batchDeleted.replace('{count}', String(ids.length)))
       clearSelection()
       emit('changed')
     }
@@ -762,7 +770,7 @@ const handleSelectDoc = (file: any, e?: MouseEvent) => {
 
 const handleUpload: UploadProps['customRequest'] = async (options) => {
   if (!uploadCollectionId.value) {
-    message.warning('请先在左侧选择数据库')
+    message.warning(t.value.vectorCenter.rightCenter.selectStoreFirst)
     options.onError?.(new Error('missing store'))
     return
   }
@@ -772,8 +780,8 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
     try {
       await new Promise<void>((resolve, reject) => {
         Modal.confirm({
-          title: '文件名重复',
-          content: `当前文件夹下已存在同名文件"${fileName}"，是否继续上传？`,
+          title: t.value.vectorCenter.rightCenter.fileNameDuplicate,
+          content: t.value.vectorCenter.rightCenter.fileNameDuplicateContent.replace('{name}', fileName),
           onOk: () => resolve(),
           onCancel: () => reject(new Error('cancelled'))
         })
@@ -786,14 +794,14 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
   try {
     const doc = await aiVecDocApi.upload(options.file as File, uploadCollectionId.value, currentFolderId.value)
     options.onSuccess?.({})
-    message.success('上传成功')
+    message.success(t.value.vectorCenter.rightCenter.uploadSuccess)
     if (doc?.id) {
       emit('select-doc', doc.id)
     }
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '上传失败')
+    message.error(err?.message || t.value.vectorCenter.rightCenter.uploadFailed)
     options.onError?.(error as Error)
   }
 }
@@ -889,11 +897,11 @@ const onFileMenuClick = (payload: unknown, file: any) => {
       break
     case 'copy':
       clipboard.value = {items: batchItems, mode: 'copy'}
-      message.success(`已复制 ${batchItems.length} 个文件`)
+      message.success(t.value.vectorCenter.rightCenter.copiedFiles.replace('{count}', String(batchItems.length)))
       break
     case 'cut':
       clipboard.value = {items: batchItems, mode: 'cut'}
-      message.success(`已剪切 ${batchItems.length} 个文件`)
+      message.success(t.value.vectorCenter.rightCenter.cutFiles.replace('{count}', String(batchItems.length)))
       break
   }
 }
@@ -904,17 +912,17 @@ const openMoveModal = async (files: any[]) => {
   moveTargetFiles.value = files
   moveTargetFolderId.value = null
   if (!props.storeId) {
-    message.warning('请先选择集合')
+    message.warning(t.value.vectorCenter.rightCenter.selectCollection)
     return
   }
   try {
     const allFolders = await aiVecFolderApi.list(props.storeId)
     moveFolderOptions.value = [
-      {label: '根目录', value: '__root__'},
+      {label: t.value.vectorCenter.rightCenter.rootDirectory, value: '__root__'},
       ...allFolders.map(f => ({label: f.folderName || '', value: f.id!}))
     ]
   } catch {
-    moveFolderOptions.value = [{label: '根目录', value: '__root__'}]
+    moveFolderOptions.value = [{label: t.value.vectorCenter.rightCenter.rootDirectory, value: '__root__'}]
   }
   moveModalOpen.value = true
 }
@@ -922,24 +930,24 @@ const openMoveModal = async (files: any[]) => {
 const handleMoveConfirm = async () => {
   const docIds = moveTargetFiles.value.map(f => f.id ?? f.raw?.id).filter(Boolean)
   if (!docIds.length) {
-    message.warning('没有可移动的文件')
+    message.warning(t.value.vectorCenter.rightCenter.noFilesToMove)
     return
   }
   const targetId = moveTargetFolderId.value === '__root__' ? null : moveTargetFolderId.value
   try {
     await aiVecFolderApi.moveDocs(docIds, targetId)
-    message.success(`已移动 ${docIds.length} 个文件`)
+    message.success(t.value.vectorCenter.rightCenter.movedFiles.replace('{count}', String(docIds.length)))
     moveModalOpen.value = false
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '移动失败')
+    message.error(err?.message || t.value.vectorCenter.rightCenter.moveFailed)
   }
 }
 
 const handlePaste = async (targetFolderId: number | string | null) => {
   if (!clipboard.value) {
-    message.warning('剪贴板为空')
+    message.warning(t.value.vectorCenter.rightCenter.clipboardEmpty)
     return
   }
   const docIds = clipboard.value.items.map(f => f.id ?? f.raw?.id).filter(Boolean)
@@ -952,7 +960,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
       return String(currentFolderId ?? '') === String(targetFolderId ?? '')
     })
     if (allSameLocation) {
-      message.info('文件已在目标位置')
+      message.info(t.value.vectorCenter.rightCenter.fileAlreadyInPlace)
       clipboard.value = null
       return
     }
@@ -960,7 +968,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
 
   try {
     await aiVecFolderApi.moveDocs(docIds, targetFolderId)
-    message.success(`已粘贴 ${docIds.length} 个文件`)
+    message.success(t.value.vectorCenter.rightCenter.pastedFiles.replace('{count}', String(docIds.length)))
 
     if (clipboard.value.mode === 'cut') {
       clipboard.value = null
@@ -968,7 +976,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || '粘贴失败')
+    message.error(err?.message || t.value.vectorCenter.rightCenter.pasteFailed)
   }
 }
 </script>
@@ -1134,7 +1142,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
     &.active {
       background: var(--bg-card);
       color: var(--primary);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 1px 3px color-mix(in srgb, var(--text-primary) 8%, transparent);
     }
   }
 }
@@ -1145,7 +1153,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   color: var(--error);
   &:hover {
     color: var(--error) !important;
-    background: rgba(239, 68, 68, 0.1) !important;
+    background: color-mix(in srgb, var(--error) 10%, transparent) !important;
   }
 }
 
@@ -1162,7 +1170,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   border: 1px solid var(--border-default, #e2e8f0);
   border-radius: 8px;
   padding: 4px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12), 0 3px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--text-primary) 12%, transparent), 0 3px 6px color-mix(in srgb, var(--text-primary) 8%, transparent);
   z-index: 1001;
 }
 

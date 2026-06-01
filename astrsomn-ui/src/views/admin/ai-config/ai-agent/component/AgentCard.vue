@@ -8,7 +8,7 @@
     <div class="card-top-bar">
       <div :class="record.envCode" class="env-tag">
         <span class="status-dot"></span>
-        {{ record.envCode || '默认环境' }}
+        {{ record.envCode || t.card.defaultEnv }}
       </div>
       <div class="card-checkbox">
         <a-checkbox :checked="selected" @change="onToggle"/>
@@ -20,37 +20,37 @@
         <div class="avatar-main">
           <span class="avatar-letter">{{ initialLetter }}</span>
         </div>
-        <div :class="record.status" :title="record.status === 'enabled' ? '运行中' : '已禁用'"
+        <div :class="record.status" :title="record.status === 'enabled' ? t.card.running : t.card.disabled"
              class="status-badge"></div>
       </div>
 
       <div class="header-content">
         <div class="title-area">
           <h3 class="agent-name">{{ record.agentName }}</h3>
-          <p class="create-time">创建于 {{ formatTime(record.createTime) }}</p>
+          <p class="create-time">{{ t.card.createdAt }} {{ formatTime(record.createTime) }}</p>
         </div>
       </div>
     </div>
 
-    <div class="key-section" title="点击复制 Key" @click="copyAgentKey">
+    <div class="key-section" :title="t.card.clickToCopyKey" @click="copyAgentKey">
       <div class="key-label">
         <key-outlined/>
         <span>AGENT KEY</span>
       </div>
       <div class="key-value">
-        <code>{{ record.agentKey || '未分配 KEY' }}</code>
+        <code>{{ record.agentKey || t.card.unassignedKey }}</code>
         <copy-outlined v-if="record.agentKey" class="copy-icon"/>
       </div>
     </div>
 
     <div class="card-body">
-      <p class="description">{{ record.description || '暂无详细描述信息...' }}</p>
+      <p class="description">{{ record.description || t.card.noDescription }}</p>
 
       <div class="config-grid">
         <div class="config-item config-item-model">
           <div class="item-label">
             <robot-outlined/>
-            模型实例
+            {{ t.card.modelInstance }}
           </div>
           <div class="item-value item-value-with-logo">
             <span
@@ -60,17 +60,17 @@
                 v-html="providerAvatarMarkup"
             />
             <span class="highlight item-value-text">
-              {{ record.chatInstanceName || record.modelName || '未配置' }}
+              {{ record.chatInstanceName || record.modelName || t.card.notConfigured }}
             </span>
           </div>
         </div>
         <div class="config-item">
           <div class="item-label">
             <file-text-outlined/>
-            提示词策略
+            {{ t.card.promptStrategy }}
           </div>
           <div class="item-value">
-            {{ record.promptTitle || '默认策略' }}
+            {{ record.promptTitle || t.card.defaultStrategy }}
           </div>
         </div>
       </div>
@@ -79,13 +79,13 @@
     <div class="card-footer">
       <button class="action-btn edit" @click="emit('edit', record)">
         <edit-outlined/>
-        <span>编辑配置</span>
+        <span>{{ t.card.editConfig }}</span>
       </button>
       <div class="btn-divider"></div>
-      <a-popconfirm title="确定删除该智能体吗？" @confirm="onConfirmDelete">
+      <a-popconfirm :title="t.card.deleteConfirm" @confirm="onConfirmDelete">
         <button class="action-btn delete">
           <delete-outlined/>
-          <span>删除</span>
+          <span>{{ t.card.delete }}</span>
         </button>
       </a-popconfirm>
     </div>
@@ -95,6 +95,7 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
 import {message} from 'ant-design-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import {
   CopyOutlined,
   DeleteOutlined,
@@ -106,6 +107,8 @@ import {
 
 const props = defineProps<{ record: any; selected?: boolean }>()
 const emit = defineEmits(['edit', 'delete', 'toggle'])
+
+const t = usePageTranslation('ai-agent')
 
 
 const onToggle = (e: any) => {
@@ -131,9 +134,9 @@ const copyAgentKey = async () => {
   if (!props.record.agentKey) return
   try {
     await navigator.clipboard.writeText(props.record.agentKey)
-    message.success('Key 已成功复制到剪贴板')
+    message.success(t.value.card.keyCopied)
   } catch {
-    message.error('复制失败，请手动复制')
+    message.error(t.value.card.copyFailed)
   }
 }
 </script>
@@ -166,7 +169,7 @@ const copyAgentKey = async () => {
   right: -60px;
   width: 120px;
   height: 120px;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--primary) 8%, transparent) 0%, transparent 70%);
   z-index: 0;
   pointer-events: none;
 }
@@ -240,7 +243,7 @@ const copyAgentKey = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 16px -4px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 8px 16px -4px color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
 .avatar-letter {
@@ -262,7 +265,7 @@ const copyAgentKey = async () => {
 
 .status-badge.enabled {
   background: var(--success);
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--success) 40%, transparent);
 }
 
 .header-content {
@@ -359,7 +362,7 @@ const copyAgentKey = async () => {
 
 .item-label {
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin-bottom: 4px;
   display: flex;
   align-items: center;

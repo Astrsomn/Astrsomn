@@ -1,6 +1,6 @@
 <template>
   <div class="pagination-wrap">
-    <span class="pagination-total">共 {{ total }} 条</span>
+    <span class="pagination-total">{{ t.pagination.total.replace('{total}', String(total)) }}</span>
     <a-pagination
         :current="current"
         :page-size="pageSize"
@@ -12,6 +12,10 @@
 </template>
 
 <script lang="ts" setup>
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('common')
+
 const props = withDefaults(defineProps<{
   current: number
   pageSize: number

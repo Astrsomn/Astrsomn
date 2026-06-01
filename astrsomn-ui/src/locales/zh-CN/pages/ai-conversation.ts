@@ -1,0 +1,36 @@
+export const aiConversationTranslation = {
+  list: {
+    emptyText: '暂无对话记录。',
+    searchButton: '搜索',
+    searchPlaceholder: '搜索 Memory Key',
+    statusAll: '全部',
+    statusEnabled: '启用',
+    statusDisabled: '禁用',
+    batchDelete: '批量删除',
+    batchDeleteConfirm: '确定删除选中的 {n} 个对话组吗？',
+    reset: '重置',
+    fetchDetailFailed: '获取对话详情失败',
+  },
+  detail: {
+    title: '对话详情',
+    createTime: '创建时间',
+    status: '状态',
+    statusEnabled: '启用',
+    statusDisabled: '禁用',
+    emptyContent: '暂无对话内容',
+    emptyDetail: '请选择一个对话组查看详情',
+  },
+  card: {
+    recover: '复原',
+    delete: '删除',
+    conversationCount: '{n} 条对话',
+    noContent: '无内容对话',
+    keyCopied: 'Memory Key 已复制',
+    copyFailed: '复制失败',
+    deleteConfirmTitle: '删除此对话？',
+    deleteConfirmContent: '删除后无法恢复',
+  },
+  panel: {
+    summaryText: '当前页 {total} 条对话组，已选 {selected} 条。',
+  },
+}

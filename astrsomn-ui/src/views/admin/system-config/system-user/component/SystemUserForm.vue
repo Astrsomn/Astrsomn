@@ -2,7 +2,7 @@
   <a-modal
       v-model:open="open"
       :confirm-loading="confirmLoading"
-      :title="mode === 'create' ? '新增用户' : '编辑用户'"
+      :title="mode === 'create' ? t.form.createTitle : t.form.editTitle"
       width="560px"
       @cancel="onCancel"
       @ok="handleOk"
@@ -14,46 +14,46 @@
         class="user-form"
         layout="vertical"
     >
-      <a-form-item label="用户名" name="username">
+      <a-form-item :label="t.form.labelUsername" name="username">
         <a-input
             v-model:value="form.username"
             :disabled="mode === 'edit'"
             autocomplete="off"
-            placeholder="登录名"
+            :placeholder="t.form.placeholderUsername"
         />
       </a-form-item>
 
-      <a-form-item :label="mode === 'create' ? '密码' : '新密码（留空不修改）'" name="password">
+      <a-form-item :label="mode === 'create' ? t.form.labelPassword : t.form.labelNewPassword" name="password">
         <a-input-password
             v-model:value="form.password"
-            :placeholder="mode === 'create' ? '登录密码' : '不修改请留空'"
+            :placeholder="mode === 'create' ? t.form.placeholderPassword : t.form.placeholderPasswordEdit"
             autocomplete="new-password"
         />
       </a-form-item>
 
-      <a-form-item label="邮箱" name="email">
-        <a-input v-model:value="form.email" allow-clear placeholder="可选"/>
+      <a-form-item :label="t.form.labelEmail" name="email">
+        <a-input v-model:value="form.email" allow-clear :placeholder="t.form.placeholderEmail"/>
       </a-form-item>
 
-      <a-form-item label="角色" name="userRole">
+      <a-form-item :label="t.form.labelRole" name="userRole">
         <a-select v-model:value="form.userRole" :options="roleOptions"/>
       </a-form-item>
 
-      <a-form-item label="归属环境" name="envCode">
+      <a-form-item :label="t.form.labelEnvCode" name="envCode">
         <a-select
             v-model:value="form.envCode"
             :filter-option="filterEnvOption"
             :loading="envLoading"
             :options="envOptions"
             allow-clear
-            placeholder="请选择环境（与 SYSTEM_ENV 一致）"
+            :placeholder="t.form.placeholderEnvCode"
             show-search
         />
       </a-form-item>
 
       <a-alert
           class="form-tip"
-          message="登录校验使用 BCrypt。角色：超级管理员可管用户/环境与全部配置；环境管理员仅能管本环境相关 AI 配置；普通用户不能进后台配置。"
+          :message="t.form.tipMessage"
           show-icon
           type="warning"
       />
@@ -62,10 +62,15 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, watch} from 'vue'
+import {computed, reactive, ref, watch} from 'vue'
 import type {FormInstance} from 'ant-design-vue'
 import type {SystemUser} from '@/api/systemUser.ts'
 import {type SystemEnv, systemEnvApi} from '@/api/systemEnv.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+import {getDictionary} from '@/locales/dictionary/registry.ts'
+
+const t = usePageTranslation('system-user')
+const roleDict = getDictionary('system.user.role')
 
 const props = defineProps<{
   mode: 'create' | 'edit'
@@ -81,11 +86,10 @@ const open = defineModel<boolean>('open', {required: true})
 
 const formRef = ref<FormInstance | null>(null)
 
-const roleOptions = [
-  {label: '超级管理员', value: 'SUPER_ADMIN'},
-  {label: '环境管理员', value: 'ENV_ADMIN'},
-  {label: '普通用户', value: 'USER'}
-]
+const roleOptions = computed(() => roleDict.order.map(key => ({
+  label: roleDict.getLabel(key) ?? key,
+  value: key
+})))
 
 const envLoading = ref(false)
 const envOptions = ref<Array<{ label: string; value: string }>>([])
@@ -134,19 +138,19 @@ function emptyForm(): SystemUser {
 const form = reactive<SystemUser>(emptyForm())
 
 const rules = {
-  username: [{required: true, message: '请输入用户名'}],
+  username: [{required: true, message: t.value.form.validationUsername}],
   password: [
     {
       validator: async (_rule: unknown, value: string) => {
         if (props.mode === 'create' && !String(value || '').trim()) {
-          return Promise.reject(new Error('请设置密码'))
+          return Promise.reject(new Error(t.value.form.validationPassword))
         }
         return Promise.resolve()
       },
       trigger: 'blur'
     }
   ],
-  userRole: [{required: true, message: '请选择角色'}]
+  userRole: [{required: true, message: t.value.form.validationRole}]
 }
 
 function assignFromInitial(src: SystemUser) {

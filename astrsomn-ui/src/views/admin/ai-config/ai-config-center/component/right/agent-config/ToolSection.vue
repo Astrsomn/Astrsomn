@@ -5,8 +5,8 @@
         <AppstoreOutlined />
       </div>
       <div class="section-header-text">
-        <h3 class="section-title">扩展集成</h3>
-        <p class="section-desc">连接工具、知识库和 MCP 节点</p>
+        <h3 class="section-title">{{ t.agent.integrationTitle }}</h3>
+        <p class="section-desc">{{ t.agent.integrationDesc }}</p>
       </div>
     </div>
 
@@ -17,10 +17,10 @@
           <ToolOutlined />
         </div>
         <div class="card-content">
-          <h4 class="card-title">扩展工具</h4>
+          <h4 class="card-title">{{ t.agent.extensionTools }}</h4>
           <p class="card-count">
             <span class="count-number">{{ tools.length }}</span>
-            <span class="count-label">个工具已绑定</span>
+            <span class="count-label">{{ t.agent.toolsBound }}</span>
           </p>
         </div>
         <div class="card-action">
@@ -37,10 +37,10 @@
           <DatabaseOutlined />
         </div>
         <div class="card-content">
-          <h4 class="card-title">知识库</h4>
+          <h4 class="card-title">{{ t.agent.knowledgeBase }}</h4>
           <p class="card-count">
             <span class="count-number count-green">{{ knowledgeKeys.length }}</span>
-            <span class="count-label">个向量库已关联</span>
+            <span class="count-label">{{ t.agent.vectorStoresLinked }}</span>
           </p>
         </div>
         <div class="card-action action-green">
@@ -61,10 +61,10 @@
           <ApiOutlined />
         </div>
         <div class="card-content">
-          <h4 class="card-title">MCP 节点</h4>
+          <h4 class="card-title">{{ t.agent.mcpNodes }}</h4>
           <p class="card-count">
             <span class="count-number count-purple">{{ mcps.length }}</span>
-            <span class="count-label">{{ mcps.length ? '个节点已连接' : '暂无端点' }}</span>
+            <span class="count-label">{{ mcps.length ? t.agent.nodesConnected : t.agent.noEndpoints }}</span>
           </p>
         </div>
         <div class="card-action action-purple">
@@ -93,6 +93,7 @@ import type {AiMcp} from '@/api/aiMcp.ts'
 import ToolCard from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/ToolCard.vue'
 import McpCard from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/McpCard.vue'
 import RagCard from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/RagCard.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 defineProps<{
   tools: AiTool[]
@@ -108,6 +109,8 @@ const emit = defineEmits<{
   'knowledge-add': [key: string]
   'knowledge-remove': [key: string]
 }>()
+
+const t = usePageTranslation('ai-config-center')
 
 const toolCardRef = ref<HTMLElement | null>(null)
 const mcpCardRef = ref<HTMLElement | null>(null)
@@ -154,7 +157,7 @@ function triggerRagAdd() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.04);
+  background: color-mix(in srgb, var(--text-primary) 4%, transparent);
   color: var(--text-muted);
   font-size: 16px;
   flex-shrink: 0;
@@ -232,18 +235,18 @@ function triggerRagAdd() {
 }
 
 .icon-blue {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
 }
 
 .icon-green {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
 }
 
 .icon-purple {
-  background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
+  background: color-mix(in srgb, #a855f7 10%, transparent);
+  color: #a855f7;
 }
 
 
@@ -268,16 +271,16 @@ function triggerRagAdd() {
 .count-number {
   font-size: 20px;
   font-weight: 700;
-  color: #3b82f6;
+  color: var(--primary);
   font-variant-numeric: tabular-nums;
 }
 
 .count-number.count-green {
-  color: #10b981;
+  color: var(--success);
 }
 
 .count-number.count-purple {
-  color: #8b5cf6;
+  color: #a855f7;
 }
 
 .count-label {
@@ -303,16 +306,16 @@ function triggerRagAdd() {
 }
 
 .integration-card:hover .card-action {
-  background: #3b82f6;
-  color: #fff;
+  background: var(--primary);
+  color: var(--text-heading);
 }
 
 .integration-card:hover .action-green {
-  background: #10b981;
+  background: var(--success);
 }
 
 .integration-card:hover .action-purple {
-  background: #8b5cf6;
+  background: #a855f7;
 }
 
 

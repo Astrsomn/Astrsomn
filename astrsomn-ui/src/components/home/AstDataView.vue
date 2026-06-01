@@ -39,7 +39,7 @@
               name="bodyCell"
           >
             <template v-if="column.copyable && text">
-              <span class="copyable-cell" title="点击复制" @click="handleCopy(text)">
+              <span class="copyable-cell" :title="t.dataView.clickToCopy" @click="handleCopy(text)">
                
                 <CopyOutlined class="copy-icon"/> {{ text }}
               </span>
@@ -78,7 +78,7 @@
       </a-table>
 
       <div v-else key="empty" class="data-view-empty">
-        <a-empty :description="emptyText"/>
+        <a-empty :description="effectiveEmptyText"/>
       </div>
     </transition>
   </a-spin>
@@ -88,6 +88,9 @@
 import {computed} from 'vue'
 import {message} from 'ant-design-vue'
 import {CopyOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('common')
 
 const props = withDefaults(defineProps<{
   mode: 'card' | 'table'
@@ -114,7 +117,7 @@ const props = withDefaults(defineProps<{
   rowSelection: undefined,
   scroll: undefined,
   loading: false,
-  emptyText: '暂无数据',
+  emptyText: '',
   bordered: true,
   cardMinWidth: '320px',
   cardGap: '12px',
@@ -128,6 +131,8 @@ const props = withDefaults(defineProps<{
   },
   enableBase64Render: false
 })
+
+const effectiveEmptyText = computed(() => props.emptyText || t.value.dataView.emptyText)
 
 const gridStyle = computed(() => ({
   gridTemplateColumns: `repeat(${props.cardColumns}, minmax(0, 1fr))`,
@@ -217,9 +222,9 @@ const handleCopy = async (text: string) => {
   if (!text) return
   try {
     await navigator.clipboard.writeText(text)
-    message.success('已复制到剪贴板')
+    message.success(t.value.dataView.copiedToClipboard)
   } catch {
-    message.error('复制失败，请手动复制')
+    message.error(t.value.dataView.copyFailed)
   }
 }
 </script>

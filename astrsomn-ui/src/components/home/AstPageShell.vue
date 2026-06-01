@@ -13,11 +13,11 @@
       <p class="page-description">{{ description }}</p>
     </div>
     <slot>
-      <a-empty :description="emptyText"/>
+      <a-empty :description="effectiveEmptyText"/>
     </slot>
     <div v-if="showViewToggle && viewToggleHandler" class="float-view-toggle">
       <a-button
-          :title="viewMode === 'grid' ? '切换为列表视图' : '切换为卡片视图'"
+          :title="viewMode === 'grid' ? t.pageShell.switchToList : t.pageShell.switchToCard"
           shape="circle"
           size="large"
           type="primary"
@@ -32,15 +32,18 @@
 </template>
 
 <script lang="ts" setup>
-import {inject} from 'vue';
+import {computed, inject} from 'vue';
 import {AppstoreOutlined, BarsOutlined} from '@ant-design/icons-vue';
+import {usePageTranslation} from '@/locales/pages.ts';
+
+const t = usePageTranslation('common')
 
 interface BreadcrumbItem {
   title: string;
   href?: string;
 }
 
-withDefaults(
+const props = withDefaults(
     defineProps<{
       title?: string;
       description?: string;
@@ -51,11 +54,13 @@ withDefaults(
       viewToggleHandler?: () => void;
     }>(),
     {
-      emptyText: '暂无数据',
+      emptyText: '',
       showViewToggle: false,
       viewMode: 'list',
     }
 );
+
+const effectiveEmptyText = computed(() => props.emptyText || t.value.pageShell.emptyText)
 
 const inModuleLayout = inject('adminInModuleLayout', false);
 </script>
@@ -98,10 +103,10 @@ const inModuleLayout = inject('adminInModuleLayout', false);
   bottom: 32px;
   z-index: 100;
   border-radius: 50%;
-  border: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border: 1px solid var(--border-default);
 }
 
 .float-view-toggle :deep(.ant-btn) {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--shadow-color, #000) 15%, transparent);
 }
 </style>

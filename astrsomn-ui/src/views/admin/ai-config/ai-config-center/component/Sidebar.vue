@@ -223,7 +223,7 @@ const fetchEnabledExtensions = async () => {
     })
     const rows = (resp.list || []).filter((item) => String(item.applied || '').toUpperCase() === 'Y')
     enabledExtensions.value = rows.map((item) => {
-      const name = String(item.extensionName || item.extensionKey || '扩展')
+      const name = String(item.extensionName || item.extensionKey || t.value.sidebar.extension)
       return {
         key: String(item.id ?? item.extensionKey ?? name),
         name,
@@ -250,7 +250,7 @@ const fetchProviders = async () => {
     const modelProviders = enabled.map((item: SystemExtension) => {
       const code = (item.extensionCode || item.extensionKey || '').toLowerCase()
       const dictLabel = providerDict.value.getLabel(code)
-      const name = dictLabel || item.extensionName || item.extensionKey || '未知插件'
+      const name = dictLabel || item.extensionName || item.extensionKey || t.value.sidebar.unknownPlugin
       return {
         key: code,
         label: name,
@@ -348,23 +348,23 @@ watch(
   min-width: 0;
   height: 36px;
   border-color: transparent;
-  background: var(--bg-input, rgba(0, 0, 0, 0.04));
+  background: var(--bg-input);
 }
 
 .sidebar-search-pill:hover {
-  border-color: var(--border-default, rgba(0, 0, 0, 0.1));
+  border-color: var(--border-default);
   box-shadow: none;
   transform: none;
 }
 
 .sidebar-search-pill:focus-within {
-  border-color: var(--primary, #3b82f6);
+  border-color: var(--primary);
   box-shadow: none;
 }
 
 .sidebar-search-pill :deep(.toolbar-search-pill__left-icon) {
   font-size: 14px;
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-muted);
 }
 
 .sidebar-search-pill :deep(.toolbar-search-pill__input) {

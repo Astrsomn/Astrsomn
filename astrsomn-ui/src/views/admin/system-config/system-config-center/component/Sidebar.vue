@@ -2,40 +2,38 @@
   <SidebarShell :collapsed="collapsed" @toggle-collapse="toggleCollapsed">
     <div style="display: flex; flex-direction: column; height: 100%;">
       <div class="nav-list">
-        <div class="nav-section">
-          <div class="nav-items">
-            <a-tooltip :disabled="!collapsed" placement="right">
-              <template #title>全部</template>
-              <div
-                  :class="{ 'is-active': activeItem === 'all' }"
-                  class="nav-card"
-                  @click="handleSelect('all')"
-              >
-                <div class="nav-avatar">
-                  <AppstoreOutlined class="all-icon"/>
-                </div>
-                <span class="nav-name">全部</span>
-              </div>
-            </a-tooltip>
-            <a-tooltip
-                v-for="item in menuItems"
-                :key="item.key"
-                :disabled="!collapsed"
-                placement="right"
+        <div class="nav-items">
+          <a-tooltip :disabled="!collapsed" placement="right">
+            <template #title>{{ t?.sidebar?.all ?? '全部' }}</template>
+            <div
+              :class="{ 'is-active': activeItem === 'all' }"
+              class="nav-card"
+              @click="handleSelect('all')"
             >
-              <template #title>{{ item.label }}</template>
-              <div
-                  :class="{ 'is-active': activeItem === item.key }"
-                  class="nav-card"
-                  @click="handleSelect(item.key)"
-              >
-                <div class="nav-avatar">
-                  <component :is="item.icon" class="nav-icon"/>
-                </div>
-                <span class="nav-name">{{ item.label }}</span>
+              <div class="nav-avatar nav-avatar--all">
+                <AppstoreOutlined class="nav-icon--all" />
               </div>
-            </a-tooltip>
-          </div>
+              <span class="nav-name">{{ t?.sidebar?.all ?? '全部' }}</span>
+            </div>
+          </a-tooltip>
+          <a-tooltip
+            v-for="item in menuItems"
+            :key="item.key"
+            :disabled="!collapsed"
+            placement="right"
+          >
+            <template #title>{{ item.label }}</template>
+            <div
+              :class="{ 'is-active': activeItem === item.key }"
+              class="nav-card"
+              @click="handleSelect(item.key)"
+            >
+              <div class="nav-avatar">
+                <component :is="item.icon" class="nav-icon" />
+              </div>
+              <span class="nav-name">{{ item.label }}</span>
+            </div>
+          </a-tooltip>
         </div>
       </div>
     </div>
@@ -43,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, watch} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {
   AlertOutlined,
@@ -54,6 +52,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons-vue'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
+import {usePageTranslation} from '@/locales/pages'
 
 const emit = defineEmits<{
   select: [key: string]
@@ -61,6 +60,7 @@ const emit = defineEmits<{
 }>()
 
 const route = useRoute()
+const t = usePageTranslation('system-config-center')
 
 const collapsed = ref(false)
 const toggleCollapsed = () => {
@@ -68,19 +68,23 @@ const toggleCollapsed = () => {
   emit('update:collapsed', collapsed.value)
 }
 
-const menuItems = [
-  {key: 'users', label: '用户管理', icon: UserOutlined},
-  {key: 'env', label: '环境管理', icon: ClusterOutlined},
-  {key: 'config', label: '系统配置', icon: SettingOutlined},
-  {key: 'messages', label: '系统消息', icon: AlertOutlined},
-  {key: 'extensions', label: '系统扩展', icon: ApiOutlined},
-]
+const menuItems = computed(() => {
+  const s = t.value?.sidebar
+  if (!s) return []
+  return [
+    { key: 'users', label: s.users, icon: UserOutlined },
+    { key: 'env', label: s.env, icon: ClusterOutlined },
+    { key: 'config', label: s.config, icon: SettingOutlined },
+    { key: 'messages', label: s.messages, icon: AlertOutlined },
+    { key: 'extensions', label: s.extensions, icon: ApiOutlined },
+  ]
+})
 
 const activeItem = ref('all')
 
 const updateActiveItem = () => {
   const view = route.query.view as string | undefined
-  const validKeys = menuItems.map(item => item.key)
+  const validKeys = menuItems.value.map(item => item.key)
   if (view && validKeys.includes(view)) {
     activeItem.value = view
     return
@@ -94,11 +98,11 @@ const handleSelect = (key: string) => {
 }
 
 watch(
-    () => route.query.view,
-    () => {
-      updateActiveItem()
-    },
-    {immediate: true}
+  () => route.query.view,
+  () => {
+    updateActiveItem()
+  },
+  { immediate: true }
 )
 </script>
 
@@ -110,25 +114,22 @@ watch(
   flex-direction: column;
 }
 
-.nav-section {
-  margin-bottom: 20px;
-}
-
 .nav-items {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .nav-card {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
   font-size: 13px;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .nav-card:hover {
@@ -139,44 +140,61 @@ watch(
 .nav-card.is-active {
   background: var(--primary-hover);
   color: var(--primary);
-  font-weight: 500;
-  position: relative;
+  font-weight: 600;
 }
 
-.nav-card.is-active::after {
+.nav-card.is-active::before {
   content: '';
   position: absolute;
-  right: 4px;
+  left: -2px;
   top: 50%;
   transform: translateY(-50%);
-  width: 4px;
-  height: 16px;
-  border-radius: 2px;
+  width: 3px;
+  height: 20px;
+  border-radius: 0 2px 2px 0;
   background: var(--primary);
 }
 
 .nav-avatar {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
   margin-right: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
+  background: var(--bg-input);
+  transition: background 0.2s;
 }
 
-.all-icon {
-  font-size: 12px;
-  color: var(--primary);
+.nav-card:hover .nav-avatar,
+.nav-card.is-active .nav-avatar {
+  background: var(--primary-hover);
+}
+
+.nav-avatar--all {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.nav-card:hover .nav-avatar--all,
+.nav-card.is-active .nav-avatar--all {
+  background: rgba(59, 130, 246, 0.2);
 }
 
 .nav-icon {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-secondary);
+  transition: color 0.2s;
 }
 
+.nav-icon--all {
+  font-size: 14px;
+  color: var(--primary);
+}
+
+.nav-card:hover .nav-icon,
 .nav-card.is-active .nav-icon {
   color: var(--primary);
 }
@@ -188,7 +206,7 @@ watch(
   white-space: nowrap;
 }
 
-
+/* Collapsed state */
 .ast-sidebar.collapsed .nav-items {
   align-items: center;
 }
@@ -196,13 +214,14 @@ watch(
 .ast-sidebar.collapsed .nav-card {
   justify-content: center;
   padding: 8px;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   margin: 0 auto;
 }
 
-.ast-sidebar.collapsed .nav-card.is-active::after {
-  right: -4px;
+.ast-sidebar.collapsed .nav-card.is-active::before {
+  left: -4px;
+  height: 28px;
 }
 
 .ast-sidebar.collapsed .nav-avatar {

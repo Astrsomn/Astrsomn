@@ -15,8 +15,8 @@
             <FileTextOutlined/>
           </div>
           <div class="text-group">
-            <h2>{{ mode === 'create' ? '创建向量分段' : '编辑向量分段' }}</h2>
-            <p>管理文档切片与向量映射，支持分段内容预览</p>
+            <h2>{{ mode === 'create' ? t.vecSegment.form.createTitle : t.vecSegment.form.editTitle }}</h2>
+            <p>{{ t.vecSegment.form.subtitle }}</p>
           </div>
         </div>
       </div>
@@ -33,39 +33,39 @@
         <div class="form-section">
           <h3 class="section-headline">
             <IdcardOutlined/>
-            基本配置
+            {{ t.vecSegment.form.basicConfig }}
           </h3>
 
           <div class="form-grid">
-            <a-form-item label="文档 ID" name="docId">
-              <a-input-number v-model:value="form.docId" min="1" placeholder="关联的文档 ID" size="large"/>
+            <a-form-item :label="t.vecSegment.form.docId.label" name="docId">
+              <a-input-number v-model:value="form.docId" min="1" :placeholder="t.vecSegment.form.docId.placeholder" size="large"/>
             </a-form-item>
 
-            <a-form-item label="集合 ID" name="collectionId">
-              <a-input-number v-model:value="form.collectionId" min="1" placeholder="关联的向量集合 ID" size="large"/>
+            <a-form-item :label="t.vecSegment.form.collectionId.label" name="collectionId">
+              <a-input-number v-model:value="form.collectionId" min="1" :placeholder="t.vecSegment.form.collectionId.placeholder" size="large"/>
             </a-form-item>
 
-            <a-form-item label="向量 ID" name="vectorId">
-              <a-input v-model:value="form.vectorId" placeholder="向量库中的唯一标识" size="large"/>
+            <a-form-item :label="t.vecSegment.form.vectorId.label" name="vectorId">
+              <a-input v-model:value="form.vectorId" :placeholder="t.vecSegment.form.vectorId.placeholder" size="large"/>
             </a-form-item>
 
-            <a-form-item label="分段序号" name="chunkIndex">
-              <a-input-number v-model:value="form.chunkIndex" min="0" placeholder="切片序号" size="large"/>
+            <a-form-item :label="t.vecSegment.form.chunkIndex.label" name="chunkIndex">
+              <a-input-number v-model:value="form.chunkIndex" min="0" :placeholder="t.vecSegment.form.chunkIndex.placeholder" size="large"/>
             </a-form-item>
 
-            <a-form-item label="字符数" name="wordCount">
-              <a-input-number v-model:value="form.wordCount" min="0" placeholder="字符数" size="large"/>
+            <a-form-item :label="t.vecSegment.form.wordCount.label" name="wordCount">
+              <a-input-number v-model:value="form.wordCount" min="0" :placeholder="t.vecSegment.form.wordCount.placeholder" size="large"/>
             </a-form-item>
 
-            <a-form-item class="span-2" label="分段内容" name="segmentContent">
+            <a-form-item class="span-2" :label="t.vecSegment.form.segmentContent.label" name="segmentContent">
               <a-textarea
                   v-model:value="form.segmentContent"
                   :auto-size="{ minRows: 4, maxRows: 6 }"
-                  placeholder="切片文本内容"
+                  :placeholder="t.vecSegment.form.segmentContent.placeholder"
               />
             </a-form-item>
 
-            <a-form-item class="span-2" label="元数据 (JSON)" name="metadataJson">
+            <a-form-item class="span-2" :label="t.vecSegment.form.metadataJson.label" name="metadataJson">
               <div class="json-editor-wrapper">
                 <a-textarea
                     v-model:value="form.metadataJson"
@@ -83,17 +83,17 @@
     <div class="modal-footer-action">
       <div class="footer-left">
         <SafetyCertificateOutlined/>
-        数据安全加密存储
+        {{ t.vecSegment.form.securityInfo }}
       </div>
       <div class="footer-right">
-        <a-button class="btn-flat" @click="onCancel">取消</a-button>
+        <a-button class="btn-flat" @click="onCancel">{{ t.vecSegment.form.cancel }}</a-button>
         <a-button
             :loading="confirmLoading"
             class="btn-submit"
             type="primary"
             @click="handleOk"
         >
-          保存配置
+          {{ t.vecSegment.form.save }}
         </a-button>
       </div>
     </div>
@@ -101,10 +101,13 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, watch} from 'vue'
+import {computed, reactive, ref, watch} from 'vue'
 import {FileTextOutlined, IdcardOutlined, SafetyCertificateOutlined} from '@ant-design/icons-vue'
 import type {FormInstance} from 'ant-design-vue'
 import type {AiVecSegment} from '@/api/aiVecSegment.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiVecSegment | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecSegment] }>()
@@ -126,14 +129,14 @@ function emptyForm(): AiVecSegment {
 
 const form = reactive<AiVecSegment>(emptyForm())
 
-const rules = {
-  docId: [{required: true, message: '请输入文档 ID'}],
-  collectionId: [{required: true, message: '请输入集合 ID'}],
-  vectorId: [{required: true, message: '请输入向量 ID'}],
-  chunkIndex: [{required: true, message: '请输入分段序号'}],
-  wordCount: [{required: true, message: '请输入字符数'}],
-  segmentContent: [{required: true, message: '请输入分段内容'}]
-}
+const rules = computed(() => ({
+  docId: [{required: true, message: t.value.vecSegment.form.validation.docIdRequired}],
+  collectionId: [{required: true, message: t.value.vecSegment.form.validation.collectionIdRequired}],
+  vectorId: [{required: true, message: t.value.vecSegment.form.validation.vectorIdRequired}],
+  chunkIndex: [{required: true, message: t.value.vecSegment.form.validation.chunkIndexRequired}],
+  wordCount: [{required: true, message: t.value.vecSegment.form.validation.wordCountRequired}],
+  segmentContent: [{required: true, message: t.value.vecSegment.form.validation.segmentContentRequired}]
+}))
 
 function assignFromInitial(src: AiVecSegment) {
   Object.assign(form, emptyForm(), src)
@@ -193,7 +196,7 @@ const onCancel = () => {
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 16px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .text-group h2 {
@@ -263,7 +266,7 @@ const onCancel = () => {
 
 .json-editor-wrapper:focus-within {
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
 .mono-text {

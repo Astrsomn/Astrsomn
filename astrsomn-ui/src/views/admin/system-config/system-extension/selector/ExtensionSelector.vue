@@ -1,5 +1,5 @@
 <template>
-  <a-select :allow-clear="allowClear" :disabled="disabled" :loading="loading" :placeholder="placeholder" :size="size"
+  <a-select :allow-clear="allowClear" :disabled="disabled" :loading="loading" :placeholder="placeholder || t.selector.placeholder" :size="size"
             :value="value" class="model-provider-select" option-filter-prop="label" @update:value="onUpdate">
     <template #label="{ label, value: val }">
       <div v-if="val" class="selected-content">
@@ -23,6 +23,9 @@
 import {computed, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('system-extension')
 
 const props = withDefaults(
     defineProps<{
@@ -37,7 +40,7 @@ const props = withDefaults(
       onlyApplied?: boolean
     }>(),
     {
-      placeholder: '根据供应商筛选',
+      placeholder: '',
       size: 'large',
       allowClear: false,
       extensionType: 'MODEL_PROVIDER',
@@ -102,7 +105,7 @@ async function load() {
     catalog.value = resp?.list ?? []
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '加载模型提供商失败')
+    message.error(err?.message || t.value.selector.loadFailed)
     catalog.value = []
   } finally {
     loading.value = false
@@ -135,9 +138,9 @@ function onUpdate(v: string | undefined) {
 
 .model-provider-select :deep(.ant-select-selector) {
   height: 50px !important;
-  background: var(--bg-surface, #ffffff) !important;
+  background: var(--bg-surface) !important;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-default, rgba(0, 0, 0, 0.1));
+  border: 1px solid var(--border-default);
   padding: 0 16px !important;
   display: flex !important;
   align-items: center !important;
@@ -188,7 +191,7 @@ function onUpdate(v: string | undefined) {
 
 .opt-text {
   font-size: 14px;
-  color: var(--text-heading, #1e293b);
+  color: var(--text-heading);
   font-weight: 500;
 }
 

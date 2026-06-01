@@ -10,7 +10,7 @@
     </div>
     <div class="source-info">
       <div class="source-header-row">
-        <span class="source-title">{{ sourceName || '数据源' }}</span>
+        <span class="source-title">{{ sourceName || t.vectorCenter.sourceCard.defaultName }}</span>
         <span :class="isConnected ? 'dot-connected' : 'dot-disconnected'" class="status-dot"></span>
       </div>
       <div class="source-conn-row">
@@ -24,6 +24,9 @@
 
 <script lang="ts" setup>
 import {ClusterOutlined, LoadingOutlined, UpOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-vector')
 
 defineProps<{
   sourceName: string

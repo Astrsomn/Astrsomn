@@ -14,7 +14,7 @@
           <a-input
             :value="agentName"
             class="name-input"
-            placeholder="例如：翻译助手"
+            :placeholder="t.agent.namePlaceholder"
             @update:value="emit('update:agentName', $event)"
           />
           <div class="key-generator-wrapper">
@@ -53,7 +53,7 @@
           @click="emit('improve-prompt')"
         >
           <template #icon><ThunderboltOutlined /></template>
-          AI 优化
+          {{ t.agent.aiOptimize }}
         </a-button>
       </div>
     </div>
@@ -68,6 +68,7 @@ import PromptCard from '@/views/admin/ai-config/builder/component/left-center/Pr
 import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import AstIconPicker from '@/components/home/AstIconPicker.vue'
 import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const APP_HEADER_H = 60
 const CONFIG_HEADER_H = 56
@@ -76,6 +77,8 @@ const CONTENT_PADDING = 40
 const cardStyle = computed(() => ({
   height: `calc(100vh - ${APP_HEADER_H + CONFIG_HEADER_H + CONTENT_PADDING}px)`,
 }))
+
+const t = usePageTranslation('ai-config-center')
 
 defineProps<{
   agentName: string
@@ -100,20 +103,20 @@ const emit = defineEmits<{
 <style scoped>
 /* 全局卡片容器 */
 .persona-card {
-  background: var(--bg-card, #ffffff);
-  border: 1px solid var(--border-default, #eef0f2);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 14px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--text-primary) 1%, transparent);
   transition: all 0.25s ease;
 }
 
 .persona-card:hover {
-  border-color: #e2e8f0;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.03);
+  border-color: var(--border-default);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--text-primary) 3%, transparent);
 }
 
 /* ── 顶部样式精简 ── */
@@ -153,12 +156,12 @@ const emit = defineEmits<{
   border: 1px solid transparent !important;
   background: transparent !important;
   padding: 0 4px !important;
-  color: #1e293b;
+  color: var(--text-primary);
   box-shadow: none !important;
 }
 .name-input:hover, .name-input:focus {
-  background: #f1f5f9 !important;
-  border-color: #cbd5e1 !important;
+  background: var(--bg-input) !important;
+  border-color: var(--border-default) !important;
   padding: 0 8px !important;
 }
 
@@ -167,7 +170,7 @@ const emit = defineEmits<{
 .divider {
   height: 1px;
   margin: 0 20px;
-  background: #f1f5f9;
+  background: var(--border-subtle);
   flex-shrink: 0;
 }
 
@@ -203,29 +206,29 @@ const emit = defineEmits<{
 
 /* 大文本框的外框美化 */
 .prompt-area :deep(.dashed-frame) {
-  border: 1px solid #e2e8f0 !important;
-  background: #f8fafc !important;
+  border: 1px solid var(--border-default) !important;
+  background: var(--bg-input) !important;
   border-radius: 12px !important;
   height: 100%;
   transition: all 0.25s ease !important;
 }
 
 .prompt-area :deep(.dashed-frame:hover) {
-  border-color: #cbd5e1 !important;
-  background: #f1f5f9 !important;
+  border-color: var(--border-default) !important;
+  background: var(--bg-input) !important;
 }
 
 .prompt-area :deep(.dashed-frame:focus-within) {
-  border-color: #8b5cf6 !important;
-  background: #ffffff !important;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1) !important;
+  border-color: var(--primary) !important;
+  background: var(--bg-card) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent) !important;
 }
 
 /* 核心核心：为了不让输入的文字被右上角的 AI 按钮遮挡，给底层 textarea 加上顶部与右侧留白 */
 .prompt-area :deep(textarea) {
   font-size: 13px !important;
   line-height: 1.6 !important;
-  color: #334155 !important;
+  color: var(--text-primary) !important;
   padding-top: 42px !important; /* 留出上方空间给 AI 按钮悬浮 */
   padding-right: 12px !important;
 }
@@ -246,16 +249,16 @@ const emit = defineEmits<{
   align-items: center;
   gap: 4px;
   /* 现代感的科技渐变紫 */
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%) !important;
+  color: var(--text-heading) !important;
   border: none !important;
   transition: all 0.2s ease !important;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 25%, transparent);
 }
 
 .ai-optimize-btn-absolute:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 35%, transparent);
   opacity: 0.95;
 }
 
@@ -266,8 +269,8 @@ const emit = defineEmits<{
 /* 按钮 Loading 和禁用状态：完美融入输入框背景，不显脏 */
 .ai-optimize-btn-absolute:disabled,
 .ai-optimize-btn-absolute.ant-btn-loading {
-  background: #e2e8f0 !important;
-  color: #94a3b8 !important;
+  background: var(--border-default) !important;
+  color: var(--text-muted) !important;
   box-shadow: none !important;
   transform: none !important;
   border: none !important;

@@ -14,13 +14,13 @@
           <div class="empty-icon">
             <SelectOutlined/>
           </div>
-          <p>请在最右侧选择一个接入端点</p>
+          <p>{{ t.param.emptyHint }}</p>
         </div>
 
         <div v-else class="params-list">
           <p v-if="capabilityHint" class="cap-hint">{{ capabilityHint }}</p>
           <p v-if="hasParamSchema && unsupportedParamCodes.length > 0" class="cap-hint muted">
-            当前模型参数中有 {{ unsupportedParamCodes.length }} 项暂不支持实例侧填写：{{
+            {{ t.param.unsupportedHint.replace('{n}', String(unsupportedParamCodes.length)) }}：{{
               unsupportedParamCodes.join(', ')
             }}
           </p>
@@ -29,12 +29,12 @@
             <div v-if="showChatTemperature" class="param-group-card">
               <div class="p-header">
                 <a-tooltip placement="left">
-                  <template #title>控制生成内容的随机性。</template>
-                  <span class="p-label">采样温度 (Temperature) <QuestionCircleOutlined/></span></a-tooltip>
+                  <template #title>{{ t.param.chat.temperature.tooltip }}</template>
+                  <span class="p-label">{{ t.param.chat.temperature.label }} <QuestionCircleOutlined/></span></a-tooltip>
                 <a-input-number v-model:value="form.temperature" :max="2" :min="0" :step="0.1" size="small"/>
               </div>
               <div class="slider-box">
-                <a-slider v-model:value="form.temperature" :marks="{ 0: '严谨', 0.7: '平衡', 1.5: '创意', 2: '随机' }" :max="2" :min="0"
+                <a-slider v-model:value="form.temperature" :marks="{ 0: t.param.chat.temperature.marks.strict, 0.7: t.param.chat.temperature.marks.balanced, 1.5: t.param.chat.temperature.marks.creative, 2: t.param.chat.temperature.marks.random }" :max="2" :min="0"
                           :step="0.1"/>
               </div>
               <div :class="getTempInfo(form.temperature ?? 0.7).color" class="p-desc-bar">
@@ -45,51 +45,51 @@
             <div v-if="showChatMaxTokens" class="param-group-card">
               <div class="p-header">
                 <a-tooltip placement="left">
-                  <template #title>设置生成内容的最大长度限制。</template>
-                  <span class="p-label">响应上限 (Max Tokens) <QuestionCircleOutlined/></span></a-tooltip>
+                  <template #title>{{ t.param.chat.maxTokens.tooltip }}</template>
+                  <span class="p-label">{{ t.param.chat.maxTokens.label }} <QuestionCircleOutlined/></span></a-tooltip>
                 <a-input-number v-model:value="form.maxTokens" :max="128000" :min="1" size="small"/>
               </div>
               <div class="slider-box">
-                <a-slider v-model:value="form.maxTokens" :marks="{ 0: '短', 2048: '中等', 4096: '长', 8192: '超长' }" :max="8192" :min="0"
+                <a-slider v-model:value="form.maxTokens" :marks="{ 0: t.param.chat.maxTokens.marks.short, 2048: t.param.chat.maxTokens.marks.medium, 4096: t.param.chat.maxTokens.marks.long, 8192: t.param.chat.maxTokens.marks.extraLong }" :max="8192" :min="0"
                           :step="256"/>
               </div>
             </div>
 
             <div v-if="showChatTopP" class="param-group-card">
               <div class="p-header">
-                <a-tooltip placement="left" title="核心采样"><span class="p-label">核采样 (Top P) <QuestionCircleOutlined/></span>
+                <a-tooltip placement="left" :title="t.param.chat.topP.tooltip"><span class="p-label">{{ t.param.chat.topP.label }} <QuestionCircleOutlined/></span>
                 </a-tooltip>
                 <a-input-number v-model:value="form.topP" :max="1" :min="0" :step="0.01" size="small"/>
               </div>
               <div class="slider-box">
-                <a-slider v-model:value="form.topP" :marks="{ 0: '极窄', 0.5: '标准', 1: '完整' }" :max="1" :min="0"
+                <a-slider v-model:value="form.topP" :marks="{ 0: t.param.chat.topP.marks.narrow, 0.5: t.param.chat.topP.marks.standard, 1: t.param.chat.topP.marks.full }" :max="1" :min="0"
                           :step="0.05"/>
               </div>
             </div>
 
             <div v-if="showChatTopK" class="param-group-card">
-              <div class="p-header"><span class="p-label">Top K <QuestionCircleOutlined/></span>
+              <div class="p-header"><span class="p-label">{{ t.param.chat.topK.label }} <QuestionCircleOutlined/></span>
                 <a-input-number v-model:value="form.topK" :max="100" :min="0" :step="1" size="small"/>
               </div>
-              <p class="p-inline-hint">0 表示不启用</p>
+              <p class="p-inline-hint">{{ t.param.chat.topK.hint }}</p>
             </div>
             <div v-if="showChatSeed" class="param-group-card">
-              <div class="p-header"><span class="p-label">随机种子 (Seed) <QuestionCircleOutlined/></span>
+              <div class="p-header"><span class="p-label">{{ t.param.chat.seed.label }} <QuestionCircleOutlined/></span>
                 <a-input-number v-model:value="form.seed" :max="2147483647" :min="0" :step="1" size="small"/>
               </div>
             </div>
             <div v-if="showChatStopSequences" class="param-group-card">
-              <div class="p-header"><span class="p-label">停止序列 (Stop)</span></div>
+              <div class="p-header"><span class="p-label">{{ t.param.chat.stopSequences.label }}</span></div>
               <a-textarea v-model:value="form.stopSequences" :rows="3" class="stop-seq-input"
-                          placeholder="多个序列用英文逗号分隔"/>
+                          :placeholder="t.param.chat.stopSequences.placeholder"/>
             </div>
             <div v-if="showChatPenalties" class="penalty-row">
               <div v-if="showChatFrequencyPenalty" class="mini-param-card"><span
-                  class="mini-label">重复惩罚 (Frequency)</span>
+                  class="mini-label">{{ t.param.chat.frequencyPenalty.label }}</span>
                 <a-slider v-model:value="form.frequencyPenalty" :max="2" :min="-2" :step="0.1"/>
               </div>
               <div v-if="showChatPresencePenalty" class="mini-param-card"><span
-                  class="mini-label">新鲜度 (Presence)</span>
+                  class="mini-label">{{ t.param.chat.presencePenalty.label }}</span>
                 <a-slider v-model:value="form.presencePenalty" :max="2" :min="-2" :step="0.1"/>
               </div>
             </div>
@@ -99,33 +99,33 @@
             <div v-if="showEmbeddingDimensions" class="param-group-card">
               <div class="p-header">
                 <a-tooltip placement="left">
-                  <template #title>控制输出向量的维度大小，维度越高信息越丰富但计算成本越大。</template>
-                  <span class="p-label">向量维度 (Dimensions) <QuestionCircleOutlined/></span></a-tooltip>
+                  <template #title>{{ t.param.embedding.dimensions.tooltip }}</template>
+                  <span class="p-label">{{ t.param.embedding.dimensions.label }} <QuestionCircleOutlined/></span></a-tooltip>
               </div>
               <a-select
                   v-model:value="form.dimensions"
                   :filter-option="filterDimensionOption"
                   :options="dimensionOptions"
                   allow-clear
-                  placeholder="选择或输入维度"
+                  :placeholder="t.param.embedding.dimensions.placeholder"
                   show-search
                   size="large"
                   style="width: 100%"
               />
             </div>
-            <p v-if="!embeddingHasAnyControl" class="cap-hint muted">当前端点未开放向量可调参数。</p>
+            <p v-if="!embeddingHasAnyControl" class="cap-hint muted">{{ t.param.embedding.noControlHint }}</p>
           </template>
 
           <template v-else-if="modelKind === 'image'">
             <div v-if="showImageSize" class="param-group-card">
-              <div class="p-header"><span class="p-label">画幅尺寸 (Size)</span></div>
-              <a-input v-model:value="form.size" allow-clear placeholder="例如 1024x1024" size="large"/>
+              <div class="p-header"><span class="p-label">{{ t.param.image.size.label }}</span></div>
+              <a-input v-model:value="form.size" allow-clear :placeholder="t.param.image.size.placeholder" size="large"/>
             </div>
             <div v-if="showImageStyle" class="param-group-card">
-              <div class="p-header"><span class="p-label">风格 (Style)</span></div>
-              <a-input v-model:value="form.style" allow-clear placeholder="例如 vivid / natural" size="large"/>
+              <div class="p-header"><span class="p-label">{{ t.param.image.style.label }}</span></div>
+              <a-input v-model:value="form.style" allow-clear :placeholder="t.param.image.style.placeholder" size="large"/>
             </div>
-            <p v-if="!imageHasAnyControl" class="cap-hint muted">当前端点未开放图像可调参数。</p>
+            <p v-if="!imageHasAnyControl" class="cap-hint muted">{{ t.param.image.noControlHint }}</p>
           </template>
         </div>
       </div>
@@ -134,7 +134,11 @@
 </template>
 
 <script lang="ts" setup>
+import {computed} from 'vue'
 import {ControlOutlined, QuestionCircleOutlined, SelectOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-instance')
 
 type InstanceFormModel = {
   modelKey?: string
@@ -180,17 +184,17 @@ defineProps<{
   getTempInfo: (v: number) => TempInfo
 }>()
 
-const dimensionOptions = [
-  {value: 256, label: '256 — 轻量级，适合简单检索'},
-  {value: 512, label: '512 — 紧凑型，平衡性能与精度'},
-  {value: 768, label: '768 — 常用基线（BGE / text-embedding-ada）'},
-  {value: 1024, label: '1024 — 中高维度，语义表达更丰富'},
-  {value: 1536, label: '1536 — 主流高维（OpenAI text-embedding-3）'},
-  {value: 2048, label: '2048 — 高精度场景'},
-  {value: 3072, label: '3072 — 超高精度，适合专业语义匹配'},
-  {value: 4096, label: '4096 — 最大常用档位'},
-  {value: 8192, label: '8192 — 极限维度，计算成本极高'}
-]
+const dimensionOptions = computed(() => [
+  {value: 256, label: t.value.param.embedding.dimensions.options.d256},
+  {value: 512, label: t.value.param.embedding.dimensions.options.d512},
+  {value: 768, label: t.value.param.embedding.dimensions.options.d768},
+  {value: 1024, label: t.value.param.embedding.dimensions.options.d1024},
+  {value: 1536, label: t.value.param.embedding.dimensions.options.d1536},
+  {value: 2048, label: t.value.param.embedding.dimensions.options.d2048},
+  {value: 3072, label: t.value.param.embedding.dimensions.options.d3072},
+  {value: 4096, label: t.value.param.embedding.dimensions.options.d4096},
+  {value: 8192, label: t.value.param.embedding.dimensions.options.d8192}
+])
 
 function filterDimensionOption(input: string, option: { value: number; label: string }) {
   return String(option.value).includes(input) || option.label.toLowerCase().includes(input.toLowerCase())
@@ -216,9 +220,9 @@ function filterDimensionOption(input: string, option: { value: number; label: st
 }
 
 .glass-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: var(--radius-md);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-default);
 }
 
 .section-header-flex {
@@ -232,7 +236,7 @@ function filterDimensionOption(input: string, option: { value: number; label: st
 .section-title {
   font-size: 15px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-primary);
   margin-bottom: 16px;
   display: flex;
   align-items: center;
@@ -248,24 +252,24 @@ function filterDimensionOption(input: string, option: { value: number; label: st
 
 .cap-hint {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-secondary);
   line-height: 1.5;
   padding: 10px 12px;
-  background: #f8fafc;
+  background: var(--bg-secondary);
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-default);
   margin-bottom: 16px;
 }
 
 .cap-hint.muted {
-  color: #94a3b8;
-  background: #fafafa;
+  color: var(--text-tertiary);
+  background: var(--bg-secondary);
   border-style: dashed;
 }
 
 .param-group-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 14px;
@@ -282,7 +286,7 @@ function filterDimensionOption(input: string, option: { value: number; label: st
 .p-label {
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: var(--text-primary);
   cursor: help;
   display: flex;
   align-items: center;
@@ -309,16 +313,16 @@ function filterDimensionOption(input: string, option: { value: number; label: st
 }
 
 .mini-param-card {
-  background: #f8fafc;
+  background: var(--bg-secondary);
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border-default);
 }
 
 .mini-label {
   font-size: 11px;
   font-weight: 700;
-  color: #64748b;
+  color: var(--text-secondary);
   margin-bottom: 8px;
   display: block;
 }
@@ -326,7 +330,7 @@ function filterDimensionOption(input: string, option: { value: number; label: st
 .empty-state {
   text-align: center;
   padding: 100px 0;
-  color: #cbd5e1;
+  color: var(--text-tertiary);
 }
 
 .empty-icon {
@@ -337,7 +341,7 @@ function filterDimensionOption(input: string, option: { value: number; label: st
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #eef2ff;
-  color: #4f46e5;
+  background: var(--bg-secondary);
+  color: var(--primary);
 }
 </style>

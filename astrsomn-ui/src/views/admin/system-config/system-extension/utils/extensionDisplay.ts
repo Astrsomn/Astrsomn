@@ -1,4 +1,5 @@
 import type {ExtensionMarketplaceItem, SystemExtension} from '@/api/systemExtension.ts'
+import {getDictionary} from '@/locales/dictionary/registry.ts'
 
 export type ExtensionRow = SystemExtension & ExtensionMarketplaceItem
 
@@ -9,10 +10,9 @@ export const preview = (raw: string | undefined) => {
 }
 
 export function statusLabel(value: string | undefined) {
-    if (value === 'INSTALLED') return '已安装'
-    if (value === 'APPLIED') return '已应用'
-    if (value === 'UNINSTALLED') return '未安装'
-    return value ?? '—'
+    const dict = getDictionary('system.extension.installStatus')
+    const label = dict.getLabel(value)
+    return label ?? value ?? '—'
 }
 
 export function statusTagColor(value: string | undefined) {
@@ -23,9 +23,9 @@ export function statusTagColor(value: string | undefined) {
 }
 
 export function appliedLabel(value: string | undefined) {
-    if (value === 'Y') return '已应用'
-    if (value === 'N') return '未应用'
-    return value ?? '—'
+    const dict = getDictionary('system.extension.applyStatus')
+    const label = dict.getLabel(value)
+    return label ?? value ?? '—'
 }
 
 export function appliedTagColor(value: string | undefined) {
@@ -34,11 +34,9 @@ export function appliedTagColor(value: string | undefined) {
 }
 
 export function extensionTypeLabel(type: string | undefined) {
-    if (!type) return '—'
-    if (type === 'MODEL_PROVIDER') return '模型'
-    if (type === 'VECTOR_STORE') return '向量库'
-    if (type === 'MCP') return 'MCP'
-    return type
+    const dict = getDictionary('system.extension.type')
+    const label = dict.getLabel(type)
+    return label ?? type ?? '—'
 }
 
 export function isUninstallableExtension(record: ExtensionRow | undefined) {
@@ -47,22 +45,20 @@ export function isUninstallableExtension(record: ExtensionRow | undefined) {
     if (source) {
         return source === 'PLUGIN_JAR_UPLOAD' || source === 'PLUGIN_JAR_DISCOVERED'
     }
-    // Backward compatibility: if installSource is null but jarName exists, treat as PLUGIN_JAR_UPLOAD
-    // Mirrors SystemExtensionSourceHelper.resolveInstallSource()
     return !!record.jarName
 }
 
-const MODEL_TYPE_META: Record<string, { color: string; label: string }> = {
-    chat: {color: '#3b82f6', label: '对话'},
-    completion: {color: '#6366f1', label: '补全'},
-    embedding: {color: '#10b981', label: '嵌入'},
-    image: {color: '#8b5cf6', label: '图像'},
-    audio: {color: '#f59e0b', label: '音频'},
-    rerank: {color: '#14b8a6', label: '重排'},
-    'text-to-image': {color: '#a855f7', label: '文生图'},
-    'text-to-video': {color: '#ec4899', label: '文生视频'},
-    'speech-to-text': {color: '#f97316', label: '语音转文字'},
-    'text-to-speech': {color: '#eab308', label: '文字转语音'},
+const MODEL_TYPE_META: Record<string, { color: string }> = {
+    chat: {color: '#3b82f6'},
+    completion: {color: '#6366f1'},
+    embedding: {color: '#10b981'},
+    image: {color: '#8b5cf6'},
+    audio: {color: '#f59e0b'},
+    rerank: {color: '#14b8a6'},
+    'text-to-image': {color: '#a855f7'},
+    'text-to-video': {color: '#ec4899'},
+    'speech-to-text': {color: '#f97316'},
+    'text-to-speech': {color: '#eab308'},
 }
 
 export function modelTypeColor(type: string | undefined): string {
@@ -75,10 +71,17 @@ export function modelTypeColor(type: string | undefined): string {
 }
 
 export function modelTypeLabel(type: string | undefined): string {
-    if (!type) return '未知'
-    const key = type.toLowerCase().replace(/[_-]/g, '')
-    for (const [k, v] of Object.entries(MODEL_TYPE_META)) {
-        if (key === k.replace(/[_-]/g, '') || key.includes(k.replace(/[_-]/g, ''))) return v.label
+    if (!type) {
+        const dict = getDictionary('system.extension.modelType')
+        return dict.getLabel(type) ?? type ?? '—'
+    }
+    const dict = getDictionary('system.extension.modelType')
+    const normalizedKey = type.toLowerCase().replace(/[_-]/g, '')
+    for (const k of dict.order) {
+        const dictKey = k.replace(/[_-]/g, '')
+        if (normalizedKey === dictKey || normalizedKey.includes(dictKey)) {
+            return dict.getLabel(k) ?? type
+        }
     }
     return type
 }

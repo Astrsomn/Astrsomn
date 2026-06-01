@@ -1,9 +1,9 @@
 <template>
   <AstPageShell
       :breadcrumbs="breadcrumbs"
-      description="配置敏感词、注入检测与风控策略。"
-      empty-text="暂无安全策略。"
-      title="安全治理"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div class="sensitive-page">
       <AstDataSection>
@@ -13,14 +13,14 @@
               <AstSearchInput
                   v-model="query.word"
                   layout="toolbar"
-                  placeholder="搜索敏感词"
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
               <a-input
                   v-model:value="query.scopeKey"
                   allow-clear
                   class="toolbar-input"
-                  placeholder="作用范围"
+                  :placeholder="t.list.scopePlaceholder"
                   @pressEnter="fetchList"
               >
                 <template #prefix>
@@ -28,7 +28,7 @@
                 </template>
               </a-input>
 
-              <div aria-label="状态筛选" class="status-switch" role="group">
+              <div :aria-label="t.list.statusFilterLabel" class="status-switch" role="group">
                 <a-button
                     :class="{ active: query.status === 'ENABLED' }"
                     class="status-btn"
@@ -37,7 +37,7 @@
                   <template #icon>
                     <check-circle-outlined/>
                   </template>
-                  启用
+                  {{ t.list.statusEnabled }}
                 </a-button>
                 <a-button
                     :class="{ active: query.status === 'DISABLED' }"
@@ -47,7 +47,7 @@
                   <template #icon>
                     <stop-outlined/>
                   </template>
-                  禁用
+                  {{ t.list.statusDisabled }}
                 </a-button>
               </div>
 
@@ -55,37 +55,37 @@
                 <template #icon>
                   <filter-outlined/>
                 </template>
-                {{ showAdvanced ? '收起筛选' : '更多筛选' }}
+                {{ showAdvanced ? t.list.collapseFilter : t.list.expandFilter }}
               </a-button>
             </div>
 
             <div class="toolbar-right">
               <a-popconfirm
                   v-if="selectedRowKeys.length > 0"
-                  cancel-text="取消"
-                  ok-text="确认"
-                  title="确定批量删除选中的敏感词规则吗？"
+                  :cancel-text="t.list.cancel"
+                  :ok-text="t.list.confirm"
+                  :title="t.list.batchDeleteConfirm"
                   @confirm="handleBatchDelete"
               >
                 <a-button class="ghost-btn danger-btn" danger>
                   <template #icon>
                     <delete-outlined/>
                   </template>
-                  删除 ({{ selectedRowKeys.length }})
+                  {{ t.list.deleteCount.replace('{n}', String(selectedRowKeys.length)) }}
                 </a-button>
               </a-popconfirm>
               <a-button v-else class="ghost-btn danger-btn" danger disabled>
                 <template #icon>
                   <delete-outlined/>
                 </template>
-                删除
+                {{ t.list.delete }}
               </a-button>
-              <a-button class="ghost-btn" @click="resetFilters">重置</a-button>
+              <a-button class="ghost-btn" @click="resetFilters">{{ t.list.reset }}</a-button>
               <a-button class="ghost-btn" @click="openCreate">
                 <template #icon>
                   <plus-outlined/>
                 </template>
-                新增
+                {{ t.list.create }}
               </a-button>
             </div>
           </div>
@@ -97,20 +97,20 @@
               :options="matchTypeOptions"
               allow-clear
               class="toolbar-select"
-              placeholder="匹配类型"
+              :placeholder="t.list.matchTypePlaceholder"
           />
           <a-select
               v-model:value="query.action"
               :options="actionOptions"
               allow-clear
               class="toolbar-select"
-              placeholder="处置动作"
+              :placeholder="t.list.actionPlaceholder"
           />
           <a-input
               v-model:value="query.category"
               allow-clear
               class="toolbar-input narrow"
-              placeholder="分类"
+              :placeholder="t.list.categoryPlaceholder"
               @pressEnter="fetchList"
           >
             <template #prefix>
@@ -126,7 +126,7 @@
             :loading="loading"
             :row-selection="rowSelection"
             :scroll="{ x: 1320 }"
-            empty-text="暂无匹配的安全规则"
+            :empty-text="t.list.emptyMatchText"
             mode="table"
             row-key="id"
         >
@@ -153,15 +153,15 @@
               <span>{{ record.replacement || '—' }}</span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" @click="openEdit(record)">编辑</a-button>
+              <a-button type="link" @click="openEdit(record)">{{ t.list.edit }}</a-button>
               <a-divider type="vertical"/>
               <a-popconfirm
-                  cancel-text="取消"
-                  ok-text="确认"
-                  title="确定删除吗？"
+                  :cancel-text="t.list.cancel"
+                  :ok-text="t.list.confirm"
+                  :title="t.list.deleteConfirm"
                   @confirm="() => handleDeleteOne(record.id)"
               >
-                <a-button danger type="link">删除</a-button>
+                <a-button danger type="link">{{ t.list.delete }}</a-button>
               </a-popconfirm>
             </template>
           </template>
@@ -207,10 +207,13 @@ import AstPagination from '@/components/home/AstPagination.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import SensitiveWordFormModal from './SensitiveWordFormModal.vue'
 import {type AiSensitiveWord, aiSensitiveWordApi, type PageResponse} from '@/api/aiSensitiveWord.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-sensitive-word')
 
 const breadcrumbs = [
-  {title: 'AI 安全', href: '/admin/ai-safety'},
-  {title: '安全治理'},
+  {title: t.value.list.breadcrumb.aiSafety, href: '/admin/ai-safety'},
+  {title: t.value.list.breadcrumb.safetyGovernance},
 ]
 
 type QueryState = {
@@ -222,28 +225,28 @@ type QueryState = {
   category?: string
 }
 
-const matchTypeOptions = [
-  {label: '精确匹配', value: 'EXACT'},
-  {label: '模糊匹配', value: 'FUZZY'},
-  {label: '正则匹配', value: 'REGEX'}
-]
+const matchTypeOptions = computed(() => [
+  {label: t.value.list.matchType.exact, value: 'EXACT'},
+  {label: t.value.list.matchType.fuzzy, value: 'FUZZY'},
+  {label: t.value.list.matchType.regex, value: 'REGEX'}
+])
 
-const actionOptions = [
-  {label: '直接拦截', value: 'BLOCK'},
-  {label: '替换文本', value: 'REPLACE'},
-  {label: '仅告警', value: 'WARN'}
-]
+const actionOptions = computed(() => [
+  {label: t.value.list.action.block, value: 'BLOCK'},
+  {label: t.value.list.action.replace, value: 'REPLACE'},
+  {label: t.value.list.action.warn, value: 'WARN'}
+])
 
-const columns = [
-  {title: '敏感词', key: 'word', width: 220, ellipsis: true},
-  {title: '匹配类型', key: 'matchType', width: 120},
-  {title: '作用范围', dataIndex: 'scopeKey', key: 'scopeKey', width: 160, ellipsis: true},
-  {title: '分类', dataIndex: 'category', key: 'category', width: 120, ellipsis: true},
-  {title: '处置动作', key: 'action', width: 120},
-  {title: '替换文本', key: 'replacement', width: 160, ellipsis: true},
-  {title: '状态', key: 'status', width: 100},
-  {title: '操作', key: 'actions', width: 160, fixed: 'right' as const}
-]
+const columns = computed(() => [
+  {title: t.value.list.column.word, key: 'word', width: 220, ellipsis: true},
+  {title: t.value.list.column.matchType, key: 'matchType', width: 120},
+  {title: t.value.list.column.scopeKey, dataIndex: 'scopeKey', key: 'scopeKey', width: 160, ellipsis: true},
+  {title: t.value.list.column.category, dataIndex: 'category', key: 'category', width: 120, ellipsis: true},
+  {title: t.value.list.column.action, key: 'action', width: 120},
+  {title: t.value.list.column.replacement, key: 'replacement', width: 160, ellipsis: true},
+  {title: t.value.list.column.status, key: 'status', width: 100},
+  {title: t.value.list.column.actions, key: 'actions', width: 160, fixed: 'right' as const}
+])
 
 const matchTypeColorMap: Record<string, string> = {
   EXACT: 'blue',
@@ -327,16 +330,16 @@ const modal = reactive({
 const modalInitial = ref<AiSensitiveWord | null>(null)
 
 const matchTypeLabel = (value: string | undefined) => {
-  return matchTypeOptions.find((item) => item.value === value)?.label ?? value ?? '—'
+  return matchTypeOptions.value.find((item) => item.value === value)?.label ?? value ?? '—'
 }
 
 const actionLabel = (value: string | undefined) => {
-  return actionOptions.find((item) => item.value === value)?.label ?? value ?? '—'
+  return actionOptions.value.find((item) => item.value === value)?.label ?? value ?? '—'
 }
 
 const statusLabel = (value: string | undefined) => {
-  if (value === 'ENABLED') return '启用'
-  if (value === 'DISABLED') return '禁用'
+  if (value === 'ENABLED') return t.value.list.statusEnabled
+  if (value === 'DISABLED') return t.value.list.statusDisabled
   return value ?? '—'
 }
 
@@ -419,7 +422,7 @@ const handleFormSubmit = async (form: AiSensitiveWord) => {
     void fetchList()
   } catch (e: unknown) {
     const err = e as { message?: string }
-    message.error(err?.message || '保存失败')
+    message.error(err?.message || t.value.list.saveFailed)
   } finally {
     modal.submitting = false
   }

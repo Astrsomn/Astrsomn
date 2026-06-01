@@ -1,16 +1,16 @@
 <template>
   <aside class="assembly-palette palette-left">
     <a-tabs v-model:activeKey="activeTab" class="left-tabs" size="small">
-      <a-tab-pane key="chat" tab="对话">
+      <a-tab-pane key="chat" :tab="t.leftPalette.chatTab">
         <div class="search-input-wrapper">
           <SearchOutlined class="search-icon"/>
           <input
               v-model="keywords.chat"
-              placeholder="预设名称 / Instance Key"
+              :placeholder="t.leftPalette.chatPlaceholder"
               type="text"
               @keyup.enter="$emit('search', 'chat', keywords.chat)"
           />
-          <button class="search-submit-btn" type="button" @click="$emit('search', 'chat', keywords.chat)">搜索</button>
+          <button class="search-submit-btn" type="button" @click="$emit('search', 'chat', keywords.chat)">{{ t.leftPalette.search }}</button>
         </div>
         <a-pagination
             v-if="chatPage.total > 0"
@@ -36,20 +36,20 @@
                 @drag-end="$emit('dragEnd')"
             />
           </template>
-          <div v-else class="palette-empty">暂无数据</div>
+          <div v-else class="palette-empty">{{ t.leftPalette.noData }}</div>
         </div>
       </a-tab-pane>
 
-      <a-tab-pane key="image" tab="图像">
+      <a-tab-pane key="image" :tab="t.leftPalette.imageTab">
         <div class="search-input-wrapper">
           <SearchOutlined class="search-icon"/>
           <input
               v-model="keywords.image"
-              placeholder="预设名称 / Instance Key"
+              :placeholder="t.leftPalette.imagePlaceholder"
               type="text"
               @keyup.enter="$emit('search', 'image', keywords.image)"
           />
-          <button class="search-submit-btn" type="button" @click="$emit('search', 'image', keywords.image)">搜索
+          <button class="search-submit-btn" type="button" @click="$emit('search', 'image', keywords.image)">{{ t.leftPalette.search }}
           </button>
         </div>
         <a-pagination
@@ -76,7 +76,7 @@
                 @drag-end="$emit('dragEnd')"
             />
           </template>
-          <div v-else class="palette-empty">暂无数据</div>
+          <div v-else class="palette-empty">{{ t.leftPalette.noData }}</div>
         </div>
       </a-tab-pane>
     </a-tabs>
@@ -86,9 +86,12 @@
 <script lang="ts" setup>
 import {reactive, ref} from 'vue'
 import {SearchOutlined} from '@ant-design/icons-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import type {AiInstance} from '@/api/aiInstance'
 import type {AssemblyDragPayload, InstanceModelType} from './assemblyTypes'
 import AssemblyDragChip from './AssemblyDragChip.vue'
+
+const t = usePageTranslation('ai-agent')
 
 defineProps<{
   pageSize: number
@@ -163,25 +166,25 @@ defineExpose({getKeywords})
 .search-input-wrapper {
   width: 100%;
   height: 52px;
-  background: var(--bg-card, #fff);
+  background: var(--bg-card);
   border-radius: 26px;
   padding: 0 8px 0 16px;
   display: flex;
   align-items: center;
   margin-bottom: 8px;
   flex-shrink: 0;
-  box-shadow: var(--shadow-card, 0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.08), 0 12px 28px rgba(15, 23, 42, 0.06));
-  border: 1px solid var(--border-default, #e2e8f0);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-default);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .search-input-wrapper:focus-within {
-  border-color: var(--primary, #3b82f6);
-  box-shadow: var(--shadow-overview, 0 0 0 3px rgba(59, 130, 246, 0.22), 0 4px 14px rgba(37, 99, 235, 0.2), 0 14px 32px rgba(15, 23, 42, 0.12));
+  border-color: var(--primary);
+  box-shadow: var(--shadow-overview, 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent));
 }
 
 .search-icon {
-  color: var(--primary, #3b82f6);
+  color: var(--primary);
   font-size: 18px;
   flex-shrink: 0;
 }
@@ -194,12 +197,12 @@ defineExpose({getKeywords})
   font-size: 14px;
   margin-left: 8px;
   background: transparent;
-  color: var(--text-primary, #000);
+  color: var(--text-primary);
 }
 
 .search-submit-btn {
   flex-shrink: 0;
-  background: var(--primary-gradient, linear-gradient(180deg, #3b82f6 0%, #2563eb 100%));
+  background: var(--primary-gradient);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -207,7 +210,7 @@ defineExpose({getKeywords})
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-  box-shadow: var(--chat-send-btn-shadow, 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 2px 4px rgba(29, 78, 216, 0.35), 0 6px 14px rgba(37, 99, 235, 0.28));
+  box-shadow: var(--chat-send-btn-shadow);
 }
 
 .chip-scroll {

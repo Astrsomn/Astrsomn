@@ -5,7 +5,7 @@
         <div class="icon-badge">
           <ApiOutlined/>
         </div>
-        <h3 class="card-title">MCP 服务</h3>
+        <h3 class="card-title">{{ t.agent.mcpService }}</h3>
       </div>
       <button class="add-btn" @click.stop="drawerOpen = true">
         <PlusOutlined/>
@@ -17,7 +17,7 @@
         <span class="mcp-name">{{ m.serverName || m.mcpKey }}</span>
         <CloseOutlined class="mcp-close" @click.stop="emit('remove', m.mcpKey!)"/>
       </div>
-      <div v-if="!mcps.length" class="empty-hint">暂未绑定 MCP</div>
+      <div v-if="!mcps.length" class="empty-hint">{{ t.agent.noMcpBound }}</div>
     </div>
 
     <McpSelectorDrawer
@@ -35,6 +35,7 @@ import {computed, ref} from 'vue'
 import {ApiOutlined, CloseOutlined, PlusOutlined} from '@ant-design/icons-vue'
 import {type AiMcp} from '@/api/aiMcp.ts'
 import McpSelectorDrawer from '@/views/admin/ai-config/ai-mcp/selector/McpSelectorDrawer.vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const props = defineProps<{
   mcps: AiMcp[]
@@ -44,6 +45,8 @@ const emit = defineEmits<{
   (e: 'add', mcp: AiMcp): void
   (e: 'remove', mcpKey: string): void
 }>()
+
+const t = usePageTranslation('ai-config-center')
 
 const drawerOpen = ref(false)
 
@@ -65,8 +68,8 @@ const selectedMcpKeys = computed(() =>
 }
 
 .mcp-card:hover {
-  border-color: var(--ab-hover-line, #3b82f6);
-  box-shadow: var(--ab-hover-shadow, 0 0 15px rgba(59, 130, 246, 0.15));
+  border-color: var(--primary);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
 .card-header {
@@ -163,7 +166,7 @@ const selectedMcpKeys = computed(() =>
 }
 
 .mcp-close:hover {
-  color: #ef4444;
+  color: var(--error);
 }
 
 .empty-hint {

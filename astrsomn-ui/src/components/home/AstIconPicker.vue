@@ -18,17 +18,17 @@
     <a-modal
         v-model:open="modalOpen"
         :footer="null"
-        title="选择头像"
+        :title="t.iconPicker.title"
         width="520px"
         @cancel="onCancel"
     >
       <a-tabs v-model:activeKey="activeTab">
-        <a-tab-pane key="icon" tab="图标选择">
+        <a-tab-pane key="icon" :tab="t.iconPicker.iconTab">
           <div class="icon-search">
             <AstSearchInput
                 v-model="searchText"
                 layout="fluid"
-                placeholder="搜索图标..."
+                :placeholder="t.iconPicker.searchPlaceholder"
             />
           </div>
           <div class="icon-grid">
@@ -41,11 +41,11 @@
             >
               <component :is="iconMap[icon]"/>
             </div>
-            <div v-if="filteredIcons.length === 0" class="icon-empty">无匹配图标</div>
+            <div v-if="filteredIcons.length === 0" class="icon-empty">{{ t.iconPicker.noMatch }}</div>
           </div>
         </a-tab-pane>
 
-        <a-tab-pane key="upload" tab="图片上传">
+        <a-tab-pane key="upload" :tab="t.iconPicker.uploadTab">
           <div class="upload-area">
             <a-upload
                 :before-upload="onBeforeUpload"
@@ -55,20 +55,20 @@
             >
               <div class="upload-trigger">
                 <PlusOutlined/>
-                <div class="upload-text">点击上传图片</div>
-                <div class="upload-hint">支持 JPG、PNG、GIF、SVG，自动转为 Base64</div>
+                <div class="upload-text">{{ t.iconPicker.uploadText }}</div>
+                <div class="upload-hint">{{ t.iconPicker.uploadHint }}</div>
               </div>
             </a-upload>
             <div v-if="modelValue && modelValue.startsWith('data:image')" class="upload-preview">
               <img :src="modelValue" alt="preview" class="preview-img"/>
-              <a-button danger size="small" @click="onClear">移除图片</a-button>
+              <a-button danger size="small" @click="onClear">{{ t.iconPicker.removeImage }}</a-button>
             </div>
           </div>
         </a-tab-pane>
       </a-tabs>
 
       <div v-if="modelValue" class="modal-footer-actions">
-        <a-button size="small" @click="onClear">清除头像</a-button>
+        <a-button size="small" @click="onClear">{{ t.iconPicker.clearAvatar }}</a-button>
       </div>
     </a-modal>
   </div>
@@ -76,6 +76,7 @@
 
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {
   EditOutlined,
@@ -170,6 +171,8 @@ import {
   FilterOutlined,
   SortAscendingOutlined,
 } from '@ant-design/icons-vue'
+
+const t = usePageTranslation('common')
 
 const props = withDefaults(defineProps<{
   modelValue?: string
@@ -361,7 +364,7 @@ function onCancel() {
   align-items: center;
   justify-content: center;
   color: var(--primary);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.15));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 8%, transparent), color-mix(in srgb, var(--primary) 15%, transparent));
   border-radius: 50%;
 }
 
@@ -382,7 +385,7 @@ function onCancel() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
+  background: color-mix(in srgb, var(--shadow-color, #000) 45%, transparent);
   color: #fff;
   font-size: 16px;
   opacity: 0;
@@ -420,14 +423,14 @@ function onCancel() {
 
 .icon-item:hover {
   color: var(--primary);
-  background: rgba(59, 130, 246, 0.08);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
   border-color: var(--primary);
 }
 
 .icon-item-selected {
   color: var(--primary);
   border-color: var(--primary);
-  background: rgba(59, 130, 246, 0.12);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .icon-empty {

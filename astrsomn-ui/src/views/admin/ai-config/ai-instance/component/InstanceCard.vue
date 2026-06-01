@@ -14,12 +14,12 @@
     </div>
 
     <div class="card-actions">
-      <a-tooltip title="快速编辑">
+      <a-tooltip :title="t.card.quickEdit">
         <div class="action-icon-btn edit" @click.stop="emit('edit')">
           <edit-outlined/>
         </div>
       </a-tooltip>
-      <a-popconfirm title="确定删除此配置？" @confirm="emit('delete')">
+      <a-popconfirm :title="t.card.deleteConfirm" @confirm="emit('delete')">
         <div class="action-icon-btn delete" @click.stop>
           <delete-outlined/>
         </div>
@@ -41,10 +41,10 @@
         </div>
         <div class="title-area">
           <div class="top-row">
-            <h4 :title="record.instanceName" class="name">{{ record.instanceName || '未命名配置' }}</h4>
+            <h4 :title="record.instanceName" class="name">{{ record.instanceName || t.card.unnamed }}</h4>
             <div :class="['status-glow', record.status]">
               <span class="dot"></span>
-              {{ record.status === 'enabled' ? '运行中' : '已停用' }}
+              {{ record.status === 'enabled' ? t.card.status.enabled : t.card.status.disabled }}
             </div>
           </div>
           <p class="sub-key">{{ record.instanceKey || 'NO_INSTANCE_ID' }}</p>
@@ -53,15 +53,15 @@
 
       <div class="dynamic-content-wrapper">
         <template v-if="isChat">
-          <div class="params-label">模型推理参数</div>
+          <div class="params-label">{{ t.card.chat.paramLabel }}</div>
           <div class="mini-progress-item">
-            <div class="p-labels"><span>温度 (Temp)</span> <b>{{ record.temperature ?? 0.7 }}</b></div>
+            <div class="p-labels"><span>{{ t.card.chat.temperature }}</span> <b>{{ record.temperature ?? 0.7 }}</b></div>
             <div class="p-track">
               <div :style="{ width: `${(record.temperature || 0) / 2 * 100}%` }" class="p-thumb temp"></div>
             </div>
           </div>
           <div class="mini-progress-item">
-            <div class="p-labels"><span>核采样 (TopP)</span> <b>{{ record.topP ?? 1.0 }}</b></div>
+            <div class="p-labels"><span>{{ t.card.chat.topP }}</span> <b>{{ record.topP ?? 1.0 }}</b></div>
             <div class="p-track">
               <div :style="{ width: `${(record.topP || 0) * 100}%` }" class="p-thumb topp"></div>
             </div>
@@ -69,14 +69,14 @@
         </template>
 
         <template v-else-if="isEmbedding">
-          <div class="params-label">向量空间规格</div>
+          <div class="params-label">{{ t.card.embedding.paramLabel }}</div>
           <div class="capability-grid">
             <div class="cap-item">
               <div class="cap-icon v-dim">
                 <cluster-outlined/>
               </div>
               <div class="cap-info">
-                <span class="l">维度</span>
+                <span class="l">{{ t.card.embedding.dimensions }}</span>
                 <span class="v">{{ record.dimensions || 1536 }}D</span>
               </div>
             </div>
@@ -85,7 +85,7 @@
                 <environment-outlined/>
               </div>
               <div class="cap-info">
-                <span class="l">部署环境</span>
+                <span class="l">{{ t.card.embedding.env }}</span>
                 <span class="v">{{ record.envCode || 'PROD' }}</span>
               </div>
             </div>
@@ -93,25 +93,25 @@
         </template>
 
         <template v-else-if="isImage">
-          <div class="params-label">生图配置预设</div>
+          <div class="params-label">{{ t.card.image.paramLabel }}</div>
           <div class="image-spec-grid">
             <div class="spec-block">
-              <span class="s-label">画幅</span>
+              <span class="s-label">{{ t.card.image.size }}</span>
               <span class="s-value">{{ imageSizeLabel }}</span>
             </div>
             <div class="spec-block">
-              <span class="s-label">风格</span>
+              <span class="s-label">{{ t.card.image.style }}</span>
               <span class="s-value">{{ imageStyleLabel }}</span>
             </div>
           </div>
         </template>
 
         <template v-else>
-          <div class="params-label">实例概览</div>
+          <div class="params-label">{{ t.card.other.paramLabel }}</div>
           <div class="other-spec">
             <span class="other-type-pill">{{ typeLabel }}</span>
             <div v-if="record.maxTokens != null" class="other-row">
-              <span>最大输出</span>
+              <span>{{ t.card.other.maxOutput }}</span>
               <b>{{ record.maxTokens }}</b>
             </div>
             <div v-if="record.topK != null" class="other-row">
@@ -125,7 +125,7 @@
       <div class="toc-card-meta">
         <div class="provider-info">
           <api-outlined class="m-icon"/>
-          <span class="provider-label">{{ record.modelKey || '未关联端点' }}</span>
+          <span class="provider-label">{{ record.modelKey || t.card.noEndpoint }}</span>
         </div>
         <div class="time-info">
           <history-outlined/>
@@ -154,10 +154,13 @@ import {
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type {AiInstance} from '@/api/aiInstance.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 dayjs.extend(relativeTime)
 
 type InstanceCardVariant = 'chat' | 'embedding' | 'image' | 'other'
+
+const t = usePageTranslation('ai-instance')
 
 const props = defineProps<{
   record: AiInstance
@@ -167,13 +170,13 @@ const props = defineProps<{
 
 const emit = defineEmits(['toggle-select', 'edit', 'delete'])
 
-const formatUpdateTime = (time?: string) => (time ? dayjs(time).fromNow() : '暂无记录')
+const formatUpdateTime = (time?: string) => (time ? dayjs(time).fromNow() : t.value.card.noRecord)
 
 function normalizeVariant(r: AiInstance): InstanceCardVariant {
-  const t = (r.modelType || 'chat').toLowerCase().trim()
-  if (t === 'embedding') return 'embedding'
-  if (t === 'image') return 'image'
-  if (t === 'chat' || t === '') return 'chat'
+  const t2 = (r.modelType || 'chat').toLowerCase().trim()
+  if (t2 === 'embedding') return 'embedding'
+  if (t2 === 'image') return 'image'
+  if (t2 === 'chat' || t2 === '') return 'chat'
   return 'other'
 }
 
@@ -184,17 +187,17 @@ const isImage = computed(() => cardVariant.value === 'image')
 
 const typeLabel = computed(() => {
   const raw = props.record.modelType?.trim()
-  if (!raw) return '对话'
+  if (!raw) return t.value.modelType.chat
   const map: Record<string, string> = {
-    chat: '对话',
-    embedding: '向量',
-    image: '图像'
+    chat: t.value.modelType.chat,
+    embedding: t.value.modelType.embedding,
+    image: t.value.modelType.image
   }
   return map[raw.toLowerCase()] || raw
 })
 
-const imageSizeLabel = computed(() => props.record.size?.trim() || '未指定')
-const imageStyleLabel = computed(() => props.record.style?.trim() || '默认')
+const imageSizeLabel = computed(() => props.record.size?.trim() || t.value.card.unspecified)
+const imageStyleLabel = computed(() => props.record.style?.trim() || t.value.card.defaultStyle)
 
 const getModelIcon = (r: AiInstance) => {
   switch (normalizeVariant(r)) {
@@ -221,9 +224,9 @@ const providerAvatarMarkup = computed(() => {
 .toc-card {
   --card-accent: #6366f1;
   --card-accent-mid: #4f46e5;
-  --card-accent-soft: rgba(99, 102, 241, 0.12);
+  --card-accent-soft: color-mix(in srgb, var(--card-accent) 12%, transparent);
   --card-selected-bg: var(--bg-elevated);
-  --card-hover-border: rgba(99, 102, 241, 0.35);
+  --card-hover-border: color-mix(in srgb, var(--card-accent) 35%, transparent);
   --bubble-1: #c4b5fd;
   --bubble-2: #93c5fd;
   --content-bg: var(--bg-card);
@@ -369,7 +372,7 @@ const providerAvatarMarkup = computed(() => {
 
 .action-icon-btn.delete:hover {
   color: var(--error);
-  border-color: rgba(239, 68, 68, 0.2);
+  border-color: color-mix(in srgb, #ef4444 20%, transparent);
 }
 
 
@@ -415,7 +418,7 @@ const providerAvatarMarkup = computed(() => {
   justify-content: center;
   font-size: 24px;
   color: white;
-  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px -4px color-mix(in srgb, var(--shadow-color, #000) 10%, transparent);
 }
 
 .type-icon-box.chat {
@@ -465,7 +468,7 @@ const providerAvatarMarkup = computed(() => {
 }
 
 .status-glow.enabled {
-  background: rgba(16, 185, 129, 0.2);
+  background: color-mix(in srgb, #10b981 20%, transparent);
   color: var(--success);
 }
 
@@ -482,13 +485,13 @@ const providerAvatarMarkup = computed(() => {
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 0 0 color-mix(in srgb, #10b981 70%, transparent);
   }
   70% {
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 6px color-mix(in srgb, #10b981 0%, transparent);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, #10b981 0%, transparent);
   }
 }
 
@@ -570,12 +573,12 @@ const providerAvatarMarkup = computed(() => {
 }
 
 .toc-card--embedding .cap-icon.v-dim {
-  background: rgba(16, 185, 129, 0.2);
+  background: color-mix(in srgb, #10b981 20%, transparent);
   color: #10b981;
 }
 
 .toc-card--embedding .cap-icon.v-env {
-  background: rgba(16, 185, 129, 0.1);
+  background: color-mix(in srgb, #10b981 10%, transparent);
   color: #10b981;
 }
 
@@ -605,7 +608,7 @@ const providerAvatarMarkup = computed(() => {
 .toc-card--image .spec-block {
   padding: 10px 8px;
   background: var(--bg-elevated);
-  border: 1px solid rgba(251, 146, 60, 0.35);
+  border: 1px solid color-mix(in srgb, #fb923c 35%, transparent);
   border-radius: 14px;
   display: flex;
   flex-direction: column;

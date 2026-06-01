@@ -18,7 +18,7 @@
           <div class="icon-wrapper">
             <RobotOutlined/>
           </div>
-          <span class="nav-text">AI 配置</span>
+          <span class="nav-text">{{ t.bottomNav.aiConfig }}</span>
         </div>
 
         <div v-if="false" :class="{ 'nav-item-active': isActivePath('/admin/system') }" class="nav-item"
@@ -26,7 +26,7 @@
           <div class="icon-wrapper">
             <SettingOutlined/>
           </div>
-          <span class="nav-text">系统管理</span>
+          <span class="nav-text">{{ t.bottomNav.system }}</span>
         </div>
         <div :class="{ 'center-btn-active': isActivePath('/admin/ai-config/builder') }" class="center-btn"
              @click="navigateTo('/admin/ai-config/builder')">
@@ -41,7 +41,7 @@
           <div class="icon-wrapper">
             <SafetyOutlined/>
           </div>
-          <span class="nav-text">安全治理</span>
+          <span class="nav-text">{{ t.bottomNav.safety }}</span>
         </div>
 
 
@@ -50,7 +50,7 @@
           <div class="icon-wrapper">
             <DatabaseOutlined/>
           </div>
-          <span class="nav-text">向量中心</span>
+          <span class="nav-text">{{ t.bottomNav.vectorCenter }}</span>
         </div>
       </div>
     </div>
@@ -62,9 +62,10 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, defineProps, onMounted, onUnmounted, ref} from 'vue';
+import {computed, onMounted, onUnmounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {DatabaseOutlined, RobotOutlined, SafetyOutlined, SettingOutlined, ToolOutlined} from '@ant-design/icons-vue';
+import {usePageTranslation} from '@/locales/pages.ts';
 
 const props = defineProps<{
   fixed?: boolean;
@@ -73,6 +74,7 @@ const props = defineProps<{
 
 const router = useRouter();
 const route = useRoute();
+const t = usePageTranslation('common');
 const isAutoHideEnabled = computed(() => props.autoHide ?? true);
 const isNavVisible = ref(false);
 const isAtBottom = ref(false);
@@ -194,14 +196,14 @@ onUnmounted(() => {
 
 
 .dock-main {
-  background: rgba(255, 255, 255, 0.75);
+  background: color-mix(in srgb, var(--bg-surface) 75%, transparent);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid color-mix(in srgb, var(--border-default) 40%, transparent);
   border-radius: var(--radius-md);
   padding: 8px 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
-  0 20px 40px -10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px color-mix(in srgb, var(--shadow-color, #000) 5%, transparent),
+  0 20px 40px -10px color-mix(in srgb, var(--shadow-color, #000) 10%, transparent);
   transform: translateY(120px) scale(0.9);
   opacity: 0;
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -231,18 +233,18 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 72px;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .nav-item:hover {
-  background: rgba(22, 119, 255, 0.12);
-  color: #1677ff;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
   transform: translateY(-4px);
 }
 
 .nav-item-active {
-  background: rgba(22, 119, 255, 0.12);
-  color: #1677ff;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
 }
 
 .icon-wrapper {
@@ -270,24 +272,24 @@ onUnmounted(() => {
   font-size: 24px;
   margin: 0 12px;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(22, 119, 255, 0.35);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 35%, transparent);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .center-btn:hover {
   transform: scale(1.1) translateY(-8px);
-  background: #0958d9;
+  background: var(--primary-hover-active, #0958d9);
 }
 
 .center-btn-active {
-  background: #1677ff;
-  box-shadow: 0 10px 24px rgba(22, 119, 255, 0.45);
+  background: var(--primary);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 45%, transparent);
 }
 
 .center-btn .floating-label {
   position: absolute;
   top: -35px;
-  background: #1e293b;
+  background: var(--bg-inverse, #1e293b);
   color: white;
   padding: 4px 10px;
   border-radius: var(--radius-md);
@@ -322,9 +324,9 @@ onUnmounted(() => {
   width: 112px;
   height: 5px;
   transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.95);
+  background: color-mix(in srgb, var(--bg-surface) 95%, transparent);
   border-radius: var(--radius-md);
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--shadow-color, #000) 18%, transparent);
   transition: all 0.3s ease;
 }
 
@@ -338,7 +340,7 @@ onUnmounted(() => {
 }
 
 .home-indicator:hover::before {
-  background: #ffffff;
+  background: var(--bg-surface);
   width: 120px;
 }
 
@@ -380,123 +382,5 @@ onUnmounted(() => {
     padding: 6px;
     border-radius: var(--radius-md);
   }
-}
-
-
-@media (prefers-color-scheme: dark) {
-  .dock-main {
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 20px 40px -10px rgba(0, 0, 0, 0.4);
-  }
-
-  .nav-item {
-    color: #94a3b8;
-  }
-
-  .nav-item:hover {
-    background: rgba(22, 119, 255, 0.15);
-    color: #4096ff;
-  }
-
-  .home-indicator::before {
-    background: rgba(255, 255, 255, 0.9);
-  }
-
-  .home-indicator:hover::before {
-    background: rgba(255, 255, 255, 1);
-  }
-
-  .center-btn {
-    background: var(--primary, #1677ff);
-    box-shadow: 0 8px 20px rgba(22, 119, 255, 0.42);
-  }
-
-  .center-btn:hover {
-    background: #0958d9;
-  }
-
-  .center-btn .floating-label {
-    background: rgba(15, 23, 42, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-}
-
-
-:root.dark .dock-main {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
-  0 20px 40px -10px rgba(0, 0, 0, 0.4);
-}
-
-:root.dark .nav-item {
-  color: #94a3b8;
-}
-
-:root.dark .nav-item:hover {
-  background: rgba(22, 119, 255, 0.15);
-  color: #4096ff;
-}
-
-:root.dark .home-indicator::before {
-  background: rgba(255, 255, 255, 0.9);
-}
-
-:root.dark .home-indicator:hover::before {
-  background: rgba(255, 255, 255, 1);
-}
-
-:root.dark .center-btn {
-  background: var(--primary, #1677ff);
-  box-shadow: 0 8px 20px rgba(22, 119, 255, 0.42);
-}
-
-:root.dark .center-btn:hover {
-  background: #0958d9;
-}
-
-:root.dark .center-btn .floating-label {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-
-:root.light .dock-main {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
-  0 20px 40px -10px rgba(0, 0, 0, 0.1);
-}
-
-:root.light .nav-item {
-  color: #64748b;
-}
-
-:root.light .nav-item:hover {
-  background: rgba(22, 119, 255, 0.08);
-  color: #1677ff;
-}
-
-:root.light .home-indicator::before {
-  background: rgba(255, 255, 255, 0.95);
-}
-
-:root.light .home-indicator:hover::before {
-  background: #ffffff;
-}
-
-:root.light .center-btn {
-  background: var(--primary, #1677ff);
-  box-shadow: 0 8px 20px rgba(22, 119, 255, 0.35);
-}
-
-:root.light .center-btn:hover {
-  background: #0958d9;
-}
-
-:root.light .center-btn .floating-label {
-  background: #1e293b;
 }
 </style>

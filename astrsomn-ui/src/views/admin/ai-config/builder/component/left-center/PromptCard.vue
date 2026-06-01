@@ -6,18 +6,18 @@
           <FileTextOutlined/>
         </div>
         <div class="header-info">
-          <h3 class="card-title">人设与指令 (Prompt)</h3>
+          <h3 class="card-title">{{ t.promptCard.title }}</h3>
           <span v-if="prompt?.promptKey" class="prompt-key-display">{{ prompt.promptKey }}</span>
         </div>
       </div>
       <div class="header-actions">
-        <button class="action-btn primary" title="选择提示词" @click.stop="emit('select')">
+        <button class="action-btn primary" :title="t.promptCard.selectPrompt" @click.stop="emit('select')">
           <AppstoreOutlined/>
         </button>
-        <button class="action-btn secondary" title="新建提示词" @click.stop="emit('create')">
+        <button class="action-btn secondary" :title="t.promptCard.createPrompt" @click.stop="emit('create')">
           <PlusOutlined/>
         </button>
-        <button :disabled="!prompt?.promptKey" class="action-btn history" title="历史版本"
+        <button :disabled="!prompt?.promptKey" class="action-btn history" :title="t.promptCard.historyVersion"
                 @click.stop="emit('history')">
           <HistoryOutlined/>
         </button>
@@ -28,11 +28,11 @@
           v-model="promptContent"
           :rows="textareaRows"
           class="prompt-textarea custom-scrollbar"
-          placeholder="给你的智能体配置一个清晰的角色定位和任务指令..."
+          :placeholder="t.promptCard.textareaPlaceholder"
       ></textarea>
-      <button :disabled="improveLoading" class="improve-btn" title="美化提示词" @click.stop="emit('improve')">
+      <button :disabled="improveLoading" class="improve-btn" :title="t.promptCard.beautifyTitle" @click.stop="emit('improve')">
         <ThunderboltOutlined :spin="improveLoading"/>
-        <span class="improve-btn-text">美化</span>
+        <span class="improve-btn-text">{{ t.promptCard.beautify }}</span>
       </button>
     </div>
   </div>
@@ -48,6 +48,9 @@ import {
   ThunderboltOutlined
 } from '@ant-design/icons-vue'
 import type {AiPrompt} from '@/api/aiPrompt'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-builder')
 
 interface Props {
   prompt?: AiPrompt
@@ -81,20 +84,20 @@ const promptContent = computed({
   flex: 1;
   min-height: 0;
   gap: 16px;
-  background: var(--ab-glass-bg, rgba(255, 255, 255, 0.8));
+  background: var(--ab-glass-bg);
   backdrop-filter: blur(var(--ab-glass-haze, 10px));
   -webkit-backdrop-filter: blur(var(--ab-glass-haze, 10px));
-  border: 1px solid var(--ab-glass-border, rgba(255, 255, 255, 0.6));
+  border: 1px solid var(--ab-glass-border);
   border-radius: var(--ab-glass-radius, 16px);
-  box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
+  box-shadow: var(--ab-glass-shadow);
   padding: 20px;
   transition: border-color 0.2s,
   box-shadow 0.2s;
 }
 
 .prompt-card:hover {
-  border-color: var(--ab-hover-line, #3b82f6);
-  box-shadow: var(--ab-hover-shadow, 0 0 15px rgba(59, 130, 246, 0.15));
+  border-color: var(--ab-hover-line);
+  box-shadow: var(--ab-hover-shadow, 0 0 15px color-mix(in srgb, var(--primary) 15%, transparent));
 }
 
 .card-header {
@@ -136,7 +139,7 @@ const promptContent = computed({
 .card-title {
   font-weight: 700;
   font-size: 14px;
-  color: #334155;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -160,7 +163,7 @@ const promptContent = computed({
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--text-primary) 4%, transparent);
   border: none;
 }
 
@@ -205,7 +208,7 @@ const promptContent = computed({
 .dashed-frame {
   border: 1px dashed #e2e8f0;
   border-radius: 12px;
-  background: rgba(248, 250, 252, 0.3);
+  background: color-mix(in srgb, var(--bg-container) 30%, transparent);
   padding: 16px;
   min-height: 160px;
   display: flex;
@@ -228,7 +231,7 @@ const promptContent = computed({
   border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 40%, transparent);
   transition: all 0.2s ease;
   z-index: 2;
 }
@@ -263,7 +266,7 @@ const promptContent = computed({
   padding: 0;
   font-size: 12px;
   font-weight: 400;
-  color: #64748b;
+  color: var(--text-secondary);
   outline: none;
   transition: all 0.2s;
   resize: none;
@@ -272,7 +275,7 @@ const promptContent = computed({
 }
 
 .prompt-textarea::placeholder {
-  color: #94a3b8;
+  color: var(--text-tertiary);
 }
 
 .prompt-textarea:focus {

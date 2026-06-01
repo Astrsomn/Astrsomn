@@ -17,17 +17,17 @@
         <div class="main-header">
           <h3 class="title">{{ getCardTitle() }}</h3>
           <div class="actions">
-            <a-tooltip title="复原">
+            <a-tooltip :title="t.card.recover">
               <reload-outlined class="icon-btn" @click.stop="recoverConversation"/>
             </a-tooltip>
-            <a-tooltip title="删除">
+            <a-tooltip :title="t.card.delete">
               <delete-outlined class="icon-btn danger" @click.stop="deleteConversation"/>
             </a-tooltip>
           </div>
         </div>
 
         <div class="metadata">
-          <span class="count">{{ conversationCount }} 条对话</span>
+          <span class="count">{{ t.card.conversationCount.replace('{n}', String(conversationCount)) }}</span>
           <span class="divider">·</span>
           <span class="time">{{ formatTime(latestTime) }}</span>
         </div>
@@ -48,6 +48,9 @@
 import {message, Modal} from 'ant-design-vue'
 import {CopyOutlined, DeleteOutlined, LinkOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import type {AiConversation} from '@/api/aiConversation.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-conversation')
 
 const props = defineProps<{
   conversation: AiConversation
@@ -65,24 +68,24 @@ const formatTime = (time?: string) => {
 }
 
 const getCardTitle = () => {
-  return props.conversation.content || '无内容对话'
+  return props.conversation.content || t.value.card.noContent
 }
 
 const copyMemoryKey = async () => {
   if (!props.conversation.memoryKey) return
   try {
     await navigator.clipboard.writeText(props.conversation.memoryKey)
-    message.success('Memory Key 已复制')
+    message.success(t.value.card.keyCopied)
   } catch (err) {
-    message.error('复制失败')
+    message.error(t.value.card.copyFailed)
   }
 }
 
 const recoverConversation = () => emit('recover', props.conversation.memoryKey)
 const deleteConversation = () => {
   Modal.confirm({
-    title: '删除此对话？',
-    content: '删除后无法恢复',
+    title: t.value.card.deleteConfirmTitle,
+    content: t.value.card.deleteConfirmContent,
     okType: 'danger',
     onOk: () => emit('delete', props.conversation.memoryKey)
   })
@@ -96,18 +99,18 @@ const handleCheckboxChange = () => emit('select', props.conversation.memoryKey)
   margin-bottom: 8px;
   cursor: pointer;
   border-radius: 8px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--border-default);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .conversation-card:hover {
-  border-color: #d9d9d9;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--text-tertiary) 4%, transparent);
 }
 
 .conversation-card.selected {
-  border-color: #1890ff;
-  background-color: #f0f7ff;
+  border-color: var(--primary);
+  background-color: color-mix(in srgb, var(--primary) 6%, var(--bg-card));
 }
 
 .card-layout {
@@ -137,7 +140,7 @@ const handleCheckboxChange = () => emit('select', props.conversation.memoryKey)
   margin: 0;
   font-size: 14px;
   font-weight: 500;
-  color: #262626;
+  color: var(--text-primary);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -159,27 +162,27 @@ const handleCheckboxChange = () => emit('select', props.conversation.memoryKey)
 
 .icon-btn {
   font-size: 14px;
-  color: #8c8c8c;
+  color: var(--text-tertiary);
 }
 
 .icon-btn:hover {
-  color: #1890ff;
+  color: var(--primary);
 }
 
 .icon-btn.danger:hover {
-  color: #ff4d4f;
+  color: var(--error);
 }
 
 .metadata {
   display: flex;
   align-items: center;
   font-size: 12px;
-  color: #8c8c8c;
+  color: var(--text-tertiary);
 }
 
 .divider {
   margin: 0 6px;
-  color: #d9d9d9;
+  color: var(--border-default);
 }
 
 .key-footer {
@@ -191,26 +194,26 @@ const handleCheckboxChange = () => emit('select', props.conversation.memoryKey)
   align-items: center;
   gap: 6px;
   padding: 2px 8px;
-  background: #f5f5f5;
+  background: var(--bg-surface);
   border-radius: 4px;
   max-width: 100%;
   transition: all 0.2s;
 }
 
 .key-tag:hover {
-  background: #e8e8e8;
-  color: #1890ff;
+  background: var(--bg-elevated);
+  color: var(--primary);
 }
 
 .key-icon {
   font-size: 11px;
-  color: #bfbfbf;
+  color: var(--text-quaternary);
 }
 
 .key-text {
   font-family: 'SFMono-Regular', Consolas, monospace;
   font-size: 11px;
-  color: #595959;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -218,6 +221,6 @@ const handleCheckboxChange = () => emit('select', props.conversation.memoryKey)
 
 .copy-trigger {
   font-size: 10px;
-  color: #bfbfbf;
+  color: var(--text-quaternary);
 }
 </style>

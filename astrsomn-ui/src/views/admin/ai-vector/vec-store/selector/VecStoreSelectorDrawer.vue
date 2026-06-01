@@ -8,7 +8,7 @@
     <template #icon>
       <DatabaseOutlined />
     </template>
-    <template #title>选择向量存储（知识库）</template>
+    <template #title>{{ t.vecStore.selector.title }}</template>
     <template #subtitle>vecstore.selector</template>
 
     <div class="select-drawer-content">
@@ -16,7 +16,7 @@
         <AstSearchInput
           v-model="keyword"
           layout="fluid"
-          placeholder="搜索集合名称…"
+          :placeholder="t.vecStore.selector.searchPlaceholder"
           style="flex: 1"
           @search="handleSearch"
         />
@@ -39,7 +39,7 @@
                   <span class="item-metric-badge">{{ item.distanceMetric }}</span>
                 </div>
                 <div class="item-source-row">
-                  <span class="item-source">{{ item.sourceProvider || '未知来源' }}</span>
+                  <span class="item-source">{{ item.sourceProvider || t.vecStore.selector.unknownSource }}</span>
                   <template v-if="item.sourceName"> · <span class="item-source">{{ item.sourceName }}</span></template>
                   <template v-if="item.instanceName"> · <code class="item-instance">{{ item.instanceName }}</code></template>
                 </div>
@@ -49,7 +49,7 @@
                     <template v-if="item.chunkSize">· {{ item.chunkSize }}</template>
                     <template v-if="item.chunkOverlap">+{{ item.chunkOverlap }}</template>
                   </span>
-                  <span v-if="item.modelKey" class="meta-chip" title="嵌入模型">
+                  <span v-if="item.modelKey" class="meta-chip" :title="t.vecStore.selector.embeddingModel">
                     <RobotOutlined /> {{ item.modelKey }}
                   </span>
                 </div>
@@ -62,8 +62,8 @@
           </div>
           <div v-if="!list.length && !loading" class="empty-state">
             <div class="empty-icon"><DatabaseOutlined /></div>
-            <p class="empty-title">未找到匹配的向量存储</p>
-            <p class="empty-hint">尝试调整搜索关键词，或确认集合已创建</p>
+            <p class="empty-title">{{ t.vecStore.selector.emptyTitle }}</p>
+            <p class="empty-hint">{{ t.vecStore.selector.emptyHint }}</p>
           </div>
         </div>
       </a-spin>
@@ -85,9 +85,12 @@
 import {computed, reactive, ref, watch} from 'vue'
 import {BlockOutlined, CheckCircleFilled, DatabaseOutlined, RobotOutlined} from '@ant-design/icons-vue'
 import {type AiVecStore, aiVecStoreApi} from '@/api/aiVecStore.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
 import AstDrawer from '@/components/home/AstDrawer.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
+
+const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{
   open: boolean
@@ -159,7 +162,7 @@ watch(
 
 :deep(.vecstore-selector-drawer .header-icon) {
   background: var(--primary-gradient);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
 
@@ -213,13 +216,13 @@ watch(
 
 .item-card:hover {
   border-color: var(--success);
-  background: rgba(16, 185, 129, 0.06);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  background: color-mix(in srgb, var(--success) 6%, transparent);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--shadow-color, #000) 4%, transparent);
 }
 
 .item-card.selected {
   border-color: var(--success);
-  background: rgba(16, 185, 129, 0.08);
+  background: color-mix(in srgb, var(--success) 8%, transparent);
 }
 
 .item-left {
@@ -263,7 +266,7 @@ watch(
   font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
   padding: 1px 6px;
   border-radius: 3px;
-  background: rgba(16, 185, 129, 0.15);
+  background: color-mix(in srgb, var(--success) 15%, transparent);
   color: var(--success);
   flex-shrink: 0;
 }
@@ -349,7 +352,7 @@ watch(
   height: 48px;
   margin: 0 auto 12px;
   border-radius: 12px;
-  background: rgba(16, 185, 129, 0.15);
+  background: color-mix(in srgb, var(--success) 15%, transparent);
   color: var(--success);
   display: flex;
   align-items: center;

@@ -83,6 +83,7 @@ import {
     systemExtensionDiscoveryMechanismDictionary as systemExtensionDiscoveryMechanismEn,
     systemExtensionInstallSourceDictionary as systemExtensionInstallSourceEn,
     systemExtensionInstallStatusDictionary as systemExtensionInstallStatusEn,
+    systemExtensionModelTypeDictionary as systemExtensionModelTypeEn,
     systemExtensionTypeDictionary as systemExtensionTypeEn
 } from '../en-US/dictionary/system-config/system-extension.ts'
 import {
@@ -90,6 +91,7 @@ import {
     systemExtensionDiscoveryMechanismDictionary as systemExtensionDiscoveryMechanismZh,
     systemExtensionInstallSourceDictionary as systemExtensionInstallSourceZh,
     systemExtensionInstallStatusDictionary as systemExtensionInstallStatusZh,
+    systemExtensionModelTypeDictionary as systemExtensionModelTypeZh,
     systemExtensionTypeDictionary as systemExtensionTypeZh
 } from '../zh-CN/dictionary/system-config/system-extension.ts'
 import {
@@ -109,9 +111,25 @@ import {
     systemUserRoleDictionary as systemUserRoleEn
 } from '../en-US/dictionary/system-config/system-user.ts'
 import {
+    systemConfigCenterEnvDictionary as systemConfigCenterEnvEn,
+    systemConfigCenterStatusDictionary as systemConfigCenterStatusEn
+} from '../en-US/dictionary/system-config/system-config-center.ts'
+import {
+    systemConfigIsSystemDictionary as systemConfigIsSystemEn,
+    systemConfigStatusDictionary as systemConfigStatusEn
+} from '../en-US/dictionary/system-config/system-config.ts'
+import {
     systemUserAdminDictionary as systemUserAdminZh,
     systemUserRoleDictionary as systemUserRoleZh
 } from '../zh-CN/dictionary/system-config/system-user.ts'
+import {
+    systemConfigCenterEnvDictionary as systemConfigCenterEnvZh,
+    systemConfigCenterStatusDictionary as systemConfigCenterStatusZh
+} from '../zh-CN/dictionary/system-config/system-config-center.ts'
+import {
+    systemConfigIsSystemDictionary as systemConfigIsSystemZh,
+    systemConfigStatusDictionary as systemConfigStatusZh
+} from '../zh-CN/dictionary/system-config/system-config.ts'
 import {
     astroChatEventTypeDictionary as astroChatEventTypeEn,
     astroChatRoleDictionary as astroChatRoleEn
@@ -162,12 +180,17 @@ export type DictionaryBundle = {
     'system.extension.applyStatus': EnumDictionary<Record<string, string>>
     'system.extension.discoveryMechanism': EnumDictionary<Record<string, string>>
     'system.extension.installSource': EnumDictionary<Record<string, string>>
+    'system.extension.modelType': EnumDictionary<Record<string, string>>
     'system.message.type': EnumDictionary<Record<string, string>>
     'system.message.level': EnumDictionary<Record<string, string>>
     'system.message.readStatus': EnumDictionary<Record<string, string>>
     'system.message.refType': EnumDictionary<Record<string, string>>
     'system.user.role': EnumDictionary<Record<string, string>>
     'system.user.admin': EnumDictionary<Record<string, string>>
+    'system.config-center.status': EnumDictionary<Record<string, string>>
+    'system.config-center.env': EnumDictionary<Record<string, string>>
+    'system.config.status': EnumDictionary<Record<string, string>>
+    'system.config.isSystem': EnumDictionary<Record<string, string>>
     'astro.chat.role': EnumDictionary<Record<string, string>>
     'astro.chat.eventType': EnumDictionary<Record<string, string>>
     'common.status': EnumDictionary<Record<string, string>>
@@ -204,12 +227,17 @@ const zhCNDictionaryBundle = {
     'system.extension.applyStatus': systemExtensionApplyStatusZh,
     'system.extension.discoveryMechanism': systemExtensionDiscoveryMechanismZh,
     'system.extension.installSource': systemExtensionInstallSourceZh,
+    'system.extension.modelType': systemExtensionModelTypeZh,
     'system.message.type': systemMessageTypeZh,
     'system.message.level': systemMessageLevelZh,
     'system.message.readStatus': systemMessageReadStatusZh,
     'system.message.refType': systemMessageRefTypeZh,
     'system.user.role': systemUserRoleZh,
     'system.user.admin': systemUserAdminZh,
+    'system.config-center.status': systemConfigCenterStatusZh,
+    'system.config-center.env': systemConfigCenterEnvZh,
+    'system.config.status': systemConfigStatusZh,
+    'system.config.isSystem': systemConfigIsSystemZh,
     'astro.chat.role': astroChatRoleZh,
     'astro.chat.eventType': astroChatEventTypeZh,
     'common.status': commonStatusZh,
@@ -244,12 +272,17 @@ const enUSDictionaryBundle = {
     'system.extension.applyStatus': systemExtensionApplyStatusEn,
     'system.extension.discoveryMechanism': systemExtensionDiscoveryMechanismEn,
     'system.extension.installSource': systemExtensionInstallSourceEn,
+    'system.extension.modelType': systemExtensionModelTypeEn,
     'system.message.type': systemMessageTypeEn,
     'system.message.level': systemMessageLevelEn,
     'system.message.readStatus': systemMessageReadStatusEn,
     'system.message.refType': systemMessageRefTypeEn,
     'system.user.role': systemUserRoleEn,
     'system.user.admin': systemUserAdminEn,
+    'system.config-center.status': systemConfigCenterStatusEn,
+    'system.config-center.env': systemConfigCenterEnvEn,
+    'system.config.status': systemConfigStatusEn,
+    'system.config.isSystem': systemConfigIsSystemEn,
     'astro.chat.role': astroChatRoleEn,
     'astro.chat.eventType': astroChatEventTypeEn,
     'common.status': commonStatusEn,

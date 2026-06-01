@@ -2,7 +2,7 @@
   <AstModal
       :body-height="'80vh'"
       :confirm-loading="confirmLoading"
-      :confirm-text="mode === 'create' ? '注册工具并发布' : '保存修改'"
+      :confirm-text="mode === 'create' ? t.form.createConfirmText : t.form.editConfirmText"
       :destroy-on-close="true"
       :header-height="'72px'"
       :max-width="'80vw'"
@@ -19,11 +19,11 @@
     </template>
 
     <template #header-title>
-      {{ mode === 'create' ? '构建新增强工具' : '编辑工具配置' }}
+      {{ mode === 'create' ? t.form.createTitle : t.form.editTitle }}
     </template>
 
     <template #header-subtitle>
-      定义 AI 智能体可调用的外部函数或界面渲染组件
+      {{ t.form.subtitle }}
     </template>
 
     <a-form
@@ -35,18 +35,17 @@
     >
       <div class="form-body-container">
         <div class="form-layout">
-          <!-- 左侧：基础信息 -->
           <div class="form-left">
             <div class="section-card">
               <h3 class="section-title">
                 <IdcardOutlined/>
-                基础标识
+                {{ t.form.sectionTitle.basic }}
               </h3>
 
               <a-alert
                   v-if="mode === 'create'"
                   class="custom-alert"
-                  message="Tool Key 是工具的唯一逻辑标识，建议使用下划线命名（如 weather_api）。"
+                  :message="t.form.alert"
                   show-icon
                   type="info"
               />
@@ -54,77 +53,76 @@
               <div class="form-fields">
                 <a-row :gutter="16">
                   <a-col :span="16">
-                    <a-form-item label="工具显示名称" name="toolName">
-                      <a-input v-model:value="form.toolName" placeholder="例如：实时天气查询" size="large"/>
+                    <a-form-item :label="t.form.toolName.label" name="toolName">
+                      <a-input v-model:value="form.toolName" :placeholder="t.form.toolName.placeholder" size="large"/>
                     </a-form-item>
                   </a-col>
                   <a-col :span="8">
-                    <a-form-item label="状态" name="enableFlag">
+                    <a-form-item :label="t.form.status.label" name="enableFlag">
                       <a-select v-model:value="form.enableFlag" size="large">
-                        <a-select-option value="enabled">已启用</a-select-option>
-                        <a-select-option value="disabled">已禁用</a-select-option>
+                        <a-select-option value="enabled">{{ t.form.status.enabled }}</a-select-option>
+                        <a-select-option value="disabled">{{ t.form.status.disabled }}</a-select-option>
                       </a-select>
                     </a-form-item>
                   </a-col>
                 </a-row>
 
-                <a-form-item label="Tool Key (逻辑标识)" name="toolKey">
+                <a-form-item :label="t.form.toolKey.label" name="toolKey">
                   <AstKeyGenerator
                       v-model="form.toolKey"
                       :disabled="mode === 'edit'"
                       :prefix="AI_TOOL_KEY_PREFIX"
-                      placeholder="留空则由系统自动生成"
+                      :placeholder="t.form.toolKey.placeholder"
                       size="large"
                   />
                 </a-form-item>
 
-                <a-form-item label="实现类型" name="type">
+                <a-form-item :label="t.form.type.label" name="type">
                   <a-segmented v-model:value="form.type" :options="toolTypeOptions" block size="large"/>
                 </a-form-item>
 
-                <a-form-item label="功能详细描述 (给 AI 看)" name="description">
+                <a-form-item :label="t.form.description.label" name="description">
                   <a-textarea
                       v-model:value="form.description"
                       :auto-size="{ minRows: 6, maxRows: 10 }"
-                      placeholder="请清晰描述工具的功能及其参数含义，这有助于大模型更准确地进行 Tool Call..."
+                      :placeholder="t.form.description.placeholder"
                   />
                 </a-form-item>
               </div>
             </div>
           </div>
 
-          <!-- 右侧：执行配置 -->
           <div class="form-right">
             <div class="section-card">
               <h3 class="section-title">
                 <RocketOutlined/>
-                执行配置
+                {{ t.form.sectionTitle.execution }}
               </h3>
 
               <div class="impl-hint">
-                <div class="hint-title">Spring Context 注入配置</div>
-                <p>系统将通过指定的 Bean 名称从 Spring 容器中索引实例，并反射执行目标方法。</p>
+                <div class="hint-title">{{ t.form.execution.hintTitle }}</div>
+                <p>{{ t.form.execution.hintDescription }}</p>
               </div>
 
               <div class="form-fields">
-                <a-form-item label="Spring Bean ID" name="beanName">
-                  <a-input v-model:value="form.beanName" placeholder="例如：weatherToolService" size="large">
+                <a-form-item :label="t.form.execution.beanNameLabel" name="beanName">
+                  <a-input v-model:value="form.beanName" :placeholder="t.form.execution.beanNamePlaceholder" size="large">
                     <template #prefix>
-                      <BlockOutlined style="color: #bfbfbf"/>
+                      <BlockOutlined style="color: var(--text-muted)"/>
                     </template>
                   </a-input>
                 </a-form-item>
 
-                <a-form-item label="执行方法名 (Method)" name="methodName">
-                  <a-input v-model:value="form.methodName" placeholder="例如：getWeather" size="large">
+                <a-form-item :label="t.form.execution.methodNameLabel" name="methodName">
+                  <a-input v-model:value="form.methodName" :placeholder="t.form.execution.methodNamePlaceholder" size="large">
                     <template #prefix>
-                      <CodeOutlined style="color: #bfbfbf"/>
+                      <CodeOutlined style="color: var(--text-muted)"/>
                     </template>
                   </a-input>
                 </a-form-item>
 
-                <a-form-item label="Class 名称" name="className">
-                  <a-input v-model:value="form.className" placeholder="例如：WeatherToolImpl" size="large"/>
+                <a-form-item :label="t.form.execution.classNameLabel" name="className">
+                  <a-input v-model:value="form.className" :placeholder="t.form.execution.classNamePlaceholder" size="large"/>
                 </a-form-item>
               </div>
             </div>
@@ -136,7 +134,7 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref, watch} from 'vue'
+import {computed, reactive, ref, watch} from 'vue'
 import {
   BlockOutlined,
   BuildOutlined,
@@ -150,6 +148,9 @@ import type {AiTool} from '@/api/aiTool.ts'
 import AstModal from '@/components/home/AstModal.vue'
 import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import {AI_TOOL_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-tool')
 
 const props = defineProps<{ mode: 'create' | 'edit', confirmLoading: boolean, initial: AiTool | null }>()
 const emit = defineEmits<{ submit: [payload: AiTool] }>()
@@ -157,10 +158,10 @@ const open = defineModel<boolean>('open', {required: true})
 
 const formRef = ref<FormInstance | null>(null)
 
-const toolTypeOptions = [
-  {label: 'Method (后端)', value: 'method'},
-  {label: 'HTML (组件)', value: 'html'}
-]
+const toolTypeOptions = computed(() => [
+  {label: t.value.form.type.method, value: 'method'},
+  {label: t.value.form.type.html, value: 'html'}
+])
 
 function emptyForm(): AiTool {
   return {
@@ -172,12 +173,12 @@ function emptyForm(): AiTool {
 
 const form = reactive<AiTool>(emptyForm())
 
-const rules = {
-  toolName: [{required: true, message: '请输入工具名称'}],
-  type: [{required: true, message: '请选择实现类型'}],
-  beanName: [{required: true, message: 'Bean ID 不能为空'}],
-  methodName: [{required: true, message: '方法名不能为空'}]
-}
+const rules = computed(() => ({
+  toolName: [{required: true, message: t.value.form.validation.toolNameRequired}],
+  type: [{required: true, message: t.value.form.validation.typeRequired}],
+  beanName: [{required: true, message: t.value.form.validation.beanNameRequired}],
+  methodName: [{required: true, message: t.value.form.validation.methodNameRequired}]
+}))
 
 const onOpenChange = (val: boolean) => {
   open.value = val
@@ -251,8 +252,8 @@ async function handleOk() {
   width: 45%;
   padding: 24px 32px;
   overflow-y: auto;
-  border-right: 1px solid #e2e8f0;
-  background: #fafbfc;
+  border-right: 1px solid var(--border-default);
+  background: var(--bg-surface);
 }
 
 
@@ -260,7 +261,7 @@ async function handleOk() {
   width: 55%;
   padding: 24px 32px;
   overflow-y: auto;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 
@@ -275,9 +276,9 @@ async function handleOk() {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1e293b;
+  color: var(--text-primary);
   padding-bottom: 12px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-default);
 }
 
 
@@ -289,8 +290,8 @@ async function handleOk() {
 
 
 .impl-hint {
-  background: #f0f5ff;
-  border: 1px solid #adc6ff;
+  background: color-mix(in srgb, var(--primary) 5%, var(--bg-surface));
+  border: 1px solid color-mix(in srgb, var(--primary) 25%, var(--border-default));
   padding: 16px 20px;
   border-radius: 12px;
   margin-bottom: 20px;
@@ -299,13 +300,13 @@ async function handleOk() {
 .hint-title {
   font-size: 14px;
   font-weight: 700;
-  color: #1d39c4;
+  color: var(--primary);
   margin-bottom: 4px;
 }
 
 .impl-hint p {
   font-size: 13px;
-  color: #2f54eb;
+  color: var(--primary);
   margin: 0;
   opacity: 0.8;
 }

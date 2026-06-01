@@ -3,7 +3,7 @@
       v-model:open="open"
       :destroy-on-close="true"
       :footer="null"
-      title="选择 AI 实例"
+      :title="t.selector.modal.title"
       width="800px"
       @cancel="onCancel"
   >
@@ -12,14 +12,14 @@
         <AstSearchInput
             v-model="searchQuery"
             layout="toolbar"
-            placeholder="搜索实例名称或标识..."
+            :placeholder="t.selector.modal.searchPlaceholder"
             @search="fetchInstances"
         />
         <a-tabs v-model:activeKey="typeFilter" class="model-type-tabs">
-          <a-tab-pane key="all" tab="全部类型"/>
-          <a-tab-pane key="chat" tab="对话"/>
-          <a-tab-pane key="embedding" tab="向量"/>
-          <a-tab-pane key="image" tab="图像"/>
+          <a-tab-pane key="all" :tab="t.selector.modal.tab.all"/>
+          <a-tab-pane key="chat" :tab="t.selector.modal.tab.chat"/>
+          <a-tab-pane key="embedding" :tab="t.selector.modal.tab.embedding"/>
+          <a-tab-pane key="image" :tab="t.selector.modal.tab.image"/>
         </a-tabs>
       </div>
 
@@ -28,7 +28,7 @@
             :columns="columns"
             :data-source="instances"
             :loading="loading"
-            :pagination="{ pageSize: 10, showTotal: (t: number) => `共 ${t} 个实例` }"
+            :pagination="{ pageSize: 10, showTotal: (total: number) => t.selector.modal.totalInstances.replace('{n}', String(total)) }"
             :row-selection="rowSelection"
             :scroll="{ y: 400 }"
             row-key="instanceKey"
@@ -61,9 +61,9 @@
       </div>
 
       <div class="dialog-footer">
-        <a-button @click="onCancel">取消</a-button>
+        <a-button @click="onCancel">{{ t.selector.modal.cancel }}</a-button>
         <a-button :disabled="!selectedInstance" type="primary" @click="handleSelect">
-          选择
+          {{ t.selector.modal.select }}
         </a-button>
       </div>
     </div>
@@ -75,6 +75,9 @@ import {computed, onMounted, ref, watch} from 'vue'
 import {MessageOutlined, PartitionOutlined, PictureOutlined} from '@ant-design/icons-vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type AiInstance, aiInstanceApi} from '@/api/aiInstance.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-instance')
 
 const open = defineModel<boolean>('open', {required: true})
 const emit = defineEmits<{ select: [instance: AiInstance] }>()
@@ -95,13 +98,13 @@ watch(() => open.value, (isOpen) => {
   }
 })
 
-const columns = [
-  {title: '实例名称', dataIndex: 'instanceName', key: 'instanceName', width: 200},
-  {title: '实例标识', dataIndex: 'instanceKey', key: 'instanceKey', width: 200, ellipsis: true},
-  {title: '类型', dataIndex: 'modelType', key: 'modelType', width: 100},
-  {title: '向量维度', dataIndex: 'dimensions', key: 'dimensions', width: 100},
-  {title: '模型 Key', dataIndex: 'modelKey', key: 'modelKey', ellipsis: true}
-]
+const columns = computed(() => [
+  {title: t.value.selector.modal.column.instanceName, dataIndex: 'instanceName', key: 'instanceName', width: 200},
+  {title: t.value.selector.modal.column.instanceKey, dataIndex: 'instanceKey', key: 'instanceKey', width: 200, ellipsis: true},
+  {title: t.value.selector.modal.column.type, dataIndex: 'modelType', key: 'modelType', width: 100},
+  {title: t.value.selector.modal.column.dimensions, dataIndex: 'dimensions', key: 'dimensions', width: 100},
+  {title: t.value.selector.modal.column.modelKey, dataIndex: 'modelKey', key: 'modelKey', ellipsis: true}
+])
 
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedKeys.value,
@@ -118,9 +121,9 @@ const selectedInstance = computed(() => {
 })
 
 const modelTypeLabel = (type?: string) => {
-  if (type === 'embedding') return '向量'
-  if (type === 'image') return '图像'
-  return '对话'
+  if (type === 'embedding') return t.value.modelType.embedding
+  if (type === 'image') return t.value.modelType.image
+  return t.value.modelType.chat
 }
 
 const fetchInstances = async () => {

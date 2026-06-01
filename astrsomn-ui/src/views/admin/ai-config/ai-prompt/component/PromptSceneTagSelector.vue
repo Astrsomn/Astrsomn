@@ -2,7 +2,7 @@
   <a-select
       :loading="loading"
       :options="options"
-      :placeholder="placeholder"
+      :placeholder="t.sceneTagSelector.placeholder"
       :value="innerValue"
       allow-clear
       class="scene-tag-selector"
@@ -14,13 +14,14 @@
 <script lang="ts" setup>
 import {computed, onMounted, ref} from 'vue'
 import {aiPromptApi} from '@/api/aiPrompt'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-prompt')
 
 const props = withDefaults(defineProps<{
   modelValue?: string[]
-  placeholder?: string
 }>(), {
   modelValue: () => [],
-  placeholder: '选择场景标签'
 })
 
 const emit = defineEmits<{
@@ -65,7 +66,7 @@ onMounted(() => {
   height: 48px !important;
   min-height: 48px !important;
   border-radius: var(--radius-md);
-  border-color: var(--border-default, rgba(0, 0, 0, 0.1));
+  border-color: var(--border-default);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -74,11 +75,11 @@ onMounted(() => {
 }
 
 .scene-tag-selector :deep(.ant-select-selector:hover) {
-  border-color: var(--primary, #3b82f6);
+  border-color: var(--primary);
 }
 
 .scene-tag-selector :deep(.ant-select-focused .ant-select-selector) {
-  border-color: var(--primary, #3b82f6);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary, #3b82f6) 10%, transparent);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 </style>

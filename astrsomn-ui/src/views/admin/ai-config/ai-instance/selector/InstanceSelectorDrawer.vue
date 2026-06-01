@@ -13,34 +13,34 @@
             v-model="keyword"
             class="toolbar-search"
             layout="fluid"
-            placeholder="搜索实例名称"
+            :placeholder="t.selector.drawer.searchPlaceholder"
             @search="handleSearch"
         />
         <a-select
             v-model:value="queryStatus"
             allow-clear
             class="toolbar-status"
-            placeholder="状态筛选"
+            :placeholder="t.selector.drawer.statusPlaceholder"
             @change="handleSearch"
         >
-          <a-select-option value="enabled">启用</a-select-option>
-          <a-select-option value="disabled">禁用</a-select-option>
+          <a-select-option value="enabled">{{ t.selector.drawer.status.enabled }}</a-select-option>
+          <a-select-option value="disabled">{{ t.selector.drawer.status.disabled }}</a-select-option>
         </a-select>
         <a-button @click="emit('create')">
           <template #icon>
             <PlusOutlined/>
           </template>
-          新增
+          {{ t.selector.drawer.create }}
         </a-button>
       </div>
 
       <a-tabs v-if="!props.fixedModelType" v-model:activeKey="activeTypeTab" class="type-tabs"
               @change="handleTypeTabChange">
-        <a-tab-pane key="all" tab="全部"/>
-        <a-tab-pane key="chat" tab="对话"/>
-        <a-tab-pane key="embedding" tab="向量"/>
-        <a-tab-pane key="image" tab="图像"/>
-        <a-tab-pane key="voice" tab="语音"/>
+        <a-tab-pane key="all" :tab="t.selector.drawer.tab.all"/>
+        <a-tab-pane key="chat" :tab="t.selector.drawer.tab.chat"/>
+        <a-tab-pane key="embedding" :tab="t.selector.drawer.tab.embedding"/>
+        <a-tab-pane key="image" :tab="t.selector.drawer.tab.image"/>
+        <a-tab-pane key="voice" :tab="t.selector.drawer.tab.voice"/>
       </a-tabs>
 
       <a-spin :spinning="loading">
@@ -60,7 +60,7 @@
               <ControlOutlined v-else/>
             </div>
             <div class="instance-info">
-              <div class="instance-name">{{ inst.instanceName || '未命名实例' }}</div>
+              <div class="instance-name">{{ inst.instanceName || t.selector.drawer.unnamed }}</div>
               <div class="instance-key">
                 <KeyOutlined/>
                 {{ inst.instanceKey || '-' }}
@@ -71,7 +71,7 @@
                 <span v-if="inst.modelType" class="type-tag">{{ modelTypeLabel(inst.modelType) }}</span>
                 <span v-if="inst.modelKey" class="model-key-tag">{{ inst.modelKey }}</span>
                 <span :class="inst.status" class="status-badge">
-                  {{ inst.status === 'enabled' ? '启用' : '禁用' }}
+                  {{ inst.status === 'enabled' ? t.selector.drawer.status.enabled : t.selector.drawer.status.disabled }}
                 </span>
               </div>
               <div class="meta-bottom">
@@ -90,7 +90,7 @@
             </div>
           </div>
 
-          <a-empty v-if="!loading && list.length === 0" description="暂无实例"/>
+          <a-empty v-if="!loading && list.length === 0" :description="t.selector.drawer.empty"/>
         </div>
       </a-spin>
     </div>
@@ -123,6 +123,9 @@ import AstDrawer from '@/components/home/AstDrawer.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type AiInstance, aiInstanceApi, type PageResponse} from '@/api/aiInstance.ts'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-instance')
 
 const props = defineProps<{
   open: boolean
@@ -153,20 +156,20 @@ const page = reactive({
 })
 
 const modelTypeLabel = (type?: string) => {
-  if (type === 'embedding') return '向量'
-  if (type === 'image') return '图像'
-  if (type === 'voice') return '语音'
-  return '对话'
+  if (type === 'embedding') return t.value.modelType.embedding
+  if (type === 'image') return t.value.modelType.image
+  if (type === 'voice') return t.value.modelType.voice
+  return t.value.modelType.chat
 }
 
 const drawerTitle = computed(() => {
-  if (props.fixedModelType) return `选择${modelTypeLabel(props.fixedModelType)}实例`
-  return '选择推理配置'
+  if (props.fixedModelType) return t.value.selector.drawer.selectTypeTitle.replace('{type}', modelTypeLabel(props.fixedModelType))
+  return t.value.selector.drawer.title
 })
 
-const formatTime = (t?: string) => {
-  if (!t) return '-'
-  return t.length > 16 ? t.substring(0, 16) : t
+const formatTime = (t2?: string) => {
+  if (!t2) return '-'
+  return t2.length > 16 ? t2.substring(0, 16) : t2
 }
 
 const handleEdit = (e: MouseEvent, inst: AiInstance) => {
@@ -289,12 +292,12 @@ watch(() => props.open, (val) => {
 
 .instance-item:hover {
   border-color: var(--primary);
-  box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.06));
+  box-shadow: var(--shadow-card);
 }
 
 .instance-item.selected {
   border-color: var(--primary);
-  background: var(--primary-hover, rgba(59, 130, 246, 0.05));
+  background: var(--primary-hover, color-mix(in srgb, var(--primary) 5%, transparent));
 }
 
 .instance-icon {
@@ -380,7 +383,7 @@ watch(() => props.open, (val) => {
 
 .create-time {
   font-size: 11px;
-  color: var(--text-tertiary, #94a3b8);
+  color: var(--text-tertiary);
   white-space: nowrap;
 }
 
@@ -400,7 +403,7 @@ watch(() => props.open, (val) => {
 .type-tag {
   font-size: 11px;
   padding: 2px 8px;
-  background: var(--bg-secondary, #f1f5f9);
+  background: var(--bg-secondary);
   border-radius: 4px;
   color: var(--text-secondary);
 }
@@ -408,9 +411,9 @@ watch(() => props.open, (val) => {
 .model-key-tag {
   font-size: 10px;
   padding: 2px 6px;
-  background: #ede9fe;
+  background: var(--bg-secondary);
   border-radius: 4px;
-  color: #6366f1;
+  color: var(--primary);
   font-family: 'JetBrains Mono', monospace;
   max-width: 120px;
   overflow: hidden;
@@ -426,12 +429,12 @@ watch(() => props.open, (val) => {
 }
 
 .status-badge.enabled {
-  background: #dcfce7;
-  color: #16a34a;
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  color: var(--success);
 }
 
 .status-badge.disabled {
-  background: #fee2e2;
-  color: #ef4444;
+  background: color-mix(in srgb, var(--error) 15%, transparent);
+  color: var(--error);
 }
 </style>

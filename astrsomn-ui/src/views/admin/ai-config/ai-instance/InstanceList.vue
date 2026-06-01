@@ -4,9 +4,9 @@
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
-      description="管理 AI 运行预设：定义采样温度、长度限制及生成策略，供智能体直接引用。"
-      empty-text="暂无推理预设实例。"
-      title="推理参数配置"
+      :description="t.list.description"
+      :empty-text="t.list.emptyText"
+      :title="t.list.title"
   >
     <div ref="pageRef" class="instance-page">
       <AstDataSection>
@@ -15,9 +15,9 @@
             <div class="toolbar-left">
               <AstSearchInput
                   v-model="query.instanceName"
-                  button-label="查询"
+                  :button-label="t.list.searchButton"
                   layout="toolbar"
-                  placeholder="搜索预设名称或标识..."
+                  :placeholder="t.list.searchPlaceholder"
                   @search="fetchList"
               />
               <ExtensionSelector
@@ -39,10 +39,10 @@
             size="small"
             @change="handleModelTypeTabChange"
         >
-          <a-tab-pane key="all" tab="全部"/>
-          <a-tab-pane key="chat" tab="对话"/>
-          <a-tab-pane key="embedding" tab="向量"/>
-          <a-tab-pane key="image" tab="图片"/>
+          <a-tab-pane key="all" :tab="t.list.tab.all"/>
+          <a-tab-pane key="chat" :tab="t.list.tab.chat"/>
+          <a-tab-pane key="embedding" :tab="t.list.tab.embedding"/>
+          <a-tab-pane key="image" :tab="t.list.tab.image"/>
         </a-tabs>
 
         <AstDataView
@@ -55,7 +55,7 @@
             :mode="dataViewMode"
             :row-selection="rowSelection"
             :scroll="{ x: 1080 }"
-            empty-text="暂无匹配的推理配置"
+            :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
           <template #card="{ record }">
@@ -86,11 +86,11 @@
             </template>
             <template v-else-if="column.key === 'status'">
               <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
-                {{ record.status === 'enabled' ? '启用' : '禁用' }}
+                {{ record.status === 'enabled' ? t.list.status.enabled : t.list.status.disabled }}
               </a-tag>
             </template>
             <template v-else-if="column.key === 'isDefault'">
-              <a-tag v-if="record.isDefault === 'Y'" color="blue">默认预设</a-tag>
+              <a-tag v-if="record.isDefault === 'Y'" color="blue">{{ t.list.defaultPreset }}</a-tag>
               <span v-else class="text-secondary">-</span>
             </template>
 
@@ -99,7 +99,7 @@
                 <a-button size="small" type="link" @click="goEdit(record)">
                   <EditOutlined/>
                 </a-button>
-                <a-popconfirm title="确定删除该配置吗？" @confirm="() => handleDeleteOne(record.id)">
+                <a-popconfirm :title="t.list.deleteConfirm" @confirm="() => handleDeleteOne(record.id)">
                   <a-button danger size="small" type="link">
                     <DeleteOutlined/>
                   </a-button>
@@ -142,6 +142,9 @@ import ExtensionSelector from '@/views/admin/system-config/system-extension/sele
 import InstanceForm from './InstanceForm.vue'
 import InstanceCard from './component/InstanceCard.vue'
 import {type AiInstance, aiInstanceApi, type PageResponse} from '@/api/aiInstance'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-instance')
 
 const INSTANCE_CARD_MIN_WIDTH_PX = 360
 const INSTANCE_CARD_GAP_PX = 12
@@ -167,37 +170,37 @@ const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid'
 const currentGridColumns = ref(3)
 const modelTypeTab = computed(() => query.modelType ?? 'all')
 
-const breadcrumbs = [
-  {title: 'AI 配置', href: '/admin/ai-config'},
-  {title: '推理参数配置'},
-]
+const breadcrumbs = computed(() => [
+  {title: t.value.list.breadcrumb.aiConfig, href: '/admin/ai-config'},
+  {title: t.value.list.breadcrumb.instanceConfig},
+])
 
 const handleViewToggle = () => {
   viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
 }
 
-const columns = [
-  {title: '供应商', key: 'providerAvatar', width: 80, align: 'center' as const},
-  {title: '模型类型', dataIndex: 'modelType', key: 'modelType', width: 110},
+const columns = computed(() => [
+  {title: t.value.list.column.provider, key: 'providerAvatar', width: 80, align: 'center' as const},
+  {title: t.value.list.column.modelType, dataIndex: 'modelType', key: 'modelType', width: 110},
   {
-    title: '实例 Key',
+    title: t.value.list.column.instanceKey,
     dataIndex: 'instanceKey',
     key: 'instanceKey',
     width: 180,
     ellipsis: true,
     copyable: true
   },
-  {title: '名称', dataIndex: 'instanceName', key: 'instanceName', width: 180, ellipsis: true},
+  {title: t.value.list.column.name, dataIndex: 'instanceName', key: 'instanceName', width: 180, ellipsis: true},
 
-  {title: '关联模型 Key', dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true},
-  {title: '关联账号', dataIndex: 'accountName', key: 'accountName', width: 150, ellipsis: true},
-  {title: '默认', key: 'isDefault', width: 90, align: 'center'},
-  {title: '状态', dataIndex: 'status', key: 'status', width: 100},
-  {title: '环境', dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
-  {title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-  {title: '创建人', dataIndex: 'createUser', key: 'createUser', width: 150},
-  {title: '操作', key: 'actions', width: 140, fixed: 'right' as const}
-]
+  {title: t.value.list.column.modelKey, dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true},
+  {title: t.value.list.column.accountName, dataIndex: 'accountName', key: 'accountName', width: 150, ellipsis: true},
+  {title: t.value.list.column.isDefault, key: 'isDefault', width: 90, align: 'center'},
+  {title: t.value.list.column.status, dataIndex: 'status', key: 'status', width: 100},
+  {title: t.value.list.column.envCode, dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
+  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
+  {title: t.value.list.column.createUser, dataIndex: 'createUser', key: 'createUser', width: 150},
+  {title: t.value.list.column.actions, key: 'actions', width: 140, fixed: 'right' as const}
+])
 
 const providerAvatarCell = (record: AiInstance) => {
   const raw = record?.providerAvatar
@@ -212,9 +215,9 @@ const rowSelection = computed(() => ({
 }))
 
 const modelTypeLabel = (type?: string) => {
-  if (type === 'embedding') return '向量'
-  if (type === 'image') return '图像'
-  if (type === 'chat') return '对话'
+  if (type === 'embedding') return t.value.modelType.embedding
+  if (type === 'image') return t.value.modelType.image
+  if (type === 'chat') return t.value.modelType.chat
   return type || '-'
 }
 
@@ -281,22 +284,22 @@ const handleDeleteOne = async (id: number | string | undefined) => {
 const handleBatchDelete = async () => {
   if (selectedRowKeys.value.length === 0) return
   await aiInstanceApi.delete(selectedRowKeys.value)
-  message.success('批量删除成功')
+  message.success(t.value.list.batchDeleteSuccess)
   selectedRowKeys.value = []
   void fetchList()
 }
 
 const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
   {
-    label: selectedRowKeys.value.length > 0 ? `批量删除 (${selectedRowKeys.value.length})` : '删除',
+    label: selectedRowKeys.value.length > 0 ? t.value.list.batchDeleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.batchDelete,
     icon: DeleteOutlined,
     disabled: selectedRowKeys.value.length === 0,
     onClick: () => {
       if (selectedRowKeys.value.length === 0) return
       Modal.confirm({
-        title: '确定批量删除选中的配置吗？',
-        okText: '确认',
-        cancelText: '取消',
+        title: t.value.list.batchDeleteConfirm,
+        okText: t.value.list.confirm,
+        cancelText: t.value.list.cancel,
         onOk: () => handleBatchDelete()
       })
     },
@@ -304,7 +307,7 @@ const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
     plain: true
   },
   {
-    label: '新增',
+    label: t.value.list.create,
     type: 'primary',
     icon: PlusOutlined,
     onClick: goCreate,
@@ -406,7 +409,7 @@ onBeforeUnmount(() => {
 }
 
 .text-secondary {
-  color: var(--text-muted, #bfbfbf);
+  color: var(--text-muted);
 }
 
 @media (max-width: 720px) {

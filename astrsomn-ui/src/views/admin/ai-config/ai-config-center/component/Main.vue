@@ -1,5 +1,5 @@
 <template>
-  <a-layout-content class="bg-gray-50">
+  <a-layout-content>
     <transition mode="out-in" name="fade">
       <!-- 全局管理页面 -->
       <component

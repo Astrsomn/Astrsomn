@@ -37,7 +37,7 @@
             <button class="back-icon-btn" type="button" @click="handleBack">
               <arrow-left-outlined/>
             </button>
-            <h1 class="page-title">{{ pageTitle }}</h1>
+            <h1 class="page-title">{{ effectivePageTitle }}</h1>
           </div>
         </transition>
       </div>
@@ -51,7 +51,7 @@
           <slot name="actions">
             <DocLangTheme :showDoc="showDoc"/>
             <UserProfile v-if="isLoggedIn"/>
-            <a-button v-else shape="round" size="small" type="primary" @click="handleLogin">{{ t('login') }}</a-button>
+            <a-button v-else shape="round" size="small" type="primary" @click="handleLogin">{{ t.header.login }}</a-button>
           </slot>
         </div>
       </div>
@@ -70,7 +70,9 @@ import DocLangTheme from './DocLangTheme.vue';
 import UserProfile from './UserProfile.vue';
 
 import WorkspaceEnvSwitcher from './WorkspaceEnvSwitcher.vue';
-import {getDictionaryLocale} from '@/locales/dictionary/registry';
+import {usePageTranslation} from '@/locales/pages.ts';
+
+const t = usePageTranslation('common')
 
 interface Props {
   showBrand?: boolean;
@@ -85,27 +87,18 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   showBrand: true, showBack: false, brandStatus: 'AI Assistant',
-  pageTitle: '管理后台', showDoc: false, showSwitch: false,
+  pageTitle: '', showDoc: false, showSwitch: false,
   switchTarget: 'chat', showWorkspaceEnv: false,
 });
+
+const effectivePageTitle = computed(() => props.pageTitle || t.value.header.admin)
 
 const router = useRouter();
 const route = useRoute();
 const isClicking = ref(false);
 const isLoggedIn = computed(() => !!localStorage.getItem('token'));
 
-const t = (key: string): string => {
-  const isZh = getDictionaryLocale() === 'zh-CN';
-  const translations: Record<string, Record<string, string>> = {
-    'login': { 'zh-CN': '登录', 'en-US': 'Login' },
-    'admin': { 'zh-CN': '管理后台', 'en-US': 'Admin' },
-    'chat': { 'zh-CN': '立即聊天', 'en-US': 'Chat Now' }
-  };
-  return translations[key]?.[getDictionaryLocale()] || key;
-};
-
-
-const switchActionText = computed(() => props.switchTarget === 'chat' ? t('chat') : t('admin'));
+const switchActionText = computed(() => props.switchTarget === 'chat' ? t.value.header.chatNow : t.value.header.admin);
 const switchIcon = computed(() => props.switchTarget === 'chat' ? SwapOutlined : AppstoreOutlined);
 
 const handleSwitch = () => {
@@ -126,7 +119,7 @@ const handleLogin = () => {
 
 <style scoped>
 .app-header {
-  --primary-glow: rgba(59, 130, 246, 0.2);
+  --primary-glow: color-mix(in srgb, var(--primary) 20%, transparent);
   position: sticky;
   top: 0;
   z-index: 1000;

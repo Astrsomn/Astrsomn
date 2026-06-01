@@ -60,3 +60,22 @@ export const systemExtensionInstallSourceDictionary = createEnumDictionary({
     labels: extensionInstallSourceLabels,
     order: ['CLASSPATH_DEPENDENCY', 'PLUGIN_JAR_UPLOAD', 'PLUGIN_JAR_DISCOVERED']
 })
+
+const modelTypeLabels = {
+    chat: '对话',
+    completion: '补全',
+    embedding: '嵌入',
+    image: '图像',
+    audio: '音频',
+    rerank: '重排',
+    'text-to-image': '文生图',
+    'text-to-video': '文生视频',
+    'speech-to-text': '语音转文字',
+    'text-to-speech': '文字转语音',
+} as const
+
+export const systemExtensionModelTypeDictionary = createEnumDictionary({
+    id: 'system.extension.modelType',
+    labels: modelTypeLabels,
+    order: ['chat', 'completion', 'embedding', 'image', 'audio', 'rerank', 'text-to-image', 'text-to-video', 'speech-to-text', 'text-to-speech']
+})

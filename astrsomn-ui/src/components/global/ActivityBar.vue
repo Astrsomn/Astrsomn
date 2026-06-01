@@ -16,7 +16,7 @@
 
     <div class="activity-bar-bottom">
       <a-tooltip placement="right">
-        <template #title>设置</template>
+        <template #title>{{ t.activityBar.settings }}</template>
         <div class="activity-item" @click="navigateTo('/admin/system')">
           <SettingOutlined class="activity-icon"/>
         </div>
@@ -26,16 +26,19 @@
 </template>
 
 <script lang="ts" setup>
+import {computed} from 'vue'
 import {DatabaseOutlined, RobotOutlined, SettingOutlined} from '@ant-design/icons-vue'
 import {useRoute, useRouter} from 'vue-router'
+import {usePageTranslation} from '@/locales/pages.ts'
 
 const route = useRoute()
 const router = useRouter()
+const t = usePageTranslation('common')
 
-const modules = [
-  {key: 'ai-config', label: 'AI 配置', icon: RobotOutlined, route: '/admin/ai-config-center'},
-  {key: 'vector', label: '向量中心', icon: DatabaseOutlined, route: '/admin/vec-center'},
-]
+const modules = computed(() => [
+  {key: 'ai-config', label: t.value.activityBar.aiConfig, icon: RobotOutlined, route: '/admin/ai-config-center'},
+  {key: 'vector', label: t.value.activityBar.vectorCenter, icon: DatabaseOutlined, route: '/admin/vec-center'},
+])
 
 const isActive = (targetPath: string) => {
   const normalized = targetPath.replace(/\/+$/, '')

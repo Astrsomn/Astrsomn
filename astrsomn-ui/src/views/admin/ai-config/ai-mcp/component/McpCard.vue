@@ -16,7 +16,7 @@
       </div>
 
       <h3 :title="record.serverName" class="title">
-        {{ record.serverName || record.mcpKey || 'MCP 服务' }}
+        {{ record.serverName || record.mcpKey || t.card.mcpService }}
       </h3>
 
       <div class="key-capsule-btn" @click="copyKey(record.mcpKey)">
@@ -27,16 +27,16 @@
 
       <div class="details-section">
         <div v-if="record.type === 'SSE'" class="detail-item">
-          <span class="detail-label">SSE 地址</span>
-          <span class="detail-value mono">{{ record.sseAddress || '未配置' }}</span>
+          <span class="detail-label">{{ t.card.sseAddress }}</span>
+          <span class="detail-value mono">{{ record.sseAddress || t.card.notConfigured }}</span>
         </div>
         <template v-else>
           <div class="detail-item">
-            <span class="detail-label">执行命令</span>
-            <span class="detail-value mono">{{ record.command || '未配置' }}</span>
+            <span class="detail-label">{{ t.card.command }}</span>
+            <span class="detail-value mono">{{ record.command || t.card.notConfigured }}</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">参数</span>
+            <span class="detail-label">{{ t.card.args }}</span>
             <span class="detail-value mono">{{ argsCount }}</span>
           </div>
         </template>
@@ -48,7 +48,7 @@
         <button class="action-circle-btn" @click="emit('edit', record)">
           <edit-outlined/>
         </button>
-        <a-popconfirm title="确定删除吗？" @confirm="emit('delete', record.id)">
+        <a-popconfirm :title="t.card.deleteConfirm" @confirm="emit('delete', record.id)">
           <button class="action-circle-btn delete">
             <delete-outlined/>
           </button>
@@ -62,6 +62,7 @@
 import {computed} from 'vue'
 import {ApiOutlined, CopyOutlined, DeleteOutlined, EditOutlined} from '@ant-design/icons-vue'
 import {message} from 'ant-design-vue'
+import {usePageTranslation} from '@/locales/pages.ts'
 import type {AiMcp} from '@/api/aiMcp.ts'
 
 const props = defineProps<{
@@ -69,6 +70,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['edit', 'delete'])
+
+const t = usePageTranslation('ai-mcp')
 
 const argsCount = computed(() => {
   const raw = props.record.args
@@ -84,7 +87,7 @@ const argsCount = computed(() => {
 const copyKey = async (key?: string) => {
   if (!key) return
   await navigator.clipboard.writeText(key)
-  message.success('Key已复制')
+  message.success(t.value.card.keyCopied)
 }
 </script>
 
@@ -138,7 +141,7 @@ const copyKey = async (key?: string) => {
 }
 
 .status-chip.active {
-  background: rgba(34, 197, 94, 0.15);
+  background: color-mix(in srgb, var(--success) 15%, transparent);
 }
 
 .status-chip.active .status-dot {
@@ -186,7 +189,7 @@ const copyKey = async (key?: string) => {
   justify-content: center;
   font-size: 24px;
   color: white;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 20px color-mix(in srgb, #6366f1 30%, transparent);
   border: 1px solid var(--border-default);
 }
 
@@ -230,7 +233,7 @@ const copyKey = async (key?: string) => {
 .key-capsule-btn:hover {
   background: var(--bg-card);
   border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .key-capsule-btn .label {
@@ -328,12 +331,12 @@ const copyKey = async (key?: string) => {
   background: var(--primary-color);
   color: #fff;
   border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .action-circle-btn.delete:hover {
   background: var(--error);
   border-color: var(--error);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--error) 20%, transparent);
 }
 </style>

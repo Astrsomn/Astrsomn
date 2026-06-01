@@ -7,28 +7,28 @@
             <ControlOutlined/>
           </div>
           <div class="header-info">
-            <span class="card-label">实例</span>
+            <span class="card-label">{{ t.instanceCard.label }}</span>
             <span v-if="instance?.instanceKey" class="instance-key-display">{{ instance.instanceKey }}</span>
           </div>
         </div>
       </div>
       <template v-if="instance">
-        <div class="card-title">{{ instance.instanceName || '创意生成参数' }}</div>
+        <div class="card-title">{{ instance.instanceName || t.instanceCard.creativeParams }}</div>
         <div v-if="instance.temperature !== undefined" class="card-subtitle">
           Temp: {{ instance.temperature }}
         </div>
       </template>
       <template v-else>
-        <div class="card-placeholder">请选择或创建实例</div>
+        <div class="card-placeholder">{{ t.instanceCard.selectOrCreate }}</div>
       </template>
       <div class="card-icon">
         <DoubleRightOutlined/>
       </div>
       <div class="card-overlay">
-        <button class="overlay-btn" title="选择实例" @click.stop="emit('select')">
+        <button class="overlay-btn" :title="t.instanceCard.selectInstance" @click.stop="emit('select')">
           <UnorderedListOutlined/>
         </button>
-        <button class="overlay-btn" title="创建实例" @click.stop="emit('create')">
+        <button class="overlay-btn" :title="t.instanceCard.createInstance" @click.stop="emit('create')">
           <PlusOutlined/>
         </button>
       </div>
@@ -39,6 +39,9 @@
 <script lang="ts" setup>
 import {ControlOutlined, DoubleRightOutlined, PlusOutlined, UnorderedListOutlined} from '@ant-design/icons-vue'
 import type {AiInstance} from '@/api/aiInstance'
+import {usePageTranslation} from '@/locales/pages.ts'
+
+const t = usePageTranslation('ai-builder')
 
 interface Props {
   instance?: AiInstance
@@ -64,12 +67,12 @@ const emit = defineEmits<{
   width: 100%;
   height: 100%;
   min-height: 100px;
-  background: var(--ab-glass-bg, rgba(255, 255, 255, 0.8));
+  background: var(--ab-glass-bg);
   backdrop-filter: blur(var(--ab-glass-haze, 10px));
   -webkit-backdrop-filter: blur(var(--ab-glass-haze, 10px));
-  border: 1px solid var(--ab-glass-border, rgba(255, 255, 255, 0.6));
+  border: 1px solid var(--ab-glass-border);
   border-radius: var(--ab-glass-radius, 16px);
-  box-shadow: var(--ab-glass-shadow, 0 4px 20px rgba(0, 0, 0, 0.03));
+  box-shadow: var(--ab-glass-shadow);
   padding: 16px;
   position: relative;
   overflow: hidden;
@@ -81,8 +84,8 @@ const emit = defineEmits<{
 }
 
 .instance-card:hover {
-  border-color: var(--ab-hover-line, #3b82f6);
-  box-shadow: var(--ab-hover-shadow, 0 0 15px rgba(59, 130, 246, 0.15));
+  border-color: var(--ab-hover-line);
+  box-shadow: var(--ab-hover-shadow, 0 0 15px color-mix(in srgb, var(--primary) 15%, transparent));
   transform: translateY(-1px);
 }
 
@@ -164,21 +167,21 @@ const emit = defineEmits<{
 
 .card-subtitle {
   font-size: 12px;
-  color: rgba(16, 185, 129, 0.7);
+  color: color-mix(in srgb, var(--primary) 70%, transparent);
   margin-top: 4px;
 }
 
 .card-placeholder {
   font-size: 12px;
   line-height: 1.4;
-  color: #94a3b8;
+  color: var(--text-tertiary);
   padding: 0;
 }
 
 .card-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--bg-elevated) 10%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
