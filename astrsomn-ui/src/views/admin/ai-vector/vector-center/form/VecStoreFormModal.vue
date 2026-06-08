@@ -200,8 +200,8 @@ import type {AiVecStore} from '@/api/aiVecStore.ts'
 import AstModal from '@/components/home/AstModal.vue'
 import ModelSelectorDrawer from '@/views/admin/ai-config/ai-model/selector/ModelSelectorDrawer.vue'
 import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
-import type {AiModel} from '@/api/aiModel'
-import type {AiAccount} from '@/api/aiAccount'
+import type {AiModel} from '@/api/aiModel.ts'
+import type {AiAccount} from '@/api/aiAccount.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
 
 const t = usePageTranslation('ai-vector')

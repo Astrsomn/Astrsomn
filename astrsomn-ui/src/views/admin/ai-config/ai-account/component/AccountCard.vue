@@ -3,76 +3,43 @@
       :class="{
       'is-selected': selected,
     }"
-      class="account-card-400"
+      class="account-card"
   >
-    <div class="card-header-status">
-      <div :class="account.envCode?.toLowerCase() || 'unset'" class="status-chip">
+    <div class="card-header">
+      <div class="flex items-center gap-2.5">
+        <div class="icon-wrapper">
+          <CustomerServiceOutlined class="icon" />
+        </div>
+        <div class="truncate max-w-[120px]">
+          <h4 class="title">{{ account.accountName || t.card.defaultName }}</h4>
+          <p class="sub-title">{{ account.id || 'AC-XXXX' }}</p>
+        </div>
+      </div>
+      <span :class="account.envCode?.toLowerCase() || 'unset'" class="status-tag">
+        {{ account.envCode || 'UNSET' }}
+      </span>
+    </div>
+
+    <div class="card-body">
+      <span class="body-label flex items-center gap-1">
+        <TransactionOutlined class="label-icon" />
+        {{ t.card.tokens }}
+      </span>
+      <span class="body-value">{{ formatTokens(account.accountTokens) }}</span>
+    </div>
+
+    <div class="card-footer">
+      <span class="status-indicator flex items-center gap-1">
         <span class="status-dot"></span>
-        <span class="status-text">{{ account.envCode || 'UNSET' }}</span>
-      </div>
-      <div class="header-checkbox">
-        <a-checkbox :checked="selected" @change="onCheckboxChange"/>
-      </div>
-    </div>
-
-    <div class="card-content">
-      <div class="avatar-section">
-        <div class="avatar-glow">
-          <CustomerServiceOutlined/>
-        </div>
-        <div class="live-badge" :title="t.card.onlineTitle">
-          <span class="live-dot"></span>
-        </div>
-      </div>
-
-      <h3 :title="account.accountName" class="title">
-        {{ account.accountName || t.card.defaultName }}
-      </h3>
-
-      <div class="token-capsule">
-        <TransactionOutlined class="token-icon"/>
-        <span class="token-num">{{ formatTokens(account.accountTokens).split('.')[0] }}</span>
-        <span v-if="formatTokens(account.accountTokens).includes('.')" class="token-decimal">
-          .{{ formatTokens(account.accountTokens).split('.')[1] }}
-        </span>
-        <span class="token-unit">Tokens</span>
-      </div>
-
-      <div class="description-box">
-        <div class="model-label">{{ t.card.enabledModels }}</div>
-        <div class="model-tags">
-          <template v-if="usedModels.length > 0">
-            <span v-for="m in usedModels.slice(0, 3)" :key="m" class="model-chip">
-              {{ m }}
-            </span>
-            <span v-if="usedModels.length > 3" class="more-text" @click="emitShowModels">
-              +{{ usedModels.length - 3 }}
-            </span>
-          </template>
-          <span v-else class="empty-text">{{ t.card.noModels }}</span>
-          <button class="manage-link" @click.stop="emitShowModels">
-            {{ t.card.manage }}
-            <RightOutlined style="font-size: 10px;"/>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card-footer-action">
-      <div class="user-meta">
-        <user-outlined class="meta-icon"/>
-        <span class="meta-info">{{ account.createUser || 'Sys' }}</span>
-        <span class="divider">/</span>
-        <span class="meta-info">{{ formatTime(account.createTime) }}</span>
-      </div>
-
+        {{ account.envCode ? '已启用' : '未配置' }}
+      </span>
       <div class="action-group">
-        <button class="action-circle-btn" @click="onEdit">
-          <edit-outlined/>
+        <button class="action-btn" @click="onEdit" :title="t.card.edit">
+          <EditOutlined class="action-icon" />
         </button>
         <a-popconfirm :title="t.card.deleteConfirm" @confirm="onDelete">
-          <button class="action-circle-btn delete">
-            <delete-outlined/>
+          <button class="action-btn delete" :title="t.card.delete">
+            <DeleteOutlined class="action-icon" />
           </button>
         </a-popconfirm>
       </div>
@@ -81,14 +48,11 @@
 </template>
 
 <script lang="ts" setup>
-import {computed} from 'vue'
 import {
   CustomerServiceOutlined,
   DeleteOutlined,
   EditOutlined,
-  RightOutlined,
   TransactionOutlined,
-  UserOutlined
 } from '@ant-design/icons-vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 
@@ -116,350 +80,185 @@ const formatTokens = (t?: number | null) => {
   if (t == null) return '0'
   return t >= 1000 ? (t / 1000).toFixed(1) + 'k' : t.toString()
 }
-const formatTime = (t?: string) => t ? t.split('T')[0] : 'N/A'
-
-const usedModels = computed(() => {
-  const raw = props.account.usedModelNames || props.account.usedModelKeys || ''
-  return raw.split(',').map(s => s.trim()).filter(Boolean)
-})
 
 const onEdit = () => emit('edit', props.account)
 const onDelete = () => props.account.id && emit('delete', props.account.id)
-const emitShowModels = () => emit('show-models', props.account)
-const onToggle = (checked: boolean) => {
-  if (props.account.id == null) return
-  emit('toggle', props.account.id, checked)
-}
-const onCheckboxChange = (e: { target?: { checked?: boolean } }) => {
-  onToggle(Boolean(e?.target?.checked))
-}
 </script>
 
 <style scoped>
-.account-card-400 {
-  --primary-color: var(--primary);
-  --text-main: var(--text-primary);
-  --text-muted: var(--text-muted);
-  --card-bg: var(--bg-card);
-  --card-border-subtle: var(--border-subtle);
-  --card-border-default: var(--border-default);
+.account-card {
+  --primary-color: #6366f1;
+  --icon-bg: #eef2ff;
+  --icon-color: #6366f1;
+  --tag-bg: #e0f2fe;
+  --tag-color: #0ea5e9;
 
   width: 100%;
-  max-width: 320px;
-  min-height: 400px;
-  background: var(--card-bg);
-  border-radius: 32px;
-  padding: 24px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  border: 1px solid var(--card-border-default);
+  justify-content: space-between;
+  height: 130px;
+  border: 1px solid var(--border-default);
+  transition: all 0.2s ease;
 }
 
-.account-card-400:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-card);
-  border-color: var(--primary);
+.account-card:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
 }
 
-.account-card-400.is-selected {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 28%, transparent);
+.account-card.is-selected {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
-.card-header-status {
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.icon-wrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--icon-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  color: var(--icon-color);
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sub-title {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-family: monospace;
+  margin: 0;
+  padding: 0;
+}
+
+.status-tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.status-tag.prod,
+.status-tag.dev {
+  background: var(--tag-bg);
+  color: var(--tag-color);
+  border-color: rgba(14, 165, 233, 0.2);
+}
+
+.card-body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  padding: 4px 0;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 10px;
+  color: var(--text-muted);
 }
 
-.status-chip {
+.body-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background: var(--bg-elevated);
-  border-radius: 100px;
+  gap: 4px;
 }
 
-.status-chip.prod,
-.status-chip.dev {
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
+.label-icon {
+  width: 14px;
+  height: 14px;
 }
 
-.status-chip.prod .status-dot,
-.status-chip.dev .status-dot {
-  background: var(--primary);
+.body-value {
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
-.status-chip.prod .status-text,
-.status-chip.dev .status-text {
-  color: var(--primary);
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .status-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--text-muted);
-}
-
-.status-text {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.card-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.avatar-section {
-  position: relative;
-  margin-bottom: 20px;
-}
-
-.avatar-glow {
-  width: 64px;
-  height: 64px;
-  background: var(--primary-gradient);
-  border-radius: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: white;
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--primary) 30%, transparent);
-  border: 1px solid var(--border-default);
-}
-
-.live-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 18px;
-  height: 18px;
-  background: var(--card-bg);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--card-bg);
-}
-
-.live-dot {
-  width: 8px;
-  height: 8px;
   background: var(--success);
-  border-radius: 50%;
-  animation: live-pulse 2s infinite;
-}
-
-.title {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--text-main);
-  margin: 0 0 16px;
-  letter-spacing: -0.5px;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.token-capsule {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
-  padding: 8px 20px;
-  background: var(--bg-elevated);
-  border-radius: 100px;
-  border: 1px solid var(--border-default);
-  margin-bottom: 24px;
-  transition: all 0.2s;
-}
-
-.token-capsule:hover {
-  border-color: var(--primary-color);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 10%, transparent);
-}
-
-.token-icon {
-  font-size: 13px;
-  color: var(--primary-color);
-  margin-right: 6px;
-}
-
-.token-num {
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1;
-  font-family: 'Poppins', sans-serif;
-  color: var(--text-main);
-}
-
-.token-decimal {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-main);
-  opacity: 0.8;
-}
-
-.token-unit {
-  font-size: 11px;
-  font-weight: 600;
-  margin-left: 2px;
-  color: var(--text-muted);
-}
-
-.description-box {
-  flex: 1;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.model-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.model-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-  justify-content: center;
-}
-
-.model-chip {
-  background: var(--primary-hover);
-  color: var(--primary);
-  padding: 4px 12px;
-  border-radius: 100px;
-  font-size: 11px;
-  font-weight: 500;
-  border: 1px solid var(--primary);
-}
-
-.more-text {
-  font-size: 11px;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.empty-text {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-.manage-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  font-size: 11px;
-  cursor: pointer;
-  padding: 0;
-  margin-left: auto;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.manage-link:hover {
-  opacity: 0.7;
-}
-
-.card-footer-action {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-subtle);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.user-meta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.meta-icon {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.meta-info {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.divider {
-  color: var(--border-default);
-  font-size: 10px;
 }
 
 .action-group {
   display: flex;
-  justify-content: center;
-  gap: 12px;
+  gap: 6px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
 }
 
-.action-circle-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--border-default);
+.account-card:hover .action-group {
+  opacity: 1;
+}
+
+.action-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
   background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-muted);
 }
 
-.action-circle-btn:hover {
+.action-btn:hover {
   background: var(--primary-color);
   color: #fff;
-  border-color: var(--primary-color);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
-.action-circle-btn.delete:hover {
+.action-btn.delete:hover {
   background: var(--error);
-  border-color: var(--error);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--error) 20%, transparent);
 }
 
-@keyframes live-pulse {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 70%, transparent);
-  }
-  70% {
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 0%, transparent);
-  }
-  100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 0%, transparent);
-  }
+.action-icon {
+  width: 14px;
+  height: 14px;
 }
 </style>

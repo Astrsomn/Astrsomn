@@ -218,12 +218,58 @@
       </div>
     </div>
   </Teleport>
+  
+  <!-- 删除数据源确认对话框 -->
+  <a-modal
+      v-model:open="deleteConfirmModalVisible"
+      :title="t.vectorCenter.sidebar.deleteSourceConfirm"
+      :footer="null"
+      width="520px"
+  >
+    <div class="delete-confirm-content">
+      <div class="delete-confirm-warning">
+        <WarningOutlined class="warning-icon" />
+        <span>{{ t.vectorCenter.sidebar.deleteSourceWarning }}</span>
+      </div>
+      
+      <div v-if="deleteConfirmSource" class="delete-confirm-detail">
+        <div class="detail-item">
+          <span class="detail-label">{{ t.vectorCenter.sidebar.sourceName }}:</span>
+          <span class="detail-value">{{ deleteConfirmSource.name }}</span>
+        </div>
+        <div v-if="deleteConfirmSource.dbs.length > 0" class="detail-item">
+          <span class="detail-label">{{ t.vectorCenter.sidebar.associatedDatabases }}:</span>
+          <span class="detail-value">{{ deleteConfirmSource.dbs.length }} {{ t.vectorCenter.sidebar.items }}</span>
+        </div>
+      </div>
+      
+      <div class="delete-confirm-input-group">
+        <label class="delete-confirm-label">{{ t.vectorCenter.sidebar.enterSourceName }}</label>
+        <a-input
+            v-model:value="deleteConfirmInput"
+            :placeholder="t.vectorCenter.sidebar.enterSourceNamePlaceholder"
+            class="delete-confirm-input"
+        />
+      </div>
+      
+      <div class="delete-confirm-actions">
+        <a-button @click="closeDeleteConfirmModal">{{ t.vectorCenter.sidebar.cancel }}</a-button>
+        <a-button
+            type="primary"
+            danger
+            @click="confirmDeleteSource"
+        >
+          {{ t.vectorCenter.sidebar.confirmDelete }}
+        </a-button>
+      </div>
+    </div>
+  </a-modal>
 </template>
 
 <script lang="ts" setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
-import {ClusterOutlined, DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import {ClusterOutlined, DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, WarningOutlined} from '@ant-design/icons-vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
@@ -232,8 +278,8 @@ import SourceCard from './sidebar/SourceCard.vue'
 import DbNode from './sidebar/DbNode.vue'
 import SourceContextMenu from './sidebar/SourceContextMenu.vue'
 import DbContextMenu from './sidebar/DbContextMenu.vue'
-import VecSourceFormModal from '@/views/admin/ai-vector/vec-source/VecSourceFormModal.vue'
-import VecStoreFormModal from '@/views/admin/ai-vector/vec-store/VecStoreFormModal.vue'
+import VecSourceFormModal from '@/views/admin/ai-vector/vector-center/form/VecSourceFormModal.vue'
+import VecStoreFormModal from '@/views/admin/ai-vector/vector-center/form/VecStoreFormModal.vue'
 import {type AiVecSource, aiVecSourceApi} from '@/api/aiVecSource.ts'
 import {type AiVecStore, aiVecStoreApi} from '@/api/aiVecStore.ts'
 import {systemExtensionApi} from '@/api/systemExtension.ts'
@@ -531,20 +577,49 @@ const openEditSource = async (id: number | string) => {
   sourceModalOpen.value = true
 }
 
-const deleteSource = async (id: number | string) => {
-  const source = sourceTree.value.find(s => String(s.id) === String(id))
-  if (source && source.dbs.length > 0) {
-    message.warning(t.value.vectorCenter.sidebar.deleteSourceWithStores)
+const deleteConfirmModalVisible = ref(false)
+const deleteConfirmSource = ref<Source | null>(null)
+const deleteConfirmInput = ref('')
+
+const openDeleteConfirmModal = (source: Source) => {
+  deleteConfirmSource.value = source
+  deleteConfirmInput.value = ''
+  deleteConfirmModalVisible.value = true
+}
+
+const closeDeleteConfirmModal = () => {
+  deleteConfirmModalVisible.value = false
+  deleteConfirmSource.value = null
+  deleteConfirmInput.value = ''
+}
+
+const confirmDeleteSource = async () => {
+  const source = deleteConfirmSource.value
+  if (!source) return
+  
+  // 验证输入的数据源名称是否正确
+  if (deleteConfirmInput.value.trim() !== source.name) {
+    message.warning(t.value.vectorCenter.sidebar.deleteConfirmNameMismatch)
     return
   }
+  
   try {
-    const msg = await aiVecSourceApi.delete([id])
+    const msg = await aiVecSourceApi.delete([source.id])
     message.success(msg)
     emit('changed')
+    closeDeleteConfirmModal()
   } catch (error) {
     const err = error as { message?: string }
     message.error(err?.message || t.value.vectorCenter.sidebar.deleteSourceFailed)
   }
+}
+
+const deleteSource = async (id: number | string) => {
+  const source = sourceTree.value.find(s => String(s.id) === String(id))
+  if (!source) return
+  
+  // 直接打开确认对话框，允许级联删除
+  openDeleteConfirmModal(source)
 }
 
 const handleSourceSubmit = async (payload: AiVecSource) => {
@@ -929,5 +1004,83 @@ watch(
   text-align: center;
   color: var(--text-muted, #94a3b8);
   font-size: 12px;
+}
+
+/* 删除确认对话框样式 */
+.delete-confirm-content {
+  padding: 8px 0;
+}
+
+.delete-confirm-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  
+  .warning-icon {
+    font-size: 20px;
+    color: var(--warning);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  span {
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+
+.delete-confirm-detail {
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--border-default);
+  }
+}
+
+.detail-label {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.detail-value {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.delete-confirm-input-group {
+  margin-bottom: 24px;
+}
+
+.delete-confirm-label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.delete-confirm-input {
+  width: 100%;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 </style>

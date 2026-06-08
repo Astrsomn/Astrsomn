@@ -32,7 +32,7 @@
 <script lang="ts" setup>
 import {ref} from 'vue'
 import {CloseOutlined, DatabaseOutlined, PlusOutlined} from '@ant-design/icons-vue'
-import VecStoreSelectorDrawer from '@/views/admin/ai-vector/vec-store/selector/VecStoreSelectorDrawer.vue'
+import VecStoreSelectorDrawer from '@/views/admin/ai-vector/vector-center/form/VecStoreSelectorDrawer.vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 
 defineProps<{
