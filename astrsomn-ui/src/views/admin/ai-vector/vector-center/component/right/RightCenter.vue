@@ -263,7 +263,7 @@ import {
 } from '@ant-design/icons-vue';
 import DocFileCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFileCard.vue';
 import DocFolderCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFolderCard.vue';
-import VecDocFormModal from '@/views/admin/ai-vector/vec-doc/VecDocFormModal.vue'
+import VecDocFormModal from '@/views/admin/ai-vector/vector-center/form/VecDocFormModal.vue'
 import SelectionOverlay from '@/views/admin/ai-vector/vector-center/component/right/SelectionOverlay.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type AiVecDoc, aiVecDocApi} from '@/api/aiVecDoc.ts'
