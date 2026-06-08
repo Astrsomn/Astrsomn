@@ -1,5 +1,19 @@
 import request from '@/utils/request'
-import type {LoginRequest, LoginResponse} from '@/types'
+
+interface LoginRequest {
+    username: string
+    password: string
+}
+
+interface LoginResponse {
+    token: string
+    userInfo: {
+        id: string
+        username: string
+        email?: string
+        userRole?: string
+    }
+}
 
 type BackendLoginResponse = {
     userId: number | string
