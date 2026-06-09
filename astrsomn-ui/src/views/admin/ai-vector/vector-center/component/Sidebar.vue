@@ -1,8 +1,7 @@
 <template>
-  <SidebarShell :collapsed="collapsed" @toggle-collapse="emit('toggle-collapse')">
+  <SidebarShell :width="288">
     <template #top>
       <AstSearchInput
-          v-if="!collapsed"
           v-model="searchText"
           class="sidebar-search-pill"
           layout="fluid"
@@ -11,29 +10,7 @@
       />
     </template>
 
-    <!-- 折叠模式：源图标列表 -->
-    <div v-if="collapsed" class="collapsed-content">
-      <div
-          v-for="source in sourceTree"
-          :key="source.id"
-          class="collapsed-source-item"
-          @click="selectSource(source.id)"
-          @mouseenter="openHoverPanel(source.id, $event)"
-          @mouseleave="scheduleCloseHoverPanel"
-      >
-        <img v-if="source.providerAvatar" :src="source.providerAvatar" alt="" class="collapsed-source-avatar"/>
-        <ClusterOutlined v-else class="collapsed-source-icon"/>
-      </div>
-      <a-tooltip placement="right">
-        <template #title>{{ t.vectorCenter.sidebar.addSourceTooltip }}</template>
-        <div class="collapsed-add-btn" @click="handleAddSource">
-          <PlusOutlined class="collapsed-add-icon"/>
-        </div>
-      </a-tooltip>
-    </div>
-
-    <!-- 展开模式：源树 -->
-    <div v-else class="source-tree" @contextmenu="onSidebarBlankContextMenu">
+    <div class="source-tree" @contextmenu="onSidebarBlankContextMenu">
       <div
           v-for="source in sourceTree"
           :key="source.id"
@@ -88,8 +65,7 @@
       </div>
     </div>
 
-    <!-- 添加数据源按钮（展开模式） -->
-    <div v-if="!collapsed" class="add-source-section">
+    <div class="add-source-section">
       <div class="add-source-btn" @click="handleAddSource">
         <PlusOutlined class="add-source-icon"/>
         <span>{{ t.vectorCenter.sidebar.addSource }}</span>
@@ -98,7 +74,6 @@
 
     <template #footer>
       <SidebarFooter
-          :collapsed="collapsed"
           :enabled-extensions="enabledExtensions"
           @open-marketplace="goPluginMarketplace"
       />
@@ -179,46 +154,6 @@
       @cancel="marketplaceOpen = false"
       @update:open="marketplaceOpen = $event"
   />
-  <!-- 悬浮面板（折叠模式下 hover source 时弹出） -->
-  <Teleport to="body">
-    <div
-        v-if="hoverPanelVisible && hoverSource"
-        class="hover-panel-overlay"
-        @mouseenter="onHoverPanelEnter"
-        @mouseleave="onHoverPanelLeave"
-    >
-      <div
-          class="hover-panel"
-          :style="{ left: hoverPanelX + 'px', top: hoverPanelY + 'px' }"
-      >
-        <SourceCard
-            :ip="hoverSource.ip"
-            :is-checking="checkingSourceMap[String(hoverSource.id)] === true"
-            :is-connected="hoverSource.connected"
-            :is-open="true"
-            :port="hoverSource.port"
-            :provider-avatar="hoverSource.providerAvatar"
-            :source-name="hoverSource.name"
-            :source-type="hoverSource.type"
-            @toggle="selectSource(hoverSource.id)"
-        />
-        <div v-if="hoverSource.dbs.length" class="hover-panel-dbs">
-          <DbNode
-              v-for="db in hoverSource.dbs"
-              :key="db.id"
-              :active="db.active"
-              :db-name="db.dbName"
-              :dim="db.dim"
-              :is-selected="String(selectedStoreId) === String(db.id)"
-              :model-name="db.modelName"
-              @select="onHoverSelectDb(hoverSource.id, db.id)"
-          />
-        </div>
-        <div v-else class="hover-panel-empty">{{ t.vectorCenter.sidebar.noDatabase }}</div>
-      </div>
-    </div>
-  </Teleport>
-  
   <!-- 删除数据源确认对话框 -->
   <a-modal
       v-model:open="deleteConfirmModalVisible"
@@ -269,7 +204,7 @@
 <script lang="ts" setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
-import {ClusterOutlined, DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, WarningOutlined} from '@ant-design/icons-vue'
+import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, WarningOutlined} from '@ant-design/icons-vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
@@ -288,82 +223,21 @@ import ExtensionMarketplaceDialog
 
 const t = usePageTranslation('ai-vector')
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   sources: AiVecSource[]
   stores: AiVecStore[]
   selectedStoreId?: number | string
-  collapsed?: boolean
-}>()
+}>(), {})
 
 const emit = defineEmits<{
   'select-source': [id: number | string]
   'select-store': [id: number | string]
   changed: []
-  'toggle-collapse': []
 }>()
 
 const searchText = ref('')
 const handleSearch = () => {
 
-}
-
-
-const hoverSourceId = ref<number | string | null>(null)
-const hoverPanelX = ref(0)
-const hoverPanelY = ref(0)
-const hoverPanelVisible = ref(false)
-let hoverCloseTimer: ReturnType<typeof setTimeout> | null = null
-let hoverOpenTimer: ReturnType<typeof setTimeout> | null = null
-
-const clearHoverTimer = () => {
-  if (hoverCloseTimer) {
-    clearTimeout(hoverCloseTimer)
-    hoverCloseTimer = null
-  }
-  if (hoverOpenTimer) {
-    clearTimeout(hoverOpenTimer)
-    hoverOpenTimer = null
-  }
-}
-
-const openHoverPanel = (sourceId: number | string, e: MouseEvent) => {
-  clearHoverTimer()
-  hoverOpenTimer = setTimeout(() => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-    hoverSourceId.value = sourceId
-    hoverPanelX.value = rect.right + 6
-    hoverPanelY.value = rect.top
-    hoverPanelVisible.value = true
-  }, 150)
-}
-
-const scheduleCloseHoverPanel = () => {
-  clearHoverTimer()
-  hoverCloseTimer = setTimeout(() => {
-    hoverPanelVisible.value = false
-    hoverSourceId.value = null
-  }, 200)
-}
-
-const onHoverPanelEnter = () => {
-  clearHoverTimer()
-}
-
-const onHoverPanelLeave = () => {
-  scheduleCloseHoverPanel()
-}
-
-const hoverSource = computed(() => {
-  if (hoverSourceId.value == null) return null
-  return sourceTree.value.find(s => String(s.id) === String(hoverSourceId.value)) || null
-})
-
-const onHoverSelectDb = (sourceId: number | string, dbId: number | string) => {
-  pendingStoreSyncSourceKey.value = String(sourceId)
-  emit('select-source', sourceId)
-  emit('select-store', dbId)
-  hoverPanelVisible.value = false
-  hoverSourceId.value = null
 }
 
 const openKeys = ref<Array<number | string>>([])
@@ -834,68 +708,6 @@ watch(
   background: color-mix(in srgb, var(--error) 10%, transparent) !important;
 }
 
-
-.collapsed-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 0;
-  width: 100%;
-}
-
-.collapsed-source-item {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background: var(--bg-input);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-
-.collapsed-source-item:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-.collapsed-source-avatar {
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-  border-radius: var(--radius-lg);
-}
-
-.collapsed-source-icon {
-  font-size: 16px;
-  color: var(--text-secondary);
-}
-
-.collapsed-add-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background: var(--bg-input);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-
-.collapsed-add-btn:hover {
-  background: var(--primary-hover);
-  color: var(--primary);
-}
-
-.collapsed-add-icon {
-  font-size: 16px;
-  color: var(--text-muted);
-}
 
 .sidebar-search-pill {
   flex: 1;

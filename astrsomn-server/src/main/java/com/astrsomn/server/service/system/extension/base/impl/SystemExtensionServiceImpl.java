@@ -8,6 +8,7 @@ import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.server.event.SystemMessageEventCoordinator;
 import com.astrsomn.server.mapper.SystemExtensionMapper;
 import com.astrsomn.server.plugin.metadata.ExtensionJarMetadataReader;
 import com.astrsomn.server.plugin.registry.PluginDirectoryExtensionSyncService;
@@ -15,9 +16,12 @@ import com.astrsomn.server.plugin.registry.SystemExtensionRegistry;
 import com.astrsomn.server.service.system.extension.base.SystemExtensionService;
 import com.astrsomn.server.service.system.extension.lifecycle.SystemExtensionLifecycleOrchestrator;
 import com.astrsomn.server.util.ExtensionJarUtil;
+import com.astrsomn.starter.runtime.context.EnvScope;
 import com.astrsomn.starter.runtime.plugin.AstrsomnPluginManager;
 import com.astrsomn.system.constant.SystemExtensionEnum;
+import com.astrsomn.system.constant.SystemMessageEnum;
 import com.astrsomn.system.dto.extension.*;
+import com.astrsomn.system.dto.systemmessage.SystemMessageRecordCommand;
 import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.astrsomn.system.exception.SystemExtensionErrorEnum;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -51,6 +55,7 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
     private final SystemExtensionLifecycleOrchestrator lifecycleOrchestrator;
     private final ApplicationContext applicationContext;
     private final PluginDirectoryExtensionSyncService pluginDirectoryExtensionSyncService;
+    private final SystemMessageEventCoordinator systemMessageEventCoordinator;
 
     
     private static void fillAvatarFromDescriptors(
@@ -162,7 +167,33 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
 
     @Override
     public BaseResponse<String> uninstall(Long id) {
-        return lifecycleOrchestrator.uninstall(id);
+        // 先取出扩展信息，失败时用于记录失败消息；卸载期间删除会拿不到，所以这里先快照。
+        SystemExtensionEntity snapshot = getById(id);
+        if (Objects.isNull(snapshot)) {
+            throw new BusinessException(SystemExtensionErrorEnum.EXTENSION_NOT_FOUND);
+        }
+        try {
+            BaseResponse<String> resp = lifecycleOrchestrator.uninstall(id);
+            if (resp != null && resp.isSuccess()) {
+                recordExtensionMessage(snapshot,
+                        SystemMessageEnum.MessageTypeEnum.PLUGIN_UNINSTALLED,
+                        SystemMessageEnum.MessageLevelEnum.SUCCESS,
+                        null);
+            }
+            return resp;
+        } catch (BusinessException be) {
+            recordExtensionMessage(snapshot,
+                    SystemMessageEnum.MessageTypeEnum.PLUGIN_UNINSTALL_FAILED,
+                    SystemMessageEnum.MessageLevelEnum.ERROR,
+                    String.valueOf(be.getCode()));
+            throw be;
+        } catch (Exception e) {
+            recordExtensionMessage(snapshot,
+                    SystemMessageEnum.MessageTypeEnum.PLUGIN_UNINSTALL_FAILED,
+                    SystemMessageEnum.MessageLevelEnum.ERROR,
+                    String.valueOf(SystemExtensionErrorEnum.EXTENSION_UNINSTALL_FAILED.getCode()));
+            throw e;
+        }
     }
 
     @Override
@@ -241,6 +272,12 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             // Refresh plugin container
             refreshPluginSafely();
 
+            // 记录系统消息 + 推送前端通知
+            recordExtensionMessage(entity,
+                    SystemMessageEnum.MessageTypeEnum.PLUGIN_INSTALLED,
+                    SystemMessageEnum.MessageLevelEnum.SUCCESS,
+                    null);
+
             return BaseResponse.success("Uploaded and registered successfully");
 
         } finally {
@@ -291,6 +328,65 @@ public class SystemExtensionServiceImpl extends ServiceImpl<SystemExtensionMappe
             pluginDirectoryExtensionSyncService.syncDiscoveredPlugins();
         } catch (Exception e) {
             log.error("Post-upload reloadPlugins failed, retry manually: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 将插件生命周期事件落库 system_message，并经由 SSE 推送给前端。
+     * 通知失败不影响主流程。
+     */
+    private void recordExtensionMessage(SystemExtensionEntity entity,
+                                        SystemMessageEnum.MessageTypeEnum type,
+                                        SystemMessageEnum.MessageLevelEnum level,
+                                        String errorCode) {
+        if (Objects.isNull(entity) || Objects.isNull(type) || Objects.isNull(level)) {
+            return;
+        }
+        try {
+            String name = StringUtils.trimToNull(entity.getExtensionName());
+            if (name == null) {
+                name = StringUtils.trimToNull(entity.getExtensionKey());
+            }
+            if (name == null) {
+                name = "未知插件";
+            }
+            String version = StringUtils.trimToNull(entity.getVersion());
+            String display = version != null ? name + " v" + version : name;
+
+            String title;
+            String content;
+            if (type == SystemMessageEnum.MessageTypeEnum.PLUGIN_INSTALLED) {
+                title = "插件已安装：" + display;
+                content = "插件 " + display + " 已上传并注册成功，状态为「已安装」";
+            } else if (type == SystemMessageEnum.MessageTypeEnum.PLUGIN_UNINSTALLED) {
+                title = "插件已卸载：" + display;
+                content = "插件 " + display + " 已从插件目录移除并删除记录";
+            } else if (type == SystemMessageEnum.MessageTypeEnum.PLUGIN_INSTALL_FAILED) {
+                title = "插件安装失败：" + display;
+                content = "插件 " + display + " 安装失败";
+            } else {
+                title = display;
+                content = display;
+            }
+
+            SystemMessageRecordCommand cmd = new SystemMessageRecordCommand();
+            cmd.setMessageType(type.getCode());
+            cmd.setMessageLevel(level.getCode());
+            cmd.setReadStatus(SystemMessageEnum.ReadStatusEnum.UNREAD.getCode());
+            cmd.setTitle(title);
+            cmd.setContent(content);
+            cmd.setRefType(SystemMessageEnum.RefTypeEnum.EXTENSION.getCode());
+            cmd.setRefId(entity.getId());
+            cmd.setRefKey(entity.getExtensionKey());
+            cmd.setSource("plugin-marketplace");
+            cmd.setErrorCode(errorCode);
+            cmd.setEnvCode(EnvScope.get());
+
+            systemMessageEventCoordinator.recordAndPush(cmd);
+        } catch (Exception ex) {
+            // 仅记录日志，不影响主业务
+            log.warn("记录插件系统消息失败: type={}, key={}, err={}",
+                    type, entity.getExtensionKey(), ex.getMessage());
         }
     }
 

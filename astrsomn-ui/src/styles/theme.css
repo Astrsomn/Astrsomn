@@ -1,49 +1,56 @@
+/* =====================================================================
+ * Astrsomn Design Tokens
+ *  - 暗色模式 (default)：深蓝专业风 / Deep Blue Professional
+ *  - 浅色模式 (.light)
+ *  - 仅保留在源码 (vue/ts/css) 中实际被引用的变量
+ * ===================================================================== */
+
 :root {
     /* ── Background ── */
-    --bg-base: #090e15;
-    --bg-surface: #0c1521;
-    --bg-elevated: #111a2e;
-    --bg-card: #121e2d;
-    --bg-input: #182436;
+    /* 深蓝分层背景：越往下越深，让卡片/侧栏有清晰的层级感和专业气质 */
+    --bg-base: #0a1929;          /* 页面底色 */
+    --bg-surface: #102841;       /* 侧栏/二级容器 */
+    --bg-elevated: #163352;      /* 弹层/下拉 */
+    --bg-card: #1a3a5e;          /* 卡片/对话框 */
+    --bg-input: #1e4267;         /* 输入框/可编辑区域 */
 
     /* ── Border ── */
-    --border-default: #1e2f46;
-    --border-subtle: rgba(255, 255, 255, 0.06);
-    --border-input: #273a57;
+    --border-default: #1f4670;   /* 默认描边：蓝灰调，避免死黑 */
+    --border-subtle: rgba(148, 184, 230, 0.10);
+    --border-input: #2a5787;     /* 输入聚焦前的描边 */
 
     /* ── Text ── */
-    --text-primary: #e1e9f5;
-    --text-heading: #ffffff;
-    --text-secondary: #7b93b6;
-    --text-muted: #5c7394;
-    --text-placeholder: #5c7394;
-    --text-hover: #60a5fa;
+    --text-primary: #e8f0fc;     /* 正文 - 冷白，确保在深蓝底上清晰 */
+    --text-heading: #ffffff;     /* 标题 - 纯白 */
+    --text-secondary: #a4b8d4;   /* 次要文本 - 蓝灰，足够辨识 */
+    --text-muted: #7a8fab;       /* 弱化文本 */
+    --text-placeholder: #6c7f9e;
 
-    /* ── Accent / Primary（全局蓝色系） ── */
-    --primary: #3b82f6;
-    --primary-light: #60a5fa;
-    --primary-hover: rgba(59, 130, 246, 0.2);
+    /* ── Accent / Primary（深蓝主色） ── */
+    --primary: #4a90ff;          /* 主品牌色：偏明亮的天蓝，专业又不沉闷 */
+    --primary-light: #7eb1ff;    /* 悬浮/次级按钮 */
+    --primary-hover: rgba(74, 144, 255, 0.18);
     --primary-gradient: linear-gradient(90deg, #2563eb, #38bdf8);
     --logo-gradient: linear-gradient(135deg, #2563eb, #0ea5e9);
 
     /* ── Semantic ── */
-    --accent-blue: #3b82f6;
-    --accent-cyan: #00e4ff;
+    --accent-blue: #4a90ff;
+    --accent-cyan: #38bdf8;
     --section-title: #93c5fd;
 
-    /* 白/浅底浮层卡片：描边 + 多层阴影，偏「实体」堆叠感 */
-    --shadow-pane-elevated: 0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 2px 4px rgba(0, 0, 0, 0.2),
-    0 10px 24px rgba(0, 0, 0, 0.32),
-    0 20px 48px rgba(0, 0, 0, 0.22);
+    /* ── Status ── */
     --success: #10b981;
     --warning: #f59e0b;
     --error: #ef4444;
 
     /* ── Shadow ── */
-    --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
-    /* 列表概览 / 工具栏控件：与 AstOverview 一致的柔和高光 */
+    /* 卡片阴影保持深蓝氛围：底层用蓝黑色调，叠在深蓝卡片上更自然 */
+    --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.35);
     --shadow-overview: 0 6px 14px color-mix(in srgb, var(--primary) 22%, transparent);
+    --shadow-pane-elevated: 0 0 0 1px rgba(74, 144, 255, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 10px 24px rgba(0, 0, 0, 0.32),
+    0 20px 48px rgba(0, 0, 0, 0.22);
     --success-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
 
     /* ── Radius ── */
@@ -53,137 +60,61 @@
     --radius-xl: 14px;
     --radius-pro: 30px;
     --radius-max: 50px;
-    /* ── Chat input panel (placeholder / send) ── */
-    --chat-input-placeholder: #c8d8ec;
-    --chat-send-btn-bg: linear-gradient(135deg, #1677ff, #00b4ff);
-    --chat-send-btn-shadow: 0 2px 12px rgba(0, 180, 255, 0.4);
 
-    /* ── Chat message (AstroChatMessage) ── */
+    /* ── Chat (AstroChat) ── */
     --chat-ai-card-bg: var(--bg-card);
     --chat-ai-card-border: var(--border-default);
     --chat-ai-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
     --chat-answer-bg: var(--bg-card);
-    --chat-thought-bg: rgba(255, 255, 255, 0.04);
-    --chat-thought-border: var(--border-subtle);
-    --chat-thought-head-hover: rgba(255, 255, 255, 0.06);
-    --chat-thought-title: var(--text-secondary);
-    --chat-thought-body: var(--text-muted);
-    --chat-markdown-text: var(--text-primary);
-    --chat-markdown-heading: var(--text-heading);
-    --chat-markdown-muted: var(--text-secondary);
-    --chat-blockquote-bg: var(--bg-elevated);
-    --chat-blockquote-border: var(--border-default);
-    --chat-inline-code-bg: var(--bg-input);
-    --chat-inline-code-text: var(--text-primary);
-    --chat-hr: var(--border-default);
-    --chat-link: var(--accent-blue);
-    --chat-stream-placeholder: var(--text-muted);
-    --chat-action-text: var(--text-muted);
-    --chat-action-hover-bg: rgba(255, 255, 255, 0.06);
-    --chat-avatar-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
     --chat-ai-avatar-bg: var(--bg-card);
     --chat-ai-avatar-border: var(--border-default);
     --chat-ai-avatar-icon: var(--accent-blue);
-    --chat-user-avatar-bg: linear-gradient(145deg, rgba(30, 64, 175, 0.45), var(--bg-elevated));
+    --chat-avatar-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    --chat-markdown-text: var(--text-primary);
+    --chat-send-btn-shadow: 0 2px 12px rgba(74, 144, 255, 0.45);
+    --chat-user-avatar-bg: linear-gradient(145deg, rgba(30, 64, 175, 0.55), var(--bg-elevated));
     --chat-user-avatar-border: var(--border-input);
     --chat-user-avatar-text: var(--section-title);
-    --chat-user-bubble-bg: rgba(255, 255, 255, 0.06);
-    --chat-user-bubble-border: var(--border-subtle);
-    --chat-user-bubble-text: var(--text-primary);
-    --chat-user-bubble-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    --chat-user-link: var(--accent-blue);
-
-    /* 链式步骤 / 工具块 / 翠绿回答区 */
-    --chat-chain-line: rgba(255, 255, 255, 0.12);
-    --chat-chain-node-ring: var(--bg-base);
-    --chat-chain-thought-icon-bg: rgba(245, 158, 11, 0.2);
-    --chat-chain-thought-icon: #fbbf24;
-    --chat-chain-tool-icon-bg: rgba(59, 130, 246, 0.2);
-    --chat-chain-tool-icon: #60a5fa;
-    --chat-chain-card-bg: var(--bg-card);
-    --chat-chain-card-border: var(--border-default);
-    --chat-chain-card-shadow: var(--chat-ai-card-shadow);
-    --chat-chain-card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.25);
-    --chat-chain-card-head-bg: rgba(255, 255, 255, 0.03);
-    --chat-chain-card-title: var(--text-secondary);
-    --chat-chain-card-body: var(--text-muted);
-    --chat-chain-chevron: var(--text-muted);
-    --chat-tool-args-label: #94a3b8;
-    --chat-tool-args-bg: #0f172a;
-    --chat-tool-args-text: #cbd5e1;
-    --chat-tool-result-label: #38bdf8;
-    --chat-tool-result-bg: rgba(59, 130, 246, 0.12);
-    --chat-tool-result-border: rgba(59, 130, 246, 0.35);
-    --chat-tool-result-text: #93c5fd;
-    --chat-answer-emerald-bg: rgba(59, 130, 246, 0.10);
-    --chat-answer-emerald-border: rgba(59, 130, 246, 0.30);
-    --chat-answer-emerald-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    --chat-answer-emerald-text: var(--text-primary);
-    --chat-answer-emerald-heading: var(--text-heading);
-    --chat-answer-emerald-muted: var(--text-secondary);
-    --chat-answer-emerald-link: #60a5fa;
-    --chat-answer-emerald-blockquote-bg: rgba(59, 130, 246, 0.08);
-    --chat-answer-emerald-blockquote-border: rgba(59, 130, 246, 0.40);
-    --chat-answer-emerald-inline-code-bg: rgba(59, 130, 246, 0.15);
-    --chat-answer-emerald-inline-code-text: #93c5fd;
-    --chat-answer-emerald-avatar-bg: rgba(59, 130, 246, 0.22);
-    --chat-answer-emerald-avatar-border: rgba(59, 130, 246, 0.40);
-    --chat-answer-emerald-avatar-icon: #60a5fa;
 
     /* ── Model assembly (AgentForm, assembly/) ── */
     --assembly-palette-bg: var(--bg-card);
     --assembly-palette-border: var(--border-default);
-    --assembly-pane-divider: var(--border-default);
-    --assembly-label-chat: var(--accent-blue);
-    --assembly-label-emb: #a78bfa;
-    --assembly-label-img: #fb923c;
-    --assembly-label-tool: #4ade80;
-    --assembly-label-mcp: #c084fc;
-    --assembly-search-icon: var(--text-muted);
-    --assembly-empty-text: var(--text-muted);
-    --assembly-btn-emb-bg: #7c3aed;
-    --assembly-btn-emb-border: #7c3aed;
-    --assembly-btn-img-bg: #ea580c;
-    --assembly-btn-img-border: #ea580c;
-    --assembly-btn-tool-bg: #16a34a;
-    --assembly-btn-tool-border: #16a34a;
-    --assembly-btn-mcp-bg: #9333ea;
-    --assembly-btn-mcp-border: #9333ea;
-
-    --assembly-chip-bg: var(--bg-elevated);
-    --assembly-chip-border: var(--border-subtle);
-    --assembly-chip-hover-border: var(--accent-blue);
-    --assembly-chip-hover-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-    --assembly-chip-badge-bg: rgba(59, 130, 246, 0.18);
-    --assembly-chip-badge-text: var(--section-title);
-    --assembly-chip-title: var(--text-primary);
-    --assembly-chip-sub: var(--text-secondary);
-
     --assembly-canvas-bg: var(--bg-base);
     --assembly-canvas-border: var(--border-default);
     --assembly-canvas-header-bg: var(--bg-card);
     --assembly-canvas-header-border: var(--border-default);
     --assembly-canvas-header-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    --assembly-canvas-accent: var(--accent-blue);
     --assembly-form-label: var(--text-muted);
     --assembly-btn-ghost-border: var(--border-input);
     --assembly-btn-ghost-text: var(--text-secondary);
-    --assembly-btn-primary-shadow: 0 4px 10px rgba(59, 130, 246, 0.35);
-    --assembly-drop-zone-inner-bg: rgba(255, 255, 255, 0.05);
+    --assembly-btn-primary-shadow: 0 4px 10px rgba(74, 144, 255, 0.35);
+    --assembly-drop-zone-inner-bg: rgba(148, 184, 230, 0.06);
+    --assembly-knowledge-section-bg: var(--bg-card);
+    --assembly-empty-text: var(--text-muted);
+    --assembly-placeholder: var(--text-muted);
     --assembly-placed-card-bg: var(--bg-elevated);
     --assembly-placed-title: var(--text-heading);
     --assembly-placed-sub: var(--text-secondary);
-    --assembly-placeholder: var(--text-muted);
-    --assembly-knowledge-section-bg: var(--bg-card);
-    --assembly-canvas-accent: var(--accent-blue);
+
+    /* 拖拽放置区 - 五种模型类型 (eligible: 可放置 / over: 正在拖入) */
+    --assembly-chip-bg: var(--bg-elevated);
+    --assembly-chip-border: var(--border-subtle);
+    --assembly-chip-hover-border: var(--accent-blue);
+    --assembly-chip-hover-shadow: 0 2px 8px rgba(74, 144, 255, 0.25);
+    --assembly-chip-badge-bg: rgba(74, 144, 255, 0.18);
+    --assembly-chip-badge-text: var(--section-title);
+    --assembly-chip-title: var(--text-primary);
+    --assembly-chip-sub: var(--text-secondary);
 
     --assembly-dz-border: var(--border-default);
     --assembly-dz-bg: var(--bg-input);
-    --assembly-dz-eligible-border: rgba(59, 130, 246, 0.55);
-    --assembly-dz-eligible-bg: rgba(59, 130, 246, 0.1);
-    --assembly-dz-eligible-inset: rgba(59, 130, 246, 0.22);
-    --assembly-dz-chat-eligible-border: #3b82f6;
-    --assembly-dz-chat-eligible-bg: rgba(59, 130, 246, 0.14);
-    --assembly-dz-chat-eligible-inset: rgba(59, 130, 246, 0.28);
+    --assembly-dz-eligible-border: rgba(74, 144, 255, 0.55);
+    --assembly-dz-eligible-bg: rgba(74, 144, 255, 0.10);
+    --assembly-dz-eligible-inset: rgba(74, 144, 255, 0.22);
+    --assembly-dz-chat-eligible-border: #4a90ff;
+    --assembly-dz-chat-eligible-bg: rgba(74, 144, 255, 0.14);
+    --assembly-dz-chat-eligible-inset: rgba(74, 144, 255, 0.28);
     --assembly-dz-emb-eligible-border: #a78bfa;
     --assembly-dz-emb-eligible-bg: rgba(139, 92, 246, 0.14);
     --assembly-dz-emb-eligible-inset: rgba(139, 92, 246, 0.28);
@@ -191,16 +122,16 @@
     --assembly-dz-img-eligible-bg: rgba(251, 146, 60, 0.12);
     --assembly-dz-img-eligible-inset: rgba(251, 146, 60, 0.28);
     --assembly-dz-tool-eligible-border: #4ade80;
-    --assembly-dz-tool-eligible-bg: rgba(74, 222, 128, 0.1);
+    --assembly-dz-tool-eligible-bg: rgba(74, 222, 128, 0.10);
     --assembly-dz-tool-eligible-inset: rgba(74, 222, 128, 0.25);
     --assembly-dz-kb-eligible-border: #2dd4bf;
     --assembly-dz-kb-eligible-bg: rgba(45, 212, 191, 0.12);
     --assembly-dz-kb-eligible-inset: rgba(45, 212, 191, 0.28);
     --assembly-dz-chat-over-border: var(--accent-blue);
-    --assembly-dz-chat-over-bg: rgba(59, 130, 246, 0.2);
-    --assembly-dz-chat-over-inset: rgba(59, 130, 246, 0.42);
+    --assembly-dz-chat-over-bg: rgba(74, 144, 255, 0.20);
+    --assembly-dz-chat-over-inset: rgba(74, 144, 255, 0.42);
     --assembly-dz-emb-over-border: #8b5cf6;
-    --assembly-dz-emb-over-bg: rgba(139, 92, 246, 0.2);
+    --assembly-dz-emb-over-bg: rgba(139, 92, 246, 0.20);
     --assembly-dz-emb-over-inset: rgba(139, 92, 246, 0.42);
     --assembly-dz-img-over-border: #f97316;
     --assembly-dz-img-over-bg: rgba(251, 146, 60, 0.18);
@@ -212,16 +143,16 @@
     --assembly-dz-kb-over-bg: rgba(45, 212, 191, 0.18);
     --assembly-dz-kb-over-inset: rgba(45, 212, 191, 0.45);
     --assembly-dz-hint-text: var(--accent-blue);
-    --assembly-dz-hint-bg: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.14), transparent);
+    --assembly-dz-hint-bg: linear-gradient(90deg, transparent, rgba(74, 144, 255, 0.14), transparent);
     --assembly-dz-hint-dot: var(--accent-blue);
 
     /* ── Builder (Agent Builder) ── */
-    --builder-bg-page: #090e15;
-    --builder-glass-bg: rgba(18, 30, 45, 0.85);
-    --builder-glass-border: rgba(255, 255, 255, 0.08);
-    --builder-glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    --builder-bg-page: #0a1929;
+    --builder-glass-bg: rgba(22, 51, 82, 0.78);
+    --builder-glass-border: rgba(148, 184, 230, 0.12);
+    --builder-glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.30);
     --builder-hover-line: var(--primary);
-    --builder-hover-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
+    --builder-hover-shadow: 0 0 15px rgba(74, 144, 255, 0.30);
 
     --builder-topbar-title: var(--text-heading);
     --builder-icon-btn-bg: var(--bg-card);
@@ -231,125 +162,15 @@
     --builder-icon-btn-hover-border: var(--text-muted);
     --builder-icon-btn-hover-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 
-    --builder-card-title: var(--text-primary);
-    --builder-card-subtitle: var(--text-secondary);
-    --builder-card-placeholder: var(--text-muted);
-    --builder-card-label: var(--accent-blue);
-
-    --builder-icon-badge-instance-bg: rgba(16, 185, 129, 0.2);
-    --builder-icon-badge-instance-color: #34d399;
-    --builder-icon-badge-model-bg: rgba(99, 102, 241, 0.2);
-    --builder-icon-badge-model-color: #a5b4fc;
-    --builder-icon-badge-account-bg: rgba(249, 115, 22, 0.2);
-    --builder-icon-badge-account-color: #fb923c;
-    --builder-icon-badge-prompt-bg: rgba(147, 51, 234, 0.2);
-    --builder-icon-badge-prompt-color: #c084fc;
-    --builder-icon-badge-tool-bg: rgba(37, 99, 235, 0.2);
-    --builder-icon-badge-tool-color: #60a5fa;
-    --builder-icon-badge-mcp-bg: rgba(147, 51, 234, 0.2);
-    --builder-icon-badge-mcp-color: #c084fc;
-    --builder-icon-badge-rag-bg: rgba(5, 150, 105, 0.2);
-    --builder-icon-badge-rag-color: #34d399;
-    --builder-icon-badge-img-bg: rgba(219, 39, 119, 0.2);
-    --builder-icon-badge-img-color: #f472b6;
-
-    --builder-card-label-instance: #34d399;
-    --builder-card-label-model: #a5b4fc;
-    --builder-card-label-account: #fb923c;
-    --builder-card-label-prompt: #c084fc;
-    --builder-card-label-tool: #60a5fa;
-    --builder-card-label-mcp: #c084fc;
-    --builder-card-label-rag: #34d399;
-    --builder-card-label-img: #f472b6;
-
-    --builder-card-subtitle-instance: rgba(52, 211, 153, 0.7);
-
-    --builder-overlay-bg: rgba(255, 255, 255, 0.06);
-
-    --builder-prompt-bg: transparent;
-    --builder-prompt-color: var(--text-secondary);
-    --builder-prompt-placeholder: var(--text-muted);
-    --builder-dashed-border: var(--border-default);
-    --builder-dashed-bg: rgba(248, 250, 252, 0.04);
-
-    --builder-action-btn-secondary-bg: var(--bg-elevated);
-    --builder-action-btn-secondary-color: var(--primary-light);
-    --builder-action-btn-secondary-border: var(--primary);
-    --builder-action-btn-history-bg: rgba(234, 179, 8, 0.15);
-    --builder-action-btn-history-color: #fbbf24;
-    --builder-action-btn-history-border: rgba(234, 179, 8, 0.4);
-
-    --builder-add-btn-bg: var(--bg-elevated);
-    --builder-add-btn-color: var(--primary-light);
-    --builder-add-btn-border: var(--primary);
-    --builder-add-btn-mcp-bg: rgba(147, 51, 234, 0.15);
-    --builder-add-btn-mcp-color: #c084fc;
-    --builder-add-btn-mcp-border: rgba(147, 51, 234, 0.4);
-
-    --builder-tag-bg: var(--bg-elevated);
-    --builder-tag-tool-color: #60a5fa;
-    --builder-tag-tool-border: rgba(37, 99, 235, 0.4);
-    --builder-tag-mcp-color: #c084fc;
-    --builder-tag-mcp-border: rgba(147, 51, 234, 0.4);
-    --builder-tag-rag-color: #34d399;
-    --builder-tag-rag-border: rgba(5, 150, 105, 0.4);
-
-    --builder-item-hover-bg: var(--bg-elevated);
-    --builder-item-row-selected-bg: rgba(59, 130, 246, 0.15);
-
-    --builder-model-item-bg: rgba(59, 130, 246, 0.08);
-    --builder-model-item-border: rgba(59, 130, 246, 0.25);
-    --builder-model-item-hover-bg: rgba(59, 130, 246, 0.15);
-    --builder-model-icon-color: #60a5fa;
-    --builder-model-name-color: var(--text-primary);
-    --builder-model-arrow-color: var(--text-muted);
-
-    --builder-model-audio-item-bg: rgba(249, 115, 22, 0.08);
-    --builder-model-audio-item-border: rgba(249, 115, 22, 0.25);
-    --builder-model-audio-item-hover-bg: rgba(249, 115, 22, 0.15);
-    --builder-model-audio-icon-color: #fb923c;
-
-    --builder-section-indicator: var(--text-muted);
-
-    --builder-diff-border: var(--border-default);
-    --builder-diff-header-bg: var(--bg-elevated);
-    --builder-diff-original-bg: rgba(239, 68, 68, 0.06);
-    --builder-diff-original-title-bg: rgba(239, 68, 68, 0.12);
-    --builder-diff-original-title-color: #f87171;
-    --builder-diff-original-text-color: #f87171;
-    --builder-diff-improved-bg: rgba(16, 185, 129, 0.06);
-    --builder-diff-improved-title-bg: rgba(16, 185, 129, 0.12);
-    --builder-diff-improved-title-color: #34d399;
-    --builder-diff-improved-text-color: #34d399;
-    --builder-diff-footer-border: var(--border-default);
-
     --builder-right-bg: var(--builder-glass-bg);
     --builder-right-border: var(--builder-glass-border);
     --builder-right-shadow: var(--builder-glass-shadow);
-    --builder-right-header-bg: rgba(255, 255, 255, 0.04);
-    --builder-right-header-border: rgba(255, 255, 255, 0.06);
+    --builder-right-header-bg: rgba(148, 184, 230, 0.05);
+    --builder-right-header-border: rgba(148, 184, 230, 0.08);
     --builder-right-status-text: var(--text-primary);
     --builder-right-action-color: var(--text-muted);
     --builder-right-action-hover-color: var(--primary);
     --builder-right-reset-hover-color: #ef4444;
-
-    --builder-code-bg: #0c1521;
-    --builder-code-text: #d4d4d4;
-    --builder-code-header-bg: var(--bg-elevated);
-
-    /* ── Agent Config glass-panel ── */
-    --ac-glass-bg: rgba(18, 30, 45, 0.85);
-    --ac-glass-border: rgba(255, 255, 255, 0.08);
-    --ac-glass-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-    --ac-glass-backdrop: blur(12px);
-    --ac-instance-selected-border: var(--primary);
-    --ac-instance-selected-bg: rgba(59, 130, 246, 0.08);
-    --ac-instance-selected-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3);
-    --ac-status-active: #34d399;
-    --ac-status-inactive: #64748b;
-    --ac-tab-inactive: var(--text-muted);
-    --ac-tab-active: var(--primary);
-    --ac-tab-dot: var(--primary);
 }
 
 :root.light {
@@ -371,15 +192,19 @@
     --text-secondary: #6b7280;
     --text-muted: #909399;
     --text-placeholder: #909399;
-    --text-hover: #1677ff;
     --section-title: #4096ff;
 
-    /* ── Accent / Primary（浅色主题蓝色，对齐 Ant Design 主色） ── */
+    /* ── Accent / Primary ── */
     --primary: #1677ff;
     --primary-light: #4096ff;
     --primary-hover: rgba(22, 119, 255, 0.12);
     --primary-gradient: linear-gradient(90deg, #1677ff, #69b1ff);
     --logo-gradient: linear-gradient(135deg, #1677ff, #36cfc9);
+
+    /* ── Status ── */
+    --success: #10b981;
+    --warning: #d97706;
+    --error: #ef4444;
 
     /* ── Shadow ── */
     --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -387,130 +212,53 @@
     --shadow-pane-elevated: 0 0 0 1px rgba(15, 23, 42, 0.07),
     0 1px 2px rgba(15, 23, 42, 0.05),
     0 6px 16px rgba(15, 23, 42, 0.08),
-    0 16px 40px rgba(15, 23, 42, 0.1);
+    0 16px 40px rgba(15, 23, 42, 0.10);
     --success-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
-    --warning: #d97706;
 
-    --chat-input-placeholder: var(--text-placeholder);
-    --chat-send-btn-bg: var(--primary);
-    --chat-send-btn-shadow: 0 2px 10px rgba(22, 119, 255, 0.22);
-
-    /* ── Chat message (light) ── */
+    /* ── Chat ── */
     --chat-ai-card-bg: #ffffff;
     --chat-ai-card-border: #e2e8f0;
     --chat-ai-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     --chat-answer-bg: #ffffff;
-    --chat-thought-bg: #f8fafc;
-    --chat-thought-border: #e8eef4;
-    --chat-thought-head-hover: rgba(255, 255, 255, 0.55);
-    --chat-thought-title: #475569;
-    --chat-thought-body: #64748b;
-    --chat-markdown-text: #1e293b;
-    --chat-markdown-heading: #0f172a;
-    --chat-markdown-muted: #475569;
-    --chat-blockquote-bg: #f8fafc;
-    --chat-blockquote-border: #cbd5e1;
-    --chat-inline-code-bg: #f1f5f9;
-    --chat-inline-code-text: #0f172a;
-    --chat-hr: #e2e8f0;
-    --chat-link: #2563eb;
-    --chat-stream-placeholder: #94a3b8;
-    --chat-action-text: #94a3b8;
-    --chat-action-hover-bg: #f8fafc;
-    --chat-avatar-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
     --chat-ai-avatar-bg: #ffffff;
     --chat-ai-avatar-border: #e2e8f0;
     --chat-ai-avatar-icon: #2563eb;
+    --chat-avatar-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --chat-markdown-text: #1e293b;
+    --chat-send-btn-shadow: 0 2px 10px rgba(22, 119, 255, 0.22);
     --chat-user-avatar-bg: #6366f1;
     --chat-user-avatar-border: #4f46e5;
     --chat-user-avatar-text: #ffffff;
-    --chat-user-bubble-bg: #f1f5f9;
-    --chat-user-bubble-border: #e2e8f0;
-    --chat-user-bubble-text: #334155;
-    --chat-user-bubble-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
-    --chat-user-link: #2563eb;
 
-    --chat-chain-line: #e2e8f0;
-    --chat-chain-node-ring: #ffffff;
-    --chat-chain-thought-icon-bg: #fffbeb;
-    --chat-chain-thought-icon: #d97706;
-    --chat-chain-tool-icon-bg: #eff6ff;
-    --chat-chain-tool-icon: #2563eb;
-    --chat-chain-card-bg: #ffffff;
-    --chat-chain-card-border: #e2e8f0;
-    --chat-chain-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
-    --chat-chain-card-shadow-hover: 0 4px 12px rgba(15, 23, 42, 0.08);
-    --chat-chain-card-head-bg: rgba(248, 250, 252, 0.9);
-    --chat-chain-card-title: #64748b;
-    --chat-chain-card-body: #475569;
-    --chat-chain-chevron: #94a3b8;
-    --chat-tool-args-label: #64748b;
-    --chat-tool-args-bg: #0f172a;
-    --chat-tool-args-text: #cbd5e1;
-    --chat-tool-result-label: #38bdf8;
-    --chat-tool-result-bg: #eff6ff;
-    --chat-tool-result-border: #bfdbfe;
-    --chat-tool-result-text: #1d4ed8;
-    --chat-answer-emerald-bg: #eff6ff;
-    --chat-answer-emerald-border: #bfdbfe;
-    --chat-answer-emerald-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-    --chat-answer-emerald-text: #0f172a;
-    --chat-answer-emerald-heading: #1e3a5f;
-    --chat-answer-emerald-muted: #475569;
-    --chat-answer-emerald-link: #2563eb;
-    --chat-answer-emerald-blockquote-bg: #dbeafe;
-    --chat-answer-emerald-blockquote-border: #60a5fa;
-    --chat-answer-emerald-inline-code-bg: #dbeafe;
-    --chat-answer-emerald-inline-code-text: #1e40af;
-    --chat-answer-emerald-avatar-bg: #3b82f6;
-    --chat-answer-emerald-avatar-border: #2563eb;
-    --chat-answer-emerald-avatar-icon: #ffffff;
-
-    /* ── Model assembly (light) ── */
+    /* ── Assembly ── */
     --assembly-palette-bg: #ffffff;
     --assembly-palette-border: #f0f0f0;
-    --assembly-pane-divider: #f0f0f0;
-    --assembly-label-chat: #1890ff;
-    --assembly-label-emb: #722ed1;
-    --assembly-label-img: #fa8c16;
-    --assembly-label-tool: #52c41a;
-    --assembly-label-mcp: #9254de;
-    --assembly-search-icon: #bfbfbf;
-    --assembly-empty-text: #bfbfbf;
-    --assembly-btn-emb-bg: #722ed1;
-    --assembly-btn-emb-border: #722ed1;
-    --assembly-btn-img-bg: #fa8c16;
-    --assembly-btn-img-border: #fa8c16;
-    --assembly-btn-tool-bg: #52c41a;
-    --assembly-btn-tool-border: #52c41a;
-    --assembly-btn-mcp-bg: #9254de;
-    --assembly-btn-mcp-border: #9254de;
-
-    --assembly-chip-bg: #ffffff;
-    --assembly-chip-border: #eef0f4;
-    --assembly-chip-hover-border: #0061ff;
-    --assembly-chip-hover-shadow: 0 2px 8px rgba(0, 97, 255, 0.08);
-    --assembly-chip-badge-bg: #f0f5ff;
-    --assembly-chip-badge-text: #0061ff;
-    --assembly-chip-title: #262626;
-    --assembly-chip-sub: #8c8c8c;
-
-    --assembly-canvas-bg: #f5f7fa;
-    --assembly-canvas-border: #e1e6eb;
+    --assembly-canvas-bg: #ffffff;
+    --assembly-canvas-border: #f0f0f0;
     --assembly-canvas-header-bg: #ffffff;
     --assembly-canvas-header-border: #e1e6eb;
     --assembly-canvas-header-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    --assembly-canvas-accent: #1677ff;
     --assembly-form-label: #8c8c8c;
     --assembly-btn-ghost-border: #dcdfe6;
     --assembly-btn-ghost-text: #606266;
     --assembly-btn-primary-shadow: 0 4px 10px rgba(22, 119, 255, 0.25);
     --assembly-drop-zone-inner-bg: rgba(255, 255, 255, 0.4);
+    --assembly-knowledge-section-bg: #ffffff;
+    --assembly-empty-text: #909399;
+    --assembly-placeholder: #abb2bb;
     --assembly-placed-card-bg: #ffffff;
     --assembly-placed-title: #1a1a1a;
     --assembly-placed-sub: #909399;
-    --assembly-placeholder: #abb2bb;
-    --assembly-knowledge-section-bg: #ffffff;
-    --assembly-canvas-accent: #1677ff;
+
+    --assembly-chip-bg: #ffffff;
+    --assembly-chip-border: #f0f0f0;
+    --assembly-chip-hover-border: #1677ff;
+    --assembly-chip-hover-shadow: 0 2px 8px rgba(22, 119, 255, 0.18);
+    --assembly-chip-badge-bg: #e6f7ff;
+    --assembly-chip-badge-text: #1677ff;
+    --assembly-chip-title: #1f2937;
+    --assembly-chip-sub: #6b7280;
 
     --assembly-dz-border: #d9d9d9;
     --assembly-dz-bg: rgba(255, 255, 255, 0.92);
@@ -519,13 +267,13 @@
     --assembly-dz-eligible-inset: rgba(24, 144, 255, 0.12);
     --assembly-dz-chat-eligible-border: #69b1ff;
     --assembly-dz-chat-eligible-bg: #f0f9ff;
-    --assembly-dz-chat-eligible-inset: rgba(24, 144, 255, 0.2);
+    --assembly-dz-chat-eligible-inset: rgba(24, 144, 255, 0.20);
     --assembly-dz-emb-eligible-border: #b37feb;
     --assembly-dz-emb-eligible-bg: #faf5ff;
     --assembly-dz-emb-eligible-inset: rgba(114, 46, 209, 0.18);
     --assembly-dz-img-eligible-border: #ffc069;
     --assembly-dz-img-eligible-bg: #fffbf0;
-    --assembly-dz-img-eligible-inset: rgba(250, 140, 22, 0.2);
+    --assembly-dz-img-eligible-inset: rgba(250, 140, 22, 0.20);
     --assembly-dz-tool-eligible-border: #95de64;
     --assembly-dz-tool-eligible-bg: #f6ffed;
     --assembly-dz-tool-eligible-inset: rgba(82, 196, 26, 0.18);
@@ -546,12 +294,12 @@
     --assembly-dz-tool-over-inset: rgba(82, 196, 26, 0.35);
     --assembly-dz-kb-over-border: #13c2c2;
     --assembly-dz-kb-over-bg: #e6fffb;
-    --assembly-dz-kb-over-inset: rgba(19, 194, 194, 0.4);
+    --assembly-dz-kb-over-inset: rgba(19, 194, 194, 0.40);
     --assembly-dz-hint-text: #0061ff;
     --assembly-dz-hint-bg: linear-gradient(90deg, transparent, rgba(0, 97, 255, 0.08), transparent);
     --assembly-dz-hint-dot: #0061ff;
 
-    /* ── Builder (light) ── */
+    /* ── Builder ── */
     --builder-bg-page: #f8fafc;
     --builder-glass-bg: rgba(255, 255, 255, 0.8);
     --builder-glass-border: rgba(255, 255, 255, 0.6);
@@ -567,125 +315,15 @@
     --builder-icon-btn-hover-border: #94a3b8;
     --builder-icon-btn-hover-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-    --builder-card-title: #334155;
-    --builder-card-subtitle: #64748b;
-    --builder-card-placeholder: #94a3b8;
-    --builder-card-label: #3b82f6;
-
-    --builder-icon-badge-instance-bg: #d1fae5;
-    --builder-icon-badge-instance-color: #10b981;
-    --builder-icon-badge-model-bg: #e0e7ff;
-    --builder-icon-badge-model-color: #6366f1;
-    --builder-icon-badge-account-bg: #ffedd5;
-    --builder-icon-badge-account-color: #f97316;
-    --builder-icon-badge-prompt-bg: #f3e8ff;
-    --builder-icon-badge-prompt-color: #9333ea;
-    --builder-icon-badge-tool-bg: #dbeafe;
-    --builder-icon-badge-tool-color: #2563eb;
-    --builder-icon-badge-mcp-bg: #f3e8ff;
-    --builder-icon-badge-mcp-color: #9333ea;
-    --builder-icon-badge-rag-bg: #d1fae5;
-    --builder-icon-badge-rag-color: #059669;
-    --builder-icon-badge-img-bg: #fce7f3;
-    --builder-icon-badge-img-color: #db2777;
-
-    --builder-card-label-instance: #10b981;
-    --builder-card-label-model: #6366f1;
-    --builder-card-label-account: #f97316;
-    --builder-card-label-prompt: #9333ea;
-    --builder-card-label-tool: #2563eb;
-    --builder-card-label-mcp: #9333ea;
-    --builder-card-label-rag: #059669;
-    --builder-card-label-img: #db2777;
-
-    --builder-card-subtitle-instance: rgba(16, 185, 129, 0.7);
-
-    --builder-overlay-bg: rgba(255, 255, 255, 0.1);
-
-    --builder-prompt-bg: transparent;
-    --builder-prompt-color: #64748b;
-    --builder-prompt-placeholder: #94a3b8;
-    --builder-dashed-border: #e2e8f0;
-    --builder-dashed-bg: rgba(248, 250, 252, 0.3);
-
-    --builder-action-btn-secondary-bg: #eff6ff;
-    --builder-action-btn-secondary-color: #2563eb;
-    --builder-action-btn-secondary-border: #bfdbfe;
-    --builder-action-btn-history-bg: #fefce8;
-    --builder-action-btn-history-color: #ca8a04;
-    --builder-action-btn-history-border: #fde68a;
-
-    --builder-add-btn-bg: #eff6ff;
-    --builder-add-btn-color: #2563eb;
-    --builder-add-btn-border: #bfdbfe;
-    --builder-add-btn-mcp-bg: #faf5ff;
-    --builder-add-btn-mcp-color: #9333ea;
-    --builder-add-btn-mcp-border: #e9d5ff;
-
-    --builder-tag-bg: #eff6ff;
-    --builder-tag-tool-color: #2563eb;
-    --builder-tag-tool-border: #bfdbfe;
-    --builder-tag-mcp-color: #9333ea;
-    --builder-tag-mcp-border: #e9d5ff;
-    --builder-tag-rag-color: #059669;
-    --builder-tag-rag-border: #a7f3d0;
-
-    --builder-item-hover-bg: #f0f7ff;
-    --builder-item-row-selected-bg: #eff6ff;
-
-    --builder-model-item-bg: rgba(239, 246, 255, 0.5);
-    --builder-model-item-border: #bfdbfe;
-    --builder-model-item-hover-bg: #eff6ff;
-    --builder-model-icon-color: #60a5fa;
-    --builder-model-name-color: #475569;
-    --builder-model-arrow-color: #cbd5e1;
-
-    --builder-model-audio-item-bg: rgba(255, 247, 237, 0.5);
-    --builder-model-audio-item-border: #fed7aa;
-    --builder-model-audio-item-hover-bg: #fff7ed;
-    --builder-model-audio-icon-color: #fb923c;
-
-    --builder-section-indicator: #d1d5db;
-
-    --builder-diff-border: #e8e8e8;
-    --builder-diff-header-bg: #f5f5f5;
-    --builder-diff-original-bg: #fffafafa;
-    --builder-diff-original-title-bg: #fff1f0;
-    --builder-diff-original-title-color: #ff4d4f;
-    --builder-diff-original-text-color: #ff4d4f;
-    --builder-diff-improved-bg: #f6ffed;
-    --builder-diff-improved-title-bg: #f6ffed;
-    --builder-diff-improved-title-color: #52c41a;
-    --builder-diff-improved-text-color: #52c41a;
-    --builder-diff-footer-border: #e8e8e8;
-
     --builder-right-bg: rgba(255, 255, 255, 0.8);
     --builder-right-border: rgba(255, 255, 255, 0.6);
     --builder-right-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    --builder-right-header-bg: rgba(255, 255, 255, 0.3);
-    --builder-right-header-border: rgba(226, 232, 240, 0.5);
+    --builder-right-header-bg: rgba(255, 255, 255, 0.30);
+    --builder-right-header-border: rgba(226, 232, 240, 0.50);
     --builder-right-status-text: #334155;
     --builder-right-action-color: #94a3b8;
     --builder-right-action-hover-color: #2563eb;
     --builder-right-reset-hover-color: #ef4444;
-
-    --builder-code-bg: #1e1e1e;
-    --builder-code-text: #d4d4d4;
-    --builder-code-header-bg: var(--bg-elevated);
-
-    /* ── Agent Config glass-panel ── */
-    --ac-glass-bg: rgba(255, 255, 255, 0.9);
-    --ac-glass-border: #ffffff;
-    --ac-glass-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
-    --ac-glass-backdrop: blur(12px);
-    --ac-instance-selected-border: #3b82f6;
-    --ac-instance-selected-bg: #f0f7ff;
-    --ac-instance-selected-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
-    --ac-status-active: #10b981;
-    --ac-status-inactive: #94a3b8;
-    --ac-tab-inactive: #94a3b8;
-    --ac-tab-active: #3b82f6;
-    --ac-tab-dot: #3b82f6;
 }
 
 /* --- 全局动效定义 --- */
@@ -733,13 +371,13 @@
 /* 4. 呼吸光圈 */
 @keyframes pulse-glow {
     0% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.45);
+        box-shadow: 0 0 0 0 rgba(74, 144, 255, 0.45);
     }
     70% {
-        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+        box-shadow: 0 0 0 10px rgba(74, 144, 255, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+        box-shadow: 0 0 0 0 rgba(74, 144, 255, 0);
     }
 }
 

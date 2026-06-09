@@ -1,104 +1,113 @@
 <template>
-  <SidebarShell :collapsed="collapsed" @toggle-collapse="toggleCollapsed">
+  <SidebarShell :width="288">
     <template #top>
-      <AstSearchInput
-          v-if="!collapsed"
+      <div class="search-wrapper">
+        <PhMagnifyingGlass :size="16" class="search-icon" />
+        <input
           v-model="searchText"
-          class="sidebar-search-pill"
-          layout="fluid"
+          class="search-input"
           :placeholder="t.sidebar.searchPlaceholder"
-          @search="handleSearch"
-      />
+          type="text"
+          @keyup.enter="handleSearch"
+        />
+      </div>
     </template>
 
-    <div style="display: flex; flex-direction: column; height: 100%;">
-      <!-- 导航列表 -->
-      <div class="nav-list">
-        <div class="nav-section">
-          <div class="provider-list">
-            <a-tooltip :disabled="!collapsed" placement="right">
-              <template #title>{{ t.sidebar.all }}</template>
-              <div
-                  :class="{ 'is-active': activeItem === 'all' }"
-                  class="provider-card"
-                  @click="handleSelect('all')"
-              >
-                <div class="provider-avatar">
-                  <component :is="CloudServerOutlined" class="all-icon"/>
-                </div>
-                <span class="provider-name">{{ t.sidebar.all }}</span>
-              </div>
-            </a-tooltip>
-            <a-tooltip
-                v-for="item in providers"
-                :key="item.key"
-                :disabled="!collapsed"
-                placement="right"
-            >
-              <template #title>{{ item.label }}</template>
-              <div
-                  :class="{ 'is-active': activeItem === item.key }"
-                  class="provider-card"
-                  @click="handleSelect(item.key)"
-              >
-                <div class="provider-avatar">
-                  <img v-if="item.avatar" :alt="item.label" :src="item.avatar" class="avatar-img"/>
-                  <span v-else class="avatar-initial">{{ item.initial }}</span>
-                </div>
-                <span class="provider-name">{{ item.label }}</span>
-              </div>
-            </a-tooltip>
-          </div>
-          <div v-if="providers.length === 0 && !collapsed" class="empty-provider">
-            <a-empty :description="t.sidebar.emptyPlugin">
-              <template #extra>
-                <a-button type="link" @click="handleAddPlugin">{{ t.sidebar.goMarketplace }}</a-button>
-              </template>
-            </a-empty>
-          </div>
+    <div class="nav-list">
+      <!-- 全部 -->
+      <a-tooltip placement="right">
+        <template #title>{{ t.sidebar.all }}</template>
+        <div
+            :class="{ 'is-active': activeItem === 'all' }"
+            class="nav-item nav-item--all"
+            @click="handleSelect('all')"
+        >
+          <PhSquaresFour
+              :size="16"
+              :weight="activeItem === 'all' ? 'fill' : 'bold'"
+              class="nav-icon"
+          />
+          <span class="nav-name">{{ t.sidebar.all }}</span>
         </div>
+      </a-tooltip>
+
+      <!-- 插件提供方 -->
+      <a-tooltip
+          v-for="item in providers"
+          :key="item.key"
+          placement="right"
+      >
+        <template #title>{{ item.label }}</template>
+        <div
+            :class="{ 'is-active': activeItem === item.key }"
+            class="nav-item"
+            @click="handleSelect(item.key)"
+        >
+          <div class="nav-avatar">
+            <img v-if="item.avatar" :alt="item.label" :src="item.avatar" class="avatar-img"/>
+            <span v-else class="avatar-initial">{{ item.initial }}</span>
+          </div>
+          <span class="nav-name">{{ item.label }}</span>
+        </div>
+      </a-tooltip>
+
+      <!-- 空态提示卡 -->
+      <div v-if="providers.length === 0" class="plugin-warning-card">
+        <p class="plugin-warning-text">{{ t.sidebar.emptyPluginHint }}</p>
+        <button class="plugin-warning-btn" @click="handleAddPlugin">
+          <PhStorefront :size="14" weight="regular"/>
+          <span>{{ t.sidebar.goMarketplace }}</span>
+        </button>
       </div>
 
       <!-- 全局管理 -->
-      <div class="global-section">
-        <a-tooltip
-            v-for="item in globalItems"
-            :key="item.key"
-            :disabled="!collapsed"
-            placement="right"
+      <a-tooltip
+          v-for="item in globalItems"
+          :key="item.key"
+          placement="right"
+      >
+        <template #title>{{ getItemLabel(item.key) }}</template>
+        <div
+            :class="{ 'is-active': activeItem === item.key }"
+            class="nav-item"
+            @click="handleSelect(item.key)"
         >
-          <template #title>{{ getItemLabel(item.key) }}</template>
-          <div
-              :class="{ 'is-active': activeItem === item.key }"
-              class="global-item"
-              @click="handleSelect(item.key)"
-          >
-            <component :is="item.icon" class="global-icon"/>
-            <span class="global-label">{{ getItemLabel(item.key) }}</span>
-            <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
-          </div>
-        </a-tooltip>
-
-        <div v-show="!collapsed" class="extra-items">
-          <div
-              v-for="item in extraItems"
-              :key="item.key"
-              :class="{ 'is-active': activeItem === item.key }"
-              class="global-item"
-              @click="handleSelect(item.key)"
-          >
-            <component :is="item.icon" class="global-icon"/>
-            <span class="global-label">{{ getItemLabel(item.key) }}</span>
-            <span v-if="item.count !== undefined" class="global-count">{{ item.count }}</span>
-          </div>
+          <component
+            :is="item.icon"
+            :size="16"
+            weight="regular"
+            class="nav-icon"
+          />
+          <span class="nav-name">{{ getItemLabel(item.key) }}</span>
+          <span v-if="item.count !== undefined" class="nav-count">{{ item.count }}</span>
         </div>
-      </div>
-    </div>
+      </a-tooltip>
 
+      <a-tooltip
+          v-for="item in extraItems"
+          :key="item.key"
+          placement="right"
+      >
+        <template #title>{{ getItemLabel(item.key) }}</template>
+        <div
+            :class="{ 'is-active': activeItem === item.key }"
+            class="nav-item"
+            @click="handleSelect(item.key)"
+        >
+          <component
+            :is="item.icon"
+            :size="16"
+            weight="regular"
+            class="nav-icon"
+          />
+          <span class="nav-name">{{ getItemLabel(item.key) }}</span>
+          <span v-if="item.count !== undefined" class="nav-count">{{ item.count }}</span>
+        </div>
+      </a-tooltip>
+    </div>
 
     <template #footer>
       <SidebarFooter
-          :collapsed="collapsed"
           :enabled-extensions="enabledExtensions"
           :show-dot="!providers.length"
           @open-marketplace="goPluginMarketplace"
@@ -117,13 +126,16 @@
 import {onMounted, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {
-  CloudServerOutlined,
-  CreditCardOutlined,
-  FileTextOutlined,
-  LinkOutlined,
-  MessageOutlined,
-  ToolOutlined
-} from '@ant-design/icons-vue'
+  PhChatCenteredText,
+  PhCode,
+  PhIdentificationCard,
+  PhLink,
+  PhMagnifyingGlass,
+  PhSquaresFour,
+  PhStorefront,
+  PhTerminalWindow,
+  PhWrench,
+} from '@phosphor-icons/vue'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts'
@@ -133,7 +145,6 @@ import {aiMcpApi} from '@/api/aiMcp'
 import {aiToolApi} from '@/api/aiTool'
 import {aiTemplateApi} from '@/api/aiTemplate'
 import {aiConversationApi} from '@/api/aiConversation'
-import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {useDictionary} from '@/locales/dictionary'
 import {usePageTranslation} from '@/locales/pages.ts'
 import ExtensionMarketplaceDialog
@@ -142,14 +153,8 @@ import ExtensionMarketplaceDialog
 const emit = defineEmits<{
   select: [key: string]
   'select-provider': [info: { key: string; name: string; description: string; avatar: string }]
-  'update:collapsed': [value: boolean]
 }>()
 
-const collapsed = ref(false)
-const toggleCollapsed = () => {
-  collapsed.value = !collapsed.value
-  emit('update:collapsed', collapsed.value)
-}
 const route = useRoute()
 const providerDict = useDictionary('ai-model.provider')
 const t = usePageTranslation('ai-config-center')
@@ -161,22 +166,22 @@ const enabledExtensions = ref<Array<{ key: string; name: string; avatar: string;
 const providers = ref<Array<{
   key: string;
   label: string;
-  icon: typeof CloudServerOutlined;
+  icon: unknown;
   avatar?: string;
   initial: string;
   description: string
 }>>([])
 
 const globalItems = ref([
-  {key: 'ai-account', icon: CreditCardOutlined, count: undefined as number | undefined},
-  {key: 'prompts', icon: FileTextOutlined, count: undefined as number | undefined},
-  {key: 'mcp', icon: LinkOutlined, count: undefined as number | undefined},
-  {key: 'tools', icon: ToolOutlined, count: undefined as number | undefined},
+  {key: 'ai-account', icon: PhIdentificationCard, count: undefined as number | undefined},
+  {key: 'prompts', icon: PhTerminalWindow, count: undefined as number | undefined},
+  {key: 'mcp', icon: PhLink, count: undefined as number | undefined},
+  {key: 'tools', icon: PhWrench, count: undefined as number | undefined},
 ])
 
 const extraItems = ref([
-  {key: 'ftl', icon: FileTextOutlined, count: undefined as number | undefined},
-  {key: 'conversations', icon: MessageOutlined, count: undefined as number | undefined},
+  {key: 'ftl', icon: PhCode, count: undefined as number | undefined},
+  {key: 'conversations', icon: PhChatCenteredText, count: undefined as number | undefined},
 ])
 
 const getItemLabel = (key: string): string => {
@@ -254,7 +259,7 @@ const fetchProviders = async () => {
       return {
         key: code,
         label: name,
-        icon: CloudServerOutlined,
+        icon: PhSquaresFour,
         avatar: item.avatar,
         initial: name.slice(0, 1).toUpperCase(),
         description: item.description || '',
@@ -342,109 +347,130 @@ watch(
 </script>
 
 <style scoped>
+/* ── 搜索框 ── */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
 
-.sidebar-search-pill {
-  flex: 1;
-  min-width: 0;
-  height: 36px;
-  border-color: transparent;
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 14px 0 34px;
+  font-size: 12px;
+  color: var(--text-primary);
   background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  outline: none;
+  font-family: inherit;
 }
 
-.sidebar-search-pill:hover {
-  border-color: var(--border-default);
-  box-shadow: none;
-  transform: none;
-}
-
-.sidebar-search-pill:focus-within {
-  border-color: var(--primary);
-  box-shadow: none;
-}
-
-.sidebar-search-pill :deep(.toolbar-search-pill__left-icon) {
-  font-size: 14px;
+.search-input::placeholder {
   color: var(--text-muted);
 }
 
-.sidebar-search-pill :deep(.toolbar-search-pill__input) {
-  font-size: 13px;
+.search-input:focus {
+  border-color: var(--primary);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
-
-
+/* ── 列表 ── */
 .nav-list {
   flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-}
-
-.nav-section {
-  margin-bottom: 20px;
-}
-
-.nav-section-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  padding: 6px 0 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-
-.provider-list {
-  display: flex;
-  flex-direction: column;
   gap: 4px;
 }
 
-.provider-card {
+.nav-item {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
   color: var(--text-secondary);
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  background: transparent;
+  border-left: 3px solid transparent;
 }
 
-.provider-card:hover {
-  background: var(--primary-hover);
+.nav-item:hover {
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.nav-item:hover .nav-icon {
   color: var(--primary);
 }
 
-.provider-card.is-active {
-  background: var(--primary-hover);
+.nav-item.is-active {
+  background: rgba(59, 130, 246, 0.10);
   color: var(--primary);
   font-weight: 500;
-  position: relative;
+  border-left-color: var(--primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
-.provider-card.is-active::after {
-  content: '';
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 16px;
-  border-radius: 2px;
-  background: var(--primary);
+.nav-item.is-active .nav-icon {
+  color: var(--primary);
 }
 
-.provider-avatar {
+.nav-icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+.nav-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-count {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.nav-item.is-active .nav-count {
+  background: rgba(59, 130, 246, 0.18);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ── 插件提供方头像 ── */
+.nav-avatar {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  margin-right: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
+  background: var(--bg-input);
 }
 
 .avatar-img {
@@ -463,160 +489,53 @@ watch(
   font-size: 10px;
   font-weight: 600;
   color: var(--primary);
-  background: var(--primary-hover);
+  background: rgba(59, 130, 246, 0.12);
 }
 
-.all-icon {
-  font-size: 12px;
-  color: var(--primary);
-}
-
-.provider-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-
-.global-section {
-  margin-top: auto;
-  padding-top: 12px;
-  //border-top: 1px solid var(--border-default);
-}
-
-.global-item {
-  display: flex;
-  align-items: center;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  border: 1px solid transparent;
-}
-
-.global-item:hover {
-  background: var(--primary-hover);
-  color: var(--primary);
-}
-
-.global-item.is-active {
-  background: var(--primary-hover);
-  color: var(--primary);
-  font-weight: 500;
-  border-color: var(--primary);
-}
-
-.global-item.is-active::after {
-  content: '';
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 16px;
-  border-radius: 2px;
-  background: var(--primary);
-}
-
-.global-icon {
-  font-size: 14px;
-  margin-right: 10px;
-}
-
-.global-item.is-active .global-icon {
-  color: var(--primary);
-}
-
-.global-label {
-  flex: 1;
-}
-
-.global-count {
-  font-size: 11px;
-  color: var(--text-muted);
-  background: var(--primary-hover);
-  padding: 1px 6px;
-  border-radius: 10px;
-  line-height: 18px;
-}
-
-
-.empty-provider {
-  padding: 24px 0;
+/* ── 空态提示卡（设计稿 plugin-warning-card） ── */
+.plugin-warning-card {
+  margin: 8px 0 12px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--border-default);
+  border-radius: 12px;
   text-align: center;
-}
-
-
-.ast-sidebar.collapsed .nav-list {
-  width: 100%;
-}
-
-.ast-sidebar.collapsed .provider-list {
-  align-items: center;
-}
-
-.ast-sidebar.collapsed .provider-card {
-  justify-content: center;
-  padding: 8px;
-  width: 40px;
-  height: 40px;
-  margin: 0 auto;
-}
-
-.ast-sidebar.collapsed .provider-card.is-active::after {
-  right: -4px;
-}
-
-.ast-sidebar.collapsed .provider-avatar {
-  margin-right: 0;
-}
-
-.ast-sidebar.collapsed .provider-name {
-  display: none;
-}
-
-.ast-sidebar.collapsed .empty-provider {
-  display: none;
-}
-
-
-.ast-sidebar.collapsed .global-section {
-  width: 100%;
   display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+.plugin-warning-text {
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.plugin-warning-btn {
+  display: inline-flex;
   align-items: center;
-}
-
-.ast-sidebar.collapsed .global-item {
   justify-content: center;
-  padding: 10px;
-  width: 40px;
-  height: 40px;
-  margin: 2px auto;
+  gap: 6px;
+  width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #ffffff;
+  background: var(--primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
-.ast-sidebar.collapsed .global-item.is-active::after {
-  right: -4px;
+.plugin-warning-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
 }
 
-.ast-sidebar.collapsed .global-icon {
-  margin-right: 0;
+.plugin-warning-btn:active {
+  transform: scale(0.98);
 }
-
-.ast-sidebar.collapsed .global-label {
-  display: none;
-}
-
-.ast-sidebar.collapsed .global-count {
-  display: none;
-}
-
-.ast-sidebar.collapsed .extra-items {
-  display: none;
-}
-
 </style>

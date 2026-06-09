@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ collapsed }" :style="{ width: currentWidth + 'px' }" class="ast-sidebar">
+  <div :style="{ width: width + 'px' }" class="ast-sidebar">
     <div class="ast-sidebar-top">
       <slot name="top"/>
     </div>
@@ -9,49 +9,26 @@
     <div class="ast-sidebar-footer">
       <slot name="footer"/>
     </div>
-    <a-tooltip :placement="collapsed ? 'right' : 'bottom'">
-      <template #title>{{ collapsed ? t.sidebar.expandSidebar : t.sidebar.collapseSidebar }}</template>
-      <div class="ast-sidebar-collapse-toggle" @click="emit('toggle-collapse')">
-        <RightOutlined v-if="collapsed"/>
-        <LeftOutlined v-else/>
-      </div>
-    </a-tooltip>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed} from 'vue'
-import {LeftOutlined, RightOutlined} from '@ant-design/icons-vue'
-import {usePageTranslation} from '@/locales/pages.ts'
-
-const t = usePageTranslation('common')
-
-const props = withDefaults(defineProps<{
-  collapsed?: boolean
+withDefaults(defineProps<{
   width?: number
-  collapsedWidth?: number
 }>(), {
-  collapsed: false,
-  width: 320,
-  collapsedWidth: 64,
+  width: 288,
 })
-
-const emit = defineEmits<{
-  'toggle-collapse': []
-}>()
-
-const currentWidth = computed(() => props.collapsed ? props.collapsedWidth : props.width)
 </script>
 
 <style scoped>
 .ast-sidebar {
-  height: calc(100vh - 60px);
+  height: calc(100vh - 56px);
   display: flex;
   flex-direction: column;
   background: var(--bg-card);
-  box-shadow: 2px 0 8px color-mix(in srgb, var(--shadow-color, #000) 4%, transparent);
-  border-right: 1px solid #e5e6eb47;
+  border-right: 1px solid var(--border-default);
   position: relative;
+  flex-shrink: 0;
 }
 
 .ast-sidebar-top {
@@ -60,12 +37,7 @@ const currentWidth = computed(() => props.collapsed ? props.collapsedWidth : pro
   display: flex;
   align-items: center;
   gap: 8px;
-
-}
-
-.ast-sidebar.collapsed .ast-sidebar-top {
-  flex-direction: column;
-  padding: 14px 8px;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .ast-sidebar-body {
@@ -74,49 +46,9 @@ const currentWidth = computed(() => props.collapsed ? props.collapsedWidth : pro
   padding: 10px 8px;
 }
 
-.ast-sidebar.collapsed .ast-sidebar-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .ast-sidebar-footer {
   flex-shrink: 0;
   padding: 12px 14px;
-
-}
-
-.ast-sidebar.collapsed .ast-sidebar-footer {
-  display: flex;
-  justify-content: center;
-  padding: 12px 8px;
-}
-
-
-.ast-sidebar-collapse-toggle {
-  position: absolute;
-  right: -14px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 999;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--bg-card, #fff);
-  border: 1px solid var(--border-default);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 12px;
-  box-shadow: 0 2px 6px color-mix(in srgb, var(--shadow-color, #000) 8%, transparent);
-}
-
-.ast-sidebar-collapse-toggle:hover {
-  color: var(--primary);
-  border-color: var(--primary);
-  background: var(--primary-hover);
+  border-top: 1px solid var(--border-default);
 }
 </style>

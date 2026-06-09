@@ -4,8 +4,6 @@
       <book-outlined/>
     </a>
 
-    <div v-if="showDoc" class="th-divider"/>
-
     <a-select
         :bordered="false"
         :options="languageOptions"
@@ -15,8 +13,6 @@
         size="small"
         @change="changeLang"
     />
-
-    <div class="th-divider"/>
 
     <button class="theme-toggle" @click="toggleTheme(!isDark)">
       <template v-if="isDark">🌙</template>
@@ -55,12 +51,12 @@ const {currentLang, changeLang, languageOptions} = useLanguage()
 .doc-lang-theme {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 8px;
 }
 
 .doc-link {
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -69,16 +65,16 @@ const {currentLang, changeLang, languageOptions} = useLanguage()
   transition: color 0.2s ease;
 }
 
-.doc-link:hover {
-  font-weight: bolder;
-  color: var(--text-hover);
+.doc-link :deep(.anticon) {
+  color: var(--text-secondary);
 }
 
-.th-divider {
-  width: 1px;
-  height: 14px;
-  background: var(--border-default);
-  margin: 0 12px;
+.doc-link:hover {
+  color: var(--text-primary);
+}
+
+.doc-link:hover :deep(.anticon) {
+  color: var(--text-primary);
 }
 
 .lang-select {
@@ -114,7 +110,7 @@ const {currentLang, changeLang, languageOptions} = useLanguage()
 }
 
 .theme-toggle:hover {
-  color: var(--text-hover);
+  color: var(--text-primary);
 }
 </style>
 

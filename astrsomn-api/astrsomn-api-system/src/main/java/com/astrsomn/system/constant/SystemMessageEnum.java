@@ -19,6 +19,8 @@ public interface SystemMessageEnum {
 
         PLUGIN_UNINSTALLED("PLUGIN_UNINSTALLED", "插件已卸载"),
 
+        PLUGIN_UNINSTALL_FAILED("PLUGIN_UNINSTALL_FAILED", "插件卸载失败"),
+
         DEPLOYMENT_ONLINE("DEPLOYMENT_ONLINE", "上线通知"),
 
         API_CALL_FAILED("API_CALL_FAILED", "调用失败"),

@@ -86,7 +86,7 @@ const handleMenuClick = ({key}: { key: string }) => {
   border-radius: 50%;
   background: var(--bg-elevated);
   border: 2px solid var(--border-default);
-  color: var(--accent-blue);
+  color: var(--text-secondary);
   font-weight: 700;
   display: flex;
   align-items: center;

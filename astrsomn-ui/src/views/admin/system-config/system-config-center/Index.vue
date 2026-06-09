@@ -1,21 +1,16 @@
 <template>
   <div class="config-center-layout">
-    <Sidebar
-        @select="handleSidebarSelect"
-        @update:collapsed="sidebarCollapsed = $event"
-    />
+    <!-- 左侧 Sidebar 已被上提至 Home.vue 的 AdminSidebar；本页面仅负责主内容 -->
     <Main :current-view-key="currentViewKey"/>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {computed, ref} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
-import Sidebar from './component/Sidebar.vue'
+import {computed} from 'vue'
+import {useRoute} from 'vue-router'
 import Main from './component/Main.vue'
 
 const route = useRoute()
-const router = useRouter()
 
 const moduleViewKeys = ['users', 'env', 'config', 'messages', 'extensions']
 
@@ -26,23 +21,12 @@ const currentViewKey = computed(() => {
   }
   return 'all'
 })
-
-const configCenterPath = '/admin/system'
-
-const sidebarCollapsed = ref(false)
-
-const handleSidebarSelect = (key: string) => {
-  if (key === 'all') {
-    router.push({path: configCenterPath, query: {}})
-  } else {
-    router.push({path: configCenterPath, query: {view: key}})
-  }
-}
 </script>
 
 <style scoped>
 .config-center-layout {
-  height: calc(100vh - 60px);
+  flex: 1;
+  min-height: 0;
   display: flex;
   overflow: hidden;
   background-color: var(--bg-surface);

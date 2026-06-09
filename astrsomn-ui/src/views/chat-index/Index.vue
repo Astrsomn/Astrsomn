@@ -1,101 +1,75 @@
 <template>
-  <div class="chat-home">
-    <AppHeader
-        :showBack="false"
-        :showBrand="true"
-        :showDoc="true"
-        :showSwitch="true"
-        :brandStatus="t('ai-assistant')"
-        switchTarget="admin"
-    />
-
-    <main class="chat-main">
-      <AstSidebar
-          :collapsed="sidebarCollapsed"
-          :items="sessionItems"
-          :loading="sessionLoading"
-          :selected-memory-key="currentMemoryKey"
-          @create="createNewSession"
-          @delete="deleteSession"
-          @open="openSession"
-          @update:collapsed="sidebarCollapsed = $event"
+  <section class="chat-content">
+    <div v-if="isNewSessionView" class="new-session-stage">
+      <div class="new-session-intro">
+        <h2>{{ pageT.newSession.title }}</h2>
+        <p>{{ pageT.newSession.subtitle }}</p>
+      </div>
+      <AstInputPanel
+          v-model:file-url-list="fileUrlList"
+          v-model:is-deep-thinking="isDeepThinking"
+          v-model:is-web-search="isWebSearch"
+          v-model:selected-agent="selectedAgent"
+          v-model:selected-chat-instance-key="selectedChatInstanceKey"
+          v-model:user-input="userInput"
+          :agent-options="agentOptions"
+          :chat-instance-options="chatInstanceOptions"
+          :is-streaming="isStreaming"
+          :model-capabilities="currentInstanceCapabilities"
+          :options-loading="optionsLoading"
+          :send-disabled="sendDisabled"
+          layout="centered"
+          @stop="stopStreaming"
+          @submit="submitQuestion"
       />
+    </div>
 
-      <section class="chat-content">
-        <div v-if="isNewSessionView" class="new-session-stage">
-          <div class="new-session-intro">
-            <h2>{{ pageT.newSession.title }}</h2>
-            <p>{{ pageT.newSession.subtitle }}</p>
+    <div v-else ref="messagesContainerRef" class="chat-messages-container">
+      <div class="message-scroll-area">
+        <transition-group name="message-fade">
+          <div v-for="item in messages" :key="item.id" class="message-wrapper">
+            <AstroChatMessage
+                :content="item.content"
+                :error="item.error"
+                :role="item.role"
+                :segments="item.segments"
+                :streaming="item.streaming"
+            />
+            <div v-if="item.timestamp" :class="['message-timestamp', `message-timestamp-${item.role}`]">
+              {{ formatTimestamp(item.timestamp) }}
+            </div>
           </div>
-          <AstInputPanel
-              v-model:file-url-list="fileUrlList"
-              v-model:is-deep-thinking="isDeepThinking"
-              v-model:is-web-search="isWebSearch"
-              v-model:selected-agent="selectedAgent"
-              v-model:selected-chat-instance-key="selectedChatInstanceKey"
-              v-model:user-input="userInput"
-              :agent-options="agentOptions"
-              :chat-instance-options="chatInstanceOptions"
-              :is-streaming="isStreaming"
-              :model-capabilities="currentInstanceCapabilities"
-              :options-loading="optionsLoading"
-              :send-disabled="sendDisabled"
-              layout="centered"
-              @stop="stopStreaming"
-              @submit="submitQuestion"
-          />
-        </div>
+        </transition-group>
+        <div ref="messagesBottomRef" class="messages-bottom-spacer"></div>
+      </div>
+    </div>
 
-        <div v-else ref="messagesContainerRef" class="chat-messages-container">
-          <div class="message-scroll-area">
-            <transition-group name="message-fade">
-              <div v-for="item in messages" :key="item.id" class="message-wrapper">
-                <AstroChatMessage
-                    :content="item.content"
-                    :error="item.error"
-                    :role="item.role"
-                    :segments="item.segments"
-                    :streaming="item.streaming"
-                />
-                <div v-if="item.timestamp" :class="['message-timestamp', `message-timestamp-${item.role}`]">
-                  {{ formatTimestamp(item.timestamp) }}
-                </div>
-              </div>
-            </transition-group>
-            <div ref="messagesBottomRef" class="messages-bottom-spacer"></div>
-          </div>
-        </div>
-
-        <AstInputPanel
-            v-if="!isNewSessionView"
-            v-model:file-url-list="fileUrlList"
-            v-model:is-deep-thinking="isDeepThinking"
-            v-model:is-web-search="isWebSearch"
-            v-model:selected-agent="selectedAgent"
-            v-model:selected-chat-instance-key="selectedChatInstanceKey"
-            v-model:user-input="userInput"
-            :agent-options="agentOptions"
-            :chat-instance-options="chatInstanceOptions"
-            :is-streaming="isStreaming"
-            :model-capabilities="currentInstanceCapabilities"
-            :options-loading="optionsLoading"
-            :send-disabled="sendDisabled"
-            layout="bottom"
-            @stop="stopStreaming"
-            @submit="submitQuestion"
-        />
-      </section>
-    </main>
-  </div>
+    <AstInputPanel
+        v-if="!isNewSessionView"
+        v-model:file-url-list="fileUrlList"
+        v-model:is-deep-thinking="isDeepThinking"
+        v-model:is-web-search="isWebSearch"
+        v-model:selected-agent="selectedAgent"
+        v-model:selected-chat-instance-key="selectedChatInstanceKey"
+        v-model:user-input="userInput"
+        :agent-options="agentOptions"
+        :chat-instance-options="chatInstanceOptions"
+        :is-streaming="isStreaming"
+        :model-capabilities="currentInstanceCapabilities"
+        :options-loading="optionsLoading"
+        :send-disabled="sendDisabled"
+        layout="bottom"
+        @stop="stopStreaming"
+        @submit="submitQuestion"
+    />
+  </section>
 </template>
 
 <script lang="ts" setup>
 import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {message, Modal} from 'ant-design-vue'
-import AppHeader from '@/components/top/AppHeader.vue'
 import AstInputPanel from '@/views/chat-index/component/AstInputPanel.vue'
 import {AstroChatMessage} from '@astrsomn/astro-chat-vue'
-import AstSidebar from '@/views/chat-index/component/AstSidebar.vue'
 import {buildStreamError, readAstroStream, type StreamEvent} from '@astrsomn/astro-chat-core'
 import {adaptSessionToSessionItem, aiChatSessionApi} from '@/api/aiChatSession'
 import {type AiInstance, aiInstanceApi} from '@/api/aiInstance.ts'
@@ -111,6 +85,7 @@ import {
   mergeContentFromSegments
 } from '@/views/chat-index/utils/historyMapper.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
+import {useChatSidebarState} from '@/composables/useChatSidebarState'
 
 const CHAT_MEMORY_KEY = 'astrsomn-chat-memory-key'
 const CHAT_DRAFT_KEY_PREFIX = 'astrsomn-chat-draft:'
@@ -136,36 +111,17 @@ const chatInstanceOptions = ref<AiInstance[]>([])
 const agentOptions = ref<AiAgent[]>([])
 const messagesContainerRef = ref<HTMLElement | null>(null)
 const messagesBottomRef = ref<HTMLElement | null>(null)
-const sessionLoading = ref(false)
-const sessionItems = ref<ChatSessionItem[]>([])
-const currentMemoryKey = ref('')
-const sidebarCollapsed = ref(false)
 const messages = ref<ChatMessage[]>([])
+
+// 共享给全局 AdminSidebar 的状态
+const chatSidebar = useChatSidebarState()
+const sessionItems = chatSidebar.sessionItems
+const sessionLoading = chatSidebar.sessionLoading
+const currentMemoryKey = chatSidebar.currentMemoryKey
 
 let abortController: AbortController | null = null
 
 const pageT = usePageTranslation('chat-index')
-
-const t = (key: string): string => {
-  const translations: Record<string, string> = {
-    'ai-assistant': 'AI Assistant',
-    'delete-session': '删除此会话？',
-    'delete-confirm': '删除后无法恢复',
-    'session-deleted': '会话已删除',
-    'load-session-failed': '加载会话失败',
-    'load-options-failed': '加载聊天配置失败',
-    'chat-not-found': '会话不存在',
-    'chat-not-found-en': 'Chat not found',
-    'just-now': '刚刚',
-    'minutes-ago': '{n}分钟前',
-    'hours-ago': '{n}小时前',
-    'days-ago': '{n}天前',
-    'no-content': '本次没有返回内容。',
-    'stream-error': '流式响应异常',
-    'request-failed': '请求失败，请稍后重试'
-  }
-  return translations[key] || key
-}
 
 const sendDisabled = computed(() => {
   if (isStreaming.value) {
@@ -691,7 +647,7 @@ const submitQuestion = async (promptArg?: string) => {
         } else if (error?.data) {
           errorMessage = error.data.message || error.message || errorMessage
           if (error.data.rootCause) {
-            errorDetail = error.data.rootCause
+            errorDetail = errorData.rootCause
           }
         } else {
           errorMessage = error?.message || errorMessage
@@ -731,6 +687,21 @@ const stopStreaming = () => {
   abortController?.abort()
 }
 
+// 在挂载时把会话相关 handler 注册到 composable，供全局 AdminSidebar 调用
+onMounted(() => {
+  chatSidebar.registerHandlers({
+    open: openSession,
+    create: createNewSession,
+    delete: deleteSession
+  })
+})
+
+onBeforeUnmount(() => {
+  abortController?.abort()
+  // 卸载时清空 handler，避免误触
+  chatSidebar.registerHandlers({})
+})
+
 onMounted(async () => {
   const memoryKey = getMemoryKey()
   restoreDraftState(memoryKey)
@@ -744,10 +715,6 @@ onMounted(async () => {
   await scrollToBottom()
 })
 
-onBeforeUnmount(() => {
-  abortController?.abort()
-})
-
 watch(
     [userInput, fileUrlList, isDeepThinking, isWebSearch, selectedAgent, selectedChatInstanceKey],
     () => {
@@ -759,33 +726,13 @@ watch(
 </script>
 
 <style scoped>
-
-.chat-home {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--bg-base);
-  background-image: radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.08), transparent 50%),
-  radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.05), transparent 40%);
-  color: var(--text-primary);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-.chat-main {
-  flex: 1;
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  overflow: hidden;
-}
-
 .chat-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
   position: relative;
+  height: 100%;
 }
 
 .new-session-stage {
@@ -885,16 +832,8 @@ watch(
 
 
 @media (max-width: 640px) {
-  .chat-main {
-    flex-direction: column;
-  }
-
   .top-bar {
     padding: 0 16px;
-  }
-
-  .brand-name {
-    display: none;
   }
 }
 </style>

@@ -1,14 +1,6 @@
 <template>
   <div class="config-center-layout">
-
-      <Sidebar
-          @select="handleSidebarSelect"
-          @select-provider="handleSelectProvider"
-          @update:collapsed="sidebarCollapsed = $event"
-      />
-
-
-    <!-- 右侧主内容区域 -->
+    <!-- 左侧 Sidebar 已被上提至 Home.vue 的 AdminSidebar；本页面仅负责主内容 -->
     <Main
         :current-view-type="currentViewType"
         :current-view-key="currentViewKey"
@@ -21,13 +13,12 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, defineAsyncComponent, ref} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
-import Sidebar from './component/Sidebar.vue'
+import {computed, defineAsyncComponent} from 'vue'
+import {useRoute} from 'vue-router'
 import Main from './component/Main.vue'
+import {useAiConfigCenterState} from '@/composables/useAiConfigCenterState'
 
 const route = useRoute()
-const router = useRouter()
 
 const globalComponents: Record<string, any> = {
   'ai-account': defineAsyncComponent(() => import('@/views/admin/ai-config/ai-account/AccountList.vue')),
@@ -77,39 +68,16 @@ const initialViewMode = computed<'grid' | 'list'>(() => {
   return vm === 'grid' ? 'grid' : 'list'
 })
 
-const configCenterPath = '/admin/ai-config-center'
-
-const sidebarCollapsed = ref(false)
-const selectedProvider = ref<{ key: string; name: string; description: string; avatar: string } | null>(null)
-
-const handleSelectProvider = (info: { key: string; name: string; description: string; avatar: string }) => {
-  selectedProvider.value = info
-}
-
-const handleSidebarSelect = (key: string) => {
-  const globalKeys = Object.keys(globalComponents)
-
-  if (globalKeys.includes(key)) {
-    selectedProvider.value = null
-    router.push({path: configCenterPath, query: {view: key, viewMode: 'grid'}})
-  } else {
-    if (key === 'all') {
-      selectedProvider.value = null
-      router.push({path: configCenterPath, query: {}})
-    } else {
-      router.push({path: configCenterPath, query: {provider: key}})
-    }
-  }
-}
+// selectedProvider 状态由 AdminSidebar 维护，本页通过 composable 读取
+const {selectedProvider} = useAiConfigCenterState()
 </script>
 
 <style scoped>
 .config-center-layout {
-  height: calc(100vh - 60px);
+  flex: 1;
+  min-height: 0;
   display: flex;
   overflow: hidden;
   background-color: var(--bg-surface);
 }
-
-
 </style>

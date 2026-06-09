@@ -160,10 +160,10 @@ const go = (to: string) => {
 .module-sider {
   display: flex;
   flex-direction: column;
-  width: 260px;
+  width: 288px;
   background: var(--bg-card);
   border-right: 1px solid var(--border-default);
-  transition: all 0.3s;
+  transition: width 0.3s;
 }
 
 .module-sider-scroll {

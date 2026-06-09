@@ -3,6 +3,7 @@ export const aiConfigCenterTranslation = {
     searchPlaceholder: '搜索资源...',
     all: '全部',
     emptyPlugin: '暂无已启用的插件',
+    emptyPluginHint: '尚未安装任何模型提供方插件，前往插件市场选择安装。',
     goMarketplace: '前往插件市场',
     aiAccount: 'AI 账号',
     prompts: '提示词',

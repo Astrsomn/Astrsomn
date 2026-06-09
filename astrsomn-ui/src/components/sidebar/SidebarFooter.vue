@@ -1,9 +1,8 @@
 <template>
-  <template v-if="!collapsed">
-    <div class="sf-footer-row">
-      <div class="sf-driver-info">
-        <div class="sf-avatars">
-          <template v-if="enabledExtensions.length">
+  <div class="sf-footer-row">
+    <div class="sf-driver-info">
+      <div class="sf-avatars">
+        <template v-if="enabledExtensions.length">
             <span
                 v-for="item in enabledExtensions.slice(0, 4)"
                 :key="item.key"
@@ -13,28 +12,19 @@
               <img v-if="item.avatar" :alt="item.name" :src="item.avatar"/>
               <span v-else>{{ item.initial }}</span>
             </span>
-          </template>
-          <span v-else class="sf-av">-</span>
-        </div>
-        <span class="sf-text">
-          {{ enabledExtensions.length ? t.sidebar.enabledExtensions.replace('{count}', String(enabledExtensions.length)) : t.sidebar.noExtensions }}
-        </span>
+        </template>
+        <span v-else class="sf-av">-</span>
       </div>
-      <div class="sf-marketplace-btn" @click="emit('open-marketplace')">
-        <AppstoreOutlined class="sf-marketplace-icon"/>
-        <span>{{ effectiveMarketplaceLabel }}</span>
-        <span v-if="showDot" class="sf-dot"></span>
-      </div>
+      <span class="sf-text">
+        {{ enabledExtensions.length ? t.sidebar.enabledExtensions.replace('{count}', String(enabledExtensions.length)) : t.sidebar.noExtensions }}
+      </span>
     </div>
-  </template>
-  <template v-else>
-    <a-tooltip placement="right">
-      <template #title>{{ effectiveMarketplaceLabel }}</template>
-      <div class="sf-collapsed-btn" @click="emit('open-marketplace')">
-        <AppstoreOutlined class="sf-collapsed-icon"/>
-      </div>
-    </a-tooltip>
-  </template>
+    <div class="sf-marketplace-btn" @click="emit('open-marketplace')">
+      <AppstoreOutlined class="sf-marketplace-icon"/>
+      <span>{{ effectiveMarketplaceLabel }}</span>
+      <span v-if="showDot" class="sf-dot"></span>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -46,11 +36,9 @@ const t = usePageTranslation('common')
 
 const props = withDefaults(defineProps<{
   enabledExtensions: Array<{ key: string; name: string; avatar: string; initial: string }>
-  collapsed?: boolean
   showDot?: boolean
   marketplaceLabel?: string
 }>(), {
-  collapsed: false,
   showDot: false,
   marketplaceLabel: '',
 })
@@ -153,26 +141,5 @@ const effectiveMarketplaceLabel = computed(() => props.marketplaceLabel || t.val
 @keyframes sf-dot-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.6; transform: scale(1.3); }
-}
-
-.sf-collapsed-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: all 0.2s;
-}
-
-.sf-collapsed-btn:hover {
-  color: var(--primary);
-  background: var(--primary-hover);
-}
-
-.sf-collapsed-icon {
-  font-size: 16px;
 }
 </style>

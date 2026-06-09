@@ -1,39 +1,33 @@
 <template>
-  <SidebarShell :collapsed="collapsed" @toggle-collapse="toggleCollapsed">
-    <div style="display: flex; flex-direction: column; height: 100%;">
-      <div class="nav-list">
-        <div class="nav-items">
-          <a-tooltip :disabled="!collapsed" placement="right">
-            <template #title>{{ t?.sidebar?.all ?? '全部' }}</template>
-            <div
-              :class="{ 'is-active': activeItem === 'all' }"
-              class="nav-card"
-              @click="handleSelect('all')"
-            >
-              <div class="nav-avatar nav-avatar--all">
-                <AppstoreOutlined class="nav-icon--all" />
-              </div>
-              <span class="nav-name">{{ t?.sidebar?.all ?? '全部' }}</span>
-            </div>
-          </a-tooltip>
-          <a-tooltip
-            v-for="item in menuItems"
-            :key="item.key"
-            :disabled="!collapsed"
-            placement="right"
-          >
-            <template #title>{{ item.label }}</template>
-            <div
-              :class="{ 'is-active': activeItem === item.key }"
-              class="nav-card"
-              @click="handleSelect(item.key)"
-            >
-              <div class="nav-avatar">
-                <component :is="item.icon" class="nav-icon" />
-              </div>
-              <span class="nav-name">{{ item.label }}</span>
-            </div>
-          </a-tooltip>
+  <SidebarShell :width="288">
+    <div class="nav-list">
+      <div class="nav-items">
+        <div
+          :class="{ 'is-active': activeItem === 'all' }"
+          class="nav-item"
+          @click="handleSelect('all')"
+        >
+          <PhSquaresFour
+              :size="16"
+              :weight="activeItem === 'all' ? 'fill' : 'bold'"
+              class="nav-icon"
+          />
+          <span class="nav-name">{{ t?.sidebar?.all ?? '全部' }}</span>
+        </div>
+        <div
+          v-for="item in menuItems"
+          :key="item.key"
+          :class="{ 'is-active': activeItem === item.key }"
+          class="nav-item"
+          @click="handleSelect(item.key)"
+        >
+          <component
+            :is="item.icon"
+            :size="16"
+            weight="regular"
+            class="nav-icon"
+          />
+          <span class="nav-name">{{ item.label }}</span>
         </div>
       </div>
     </div>
@@ -44,39 +38,32 @@
 import {computed, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {
-  AlertOutlined,
-  ApiOutlined,
-  AppstoreOutlined,
-  ClusterOutlined,
-  SettingOutlined,
-  UserOutlined,
-} from '@ant-design/icons-vue'
+  PhBell,
+  PhGlobe,
+  PhPuzzlePiece,
+  PhSliders,
+  PhSquaresFour,
+  PhUsers,
+} from '@phosphor-icons/vue'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import {usePageTranslation} from '@/locales/pages'
 
 const emit = defineEmits<{
   select: [key: string]
-  'update:collapsed': [value: boolean]
 }>()
 
 const route = useRoute()
 const t = usePageTranslation('system-config-center')
 
-const collapsed = ref(false)
-const toggleCollapsed = () => {
-  collapsed.value = !collapsed.value
-  emit('update:collapsed', collapsed.value)
-}
-
 const menuItems = computed(() => {
   const s = t.value?.sidebar
   if (!s) return []
   return [
-    { key: 'users', label: s.users, icon: UserOutlined },
-    { key: 'env', label: s.env, icon: ClusterOutlined },
-    { key: 'config', label: s.config, icon: SettingOutlined },
-    { key: 'messages', label: s.messages, icon: AlertOutlined },
-    { key: 'extensions', label: s.extensions, icon: ApiOutlined },
+    { key: 'users', label: s.users, icon: PhUsers },
+    { key: 'env', label: s.env, icon: PhGlobe },
+    { key: 'config', label: s.config, icon: PhSliders },
+    { key: 'messages', label: s.messages, icon: PhBell },
+    { key: 'extensions', label: s.extensions, icon: PhPuzzlePiece },
   ]
 })
 
@@ -117,86 +104,48 @@ watch(
 .nav-items {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
-.nav-card {
+.nav-item {
   display: flex;
   align-items: center;
-  padding: 9px 12px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
   color: var(--text-secondary);
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  position: relative;
+  background: transparent;
+  border-left: 3px solid transparent;
 }
 
-.nav-card:hover {
-  background: var(--primary-hover);
-  color: var(--primary);
-}
-
-.nav-card.is-active {
-  background: var(--primary-hover);
-  color: var(--primary);
-  font-weight: 600;
-}
-
-.nav-card.is-active::before {
-  content: '';
-  position: absolute;
-  left: -2px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 20px;
-  border-radius: 0 2px 2px 0;
-  background: var(--primary);
-}
-
-.nav-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-  margin-right: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
+.nav-item:hover {
   background: var(--bg-input);
-  transition: background 0.2s;
+  color: var(--text-primary);
 }
 
-.nav-card:hover .nav-avatar,
-.nav-card.is-active .nav-avatar {
-  background: var(--primary-hover);
+.nav-item:hover .nav-icon {
+  color: var(--primary);
 }
 
-.nav-avatar--all {
-  background: rgba(59, 130, 246, 0.12);
+.nav-item.is-active {
+  background: rgba(59, 130, 246, 0.10);
+  color: var(--primary);
+  font-weight: 500;
+  border-left-color: var(--primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
-.nav-card:hover .nav-avatar--all,
-.nav-card.is-active .nav-avatar--all {
-  background: rgba(59, 130, 246, 0.2);
+.nav-item.is-active .nav-icon {
+  color: var(--primary);
 }
 
 .nav-icon {
-  font-size: 15px;
-  color: var(--text-secondary);
-  transition: color 0.2s;
-}
-
-.nav-icon--all {
-  font-size: 14px;
-  color: var(--primary);
-}
-
-.nav-card:hover .nav-icon,
-.nav-card.is-active .nav-icon {
-  color: var(--primary);
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
 }
 
 .nav-name {
@@ -204,31 +153,5 @@ watch(
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* Collapsed state */
-.ast-sidebar.collapsed .nav-items {
-  align-items: center;
-}
-
-.ast-sidebar.collapsed .nav-card {
-  justify-content: center;
-  padding: 8px;
-  width: 44px;
-  height: 44px;
-  margin: 0 auto;
-}
-
-.ast-sidebar.collapsed .nav-card.is-active::before {
-  left: -4px;
-  height: 28px;
-}
-
-.ast-sidebar.collapsed .nav-avatar {
-  margin-right: 0;
-}
-
-.ast-sidebar.collapsed .nav-name {
-  display: none;
 }
 </style>

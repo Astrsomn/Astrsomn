@@ -1,14 +1,5 @@
 <template>
   <div class="left-panel">
-    <AstOverview
-        :all-current-selected="allCurrentSelected"
-        :list-length="list.length"
-        :part-current-selected="partCurrentSelected"
-        :selected-count="selectedRowKeys.length"
-        :show-actions="list.length > 0"
-        :summary-text="t.panel.summaryText.replace('{total}', String(list.length)).replace('{selected}', String(selectedRowKeys.length))"
-        @toggle-select-all="toggleSelectAllCurrentPage"
-    />
 
     <a-spin :spinning="loading">
 
@@ -32,7 +23,7 @@
 
 <script lang="ts" setup>
 import {computed, defineEmits, defineProps} from 'vue'
-import AstOverview from '@/components/home/AstOverview.vue'
+
 import SessionList from '@/views/chat-index/component/chat-session/SessionList.vue'
 import {adaptSessionToSessionItem, type AiChatSession} from '@/api/aiChatSession.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
