@@ -1,6 +1,10 @@
 <template>
   <div class="activity-bar">
     <div class="activity-bar-top">
+      <div class="activity-logo" @click="goHome">
+        <img alt="Astrsomn" class="logo-img" src="../../assets/Astrsomn-logo.png"/>
+      </div>
+
       <a-tooltip v-for="item in modules" :key="item.key" placement="right">
         <template #title>{{ item.label }}</template>
         <div
@@ -9,7 +13,7 @@
             @click="navigateTo(item.route)"
         >
           <div class="activity-indicator"></div>
-          <component :is="item.icon" class="activity-icon"/>
+          <component :is="item.icon" :size="20" class="activity-icon" weight="regular"/>
         </div>
       </a-tooltip>
     </div>
@@ -18,7 +22,7 @@
       <a-tooltip placement="right">
         <template #title>{{ t.activityBar.settings }}</template>
         <div class="activity-item" @click="navigateTo('/admin/system')">
-          <SettingOutlined class="activity-icon"/>
+          <PhGear :size="20" class="activity-icon" weight="regular"/>
         </div>
       </a-tooltip>
     </div>
@@ -27,7 +31,7 @@
 
 <script lang="ts" setup>
 import {computed} from 'vue'
-import {DatabaseOutlined, RobotOutlined, SettingOutlined} from '@ant-design/icons-vue'
+import {PhDatabase, PhGear, PhRobot} from '@phosphor-icons/vue'
 import {useRoute, useRouter} from 'vue-router'
 import {usePageTranslation} from '@/locales/pages.ts'
 
@@ -36,8 +40,8 @@ const router = useRouter()
 const t = usePageTranslation('common')
 
 const modules = computed(() => [
-  {key: 'ai-config', label: t.value.activityBar.aiConfig, icon: RobotOutlined, route: '/admin/ai-config-center'},
-  {key: 'vector', label: t.value.activityBar.vectorCenter, icon: DatabaseOutlined, route: '/admin/vec-center'},
+  {key: 'ai-config', label: t.value.activityBar.aiConfig, icon: PhRobot, route: '/admin/ai-config-center'},
+  {key: 'vector', label: t.value.activityBar.vectorCenter, icon: PhDatabase, route: '/admin/vec-center'},
 ])
 
 const isActive = (targetPath: string) => {
@@ -49,16 +53,23 @@ const isActive = (targetPath: string) => {
 const navigateTo = (path: string) => {
   router.push(path)
 }
+
+const goHome = () => {
+  // 始终切换到 chat 主页（统一入口）
+  if (route.path !== '/') {
+    router.push('/')
+  }
+}
 </script>
 
 <style scoped>
 .activity-bar {
   position: fixed;
   left: 0;
-  top: 60px;
+  top: 0;
   bottom: 0;
   width: 56px;
-  background: var(--bg-card);
+  background: var(--bg-default);
   border-right: 1px solid #e5e6eb47;
   display: flex;
   flex-direction: column;
@@ -74,6 +85,29 @@ const navigateTo = (path: string) => {
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  width: 100%;
+}
+
+.activity-logo {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: background 0.2s ease;
+}
+
+.activity-logo:hover {
+  background: var(--primary-hover);
+}
+
+.logo-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 .activity-item {
@@ -126,5 +160,18 @@ const navigateTo = (path: string) => {
 
 .activity-icon {
   font-size: 20px;
+  color: currentColor;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.activity-icon :deep(svg) {
+  display: block;
+}
+
+.activity-item:hover .activity-icon {
+  transform: scale(1.1);
 }
 </style>

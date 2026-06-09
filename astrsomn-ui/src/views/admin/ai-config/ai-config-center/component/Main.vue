@@ -167,8 +167,8 @@ watch(
 .ant-layout-content {
   flex: 1;
   min-height: 0;
-  height: calc(100vh - 60px);
-  overflow-y: auto;
+  height: 100%;
+  overflow: visible;
   background-color: var(--bg-surface);
 }
 

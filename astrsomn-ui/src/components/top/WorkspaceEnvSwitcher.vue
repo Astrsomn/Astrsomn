@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible && isLoggedIn" class="env-capsule-minimal">
+  <div v-if="visible && isLoggedIn" class="env-capsule-minimal" :class="envThemeClass">
     <div class="env-content">
       <a-spin v-if="workspaceLoading" size="small"/>
       <template v-else-if="workspaceContext">
@@ -9,6 +9,7 @@
             placement="bottomRight"
         >
           <div class="env-trigger-btn">
+            <span class="env-dot"></span>
             <cloud-server-outlined class="env-icon-small"/>
             <span class="env-label-text">{{ currentEnvDisplay }}</span>
             <down-outlined class="env-caret-small"/>
@@ -19,7 +20,10 @@
             </a-menu>
           </template>
         </a-dropdown>
-        <div v-else class="env-readonly-text">{{ workspaceContext.effectiveEnvCode }}</div>
+        <div v-else class="env-readonly-text">
+          <span class="env-dot"></span>
+          {{ workspaceContext.effectiveEnvCode }}
+        </div>
       </template>
     </div>
   </div>
@@ -54,6 +58,16 @@ const currentEnvDisplay = computed(() => {
   if (!ctx) return ''
   const option = envPickOptions.value.find((item) => item.value === ctx.effectiveEnvCode)
   return option?.label ?? ctx.effectiveEnvCode
+})
+
+const envThemeClass = computed(() => {
+  const code = (workspaceContext.value?.effectiveEnvCode || '').toLowerCase()
+  if (!code) return 'env-theme-default'
+  if (/(dev|develop|development|local)/.test(code)) return 'env-theme-dev'
+  if (/(test|testing|qa|sit)/.test(code)) return 'env-theme-test'
+  if (/(stag|staging|pre|uat|gray|grey)/.test(code)) return 'env-theme-staging'
+  if (/(prod|production|online|release)/.test(code)) return 'env-theme-prod'
+  return 'env-theme-default'
 })
 
 async function loadWorkspaceContext() {
@@ -95,51 +109,176 @@ onMounted(loadWorkspaceContext)
 
 <style scoped>
 .env-capsule-minimal {
-  border-radius: 8px;
-  height: 32px;
+  --env-accent: #3b82f6;
+  --env-accent-soft: rgba(59, 130, 246, 0.22);
+  --env-accent-bg: rgba(59, 130, 246, 0.08);
+  --env-accent-glow: rgba(59, 130, 246, 0.4);
+  --env-accent-strong: #2563eb;
+  --env-accent-2: #1d4ed8;
+
+  border-radius: 18px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 4px;
+  background: linear-gradient(135deg, var(--env-accent-bg), rgba(255, 255, 255, 0));
+  border: 1px solid var(--env-accent-soft);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 0 0 1px transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.env-capsule-minimal:hover {
+  border-color: var(--env-accent);
+  box-shadow: 0 0 0 3px var(--env-accent-soft);
+}
+
+.env-content {
   display: flex;
   align-items: center;
-  transition: all 0.2s;
+  width: 100%;
+  height: 100%;
 }
 
 .env-trigger-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 10px;
+  gap: 8px;
+  padding: 0 12px;
+  height: 100%;
+  border-radius: 14px;
   cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.env-trigger-btn:hover {
+  background: var(--env-accent-bg);
+}
+
+.env-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--env-accent), var(--env-accent-2));
+  box-shadow: 0 0 8px var(--env-accent-glow);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.env-dot::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: var(--env-accent);
+  opacity: 0.4;
+  z-index: -1;
+  filter: blur(4px);
+  animation: env-dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes env-dot-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
 }
 
 .env-icon-small {
-  font-size: 13px;
-  color: var(--text-secondary);
+  font-size: 14px;
+  color: var(--env-accent);
+  transition: transform 0.2s;
+}
+
+.env-trigger-btn:hover .env-icon-small {
+  transform: scale(1.1) rotate(-8deg);
 }
 
 .env-label-text,
 .env-readonly-text {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-heading);
+  font-size: 12.5px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--env-accent-strong), var(--env-accent-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.env-readonly-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
 }
 
 .env-caret-small {
-  font-size: 10px;
-  color: var(--text-muted);
+  font-size: 9px;
+  color: var(--env-accent);
+  transition: transform 0.2s;
 }
 
-.env-trigger-btn:hover .env-icon-small {
-  color: var(--text-primary);
+.env-trigger-btn:hover .env-caret-small {
+  transform: translateY(1px);
 }
 
-.env-trigger-btn:hover .env-label-text,
-.env-trigger-btn:hover .env-readonly-text {
-  color: var(--text-primary);
+/* === default: 经典蓝 === */
+.env-theme-default {
+  --env-accent: #3b82f6;
+  --env-accent-soft: rgba(59, 130, 246, 0.22);
+  --env-accent-bg: rgba(59, 130, 246, 0.08);
+  --env-accent-glow: rgba(59, 130, 246, 0.45);
+  --env-accent-strong: #2563eb;
+  --env-accent-2: #1d4ed8;
+}
+
+/* === dev: 天蓝 === */
+.env-theme-dev {
+  --env-accent: #38bdf8;
+  --env-accent-soft: rgba(56, 189, 248, 0.22);
+  --env-accent-bg: rgba(56, 189, 248, 0.08);
+  --env-accent-glow: rgba(56, 189, 248, 0.45);
+  --env-accent-strong: #0ea5e9;
+  --env-accent-2: #0284c7;
+}
+
+/* === test: 中蓝 === */
+.env-theme-test {
+  --env-accent: #3b82f6;
+  --env-accent-soft: rgba(59, 130, 246, 0.22);
+  --env-accent-bg: rgba(59, 130, 246, 0.08);
+  --env-accent-glow: rgba(59, 130, 246, 0.45);
+  --env-accent-strong: #2563eb;
+  --env-accent-2: #1d4ed8;
+}
+
+/* === staging: 靛蓝 === */
+.env-theme-staging {
+  --env-accent: #6366f1;
+  --env-accent-soft: rgba(99, 102, 241, 0.22);
+  --env-accent-bg: rgba(99, 102, 241, 0.08);
+  --env-accent-glow: rgba(99, 102, 241, 0.45);
+  --env-accent-strong: #4f46e5;
+  --env-accent-2: #4338ca;
+}
+
+/* === prod: 深蓝 === */
+.env-theme-prod {
+  --env-accent: #1d4ed8;
+  --env-accent-soft: rgba(29, 78, 216, 0.24);
+  --env-accent-bg: rgba(29, 78, 216, 0.1);
+  --env-accent-glow: rgba(29, 78, 216, 0.5);
+  --env-accent-strong: #1e40af;
+  --env-accent-2: #1e3a8a;
 }
 
 @media (max-width: 768px) {
   .env-label-text,
   .env-readonly-text {
     display: none;
+  }
+
+  .env-capsule-minimal {
+    padding: 0 6px;
   }
 }
 </style>

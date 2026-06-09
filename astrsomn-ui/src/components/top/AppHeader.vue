@@ -3,35 +3,7 @@
     <div class="header-container">
       <div class="header-left">
         <transition mode="out-in" name="fade-slide">
-          <div v-if="showBrand" key="logo" class="brand-area">
-            <div class="logo-box">
-              <img alt="Astrsomn" class="logo-img" src="../../assets/Astrsomn-logo.png"/>
-            </div>
-
-            <button
-                v-if="showSwitch"
-                class="brand-interactive-wrapper"
-                type="button"
-                @click="handleSwitch"
-            >
-              <div class="flip-content">
-                <div class="flip-layer layer-front">
-                  <span class="brand-name">Astrsomn</span>
-
-                </div>
-
-                <div class="flip-layer layer-back">
-                  <span class="action-text">{{ switchActionText }}</span>
-                  <component :is="switchIcon" class="action-icon"/>
-                </div>
-              </div>
-            </button>
-
-            <div v-else class="brand-text-static">
-              <span class="brand-name">Astrsomn</span>
-              <span class="brand-status">{{ brandStatus }}</span>
-            </div>
-          </div>
+          <WorkspaceEnvSwitcher v-if="showWorkspaceEnv" key="env" :visible="true"/>
 
           <div v-else-if="showBack" key="back" class="page-nav-area">
             <button class="back-icon-btn" type="button" @click="handleBack">
@@ -39,14 +11,14 @@
             </button>
             <h1 class="page-title">{{ effectivePageTitle }}</h1>
           </div>
+
+          <div v-else-if="effectivePageTitle" key="title" class="page-nav-area">
+            <h1 class="page-title">{{ effectivePageTitle }}</h1>
+          </div>
         </transition>
       </div>
 
       <div class="header-right">
-        <WorkspaceEnvSwitcher :visible="showWorkspaceEnv"/>
-
-        <div class="v-line-divider"></div>
-
         <a-tooltip v-if="isLoggedIn" :title="t.header.messagesTip">
           <a-badge :count="messageUnreadCount" :offset="[-2, 2]" :overflow-count="99">
             <a-button class="header-icon-btn" shape="circle" size="small" type="text" @click="openMessageDialog">
@@ -73,8 +45,8 @@
 
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
-import {useRoute, useRouter} from 'vue-router';
-import {AppstoreOutlined, ArrowLeftOutlined, BellOutlined, SwapOutlined} from '@ant-design/icons-vue';
+import {useRouter} from 'vue-router';
+import {ArrowLeftOutlined, BellOutlined} from '@ant-design/icons-vue';
 
 
 import DocLangTheme from './DocLangTheme.vue';
@@ -89,41 +61,22 @@ import {usePageTranslation} from '@/locales/pages.ts';
 const t = usePageTranslation('common')
 
 interface Props {
-  showBrand?: boolean;
   showBack?: boolean;
-  brandStatus?: string;
   pageTitle?: string;
   showDoc?: boolean;
-  showSwitch?: boolean;
-  switchTarget?: 'chat' | 'admin';
   showWorkspaceEnv?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  showBrand: true, showBack: false, brandStatus: 'AI Assistant',
-  pageTitle: '', showDoc: false, showSwitch: false,
-  switchTarget: 'chat', showWorkspaceEnv: false,
+  showBack: false,
+  pageTitle: '', showDoc: false, showWorkspaceEnv: false,
 });
 
 const effectivePageTitle = computed(() => props.pageTitle || t.value.header.admin)
 
 const router = useRouter();
-const route = useRoute();
-const isClicking = ref(false);
 const isLoggedIn = computed(() => !!localStorage.getItem('token'));
 
-const switchActionText = computed(() => props.switchTarget === 'chat' ? t.value.header.chatNow : t.value.header.admin);
-const switchIcon = computed(() => props.switchTarget === 'chat' ? SwapOutlined : AppstoreOutlined);
-
-const handleSwitch = () => {
-  isClicking.value = true;
-  setTimeout(() => {
-    const dest = props.switchTarget === 'chat' ? '/' : (localStorage.getItem('lastAdminPath') || '/admin');
-    if (props.switchTarget === 'chat') localStorage.setItem('lastAdminPath', route.path);
-    router.push(dest);
-    isClicking.value = false;
-  }, 200);
-};
 const handleBack = () => router.back();
 const handleLogin = () => {
   localStorage.removeItem('token');
@@ -144,7 +97,6 @@ const onUnreadCountChange = (count: number) => {
 
 <style scoped>
 .app-header {
-  --primary-glow: color-mix(in srgb, var(--primary) 20%, transparent);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -171,100 +123,8 @@ const onUnreadCountChange = (count: number) => {
 .header-left {
   display: flex;
   align-items: center;
-  min-width: 240px;
+  min-width: 0;
 
-}
-
-.brand-area {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo-box {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-}
-
-.logo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-
-.brand-interactive-wrapper {
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  outline: none;
-  height: 40px;
-  perspective: 1000px;
-  overflow: hidden;
-}
-
-.flip-content {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
-}
-
-.brand-interactive-wrapper:hover .flip-content {
-  transform: translateY(-40px);
-}
-
-.flip-layer {
-  height: 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  backface-visibility: hidden;
-}
-
-
-.layer-front .brand-name {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--text-heading);
-  letter-spacing: -0.5px;
-  line-height: 1.2;
-  font-style: italic;
-}
-
-.layer-front .brand-status {
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.2;
-}
-
-
-.layer-back {
-  flex-direction: row !important;
-  align-items: center;
-  gap: 8px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.brand-interactive-wrapper:hover .layer-back {
-  opacity: 1;
-}
-
-.action-text {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--primary);
-  letter-spacing: 1px;
-  text-shadow: 0 0 12px var(--primary-glow);
-}
-
-.action-icon {
-  font-size: 12px;
-  color: var(--primary);
 }
 
 
@@ -352,11 +212,5 @@ const onUnreadCountChange = (count: number) => {
 .fade-slide-leave-from {
   opacity: 1;
   transform: translateX(0);
-}
-
-@media (max-width: 768px) {
-  .brand-status {
-    display: none;
-  }
 }
 </style>

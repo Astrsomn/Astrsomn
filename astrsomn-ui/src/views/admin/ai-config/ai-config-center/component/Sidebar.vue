@@ -1,10 +1,9 @@
 <template>
-  <SidebarShell :collapsed="collapsed" @toggle-collapse="toggleCollapsed">
+  <SidebarShell>
     <template #top>
       <AstSearchInput
-          v-if="!collapsed"
           v-model="searchText"
-      
+
           layout="fluid"
           :placeholder="t.sidebar.searchPlaceholder"
           @search="handleSearch"
@@ -16,7 +15,7 @@
       <div class="nav-list">
         <div class="nav-section">
           <div class="provider-list">
-            <a-tooltip :disabled="!collapsed" placement="right">
+            <a-tooltip placement="right">
               <template #title>{{ t.sidebar.all }}</template>
               <div
                   :class="{ 'is-active': activeItem === 'all' }"
@@ -32,7 +31,6 @@
             <a-tooltip
                 v-for="item in providers"
                 :key="item.key"
-                :disabled="!collapsed"
                 placement="right"
             >
               <template #title>{{ item.label }}</template>
@@ -49,7 +47,7 @@
               </div>
             </a-tooltip>
           </div>
-          <div v-if="providers.length === 0 && !collapsed" class="empty-provider">
+          <div v-if="providers.length === 0" class="empty-provider">
             <div class="empty-provider-hint">
               <span class="empty-provider-text">{{ t.sidebar.emptyPluginHint }}</span>
               <a-button block size="small" type="primary" @click="handleAddPlugin">
@@ -68,7 +66,6 @@
         <a-tooltip
             v-for="item in globalItems"
             :key="item.key"
-            :disabled="!collapsed"
             placement="right"
         >
           <template #title>{{ getItemLabel(item.key) }}</template>
@@ -83,7 +80,7 @@
           </div>
         </a-tooltip>
 
-        <div v-show="!collapsed" class="extra-items">
+        <div class="extra-items">
           <div
               v-for="item in extraItems"
               :key="item.key"
@@ -102,7 +99,6 @@
 
     <template #footer>
       <SidebarFooter
-          :collapsed="collapsed"
           :enabled-extensions="enabledExtensions"
           :show-dot="!providers.length"
           @open-marketplace="goPluginMarketplace"
@@ -147,17 +143,11 @@ import ExtensionMarketplaceDialog
 const emit = defineEmits<{
   select: [key: string]
   'select-provider': [info: { key: string; name: string; description: string; avatar: string }]
-  'update:collapsed': [value: boolean]
 }>()
 
 // 空态"前往插件市场"按钮图标；占位 const 让 vue-tsc 把 import 视为已使用。
 const MarketplaceIcon = AppstoreOutlined
 
-const collapsed = ref(false)
-const toggleCollapsed = () => {
-  collapsed.value = !collapsed.value
-  emit('update:collapsed', collapsed.value)
-}
 const route = useRoute()
 const providerDict = useDictionary('ai-model.provider')
 const t = usePageTranslation('ai-config-center')
@@ -563,75 +553,6 @@ watch(
   font-size: 12px;
   line-height: 1.5;
   color: var(--text-secondary);
-}
-
-
-.ast-sidebar.collapsed .nav-list {
-  width: 100%;
-}
-
-.ast-sidebar.collapsed .provider-list {
-  align-items: center;
-}
-
-.ast-sidebar.collapsed .provider-card {
-  justify-content: center;
-  padding: 8px;
-  width: 40px;
-  height: 40px;
-  margin: 0 auto;
-}
-
-.ast-sidebar.collapsed .provider-card.is-active::after {
-  right: -4px;
-}
-
-.ast-sidebar.collapsed .provider-avatar {
-  margin-right: 0;
-}
-
-.ast-sidebar.collapsed .provider-name {
-  display: none;
-}
-
-.ast-sidebar.collapsed .empty-provider {
-  display: none;
-}
-
-
-.ast-sidebar.collapsed .global-section {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.ast-sidebar.collapsed .global-item {
-  justify-content: center;
-  padding: 10px;
-  width: 40px;
-  height: 40px;
-  margin: 2px auto;
-}
-
-.ast-sidebar.collapsed .global-item.is-active::after {
-  right: -4px;
-}
-
-.ast-sidebar.collapsed .global-icon {
-  margin-right: 0;
-}
-
-.ast-sidebar.collapsed .global-label {
-  display: none;
-}
-
-.ast-sidebar.collapsed .global-count {
-  display: none;
-}
-
-.ast-sidebar.collapsed .extra-items {
-  display: none;
 }
 
 </style>

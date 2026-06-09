@@ -104,6 +104,9 @@ export const commonPageTranslation = {
     enabledExtensions: '{count} extensions enabled',
     noExtensions: 'No extensions enabled',
     marketplace: 'Plugin Marketplace',
+    adminNav: 'Admin Nav',
+    placeholder: 'Select a module',
+    footerHint: 'Collapsible sidebar',
   },
   header: {
     admin: 'Admin Panel',

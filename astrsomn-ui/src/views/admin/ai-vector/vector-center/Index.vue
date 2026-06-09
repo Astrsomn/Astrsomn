@@ -1,20 +1,6 @@
 <template>
   <div class="vector-center-layout">
-    <!-- 侧边栏固定 -->
-    <div class="vector-center-sider">
-      <Sidebar
-          :collapsed="sidebarCollapsed"
-          :selected-store-id="selectedStoreId"
-          :sources="sources"
-          :stores="stores"
-          @changed="handleTreeChanged"
-          @select-source="handleSelectSource"
-          @select-store="handleSelectStore"
-          @toggle-collapse="sidebarCollapsed = !sidebarCollapsed"
-      />
-    </div>
-
-    <!-- 主内容区 -->
+    <!-- 左侧 Sidebar 已被上提至 Home.vue 的 AdminSidebar；本页面仅负责主内容 -->
     <Main
         :selected-source-id="selectedSourceId"
         :selected-store-id="selectedStoreId"
@@ -30,16 +16,11 @@
 </template>
 
 <script lang="ts" setup>
-import {onMounted, ref} from 'vue'
-import Sidebar from '@/views/admin/ai-vector/vector-center/component/Sidebar.vue'
+import {onMounted} from 'vue'
 import Main from '@/views/admin/ai-vector/vector-center/component/Main.vue'
 import {useVectorCenterState} from '@/views/admin/ai-vector/vector-center/hooks/useVectorCenterState'
 
-const sidebarCollapsed = ref(false)
-
 const {
-  sources,
-  stores,
   docs,
   selectedSource,
   selectedStore,
@@ -48,35 +29,15 @@ const {
   selectedSourceId,
   bootstrap,
   reloadByDoc,
-  fetchSources,
-  fetchStores,
-  fetchDocs
+  fetchSources
 } = useVectorCenterState()
-
-const handleSelectSource = async (sourceId: number | string) => {
-  selectedSourceId.value = sourceId
-  selectedStoreId.value = undefined
-  selectedDocId.value = undefined
-  docs.value = []
-  await fetchStores()
-}
-
-const handleSelectStore = async (storeId: number | string) => {
-  selectedStoreId.value = storeId
-  selectedDocId.value = undefined
-  await fetchDocs()
-}
 
 const handleSelectDoc = async (docId: number | string) => {
   selectedDocId.value = docId || undefined
 }
 
-const handleTreeChanged = async () => {
-  await fetchSources()
-}
-
 const handleStoreUpdated = async () => {
-  await fetchStores()
+  await fetchSources()
 }
 
 const handleDocChanged = async () => {
@@ -91,59 +52,9 @@ onMounted(async () => {
 <style scoped>
 
 .vector-center-layout {
-  position: fixed;
-  top: 60px;
-  left: 56px;
-  right: 0;
-  bottom: 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
   overflow: hidden;
-  display: flex;
-}
-
-
-.vector-center-sider {
-
-  flex-shrink: 0;
-  z-index: 10;
-}
-
-
-.vector-center-main {
-  flex: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background-color: var(--bg-surface);
-}
-
-
-.vector-center-top {
-  flex-shrink: 0;
-}
-
-
-.vector-center-content {
-  flex: 1;
-  overflow-y: auto;
-  background-color: var(--bg-surface);
-  scroll-snap-type: y mandatory;
-}
-
-
-.snap-section {
-  min-height: 100%;
-  scroll-snap-align: start;
-  display: flex;
-  flex-direction: column;
-}
-
-.empty-state {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  font-size: 15px;
 }
 </style>

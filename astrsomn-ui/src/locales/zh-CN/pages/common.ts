@@ -104,6 +104,9 @@ export const commonPageTranslation = {
     enabledExtensions: '已启用扩展 {count}',
     noExtensions: '暂无已启用扩展',
     marketplace: '插件市场',
+    adminNav: '管理导航',
+    placeholder: '请选择功能模块',
+    footerHint: '侧边栏可折叠',
   },
   header: {
     admin: '管理后台',

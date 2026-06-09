@@ -1,39 +1,28 @@
 <template>
-  <SidebarShell :collapsed="collapsed" @toggle-collapse="toggleCollapsed">
-    <div style="display: flex; flex-direction: column; height: 100%;">
-      <div class="nav-list">
-        <div class="nav-items">
-          <a-tooltip :disabled="!collapsed" placement="right">
-            <template #title>{{ t?.sidebar?.all ?? '全部' }}</template>
-            <div
-              :class="{ 'is-active': activeItem === 'all' }"
-              class="nav-card"
-              @click="handleSelect('all')"
-            >
-              <div class="nav-avatar nav-avatar--all">
-                <AppstoreOutlined class="nav-icon--all" />
-              </div>
-              <span class="nav-name">{{ t?.sidebar?.all ?? '全部' }}</span>
-            </div>
-          </a-tooltip>
-          <a-tooltip
-            v-for="item in menuItems"
-            :key="item.key"
-            :disabled="!collapsed"
-            placement="right"
-          >
-            <template #title>{{ item.label }}</template>
-            <div
-              :class="{ 'is-active': activeItem === item.key }"
-              class="nav-card"
-              @click="handleSelect(item.key)"
-            >
-              <div class="nav-avatar">
-                <component :is="item.icon" class="nav-icon" />
-              </div>
-              <span class="nav-name">{{ item.label }}</span>
-            </div>
-          </a-tooltip>
+  <SidebarShell>
+    <div class="nav-list">
+      <div class="nav-items">
+        <div
+          :class="{ 'is-active': activeItem === 'all' }"
+          class="nav-card"
+          @click="handleSelect('all')"
+        >
+          <div class="nav-avatar nav-avatar--all">
+            <AppstoreOutlined class="nav-icon--all" />
+          </div>
+          <span class="nav-name">{{ t?.sidebar?.all ?? '全部' }}</span>
+        </div>
+        <div
+          v-for="item in menuItems"
+          :key="item.key"
+          :class="{ 'is-active': activeItem === item.key }"
+          class="nav-card"
+          @click="handleSelect(item.key)"
+        >
+          <div class="nav-avatar">
+            <component :is="item.icon" class="nav-icon" />
+          </div>
+          <span class="nav-name">{{ item.label }}</span>
         </div>
       </div>
     </div>
@@ -56,17 +45,10 @@ import {usePageTranslation} from '@/locales/pages'
 
 const emit = defineEmits<{
   select: [key: string]
-  'update:collapsed': [value: boolean]
 }>()
 
 const route = useRoute()
 const t = usePageTranslation('system-config-center')
-
-const collapsed = ref(false)
-const toggleCollapsed = () => {
-  collapsed.value = !collapsed.value
-  emit('update:collapsed', collapsed.value)
-}
 
 const menuItems = computed(() => {
   const s = t.value?.sidebar
@@ -204,31 +186,5 @@ watch(
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* Collapsed state */
-.ast-sidebar.collapsed .nav-items {
-  align-items: center;
-}
-
-.ast-sidebar.collapsed .nav-card {
-  justify-content: center;
-  padding: 8px;
-  width: 44px;
-  height: 44px;
-  margin: 0 auto;
-}
-
-.ast-sidebar.collapsed .nav-card.is-active::before {
-  left: -4px;
-  height: 28px;
-}
-
-.ast-sidebar.collapsed .nav-avatar {
-  margin-right: 0;
-}
-
-.ast-sidebar.collapsed .nav-name {
-  display: none;
 }
 </style>

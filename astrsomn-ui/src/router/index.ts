@@ -538,12 +538,18 @@ const adminChildren: RouteRecordRaw[] = [
 const routes: RouteRecordRaw[] = [
     {
         path: '/',
-        name: 'ChatHome',
-        component: () => import('@/views/chat-index/Index.vue'),
-        meta: {
-            title: '大模型聊天',
-            requiresAuth: false
-        }
+        component: () => import('@/views/admin/Home.vue'),
+        children: [
+            {
+                path: '',
+                name: 'ChatHome',
+                component: () => import('@/views/chat-index/Index.vue'),
+                meta: {
+                    title: '大模型聊天',
+                    requiresAuth: false
+                }
+            }
+        ]
     },
     {
         path: '/login',
