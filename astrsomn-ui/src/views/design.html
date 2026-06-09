@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrsomn - 资源与插件管理中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        // 全新升级的生产力科技蓝品牌色系
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            500: '#3b82f6', /* 核心科技蓝 */
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        darkBg: {
+                            deep: '#040712',    /* 最左控制轨背景 */
+                            base: '#080c16',    /* 主面板大底色 */
+                            card: '#0e1424',    /* 资源侧边栏、卡片、Header背景 */
+                            item: '#151e33',    /* 输入框、子列表项背景 */
+                            border: '#1e293b'   /* 分割线颜色 */
+                        }
+                    },
+                    boxShadow: {
+                        'premium': '0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 8px -1px rgba(0, 0, 0, 0.03)',
+                        'premium-dark': '0 4px 25px -2px rgba(0, 0, 0, 0.5), 0 4px 12px -1px rgba(0, 0, 0, 0.3)',
+                        'soft': '0 2px 12px 0 rgba(0, 0, 0, 0.02)',
+                        'neon-blue': '0 0 15px 3px rgba(59, 130, 246, 0.3)', /* 蓝色霓虹发光 */
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        /* 美化滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden text-slate-800 dark:text-slate-200 flex bg-slate-50 dark:bg-darkBg-base transition-colors duration-300">
+
+    <div class="flex w-full h-full overflow-hidden relative">
+        
+        <div class="absolute left-0 top-0 bottom-0 w-[4px] bg-gradient-to-b from-brand-500 via-sky-400 to-indigo-600 shadow-neon-blue z-30"></div>
+
+        <aside class="w-[76px] h-full bg-slate-50 dark:bg-darkBg-deep flex flex-col items-center justify-between py-5 pl-1 shrink-0 z-20 relative transition-colors duration-300 border-r border-slate-200/80 dark:border-slate-900">
+            
+            <div class="flex flex-col items-center gap-7 w-full relative z-10">
+                <div class="group relative cursor-pointer">
+                    <div class="absolute -inset-1 rounded-2xl bg-gradient-to-r from-brand-500 to-sky-400 opacity-20 group-hover:opacity-100 dark:opacity-60 blur-md transition duration-300"></div>
+                    <div class="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-white dark:bg-slate-950 text-slate-800 dark:text-white font-bold text-xl border border-slate-200 dark:border-white/10 shadow-sm">
+                        <span class="bg-clip-text text-transparent bg-gradient-to-tr from-brand-500 to-sky-400">A</span>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col gap-4 w-full px-2">
+                    <button class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center transition-all bg-gradient-to-tr from-brand-600 to-brand-500 text-white shadow-lg shadow-brand-500/25 dark:shadow-brand-500/10 relative group">
+                        <i class="ph-bold ph-robot text-xl"></i>
+                        <span class="absolute left-18 bg-slate-950 text-white text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl border border-white/5 z-30">Agent 平台</span>
+                        <div class="absolute -left-1 top-3.5 w-1.5 h-5 bg-brand-500 rounded-r-full shadow-neon-blue"></div>
+                    </button>
+
+                    <button onclick="switchTab('all')" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-brand-500 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-all relative group">
+                        <i class="ph-bold ph-sliders text-xl"></i>
+                        <span class="absolute left-18 bg-slate-950 text-white text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl border border-white/5 z-30">资源概览</span>
+                    </button>
+
+                    <button onclick="openMarket()" class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-brand-500 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-all relative group">
+                        <i class="ph-bold ph-puzzle-piece text-xl"></i>
+                        <span class="absolute left-18 bg-slate-950 text-white text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl border border-white/5 z-30">扩展中心</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center gap-4 w-full relative z-10">
+                <button class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-brand-500 dark:hover:text-brand-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-all group relative">
+                    <i class="ph-bold ph-gear text-xl"></i>
+                    <span class="absolute left-18 bg-slate-950 text-white text-xs px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl border border-white/5 z-30">系统设置</span>
+                </button>
+            </div>
+        </aside>
+
+        <aside class="w-72 h-full bg-white dark:bg-darkBg-card border-r border-slate-100 dark:border-slate-800/60 flex flex-col justify-between p-4 relative shrink-0 z-10 shadow-soft transition-colors duration-300">
+            <div class="flex flex-col h-[calc(100%-60px)]">
+                
+                <div class="relative mb-4">
+                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                        <i class="ph ph-magnifying-glass text-base"></i>
+                    </div>
+                    <input type="text" placeholder="搜索资源..." class="w-full pl-9 pr-4 py-2 bg-slate-50/80 dark:bg-darkBg-item border border-slate-100 dark:border-slate-800 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-brand-500/10 focus:border-brand-500 text-slate-800 dark:text-slate-200 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
+                </div>
+
+                <div class="mb-4">
+                    <button onclick="switchTab('all')" id="tab-all" class="menu-item w-full flex items-center justify-between px-3.5 py-2.5 bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-500 rounded-xl font-medium transition-all duration-200 border-l-[3px] border-brand-600 shadow-sm">
+                        <div class="flex items-center gap-2.5">
+                            <i class="ph-bold ph-squares-four text-base"></i>
+                            <span class="text-xs">全部</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div id="plugin-warning-card" class="bg-slate-50/50 dark:bg-darkBg-item/50 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-4 mb-4 text-center transition-all duration-300">
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-3">
+                        尚未安装任何模型提供方插件，前往插件市场选择安装。
+                    </p>
+                    <button onclick="openMarket()" class="w-full inline-flex items-center justify-center gap-1.5 bg-brand-600 hover:bg-brand-700 active:scale-98 text-white text-[11px] font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-sm">
+                        <i class="ph ph-storefront text-sm"></i>
+                        <span>前往插件市场</span>
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto space-y-1 pr-1">
+                    <button onclick="switchTab('ai-accounts')" id="tab-ai-accounts" class="menu-item w-full flex items-center justify-between px-3.5 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-darkBg-item hover:text-slate-900 dark:hover:text-slate-200 rounded-xl transition-all duration-200 group">
+                        <div class="flex items-center gap-2.5">
+                            <i class="ph ph-identification-card text-base text-slate-400 dark:text-slate-500 group-hover:text-brand-500 dark:group-hover:text-brand-400"></i>
+                            <span class="text-xs">AI 账号</span>
+                        </div>
+                        <span class="bg-slate-100 dark:bg-darkBg-item text-slate-600 dark:text-slate-400 text-[10px] px-2 py-0.5 rounded-full font-medium">1</span>
+                    </button>
+
+                    <button onclick="switchTab('prompts')" id="tab-prompts" class="menu-item w-full flex items-center justify-between px-3.5 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-darkBg-item hover:text-slate-900 dark:hover:text-slate-200 rounded-xl transition-all duration-200 group">
+                        <div class="flex items-center gap-2.5">
+                            <i class="ph ph-terminal-window text-base text-slate-400 dark:text-slate-500 group-hover:text-brand-500 dark:group-hover:text-brand-400"></i>
+                            <span class="text-xs">提示词</span>
+                        </div>
+                        <span class="bg-slate-100 dark:bg-darkBg-item text-slate-400 dark:text-slate-500 text-[10px] px-2 py-0.5 rounded-full">0</span>
+                    </button>
+
+                    <button onclick="switchTab('mcp')" id="tab-mcp" class="menu-item w-full flex items-center justify-between px-3.5 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-darkBg-item hover:text-slate-900 dark:hover:text-slate-200 rounded-xl transition-all duration-200 group">
+                        <div class="flex items-center gap-2.5">
+                            <i class="ph ph-link text-base text-slate-400 dark:text-slate-500 group-hover:text-brand-500 dark:group-hover:text-brand-400"></i>
+                            <span class="text-xs">MCP</span>
+                        </div>
+                        <span class="bg-slate-100 dark:bg-darkBg-item text-slate-400 dark:text-slate-500 text-[10px] px-2 py-0.5 rounded-full">0</span>
+                    </button>
+
+                    <button onclick="switchTab('tools')" id="tab-tools" class="menu-item w-full flex items-center justify-between px-3.5 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-darkBg-item hover:text-slate-900 dark:hover:text-slate-200 rounded-xl transition-all duration-200 group">
+                        <div class="flex items-center gap-2.5">
+                            <i class="ph ph-wrench text-base text-slate-400 dark:text-slate-500 group-hover:text-brand-500 dark:group-hover:text-brand-400"></i>
+                            <span class="text-xs">工具</span>
+                        </div>
+                        <span class="bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-500 text-[10px] px-2 py-0.5 rounded-full font-semibold">3</span>
+                    </button>
+
+                    <button onclick="switchTab('ftl')" id="tab-ftl" class="menu-item w-full flex items-center justify-between px-3.5 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-darkBg-item hover:text-slate-900 dark:hover:text-slate-200 rounded-xl transition-all duration-200 group">
+                        <div class="flex items-center gap-2.5">
+                            <i class="ph ph-code text-base text-slate-400 dark:text-slate-500 group-hover:text-brand-500 dark:group-hover:text-brand-400"></i>
+                            <span class="text-xs">FTL 模板</span>
+                        </div>
+                        <span class="bg-slate-100 dark:bg-darkBg-item text-slate-400 dark:text-slate-500 text-[10px] px-2 py-0.5 rounded-full">0</span>
+                    </button>
+
+                    <button onclick="switchTab('chats')" id="tab-chats" class="menu-item w-full flex items-center justify-between px-3.5 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-darkBg-item hover:text-slate-900 dark:hover:text-slate-200 rounded-xl transition-all duration-200 group">
+                        <div class="flex items-center gap-2.5">
+                            <i class="ph ph-chat-centered-text text-base text-slate-400 dark:text-slate-500 group-hover:text-brand-500 dark:group-hover:text-brand-400"></i>
+                            <span class="text-xs">对话管理</span>
+                        </div>
+                        <span class="bg-slate-100 dark:bg-darkBg-item text-slate-600 dark:text-slate-400 text-[10px] px-2 py-0.5 rounded-full font-medium">36</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between mt-2 bg-white dark:bg-darkBg-card shrink-0">
+                <div class="flex items-center gap-1.5">
+                    <span class="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 dark:bg-darkBg-item text-slate-400">
+                        <span class="text-[10px] font-bold">-</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400 dark:text-slate-500 font-medium font-mono">暂无已启用扩展</span>
+                </div>
+                <button onclick="openMarket()" class="relative flex items-center gap-1 px-2.5 py-1.5 bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-500 text-[11px] font-semibold rounded-lg transition-all duration-200">
+                    <i class="ph-bold ph-storefront text-xs"></i>
+                    <span>插件市场</span>
+                    <span class="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                    </span>
+                </button>
+            </div>
+
+            <div class="absolute top-1/2 -right-3 -translate-y-1/2 bg-white dark:bg-darkBg-card border border-slate-100 dark:border-slate-800/60 shadow-md rounded-full p-1 cursor-pointer hover:bg-slate-50 dark:hover:bg-darkBg-item transition-colors z-20">
+                <i class="ph ph-caret-left text-xs text-slate-400"></i>
+            </div>
+        </aside>
+
+        <main class="flex-1 h-full overflow-y-auto flex flex-col bg-slate-50/50 dark:bg-darkBg-base transition-colors duration-300">
+            
+            <header class="h-14 border-b border-slate-100 dark:border-slate-800/60 bg-white dark:bg-darkBg-card flex items-center justify-between px-8 shrink-0 transition-colors duration-300">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5 px-3 py-1 bg-slate-50 dark:bg-darkBg-item border border-slate-100 dark:border-slate-800 rounded-lg text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <i class="ph ph-globe text-base text-brand-500"></i>
+                        <span class="text-xs font-semibold">默认环境</span>
+                        <i class="ph ph-caret-down text-xs text-slate-400 ml-0.5"></i>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button class="p-1.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-darkBg-item transition-colors relative">
+                        <i class="ph ph-bell text-xl"></i>
+                        <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                    </button>
+                    <button class="p-1.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-darkBg-item transition-colors">
+                        <i class="ph ph-book-open text-xl"></i>
+                    </button>
+                    <button class="text-xs font-medium text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-darkBg-item">
+                        CN
+                    </button>
+                    
+                    <button onclick="toggleDarkMode()" class="p-1.5 text-amber-500 dark:text-brand-400 hover:bg-slate-50 dark:hover:bg-darkBg-item rounded-lg transition-colors" title="切换深色/浅色模式">
+                        <i class="ph-bold ph-sun text-xl" id="dark-mode-icon"></i>
+                    </button>
+
+                    <div class="h-5 w-px bg-slate-200 dark:bg-slate-800"></div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-darkBg-item rounded-full h-8 w-8 flex items-center justify-center border border-slate-200 dark:border-slate-800">
+                            A
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6 flex-1 max-w-[1600px] w-full mx-auto space-y-6">
+                
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white" id="main-content-title">所有 Agents</h2>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">集成自定义业务 Agent 与协作流程管理</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
+                        <div class="bg-white dark:bg-darkBg-card px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-soft flex items-center gap-3 transition-colors duration-300">
+                            <div class="p-2 bg-blue-50 dark:bg-blue-500/10 text-brand-600 dark:text-brand-400 rounded-lg">
+                                <i class="ph-bold ph-trend-up text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">今日调用量</p>
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-100">12.8K</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-darkBg-card px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-soft flex items-center gap-3 transition-colors duration-300">
+                            <div class="p-2 bg-blue-50 dark:bg-blue-500/10 text-brand-600 dark:text-brand-400 rounded-lg">
+                                <i class="ph-bold ph-lightning text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Token 消耗</p>
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-100">2.4M</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-darkBg-card px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-soft flex items-center gap-3 transition-colors duration-300">
+                            <div class="p-2 bg-blue-50 dark:bg-blue-500/10 text-brand-600 dark:text-brand-400 rounded-lg">
+                                <i class="ph-bold ph-clock text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">平均延迟</p>
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-100">320<span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">ms</span></p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-darkBg-card px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-soft flex items-center gap-3 transition-colors duration-300">
+                            <div class="p-2 bg-blue-50 dark:bg-blue-500/10 text-brand-600 dark:text-brand-400 rounded-lg">
+                                <i class="ph-bold ph-shield-check text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">成功率</p>
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-100">99.2<span class="text-[10px] font-normal text-slate-400 dark:text-slate-500">%</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-all">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        
+                        <div onclick="openCreateAgentModal()" class="group bg-white/40 dark:bg-darkBg-card/30 hover:bg-white dark:hover:bg-darkBg-card border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500/60 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[180px] cursor-pointer transition-all duration-300 hover:shadow-premium dark:hover:shadow-premium-dark">
+                            <div class="p-4 bg-slate-50 dark:bg-darkBg-item group-hover:bg-brand-50 dark:group-hover:bg-brand-500/10 text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-400 rounded-full transition-all duration-300">
+                                <i class="ph-bold ph-plus text-xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 group-hover:text-brand-600 dark:group-hover:text-brand-400 mt-4 transition-colors">新建 Agent</span>
+                        </div>
+
+                        <div class="bg-white dark:bg-darkBg-card border border-slate-100 dark:border-slate-800/80 rounded-2xl p-5 shadow-soft hover:shadow-premium dark:hover:shadow-premium-dark transition-all duration-300 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-brand-600 dark:text-brand-400">
+                                        <i class="ph-bold ph-code-block text-lg"></i>
+                                    </div>
+                                    <span class="px-2 py-0.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-semibold rounded-md">运行中</span>
+                                </div>
+                                <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm">全栈代码审查专家</h3>
+                                <p class="text-xs text-slate-400 dark:text-slate-400 mt-1.5 leading-relaxed">
+                                    通过静态 analysis 和深度上下文比对，实现全自动化 Code Review 工作流。
+                                </p>
+                            </div>
+                            <div class="mt-6 pt-3 border-t border-slate-50 dark:border-slate-800/60 flex items-center justify-between">
+                                <span class="text-[11px] text-slate-400 dark:text-slate-500">调用：3.2k 次</span>
+                                <button class="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700">进入工作流</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="view-market" class="hidden space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800 dark:text-white">插件扩展市场</h2>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">获取全球顶尖模型连接插件，轻松构建您的专属工作流</p>
+                        </div>
+                        <button onclick="switchTab('all')" class="text-xs text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 flex items-center gap-1">
+                            <i class="ph ph-arrow-left"></i> 返回主页
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white dark:bg-darkBg-card p-6 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-soft flex flex-col justify-between hover:border-brand-500 dark:hover:border-brand-500/40 transition-all duration-300">
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-brand-600 font-bold">
+                                        O
+                                    </div>
+                                    <span class="px-2 py-0.5 bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[10px] font-semibold rounded">官方接入</span>
+                                </div>
+                                <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm">OpenAI Platform Connector</h3>
+                                <p class="text-xs text-slate-400 dark:text-slate-400 mt-2 line-clamp-2 leading-relaxed">
+                                    无缝接入 GPT-4o, GPT-3.5 等全系列模型API，支持高并发，低延迟。
+                                </p>
+                            </div>
+                            <div class="mt-6 pt-4 border-t border-slate-50 dark:border-slate-800/60 flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">免费 / 接口自备</span>
+                                <button onclick="installPlugin(this, 'OpenAI')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium px-4 py-2 rounded-xl transition-all duration-150">
+                                    安装插件
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-generic" class="hidden">
+                    <div class="bg-white dark:bg-darkBg-card rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-soft p-6 transition-all duration-300">
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-50 dark:border-slate-800/60 mb-6">
+                            <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm" id="generic-title">通用子页</h3>
+                            <button onclick="handleAddNew()" class="bg-brand-50 dark:bg-brand-500/10 hover:bg-brand-100 dark:hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-xs px-3.5 py-2 rounded-xl font-semibold transition-all duration-200">
+                                + 新增项目
+                            </button>
+                        </div>
+                        <div id="generic-list" class="space-y-4"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <footer class="h-12 border-t border-slate-100 dark:border-slate-800/60 bg-white dark:bg-darkBg-card flex items-center justify-between px-8 text-xs text-slate-400 shrink-0 transition-colors duration-300">
+                <span>© 2026 Astrsomn. All rights reserved.</span>
+            </footer>
+        </main>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        function initDarkMode() {
+            const isDark = localStorage.getItem('theme') === 'dark' || 
+                           (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const darkIcon = document.getElementById('dark-mode-icon');
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                darkIcon.className = "ph-bold ph-sun text-xl";
+            } else {
+                document.documentElement.classList.remove('dark');
+                darkIcon.className = "ph-bold ph-moon text-xl";
+            }
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const darkIcon = document.getElementById('dark-mode-icon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                darkIcon.className = "ph-bold ph-moon text-xl";
+                localStorage.setItem('theme', 'light');
+                showToast("☀️ 切换为明亮模式");
+            } else {
+                html.classList.add('dark');
+                darkIcon.className = "ph-bold ph-sun text-xl";
+                localStorage.setItem('theme', 'dark');
+                showToast("🌌 切换为深空暗黑模式");
+            }
+        }
+
+        initDarkMode();
+
+        function switchTab(tabId) {
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.className = "menu-item w-full flex items-center justify-between px-3.5 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-darkBg-item hover:text-slate-900 dark:hover:text-slate-200 rounded-xl transition-all duration-200 group";
+            });
+
+            const currentTabBtn = document.getElementById(`tab-${tabId}`);
+            if (currentTabBtn) {
+                currentTabBtn.className = "menu-item w-full flex items-center justify-between px-3.5 py-2.5 bg-brand-50 dark:bg-brand-500/15 text-brand-600 dark:text-brand-500 rounded-xl font-medium transition-all duration-200 border-l-[3px] border-brand-600 shadow-sm";
+            }
+
+            const viewAll = document.getElementById('view-all');
+            const viewMarket = document.getElementById('view-market');
+            const viewGeneric = document.getElementById('view-generic');
+            
+            viewAll.classList.add('hidden');
+            viewMarket.classList.add('hidden');
+            viewGeneric.classList.add('hidden');
+
+            if (tabId === 'all') {
+                viewAll.classList.remove('hidden');
+            } else if (tabId === 'market') {
+                viewMarket.classList.remove('hidden');
+            } else {
+                viewGeneric.classList.remove('hidden');
+                document.getElementById('generic-title').textContent = tabId;
+                document.getElementById('generic-list').innerHTML = `<p class="text-xs text-slate-400">模块演示数据</p>`;
+            }
+        }
+
+        function openMarket() { switchTab('market'); }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `bg-slate-900 dark:bg-brand-600 text-white flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs font-medium transition-all duration-300 shadow-lg`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        function installPlugin(btn, name) {
+            btn.disabled = true;
+            btn.innerHTML = "正在安装...";
+            setTimeout(() => {
+                btn.innerHTML = "已安装";
+                btn.className = "bg-slate-100 dark:bg-darkBg-deep text-slate-400 text-xs px-4 py-2 rounded-xl cursor-not-allowed";
+                showToast(`🎉 插件 ${name} 安装成功！`);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

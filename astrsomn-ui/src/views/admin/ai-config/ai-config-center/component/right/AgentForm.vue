@@ -487,7 +487,8 @@ watch(
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--bg-surface);
+  background: transparent;
+  gap: 0;
 }
 
 .config-spin {
@@ -504,6 +505,7 @@ watch(
   flex-direction: column;
 }
 
+/* ── 整体卡片（设计稿 view-generic 风格） ── */
 .config-content {
   flex: 1;
   min-height: 0;
@@ -514,27 +516,41 @@ watch(
   overflow: hidden;
 }
 
-.config-left {
+/* 左侧 / 右侧两块内容各自包成大卡片 */
+.config-left,
+.config-right {
   min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.config-left:hover,
+.config-right:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.06);
 }
 
 .config-right {
-  min-height: 0;
   display: grid;
   grid-template-rows: 1fr auto;
-  gap: 16px;
-  overflow: hidden;
+  gap: 0;
 }
 
 .config-right-top,
 .config-right-bottom {
   min-height: 0;
   overflow: hidden;
+  border-top: 1px solid var(--border-default);
 }
 
+.config-right-top {
+  border-top: none;
+}
 
 @media (max-width: 1200px) {
   .config-content {

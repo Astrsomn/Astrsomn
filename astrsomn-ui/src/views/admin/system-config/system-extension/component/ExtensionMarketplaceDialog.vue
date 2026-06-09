@@ -2,9 +2,9 @@
   <AstModal
       :open="open"
       body-height="80vh"
-      content-background="var(--bg-card)"
+      content-background="var(--bg-default)"
       header-height="64px"
-      main-background="var(--bg-surface)"
+      main-background="var(--bg-default)"
       main-padding="0"
       max-width="80vw"
       width="80vw"
@@ -12,7 +12,9 @@
       @update:open="emit('update:open', $event)"
   >
     <template #header-logo>
-      <AppstoreOutlined/>
+      <div class="header-logo-box">
+        <PhPuzzlePiece :size="20" weight="duotone"/>
+      </div>
     </template>
     <template #header-title>{{ t.marketplace.title }}</template>
     <template #header-subtitle>{{ t.marketplace.subtitle }}</template>
@@ -35,7 +37,7 @@
 
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
-import {AppstoreOutlined} from '@ant-design/icons-vue'
+import {PhPuzzlePiece} from '@phosphor-icons/vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 import AstModal from '@/components/home/AstModal.vue'
 import ExtensionCenterPage from '@/views/admin/system-config/system-extension/component/ExtensionCenterPage.vue'
@@ -69,34 +71,62 @@ function onPanelSync(tab: ExtensionPanel) {
 </script>
 
 <style scoped>
+.header-logo-box {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  color: var(--primary);
+  background: rgba(59, 130, 246, 0.10);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  flex-shrink: 0;
+}
+
+/* ── 主壳布局 ── */
 .marketplace-shell {
   display: flex;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  gap: 0;
+  background: var(--bg-default);
 }
 
 .marketplace-content {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
-  background: var(--bg-card);
+  background: var(--bg-default);
+  padding: 20px 24px;
 }
 
 .content-card {
-  padding: 24px;
-  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 16px;
+  padding: 0;
+  min-height: 100%;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.content-card:hover {
+  border-color: var(--primary);
 }
 
 .marketplace-shell > :deep(.extension-sider) {
   flex-shrink: 0;
 }
 
+/* ── 滚动条 ── */
 .marketplace-content::-webkit-scrollbar {
   width: 6px;
 }
 
 .marketplace-content::-webkit-scrollbar-track {
-  background: var(--bg-surface);
+  background: var(--bg-default);
   border-radius: 3px;
 }
 
