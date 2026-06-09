@@ -97,7 +97,7 @@ const handleScroll = () => {
   bottom: auto;
   height: 100%;
   width: 76px;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid var(--border-default);
 }
 
 /* 覆盖 SidebarShell 的高度，让它贯穿到顶部 */

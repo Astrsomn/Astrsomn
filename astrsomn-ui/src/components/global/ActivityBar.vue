@@ -95,7 +95,7 @@ const goHome = () => {
   bottom: 0;
   width: 76px;
   background: var(--bg-default);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
   align-items: center;

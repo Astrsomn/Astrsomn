@@ -16,19 +16,19 @@
 withDefaults(defineProps<{
   width?: number
 }>(), {
-  width: 250,
+  width: 288,
 })
 </script>
 
 <style scoped>
 .ast-sidebar {
-  height: calc(100vh - 60px);
+  height: calc(100vh - 56px);
   display: flex;
   flex-direction: column;
   background: var(--bg-card);
-  box-shadow: 2px 0 8px color-mix(in srgb, var(--shadow-color, #000) 4%, transparent);
-  border-right: 1px solid #e5e6eb47;
+  border-right: 1px solid var(--border-default);
   position: relative;
+  flex-shrink: 0;
 }
 
 .ast-sidebar-top {
@@ -37,6 +37,7 @@ withDefaults(defineProps<{
   display: flex;
   align-items: center;
   gap: 8px;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .ast-sidebar-body {
@@ -48,5 +49,6 @@ withDefaults(defineProps<{
 .ast-sidebar-footer {
   flex-shrink: 0;
   padding: 12px 14px;
+  border-top: 1px solid var(--border-default);
 }
 </style>
