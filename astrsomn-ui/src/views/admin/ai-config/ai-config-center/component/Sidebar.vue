@@ -369,7 +369,7 @@ watch(
   font-size: 12px;
   color: var(--text-primary);
   background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-default);
   border-radius: 10px;
   transition: all 0.2s ease;
   outline: none;

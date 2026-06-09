@@ -76,12 +76,12 @@ function openMarketplace() {
 <style scoped>
 
 .extension-sider {
-  width: 260px;
+  width: 288px;
   background: var(--bg-card);
   border-right: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
-  transition: all 0.3s;
+  transition: width 0.3s;
 }
 
 .sider-wrapper {

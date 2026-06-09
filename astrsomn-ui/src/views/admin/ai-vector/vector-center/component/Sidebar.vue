@@ -1,5 +1,5 @@
 <template>
-  <SidebarShell>
+  <SidebarShell :width="288">
     <template #top>
       <AstSearchInput
           v-model="searchText"

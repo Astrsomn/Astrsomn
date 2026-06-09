@@ -116,15 +116,15 @@ const toggleCollapsed = () => {
 
 <style scoped>
 .sidebar-shell {
-  width: 256px;
-  min-width: 256px;
+  width: 288;
+  min-width: 288;
   height: calc(100vh - 60px);
   position: relative;
   transition: width 0.28s ease, min-width 0.28s ease;
 }
 
 .session-sidebar {
-  width: 256px;
+  width: 288px;
   height: 100%;
   border-right: 1px solid var(--border-default);
   background: var(--bg-surface);
