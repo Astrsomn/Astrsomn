@@ -4,13 +4,18 @@ import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.server.event.SystemMessageEventCoordinator;
 import com.astrsomn.server.service.system.extension.base.SystemExtensionMarketService;
 import com.astrsomn.server.service.system.extension.base.SystemExtensionService;
+import com.astrsomn.starter.runtime.context.EnvScope;
+import com.astrsomn.system.constant.SystemMessageEnum;
 import com.astrsomn.system.dto.extension.ExtensionMarketplaceItemDTO;
 import com.astrsomn.system.dto.extension.ExtensionMarketplaceVersionDTO;
+import com.astrsomn.system.dto.systemmessage.SystemMessageRecordCommand;
 import com.astrsomn.system.entity.SystemExtensionEntity;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -31,6 +36,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketService {
@@ -38,6 +44,7 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
     private final ApplicationContext applicationContext;
     private final RestTemplate restTemplate;
     private final SystemExtensionService systemExtensionService;
+    private final SystemMessageEventCoordinator systemMessageEventCoordinator;
 
     // 返回一个链接
     private final String VERSION_DETAIL_URL = "https://www.astrsomn.com/api/plugins/{pluginId}/versions/{version}";
@@ -203,7 +210,8 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
             String versionUrl = VERSION_DETAIL_URL.replace("{pluginId}", pluginId).replace("{version}", version);
             Map<String, Object> versionResp = restTemplate.getForObject(versionUrl, Map.class);
             if (versionResp == null || versionResp.get("data") == null) {
-                return BaseResponse.fail("Version not found in marketplace", null);
+                return recordInstallFailure(pluginId, version, "Version not found in marketplace",
+                        "插件 " + pluginId + " v" + version + " 在插件市场未找到版本信息");
             }
 
             Map<String, Object> versionData = (Map<String, Object>) versionResp.get("data");
@@ -212,13 +220,15 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
                 downloadUrl = (String) versionData.get("downloadUrl");
             }
             if (!StringUtils.isNotBlank(downloadUrl)) {
-                return BaseResponse.fail("No download URL available for this version", null);
+                return recordInstallFailure(pluginId, version, "No download URL available for this version",
+                        "插件 " + pluginId + " v" + version + " 缺少下载地址");
             }
 
             // Step 2: 直接从真实下载地址下载 jar
             byte[] jarBytes = restTemplate.getForObject(downloadUrl, byte[].class);
             if (jarBytes == null || jarBytes.length == 0) {
-                return BaseResponse.fail("Plugin download failed: empty file", null);
+                return recordInstallFailure(pluginId, version, "Plugin download failed: empty file",
+                        "插件 " + pluginId + " v" + version + " 下载内容为空");
             }
 
             // Step 3: 构造 MultipartFile 并安装
@@ -267,9 +277,40 @@ public class SystemExtensionMarketServiceImpl implements SystemExtensionMarketSe
                 }
             };
 
+            // 成功路径下，SystemExtensionServiceImpl.uploadJar 内会记录 PLUGIN_INSTALLED 系统消息
             return systemExtensionService.uploadJar(multipartFile);
         } catch (Exception e) {
-            return BaseResponse.fail("Plugin installation failed: " + e.getMessage(), null);
+            log.error("Plugin installation failed: pluginId={}, version={}", pluginId, version, e);
+            return recordInstallFailure(pluginId, version,
+                    "Plugin installation failed: " + e.getMessage(),
+                    "插件 " + pluginId + " v" + version + " 安装失败：" + e.getMessage());
         }
+    }
+
+    /**
+     * 记录插件市场安装失败的系统消息，并返回对应的失败响应。
+     * 该方法不影响主流程：内部已捕获异常。
+     */
+    private BaseResponse<String> recordInstallFailure(String pluginId, String version,
+                                                       String errCode, String content) {
+        try {
+            String display = pluginId + (version != null ? " v" + version : "");
+            SystemMessageRecordCommand cmd = new SystemMessageRecordCommand();
+            cmd.setMessageType(SystemMessageEnum.MessageTypeEnum.PLUGIN_INSTALL_FAILED.getCode());
+            cmd.setMessageLevel(SystemMessageEnum.MessageLevelEnum.ERROR.getCode());
+            cmd.setReadStatus(SystemMessageEnum.ReadStatusEnum.UNREAD.getCode());
+            cmd.setTitle("插件安装失败：" + display);
+            cmd.setContent(content);
+            cmd.setRefType(SystemMessageEnum.RefTypeEnum.EXTENSION.getCode());
+            cmd.setRefKey(pluginId);
+            cmd.setSource("plugin-marketplace");
+            cmd.setErrorCode(errCode);
+            cmd.setEnvCode(EnvScope.get());
+            systemMessageEventCoordinator.recordAndPush(cmd);
+        } catch (Exception ex) {
+            log.warn("记录插件安装失败系统消息失败: pluginId={}, version={}, err={}",
+                    pluginId, version, ex.getMessage());
+        }
+        return BaseResponse.fail(errCode, null);
     }
 }

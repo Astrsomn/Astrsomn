@@ -109,6 +109,8 @@ export const commonPageTranslation = {
     admin: '管理后台',
     login: '登录',
     chatNow: '立即聊天',
+    messages: '系统消息',
+    messagesTip: '查看系统消息',
   },
   userProfile: {
     chatNow: '立即聊天',

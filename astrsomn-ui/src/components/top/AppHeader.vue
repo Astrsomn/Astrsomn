@@ -47,6 +47,16 @@
 
         <div class="v-line-divider"></div>
 
+        <a-tooltip v-if="isLoggedIn" :title="t.header.messagesTip">
+          <a-badge :count="messageUnreadCount" :offset="[-2, 2]" :overflow-count="99">
+            <a-button class="header-icon-btn" shape="circle" size="small" type="text" @click="openMessageDialog">
+              <template #icon>
+                <bell-outlined/>
+              </template>
+            </a-button>
+          </a-badge>
+        </a-tooltip>
+
         <div class="actions-group">
           <slot name="actions">
             <DocLangTheme :showDoc="showDoc"/>
@@ -56,16 +66,20 @@
         </div>
       </div>
     </div>
+
+    <SystemMessageDialog v-model:open="messageDialogOpen" @unread-count-change="onUnreadCountChange"/>
   </header>
 </template>
 
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router';
-import {AppstoreOutlined, ArrowLeftOutlined, SwapOutlined} from '@ant-design/icons-vue';
+import {AppstoreOutlined, ArrowLeftOutlined, BellOutlined, SwapOutlined} from '@ant-design/icons-vue';
 
 
 import DocLangTheme from './DocLangTheme.vue';
+
+import SystemMessageDialog from '@/views/admin/system-config/system-message/component/SystemMessageDialog.vue';
 
 import UserProfile from './UserProfile.vue';
 
@@ -115,6 +129,17 @@ const handleLogin = () => {
   localStorage.removeItem('token');
   router.push('/login');
 };
+
+const messageDialogOpen = ref(false)
+const messageUnreadCount = ref(0)
+
+const openMessageDialog = () => {
+  messageDialogOpen.value = true
+}
+
+const onUnreadCountChange = (count: number) => {
+  messageUnreadCount.value = count
+}
 </script>
 
 <style scoped>
@@ -249,10 +274,21 @@ const handleLogin = () => {
   gap: 16px;
 }
 
-.v-line-divider {
-  width: 1px;
-  height: 18px;
-  background: var(--border-subtle);
+.header-icon-btn {
+  color: var(--text-secondary);
+}
+
+.header-icon-btn :deep(.anticon) {
+  color: var(--text-secondary);
+}
+
+.header-icon-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-card-hover, transparent);
+}
+
+.header-icon-btn:hover :deep(.anticon) {
+  color: var(--text-primary);
 }
 
 

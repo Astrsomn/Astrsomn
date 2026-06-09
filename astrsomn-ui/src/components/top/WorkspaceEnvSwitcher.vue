@@ -112,7 +112,7 @@ onMounted(loadWorkspaceContext)
 
 .env-icon-small {
   font-size: 13px;
-  color: var(--primary);
+  color: var(--text-secondary);
 }
 
 .env-label-text,
@@ -125,6 +125,15 @@ onMounted(loadWorkspaceContext)
 .env-caret-small {
   font-size: 10px;
   color: var(--text-muted);
+}
+
+.env-trigger-btn:hover .env-icon-small {
+  color: var(--text-primary);
+}
+
+.env-trigger-btn:hover .env-label-text,
+.env-trigger-btn:hover .env-readonly-text {
+  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {

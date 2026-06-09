@@ -3,6 +3,7 @@ export const aiConfigCenterTranslation = {
     searchPlaceholder: 'Search resources...',
     all: 'All',
     emptyPlugin: 'No enabled plugins',
+    emptyPluginHint: 'No model provider plugins installed yet. Open the marketplace to pick one.',
     goMarketplace: 'Go to Marketplace',
     aiAccount: 'AI Account',
     prompts: 'Prompts',

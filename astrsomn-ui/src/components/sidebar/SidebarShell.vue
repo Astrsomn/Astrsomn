@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<{
   collapsedWidth?: number
 }>(), {
   collapsed: false,
-  width: 320,
+  width: 250,
   collapsedWidth: 64,
 })
 

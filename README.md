@@ -237,7 +237,12 @@ npm install
 npm run build
 ```
 
-> `astro-chat-vue` 是纯源码导出（`exports` 直接指向 `./src/index.ts`），无需单独构建。
+> `astro-chat-vue` 是纯源码导出（`exports` 直接指向 `./src/index.ts`），无需单独构建；但其源码中直接 import 了 `markdown-it`、`highlight.js` 等第三方包，因此需要先 `npm install` 安装依赖。
+
+```bash
+cd astrsomn-ui-packages/astro-chat-vue
+npm install
+```
 
 ##### 2.2 启动前端主应用
 

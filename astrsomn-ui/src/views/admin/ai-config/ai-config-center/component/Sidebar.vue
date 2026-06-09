@@ -4,7 +4,7 @@
       <AstSearchInput
           v-if="!collapsed"
           v-model="searchText"
-          class="sidebar-search-pill"
+      
           layout="fluid"
           :placeholder="t.sidebar.searchPlaceholder"
           @search="handleSearch"
@@ -50,11 +50,15 @@
             </a-tooltip>
           </div>
           <div v-if="providers.length === 0 && !collapsed" class="empty-provider">
-            <a-empty :description="t.sidebar.emptyPlugin">
-              <template #extra>
-                <a-button type="link" @click="handleAddPlugin">{{ t.sidebar.goMarketplace }}</a-button>
-              </template>
-            </a-empty>
+            <div class="empty-provider-hint">
+              <span class="empty-provider-text">{{ t.sidebar.emptyPluginHint }}</span>
+              <a-button block size="small" type="primary" @click="handleAddPlugin">
+                <template #icon>
+                  <MarketplaceIcon/>
+                </template>
+                {{ t.sidebar.goMarketplace }}
+              </a-button>
+            </div>
           </div>
         </div>
       </div>
@@ -117,6 +121,7 @@
 import {onMounted, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {
+  AppstoreOutlined,
   CloudServerOutlined,
   CreditCardOutlined,
   FileTextOutlined,
@@ -144,6 +149,9 @@ const emit = defineEmits<{
   'select-provider': [info: { key: string; name: string; description: string; avatar: string }]
   'update:collapsed': [value: boolean]
 }>()
+
+// 空态"前往插件市场"按钮图标；占位 const 让 vue-tsc 把 import 视为已使用。
+const MarketplaceIcon = AppstoreOutlined
 
 const collapsed = ref(false)
 const toggleCollapsed = () => {
@@ -343,14 +351,6 @@ watch(
 
 <style scoped>
 
-.sidebar-search-pill {
-  flex: 1;
-  min-width: 0;
-  height: 36px;
-  border-color: transparent;
-  background: var(--bg-input);
-}
-
 .sidebar-search-pill:hover {
   border-color: var(--border-default);
   box-shadow: none;
@@ -546,8 +546,23 @@ watch(
 
 
 .empty-provider {
-  padding: 24px 0;
-  text-align: center;
+  padding: 8px 12px;
+}
+
+.empty-provider-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  border: 1px dashed var(--border-default);
+}
+
+.empty-provider-text {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
 }
 
 

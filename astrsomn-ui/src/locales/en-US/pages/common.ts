@@ -109,6 +109,8 @@ export const commonPageTranslation = {
     admin: 'Admin Panel',
     login: 'Login',
     chatNow: 'Chat Now',
+    messages: 'System Messages',
+    messagesTip: 'View system messages',
   },
   userProfile: {
     chatNow: 'Chat Now',
