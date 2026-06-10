@@ -13,10 +13,12 @@ import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
+import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 public class MoonshotProviderHandler extends AbstractModelProviderHandler {
 
     private static void applyChatSetting(OpenAiChatModel.OpenAiChatModelBuilder builder, AstroChatParam<?> param) {
@@ -29,16 +31,13 @@ public class MoonshotProviderHandler extends AbstractModelProviderHandler {
             builder.sendThinking(true);
             builder.returnThinking(true);
         }
-        if (cs.getTemperature() != null
-                && MoonshotModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+        if (cs.getTemperature() != null) {
             builder.temperature(cs.getTemperature());
         }
-        if (cs.getTopP() != null
-                && MoonshotModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+        if (cs.getTopP() != null) {
             builder.topP(cs.getTopP());
         }
-        if (cs.getMaxTokens() != null
-                && MoonshotModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.MAX_TOKENS.getCode())) {
+        if (cs.getMaxTokens() != null) {
             builder.maxTokens(cs.getMaxTokens());
         }
     }
@@ -53,21 +52,18 @@ public class MoonshotProviderHandler extends AbstractModelProviderHandler {
             builder.sendThinking(true);
             builder.returnThinking(true);
         }
-        if (cs.getTemperature() != null
-                && MoonshotModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+        if (cs.getTemperature() != null) {
             builder.temperature(cs.getTemperature());
         }
-        if (cs.getTopP() != null
-                && MoonshotModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+        if (cs.getTopP() != null) {
             builder.topP(cs.getTopP());
         }
-        if (cs.getMaxTokens() != null
-                && MoonshotModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.MAX_TOKENS.getCode())) {
+        if (cs.getMaxTokens() != null) {
             builder.maxTokens(cs.getMaxTokens());
         }
     }
 
-    private static String resolveModelKey(AstroChatParam<?> param) {
+    public static String resolveModelKey(AstroChatParam<?> param) {
         String modelKey = param.getModelKey();
         if ((modelKey == null || modelKey.isBlank()) && param.getModelSetting() != null) {
             modelKey = param.getModelSetting().getModelName();
@@ -103,14 +99,26 @@ public class MoonshotProviderHandler extends AbstractModelProviderHandler {
         }
     }
 
-    @Override
-    public List<AiModelEntity> getAvailableModels() {
-        return Arrays.stream(MoonshotModelEnum.values())
-                .map(model -> model.toEntity(AiModelEnum.ProviderEnum.MOONSHOT.getCode()))
-                .toList();
+        @Override
+    public List<AiModelEntity> getAvailableModels(String apiKey, String apiSecret) {
+        MoonshotModelApiClient client = new MoonshotModelApiClient();
+        List<ProviderModelDTO> dtos = client.listModels(apiKey, apiSecret);
+        return dtos.stream().map(dto -> {
+            AiModelEntity entity = new AiModelEntity();
+            entity.setModelKey(dto.getModelKey());
+            entity.setModelName(dto.getModelName() != null ? dto.getModelName() : dto.getModelKey());
+            entity.setDescription(dto.getDescription());
+            entity.setModelType(dto.getModelType());
+            entity.setExtensionCode(AiModelEnum.ProviderEnum.MOONSHOT.getCode());
+            entity.setCapabilities(toJson(dto.getCapabilities()));
+            entity.setParams(toJson(dto.getParams()));
+            entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
+            entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
+            return entity;
+        }).collect(Collectors.toList());
     }
 
-    private ChatModel getChatModel(AstroChatParam<?> param) {
+    protected ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = OpenAiChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
@@ -125,7 +133,7 @@ public class MoonshotProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private StreamingChatModel getStreamModel(AstroChatParam<?> param) {
+    protected StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = OpenAiStreamingChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());

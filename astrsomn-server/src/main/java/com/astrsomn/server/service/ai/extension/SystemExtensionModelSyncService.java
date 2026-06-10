@@ -7,13 +7,13 @@ import com.astrsomn.system.dto.extension.ExtensionModelUnloadPreviewDTO;
 public interface SystemExtensionModelSyncService {
 
 
-    BaseResponse<String> loadModels(Long extensionId, String modelKeys);
+    BaseResponse<String> loadModels(Long extensionId, String modelKeys, Long accountId);
 
 
     BaseResponse<String> unloadModels(Long extensionId, String modelKeys);
 
 
-    BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(Long extensionId);
+    BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(Long extensionId, Long accountId);
 
 
     BaseResponse<ExtensionModelUnloadPreviewDTO> previewUnloadModels(Long extensionId);

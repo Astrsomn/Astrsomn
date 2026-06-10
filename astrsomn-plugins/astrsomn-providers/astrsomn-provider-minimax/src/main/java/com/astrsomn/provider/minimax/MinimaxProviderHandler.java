@@ -18,10 +18,12 @@ import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
+import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 public class MinimaxProviderHandler extends AbstractModelProviderHandler {
 
     private static void applyEmbeddingSetting(
@@ -34,21 +36,17 @@ public class MinimaxProviderHandler extends AbstractModelProviderHandler {
         if ((modelKey == null || modelKey.isBlank()) && param.getModelSetting() != null) {
             modelKey = param.getModelSetting().getModelName();
         }
-        if (es.getDimensions() != null
-                && MinimaxModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS.getCode())) {
+        if (es.getDimensions() != null) {
             builder.dimensions(es.getDimensions());
         }
-        if (StringUtils.isNotBlank(es.getUser())
-                && MinimaxModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.USER.getCode())) {
+        if (StringUtils.isNotBlank(es.getUser())) {
             builder.user(es.getUser());
         }
-        if (es.getMaxRetries() != null
-                && MinimaxModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES.getCode())) {
+        if (es.getMaxRetries() != null) {
             builder.maxRetries(es.getMaxRetries());
         }
         if (es.getTimeoutSeconds() != null
-                && es.getTimeoutSeconds() > 0
-                && MinimaxModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS.getCode())) {
+                && es.getTimeoutSeconds() > 0) {
             builder.timeout(Duration.ofSeconds(es.getTimeoutSeconds()));
         }
     }
@@ -63,16 +61,13 @@ public class MinimaxProviderHandler extends AbstractModelProviderHandler {
             builder.sendThinking(true);
             builder.returnThinking(true);
         }
-        if (cs.getTemperature() != null
-                && MinimaxModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+        if (cs.getTemperature() != null) {
             builder.temperature(cs.getTemperature());
         }
-        if (cs.getTopP() != null
-                && MinimaxModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+        if (cs.getTopP() != null) {
             builder.topP(cs.getTopP());
         }
-        if (cs.getMaxTokens() != null
-                && MinimaxModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.MAX_TOKENS.getCode())) {
+        if (cs.getMaxTokens() != null) {
             builder.maxTokens(cs.getMaxTokens());
         }
     }
@@ -87,21 +82,18 @@ public class MinimaxProviderHandler extends AbstractModelProviderHandler {
             builder.sendThinking(true);
             builder.returnThinking(true);
         }
-        if (cs.getTemperature() != null
-                && MinimaxModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+        if (cs.getTemperature() != null) {
             builder.temperature(cs.getTemperature());
         }
-        if (cs.getTopP() != null
-                && MinimaxModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+        if (cs.getTopP() != null) {
             builder.topP(cs.getTopP());
         }
-        if (cs.getMaxTokens() != null
-                && MinimaxModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.MAX_TOKENS.getCode())) {
+        if (cs.getMaxTokens() != null) {
             builder.maxTokens(cs.getMaxTokens());
         }
     }
 
-    private static String resolveModelKey(AstroChatParam<?> param) {
+    public static String resolveModelKey(AstroChatParam<?> param) {
         String modelKey = param.getModelKey();
         if ((modelKey == null || modelKey.isBlank()) && param.getModelSetting() != null) {
             modelKey = param.getModelSetting().getModelName();
@@ -139,14 +131,26 @@ public class MinimaxProviderHandler extends AbstractModelProviderHandler {
         }
     }
 
-    @Override
-    public List<AiModelEntity> getAvailableModels() {
-        return Arrays.stream(MinimaxModelEnum.values())
-                .map(model -> model.toEntity(AiModelEnum.ProviderEnum.MINIMAX.getCode()))
-                .toList();
+        @Override
+    public List<AiModelEntity> getAvailableModels(String apiKey, String apiSecret) {
+        MinimaxModelApiClient client = new MinimaxModelApiClient();
+        List<ProviderModelDTO> dtos = client.listModels(apiKey, apiSecret);
+        return dtos.stream().map(dto -> {
+            AiModelEntity entity = new AiModelEntity();
+            entity.setModelKey(dto.getModelKey());
+            entity.setModelName(dto.getModelName() != null ? dto.getModelName() : dto.getModelKey());
+            entity.setDescription(dto.getDescription());
+            entity.setModelType(dto.getModelType());
+            entity.setExtensionCode(AiModelEnum.ProviderEnum.MINIMAX.getCode());
+            entity.setCapabilities(toJson(dto.getCapabilities()));
+            entity.setParams(toJson(dto.getParams()));
+            entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
+            entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
+            return entity;
+        }).collect(Collectors.toList());
     }
 
-    private ChatModel getChatModel(AstroChatParam<?> param) {
+    protected ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = OpenAiChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
@@ -160,7 +164,7 @@ public class MinimaxProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private StreamingChatModel getStreamModel(AstroChatParam<?> param) {
+    protected StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = OpenAiStreamingChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
@@ -174,7 +178,7 @@ public class MinimaxProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
+    protected EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = OpenAiEmbeddingModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());

@@ -15,7 +15,7 @@ public interface ModelProviderHandler {
     <T> T createModel(Class<T> modelClass, AstroChatParam<?> param);
 
 
-    List<AiModelEntity> getAvailableModels();
+    List<AiModelEntity> getAvailableModels(String apiKey, String apiSecret);
 
 
     default String getVersion() {

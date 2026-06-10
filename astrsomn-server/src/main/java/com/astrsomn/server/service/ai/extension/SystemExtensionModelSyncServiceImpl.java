@@ -1,6 +1,7 @@
 package com.astrsomn.server.service.ai.extension;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
+import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
@@ -8,6 +9,7 @@ import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.server.service.ai.AiAccountService;
 import com.astrsomn.server.service.ai.AiModelService;
 import com.astrsomn.server.service.system.extension.base.SystemExtensionService;
 
@@ -34,6 +36,7 @@ import java.util.*;
 public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModelSyncService {
 
     private final SystemExtensionService systemExtensionService;
+    private final AiAccountService aiAccountService;
     private final AstroModelFactory astroModelFactory;
     private final AiModelService aiModelService;
     private final AstAiModelMapper aiModelMapper;
@@ -69,10 +72,20 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
     }
 
     @Override
-    public BaseResponse<String> loadModels(Long extensionId, String modelKeys) {
+    public BaseResponse<String> loadModels(Long extensionId, String modelKeys, Long accountId) {
         LoadSyncContext ctx = resolveLoadSyncContext(extensionId);
 
-        List<AiModelEntity> available = ctx.handler().getAvailableModels();
+        String apiKey = null;
+        String apiSecret = null;
+        if (accountId != null) {
+            AiAccountEntity account = aiAccountService.getById(accountId);
+            if (account != null) {
+                apiKey = account.getApiKey();
+                apiSecret = account.getApiSecret();
+            }
+        }
+
+        List<AiModelEntity> available = ctx.handler().getAvailableModels(apiKey, apiSecret);
         if (CollectionUtils.isEmpty(available)) {
             return BaseResponse.success("厂商未返回可用模型清单");
         }
@@ -187,11 +200,21 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
     }
 
     @Override
-    public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(Long extensionId) {
+    public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(Long extensionId, Long accountId) {
         LoadSyncContext ctx = resolveLoadSyncContext(extensionId);
 
+        String apiKey = null;
+        String apiSecret = null;
+        if (accountId != null) {
+            AiAccountEntity account = aiAccountService.getById(accountId);
+            if (account != null) {
+                apiKey = account.getApiKey();
+                apiSecret = account.getApiSecret();
+            }
+        }
+
         ExtensionModelLoadPreviewDTO dto = new ExtensionModelLoadPreviewDTO();
-        List<AiModelEntity> available = ctx.handler().getAvailableModels();
+        List<AiModelEntity> available = ctx.handler().getAvailableModels(apiKey, apiSecret);
         if (available == null || available.isEmpty()) {
             return BaseResponse.success(dto);
         }

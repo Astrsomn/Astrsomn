@@ -16,13 +16,15 @@ import dev.langchain4j.model.googleai.GoogleAiEmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiStreamingChatModel;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
+import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 public class GeminiProviderHandler extends AbstractModelProviderHandler {
 
-    private static String resolveModelKey(AstroChatParam<?> param) {
+    public static String resolveModelKey(AstroChatParam<?> param) {
         String modelKey = param.getModelKey();
         if ((modelKey == null || modelKey.isBlank()) && param.getModelSetting() != null) {
             modelKey = param.getModelSetting().getModelName();
@@ -60,17 +62,32 @@ public class GeminiProviderHandler extends AbstractModelProviderHandler {
         }
     }
 
-    @Override
-    public List<AiModelEntity> getAvailableModels() {
-        return Arrays.stream(GeminiModelEnum.values())
-                .map(model -> model.toEntity(AiModelEnum.ProviderEnum.GOOGLE.getCode()))
-                .toList();
+        @Override
+    public List<AiModelEntity> getAvailableModels(String apiKey, String apiSecret) {
+        GeminiModelApiClient client = new GeminiModelApiClient();
+        List<ProviderModelDTO> dtos = client.listModels(apiKey, apiSecret);
+        return dtos.stream().map(dto -> {
+            AiModelEntity entity = new AiModelEntity();
+            entity.setModelKey(dto.getModelKey());
+            entity.setModelName(dto.getModelName() != null ? dto.getModelName() : dto.getModelKey());
+            entity.setDescription(dto.getDescription());
+            entity.setModelType(dto.getModelType());
+            entity.setExtensionCode(AiModelEnum.ProviderEnum.GOOGLE.getCode());
+            entity.setCapabilities(toJson(dto.getCapabilities()));
+            entity.setParams(toJson(dto.getParams()));
+            entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
+            entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
+            return entity;
+        }).collect(Collectors.toList());
     }
 
-    private ChatModel getChatModel(AstroChatParam<?> param) {
+    protected ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = GoogleAiGeminiChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
+        if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
+            builder.baseUrl(param.getModelSetting().getApiUrl());
+        }
         if (CollectionUtils.isNotEmpty(param.getChatModelListeners())) {
             builder.listeners(param.getChatModelListeners());
         }
@@ -81,30 +98,29 @@ public class GeminiProviderHandler extends AbstractModelProviderHandler {
                 builder.returnThinking(true);
                 builder.sendThinking(true);
             }
-            if (cs.getTemperature() != null
-                    && GeminiModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+            if (cs.getTemperature() != null) {
                 builder.temperature(cs.getTemperature());
             }
-            if (cs.getTopP() != null
-                    && GeminiModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+            if (cs.getTopP() != null) {
                 builder.topP(cs.getTopP());
             }
-            if (cs.getTopK() != null
-                    && GeminiModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_K.getCode())) {
+            if (cs.getTopK() != null) {
                 builder.topK(cs.getTopK());
             }
-            if (cs.getMaxTokens() != null
-                    && GeminiModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.MAX_TOKENS.getCode())) {
+            if (cs.getMaxTokens() != null) {
                 builder.maxOutputTokens(cs.getMaxTokens());
             }
         }
         return builder.build();
     }
 
-    private StreamingChatModel getStreamModel(AstroChatParam<?> param) {
+    protected StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = GoogleAiGeminiStreamingChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
+        if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
+            builder.baseUrl(param.getModelSetting().getApiUrl());
+        }
         if (CollectionUtils.isNotEmpty(param.getChatModelListeners())) {
             builder.listeners(param.getChatModelListeners());
         }
@@ -115,35 +131,30 @@ public class GeminiProviderHandler extends AbstractModelProviderHandler {
                 builder.returnThinking(true);
                 builder.sendThinking(true);
             }
-            if (cs.getTemperature() != null
-                    && GeminiModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+            if (cs.getTemperature() != null) {
                 builder.temperature(cs.getTemperature());
             }
-            if (cs.getTopP() != null
-                    && GeminiModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+            if (cs.getTopP() != null) {
                 builder.topP(cs.getTopP());
             }
-            if (cs.getTopK() != null
-                    && GeminiModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_K.getCode())) {
+            if (cs.getTopK() != null) {
                 builder.topK(cs.getTopK());
             }
-            if (cs.getMaxTokens() != null
-                    && GeminiModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.MAX_TOKENS.getCode())) {
+            if (cs.getMaxTokens() != null) {
                 builder.maxOutputTokens(cs.getMaxTokens());
             }
         }
         return builder.build();
     }
 
-    private EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
+    protected EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = GoogleAiEmbeddingModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         EmbeddingSetting es = param.getEmbeddingSetting();
         if (es != null) {
             String modelKey = resolveModelKey(param);
-            if (es.getDimensions() != null
-                    && GeminiModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS.getCode())) {
+            if (es.getDimensions() != null) {
                 builder.outputDimensionality(es.getDimensions());
             }
         }

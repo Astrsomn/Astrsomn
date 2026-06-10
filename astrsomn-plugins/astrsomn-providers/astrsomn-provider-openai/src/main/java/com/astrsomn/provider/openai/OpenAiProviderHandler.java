@@ -1,6 +1,7 @@
 package com.astrsomn.provider.openai;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
+import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.buildParam.setting.EmbeddingSetting;
@@ -8,6 +9,7 @@ import com.astrsomn.api.runtime.common.langchain.extension.model.AbstractModelPr
 import com.astrsomn.common.UnknowModelException;
 import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.StringUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -16,8 +18,8 @@ import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class OpenAiProviderHandler extends AbstractModelProviderHandler {
@@ -80,13 +82,33 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
     }
 
     @Override
-    public List<AiModelEntity> getAvailableModels() {
-        return Arrays.stream(OpenAiModelEnum.values())
-                .map(m -> m.toEntity(AiModelEnum.ProviderEnum.OPENAI.getCode()))
-                .toList();
+    public List<AiModelEntity> getAvailableModels(String apiKey, String apiSecret) {
+        OpenAiModelApiClient client = new OpenAiModelApiClient();
+        List<ProviderModelDTO> dtos = client.listModels(apiKey, apiSecret);
+        return dtos.stream().map(dto -> {
+            AiModelEntity entity = new AiModelEntity();
+            entity.setModelKey(dto.getModelKey());
+            entity.setModelName(dto.getModelName() != null ? dto.getModelName() : dto.getModelKey());
+            entity.setDescription(dto.getDescription());
+            entity.setModelType(dto.getModelType());
+            entity.setExtensionCode(AiModelEnum.ProviderEnum.OPENAI.getCode());
+            entity.setCapabilities(toJson(dto.getCapabilities()));
+            entity.setParams(toJson(dto.getParams()));
+            entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
+            entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
+            return entity;
+        }).collect(Collectors.toList());
     }
 
-    private ChatModel getChatModel(AstroChatParam<?> param) {
+    public static String toJson(Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            return "[]";
+        }
+    }
+
+    public ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = OpenAiChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
@@ -99,7 +121,7 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private StreamingChatModel getStreamModel(AstroChatParam<?> param) {
+    public StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = OpenAiStreamingChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
@@ -112,7 +134,7 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
+    public EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = OpenAiEmbeddingModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
