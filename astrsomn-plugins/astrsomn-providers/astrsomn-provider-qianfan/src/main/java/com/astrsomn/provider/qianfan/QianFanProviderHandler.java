@@ -1,6 +1,5 @@
 package com.astrsomn.provider.qianfan;
 
-import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.langchain.buildParam.AstroChatParam;
 import com.astrsomn.api.runtime.common.langchain.extension.model.AbstractModelProviderHandler;
@@ -14,11 +13,14 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 
-import java.util.Arrays;
 import java.util.List;
 
 
-public class QianFanProviderHandler extends AbstractModelProviderHandler {
+import com.astrsomn.api.runtime.common.constant.AiModelEnum;
+import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
+import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+public class QianfanProviderHandler extends AbstractModelProviderHandler {
 
     @Override
     public AiModelEnum.ProviderEnum getProvider() {
@@ -55,14 +57,26 @@ public class QianFanProviderHandler extends AbstractModelProviderHandler {
         }
     }
 
-    @Override
-    public List<AiModelEntity> getAvailableModels() {
-        return Arrays.stream(QianFanModelEnum.values())
-                .map(model -> model.toEntity(AiModelEnum.ProviderEnum.QIANFAN.getCode()))
-                .toList();
+        @Override
+    public List<AiModelEntity> getAvailableModels(String apiKey, String apiSecret) {
+        QianfanModelApiClient client = new QianfanModelApiClient();
+        List<ProviderModelDTO> dtos = client.listModels(apiKey, apiSecret);
+        return dtos.stream().map(dto -> {
+            AiModelEntity entity = new AiModelEntity();
+            entity.setModelKey(dto.getModelKey());
+            entity.setModelName(dto.getModelName() != null ? dto.getModelName() : dto.getModelKey());
+            entity.setDescription(dto.getDescription());
+            entity.setModelType(dto.getModelType());
+            entity.setExtensionCode(AiModelEnum.ProviderEnum.QIANFAN.getCode());
+            entity.setCapabilities(toJson(dto.getCapabilities()));
+            entity.setParams(toJson(dto.getParams()));
+            entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
+            entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
+            return entity;
+        }).collect(Collectors.toList());
     }
 
-    private ChatModel getChatModel(AstroChatParam<?> param) {
+    protected ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = QianfanChatModel.builder()
                 .apiKey(param.getModelSetting().getApiKey())
                 .secretKey(param.getModelSetting().getApiSecret())
@@ -76,7 +90,7 @@ public class QianFanProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private StreamingChatModel getStreamModel(AstroChatParam<?> param) {
+    protected StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = QianfanStreamingChatModel.builder()
                 .apiKey(param.getModelSetting().getApiKey())
                 .secretKey(param.getModelSetting().getApiSecret())
@@ -90,7 +104,7 @@ public class QianFanProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
+    protected EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = QianfanEmbeddingModel.builder()
                 .apiKey(param.getModelSetting().getApiKey())
                 .secretKey(param.getModelSetting().getApiSecret())

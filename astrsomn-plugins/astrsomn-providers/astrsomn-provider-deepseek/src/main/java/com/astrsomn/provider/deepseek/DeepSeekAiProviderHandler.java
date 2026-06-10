@@ -21,12 +21,14 @@ import dev.langchain4j.model.openai.OpenAiImageModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
+import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
-    private static void applyEmbeddingSetting(
+    public static void applyEmbeddingSetting(
             OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder builder, AstroChatParam<?> param) {
         EmbeddingSetting es = param.getEmbeddingSetting();
         if (es == null) {
@@ -37,33 +39,33 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
             modelKey = param.getModelSetting().getModelName();
         }
         if (es.getDimensions() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS.getCode())) {
+                ) {
             builder.dimensions(es.getDimensions());
         }
         if (StringUtils.isNotBlank(es.getUser())
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.USER.getCode())) {
+                ) {
             builder.user(es.getUser());
         }
         if (es.getMaxRetries() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.MAX_RETRIES.getCode())) {
+                ) {
             builder.maxRetries(es.getMaxRetries());
         }
         if (es.getMaxSegmentsPerBatch() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.MAX_SEGMENTS_PER_BATCH.getCode())) {
+                ) {
             builder.maxSegmentsPerBatch(es.getMaxSegmentsPerBatch());
         }
         if (StringUtils.isNotBlank(es.getEncodingFormat())
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.ENCODING_FORMAT.getCode())) {
+                ) {
             builder.encodingFormat(es.getEncodingFormat());
         }
         if (es.getTimeoutSeconds() != null
                 && es.getTimeoutSeconds() > 0
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.TIMEOUT_SECONDS.getCode())) {
+                ) {
             builder.timeout(Duration.ofSeconds(es.getTimeoutSeconds()));
         }
     }
 
-    private static void applyChatSetting(OpenAiChatModel.OpenAiChatModelBuilder builder, AstroChatParam<?> param) {
+    public static void applyChatSetting(OpenAiChatModel.OpenAiChatModelBuilder builder, AstroChatParam<?> param) {
         ChatSetting cs = param.getChatSetting();
         if (cs == null) {
             return;
@@ -75,32 +77,32 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
             builder.returnThinking(true);
         }
         if (cs.getTemperature() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+                ) {
             builder.temperature(cs.getTemperature());
         }
         if (cs.getTopP() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+                ) {
             builder.topP(cs.getTopP());
         }
         if (cs.getMaxTokens() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.MAX_TOKENS.getCode())) {
+                ) {
             builder.maxTokens(cs.getMaxTokens());
         }
         if (cs.getSeed() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.SEED.getCode())) {
+                ) {
             builder.seed(cs.getSeed());
         }
         if (cs.getPresencePenalty() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.PRESENCE_PENALTY.getCode())) {
+                ) {
             builder.presencePenalty(cs.getPresencePenalty());
         }
         if (cs.getFrequencyPenalty() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.FREQUENCY_PENALTY.getCode())) {
+                ) {
             builder.frequencyPenalty(cs.getFrequencyPenalty());
         }
     }
 
-    private static void applyChatSetting(OpenAiStreamingChatModel.OpenAiStreamingChatModelBuilder builder, AstroChatParam<?> param) {
+    public static void applyChatSetting(OpenAiStreamingChatModel.OpenAiStreamingChatModelBuilder builder, AstroChatParam<?> param) {
         ChatSetting cs = param.getChatSetting();
         if (cs == null) {
             return;
@@ -112,69 +114,69 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
             builder.returnThinking(true);
         }
         if (cs.getTemperature() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+                ) {
             builder.temperature(cs.getTemperature());
         }
         if (cs.getTopP() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+                ) {
             builder.topP(cs.getTopP());
         }
         if (cs.getMaxTokens() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.MAX_TOKENS.getCode())) {
+                ) {
             builder.maxTokens(cs.getMaxTokens());
         }
         if (cs.getSeed() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.SEED.getCode())) {
+                ) {
             builder.seed(cs.getSeed());
         }
         if (cs.getPresencePenalty() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.PRESENCE_PENALTY.getCode())) {
+                ) {
             builder.presencePenalty(cs.getPresencePenalty());
         }
         if (cs.getFrequencyPenalty() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.FREQUENCY_PENALTY.getCode())) {
+                ) {
             builder.frequencyPenalty(cs.getFrequencyPenalty());
         }
     }
 
-    private static void applyImageSetting(OpenAiImageModel.OpenAiImageModelBuilder builder, AstroChatParam<?> param) {
+    public static void applyImageSetting(OpenAiImageModel.OpenAiImageModelBuilder builder, AstroChatParam<?> param) {
         ImageSetting is = param.getImageSetting();
         if (is == null) {
             return;
         }
         String modelKey = resolveModelKey(param);
         if (StringUtils.isNotBlank(is.getSize())
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.SIZE.getCode())) {
+                ) {
             builder.size(is.getSize());
         }
         if (StringUtils.isNotBlank(is.getStyle())
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.STYLE.getCode())) {
+                ) {
             builder.style(is.getStyle());
         }
         if (StringUtils.isNotBlank(is.getQuality())
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.QUALITY.getCode())) {
+                ) {
             builder.quality(is.getQuality());
         }
         if (StringUtils.isNotBlank(is.getResponseFormat())
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.RESPONSE_FORMAT.getCode())) {
+                ) {
             builder.responseFormat(is.getResponseFormat());
         }
         if (StringUtils.isNotBlank(is.getUser())
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.USER.getCode())) {
+                ) {
             builder.user(is.getUser());
         }
         if (is.getMaxRetries() != null
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.MAX_RETRIES.getCode())) {
+                ) {
             builder.maxRetries(is.getMaxRetries());
         }
         if (is.getTimeoutSeconds() != null
                 && is.getTimeoutSeconds() > 0
-                && DeepSeekModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ImageParamEnum.TIMEOUT_SECONDS.getCode())) {
+                ) {
             builder.timeout(Duration.ofSeconds(is.getTimeoutSeconds()));
         }
     }
 
-    private static String resolveModelKey(AstroChatParam<?> param) {
+    public static String resolveModelKey(AstroChatParam<?> param) {
         String modelKey = param.getModelKey();
         if ((modelKey == null || modelKey.isBlank()) && param.getModelSetting() != null) {
             modelKey = param.getModelSetting().getModelName();
@@ -218,14 +220,26 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
         }
     }
 
-    @Override
-    public List<AiModelEntity> getAvailableModels() {
-        return Arrays.stream(DeepSeekModelEnum.values())
-                .map(model -> model.toEntity(AiModelEnum.ProviderEnum.DEEPSEEK.getCode()))
-                .toList();
+        @Override
+    public List<AiModelEntity> getAvailableModels(String apiKey, String apiSecret) {
+        DeepSeekModelApiClient client = new DeepSeekModelApiClient();
+        List<ProviderModelDTO> dtos = client.listModels(apiKey, apiSecret);
+        return dtos.stream().map(dto -> {
+            AiModelEntity entity = new AiModelEntity();
+            entity.setModelKey(dto.getModelKey());
+            entity.setModelName(dto.getModelName() != null ? dto.getModelName() : dto.getModelKey());
+            entity.setDescription(dto.getDescription());
+            entity.setModelType(dto.getModelType());
+            entity.setExtensionCode(AiModelEnum.ProviderEnum.DEEPSEEK.getCode());
+            entity.setCapabilities(toJson(dto.getCapabilities()));
+            entity.setParams(toJson(dto.getParams()));
+            entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
+            entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
+            return entity;
+        }).collect(Collectors.toList());
     }
 
-    private ChatModel getChatModel(AstroChatParam<?> param) {
+    protected ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = OpenAiChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
@@ -240,7 +254,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private StreamingChatModel getStreamModel(AstroChatParam<?> param) {
+    protected StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = OpenAiStreamingChatModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
@@ -254,7 +268,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
+    protected EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = OpenAiEmbeddingModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
@@ -265,7 +279,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private ImageModel getImageModel(AstroChatParam<?> param) {
+    protected ImageModel getImageModel(AstroChatParam<?> param) {
         var builder = OpenAiImageModel.builder()
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());

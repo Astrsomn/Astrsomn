@@ -17,10 +17,12 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 
-import java.util.Arrays;
 import java.util.List;
 
 
+import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
+import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 public class ZhipuProviderHandler extends AbstractModelProviderHandler {
 
     private static void applyChatSetting(ZhipuAiChatModel.ZhipuAiChatModelBuilder builder, AstroChatParam<?> param) {
@@ -29,12 +31,10 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
             return;
         }
         String modelKey = resolveModelKey(param);
-        if (chatSetting.getTemperature() != null
-                && ZhipuModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+        if (chatSetting.getTemperature() != null) {
             builder.temperature(chatSetting.getTemperature());
         }
-        if (chatSetting.getTopP() != null
-                && ZhipuModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+        if (chatSetting.getTopP() != null) {
             builder.topP(chatSetting.getTopP());
         }
     }
@@ -46,12 +46,10 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
             return;
         }
         String modelKey = resolveModelKey(param);
-        if (chatSetting.getTemperature() != null
-                && ZhipuModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TEMPERATURE.getCode())) {
+        if (chatSetting.getTemperature() != null) {
             builder.temperature(chatSetting.getTemperature());
         }
-        if (chatSetting.getTopP() != null
-                && ZhipuModelEnum.isParamAvailable(modelKey, AiModelParamEnum.ChatParamEnum.TOP_P.getCode())) {
+        if (chatSetting.getTopP() != null) {
             builder.topP(chatSetting.getTopP());
         }
     }
@@ -63,13 +61,12 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
             return;
         }
         String modelKey = resolveModelKey(param);
-        if (embeddingSetting.getDimensions() != null
-                && ZhipuModelEnum.isParamAvailable(modelKey, AiModelParamEnum.EmbeddingParamEnum.DIMENSIONS.getCode())) {
+        if (embeddingSetting.getDimensions() != null) {
             builder.dimensions(embeddingSetting.getDimensions());
         }
     }
 
-    private static String resolveModelKey(AstroChatParam<?> param) {
+    public static String resolveModelKey(AstroChatParam<?> param) {
         String modelKey = param.getModelKey();
         if (StringUtils.isBlank(modelKey) && param.getModelSetting() != null) {
             modelKey = param.getModelSetting().getModelName();
@@ -108,20 +105,32 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
         }
     }
 
-    @Override
-    public List<AiModelEntity> getAvailableModels() {
-        return Arrays.stream(ZhipuModelEnum.values())
-                .map(m -> m.toEntity(AiModelEnum.ProviderEnum.ZHIPU.getCode()))
-                .toList();
+        @Override
+    public List<AiModelEntity> getAvailableModels(String apiKey, String apiSecret) {
+        ZhipuModelApiClient client = new ZhipuModelApiClient();
+        List<ProviderModelDTO> dtos = client.listModels(apiKey, apiSecret);
+        return dtos.stream().map(dto -> {
+            AiModelEntity entity = new AiModelEntity();
+            entity.setModelKey(dto.getModelKey());
+            entity.setModelName(dto.getModelName() != null ? dto.getModelName() : dto.getModelKey());
+            entity.setDescription(dto.getDescription());
+            entity.setModelType(dto.getModelType());
+            entity.setExtensionCode(AiModelEnum.ProviderEnum.ZHIPU.getCode());
+            entity.setCapabilities(toJson(dto.getCapabilities()));
+            entity.setParams(toJson(dto.getParams()));
+            entity.setStatus(AiModelEnum.StatusEnum.DISABLED.getCode());
+            entity.setSourceType(AiModelEnum.SourceTypeEnum.PLUGIN.getCode());
+            return entity;
+        }).collect(Collectors.toList());
     }
 
     private String modelId(AstroChatParam<?> param) {
         return StringUtils.isNotBlank(param.getModelSetting().getModelName())
                 ? param.getModelSetting().getModelName()
-                : ZhipuModelEnum.GLM_4_FLASH.getModelKey();
+                : "";
     }
 
-    private ChatModel getChatModel(AstroChatParam<?> param) {
+    public ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = ZhipuAiChatModel.builder().apiKey(param.getModelSetting().getApiKey()).model(modelId(param));
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
@@ -133,7 +142,7 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private StreamingChatModel getStreamModel(AstroChatParam<?> param) {
+    public StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = ZhipuAiStreamingChatModel.builder()
                 .apiKey(param.getModelSetting().getApiKey())
                 .model(modelId(param));
@@ -147,7 +156,7 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
         return builder.build();
     }
 
-    private EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
+    public EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = ZhipuAiEmbeddingModel.builder()
                 .apiKey(param.getModelSetting().getApiKey())
                 .model(modelId(param));

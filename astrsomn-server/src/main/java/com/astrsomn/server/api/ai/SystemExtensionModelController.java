@@ -19,13 +19,18 @@ public class SystemExtensionModelController extends BaseController {
     private final SystemExtensionModelGuard systemExtensionModelGuard;
 
     @GetMapping("/load-models/preview")
-    public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(@RequestParam("id") Long id) {
-        return systemExtensionModelSyncService.previewLoadModels(id);
+    public BaseResponse<ExtensionModelLoadPreviewDTO> previewLoadModels(
+            @RequestParam("id") Long id,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
+        return systemExtensionModelSyncService.previewLoadModels(id, accountId);
     }
 
     @PostMapping("/load-models")
-    public BaseResponse<String> loadModels(@RequestParam("id") Long id, @RequestParam(value = "modelKeys", required = false) String modelKeys) {
-        return systemExtensionModelSyncService.loadModels(id, modelKeys);
+    public BaseResponse<String> loadModels(
+            @RequestParam("id") Long id,
+            @RequestParam(value = "modelKeys", required = false) String modelKeys,
+            @RequestParam(value = "accountId", required = false) Long accountId) {
+        return systemExtensionModelSyncService.loadModels(id, modelKeys, accountId);
     }
 
     @GetMapping("/unload-models/preview")
