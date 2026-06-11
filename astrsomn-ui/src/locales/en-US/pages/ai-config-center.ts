@@ -15,7 +15,10 @@ export const aiConfigCenterTranslation = {
     unknownPlugin: 'Unknown Plugin',
   },
   main: {
-    scrollHint: 'Scroll to view models',
+    tabs: {
+      agents: 'Agents',
+      models: 'Models',
+    },
     newAgent: 'New Agent',
   },
   agent: {
@@ -158,6 +161,13 @@ export const aiConfigCenterTranslation = {
     searchPlaceholder: 'Search model name...',
     total: 'Total {n} models',
     create: 'Add Model',
+    loadModels: 'Load Models',
+    deleteTitle: 'Delete Model',
+    deleteConfirm: 'Delete model "{name}"?',
+    delete: 'Delete',
+    cancel: 'Cancel',
+    deleteSuccess: 'Deleted successfully',
+    deleteFailed: 'Delete failed',
     status: {
       enabled: 'Enabled',
       disabled: 'Disabled',

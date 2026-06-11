@@ -8,6 +8,7 @@ import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHa
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.CollectionUtils;
+import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
 import com.astrsomn.server.service.ai.AiAccountService;
 import com.astrsomn.server.service.ai.AiModelService;
@@ -80,8 +81,8 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
         if (accountId != null) {
             AiAccountEntity account = aiAccountService.getById(accountId);
             if (account != null) {
-                apiKey = account.getApiKey();
-                apiSecret = account.getApiSecret();
+                apiKey = CryptoUtil.decrypt(account.getApiKey());
+                apiSecret = CryptoUtil.decrypt(account.getApiSecret());
             }
         }
 
@@ -208,8 +209,8 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
         if (accountId != null) {
             AiAccountEntity account = aiAccountService.getById(accountId);
             if (account != null) {
-                apiKey = account.getApiKey();
-                apiSecret = account.getApiSecret();
+                apiKey = CryptoUtil.decrypt(account.getApiKey());
+                apiSecret = CryptoUtil.decrypt(account.getApiSecret());
             }
         }
 

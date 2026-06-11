@@ -24,26 +24,6 @@
 
     <div class="action-row">
       <template v-if="showActions">
-        <a-button
-          v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
-          size="small"
-          class="action-btn"
-          type="default"
-          @click="$emit('loadModels', item)"
-        >
-          <template #icon><CloudDownloadOutlined /></template>
-          {{ t.card.loadModels }}
-        </a-button>
-        <a-button
-          v-if="item.applied === 'Y' && item.type === 'MODEL_PROVIDER'"
-          size="small"
-          class="action-btn"
-          danger
-          @click="$emit('unloadModels', item)"
-        >
-          <template #icon><RestOutlined /></template>
-          {{ t.card.unloadModels }}
-        </a-button>
         <a-popconfirm
           v-if="item.applied === 'N'"
           :cancel-text="t.card.cancel"
@@ -102,11 +82,9 @@ import {
   BuildOutlined,
   CaretRightOutlined,
   CheckCircleOutlined,
-  CloudDownloadOutlined,
   DeleteOutlined,
   DownloadOutlined,
   PauseOutlined,
-  RestOutlined,
   RocketOutlined,
 } from '@ant-design/icons-vue'
 import {
@@ -125,8 +103,6 @@ const props = defineProps<{
 }>()
 
 defineEmits<{
-  (e: 'loadModels', item: ExtensionRow): void
-  (e: 'unloadModels', item: ExtensionRow): void
   (e: 'apply', id: number | string | undefined): void
   (e: 'revokeApply', id: number | string | undefined): void
   (e: 'uninstall', id: number | string | undefined): void

@@ -3,14 +3,17 @@
     <div :class="{ collapsed }" class="sidebar-shell">
       <aside class="session-sidebar">
         <div class="sidebar-top">
-          <a-button class="collapse-btn" size="small" type="text" @click="toggleCollapsed">
-            <MenuFoldOutlined/>
-          </a-button>
+          <AstSearchInput
+              v-model="searchText"
+              class="sidebar-search-pill"
+              layout="fluid"
+              :placeholder="t.sidebar.searchSessions"
+              @search="handleSearch"
+          />
           <a-button class="new-chat-btn" @click="emit('create')">
             <template #icon>
               <PlusOutlined/>
             </template>
-            <span>{{ t.sidebar.newChat }}</span>
           </a-button>
         </div>
 
@@ -28,6 +31,9 @@
         </div>
 
         <div class="sidebar-footer">
+          <a-button class="collapse-btn" size="small" type="text" @click="toggleCollapsed">
+            <MenuFoldOutlined/>
+          </a-button>
           <span class="footer-version">{{ versionText }}</span>
           <a-button class="settings-btn" type="text" :title="t.sidebar.settings" @click="settingsOpen = true">
             <SettingOutlined/>
@@ -82,6 +88,7 @@
 import {MenuFoldOutlined, MenuUnfoldOutlined, PlusOutlined, SettingOutlined} from '@ant-design/icons-vue'
 import {computed, ref} from 'vue'
 import AstModal from '@/components/home/AstModal.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import SessionList from '@/views/chat-index/component/chat-session/SessionList.vue'
 import type {ChatSessionItem} from '@/views/chat-index/utils/types.ts'
 import {appConfig} from '@/config/config.ts'
@@ -102,6 +109,10 @@ const emit = defineEmits<{
 }>()
 
 const collapsed = computed(() => Boolean(props.collapsed))
+
+const searchText = ref('')
+const handleSearch = () => {
+}
 
 const versionText = computed(() => `Astrsomn v${appConfig.version}`)
 
@@ -128,10 +139,9 @@ const toggleCollapsed = () => {
   height: 100%;
   border-right: 1px solid var(--border-default);
   background: var(--bg-surface);
-  padding: 10px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   overflow: hidden;
   transition: transform 0.28s ease, opacity 0.22s ease;
 }
@@ -148,32 +158,33 @@ const toggleCollapsed = () => {
 }
 
 .sidebar-top {
+  height: 60px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   gap: 8px;
-  padding: 4px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border-default);
 }
 
-.collapse-btn {
-  color: var(--text-secondary);
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
+.sidebar-search-pill {
+  flex: 1;
+  min-width: 0;
 }
 
 .new-chat-btn {
-  flex: 1;
+  width: 32px;
   height: 32px;
+  flex-shrink: 0;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
   border: 1px solid var(--border-default);
   background: var(--bg-card);
   color: var(--text-secondary);
   box-shadow: none;
+  padding: 0;
 }
 
 .new-chat-btn:hover,
@@ -188,7 +199,8 @@ const toggleCollapsed = () => {
   letter-spacing: 0.08em;
   color: var(--text-secondary);
   text-transform: uppercase;
-  padding: 2px 10px;
+  padding: 10px 14px 4px;
+  flex-shrink: 0;
 }
 
 .session-list-wrap {
@@ -219,21 +231,34 @@ const toggleCollapsed = () => {
 }
 
 .sidebar-footer {
+  height: 60px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
+  gap: 8px;
+  padding: 0 10px;
+  border-top: 1px solid var(--border-default);
+}
+
+.collapse-btn {
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
 }
 
 .footer-version {
+  flex: 1;
   font-size: 11px;
   color: var(--text-muted, #94a3b8);
+  text-align: center;
 }
 
 .settings-btn {
   color: var(--text-secondary);
   width: 28px;
   height: 28px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;

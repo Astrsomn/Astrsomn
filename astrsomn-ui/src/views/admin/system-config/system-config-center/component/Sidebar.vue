@@ -1,5 +1,15 @@
 <template>
   <SidebarShell :width="288">
+    <template #top>
+      <AstSearchInput
+          v-model="searchText"
+          class="sidebar-search-pill"
+          layout="fluid"
+          :placeholder="t?.sidebar?.searchPlaceholder ?? '搜索...'"
+          @search="handleSearch"
+      />
+    </template>
+
     <div class="nav-list">
       <div class="nav-items">
         <div
@@ -31,6 +41,12 @@
         </div>
       </div>
     </div>
+
+    <template #footer>
+      <div class="sidebar-footer-version">
+        <span class="footer-version-text">Astrsomn v{{ appConfig.version }}</span>
+      </div>
+    </template>
   </SidebarShell>
 </template>
 
@@ -46,6 +62,8 @@ import {
   PhUsers,
 } from '@phosphor-icons/vue'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
+import {appConfig} from '@/config/config.ts'
 import {usePageTranslation} from '@/locales/pages'
 
 const emit = defineEmits<{
@@ -54,6 +72,10 @@ const emit = defineEmits<{
 
 const route = useRoute()
 const t = usePageTranslation('system-config-center')
+
+const searchText = ref('')
+const handleSearch = () => {
+}
 
 const menuItems = computed(() => {
   const s = t.value?.sidebar
@@ -94,6 +116,22 @@ watch(
 </script>
 
 <style scoped>
+.sidebar-search-pill {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-footer-version {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.footer-version-text {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
 .nav-list {
   flex: 1;
   overflow-y: auto;

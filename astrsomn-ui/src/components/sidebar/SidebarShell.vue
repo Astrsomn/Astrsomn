@@ -1,12 +1,12 @@
 <template>
   <div :style="{ width: width + 'px' }" class="ast-sidebar">
-    <div class="ast-sidebar-top">
+    <div v-if="$slots.top" class="ast-sidebar-top">
       <slot name="top"/>
     </div>
     <div class="ast-sidebar-body">
       <slot/>
     </div>
-    <div class="ast-sidebar-footer">
+    <div v-if="$slots.footer" class="ast-sidebar-footer">
       <slot name="footer"/>
     </div>
   </div>
@@ -32,8 +32,9 @@ withDefaults(defineProps<{
 }
 
 .ast-sidebar-top {
+  height: 56px;
   flex-shrink: 0;
-  padding: 14px 16px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -47,8 +48,11 @@ withDefaults(defineProps<{
 }
 
 .ast-sidebar-footer {
+  height: 56px;
   flex-shrink: 0;
-  padding: 12px 14px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
   border-top: 1px solid var(--border-default);
 }
 </style>

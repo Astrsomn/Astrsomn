@@ -15,7 +15,10 @@ export const aiConfigCenterTranslation = {
     unknownPlugin: '未知插件',
   },
   main: {
-    scrollHint: '滚动查看接入模型',
+    tabs: {
+      agents: 'Agents',
+      models: '接入模型',
+    },
     newAgent: '新 Agent',
   },
   agent: {
@@ -158,6 +161,13 @@ export const aiConfigCenterTranslation = {
     searchPlaceholder: '搜索模型名称...',
     total: '共 {n} 个模型',
     create: '新增模型',
+    loadModels: '加载模型',
+    deleteTitle: '删除模型',
+    deleteConfirm: '确定要删除模型"{name}"吗？',
+    delete: '删除',
+    cancel: '取消',
+    deleteSuccess: '删除成功',
+    deleteFailed: '删除失败',
     status: {
       enabled: '启用',
       disabled: '禁用',

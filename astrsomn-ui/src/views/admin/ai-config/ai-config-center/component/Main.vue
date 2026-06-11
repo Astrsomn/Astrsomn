@@ -15,55 +15,33 @@
           :agent-name="configAgentName"
           @back="handleConfigBack"
       />
-      <!-- 指定提供商：Agent + Model 磁吸翻页 -->
-      <div
-          v-else-if="currentProviderKey !== 'all'"
-          :key="currentProviderKey"
-          ref="snapContainerRef"
-          :class="{ 'is-peeking': isPeeking }"
-          class="provider-detail-view"
-      >
-        <div class="snap-page">
-          <AgentSection
-              :provider-key="currentProviderKey"
-              :provider-name="selectedProvider?.name"
-              :provider-description="selectedProvider?.description"
-              :provider-avatar="selectedProvider?.avatar"
-              @create="handleCreateAgent"
-              @select="handleSelectAgent"
-          />
-          <div class="scroll-hint">
-            <DownOutlined/>
-            <span>{{ t.main.scrollHint }}</span>
-            <DownOutlined/>
-          </div>
-        </div>
-        <div class="snap-page">
-          <ModelSection :provider-key="currentProviderKey"/>
-        </div>
-      </div>
-      <!-- 全部 Agent + Model 磁吸翻页 -->
-      <div
-          v-else
-          key="all"
-          ref="snapContainerRef"
-          :class="{ 'is-peeking': isPeeking }"
-          class="provider-detail-view"
-      >
-        <div class="snap-page">
-          <AgentSection provider-key="all" @create="handleCreateAgent" @select="handleSelectAgent"/>
-        </div>
-        <div class="snap-page">
-          <ModelSection provider-key="all"/>
-        </div>
+      <!-- Agent + Model Tab 切换 -->
+      <div v-else :key="currentProviderKey" class="provider-detail-view">
+        <a-tabs v-model:activeKey="activeTab" class="config-tabs">
+          <a-tab-pane key="agents" :tab="t.main.tabs.agents">
+            <AgentSection
+                :provider-key="currentProviderKey"
+                :provider-name="selectedProvider?.name"
+                :provider-description="selectedProvider?.description"
+                :provider-avatar="selectedProvider?.avatar"
+                @create="handleCreateAgent"
+                @select="handleSelectAgent"
+            />
+          </a-tab-pane>
+          <a-tab-pane key="models" :tab="t.main.tabs.models">
+            <ModelSection
+                :provider-key="currentProviderKey"
+                :extension-id="selectedProvider?.id"
+            />
+          </a-tab-pane>
+        </a-tabs>
       </div>
     </transition>
   </a-layout-content>
 </template>
 
 <script lang="ts" setup>
-import {nextTick, ref, watch} from 'vue'
-import {DownOutlined} from '@ant-design/icons-vue'
+import {ref} from 'vue'
 import AgentSection from './right/AgentSection.vue'
 import ModelSection from './right/ModelSection.vue'
 import AgentForm from './right/AgentForm.vue'
@@ -76,7 +54,7 @@ const props = defineProps<{
   currentGlobalComponent: any
   initialViewMode: 'grid' | 'list'
   currentProviderKey: string
-  selectedProvider: { key: string; name: string; description: string; avatar: string } | null
+  selectedProvider: { id: string | number; key: string; name: string; description: string; avatar: string } | null
 }>()
 
 const emit = defineEmits<{
@@ -85,8 +63,7 @@ const emit = defineEmits<{
   'config-back': []
 }>()
 
-const snapContainerRef = ref<HTMLDivElement | null>(null)
-const isPeeking = ref(false)
+const activeTab = ref('agents')
 const showConfig = ref(false)
 const configAgentName = ref('')
 const configAgentId = ref<string | number | undefined>(undefined)
@@ -113,54 +90,6 @@ const handleConfigBack = () => {
   configAgentId.value = undefined
   emit('config-back')
 }
-
-const playPeekScroll = async () => {
-  await nextTick()
-  await new Promise((r) => setTimeout(r, 300))
-  const el = snapContainerRef.value
-  if (!el) return
-
-  isPeeking.value = true
-
-  const target = el.scrollHeight
-  const duration = 600
-  const stay = 300
-  const start = performance.now()
-  const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2)
-
-  const animate = (now: number) => {
-    const progress = Math.min((now - start) / duration, 1)
-    el.scrollTop = target * easeInOut(progress)
-    if (progress < 1) {
-      requestAnimationFrame(animate)
-    } else {
-      setTimeout(() => {
-        const backStart = performance.now()
-        const animateBack = (now2: number) => {
-          const p = Math.min((now2 - backStart) / duration, 1)
-          el.scrollTop = target * (1 - easeInOut(p))
-          if (p < 1) {
-            requestAnimationFrame(animateBack)
-          } else {
-            isPeeking.value = false
-          }
-        }
-        requestAnimationFrame(animateBack)
-      }, stay)
-    }
-  }
-  requestAnimationFrame(animate)
-}
-
-watch(
-    () => props.currentProviderKey,
-    (val) => {
-      if (val && val !== 'all') {
-        playPeekScroll()
-      }
-    },
-    {immediate: true}
-)
 </script>
 
 <style scoped>
@@ -191,41 +120,59 @@ watch(
 
 .provider-detail-view {
   height: 100%;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-}
-
-.provider-detail-view.is-peeking {
-  scroll-snap-type: none;
-}
-
-
-.snap-page {
-  min-height: calc(100vh - 60px);
-  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
 }
 
-
-.scroll-hint {
-  flex-shrink: 0;
+.provider-detail-view :deep(.config-tabs) {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
-  padding: 16px 30px 24px;
-  font-size: 12px;
-  color: var(--text-muted);
-  animation: hint-bounce 2s ease-in-out infinite;
+  flex-direction: column;
+  height: 100%;
 }
 
-@keyframes hint-bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(6px);
-  }
+.provider-detail-view :deep(.config-tabs .ant-tabs-nav) {
+  margin: 0 0 0 24px;
+  padding-top: 16px;
+  flex-shrink: 0;
+}
+
+.provider-detail-view :deep(.config-tabs .ant-tabs-nav::before) {
+  border-bottom: 1px solid var(--border-default);
+}
+
+.provider-detail-view :deep(.config-tabs .ant-tabs-tab) {
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 8px 20px;
+  transition: color 0.2s ease;
+}
+
+.provider-detail-view :deep(.config-tabs .ant-tabs-tab:hover) {
+  color: var(--text-primary);
+}
+
+.provider-detail-view :deep(.config-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.provider-detail-view :deep(.config-tabs .ant-tabs-ink-bar) {
+  background: var(--primary);
+  height: 2px;
+  border-radius: 2px;
+}
+
+.provider-detail-view :deep(.config-tabs .ant-tabs-content-holder) {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.provider-detail-view :deep(.config-tabs .ant-tabs-content) {
+  height: 100%;
+}
+
+.provider-detail-view :deep(.config-tabs .ant-tabs-tabpane) {
+  height: 100%;
 }
 </style>

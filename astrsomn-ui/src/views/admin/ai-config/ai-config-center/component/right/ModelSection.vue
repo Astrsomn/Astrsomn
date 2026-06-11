@@ -1,10 +1,6 @@
 <template>
   <div class="model-section">
-    <!-- Ambient background -->
-    <div class="model-section__ambient">
-      <div class="ambient-orb ambient-orb--top" />
-      <div class="ambient-orb ambient-orb--bottom" />
-    </div>
+
 
     <!-- Glass toolbar -->
     <div class="model-section__toolbar">
@@ -20,6 +16,13 @@
         <span class="count-dot" />
         {{ t.model.total.replace('{n}', String(total)) }}
       </span>
+      <a-tooltip v-if="extensionId" :title="t.model.loadModels">
+        <a-button class="model-section__load-btn" shape="circle" size="large" @click="handleLoadModels">
+          <template #icon>
+            <CloudDownloadOutlined/>
+          </template>
+        </a-button>
+      </a-tooltip>
       <a-tooltip :title="t.model.create">
         <a-button class="model-section__create-btn" shape="circle" size="large" type="primary" @click="handleCreate">
           <template #icon>
@@ -69,6 +72,10 @@
                     <CloseCircleOutlined class="status-disabled-icon"/>
                   </span>
                 </div>
+                <DeleteOutlined
+                    class="model-card__delete"
+                    @click.stop="handleDeleteModel(model)"
+                />
               </div>
 
               <!-- Divider -->
@@ -175,14 +182,37 @@
         :submit-handler="handleEditSubmit"
         mode="edit"
     />
+
+    <!-- Account selector for loading models -->
+    <AccountSelectorDrawer
+        :open="accountSelectorOpen"
+        :provider-filter="props.providerKey"
+        @select="handleAccountSelected"
+        @update:open="accountSelectorOpen = $event"
+    />
+
+    <!-- Load models preview dialog -->
+    <ExtensionModelLoadDialog
+        :confirm="confirmLoadModels"
+        :extension-label="providerLabel"
+        :load-preview="loadPreview"
+        :loading-preview="loadingPreview"
+        :open="loadDialogOpen"
+        :preview-error="previewError"
+        @cancel="resetLoadDialog"
+        @update:open="loadDialogOpen = $event"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import {ref, watch} from 'vue'
+import {computed, ref, watch} from 'vue'
+import {message, Modal} from 'ant-design-vue'
 import {
   CloseCircleOutlined,
+  CloudDownloadOutlined,
   CloudServerOutlined,
+  DeleteOutlined,
   MessageOutlined,
   PartitionOutlined,
   PictureOutlined,
@@ -191,7 +221,10 @@ import {
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import ModelForm from '@/views/admin/ai-config/ai-model/component/ModelForm.vue'
+import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
+import ExtensionModelLoadDialog from '@/views/admin/system-config/system-extension/component/model-dialog/ExtensionModelLoadDialog.vue'
 import {type AiModel, aiModelApi} from '@/api/aiModel.ts'
+import {type ExtensionModelLoadPreview, systemExtensionApi} from '@/api/systemExtension.ts'
 import {ensureWorkspaceEnvInStorage} from '@/utils/workspaceHelper.ts'
 import {aiModelCapabilitiesDictionary} from '@/locales/zh-CN/dictionary/ai-config/ai-model.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
@@ -208,6 +241,7 @@ const VISIBLE_LIMIT = 3
 
 const props = defineProps<{
   providerKey?: string
+  extensionId?: string | number
 }>()
 
 const keyword = ref('')
@@ -225,6 +259,15 @@ const statusOptions = [
   {label: t.value.model.status.enabled, value: 'enabled'},
   {label: t.value.model.status.disabled, value: 'disabled'},
 ]
+
+// ── Load Models state ──
+const accountSelectorOpen = ref(false)
+const selectedAccountId = ref<string | number | null>(null)
+const loadDialogOpen = ref(false)
+const loadingPreview = ref(false)
+const previewError = ref('')
+const loadPreview = ref<ExtensionModelLoadPreview | null>(null)
+const providerLabel = computed(() => props.providerKey ?? '')
 
 const handleSearch = () => {
   pageNo.value = 1
@@ -359,6 +402,77 @@ const handleEditSubmit = async (payload: AiModel) => {
   await fetchModels()
 }
 
+// ── Load Models handlers ──
+const handleLoadModels = () => {
+  selectedAccountId.value = null
+  accountSelectorOpen.value = true
+}
+
+const handleAccountSelected = async (account: { id?: string | number }) => {
+  if (account.id == null) return
+  accountSelectorOpen.value = false
+  selectedAccountId.value = account.id
+
+  if (props.extensionId == null) return
+  loadingPreview.value = true
+  previewError.value = ''
+  loadPreview.value = null
+  loadDialogOpen.value = true
+  try {
+    const data = await systemExtensionApi.previewLoadModels(props.extensionId, account.id)
+    loadPreview.value = data ?? {toCreate: [], skippedExisting: [], skippedInvalidCount: 0}
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    previewError.value = err?.message || 'Failed to load model preview'
+  } finally {
+    loadingPreview.value = false
+  }
+}
+
+const confirmLoadModels = async (selectedModelKeys: string[]) => {
+  if (props.extensionId == null || selectedModelKeys.length === 0 || previewError.value) return
+  try {
+    const msg = await systemExtensionApi.loadModels(props.extensionId, selectedModelKeys, selectedAccountId.value ?? undefined)
+    message.success(msg)
+    loadDialogOpen.value = false
+    resetLoadDialog()
+    await fetchModels()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || 'Failed to load models')
+    throw e
+  }
+}
+
+// ── Delete Model ──
+const handleDeleteModel = (model: AiModel) => {
+  Modal.confirm({
+    title: t.value.model.deleteTitle,
+    content: (t.value.model.deleteConfirm || '').replace('{name}', model.modelName || ''),
+    okText: t.value.model.delete,
+    okType: 'danger',
+    cancelText: t.value.model.cancel,
+    onOk: async () => {
+      try {
+        await aiModelApi.delete([model.id!])
+        message.success(t.value.model.deleteSuccess)
+        await fetchModels()
+      } catch (e: unknown) {
+        const err = e as { message?: string }
+        message.error(err?.message || t.value.model.deleteFailed)
+      }
+    },
+  })
+}
+
+const resetLoadDialog = () => {
+  loadDialogOpen.value = false
+  selectedAccountId.value = null
+  previewError.value = ''
+  loadPreview.value = null
+  loadingPreview.value = false
+}
+
 watch(() => props.providerKey, () => {
   keyword.value = ''
   pageNo.value = 1
@@ -438,53 +552,14 @@ void fetchModels()
   background: var(--ms-glass-bg);
   backdrop-filter: blur(18px) saturate(180%);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
-  border: 1px solid var(--ms-glass-border);
+
   border-radius: 16px;
-  box-shadow:
-    0 4px 24px color-mix(in srgb, var(--text-primary) 10%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--bg-card) 3%, transparent);
+
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-.model-section__search {
-  flex: 1;
-  max-width: 400px;
-  flex-shrink: 0;
-}
-
-.model-section__search :deep(.toolbar-search-pill) {
-  height: 36px;
-  border-radius: 18px;
-  padding: 0 2px 0 12px;
-  background: color-mix(in srgb, var(--bg-input) 38%, transparent);
-  border: 1px solid color-mix(in srgb, var(--border-default) 28%, transparent);
-  transition: all 0.3s ease;
-}
-
-.model-section__search :deep(.toolbar-search-pill:hover) {
-  background: color-mix(in srgb, var(--bg-input) 58%, transparent);
-  border-color: color-mix(in srgb, var(--border-default) 48%, transparent);
-}
-
-.model-section__search :deep(.toolbar-search-pill:focus-within) {
-  background: color-mix(in srgb, var(--bg-input) 68%, transparent);
-  border-color: color-mix(in srgb, var(--primary) 48%, transparent);
-  box-shadow:
-    0 0 0 3px var(--ms-glow-ring),
-    0 0 24px color-mix(in srgb, var(--primary) 8%, transparent);
-}
-
-.model-section__search :deep(.toolbar-search-pill__input) {
-  font-size: 13px;
-  color: var(--text-primary);
-}
-
-.model-section__search :deep(.toolbar-search-pill__input::placeholder) {
-  color: var(--text-muted);
-  opacity: 0.5;
-}
 
 
 .model-section__count {
@@ -511,10 +586,25 @@ void fetchModels()
 }
 
 
+.model-section__load-btn,
 .model-section__create-btn {
   flex-shrink: 0;
-  box-shadow: 0 2px 12px color-mix(in srgb, var(--primary) 25%, transparent);
   transition: transform 0.25s var(--ms-ease-spring), box-shadow 0.25s ease;
+}
+
+.model-section__load-btn {
+  border-color: var(--border-default);
+  color: var(--text-secondary);
+}
+
+.model-section__load-btn:hover {
+  transform: scale(1.08);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.model-section__create-btn {
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--primary) 25%, transparent);
 }
 
 .model-section__create-btn:hover {
@@ -522,7 +612,8 @@ void fetchModels()
   box-shadow: 0 4px 20px color-mix(in srgb, var(--primary) 40%, transparent);
 }
 
-.model-section__create-btn:active {
+.model-section__create-btn:active,
+.model-section__load-btn:active {
   transform: scale(0.94);
 }
 
@@ -783,6 +874,27 @@ void fetchModels()
   font-size: 16px;
   color: var(--error);
   opacity: 0.7;
+}
+
+/* ── Delete button on card hover ── */
+.model-card__delete {
+  flex-shrink: 0;
+  font-size: 15px;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.model-card:hover .model-card__delete {
+  opacity: 1;
+}
+
+.model-card__delete:hover {
+  color: var(--error);
+  background: color-mix(in srgb, var(--error) 10%, transparent);
 }
 
 

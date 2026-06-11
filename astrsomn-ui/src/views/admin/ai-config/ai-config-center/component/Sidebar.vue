@@ -1,16 +1,13 @@
 <template>
   <SidebarShell :width="288">
     <template #top>
-      <div class="search-wrapper">
-        <PhMagnifyingGlass :size="16" class="search-icon" />
-        <input
+      <AstSearchInput
           v-model="searchText"
-          class="search-input"
+          class="sidebar-search-pill"
+          layout="fluid"
           :placeholder="t.sidebar.searchPlaceholder"
-          type="text"
-          @keyup.enter="handleSearch"
-        />
-      </div>
+          @search="handleSearch"
+      />
     </template>
 
     <div class="nav-list">
@@ -130,7 +127,6 @@ import {
   PhCode,
   PhIdentificationCard,
   PhLink,
-  PhMagnifyingGlass,
   PhSquaresFour,
   PhStorefront,
   PhTerminalWindow,
@@ -138,6 +134,7 @@ import {
 } from '@phosphor-icons/vue'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts'
 import {aiAccountApi} from '@/api/aiAccount'
 import {aiPromptApi} from '@/api/aiPrompt'
@@ -152,7 +149,7 @@ import ExtensionMarketplaceDialog
 
 const emit = defineEmits<{
   select: [key: string]
-  'select-provider': [info: { key: string; name: string; description: string; avatar: string }]
+  'select-provider': [info: { id: string | number; key: string; name: string; description: string; avatar: string }]
 }>()
 
 const route = useRoute()
@@ -164,6 +161,7 @@ const activeItem = ref('')
 const marketplaceOpen = ref(false)
 const enabledExtensions = ref<Array<{ key: string; name: string; avatar: string; initial: string }>>([])
 const providers = ref<Array<{
+  id: string | number;
   key: string;
   label: string;
   icon: unknown;
@@ -201,7 +199,7 @@ const handleSelect = (key: string) => {
   emit('select', key)
   const provider = providers.value.find(p => p.key === key)
   if (provider) {
-    emit('select-provider', {key: provider.key, name: provider.label, description: provider.description, avatar: provider.avatar || ''})
+    emit('select-provider', {id: provider.id, key: provider.key, name: provider.label, description: provider.description, avatar: provider.avatar || ''})
   }
 }
 
@@ -257,6 +255,7 @@ const fetchProviders = async () => {
       const dictLabel = providerDict.value.getLabel(code)
       const name = dictLabel || item.extensionName || item.extensionKey || t.value.sidebar.unknownPlugin
       return {
+        id: item.id!,
         key: code,
         label: name,
         icon: PhSquaresFour,
@@ -347,43 +346,9 @@ watch(
 </script>
 
 <style scoped>
-/* ── 搜索框 ── */
-.search-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  height: 34px;
-  padding: 0 14px 0 34px;
-  font-size: 12px;
-  color: var(--text-primary);
-  background: var(--bg-input);
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  outline: none;
-  font-family: inherit;
-}
-
-.search-input::placeholder {
-  color: var(--text-muted);
-}
-
-.search-input:focus {
-  border-color: var(--primary);
-  background: var(--bg-elevated);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+.sidebar-search-pill {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ── 列表 ── */
