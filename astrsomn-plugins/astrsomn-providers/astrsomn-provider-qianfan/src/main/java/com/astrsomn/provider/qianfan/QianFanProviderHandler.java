@@ -21,6 +21,7 @@ import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 public class QianfanProviderHandler extends AbstractModelProviderHandler {
+    private static final String DEFAULT_BASE_URL = "https://aip.baidubce.com";
 
     @Override
     public AiModelEnum.ProviderEnum getProvider() {
@@ -78,6 +79,7 @@ public class QianfanProviderHandler extends AbstractModelProviderHandler {
 
     protected ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = QianfanChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .apiKey(param.getModelSetting().getApiKey())
                 .secretKey(param.getModelSetting().getApiSecret())
                 .modelName(param.getModelSetting().getModelName());
@@ -92,6 +94,7 @@ public class QianfanProviderHandler extends AbstractModelProviderHandler {
 
     protected StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = QianfanStreamingChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .apiKey(param.getModelSetting().getApiKey())
                 .secretKey(param.getModelSetting().getApiSecret())
                 .modelName(param.getModelSetting().getModelName());
@@ -106,6 +109,7 @@ public class QianfanProviderHandler extends AbstractModelProviderHandler {
 
     protected EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = QianfanEmbeddingModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .apiKey(param.getModelSetting().getApiKey())
                 .secretKey(param.getModelSetting().getApiSecret())
                 .modelName(param.getModelSetting().getModelName());

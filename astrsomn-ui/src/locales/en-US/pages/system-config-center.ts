@@ -1,5 +1,6 @@
 export const systemConfigCenterTranslation = {
   sidebar: {
+    searchPlaceholder: 'Search...',
     all: 'Overview',
     users: 'Users',
     env: 'Environments',

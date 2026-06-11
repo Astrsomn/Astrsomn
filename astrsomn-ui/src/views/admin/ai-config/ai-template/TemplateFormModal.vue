@@ -56,17 +56,7 @@
                 />
               </a-form-item>
 
-              <a-form-item :label="t.form.versionLabel" name="version">
-                <a-input-number
-                    v-model:value="form.version"
-                    :disabled="true"
-                    :min="1"
-                    :precision="0"
-                    class="w-full"
-                    :placeholder="t.form.versionPlaceholder"
-                    size="large"
-                />
-              </a-form-item>
+  
 
               <a-form-item :label="t.form.statusLabel" name="status">
                 <a-select v-model:value="form.status" :options="statusOptions" size="large"/>

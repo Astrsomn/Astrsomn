@@ -1,5 +1,6 @@
 export const systemConfigCenterTranslation = {
   sidebar: {
+    searchPlaceholder: '搜索...',
     all: '全部',
     users: '用户管理',
     env: '环境管理',

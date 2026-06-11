@@ -28,6 +28,7 @@ import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
+    private static final String DEFAULT_BASE_URL = "https://api.deepseek.com";
     public static void applyEmbeddingSetting(
             OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder builder, AstroChatParam<?> param) {
         EmbeddingSetting es = param.getEmbeddingSetting();
@@ -241,6 +242,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
 
     protected ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = OpenAiChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
@@ -256,6 +258,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
 
     protected StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = OpenAiStreamingChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
@@ -270,6 +273,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
 
     protected EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = OpenAiEmbeddingModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
@@ -281,6 +285,7 @@ public class DeepSeekAiProviderHandler extends AbstractModelProviderHandler {
 
     protected ImageModel getImageModel(AstroChatParam<?> param) {
         var builder = OpenAiImageModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {

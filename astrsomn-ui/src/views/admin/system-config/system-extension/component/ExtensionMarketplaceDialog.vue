@@ -104,8 +104,7 @@ function onPanelSync(tab: ExtensionPanel) {
 
 .content-card {
   background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: 16px;
+
   padding: 0;
   min-height: 100%;
   overflow: hidden;

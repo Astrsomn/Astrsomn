@@ -147,22 +147,23 @@ export const systemExtensionApi = {
         })
     },
 
-    previewLoadModels: (id: number | string): Promise<ExtensionModelLoadPreview> => {
-        return request({
-            url: `/v1/astro/system-extension/load-models/preview?id=${encodeURIComponent(String(id))}`,
-            method: 'get'
-        })
+    previewLoadModels: (id: number | string, accountId?: string | number): Promise<ExtensionModelLoadPreview> => {
+        let url = `/v1/astro/system-extension/load-models/preview?id=${encodeURIComponent(String(id))}`
+        if (accountId != null) {
+            url += `&accountId=${encodeURIComponent(String(accountId))}`
+        }
+        return request({ url, method: 'get' })
     },
 
-    loadModels: (id: number | string, modelKeys?: string[]): Promise<string> => {
-        return request({
-            url: `/v1/astro/system-extension/load-models`,
-            method: 'post',
-            params: {
-                id: encodeURIComponent(String(id)),
-                modelKeys: modelKeys?.join(',')
-            }
-        })
+    loadModels: (id: number | string, modelKeys?: string[], accountId?: string | number): Promise<string> => {
+        let url = `/v1/astro/system-extension/load-models?id=${encodeURIComponent(String(id))}`
+        if (modelKeys && modelKeys.length > 0) {
+            url += `&modelKeys=${encodeURIComponent(modelKeys.join(','))}`
+        }
+        if (accountId != null) {
+            url += `&accountId=${encodeURIComponent(String(accountId))}`
+        }
+        return request({ url, method: 'post' })
     },
 
     previewUnloadModels: (id: number | string): Promise<ExtensionModelUnloadPreview> => {

@@ -5,6 +5,7 @@ import {ref} from 'vue'
  * 用于在全局 AdminSidebar 与 AI 配置中心 Index.vue 之间共享数据
  */
 export interface AiConfigProvider {
+  id: string | number
   key: string
   name: string
   description: string

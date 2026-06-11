@@ -712,6 +712,7 @@ watch(
 .sidebar-search-pill {
   flex: 1;
   min-width: 0;
+    border: none;
 }
 
 .add-source-section {

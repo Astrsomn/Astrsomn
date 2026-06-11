@@ -9,6 +9,7 @@ export const chatIndexPage = {
   sidebar: {
     newChat: 'New Chat',
     recentSessions: 'Recent Sessions',
+    searchSessions: 'Search sessions...',
     settings: 'Settings',
     theme: 'Theme',
     language: 'Language',

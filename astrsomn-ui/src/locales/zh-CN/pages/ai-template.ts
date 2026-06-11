@@ -40,6 +40,15 @@ export const aiTemplateTranslation = {
       stringTemplate: 'StringTemplate',
     },
   },
+  card: {
+    template: '模板',
+    edit: '编辑',
+    deleteConfirm: '确定删除吗？',
+    statusEnabled: '已启用',
+    statusDisabled: '已禁用',
+    noDescription: '暂无描述',
+    category: '分类',
+  },
   form: {
     createTitle: '新增 FTL/ST 模板',
     editTitle: '编辑 FTL/ST 模板',

@@ -1,19 +1,17 @@
 <template>
-  <SidebarShell :width="288">
+  <SidebarShell :width="288" class="ai-config-sidebar">
     <template #top>
-      <div class="search-wrapper">
-        <PhMagnifyingGlass :size="16" class="search-icon" />
-        <input
+      <AstSearchInput
           v-model="searchText"
-          class="search-input"
+          class="sidebar-search-pill"
+          layout="fluid"
           :placeholder="t.sidebar.searchPlaceholder"
-          type="text"
-          @keyup.enter="handleSearch"
-        />
-      </div>
+          @search="handleSearch"
+      />
     </template>
 
-    <div class="nav-list">
+    <!-- 可滚动区域：模型提供方（在上） -->
+    <div class="provider-section">
       <!-- 全部 -->
       <a-tooltip placement="right">
         <template #title>{{ t.sidebar.all }}</template>
@@ -30,6 +28,8 @@
           <span class="nav-name">{{ t.sidebar.all }}</span>
         </div>
       </a-tooltip>
+
+
 
       <!-- 插件提供方 -->
       <a-tooltip
@@ -59,32 +59,14 @@
           <span>{{ t.sidebar.goMarketplace }}</span>
         </button>
       </div>
+    </div>
 
-      <!-- 全局管理 -->
+    <!-- 固定区域：全局管理（在底） -->
+    <div class="global-section">
+ 
+
       <a-tooltip
           v-for="item in globalItems"
-          :key="item.key"
-          placement="right"
-      >
-        <template #title>{{ getItemLabel(item.key) }}</template>
-        <div
-            :class="{ 'is-active': activeItem === item.key }"
-            class="nav-item"
-            @click="handleSelect(item.key)"
-        >
-          <component
-            :is="item.icon"
-            :size="16"
-            weight="regular"
-            class="nav-icon"
-          />
-          <span class="nav-name">{{ getItemLabel(item.key) }}</span>
-          <span v-if="item.count !== undefined" class="nav-count">{{ item.count }}</span>
-        </div>
-      </a-tooltip>
-
-      <a-tooltip
-          v-for="item in extraItems"
           :key="item.key"
           placement="right"
       >
@@ -130,7 +112,6 @@ import {
   PhCode,
   PhIdentificationCard,
   PhLink,
-  PhMagnifyingGlass,
   PhSquaresFour,
   PhStorefront,
   PhTerminalWindow,
@@ -138,13 +119,9 @@ import {
 } from '@phosphor-icons/vue'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
+import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts'
-import {aiAccountApi} from '@/api/aiAccount'
-import {aiPromptApi} from '@/api/aiPrompt'
-import {aiMcpApi} from '@/api/aiMcp'
-import {aiToolApi} from '@/api/aiTool'
-import {aiTemplateApi} from '@/api/aiTemplate'
-import {aiConversationApi} from '@/api/aiConversation'
+import {aiConfigCenterApi} from '@/api/aiConfigCenter'
 import {useDictionary} from '@/locales/dictionary'
 import {usePageTranslation} from '@/locales/pages.ts'
 import ExtensionMarketplaceDialog
@@ -152,7 +129,7 @@ import ExtensionMarketplaceDialog
 
 const emit = defineEmits<{
   select: [key: string]
-  'select-provider': [info: { key: string; name: string; description: string; avatar: string }]
+  'select-provider': [info: { id: string | number; key: string; name: string; description: string; avatar: string }]
 }>()
 
 const route = useRoute()
@@ -164,6 +141,7 @@ const activeItem = ref('')
 const marketplaceOpen = ref(false)
 const enabledExtensions = ref<Array<{ key: string; name: string; avatar: string; initial: string }>>([])
 const providers = ref<Array<{
+  id: string | number;
   key: string;
   label: string;
   icon: unknown;
@@ -177,9 +155,6 @@ const globalItems = ref([
   {key: 'prompts', icon: PhTerminalWindow, count: undefined as number | undefined},
   {key: 'mcp', icon: PhLink, count: undefined as number | undefined},
   {key: 'tools', icon: PhWrench, count: undefined as number | undefined},
-])
-
-const extraItems = ref([
   {key: 'ftl', icon: PhCode, count: undefined as number | undefined},
   {key: 'conversations', icon: PhChatCenteredText, count: undefined as number | undefined},
 ])
@@ -201,7 +176,7 @@ const handleSelect = (key: string) => {
   emit('select', key)
   const provider = providers.value.find(p => p.key === key)
   if (provider) {
-    emit('select-provider', {key: provider.key, name: provider.label, description: provider.description, avatar: provider.avatar || ''})
+    emit('select-provider', {id: provider.id, key: provider.key, name: provider.label, description: provider.description, avatar: provider.avatar || ''})
   }
 }
 
@@ -257,6 +232,7 @@ const fetchProviders = async () => {
       const dictLabel = providerDict.value.getLabel(code)
       const name = dictLabel || item.extensionName || item.extensionKey || t.value.sidebar.unknownPlugin
       return {
+        id: item.id!,
         key: code,
         label: name,
         icon: PhSquaresFour,
@@ -279,7 +255,7 @@ const updateActiveItem = () => {
   if (currentPath === '/admin/ai-config-center') {
 
     const view = route.query.view as string | undefined
-    const globalKeys = [...globalItems.value.map(item => item.key), ...extraItems.value.map(item => item.key)]
+    const globalKeys = [...globalItems.value.map(item => item.key), ...globalItems.value.map(item => item.key)]
     if (view && globalKeys.includes(view)) {
       activeItem.value = view
       return
@@ -300,7 +276,7 @@ const updateActiveItem = () => {
 
   const pathParts = currentPath.split('/')
   const lastPart = pathParts[pathParts.length - 1]
-  const globalKeys = [...globalItems.value.map(item => item.key), ...extraItems.value.map(item => item.key)]
+  const globalKeys = [...globalItems.value.map(item => item.key), ...globalItems.value.map(item => item.key)]
   if (globalKeys.includes(lastPart)) {
     activeItem.value = lastPart
     return
@@ -310,24 +286,25 @@ const updateActiveItem = () => {
   activeItem.value = 'all'
 }
 
-const fetchCount = async (api: { queryPage: (p: unknown) => Promise<{ total?: number }> }, list: typeof globalItems, idx: number) => {
-  try {
-    const resp = await api.queryPage({pageNo: 1, pageSize: 1})
-    list.value[idx].count = resp.total ?? 0
-  } catch {
-
-  }
+const countFieldMap: Record<string, keyof import('@/api/aiConfigCenter').AiConfigCenterCounts> = {
+  'ai-account': 'aiAccountCount',
+  'prompts': 'aiPromptCount',
+  'mcp': 'aiMcpCount',
+  'tools': 'aiToolCount',
+  'ftl': 'aiTemplateCount',
+  'conversations': 'aiChatSessionCount',
 }
 
-const fetchCounts = () => {
-  return Promise.all([
-    fetchCount(aiAccountApi, globalItems, 0),
-    fetchCount(aiPromptApi, globalItems, 1),
-    fetchCount(aiMcpApi, globalItems, 2),
-    fetchCount(aiToolApi, globalItems, 3),
-    fetchCount(aiTemplateApi, extraItems, 0),
-    fetchCount(aiConversationApi, extraItems, 1),
-  ])
+const fetchCounts = async () => {
+  try {
+    const counts = await aiConfigCenterApi.counts()
+    globalItems.value.forEach((item) => {
+      const field = countFieldMap[item.key]
+      item.count = field ? (counts[field] ?? 0) : 0
+    })
+  } catch {
+    // ignore
+  }
 }
 
 onMounted(() => {
@@ -347,52 +324,74 @@ watch(
 </script>
 
 <style scoped>
-/* ── 搜索框 ── */
-.search-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  height: 34px;
-  padding: 0 14px 0 34px;
-  font-size: 12px;
-  color: var(--text-primary);
-  background: var(--bg-input);
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  transition: all 0.2s ease;
-  outline: none;
-  font-family: inherit;
-}
-
-.search-input::placeholder {
-  color: var(--text-muted);
-}
-
-.search-input:focus {
-  border-color: var(--primary);
-  background: var(--bg-elevated);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
-}
-
-/* ── 列表 ── */
-.nav-list {
+.sidebar-search-pill {
   flex: 1;
-  overflow-y: auto;
+  min-width: 0;
+  border: none;
+}
+
+/* ── 覆盖 SidebarShell 主体（取消滚动，改为 flex 布局） ── */
+.ai-config-sidebar :deep(.ast-sidebar-body) {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ── 可滚动区域：模型提供方（在上） ── */
+.provider-section {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 8px 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  /* ── 美化滚动条 ── */
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+.provider-section::-webkit-scrollbar {
+  width: 5px;
+}
+.provider-section::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+.provider-section::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, rgba(128, 128, 128, 0.3));
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+.provider-section::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, rgba(128, 128, 128, 0.5));
+}
+
+/* ── 固定区域：全局管理（在底） ── */
+.global-section {
+  flex-shrink: 0;
+  padding: 2px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+/* ── 区域标签 ── */
+.section-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 4px 6px 1px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.section-label.slim {
+  padding: 3px 6px 1px;
+  opacity: 0.55;
+  font-size: 9px;
 }
 
 .nav-item {

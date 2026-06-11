@@ -133,11 +133,10 @@ const handleSystemSelect = (key: string) => {
 
 <style scoped>
 .admin-sidebar-wrapper {
-  flex: 1;
-  min-height: 0;
+  width: 288px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
   overflow: hidden;
   height: 100%;
 }

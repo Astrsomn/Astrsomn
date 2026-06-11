@@ -114,8 +114,8 @@ const handleScroll = () => {
 
 /* ============ 右侧：AppHeader + 主内容 ============ */
 .right-section {
-  flex: 1;
-  min-width: 0;
+  width: calc(100vw - 76px - 288px);
+  flex: none;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -136,6 +136,7 @@ const handleScroll = () => {
 .shell-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   scrollbar-width: thin;

@@ -1,180 +1,219 @@
 <template>
-  <div :class="{ 'is-disabled': record.enabled !== 1 }" class="mcp-card">
+  <div
+      class="card"
+      :class="{ 'card-disabled': record.enabled !== 1, 'card-selected': selected }"
+  >
+    <!-- Selection checkbox (revealed on hover) -->
+    <a-checkbox
+        :checked="selected"
+        class="card-checkbox"
+        @click.stop="onToggle"
+    />
+
+    <!-- Card Header -->
     <div class="card-header">
-      <div class="flex items-center gap-2.5">
-        <div class="icon-wrapper">
-          <ApiOutlined class="icon" />
-        </div>
-        <div class="truncate max-w-[120px]">
-          <h4 class="title">{{ record.serverName || record.mcpKey || t.card.mcpService }}</h4>
-          <p class="sub-title">{{ record.mcpKey || 'MC-XXXX' }}</p>
-        </div>
+      <div class="card-avatar">
+        <ApiOutlined class="card-avatar-icon"/>
       </div>
-      <span class="status-tag">{{ record.type || 'STDIO' }}</span>
+      <div class="card-header-text">
+        <h3 class="card-title">{{ record.serverName || record.mcpKey || t.card.mcpService }}</h3>
+        <span class="card-tag">{{ record.type || 'STDIO' }}</span>
+      </div>
     </div>
 
-    <div class="card-body">
-      <span class="body-label flex items-center gap-1">
-        <LinkOutlined class="label-icon" />
-        {{ t.card.status }}
-      </span>
-      <span class="body-value">{{ record.enabled === 1 ? '已启用' : '已暂停' }}</span>
-    </div>
+    <!-- Card Info -->
+    <p class="card-info">{{ record.mcpKey || '—' }}</p>
 
+    <!-- Card Footer -->
     <div class="card-footer">
-      <span class="status-indicator flex items-center gap-1">
-        <span class="status-dot" :class="{ active: record.enabled === 1 }"></span>
-        PING: --
+      <span class="meta-chip">
+        <span class="status-dot" :class="{ active: record.enabled === 1 }"/>
+        {{ record.enabled === 1 ? t.card.statusEnabled : t.card.statusDisabled }}
       </span>
-      <div class="action-group">
-        <button class="action-btn" @click="emit('edit', record)" :title="t.card.edit">
-          <EditOutlined class="action-icon" />
-        </button>
-        <a-popconfirm :title="t.card.deleteConfirm" @confirm="emit('delete', record.id)">
-          <button class="action-btn delete" :title="t.card.delete">
-            <DeleteOutlined class="action-icon" />
-          </button>
-        </a-popconfirm>
-      </div>
+      <span class="meta-spacer"/>
+      <a-popconfirm
+          :title="t.card.deleteConfirm"
+          @confirm.stop="onDelete"
+      >
+        <button class="action-delete-btn" @click.stop><DeleteOutlined/></button>
+      </a-popconfirm>
+      <button class="action-edit-link" @click.stop="emit('edit', record)">
+        {{ t.card.edit }} <RightOutlined/>
+      </button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {ApiOutlined, DeleteOutlined, EditOutlined, LinkOutlined} from '@ant-design/icons-vue'
+import {ApiOutlined, DeleteOutlined, RightOutlined} from '@ant-design/icons-vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 import type {AiMcp} from '@/api/aiMcp.ts'
 
 const props = defineProps<{
   record: AiMcp
+  selected?: boolean
 }>()
 
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits<{
+  (e: 'edit', record: AiMcp): void
+  (e: 'delete', id: number | string): void
+  (e: 'toggle', id: number | string, checked: boolean): void
+}>()
 
 const t = usePageTranslation('ai-mcp')
+
+const onDelete = () => {
+  if (props.record.id != null) {
+    emit('delete', props.record.id)
+  }
+}
+
+const onToggle = () => {
+  if (props.record.id != null) {
+    emit('toggle', props.record.id, !props.selected)
+  }
+}
 </script>
 
 <style scoped>
-.mcp-card {
-  --primary-color: #10b981;
-  --icon-bg: #d1fae5;
-  --icon-color: #10b981;
-  --tag-bg: #d1fae5;
-  --tag-color: #059669;
+/* ── Card Container (unified style — light blue accent) ── */
+.card {
+  --card-accent: #3b82f6;
+  --card-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  --card-tag-bg: #eff6ff;
+  --card-tag-color: #2563eb;
 
-  width: 100%;
+  position: relative;
   background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 130px;
-  border: 1px solid var(--border-default);
-  transition: all 0.2s ease;
+  gap: 10px;
 }
 
-.mcp-card:hover {
-  border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+.card:hover {
+  border-color: var(--card-accent);
+  box-shadow: 0 4px 20px -4px color-mix(in srgb, var(--card-accent) 15%, transparent);
+  transform: translateY(-1px);
 }
 
-.mcp-card.is-disabled {
+.card-disabled {
   opacity: 0.6;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.card-selected {
+  border-color: var(--card-accent);
+  box-shadow: 0 0 0 1px var(--card-accent);
 }
 
-.icon-wrapper {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--icon-bg);
+/* ── Selection Checkbox ── */
+.card-checkbox {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.card:hover .card-checkbox,
+.card-selected .card-checkbox {
+  opacity: 1;
+}
+
+/* ── Card Header ── */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  background: var(--card-gradient);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  overflow: hidden;
 }
 
-.icon {
-  width: 18px;
-  height: 18px;
-  color: var(--icon-color);
+.card-avatar-icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.title {
-  font-size: 12px;
+.card-header-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-title {
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
-  padding: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.sub-title {
+.card-tag {
   font-size: 9px;
-  color: var(--text-muted);
-  font-family: monospace;
-  margin: 0;
-  padding: 0;
-}
-
-.status-tag {
-  font-size: 9px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: var(--tag-bg);
-  color: var(--tag-color);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 10px;
   flex-shrink: 0;
+  line-height: 18px;
+  background: var(--card-tag-bg);
+  color: var(--card-tag-color);
 }
 
-.card-body {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 0;
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
-  font-size: 10px;
+/* ── Card Info ── */
+.card-info {
+  font-size: 11px;
   color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.body-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.label-icon {
-  width: 14px;
-  height: 14px;
-}
-
-.body-value {
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
+/* ── Card Footer ── */
 .card-footer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 10px;
-  color: var(--text-muted);
+  gap: 6px;
+  margin-top: auto;
 }
 
-.status-indicator {
-  display: flex;
+.meta-chip {
+  font-size: 10px;
+  color: var(--text-muted);
+  display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 2px 7px;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  font-weight: 500;
 }
 
 .status-dot {
@@ -182,48 +221,66 @@ const t = usePageTranslation('ai-mcp')
   height: 6px;
   border-radius: 50%;
   background: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .status-dot.active {
-  background: var(--success);
+  background: #10b981;
 }
 
-.action-group {
-  display: flex;
-  gap: 6px;
-  opacity: 0.6;
-  transition: opacity 0.2s ease;
+.meta-spacer {
+  flex: 1;
 }
 
-.mcp-card:hover .action-group {
+/* ── Action Buttons (reveal on hover) ── */
+.action-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  padding: 0;
+  opacity: 0;
+}
+
+.card:hover .action-delete-btn {
   opacity: 1;
 }
 
-.action-btn {
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: transparent;
-  border-radius: 6px;
-  display: flex;
+.action-delete-btn:hover {
+  color: var(--error);
+  border-color: var(--error);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+}
+
+.action-edit-link {
+  font-size: 10px;
+  color: var(--card-accent);
+  font-weight: 600;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.15s;
 }
 
-.action-btn:hover {
-  background: var(--primary-color);
-  color: #fff;
+.card:hover .action-edit-link {
+  opacity: 1;
 }
 
-.action-btn.delete:hover {
-  background: var(--error);
-}
-
-.action-icon {
-  width: 14px;
-  height: 14px;
+.action-edit-link :deep(svg) {
+  font-size: 8px;
 }
 </style>

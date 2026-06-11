@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 
 public class OpenAiProviderHandler extends AbstractModelProviderHandler {
+    private static final String DEFAULT_BASE_URL = "https://api.openai.com";
 
     private static void applyEmbeddingSetting(
             OpenAiEmbeddingModel.OpenAiEmbeddingModelBuilder builder, AstroChatParam<?> param) {
@@ -110,6 +111,7 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
 
     public ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = OpenAiChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
@@ -123,6 +125,7 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
 
     public StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = OpenAiStreamingChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
@@ -136,6 +139,7 @@ public class OpenAiProviderHandler extends AbstractModelProviderHandler {
 
     public EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = OpenAiEmbeddingModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {

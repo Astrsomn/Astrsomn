@@ -1,6 +1,5 @@
 <template>
   <AstPageShell
-      :breadcrumbs="breadcrumbs"
       :description="t.list.description"
       :empty-text="t.list.emptyText"
       :title="t.list.title"
@@ -57,7 +56,7 @@
             :data-source="list"
             :loading="loading"
             :row-selection="rowSelection"
-            :scroll="{ x: 1320 }"
+            :scroll="{ x: 950 }"
             :empty-text="t.list.emptyMatch"
             mode="table"
             row-key="id"
@@ -124,11 +123,6 @@ const messageTypeDict = getDictionary('system.message.type')
 const messageLevelDict = getDictionary('system.message.level')
 const readStatusDict = getDictionary('system.message.readStatus')
 
-const breadcrumbs = [
-  {title: t.value.list.breadcrumbParent, href: '/admin/system-config'},
-  {title: t.value.list.breadcrumb},
-]
-
 type QueryState = {
   title?: string
   messageType?: string
@@ -162,13 +156,13 @@ const levelColor = (v?: string) => {
 }
 
 const columns = computed(() => [
-  {title: t.value.list.columnTitle, key: 'title', width: 260, ellipsis: true},
-  {title: t.value.list.columnType, key: 'messageType', width: 180},
-  {title: t.value.list.columnLevel, key: 'messageLevel', width: 100},
-  {title: t.value.list.columnStatus, key: 'readStatus', width: 100},
-  {title: t.value.list.columnSource, key: 'source', width: 140, ellipsis: true},
-  {title: t.value.list.columnCreateTime, dataIndex: 'createTime', key: 'createTime', width: 180, ellipsis: true},
-  {title: t.value.list.columnActions, key: 'actions', width: 160, fixed: 'right' as const}
+  {title: t.value.list.columnTitle, key: 'title', width: 200, ellipsis: true},
+  {title: t.value.list.columnType, key: 'messageType', width: 120},
+  {title: t.value.list.columnLevel, key: 'messageLevel', width: 80},
+  {title: t.value.list.columnStatus, key: 'readStatus', width: 80},
+  {title: t.value.list.columnSource, key: 'source', width: 100, ellipsis: true},
+  {title: t.value.list.columnCreateTime, dataIndex: 'createTime', key: 'createTime', width: 150, ellipsis: true},
+  {title: t.value.list.columnActions, key: 'actions', width: 120, fixed: 'right' as const}
 ])
 
 const query = reactive<QueryState>({})

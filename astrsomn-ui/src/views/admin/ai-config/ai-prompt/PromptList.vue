@@ -1,88 +1,89 @@
 <template>
   <AstPageShell
-      :breadcrumbs="breadcrumbs"
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
-      :description="t.list.description"
+
       :empty-text="t.list.emptyText"
-      :title="t.list.title"
+
   >
-    <div ref="pageRef" class="prompt-page">
+    <div class="prompt-page">
       <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
-            <div class="toolbar-left">
-              <AstSearchInput
-                  v-model="query.promptTitle"
-                  :button-label="t.list.searchButton"
-                  layout="toolbar"
-                  :placeholder="t.list.searchPlaceholder"
-                  @search="fetchList"
-              />
-              <PromptSceneTagSelector v-model="query.sceneTags" @change="fetchList"/>
-              <AstStatusSwitch v-model="query.status" @change="fetchList"/>
-            </div>
-            <div class="toolbar-right">
-              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
-            </div>
+            <AstSearchInput
+                v-model="query.promptTitle"
+                :button-label="t.list.searchButton"
+                layout="toolbar"
+                :placeholder="t.list.searchPlaceholder"
+                @search="fetchList"
+            />
+            <PromptSceneTagSelector v-model="query.sceneTags" @change="fetchList"/>
+            <AstStatusSwitch v-model="query.status" @change="fetchList"/>
           </div>
         </template>
 
 
-        <AstDataView
-            :card-columns="currentGridColumns"
-            :card-gap="promptCardGap"
-            :card-min-width="promptCardMinWidth"
-            :columns="columns"
-            :data-source="list"
-            :loading="loading"
-            :mode="dataViewMode"
-            :row-selection="rowSelection"
-            :scroll="{ x: 1180 }"
-            :empty-text="t.list.emptyMatchText"
-            row-key="id"
-        >
-          <template #card="{ record }">
+      <div v-if="dataViewMode === 'card'" class="prompt-grid-section">
+        <a-spin :spinning="loading">
+          <div class="prompt-grid">
+            <div class="add-card" @click="openCreate">
+              <PlusOutlined class="add-icon"/>
+              <span class="add-text">{{ t.list.create }}</span>
+            </div>
             <PromptCard
+                v-for="record in list"
+                :key="record.id"
                 :record="record"
                 :selected="record.id != null && selectedKeySet.has(record.id)"
                 @delete="handleDeleteOne"
                 @edit="openEdit"
-                @history="openHistory"
-                @select-change="onPromptCardSelectChange.bind(null, record.id)"
+                @toggle="onPromptCardSelectChange"
             />
+          </div>
+        </a-spin>
+      </div>
+      <AstDataView
+          v-else
+          :columns="columns"
+          :data-source="list"
+          :loading="loading"
+          mode="table"
+          :row-selection="rowSelection"
+          :scroll="{ x: 1180 }"
+          :empty-text="t.list.emptyMatchText"
+          row-key="id"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'status'">
+            <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
+              {{ record.status === 'enabled' ? t.list.status.enabled : t.list.status.disabled }}
+            </a-tag>
           </template>
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
-              <a-tag :color="record.status === 'enabled' ? 'green' : 'default'">
-                {{ record.status === 'enabled' ? t.list.status.enabled : t.list.status.disabled }}
-              </a-tag>
-            </template>
-            <template v-else-if="column.key === 'version'">
-              v{{ record.version || 1 }}
-            </template>
-            <template v-else-if="column.key === 'scene'">
-              {{ renderScene(record.scene) }}
-            </template>
-            <template v-else-if="column.key === 'actions'">
-              <a-space>
-                <a-button size="small" type="link" @click="openHistory(record)">
-                  <HistoryOutlined/>
-                </a-button>
-                <a-button size="small" type="link" @click="openEdit(record)">
-                  <EditOutlined/>
-                </a-button>
-                <a-popconfirm :cancel-text="t.list.cancel" :ok-text="t.list.confirm" :title="t.list.deleteConfirm"
-                              @confirm="() => handleDeleteOne(record.id)">
-                  <a-button danger size="small" type="link">
-                    <DeleteOutlined/>
-                  </a-button>
-                </a-popconfirm>
-              </a-space>
-            </template>
+          <template v-else-if="column.key === 'version'">
+            v{{ record.version || 1 }}
           </template>
-        </AstDataView>
+          <template v-else-if="column.key === 'scene'">
+            {{ renderScene(record.scene) }}
+          </template>
+          <template v-else-if="column.key === 'actions'">
+            <a-space>
+              <a-button size="small" type="link" @click="openHistory(record)">
+                <HistoryOutlined/>
+              </a-button>
+              <a-button size="small" type="link" @click="openEdit(record)">
+                <EditOutlined/>
+              </a-button>
+              <a-popconfirm :cancel-text="t.list.cancel" :ok-text="t.list.confirm" :title="t.list.deleteConfirm"
+                            @confirm="() => handleDeleteOne(record.id)">
+                <a-button danger size="small" type="link">
+                  <DeleteOutlined/>
+                </a-button>
+              </a-popconfirm>
+            </a-space>
+          </template>
+        </template>
+      </AstDataView>
 
         <template #pagination>
           <AstPagination
@@ -112,15 +113,14 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
-import {message, Modal} from 'ant-design-vue'
-import {DeleteOutlined, EditOutlined, HistoryOutlined, PlusOutlined, ReloadOutlined,} from '@ant-design/icons-vue'
+import {computed, reactive, ref} from 'vue'
+import {message} from 'ant-design-vue'
+import {DeleteOutlined, EditOutlined, HistoryOutlined, PlusOutlined} from '@ant-design/icons-vue'
 import AstPageShell from '@/components/home/AstPageShell.vue'
 import AstDataSection from '@/components/home/AstDataSection.vue'
 import AstDataView from '@/components/home/AstDataView.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
-import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
 import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
 import PromptFormModal from './component/PromptFormModal.vue'
 import PromptHistoryModal from './component/PromptHistoryModal.vue'
@@ -137,15 +137,7 @@ const props = withDefaults(defineProps<{
   initialViewMode: 'list'
 })
 
-const PROMPT_CARD_MIN_WIDTH_PX = 320
-const PROMPT_CARD_GAP_PX = 12
-const promptCardMinWidth = `${PROMPT_CARD_MIN_WIDTH_PX}px`
-const promptCardGap = `${PROMPT_CARD_GAP_PX}px`
 
-const breadcrumbs = computed(() => [
-  {title: t.value.list.breadcrumb.aiConfig, href: '/admin/ai-config'},
-  {title: t.value.list.breadcrumb.promptManagement},
-])
 
 type QueryState = {
   promptTitle?: string
@@ -178,10 +170,8 @@ const page = reactive({
   total: 0
 })
 
-const pageRef = ref<HTMLElement | null>(null)
 const viewMode = ref<'grid' | 'list'>(props.initialViewMode)
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
-const currentGridColumns = ref(3)
 const selectedRowKeys = ref<Array<number | string>>([])
 const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 
@@ -230,45 +220,6 @@ const onPromptCardSelectChange = (id: number | string | undefined, checked: bool
   }
   selectedRowKeys.value = selectedRowKeys.value.filter((k) => k !== id)
 }
-
-const resetFilters = () => {
-  query.promptTitle = undefined
-  query.promptKey = undefined
-  query.sceneTags = undefined
-  query.envCode = undefined
-  query.createUser = undefined
-  query.status = undefined
-  page.pageNum = 1
-  void fetchList()
-}
-
-const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-  {
-    label: t.value.list.reset,
-    icon: ReloadOutlined,
-    onClick: resetFilters
-  },
-  {
-    label: selectedRowKeys.value.length > 0 ? t.value.list.deleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.delete,
-    icon: DeleteOutlined,
-    disabled: selectedRowKeys.value.length === 0,
-    onClick: () => {
-      if (selectedRowKeys.value.length === 0) return
-      Modal.confirm({
-        title: t.value.list.batchDeleteConfirm,
-        okText: t.value.list.confirm,
-        cancelText: t.value.list.cancel,
-        onOk: () => handleBatchDelete()
-      })
-    }
-  },
-  {
-    label: t.value.list.create,
-    type: 'primary',
-    icon: PlusOutlined,
-    onClick: openCreate
-  }
-])
 
 const modal = reactive({
   open: false,
@@ -392,69 +343,70 @@ const renderScene = (scene?: string) => {
   return scene
 }
 
-const resolveGridColumns = () => {
-  if (typeof window === 'undefined') return 3
-  const width = pageRef.value?.clientWidth ?? window.innerWidth
-  const n = Math.floor((width + PROMPT_CARD_GAP_PX) / (PROMPT_CARD_MIN_WIDTH_PX + PROMPT_CARD_GAP_PX))
-  return Math.max(1, Math.min(3, n))
-}
-
-const syncGridColumns = () => {
-  currentGridColumns.value = resolveGridColumns()
-}
-
-let resizeObserver: ResizeObserver | null = null
-
-onMounted(() => {
-  syncGridColumns()
-  if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
-    resizeObserver = new ResizeObserver(syncGridColumns)
-    resizeObserver.observe(pageRef.value)
-  } else {
-    window.addEventListener('resize', syncGridColumns)
-  }
-  void fetchList()
-})
-
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect()
-  window.removeEventListener('resize', syncGridColumns)
-})
+void fetchList()
 </script>
 
 <style scoped>
 .prompt-page {
   padding: 20px;
-  margin-top: -8px;
 }
 
 .toolbar {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.toolbar-left {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
   align-items: center;
-  flex: 1;
-}
-
-.toolbar-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
-@media (max-width: 720px) {
-  .toolbar-left,
-  .toolbar-right {
-    width: 100%;
-  }
+/* ── Card Grid (matching AgentSection.vue) ── */
+.prompt-grid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.prompt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+
+/* ── Add Card (matching AgentSection.vue) ── */
+.add-card {
+  border: 2px dashed var(--border-subtle);
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 140px;
+  color: var(--text-muted);
+}
+
+.add-card:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 2%, transparent);
+}
+
+.add-icon {
+  font-size: 22px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.add-card:hover .add-icon {
+  opacity: 0.8;
+}
+
+.add-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 </style>
