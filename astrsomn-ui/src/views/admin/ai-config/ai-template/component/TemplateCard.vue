@@ -1,7 +1,7 @@
 <template>
   <div
       class="card"
-      :class="{ 'card-disabled': record.enableFlag !== 'enabled', 'card-selected': selected }"
+      :class="{ 'card-disabled': String(record.status || '') !== 'enabled', 'card-selected': selected }"
   >
     <!-- Selection checkbox (revealed on hover) -->
     <a-checkbox
@@ -13,25 +13,28 @@
     <!-- Card Header -->
     <div class="card-header">
       <div class="card-avatar">
-        <ToolOutlined class="card-avatar-icon"/>
+        <CodeOutlined class="card-avatar-icon"/>
       </div>
       <div class="card-header-text">
-        <h3 class="card-title">{{ record.toolName || record.toolKey || t.card.tool }}</h3>
-        <span class="card-tag">{{ record.type || '--' }}</span>
+        <h3 class="card-title">{{ record.templateTitle || record.templateKey || t.card.template }}</h3>
+        <span class="card-tag">{{ renderTemplateType(record.templateType) }}</span>
       </div>
     </div>
 
     <!-- Card Info -->
-    <p class="card-info">{{ record.toolKey || '—' }}</p>
+    <p class="card-info">{{ record.templateKey || '—' }}</p>
 
     <!-- Card Footer -->
     <div class="card-footer">
       <span class="meta-chip">
-        <span class="status-dot" :class="{ active: record.enableFlag === 'enabled' }"/>
-        {{ record.enableFlag === 'enabled' ? t.card.statusEnabled : t.card.statusDisabled }}
+        <span class="status-dot" :class="{ active: String(record.status || '') === 'enabled' }"/>
+        {{ String(record.status || '') === 'enabled' ? t.card.statusEnabled : t.card.statusDisabled }}
       </span>
-      <span class="meta-chip">
-        {{ record.todayCalls || '0' }} calls
+      <span v-if="record.category" class="meta-chip">
+        {{ record.category }}
+      </span>
+      <span v-if="record.version != null" class="meta-chip">
+        v{{ record.version }}
       </span>
       <span class="meta-spacer"/>
       <a-popconfirm
@@ -48,22 +51,32 @@
 </template>
 
 <script lang="ts" setup>
-import {DeleteOutlined, RightOutlined, ToolOutlined} from '@ant-design/icons-vue'
+import {DeleteOutlined, RightOutlined} from '@ant-design/icons-vue'
+import {CodeOutlined} from '@ant-design/icons-vue'
 import {usePageTranslation} from '@/locales/pages.ts'
-import type {AiTool} from '@/api/aiTool.ts'
+import type {AiTemplate} from '@/api/aiTemplate'
 
 const props = defineProps<{
-  record: AiTool
+  record: AiTemplate
   selected?: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'edit', record: AiTool): void
+  (e: 'edit', record: AiTemplate): void
   (e: 'delete', id: number | string): void
   (e: 'toggle', id: number | string, checked: boolean): void
 }>()
 
-const t = usePageTranslation('ai-tool')
+const t = usePageTranslation('ai-template')
+
+const templateTypeLabels: Record<string, string> = {
+  FREEMARKER: 'FTL',
+  STRING_TEMPLATE: 'ST',
+}
+
+const renderTemplateType = (tp?: string) => {
+  return tp ? (templateTypeLabels[tp] || tp) : '--'
+}
 
 const onDelete = () => {
   if (props.record.id != null) {

@@ -40,6 +40,15 @@ export const aiTemplateTranslation = {
       stringTemplate: 'StringTemplate',
     },
   },
+  card: {
+    template: 'Template',
+    edit: 'Edit',
+    deleteConfirm: 'Are you sure you want to delete?',
+    statusEnabled: 'Enabled',
+    statusDisabled: 'Disabled',
+    noDescription: 'No description',
+    category: 'Category',
+  },
   form: {
     createTitle: 'Create FTL/ST Template',
     editTitle: 'Edit FTL/ST Template',

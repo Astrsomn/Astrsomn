@@ -1,25 +1,20 @@
 <template>
   <AstPageShell
-      :breadcrumbs="breadcrumbs"
-      :description="t.list.description"
+      :show-view-toggle="true"
+      :view-mode="viewMode"
+      :view-toggle-handler="handleViewToggle"
       :empty-text="t.list.emptyText"
-      :title="t.list.title"
   >
     <div class="template-page">
       <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
-            <div class="toolbar-left">
-              <AstSearchInput
-                  v-model="query.templateTitle"
-                  :placeholder="t.list.searchPlaceholder"
-                  @search="fetchList"
-              />
-              <AstStatusSwitch v-model="query.status" @change="fetchList"/>
-            </div>
-            <div class="toolbar-right">
-              <AstegmentedButton :buttons="segmentedButtons"/>
-            </div>
+            <AstSearchInput
+                v-model="query.templateTitle"
+                :placeholder="t.list.searchPlaceholder"
+                @search="fetchList"
+            />
+            <AstStatusSwitch v-model="query.status" @change="fetchList"/>
           </div>
         </template>
 
@@ -45,7 +40,29 @@
         </template>
 
 
+        <!-- Card Grid Mode -->
+        <div v-if="dataViewMode === 'card'" class="template-grid-section">
+          <a-spin :spinning="loading">
+            <div class="template-grid">
+              <div class="add-card" @click="openCreate">
+                <PlusOutlined class="add-icon"/>
+                <span class="add-text">{{ t.list.create }}</span>
+              </div>
+              <TemplateCard
+                  v-for="record in list"
+                  :key="record.id"
+                  :record="record"
+                  :selected="record.id != null && selectedKeySet.has(record.id)"
+                  @delete="handleDeleteOne"
+                  @edit="openEdit"
+                  @toggle="onTemplateCardToggle"
+              />
+            </div>
+          </a-spin>
+        </div>
+
         <AstDataView
+            v-else
             :columns="columns"
             :data-source="list"
             :loading="loading"
@@ -104,24 +121,19 @@
 <script lang="ts" setup>
 import {computed, reactive, ref} from 'vue'
 import {message} from 'ant-design-vue'
-import {DeleteOutlined, FilterOutlined, PlusOutlined, TagsOutlined} from '@ant-design/icons-vue'
+import {PlusOutlined, TagsOutlined} from '@ant-design/icons-vue'
 import AstPageShell from '@/components/home/AstPageShell.vue'
 import AstDataSection from '@/components/home/AstDataSection.vue'
 import AstDataView from '@/components/home/AstDataView.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
-import AstegmentedButton from '@/components/home/AstegmentedButton.vue'
 import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
 import TemplateFormModal from './TemplateFormModal.vue'
+import TemplateCard from './component/TemplateCard.vue'
 import {type AiTemplate, aiTemplateApi, type PageResponse} from '@/api/aiTemplate.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
 
 const t = usePageTranslation('ai-template')
-
-const breadcrumbs = computed(() => [
-  {title: t.value.list.breadcrumb.aiSafety, href: '/admin/ai-safety'},
-  {title: t.value.list.breadcrumb.templateManagement},
-])
 
 type QueryState = {
   templateTitle?: string
@@ -178,6 +190,24 @@ const page = reactive({
 })
 
 const selectedRowKeys = ref<Array<number | string>>([])
+const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
+
+const viewMode = ref<'grid' | 'list'>('grid')
+const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
+
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
+}
+
+const onTemplateCardToggle = (id: number | string, checked: boolean) => {
+  if (checked) {
+    if (!selectedRowKeys.value.includes(id)) {
+      selectedRowKeys.value = [...selectedRowKeys.value, id]
+    }
+    return
+  }
+  selectedRowKeys.value = selectedRowKeys.value.filter((k) => k !== id)
+}
 
 const currentPageIds = computed(() =>
     list.value
@@ -233,30 +263,6 @@ const modal = reactive({
 })
 
 const modalInitial = ref<AiTemplate | null>(null)
-
-const segmentedButtons = computed(() => {
-  const buttons = [
-    {
-      label: t.value.list.reset,
-      icon: FilterOutlined,
-      onClick: resetFilters
-    },
-    {
-      label: selectedRowKeys.value.length > 0 ? t.value.list.deleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.delete,
-      icon: DeleteOutlined,
-      disabled: selectedRowKeys.value.length === 0,
-      onClick: handleBatchDelete
-    },
-    {
-      label: t.value.list.create,
-      icon: PlusOutlined,
-      type: 'primary',
-      onClick: openCreate
-    }
-  ]
-
-  return buttons
-})
 
 const fetchList = async () => {
   loading.value = true
@@ -361,24 +367,8 @@ void fetchList()
 
 .toolbar {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.toolbar-left {
-  display: flex;
-  gap: 12px;
   align-items: center;
-  flex-wrap: wrap;
-  flex: 1;
-}
-
-.toolbar-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
@@ -484,6 +474,57 @@ void fetchList()
   font-size: 12px;
 }
 
+/* ── Card Grid (matching unified style) ── */
+.template-grid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+/* ── Add Card ── */
+.add-card {
+  border: 2px dashed var(--border-subtle);
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 140px;
+  color: var(--text-muted);
+}
+
+.add-card:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 2%, transparent);
+}
+
+.add-icon {
+  font-size: 22px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.add-card:hover .add-icon {
+  opacity: 0.8;
+}
+
+.add-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
 @media (max-width: 720px) {
   .toolbar-input,
   .toolbar-input.narrow,
@@ -513,11 +554,6 @@ void fetchList()
 
   .pagination-wrap {
     justify-content: center;
-  }
-
-  .toolbar-left,
-  .toolbar-right {
-    width: 100%;
   }
 }
 </style>

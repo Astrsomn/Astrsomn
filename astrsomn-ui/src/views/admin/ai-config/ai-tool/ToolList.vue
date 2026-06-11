@@ -1,119 +1,122 @@
 <template>
   <AstPageShell
-      :breadcrumbs="breadcrumbs"
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
-      :description="t.list.description"
+
       :empty-text="t.list.emptyText"
-      :title="t.list.title"
+
   >
-    <div ref="pageRef" class="tool-page">
-      <AstDataSection>
-        <template #toolbar>
-          <div class="toolbar">
-            <div class="toolbar-left">
-              <AstSearchInput
-                  v-model="query.toolName"
-                  :button-label="t.list.searchButton"
-                  layout="toolbar"
-                  :placeholder="t.list.searchPlaceholder"
-                  @search="fetchList"
-              />
-              <AstStatusSwitch
-                  v-model="query.enableFlag"
-                  :options="[
-                  { label: t.list.status.all, value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
-                  { label: t.list.status.enabled, value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
-                  { label: t.list.status.disabled, value: 'disabled', color: '#f43f5e', icon: StopOutlined }
-                ]"
-                  @change="fetchList"
-              />
-            </div>
-            <div class="toolbar-right">
-              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
-            </div>
-          </div>
-        </template>
-
-
-        <AstDataView
-            :card-columns="currentGridColumns"
-            :card-gap="toolCardGap"
-            :card-min-width="toolCardMinWidth"
-            :columns="columns"
-            :data-source="list"
-            :loading="loading"
-            :mode="dataViewMode"
-            :row-selection="rowSelection"
-            :scroll="{ x: 1180 }"
-            :empty-text="t.list.emptyMatchText"
-            row-key="id"
-        >
-          <template #card="{ record }">
-            <ToolCard
-                :record="record"
-                @delete="handleDeleteOne"
-                @edit="openEdit"
-            />
-          </template>
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'enableFlag'">
-              <span>{{ renderEnable(String(record.enableFlag || '')) }}</span>
-            </template>
-            <template v-else-if="column.key === 'description'">
-              <span class="desc-preview">{{ preview(record.description) }}</span>
-            </template>
-            <template v-else-if="column.key === 'actions'">
-              <a-space>
-                <a-button size="small" type="link" @click="openEdit(record)">
-                  <EditOutlined/>
-                </a-button>
-                <a-popconfirm
-                    :cancel-text="t.list.cancel"
-                    :ok-text="t.list.confirm"
-                    :title="t.list.deleteConfirm"
-                    @confirm="() => handleDeleteOne(record.id)"
-                >
-                  <a-button danger size="small" type="link">
-                    <DeleteOutlined/>
-                  </a-button>
-                </a-popconfirm>
-              </a-space>
-            </template>
-          </template>
-        </AstDataView>
-
-        <template #pagination>
-          <AstPagination
-              :current="page.pageNum"
-              :page-size="page.pageSize"
-              :total="page.total"
-              @change="onPageChange"
+    <div class="tool-page">
+    <AstDataSection>
+      <template #toolbar>
+        <div class="toolbar">
+          <AstSearchInput
+              v-model="query.toolName"
+              :button-label="t.list.searchButton"
+              layout="toolbar"
+              :placeholder="t.list.searchPlaceholder"
+              @search="fetchList"
           />
-        </template>
-      </AstDataSection>
+          <AstStatusSwitch
+              v-model="query.enableFlag"
+              :options="[
+                { label: t.list.status.all, value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
+                { label: t.list.status.enabled, value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
+                { label: t.list.status.disabled, value: 'disabled', color: '#f43f5e', icon: StopOutlined }
+              ]"
+              @change="fetchList"
+          />
+        </div>
+      </template>
 
-      <ToolForm
-          v-model:open="modal.open"
-          :confirm-loading="modal.submitting"
-          :initial="modalInitial"
-          :mode="modal.mode"
-          @submit="handleFormSubmit"
+      <div v-if="dataViewMode === 'card'" class="tool-grid-section">
+      <a-spin :spinning="loading">
+        <div class="tool-grid">
+          <div class="add-card" @click="openCreate">
+            <PlusOutlined class="add-icon"/>
+            <span class="add-text">{{ t.list.create }}</span>
+          </div>
+          <ToolCard
+              v-for="record in list"
+              :key="record.id"
+              :record="record"
+              :selected="record.id != null && selectedKeySet.has(record.id)"
+              @delete="handleDeleteOne"
+              @edit="openEdit"
+              @toggle="onToolCardToggle"
+          />
+        </div>
+      </a-spin>
+    </div>
+
+    <AstDataView
+        v-else
+        :columns="columns"
+        :data-source="list"
+        :loading="loading"
+        mode="table"
+        :row-selection="rowSelection"
+        :scroll="{ x: 1180 }"
+        :empty-text="t.list.emptyMatchText"
+        row-key="id"
+    >
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'enableFlag'">
+          <span>{{ renderEnable(String(record.enableFlag || '')) }}</span>
+        </template>
+        <template v-else-if="column.key === 'description'">
+          <span class="desc-preview">{{ preview(record.description) }}</span>
+        </template>
+        <template v-else-if="column.key === 'actions'">
+          <a-space>
+            <a-button size="small" type="link" @click="openEdit(record)">
+              <EditOutlined/>
+            </a-button>
+            <a-popconfirm
+                :cancel-text="t.list.cancel"
+                :ok-text="t.list.confirm"
+                :title="t.list.deleteConfirm"
+                @confirm="() => handleDeleteOne(record.id)"
+            >
+              <a-button danger size="small" type="link">
+                <DeleteOutlined/>
+              </a-button>
+            </a-popconfirm>
+          </a-space>
+        </template>
+      </template>
+    </AstDataView>
+
+    <template #pagination>
+      <AstPagination
+          :current="page.pageNum"
+          :page-size="page.pageSize"
+          :total="page.total"
+          @change="onPageChange"
       />
+    </template>
+    </AstDataSection>
+
+    <ToolForm
+        v-model:open="modal.open"
+        :confirm-loading="modal.submitting"
+        :initial="modalInitial"
+        :mode="modal.mode"
+        @submit="handleFormSubmit"
+    />
     </div>
   </AstPageShell>
 </template>
 
 <script lang="ts" setup>
-import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
-import {message, Modal} from 'ant-design-vue'
+import {computed, reactive, ref} from 'vue'
+import {message} from 'ant-design-vue'
 import {
   CheckCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
 import AstPageShell from '@/components/home/AstPageShell.vue'
@@ -121,7 +124,6 @@ import AstDataSection from '@/components/home/AstDataSection.vue'
 import AstDataView from '@/components/home/AstDataView.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
-import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import ToolForm from './component/ToolForm.vue'
 import ToolCard from './component/ToolCard.vue'
@@ -136,15 +138,8 @@ const props = withDefaults(defineProps<{
   initialViewMode: 'list'
 })
 
-const TOOL_CARD_MIN_WIDTH_PX = 320
-const TOOL_CARD_GAP_PX = 12
-const toolCardMinWidth = `${TOOL_CARD_MIN_WIDTH_PX}px`
-const toolCardGap = `${TOOL_CARD_GAP_PX}px`
-
-const pageRef = ref<HTMLElement | null>(null)
 const viewMode = ref<'grid' | 'list'>(props.initialViewMode)
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
-const currentGridColumns = ref(3)
 
 type QueryState = {
   toolName?: string
@@ -152,11 +147,6 @@ type QueryState = {
   type?: string
   enableFlag?: string
 }
-
-const breadcrumbs = computed(() => [
-  {title: t.value.list.breadcrumb.aiConfig, href: '/admin/ai-config'},
-  {title: t.value.list.breadcrumb.aiTools},
-])
 
 const typeFilterOptions = [
   {label: 'HTML', value: 'html'},
@@ -201,6 +191,7 @@ const page = reactive({
 })
 
 const selectedRowKeys = ref<Array<number | string>>([])
+const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 
 const currentPageIds = computed(() =>
     list.value
@@ -233,80 +224,19 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
   selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
 }
 
-const toggleEnabledFilter = (value: 'enabled' | 'disabled') => {
-  query.enableFlag = query.enableFlag === value ? undefined : value
-}
-
 const handleViewToggle = () => {
   viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
 }
 
-const resolveGridColumns = () => {
-  if (typeof window === 'undefined') return 3
-  const width = pageRef.value?.clientWidth ?? window.innerWidth
-  const n = Math.floor((width + TOOL_CARD_GAP_PX) / (TOOL_CARD_MIN_WIDTH_PX + TOOL_CARD_GAP_PX))
-  return Math.max(1, Math.min(3, n))
-}
-
-const syncGridColumns = () => {
-  currentGridColumns.value = resolveGridColumns()
-}
-
-let resizeObserver: ResizeObserver | null = null
-
-onMounted(() => {
-  syncGridColumns()
-  if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
-    resizeObserver = new ResizeObserver(syncGridColumns)
-    resizeObserver.observe(pageRef.value)
-  } else {
-    window.addEventListener('resize', syncGridColumns)
-  }
-})
-
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect()
-  window.removeEventListener('resize', syncGridColumns)
-})
-
-const resetFilters = () => {
-  query.toolName = undefined
-  query.toolKey = undefined
-  query.type = undefined
-  query.enableFlag = undefined
-  page.pageNum = 1
-  selectedRowKeys.value = []
-  void fetchList()
-}
-
-const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-  {
-    label: t.value.list.reset,
-    icon: ReloadOutlined,
-    onClick: resetFilters
-  },
-  {
-    label: selectedRowKeys.value.length > 0 ? t.value.list.deleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.delete,
-    type: 'danger',
-    plain: true,
-    icon: DeleteOutlined,
-    disabled: selectedRowKeys.value.length === 0,
-    onClick: () => {
-      const n = selectedRowKeys.value.length
-      if (n === 0) return
-      Modal.confirm({
-        title: t.value.list.batchDeleteConfirm.replace('{n}', String(n)),
-        onOk: () => handleBatchDelete()
-      })
+const onToolCardToggle = (id: number | string, checked: boolean) => {
+  if (checked) {
+    if (!selectedRowKeys.value.includes(id)) {
+      selectedRowKeys.value = [...selectedRowKeys.value, id]
     }
-  },
-  {
-    label: t.value.list.create,
-    type: 'primary',
-    icon: PlusOutlined,
-    onClick: openCreate
+    return
   }
-])
+  selectedRowKeys.value = selectedRowKeys.value.filter((k) => k !== id)
+}
 
 const modal = reactive({
   open: false,
@@ -410,149 +340,65 @@ void fetchList()
 
 .toolbar {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
+  align-items: center;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
-.toolbar-left {
+/* ── Card Grid (matching AgentSection.vue) ── */
+.tool-grid-section {
   display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-  flex: 1;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.toolbar-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
 }
 
-.search-cluster {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 6px;
-  border-radius: 16px;
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-}
 
-.search-cluster :deep(.ant-input-affix-wrapper),
-.search-cluster :deep(.ant-select-selector) {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused),
-.search-cluster :deep(.ant-select-focused .ant-select-selector),
-.search-cluster :deep(.ant-select-selector:hover) {
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface)) !important;
-}
-
-.toolbar-input {
-  width: 200px;
-}
-
-.search-main-input {
-  width: 320px;
-}
-
-.search-sub-input {
-  width: 220px;
-}
-
-.toolbar-select {
-  width: 180px;
-}
-
-.type-select {
-  min-width: 180px;
-}
-
-.primary-btn,
-.ghost-btn {
-  height: 40px;
-  border-radius: 12px;
-}
-
-.danger-btn {
-  color: var(--error);
-  border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
-  background: color-mix(in srgb, var(--error) 7%, var(--bg-card));
-}
-
-.danger-btn:hover,
-.danger-btn:focus {
-  color: var(--error) !important;
-  border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
-  background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
-}
-
-.status-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px;
-  border-radius: 14px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-}
-
-.status-btn {
-  height: 36px;
-  border: none;
-  border-radius: 10px;
-  color: var(--text-secondary);
+/* ── Add Card (matching AgentSection.vue) ── */
+.add-card {
+  border: 2px dashed var(--border-subtle);
   background: transparent;
-  box-shadow: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 140px;
+  color: var(--text-muted);
 }
 
-.status-btn.active {
+.add-card:hover {
+  border-color: var(--primary);
   color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
+  background: color-mix(in srgb, var(--primary) 2%, transparent);
+}
+
+.add-icon {
+  font-size: 22px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.add-card:hover .add-icon {
+  opacity: 0.8;
+}
+
+.add-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .desc-preview {
   color: var(--text-tertiary);
   font-size: 12px;
-}
-
-@media (max-width: 720px) {
-  .toolbar-input,
-  .search-main-input,
-  .search-sub-input,
-  .toolbar-select,
-  .type-select {
-    width: 100%;
-  }
-
-  .search-cluster,
-  .status-switch {
-    width: 100%;
-  }
-
-  .search-cluster {
-    padding: 8px;
-  }
-
-  .status-switch {
-    justify-content: space-between;
-  }
-
-  .status-btn {
-    flex: 1;
-  }
-
-  .toolbar-left,
-  .toolbar-right {
-    width: 100%;
-  }
 }
 </style>

@@ -1,62 +1,70 @@
 <template>
   <AstPageShell
-      :breadcrumbs="breadcrumbs"
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
-      :description="t.list.description"
       :empty-text="t.list.emptyText"
-      :title="t.list.title"
+
   >
     <div ref="pageRef" class="mcp-page">
       <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
-            <div class="toolbar-left">
-              <AstSearchInput
-                  v-model="query.mcpKey"
-                  :button-label="t.list.searchButton"
-                  layout="toolbar"
-                  :placeholder="t.list.searchPlaceholder"
-                  @search="fetchList"
-              />
-              <AstStatusSwitch
-                  v-model="query.enabled"
-                  :options="[
-                  { label: t.list.status.all, value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
-                  { label: t.list.status.enabled, value: 1, color: '#10b981', icon: CheckCircleOutlined },
-                  { label: t.list.status.disabled, value: 0, color: '#f43f5e', icon: StopOutlined }
-                ]"
-                  @change="fetchList"
-              />
-            </div>
-            <div class="toolbar-right">
-              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
-            </div>
+            <AstSearchInput
+                v-model="query.mcpKey"
+                :button-label="t.list.searchButton"
+                layout="toolbar"
+                :placeholder="t.list.searchPlaceholder"
+                @search="fetchList"
+            />
+            <AstStatusSwitch
+                v-model="query.enabled"
+                :options="[
+                { label: t.list.status.all, value: undefined, color: '#1676fd', icon: CheckCircleOutlined },
+                { label: t.list.status.enabled, value: 1, color: '#10b981', icon: CheckCircleOutlined },
+                { label: t.list.status.disabled, value: 0, color: '#f43f5e', icon: StopOutlined }
+              ]"
+                @change="fetchList"
+            />
           </div>
         </template>
 
 
+        <!-- Card Grid Mode -->
+        <div v-if="dataViewMode === 'card'" class="mcp-grid-section">
+          <a-spin :spinning="loading">
+            <div class="mcp-grid">
+              <!-- Create Card -->
+              <div class="add-card" @click="openCreate">
+                <PlusOutlined class="add-icon"/>
+                <span class="add-text">{{ t.list.create }}</span>
+              </div>
+              <!-- MCP Cards -->
+              <McpCard
+                  v-for="record in list"
+                  :key="record.id"
+                  :record="record"
+                  :selected="record.id != null && selectedKeySet.has(record.id)"
+                  @delete="handleDeleteOne"
+                  @edit="openEdit"
+                  @toggle="onMcpCardToggle"
+              />
+            </div>
+          </a-spin>
+        </div>
+
+        <!-- Table Mode -->
         <AstDataView
-            :card-columns="currentGridColumns"
-            :card-gap="mcpCardGap"
-            :card-min-width="mcpCardMinWidth"
+            v-else
             :columns="columns"
             :data-source="list"
             :loading="loading"
-            :mode="dataViewMode"
+            mode="table"
             :row-selection="rowSelection"
             :scroll="{ x: 1280 }"
             :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
-          <template #card="{ record }">
-            <McpCard
-                :record="record"
-                @delete="handleDeleteOne"
-                @edit="openEdit"
-            />
-          </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'enabled'">
               <span :class="{ off: record.enabled !== 1 }" class="status-pill">
@@ -108,15 +116,14 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
-import {message, Modal} from 'ant-design-vue'
+import {computed, reactive, ref} from 'vue'
+import {message} from 'ant-design-vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 import {
   CheckCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  ReloadOutlined,
   StopOutlined
 } from '@ant-design/icons-vue'
 import AstPageShell from '@/components/home/AstPageShell.vue'
@@ -124,7 +131,6 @@ import AstDataSection from '@/components/home/AstDataSection.vue'
 import AstDataView from '@/components/home/AstDataView.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
-import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import McpFormModal from './component/McpFormModal.vue'
 import McpCard from './component/McpCard.vue'
@@ -138,32 +144,15 @@ const props = withDefaults(defineProps<{
   initialViewMode: 'list'
 })
 
-const MCP_CARD_MIN_WIDTH_PX = 320
-const MCP_CARD_GAP_PX = 12
-const mcpCardMinWidth = `${MCP_CARD_MIN_WIDTH_PX}px`
-const mcpCardGap = `${MCP_CARD_GAP_PX}px`
-
 const pageRef = ref<HTMLElement | null>(null)
 const viewMode = ref<'grid' | 'list'>(props.initialViewMode)
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
-const currentGridColumns = ref(3)
 
 type QueryState = {
   mcpKey?: string
   type?: string
   enabled?: number
 }
-
-const breadcrumbs = computed(() => [
-  {title: t.value.list.breadcrumb.aiConfig, href: '/admin/ai-config'},
-  {title: t.value.list.breadcrumb.aiMcp},
-])
-
-const typeFilterOptions = [
-  {label: 'SSE', value: 'SSE'},
-  {label: 'STDIO', value: 'STDIO'},
-  {label: 'STEAMABLE', value: 'STEAMABLE'}
-]
 
 const columns = computed(() => [
   {title: t.value.list.column.mcpKey, dataIndex: 'mcpKey', key: 'mcpKey', width: 180, ellipsis: true, copyable: true},
@@ -264,22 +253,7 @@ const page = reactive({
 })
 
 const selectedRowKeys = ref<Array<number | string>>([])
-
-const currentPageIds = computed(() =>
-    list.value
-        .map((item) => item.id)
-        .filter((id): id is number | string => id !== undefined && id !== null)
-)
-
-const allCurrentSelected = computed(() => {
-  return currentPageIds.value.length > 0 && currentPageIds.value.every((id) => selectedRowKeys.value.includes(id))
-})
-
-const partCurrentSelected = computed(() => {
-  if (currentPageIds.value.length === 0) return false
-  const count = currentPageIds.value.filter((id) => selectedRowKeys.value.includes(id)).length
-  return count > 0 && count < currentPageIds.value.length
-})
+const selectedKeySet = computed(() => new Set(selectedRowKeys.value))
 
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
@@ -287,58 +261,6 @@ const rowSelection = computed(() => ({
     selectedRowKeys.value = keys
   }
 }))
-
-const toggleSelectAllCurrentPage = (checked: boolean) => {
-  if (checked) {
-    selectedRowKeys.value = Array.from(new Set([...selectedRowKeys.value, ...currentPageIds.value]))
-    return
-  }
-  selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
-}
-
-const toggleEnabledFilter = (value: 0 | 1) => {
-  query.enabled = query.enabled === value ? undefined : value
-}
-
-const resetFilters = () => {
-  query.mcpKey = undefined
-  query.type = undefined
-  query.enabled = undefined
-  page.pageNum = 1
-  selectedRowKeys.value = []
-  void fetchList()
-}
-
-const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-  {
-    label: t.value.list.reset,
-    type: 'primary',
-    plain: true,
-    icon: ReloadOutlined,
-    onClick: resetFilters
-  },
-  {
-    label: selectedRowKeys.value.length > 0 ? t.value.list.deleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.delete,
-    type: 'danger',
-    plain: true,
-    icon: DeleteOutlined,
-    disabled: selectedRowKeys.value.length === 0,
-    onClick: () => {
-      const n = selectedRowKeys.value.length
-      if (n === 0) return
-      Modal.confirm({
-        title: t.value.list.batchDeleteConfirm.replace('{n}', String(n)),
-        onOk: () => handleBatchDelete()
-      })
-    }
-  },
-  {
-    label: t.value.list.create,
-    type: 'primary',
-    icon: PlusOutlined,
-    onClick: openCreate
-  }
-])
 
 const modal = reactive({
   open: false,
@@ -394,33 +316,15 @@ const handleViewToggle = () => {
   viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
 }
 
-const resolveGridColumns = () => {
-  if (typeof window === 'undefined') return 3
-  const width = pageRef.value?.clientWidth ?? window.innerWidth
-  const n = Math.floor((width + MCP_CARD_GAP_PX) / (MCP_CARD_MIN_WIDTH_PX + MCP_CARD_GAP_PX))
-  return Math.max(1, Math.min(3, n))
-}
-
-const syncGridColumns = () => {
-  currentGridColumns.value = resolveGridColumns()
-}
-
-let resizeObserver: ResizeObserver | null = null
-
-onMounted(() => {
-  syncGridColumns()
-  if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
-    resizeObserver = new ResizeObserver(syncGridColumns)
-    resizeObserver.observe(pageRef.value)
-  } else {
-    window.addEventListener('resize', syncGridColumns)
+const onMcpCardToggle = (id: number | string, checked: boolean) => {
+  if (checked) {
+    if (!selectedRowKeys.value.includes(id)) {
+      selectedRowKeys.value = [...selectedRowKeys.value, id]
+    }
+    return
   }
-})
-
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect()
-  window.removeEventListener('resize', syncGridColumns)
-})
+  selectedRowKeys.value = selectedRowKeys.value.filter((k) => k !== id)
+}
 
 const handleDeleteOne = async (id: number | string) => {
   if (id == null) return
@@ -476,180 +380,64 @@ void fetchList()
 
 .toolbar {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
+  align-items: center;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
-.toolbar-left {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-  flex: 1;
-}
-
-.toolbar-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.search-cluster {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 6px;
-  border-radius: 16px;
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper),
-.search-cluster :deep(.ant-select-selector) {
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-.search-cluster :deep(.ant-input-affix-wrapper:hover),
-.search-cluster :deep(.ant-input-affix-wrapper-focused),
-.search-cluster :deep(.ant-select-focused .ant-select-selector),
-.search-cluster :deep(.ant-select-selector:hover) {
-  background: color-mix(in srgb, var(--bg-card) 85%, var(--bg-surface)) !important;
-}
-
-.toolbar-input {
-  width: 200px;
-}
-
-.search-main-input {
-  width: 360px;
-}
-
-.toolbar-select {
-  width: 180px;
-}
-
-.type-select {
-  min-width: 180px;
-}
-
-.primary-btn,
-.ghost-btn {
-  height: 40px;
-  border-radius: 12px;
-}
-
-.danger-btn {
-  color: var(--error);
-  border-color: color-mix(in srgb, var(--error) 28%, var(--border-default));
-  background: color-mix(in srgb, var(--error) 7%, var(--bg-card));
-}
-
-.danger-btn:hover,
-.danger-btn:focus {
-  color: var(--error) !important;
-  border-color: color-mix(in srgb, var(--error) 42%, var(--border-default)) !important;
-  background: color-mix(in srgb, var(--error) 12%, var(--bg-card)) !important;
-}
-
-.status-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px;
-  border-radius: 14px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-}
-
-.status-btn {
-  height: 36px;
-  border: none;
-  border-radius: 10px;
-  color: var(--text-secondary);
-  background: transparent;
-  box-shadow: none;
-}
-
-.status-btn.active {
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 10%, var(--bg-card));
-}
-
-.ellipsis {
-  display: inline-block;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: bottom;
-}
-
-.cell-stack {
+/* ── Card Grid (matching AgentSection.vue) ── */
+.mcp-grid-section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 14px;
 }
 
-.cell-title {
-  color: var(--text-primary);
-  font-weight: 600;
-  line-height: 1.5;
+.mcp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
 }
 
-.cell-subtitle {
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
 
-.multiline-2 {
-  display: -webkit-box;
-  overflow: hidden;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.mono-chip,
-.mono-text-inline {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-}
-
-.mono-chip {
-  display: inline-flex;
-  align-items: center;
-  max-width: 100%;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
-  color: var(--text-primary);
-}
-
-.copyable-key {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  max-width: 100%;
-}
-
-.copy-btn {
-  display: inline-flex;
+/* ── Add Card (matching AgentSection.vue) ── */
+.add-card {
+  border: 2px dashed var(--border-subtle);
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  gap: 8px;
+  min-height: 140px;
+  color: var(--text-muted);
 }
 
-.copy-btn:hover,
-.copy-btn:focus {
+.add-card:hover {
+  border-color: var(--primary);
   color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 8%, transparent) !important;
+  background: color-mix(in srgb, var(--primary) 2%, transparent);
 }
 
+.add-icon {
+  font-size: 22px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.add-card:hover .add-icon {
+  opacity: 0.8;
+}
+
+.add-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ── Table Cell Styles ── */
 .type-pill,
 .status-pill,
 .detail-pill {
@@ -706,36 +494,5 @@ void fetchList()
   align-items: center;
   gap: 4px;
   padding-inline: 4px;
-}
-
-@media (max-width: 720px) {
-  .toolbar-input,
-  .search-main-input,
-  .toolbar-select,
-  .type-select {
-    width: 100%;
-  }
-
-  .search-cluster,
-  .status-switch {
-    width: 100%;
-  }
-
-  .search-cluster {
-    padding: 8px;
-  }
-
-  .status-switch {
-    justify-content: space-between;
-  }
-
-  .status-btn {
-    flex: 1;
-  }
-
-  .toolbar-left,
-  .toolbar-right {
-    width: 100%;
-  }
 }
 </style>

@@ -1,48 +1,58 @@
 <template>
   <div
-      :class="{
-      'is-selected': selected,
-    }"
-      class="account-card"
+      class="card"
+      :class="{ 'card-selected': selected }"
   >
+    <!-- Selection checkbox (appears on hover) -->
+    <a-checkbox
+        :checked="selected"
+        class="card-checkbox"
+        @click.stop="onToggle"
+    />
+
+    <!-- Card Header -->
     <div class="card-header">
-      <div class="flex items-center gap-2.5">
-        <div class="icon-wrapper">
-          <CustomerServiceOutlined class="icon" />
-        </div>
-        <div class="truncate max-w-[120px]">
-          <h4 class="title">{{ account.accountName || t.card.defaultName }}</h4>
-          <p class="sub-title">{{ account.id || 'AC-XXXX' }}</p>
-        </div>
+      <div class="card-avatar">
+        <CustomerServiceOutlined v-if="!avatarSrc" class="card-avatar-icon"/>
+        <img v-else :src="avatarSrc" :alt="account.accountName" class="card-avatar-img"/>
       </div>
-      <span :class="account.envCode?.toLowerCase() || 'unset'" class="status-tag">
-        {{ account.envCode || 'UNSET' }}
-      </span>
+      <div class="card-header-text">
+        <h3 class="card-title">{{ account.accountName || t.card.defaultName }}</h3>
+        <a-tag v-if="account.envCode" class="env-tag">
+          {{ account.envCode }}
+        </a-tag>
+        <a-tag v-else class="env-tag env-tag--unset">
+          UNSET
+        </a-tag>
+      </div>
     </div>
 
-    <div class="card-body">
-      <span class="body-label flex items-center gap-1">
-        <TransactionOutlined class="label-icon" />
-        {{ t.card.tokens }}
-      </span>
-      <span class="body-value">{{ formatTokens(account.accountTokens) }}</span>
-    </div>
+    <!-- Card Info: API Key -->
+    <p class="card-info">
+      {{ displayKey }}
+    </p>
 
+    <!-- Card Meta: chips + actions -->
     <div class="card-footer">
-      <span class="status-indicator flex items-center gap-1">
-        <span class="status-dot"></span>
-        {{ account.envCode ? '已启用' : '未配置' }}
+      <span v-if="account.accountTokens != null" class="meta-chip">
+        <TransactionOutlined/> {{ formatTokens(account.accountTokens) }}
       </span>
-      <div class="action-group">
-        <button class="action-btn" @click="onEdit" :title="t.card.edit">
-          <EditOutlined class="action-icon" />
-        </button>
-        <a-popconfirm :title="t.card.deleteConfirm" @confirm="onDelete">
-          <button class="action-btn delete" :title="t.card.delete">
-            <DeleteOutlined class="action-icon" />
-          </button>
-        </a-popconfirm>
-      </div>
+      <span v-if="account.callCount != null" class="meta-chip">
+        {{ Number(account.callCount).toLocaleString() }} calls
+      </span>
+      <span v-if="remainingTokens != null" class="meta-chip">
+        {{ formatTokens(remainingTokens) }} left
+      </span>
+      <span class="meta-spacer"></span>
+      <a-popconfirm
+          :title="t.card.deleteConfirm"
+          @confirm.stop="onDelete"
+      >
+        <button class="action-delete-btn" @click.stop><DeleteOutlined/></button>
+      </a-popconfirm>
+      <button class="action-edit-link" @click.stop="onEdit">
+        {{ t.card.manage }} <RightOutlined/>
+      </button>
     </div>
   </div>
 </template>
@@ -51,214 +61,275 @@
 import {
   CustomerServiceOutlined,
   DeleteOutlined,
-  EditOutlined,
+  RightOutlined,
   TransactionOutlined,
 } from '@ant-design/icons-vue'
+import {computed} from 'vue'
+import {type AiAccount} from '@/api/aiAccount'
 import {usePageTranslation} from '@/locales/pages.ts'
 
 const t = usePageTranslation('ai-account')
 
-interface AiAccount {
-  id?: number | string;
-  accountName?: string;
-  envCode?: string;
-  apiKey?: string;
-  apiSecret?: string;
-  accountTokens?: number | null;
-  createTime?: string;
-  createUser?: string;
-  usedModelNames?: string;
-  usedModelKeys?: string;
+const props = withDefaults(defineProps<{
+  account: AiAccount;
+  selected?: boolean;
+}>(), {
+  selected: false,
+})
+
+const emit = defineEmits<{
+  (e: 'edit', account: AiAccount): void;
+  (e: 'delete', id: number | string): void;
+  (e: 'toggle', id: number | string, checked: boolean): void;
+  (e: 'show-models', account: AiAccount): void;
+}>()
+
+const avatarSrc = computed(() => {
+  const raw = (props.account as Record<string, unknown>).providerAvatar
+  if (typeof raw === 'string' && raw.startsWith('data:image')) return raw
+  return ''
+})
+
+const remainingTokens = computed(() => {
+  const {accountTokens, totalTokens} = props.account
+  if (accountTokens == null && totalTokens == null) return null
+  return (accountTokens ?? 0) - (totalTokens ?? 0)
+})
+
+const displayKey = computed(() => {
+  const key = props.account.apiKey
+  if (!key) return '—'
+  if (key.length <= 10) return `${key.slice(0, 2)}***${key.slice(-2)}`
+  return `${key.slice(0, 4)}****${key.slice(-4)}`
+})
+
+const formatTokens = (t?: number | null): string => {
+  if (t == null) return '0'
+  if (t >= 1_000_000) return (t / 1_000_000).toFixed(1) + 'M'
+  if (t >= 1_000) return (t / 1_000).toFixed(1) + 'k'
+  return t.toString()
 }
 
-const props = withDefaults(defineProps<{ account: AiAccount; selected?: boolean }>(), {
-  selected: false
-})
-const emit = defineEmits(['edit', 'delete', 'show-models', 'toggle'])
-
-const formatTokens = (t?: number | null) => {
-  if (t == null) return '0'
-  return t >= 1000 ? (t / 1000).toFixed(1) + 'k' : t.toString()
+const onToggle = () => {
+  if (props.account.id != null) {
+    emit('toggle', props.account.id, !props.selected)
+  }
 }
 
 const onEdit = () => emit('edit', props.account)
-const onDelete = () => props.account.id && emit('delete', props.account.id)
+const onDelete = () => {
+  if (props.account.id != null) {
+    emit('delete', props.account.id)
+  }
+}
 </script>
 
 <style scoped>
-.account-card {
-  --primary-color: #6366f1;
-  --icon-bg: #eef2ff;
-  --icon-color: #6366f1;
-  --tag-bg: #e0f2fe;
-  --tag-color: #0ea5e9;
+/* ── Card Container (unified style — light blue accent) ── */
+.card {
+  --card-accent: #3b82f6;
 
-  width: 100%;
+  --card-tag-bg: #eff6ff;
+  --card-tag-color: #2563eb;
+
+  position: relative;
   background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 130px;
-  border: 1px solid var(--border-default);
-  transition: all 0.2s ease;
+  gap: 10px;
 }
 
-.account-card:hover {
-  border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+.card:hover {
+  border-color: var(--card-accent);
+  box-shadow: 0 4px 20px -4px color-mix(in srgb, var(--card-accent) 15%, transparent);
+  transform: translateY(-1px);
 }
 
-.account-card.is-selected {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+.card-selected {
+  border-color: var(--card-accent);
+  box-shadow: 0 0 0 1px var(--card-accent);
 }
 
+/* ── Selection Checkbox ── */
+.card-checkbox {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.card:hover .card-checkbox,
+.card-selected .card-checkbox {
+  opacity: 1;
+}
+
+/* ── Card Header ── */
 .card-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  gap: 10px;
 }
 
-.icon-wrapper {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--icon-bg);
+.card-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  background: var(--card-gradient);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  overflow: hidden;
 }
 
-.icon {
-  width: 18px;
-  height: 18px;
-  color: var(--icon-color);
+.card-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.title {
-  font-size: 12px;
+.card-avatar-icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-header-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-title {
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
-  padding: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.sub-title {
+.env-tag {
   font-size: 9px;
-  color: var(--text-muted);
-  font-family: monospace;
-  margin: 0;
-  padding: 0;
-}
-
-.status-tag {
-  font-size: 9px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  border: 1px solid var(--border-subtle);
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 10px;
+  border: none;
   flex-shrink: 0;
+  line-height: 18px;
+  background: var(--card-tag-bg);
+  color: var(--card-tag-color);
 }
 
-.status-tag.prod,
-.status-tag.dev {
-  background: var(--tag-bg);
-  color: var(--tag-color);
-  border-color: rgba(14, 165, 233, 0.2);
-}
-
-.card-body {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 0;
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
-  font-size: 10px;
+.env-tag--unset {
+  background: color-mix(in srgb, var(--text-muted) 10%, transparent);
   color: var(--text-muted);
 }
 
-.body-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+/* ── Card Info ── */
+.card-info {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.label-icon {
-  width: 14px;
-  height: 14px;
-}
-
-.body-value {
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
+/* ── Card Footer ── */
 .card-footer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.meta-chip {
   font-size: 10px;
   color: var(--text-muted);
-}
-
-.status-indicator {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  padding: 2px 7px;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  font-weight: 500;
 }
 
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--success);
+.meta-chip :deep(svg) {
+  font-size: 10px;
 }
 
-.action-group {
-  display: flex;
-  gap: 6px;
-  opacity: 0.6;
-  transition: opacity 0.2s ease;
+.meta-spacer {
+  flex: 1;
 }
 
-.account-card:hover .action-group {
+/* ── Action Buttons (reveal on hover) ── */
+.action-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  padding: 0;
+  opacity: 0;
+}
+
+.card:hover .action-delete-btn {
   opacity: 1;
 }
 
-.action-btn {
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: transparent;
-  border-radius: 6px;
-  display: flex;
+.action-delete-btn:hover {
+  color: var(--error);
+  border-color: var(--error);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+}
+
+.action-edit-link {
+  font-size: 10px;
+  color: var(--card-accent);
+  font-weight: 600;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.15s;
 }
 
-.action-btn:hover {
-  background: var(--primary-color);
-  color: #fff;
+.card:hover .action-edit-link {
+  opacity: 1;
 }
 
-.action-btn.delete:hover {
-  background: var(--error);
-}
-
-.action-icon {
-  width: 14px;
-  height: 14px;
+.action-edit-link :deep(svg) {
+  font-size: 8px;
 }
 </style>

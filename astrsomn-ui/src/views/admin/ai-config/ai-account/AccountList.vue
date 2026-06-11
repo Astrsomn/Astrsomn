@@ -1,67 +1,72 @@
 <template>
   <AstPageShell
-      :breadcrumbs="breadcrumbs"
       :show-view-toggle="true"
       :view-mode="viewMode"
       :view-toggle-handler="handleViewToggle"
-      :description="t.list.description"
+  
       :empty-text="t.list.emptyText"
-      :title="t.list.title"
+
   >
     <div ref="pageRef" class="account-page">
       <AstDataSection>
         <template #toolbar>
           <div class="toolbar">
-            <div class="toolbar-left">
-              <AstSearchInput
-                  v-model="query.accountName"
-                  :button-label="t.list.searchButton"
-                  layout="toolbar"
-                  :placeholder="t.list.searchPlaceholder"
-                  @search="fetchList"
+            <AstSearchInput
+                v-model="query.accountName"
+                :button-label="t.list.searchButton"
+                layout="toolbar"
+                :placeholder="t.list.searchPlaceholder"
+                @search="fetchList"
+            />
+            <div class="provider-filter">
+              <ExtensionSelector
+                  v-model:value="query.extensionCode"
+                  :allow-clear="true"
+                  :only-applied="true"
+                  :placeholder="t.list.filterProviderPlaceholder"
+                  size="middle"
+                  @update:value="onProviderChange"
               />
-              <div class="provider-filter">
-                <ExtensionSelector
-                    v-model:value="query.extensionCode"
-                    :allow-clear="true"
-                    :only-applied="true"
-                    :placeholder="t.list.filterProviderPlaceholder"
-                    size="middle"
-                    @update:value="onProviderChange"
-                />
-              </div>
-            </div>
-            <div class="toolbar-right">
-              <AstegmentedButton :buttons="toolbarSegmentButtons"/>
             </div>
           </div>
         </template>
 
+        <!-- Card Grid Mode -->
+        <div v-if="dataViewMode === 'card'" class="account-grid-section">
+          <a-spin :spinning="loading">
+            <div class="account-grid">
+              <!-- Create Card -->
+              <div class="add-card" @click="goCreate">
+                <PlusOutlined class="add-icon"/>
+                <span class="add-text">{{ t.list.btnCreate }}</span>
+              </div>
+              <!-- Account Cards -->
+              <AccountCard
+                  v-for="record in list"
+                  :key="record.id"
+                  :account="record"
+                  :selected="record.id != null && selectedKeySet.has(record.id)"
+                  @delete="handleDeleteOne"
+                  @edit="goEdit"
+                  @toggle="onToggleSelect"
+                  @show-models="openModelsDrawer"
+              />
+            </div>
+          </a-spin>
+        </div>
 
+        <!-- Table Mode -->
         <AstDataView
-            :card-columns="currentGridColumns"
-            :card-gap="accountCardGap"
-            :card-min-width="accountCardMinWidth"
+            v-else
             :columns="columns"
             :data-source="list"
             :loading="loading"
-            :mode="dataViewMode"
+            mode="table"
             :row-selection="rowSelection"
             :scroll="{ x: 1180 }"
             :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
-          <template #card="{ record }">
-            <AccountCard
-                :account="record"
-                :selected="record.id != null && selectedKeySet.has(record.id)"
-                @delete="handleDeleteOne"
-                @edit="goEdit"
-                @toggle="onToggleSelect"
-                @show-models="openModelsDrawer"
-            />
-          </template>
-
           <template #bodyCell="{ column, record }">
 
             <template v-if="column.key === 'callCount'">
@@ -142,15 +147,14 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue'
+import {computed, reactive, ref} from 'vue'
 import {message, Modal} from 'ant-design-vue'
-import {DeleteOutlined, EditOutlined, LinkOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
+import {DeleteOutlined, EditOutlined, LinkOutlined, PlusOutlined} from '@ant-design/icons-vue'
 import AstPageShell from '@/components/home/AstPageShell.vue'
 import AstDataSection from '@/components/home/AstDataSection.vue'
 import AstDataView from '@/components/home/AstDataView.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
-import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
 import AccountForm from './component/AccountForm.vue'
 import AccountModelsDrawer from './component/AccountModelsDrawer.vue'
 import AccountCard from './component/AccountCard.vue'
@@ -167,22 +171,11 @@ const props = withDefaults(defineProps<{
   initialViewMode: 'list'
 })
 
-const ACCOUNT_CARD_MIN_WIDTH_PX = 340
-const ACCOUNT_CARD_GAP_PX = 8
-const accountCardMinWidth = `${ACCOUNT_CARD_MIN_WIDTH_PX}px`
-const accountCardGap = `${ACCOUNT_CARD_GAP_PX}px`
-
-const breadcrumbs = computed(() => [
-  {title: t.value.list.breadcrumbAiConfig, href: '/admin/ai-config'},
-  {title: t.value.list.breadcrumbTitle},
-])
-
 const pageRef = ref<HTMLElement | null>(null)
 const formVisible = ref(false)
 const currentRecord = ref<AiAccount | undefined>(undefined)
 const viewMode = ref<'grid' | 'list'>(props.initialViewMode)
 const dataViewMode = computed<'card' | 'table'>(() => (viewMode.value === 'grid' ? 'card' : 'table'))
-const currentGridColumns = ref(3)
 
 type QueryState = {
   accountKey?: string
@@ -270,34 +263,6 @@ const toggleSelectAllCurrentPage = (checked: boolean) => {
   selectedRowKeys.value = selectedRowKeys.value.filter((id) => !currentPageIds.value.includes(id))
 }
 
-const toolbarSegmentButtons = computed<SegmentedButton[]>(() => [
-  {
-    label: t.value.list.btnReset,
-    icon: ReloadOutlined,
-    onClick: resetFilters
-  },
-  {
-    label: selectedRowKeys.value.length > 0 ? t.value.list.btnDeleteCount.replace('{n}', String(selectedRowKeys.value.length)) : t.value.list.btnDelete,
-    icon: DeleteOutlined,
-    disabled: selectedRowKeys.value.length === 0,
-    onClick: () => {
-      if (selectedRowKeys.value.length === 0) return
-      Modal.confirm({
-        title: t.value.list.batchDeleteConfirm.replace('{n}', String(selectedRowKeys.value.length)),
-        okText: t.value.list.confirmOk,
-        cancelText: t.value.list.confirmCancel,
-        onOk: () => handleBatchDelete()
-      })
-    }
-  },
-  {
-    label: t.value.list.btnCreate,
-    type: 'primary',
-    icon: PlusOutlined,
-    onClick: goCreate
-  }
-])
-
 const resetFilters = () => {
   query.accountName = undefined
   query.extensionCode = undefined
@@ -342,10 +307,6 @@ const onProviderChange = () => {
   void fetchList()
 }
 
-const handleViewToggle = () => {
-  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
-}
-
 const onToggleSelect = (id: number | string, checked: boolean) => {
   if (checked) {
     if (!selectedRowKeys.value.includes(id)) {
@@ -356,21 +317,8 @@ const onToggleSelect = (id: number | string, checked: boolean) => {
   selectedRowKeys.value = selectedRowKeys.value.filter((item) => item !== id)
 }
 
-const resolveGridColumns = () => {
-  if (typeof window === 'undefined') return 3
-  const width = pageRef.value?.clientWidth ?? window.innerWidth
-  const columns = Math.floor((width + ACCOUNT_CARD_GAP_PX) / (ACCOUNT_CARD_MIN_WIDTH_PX + ACCOUNT_CARD_GAP_PX))
-  return Math.max(1, Math.min(3, columns))
-}
-
-const syncGridColumns = () => {
-  currentGridColumns.value = resolveGridColumns()
-}
-
-let resizeObserver: ResizeObserver | null = null
-
-const onResize = () => {
-  syncGridColumns()
+const handleViewToggle = () => {
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
 }
 
 const goCreate = () => {
@@ -405,22 +353,6 @@ const handleBatchDelete = async () => {
 }
 
 void fetchList()
-syncGridColumns()
-
-onMounted(() => {
-  onResize()
-  if (typeof ResizeObserver !== 'undefined' && pageRef.value) {
-    resizeObserver = new ResizeObserver(onResize)
-    resizeObserver.observe(pageRef.value)
-    return
-  }
-  window.addEventListener('resize', onResize)
-})
-
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect()
-  window.removeEventListener('resize', onResize)
-})
 
 const modelsDrawer = reactive({
   open: false,
@@ -469,30 +401,14 @@ const openModelsDrawer = async (account: AiAccount) => {
 
 .toolbar {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.toolbar-left {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
   align-items: center;
-  flex: 1;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
 .provider-filter {
   width: 260px;
   min-width: 220px;
-}
-
-.toolbar-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
 }
 
 .secret-mask {
@@ -501,6 +417,59 @@ const openModelsDrawer = async (account: AiAccount) => {
   color: var(--text-secondary);
 }
 
+/* ── Card Grid (matching AgentSection.vue) ── */
+.account-grid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+
+/* ── Add Card (matching AgentSection.vue) ── */
+.add-card {
+  border: 2px dashed var(--border-subtle);
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 140px;
+  color: var(--text-muted);
+}
+
+.add-card:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 2%, transparent);
+}
+
+.add-icon {
+  font-size: 22px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.add-card:hover .add-icon {
+  opacity: 0.8;
+}
+
+.add-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ── Metric Chips (table mode) ── */
 .metric-chip {
   display: inline-flex;
   align-items: baseline;
@@ -544,13 +513,6 @@ const openModelsDrawer = async (account: AiAccount) => {
   opacity: 0.85;
 }
 
-@media (max-width: 720px) {
-  .toolbar-left,
-  .toolbar-right {
-    width: 100%;
-  }
-}
-
 .provider-avatar-cell {
   display: inline-flex;
   align-items: center;
@@ -567,6 +529,4 @@ const openModelsDrawer = async (account: AiAccount) => {
 .text-secondary {
   color: var(--text-muted);
 }
-
-
 </style>
