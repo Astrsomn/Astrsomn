@@ -2,6 +2,8 @@ export const aiConfigCenterTranslation = {
   sidebar: {
     searchPlaceholder: '搜索资源...',
     all: '全部',
+    sectionGlobal: '全局管理',
+    sectionProviders: '模型提供方',
     emptyPlugin: '暂无已启用的插件',
     emptyPluginHint: '尚未安装任何模型提供方插件，前往插件市场选择安装。',
     goMarketplace: '前往插件市场',

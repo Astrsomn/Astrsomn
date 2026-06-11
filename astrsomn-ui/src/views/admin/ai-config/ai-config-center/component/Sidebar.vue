@@ -1,5 +1,5 @@
 <template>
-  <SidebarShell :width="288">
+  <SidebarShell :width="288" class="ai-config-sidebar">
     <template #top>
       <AstSearchInput
           v-model="searchText"
@@ -10,7 +10,8 @@
       />
     </template>
 
-    <div class="nav-list">
+    <!-- 可滚动区域：模型提供方（在上） -->
+    <div class="provider-section">
       <!-- 全部 -->
       <a-tooltip placement="right">
         <template #title>{{ t.sidebar.all }}</template>
@@ -27,6 +28,8 @@
           <span class="nav-name">{{ t.sidebar.all }}</span>
         </div>
       </a-tooltip>
+
+
 
       <!-- 插件提供方 -->
       <a-tooltip
@@ -56,32 +59,14 @@
           <span>{{ t.sidebar.goMarketplace }}</span>
         </button>
       </div>
+    </div>
 
-      <!-- 全局管理 -->
+    <!-- 固定区域：全局管理（在底） -->
+    <div class="global-section">
+ 
+
       <a-tooltip
           v-for="item in globalItems"
-          :key="item.key"
-          placement="right"
-      >
-        <template #title>{{ getItemLabel(item.key) }}</template>
-        <div
-            :class="{ 'is-active': activeItem === item.key }"
-            class="nav-item"
-            @click="handleSelect(item.key)"
-        >
-          <component
-            :is="item.icon"
-            :size="16"
-            weight="regular"
-            class="nav-icon"
-          />
-          <span class="nav-name">{{ getItemLabel(item.key) }}</span>
-          <span v-if="item.count !== undefined" class="nav-count">{{ item.count }}</span>
-        </div>
-      </a-tooltip>
-
-      <a-tooltip
-          v-for="item in extraItems"
           :key="item.key"
           placement="right"
       >
@@ -175,9 +160,6 @@ const globalItems = ref([
   {key: 'prompts', icon: PhTerminalWindow, count: undefined as number | undefined},
   {key: 'mcp', icon: PhLink, count: undefined as number | undefined},
   {key: 'tools', icon: PhWrench, count: undefined as number | undefined},
-])
-
-const extraItems = ref([
   {key: 'ftl', icon: PhCode, count: undefined as number | undefined},
   {key: 'conversations', icon: PhChatCenteredText, count: undefined as number | undefined},
 ])
@@ -278,7 +260,7 @@ const updateActiveItem = () => {
   if (currentPath === '/admin/ai-config-center') {
 
     const view = route.query.view as string | undefined
-    const globalKeys = [...globalItems.value.map(item => item.key), ...extraItems.value.map(item => item.key)]
+    const globalKeys = [...globalItems.value.map(item => item.key), ...globalItems.value.map(item => item.key)]
     if (view && globalKeys.includes(view)) {
       activeItem.value = view
       return
@@ -299,7 +281,7 @@ const updateActiveItem = () => {
 
   const pathParts = currentPath.split('/')
   const lastPart = pathParts[pathParts.length - 1]
-  const globalKeys = [...globalItems.value.map(item => item.key), ...extraItems.value.map(item => item.key)]
+  const globalKeys = [...globalItems.value.map(item => item.key), ...globalItems.value.map(item => item.key)]
   if (globalKeys.includes(lastPart)) {
     activeItem.value = lastPart
     return
@@ -324,8 +306,8 @@ const fetchCounts = () => {
     fetchCount(aiPromptApi, globalItems, 1),
     fetchCount(aiMcpApi, globalItems, 2),
     fetchCount(aiToolApi, globalItems, 3),
-    fetchCount(aiTemplateApi, extraItems, 0),
-    fetchCount(aiConversationApi, extraItems, 1),
+    fetchCount(aiTemplateApi, globalItems, 4),
+    fetchCount(aiConversationApi, globalItems, 5),
   ])
 }
 
@@ -351,13 +333,69 @@ watch(
   min-width: 0;
 }
 
-/* ── 列表 ── */
-.nav-list {
-  flex: 1;
-  overflow-y: auto;
+/* ── 覆盖 SidebarShell 主体（取消滚动，改为 flex 布局） ── */
+.ai-config-sidebar :deep(.ast-sidebar-body) {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ── 可滚动区域：模型提供方（在上） ── */
+.provider-section {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 8px 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  /* ── 美化滚动条 ── */
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+.provider-section::-webkit-scrollbar {
+  width: 5px;
+}
+.provider-section::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+.provider-section::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, rgba(128, 128, 128, 0.3));
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+.provider-section::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, rgba(128, 128, 128, 0.5));
+}
+
+/* ── 固定区域：全局管理（在底） ── */
+.global-section {
+  flex-shrink: 0;
+  padding: 2px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-top: 1px solid var(--border-default);
+  margin-top: 4px;
+}
+
+/* ── 区域标签 ── */
+.section-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 4px 6px 1px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.section-label.slim {
+  padding: 3px 6px 1px;
+  opacity: 0.55;
+  font-size: 9px;
 }
 
 .nav-item {

@@ -2,6 +2,8 @@ export const aiConfigCenterTranslation = {
   sidebar: {
     searchPlaceholder: 'Search resources...',
     all: 'All',
+    sectionGlobal: 'Management',
+    sectionProviders: 'Model Providers',
     emptyPlugin: 'No enabled plugins',
     emptyPluginHint: 'No model provider plugins installed yet. Open the marketplace to pick one.',
     goMarketplace: 'Go to Marketplace',
