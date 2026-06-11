@@ -33,7 +33,7 @@
             :data-source="list"
             :loading="loading"
             :row-selection="rowSelection"
-            :scroll="{ x: 1400 }"
+            :scroll="{ x: 'max-content' }"
             :empty-text="t.list.emptyMatch"
             mode="table"
             row-key="id"

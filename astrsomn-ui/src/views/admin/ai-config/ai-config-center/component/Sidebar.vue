@@ -121,12 +121,7 @@ import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts'
-import {aiAccountApi} from '@/api/aiAccount'
-import {aiPromptApi} from '@/api/aiPrompt'
-import {aiMcpApi} from '@/api/aiMcp'
-import {aiToolApi} from '@/api/aiTool'
-import {aiTemplateApi} from '@/api/aiTemplate'
-import {aiConversationApi} from '@/api/aiConversation'
+import {aiConfigCenterApi} from '@/api/aiConfigCenter'
 import {useDictionary} from '@/locales/dictionary'
 import {usePageTranslation} from '@/locales/pages.ts'
 import ExtensionMarketplaceDialog
@@ -291,24 +286,25 @@ const updateActiveItem = () => {
   activeItem.value = 'all'
 }
 
-const fetchCount = async (api: { queryPage: (p: unknown) => Promise<{ total?: number }> }, list: typeof globalItems, idx: number) => {
-  try {
-    const resp = await api.queryPage({pageNo: 1, pageSize: 1})
-    list.value[idx].count = resp.total ?? 0
-  } catch {
-
-  }
+const countFieldMap: Record<string, keyof import('@/api/aiConfigCenter').AiConfigCenterCounts> = {
+  'ai-account': 'aiAccountCount',
+  'prompts': 'aiPromptCount',
+  'mcp': 'aiMcpCount',
+  'tools': 'aiToolCount',
+  'ftl': 'aiTemplateCount',
+  'conversations': 'aiChatSessionCount',
 }
 
-const fetchCounts = () => {
-  return Promise.all([
-    fetchCount(aiAccountApi, globalItems, 0),
-    fetchCount(aiPromptApi, globalItems, 1),
-    fetchCount(aiMcpApi, globalItems, 2),
-    fetchCount(aiToolApi, globalItems, 3),
-    fetchCount(aiTemplateApi, globalItems, 4),
-    fetchCount(aiConversationApi, globalItems, 5),
-  ])
+const fetchCounts = async () => {
+  try {
+    const counts = await aiConfigCenterApi.counts()
+    globalItems.value.forEach((item) => {
+      const field = countFieldMap[item.key]
+      item.count = field ? (counts[field] ?? 0) : 0
+    })
+  } catch {
+    // ignore
+  }
 }
 
 onMounted(() => {
@@ -379,7 +375,6 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 2px;
-  border-top: 1px solid var(--border-default);
   margin-top: 4px;
 }
 

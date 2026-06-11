@@ -15,7 +15,7 @@
           :agent-name="configAgentName"
           @back="handleConfigBack"
       />
-      <!-- Agent + Model Tab 切换 -->
+      <!-- Agent + Model + Account + Instance Tab 切换 -->
       <div v-else :key="currentProviderKey" class="provider-detail-view">
         <a-tabs v-model:activeKey="activeTab" class="config-tabs">
           <a-tab-pane key="agents" :tab="t.main.tabs.agents">
@@ -34,6 +34,16 @@
                 :extension-id="selectedProvider?.id"
             />
           </a-tab-pane>
+          <a-tab-pane key="accounts" :tab="t.main.tabs.accounts">
+            <AccountSection
+                :provider-key="currentProviderKey"
+            />
+          </a-tab-pane>
+          <a-tab-pane key="instances" :tab="t.main.tabs.instances">
+            <InstanceSection
+                :provider-key="currentProviderKey"
+            />
+          </a-tab-pane>
         </a-tabs>
       </div>
     </transition>
@@ -44,6 +54,8 @@
 import {ref} from 'vue'
 import AgentSection from './right/AgentSection.vue'
 import ModelSection from './right/ModelSection.vue'
+import AccountSection from './right/AccountSection.vue'
+import InstanceSection from './right/InstanceSection.vue'
 import AgentForm from './right/AgentForm.vue'
 import type {AiAgent} from '@/api/aiAgent'
 import {usePageTranslation} from '@/locales/pages.ts'
