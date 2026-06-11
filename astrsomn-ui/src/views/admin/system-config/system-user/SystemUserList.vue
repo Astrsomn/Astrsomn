@@ -1,6 +1,5 @@
 <template>
   <AstPageShell
-      :breadcrumbs="breadcrumbs"
       :description="t.list.description"
       :empty-text="t.list.emptyText"
       :title="t.list.title"
@@ -145,11 +144,6 @@ import {getDictionary} from '@/locales/dictionary/registry.ts'
 
 const t = usePageTranslation('system-user')
 const roleDict = getDictionary('system.user.role')
-
-const breadcrumbs = [
-  {title: t.value.list.breadcrumbParent, href: '/admin/system-config'},
-  {title: t.value.list.breadcrumb},
-]
 
 type QueryState = {
   username?: string

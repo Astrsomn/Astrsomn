@@ -1,6 +1,5 @@
 <template>
   <AstPageShell
-      :breadcrumbs="breadcrumbs"
       :description="t.list.description"
       :empty-text="t.list.emptyText"
       :title="t.list.title"
@@ -114,11 +113,6 @@ const t = usePageTranslation('system-config')
 const statusDict = getDictionary('system.config.status')
 const isSystemDict = getDictionary('system.config.isSystem')
 
-const breadcrumbs = [
-  {title: t.value.list.breadcrumb, href: '/admin/system-config'},
-  {title: t.value.list.breadcrumb},
-]
-
 type QueryState = {
   configKey?: string
   configGroup?: string
@@ -126,13 +120,13 @@ type QueryState = {
 }
 
 const columns = computed(() => [
-  {title: t.value.list.columnConfigKey, dataIndex: 'configKey', key: 'configKey', width: 220, ellipsis: true, copyable: true},
-  {title: t.value.list.columnConfigGroup, dataIndex: 'configGroup', key: 'configGroup', width: 160, ellipsis: true},
-  {title: t.value.list.columnConfigValue, key: 'configValue', width: 280, ellipsis: true},
-  {title: t.value.list.columnStatus, key: 'status', width: 100},
-  {title: t.value.list.columnAttribute, key: 'isSystem', width: 110},
-  {title: t.value.list.columnDescription, dataIndex: 'description', key: 'description', width: 200, ellipsis: true},
-  {title: t.value.list.columnActions, key: 'actions', width: 160, fixed: 'right' as const}
+  {title: t.value.list.columnConfigKey, dataIndex: 'configKey', key: 'configKey', ellipsis: true, copyable: true},
+  {title: t.value.list.columnConfigGroup, dataIndex: 'configGroup', key: 'configGroup',  ellipsis: true},
+  {title: t.value.list.columnConfigValue, key: 'configValue', ellipsis: true},
+  {title: t.value.list.columnStatus, key: 'status'},
+  {title: t.value.list.columnAttribute, key: 'isSystem'},
+  {title: t.value.list.columnDescription, dataIndex: 'description', key: 'description', ellipsis: true},
+  {title: t.value.list.columnActions, key: 'actions',  fixed: 'right' as const}
 ])
 
 const query = reactive<QueryState>({})

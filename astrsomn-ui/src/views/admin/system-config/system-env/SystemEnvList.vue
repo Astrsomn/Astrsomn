@@ -1,6 +1,5 @@
 <template>
   <AstPageShell
-      :breadcrumbs="breadcrumbs"
       :description="t.list.description"
       :empty-text="t.list.emptyText"
       :title="t.list.title"
@@ -92,11 +91,6 @@ import SystemEnvForm from './component/SystemEnvForm.vue'
 import {type PageResponse, type SystemEnv, systemEnvApi} from '@/api/systemEnv.ts'
 
 const t = usePageTranslation('system-env')
-
-const breadcrumbs = [
-  {title: t.value.list.breadcrumbParent, href: '/admin/system-config'},
-  {title: t.value.list.breadcrumb},
-]
 
 type QueryState = {
   envName?: string

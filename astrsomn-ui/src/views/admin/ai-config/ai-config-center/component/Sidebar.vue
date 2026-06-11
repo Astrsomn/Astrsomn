@@ -331,6 +331,7 @@ watch(
 .sidebar-search-pill {
   flex: 1;
   min-width: 0;
+  border: none;
 }
 
 /* ── 覆盖 SidebarShell 主体（取消滚动，改为 flex 布局） ── */

@@ -53,8 +53,9 @@ const effectiveMarketplaceLabel = computed(() => props.marketplaceLabel || t.val
 <style scoped>
 .sf-footer-row {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .sf-driver-info {

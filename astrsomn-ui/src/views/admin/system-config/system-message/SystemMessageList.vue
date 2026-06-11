@@ -1,6 +1,5 @@
 <template>
   <AstPageShell
-      :breadcrumbs="breadcrumbs"
       :description="t.list.description"
       :empty-text="t.list.emptyText"
       :title="t.list.title"
@@ -123,11 +122,6 @@ const t = usePageTranslation('system-message')
 const messageTypeDict = getDictionary('system.message.type')
 const messageLevelDict = getDictionary('system.message.level')
 const readStatusDict = getDictionary('system.message.readStatus')
-
-const breadcrumbs = [
-  {title: t.value.list.breadcrumbParent, href: '/admin/system-config'},
-  {title: t.value.list.breadcrumb},
-]
 
 type QueryState = {
   title?: string

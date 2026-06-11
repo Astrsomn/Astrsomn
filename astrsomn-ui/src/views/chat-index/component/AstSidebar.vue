@@ -158,7 +158,7 @@ const toggleCollapsed = () => {
 }
 
 .sidebar-top {
-  height: 60px;
+  height: 56px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -170,6 +170,7 @@ const toggleCollapsed = () => {
 .sidebar-search-pill {
   flex: 1;
   min-width: 0;
+  border: none;
 }
 
 .new-chat-btn {
@@ -269,13 +270,13 @@ const toggleCollapsed = () => {
 }
 
 .collapsed-toggle {
-  position: absolute;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
+  position: fixed;
+  left: 92px;
+  bottom: 24px;
+  z-index: 100;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-default);
   background: var(--bg-surface);
   color: var(--text-secondary);
@@ -283,13 +284,14 @@ const toggleCollapsed = () => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 14px;
   transition: all 0.2s ease;
+  padding: 0;
 }
 
 .collapsed-toggle:hover {
   color: var(--text-primary);
-  border-color: var(--text-muted);
+  border-color: var(--border-default);
   background: var(--bg-card);
 }
 
