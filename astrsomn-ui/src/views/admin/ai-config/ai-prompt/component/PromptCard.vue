@@ -2,6 +2,7 @@
   <div
       class="card"
       :class="{ 'card-disabled': String(record.status || '') !== 'enabled', 'card-selected': selected }"
+      @click="onCardClick"
   >
     <!-- Selection checkbox (revealed on hover) -->
     <a-checkbox
@@ -87,6 +88,10 @@ const onToggle = () => {
   if (props.record.id != null) {
     emit('toggle', props.record.id, !props.selected)
   }
+}
+
+const onCardClick = () => {
+  emit('edit', props.record)
 }
 </script>
 

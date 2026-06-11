@@ -14,44 +14,7 @@
           <p v-if="props.providerDescription" class="list-subtitle">{{ props.providerDescription }}</p>
         </div>
       </div>
-      <div class="header-stats">
-        <div class="stat-card">
-          <div class="stat-icon-wrap stat-icon-blue">
-            <LineChartOutlined/>
-          </div>
-          <div class="stat-body">
-            <span class="stat-value">12.8K</span>
-            <span class="stat-label">{{ t.agent.stats.todayCalls }}</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon-wrap stat-icon-purple">
-            <ThunderboltOutlined/>
-          </div>
-          <div class="stat-body">
-            <span class="stat-value">2.4M</span>
-            <span class="stat-label">{{ t.agent.stats.tokenUsage }}</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon-wrap stat-icon-green">
-            <DashboardOutlined/>
-          </div>
-          <div class="stat-body">
-            <span class="stat-value">320<span class="stat-unit">ms</span></span>
-            <span class="stat-label">{{ t.agent.stats.avgLatency }}</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon-wrap stat-icon-orange">
-            <FundOutlined/>
-          </div>
-          <div class="stat-body">
-            <span class="stat-value">99.2<span class="stat-unit">%</span></span>
-            <span class="stat-label">{{ t.agent.stats.successRate }}</span>
-          </div>
-        </div>
-      </div>
+
     </div>
 
     <div v-if="loading" class="loading-container">

@@ -1,139 +1,147 @@
 <template>
-  <AstDrawer
+  <AstModal
       :destroy-on-close="true"
-      :mask-closable="true"
       :open="open"
-      width="560px"
-      @update:open="onOpenChange"
+      :width="width"
+      :confirm-text="confirmText"
+      :confirm-loading="confirmLoading"
+      :confirm-disabled="false"
+      body-height="460px"
+      @cancel="onOpenChange(false)"
+      @confirm="handleOk"
   >
-    <template #icon>
+    <template #header-logo>
       <DatabaseOutlined/>
     </template>
 
-    <template #title>
+    <template #header-title>
       {{ mode === 'create' ? t.vecSource.form.createTitle : t.vecSource.form.editTitle }}
     </template>
 
-    <template #subtitle>
+    <template #header-subtitle>
       {{ t.vecSource.form.subtitle }}
     </template>
 
-    <a-form
-        ref="formRef"
-        :model="form"
-        :rules="formRules"
-        class="drawer-form"
-        layout="vertical"
-    >
-      <div class="form-section">
-        <h3 class="section-headline">
-          <IdcardOutlined/>
-          {{ t.vecSource.form.basicInfo }}
-        </h3>
-
-        <a-form-item :label="t.vecSource.form.name.label" name="name">
-          <a-input v-model:value="form.name" :placeholder="t.vecSource.form.name.placeholder" size="large"/>
-        </a-form-item>
-
-        <a-form-item :label="t.vecSource.form.extensionCode.label" name="extensionCode">
-          <ExtensionSelector
-              :value="form.extensionCode"
-              allow-clear
-              extension-type="VECTOR_STORE"
-              :placeholder="t.vecSource.form.extensionCode.placeholder"
-              size="large"
-              @update:value="onExtensionChange"
-          />
-        </a-form-item>
-
-        <a-form-item :label="t.vecSource.form.status.label" name="status">
-          <a-segmented
-              v-model:value="form.status"
-              :options="statusOptions"
-              block
-              class="status-segmented"
-              size="large"
-          />
-        </a-form-item>
-      </div>
-
-      <div class="form-section">
-        <h3 class="section-headline">
-          <LinkOutlined/>
-          {{ t.vecSource.form.connectionConfig }}
-        </h3>
-
-        <a-alert
-            v-if="!form.extensionCode"
-            :message="t.vecSource.form.selectSourceFirst"
-            show-icon
-            style="margin-bottom: 12px"
-            type="info"
-        />
-
-        <template v-else>
-          <a-form-item
-              v-for="code in visibleParamCodes"
-              :key="code"
-              :label="paramMeta[code].label"
-              :name="code"
-          >
-            <a-input-password
-                v-if="paramMeta[code].password"
-                v-model:value="formRow[code]"
-                :placeholder="paramMeta[code].placeholder"
-                autocomplete="off"
-                size="large"
-            >
-              <template v-if="paramMeta[code].prefix" #prefix>
-                <component :is="paramMeta[code].prefix" style="color: var(--text-muted)"/>
-              </template>
-            </a-input-password>
-            <a-input
-                v-else
-                v-model:value="formRow[code]"
-                :placeholder="paramMeta[code].placeholder"
-                size="large"
-            >
-              <template v-if="paramMeta[code].prefix" #prefix>
-                <component :is="paramMeta[code].prefix" style="color: var(--text-muted)"/>
-              </template>
-            </a-input>
-          </a-form-item>
-
-          <a-collapse v-model:activeKey="advancedKeys" ghost>
-            <a-collapse-panel key="adv" :header="t.vecSource.form.advancedConfig">
-              <a-form-item :label-col="{ span: 24 }" :wrapper-col="{ span: 24 }" name="configJson">
-                <div class="json-editor-wrapper">
-                  <a-textarea
-                      v-model:value="form.configJson"
-                      :auto-size="{ minRows: 4, maxRows: 8 }"
-                      class="mono-text"
-                      placeholder='{"useTls": true}'
-                  />
-                </div>
-              </a-form-item>
-            </a-collapse-panel>
-          </a-collapse>
-        </template>
-      </div>
-    </a-form>
-
-    <template #footer>
+    <template #header-actions>
       <a-button :loading="testLoading" @click="testConnection">
         <template #icon>
           <ApiTwoTone/>
         </template>
         {{ t.vecSource.form.testConnection }}
       </a-button>
-      <a-button :loading="confirmLoading" type="primary" @click="handleOk">
+      <a-button
+          :loading="confirmLoading"
+          class="save-btn"
+          type="primary"
+          @click="handleOk"
+      >
         <template #icon>
-          <CheckCircleOutlined/>
+          <CheckOutlined/>
         </template>
-        {{ t.vecSource.form.save }}
+        {{ confirmText }}
       </a-button>
     </template>
-  </AstDrawer>
+
+    <div class="form-wrapper">
+      <a-form
+          ref="formRef"
+          :model="form"
+          :rules="formRules"
+          :label-col="{ style: { width: '110px' } }"
+          :wrapper-col="{ style: { flex: 1, minWidth: 0 } }"
+          class="modal-form"
+          layout="horizontal"
+      >
+        <div class="form-section">
+          <h3 class="section-headline">
+            <IdcardOutlined/>
+            {{ t.vecSource.form.basicInfo }}
+          </h3>
+
+          <a-form-item :label="t.vecSource.form.name.label" name="name">
+            <a-input v-model:value="form.name" :placeholder="t.vecSource.form.name.placeholder"/>
+          </a-form-item>
+
+          <a-form-item :label="t.vecSource.form.extensionCode.label" name="extensionCode">
+            <ExtensionSelector
+                :value="form.extensionCode"
+                allow-clear
+                extension-type="VECTOR_STORE"
+                :placeholder="t.vecSource.form.extensionCode.placeholder"
+                @update:value="onExtensionChange"
+            />
+          </a-form-item>
+
+          <a-form-item :label="t.vecSource.form.status.label" name="status">
+            <a-segmented
+                v-model:value="form.status"
+                :options="statusOptions"
+                class="status-segmented"
+            />
+          </a-form-item>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-headline">
+            <LinkOutlined/>
+            {{ t.vecSource.form.connectionConfig }}
+          </h3>
+
+          <a-alert
+              v-if="!form.extensionCode"
+              :message="t.vecSource.form.selectSourceFirst"
+              show-icon
+              style="margin-bottom: 8px"
+              type="info"
+          />
+
+          <template v-else>
+            <a-form-item
+                v-for="code in visibleParamCodes"
+                :key="code"
+                :label="paramMeta[code].label"
+                :name="code"
+            >
+              <a-input-password
+                  v-if="paramMeta[code].password"
+                  v-model:value="formRow[code]"
+                  :placeholder="paramMeta[code].placeholder"
+                  autocomplete="off"
+              >
+                <template v-if="paramMeta[code].prefix" #prefix>
+                  <component :is="paramMeta[code].prefix" style="color: var(--text-muted)"/>
+                </template>
+              </a-input-password>
+              <a-input
+                  v-else
+                  v-model:value="formRow[code]"
+                  :placeholder="paramMeta[code].placeholder"
+              >
+                <template v-if="paramMeta[code].prefix" #prefix>
+                  <component :is="paramMeta[code].prefix" style="color: var(--text-muted)"/>
+                </template>
+              </a-input>
+            </a-form-item>
+
+            <a-collapse v-model:activeKey="advancedKeys" ghost>
+              <a-collapse-panel key="adv" :header="t.vecSource.form.advancedConfig">
+                <a-form-item label="JSON" name="configJson">
+                  <div class="json-editor-wrapper">
+                    <a-textarea
+                        v-model:value="form.configJson"
+                        :auto-size="{ minRows: 2, maxRows: 5 }"
+                        class="mono-text"
+                        placeholder='{"useTls": true}'
+                    />
+                  </div>
+                </a-form-item>
+              </a-collapse-panel>
+            </a-collapse>
+          </template>
+        </div>
+      </a-form>
+    </div>
+  </AstModal>
 </template>
 
 <script lang="ts" setup>
@@ -142,7 +150,7 @@ import {message} from 'ant-design-vue'
 import {
   ApiOutlined,
   ApiTwoTone,
-  CheckCircleOutlined,
+  CheckOutlined,
   DatabaseOutlined,
   GlobalOutlined,
   IdcardOutlined,
@@ -152,7 +160,7 @@ import {
   UserOutlined
 } from '@ant-design/icons-vue'
 import type {FormInstance, Rule} from 'ant-design-vue/es/form'
-import AstDrawer from '@/components/home/AstDrawer.vue'
+import AstModal from '@/components/home/AstModal.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import type {AiVecSource} from '@/api/aiVecSource.ts'
 import {aiVecSourceApi} from '@/api/aiVecSource.ts'
@@ -163,6 +171,9 @@ const t = usePageTranslation('ai-vector')
 const props = defineProps<{ mode: 'create' | 'edit'; confirmLoading: boolean; initial: AiVecSource | null }>()
 const emit = defineEmits<{ submit: [payload: AiVecSource] }>()
 const open = defineModel<boolean>('open', {required: true})
+
+const width = '720px'
+const confirmText = computed(() => t.value.vecSource.form.save)
 
 const formRef = ref<FormInstance | null>(null)
 const syncingInitial = ref(false)
@@ -185,7 +196,7 @@ type ParamMeta = {
 const paramMeta = computed<Record<string, ParamMeta>>(() => ({
   host: {label: t.value.vecSource.form.paramMeta.host.label, placeholder: t.value.vecSource.form.paramMeta.host.placeholder, prefix: GlobalOutlined},
   port: {label: t.value.vecSource.form.paramMeta.port.label, placeholder: t.value.vecSource.form.paramMeta.port.placeholder, prefix: ApiOutlined},
-  databaseName: {label: t.value.vecSource.form.paramMeta.databaseName.label, placeholder: t.value.vecSource.form.paramMeta.databaseName.placeholder, wide: true},
+  databaseName: {label: t.value.vecSource.form.paramMeta.databaseName.label, placeholder: t.value.vecSource.form.paramMeta.databaseName.placeholder, wide: true, prefix: DatabaseOutlined},
   username: {label: t.value.vecSource.form.paramMeta.username.label, placeholder: t.value.vecSource.form.paramMeta.username.placeholder, prefix: UserOutlined},
   password: {label: t.value.vecSource.form.paramMeta.password.label, placeholder: t.value.vecSource.form.paramMeta.password.placeholder, password: true, prefix: LockOutlined},
   token: {label: t.value.vecSource.form.paramMeta.token.label, placeholder: t.value.vecSource.form.paramMeta.token.placeholder, password: true, prefix: KeyOutlined}
@@ -303,30 +314,36 @@ function onOpenChange(val: boolean) {
 </script>
 
 <style scoped>
-.drawer-form {
+.form-wrapper {
+  padding: 20px 32px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.modal-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
 }
 
 .section-headline {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   color: var(--text-primary);
 }
 
 .status-segmented {
-  width: 100%;
+  max-width: 240px;
 }
 
 .status-segmented :deep(.ant-segmented-item) {
@@ -349,13 +366,20 @@ function onOpenChange(val: boolean) {
 
 .mono-text {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  font-size: 13px;
+  font-size: 12px;
   background: transparent;
   border: none;
-  padding: 12px;
+  padding: 6px 10px;
 }
 
 .mono-text:focus {
   box-shadow: none;
+}
+
+.save-btn {
+  height: 36px;
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 0 16px;
 }
 </style>

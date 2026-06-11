@@ -42,13 +42,7 @@
                 {{ t.form.sectionTitle.basic }}
               </h3>
 
-              <a-alert
-                  v-if="mode === 'create'"
-                  class="custom-alert"
-                  :message="t.form.alert"
-                  show-icon
-                  type="info"
-              />
+   
 
               <div class="form-fields">
                 <a-row :gutter="16">
