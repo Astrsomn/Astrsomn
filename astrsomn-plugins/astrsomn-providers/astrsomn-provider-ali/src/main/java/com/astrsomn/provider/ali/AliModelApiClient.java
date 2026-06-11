@@ -58,13 +58,15 @@ public class AliModelApiClient {
 
             List<ProviderModelDTO> models = new ArrayList<>();
             for (Map<String, Object> item : dataList) {
-                String modelId = (String) item.get("model_id");
-                if (modelId == null) modelId = (String) item.get("id");
+                String modelId = (String) item.get("id");
+                if (modelId == null) modelId = (String) item.get("model");
+                if (modelId == null) modelId = (String) item.get("model_id");
                 if (modelId == null) modelId = (String) item.get("model_name");
                 if (modelId == null || modelId.isEmpty()) continue;
 
                 String modelType = inferModelType(modelId);
                 String displayName = (String) item.get("model_name");
+                if (displayName == null) displayName = (String) item.get("name");
 
                 ProviderModelDTO dto = new ProviderModelDTO();
                 dto.setModelKey(modelId);

@@ -40,18 +40,48 @@ public class ZhipuModelApiClient {
 
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             Map<String, Object> body = mapper.readValue(response.body(), Map.class);
-            List<Map<String, Object>> dataList = (List<Map<String, Object>>) body.get("data");
+
+            List<Map<String, Object>> dataList = null;
+
+            // Format 1: { "data": [...] } (OpenAI-compatible)
+            Object rawData = body.get("data");
+            if (rawData instanceof List) {
+                dataList = (List<Map<String, Object>>) rawData;
+            }
+
+            // Format 2: { "items": [...] }
+            if (dataList == null || dataList.isEmpty()) {
+                rawData = body.get("items");
+                if (rawData instanceof List) {
+                    dataList = (List<Map<String, Object>>) rawData;
+                }
+            }
+
+            // Format 3: { "result": { "models": [...] } }
+            if (dataList == null || dataList.isEmpty()) {
+                Map<String, Object> result = (Map<String, Object>) body.get("result");
+                if (result != null && result.containsKey("models")) {
+                    dataList = (List<Map<String, Object>>) result.get("models");
+                }
+            }
+
             if (dataList == null || dataList.isEmpty()) return Collections.emptyList();
 
             List<ProviderModelDTO> models = new ArrayList<>();
             for (Map<String, Object> item : dataList) {
                 String modelId = (String) item.get("id");
+                if (modelId == null) modelId = (String) item.get("model");
+                if (modelId == null) modelId = (String) item.get("model_id");
+                if (modelId == null) modelId = (String) item.get("model_name");
                 if (modelId == null || modelId.isEmpty()) continue;
+
+                String displayName = (String) item.get("model_name");
 
                 String modelType = inferModelType(modelId);
                 ProviderModelDTO dto = new ProviderModelDTO();
                 dto.setModelKey(modelId);
-                dto.setModelName(modelId);
+                dto.setModelName(displayName != null ? displayName : modelId);
+                dto.setDescription((String) item.get("description"));
                 dto.setModelType(modelType);
                 dto.setCapabilities(ModelParamDefaults.inferCapsFromId(modelId, modelType));
                 dto.setParams(ModelParamDefaults.inferParamsFromId(modelId, modelType));
