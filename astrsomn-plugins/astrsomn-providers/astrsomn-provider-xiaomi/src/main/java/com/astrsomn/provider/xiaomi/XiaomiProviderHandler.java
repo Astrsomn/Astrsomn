@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 public class XiaomiProviderHandler extends AbstractModelProviderHandler {
 
+    private static final String DEFAULT_BASE_URL = "https://api.xiaomimimo.com/v1";
+
     private static void applyChatSetting(OpenAiChatModel.OpenAiChatModelBuilder builder, AstroChatParam<?> param) {
         ChatSetting cs = param.getChatSetting();
         if (cs == null) {
@@ -112,6 +114,7 @@ public class XiaomiProviderHandler extends AbstractModelProviderHandler {
 
     protected ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = OpenAiChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
@@ -127,6 +130,7 @@ public class XiaomiProviderHandler extends AbstractModelProviderHandler {
 
     protected StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = OpenAiStreamingChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {

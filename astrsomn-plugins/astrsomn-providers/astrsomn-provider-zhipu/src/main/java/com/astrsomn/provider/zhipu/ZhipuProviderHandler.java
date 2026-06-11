@@ -24,6 +24,7 @@ import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 public class ZhipuProviderHandler extends AbstractModelProviderHandler {
+    private static final String DEFAULT_BASE_URL = "https://open.bigmodel.cn/api/paas/v4";
 
     private static void applyChatSetting(ZhipuAiChatModel.ZhipuAiChatModelBuilder builder, AstroChatParam<?> param) {
         ChatSetting chatSetting = param.getChatSetting();
@@ -131,7 +132,10 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
     }
 
     public ChatModel getChatModel(AstroChatParam<?> param) {
-        var builder = ZhipuAiChatModel.builder().apiKey(param.getModelSetting().getApiKey()).model(modelId(param));
+        var builder = ZhipuAiChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
+                .apiKey(param.getModelSetting().getApiKey())
+                .model(modelId(param));
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
             builder.baseUrl(param.getModelSetting().getApiUrl());
         }
@@ -144,6 +148,7 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
 
     public StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = ZhipuAiStreamingChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .apiKey(param.getModelSetting().getApiKey())
                 .model(modelId(param));
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
@@ -158,6 +163,7 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
 
     public EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = ZhipuAiEmbeddingModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .apiKey(param.getModelSetting().getApiKey())
                 .model(modelId(param));
         if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {

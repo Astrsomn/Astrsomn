@@ -21,6 +21,7 @@ import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 public class AliProviderHandler extends AbstractModelProviderHandler {
+    private static final String DEFAULT_BASE_URL = "https://dashscope.aliyuncs.com";
 
     public static void applyChatSetting(QwenChatModel.QwenChatModelBuilder builder, AstroChatParam<?> param) {
         ChatSetting cs = param.getChatSetting();
@@ -103,6 +104,7 @@ public class AliProviderHandler extends AbstractModelProviderHandler {
 
     protected ChatModel getChatModel(AstroChatParam<?> param) {
         var builder = QwenChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
@@ -117,6 +119,7 @@ public class AliProviderHandler extends AbstractModelProviderHandler {
 
     protected StreamingChatModel getStreamModel(AstroChatParam<?> param) {
         var builder = QwenStreamingChatModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {
@@ -131,6 +134,7 @@ public class AliProviderHandler extends AbstractModelProviderHandler {
 
     protected EmbeddingModel getEmbeddingModel(AstroChatParam<?> param) {
         var builder = QwenEmbeddingModel.builder()
+                .baseUrl(DEFAULT_BASE_URL)
                 .modelName(param.getModelSetting().getModelName())
                 .apiKey(param.getModelSetting().getApiKey());
         if (param.getModelSetting().getApiUrl() != null && !param.getModelSetting().getApiUrl().isEmpty()) {

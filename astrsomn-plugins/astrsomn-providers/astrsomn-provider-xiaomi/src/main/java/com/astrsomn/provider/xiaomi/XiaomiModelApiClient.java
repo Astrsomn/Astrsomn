@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class XiaomiModelApiClient {
-    private static final String DEFAULT_BASE_URL = "https://api.minimax.chat/v1";
+    private static final String DEFAULT_BASE_URL = "https://api.xiaomimimo.com/v1";
     private final String baseUrl;
     private final HttpClient httpClient;
 

@@ -10,7 +10,7 @@ public class AiAccountCreateRequestDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     private String accountKey;
     private String accountName;
-    private String provider;
+    private String extensionCode;
     private String apiUrl;
     private String apiKey;
     private String apiSecret;

@@ -95,6 +95,24 @@ import {type AiAccount, aiAccountApi} from '@/api/aiAccount.ts'
 import {AI_ACCOUNT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
 
+/** 各模型提供商的默认请求地址 */
+const PROVIDER_DEFAULT_URLS: Record<string, string> = {
+  openai: 'https://api.openai.com',
+  deepseek: 'https://api.deepseek.com',
+  ali: 'https://dashscope.aliyuncs.com',
+  qianfan: 'https://aip.baidubce.com',
+  zhipu: 'https://open.bigmodel.cn/api/paas/v4',
+  xiaomi: 'https://api.xiaomimimo.com/v1',
+  anthropic: 'https://api.anthropic.com',
+  baichuan: 'https://api.baichuan-ai.com/v1',
+  gemini: 'https://generativelanguage.googleapis.com',
+  minimax: 'https://api.minimax.chat/v1',
+  moonshot: 'https://api.moonshot.cn/v1',
+  tencent: 'https://api.lkeap.cloud.tencent.com/v1',
+  volcengine: 'https://ark.cn-beijing.volces.com',
+  ollama: 'http://localhost:11434',
+}
+
 const t = usePageTranslation('ai-account')
 
 interface Props {
@@ -183,6 +201,16 @@ watch(() => props.visible, (val) => {
 
     if (props.record?.id) {
       loadDetail(props.record.id)
+    }
+  }
+})
+
+// 选择提供商时自动填入默认请求地址（仅在用户未手动填写时）
+watch(() => form.extensionCode, (code) => {
+  if (code && !form.apiUrl) {
+    const defaultUrl = PROVIDER_DEFAULT_URLS[code]
+    if (defaultUrl) {
+      form.apiUrl = defaultUrl
     }
   }
 })
