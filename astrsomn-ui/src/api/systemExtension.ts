@@ -152,7 +152,7 @@ export const systemExtensionApi = {
         if (accountId != null) {
             url += `&accountId=${encodeURIComponent(String(accountId))}`
         }
-        return request({ url, method: 'get' })
+        return request({ url, method: 'get', timeout: 60000 })
     },
 
     loadModels: (id: number | string, modelKeys?: string[], accountId?: string | number): Promise<string> => {
@@ -163,7 +163,7 @@ export const systemExtensionApi = {
         if (accountId != null) {
             url += `&accountId=${encodeURIComponent(String(accountId))}`
         }
-        return request({ url, method: 'post' })
+        return request({ url, method: 'post', timeout: 60000 })
     },
 
     previewUnloadModels: (id: number | string): Promise<ExtensionModelUnloadPreview> => {

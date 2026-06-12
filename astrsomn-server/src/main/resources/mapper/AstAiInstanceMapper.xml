@@ -147,4 +147,11 @@
           AND (AI.DELETED = 0
            OR AI.DELETED IS NULL)
     </select>
+
+    <select id="selectReferencedModelKeys" resultType="java.lang.String">
+        SELECT DISTINCT MODEL_KEY
+        FROM AI_INSTANCE
+        WHERE ENV_CODE = #{envCode}
+          AND (DELETED = 0 OR DELETED IS NULL)
+    </select>
 </mapper>

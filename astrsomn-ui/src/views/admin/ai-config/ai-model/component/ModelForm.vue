@@ -242,7 +242,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref, watch} from 'vue'
+import {computed, onMounted, reactive, ref, watch} from 'vue'
 import type {FormInstance} from 'ant-design-vue'
 import {
   AudioOutlined,
@@ -476,6 +476,12 @@ const syncForm = () => {
   }
 }
 
+onMounted(() => {
+  if (props.open) {
+    syncForm()
+  }
+})
+
 watch(
     () => props.open,
     (v) => {
@@ -486,6 +492,15 @@ watch(
 
 watch(
     () => props.mode,
+    () => {
+      if (props.open) {
+        syncForm()
+      }
+    }
+)
+
+watch(
+    () => props.initialData,
     () => {
       if (props.open) {
         syncForm()

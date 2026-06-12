@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 @Mapper
 public interface AiInstanceMapper extends BaseMapper<AiInstanceEntity> {
@@ -18,4 +19,10 @@ public interface AiInstanceMapper extends BaseMapper<AiInstanceEntity> {
     AiInstanceResponseDTO selectDetailDtoById(@Param("id") Long id);
 
     List<AiInstanceResponseDTO> selectByBizKeys(@Param("bizKey") String bizKey);
+
+    /**
+     * Batch query model keys that are referenced by instances for a given envCode.
+     * Returns the set of MODEL_KEY values that have at least one instance reference.
+     */
+    Set<String> selectReferencedModelKeys(@Param("envCode") String envCode);
 }
