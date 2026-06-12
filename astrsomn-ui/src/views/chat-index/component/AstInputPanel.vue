@@ -680,9 +680,19 @@ onBeforeUnmount(() => {
 
 .inst-select-inline-avatar {
   flex-shrink: 0;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+.inst-select-inline-avatar :deep(img) {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
 }
 
 .inst-select-inline-avatar :deep(svg) {
@@ -707,6 +717,10 @@ onBeforeUnmount(() => {
 }
 
 
+:global(.custom-dropdown) {
+  min-width: 220px !important;
+}
+
 :global(.custom-dropdown .inst-opt-row) {
   display: flex;
   align-items: center;
@@ -716,9 +730,19 @@ onBeforeUnmount(() => {
 
 :global(.custom-dropdown .inst-opt-avatar) {
   flex-shrink: 0;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+:global(.custom-dropdown .inst-opt-avatar img) {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
 }
 
 :global(.custom-dropdown .inst-opt-avatar svg) {

@@ -1,49 +1,68 @@
 <template>
   <div class="sidebar-root">
     <div :class="{ collapsed }" class="sidebar-shell">
-      <aside class="session-sidebar">
-        <div class="sidebar-top">
-          <AstSearchInput
-              v-model="searchText"
-              class="sidebar-search-pill"
-              layout="fluid"
-              :placeholder="t.sidebar.searchSessions"
-              @search="handleSearch"
-          />
-          <a-button class="new-chat-btn" @click="emit('create')">
-            <template #icon>
-              <PlusOutlined/>
-            </template>
-          </a-button>
-        </div>
+      <!-- 展开状态 -->
+      <transition name="sidebar-slide">
+        <aside v-if="!collapsed" class="session-sidebar">
+          <div class="sidebar-top">
+            <AstSearchInput
+                v-model="searchText"
+                class="sidebar-search-pill"
+                layout="fluid"
+                :placeholder="t.sidebar.searchSessions"
+                @search="handleSearch"
+            />
+            <a-button class="new-chat-btn" @click="emit('create')">
+              <template #icon>
+                <PlusOutlined/>
+              </template>
+            </a-button>
+          </div>
 
-        <div class="session-title">{{ t.sidebar.recentSessions }}</div>
+          <div class="session-title">{{ t.sidebar.recentSessions }}</div>
 
-        <div class="session-list-wrap">
-          <SessionList
-              :deletable="true"
-              :items="items"
-              :loading="loading"
-              :selected-keys="selectedMemoryKey ? [selectedMemoryKey] : []"
-              @delete="(item) => emit('delete', item)"
-              @open="(memoryKey) => emit('open', memoryKey)"
-          />
-        </div>
+          <div class="session-list-wrap">
+            <SessionList
+                :deletable="true"
+                :items="items"
+                :loading="loading"
+                :selected-keys="selectedMemoryKey ? [selectedMemoryKey] : []"
+                @delete="(item) => emit('delete', item)"
+                @open="(memoryKey) => emit('open', memoryKey)"
+            />
+          </div>
 
-        <div class="sidebar-footer">
-          <a-button class="collapse-btn" size="small" type="text" @click="toggleCollapsed">
-            <MenuFoldOutlined/>
-          </a-button>
-          <span class="footer-version">{{ versionText }}</span>
-          <a-button class="settings-btn" type="text" :title="t.sidebar.settings" @click="settingsOpen = true">
-            <SettingOutlined/>
-          </a-button>
-        </div>
-      </aside>
+          <div class="sidebar-footer">
+            <a-button class="collapse-btn" size="small" type="text" @click="toggleCollapsed">
+              <MenuFoldOutlined/>
+            </a-button>
+            <span class="footer-version">{{ versionText }}</span>
+            <a-button class="settings-btn" type="text" :title="t.sidebar.settings" @click="settingsOpen = true">
+              <SettingOutlined/>
+            </a-button>
+          </div>
+        </aside>
+      </transition>
 
-      <button v-if="collapsed" class="collapsed-toggle" type="button" @click="toggleCollapsed">
-        <MenuUnfoldOutlined/>
-      </button>
+      <!-- 收缩状态 -->
+      <transition name="collapsed-fade">
+        <aside v-if="collapsed" class="collapsed-sidebar">
+          <div class="collapsed-top">
+            <a-button class="collapsed-icon-btn" type="text" @click="emit('create')">
+              <template #icon>
+                <PlusOutlined/>
+              </template>
+            </a-button>
+          </div>
+          <div class="collapsed-bottom">
+            <a-button class="collapsed-icon-btn" type="text" @click="toggleCollapsed">
+              <template #icon>
+                <MenuUnfoldOutlined/>
+              </template>
+            </a-button>
+          </div>
+        </aside>
+      </transition>
     </div>
 
     <AstModal
@@ -126,12 +145,50 @@ const toggleCollapsed = () => {
 </script>
 
 <style scoped>
+/* ── 展开侧边栏滑入动画 ── */
+.sidebar-slide-enter-active {
+  transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.22s ease;
+}
+
+.sidebar-slide-leave-active {
+  transition: transform 0.2s cubic-bezier(0.55, 0, 1, 0.45), opacity 0.15s ease;
+}
+
+.sidebar-slide-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.sidebar-slide-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* ── 收缩侧边栏淡入动画 ── */
+.collapsed-fade-enter-active {
+  transition: opacity 0.25s ease 0.1s;
+}
+
+.collapsed-fade-leave-active {
+  transition: opacity 0.12s ease;
+}
+
+.collapsed-fade-enter-from,
+.collapsed-fade-leave-to {
+  opacity: 0;
+}
+
 .sidebar-shell {
-  width: 288;
-  min-width: 288;
-  height: calc(100vh - 60px);
+  width: 288px;
+  min-width: 288px;
+  height: 100%;
   position: relative;
   transition: width 0.28s ease, min-width 0.28s ease;
+}
+
+.sidebar-shell.collapsed {
+  width: 56px;
+  min-width: 56px;
 }
 
 .session-sidebar {
@@ -143,18 +200,60 @@ const toggleCollapsed = () => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: transform 0.28s ease, opacity 0.22s ease;
 }
 
-.sidebar-shell.collapsed {
-  width: 64px;
-  min-width: 64px;
+.collapsed-sidebar {
+  width: 56px;
+  height: 100%;
+  border-right: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
 }
 
-.sidebar-shell.collapsed .session-sidebar {
-  transform: translateX(-100%);
-  opacity: 0;
-  pointer-events: none;
+.collapsed-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-default);
+  width: 100%;
+}
+
+.collapsed-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 0;
+  width: 100%;
+}
+
+.collapsed-icon-btn {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-default);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  box-shadow: none;
+  padding: 0;
+  font-size: 14px;
+}
+
+.collapsed-icon-btn:hover,
+.collapsed-icon-btn:focus {
+  color: var(--text-primary);
+  border-color: var(--border-default);
+  background: var(--bg-input);
 }
 
 .sidebar-top {
@@ -269,32 +368,6 @@ const toggleCollapsed = () => {
   color: var(--text-primary);
 }
 
-.collapsed-toggle {
-  position: fixed;
-  left: 92px;
-  bottom: 24px;
-  z-index: 100;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-default);
-  background: var(--bg-surface);
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  padding: 0;
-}
-
-.collapsed-toggle:hover {
-  color: var(--text-primary);
-  border-color: var(--border-default);
-  background: var(--bg-card);
-}
-
 
 :global(.settings-modal-wrap .ant-modal-content) {
   box-shadow: none;
@@ -338,13 +411,7 @@ const toggleCollapsed = () => {
     min-width: 100%;
   }
 
-  .sidebar-shell.collapsed .session-sidebar {
-    transform: none;
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .collapsed-toggle {
+  .collapsed-sidebar {
     display: none;
   }
 }

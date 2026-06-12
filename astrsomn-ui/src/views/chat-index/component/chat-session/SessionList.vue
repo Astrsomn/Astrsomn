@@ -62,6 +62,31 @@ const emit = defineEmits<{
   min-height: 100%;
 }
 
+.session-list > * {
+  animation: sessionItemEnter 0.3s ease both;
+}
+
+.session-list > *:nth-child(1) { animation-delay: 0ms; }
+.session-list > *:nth-child(2) { animation-delay: 30ms; }
+.session-list > *:nth-child(3) { animation-delay: 60ms; }
+.session-list > *:nth-child(4) { animation-delay: 90ms; }
+.session-list > *:nth-child(5) { animation-delay: 120ms; }
+.session-list > *:nth-child(6) { animation-delay: 150ms; }
+.session-list > *:nth-child(7) { animation-delay: 180ms; }
+.session-list > *:nth-child(8) { animation-delay: 210ms; }
+.session-list > *:nth-child(n+9) { animation-delay: 240ms; }
+
+@keyframes sessionItemEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .session-list-spin {
   display: block;
   height: 100%;

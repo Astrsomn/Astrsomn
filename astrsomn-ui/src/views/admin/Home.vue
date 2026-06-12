@@ -114,8 +114,8 @@ const handleScroll = () => {
 
 /* ============ 右侧：AppHeader + 主内容 ============ */
 .right-section {
-  width: calc(100vw - 76px - 288px);
-  flex: none;
+  flex: 1;
+  min-width: 0;
   height: 100%;
   display: flex;
   flex-direction: column;

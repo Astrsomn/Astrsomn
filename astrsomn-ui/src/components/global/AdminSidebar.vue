@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible" class="admin-sidebar-wrapper">
+  <div :class="{ 'is-collapsed': activeCenter === 'chat' && chatState.sidebarCollapsed.value }" class="admin-sidebar-wrapper">
     <!-- Chat 会话中心 -->
     <AstSidebar
         v-if="activeCenter === 'chat'"
@@ -139,5 +139,10 @@ const handleSystemSelect = (key: string) => {
   flex-direction: column;
   overflow: hidden;
   height: 100%;
+  transition: width 0.28s ease;
+}
+
+.admin-sidebar-wrapper.is-collapsed {
+  width: 56px;
 }
 </style>
