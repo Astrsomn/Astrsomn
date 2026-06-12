@@ -31,6 +31,12 @@
 
       <template v-else>
         <div v-if="instances.length" class="instance-section__grid">
+          <!-- 添加卡片 -->
+          <div class="add-card" @click="handleCreate">
+            <PlusOutlined class="add-icon"/>
+            <span class="add-text">{{ t.instance.create }}</span>
+          </div>
+
           <InstanceCard
               v-for="(instance, index) in instances"
               :key="instance.id"
@@ -41,12 +47,6 @@
               @edit="handleEdit(instance)"
               @delete="handleDeleteOne(instance.id!)"
           />
-
-          <!-- 添加卡片 -->
-          <div class="add-card" @click="handleCreate">
-            <PlusOutlined class="add-icon"/>
-            <span class="add-text">{{ t.instance.create }}</span>
-          </div>
         </div>
 
         <div v-else class="instance-section__empty">
@@ -290,6 +290,33 @@ void fetchInstances()
   align-items: start;
 }
 
+.instance-section__grid > * {
+  animation: cardEnter 0.35s ease both;
+}
+
+.instance-section__grid > *:nth-child(1) { animation-delay: 0ms; }
+.instance-section__grid > *:nth-child(2) { animation-delay: 40ms; }
+.instance-section__grid > *:nth-child(3) { animation-delay: 80ms; }
+.instance-section__grid > *:nth-child(4) { animation-delay: 120ms; }
+.instance-section__grid > *:nth-child(5) { animation-delay: 160ms; }
+.instance-section__grid > *:nth-child(6) { animation-delay: 200ms; }
+.instance-section__grid > *:nth-child(7) { animation-delay: 240ms; }
+.instance-section__grid > *:nth-child(8) { animation-delay: 280ms; }
+.instance-section__grid > *:nth-child(9) { animation-delay: 320ms; }
+.instance-section__grid > *:nth-child(10) { animation-delay: 360ms; }
+.instance-section__grid > *:nth-child(n+11) { animation-delay: 400ms; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .add-card {
   border: 2px dashed var(--border-subtle);
   background: transparent;
@@ -301,7 +328,7 @@ void fetchInstances()
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 140px;
+  height: 205px;
   color: var(--text-muted);
 }
 

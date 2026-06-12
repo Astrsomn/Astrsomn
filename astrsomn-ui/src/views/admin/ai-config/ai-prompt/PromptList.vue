@@ -371,6 +371,33 @@ void fetchList()
   gap: 14px;
 }
 
+.prompt-grid > * {
+  animation: cardEnter 0.35s ease both;
+}
+
+.prompt-grid > *:nth-child(1) { animation-delay: 0ms; }
+.prompt-grid > *:nth-child(2) { animation-delay: 40ms; }
+.prompt-grid > *:nth-child(3) { animation-delay: 80ms; }
+.prompt-grid > *:nth-child(4) { animation-delay: 120ms; }
+.prompt-grid > *:nth-child(5) { animation-delay: 160ms; }
+.prompt-grid > *:nth-child(6) { animation-delay: 200ms; }
+.prompt-grid > *:nth-child(7) { animation-delay: 240ms; }
+.prompt-grid > *:nth-child(8) { animation-delay: 280ms; }
+.prompt-grid > *:nth-child(9) { animation-delay: 320ms; }
+.prompt-grid > *:nth-child(10) { animation-delay: 360ms; }
+.prompt-grid > *:nth-child(n+11) { animation-delay: 400ms; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 
 /* ── Add Card (matching AgentSection.vue) ── */
 .add-card {

@@ -191,6 +191,33 @@ function triggerRagAdd() {
   align-content: start;
 }
 
+.integrations-grid > * {
+  animation: cardEnter 0.35s ease both;
+}
+
+.integrations-grid > *:nth-child(1) { animation-delay: 0ms; }
+.integrations-grid > *:nth-child(2) { animation-delay: 40ms; }
+.integrations-grid > *:nth-child(3) { animation-delay: 80ms; }
+.integrations-grid > *:nth-child(4) { animation-delay: 120ms; }
+.integrations-grid > *:nth-child(5) { animation-delay: 160ms; }
+.integrations-grid > *:nth-child(6) { animation-delay: 200ms; }
+.integrations-grid > *:nth-child(7) { animation-delay: 240ms; }
+.integrations-grid > *:nth-child(8) { animation-delay: 280ms; }
+.integrations-grid > *:nth-child(9) { animation-delay: 320ms; }
+.integrations-grid > *:nth-child(10) { animation-delay: 360ms; }
+.integrations-grid > *:nth-child(n+11) { animation-delay: 400ms; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (max-width: 960px) {
   .integrations-grid {
     grid-template-columns: 1fr;
