@@ -2,6 +2,7 @@
   <div
       class="card"
       :class="{ 'card-disabled': record.enabled !== 1, 'card-selected': selected }"
+      @click="emit('edit', record)"
   >
     <!-- Selection checkbox (revealed on hover) -->
     <a-checkbox

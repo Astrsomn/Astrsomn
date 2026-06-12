@@ -303,9 +303,14 @@ const openEdit = async (record: AiTemplate) => {
   const id = record.id
   if (id == null) return
 
-  const detail = await aiTemplateApi.detail(id)
-  modalInitial.value = detail
-  modal.open = true
+  try {
+    const detail = await aiTemplateApi.detail(id)
+    modalInitial.value = detail
+    modal.open = true
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || t.value.list.saveFailed)
+  }
 }
 
 const handleDeleteOne = async (id: number | string) => {

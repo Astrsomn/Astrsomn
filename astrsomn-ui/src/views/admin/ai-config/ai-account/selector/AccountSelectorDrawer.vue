@@ -1,7 +1,7 @@
 <template>
   <AstDrawer
       :open="props.open"
-      :width="520"
+      :width="640"
       @update:open="handleClose"
   >
     <template #title>{{ t.selector.title }}</template>
@@ -9,24 +9,19 @@
 
     <div class="select-drawer-content">
       <div class="toolbar-row">
-        <AstSearchInput
-            :model-value="keyword"
-            class="toolbar-search"
-            :placeholder="t.selector.searchPlaceholder"
-            @update:model-value="keyword = $event"
-            @search="handleSearch"
-        />
-        <a-button class="add-btn" type="primary" @click="accountFormOpen = true">
-          <PlusOutlined/>
-        </a-button>
-      </div>
-
-      <div class="filter-bar">
         <ExtensionSelector
             v-model:value="filterExtensionCode"
             :allow-clear="true"
             :placeholder="t.selector.filterProviderPlaceholder"
             size="middle"
+        />
+        <AstSearchInput
+            :model-value="keyword"
+            class="toolbar-search"
+            layout="fluid"
+            :placeholder="t.selector.searchPlaceholder"
+            @update:model-value="keyword = $event"
+            @search="handleSearch"
         />
       </div>
 
@@ -262,39 +257,11 @@ onMounted(() => {
 
 .toolbar-row {
   display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.toolbar-search {
-  flex: 1;
-  min-width: 0;
-}
-
-.add-btn {
-  width: 48px;
-  height: 48px;
-  flex-shrink: 0;
-  border-radius: var(--radius-md, 10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 30%, transparent);
-}
-
-.add-btn:hover {
-  transform: scale(1.06);
-  filter: brightness(1.1);
-}
-
-
-.filter-bar {
-  display: flex;
   gap: 12px;
+  flex-shrink: 0;
 }
 
-.filter-bar :deep(.model-provider-select) {
+.toolbar-row > * {
   flex: 1;
 }
 
@@ -316,7 +283,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 420px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 

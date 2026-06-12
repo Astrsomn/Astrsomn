@@ -1,7 +1,8 @@
 <template>
   <div
       class="card"
-      :class="{ 'card-disabled': record.enableFlag !== 'enabled', 'card-selected': selected }"
+      :class="{ 'card-disabled': record.status !== 'enabled', 'card-selected': selected }"
+      @click="emit('edit', record)"
   >
     <!-- Selection checkbox (revealed on hover) -->
     <a-checkbox
@@ -27,8 +28,8 @@
     <!-- Card Footer -->
     <div class="card-footer">
       <span class="meta-chip">
-        <span class="status-dot" :class="{ active: record.enableFlag === 'enabled' }"/>
-        {{ record.enableFlag === 'enabled' ? t.card.statusEnabled : t.card.statusDisabled }}
+        <span class="status-dot" :class="{ active: record.status === 'enabled' }"/>
+        {{ record.status === 'enabled' ? t.card.statusEnabled : t.card.statusDisabled }}
       </span>
       <span class="meta-chip">
         {{ record.todayCalls || '0' }} calls

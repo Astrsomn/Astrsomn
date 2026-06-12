@@ -2,6 +2,7 @@
   <div
       class="card"
       :class="{ 'card-selected': selected }"
+      @click="onEdit"
   >
     <!-- Selection checkbox (appears on hover) -->
     <a-checkbox

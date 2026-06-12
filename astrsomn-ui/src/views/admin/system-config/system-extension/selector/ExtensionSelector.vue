@@ -1,5 +1,5 @@
 <template>
-  <a-select :allow-clear="allowClear" :disabled="disabled" :loading="loading" :placeholder="placeholder || t.selector.placeholder" :size="size"
+  <a-select :allow-clear="allowClear" :disabled="disabled" :getPopupContainer="getPopupContainer" :loading="loading" :placeholder="placeholder || t.selector.placeholder" :size="size"
             :value="value" class="model-provider-select" option-filter-prop="label" @update:value="onUpdate">
     <template #label="{ label, value: val }">
       <div v-if="val" class="selected-content">
@@ -125,6 +125,10 @@ watch(
 
 function onUpdate(v: string | undefined) {
   emit('update:value', v)
+}
+
+function getPopupContainer(triggerNode: HTMLElement): HTMLElement {
+  return triggerNode.closest('.ant-drawer-body') || triggerNode.parentElement || document.body
 }
 </script>
 

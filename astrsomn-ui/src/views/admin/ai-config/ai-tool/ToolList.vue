@@ -19,7 +19,7 @@
               @search="fetchList"
           />
           <AstStatusSwitch
-              v-model="query.enableFlag"
+              v-model="query.status"
               :options="[
                 { label: t.list.status.all, value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
                 { label: t.list.status.enabled, value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
@@ -62,8 +62,8 @@
         row-key="id"
     >
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'enableFlag'">
-          <span>{{ renderEnable(String(record.enableFlag || '')) }}</span>
+        <template v-if="column.key === 'status'">
+          <span>{{ renderEnable(String(record.status || '')) }}</span>
         </template>
         <template v-else-if="column.key === 'description'">
           <span class="desc-preview">{{ preview(record.description) }}</span>
@@ -145,7 +145,7 @@ type QueryState = {
   toolName?: string
   toolKey?: string
   type?: string
-  enableFlag?: string
+  status?: string
 }
 
 const typeFilterOptions = [
@@ -173,7 +173,7 @@ const columns = computed(() => [
   {title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 140, ellipsis: true},
   {title: t.value.list.column.methodName, dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true},
   {title: t.value.list.column.description, key: 'description', width: 200, ellipsis: true},
-  {title: t.value.list.column.status, key: 'enableFlag', width: 80},
+  {title: t.value.list.column.status, key: 'status', width: 80},
   {title: t.value.list.column.envCode, dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
   {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
   {title: t.value.list.column.createUser, dataIndex: 'createUser', key: 'createUser', width: 150},
@@ -256,7 +256,7 @@ const fetchList = async () => {
         toolName: query.toolName || undefined,
         toolKey: query.toolKey || undefined,
         type: query.type || undefined,
-        enableFlag: query.enableFlag || undefined
+        enableFlag: query.status || undefined
       }
     }
     const resp: PageResponse<AiTool> = await aiToolApi.queryPage(payload)
@@ -284,9 +284,14 @@ const openEdit = async (record: AiTool) => {
   const id = record.id
   if (id == null) return
 
-  const detail = await aiToolApi.detail(id)
-  modalInitial.value = detail
-  modal.open = true
+  try {
+    const detail = await aiToolApi.detail(id)
+    modalInitial.value = detail
+    modal.open = true
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || t.value.list.saveFailed)
+  }
 }
 
 const handleDeleteOne = async (id: number | string) => {

@@ -59,7 +59,11 @@
   
 
               <a-form-item :label="t.form.statusLabel" name="status">
-                <a-select v-model:value="form.status" :options="statusOptions" size="large"/>
+                <AstStatusToggle
+                    v-model="form.status"
+                    :enabled-label="t.form.status.enabled"
+                    :disabled-label="t.form.status.disabled"
+                />
               </a-form-item>
             </div>
           </a-form>
@@ -102,6 +106,7 @@ import {html} from '@codemirror/lang-html'
 import {oneDark} from '@codemirror/theme-one-dark'
 import {CodeOutlined} from '@ant-design/icons-vue'
 import AstModal from '@/components/home/AstModal.vue'
+import AstStatusToggle from '@/components/home/AstStatusToggle.vue'
 import type {AiTemplate} from '@/api/aiTemplate.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
 
@@ -120,11 +125,6 @@ const emit = defineEmits<{
 const open = defineModel<boolean>('open', {required: true})
 
 const formRef = ref<FormInstance | null>(null)
-
-const statusOptions = computed(() => [
-  {label: t.value.form.status.enabled, value: 'enabled'},
-  {label: t.value.form.status.disabled, value: 'disabled'}
-])
 
 const templateTypeOptions = computed(() => [
   {label: t.value.form.templateType.freemarker, value: 'FREEMARKER'},

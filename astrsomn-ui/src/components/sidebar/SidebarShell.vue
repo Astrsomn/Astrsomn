@@ -34,7 +34,7 @@ withDefaults(defineProps<{
 .ast-sidebar-top {
   height: 56px;
   flex-shrink: 0;
-  padding: 0 16px;
+  padding: 0 ;
   display: flex;
   align-items: center;
   gap: 8px;
