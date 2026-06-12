@@ -1,6 +1,4 @@
 astrsomn:
-  # 与 application.yml 中 astrsomn.enabled 一致；此处可覆盖为 false 仅在不使用 starter 数据源时
-  enabled: true
   datasource:
     # 单行 JDBC URL；DATABASE_TO_UPPER=FALSE + MODE=MySQL 与 Flyway/实体大写表名一致
     url: jdbc:h2:file:D:/astrsomn/database/astro_ai;MODE=MySQL;DATABASE_TO_UPPER=FALSE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE

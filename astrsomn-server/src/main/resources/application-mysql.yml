@@ -1,5 +1,4 @@
 astrsomn:
-  enabled: true
   datasource:
     # 启动前请改成你的实例：单行 jdbc:mysql URL
     url: jdbc:mysql://127.0.0.1:3306/astro_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false

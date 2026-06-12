@@ -20,7 +20,7 @@ import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
-public class QianfanProviderHandler extends AbstractModelProviderHandler {
+public class QianFanProviderHandler extends AbstractModelProviderHandler {
     private static final String DEFAULT_BASE_URL = "https://aip.baidubce.com";
 
     @Override

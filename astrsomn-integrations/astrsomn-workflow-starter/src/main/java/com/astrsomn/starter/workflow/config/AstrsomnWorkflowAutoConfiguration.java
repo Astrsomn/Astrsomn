@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ import java.util.List;
 @AutoConfiguration
 @ConditionalOnClass(AstrsomnProperties.class)
 @ConditionalOnProperty(name = "astrsomn.datasource.url")
+@Conditional(EnableAstroWorkflowCondition.class)
 @AutoConfigureBefore(name = "com.astrsomn.starter.runtime.config.AstrsomnAutoConfiguration")
 public class AstrsomnWorkflowAutoConfiguration {
 
