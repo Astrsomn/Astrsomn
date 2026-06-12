@@ -61,7 +61,7 @@
             :loading="loading"
             mode="table"
             :row-selection="rowSelection"
-            :scroll="{ x: 1280 }"
+            :scroll="{ x: 730 }"
             :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
@@ -155,12 +155,12 @@ type QueryState = {
 }
 
 const columns = computed(() => [
-  {title: t.value.list.column.mcpKey, dataIndex: 'mcpKey', key: 'mcpKey', width: 180, ellipsis: true, copyable: true},
-  {title: t.value.list.column.serverName, dataIndex: 'serverName', key: 'serverName', width: 240},
-  {title: t.value.list.column.type, dataIndex: 'type', key: 'type', width: 120},
-  {title: t.value.list.column.enabled, key: 'enabled', width: 90},
-  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true},
-  {title: t.value.list.column.actions, key: 'actions', width: 160, fixed: 'right' as const}
+  {title: t.value.list.column.mcpKey, dataIndex: 'mcpKey', key: 'mcpKey', width: 160, ellipsis: true, copyable: true},
+  {title: t.value.list.column.serverName, dataIndex: 'serverName', key: 'serverName', width: 160, ellipsis: true},
+  {title: t.value.list.column.type, dataIndex: 'type', key: 'type', width: 90},
+  {title: t.value.list.column.enabled, key: 'enabled', width: 80},
+  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 140, dateFormat: true},
+  {title: t.value.list.column.actions, key: 'actions', width: 100, fixed: 'right' as const}
 ])
 
 const typeLabelMap: Record<string, string> = {
@@ -396,6 +396,33 @@ void fetchList()
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
+}
+
+.mcp-grid > * {
+  animation: cardEnter 0.35s ease both;
+}
+
+.mcp-grid > *:nth-child(1) { animation-delay: 0ms; }
+.mcp-grid > *:nth-child(2) { animation-delay: 40ms; }
+.mcp-grid > *:nth-child(3) { animation-delay: 80ms; }
+.mcp-grid > *:nth-child(4) { animation-delay: 120ms; }
+.mcp-grid > *:nth-child(5) { animation-delay: 160ms; }
+.mcp-grid > *:nth-child(6) { animation-delay: 200ms; }
+.mcp-grid > *:nth-child(7) { animation-delay: 240ms; }
+.mcp-grid > *:nth-child(8) { animation-delay: 280ms; }
+.mcp-grid > *:nth-child(9) { animation-delay: 320ms; }
+.mcp-grid > *:nth-child(10) { animation-delay: 360ms; }
+.mcp-grid > *:nth-child(n+11) { animation-delay: 400ms; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 

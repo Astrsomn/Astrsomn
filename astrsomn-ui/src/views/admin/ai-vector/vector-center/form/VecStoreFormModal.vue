@@ -1,15 +1,11 @@
 <template>
   <AstModal
-      :confirm-loading="confirmLoading"
-      :confirm-text="t.vecStore.form.confirmText"
-      :max-width="maxWidth"
       :open="open"
-      body-height="75vh"
-      main-padding="0"
-      max-body-height="720px"
-      width="80vw"
-      wrap-class-name="vec-store-form-wrap"
-      @confirm="handleOk"
+      :width="640"
+      :body-height="520"
+      :max-width="700"
+      :footer="null"
+      wrap-class-name="vec-store-form-modal"
       @update:open="emit('update:open', $event)"
   >
     <template #header-logo>
@@ -21,160 +17,193 @@
     <template #header-subtitle>
       {{ t.vecStore.form.subtitle }}
     </template>
-    <div class="vec-store-form-shell">
-      <div class="form-scroll-area">
-        <a-form
-            ref="formRef"
-            :model="form"
-            :rules="rules"
-            class="professional-form"
-            layout="vertical"
+
+    <div class="form-container">
+      <!-- 步骤进度指示器 -->
+      <div class="stepper-bar">
+        <div
+            v-for="(step, index) in steps"
+            :key="step.key"
+            class="stepper-item"
+            :class="{
+              'active': currentStep === index + 1,
+              'completed': currentStep > index + 1
+            }"
         >
-          <div class="form-body-container">
-            <div class="form-section">
-              <h3 class="section-headline">
-                <IdcardOutlined/>
-                {{ t.vecStore.form.basicConfig }}
-              </h3>
+          <div class="stepper-dot">
+            <component v-if="currentStep > index + 1" :is="CheckOutlined" class="w-4 h-4"/>
+            <span v-else>{{ index + 1 }}</span>
+          </div>
+          <span class="stepper-label">{{ step.label }}</span>
+        </div>
+        <div
+            class="stepper-line"
+            :class="{ completed: currentStep > 1 }"
+        />
+      </div>
 
-              <div class="form-grid">
-                <a-form-item :label="t.vecStore.form.collectionName.label" name="collectionName">
-                  <a-input v-model:value="form.collectionName" :placeholder="t.vecStore.form.collectionName.placeholder" size="large"/>
-                </a-form-item>
+      <!-- 表单内容区域 -->
+      <a-spin :spinning="loading">
+        <a-form :model="form" layout="vertical" class="modal-form">
+          <!-- 第一步：基础配置 -->
+          <div v-show="currentStep === 1" class="step-content">
+            <div class="form-grid">
+              <a-form-item :label="t.vecStore.form.collectionName.label" name="collectionName"
+                           :rules="[{ required: true, message: t.vecStore.form.validation.collectionNameRequired }]">
+                <a-input v-model:value="form.collectionName" :placeholder="t.vecStore.form.collectionName.placeholder" size="large"/>
+              </a-form-item>
 
-                <a-form-item :label="t.vecStore.form.dimension.label" name="dimension">
-                  <a-select
-                      v-model:value="form.dimension"
-                      :filter-option="filterDimensionOption"
-                      :options="dimensionOptions"
-                      allow-clear
-                      :placeholder="t.vecStore.form.dimension.placeholder"
-                      show-search
-                      size="large"
-                      style="width: 100%"
-                  />
-                  <div v-if="form.modelKey && form.dimension" class="dimension-hint">
-                    {{ t.vecStore.form.dimensionHint.replace('{model}', form.modelKey).replace('{dim}', String(form.dimension)) }}
-                  </div>
-                </a-form-item>
+              <a-form-item :label="t.vecStore.form.dimension.label" name="dimension"
+                           :rules="[{ required: true, message: t.vecStore.form.validation.dimensionRequired }]">
+                <a-select
+                    v-model:value="form.dimension"
+                    :filter-option="filterDimensionOption"
+                    :options="dimensionOptions"
+                    allow-clear
+                    :placeholder="t.vecStore.form.dimension.placeholder"
+                    show-search
+                    size="large"
+                    style="width: 100%"
+                />
+              </a-form-item>
 
-                <a-form-item :label="t.vecStore.form.distanceMetric.label" name="distanceMetric">
-                  <a-select v-model:value="form.distanceMetric" size="large">
-                    <a-select-option value="cosine">{{ t.vecStore.form.cosine }}</a-select-option>
-                    <a-select-option value="euclidean">{{ t.vecStore.form.euclidean }}</a-select-option>
-                    <a-select-option value="manhattan">{{ t.vecStore.form.manhattan }}</a-select-option>
-                  </a-select>
-                </a-form-item>
+              <a-form-item :label="t.vecStore.form.distanceMetric.label" name="distanceMetric"
+                           :rules="[{ required: true, message: t.vecStore.form.validation.distanceMetricRequired }]">
+                <a-select v-model:value="form.distanceMetric" size="large">
+                  <a-select-option value="cosine">{{ t.vecStore.form.cosine }}</a-select-option>
+                  <a-select-option value="euclidean">{{ t.vecStore.form.euclidean }}</a-select-option>
+                  <a-select-option value="manhattan">{{ t.vecStore.form.manhattan }}</a-select-option>
+                </a-select>
+              </a-form-item>
 
-                <a-form-item :label="t.vecStore.form.modelKey.label" name="modelKey">
-                  <a-space class="w-full">
-                    <a-input
-                        :value="selectedModelDisplay"
-                        disabled
-                        :placeholder="t.vecStore.form.modelKey.placeholder"
-                        size="large"
-                        style="flex: 1"
-                    />
-                    <a-button size="large" type="primary" @click="modelSelectorOpen = true">
-                      {{ t.vecStore.form.modelKey.selectBtn }}
-                    </a-button>
-                  </a-space>
-                </a-form-item>
-
-                <a-form-item :label="t.vecStore.form.accountKey.label" name="accountKey">
-                  <a-space class="w-full">
-                    <a-input
-                        :value="form.accountKey || ''"
-                        disabled
-                        :placeholder="t.vecStore.form.accountKey.placeholder"
-                        size="large"
-                        style="flex: 1"
-                    />
-                    <a-button size="large" type="primary" @click="accountSelectorOpen = true">
-                      {{ t.vecStore.form.accountKey.selectBtn }}
-                    </a-button>
-                  </a-space>
-                </a-form-item>
-
-                <a-form-item :label="t.vecStore.form.metadataSchema.label" class="span-2" name="metadataSchema">
-                  <div class="json-editor-wrapper">
-                    <a-textarea
-                        v-model:value="form.metadataSchema"
-                        :auto-size="{ minRows: 4, maxRows: 6 }"
-                        class="mono-text"
-                        placeholder='{"type": "object", "properties": {"title": {"type": "string"}}}'
-                    />
-                  </div>
-                </a-form-item>
-              </div>
-            </div>
-
-            <div class="form-section">
-              <h3 class="section-headline">
-                <ScissorOutlined/>
-                {{ t.vecStore.form.chunkConfig }}
-              </h3>
-
-              <div class="form-grid">
-                <a-form-item :label="t.vecStore.form.chunkStrategy.label" name="chunkStrategy">
-                  <a-select v-model:value="form.chunkStrategy" size="large">
-                    <a-select-option value="RECURSIVE">{{ t.vecStore.form.chunkRecursive }}</a-select-option>
-                    <a-select-option value="FIXED_SIZE">{{ t.vecStore.form.chunkFixedSize }}</a-select-option>
-                    <a-select-option value="PARAGRAPH">{{ t.vecStore.form.chunkParagraph }}</a-select-option>
-                    <a-select-option value="SENTENCE">{{ t.vecStore.form.chunkSentence }}</a-select-option>
-                  </a-select>
-                </a-form-item>
-
-                <a-form-item :label="t.vecStore.form.chunkSize.label" name="chunkSize">
-                  <a-input-number
-                      v-model:value="form.chunkSize"
-                      :max="4000"
-                      :min="100"
-                      :placeholder="t.vecStore.form.chunkSize.placeholder"
-                      size="large"
-                      style="width: 100%"
-                  />
-                </a-form-item>
-
-                <a-form-item :label="t.vecStore.form.chunkOverlap.label" name="chunkOverlap">
-                  <a-input-number
-                      v-model:value="form.chunkOverlap"
-                      :max="500"
-                      :min="0"
-                      :placeholder="t.vecStore.form.chunkOverlap.placeholder"
-                      size="large"
-                      style="width: 100%"
-                  />
-                </a-form-item>
-
-                <a-form-item :label="t.vecStore.form.denseWeight.label" name="denseWeight">
-                  <a-slider
-                      v-model:value="form.denseWeight"
-                      :max="1"
-                      :min="0"
-                      :step="0.05"
-                      :tooltip-formatter="(v: any) => Number(v).toFixed(2)"
-                  />
-                  <div class="dimension-hint">{{ t.vecStore.form.denseWeight.hint }}</div>
-                </a-form-item>
-
-                <a-form-item :label="t.vecStore.form.instructionPrefix.label" class="span-2" name="instructionPrefix">
+              <a-form-item :label="t.vecStore.form.modelKey.label" name="modelKey"
+                           :rules="[{ required: true, message: t.vecStore.form.validation.modelKeyRequired }]">
+                <div class="selector-row">
                   <a-input
-                      v-model:value="form.instructionPrefix"
-                      :placeholder="t.vecStore.form.instructionPrefix.placeholder"
+                      :value="selectedModelDisplay"
+                      disabled
+                      :placeholder="t.vecStore.form.modelKey.placeholder"
                       size="large"
                   />
-                  <div class="dimension-hint">{{ t.vecStore.form.instructionPrefix.hint }}</div>
-                </a-form-item>
-              </div>
+                  <a-button size="large" type="primary" @click="modelSelectorOpen = true">
+                    {{ t.vecStore.form.modelKey.selectBtn }}
+                  </a-button>
+                </div>
+              </a-form-item>
+
+              <a-form-item :label="t.vecStore.form.accountKey.label" name="accountKey" class="span-2">
+                <div class="selector-row">
+                  <a-input
+                      :value="form.accountKey || ''"
+                      disabled
+                      :placeholder="t.vecStore.form.accountKey.placeholder"
+                      size="large"
+                  />
+                  <a-button size="large" type="primary" @click="accountSelectorOpen = true">
+                    {{ t.vecStore.form.accountKey.selectBtn }}
+                  </a-button>
+                </div>
+              </a-form-item>
+            </div>
+          </div>
+
+          <!-- 第二步：分块配置 -->
+          <div v-show="currentStep === 2" class="step-content">
+            <div class="form-grid">
+              <a-form-item :label="t.vecStore.form.chunkStrategy.label" name="chunkStrategy">
+                <a-select v-model:value="form.chunkStrategy" size="large">
+                  <a-select-option value="RECURSIVE">{{ t.vecStore.form.chunkRecursive }}</a-select-option>
+                  <a-select-option value="FIXED_SIZE">{{ t.vecStore.form.chunkFixedSize }}</a-select-option>
+                  <a-select-option value="PARAGRAPH">{{ t.vecStore.form.chunkParagraph }}</a-select-option>
+                  <a-select-option value="SENTENCE">{{ t.vecStore.form.chunkSentence }}</a-select-option>
+                </a-select>
+              </a-form-item>
+
+              <a-form-item :label="t.vecStore.form.chunkSize.label" name="chunkSize">
+                <a-input-number
+                    v-model:value="form.chunkSize"
+                    :max="4000"
+                    :min="100"
+                    :placeholder="t.vecStore.form.chunkSize.placeholder"
+                    size="large"
+                    style="width: 100%"
+                />
+              </a-form-item>
+
+              <a-form-item :label="t.vecStore.form.chunkOverlap.label" name="chunkOverlap">
+                <a-input-number
+                    v-model:value="form.chunkOverlap"
+                    :max="500"
+                    :min="0"
+                    :placeholder="t.vecStore.form.chunkOverlap.placeholder"
+                    size="large"
+                    style="width: 100%"
+                />
+              </a-form-item>
+
+              <a-form-item :label="t.vecStore.form.denseWeight.label" name="denseWeight">
+                <a-slider
+                    v-model:value="form.denseWeight"
+                    :max="1"
+                    :min="0"
+                    :step="0.05"
+                    :tooltip-formatter="(v: any) => Number(v).toFixed(2)"
+                />
+              </a-form-item>
+
+              <a-form-item :label="t.vecStore.form.instructionPrefix.label" name="instructionPrefix" class="span-2">
+                <a-input
+                    v-model:value="form.instructionPrefix"
+                    :placeholder="t.vecStore.form.instructionPrefix.placeholder"
+                    size="large"
+                />
+              </a-form-item>
+
+              <a-form-item :label="t.vecStore.form.metadataSchema.label" name="metadataSchema" class="span-2">
+                <a-textarea
+                    v-model:value="form.metadataSchema"
+                    :auto-size="{ minRows: 2, maxRows: 4 }"
+                    class="mono-text"
+                    placeholder='{"type": "object", "properties": {"title": {"type": "string"}}}'
+                />
+              </a-form-item>
             </div>
           </div>
         </a-form>
+      </a-spin>
 
-        <div class="modal-footer-info">
-          <SafetyCertificateOutlined/>
-          {{ t.vecStore.form.securityInfo }}
+      <!-- 底部按钮区域 -->
+      <div class="form-footer">
+        <div class="footer-left">
+          <a-button
+              v-if="currentStep > 1"
+              type="text"
+              class="footer-btn prev-btn"
+              @click="prevStep"
+          >
+            <ArrowLeftOutlined/>
+            {{ t.vecStore.form.btnPrev }}
+          </a-button>
+          <a-button
+              v-else
+              type="text"
+              class="footer-btn cancel-btn"
+              @click="handleCancel"
+          >
+            {{ t.vecStore.form.btnCancel }}
+          </a-button>
         </div>
+        <a-button
+            :loading="confirmLoading"
+            type="primary"
+            class="footer-btn next-btn"
+            :class="{ 'create-btn': currentStep === 2 }"
+            @click="handleNext"
+        >
+          <span>{{ currentStep === 2 ? (mode === 'edit' ? t.vecStore.form.btnSave : t.vecStore.form.btnCreate) : t.vecStore.form.btnNext }}</span>
+          <CheckOutlined v-if="currentStep === 2"/>
+          <ArrowRightOutlined v-else/>
+        </a-button>
       </div>
     </div>
 
@@ -194,35 +223,45 @@
 
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
-import {DatabaseOutlined, IdcardOutlined, SafetyCertificateOutlined, ScissorOutlined} from '@ant-design/icons-vue'
-import type {FormInstance} from 'ant-design-vue'
-import type {AiVecStore} from '@/api/aiVecStore.ts'
+import {message} from 'ant-design-vue'
+import {
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
+  CheckOutlined,
+  DatabaseOutlined
+} from '@ant-design/icons-vue'
 import AstModal from '@/components/home/AstModal.vue'
 import ModelSelectorDrawer from '@/views/admin/ai-config/ai-model/selector/ModelSelectorDrawer.vue'
 import AccountSelectorDrawer from '@/views/admin/ai-config/ai-account/selector/AccountSelectorDrawer.vue'
 import type {AiModel} from '@/api/aiModel.ts'
 import type {AiAccount} from '@/api/aiAccount.ts'
+import type {AiVecStore} from '@/api/aiVecStore.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
 
 const t = usePageTranslation('ai-vector')
 
 const props = defineProps<{
-  mode: 'create' | 'edit',
-  confirmLoading: boolean,
-  initial: AiVecStore | null,
+  mode: 'create' | 'edit'
+  confirmLoading: boolean
+  initial: AiVecStore | null
   defaultSourceId?: number | string | null
 }>()
 const emit = defineEmits<{
-  submit: [payload: AiVecStore],
+  submit: [payload: AiVecStore]
   'update:open': [value: boolean]
 }>()
 const open = defineModel<boolean>('open', {required: true})
-const maxWidth = computed(() => 'min(80vw, 1000px)')
 
-const formRef = ref<FormInstance | null>(null)
+const loading = ref(false)
+const currentStep = ref(1)
 const modelSelectorOpen = ref(false)
 const accountSelectorOpen = ref(false)
 const selectedModelName = ref('')
+
+const steps = [
+  {key: 'basic', label: t.value.vecStore.form.basicConfig},
+  {key: 'chunk', label: t.value.vecStore.form.chunkConfig}
+]
 
 const dimensionOptions = computed(() => [
   {value: 256, label: t.value.vecStore.form.dimLabels[256]},
@@ -259,13 +298,6 @@ function emptyForm(): AiVecStore {
 
 const form = reactive<AiVecStore>(emptyForm())
 
-const rules = computed(() => ({
-  collectionName: [{required: true, message: t.value.vecStore.form.validation.collectionNameRequired}],
-  dimension: [{required: true, message: t.value.vecStore.form.validation.dimensionRequired}],
-  distanceMetric: [{required: true, message: t.value.vecStore.form.validation.distanceMetricRequired}],
-  modelKey: [{required: true, message: t.value.vecStore.form.validation.modelKeyRequired}]
-}))
-
 const selectedModelDisplay = computed(() => {
   if (!form.modelKey) return ''
   return selectedModelName.value
@@ -280,6 +312,7 @@ function assignFromInitial(src: AiVecStore) {
 
 watch(() => [open.value, props.initial, props.defaultSourceId] as const, ([isOpen, initial, defaultSourceId]) => {
   if (isOpen) {
+    currentStep.value = 1
     if (initial && Object.keys(initial).length > 0) {
       assignFromInitial(initial)
     } else {
@@ -306,146 +339,169 @@ function handleAccountSelect(account: AiAccount) {
   accountSelectorOpen.value = false
 }
 
-async function handleOk() {
-  await formRef.value?.validate()
+const validateStep = (step: number): boolean => {
+  if (step === 1) {
+    if (!form.collectionName?.trim()) {
+      message.error(t.value.vecStore.form.validation.collectionNameRequired)
+      return false
+    }
+    if (!form.dimension) {
+      message.error(t.value.vecStore.form.validation.dimensionRequired)
+      return false
+    }
+    if (!form.modelKey) {
+      message.error(t.value.vecStore.form.validation.modelKeyRequired)
+      return false
+    }
+  }
+  return true
+}
+
+const prevStep = () => {
+  if (currentStep.value > 1) currentStep.value--
+}
+
+const handleNext = () => {
+  if (currentStep.value < 2) {
+    if (validateStep(currentStep.value)) currentStep.value++
+  } else {
+    onSubmit()
+  }
+}
+
+const handleCancel = () => {
+  open.value = false
+  currentStep.value = 1
+}
+
+const onSubmit = async () => {
   const payload: AiVecStore = {...form}
   emit('submit', payload)
 }
-
 </script>
 
 <style scoped>
-:global(.vec-store-form-wrap.ant-modal-wrap) {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-:global(.vec-store-form-wrap .ant-modal) {
-  top: 0;
-  padding-bottom: 0;
-}
-
-.vec-store-form-shell {
+.form-container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 0;
+  padding: 0 24px;
   overflow: hidden;
 }
 
-.form-scroll-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow-y: auto;
-  background: var(--bg-surface);
-}
-
-.form-scroll-area::-webkit-scrollbar {
-  width: 4px;
-}
-
-.form-scroll-area::-webkit-scrollbar-thumb {
-  background: var(--border-input);
-  border-radius: 4px;
-}
-
-.professional-form {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.form-body-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px 40px;
-}
-
-.form-section {
-  animation: fadeIn 0.25s ease;
-}
-
-.section-headline {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 16px;
+.stepper-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--text-primary);
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 20px;
+}
+
+.stepper-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.stepper-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.stepper-item.active .stepper-dot {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.stepper-item.completed .stepper-dot {
+  background: var(--success);
+  color: #fff;
+}
+
+.stepper-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.stepper-item.active .stepper-label {
+  color: var(--text-heading);
+  font-weight: 600;
+}
+
+.stepper-item.completed .stepper-label {
+  color: var(--success);
+}
+
+.stepper-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border-default);
+  margin: 0 8px;
+  border-radius: 1px;
+  transition: background 0.3s ease;
+}
+
+.stepper-line.completed {
+  background: var(--success);
+}
+
+.modal-form {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px 24px;
+  gap: 0 16px;
+  min-width: 0;
+}
+
+.form-grid :deep(.ant-form-item) {
+  min-width: 0;
+}
+
+.form-grid :deep(.ant-form-item-control-input) {
+  min-width: 0;
 }
 
 .span-2 {
   grid-column: span 2;
 }
 
-.dimension-hint {
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--success);
-  font-weight: 500;
-  line-height: 1.5;
-}
-
-.dimension-hint b {
-  color: var(--primary);
-}
-
-.instance-info {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--primary);
-  font-weight: 600;
-}
-
-.json-editor-wrapper {
-  border: 1px solid var(--border-input);
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--bg-input);
-  transition: 0.3s;
-}
-
-.json-editor-wrapper:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 15%, transparent);
-}
-
-.mono-text {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  font-size: 13px;
-  background: transparent;
-  border: none;
-  padding: 12px;
-}
-
-.mono-text:focus {
-  box-shadow: none;
-}
-
-.modal-footer-info {
-  flex-shrink: 0;
-  padding: 16px 40px;
-  background: var(--bg-card);
-  border-top: 1px solid var(--border-default);
-  font-size: 12px;
-  color: var(--success);
+.selector-row {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  gap: 8px;
+  min-width: 0;
 }
 
-@keyframes fadeIn {
+.selector-row :deep(.ant-input) {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-content {
+  animation: stepFadeIn 0.25s ease;
+  overflow-x: hidden;
+}
+
+@keyframes stepFadeIn {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -456,21 +512,69 @@ async function handleOk() {
   }
 }
 
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
+.mono-text {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+}
 
-  .span-2 {
-    grid-column: span 1;
-  }
+.form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-default);
+  margin-top: 20px;
+}
 
-  .form-body-container {
-    padding: 16px 20px;
-  }
+.footer-left {
+  display: flex;
+  align-items: center;
+}
 
-  .modal-footer-info {
-    padding: 12px 20px;
-  }
+.footer-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn {
+  color: var(--text-muted);
+}
+
+.cancel-btn:hover {
+  color: var(--text-heading);
+  background: var(--bg-elevated);
+}
+
+.prev-btn {
+  color: var(--text-muted);
+}
+
+.prev-btn:hover {
+  color: var(--text-heading);
+  background: var(--bg-elevated);
+}
+
+.next-btn {
+  background: var(--primary);
+  color: #fff;
+  padding: 8px 20px;
+}
+
+.next-btn:hover {
+  background: color-mix(in srgb, var(--primary) 90%, #000);
+}
+
+.next-btn.create-btn {
+  background: var(--success);
+}
+
+.next-btn.create-btn:hover {
+  background: color-mix(in srgb, var(--success) 90%, #000);
 }
 </style>

@@ -93,30 +93,11 @@
             </a-form-item>
 
             <a-form-item :label="t.form.labelStatus" name="status">
-              <div class="status-toggle">
-                <div
-                    class="status-toggle-bg"
-                    :class="{ 'active': form.status === 'enabled' }"
-                />
-                <a-button
-                    type="text"
-                    class="status-btn"
-                    :class="{ active: form.status === 'enabled' }"
-                    @click="form.status = 'enabled'"
-                >
-                  <span class="status-dot enabled"></span>
-                  {{ t.form.statusEnabled }}
-                </a-button>
-                <a-button
-                    type="text"
-                    class="status-btn"
-                    :class="{ active: form.status === 'disabled' }"
-                    @click="form.status = 'disabled'"
-                >
-                  <span class="status-dot disabled"></span>
-                  {{ t.form.statusDisabled }}
-                </a-button>
-              </div>
+              <AstStatusToggle
+                  v-model="form.status"
+                  :enabled-label="t.form.statusEnabled"
+                  :disabled-label="t.form.statusDisabled"
+              />
             </a-form-item>
           </div>
 
@@ -273,6 +254,7 @@ import {
   ReloadOutlined
 } from '@ant-design/icons-vue'
 import AstModal from '@/components/home/AstModal.vue'
+import AstStatusToggle from '@/components/home/AstStatusToggle.vue'
 import ExtensionSelector from '@/views/admin/system-config/system-extension/selector/ExtensionSelector.vue'
 import {type AiAccount, aiAccountApi} from '@/api/aiAccount.ts'
 import {AI_ACCOUNT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes.ts'
@@ -635,64 +617,6 @@ watch(() => form.extensionCode, (code) => {
   to {
     transform: rotate(360deg);
   }
-}
-
-.status-toggle {
-  display: flex;
-  align-items: center;
-  background: var(--bg-elevated);
-  border-radius: 8px;
-  padding: 2px;
-  position: relative;
-  height: 44px;
-}
-
-.status-toggle-bg {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 50%;
-  bottom: 2px;
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.3s ease;
-}
-
-.status-toggle-bg.active {
-  transform: translateX(100%);
-}
-
-.status-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 40px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-muted);
-  transition: color 0.3s ease;
-  z-index: 1;
-}
-
-.status-btn.active {
-  color: var(--primary);
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.status-dot.enabled {
-  background: var(--success);
-}
-
-.status-dot.disabled {
-  background: var(--text-muted);
 }
 
 .icon-input {

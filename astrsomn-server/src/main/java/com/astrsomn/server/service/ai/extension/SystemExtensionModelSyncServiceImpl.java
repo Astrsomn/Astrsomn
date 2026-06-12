@@ -2,7 +2,6 @@ package com.astrsomn.server.service.ai.extension;
 
 import com.astrsomn.api.runtime.common.constant.AiModelEnum;
 import com.astrsomn.api.runtime.common.entity.AiAccountEntity;
-import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
 import com.astrsomn.api.runtime.common.entity.AiModelEntity;
 import com.astrsomn.api.runtime.common.langchain.extension.model.ModelProviderHandler;
 import com.astrsomn.common.base.BaseResponse;
@@ -10,6 +9,8 @@ import com.astrsomn.common.base.BusinessException;
 import com.astrsomn.common.utils.CollectionUtils;
 import com.astrsomn.common.utils.CryptoUtil;
 import com.astrsomn.common.utils.StringUtils;
+import com.astrsomn.server.mapper.AiInstanceMapper;
+import com.astrsomn.server.mapper.AiModelMapper;
 import com.astrsomn.server.service.ai.AiAccountService;
 import com.astrsomn.server.service.ai.AiModelService;
 import com.astrsomn.server.service.system.extension.base.SystemExtensionService;
@@ -17,8 +18,6 @@ import com.astrsomn.server.service.system.extension.base.SystemExtensionService;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.context.EnvRuntime;
 import com.astrsomn.starter.runtime.langchain.factory.AstroModelFactory;
-import com.astrsomn.starter.runtime.mapper.AstAiInstanceMapper;
-import com.astrsomn.starter.runtime.mapper.AstAiModelMapper;
 import com.astrsomn.system.constant.SystemExtensionEnum;
 import com.astrsomn.system.dto.extension.ExtensionModelLoadPreviewDTO;
 import com.astrsomn.system.dto.extension.ExtensionModelSyncPreviewRowDTO;
@@ -40,8 +39,8 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
     private final AiAccountService aiAccountService;
     private final AstroModelFactory astroModelFactory;
     private final AiModelService aiModelService;
-    private final AstAiModelMapper aiModelMapper;
-    private final AstAiInstanceMapper aiInstanceMapper;
+    private final AiModelMapper aiModelMapper;
+    private final AiInstanceMapper aiInstanceMapper;
 
     private final AstrsomnProperties astrsomnProperties;
 
@@ -97,6 +96,9 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             selectedModelKeys.addAll(Arrays.asList(modelKeys.split(",")));
         }
 
+        // Batch query: fetch all existing model keys for this extensionCode + envCode in ONE SQL
+        Set<String> existingKeys = aiModelMapper.selectExistingModelKeys(ctx.extensionCode(), ctx.envCode());
+
         int added = 0;
         int skipped = 0;
         for (AiModelEntity src : available) {
@@ -116,13 +118,8 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 rowProvider = ctx.extensionCode();
             }
 
-            long exists = aiModelMapper.selectCount(
-                    new LambdaQueryWrapper<AiModelEntity>()
-                            .eq(AiModelEntity::getModelKey, modelKey)
-                            .eq(AiModelEntity::getExtensionCode, rowProvider)
-                            .eq(AiModelEntity::getEnvCode, ctx.envCode())
-                            .eq(AiModelEntity::getDeleted, false));
-            if (exists > 0) {
+            // In-memory check instead of per-model SQL query
+            if (existingKeys.contains(modelKey)) {
                 skipped++;
                 continue;
             }
@@ -138,6 +135,7 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
 
             if (result) {
                 added++;
+                existingKeys.add(modelKey);
             } else {
                 skipped++;
             }
@@ -162,6 +160,9 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             selectedModelKeys.addAll(Arrays.asList(modelKeys.split(",")));
         }
 
+        // Batch query: fetch all referenced model keys in ONE SQL
+        Set<String> referencedKeys = aiInstanceMapper.selectReferencedModelKeys(pe.envCode());
+
         int removed = 0;
         int skipped = 0;
         List<String> blockedKeys = new ArrayList<>();
@@ -180,7 +181,8 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 continue;
             }
 
-            if (isModelKeyReferencedByInstance(mk, pe.envCode())) {
+            // In-memory check instead of per-model SQL query
+            if (referencedKeys.contains(mk)) {
                 skipped++;
                 blockedKeys.add(mk);
                 continue;
@@ -220,6 +222,9 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
             return BaseResponse.success(dto);
         }
 
+        // Batch query: fetch all existing model keys for this extensionCode + envCode in ONE SQL
+        Set<String> existingKeys = aiModelMapper.selectExistingModelKeys(ctx.extensionCode(), ctx.envCode());
+
         for (AiModelEntity src : available) {
             String modelKey = StringUtils.trimToNull(src.getModelKey());
             if (modelKey == null) {
@@ -231,14 +236,9 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                 rowProvider = ctx.extensionCode();
             }
 
-            long exists = aiModelMapper.selectCount(
-                    new LambdaQueryWrapper<AiModelEntity>()
-                            .eq(AiModelEntity::getModelKey, modelKey)
-                            .eq(AiModelEntity::getExtensionCode, rowProvider)
-                            .eq(AiModelEntity::getEnvCode, ctx.envCode())
-                            .eq(AiModelEntity::getDeleted, false));
+            // In-memory check instead of per-model SQL query
             ExtensionModelSyncPreviewRowDTO row = toPreviewRow(src, rowProvider);
-            if (exists > 0) {
+            if (existingKeys.contains(modelKey)) {
                 dto.getSkippedExisting().add(row);
             } else {
                 dto.getToCreate().add(row);
@@ -258,13 +258,17 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
                         .eq(AiModelEntity::getEnvCode, pe.envCode())
                         .eq(AiModelEntity::getDeleted, false));
 
+        // Batch query: fetch all referenced model keys in ONE SQL
+        Set<String> referencedKeys = aiInstanceMapper.selectReferencedModelKeys(pe.envCode());
+
         for (AiModelEntity row : rows) {
             if (row.getId() == null) {
                 continue;
             }
             ExtensionModelSyncPreviewRowDTO previewRow = toPreviewRow(row, pe.extensionCode());
             String mk = StringUtils.trimToNull(row.getModelKey());
-            if (mk != null && isModelKeyReferencedByInstance(mk, pe.envCode())) {
+            // In-memory check instead of per-model SQL query
+            if (mk != null && referencedKeys.contains(mk)) {
                 dto.getKeptReferenced().add(previewRow);
             } else {
                 dto.getToRemove().add(previewRow);
@@ -315,17 +319,6 @@ public class SystemExtensionModelSyncServiceImpl implements SystemExtensionModel
 
 
         return StringUtils.trimToNull(EnvRuntime.resolveEffectiveEnvCode(astrsomnProperties));
-    }
-
-    private boolean isModelKeyReferencedByInstance(String modelKey, String envCode) {
-        if (StringUtils.isBlank(modelKey) || StringUtils.isBlank(envCode)) {
-            return false;
-        }
-        return aiInstanceMapper.selectCount(
-                new LambdaQueryWrapper<AiInstanceEntity>()
-                        .eq(AiInstanceEntity::getModelKey, modelKey.trim())
-                        .eq(AiInstanceEntity::getEnvCode, envCode.trim()))
-                > 0;
     }
 
     private record ProviderEnv(String extensionCode, String envCode) {

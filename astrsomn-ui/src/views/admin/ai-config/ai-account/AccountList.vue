@@ -63,7 +63,7 @@
             :loading="loading"
             mode="table"
             :row-selection="rowSelection"
-            :scroll="{ x: 1180 }"
+            :scroll="{ x: 1070 }"
             :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
@@ -188,32 +188,28 @@ const columns = computed(() => [
     title: t.value.list.colProvider,
     key: 'providerAvatar',
     dataIndex: 'providerAvatar',
-    width: 80,
+    width: 60,
     align: 'center',
     enableBase64Render: true
   },
-  {title: t.value.list.colAccountName, dataIndex: 'accountName', key: 'accountName', width: 180, ellipsis: true},
-  {title: t.value.list.colAccountKey, dataIndex: 'accountKey', key: 'accountKey', width: 180, ellipsis: true, copyable: true},
-  {title: t.value.list.colCallCount, dataIndex: 'callCount', key: 'callCount', width: 140, align: 'center'},
-  {title: t.value.list.colTotalTokens, dataIndex: 'totalTokens', key: 'totalTokens', width: 170, align: 'center'},
-  {title: t.value.list.colAccountTokens, dataIndex: 'accountTokens', key: 'accountTokens', width: 170, align: 'center'},
-  {title: t.value.list.colRemainingTokens, key: 'remainingTokens', width: 170, align: 'center'},
-
-  {title: t.value.list.colExtensionName, dataIndex: 'extensionName', key: 'extensionName', width: 120, ellipsis: true},
-  {title: t.value.list.colApiUrl, dataIndex: 'apiUrl', key: 'apiUrl', width: 120, ellipsis: true},
+  {title: t.value.list.colAccountName, dataIndex: 'accountName', key: 'accountName', width: 140, ellipsis: true},
+  {title: t.value.list.colAccountKey, dataIndex: 'accountKey', key: 'accountKey', width: 150, ellipsis: true, copyable: true},
+  {title: t.value.list.colCallCount, dataIndex: 'callCount', key: 'callCount', width: 100, align: 'center'},
+  {title: t.value.list.colTotalTokens, dataIndex: 'totalTokens', key: 'totalTokens', width: 120, align: 'center'},
+  {title: t.value.list.colAccountTokens, dataIndex: 'accountTokens', key: 'accountTokens', width: 120, align: 'center'},
+  {title: t.value.list.colRemainingTokens, key: 'remainingTokens', width: 120, align: 'center'},
+  {title: t.value.list.colExtensionName, dataIndex: 'extensionName', key: 'extensionName', width: 100, ellipsis: true},
   {
     title: t.value.list.colStatus,
     dataIndex: 'status',
     key: 'status',
-    width: 120,
+    width: 80,
     ellipsis: true,
     tag: true,
     tagColor: (status: string) => status === 'enabled' ? 'green' : 'red'
   },
-  {title: t.value.list.colEnvCode, dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true, tag: true, tagColor: 'blue'},
-  {title: t.value.list.colCreateTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-  {title: t.value.list.colCreateUser, dataIndex: 'createUser', key: 'createUser', width: 150},
-  {title: t.value.list.colActions, key: 'actions', width: 220, fixed: 'right' as const}
+  {title: t.value.list.colCreateTime, dataIndex: 'createTime', key: 'createTime', width: 140, dateFormat: true},
+  {title: t.value.list.colActions, key: 'actions', width: 140, fixed: 'right' as const}
 ])
 
 const query = reactive<QueryState>({})
@@ -428,6 +424,33 @@ const openModelsDrawer = async (account: AiAccount) => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
+}
+
+.account-grid > * {
+  animation: cardEnter 0.35s ease both;
+}
+
+.account-grid > *:nth-child(1) { animation-delay: 0ms; }
+.account-grid > *:nth-child(2) { animation-delay: 40ms; }
+.account-grid > *:nth-child(3) { animation-delay: 80ms; }
+.account-grid > *:nth-child(4) { animation-delay: 120ms; }
+.account-grid > *:nth-child(5) { animation-delay: 160ms; }
+.account-grid > *:nth-child(6) { animation-delay: 200ms; }
+.account-grid > *:nth-child(7) { animation-delay: 240ms; }
+.account-grid > *:nth-child(8) { animation-delay: 280ms; }
+.account-grid > *:nth-child(9) { animation-delay: 320ms; }
+.account-grid > *:nth-child(10) { animation-delay: 360ms; }
+.account-grid > *:nth-child(n+11) { animation-delay: 400ms; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 

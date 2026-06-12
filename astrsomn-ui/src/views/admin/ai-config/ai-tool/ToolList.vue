@@ -19,7 +19,7 @@
               @search="fetchList"
           />
           <AstStatusSwitch
-              v-model="query.enableFlag"
+              v-model="query.status"
               :options="[
                 { label: t.list.status.all, value: undefined, color: '#6366f1', icon: CheckCircleOutlined },
                 { label: t.list.status.enabled, value: 'enabled', color: '#10b981', icon: CheckCircleOutlined },
@@ -57,13 +57,13 @@
         :loading="loading"
         mode="table"
         :row-selection="rowSelection"
-        :scroll="{ x: 1180 }"
+        :scroll="{ x: 960 }"
         :empty-text="t.list.emptyMatchText"
         row-key="id"
     >
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'enableFlag'">
-          <span>{{ renderEnable(String(record.enableFlag || '')) }}</span>
+        <template v-if="column.key === 'status'">
+          <span>{{ renderEnable(String(record.status || '')) }}</span>
         </template>
         <template v-else-if="column.key === 'description'">
           <span class="desc-preview">{{ preview(record.description) }}</span>
@@ -145,7 +145,7 @@ type QueryState = {
   toolName?: string
   toolKey?: string
   type?: string
-  enableFlag?: string
+  status?: string
 }
 
 const typeFilterOptions = [
@@ -167,17 +167,15 @@ const preview = (raw: string | undefined) => {
 }
 
 const columns = computed(() => [
-  {title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 180, ellipsis: true, copyable: true},
-  {title: t.value.list.column.toolName, dataIndex: 'toolName', key: 'toolName', width: 140, ellipsis: true},
-  {title: t.value.list.column.type, dataIndex: 'type', key: 'type', width: 90},
-  {title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 140, ellipsis: true},
-  {title: t.value.list.column.methodName, dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true},
-  {title: t.value.list.column.description, key: 'description', width: 200, ellipsis: true},
-  {title: t.value.list.column.status, key: 'enableFlag', width: 80},
-  {title: t.value.list.column.envCode, dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
-  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-  {title: t.value.list.column.createUser, dataIndex: 'createUser', key: 'createUser', width: 150},
-  {title: t.value.list.column.actions, key: 'actions', width: 100, fixed: 'right' as const}
+  {title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 160, ellipsis: true, copyable: true},
+  {title: t.value.list.column.toolName, dataIndex: 'toolName', key: 'toolName', width: 120, ellipsis: true},
+  {title: t.value.list.column.type, dataIndex: 'type', key: 'type', width: 80},
+  {title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 120, ellipsis: true},
+  {title: t.value.list.column.methodName, dataIndex: 'methodName', key: 'methodName', width: 110, ellipsis: true},
+  {title: t.value.list.column.description, key: 'description', width: 160, ellipsis: true},
+  {title: t.value.list.column.status, key: 'status', width: 80},
+  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 140, dateFormat: true},
+  {title: t.value.list.column.actions, key: 'actions', width: 90, fixed: 'right' as const}
 ])
 
 const query = reactive<QueryState>({})
@@ -256,7 +254,7 @@ const fetchList = async () => {
         toolName: query.toolName || undefined,
         toolKey: query.toolKey || undefined,
         type: query.type || undefined,
-        enableFlag: query.enableFlag || undefined
+        enableFlag: query.status || undefined
       }
     }
     const resp: PageResponse<AiTool> = await aiToolApi.queryPage(payload)
@@ -284,9 +282,14 @@ const openEdit = async (record: AiTool) => {
   const id = record.id
   if (id == null) return
 
-  const detail = await aiToolApi.detail(id)
-  modalInitial.value = detail
-  modal.open = true
+  try {
+    const detail = await aiToolApi.detail(id)
+    modalInitial.value = detail
+    modal.open = true
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || t.value.list.saveFailed)
+  }
 }
 
 const handleDeleteOne = async (id: number | string) => {
@@ -356,6 +359,33 @@ void fetchList()
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
+}
+
+.tool-grid > * {
+  animation: cardEnter 0.35s ease both;
+}
+
+.tool-grid > *:nth-child(1) { animation-delay: 0ms; }
+.tool-grid > *:nth-child(2) { animation-delay: 40ms; }
+.tool-grid > *:nth-child(3) { animation-delay: 80ms; }
+.tool-grid > *:nth-child(4) { animation-delay: 120ms; }
+.tool-grid > *:nth-child(5) { animation-delay: 160ms; }
+.tool-grid > *:nth-child(6) { animation-delay: 200ms; }
+.tool-grid > *:nth-child(7) { animation-delay: 240ms; }
+.tool-grid > *:nth-child(8) { animation-delay: 280ms; }
+.tool-grid > *:nth-child(9) { animation-delay: 320ms; }
+.tool-grid > *:nth-child(10) { animation-delay: 360ms; }
+.tool-grid > *:nth-child(n+11) { animation-delay: 400ms; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 

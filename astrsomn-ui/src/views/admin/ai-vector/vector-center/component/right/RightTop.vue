@@ -13,7 +13,7 @@
             <span class="host-text">{{ source?.host }}{{ source.port ? ':' + source.port : '' }}</span>
           </div>
           <a-input 
-            v-model:value="libraryName" 
+            v-model:value="libraryName"
             :placeholder="t.vectorCenter.rightTop.libraryNamePlaceholder"
             class="ultra-minimal-input name-input"
           />

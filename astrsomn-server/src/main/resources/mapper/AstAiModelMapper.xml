@@ -56,4 +56,12 @@
           AND (AM.DELETED = 0 OR AM.DELETED IS NULL)
     </select>
 
+    <select id="selectExistingModelKeys" resultType="java.lang.String">
+        SELECT MODEL_KEY
+        FROM `AI_MODEL`
+        WHERE EXTENSION_CODE = #{extensionCode}
+          AND ENV_CODE = #{envCode}
+          AND (DELETED = 0 OR DELETED IS NULL)
+    </select>
+
 </mapper>

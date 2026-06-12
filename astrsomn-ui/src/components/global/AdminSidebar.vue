@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible" class="admin-sidebar-wrapper">
+  <div :class="{ 'is-collapsed': activeCenter === 'chat' && chatState.sidebarCollapsed.value }" class="admin-sidebar-wrapper">
     <!-- Chat 会话中心 -->
     <AstSidebar
         v-if="activeCenter === 'chat'"
@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed} from 'vue'
+import {computed, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import AiConfigCenterSidebar from '@/views/admin/ai-config/ai-config-center/component/Sidebar.vue'
 import VectorCenterSidebar from '@/views/admin/ai-vector/vector-center/component/Sidebar.vue'
@@ -119,6 +119,13 @@ const handleVectorChanged = async () => {
   await vectorState.fetchSources()
 }
 
+// 当切换到向量中心时，自动加载可用向量源
+watch(activeCenter, (center) => {
+  if (center === 'vector' && vectorState.sources.value.length === 0) {
+    vectorState.bootstrap()
+  }
+}, {immediate: true})
+
 // ============ 系统配置中心 handlers ============
 const systemCenterPath = '/admin/system'
 
@@ -139,5 +146,10 @@ const handleSystemSelect = (key: string) => {
   flex-direction: column;
   overflow: hidden;
   height: 100%;
+  transition: width 0.28s ease;
+}
+
+.admin-sidebar-wrapper.is-collapsed {
+  width: 56px;
 }
 </style>

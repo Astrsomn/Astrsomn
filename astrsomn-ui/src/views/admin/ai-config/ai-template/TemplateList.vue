@@ -303,9 +303,14 @@ const openEdit = async (record: AiTemplate) => {
   const id = record.id
   if (id == null) return
 
-  const detail = await aiTemplateApi.detail(id)
-  modalInitial.value = detail
-  modal.open = true
+  try {
+    const detail = await aiTemplateApi.detail(id)
+    modalInitial.value = detail
+    modal.open = true
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || t.value.list.saveFailed)
+  }
 }
 
 const handleDeleteOne = async (id: number | string) => {
@@ -485,6 +490,33 @@ void fetchList()
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 14px;
+}
+
+.template-grid > * {
+  animation: cardEnter 0.35s ease both;
+}
+
+.template-grid > *:nth-child(1) { animation-delay: 0ms; }
+.template-grid > *:nth-child(2) { animation-delay: 40ms; }
+.template-grid > *:nth-child(3) { animation-delay: 80ms; }
+.template-grid > *:nth-child(4) { animation-delay: 120ms; }
+.template-grid > *:nth-child(5) { animation-delay: 160ms; }
+.template-grid > *:nth-child(6) { animation-delay: 200ms; }
+.template-grid > *:nth-child(7) { animation-delay: 240ms; }
+.template-grid > *:nth-child(8) { animation-delay: 280ms; }
+.template-grid > *:nth-child(9) { animation-delay: 320ms; }
+.template-grid > *:nth-child(10) { animation-delay: 360ms; }
+.template-grid > *:nth-child(n+11) { animation-delay: 400ms; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* ── Add Card ── */

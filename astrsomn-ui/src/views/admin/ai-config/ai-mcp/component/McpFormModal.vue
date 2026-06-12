@@ -61,10 +61,13 @@
                   </a-col>
                   <a-col :span="8">
                     <a-form-item :label="t.form.status.label" name="enabled">
-                      <a-select v-model:value="form.enabled" size="large">
-                        <a-select-option :value="1">{{ t.form.status.enabled }}</a-select-option>
-                        <a-select-option :value="0">{{ t.form.status.disabled }}</a-select-option>
-                      </a-select>
+                      <AstStatusToggle
+                          v-model="form.enabled"
+                          :enabled-value="1"
+                          :disabled-value="0"
+                          :enabled-label="t.form.status.enabled"
+                          :disabled-label="t.form.status.disabled"
+                      />
                     </a-form-item>
                   </a-col>
                 </a-row>
@@ -201,6 +204,7 @@ import {usePageTranslation} from '@/locales/pages.ts'
 import type {FormInstance} from 'ant-design-vue'
 import type {AiMcp} from '@/api/aiMcp.ts'
 import AstModal from '@/components/home/AstModal.vue'
+import AstStatusToggle from '@/components/home/AstStatusToggle.vue'
 import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import {AI_MCP_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes.ts'
 
@@ -314,7 +318,7 @@ async function handleOk() {
   padding: 24px 32px;
   overflow-y: auto;
   border-right: 1px solid var(--border-default);
-  background: var(--bg-elevated);
+  background: #fff;
 }
 
 
@@ -322,7 +326,7 @@ async function handleOk() {
   width: 55%;
   padding: 24px 32px;
   overflow-y: auto;
-  background: var(--bg-card);
+  background: #fff;
 }
 
 
@@ -358,7 +362,7 @@ async function handleOk() {
   border: 1px solid var(--border-default);
   border-radius: 8px;
   overflow: hidden;
-  background: var(--bg-elevated);
+  background: #fff;
   transition: 0.3s;
 }
 

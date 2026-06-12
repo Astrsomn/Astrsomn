@@ -51,13 +51,9 @@
         </div>
       </a-tooltip>
 
-      <!-- 空态提示卡 -->
+      <!-- 空态提示 -->
       <div v-if="providers.length === 0" class="plugin-warning-card">
         <p class="plugin-warning-text">{{ t.sidebar.emptyPluginHint }}</p>
-        <button class="plugin-warning-btn" @click="handleAddPlugin">
-          <PhStorefront :size="14" weight="regular"/>
-          <span>{{ t.sidebar.goMarketplace }}</span>
-        </button>
       </div>
     </div>
 
@@ -91,17 +87,9 @@
     <template #footer>
       <SidebarFooter
           :enabled-extensions="enabledExtensions"
-          :show-dot="!providers.length"
-          @open-marketplace="goPluginMarketplace"
       />
     </template>
   </SidebarShell>
-
-  <ExtensionMarketplaceDialog
-      :open="marketplaceOpen"
-      @cancel="marketplaceOpen = false"
-      @update:open="marketplaceOpen = $event"
-  />
 </template>
 
 <script lang="ts" setup>
@@ -113,7 +101,6 @@ import {
   PhIdentificationCard,
   PhLink,
   PhSquaresFour,
-  PhStorefront,
   PhTerminalWindow,
   PhWrench,
 } from '@phosphor-icons/vue'
@@ -124,8 +111,6 @@ import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts
 import {aiConfigCenterApi} from '@/api/aiConfigCenter'
 import {useDictionary} from '@/locales/dictionary'
 import {usePageTranslation} from '@/locales/pages.ts'
-import ExtensionMarketplaceDialog
-  from '@/views/admin/system-config/system-extension/component/ExtensionMarketplaceDialog.vue'
 
 const emit = defineEmits<{
   select: [key: string]
@@ -138,7 +123,6 @@ const t = usePageTranslation('ai-config-center')
 
 const searchText = ref('')
 const activeItem = ref('')
-const marketplaceOpen = ref(false)
 const enabledExtensions = ref<Array<{ key: string; name: string; avatar: string; initial: string }>>([])
 const providers = ref<Array<{
   id: string | number;
@@ -181,14 +165,6 @@ const handleSelect = (key: string) => {
 }
 
 const handleSearch = () => {
-}
-
-const handleAddPlugin = () => {
-  marketplaceOpen.value = true
-}
-
-const goPluginMarketplace = () => {
-  marketplaceOpen.value = true
 }
 
 const fetchEnabledExtensions = async () => {
@@ -352,6 +328,33 @@ watch(
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) transparent;
 }
+
+.provider-section > * {
+  animation: navEnter 0.3s ease both;
+}
+
+.provider-section > *:nth-child(1) { animation-delay: 0ms; }
+.provider-section > *:nth-child(2) { animation-delay: 30ms; }
+.provider-section > *:nth-child(3) { animation-delay: 60ms; }
+.provider-section > *:nth-child(4) { animation-delay: 90ms; }
+.provider-section > *:nth-child(5) { animation-delay: 120ms; }
+.provider-section > *:nth-child(6) { animation-delay: 150ms; }
+.provider-section > *:nth-child(7) { animation-delay: 180ms; }
+.provider-section > *:nth-child(8) { animation-delay: 210ms; }
+.provider-section > *:nth-child(9) { animation-delay: 240ms; }
+.provider-section > *:nth-child(10) { animation-delay: 270ms; }
+.provider-section > *:nth-child(n+11) { animation-delay: 300ms; }
+
+@keyframes navEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 .provider-section::-webkit-scrollbar {
   width: 5px;
 }
@@ -377,6 +380,18 @@ watch(
   gap: 2px;
   margin-top: 4px;
 }
+
+.global-section > * {
+  animation: navEnter 0.3s ease both;
+}
+
+.global-section > *:nth-child(1) { animation-delay: 0ms; }
+.global-section > *:nth-child(2) { animation-delay: 30ms; }
+.global-section > *:nth-child(3) { animation-delay: 60ms; }
+.global-section > *:nth-child(4) { animation-delay: 90ms; }
+.global-section > *:nth-child(5) { animation-delay: 120ms; }
+.global-section > *:nth-child(6) { animation-delay: 150ms; }
+.global-section > *:nth-child(n+7) { animation-delay: 180ms; }
 
 /* ── 区域标签 ── */
 .section-label {
@@ -491,7 +506,7 @@ watch(
   background: rgba(59, 130, 246, 0.12);
 }
 
-/* ── 空态提示卡（设计稿 plugin-warning-card） ── */
+/* ── 空态提示卡 ── */
 .plugin-warning-card {
   margin: 8px 0 12px;
   padding: 14px;
@@ -499,42 +514,11 @@ watch(
   border: 1px dashed var(--border-default);
   border-radius: 12px;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
 .plugin-warning-text {
   font-size: 11px;
   line-height: 1.55;
   color: var(--text-secondary);
-}
-
-.plugin-warning-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  height: 32px;
-  padding: 0 12px;
-  font-size: 11px;
-  font-weight: 500;
-  color: #ffffff;
-  background: var(--primary);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.plugin-warning-btn:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
-}
-
-.plugin-warning-btn:active {
-  transform: scale(0.98);
 }
 </style>

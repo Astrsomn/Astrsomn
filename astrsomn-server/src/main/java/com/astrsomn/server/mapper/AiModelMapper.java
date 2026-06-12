@@ -8,6 +8,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+import java.util.Set;
+
 @Mapper
 public interface AiModelMapper extends BaseMapper<AiModelEntity> {
 
@@ -15,4 +18,11 @@ public interface AiModelMapper extends BaseMapper<AiModelEntity> {
                                         @Param("req") AiModelQueryRequestDTO param);
 
     AiModelResponseDTO selectModelWithReferenceStatus(@Param("id") Long id);
+
+    /**
+     * Batch query existing model keys for a given extensionCode + envCode.
+     * Returns the set of MODEL_KEY values that already exist (not deleted).
+     */
+    Set<String> selectExistingModelKeys(@Param("extensionCode") String extensionCode,
+                                        @Param("envCode") String envCode);
 }

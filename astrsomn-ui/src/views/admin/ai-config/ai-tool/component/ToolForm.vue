@@ -53,10 +53,11 @@
                   </a-col>
                   <a-col :span="8">
                     <a-form-item :label="t.form.status.label" name="enableFlag">
-                      <a-select v-model:value="form.enableFlag" size="large">
-                        <a-select-option value="enabled">{{ t.form.status.enabled }}</a-select-option>
-                        <a-select-option value="disabled">{{ t.form.status.disabled }}</a-select-option>
-                      </a-select>
+                      <AstStatusToggle
+                          v-model="form.enableFlag"
+                          :enabled-label="t.form.status.enabled"
+                          :disabled-label="t.form.status.disabled"
+                      />
                     </a-form-item>
                   </a-col>
                 </a-row>
@@ -140,6 +141,7 @@ import {
 import type {FormInstance} from 'ant-design-vue'
 import type {AiTool} from '@/api/aiTool.ts'
 import AstModal from '@/components/home/AstModal.vue'
+import AstStatusToggle from '@/components/home/AstStatusToggle.vue'
 import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import {AI_TOOL_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes.ts'
 import {usePageTranslation} from '@/locales/pages.ts'

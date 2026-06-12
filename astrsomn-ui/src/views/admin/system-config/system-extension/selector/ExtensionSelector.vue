@@ -1,5 +1,5 @@
 <template>
-  <a-select :allow-clear="allowClear" :disabled="disabled" :loading="loading" :placeholder="placeholder || t.selector.placeholder" :size="size"
+  <a-select :allow-clear="allowClear" :disabled="disabled" :getPopupContainer="getPopupContainer" :loading="loading" :placeholder="placeholder || t.selector.placeholder" :size="size"
             :value="value" class="model-provider-select" option-filter-prop="label" @update:value="onUpdate">
     <template #label="{ label, value: val }">
       <div v-if="val" class="selected-content">
@@ -126,6 +126,10 @@ watch(
 function onUpdate(v: string | undefined) {
   emit('update:value', v)
 }
+
+function getPopupContainer(triggerNode: HTMLElement): HTMLElement {
+  return triggerNode.closest('.ant-drawer-body') || triggerNode.parentElement || document.body
+}
 </script>
 
 <style scoped>
@@ -249,5 +253,11 @@ function onUpdate(v: string | undefined) {
 
 .model-provider-select :deep(.ant-select-dropdown .ant-select-search__field__wrap) {
   justify-content: flex-start !important;
+}
+
+.model-provider-select.ant-select-disabled :deep(.ant-select-selector) {
+  background: var(--bg-disabled, #f5f5f5) !important;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>
