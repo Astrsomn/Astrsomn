@@ -995,7 +995,7 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+
 
   .toolbar-left {
     display: flex;

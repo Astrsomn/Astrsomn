@@ -11,37 +11,38 @@
       <div class="vector-center-top">
         <RightTop :source="selectedSource" :store="selectedStore" @updated="$emit('store-updated')"/>
       </div>
-      <!-- 可滚动内容 -->
+      <!-- 文档列表 -->
       <div class="vector-center-content">
-        <div class="snap-section">
-          <RightCenter
-              :docs="docs"
-              :selected-doc-id="selectedDocId"
-              :store-id="selectedStoreId"
-              @changed="$emit('doc-changed')"
-              @select-doc="$emit('select-doc', $event)"
-          />
-        </div>
-        <div class="snap-section">
-          <RightBottom
-              :doc-id="selectedDocId"
-              :store-id="selectedStoreId"
-          />
-        </div>
+        <RightCenter
+            :docs="docs"
+            :selected-doc-id="selectedDocId"
+            :store-id="selectedStoreId"
+            @changed="$emit('doc-changed')"
+            @select-doc="handleSelectDoc"
+        />
       </div>
     </template>
+
+    <!-- 段落详情 Modal -->
+    <SegmentDetailModal
+        :doc-id="selectedDocId"
+        :open="segmentModalOpen"
+        :store-id="selectedStoreId"
+        @update:open="segmentModalOpen = $event"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
+import {ref} from 'vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 import RightTop from '@/views/admin/ai-vector/vector-center/component/right/RightTop.vue'
 import RightCenter from '@/views/admin/ai-vector/vector-center/component/right/RightCenter.vue'
-import RightBottom from '@/views/admin/ai-vector/vector-center/component/right/RightBottom.vue'
+import SegmentDetailModal from '@/views/admin/ai-vector/vector-center/component/right/SegmentDetailModal.vue'
 
 const t = usePageTranslation('ai-vector')
 
-defineProps<{
+const props = defineProps<{
   selectedSourceId?: number | string
   selectedStoreId?: number | string
   selectedSource?: any
@@ -50,11 +51,18 @@ defineProps<{
   selectedDocId?: number | string
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   'store-updated': []
   'doc-changed': []
   'select-doc': [docId: number | string]
 }>()
+
+const segmentModalOpen = ref(false)
+
+const handleSelectDoc = (docId: number | string) => {
+  emit('select-doc', docId)
+  segmentModalOpen.value = true
+}
 </script>
 
 <style scoped>
@@ -79,15 +87,6 @@ defineEmits<{
   flex: 1;
   overflow-y: auto;
   background-color: var(--bg-surface);
-  scroll-snap-type: y mandatory;
-}
-
-
-.snap-section {
-  min-height: 100%;
-  scroll-snap-align: start;
-  display: flex;
-  flex-direction: column;
 }
 
 .empty-state {
