@@ -289,7 +289,7 @@ const handlePageChange = (page: number, size: number) => {
 function parseCapabilities(model: AiModel): string[] {
   try {
     const parsed = JSON.parse(model.capabilities || '[]')
-    return Array.isArray(parsed) ? parsed.map(String) : []
+    return Array.isArray(parsed) ? parsed.map(c => String(c).toLowerCase()) : []
   } catch {
     return []
   }
@@ -297,7 +297,7 @@ function parseCapabilities(model: AiModel): string[] {
 
 function parseParams(model: AiModel): any[] {
   try {
-    const parsed = JSON.parse(model.param || '[]')
+    const parsed = JSON.parse(model.params || model.param || '[]')
     return Array.isArray(parsed) ? parsed : []
   } catch {
     return []

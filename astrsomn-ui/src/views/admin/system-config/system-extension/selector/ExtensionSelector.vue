@@ -254,4 +254,10 @@ function getPopupContainer(triggerNode: HTMLElement): HTMLElement {
 .model-provider-select :deep(.ant-select-dropdown .ant-select-search__field__wrap) {
   justify-content: flex-start !important;
 }
+
+.model-provider-select.ant-select-disabled :deep(.ant-select-selector) {
+  background: var(--bg-disabled, #f5f5f5) !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 </style>

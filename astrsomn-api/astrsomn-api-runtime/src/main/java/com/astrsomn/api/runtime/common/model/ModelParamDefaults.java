@@ -32,7 +32,7 @@ public final class ModelParamDefaults {
 
     /** Default capabilities for an image generation model. */
     public static List<String> imageCaps() {
-        return List.of("IMAGE_GENERATION");
+        return List.of("TEXT_TO_IMAGE");
     }
 
     /** Look up default capabilities by model type. */
@@ -49,30 +49,34 @@ public final class ModelParamDefaults {
     /** Default parameters for a chat model (OpenAI-compatible). */
     public static List<ParamDef> chatParams() {
         return List.of(
-            param("temperature",      "Temperature",      "temperature",      "0.7",  "0-2.0",   true),
-            param("top_p",            "Top P",            "top_p",            "1.0",  "0-1.0",   true),
+            param("temperature",      "Temperature",      "temperature",      "0.7",  "0-2.0",   false),
+            param("top_p",            "Top P",            "top_p",            "1.0",  "0-1.0",   false),
             param("top_k",            "Top K",            "top_k",            "",     "int",     false),
-            param("max_tokens",       "Max Tokens",       "max_tokens",       "2048", "1-32k",   true),
+            param("max_tokens",       "Max Tokens",       "max_tokens",       "2048", "1-32k",   false),
             param("presence_penalty", "Presence Penalty", "presence_penalty", "0",    "-2-2",    false),
             param("frequency_penalty","Frequency Penalty","frequency_penalty","0",    "-2-2",    false),
             param("stop_sequences",   "Stop Sequences",   "stop_sequences",   "",     "Array",   false),
-            param("seed",             "Seed",             "seed",             "",     "int",     false)
+            param("seed",             "Seed",             "seed",             "",     "int",     false),
+            param("logit_bias",       "Logit Bias",       "logit_bias",       "",     "Object",  false)
         );
     }
 
     /** Default parameters for an embedding model. */
     public static List<ParamDef> embeddingParams() {
         return List.of(
-            param("dimensions", "Dimensions", "dimensions", "1536", "int", true)
+            param("dimensions",  "Dimensions",  "dimensions",  "1536", "int",    false),
+            param("model_name",  "Model Name",  "model_name",  "",     "string", false),
+            param("user",        "User",        "user",        "",     "string", false)
         );
     }
 
     /** Default parameters for an image generation model. */
     public static List<ParamDef> imageParams() {
         return List.of(
-            param("size",    "Size",    "size",    "1024x1024", "string",      true),
-            param("quality", "Quality", "quality", "standard",  "standard/hd", true),
-            param("style",   "Style",   "style",   "vivid",     "vivid/natural", true)
+            param("size",            "Size",            "size",            "1024x1024", "string",       false),
+            param("quality",         "Quality",         "quality",         "standard",  "standard/hd",  false),
+            param("style",           "Style",           "style",           "vivid",     "vivid/natural",false),
+            param("response_format", "Response Format", "response_format", "url",       "url/b64_json", false)
         );
     }
 
@@ -140,7 +144,7 @@ public final class ModelParamDefaults {
             // Override max_tokens default
             params.replaceAll(p -> {
                 if ("max_tokens".equals(p.getId())) {
-                    return param("max_tokens", "Max Tokens", "max_tokens", "4096", "1-128k", true);
+                    return param("max_tokens", "Max Tokens", "max_tokens", "4096", "1-128k", false);
                 }
                 if ("temperature".equals(p.getId())) {
                     return param("temperature", "Temperature", "temperature", "1", "0-2", false);

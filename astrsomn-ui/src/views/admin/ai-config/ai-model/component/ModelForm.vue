@@ -44,6 +44,11 @@
                 {{ t.form.sectionBasicInfo }}
               </h3>
               <div class="form-grid">
+                <a-form-item :label="t.form.labelModelName" name="modelName">
+                  <a-input v-model:value="form.modelName" :disabled="props.mode === 'view' || isPluginModel"
+                           :placeholder="t.form.placeholderModelName" size="large"/>
+                </a-form-item>
+
                 <a-form-item :label="t.form.labelModelKey" name="modelKey">
                   <a-tooltip
                       v-if="modelKeyImmutable || props.mode === 'view' || isPluginModel"
@@ -59,8 +64,9 @@
                       size="large"
                   />
                 </a-form-item>
+
                 <a-form-item :label="t.form.labelSourceType" name="sourceType">
-                  <a-select v-model:value="form.sourceType" :disabled="props.mode === 'view'" size="large">
+                  <a-select v-model:value="form.sourceType" :disabled="props.mode === 'view' || props.mode === 'create' || isPluginModel" size="large">
                     <a-select-option value="user_custom">{{ t.form.optionUserCustom }}</a-select-option>
                     <a-select-option value="plugin">{{ t.form.optionPluginModel }}</a-select-option>
                   </a-select>
@@ -75,6 +81,12 @@
                   />
                 </a-form-item>
 
+                <a-form-item :label="t.form.labelModelType" name="modelType">
+                  <a-segmented v-model:value="form.modelType"
+                               :disabled="props.mode === 'view' || isPluginModel"
+                               :options="[{label: t.form.optionChat, value:'chat'}, {label: t.form.optionEmbedding, value:'embedding'}, {label: t.form.optionImage, value:'image'}, {label: t.form.optionVoice, value:'voice'}]" block size="large"/>
+                </a-form-item>
+
                 <a-form-item :label="t.form.labelStatus" name="status">
                   <a-segmented
                       v-model:value="form.status"
@@ -85,19 +97,6 @@
                       size="large"
                   />
                 </a-form-item>
-
-                <a-form-item :label="t.form.labelModelType" name="modelType">
-                  <a-segmented v-model:value="form.modelType"
-                               :disabled="props.mode === 'view' || isPluginModel"
-                               :options="[{label: t.form.optionChat, value:'chat'}, {label: t.form.optionEmbedding, value:'embedding'}, {label: t.form.optionImage, value:'image'}, {label: t.form.optionVoice, value:'voice'}]" block size="large"/>
-                </a-form-item>
-
-                <a-form-item :label="t.form.labelModelName" name="modelName">
-                  <a-input v-model:value="form.modelName" :disabled="props.mode === 'view' || isPluginModel"
-                           :placeholder="t.form.placeholderModelName" size="large"/>
-                </a-form-item>
-
-
               </div>
               <h3 class="section-headline">
                 <ThunderboltOutlined/>
@@ -110,8 +109,8 @@
                       v-for="opt in chatCapabilitiesOptions"
                       :key="opt.value"
                       :class="['custom-cap-tag', { active: chatCapabilities.includes(opt.value) }]"
-                      :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
-                      @click="props.mode !== 'view' && !isPluginModel && toggleChatCapability(opt.value)"
+                      :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
+                      @click="props.mode !== 'view' && toggleChatCapability(opt.value)"
                   >
                     <div class="custom-cap-tag__body">
                       <CheckCircleFilled v-if="chatCapabilities.includes(opt.value)" class="custom-cap-tag__check"/>
@@ -138,8 +137,8 @@
                       v-for="opt in embeddingCapabilitiesOptions"
                       :key="opt.value"
                       :class="['custom-cap-tag', { active: embeddingCapabilities.includes(opt.value) }]"
-                      :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
-                      @click="props.mode !== 'view' && !isPluginModel && toggleEmbeddingCapability(opt.value)"
+                      :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
+                      @click="props.mode !== 'view' && toggleEmbeddingCapability(opt.value)"
                   >
                     <div class="custom-cap-tag__body">
                       <CheckCircleFilled v-if="embeddingCapabilities.includes(opt.value)"
@@ -159,8 +158,8 @@
                       v-for="opt in imageCapabilitiesOptions"
                       :key="opt.value"
                       :class="['custom-cap-tag', { active: imageCapabilities.includes(opt.value) }]"
-                      :style="{ cursor: (props.mode === 'view' || isPluginModel) ? 'default' : 'pointer' }"
-                      @click="props.mode !== 'view' && !isPluginModel && toggleImageCapability(opt.value)"
+                      :style="{ cursor: props.mode === 'view' ? 'default' : 'pointer' }"
+                      @click="props.mode !== 'view' && toggleImageCapability(opt.value)"
                   >
                     <div class="custom-cap-tag__body">
                       <CheckCircleFilled v-if="imageCapabilities.includes(opt.value)" class="custom-cap-tag__check"/>
@@ -200,7 +199,7 @@
                       <div class="param-col param-col--toggle">
                         <a-switch
                             v-model:checked="param.active"
-                            :disabled="props.mode === 'view' || isPluginModel"
+                            :disabled="props.mode === 'view'"
                         />
                       </div>
                     </div>
@@ -216,12 +215,12 @@
                 <div class="param-grid">
                   <div class="param-item">
                     <span class="pl">{{ t.form.labelResponseLimit }}</span>
-                    <a-input-number v-model:value="form.responseLimit" :disabled="props.mode === 'view' || isPluginModel" :min="0" block
+                    <a-input-number v-model:value="form.responseLimit" :disabled="props.mode === 'view'" :min="0" block
                                     :placeholder="t.form.placeholderResponseLimit"/>
                   </div>
                   <div class="param-item">
                     <span class="pl">{{ t.form.labelMaxQuotaTokens }}</span>
-                    <a-input-number v-model:value="form.maxQuotaTokens" :disabled="props.mode === 'view' || isPluginModel" :min="0" block
+                    <a-input-number v-model:value="form.maxQuotaTokens" :disabled="props.mode === 'view'" :min="0" block
                                     :placeholder="t.form.placeholderMaxQuotaTokens"/>
                   </div>
                 </div>
@@ -295,10 +294,10 @@ const maxWidth = computed(() => 'min(80vw, 1600px)')
 
 const PARAM_TEMPLATES = computed(() => ({
   chat: [
-    {id: 'temperature', desc: t.value.form.paramDescTemperature, mapping: 'temperature', default: '0.7', range: '0-2.0', active: true},
-    {id: 'top_p', desc: t.value.form.paramDescTopP, mapping: 'top_p', default: '1.0', range: '0-1.0', active: true},
+    {id: 'temperature', desc: t.value.form.paramDescTemperature, mapping: 'temperature', default: '0.7', range: '0-2.0', active: false},
+    {id: 'top_p', desc: t.value.form.paramDescTopP, mapping: 'top_p', default: '1.0', range: '0-1.0', active: false},
     {id: 'top_k', desc: t.value.form.paramDescTopK, mapping: 'top_k', default: '', range: 'int', active: false},
-    {id: 'max_tokens', desc: t.value.form.paramDescMaxTokens, mapping: 'max_tokens', default: '2048', range: '1-32k', active: true},
+    {id: 'max_tokens', desc: t.value.form.paramDescMaxTokens, mapping: 'max_tokens', default: '2048', range: '1-32k', active: false},
     {
       id: 'presence_penalty',
       desc: t.value.form.paramDescPresencePenalty,
@@ -320,14 +319,14 @@ const PARAM_TEMPLATES = computed(() => ({
     {id: 'logit_bias', desc: t.value.form.paramDescLogitBias, mapping: 'logit_bias', default: '', range: 'Object', active: false}
   ],
   embedding: [
-    {id: 'dimensions', desc: t.value.form.paramDescDimensions, mapping: 'dimensions', default: '1536', range: 'int', active: true},
+    {id: 'dimensions', desc: t.value.form.paramDescDimensions, mapping: 'dimensions', default: '1536', range: 'int', active: false},
     {id: 'model_name', desc: t.value.form.paramDescModelName, mapping: 'model_name', default: '', range: 'string', active: false},
     {id: 'user', desc: t.value.form.paramDescUser, mapping: 'user', default: '', range: 'string', active: false}
   ],
   image: [
-    {id: 'size', desc: t.value.form.paramDescSize, mapping: 'size', default: '1024x1024', range: 'string', active: true},
-    {id: 'quality', desc: t.value.form.paramDescQuality, mapping: 'quality', default: 'standard', range: 'standard/hd', active: true},
-    {id: 'style', desc: t.value.form.paramDescStyle, mapping: 'style', default: 'vivid', range: 'vivid/natural', active: true},
+    {id: 'size', desc: t.value.form.paramDescSize, mapping: 'size', default: '1024x1024', range: 'string', active: false},
+    {id: 'quality', desc: t.value.form.paramDescQuality, mapping: 'quality', default: 'standard', range: 'standard/hd', active: false},
+    {id: 'style', desc: t.value.form.paramDescStyle, mapping: 'style', default: 'vivid', range: 'vivid/natural', active: false},
     {
       id: 'response_format',
       desc: t.value.form.paramDescResponseFormat,
@@ -393,6 +392,15 @@ const removeImageOrphan = (val: string) => {
   imageOrphanCapabilities.value = imageOrphanCapabilities.value.filter((c) => c !== val)
 }
 
+function localizeAndSortParams(params: any[]): any[] {
+  return params
+      .map((p) => ({
+        ...p,
+        desc: aiModelCapabilitiesDictionary.getLabel(p.id) ?? p.desc
+      }))
+      .sort((a, b) => (a.active === b.active ? 0 : a.active ? -1 : 1))
+}
+
 function partitionConfig(caps: string[], params: any[], modelType: string) {
   chatCapabilities.value = []
   chatOrphanCapabilities.value = []
@@ -405,7 +413,7 @@ function partitionConfig(caps: string[], params: any[], modelType: string) {
     chatCapabilities.value = caps.filter((c) => CHAT_CAPABILITIES_SET.has(c))
     chatOrphanCapabilities.value = caps.filter((c) => !CHAT_CAPABILITIES_SET.has(c))
     if (params && params.length > 0) {
-      currentParams.value = params
+      currentParams.value = localizeAndSortParams(params)
     } else {
       currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.value.chat))
     }
@@ -413,7 +421,7 @@ function partitionConfig(caps: string[], params: any[], modelType: string) {
     embeddingCapabilities.value = caps.filter((c) => EMBEDDING_CAPABILITIES_SET.has(c))
     embeddingOrphanCapabilities.value = caps.filter((c) => !EMBEDDING_CAPABILITIES_SET.has(c))
     if (params && params.length > 0) {
-      currentParams.value = params
+      currentParams.value = localizeAndSortParams(params)
     } else {
       currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.value.embedding))
     }
@@ -421,7 +429,7 @@ function partitionConfig(caps: string[], params: any[], modelType: string) {
     imageCapabilities.value = caps.filter((c) => IMAGE_CAPABILITIES_SET.has(c))
     imageOrphanCapabilities.value = caps.filter((c) => !IMAGE_CAPABILITIES_SET.has(c))
     if (params && params.length > 0) {
-      currentParams.value = params
+      currentParams.value = localizeAndSortParams(params)
     } else {
       currentParams.value = JSON.parse(JSON.stringify(PARAM_TEMPLATES.value.image))
     }
@@ -460,13 +468,13 @@ const syncForm = () => {
 
     try {
       const parsedCaps = JSON.parse(form.capabilities || '[]')
-      capabilitiesArray = Array.isArray(parsedCaps) ? parsedCaps.map(String) : []
+      capabilitiesArray = Array.isArray(parsedCaps) ? parsedCaps.map((c: any) => String(c).toLowerCase()) : []
     } catch {
       capabilitiesArray = []
     }
 
     try {
-      const parsedParams = JSON.parse(form.param || '[]')
+      const parsedParams = JSON.parse(form.params || form.param || '[]')
       paramsArray = Array.isArray(parsedParams) ? parsedParams : []
     } catch {
       paramsArray = []
@@ -526,7 +534,8 @@ const handleSubmit = async () => {
   }
 
   payload.capabilities = allCapabilities.length > 0 ? JSON.stringify(allCapabilities) : ''
-  payload.param = currentParams.value.length > 0 ? JSON.stringify(currentParams.value) : ''
+  payload.params = currentParams.value.length > 0 ? JSON.stringify(currentParams.value) : ''
+  payload.param = payload.params
   delete (payload as { modelKeyImmutable?: unknown }).modelKeyImmutable
   await props.submitHandler(payload)
 }

@@ -61,7 +61,7 @@
             :loading="loading"
             mode="table"
             :row-selection="rowSelection"
-            :scroll="{ x: 1280 }"
+            :scroll="{ x: 730 }"
             :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
@@ -155,12 +155,12 @@ type QueryState = {
 }
 
 const columns = computed(() => [
-  {title: t.value.list.column.mcpKey, dataIndex: 'mcpKey', key: 'mcpKey', width: 180, ellipsis: true, copyable: true},
-  {title: t.value.list.column.serverName, dataIndex: 'serverName', key: 'serverName', width: 240},
-  {title: t.value.list.column.type, dataIndex: 'type', key: 'type', width: 120},
-  {title: t.value.list.column.enabled, key: 'enabled', width: 90},
-  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 170, dateFormat: true},
-  {title: t.value.list.column.actions, key: 'actions', width: 160, fixed: 'right' as const}
+  {title: t.value.list.column.mcpKey, dataIndex: 'mcpKey', key: 'mcpKey', width: 160, ellipsis: true, copyable: true},
+  {title: t.value.list.column.serverName, dataIndex: 'serverName', key: 'serverName', width: 160, ellipsis: true},
+  {title: t.value.list.column.type, dataIndex: 'type', key: 'type', width: 90},
+  {title: t.value.list.column.enabled, key: 'enabled', width: 80},
+  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 140, dateFormat: true},
+  {title: t.value.list.column.actions, key: 'actions', width: 100, fixed: 'right' as const}
 ])
 
 const typeLabelMap: Record<string, string> = {

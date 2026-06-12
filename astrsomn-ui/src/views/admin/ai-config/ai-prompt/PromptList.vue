@@ -50,7 +50,7 @@
           :loading="loading"
           mode="table"
           :row-selection="rowSelection"
-          :scroll="{ x: 1180 }"
+          :scroll="{ x: 930 }"
           :empty-text="t.list.emptyMatchText"
           row-key="id"
       >
@@ -152,16 +152,14 @@ const query = reactive<QueryState>({})
 const loading = ref(false)
 const list = ref<AiPrompt[]>([])
 const columns = computed(() => [
-  {title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 180, ellipsis: true, copyable: true},
-  {title: t.value.list.column.promptTitle, dataIndex: 'promptTitle', key: 'promptTitle', width: 220, ellipsis: true},
-  {title: t.value.list.column.scene, dataIndex: 'scene', key: 'scene', width: 140, ellipsis: true},
-  {title: t.value.list.column.envCode, dataIndex: 'envCode', key: 'envCode', width: 120, ellipsis: true},
-  {title: t.value.list.column.status, dataIndex: 'status', key: 'status', width: 100},
-  {title: t.value.list.column.version, dataIndex: 'version', key: 'version', width: 90},
+  {title: 'Prompt Key', dataIndex: 'promptKey', key: 'promptKey', width: 160, ellipsis: true, copyable: true},
+  {title: t.value.list.column.promptTitle, dataIndex: 'promptTitle', key: 'promptTitle', width: 160, ellipsis: true},
+  {title: t.value.list.column.scene, dataIndex: 'scene', key: 'scene', width: 120, ellipsis: true},
+  {title: t.value.list.column.status, dataIndex: 'status', key: 'status', width: 80},
+  {title: t.value.list.column.version, dataIndex: 'version', key: 'version', width: 70},
   {title: t.value.list.column.envCode, dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
-  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-  {title: t.value.list.column.createUser, dataIndex: 'createUser', key: 'createUser', width: 150},
-  {title: t.value.list.column.actions, key: 'actions', width: 150, fixed: 'right' as const}
+  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 140, dateFormat: true},
+  {title: t.value.list.column.actions, key: 'actions', width: 120, fixed: 'right' as const}
 ])
 
 const page = reactive({

@@ -48,7 +48,7 @@ const emit = defineEmits<{
 .status-toggle {
   display: flex;
   align-items: center;
-  background: #f0f0f0;
+  background: #e9ecef; /* 调整为稍深的灰色，作为底色 */
   border-radius: 10px;
   padding: 3px;
   position: relative;
@@ -62,16 +62,16 @@ const emit = defineEmits<{
   width: calc(50% - 3px);
   height: calc(100% - 6px);
   border-radius: 8px;
-  background: #ecfdf5;
-  border: 1.5px solid #0379d0;
+  background: #007bff; /* 启用状态（左侧）：高饱和度的蓝色滑块，极其醒目 */
+  /* border: 1.5px solid #007bff; */ /* 移除边框，改用纯色滑块以增强对比 */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 0;
 }
 
 .status-toggle-slider.right {
   transform: translateX(100%);
-  background: #fff1f2;
-  border-color: #f43f5e;
+  background: #d6dadc; /* 禁用状态（右侧）：浅灰色滑块，代表“关闭” */
+  /* border-color: #64748b; */
 }
 
 .status-toggle-slider.left {
@@ -87,7 +87,7 @@ const emit = defineEmits<{
   height: 38px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-muted);
+  color: #495057; /* 未激活状态的文字颜色 */
   transition: color 0.3s ease;
   z-index: 1;
   position: relative;
@@ -107,8 +107,19 @@ const emit = defineEmits<{
   box-shadow: none;
 }
 
+/* 关键对比度修改：启用和禁用状态下的文字颜色 */
+.status-btn.active.left ~ .status-toggle-slider { /* 选中左侧（启用）时的特殊处理 */
+}
 .status-btn.active {
-  color: var(--text-heading);
+}
+
+/* 根据滑块位置反转文字颜色 */
+.status-btn:nth-of-type(1).active {
+    color: #ffffff; /* 启用状态：滑块为蓝色，文字改为纯白以增强对比 */
+}
+
+.status-btn:nth-of-type(2).active {
+    color: #000000; /* 禁用状态：滑块为浅灰色，文字改为纯黑 */
 }
 
 .status-dot {
@@ -118,11 +129,18 @@ const emit = defineEmits<{
   flex-shrink: 0;
 }
 
-.status-dot.enabled {
-  background: #0379d0;
+/* 圆点颜色配合滑块颜色 */
+.status-btn.active:nth-of-type(1) .status-dot.enabled {
+    background: #ffffff; /* 启用圆点：在蓝色背景上显示为白色 */
+}
+.status-btn:nth-of-type(1):not(.active) .status-dot.enabled {
+    background: #007bff; /* 未启用时圆点：保持蓝色 */
 }
 
-.status-dot.disabled {
-  background: #f43f5e;
+.status-btn.active:nth-of-type(2) .status-dot.disabled {
+    background: #000000; /* 禁用圆点：在浅灰色背景上显示为黑色 */
+}
+.status-btn:nth-of-type(2):not(.active) .status-dot.disabled {
+    background: #64748b; /* 未禁用时圆点：深灰蓝 */
 }
 </style>

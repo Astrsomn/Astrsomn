@@ -57,7 +57,7 @@
         :loading="loading"
         mode="table"
         :row-selection="rowSelection"
-        :scroll="{ x: 1180 }"
+        :scroll="{ x: 960 }"
         :empty-text="t.list.emptyMatchText"
         row-key="id"
     >
@@ -167,17 +167,15 @@ const preview = (raw: string | undefined) => {
 }
 
 const columns = computed(() => [
-  {title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 180, ellipsis: true, copyable: true},
-  {title: t.value.list.column.toolName, dataIndex: 'toolName', key: 'toolName', width: 140, ellipsis: true},
-  {title: t.value.list.column.type, dataIndex: 'type', key: 'type', width: 90},
-  {title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 140, ellipsis: true},
-  {title: t.value.list.column.methodName, dataIndex: 'methodName', key: 'methodName', width: 120, ellipsis: true},
-  {title: t.value.list.column.description, key: 'description', width: 200, ellipsis: true},
+  {title: 'Tool Key', dataIndex: 'toolKey', key: 'toolKey', width: 160, ellipsis: true, copyable: true},
+  {title: t.value.list.column.toolName, dataIndex: 'toolName', key: 'toolName', width: 120, ellipsis: true},
+  {title: t.value.list.column.type, dataIndex: 'type', key: 'type', width: 80},
+  {title: 'Bean', dataIndex: 'beanName', key: 'beanName', width: 120, ellipsis: true},
+  {title: t.value.list.column.methodName, dataIndex: 'methodName', key: 'methodName', width: 110, ellipsis: true},
+  {title: t.value.list.column.description, key: 'description', width: 160, ellipsis: true},
   {title: t.value.list.column.status, key: 'status', width: 80},
-  {title: t.value.list.column.envCode, dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
-  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-  {title: t.value.list.column.createUser, dataIndex: 'createUser', key: 'createUser', width: 150},
-  {title: t.value.list.column.actions, key: 'actions', width: 100, fixed: 'right' as const}
+  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 140, dateFormat: true},
+  {title: t.value.list.column.actions, key: 'actions', width: 90, fixed: 'right' as const}
 ])
 
 const query = reactive<QueryState>({})

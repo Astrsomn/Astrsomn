@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed} from 'vue'
+import {computed, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import AiConfigCenterSidebar from '@/views/admin/ai-config/ai-config-center/component/Sidebar.vue'
 import VectorCenterSidebar from '@/views/admin/ai-vector/vector-center/component/Sidebar.vue'
@@ -118,6 +118,13 @@ const handleVectorSelectStore = async (storeId: number | string) => {
 const handleVectorChanged = async () => {
   await vectorState.fetchSources()
 }
+
+// 当切换到向量中心时，自动加载可用向量源
+watch(activeCenter, (center) => {
+  if (center === 'vector' && vectorState.sources.value.length === 0) {
+    vectorState.bootstrap()
+  }
+}, {immediate: true})
 
 // ============ 系统配置中心 handlers ============
 const systemCenterPath = '/admin/system'

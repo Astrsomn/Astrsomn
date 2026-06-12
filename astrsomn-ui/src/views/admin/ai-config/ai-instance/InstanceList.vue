@@ -54,7 +54,7 @@
             :loading="loading"
             :mode="dataViewMode"
             :row-selection="rowSelection"
-            :scroll="{ x: 1080 }"
+            :scroll="{ x: 1010 }"
             :empty-text="t.list.emptyMatchText"
             row-key="id"
         >
@@ -180,26 +180,23 @@ const handleViewToggle = () => {
 }
 
 const columns = computed(() => [
-  {title: t.value.list.column.provider, key: 'providerAvatar', width: 80, align: 'center' as const},
-  {title: t.value.list.column.modelType, dataIndex: 'modelType', key: 'modelType', width: 110},
+  {title: t.value.list.column.provider, key: 'providerAvatar', width: 60, align: 'center' as const},
+  {title: t.value.list.column.modelType, dataIndex: 'modelType', key: 'modelType', width: 90},
   {
     title: t.value.list.column.instanceKey,
     dataIndex: 'instanceKey',
     key: 'instanceKey',
-    width: 180,
+    width: 150,
     ellipsis: true,
     copyable: true
   },
-  {title: t.value.list.column.name, dataIndex: 'instanceName', key: 'instanceName', width: 180, ellipsis: true},
-
-  {title: t.value.list.column.modelKey, dataIndex: 'modelKey', key: 'modelKey', width: 180, ellipsis: true},
-  {title: t.value.list.column.accountName, dataIndex: 'accountName', key: 'accountName', width: 150, ellipsis: true},
-  {title: t.value.list.column.isDefault, key: 'isDefault', width: 90, align: 'center'},
-  {title: t.value.list.column.status, dataIndex: 'status', key: 'status', width: 100},
-  {title: t.value.list.column.envCode, dataIndex: 'envCode', key: 'envCode', width: 80, ellipsis: true, tag: true, tagColor: 'blue'},
-  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 150, dateFormat: true},
-  {title: t.value.list.column.createUser, dataIndex: 'createUser', key: 'createUser', width: 150},
-  {title: t.value.list.column.actions, key: 'actions', width: 140, fixed: 'right' as const}
+  {title: t.value.list.column.name, dataIndex: 'instanceName', key: 'instanceName', width: 140, ellipsis: true},
+  {title: t.value.list.column.modelKey, dataIndex: 'modelKey', key: 'modelKey', width: 150, ellipsis: true},
+  {title: t.value.list.column.accountName, dataIndex: 'accountName', key: 'accountName', width: 120, ellipsis: true},
+  {title: t.value.list.column.isDefault, key: 'isDefault', width: 80, align: 'center'},
+  {title: t.value.list.column.status, dataIndex: 'status', key: 'status', width: 80},
+  {title: t.value.list.column.createTime, dataIndex: 'createTime', key: 'createTime', width: 140, dateFormat: true},
+  {title: t.value.list.column.actions, key: 'actions', width: 100, fixed: 'right' as const}
 ])
 
 const providerAvatarCell = (record: AiInstance) => {
