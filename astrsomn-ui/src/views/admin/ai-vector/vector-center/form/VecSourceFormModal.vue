@@ -242,6 +242,7 @@ type FormRow = AiVecSource & Record<string, string | undefined>
 
 function emptyForm(): FormRow {
   return {
+    id: undefined,
     name: '',
     extensionCode: undefined,
     host: '',

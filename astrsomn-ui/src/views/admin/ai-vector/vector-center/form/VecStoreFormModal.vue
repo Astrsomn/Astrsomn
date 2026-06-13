@@ -281,6 +281,7 @@ function filterDimensionOption(input: string, option: { value: number; label: st
 
 function emptyForm(): AiVecStore {
   return {
+    id: undefined,
     sourceId: props.defaultSourceId || undefined,
     collectionName: '',
     dimension: undefined as unknown as number,

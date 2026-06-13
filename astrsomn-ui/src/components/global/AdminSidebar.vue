@@ -104,10 +104,10 @@ const handleAiConfigSelectProvider = (info: AiConfigProvider) => {
 const handleVectorSelectSource = async (sourceId: number | string) => {
   const sourceChanged = vectorState.selectedSourceId.value !== sourceId
   vectorState.selectedSourceId.value = sourceId
-  vectorState.selectedStoreId.value = undefined
-  vectorState.selectedDocId.value = undefined
-  vectorState.docs.value = []
   if (sourceChanged) {
+    vectorState.selectedStoreId.value = undefined
+    vectorState.selectedDocId.value = undefined
+    vectorState.docs.value = []
     await vectorState.fetchStores()
   }
 }
@@ -120,6 +120,8 @@ const handleVectorSelectStore = async (storeId: number | string) => {
 
 const handleVectorChanged = async () => {
   await vectorState.fetchSources()
+  // 不传 sourceId，拉取所有向量库数据，确保新增/重命名后数据完整刷新
+  await vectorState.fetchStores(undefined)
 }
 
 // 当切换到向量中心时，自动加载可用向量源

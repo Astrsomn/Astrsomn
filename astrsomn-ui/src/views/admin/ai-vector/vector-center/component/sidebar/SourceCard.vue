@@ -49,42 +49,61 @@ defineEmits<{
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px;
+  padding: 10px 12px;
   margin: 2px 0;
-  border-radius: var(--radius-md);
+  border-radius: 0;
   background: transparent;
   border: none;
+  border-left: 3px solid transparent;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 
   &:hover {
-    background: var(--bg-input);
+    background: var(--bg-elevated);
+    border-left-color: var(--border-default);
+    transform: translateX(2px);
   }
 
   &.active {
-    background: var(--bg-input);
+    background: var(--bg-elevated);
+    border-left-color: var(--primary);
   }
 
   .source-icon-box {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-md);
+    width: 34px;
+    height: 34px;
+    border-radius: 0;
     background: var(--bg-input);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    transition: background 0.18s ease, box-shadow 0.18s ease;
 
     .source-icon {
-      font-size: 14px;
+      font-size: 15px;
       color: var(--text-secondary);
+      transition: color 0.18s ease;
     }
 
     .source-avatar {
       width: 22px;
       height: 22px;
       object-fit: contain;
-      border-radius: var(--radius-lg);
+      border-radius: 0;
+    }
+  }
+
+  &:hover .source-icon-box {
+    background: var(--bg-card);
+    box-shadow: 0 0 0 1px var(--border-default);
+  }
+
+  &.active .source-icon-box {
+    background: var(--primary-hover);
+
+    .source-icon {
+      color: var(--primary);
     }
   }
 
@@ -102,16 +121,18 @@ defineEmits<{
         font-size: 13px;
         font-weight: 600;
         color: var(--text-heading);
+        transition: color 0.18s ease;
       }
 
       .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
+        width: 7px;
+        height: 7px;
         flex-shrink: 0;
+        transition: background 0.3s ease, box-shadow 0.3s ease;
 
         &.dot-connected {
           background: #22c55e;
+          box-shadow: 0 0 4px color-mix(in srgb, #22c55e 50%, transparent);
         }
 
         &.dot-disconnected {

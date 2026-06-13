@@ -51,14 +51,14 @@ const fetchSources = async () => {
     }
 }
 
-const fetchStores = async () => {
+const fetchStores = async (sourceId?: number | string) => {
     loading.stores = true
     try {
         const resp = await aiVecStoreApi.queryPage({
             pageNo: 1,
             pageSize: 500,
             param: {
-                sourceId: selectedSourceId.value
+                sourceId: sourceId ?? selectedSourceId.value
             }
         })
         stores.value = resp.list || []

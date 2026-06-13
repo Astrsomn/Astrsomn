@@ -8,12 +8,16 @@
           :placeholder="t.vectorCenter.sidebar.searchPlaceholder"
           @search="handleSearch"
       />
+      <div class="top-add-btn" :title="t.vectorCenter.sidebar.addSource" @click="handleAddSource">
+        <PlusOutlined />
+      </div>
     </template>
 
     <div class="source-tree" @contextmenu="onSidebarBlankContextMenu">
       <div
           v-for="source in sourceTree"
           :key="source.id"
+          :data-source-id="source.id"
           class="source-section"
       >
         <a-dropdown :trigger="['contextmenu']">
@@ -45,11 +49,8 @@
                 :trigger="['contextmenu']"
             >
               <DbNode
-                  :active="db.active"
                   :db-name="db.dbName"
-                  :dim="db.dim"
                   :is-selected="String(selectedStoreId) === String(db.id)"
-                  :model-name="db.modelName"
                   @select="selectDb(source.id, db.id)"
               />
               <template #overlay>
@@ -62,13 +63,6 @@
             <div v-if="!source.dbs.length" class="db-empty-hint" @contextmenu.prevent="handleDbContainerContextMenu($event, source)">{{ t.vectorCenter.sidebar.dbEmptyHint }}</div>
           </div>
         </transition>
-      </div>
-    </div>
-
-    <div class="add-source-section">
-      <div class="add-source-btn" @click="handleAddSource">
-        <PlusOutlined class="add-source-icon"/>
-        <span>{{ t.vectorCenter.sidebar.addSource }}</span>
       </div>
     </div>
 
@@ -303,15 +297,21 @@ const sourceTree = computed<Source[]>(() =>
       const sourceType = String(source.provider || source.extensionCode || 'unknown').toLowerCase()
       const sourceStatus = String(source.status || '').toLowerCase()
       const sourceKey = String(source.id ?? '')
-      const connected =
-          sourceConnectedOverride.value[sourceKey] !== undefined
+      // 状态优先：未启用的 source 始终显示断开，即使之前连接测试成功
+      const connected = sourceStatus === 'enabled'
+          ? (sourceConnectedOverride.value[sourceKey] !== undefined
               ? sourceConnectedOverride.value[sourceKey]
-              : sourceStatus === 'enabled'
+              : true)
+          : false
+      // 关联 extension 获取 avatar 作为 fallback
+      const extAvatar = enabledExtensions.value.find(
+          ext => ext.key.toLowerCase() === sourceType || ext.name.toLowerCase() === sourceType
+      )?.avatar || ''
       return {
         id: source.id as number | string,
         name: source.name || `Source-${source.id}`,
         type: sourceType,
-        providerAvatar: source.providerAvatar,
+        providerAvatar: source.providerAvatar || extAvatar,
         ip: source.host || '-',
         port: source.port || '-',
         user: source.username || '-',
@@ -366,11 +366,23 @@ const handleAddSource = () => {
 const onSidebarBlankContextMenu = (e: MouseEvent) => {
   const target = e.target as HTMLElement
   if (
-      target.closest('.source-section') ||
       target.closest('.sidebar-header') ||
       target.closest('.sidebar-footer') ||
       target.closest('.blank-context-menu')
   ) {
+    return
+  }
+  // 在 source-section 空白区域右键 → 展示该 source 的上下文菜单
+  const sourceSection = target.closest('.source-section') as HTMLElement | null
+  if (sourceSection) {
+    const sourceId = sourceSection.getAttribute('data-source-id')
+    if (sourceId) {
+      const src = sourceTree.value.find(s => String(s.id) === sourceId)
+      if (src) {
+        handleDbContainerContextMenu(e, src)
+        return
+      }
+    }
     return
   }
   e.preventDefault()
@@ -555,6 +567,8 @@ const handleStoreSubmit = async (payload: AiVecStore) => {
     } else {
       await aiVecStoreApi.update(finalPayload)
     }
+    // 清空缓存，确保数据重新拉取
+    storesBySourceCache.value = {}
     storeModalOpen.value = false
     emit('changed')
   } catch (error) {
@@ -644,51 +658,44 @@ watch(
 </script>
 
 <style scoped>
-.add-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.add-icon:hover {
-  background: var(--primary-hover);
-  color: var(--primary);
+/* 去除 SidebarShell body 的默认内边距，最大化内容区域 */
+:deep(.ast-sidebar-body) {
+  padding: 0;
 }
 
 .source-tree {
   flex: 1;
   overflow-y: auto;
-  padding: 6px 8px;
+  padding: 4px 4px 0 4px;
 }
 
 .source-section {
-  margin: 0 4px;
+  margin: 0 2px;
 }
 
 .db-container {
-  margin: 0 6px 8px 18px;
-  padding-left: 12px;
-
+  margin: 0 4px 6px 14px;
+  padding-left: 10px;
+  border-left: 1px solid var(--border-default);
+  transition: border-color 0.2s ease;
+  overflow: hidden;
 }
 
 .db-empty-hint {
-  padding: 8px 10px;
-  margin-top: 4px;
+  padding: 6px 8px;
+  margin-top: 2px;
   color: var(--text-muted);
   font-size: 11px;
+  border-radius: 0;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
+/* 展开动画 — 限制 max-height 避免动画期间出现滚动条 */
 .expand-enter-active,
 .expand-leave-active {
-  transition: all 0.3s ease;
-  max-height: 500px;
-  opacity: 1;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+  max-height: 300px;
+  overflow: hidden;
 }
 
 .expand-enter-from,
@@ -707,38 +714,31 @@ watch(
   background: color-mix(in srgb, var(--error) 10%, transparent) !important;
 }
 
-
 .sidebar-search-pill {
   flex: 1;
   min-width: 0;
-    border: none;
+  border: none;
 }
 
-.add-source-section {
-  flex-shrink: 0;
-  padding: 8px;
-}
-
-.add-source-btn {
+/* 搜索栏旁边的新增图标按钮 */
+.top-add-btn {
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  font-size: 15px;
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 12px;
+  transition: all 0.2s ease;
+  border-radius: 0;
+  background: transparent;
 }
 
-.add-source-btn:hover {
-  background: var(--primary-hover);
+.top-add-btn:hover {
   color: var(--primary);
-}
-
-.add-source-icon {
-  font-size: 14px;
+  background: var(--primary-hover);
 }
 </style>
 
@@ -754,7 +754,7 @@ watch(
   min-width: 160px;
   background: var(--bg-card, #fff);
   border: 1px solid var(--border-default, #e2e8f0);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 4px;
   box-shadow: 0 6px 16px color-mix(in srgb, var(--shadow-color, #000) 12%, transparent), 0 3px 6px color-mix(in srgb, var(--shadow-color, #000) 8%, transparent);
   z-index: 1001;
@@ -767,13 +767,16 @@ watch(
   padding: 8px 12px;
   font-size: 13px;
   color: var(--text-primary, #334155);
-  border-radius: 6px;
+  border-radius: 0;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
+  border-left: 2px solid transparent;
 
   &:hover {
     background: var(--primary-hover, #eff6ff);
     color: var(--primary, #2563eb);
+    border-left-color: var(--primary);
+    padding-left: 14px;
   }
 }
 
@@ -796,7 +799,7 @@ watch(
   width: 280px;
   background: var(--bg-card, #fff);
   border: 1px solid var(--border-default, #e2e8f0);
-  border-radius: 10px;
+  border-radius: 0;
   padding: 8px;
   box-shadow: 0 8px 24px color-mix(in srgb, var(--shadow-color, #000) 12%, transparent), 0 4px 8px color-mix(in srgb, var(--shadow-color, #000) 6%, transparent);
   z-index: 1000;
@@ -829,16 +832,17 @@ watch(
   gap: 12px;
   padding: 16px;
   background: color-mix(in srgb, var(--warning) 10%, transparent);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   margin-bottom: 20px;
-  
+  border-left: 3px solid var(--warning);
+
   .warning-icon {
     font-size: 20px;
     color: var(--warning);
     flex-shrink: 0;
     margin-top: 2px;
   }
-  
+
   span {
     color: var(--text-primary);
     font-size: 13px;
@@ -848,7 +852,7 @@ watch(
 
 .delete-confirm-detail {
   background: var(--bg-input);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   padding: 12px 16px;
   margin-bottom: 20px;
 }
@@ -858,7 +862,7 @@ watch(
   justify-content: space-between;
   align-items: center;
   padding: 6px 0;
-  
+
   &:not(:last-child) {
     border-bottom: 1px solid var(--border-default);
   }
