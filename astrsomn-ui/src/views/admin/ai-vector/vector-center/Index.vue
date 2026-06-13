@@ -29,7 +29,8 @@ const {
   selectedSourceId,
   bootstrap,
   reloadByDoc,
-  fetchSources
+  fetchSources,
+  fetchDocs
 } = useVectorCenterState()
 
 const handleSelectDoc = async (docId: number | string) => {
@@ -38,6 +39,7 @@ const handleSelectDoc = async (docId: number | string) => {
 
 const handleStoreUpdated = async () => {
   await fetchSources()
+  await fetchDocs()
 }
 
 const handleDocChanged = async () => {

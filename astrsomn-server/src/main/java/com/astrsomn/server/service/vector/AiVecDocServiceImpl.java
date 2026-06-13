@@ -119,6 +119,25 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             throw new BusinessException(AstVecDocErrorEnum.DOC_FILE_NOT_TEXT, "Supported formats: .txt, .pdf, .doc, .docx, .md");
         }
 
+        // 检查同文件夹下是否已存在同名文件，若存在则自动追加序号后缀
+        String finalFileName = originalFileName;
+        boolean renamed = false;
+        if (countDuplicate(collectionId, originalFileName, folderId) > 0) {
+            renamed = true;
+            String baseName = originalFileName;
+            String extension = "";
+            int dotIdx = originalFileName.lastIndexOf('.');
+            if (dotIdx > 0) {
+                baseName = originalFileName.substring(0, dotIdx);
+                extension = originalFileName.substring(dotIdx);
+            }
+            int counter = 1;
+            do {
+                finalFileName = baseName + " (" + counter + ")" + extension;
+                counter++;
+            } while (countDuplicate(collectionId, finalFileName, folderId) > 0);
+        }
+
         StorageUploadResult uploadResult = astrsomnStorageClient.upload(StorageUploadRequest.builder()
                 .file(file)
                 .bizType(storageProperties.getVecDocBizType())
@@ -141,23 +160,12 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             throw new BusinessException(AstFileErrorEnum.FILE_RECORD_CREATE_FAILED);
         }
 
-        // 检查同文件夹下是否已存在同名文件
-        Long existCount = count(new LambdaQueryWrapper<AiVecDocEntity>()
-                .eq(AiVecDocEntity::getCollectionId, collectionId)
-                .eq(AiVecDocEntity::getOriginalFileName, originalFileName)
-                .eq(folderId != null, AiVecDocEntity::getFolderId, folderId)
-                .isNull(folderId == null, AiVecDocEntity::getFolderId));
-        if (Objects.nonNull(existCount) && existCount > 0) {
-            throw new BusinessException(AstVecDocErrorEnum.DOC_DUPLICATE_FILE,
-                    "Duplicate file in folder: " + originalFileName);
-        }
-
         AiVecDocEntity entity = new AiVecDocEntity();
         entity.setCollectionId(collectionId);
         entity.setFilePath(uploadResult.getObjectKey());
         entity.setFileRecordId(fileRow.getId());
-        entity.setOriginalFileName(originalFileName);
-        entity.setContentSummary(originalFileName);
+        entity.setOriginalFileName(finalFileName);
+        entity.setContentSummary(finalFileName);
         entity.setFolderId(folderId);
         entity.setSyncStatus(AiVecDocEnum.SyncStatus.PENDING.getCode());
         entity.setDocIdInStore(null);
@@ -169,7 +177,17 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
 
         AiVecDocResponseDTO dto = new AiVecDocResponseDTO();
         BeanUtils.copyProperties(entity, dto);
+        dto.setRenamed(renamed);
         return BaseResponse.success(dto);
+    }
+
+    private long countDuplicate(Long collectionId, String fileName, Long folderId) {
+        Long count = count(new LambdaQueryWrapper<AiVecDocEntity>()
+                .eq(AiVecDocEntity::getCollectionId, collectionId)
+                .eq(AiVecDocEntity::getOriginalFileName, fileName)
+                .eq(folderId != null, AiVecDocEntity::getFolderId, folderId)
+                .isNull(folderId == null, AiVecDocEntity::getFolderId));
+        return Objects.isNull(count) ? 0 : count;
     }
 
     @Override
@@ -975,5 +993,29 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         AiVecDocResponseDTO responseDTO = new AiVecDocResponseDTO();
         BeanUtils.copyProperties(entity, responseDTO);
         return BaseResponse.success(responseDTO);
+    }
+
+    @Override
+    public void download(Long id, jakarta.servlet.http.HttpServletResponse response) {
+        AiVecDocEntity doc = getById(id);
+        if (Objects.isNull(doc)) {
+            response.setStatus(404);
+            return;
+        }
+        try (InputStream in = openDocInputStream(doc)) {
+            String fileName = StringUtils.isNotBlank(doc.getOriginalFileName())
+                    ? doc.getOriginalFileName()
+                    : "download";
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" +
+                    java.net.URLEncoder.encode(fileName, java.nio.charset.StandardCharsets.UTF_8) + "\"");
+            org.springframework.util.StreamUtils.copy(in, response.getOutputStream());
+            response.flushBuffer();
+        } catch (BusinessException e) {
+            response.setStatus(404);
+        } catch (Exception e) {
+            log.error("Download failed for doc id={}: {}", id, e.getMessage());
+            response.setStatus(500);
+        }
     }
 }

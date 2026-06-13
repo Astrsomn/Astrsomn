@@ -35,4 +35,6 @@ public interface AiVecDocService extends IService<AiVecDocEntity> {
 
     
     BaseResponse<String> reChunk(Long id);
+
+    void download(Long id, jakarta.servlet.http.HttpServletResponse response);
 }

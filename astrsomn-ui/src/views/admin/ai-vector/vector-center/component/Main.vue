@@ -16,6 +16,7 @@
             :folder-path="folderPath"
             :search-keyword="keyword"
             :view-size="viewSize"
+            :current-folder-id="currentFolderId"
             @updated="$emit('store-updated')"
             @search="keyword = $event"
             @navigate="handleNavigate"
@@ -80,7 +81,7 @@ const docCount = computed(() => props.docs?.length ?? 0)
 const currentFolderId = ref<number | string | null>(null)
 const folderPath = ref<Array<{ id: number | string; name: string }>>([])
 const keyword = ref('')
-const viewSize = ref<'small' | 'medium' | 'large' | 'list'>('large')
+const viewSize = ref<'small' | 'medium' | 'large' | 'list'>('small')
 const rightCenterRef = ref<InstanceType<typeof RightCenter> | null>(null)
 
 const handleNavigate = (folderId: number | string | null, path: Array<{ id: number | string; name: string }>) => {
@@ -134,6 +135,8 @@ watch(() => props.selectedStoreId, () => {
   flex: 1;
   overflow-y: auto;
   background-color: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
 }
 
 .empty-state {

@@ -70,6 +70,15 @@
                   :disabled-label="t.vecSource.form.disabled"
               />
             </a-form-item>
+
+            <a-form-item :label="t.vecSource.form.autoConnect.label" name="autoConnect">
+              <a-switch
+                  :checked="form.autoConnect === 1"
+                  :checked-children="t.vecSource.form.autoConnect.on"
+                  :un-checked-children="t.vecSource.form.autoConnect.off"
+                  @change="(val) => form.autoConnect = val ? 1 : 0"
+              />
+            </a-form-item>
           </div>
 
           <!-- 第二步：连接配置 -->
@@ -242,7 +251,8 @@ function emptyForm(): FormRow {
     databaseName: '',
     token: '',
     configJson: '',
-    status: 'enabled'
+    status: 'enabled',
+    autoConnect: 1
   }
 }
 
@@ -286,6 +296,9 @@ function assignFromInitial(src: AiVecSource) {
   Object.assign(form, emptyForm(), src)
   if (!form.status) {
     form.status = 'enabled'
+  }
+  if (form.autoConnect === undefined || form.autoConnect === null) {
+    form.autoConnect = 1
   }
 }
 

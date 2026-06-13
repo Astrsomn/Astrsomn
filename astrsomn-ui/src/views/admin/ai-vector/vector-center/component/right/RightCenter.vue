@@ -1,7 +1,14 @@
 <template>
-  <div class="document-list-container">
+  <div
+    class="document-list-container"
+    @contextmenu.prevent="onBlankContextMenu"
+    @dragover.prevent="onDragOver"
+    @dragenter.prevent="onDragEnter"
+    @dragleave="onDragLeave"
+    @drop.prevent="onDrop"
+  >
     <!-- 列表视图 -->
-    <div v-if="viewSize === 'list'" class="file-list" @contextmenu.prevent="onBlankContextMenu">
+    <div v-if="viewSize === 'list'" class="file-list">
       <div class="file-list-header">
         <span class="col-name">{{ t.vectorCenter.rightCenter.name }}</span>
         <span class="col-size">{{ t.vectorCenter.rightCenter.size }}</span>
@@ -71,7 +78,7 @@
           </span>
           <span class="col-time">{{ file.uploadTime }}</span>
           <span class="col-actions">
-            <a-button size="small" type="text" @click.stop="openEdit(file)"><edit-outlined/></a-button>
+            <a-button size="small" type="text" @click.stop="openRenameDoc(file)"><edit-outlined/></a-button>
             <a-button size="small" type="text" danger @click.stop="handleDelete(file)"><delete-outlined/></a-button>
           </span>
         </div>
@@ -94,14 +101,15 @@
     </div>
 
     <!-- 网格视图 -->
-    <div v-else ref="gridRef" :class="`file-grid size-${viewSize}`" @contextmenu.prevent="onBlankContextMenu" @mousedown="onBoxSelectMouseDown">
+    <div v-else ref="gridRef" :class="`file-grid size-${viewSize}`" @mousedown="onBoxSelectMouseDown">
       <SelectionOverlay :rect="selectionRect"/>
       <a-dropdown v-for="folder in folders" :key="folder.id" :trigger="['contextmenu']">
         <DocFolderCard
             :data-select-id="String(folder.id)"
             :folder="folder"
             :size="viewSize"
-            :editing="renamingFolderId === folder.id"
+            :editing="renamingFolderId === folder.id || isNewFolderPlaceholder(folder)"
+            :placeholder="isNewFolderPlaceholder(folder) ? t.vectorCenter.rightCenter.newFolderPlaceholder : undefined"
             :selected="isSelected(String(folder.id))"
             @delete="handleDeleteFolder"
             @enter="handleFolderEnter"
@@ -143,8 +151,12 @@
             :vectorizing="!!vectorizingMap[String(file.id)]"
             :progress="vectorizingMap[String(file.id)]?.progress"
             :progress-msg="vectorizingMap[String(file.id)]?.message"
+            :editing="renamingDocId === String(file.id)"
             @delete="handleDelete"
-            @edit="openEdit"
+            @edit="openRenameDoc"
+            @download="handleDownload"
+            @rename-confirm="handleDocRenameConfirm"
+            @rename-cancel="handleDocRenameCancel"
             @select="handleSelectDoc"
             @chunk="handleChunk"
             @vectorize="handleVectorize"
@@ -195,30 +207,22 @@
         </template>
       </a-dropdown>
     </div>
-    <!-- DEBUG: VecDocFormModal temporarily disabled to isolate emitsOptions error -->
-    <!--
-    <VecDocFormModal
-        :confirm-loading="modalSubmitting"
-        :initial="modalInitial"
-        :mode="modalMode"
-        :open="modalOpen"
-        @submit="handleSubmit"
-        @update:open="(value) => (modalOpen = value)"
+
+    <!-- Upload drop zone -->
+    <div :class="['upload-drop-zone', { 'drag-over': dragOver }]" @click="triggerFileInput">
+      <inbox-outlined class="upload-icon"/>
+      <p class="upload-title">{{ t.vectorCenter.rightCenter.uploadZone.title }}</p>
+      <p class="upload-hint">{{ uploading ? t.vectorCenter.rightCenter.uploadZone.uploading : t.vectorCenter.rightCenter.uploadZone.hint }}</p>
+      <span class="upload-link">{{ t.vectorCenter.rightCenter.uploadZone.clickToUpload }}</span>
+    </div>
+    <input
+        ref="fileInputRef"
+        type="file"
+        multiple
+        style="display:none"
+        accept=".txt,.text,.pdf,.doc,.docx,.md,.markdown"
+        @change="onFileInputChange"
     />
-    -->
-    <a-modal
-        :open="folderModalOpen"
-        :title="editingFolder ? t.vectorCenter.rightCenter.renameFolderTitle : t.vectorCenter.rightCenter.createFolderTitle"
-        @cancel="folderModalOpen = false"
-        @ok="handleFolderSubmit"
-    >
-      <a-input
-          :value="folderModalName"
-          :placeholder="t.vectorCenter.rightCenter.folderNamePlaceholder"
-          @update:value="setFolderModalName"
-          @keyup.enter="handleFolderSubmit"
-      />
-    </a-modal>
 
     <a-modal
         :open="moveModalOpen"
@@ -283,12 +287,14 @@ import {
   BlockOutlined,
   CopyOutlined,
   DeleteOutlined,
+  DownloadOutlined,
   EditOutlined,
   ExperimentOutlined,
   FileMarkdownOutlined,
   FilePdfOutlined,
   FileTextOutlined,
   FolderOutlined,
+  InboxOutlined,
   PlusOutlined,
   ReloadOutlined,
   ScissorOutlined,
@@ -297,7 +303,6 @@ import {
 } from '@ant-design/icons-vue';
 import DocFileCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFileCard.vue';
 import DocFolderCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFolderCard.vue';
-import VecDocFormModal from '@/views/admin/ai-vector/vector-center/form/VecDocFormModal.vue'
 import SelectionOverlay from '@/views/admin/ai-vector/vector-center/component/right/SelectionOverlay.vue'
 import {type AiVecDoc, aiVecDocApi} from '@/api/aiVecDoc.ts'
 import {type AiVecFolder, aiVecFolderApi} from '@/api/aiVecFolder.ts'
@@ -323,19 +328,13 @@ const emit = defineEmits<{
   'update:folderPath': [path: Array<{ id: number | string; name: string }>]
 }>()
 
-const viewSize = ref<'small' | 'medium' | 'large' | 'list'>('large')
-const modalOpen = ref(false)
+const viewSize = ref<'small' | 'medium' | 'large' | 'list'>('small')
 const folders = ref<AiVecFolder[]>([])
 const currentFolderId = ref<number | string | null>(null)
 const folderPath = ref<Array<{ id: number | string; name: string }>>([])
 let isInternalFolderNavigation = false
-const folderModalOpen = ref(false)
-const folderModalName = ref('')
-const editingFolder = ref<AiVecFolder | null>(null)
 const renamingFolderId = ref<number | string | null>(null)
-const modalMode = ref<'create' | 'edit'>('create')
-const modalInitial = ref<AiVecDoc | null>(null)
-const modalSubmitting = ref(false)
+const renamingDocId = ref<number | string | null>(null)
 const vectorizingMap = reactive<Record<string, { progress: number; message: string }>>({})
 const pollingTimers = ref<Record<string, ReturnType<typeof setInterval>>>({})
 const blankMenuVisible = ref(false)
@@ -344,6 +343,85 @@ const blankMenuY = ref(0)
 const clipboard = ref<{ items: any[]; mode: 'copy' | 'cut' } | null>(null)
 
 const gridRef = ref<HTMLElement | null>(null)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+const dragCounter = ref(0)
+const dragOver = ref(false)
+const uploading = ref(false)
+
+const onDragOver = () => {
+  dragOver.value = true
+}
+
+const onDragEnter = () => {
+  dragCounter.value++
+  dragOver.value = true
+}
+
+const onDragLeave = () => {
+  dragCounter.value--
+  if (dragCounter.value <= 0) {
+    dragCounter.value = 0
+    dragOver.value = false
+  }
+}
+
+const onDrop = async (e: DragEvent) => {
+  dragCounter.value = 0
+  dragOver.value = false
+  const files = e.dataTransfer?.files
+  if (files && files.length > 0) {
+    await uploadFiles(files)
+  }
+}
+
+const triggerFileInput = () => {
+  fileInputRef.value?.click()
+}
+
+const onFileInputChange = async (e: Event) => {
+  const input = e.target as HTMLInputElement
+  const files = input.files
+  if (files && files.length > 0) {
+    await uploadFiles(files)
+  }
+  // Reset so the same file can be re-selected
+  input.value = ''
+}
+
+const uploadFiles = async (files: FileList | File[]) => {
+  if (!props.storeId) {
+    message.warning(t.value.vectorCenter.rightCenter.selectStoreFirst)
+    return
+  }
+  uploading.value = true
+  let successCount = 0
+  let failCount = 0
+  for (let i = 0; i < files.length; i++) {
+    try {
+      const doc = await aiVecDocApi.upload(files[i], props.storeId, currentFolderId.value)
+      if (doc.renamed) {
+        message.info(t.value.vectorCenter.rightCenter.fileNameAutoRenamed.replace('{name}', doc.originalFileName || ''))
+      }
+      successCount++
+    } catch (error) {
+      failCount++
+      const err = error as { message?: string }
+      if (err?.message?.includes('same name') || err?.message?.includes('conflict')) {
+        message.warning(t.value.vectorCenter.rightCenter.fileNameDuplicateContent.replace('{name}', (files[i] as File).name))
+      } else {
+        message.error(err?.message || t.value.vectorCenter.rightCenter.uploadFailed)
+      }
+    }
+  }
+  uploading.value = false
+  if (successCount > 0) {
+    message.success(t.value.vectorCenter.rightCenter.uploadSuccess)
+    emit('changed')
+  } else if (failCount === 0 && files.length === 0) {
+    // No files to upload
+  }
+}
+
 const {
   selectedIds,
   selectionRect,
@@ -393,10 +471,6 @@ watch(() => props.folderPath, (newPath) => {
   if (!newPath) return
   folderPath.value = [...newPath]
 }, { deep: true })
-
-const setFolderModalName = (value: string) => {
-  folderModalName.value = value
-}
 
 const setMoveTargetFolderId = (value: number | string | null) => {
   moveTargetFolderId.value = value
@@ -472,10 +546,18 @@ const navigateToPath = (index: number) => {
   nextTick(() => { isInternalFolderNavigation = false })
 }
 
+const isNewFolderPlaceholder = (folder: AiVecFolder) => {
+  return (folder as any).__isNew === true
+}
+
 const openCreateFolder = () => {
-  editingFolder.value = null
-  folderModalName.value = ''
-  folderModalOpen.value = true
+  // Windows-style: insert a placeholder folder card at the front
+  const placeholder = {
+    id: '__new__',
+    folderName: '',
+    __isNew: true
+  } as any as AiVecFolder
+  folders.value.unshift(placeholder)
 }
 
 const openRenameFolder = (folder: AiVecFolder) => {
@@ -484,45 +566,35 @@ const openRenameFolder = (folder: AiVecFolder) => {
 
 const handleRenameConfirm = async (folder: AiVecFolder, newName: string) => {
   try {
-    await aiVecFolderApi.update({id: folder.id, folderName: newName})
-    message.success(t.value.vectorCenter.rightCenter.renameSuccess)
-    renamingFolderId.value = null
-    await fetchFolders()
+    if (isNewFolderPlaceholder(folder)) {
+      // Creating new folder from placeholder
+      await aiVecFolderApi.create({
+        collectionId: props.storeId,
+        folderName: newName,
+        parentId: currentFolderId.value
+      })
+      message.success(t.value.vectorCenter.rightCenter.folderCreated)
+      // Remove placeholder
+      folders.value = folders.value.filter(f => !isNewFolderPlaceholder(f))
+      await fetchFolders()
+      emit('changed')
+    } else {
+      await aiVecFolderApi.update({id: folder.id, folderName: newName})
+      message.success(t.value.vectorCenter.rightCenter.renameSuccess)
+      renamingFolderId.value = null
+      await fetchFolders()
+    }
   } catch (error) {
     const err = error as { message?: string }
     message.error(err?.message || t.value.vectorCenter.rightCenter.renameFailed)
   }
 }
 
-const handleRenameCancel = () => {
+const handleRenameCancel = (folder?: AiVecFolder) => {
+  if (folder && isNewFolderPlaceholder(folder)) {
+    folders.value = folders.value.filter(f => !isNewFolderPlaceholder(f))
+  }
   renamingFolderId.value = null
-}
-
-const handleFolderSubmit = async () => {
-  const name = folderModalName.value.trim()
-  if (!name) {
-    message.warning(t.value.vectorCenter.rightCenter.folderNameEmpty)
-    return
-  }
-  try {
-    if (editingFolder.value) {
-      await aiVecFolderApi.update({id: editingFolder.value.id, folderName: name})
-      message.success(t.value.vectorCenter.rightCenter.renameSuccess)
-    } else {
-      await aiVecFolderApi.create({
-        collectionId: props.storeId,
-        folderName: name,
-        parentId: currentFolderId.value
-      })
-      message.success(t.value.vectorCenter.rightCenter.folderCreated)
-    }
-    folderModalOpen.value = false
-    await fetchFolders()
-    emit('changed')
-  } catch (error) {
-    const err = error as { message?: string }
-    message.error(err?.message || t.value.vectorCenter.rightCenter.operationFailed)
-  }
 }
 
 const handleDeleteFolder = (folder: AiVecFolder) => {
@@ -608,42 +680,36 @@ watch(
     {immediate: true}
 )
 
-const openCreate = () => {
-  modalMode.value = 'create'
-  modalInitial.value = {
-    collectionId: props.storeId,
-    contentSummary: '',
-    syncStatus: 'PENDING'
-  }
-  modalOpen.value = true
+defineExpose({ openCreateFolder })
+
+const openRenameDoc = (file: any) => {
+  if (file?.id == null) return
+  renamingDocId.value = String(file.id)
 }
 
-defineExpose({ openCreateFolder, openCreate })
-
-const openEdit = async (file: any) => {
-  const id = file?.id
-  if (id == null) return
-  const detail = await aiVecDocApi.detail(id)
-  modalMode.value = 'edit'
-  modalInitial.value = detail
-  modalOpen.value = true
-}
-
-const handleSubmit = async (payload: AiVecDoc) => {
-  modalSubmitting.value = true
+const handleDocRenameConfirm = async (file: any, newName: string) => {
+  if (file?.id == null) return
   try {
-    if (modalMode.value === 'create') {
-      await aiVecDocApi.create(payload)
-    } else {
-      await aiVecDocApi.update(payload)
-    }
-    modalOpen.value = false
+    await aiVecDocApi.update({ id: file.id, originalFileName: newName } as any)
+    message.success(t.value.vectorCenter.rightCenter.renameDocSuccess)
+    renamingDocId.value = null
     emit('changed')
   } catch (error) {
     const err = error as { message?: string }
-    message.error(err?.message || t.value.vectorCenter.rightCenter.saveDocFailed)
-  } finally {
-    modalSubmitting.value = false
+    message.error(err?.message || t.value.vectorCenter.rightCenter.renameDocFailed)
+  }
+}
+
+const handleDocRenameCancel = () => {
+  renamingDocId.value = null
+}
+
+const handleDownload = async (file: any) => {
+  if (file?.id == null) return
+  try {
+    await aiVecDocApi.download(file.id)
+  } catch (err) {
+    message.error((err as { message?: string })?.message || t.value.vectorCenter.rightCenter.operationFailed)
   }
 }
 
@@ -816,7 +882,7 @@ const onBlankMenuAction = (action: string) => {
       openCreateFolder()
       break
     case 'newRecord':
-      openCreate()
+      // VecDocFormModal is disabled; new docs are created via upload
       break
     case 'paste':
       handlePaste(null)
@@ -850,7 +916,7 @@ const onFileMenuClick = (payload: unknown, file: any) => {
 
   switch (key) {
     case 'edit':
-      openEdit(file)
+      openRenameDoc(file)
       return
     case 'chunk':
       handleChunk(file)
@@ -1149,6 +1215,69 @@ const handlePaste = async (targetFolderId: number | string | null) => {
     display: flex;
     justify-content: center;
     gap: 2px;
+  }
+}
+
+.upload-drop-zone {
+  flex-shrink: 0;
+  margin: 16px 0 0;
+  border: 2px dashed var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+
+  &:hover {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 4%, transparent);
+  }
+
+  &.drag-over {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 12%, transparent);
+  }
+
+  .upload-icon {
+    font-size: 40px;
+    color: var(--text-muted);
+    transition: color 0.3s;
+  }
+
+  &:hover .upload-icon,
+  &.drag-over .upload-icon {
+    color: var(--primary);
+  }
+
+  .upload-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .upload-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .upload-link {
+    font-size: 13px;
+    color: var(--primary);
+    margin-top: 4px;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 </style>

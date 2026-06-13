@@ -24,6 +24,7 @@ export type AiVecSource = {
     token?: string
     configJson?: string
     status?: string
+    autoConnect?: number
     createTime?: string
     updateTime?: string
     createUser?: string

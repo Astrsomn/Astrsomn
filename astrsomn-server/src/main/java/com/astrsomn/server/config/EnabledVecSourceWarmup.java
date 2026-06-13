@@ -115,6 +115,7 @@ public class EnabledVecSourceWarmup implements ApplicationListener<ApplicationRe
     private List<AiVecSourceEntity> fetchEnabledSources() {
         return vecSourceMapper.selectList(new LambdaQueryWrapper<AiVecSourceEntity>()
                 .eq(AiVecSourceEntity::getDeleted, Boolean.FALSE)
+                .eq(AiVecSourceEntity::getAutoConnect, 1)
                 .eq(AiVecSourceEntity::getStatus, STATUS_ENABLED));
     }
 

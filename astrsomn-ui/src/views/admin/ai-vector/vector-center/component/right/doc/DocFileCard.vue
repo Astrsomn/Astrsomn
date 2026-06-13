@@ -4,9 +4,12 @@
     <div class="square-container">
       <div class="inner-content">
 
-        <div class="action-group">
+        <div class="action-group" v-if="!editing">
           <div class="action-btn" :title="t.vectorCenter.docFileCard.edit" @click.stop="$emit('edit', file)">
             <edit-outlined/>
+          </div>
+          <div class="action-btn download" :title="t.vectorCenter.docFileCard.download" @click.stop="$emit('download', file)">
+            <download-outlined/>
           </div>
           <div v-if="canChunk" class="action-btn chunk" :title="t.vectorCenter.docFileCard.chunk" @click.stop="$emit('chunk', file)">
             <block-outlined/>
@@ -33,15 +36,26 @@
         </div>
 
         <div class="main-body">
-          <div :class="file.statusCode === 'STORED' ? 'ready' : 'pending'" class="status-dot"></div>
+          <div :class="['status-dot', statusDotClass]"></div>
           <div :class="getFileExtension(file.name)" class="icon-box">
             <component :is="getFileIcon(file.name)" class="file-icon-svg"/>
           </div>
-          <h3 :title="file.name" class="file-name">{{ file.name }}</h3>
+          <input
+              v-if="editing"
+              ref="editInputRef"
+              :value="file.name"
+              :placeholder="t.vectorCenter.docFileCard.renamePlaceholder"
+              class="file-name-input"
+              @blur="$emit('rename-cancel', file)"
+              @keydown.enter="onConfirmRename($event)"
+              @keydown.escape="$emit('rename-cancel', file)"
+              @click.stop
+          />
+          <h3 v-else :title="file.name" class="file-name">{{ file.name }}</h3>
         </div>
 
         <div class="footer-overlay">
-          <span class="file-size">{{ file.size }}</span>
+          <span class="file-status">{{ file.status }}</span>
           <span class="upload-time">{{ file.uploadTime }}</span>
         </div>
 
@@ -51,10 +65,11 @@
 </template>
 
 <script lang="ts" setup>
-import {computed} from 'vue';
+import {computed, nextTick, ref, watch} from 'vue';
 import {
   BlockOutlined,
   DeleteOutlined,
+  DownloadOutlined,
   EditOutlined,
   ExperimentOutlined,
   FileMarkdownOutlined,
@@ -79,20 +94,24 @@ const props = defineProps<{
   active?: boolean;
   cut?: boolean;
   selected?: boolean;
+  editing?: boolean;
   vectorizing?: boolean;
   progress?: number;
   progressMsg?: string;
   size?: 'small' | 'medium' | 'large';
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   select: [file: any, e: MouseEvent]
   edit: [file: any]
+  download: [file: any]
   chunk: [file: any]
   vectorize: [file: any]
   're-chunk': [file: any]
   're-vectorize': [file: any]
   delete: [file: any]
+  'rename-confirm': [file: any, newName: string]
+  'rename-cancel': [file: any]
   contextmenu: [e: MouseEvent, file: any]
 }>()
 
@@ -100,6 +119,37 @@ const canChunk = computed(() => !props.vectorizing && (props.file.statusCode ===
 const canVectorize = computed(() => !props.vectorizing && props.file.statusCode === 'CHUNKED')
 const canReChunk = computed(() => !props.vectorizing && (props.file.statusCode === 'CHUNKED' || props.file.statusCode === 'STORED' || props.file.statusCode === 'FAILED'))
 const canReVectorize = computed(() => !props.vectorizing && (props.file.statusCode === 'STORED' || props.file.statusCode === 'FAILED'))
+
+const statusDotClass = computed(() => {
+  switch (props.file.statusCode) {
+    case 'STORED': return 'ready'
+    case 'CHUNKED': return 'chunked'
+    default: return 'pending'
+  }
+})
+
+const editInputRef = ref<HTMLInputElement | null>(null)
+
+watch(() => props.editing, (val) => {
+  if (val) {
+    nextTick(() => {
+      if (editInputRef.value) {
+        editInputRef.value.focus()
+        editInputRef.value.select()
+      }
+    })
+  }
+})
+
+const onConfirmRename = (e: KeyboardEvent) => {
+  const input = e.target as HTMLInputElement
+  const newName = input.value.trim()
+  if (newName && newName !== props.file.name) {
+    emit('rename-confirm', props.file, newName)
+  } else {
+    emit('rename-cancel', props.file)
+  }
+}
 
 const getFileIcon = (name: string) => {
   const ext = name.split('.').pop()?.toLowerCase();
@@ -184,6 +234,10 @@ const getFileExtension = (name: string) => {
         background: var(--success);
       }
 
+      &.chunked {
+        background: #8b5cf6;
+      }
+
       &.pending {
         background: #f59e0b;
       }
@@ -227,6 +281,20 @@ const getFileExtension = (name: string) => {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .file-name-input {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-heading);
+      margin: 0;
+      max-width: 80%;
+      text-align: center;
+      border: 1px solid var(--primary);
+      border-radius: var(--radius-sm);
+      padding: 2px 6px;
+      outline: none;
+      background: var(--bg-input);
     }
   }
 
@@ -285,8 +353,13 @@ const getFileExtension = (name: string) => {
     justify-content: space-between;
     font-size: 11px;
     color: var(--text-muted);
-    opacity: 0.7;
+    opacity: 0.85;
     z-index: 1;
+
+    .file-status {
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
   }
 
   .vectorizing-overlay {

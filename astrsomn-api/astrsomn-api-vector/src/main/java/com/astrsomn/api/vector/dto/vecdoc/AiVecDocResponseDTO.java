@@ -5,4 +5,7 @@ import lombok.Data;
 
 @Data
 public class AiVecDocResponseDTO extends AiVecDocEntity {
+
+    /** Whether the original file name was auto-renamed to avoid a duplicate */
+    private Boolean renamed;
 }

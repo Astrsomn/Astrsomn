@@ -42,6 +42,9 @@ public class AiVecSourceServiceImpl extends ServiceImpl<AiVecSourceMapper, AiVec
     public BaseResponse<String> create(AiVecSourceCreateRequestDTO request) {
         AiVecSourceEntity entity = new AiVecSourceEntity();
         BeanUtils.copyProperties(request, entity);
+        if (Objects.isNull(entity.getAutoConnect())) {
+            entity.setAutoConnect(1);
+        }
         boolean result = save(entity);
         if (!result) {
             throw new BusinessException(AstVecSourceErrorEnum.SOURCE_CREATE_FAILED);

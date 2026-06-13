@@ -29,6 +29,8 @@ export type AiVecDoc = {
     createUser?: string
     updateUser?: string
     envCode?: string
+    /** Whether the original file name was auto-renamed to avoid a duplicate */
+    renamed?: boolean
 }
 
 export type AiVecDocVectorizeProgress = {
@@ -143,5 +145,33 @@ export const aiVecDocApi = {
             data: {id},
             timeout: 300000
         })
+    },
+
+    download: async (id: number | string): Promise<void> => {
+        const token = localStorage.getItem('token')
+        const ws = localStorage.getItem('workspaceEnv')
+        const headers: Record<string, string> = {}
+        if (token) headers['Authorization'] = `Bearer ${token}`
+        if (ws) headers['x-workspace-env'] = ws
+        const url = `/v1/astro/ai-vec-doc/download?id=${encodeURIComponent(String(id))}`
+        const response = await fetch(url, { headers })
+        if (!response.ok) throw new Error('Download failed')
+        const blob = await response.blob()
+        const disposition = response.headers.get('Content-Disposition')
+        let filename = 'download'
+        if (disposition) {
+            const match = disposition.match(/filename\*=UTF-8''(.+)/) || disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+            if (match && match[1]) {
+                filename = decodeURIComponent(match[1].replace(/['"]/g, ''))
+            }
+        }
+        const blobUrl = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = blobUrl
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(blobUrl)
     }
 }

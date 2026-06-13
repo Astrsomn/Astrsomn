@@ -49,60 +49,64 @@
         </div>
       </div>
 
-      <AstDataView
-          :columns="columns"
-          :data-source="filteredSegments"
-          :loading="loading"
-          :row-selection="rowSelection"
-          :scroll="{ x: 1000 }"
-          :empty-text="t.vectorCenter.rightBottom.emptyText"
-          mode="table"
-          row-key="id"
-          dense
-          table-row-height="22px"
-          table-header-height="28px"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'segmentContent'">
-            <a-typography-paragraph :content="record.segmentContent || '-'"
-                                    :ellipsis="{ rows: 2, expandable: true, symbol: t.vectorCenter.rightBottom.expand }"/>
+      <div ref="tableWrapRef" class="segment-table-wrap">
+        <AstDataView
+            :columns="columns"
+            :data-source="filteredSegments"
+            :loading="loading"
+            :row-selection="rowSelection"
+            :scroll="tableScroll"
+            :empty-text="t.vectorCenter.rightBottom.emptyText"
+            mode="table"
+            row-key="id"
+            dense
+            table-row-height="22px"
+            table-header-height="28px"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'segmentContent'">
+              <a-typography-paragraph :content="record.segmentContent || '-'"
+                                      :ellipsis="{ rows: 2, expandable: true, symbol: t.vectorCenter.rightBottom.expand }"/>
+            </template>
+            <template v-else-if="column.key === 'status'">
+              <a-tag v-if="record.vectorId" color="green">{{ t.vectorCenter.rightBottom.vectorized }}</a-tag>
+              <a-tag v-else color="default">{{ t.vectorCenter.rightBottom.pendingVectorize }}</a-tag>
+            </template>
+            <template v-else-if="column.key === 'metadataJson'">
+              <a-typography-paragraph :content="record.metadataJson || '-'"
+                                      :ellipsis="{ rows: 2, expandable: true, symbol: t.vectorCenter.rightBottom.expand }"/>
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-space>
+                <a-button size="small" type="link" @click="handleVectorizeSegment(record)">
+                  <template #icon>
+                    <ExperimentOutlined/>
+                  </template>
+                  {{ record.vectorId ? t.vectorCenter.rightBottom.reVectorize : t.vectorCenter.rightBottom.vectorize }}
+                </a-button>
+                <a-popconfirm :title="t.vectorCenter.rightBottom.confirmDelete" @confirm="removeSegment(record)">
+                  <a-button danger size="small" type="link">{{ t.vectorCenter.rightBottom.deleteBtn }}</a-button>
+                </a-popconfirm>
+              </a-space>
+            </template>
           </template>
-          <template v-else-if="column.key === 'status'">
-            <a-tag v-if="record.vectorId" color="green">{{ t.vectorCenter.rightBottom.vectorized }}</a-tag>
-            <a-tag v-else color="default">{{ t.vectorCenter.rightBottom.pendingVectorize }}</a-tag>
-          </template>
-          <template v-else-if="column.key === 'metadataJson'">
-            <a-typography-paragraph :content="record.metadataJson || '-'"
-                                    :ellipsis="{ rows: 2, expandable: true, symbol: t.vectorCenter.rightBottom.expand }"/>
-          </template>
-          <template v-else-if="column.key === 'actions'">
-            <a-space>
-              <a-button size="small" type="link" @click="handleVectorizeSegment(record)">
-                <template #icon>
-                  <ExperimentOutlined/>
-                </template>
-                {{ record.vectorId ? t.vectorCenter.rightBottom.reVectorize : t.vectorCenter.rightBottom.vectorize }}
-              </a-button>
-              <a-popconfirm :title="t.vectorCenter.rightBottom.confirmDelete" @confirm="removeSegment(record)">
-                <a-button danger size="small" type="link">{{ t.vectorCenter.rightBottom.deleteBtn }}</a-button>
-              </a-popconfirm>
-            </a-space>
-          </template>
-        </template>
-      </AstDataView>
+        </AstDataView>
+      </div>
 
-      <AstPagination
-          :current="pager.pageNum"
-          :page-size="pager.pageSize"
-          :total="pager.total"
-          @change="onPageChange"
-      />
+      <div class="segment-pagination">
+        <AstPagination
+            :current="pager.pageNum"
+            :page-size="pager.pageSize"
+            :total="pager.total"
+            @change="onPageChange"
+        />
+      </div>
     </div>
   </AstModal>
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref, watch} from 'vue'
+import {computed, onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue'
 import {message, Modal} from 'ant-design-vue'
 import {BlockOutlined, DeleteOutlined, ExperimentOutlined} from '@ant-design/icons-vue'
 import AstModal from '@/components/home/AstModal.vue'
@@ -155,6 +159,36 @@ const rowSelection = computed(() => ({
     selectedRowKeys.value = keys
   }
 }))
+
+const tableWrapRef = ref<HTMLElement>()
+const tableBodyHeight = ref(400)
+
+const tableScroll = computed(() => ({
+  x: 1000,
+  y: tableBodyHeight.value
+}))
+
+let resizeObserver: ResizeObserver | null = null
+
+onMounted(() => {
+  if (typeof ResizeObserver !== 'undefined' && tableWrapRef.value) {
+    resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const h = entry.contentRect.height
+        if (h > 0) {
+          // subtract table header + borders:
+          // dense header: 4+28+4=36px + 1px border-bottom + 1px scroll border + 2px outer border + 4px buffer
+          tableBodyHeight.value = Math.max(h - 44, 150)
+        }
+      }
+    })
+    resizeObserver.observe(tableWrapRef.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+})
 
 const fetchSegmentRows = async () => {
   if (!props.storeId || !props.docId) {
@@ -261,6 +295,7 @@ const handleClose = () => {
   height: 100%;
   padding: 20px 30px;
   background: var(--bg-card);
+  min-height: 0;
 }
 
 .segment-modal-toolbar {
@@ -269,6 +304,7 @@ const handleClose = () => {
   align-items: center;
   gap: 16px;
   margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .segment-search {
@@ -280,10 +316,22 @@ const handleClose = () => {
   gap: 8px;
 }
 
-:deep(.data-view-table) {
+.segment-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.segment-table-wrap :deep(.data-view-table) {
+  height: 100%;
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border-default);
+}
+
+.segment-pagination {
+  flex-shrink: 0;
+  margin-top: 16px;
 }
 
 :deep(.ant-table-thead > tr > th) {

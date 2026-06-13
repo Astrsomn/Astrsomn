@@ -6,6 +6,7 @@ import com.astrsomn.common.base.BasePageRequest;
 import com.astrsomn.common.base.BaseResponse;
 import com.astrsomn.common.base.PageResponse;
 import com.astrsomn.server.service.vector.AiVecDocService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -78,5 +79,10 @@ public class AiVecDocController extends BaseController {
     @PostMapping("/re-chunk")
     public BaseResponse<String> reChunk(@RequestBody AiVecDocVectorizeRequestDTO request) {
         return aiVecDocService.reChunk(request.getId());
+    }
+
+    @GetMapping("/download")
+    public void download(@RequestParam("id") Long id, HttpServletResponse response) {
+        aiVecDocService.download(id, response);
     }
 }

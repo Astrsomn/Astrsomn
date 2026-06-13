@@ -582,7 +582,6 @@ const testConnectionOnFirstExpand = async (id: number | string): Promise<boolean
     await aiVecSourceApi.testConnection(detail, 25000)
     firstExpandCheckedMap.value[sourceKey] = true
     sourceConnectedOverride.value[sourceKey] = true
-    message.success(t.value.vectorCenter.sidebar.connectionSuccess)
     return true
   } catch (error) {
     sourceConnectedOverride.value[sourceKey] = false

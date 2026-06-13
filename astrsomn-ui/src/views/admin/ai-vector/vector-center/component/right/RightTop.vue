@@ -121,6 +121,7 @@ const props = defineProps<{
   folderPath?: Array<{ id: number | string; name: string }>;
   searchKeyword?: string;
   viewSize?: 'small' | 'medium' | 'large' | 'list';
+  currentFolderId?: number | string | null;
 }>();
 const emit = defineEmits(['updated', 'openCreateFolder', 'openCreate', 'search', 'viewSizeChange', 'navigate']);
 
@@ -285,9 +286,12 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
     return;
   }
   try {
-    const doc = await aiVecDocApi.upload(options.file as File, props.storeId);
+    const doc = await aiVecDocApi.upload(options.file as File, props.storeId, props.currentFolderId);
     options.onSuccess?.({});
     message.success(t.value.vectorCenter.rightCenter.uploadSuccess);
+    if (doc?.renamed && doc?.originalFileName) {
+      message.info(t.value.vectorCenter.rightCenter.fileNameAutoRenamed.replace('{name}', doc.originalFileName));
+    }
     if (doc?.id) {
       emit('updated');
     }

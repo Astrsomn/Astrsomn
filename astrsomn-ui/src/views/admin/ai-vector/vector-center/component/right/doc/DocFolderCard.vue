@@ -21,6 +21,7 @@
               v-if="editing"
               ref="editInputRef"
               :value="folder.folderName"
+              :placeholder="placeholder || ''"
               class="folder-name-input"
               @blur="$emit('rename-cancel', folder)"
               @keydown.enter="onConfirmRename($event)"
@@ -52,6 +53,7 @@ const props = defineProps<{
   size?: 'small' | 'medium' | 'large';
   editing?: boolean;
   selected?: boolean;
+  placeholder?: string;
 }>();
 
 const emit = defineEmits<{

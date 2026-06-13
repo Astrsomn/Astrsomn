@@ -48,4 +48,7 @@ public class AiVecSourceEntity extends BaseEntity<Long> {
 
     @TableField("STATUS")
     private String status;
+
+    @TableField("AUTO_CONNECT")
+    private Integer autoConnect;
 }
