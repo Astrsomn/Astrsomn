@@ -102,11 +102,14 @@ const handleAiConfigSelectProvider = (info: AiConfigProvider) => {
 
 // ============ 向量中心 handlers ============
 const handleVectorSelectSource = async (sourceId: number | string) => {
+  const sourceChanged = vectorState.selectedSourceId.value !== sourceId
   vectorState.selectedSourceId.value = sourceId
   vectorState.selectedStoreId.value = undefined
   vectorState.selectedDocId.value = undefined
   vectorState.docs.value = []
-  await vectorState.fetchStores()
+  if (sourceChanged) {
+    await vectorState.fetchStores()
+  }
 }
 
 const handleVectorSelectStore = async (storeId: number | string) => {

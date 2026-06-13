@@ -7,23 +7,39 @@
       {{ t.vectorCenter.main.selectStore }}
     </div>
     <template v-else>
-      <!-- 固定顶部 -->
       <div class="vector-center-top">
-        <RightTop :source="selectedSource" :store="selectedStore" @updated="$emit('store-updated')"/>
+        <RightTop
+            :source="selectedSource"
+            :store="selectedStore"
+            :store-id="selectedStoreId"
+            :doc-count="docCount"
+            :folder-path="folderPath"
+            :search-keyword="keyword"
+            :view-size="viewSize"
+            @updated="$emit('store-updated')"
+            @search="keyword = $event"
+            @navigate="handleNavigate"
+            @view-size-change="viewSize = $event"
+            @open-create-folder="rightCenterRef?.openCreateFolder()"
+        />
       </div>
-      <!-- 文档列表 -->
       <div class="vector-center-content">
         <RightCenter
+            ref="rightCenterRef"
             :docs="docs"
             :selected-doc-id="selectedDocId"
             :store-id="selectedStoreId"
+            :current-folder-id="currentFolderId"
+            :folder-path="folderPath"
+            :keyword="keyword"
+            :view-size="viewSize"
             @changed="$emit('doc-changed')"
             @select-doc="handleSelectDoc"
+            @update:folder-path="handleFolderPathUpdate"
         />
       </div>
     </template>
 
-    <!-- 段落详情 Modal -->
     <SegmentDetailModal
         :doc-id="selectedDocId"
         :open="segmentModalOpen"
@@ -34,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import {ref} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 import RightTop from '@/views/admin/ai-vector/vector-center/component/right/RightTop.vue'
 import RightCenter from '@/views/admin/ai-vector/vector-center/component/right/RightCenter.vue'
@@ -58,11 +74,36 @@ const emit = defineEmits<{
 }>()
 
 const segmentModalOpen = ref(false)
+const docCount = computed(() => props.docs?.length ?? 0)
+
+// ── Bridge state: shared between RightTop and RightCenter ──
+const currentFolderId = ref<number | string | null>(null)
+const folderPath = ref<Array<{ id: number | string; name: string }>>([])
+const keyword = ref('')
+const viewSize = ref<'small' | 'medium' | 'large' | 'list'>('large')
+const rightCenterRef = ref<InstanceType<typeof RightCenter> | null>(null)
+
+const handleNavigate = (folderId: number | string | null, path: Array<{ id: number | string; name: string }>) => {
+  currentFolderId.value = folderId
+  folderPath.value = path
+}
+
+const handleFolderPathUpdate = (path: Array<{ id: number | string; name: string }>) => {
+  folderPath.value = path
+  currentFolderId.value = path.length > 0 ? path[path.length - 1].id : null
+}
 
 const handleSelectDoc = (docId: number | string) => {
   emit('select-doc', docId)
   segmentModalOpen.value = true
 }
+
+// Reset folder/search state when store changes
+watch(() => props.selectedStoreId, () => {
+  currentFolderId.value = null
+  folderPath.value = []
+  keyword.value = ''
+})
 </script>
 
 <style scoped>
@@ -75,6 +116,12 @@ const handleSelectDoc = (docId: number | string) => {
   flex-direction: column;
   overflow: hidden;
   background-color: var(--bg-surface);
+  animation: vc-fade-in 0.35s ease;
+}
+
+@keyframes vc-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 

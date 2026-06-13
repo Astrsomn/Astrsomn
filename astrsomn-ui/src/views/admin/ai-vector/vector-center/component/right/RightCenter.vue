@@ -1,64 +1,100 @@
 <template>
   <div class="document-list-container">
-    <div class="list-toolbar">
-      <div class="toolbar-left">
-        <div class="nav-buttons">
-          <a-tooltip :title="t.vectorCenter.rightCenter.back">
-            <LeftOutlined class="nav-btn" :class="{ disabled: navIndex <= 0 }" @click="goBack"/>
-          </a-tooltip>
-          <a-tooltip :title="t.vectorCenter.rightCenter.forward">
-            <RightOutlined class="nav-btn" :class="{ disabled: navIndex >= navHistory.length - 1 }" @click="goForward"/>
-          </a-tooltip>
-        </div>
-        <div class="breadcrumb-nav">
-          <span class="breadcrumb-item" @click="navigateToRoot">{{ t.vectorCenter.rightCenter.rootDir }}</span>
-          <!-- eslint-disable-next-line vue/no-v-for-template-key -->
-          <template v-for="(crumb, idx) in folderPath" :key="crumb.id">
-            <span class="breadcrumb-sep">/</span>
-            <span class="breadcrumb-item" @click="navigateToPath(idx)">{{ crumb.name }}</span>
-          </template>
-        </div>
-        <div class="count-badge">{{ t.vectorCenter.rightCenter.docCount.replace('{count}', String(filteredFiles.length)) }}</div>
+    <!-- 列表视图 -->
+    <div v-if="viewSize === 'list'" class="file-list" @contextmenu.prevent="onBlankContextMenu">
+      <div class="file-list-header">
+        <span class="col-name">{{ t.vectorCenter.rightCenter.name }}</span>
+        <span class="col-size">{{ t.vectorCenter.rightCenter.size }}</span>
+        <span class="col-status">{{ t.vectorCenter.rightCenter.status }}</span>
+        <span class="col-time">{{ t.vectorCenter.docFileCard.updateTime }}</span>
+        <span class="col-actions">{{ t.vectorCenter.rightCenter.actions }}</span>
       </div>
-
-      <div class="toolbar-right">
-
-        <AstSearchInput
-            v-model="keyword"
-            class="subtle-search"
-            layout="fluid"
-            :placeholder="t.vectorCenter.rightCenter.searchPlaceholder"
-        />
-        <div class="view-toggle">
-          <a-tooltip :title="t.vectorCenter.rightCenter.smallIcon">
-            <AppstoreOutlined :class="{ active: viewSize === 'small' }" class="toggle-icon" @click="setViewSize('small')"/>
-          </a-tooltip>
-          <a-tooltip :title="t.vectorCenter.rightCenter.mediumIcon">
-            <BorderOutlined :class="{ active: viewSize === 'medium' }" class="toggle-icon" @click="setViewSize('medium')"/>
-          </a-tooltip>
-          <a-tooltip :title="t.vectorCenter.rightCenter.largeIcon">
-            <CreditCardOutlined :class="{ active: viewSize === 'large' }" class="toggle-icon" @click="setViewSize('large')"/>
-          </a-tooltip>
+      <a-dropdown v-for="folder in folders" :key="folder.id" :trigger="['contextmenu']">
+        <div
+            :data-select-id="String(folder.id)"
+            :class="{ selected: isSelected(String(folder.id)) }"
+            class="file-list-row folder-row"
+            @click="handleFolderEnter(folder, $event)"
+            @contextmenu.prevent
+        >
+          <span class="col-name">
+            <folder-outlined class="row-icon folder-icon"/>
+            <span v-if="renamingFolderId === folder.id" class="inline-edit">
+              <input
+                  :value="folder.folderName"
+                  @blur="handleRenameCancel"
+                  @keydown.enter="onListRenameConfirm($event, folder)"
+                  @keydown.escape="handleRenameCancel"
+                  @click.stop
+              />
+            </span>
+            <span v-else class="row-title">{{ folder.folderName }}</span>
+          </span>
+          <span class="col-size">—</span>
+          <span class="col-status">—</span>
+          <span class="col-time">—</span>
+          <span class="col-actions">
+            <a-button size="small" type="text" @click.stop="openRenameFolder(folder)"><edit-outlined/></a-button>
+            <a-button size="small" type="text" danger @click.stop="handleDeleteFolder(folder)"><delete-outlined/></a-button>
+          </span>
         </div>
-        <a-button class="import-btn" @click="openCreateFolder">
-          <template #icon>
-            <folder-outlined/>
-          </template>
-          {{ t.vectorCenter.rightCenter.newFolder }}
-        </a-button>
-        <a-upload :custom-request="handleUpload" :show-upload-list="false">
-          <a-button class="import-btn" type="primary">
-            <template #icon>
-              <plus-outlined/>
-            </template>
-            {{ t.vectorCenter.rightCenter.importDoc }}
-          </a-button>
-        </a-upload>
-        <a-button class="import-btn" @click="openCreate">{{ t.vectorCenter.rightCenter.newRecord }}</a-button>
-      </div>
+        <template #overlay>
+          <a-menu @click="onFolderMenuClick($event, folder)">
+            <a-menu-item key="open"><template #icon><folder-outlined/></template>{{ t.vectorCenter.rightCenter.open }}</a-menu-item>
+            <a-menu-item key="rename"><template #icon><edit-outlined/></template>{{ t.vectorCenter.rightCenter.rename }}</a-menu-item>
+            <a-menu-divider/>
+            <a-menu-item key="paste"><template #icon><snippets-outlined/></template>{{ t.vectorCenter.rightCenter.pasteHere }}</a-menu-item>
+            <a-menu-divider/>
+            <a-menu-item key="delete" class="danger-item"><template #icon><delete-outlined/></template>{{ t.vectorCenter.rightCenter.delete }}</a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
+      <a-dropdown v-for="file in filteredFiles" :key="file.id || file.name" :trigger="['contextmenu']">
+        <div
+            :data-select-id="String(file.id)"
+            :class="{
+              selected: isSelected(String(file.id)),
+              active: String(file.id) === String(props.selectedDocId ?? ''),
+              cut: clipboard?.mode === 'cut' && clipboard.items.some(c => String(c.id) === String(file.id)),
+            }"
+            class="file-list-row file-row"
+            @click="handleSelectDoc(file, $event)"
+            @contextmenu.prevent
+        >
+          <span class="col-name">
+            <component :is="getFileIcon(file.name)" class="row-icon file-icon"/>
+            <span class="row-title">{{ file.name }}</span>
+          </span>
+          <span class="col-size">{{ file.size }}</span>
+          <span class="col-status">
+            <span :class="['status-tag', file.statusCode?.toLowerCase()]">{{ file.status }}</span>
+          </span>
+          <span class="col-time">{{ file.uploadTime }}</span>
+          <span class="col-actions">
+            <a-button size="small" type="text" @click.stop="openEdit(file)"><edit-outlined/></a-button>
+            <a-button size="small" type="text" danger @click.stop="handleDelete(file)"><delete-outlined/></a-button>
+          </span>
+        </div>
+        <template #overlay>
+          <a-menu @click="onFileMenuClick($event, file)">
+            <a-menu-item key="edit"><template #icon><edit-outlined/></template>{{ t.vectorCenter.rightCenter.edit }}</a-menu-item>
+            <a-menu-item v-if="file.statusCode === 'PENDING' || file.statusCode === 'FAILED'" key="chunk"><template #icon><block-outlined/></template>{{ t.vectorCenter.rightCenter.chunk }}</a-menu-item>
+            <a-menu-item v-if="file.statusCode === 'CHUNKED'" key="vectorize"><template #icon><experiment-outlined/></template>{{ t.vectorCenter.rightCenter.vectorize }}</a-menu-item>
+            <a-menu-item v-if="file.statusCode === 'CHUNKED' || file.statusCode === 'STORED' || file.statusCode === 'FAILED'" key="re-chunk"><template #icon><block-outlined/></template>{{ t.vectorCenter.rightCenter.reChunk }}</a-menu-item>
+            <a-menu-item v-if="file.statusCode === 'STORED' || file.statusCode === 'FAILED'" key="re-vectorize"><template #icon><sync-outlined/></template>{{ t.vectorCenter.rightCenter.reVectorize }}</a-menu-item>
+            <a-menu-divider/>
+            <a-menu-item key="move"><template #icon><folder-outlined/></template>{{ t.vectorCenter.rightCenter.moveToFolder }}</a-menu-item>
+            <a-menu-item key="copy"><template #icon><copy-outlined/></template>{{ t.vectorCenter.rightCenter.copy }}</a-menu-item>
+            <a-menu-item key="cut"><template #icon><scissor-outlined/></template>{{ t.vectorCenter.rightCenter.cut }}</a-menu-item>
+            <a-menu-divider/>
+            <a-menu-item key="delete" class="danger-item"><template #icon><delete-outlined/></template>{{ t.vectorCenter.rightCenter.delete }}</a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
     </div>
 
-    <div ref="gridRef" :class="`file-grid size-${viewSize}`" @contextmenu.prevent="onBlankContextMenu" @mousedown="onBoxSelectMouseDown">
+    <!-- 网格视图 -->
+    <div v-else ref="gridRef" :class="`file-grid size-${viewSize}`" @contextmenu.prevent="onBlankContextMenu" @mousedown="onBoxSelectMouseDown">
       <SelectionOverlay :rect="selectionRect"/>
       <a-dropdown v-for="folder in folders" :key="folder.id" :trigger="['contextmenu']">
         <DocFolderCard
@@ -159,6 +195,8 @@
         </template>
       </a-dropdown>
     </div>
+    <!-- DEBUG: VecDocFormModal temporarily disabled to isolate emitsOptions error -->
+    <!--
     <VecDocFormModal
         :confirm-loading="modalSubmitting"
         :initial="modalInitial"
@@ -167,6 +205,7 @@
         @submit="handleSubmit"
         @update:open="(value) => (modalOpen = value)"
     />
+    -->
     <a-modal
         :open="folderModalOpen"
         :title="editingFolder ? t.vectorCenter.rightCenter.renameFolderTitle : t.vectorCenter.rightCenter.createFolderTitle"
@@ -181,7 +220,6 @@
       />
     </a-modal>
 
-    <!-- 移动到文件夹弹窗 -->
     <a-modal
         :open="moveModalOpen"
         :title="t.vectorCenter.rightCenter.moveFolderTitle"
@@ -198,7 +236,6 @@
       />
     </a-modal>
 
-    <!-- 空白区域右键菜单 -->
     <Teleport to="body">
       <div
           v-if="blankMenuVisible"
@@ -240,23 +277,20 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, onUnmounted, reactive, ref, watch} from 'vue';
-import type {UploadProps} from 'ant-design-vue'
+import {computed, nextTick, onUnmounted, reactive, ref, watch} from 'vue';
 import {message, Modal} from 'ant-design-vue'
 import {
-  AppstoreOutlined,
   BlockOutlined,
-  BorderOutlined,
   CopyOutlined,
-  CreditCardOutlined,
   DeleteOutlined,
   EditOutlined,
   ExperimentOutlined,
+  FileMarkdownOutlined,
+  FilePdfOutlined,
+  FileTextOutlined,
   FolderOutlined,
-  LeftOutlined,
   PlusOutlined,
   ReloadOutlined,
-  RightOutlined,
   ScissorOutlined,
   SnippetsOutlined,
   SyncOutlined
@@ -265,7 +299,6 @@ import DocFileCard from '@/views/admin/ai-vector/vector-center/component/right/d
 import DocFolderCard from '@/views/admin/ai-vector/vector-center/component/right/doc/DocFolderCard.vue';
 import VecDocFormModal from '@/views/admin/ai-vector/vector-center/form/VecDocFormModal.vue'
 import SelectionOverlay from '@/views/admin/ai-vector/vector-center/component/right/SelectionOverlay.vue'
-import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import {type AiVecDoc, aiVecDocApi} from '@/api/aiVecDoc.ts'
 import {type AiVecFolder, aiVecFolderApi} from '@/api/aiVecFolder.ts'
 import {useBoxSelection} from '@/views/admin/ai-vector/vector-center/hooks/useBoxSelection'
@@ -278,45 +311,37 @@ const props = defineProps<{
   docs: AiVecDoc[]
   storeId?: number | string
   selectedDocId?: number | string
+  keyword?: string
+  viewSize?: 'small' | 'medium' | 'large' | 'list'
+  currentFolderId?: number | string | null
+  folderPath?: Array<{ id: number | string; name: string }>
 }>()
 
 const emit = defineEmits<{
   'select-doc': [id: number | string]
   changed: []
+  'update:folderPath': [path: Array<{ id: number | string; name: string }>]
 }>()
 
-const keyword = ref('')
-const viewSize = ref<'small' | 'medium' | 'large'>(localStorage.getItem('doc-view-size') as any || 'medium')
-const uploadCollectionId = ref<number | string | undefined>()
+const viewSize = ref<'small' | 'medium' | 'large' | 'list'>('large')
 const modalOpen = ref(false)
-
-
 const folders = ref<AiVecFolder[]>([])
 const currentFolderId = ref<number | string | null>(null)
 const folderPath = ref<Array<{ id: number | string; name: string }>>([])
-const folderLoading = ref(false)
+let isInternalFolderNavigation = false
 const folderModalOpen = ref(false)
 const folderModalName = ref('')
 const editingFolder = ref<AiVecFolder | null>(null)
 const renamingFolderId = ref<number | string | null>(null)
-
-
-const navHistory = ref<Array<{ folderId: number | string | null; path: Array<{ id: number | string; name: string }> }>>([{ folderId: null, path: [] }])
-const navIndex = ref(0)
 const modalMode = ref<'create' | 'edit'>('create')
 const modalInitial = ref<AiVecDoc | null>(null)
 const modalSubmitting = ref(false)
-
-
 const vectorizingMap = reactive<Record<string, { progress: number; message: string }>>({})
 const pollingTimers = ref<Record<string, ReturnType<typeof setInterval>>>({})
-
-
 const blankMenuVisible = ref(false)
 const blankMenuX = ref(0)
 const blankMenuY = ref(0)
 const clipboard = ref<{ items: any[]; mode: 'copy' | 'cut' } | null>(null)
-
 
 const gridRef = ref<HTMLElement | null>(null)
 const {
@@ -332,15 +357,42 @@ const {
   itemSelector: '[data-select-id]'
 })
 
-
 const moveModalOpen = ref(false)
 const moveTargetFiles = ref<any[]>([])
 const moveTargetFolderId = ref<number | string | null>(null)
 const moveFolderOptions = ref<Array<{ label: string; value: number | string }>>([])
 
-const setUploadCollectionId = (value: number | string | undefined) => {
-  uploadCollectionId.value = value
+const fetchFolders = async () => {
+  if (!props.storeId) {
+    folders.value = []
+    return
+  }
+  try {
+    folders.value = await aiVecFolderApi.list(props.storeId, currentFolderId.value)
+  } catch {
+    folders.value = []
+  }
 }
+
+watch(() => props.viewSize, (size) => {
+  if (size) viewSize.value = size
+})
+
+watch(() => props.keyword, () => {
+  void fetchFolders()
+})
+
+watch(() => props.currentFolderId, (id) => {
+  currentFolderId.value = id ?? null
+  void fetchFolders()
+}, { immediate: true })
+
+// Sync external folderPath changes (from RightTop via Main)
+watch(() => props.folderPath, (newPath) => {
+  if (isInternalFolderNavigation) return
+  if (!newPath) return
+  folderPath.value = [...newPath]
+}, { deep: true })
 
 const setFolderModalName = (value: string) => {
   folderModalName.value = value
@@ -350,38 +402,42 @@ const setMoveTargetFolderId = (value: number | string | null) => {
   moveTargetFolderId.value = value
 }
 
-const setViewSize = (size: 'small' | 'medium' | 'large') => {
-  viewSize.value = size
-  localStorage.setItem('doc-view-size', size)
+const getFileIcon = (name: string) => {
+  const ext = name.split('.').pop()?.toLowerCase()
+  if (ext === 'pdf') return FilePdfOutlined
+  if (ext === 'md') return FileMarkdownOutlined
+  return FileTextOutlined
 }
 
-
-const fetchFolders = async () => {
-  if (!props.storeId) {
-    folders.value = []
-    return
-  }
-  folderLoading.value = true
-  try {
-    folders.value = await aiVecFolderApi.list(props.storeId, currentFolderId.value)
-  } catch {
-    folders.value = []
-  } finally {
-    folderLoading.value = false
-  }
+const getFileExtension = (name: string) => {
+  return name.split('.').pop()?.toLowerCase() || 'txt'
 }
 
-const pushNavHistory = () => {
-  navHistory.value = navHistory.value.slice(0, navIndex.value + 1)
-  navHistory.value.push({folderId: currentFolderId.value, path: [...folderPath.value]})
-  navIndex.value = navHistory.value.length - 1
+const onListRenameConfirm = async (e: KeyboardEvent, folder: AiVecFolder) => {
+  const input = e.target as HTMLInputElement
+  const newName = input.value.trim()
+  if (newName && newName !== folder.folderName) {
+    try {
+      await aiVecFolderApi.update({id: folder.id, folderName: newName})
+      message.success(t.value.vectorCenter.rightCenter.renameSuccess)
+      renamingFolderId.value = null
+      await fetchFolders()
+    } catch (error) {
+      const err = error as { message?: string }
+      message.error(err?.message || t.value.vectorCenter.rightCenter.renameFailed)
+    }
+  } else {
+    renamingFolderId.value = null
+  }
 }
 
 const enterFolder = (folder: AiVecFolder) => {
+  isInternalFolderNavigation = true
   currentFolderId.value = folder.id!
   folderPath.value.push({id: folder.id!, name: folder.folderName || ''})
-  pushNavHistory()
+  emit('update:folderPath', folderPath.value)
   void fetchFolders()
+  nextTick(() => { isInternalFolderNavigation = false })
 }
 
 const handleFolderEnter = (folder: AiVecFolder, e: MouseEvent) => {
@@ -394,10 +450,12 @@ const handleFolderEnter = (folder: AiVecFolder, e: MouseEvent) => {
 }
 
 const navigateToRoot = () => {
+  isInternalFolderNavigation = true
   currentFolderId.value = null
   folderPath.value = []
-  pushNavHistory()
+  emit('update:folderPath', folderPath.value)
   void fetchFolders()
+  nextTick(() => { isInternalFolderNavigation = false })
 }
 
 const navigateToPath = (index: number) => {
@@ -405,29 +463,13 @@ const navigateToPath = (index: number) => {
     navigateToRoot()
     return
   }
+  isInternalFolderNavigation = true
   const target = folderPath.value[index]
   currentFolderId.value = target.id
   folderPath.value = folderPath.value.slice(0, index + 1)
-  pushNavHistory()
+  emit('update:folderPath', folderPath.value)
   void fetchFolders()
-}
-
-const goBack = () => {
-  if (navIndex.value <= 0) return
-  navIndex.value--
-  const entry = navHistory.value[navIndex.value]
-  currentFolderId.value = entry.folderId
-  folderPath.value = [...entry.path]
-  void fetchFolders()
-}
-
-const goForward = () => {
-  if (navIndex.value >= navHistory.value.length - 1) return
-  navIndex.value++
-  const entry = navHistory.value[navIndex.value]
-  currentFolderId.value = entry.folderId
-  folderPath.value = [...entry.path]
-  void fetchFolders()
+  nextTick(() => { isInternalFolderNavigation = false })
 }
 
 const openCreateFolder = () => {
@@ -476,6 +518,7 @@ const handleFolderSubmit = async () => {
     }
     folderModalOpen.value = false
     await fetchFolders()
+    emit('changed')
   } catch (error) {
     const err = error as { message?: string }
     message.error(err?.message || t.value.vectorCenter.rightCenter.operationFailed)
@@ -491,26 +534,10 @@ const handleDeleteFolder = (folder: AiVecFolder) => {
       await aiVecFolderApi.delete([folder.id!])
       message.success(t.value.vectorCenter.rightCenter.folderDeleted)
       await fetchFolders()
+      emit('changed')
     }
   })
 }
-
-watch(
-    () => props.storeId,
-    (id) => {
-      uploadCollectionId.value = id
-      currentFolderId.value = null
-      folderPath.value = []
-      void fetchFolders()
-    },
-    {immediate: true}
-)
-
-const storeOptions = computed(() =>
-    props.storeId == null
-        ? []
-        : [{label: t.value.vectorCenter.rightCenter.currentCollection.replace('{id}', String(props.storeId)), value: props.storeId}]
-)
 
 const statusLabelMap = computed<Record<string, string>>(() => ({
   PENDING: t.value.vectorCenter.rightCenter.statusPending,
@@ -523,14 +550,12 @@ const statusLabelMap = computed<Record<string, string>>(() => ({
 
 const filteredFiles = computed(() => {
   const list = props.docs || []
-  const kw = keyword.value.trim().toLowerCase()
+  const kw = props.keyword?.trim().toLowerCase() || ''
   return list
       .filter((doc) => {
-
         if (currentFolderId.value != null) {
           if (String(doc.folderId ?? '') !== String(currentFolderId.value)) return false
         } else {
-
           if (doc.folderId != null) return false
         }
         if (!kw) return true
@@ -546,12 +571,11 @@ const filteredFiles = computed(() => {
           size: doc.filePath ? t.value.vectorCenter.rightCenter.sizeUploaded : t.value.vectorCenter.rightCenter.sizePending,
           status: statusLabel,
           statusCode: status,
-          uploadTime: doc.createTime,
+          uploadTime: doc.updateTime || doc.createTime,
           raw: doc
         }
       })
 })
-
 
 useClipboardShortcuts({
   selectedIds,
@@ -568,7 +592,6 @@ useClipboardShortcuts({
   },
   onPaste: (targetFolderId) => handlePaste(targetFolderId)
 })
-
 
 watch(
     () => props.docs,
@@ -594,6 +617,8 @@ const openCreate = () => {
   }
   modalOpen.value = true
 }
+
+defineExpose({ openCreateFolder, openCreate })
 
 const openEdit = async (file: any) => {
   const id = file?.id
@@ -645,7 +670,6 @@ const startPolling = (docId: string) => {
         emit('changed')
       }
     } catch {
-
     }
   }, 2000)
 }
@@ -768,46 +792,6 @@ const handleSelectDoc = (file: any, e?: MouseEvent) => {
   }
 }
 
-const handleUpload: UploadProps['customRequest'] = async (options) => {
-  if (!uploadCollectionId.value) {
-    message.warning(t.value.vectorCenter.rightCenter.selectStoreFirst)
-    options.onError?.(new Error('missing store'))
-    return
-  }
-  const fileName = (options.file as File).name
-  const duplicate = filteredFiles.value.some(f => f.name === fileName)
-  if (duplicate) {
-    try {
-      await new Promise<void>((resolve, reject) => {
-        Modal.confirm({
-          title: t.value.vectorCenter.rightCenter.fileNameDuplicate,
-          content: t.value.vectorCenter.rightCenter.fileNameDuplicateContent.replace('{name}', fileName),
-          onOk: () => resolve(),
-          onCancel: () => reject(new Error('cancelled'))
-        })
-      })
-    } catch {
-      options.onError?.(new Error('cancelled'))
-      return
-    }
-  }
-  try {
-    const doc = await aiVecDocApi.upload(options.file as File, uploadCollectionId.value, currentFolderId.value)
-    options.onSuccess?.({})
-    message.success(t.value.vectorCenter.rightCenter.uploadSuccess)
-    if (doc?.id) {
-      emit('select-doc', doc.id)
-    }
-    emit('changed')
-  } catch (error) {
-    const err = error as { message?: string }
-    message.error(err?.message || t.value.vectorCenter.rightCenter.uploadFailed)
-    options.onError?.(error as Error)
-  }
-}
-
-
-
 const onBlankContextMenu = (e: MouseEvent) => {
   const target = e.target as HTMLElement
   if (target.closest('.custom-file-card') || target.closest('.folder-card'))
@@ -864,7 +848,6 @@ const onFolderMenuClick = (payload: unknown, folder: AiVecFolder) => {
 const onFileMenuClick = (payload: unknown, file: any) => {
   const key = String((payload as { key?: string | number })?.key ?? '')
 
-
   switch (key) {
     case 'edit':
       openEdit(file)
@@ -886,7 +869,6 @@ const onFileMenuClick = (payload: unknown, file: any) => {
       return
   }
 
-
   const batchItems = isSelected(String(file.id))
       ? filteredFiles.value.filter(f => isSelected(String(f.id)))
       : [file]
@@ -905,8 +887,6 @@ const onFileMenuClick = (payload: unknown, file: any) => {
       break
   }
 }
-
-
 
 const openMoveModal = async (files: any[]) => {
   moveTargetFiles.value = files
@@ -953,7 +933,6 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   const docIds = clipboard.value.items.map(f => f.id ?? f.raw?.id).filter(Boolean)
   if (!docIds.length) return
 
-
   if (clipboard.value.mode === 'cut') {
     const allSameLocation = clipboard.value.items.every(f => {
       const currentFolderId = f.raw?.folderId ?? null
@@ -990,107 +969,6 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   flex-direction: column;
 }
 
-
-.list-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-
-  .toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    .nav-buttons {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-
-      .nav-btn {
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        color: var(--text-secondary);
-        transition: all 0.2s;
-
-        &:hover:not(.disabled) {
-          background: var(--bg-input);
-          color: var(--primary);
-        }
-
-        &.disabled {
-          opacity: 0.3;
-          cursor: not-allowed;
-        }
-      }
-    }
-
-    .section-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-heading);
-      margin: 0;
-    }
-
-    .breadcrumb-nav {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 14px;
-
-      .breadcrumb-item {
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: color 0.2s;
-
-        &:hover {
-          color: var(--primary);
-        }
-
-        &:last-child {
-          color: var(--text-heading);
-          font-weight: 600;
-        }
-      }
-
-      .breadcrumb-sep {
-        color: var(--text-muted);
-        font-size: 12px;
-      }
-    }
-
-    .count-badge {
-      background: var(--bg-input);
-      color: var(--text-secondary);
-      padding: 2px 10px;
-      border-radius: var(--radius-max);
-      font-size: 12px;
-      font-weight: 600;
-    }
-  }
-
-  .toolbar-right {
-    display: flex;
-    gap: 12px;
-
-    .subtle-search {
-      width: 240px;
-      height: 38px;
-    }
-
-    .import-btn {
-      border-radius: var(--radius-md);
-      font-weight: 500;
-    }
-  }
-}
-
-
 .file-grid {
   position: relative;
   display: grid;
@@ -1115,35 +993,162 @@ const handlePaste = async (targetFolderId: number | string | null) => {
   }
 }
 
-
-.view-toggle {
+.file-list {
+  flex: 1;
+  overflow-y: auto;
   display: flex;
-  align-items: center;
-  gap: 2px;
-  background: var(--bg-input);
-  border-radius: var(--radius-md);
-  padding: 2px;
+  flex-direction: column;
 
-  .toggle-icon {
-    width: 28px;
-    height: 28px;
+  .file-list-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid var(--border-default);
+    position: sticky;
+    top: 0;
+    background: var(--bg-surface);
+    z-index: 2;
+  }
+
+  .col-name { flex: 2; min-width: 0; }
+  .col-size { flex: 0 0 100px; text-align: center; }
+  .col-status { flex: 0 0 100px; text-align: center; }
+  .col-time { flex: 0 0 140px; text-align: center; }
+  .col-actions { flex: 0 0 90px; text-align: center; }
+}
+
+.file-list-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-default);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+
+  &:hover {
+    background: var(--bg-elevated);
+    border-left-color: var(--primary);
+  }
+
+  &.active {
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+    border-left-color: var(--primary);
+  }
+
+  &.selected {
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+  }
+
+  &.cut {
+    opacity: 0.45;
+    filter: grayscale(0.6);
+  }
+
+  .col-name {
+    flex: 2;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .row-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+
+      &.folder-icon {
+        color: #fbbf24;
+      }
+
+      &.file-icon {
+        color: var(--text-secondary);
+      }
+    }
+
+    .row-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      color: var(--text-heading);
+    }
+
+    .inline-edit input {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-heading);
+      border: 1px solid var(--primary);
+      border-radius: var(--radius-sm);
+      padding: 2px 8px;
+      outline: none;
+      background: var(--bg-input);
+      width: 200px;
+    }
+  }
+
+  .col-size {
+    flex: 0 0 100px;
+    text-align: center;
+    font-size: 12px;
     color: var(--text-muted);
-    transition: all 0.2s;
+  }
 
-    &:hover {
-      color: var(--text-primary);
-    }
+  .col-status {
+    flex: 0 0 100px;
+    text-align: center;
 
-    &.active {
-      background: var(--bg-card);
-      color: var(--primary);
-      box-shadow: 0 1px 3px color-mix(in srgb, var(--text-primary) 8%, transparent);
+    .status-tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: var(--radius-max);
+      font-size: 11px;
+      font-weight: 600;
+
+      &.stored {
+        background: color-mix(in srgb, var(--success) 15%, transparent);
+        color: var(--success);
+      }
+
+      &.pending {
+        background: color-mix(in srgb, #f59e0b 15%, transparent);
+        color: #f59e0b;
+      }
+
+      &.chunking, &.vectoring {
+        background: color-mix(in srgb, var(--primary) 15%, transparent);
+        color: var(--primary);
+      }
+
+      &.chunked {
+        background: color-mix(in srgb, #8b5cf6 15%, transparent);
+        color: #8b5cf6;
+      }
+
+      &.failed {
+        background: color-mix(in srgb, var(--error) 15%, transparent);
+        color: var(--error);
+      }
     }
+  }
+
+  .col-time {
+    flex: 0 0 140px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .col-actions {
+    flex: 0 0 90px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 2px;
   }
 }
 </style>

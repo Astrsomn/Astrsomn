@@ -124,16 +124,11 @@ const getFileExtension = (name: string) => {
 
   &:hover {
     background: var(--bg-elevated);
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-card);
+    border-color: var(--primary) !important;
 
     .action-group {
       opacity: 1;
       transform: translateY(0);
-    }
-
-    .icon-box {
-      transform: scale(1.1);
     }
   }
 
