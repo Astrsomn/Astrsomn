@@ -6,8 +6,8 @@ import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.chat.listener.ChatModelRequestContext;
 import dev.langchain4j.model.chat.listener.ChatModelResponseContext;
 import dev.langchain4j.model.output.TokenUsage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
@@ -15,11 +15,18 @@ import java.util.concurrent.Executor;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class AstroModelListener implements ChatModelListener {
     private final SensitiveWordProvider sensitiveWordProvider;
     private final ModelQuotaManager quotaManager;
     private final Executor taskExecutor;
+
+    public AstroModelListener(SensitiveWordProvider sensitiveWordProvider,
+                               ModelQuotaManager quotaManager,
+                               @Qualifier("astroTaskExecutor") Executor taskExecutor) {
+        this.sensitiveWordProvider = sensitiveWordProvider;
+        this.quotaManager = quotaManager;
+        this.taskExecutor = taskExecutor;
+    }
 
     public ChatModelListener createBindingListener(AstroChatParam<?> param) {
         // 返回一个极简的匿名实现，内部逻辑引用单例方法
