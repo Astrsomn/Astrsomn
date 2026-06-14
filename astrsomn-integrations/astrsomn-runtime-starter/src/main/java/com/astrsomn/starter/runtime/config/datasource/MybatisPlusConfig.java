@@ -3,7 +3,6 @@ package com.astrsomn.starter.runtime.config.datasource;
 import com.astrsomn.api.runtime.common.mybatis.AstrsomnMybatisContributor;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.config.AstrsomnRuntimeBeans;
-import com.astrsomn.starter.runtime.schema.SchemaInitializer;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
@@ -92,12 +91,10 @@ public class MybatisPlusConfig {
     @ConditionalOnBean(AstrsomnMybatisContributor.class)
     public SqlSessionFactory astrsomnSqlSessionFactory(
             @Qualifier(AstrsomnRuntimeBeans.DATA_SOURCE) DataSource dataSource,
-            ObjectProvider<SchemaInitializer> schemaInitializer,
             AstrsomnProperties properties,
             @Qualifier(AstrsomnRuntimeBeans.MYBATIS_PLUS_INTERCEPTOR) MybatisPlusInterceptor mybatisPlusInterceptor,
             List<AstrsomnMybatisContributor> contributors,
             ObjectProvider<MetaObjectHandler> metaObjectHandlerProvider) throws Exception {
-        schemaInitializer.ifAvailable(initializer -> initializer.initialize(dataSource));
 
         MybatisSqlSessionFactoryBean factoryBean = new MybatisSqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource);

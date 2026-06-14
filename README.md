@@ -107,7 +107,7 @@
 | AI 集成 | LangChain4j 1.11.x               |
 | 前端框架  | Vue 3 + TypeScript               |
 | 构建工具  | Maven                            |
-| 数据库   | MySQL / H2                       |
+| 数据库   | MySQL                            |
 | 向量数据库 | Qdrant / Milvus / Chroma / Redis |
 
 ### 🔑 关键依赖与主版本（快速了解）

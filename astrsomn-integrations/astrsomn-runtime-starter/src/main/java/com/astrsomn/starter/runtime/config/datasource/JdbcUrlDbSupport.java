@@ -20,11 +20,8 @@ public final class JdbcUrlDbSupport {
         if (lower.startsWith("jdbc:mysql:")) {
             return DbType.MYSQL;
         }
-        if (lower.startsWith("jdbc:h2:")) {
-            return DbType.H2;
-        }
         throw new IllegalArgumentException(
-                "Unsupported JDBC URL (only jdbc:mysql: and jdbc:h2: are supported): " + truncateForMessage(raw));
+                "Unsupported JDBC URL (only jdbc:mysql: is supported): " + truncateForMessage(raw));
     }
 
     public static boolean isSupportedJdbcUrl(String jdbcUrl) {

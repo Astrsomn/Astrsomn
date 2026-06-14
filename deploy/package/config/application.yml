@@ -1,0 +1,41 @@
+spring:
+  profiles:
+    active: mysql
+
+server:
+  port: 4481
+
+astrsomn:
+  env-code: PRO
+  username: admin
+  admin-users: admin
+  storage:
+    base-path: astrsomn/
+
+jwt:
+  secret: CHANGE-THIS-TO-A-RANDOM-STRING
+  expiration: 86400000
+
+logging:
+  level:
+    com.astrsomn: info
+    root: warn
+  file:
+    name: ./log/astrsomn.log
+
+---
+spring:
+  config:
+    activate:
+      on-profile: mysql
+
+astrsomn:
+  datasource:
+    url: "jdbc:mysql://127.0.0.1:3306/astro_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false"
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5

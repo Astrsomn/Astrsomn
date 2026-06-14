@@ -8,6 +8,10 @@ export default defineConfig({
             '@': resolve(__dirname, 'src'),
         },
     },
+    build: {
+        outDir: resolve(__dirname, '../astrsomn-server/src/main/resources/static'),
+        emptyOutDir: true
+    },
     server: {
         port: 3000,
         proxy: {

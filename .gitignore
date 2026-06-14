@@ -81,8 +81,7 @@ build.xml
 /store/
 /deployment/
 /astrsomn-server/src/main/resources/static/
-/deploy/windows/output/
-/deploy/windows/run/.runtime/
+/deploy/package/output/
 /log/
 /astrsomn-server/log/file
 /astrsomn-server/src/main/resources/application-private.yml

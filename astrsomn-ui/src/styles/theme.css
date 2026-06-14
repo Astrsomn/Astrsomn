@@ -25,6 +25,14 @@
     --text-secondary: #a4b8d4;   /* 次要文本 - 蓝灰，足够辨识 */
     --text-muted: #7a8fab;       /* 弱化文本 */
     --text-placeholder: #6c7f9e;
+    --text-accent: #60a5fa;      /* 强调文字 - 亮蓝 */
+    --text-link: #93c5fd;        /* 链接文字 */
+    --text-link-hover: #60a5fa;
+
+    /* ── Gradient Text ── */
+    --gradient-text: linear-gradient(135deg, #4a90ff, #38bdf8);
+    --gradient-text-heading: linear-gradient(135deg, #60a5fa, #38bdf8, #a78bfa);
+    --gradient-text-brand: linear-gradient(135deg, #2563eb, #0ea5e9, #38bdf8);
 
     /* ── Accent / Primary（深蓝主色） ── */
     --primary: #4a90ff;          /* 主品牌色：偏明亮的天蓝，专业又不沉闷 */
@@ -188,11 +196,19 @@
 
     /* ── Text ── */
     --text-primary: #1f2937;
-    --text-heading: #1f2937;
-    --text-secondary: #6b7280;
+    --text-heading: #111827;
+    --text-secondary: #4b5563;
     --text-muted: #909399;
     --text-placeholder: #909399;
-    --section-title: #4096ff;
+    --text-accent: #2563eb;
+    --text-link: #2563eb;
+    --text-link-hover: #1d4ed8;
+    --section-title: #2563eb;
+
+    /* ── Gradient Text ── */
+    --gradient-text: linear-gradient(135deg, #2563eb, #0891b2);
+    --gradient-text-heading: linear-gradient(135deg, #1e40af, #3b82f6, #06b6d4);
+    --gradient-text-brand: linear-gradient(135deg, #1e40af, #2563eb, #0891b2);
 
     /* ── Accent / Primary ── */
     --primary: #1677ff;
@@ -414,4 +430,54 @@
 .module-shell-fade-enter-from,
 .module-shell-fade-leave-to {
     opacity: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+ * Gradient Text Utilities
+ * ══════════════════════════════════════════════════════════════ */
+.gradient-text {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-heading {
+    background: var(--gradient-text-heading);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-brand {
+    background: var(--gradient-text-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* 标题悬停时渐变流动动画 */
+@keyframes gradient-shift {
+    0% { background-position: 0% center; }
+    50% { background-position: 100% center; }
+    100% { background-position: 0% center; }
+}
+
+.gradient-text-animated {
+    background: var(--gradient-text-brand);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 4s ease infinite;
+}
+
+/* 默认全局链接颜色增强 */
+a {
+    color: var(--text-link, var(--primary));
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--text-link-hover, var(--primary-light));
 }

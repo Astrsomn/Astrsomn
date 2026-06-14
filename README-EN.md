@@ -108,7 +108,7 @@ You can think of Astrsomn as a complete ecosystem:
 | AI Integration | LangChain4j 1.11.x |
 | Frontend Framework | Vue 3 + TypeScript |
 | Build Tool | Maven |
-| Database | MySQL / H2 |
+| Database | MySQL |
 | Vector Database | Qdrant / Milvus / Chroma / Redis |
 
 ### 🔑 Key Dependencies and Versions (Quick Reference)
