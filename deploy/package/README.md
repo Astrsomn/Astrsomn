@@ -76,7 +76,7 @@ astrsomn/
 ├── bin/
 │   ├── start.sh / start.bat  # 启动脚本
 │   ├── stop.sh / stop.bat    # 停止脚本
-│   └── env                    # 启动环境配置（Java 路径、JVM 参数）
+│   └── .env                   # 启动环境配置（Java 路径、JVM 参数）
 ├── log/                      # 运行日志
 └── storage/                  # 文件存储
 ```

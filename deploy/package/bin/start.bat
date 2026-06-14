@@ -4,7 +4,7 @@ setlocal
 set "APP_DIR=%~dp0.."
 
 REM ---- Read env config ----
-if exist "%~dp0env" for /f "usebackq eol=# delims== tokens=1,*" %%a in ("%~dp0env") do set "%%a=%%b"
+if exist "%~dp0.env" for /f "usebackq eol=# delims== tokens=1,*" %%a in ("%~dp0.env") do set "%%a=%%b"
 
 REM ---- Resolve Java ----
 if defined JAVA_HOME (

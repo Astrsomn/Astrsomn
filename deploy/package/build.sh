@@ -126,7 +126,7 @@ assemble_package() {
     # Clean + copy platform scripts
     rm -rf "$STAGE_DIR/bin"
     mkdir -p "$STAGE_DIR/bin"
-        cp "$SCRIPT_DIR/bin/env" "$STAGE_DIR/bin/"
+        cp "$SCRIPT_DIR/bin/.env" "$STAGE_DIR/bin/"
     if [ "$platform" = "windows" ]; then
         cp "$SCRIPT_DIR/bin/start.bat" "$STAGE_DIR/bin/"
         cp "$SCRIPT_DIR/bin/stop.bat"  "$STAGE_DIR/bin/"

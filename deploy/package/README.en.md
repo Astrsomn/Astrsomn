@@ -76,7 +76,7 @@ astrsomn/
 ├── bin/
 │   ├── start.sh / start.bat  # Start scripts
 │   ├── stop.sh / stop.bat    # Stop scripts
-│   └── env                    # Launcher config (Java path, JVM options)
+│   └── .env                   # Launcher config (Java path, JVM options)
 ├── log/                      # Runtime logs
 └── storage/                  # File uploads
 ```

@@ -195,7 +195,7 @@ REM Clean + copy platform scripts
 if exist "%STAGE_DIR%\bin" rmdir /s /q "%STAGE_DIR%\bin"
 mkdir "%STAGE_DIR%\bin"
 
-copy "%SCRIPT_DIR%bin\env" "%STAGE_DIR%\bin\" >nul
+copy "%SCRIPT_DIR%bin\.env" "%STAGE_DIR%\bin\" >nul
 if "%PLATFORM%"=="windows" (
     copy "%SCRIPT_DIR%bin\start.bat" "%STAGE_DIR%\bin\" >nul
     copy "%SCRIPT_DIR%bin\stop.bat" "%STAGE_DIR%\bin\" >nul

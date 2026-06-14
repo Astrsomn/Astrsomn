@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Load env config
-[ -f "$SCRIPT_DIR/env" ] && source "$SCRIPT_DIR/env"
+[ -f "$SCRIPT_DIR/.env" ] && source "$SCRIPT_DIR/.env"
 
 # Resolve Java command
 if [ -n "${JAVA_HOME:-}" ]; then
