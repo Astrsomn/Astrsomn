@@ -102,7 +102,15 @@ public class MybatisPlusConfig {
 
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         List<String> mapperLocations = new ArrayList<>();
-        mapperLocations.add("classpath*:mapper/*.xml");
+        // Derive mapper XML locations from contributor mapper scan packages
+        // Use scoped paths (e.g. "classpath*:com/astrsomn/starter/runtime/mapper/*.xml")
+        // instead of a broad "classpath*:mapper/*.xml" to avoid loading mappers from
+        // other modules (e.g. the market app) into this SqlSessionFactory.
+        for (AstrsomnMybatisContributor contributor : contributors) {
+            for (String scanPkg : contributor.getMapperScanPackages()) {
+                mapperLocations.add("classpath*:" + scanPkg.replace('.', '/') + "/*.xml");
+            }
+        }
 
         if (properties.getMybatisPlus() != null
                 && properties.getMybatisPlus().getAdditionalMapperLocations() != null

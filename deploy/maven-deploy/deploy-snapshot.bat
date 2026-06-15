@@ -36,10 +36,46 @@ echo.
 echo [2/2] Deploying SNAPSHOT modules...
 echo.
 
+REM --- Common (leaf module, deploy first) ---
+echo ----------------------------------------
+echo Deploying: astrsomn-common
+echo ----------------------------------------
+cd /d "%PROJECT_ROOT%\astrsomn-common"
+call mvn deploy -DskipTests -Psnapshot
+if errorlevel 1 (
+    echo.
+    echo [ERROR] Failed to deploy astrsomn-common!
+    echo.
+    echo Press any key to exit...
+    pause > nul
+    exit /b 1
+)
+echo.
+
+REM --- API modules ---
+set "API_DIR=%PROJECT_ROOT%\astrsomn-api"
+
+for %%m in (astrsomn-api-runtime astrsomn-api-system astrsomn-api-vector astrsomn-api-storage astrsomn-api-workflow) do (
+    echo ----------------------------------------
+    echo Deploying: %%m
+    echo ----------------------------------------
+    cd /d "%API_DIR%\%%m"
+    call mvn deploy -DskipTests -Psnapshot
+    if errorlevel 1 (
+        echo.
+        echo [ERROR] Failed to deploy %%m!
+        echo.
+        echo Press any key to exit...
+        pause > nul
+        exit /b 1
+    )
+    echo.
+)
+
 REM --- Providers ---
 set "PROVIDERS_DIR=%PROJECT_ROOT%\astrsomn-plugins\astrsomn-providers"
 
-for %%m in (astrsomn-provider-openai astrsomn-provider-qianfan astrsomn-provider-qwen astrsomn-provider-zhipu astrsomn-provider-deepseek) do (
+for %%m in (astrsomn-provider-ali astrsomn-provider-anthropic astrsomn-provider-baichuan astrsomn-provider-deepseek astrsomn-provider-gemini astrsomn-provider-minimax astrsomn-provider-moonshot astrsomn-provider-ollama astrsomn-provider-openai astrsomn-provider-qianfan astrsomn-provider-tencent astrsomn-provider-volcengine astrsomn-provider-xiaomi astrsomn-provider-zhipu) do (
     echo ----------------------------------------
     echo Deploying: %%m
     echo ----------------------------------------
