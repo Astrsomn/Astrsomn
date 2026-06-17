@@ -56,16 +56,16 @@
                 />
               </a-form-item>
 
-              <a-form-item :label="t.form.paramsDefinitionLabel" name="paramsDefinition">
+              <a-form-item :label="t.form.paramsDefinitionLabel" name="paramsDefinition" class="field-full-width">
                 <a-textarea
                     v-model:value="form.paramsDefinition"
                     :placeholder="t.form.paramsDefinitionPlaceholder"
-                    :rows="3"
+                    :rows="6"
                     size="large"
                 />
               </a-form-item>
 
-  
+
 
               <a-form-item :label="t.form.statusLabel" name="status">
                 <AstStatusToggle
@@ -80,28 +80,27 @@
       </section>
 
       <aside class="code-pane">
-        <a-form-item name="content">
-          <div class="editor-shell">
-            <div class="editor-toolbar">
-              <span class="editor-title">
-                {{ form.templateType === 'FREEMARKER' ? t.form.editorTitleFtl : t.form.editorTitleSt }}
-              </span>
-              <span class="editor-hint">
-                {{
-                  form.templateType === 'FREEMARKER' ? t.form.editorHintFtl : t.form.editorHintSt
-                }}
-              </span>
-            </div>
+        <div class="editor-shell">
+          <div class="editor-toolbar">
+            <span class="editor-title">
+              {{ form.templateType === 'FREEMARKER' ? t.form.editorTitleFtl : t.form.editorTitleSt }}
+            </span>
+            <span class="editor-hint">
+              {{
+                form.templateType === 'FREEMARKER' ? t.form.editorHintFtl : t.form.editorHintSt
+              }}
+            </span>
+          </div>
+          <div class="editor-body">
             <Codemirror
                 v-model="form.content"
                 :autofocus="mode === 'create'"
                 :extensions="editorExtensions"
                 :indent-with-tab="true"
                 :tab-size="2"
-                class="content-editor"
             />
           </div>
-        </a-form-item>
+        </div>
       </aside>
     </div>
   </AstModal>
@@ -113,6 +112,7 @@ import type {FormInstance} from 'ant-design-vue'
 import {Codemirror} from 'vue-codemirror'
 import {html} from '@codemirror/lang-html'
 import {oneDark} from '@codemirror/theme-one-dark'
+import {EditorView} from '@codemirror/view'
 import {CodeOutlined} from '@ant-design/icons-vue'
 import AstModal from '@/components/home/AstModal.vue'
 import AstStatusToggle from '@/components/home/AstStatusToggle.vue'
@@ -162,11 +162,29 @@ const rules = computed(() => ({
   status: [{required: true, message: t.value.form.validation.statusRequired}]
 }))
 
+/* CodeMirror EditorView.theme 直接注入样式，完全绕过 Vue scoped CSS */
 const editorExtensions = computed(() => {
+  const base: any[] = [
+    EditorView.theme({
+      '&': {
+        height: '100%',
+      },
+      '.cm-scroller': {
+        overflow: 'auto',
+        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+      },
+      '.cm-content': {
+        paddingBottom: '24px',
+      },
+    }),
+  ]
+
   if (form.templateType === 'FREEMARKER') {
-    return [html(), oneDark]
+    base.push(html())
   }
-  return [oneDark]
+  base.push(oneDark)
+
+  return base
 })
 
 function assignFromInitial(src: AiTemplate) {
@@ -233,7 +251,7 @@ async function handleOk() {
   color: var(--text-tertiary);
 }
 
-
+/* ========== 左右分栏 ========== */
 .main-content {
   flex: 1;
   display: flex;
@@ -243,21 +261,20 @@ async function handleOk() {
   min-height: 0;
 }
 
-
-.pane-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-}
-
-
+/* ========== 左侧表单 ========== */
 .info-pane {
   flex: 1;
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.pane-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
 .template-form {
@@ -271,59 +288,26 @@ async function handleOk() {
   gap: 16px;
 }
 
+.field-full-width {
+  grid-column: 1 / -1;
+}
 
+/* ========== 右侧代码编辑器 ========== */
 .code-pane {
   width: 50%;
   flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  padding: 0;
+  /* 80vh body - 72px header - 40px main-content padding */
+  height: calc(80vh - 112px);
 }
-
 
 .editor-shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--border-default);
   border-radius: 8px;
-  overflow: clip;
+  overflow: hidden;
   background: #0f172a;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-
-.code-pane :deep(.ant-form-item) {
-  margin-bottom: 0;
-  margin-top: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.code-pane :deep(.ant-form-item-row) {
-  flex: 1;
-  min-height: 0;
-}
-
-.code-pane :deep(.ant-form-item-control) {
-  flex: 1;
-  min-height: 0;
-}
-
-.code-pane :deep(.ant-form-item-control-input) {
-  flex: 1;
-  min-height: 0;
-}
-
-.code-pane :deep(.ant-form-item-control-input-content) {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
 }
 
 .editor-toolbar {
@@ -348,25 +332,15 @@ async function handleOk() {
   font-size: 12px;
 }
 
-.content-editor {
+/* 编辑器容器：占满 toolbar 剩余空间，overflow:hidden 约束 codemirror */
+.editor-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
   font-size: 13px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
 }
 
-:deep(.content-editor .cm-editor) {
-  flex: 1;
-  min-height: 0;
-}
-
-:deep(.content-editor .cm-scroller) {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  overflow: auto !important;
-}
-
-
+/* ========== 响应式 ========== */
 @media (max-width: 1024px) {
   .main-content {
     flex-direction: column;
@@ -374,6 +348,7 @@ async function handleOk() {
 
   .code-pane {
     width: 100%;
+    height: auto;
     min-height: 400px;
   }
 

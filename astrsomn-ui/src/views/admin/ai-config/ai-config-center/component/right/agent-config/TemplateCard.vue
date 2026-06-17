@@ -12,16 +12,21 @@
       </button>
     </div>
     <div class="tpl-list">
-      <div v-for="k in templateKeys" :key="k" class="tpl-tag">
-        <span class="tpl-name">{{ k }}</span>
-        <CloseOutlined class="tpl-close" @click.stop="emit('remove', k)"/>
+      <div v-for="entry in templateKeys" :key="entry.key" class="tpl-tag" :class="{ 'tpl-tag--orphaned': entry._orphaned }">
+        <a-tooltip v-if="entry._orphaned" :title="t.agent.toolNotFound">
+          <ExclamationCircleOutlined class="tpl-warn-icon" />
+        </a-tooltip>
+        <span class="tpl-name">{{ entry.key }}</span>
+        <CloseOutlined class="tpl-close" @click.stop="emit('remove', entry.key)"/>
       </div>
       <div v-if="!templateKeys.length" class="empty-hint">{{ t.agent.noTemplate }}</div>
     </div>
 
     <TemplateSelectorDrawer
       :open="drawerOpen"
-      :selected-keys="templateKeys"
+      :selected-keys="activeKeys"
+      :orphaned-keys="orphanedKeys"
+      :orphaned-hint="t.agent.toolNotFound"
       @update:open="drawerOpen = $event"
       @add="emit('add', $event)"
       @remove="emit('remove', $event)"
@@ -30,13 +35,13 @@
 </template>
 
 <script lang="ts" setup>
-import {ref} from 'vue'
-import {CloseOutlined, FileTextOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import {computed, ref} from 'vue'
+import {CloseOutlined, ExclamationCircleOutlined, FileTextOutlined, PlusOutlined} from '@ant-design/icons-vue'
 import TemplateSelectorDrawer from '@/views/admin/ai-config/ai-template/selector/TemplateSelectorDrawer.vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 
-defineProps<{
-  templateKeys: string[]
+const props = defineProps<{
+  templateKeys: { key: string; _orphaned?: boolean }[]
 }>()
 
 const emit = defineEmits<{
@@ -47,6 +52,12 @@ const emit = defineEmits<{
 const t = usePageTranslation('ai-config-center')
 
 const drawerOpen = ref(false)
+
+const activeKeys = computed(() => props.templateKeys.map((e) => e.key))
+
+const orphanedKeys = computed(() =>
+  props.templateKeys.filter((e) => e._orphaned).map((e) => e.key),
+)
 </script>
 
 <style scoped>
@@ -160,6 +171,19 @@ const drawerOpen = ref(false)
 
 .tpl-close:hover {
   color: var(--error);
+}
+
+/* ── 孤立条目（FTL 模板已删除） ── */
+.tpl-tag--orphaned {
+  background: color-mix(in srgb, var(--error) 8%, transparent) !important;
+  border-color: color-mix(in srgb, var(--error) 25%, transparent) !important;
+  color: var(--error) !important;
+}
+
+.tpl-warn-icon {
+  font-size: 11px;
+  color: var(--error);
+  flex-shrink: 0;
 }
 
 .empty-hint {

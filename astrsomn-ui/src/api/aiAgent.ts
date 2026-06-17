@@ -54,6 +54,11 @@ export type AiAgent = {
     mcpNames?: string
     routeStrategy?: string
     agentAvatar?: string
+    /** 后端 detail 接口校验后返回的孤儿 key 列表 */
+    orphanedToolKeys?: string[]
+    orphanedMcpKeys?: string[]
+    orphanedKnowledgeBaseKeys?: string[]
+    orphanedTemplateKeys?: string[]
 }
 
 export type PageResponse<T> = {

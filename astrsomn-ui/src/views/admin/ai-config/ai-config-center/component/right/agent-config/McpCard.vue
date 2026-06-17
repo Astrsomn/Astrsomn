@@ -12,7 +12,10 @@
       </button>
     </div>
     <div class="mcp-list">
-      <div v-for="m in mcps" :key="m.mcpKey" class="mcp-tag">
+      <div v-for="m in mcps" :key="m.mcpKey" class="mcp-tag" :class="{ 'mcp-tag--orphaned': m._orphaned }">
+        <a-tooltip v-if="m._orphaned" :title="t.agent.toolNotFound">
+          <ExclamationCircleOutlined class="mcp-warn-icon" />
+        </a-tooltip>
         <span class="mcp-letter">{{ (m.serverName || m.mcpKey || 'M').charAt(0).toUpperCase() }}</span>
         <span class="mcp-name">{{ m.serverName || m.mcpKey }}</span>
         <CloseOutlined class="mcp-close" @click.stop="emit('remove', m.mcpKey!)"/>
@@ -23,6 +26,8 @@
     <McpSelectorDrawer
       :open="drawerOpen"
       :selected-keys="selectedMcpKeys"
+      :orphaned-keys="orphanedKeys"
+      :orphaned-hint="t.agent.toolNotFound"
       @update:open="drawerOpen = $event"
       @add="emit('add', $event)"
       @remove="emit('remove', $event)"
@@ -32,7 +37,7 @@
 
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
-import {ApiOutlined, CloseOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import {ApiOutlined, CloseOutlined, ExclamationCircleOutlined, PlusOutlined} from '@ant-design/icons-vue'
 import {type AiMcp} from '@/api/aiMcp.ts'
 import McpSelectorDrawer from '@/views/admin/ai-config/ai-mcp/selector/McpSelectorDrawer.vue'
 import {usePageTranslation} from '@/locales/pages.ts'
@@ -52,6 +57,10 @@ const drawerOpen = ref(false)
 
 const selectedMcpKeys = computed(() =>
   props.mcps.map((m) => m.mcpKey).filter(Boolean) as string[],
+)
+
+const orphanedKeys = computed(() =>
+  props.mcps.filter((m) => (m as any)._orphaned).map((m) => m.mcpKey).filter(Boolean) as string[],
 )
 </script>
 
@@ -167,6 +176,19 @@ const selectedMcpKeys = computed(() =>
 
 .mcp-close:hover {
   color: var(--error);
+}
+
+/* ── 孤立条目（MCP 已删除） ── */
+.mcp-tag--orphaned {
+  background: color-mix(in srgb, var(--error) 8%, transparent) !important;
+  border-color: color-mix(in srgb, var(--error) 25%, transparent) !important;
+  color: var(--error) !important;
+}
+
+.mcp-warn-icon {
+  font-size: 11px;
+  color: var(--error);
+  flex-shrink: 0;
 }
 
 .empty-hint {

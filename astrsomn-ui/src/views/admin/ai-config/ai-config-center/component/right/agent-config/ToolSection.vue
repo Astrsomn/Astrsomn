@@ -124,8 +124,8 @@ import {usePageTranslation} from '@/locales/pages.ts'
 defineProps<{
   tools: AiTool[]
   mcps: AiMcp[]
-  knowledgeKeys: string[]
-  templateKeys: string[]
+  knowledgeKeys: { key: string; _orphaned?: boolean }[]
+  templateKeys: { key: string; _orphaned?: boolean }[]
 }>()
 
 const emit = defineEmits<{

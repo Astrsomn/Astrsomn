@@ -11,7 +11,11 @@ import com.astrsomn.api.runtime.common.dto.prompt.AiPromptCreateRequestDTO;
 import com.astrsomn.api.runtime.common.dto.prompt.AiPromptUpdateRequestDTO;
 import com.astrsomn.api.runtime.common.entity.AiAgentEntity;
 import com.astrsomn.api.runtime.common.entity.AiInstanceEntity;
+import com.astrsomn.api.runtime.common.entity.AiMcpEntity;
 import com.astrsomn.api.runtime.common.entity.AiPromptEntity;
+import com.astrsomn.api.runtime.common.entity.AiTemplateEntity;
+import com.astrsomn.api.runtime.common.entity.AiToolEntity;
+import com.astrsomn.api.vector.entity.AiVecStoreEntity;
 import com.astrsomn.api.runtime.common.utils.KeyGenerator;
 import com.astrsomn.api.runtime.common.utils.PageConverter;
 import com.astrsomn.api.runtime.common.utils.PageUtils;
@@ -32,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +45,10 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
 
     private final AiPromptService aiPromptService;
     private final AiInstanceService aiInstanceService;
+    private final AiToolService aiToolService;
+    private final AiMcpService aiMcpService;
+    private final AiTemplateService aiTemplateService;
+    private final com.astrsomn.server.service.vector.AiVecStoreService aiVecStoreService;
 
     @Override
     public BaseResponse<String> create(AiAgentCreateRequestDTO request) {
@@ -84,7 +93,42 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
                 .last("LIMIT 1")
                 .one();
         responseDTO.setPrompt(prompt);
+
+        // 校验绑定的 key：批量查询各类资源表中仍存在的 key，差集即为已删除的孤儿 key
+        responseDTO.setOrphanedToolKeys(computeOrphaned(aiAgent.getToolKeys(),
+                keys -> aiToolService.lambdaQuery()
+                        .in(AiToolEntity::getToolKey, keys)
+                        .select(AiToolEntity::getToolKey)
+                        .list().stream().map(AiToolEntity::getToolKey).collect(Collectors.toList())));
+        responseDTO.setOrphanedMcpKeys(computeOrphaned(aiAgent.getMcpKeys(),
+                keys -> aiMcpService.lambdaQuery()
+                        .in(AiMcpEntity::getMcpKey, keys)
+                        .select(AiMcpEntity::getMcpKey)
+                        .list().stream().map(AiMcpEntity::getMcpKey).collect(Collectors.toList())));
+        responseDTO.setOrphanedTemplateKeys(computeOrphaned(aiAgent.getTemplateKeys(),
+                keys -> aiTemplateService.lambdaQuery()
+                        .in(AiTemplateEntity::getTemplateKey, keys)
+                        .select(AiTemplateEntity::getTemplateKey)
+                        .list().stream().map(AiTemplateEntity::getTemplateKey).collect(Collectors.toList())));
+        responseDTO.setOrphanedKnowledgeBaseKeys(computeOrphaned(aiAgent.getKnowledgeBaseKeys(),
+                keys -> aiVecStoreService.lambdaQuery()
+                        .in(AiVecStoreEntity::getCollectionName, keys)
+                        .select(AiVecStoreEntity::getCollectionName)
+                        .list().stream().map(AiVecStoreEntity::getCollectionName).collect(Collectors.toList())));
+
         return BaseResponse.success(responseDTO);
+    }
+
+    /**
+     * 给定逗号分隔的 key 字符串，批量对比数据库中实际存在的 key，返回已被删除的孤儿 key 列表。
+     */
+    private List<String> computeOrphaned(String keysStr, java.util.function.Function<List<String>, List<String>> existingResolver) {
+        if (StringUtils.isBlank(keysStr)) return Collections.emptyList();
+        List<String> bound = Arrays.stream(keysStr.split(","))
+                .map(String::trim).filter(k -> !k.isEmpty()).collect(Collectors.toList());
+        if (bound.isEmpty()) return Collections.emptyList();
+        Set<String> existing = new HashSet<>(existingResolver.apply(bound));
+        return bound.stream().filter(k -> !existing.contains(k)).collect(Collectors.toList());
     }
 
 

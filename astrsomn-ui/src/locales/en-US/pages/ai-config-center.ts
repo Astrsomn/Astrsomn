@@ -95,6 +95,7 @@ export const aiConfigCenterTranslation = {
     noEndpoints: 'No endpoints',
     extensionToolsLabel: 'Extension Tools',
     noToolsBound: 'No tools bound',
+    toolNotFound: 'This resource has been deleted, click × to remove',
     mcpService: 'MCP Service',
     noMcpBound: 'No MCP bound',
     knowledgeBaseLabel: 'Knowledge Base (RAG)',

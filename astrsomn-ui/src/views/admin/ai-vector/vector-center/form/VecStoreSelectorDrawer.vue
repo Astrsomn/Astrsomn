@@ -23,7 +23,20 @@
       </div>
 
       <a-spin :spinning="loading">
-        <div class="item-list">
+        <!-- 孤儿条目（资源已删除） -->
+          <div v-if="orphanedKeys && orphanedKeys.length" class="orphaned-section">
+            <div class="orphaned-header">
+              <ExclamationCircleOutlined />
+              <span>{{ orphanedHint || 'Deleted resources' }}</span>
+            </div>
+            <div v-for="key in orphanedKeys" :key="key" class="orphaned-item">
+              <ExclamationCircleOutlined class="orphaned-item-icon" />
+              <code class="orphaned-item-key">{{ key }}</code>
+              <CloseOutlined class="orphaned-item-close" @click.stop="emit('remove', key)" />
+            </div>
+          </div>
+
+          <div class="item-list">
           <div
             v-for="item in list"
             :key="item.id"
@@ -83,7 +96,7 @@
 
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
-import {BlockOutlined, CheckCircleFilled, DatabaseOutlined, RobotOutlined} from '@ant-design/icons-vue'
+import {BlockOutlined, CheckCircleFilled, CloseOutlined, DatabaseOutlined, ExclamationCircleOutlined, RobotOutlined} from '@ant-design/icons-vue'
 import {type AiVecStore, aiVecStoreApi} from '@/api/aiVecStore.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
 import AstDrawer from '@/components/home/AstDrawer.vue'
@@ -95,6 +108,8 @@ const t = usePageTranslation('ai-vector')
 const props = defineProps<{
   open: boolean
   selectedKeys?: string[]
+  orphanedKeys?: string[]
+  orphanedHint?: string
 }>()
 
 const emit = defineEmits<{
@@ -371,5 +386,67 @@ watch(
   font-size: 12px;
   color: var(--text-muted);
   margin: 0;
+}
+
+/* ── 孤儿条目（资源已删除） ── */
+.orphaned-section {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--error) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 20%, transparent);
+  border-radius: 8px;
+}
+
+.orphaned-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--error);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.orphaned-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: color-mix(in srgb, var(--error) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 25%, transparent);
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+.orphaned-item:last-child {
+  margin-bottom: 0;
+}
+
+.orphaned-item-icon {
+  font-size: 12px;
+  color: var(--error);
+  flex-shrink: 0;
+}
+
+.orphaned-item-key {
+  flex: 1;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  color: var(--error);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orphaned-item-close {
+  font-size: 12px;
+  color: var(--error);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+
+.orphaned-item-close:hover {
+  opacity: 0.6;
 }
 </style>

@@ -121,6 +121,8 @@ const emit = defineEmits<{
 
 const t = usePageTranslation('ai-config-center')
 
+type KeyEntry = { key: string; _orphaned?: boolean }
+
 const loading = ref(false)
 const submitting = ref(false)
 const detailSnapshot = ref<AiAgent | null>(null)
@@ -133,8 +135,8 @@ const currentPrompt = ref<AiPrompt | undefined>(undefined)
 const loadedPromptContent = ref('')
 const placedTools = ref<AiTool[]>([])
 const placedMcps = ref<AiMcp[]>([])
-const knowledgeKeys = ref<string[]>([])
-const templateKeys = ref<string[]>([])
+const knowledgeKeys = ref<KeyEntry[]>([])
+const templateKeys = ref<KeyEntry[]>([])
 
 const instanceList = ref<AiInstance[]>([])
 const availableModels = ref<AiModel[]>([])
@@ -218,34 +220,34 @@ async function handleApplyImproved() {
 
 function onKnowledgeAdd(key: string) {
   const k = String(key || '').trim()
-  if (!k || knowledgeKeys.value.includes(k)) return
-  knowledgeKeys.value = [...knowledgeKeys.value, k]
+  if (!k || knowledgeKeys.value.some((x) => x.key === k)) return
+  knowledgeKeys.value = [...knowledgeKeys.value, { key: k }]
 }
 
 function onKnowledgeRemove(key: string) {
-  knowledgeKeys.value = knowledgeKeys.value.filter((x) => x !== key)
+  knowledgeKeys.value = knowledgeKeys.value.filter((x) => x.key !== key)
 }
 
 function onTemplateAdd(key: string) {
   const k = String(key || '').trim()
-  if (!k || templateKeys.value.includes(k)) return
-  templateKeys.value = [...templateKeys.value, k]
+  if (!k || templateKeys.value.some((x) => x.key === k)) return
+  templateKeys.value = [...templateKeys.value, { key: k }]
 }
 
 function onTemplateRemove(key: string) {
-  templateKeys.value = templateKeys.value.filter((x) => x !== key)
+  templateKeys.value = templateKeys.value.filter((x) => x.key !== key)
 }
 
-function parseKnowledgeKeys(raw?: string): string[] {
-  const t = raw?.trim()
-  if (!t) return []
+function parseKnowledgeKeys(raw?: string): KeyEntry[] {
+  const rawStr = raw?.trim()
+  if (!rawStr) return []
   try {
-    const arr = JSON.parse(t) as unknown
-    if (Array.isArray(arr)) return arr.map((x) => String(x)).filter(Boolean)
+    const arr = JSON.parse(rawStr) as unknown
+    if (Array.isArray(arr)) return arr.map((x) => ({ key: String(x) })).filter((e) => e.key)
   } catch {
-
+    // not JSON, fall through
   }
-  return t.split(',').map((s) => s.trim()).filter(Boolean)
+  return rawStr.split(',').map((s) => ({ key: s.trim() })).filter((e) => e.key)
 }
 
 function resetEmptyForm() {
@@ -281,32 +283,46 @@ async function resolvePromptByKey(promptKey: string): Promise<AiPrompt | undefin
   return (wide.list || []).find((p) => p.promptKey === key)
 }
 
-async function resolveToolsByKeys(keys: string[]): Promise<AiTool[]> {
-  const out: AiTool[] = []
+/**
+ * 仅查询后端确认存在的 tool keys，获取完整对象用于展示 toolName。
+ * 孤儿检测由后端 detail 接口的 orphanedToolKeys 字段完成，前端不再自行校验。
+ */
+async function resolveExistingToolsByKeys(keys: string[]): Promise<Map<string, AiTool>> {
+  const map = new Map<string, AiTool>()
+  if (!keys.length) return map
   for (const key of keys) {
-    const resp = await aiToolApi.queryPage({
-      pageNo: 1,
-      pageSize: 20,
-      param: { toolKey: key },
-    })
-    const hit = (resp.list || []).find((t) => t.toolKey === key)
-    if (hit) out.push(hit)
+    try {
+      const resp = await aiToolApi.queryPage({
+        pageNo: 1,
+        pageSize: 1,
+        param: { toolKey: key },
+      })
+      const hit = (resp.list || []).find((t) => t.toolKey === key)
+      if (hit) map.set(key, hit)
+    } catch {
+      // 解析失败时回退到仅展示 key
+    }
   }
-  return out
+  return map
 }
 
-async function resolveMcpsByKeys(keys: string[]): Promise<AiMcp[]> {
-  const out: AiMcp[] = []
+async function resolveExistingMcpsByKeys(keys: string[]): Promise<Map<string, AiMcp>> {
+  const map = new Map<string, AiMcp>()
+  if (!keys.length) return map
   for (const key of keys) {
-    const resp = await aiMcpApi.queryPage({
-      pageNo: 1,
-      pageSize: 20,
-      param: { mcpKey: key },
-    })
-    const hit = (resp.list || []).find((m) => m.mcpKey === key)
-    if (hit) out.push(hit)
+    try {
+      const resp = await aiMcpApi.queryPage({
+        pageNo: 1,
+        pageSize: 1,
+        param: { mcpKey: key },
+      })
+      const hit = (resp.list || []).find((m) => m.mcpKey === key)
+      if (hit) map.set(key, hit)
+    } catch {
+      // 解析失败时回退到仅展示 key
+    }
   }
-  return out
+  return map
 }
 
 async function loadInstanceListForAgent(agentKey: string): Promise<AiInstance[]> {
@@ -352,24 +368,49 @@ async function backfillFromDetail(detail: AiAgent) {
   }
   loadedPromptContent.value = currentPrompt.value?.promptContent ?? ''
 
+  // ── 工具：后端已校验孤儿 key，前端仅解析存在的 key 获取展示名称 ──
   if (detail.toolKeys) {
     const keys = detail.toolKeys.split(',').map((k) => k.trim()).filter(Boolean)
-    placedTools.value = keys.length ? await resolveToolsByKeys(keys) : []
+    const orphanedSet = new Set(detail.orphanedToolKeys || [])
+    const validKeys = keys.filter((k) => !orphanedSet.has(k))
+    const resolvedMap = await resolveExistingToolsByKeys(validKeys)
+    placedTools.value = keys.map((key) =>
+      resolvedMap.get(key) || ({ toolKey: key, toolName: key, _orphaned: orphanedSet.has(key) } as any),
+    )
   } else {
     placedTools.value = []
   }
 
+  // ── MCP：同理 ──
   if (detail.mcpKeys) {
     const keys = detail.mcpKeys.split(',').map((k) => k.trim()).filter(Boolean)
-    placedMcps.value = keys.length ? await resolveMcpsByKeys(keys) : []
+    const orphanedSet = new Set(detail.orphanedMcpKeys || [])
+    const validKeys = keys.filter((k) => !orphanedSet.has(k))
+    const resolvedMap = await resolveExistingMcpsByKeys(validKeys)
+    placedMcps.value = keys.map((key) =>
+      resolvedMap.get(key) || ({ mcpKey: key, serverName: key, _orphaned: orphanedSet.has(key) } as any),
+    )
   } else {
     placedMcps.value = []
   }
 
-  knowledgeKeys.value = detail.knowledgeBaseKeys ? parseKnowledgeKeys(detail.knowledgeBaseKeys) : []
-  templateKeys.value = detail.templateKeys
-      ? detail.templateKeys.split(',').map((k) => k.trim()).filter(Boolean)
-      : []
+  // ── 知识库：纯 key，孤儿状态由后端告知 ──
+  if (detail.knowledgeBaseKeys) {
+    const rawKeys = parseKnowledgeKeys(detail.knowledgeBaseKeys).map((e) => e.key)
+    const orphanedSet = new Set(detail.orphanedKnowledgeBaseKeys || [])
+    knowledgeKeys.value = rawKeys.map((key) => ({ key, _orphaned: orphanedSet.has(key) }))
+  } else {
+    knowledgeKeys.value = []
+  }
+
+  // ── FTL 模板：纯 key，孤儿状态由后端告知 ──
+  if (detail.templateKeys) {
+    const rawKeys = detail.templateKeys.split(',').map((k) => k.trim()).filter(Boolean)
+    const orphanedSet = new Set(detail.orphanedTemplateKeys || [])
+    templateKeys.value = rawKeys.map((key) => ({ key, _orphaned: orphanedSet.has(key) }))
+  } else {
+    templateKeys.value = []
+  }
 }
 
 async function loadAgent() {
@@ -435,10 +476,10 @@ function buildSubmitPayload(): AiAgent {
     description: localAgentDescription.value.trim(),
     agentAvatar: localAgentAvatar.value || undefined,
     promptKey: currentPrompt.value?.promptKey,
-    knowledgeBaseKeys: knowledgeKeys.value.length ? knowledgeKeys.value.join(',') : '',
-    toolKeys: placedTools.value.map((t) => t.toolKey).filter(Boolean).join(','),
-    mcpKeys: placedMcps.value.map((m) => m.mcpKey).filter(Boolean).join(','),
-    templateKeys: templateKeys.value.join(','),
+    knowledgeBaseKeys: knowledgeKeys.value.filter((e) => !e._orphaned).map((e) => e.key).filter(Boolean).join(','),
+    toolKeys: placedTools.value.filter((t) => !(t as any)._orphaned).map((t) => t.toolKey).filter(Boolean).join(','),
+    mcpKeys: placedMcps.value.filter((m) => !(m as any)._orphaned).map((m) => m.mcpKey).filter(Boolean).join(','),
+    templateKeys: templateKeys.value.filter((e) => !e._orphaned).map((e) => e.key).filter(Boolean).join(','),
     instanceList: instanceList.value,
     routeStrategy: routeStrategy.value,
     promptEntity,

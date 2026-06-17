@@ -12,16 +12,21 @@
       </button>
     </div>
     <div class="kb-list">
-      <div v-for="k in knowledgeKeys" :key="k" class="kb-tag">
-        <span class="kb-name">{{ k }}</span>
-        <CloseOutlined class="kb-close" @click.stop="emit('remove', k)"/>
+      <div v-for="entry in knowledgeKeys" :key="entry.key" class="kb-tag" :class="{ 'kb-tag--orphaned': entry._orphaned }">
+        <a-tooltip v-if="entry._orphaned" :title="t.agent.toolNotFound">
+          <ExclamationCircleOutlined class="kb-warn-icon" />
+        </a-tooltip>
+        <span class="kb-name">{{ entry.key }}</span>
+        <CloseOutlined class="kb-close" @click.stop="emit('remove', entry.key)"/>
       </div>
       <div v-if="!knowledgeKeys.length" class="empty-hint">{{ t.agent.noKnowledgeBase }}</div>
     </div>
 
     <VecStoreSelectorDrawer
       :open="drawerOpen"
-      :selected-keys="knowledgeKeys"
+      :selected-keys="activeKeys"
+      :orphaned-keys="orphanedKeys"
+      :orphaned-hint="t.agent.toolNotFound"
       @update:open="drawerOpen = $event"
       @add="emit('add', $event)"
       @remove="emit('remove', $event)"
@@ -30,13 +35,13 @@
 </template>
 
 <script lang="ts" setup>
-import {ref} from 'vue'
-import {CloseOutlined, DatabaseOutlined, PlusOutlined} from '@ant-design/icons-vue'
+import {computed, ref} from 'vue'
+import {CloseOutlined, DatabaseOutlined, ExclamationCircleOutlined, PlusOutlined} from '@ant-design/icons-vue'
 import VecStoreSelectorDrawer from '@/views/admin/ai-vector/vector-center/form/VecStoreSelectorDrawer.vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 
-defineProps<{
-  knowledgeKeys: string[]
+const props = defineProps<{
+  knowledgeKeys: { key: string; _orphaned?: boolean }[]
 }>()
 
 const emit = defineEmits<{
@@ -47,6 +52,12 @@ const emit = defineEmits<{
 const t = usePageTranslation('ai-config-center')
 
 const drawerOpen = ref(false)
+
+const activeKeys = computed(() => props.knowledgeKeys.map((e) => e.key))
+
+const orphanedKeys = computed(() =>
+  props.knowledgeKeys.filter((e) => e._orphaned).map((e) => e.key),
+)
 </script>
 
 <style scoped>
@@ -170,6 +181,19 @@ const drawerOpen = ref(false)
 
 .kb-close:hover {
   color: var(--error);
+}
+
+/* ── 孤立条目（知识库已删除） ── */
+.kb-tag--orphaned {
+  background: color-mix(in srgb, var(--error) 8%, transparent) !important;
+  border-color: color-mix(in srgb, var(--error) 25%, transparent) !important;
+  color: var(--error) !important;
+}
+
+.kb-warn-icon {
+  font-size: 11px;
+  color: var(--error);
+  flex-shrink: 0;
 }
 
 .empty-hint {

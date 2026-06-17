@@ -12,10 +12,13 @@
       </button>
     </div>
     <div class="tool-list">
-      <div v-for="t in tools" :key="t.toolKey" class="tool-tag">
-        <span class="tool-letter">{{ (t.toolName || t.toolKey || 'T').charAt(0).toUpperCase() }}</span>
-        <span class="tool-name">{{ t.toolName || t.toolKey }}</span>
-        <CloseOutlined class="tool-close" @click.stop="emit('remove', t.toolKey!)"/>
+      <div v-for="tool in tools" :key="tool.toolKey" class="tool-tag" :class="{ 'tool-tag--orphaned': tool._orphaned }">
+        <a-tooltip v-if="tool._orphaned" :title="t.agent.toolNotFound">
+          <ExclamationCircleOutlined class="tool-warn-icon" />
+        </a-tooltip>
+        <span class="tool-letter">{{ (tool.toolName || tool.toolKey || 'T').charAt(0).toUpperCase() }}</span>
+        <span class="tool-name">{{ tool.toolName || tool.toolKey }}</span>
+        <CloseOutlined class="tool-close" @click.stop="emit('remove', tool.toolKey || '')"/>
       </div>
       <div v-if="!tools.length" class="empty-hint">{{ t.agent.noToolsBound }}</div>
     </div>
@@ -23,6 +26,8 @@
     <ToolSelectorDrawer
       :open="drawerOpen"
       :selected-keys="selectedToolKeys"
+      :orphaned-keys="orphanedKeys"
+      :orphaned-hint="t.agent.toolNotFound"
       @update:open="drawerOpen = $event"
       @add="emit('add', $event)"
       @remove="emit('remove', $event)"
@@ -32,7 +37,7 @@
 
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
-import {CloseOutlined, PlusOutlined, ToolOutlined} from '@ant-design/icons-vue'
+import {CloseOutlined, ExclamationCircleOutlined, PlusOutlined, ToolOutlined} from '@ant-design/icons-vue'
 import {type AiTool} from '@/api/aiTool.ts'
 import ToolSelectorDrawer from '@/views/admin/ai-config/ai-tool/selector/ToolSelectorDrawer.vue'
 import {usePageTranslation} from '@/locales/pages.ts'
@@ -52,6 +57,10 @@ const drawerOpen = ref(false)
 
 const selectedToolKeys = computed(() =>
   props.tools.map((t) => t.toolKey).filter(Boolean) as string[],
+)
+
+const orphanedKeys = computed(() =>
+  props.tools.filter((t) => (t as any)._orphaned).map((t) => t.toolKey).filter(Boolean) as string[],
 )
 </script>
 
@@ -167,6 +176,19 @@ const selectedToolKeys = computed(() =>
 
 .tool-close:hover {
   color: var(--error);
+}
+
+/* ── 孤立条目（工具已删除） ── */
+.tool-tag--orphaned {
+  background: color-mix(in srgb, var(--error) 8%, transparent) !important;
+  border-color: color-mix(in srgb, var(--error) 25%, transparent) !important;
+  color: var(--error) !important;
+}
+
+.tool-warn-icon {
+  font-size: 11px;
+  color: var(--error);
+  flex-shrink: 0;
 }
 
 .empty-hint {
