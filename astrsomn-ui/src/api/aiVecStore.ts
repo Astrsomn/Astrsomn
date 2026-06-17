@@ -18,6 +18,7 @@ export interface AiVecStore {
     sourceName?: string
     sourceProvider?: string
     instanceName?: string
+    accountName?: string
     createTime?: string
     updateTime?: string
 }

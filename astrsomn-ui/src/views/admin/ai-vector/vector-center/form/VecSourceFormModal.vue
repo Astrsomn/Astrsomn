@@ -1,9 +1,9 @@
 <template>
   <AstModal
       :open="open"
-      :width="640"
+      :width="800"
       :body-height="520"
-      :max-width="700"
+      :max-width="800"
       :footer="null"
       wrap-class-name="vec-source-form-modal"
       @update:open="emit('update:open', $event)"

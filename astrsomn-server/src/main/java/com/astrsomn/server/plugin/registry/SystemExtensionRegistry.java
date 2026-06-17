@@ -142,7 +142,11 @@ public class SystemExtensionRegistry implements ApplicationListener<ApplicationR
             entity.setApplied(existing.getApplied());
             entity.setStatus(existing.getStatus());
             entity.setJarName(existing.getJarName());
-            entity.setExtensionCode(existing.getExtensionCode());
+            // 保留已有的 extensionCode / avatar，若为空则使用 descriptor 中的新值
+            entity.setExtensionCode(Optional.ofNullable(StringUtils.trimToNull(existing.getExtensionCode()))
+                    .orElse(entity.getExtensionCode()));
+            entity.setAvatar(Optional.ofNullable(StringUtils.trimToNull(existing.getAvatar()))
+                    .orElse(entity.getAvatar()));
             entity.setInstallSource(Optional.ofNullable(StringUtils.trimToNull(existing.getInstallSource()))
                     .orElse(entity.getInstallSource()));
             entity.setDiscoveryMechanism(Optional.ofNullable(StringUtils.trimToNull(existing.getDiscoveryMechanism()))

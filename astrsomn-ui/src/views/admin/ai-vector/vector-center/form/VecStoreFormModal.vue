@@ -1,9 +1,9 @@
 <template>
   <AstModal
       :open="open"
-      :width="640"
+      :width="800"
       :body-height="520"
-      :max-width="700"
+      :max-width="800"
       :footer="null"
       wrap-class-name="vec-store-form-modal"
       @update:open="emit('update:open', $event)"
@@ -94,7 +94,7 @@
               <a-form-item :label="t.vecStore.form.accountKey.label" name="accountKey" class="span-2">
                 <div class="selector-row">
                   <a-input
-                      :value="form.accountKey || ''"
+                      :value="selectedAccountDisplay"
                       disabled
                       :placeholder="t.vecStore.form.accountKey.placeholder"
                       size="large"
@@ -210,11 +210,13 @@
     <ModelSelectorDrawer
         :open="modelSelectorOpen"
         fixed-model-type="embedding"
+        :fixed-provider-code="selectedProviderCode"
         @update:open="modelSelectorOpen = $event"
         @select="handleModelSelect"
     />
     <AccountSelectorDrawer
         :open="accountSelectorOpen"
+        :provider-filter="selectedProviderCode"
         @update:open="accountSelectorOpen = $event"
         @select="handleAccountSelect"
     />
@@ -257,6 +259,10 @@ const currentStep = ref(1)
 const modelSelectorOpen = ref(false)
 const accountSelectorOpen = ref(false)
 const selectedModelName = ref('')
+const selectedAccountName = ref('')
+/** 关联提供方：选择模型后记录其 extensionCode，用于自动过滤账号列表；反之亦然 */
+const selectedProviderCode = ref<string | undefined>(undefined)
+const selectedAccountProviderCode = ref<string | undefined>(undefined)
 
 const steps = [
   {key: 'basic', label: t.value.vecStore.form.basicConfig},
@@ -306,19 +312,30 @@ const selectedModelDisplay = computed(() => {
       : form.modelKey
 })
 
+const selectedAccountDisplay = computed(() => {
+  if (!form.accountKey) return ''
+  return selectedAccountName.value
+      ? `${selectedAccountName.value} (${form.accountKey})`
+      : form.accountKey
+})
+
 function assignFromInitial(src: AiVecStore) {
   Object.assign(form, emptyForm(), src)
   selectedModelName.value = (src as any).instanceName || ''
+  selectedAccountName.value = (src as any).accountName || ''
 }
 
 watch(() => [open.value, props.initial, props.defaultSourceId] as const, ([isOpen, initial, defaultSourceId]) => {
   if (isOpen) {
     currentStep.value = 1
+    selectedProviderCode.value = undefined
+    selectedAccountProviderCode.value = undefined
     if (initial && Object.keys(initial).length > 0) {
       assignFromInitial(initial)
     } else {
       Object.assign(form, emptyForm())
       selectedModelName.value = ''
+      selectedAccountName.value = ''
       if (defaultSourceId) {
         form.sourceId = defaultSourceId
       }
@@ -332,11 +349,30 @@ function handleModelSelect(model: AiModel) {
   if (model.responseLimit && model.responseLimit > 0) {
     form.dimension = model.responseLimit
   }
+  selectedProviderCode.value = model.extensionCode || undefined
+  // 若已选账号与当前模型提供方不一致，则清空账号
+  if (selectedAccountProviderCode.value && selectedAccountProviderCode.value !== selectedProviderCode.value) {
+    form.accountKey = ''
+    selectedAccountName.value = ''
+    selectedAccountProviderCode.value = undefined
+  }
   modelSelectorOpen.value = false
 }
 
 function handleAccountSelect(account: AiAccount) {
   form.accountKey = account.accountKey || ''
+  selectedAccountName.value = account.accountName || ''
+  selectedAccountProviderCode.value = account.extensionCode || undefined
+  // 若已选模型提供方不存在，则从账号侧反向设置
+  if (!selectedProviderCode.value && account.extensionCode) {
+    selectedProviderCode.value = account.extensionCode
+  }
+  // 若已选模型与当前账号提供方不一致，则清空模型
+  if (selectedProviderCode.value && account.extensionCode && selectedProviderCode.value !== account.extensionCode) {
+    form.modelKey = ''
+    selectedModelName.value = ''
+    selectedProviderCode.value = account.extensionCode
+  }
   accountSelectorOpen.value = false
 }
 

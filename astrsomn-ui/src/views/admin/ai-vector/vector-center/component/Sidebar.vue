@@ -249,7 +249,7 @@ const storeModalSourceId = ref<number | string | null>(null)
 const firstExpandCheckedMap = ref<Record<string, boolean>>({})
 const sourceConnectedOverride = ref<Record<string, boolean>>({})
 const checkingSourceMap = ref<Record<string, boolean>>({})
-const enabledExtensions = ref<Array<{ key: string; name: string; avatar: string; initial: string }>>([])
+const enabledExtensions = ref<Array<{ key: string; name: string; extensionCode: string; avatar: string; initial: string }>>([])
 const storesBySourceCache = ref<Record<string, AiVecStore[]>>({})
 const pendingStoreSyncSourceKey = ref<string>('')
 const blankContextMenuVisible = ref(false)
@@ -297,15 +297,18 @@ const sourceTree = computed<Source[]>(() =>
       const sourceType = String(source.provider || source.extensionCode || 'unknown').toLowerCase()
       const sourceStatus = String(source.status || '').toLowerCase()
       const sourceKey = String(source.id ?? '')
-      // 状态优先：未启用的 source 始终显示断开，即使之前连接测试成功
+      // 状态优先：未启用的 source 始终显示断开；已启用但未测试过的默认也为断开，
+      // 只有展开后连接测试成功才显示绿色连接点
       const connected = sourceStatus === 'enabled'
           ? (sourceConnectedOverride.value[sourceKey] !== undefined
               ? sourceConnectedOverride.value[sourceKey]
-              : true)
+              : false)
           : false
       // 关联 extension 获取 avatar 作为 fallback
       const extAvatar = enabledExtensions.value.find(
-          ext => ext.key.toLowerCase() === sourceType || ext.name.toLowerCase() === sourceType
+          ext => ext.extensionCode.toLowerCase() === sourceType
+              || ext.key.toLowerCase() === sourceType
+              || ext.name.toLowerCase() === sourceType
       )?.avatar || ''
       return {
         id: source.id as number | string,
@@ -338,17 +341,16 @@ const toggleSource = (id: number | string) => {
   }
 }
 
-const selectSource = async (id: number | string) => {
+const selectSource = (id: number | string) => {
   const isOpening = !openKeys.value.includes(id)
   pendingStoreSyncSourceKey.value = String(id)
   emit('select-source', id)
-  if (!isOpening) {
-    toggleSource(id)
-    return
-  }
-  const checked = await testConnectionOnFirstExpand(id)
-  if (!checked) return
+  // 始终展开/折叠，不因连接测试失败而阻止展开
   toggleSource(id)
+  // 展开时异步测试连接，更新绿色连接状态点
+  if (isOpening) {
+    testConnectionOnFirstExpand(id)
+  }
 }
 
 const selectDb = (sourceId: number | string, id: number | string) => {
@@ -629,6 +631,7 @@ const fetchEnabledExtensions = async () => {
       return {
         key: String(item.id ?? item.extensionKey ?? name),
         name,
+        extensionCode: String(item.extensionCode || ''),
         avatar: String(item.avatar || ''),
         initial: name.slice(0, 1).toUpperCase()
       }

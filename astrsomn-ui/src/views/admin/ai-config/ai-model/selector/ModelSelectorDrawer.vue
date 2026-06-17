@@ -14,6 +14,7 @@
     <div class="select-drawer-content">
       <div class="search-bar">
         <ExtensionSelector
+            v-if="!props.fixedProviderCode"
             :allow-clear="true"
             :value="providerFilter"
             :placeholder="t.selector.providerPlaceholder"
@@ -140,6 +141,8 @@ const CAP_ICON_MAP: Record<string, any> = {
 const props = defineProps<{
   open: boolean
   fixedModelType?: string
+  /** 锁定提供方，选择器内部不再显示提供方筛选 */
+  fixedProviderCode?: string
   rootClassName?: string
 }>()
 
@@ -240,7 +243,7 @@ function handleClose() {
 watch(() => props.open, (val) => {
   if (val) {
     keyword.value = ''
-    providerFilter.value = undefined
+    providerFilter.value = props.fixedProviderCode || undefined
     selectedId.value = undefined
     page.pageNum = 1
     void fetchList()

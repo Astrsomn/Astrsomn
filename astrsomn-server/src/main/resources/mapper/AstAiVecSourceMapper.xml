@@ -21,12 +21,12 @@
         </if>
         <if test="req != null and req.status != null and req.status != ''">
             AND s.STATUS = #{req.status}
-        </if>
+        </if>
         <if test="req != null and req.createUser != null and req.createUser != ''">
             AND s.CREATE_USER = #{req.createUser}
         </if>
         ORDER BY
         s.CREATE_TIME DESC
     </select>
-
+    
 </mapper>
