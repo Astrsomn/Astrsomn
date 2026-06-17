@@ -50,8 +50,9 @@ defineEmits<{
   align-items: flex-start;
   gap: 10px;
   padding: 10px 12px;
+
   margin: 2px 0;
-  border-radius: 0;
+  border-radius: 8px;
   background: transparent;
   border: none;
   border-left: 3px solid transparent;

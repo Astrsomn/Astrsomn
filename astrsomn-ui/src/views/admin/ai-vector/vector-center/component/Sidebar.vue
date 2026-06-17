@@ -148,57 +148,19 @@
       @cancel="marketplaceOpen = false"
       @update:open="marketplaceOpen = $event"
   />
-  <!-- 删除数据源确认对话框 -->
-  <a-modal
-      v-model:open="deleteConfirmModalVisible"
-      :title="t.vectorCenter.sidebar.deleteSourceConfirm"
-      :footer="null"
-      width="520px"
-  >
-    <div class="delete-confirm-content">
-      <div class="delete-confirm-warning">
-        <WarningOutlined class="warning-icon" />
-        <span>{{ t.vectorCenter.sidebar.deleteSourceWarning }}</span>
-      </div>
-      
-      <div v-if="deleteConfirmSource" class="delete-confirm-detail">
-        <div class="detail-item">
-          <span class="detail-label">{{ t.vectorCenter.sidebar.sourceName }}:</span>
-          <span class="detail-value">{{ deleteConfirmSource.name }}</span>
-        </div>
-        <div v-if="deleteConfirmSource.dbs.length > 0" class="detail-item">
-          <span class="detail-label">{{ t.vectorCenter.sidebar.associatedDatabases }}:</span>
-          <span class="detail-value">{{ deleteConfirmSource.dbs.length }} {{ t.vectorCenter.sidebar.items }}</span>
-        </div>
-      </div>
-      
-      <div class="delete-confirm-input-group">
-        <label class="delete-confirm-label">{{ t.vectorCenter.sidebar.enterSourceName }}</label>
-        <a-input
-            v-model:value="deleteConfirmInput"
-            :placeholder="t.vectorCenter.sidebar.enterSourceNamePlaceholder"
-            class="delete-confirm-input"
-        />
-      </div>
-      
-      <div class="delete-confirm-actions">
-        <a-button @click="closeDeleteConfirmModal">{{ t.vectorCenter.sidebar.cancel }}</a-button>
-        <a-button
-            type="primary"
-            danger
-            @click="confirmDeleteSource"
-        >
-          {{ t.vectorCenter.sidebar.confirmDelete }}
-        </a-button>
-      </div>
-    </div>
-  </a-modal>
+  <DeleteSourceModal
+    :open="deleteConfirmModalVisible"
+    :loading="deleteConfirmLoading"
+    :source="deleteConfirmSource"
+    @confirm="confirmDeleteSource"
+    @update:open="onDeleteConfirmOpenChange"
+  />
 </template>
 
 <script lang="ts" setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
-import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, WarningOutlined} from '@ant-design/icons-vue'
+import {DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 import SidebarShell from '@/components/sidebar/SidebarShell.vue'
 import SidebarFooter from '@/components/sidebar/SidebarFooter.vue'
@@ -207,6 +169,7 @@ import SourceCard from './sidebar/SourceCard.vue'
 import DbNode from './sidebar/DbNode.vue'
 import SourceContextMenu from './sidebar/SourceContextMenu.vue'
 import DbContextMenu from './sidebar/DbContextMenu.vue'
+import DeleteSourceModal from './sidebar/DeleteSourceModal.vue'
 import VecSourceFormModal from '@/views/admin/ai-vector/vector-center/form/VecSourceFormModal.vue'
 import VecStoreFormModal from '@/views/admin/ai-vector/vector-center/form/VecStoreFormModal.vue'
 import {type AiVecSource, aiVecSourceApi} from '@/api/aiVecSource.ts'
@@ -377,14 +340,11 @@ const onSidebarBlankContextMenu = (e: MouseEvent) => {
   // 在 source-section 空白区域右键 → 展示该 source 的上下文菜单
   const sourceSection = target.closest('.source-section') as HTMLElement | null
   if (sourceSection) {
-    const sourceId = sourceSection.getAttribute('data-source-id')
-    if (sourceId) {
-      const src = sourceTree.value.find(s => String(s.id) === sourceId)
-      if (src) {
-        handleDbContainerContextMenu(e, src)
-        return
-      }
+    // db-container 区域有自己的 @contextmenu.prevent 处理器，不重复处理
+    if (target.closest('.db-container')) {
+      return
     }
+    // SourceCard 区域已有 a-dropdown 右键菜单，不弹出自定义菜单
     return
   }
   e.preventDefault()
@@ -467,38 +427,29 @@ const openEditSource = async (id: number | string) => {
 
 const deleteConfirmModalVisible = ref(false)
 const deleteConfirmSource = ref<Source | null>(null)
-const deleteConfirmInput = ref('')
+const deleteConfirmLoading = ref(false)
+
+const onDeleteConfirmOpenChange = (value: boolean) => {
+  deleteConfirmModalVisible.value = value
+}
 
 const openDeleteConfirmModal = (source: Source) => {
   deleteConfirmSource.value = source
-  deleteConfirmInput.value = ''
   deleteConfirmModalVisible.value = true
 }
 
-const closeDeleteConfirmModal = () => {
-  deleteConfirmModalVisible.value = false
-  deleteConfirmSource.value = null
-  deleteConfirmInput.value = ''
-}
-
-const confirmDeleteSource = async () => {
-  const source = deleteConfirmSource.value
-  if (!source) return
-  
-  // 验证输入的数据源名称是否正确
-  if (deleteConfirmInput.value.trim() !== source.name) {
-    message.warning(t.value.vectorCenter.sidebar.deleteConfirmNameMismatch)
-    return
-  }
-  
+const confirmDeleteSource = async (source: Source) => {
+  deleteConfirmLoading.value = true
   try {
     const msg = await aiVecSourceApi.delete([source.id])
     message.success(msg)
+    deleteConfirmModalVisible.value = false
     emit('changed')
-    closeDeleteConfirmModal()
   } catch (error) {
     const err = error as { message?: string }
     message.error(err?.message || t.value.vectorCenter.sidebar.deleteSourceFailed)
+  } finally {
+    deleteConfirmLoading.value = false
   }
 }
 
@@ -822,84 +773,5 @@ watch(
   text-align: center;
   color: var(--text-muted, #94a3b8);
   font-size: 12px;
-}
-
-/* 删除确认对话框样式 */
-.delete-confirm-content {
-  padding: 8px 0;
-}
-
-.delete-confirm-warning {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background: color-mix(in srgb, var(--warning) 10%, transparent);
-  border-radius: 0;
-  margin-bottom: 20px;
-  border-left: 3px solid var(--warning);
-
-  .warning-icon {
-    font-size: 20px;
-    color: var(--warning);
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  span {
-    color: var(--text-primary);
-    font-size: 13px;
-    line-height: 1.6;
-  }
-}
-
-.delete-confirm-detail {
-  background: var(--bg-input);
-  border-radius: 0;
-  padding: 12px 16px;
-  margin-bottom: 20px;
-}
-
-.detail-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--border-default);
-  }
-}
-
-.detail-label {
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-.detail-value {
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.delete-confirm-input-group {
-  margin-bottom: 24px;
-}
-
-.delete-confirm-label {
-  display: block;
-  color: var(--text-secondary);
-  font-size: 13px;
-  margin-bottom: 8px;
-}
-
-.delete-confirm-input {
-  width: 100%;
-}
-
-.delete-confirm-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
 }
 </style>
