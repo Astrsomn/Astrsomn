@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Conditional;
 @AutoConfigureAfter({AstrsomnPropertiesAutoConfiguration.class, DataSourceAutoConfiguration.class})
 @Conditional(AstrsomnStarterRuntimeCondition.class)
 @Import({AstrsomnDatabaseAutoConfiguration.class, AstrsomnAiAutoConfiguration.class,
+         FreeMarkerConfiguration.class,
          AstrsomnMetaObjectHandler.class, RuntimeMybatisContributor.class,
          AstrsomnPluginManager.class})
 public class AstrsomnAutoConfiguration {

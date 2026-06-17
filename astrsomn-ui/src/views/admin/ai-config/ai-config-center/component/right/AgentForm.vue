@@ -39,12 +39,15 @@
                 :knowledge-keys="knowledgeKeys"
                 :mcps="placedMcps"
                 :tools="placedTools"
+                :template-keys="templateKeys"
                 @tool-add="onToolAdd"
                 @tool-remove="onToolRemove"
                 @mcp-add="onMcpAdd"
                 @mcp-remove="onMcpRemove"
                 @knowledge-add="onKnowledgeAdd"
                 @knowledge-remove="onKnowledgeRemove"
+                @template-add="onTemplateAdd"
+                @template-remove="onTemplateRemove"
             />
           </div>
         </div>
@@ -131,6 +134,7 @@ const loadedPromptContent = ref('')
 const placedTools = ref<AiTool[]>([])
 const placedMcps = ref<AiMcp[]>([])
 const knowledgeKeys = ref<string[]>([])
+const templateKeys = ref<string[]>([])
 
 const instanceList = ref<AiInstance[]>([])
 const availableModels = ref<AiModel[]>([])
@@ -222,6 +226,16 @@ function onKnowledgeRemove(key: string) {
   knowledgeKeys.value = knowledgeKeys.value.filter((x) => x !== key)
 }
 
+function onTemplateAdd(key: string) {
+  const k = String(key || '').trim()
+  if (!k || templateKeys.value.includes(k)) return
+  templateKeys.value = [...templateKeys.value, k]
+}
+
+function onTemplateRemove(key: string) {
+  templateKeys.value = templateKeys.value.filter((x) => x !== key)
+}
+
 function parseKnowledgeKeys(raw?: string): string[] {
   const t = raw?.trim()
   if (!t) return []
@@ -245,6 +259,7 @@ function resetEmptyForm() {
   placedTools.value = []
   placedMcps.value = []
   knowledgeKeys.value = []
+  templateKeys.value = []
   instanceList.value = []
   routeStrategy.value = 'roundRobin'
 }
@@ -352,6 +367,9 @@ async function backfillFromDetail(detail: AiAgent) {
   }
 
   knowledgeKeys.value = detail.knowledgeBaseKeys ? parseKnowledgeKeys(detail.knowledgeBaseKeys) : []
+  templateKeys.value = detail.templateKeys
+      ? detail.templateKeys.split(',').map((k) => k.trim()).filter(Boolean)
+      : []
 }
 
 async function loadAgent() {
@@ -420,6 +438,7 @@ function buildSubmitPayload(): AiAgent {
     knowledgeBaseKeys: knowledgeKeys.value.length ? knowledgeKeys.value.join(',') : '',
     toolKeys: placedTools.value.map((t) => t.toolKey).filter(Boolean).join(','),
     mcpKeys: placedMcps.value.map((m) => m.mcpKey).filter(Boolean).join(','),
+    templateKeys: templateKeys.value.join(','),
     instanceList: instanceList.value,
     routeStrategy: routeStrategy.value,
     promptEntity,

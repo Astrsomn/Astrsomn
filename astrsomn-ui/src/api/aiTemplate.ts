@@ -9,6 +9,8 @@ export type AiTemplate = {
     category?: string
     /** FREEMARKER | STRING_TEMPLATE */
     templateType?: string
+    /** JSON parameter definitions for dynamic template rendering */
+    paramsDefinition?: string
     version?: number
     status?: string
     createTime?: string
@@ -62,6 +64,14 @@ export const aiTemplateApi = {
         return request({
             url: `/v1/astro/ai-template/delete/${joined}`,
             method: 'delete'
+        })
+    },
+
+    debugRender: (content: string, paramsJson: string): Promise<string> => {
+        return request({
+            url: '/v1/astro/ai-template/debugRender',
+            method: 'post',
+            data: { content, paramsJson }
         })
     }
 }

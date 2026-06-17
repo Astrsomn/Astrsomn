@@ -18,6 +18,8 @@ public class ToolSetting {
     private List<String> ragKeys;
 
 
+    private List<String> templateKeys;
+
     private Integer vectorSize;
 
 

@@ -39,7 +39,7 @@ public class AstroChatStreamUtil {
         if (n.startsWith("image") || n.contains("_image") || n.contains("generateimage")) {
             return ToolStreamKind.IMAGE;
         }
-        if (n.contains("html")) {
+        if (n.contains("html") || n.contains("template")) {
             return ToolStreamKind.HTML;
         }
         return ToolStreamKind.GENERIC;

@@ -1,5 +1,6 @@
 export const aiTemplateTranslation = {
   list: {
+    tab: '列表',
     title: 'FTL 模板管理',
     description: '维护 Freemarker / StringTemplate 模板（AI_TEMPLATE），与 AiTemplateController 对应。',
     emptyText: '暂无模板，请先创建。',
@@ -62,6 +63,8 @@ export const aiTemplateTranslation = {
     categoryPlaceholder: '可选',
     templateTypeLabel: '模板类型',
     templateTypePlaceholder: '选择引擎',
+    paramsDefinitionLabel: '参数定义 (JSON)',
+    paramsDefinitionPlaceholder: '例如：[{"name":"userName","type":"string","description":"用户名","required":true}]',
     versionLabel: '版本号',
     versionPlaceholder: '默认 1',
     statusLabel: '状态',
@@ -83,5 +86,27 @@ export const aiTemplateTranslation = {
       templateTypeRequired: '请选择模板类型',
       statusRequired: '请选择状态',
     },
+  },
+  selector: {
+    title: '选择 FTL 模板',
+    subtitle: '选择要绑定到 Agent 的 FTL 模板',
+    searchPlaceholder: '搜索模板标题或 Key',
+    emptyTitle: '暂无模板',
+    emptyHint: '请先在模板管理中创建 FTL 模板',
+    statusEnabled: '已启用',
+    statusDisabled: '已禁用',
+  },
+  debugger: {
+    tab: '调试器',
+    templateSelect: '选择模板',
+    paramsPlaceholder: 'JSON 参数，如 {"name":"张三"}',
+    render: '渲染',
+    rendering: '渲染中...',
+    preview: '预览',
+    fullscreen: '全屏',
+    exitFullscreen: '退出全屏',
+    noTemplate: '暂无模板内容',
+    renderSuccess: '渲染成功',
+    renderFailed: '渲染失败',
   },
 }

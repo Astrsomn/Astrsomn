@@ -24,7 +24,13 @@ public enum AiTemplateErrorEnum implements IError {
     TEMPLATE_PARAM_ERROR(90005, "Template parameter error"),
 
 
-    TEMPLATE_PERMISSION_DENIED(90006, "Template permission denied");
+    TEMPLATE_PERMISSION_DENIED(90006, "Template permission denied"),
+
+
+    TEMPLATE_RENDER_FAILED(90007, "Template rendering failed"),
+
+
+    TEMPLATE_TYPE_NOT_SUPPORTED(90008, "Template type not supported");
 
     private final int code;
     private final String message;

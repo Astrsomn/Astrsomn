@@ -56,6 +56,15 @@
                 />
               </a-form-item>
 
+              <a-form-item :label="t.form.paramsDefinitionLabel" name="paramsDefinition">
+                <a-textarea
+                    v-model:value="form.paramsDefinition"
+                    :placeholder="t.form.paramsDefinitionPlaceholder"
+                    :rows="3"
+                    size="large"
+                />
+              </a-form-item>
+
   
 
               <a-form-item :label="t.form.statusLabel" name="status">
@@ -231,6 +240,7 @@ async function handleOk() {
   padding: 20px;
   gap: 20px;
   overflow: hidden;
+  min-height: 0;
 }
 
 
@@ -276,7 +286,7 @@ async function handleOk() {
 .editor-shell {
   border: 1px solid var(--border-default);
   border-radius: 8px;
-  overflow: hidden;
+  overflow: clip;
   background: #0f172a;
   flex: 1;
   display: flex;
@@ -294,9 +304,26 @@ async function handleOk() {
   min-height: 0;
 }
 
+.code-pane :deep(.ant-form-item-row) {
+  flex: 1;
+  min-height: 0;
+}
+
 .code-pane :deep(.ant-form-item-control) {
   flex: 1;
   min-height: 0;
+}
+
+.code-pane :deep(.ant-form-item-control-input) {
+  flex: 1;
+  min-height: 0;
+}
+
+.code-pane :deep(.ant-form-item-control-input-content) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .editor-toolbar {
@@ -324,15 +351,19 @@ async function handleOk() {
 .content-editor {
   font-size: 13px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 :deep(.content-editor .cm-editor) {
-  height: 100%;
-  min-height: 400px;
+  flex: 1;
+  min-height: 0;
 }
 
 :deep(.content-editor .cm-scroller) {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  overflow: auto !important;
 }
 
 

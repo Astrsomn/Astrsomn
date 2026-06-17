@@ -92,10 +92,13 @@
                     @click="handleCodeCopy"
                     v-html="renderMarkdownBlock(block.content)"
                 />
-                <div
+                <iframe
                     v-else-if="block.kind === 'html'"
-                    class="markdown-renderer html-embed-block markdown-in-emerald"
-                    v-html="block.content"
+                    :srcdoc="buildIframeContent(block.content, gIdx * 1000 + bIdx)"
+                    sandbox="allow-scripts"
+                    :style="iframeStyle(gIdx * 1000 + bIdx)"
+                    class="html-sandbox-iframe"
+                    loading="lazy"
                 />
                 <div v-else-if="block.kind === 'image'" class="image-embed-block">
                   <img :src="block.content" alt="" class="segment-image"/>
@@ -174,10 +177,13 @@
                   @click="handleCodeCopy"
                   v-html="renderMarkdownBlock(block.content)"
               />
-              <div
+              <iframe
                   v-else-if="block.kind === 'html'"
-                  class="markdown-renderer html-embed-block"
-                  v-html="block.content"
+                  :srcdoc="buildIframeContent(block.content, 10000 + bIdx)"
+                  sandbox="allow-scripts"
+                  :style="iframeStyle(10000 + bIdx)"
+                  class="html-sandbox-iframe"
+                  loading="lazy"
               />
               <div v-else-if="block.kind === 'image'" class="image-embed-block">
                 <img :src="block.content" alt="" class="segment-image"/>
@@ -210,7 +216,7 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, nextTick, ref, watch} from 'vue'
+import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {message} from 'ant-design-vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
@@ -556,6 +562,75 @@ const handleCodeCopy = (e: MouseEvent) => {
   navigator.clipboard.writeText(text)
   message.success('代码已复制')
 }
+
+// ── HTML sandboxing via <iframe> ──
+const iframeHeights = ref<Record<number, number>>({})
+
+/**
+ * Build an srcdoc string that wraps the given HTML in an isolated document
+ * with a small script that posts the scroll height back to the parent.
+ * The uid parameter allows the parent to track which iframe sent the height.
+ */
+function buildIframeContent(html: string, uid: number): string {
+  // Prevent script close inside the template from closing our injected script tag
+  const safeHtml = html.replace(/<\x2Fscript>/gi, '<\\/script>')
+  const scriptTag = '\x3Cscript>'
+  const scriptCloseTag = '\x3C/script>'
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { padding: 8px 12px; }
+</style>
+</head>
+<body>${safeHtml}
+${scriptTag}
+(function(){
+  var uid=${uid};
+  function send(){parent.postMessage("ast-html-"+uid+":"+document.documentElement.scrollHeight,"*");}
+  window.addEventListener("load",send);
+  window.addEventListener("resize",send);
+  if(window.ResizeObserver) new ResizeObserver(send).observe(document.documentElement);
+  send();
+})();
+${scriptCloseTag}
+</body>
+</html>`
+}
+
+function iframeStyle(uid: number) {
+  const h = iframeHeights.value[uid]
+  return {
+    height: (h || 200) + 'px',
+    width: '100%',
+    border: 'none',
+    borderRadius: '8px',
+    display: 'block',
+    overflow: 'auto'
+  }
+}
+
+function handleIframeMessage(e: MessageEvent) {
+  if (typeof e.data !== 'string') return
+  if (!e.data.startsWith('ast-html-')) return
+  const colonIdx = e.data.indexOf(':')
+  if (colonIdx <= 0) return
+  const uid = parseInt(e.data.slice(9, colonIdx), 10)
+  const height = parseInt(e.data.slice(colonIdx + 1), 10)
+  if (!isNaN(uid) && !isNaN(height) && height > 10 && height < 10000) {
+    const prev = iframeHeights.value[uid]
+    const padded = height + 4
+    // Only update if height changed meaningfully to avoid resize oscillation
+    if (prev === undefined || Math.abs(padded - prev) > 4) {
+      iframeHeights.value[uid] = padded
+    }
+  }
+}
+
+onMounted(() => { window.addEventListener('message', handleIframeMessage) })
+onBeforeUnmount(() => { window.removeEventListener('message', handleIframeMessage) })
 </script>
 
 <style scoped>
@@ -780,6 +855,13 @@ const handleCodeCopy = (e: MouseEvent) => {
 
 .html-embed-block {
   padding: 12px 18px;
+}
+
+.html-sandbox-iframe {
+  margin: 8px 12px;
+  max-width: calc(100% - 24px);
+  background: #fff;
+  border-radius: 8px;
 }
 
 .markdown-renderer {

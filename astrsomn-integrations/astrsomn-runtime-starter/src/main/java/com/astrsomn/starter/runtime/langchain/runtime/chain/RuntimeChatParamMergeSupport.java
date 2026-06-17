@@ -118,6 +118,9 @@ public final class RuntimeChatParamMergeSupport {
             if (isEmpty(tool.getRagKeys())) {
                 tool.setRagKeys(parseStringList(agent.getKnowledgeBaseKeys()));
             }
+            if (isEmpty(tool.getTemplateKeys())) {
+                tool.setTemplateKeys(parseStringList(agent.getTemplateKeys()));
+            }
         }
         param.setToolSetting(tool);
 

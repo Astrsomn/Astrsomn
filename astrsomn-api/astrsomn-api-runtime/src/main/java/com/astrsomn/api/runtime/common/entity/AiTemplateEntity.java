@@ -40,6 +40,10 @@ public class AiTemplateEntity extends BaseEntity<Long> {
     private String templateType;
 
 
+    @TableField("PARAMS_DEFINITION")
+    private String paramsDefinition;
+
+
     @TableField("VERSION")
     private Integer version;
 

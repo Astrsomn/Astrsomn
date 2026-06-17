@@ -1,5 +1,6 @@
 export const aiTemplateTranslation = {
   list: {
+    tab: 'List',
     title: 'FTL Template Management',
     description: 'Maintain Freemarker / StringTemplate templates (AI_TEMPLATE), corresponding to AiTemplateController.',
     emptyText: 'No templates yet, please create one first.',
@@ -62,6 +63,8 @@ export const aiTemplateTranslation = {
     categoryPlaceholder: 'Optional',
     templateTypeLabel: 'Template Type',
     templateTypePlaceholder: 'Select engine',
+    paramsDefinitionLabel: 'Parameter Definitions (JSON)',
+    paramsDefinitionPlaceholder: 'e.g. [{"name":"userName","type":"string","description":"User name","required":true}]',
     versionLabel: 'Version',
     versionPlaceholder: 'Default 1',
     statusLabel: 'Status',
@@ -83,5 +86,27 @@ export const aiTemplateTranslation = {
       templateTypeRequired: 'Please select a template type',
       statusRequired: 'Please select a status',
     },
+  },
+  selector: {
+    title: 'Select FTL Template',
+    subtitle: 'Select an FTL template to bind to the agent',
+    searchPlaceholder: 'Search template title or key',
+    emptyTitle: 'No templates found',
+    emptyHint: 'Create an FTL template first in Template Management',
+    statusEnabled: 'Enabled',
+    statusDisabled: 'Disabled',
+  },
+  debugger: {
+    tab: 'Debugger',
+    templateSelect: 'Select template',
+    paramsPlaceholder: 'JSON parameters, e.g. {"name":"Alice"}',
+    render: 'Render',
+    rendering: 'Rendering...',
+    preview: 'Preview',
+    fullscreen: 'Fullscreen',
+    exitFullscreen: 'Exit Fullscreen',
+    noTemplate: 'No template content',
+    renderSuccess: 'Rendered successfully',
+    renderFailed: 'Render failed',
   },
 }

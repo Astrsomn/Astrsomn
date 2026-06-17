@@ -74,6 +74,30 @@
           <McpCard :mcps="mcps" @add="emit('mcp-add', $event)" @remove="emit('mcp-remove', $event)" />
         </div>
       </div>
+
+      <!-- FTL 模板 -->
+      <div class="integration-card" @click="triggerTemplateAdd">
+        <div class="card-icon-wrapper icon-orange">
+          <FileTextOutlined />
+        </div>
+        <div class="card-content">
+          <h4 class="card-title">{{ t.agent.templateLabel }}</h4>
+          <p class="card-count">
+            <span class="count-number count-orange">{{ templateKeys.length }}</span>
+            <span class="count-label">{{ t.agent.templateBound }}</span>
+          </p>
+        </div>
+        <div class="card-action action-orange">
+          <PlusOutlined />
+        </div>
+        <div ref="templateCardRef" class="sr-card">
+          <TemplateCard
+              :template-keys="templateKeys"
+              @add="emit('template-add', $event)"
+              @remove="emit('template-remove', $event)"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -84,6 +108,7 @@ import {
   ApiOutlined,
   AppstoreOutlined,
   DatabaseOutlined,
+  FileTextOutlined,
   PlusOutlined,
   SettingOutlined,
   ToolOutlined
@@ -93,12 +118,14 @@ import type {AiMcp} from '@/api/aiMcp.ts'
 import ToolCard from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/ToolCard.vue'
 import McpCard from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/McpCard.vue'
 import RagCard from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/RagCard.vue'
+import TemplateCard from '@/views/admin/ai-config/ai-config-center/component/right/agent-config/TemplateCard.vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 
 defineProps<{
   tools: AiTool[]
   mcps: AiMcp[]
   knowledgeKeys: string[]
+  templateKeys: string[]
 }>()
 
 const emit = defineEmits<{
@@ -108,6 +135,8 @@ const emit = defineEmits<{
   'mcp-remove': [mcpKey: string]
   'knowledge-add': [key: string]
   'knowledge-remove': [key: string]
+  'template-add': [key: string]
+  'template-remove': [key: string]
 }>()
 
 const t = usePageTranslation('ai-config-center')
@@ -115,6 +144,7 @@ const t = usePageTranslation('ai-config-center')
 const toolCardRef = ref<HTMLElement | null>(null)
 const mcpCardRef = ref<HTMLElement | null>(null)
 const ragCardRef = ref<HTMLElement | null>(null)
+const templateCardRef = ref<HTMLElement | null>(null)
 
 function triggerChildAddButton(parentEl: HTMLElement | null) {
   if (!parentEl) return
@@ -132,6 +162,10 @@ function triggerMcpAdd() {
 
 function triggerRagAdd() {
   triggerChildAddButton(ragCardRef.value)
+}
+
+function triggerTemplateAdd() {
+  triggerChildAddButton(templateCardRef.value)
 }
 </script>
 
@@ -185,7 +219,7 @@ function triggerRagAdd() {
 
 .integrations-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   flex: 1;
   align-content: start;
@@ -218,7 +252,13 @@ function triggerRagAdd() {
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1200px) {
+  .integrations-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
   .integrations-grid {
     grid-template-columns: 1fr;
   }
@@ -276,6 +316,11 @@ function triggerRagAdd() {
   color: #a855f7;
 }
 
+.icon-orange {
+  background: color-mix(in srgb, #f97316 10%, transparent);
+  color: #f97316;
+}
+
 
 .card-content {
   flex: 1;
@@ -308,6 +353,10 @@ function triggerRagAdd() {
 
 .count-number.count-purple {
   color: #a855f7;
+}
+
+.count-number.count-orange {
+  color: #f97316;
 }
 
 .count-label {
@@ -343,6 +392,10 @@ function triggerRagAdd() {
 
 .integration-card:hover .action-purple {
   background: #a855f7;
+}
+
+.integration-card:hover .action-orange {
+  background: #f97316;
 }
 
 

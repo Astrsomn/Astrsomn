@@ -1,111 +1,119 @@
 <template>
   <AstPageShell
-      :show-view-toggle="true"
-      :view-mode="viewMode"
-      :view-toggle-handler="handleViewToggle"
-      :empty-text="t.list.emptyText"
+      :show-view-toggle="activeTab === 'list'"
+      :view-mode="activeTab === 'list' ? viewMode : undefined"
+      :view-toggle-handler="activeTab === 'list' ? handleViewToggle : undefined"
+      :empty-text="activeTab === 'list' ? t.list.emptyText : undefined"
   >
     <div class="template-page">
-      <AstDataSection>
-        <template #toolbar>
-          <div class="toolbar">
-            <AstSearchInput
-                v-model="query.templateTitle"
-                :placeholder="t.list.searchPlaceholder"
-                @search="fetchList"
-            />
-            <AstStatusSwitch v-model="query.status" @change="fetchList"/>
-          </div>
-        </template>
-
-        <template v-if="showAdvanced" #toolbar-extra>
-          <a-input
-              v-model:value="query.category"
-              allow-clear
-              class="toolbar-input narrow"
-              :placeholder="t.list.categoryPlaceholder"
-              @pressEnter="fetchList"
-          >
-            <template #prefix>
-              <tags-outlined/>
-            </template>
-          </a-input>
-          <a-select
-              v-model:value="query.templateType"
-              :options="templateTypeFilterOptions"
-              allow-clear
-              class="toolbar-select narrow-select"
-              :placeholder="t.list.templateTypePlaceholder"
-          />
-        </template>
-
-
-        <!-- Card Grid Mode -->
-        <div v-if="dataViewMode === 'card'" class="template-grid-section">
-          <a-spin :spinning="loading">
-            <div class="template-grid">
-              <div class="add-card" @click="openCreate">
-                <PlusOutlined class="add-icon"/>
-                <span class="add-text">{{ t.list.create }}</span>
+      <a-tabs v-model:activeKey="activeTab" class="template-tabs" size="small">
+        <a-tab-pane key="list" :tab="t.list.tab">
+          <AstDataSection>
+            <template #toolbar>
+              <div class="toolbar">
+                <AstSearchInput
+                    v-model="query.templateTitle"
+                    :placeholder="t.list.searchPlaceholder"
+                    @search="fetchList"
+                />
+                <AstStatusSwitch v-model="query.status" @change="fetchList"/>
               </div>
-              <TemplateCard
-                  v-for="record in list"
-                  :key="record.id"
-                  :record="record"
-                  :selected="record.id != null && selectedKeySet.has(record.id)"
-                  @delete="handleDeleteOne"
-                  @edit="openEdit"
-                  @toggle="onTemplateCardToggle"
-              />
-            </div>
-          </a-spin>
-        </div>
+            </template>
 
-        <AstDataView
-            v-else
-            :columns="columns"
-            :data-source="list"
-            :loading="loading"
-            :row-selection="rowSelection"
-            :scroll="{ x: 1100 }"
-            :empty-text="t.list.emptyMatchText"
-            mode="table"
-            row-key="id"
-        >
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'templateType'">
-              <span>{{ renderTemplateType(String(record.templateType || '')) }}</span>
-            </template>
-            <template v-else-if="column.key === 'status'">
-              <span>{{ renderStatus(String(record.status || '')) }}</span>
-            </template>
-            <template v-else-if="column.key === 'content'">
-              <span class="content-preview">{{ previewContent(record.content) }}</span>
-            </template>
-            <template v-else-if="column.key === 'actions'">
-              <a-button type="link" @click="openEdit(record)">{{ t.list.edit }}</a-button>
-              <a-divider type="vertical"/>
-              <a-popconfirm
-                  :cancel-text="t.list.cancel"
-                  :ok-text="t.list.confirm"
-                  :title="t.list.deleteConfirm"
-                  @confirm="() => handleDeleteOne(record.id)"
+            <template v-if="showAdvanced" #toolbar-extra>
+              <a-input
+                  v-model:value="query.category"
+                  allow-clear
+                  class="toolbar-input narrow"
+                  :placeholder="t.list.categoryPlaceholder"
+                  @pressEnter="fetchList"
               >
-                <a-button danger type="link">{{ t.list.delete }}</a-button>
-              </a-popconfirm>
+                <template #prefix>
+                  <tags-outlined/>
+                </template>
+              </a-input>
+              <a-select
+                  v-model:value="query.templateType"
+                  :options="templateTypeFilterOptions"
+                  allow-clear
+                  class="toolbar-select narrow-select"
+                  :placeholder="t.list.templateTypePlaceholder"
+              />
             </template>
-          </template>
-        </AstDataView>
 
-        <template #pagination>
-          <AstPagination
-              :current="page.pageNum"
-              :page-size="page.pageSize"
-              :total="page.total"
-              @change="onPageChange"
-          />
-        </template>
-      </AstDataSection>
+
+            <!-- Card Grid Mode -->
+            <div v-if="dataViewMode === 'card'" class="template-grid-section">
+              <a-spin :spinning="loading">
+                <div class="template-grid">
+                  <div class="add-card" @click="openCreate">
+                    <PlusOutlined class="add-icon"/>
+                    <span class="add-text">{{ t.list.create }}</span>
+                  </div>
+                  <TemplateCard
+                      v-for="record in list"
+                      :key="record.id"
+                      :record="record"
+                      :selected="record.id != null && selectedKeySet.has(record.id)"
+                      @delete="handleDeleteOne"
+                      @edit="openEdit"
+                      @toggle="onTemplateCardToggle"
+                  />
+                </div>
+              </a-spin>
+            </div>
+
+            <AstDataView
+                v-else
+                :columns="columns"
+                :data-source="list"
+                :loading="loading"
+                :row-selection="rowSelection"
+                :scroll="{ x: 1100 }"
+                :empty-text="t.list.emptyMatchText"
+                mode="table"
+                row-key="id"
+            >
+              <template #bodyCell="{ column, record }">
+                <template v-if="column.key === 'templateType'">
+                  <span>{{ renderTemplateType(String(record.templateType || '')) }}</span>
+                </template>
+                <template v-else-if="column.key === 'status'">
+                  <span>{{ renderStatus(String(record.status || '')) }}</span>
+                </template>
+                <template v-else-if="column.key === 'content'">
+                  <span class="content-preview">{{ previewContent(record.content) }}</span>
+                </template>
+                <template v-else-if="column.key === 'actions'">
+                  <a-button type="link" @click="openEdit(record)">{{ t.list.edit }}</a-button>
+                  <a-divider type="vertical"/>
+                  <a-popconfirm
+                      :cancel-text="t.list.cancel"
+                      :ok-text="t.list.confirm"
+                      :title="t.list.deleteConfirm"
+                      @confirm="() => handleDeleteOne(record.id)"
+                  >
+                    <a-button danger type="link">{{ t.list.delete }}</a-button>
+                  </a-popconfirm>
+                </template>
+              </template>
+            </AstDataView>
+
+            <template #pagination>
+              <AstPagination
+                  :current="page.pageNum"
+                  :page-size="page.pageSize"
+                  :total="page.total"
+                  @change="onPageChange"
+              />
+            </template>
+          </AstDataSection>
+        </a-tab-pane>
+
+        <a-tab-pane key="debugger" :tab="t.debugger.tab">
+          <TemplateDebugger/>
+        </a-tab-pane>
+      </a-tabs>
 
       <TemplateFormModal
           v-model:open="modal.open"
@@ -130,10 +138,14 @@ import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import AstStatusSwitch from '@/components/home/AstStatusSwitch.vue'
 import TemplateFormModal from './TemplateFormModal.vue'
 import TemplateCard from './component/TemplateCard.vue'
+import TemplateDebugger from './component/TemplateDebugger.vue'
 import {type AiTemplate, aiTemplateApi, type PageResponse} from '@/api/aiTemplate.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
 
 const t = usePageTranslation('ai-template')
+
+const activeTab = ref('list')
+
 
 type QueryState = {
   templateTitle?: string
@@ -587,5 +599,24 @@ void fetchList()
   .pagination-wrap {
     justify-content: center;
   }
+}
+
+/* ── Tabs ── */
+.template-tabs {
+  margin-bottom: 0;
+}
+
+.template-tabs :deep(.ant-tabs-nav) {
+  margin-bottom: 0;
+  padding-left: 4px;
+}
+
+.template-tabs :deep(.ant-tabs-content-holder) {
+  padding-top: 16px;
+}
+
+.template-tabs :deep(.ant-tabs-tab) {
+  font-size: 13px;
+  font-weight: 600;
 }
 </style>

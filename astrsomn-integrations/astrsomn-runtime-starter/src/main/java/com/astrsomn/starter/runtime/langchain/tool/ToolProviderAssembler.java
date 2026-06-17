@@ -12,6 +12,8 @@ import com.astrsomn.starter.runtime.langchain.tool.local.DynamicToolProvider;
 import com.astrsomn.starter.runtime.langchain.tool.local.LocalToolCacheManager;
 import com.astrsomn.starter.runtime.langchain.tool.mcp.DynamicMcpToolProvider;
 import com.astrsomn.starter.runtime.langchain.tool.mcp.McpToolCacheManager;
+import com.astrsomn.starter.runtime.langchain.tool.template.DynamicTemplateToolProvider;
+import com.astrsomn.starter.runtime.langchain.template.TemplateRenderService;
 import com.astrsomn.starter.runtime.mapper.AstAiMcpMapper;
 import com.astrsomn.starter.runtime.mapper.AstAiToolMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -37,6 +39,7 @@ public class ToolProviderAssembler {
     private final LocalToolCacheManager globalToolCache;
     private final AstrsomnProperties astrsomnProperties;
     private final AstroModelFactory astroModelFactory;
+    private final TemplateRenderService templateRenderService;
 
     public ToolProvider assemble(AstroChatParam<?> param) {
         return Optional.ofNullable(param.getToolSetting())
@@ -62,6 +65,10 @@ public class ToolProviderAssembler {
                             .filter(ConversationSetting::isEnableImageGenerate)
                             .map(s -> astroModelFactory.createModel(param, ImageModel.class))
                             .ifPresent(model -> providers.add(new DynamicImageToolProvider(model)));
+
+                    Optional.ofNullable(setting.getTemplateKeys())
+                            .filter(CollectionUtil::isNotEmpty)
+                            .ifPresent(keys -> providers.add(new DynamicTemplateToolProvider(keys, templateRenderService)));
 
                     return providers;
                 })

@@ -38,6 +38,7 @@ export type AiAgent = {
     knowledgeBaseKeys?: string
     toolKeys?: string
     mcpKeys?: string
+    templateKeys?: string
     memoryMode?: string
     memoryWindowSize?: string
     enableStream?: boolean

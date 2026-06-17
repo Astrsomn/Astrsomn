@@ -42,6 +42,9 @@ public class AiAgentEntity extends BaseEntity<Long> {
     @TableField("MCP_KEYS")
     private String mcpKeys;
 
+    @TableField("TEMPLATE_KEYS")
+    private String templateKeys;
+
     @TableField("STATUS")
     private String status;
 

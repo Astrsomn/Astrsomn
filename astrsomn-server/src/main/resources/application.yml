@@ -17,6 +17,8 @@ astrsomn:
   admin-users: admin
   storage:
     base-path: astrsomn/
+  mybatis-plus:
+    additional-mapper-locations: classpath*:mapper/*.xml
 
 dromara:
   x-file-storage:
