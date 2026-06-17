@@ -583,9 +583,7 @@ watch(
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: 16px;
+
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -605,7 +603,7 @@ watch(
 .config-right-bottom {
   min-height: 0;
   overflow: hidden;
-  border-top: 1px solid var(--border-default);
+  margin-top: 5px;
 }
 
 .config-right-top {

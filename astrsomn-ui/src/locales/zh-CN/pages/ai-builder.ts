@@ -53,12 +53,14 @@ export const aiBuilderTranslation = {
   },
   promptCard: {
     title: '人设与指令 (Prompt)',
+    contentLabel: '提示词内容',
     selectPrompt: '选择提示词',
     createPrompt: '新建提示词',
     historyVersion: '历史版本',
     textareaPlaceholder: '给你的智能体配置一个清晰的角色定位和任务指令...',
     beautifyTitle: '美化提示词',
     beautify: '美化',
+    charCount: '当前字数',
   },
   imageModelCard: {
     title: '多模态增强能力',

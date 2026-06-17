@@ -53,12 +53,14 @@ export const aiBuilderTranslation = {
   },
   promptCard: {
     title: 'Persona & Instructions (Prompt)',
+    contentLabel: 'Prompt Content',
     selectPrompt: 'Select Prompt',
     createPrompt: 'Create Prompt',
     historyVersion: 'Version History',
     textareaPlaceholder: 'Configure a clear role and task instructions for your agent...',
     beautifyTitle: 'Beautify Prompt',
     beautify: 'Beautify',
+    charCount: 'Character count',
   },
   imageModelCard: {
     title: 'Multimodal Enhancement',

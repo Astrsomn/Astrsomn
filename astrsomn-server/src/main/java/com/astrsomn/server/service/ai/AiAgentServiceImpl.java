@@ -32,10 +32,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,6 +52,8 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
     private final AiMcpService aiMcpService;
     private final AiTemplateService aiTemplateService;
     private final com.astrsomn.server.service.vector.AiVecStoreService aiVecStoreService;
+    @Qualifier("agentDetailExecutor")
+    private final Executor agentDetailExecutor;
 
     @Override
     public BaseResponse<String> create(AiAgentCreateRequestDTO request) {
@@ -80,41 +85,62 @@ public class AiAgentServiceImpl extends ServiceImpl<AiAgentMapper, AiAgentEntity
         AiAgentResponseDTO responseDTO = new AiAgentResponseDTO();
         BeanUtils.copyProperties(aiAgent, responseDTO);
 
+        // 异步并行查询实例
         String agentKey = aiAgent.getAgentKey();
-        if (StringUtils.isNotBlank(agentKey)) {
-            List<AiInstanceResponseDTO> instances = aiInstanceService.queryByBizKey(agentKey);
-            responseDTO.setInstanceList(Optional.ofNullable(instances).orElse(Collections.emptyList()));
-        }
+        CompletableFuture<Void> instanceFuture = CompletableFuture.runAsync(() -> {
+            if (StringUtils.isNotBlank(agentKey)) {
+                List<AiInstanceResponseDTO> instances = aiInstanceService.queryByBizKey(agentKey);
+                responseDTO.setInstanceList(Optional.ofNullable(instances).orElse(Collections.emptyList()));
+            }
+        }, agentDetailExecutor);
 
+        // 异步并行查询 prompt
         String promptKey = aiAgent.getPromptKey();
-        AiPromptEntity prompt = aiPromptService.lambdaQuery()
-                .eq(AiPromptEntity::getPromptKey, promptKey)
-                .orderByDesc(AiPromptEntity::getVersion)
-                .last("LIMIT 1")
-                .one();
-        responseDTO.setPrompt(prompt);
+        CompletableFuture<Void> promptFuture = CompletableFuture.runAsync(() -> {
+            AiPromptEntity prompt = aiPromptService.lambdaQuery()
+                    .eq(AiPromptEntity::getPromptKey, promptKey)
+                    .orderByDesc(AiPromptEntity::getVersion)
+                    .last("LIMIT 1")
+                    .one();
+            responseDTO.setPrompt(prompt);
+        }, agentDetailExecutor);
 
-        // 校验绑定的 key：批量查询各类资源表中仍存在的 key，差集即为已删除的孤儿 key
-        responseDTO.setOrphanedToolKeys(computeOrphaned(aiAgent.getToolKeys(),
-                keys -> aiToolService.lambdaQuery()
-                        .in(AiToolEntity::getToolKey, keys)
-                        .select(AiToolEntity::getToolKey)
-                        .list().stream().map(AiToolEntity::getToolKey).collect(Collectors.toList())));
-        responseDTO.setOrphanedMcpKeys(computeOrphaned(aiAgent.getMcpKeys(),
-                keys -> aiMcpService.lambdaQuery()
-                        .in(AiMcpEntity::getMcpKey, keys)
-                        .select(AiMcpEntity::getMcpKey)
-                        .list().stream().map(AiMcpEntity::getMcpKey).collect(Collectors.toList())));
-        responseDTO.setOrphanedTemplateKeys(computeOrphaned(aiAgent.getTemplateKeys(),
-                keys -> aiTemplateService.lambdaQuery()
-                        .in(AiTemplateEntity::getTemplateKey, keys)
-                        .select(AiTemplateEntity::getTemplateKey)
-                        .list().stream().map(AiTemplateEntity::getTemplateKey).collect(Collectors.toList())));
-        responseDTO.setOrphanedKnowledgeBaseKeys(computeOrphaned(aiAgent.getKnowledgeBaseKeys(),
-                keys -> aiVecStoreService.lambdaQuery()
-                        .in(AiVecStoreEntity::getCollectionName, keys)
-                        .select(AiVecStoreEntity::getCollectionName)
-                        .list().stream().map(AiVecStoreEntity::getCollectionName).collect(Collectors.toList())));
+        // 异步并行校验各类资源的孤儿 key
+        CompletableFuture<Void> orphanedToolFuture = CompletableFuture.runAsync(() ->
+                responseDTO.setOrphanedToolKeys(computeOrphaned(aiAgent.getToolKeys(),
+                        keys -> aiToolService.lambdaQuery()
+                                .in(AiToolEntity::getToolKey, keys)
+                                .select(AiToolEntity::getToolKey)
+                                .list().stream().map(AiToolEntity::getToolKey).collect(Collectors.toList()))),
+                agentDetailExecutor);
+
+        CompletableFuture<Void> orphanedMcpFuture = CompletableFuture.runAsync(() ->
+                responseDTO.setOrphanedMcpKeys(computeOrphaned(aiAgent.getMcpKeys(),
+                        keys -> aiMcpService.lambdaQuery()
+                                .in(AiMcpEntity::getMcpKey, keys)
+                                .select(AiMcpEntity::getMcpKey)
+                                .list().stream().map(AiMcpEntity::getMcpKey).collect(Collectors.toList()))),
+                agentDetailExecutor);
+
+        CompletableFuture<Void> orphanedTemplateFuture = CompletableFuture.runAsync(() ->
+                responseDTO.setOrphanedTemplateKeys(computeOrphaned(aiAgent.getTemplateKeys(),
+                        keys -> aiTemplateService.lambdaQuery()
+                                .in(AiTemplateEntity::getTemplateKey, keys)
+                                .select(AiTemplateEntity::getTemplateKey)
+                                .list().stream().map(AiTemplateEntity::getTemplateKey).collect(Collectors.toList()))),
+                agentDetailExecutor);
+
+        CompletableFuture<Void> orphanedKnowledgeBaseFuture = CompletableFuture.runAsync(() ->
+                responseDTO.setOrphanedKnowledgeBaseKeys(computeOrphaned(aiAgent.getKnowledgeBaseKeys(),
+                        keys -> aiVecStoreService.lambdaQuery()
+                                .in(AiVecStoreEntity::getCollectionName, keys)
+                                .select(AiVecStoreEntity::getCollectionName)
+                                .list().stream().map(AiVecStoreEntity::getCollectionName).collect(Collectors.toList()))),
+                agentDetailExecutor);
+
+        // 等待所有异步任务完成
+        CompletableFuture.allOf(instanceFuture, promptFuture,
+                orphanedToolFuture, orphanedMcpFuture, orphanedTemplateFuture, orphanedKnowledgeBaseFuture).join();
 
         return BaseResponse.success(responseDTO);
     }

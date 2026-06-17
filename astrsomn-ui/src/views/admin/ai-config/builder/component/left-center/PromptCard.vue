@@ -23,18 +23,17 @@
         </button>
       </div>
     </div>
-    <div class="dashed-frame">
-      <textarea
-          v-model="promptContent"
-          :rows="textareaRows"
-          class="prompt-textarea custom-scrollbar"
-          :placeholder="t.promptCard.textareaPlaceholder"
-      ></textarea>
-      <button :disabled="improveLoading" class="improve-btn" :title="t.promptCard.beautifyTitle" @click.stop="emit('improve')">
-        <ThunderboltOutlined :spin="improveLoading"/>
-        <span class="improve-btn-text">{{ t.promptCard.beautify }}</span>
-      </button>
-    </div>
+
+    <PromptEditor
+        v-model="promptContent"
+        :label="t.promptCard.contentLabel"
+        :loading="improveLoading"
+        :min-rows="6"
+        :placeholder="t.promptCard.textareaPlaceholder"
+        :improve-button-text="t.promptCard.beautify"
+        :char-count-label="t.promptCard.charCount"
+        @improve="emit('improve')"
+    />
   </div>
 </template>
 
@@ -45,17 +44,16 @@ import {
   FileTextOutlined,
   HistoryOutlined,
   PlusOutlined,
-  ThunderboltOutlined
 } from '@ant-design/icons-vue'
 import type {AiPrompt} from '@/api/aiPrompt'
 import {usePageTranslation} from '@/locales/pages.ts'
+import PromptEditor from '@/views/admin/ai-config/component/PromptEditor.vue'
 
 const t = usePageTranslation('ai-builder')
 
 interface Props {
   prompt?: AiPrompt
   improveLoading?: boolean
-
   textareaRows?: number
 }
 
@@ -83,7 +81,7 @@ const promptContent = computed({
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  gap: 16px;
+  gap: 12px;
   background: var(--ab-glass-bg);
   backdrop-filter: blur(var(--ab-glass-haze, 10px));
   -webkit-backdrop-filter: blur(var(--ab-glass-haze, 10px));
@@ -91,8 +89,7 @@ const promptContent = computed({
   border-radius: var(--ab-glass-radius, 16px);
   box-shadow: var(--ab-glass-shadow);
   padding: 20px;
-  transition: border-color 0.2s,
-  box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .prompt-card:hover {
@@ -100,11 +97,11 @@ const promptContent = computed({
   box-shadow: var(--ab-hover-shadow, 0 0 15px color-mix(in srgb, var(--primary) 15%, transparent));
 }
 
+/* ── card header ── */
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
 }
 
 .header-left {
@@ -149,6 +146,7 @@ const promptContent = computed({
   font-family: 'JetBrains Mono', monospace;
 }
 
+/* ── header actions ── */
 .header-actions {
   display: flex;
   gap: 8px;
@@ -203,99 +201,5 @@ const promptContent = computed({
 .action-btn.history:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-.dashed-frame {
-  border: 1px dashed #e2e8f0;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--bg-container) 30%, transparent);
-  padding: 16px;
-  min-height: 160px;
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  position: relative;
-}
-
-.improve-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 40%, transparent);
-  transition: all 0.2s ease;
-  z-index: 2;
-}
-
-.improve-btn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-}
-
-.improve-btn:active {
-  transform: translateY(0);
-}
-
-.improve-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  filter: none;
-  transform: none;
-}
-
-.improve-btn-text {
-  font-weight: 600;
-  line-height: 1;
-}
-
-.prompt-textarea {
-  width: 100%;
-  min-height: 100%;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--text-secondary);
-  outline: none;
-  transition: all 0.2s;
-  resize: none;
-  font-family: inherit;
-  line-height: 1.625;
-}
-
-.prompt-textarea::placeholder {
-  color: var(--text-tertiary);
-}
-
-.prompt-textarea:focus {
-  outline: none;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--border-strong);
 }
 </style>

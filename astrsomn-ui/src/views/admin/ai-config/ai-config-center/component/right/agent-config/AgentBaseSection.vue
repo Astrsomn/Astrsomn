@@ -33,38 +33,21 @@
     <div class="divider" />
 
     <div class="prompt-area">
-      <div class="prompt-container-relative">
-        <PromptCard
-          :improve-loading="improveLoading"
-          :prompt="currentPrompt"
-          :textarea-rows="9"
-          @create="emit('open-prompt-form')"
-          @history="emit('prompt-history')"
-          @improve="emit('improve-prompt')"
-          @select="emit('open-prompt-drawer')"
-          @update:prompt-content="emit('update-prompt-content', $event)"
-        />
-
-        <a-button
+      <PromptEditor
+          v-model="promptContent"
           :loading="improveLoading"
-          :disabled="improveLoading"
-          class="ai-optimize-btn-absolute"
-          size="small"
-          @click="emit('improve-prompt')"
-        >
-          <template #icon><ThunderboltOutlined /></template>
-          {{ t.agent.aiOptimize }}
-        </a-button>
-      </div>
+          :min-rows="9"
+          :improve-button-text="t.agent.aiOptimize"
+          @improve="emit('improve-prompt')"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import {computed} from 'vue'
-import {ThunderboltOutlined} from '@ant-design/icons-vue'
 import type {AiPrompt} from '@/api/aiPrompt.ts'
-import PromptCard from '@/views/admin/ai-config/builder/component/left-center/PromptCard.vue'
+import PromptEditor from '@/views/admin/ai-config/component/PromptEditor.vue'
 import AstKeyGenerator from '@/components/home/AstKeyGenerator.vue'
 import AstIconPicker from '@/components/home/AstIconPicker.vue'
 import {AI_AGENT_KEY_PREFIX} from '@/constants/aiConfigKeyPrefixes.ts'
@@ -80,7 +63,7 @@ const cardStyle = computed(() => ({
 
 const t = usePageTranslation('ai-config-center')
 
-defineProps<{
+const props = defineProps<{
   agentName: string
   agentKey: string
   agentAvatar: string
@@ -98,6 +81,11 @@ const emit = defineEmits<{
   'improve-prompt': []
   'update-prompt-content': [content: string]
 }>()
+
+const promptContent = computed({
+  get: () => props.currentPrompt?.promptContent || '',
+  set: (val) => emit('update-prompt-content', val),
+})
 </script>
 
 <style scoped>
@@ -174,106 +162,11 @@ const emit = defineEmits<{
   flex-shrink: 0;
 }
 
-/* ── 提示词区域（核心重构） ── */
+/* ── 提示词区域 ── */
 .prompt-area {
   flex: 1;
   min-height: 0;
   padding: 16px 20px 20px;
   display: flex;
-}
-
-/* 创建一个相对定位包裹器，用于承载绝对定位的 AI 按钮 */
-.prompt-container-relative {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-}
-
-/* 深度穿透覆盖三方 Prompt 组件 */
-.prompt-area :deep(.prompt-card) {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  width: 100%;
-}
-
-.prompt-area :deep(.card-header),
-.prompt-area :deep(.improve-btn) {
-  display: none !important;
-}
-
-/* 大文本框的外框美化 */
-.prompt-area :deep(.dashed-frame) {
-  border: 1px solid var(--border-default) !important;
-  background: var(--bg-input) !important;
-  border-radius: 12px !important;
-  height: 100%;
-  transition: all 0.25s ease !important;
-}
-
-.prompt-area :deep(.dashed-frame:hover) {
-  border-color: var(--border-default) !important;
-  background: var(--bg-input) !important;
-}
-
-.prompt-area :deep(.dashed-frame:focus-within) {
-  border-color: var(--primary) !important;
-  background: var(--bg-card) !important;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent) !important;
-}
-
-/* 核心核心：为了不让输入的文字被右上角的 AI 按钮遮挡，给底层 textarea 加上顶部与右侧留白 */
-.prompt-area :deep(textarea) {
-  font-size: 13px !important;
-  line-height: 1.6 !important;
-  color: var(--text-primary) !important;
-  padding-top: 42px !important; /* 留出上方空间给 AI 按钮悬浮 */
-  padding-right: 12px !important;
-}
-
-
-/* ── 绝对定位：内嵌在输入框内部右上角的 AI 优化按钮 ── */
-.ai-optimize-btn-absolute {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10; /* 确保悬浮在 textarea 之上 */
-  height: 28px;
-  padding: 0 12px;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  /* 现代感的科技渐变紫 */
-  background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%) !important;
-  color: var(--text-heading) !important;
-  border: none !important;
-  transition: all 0.2s ease !important;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 25%, transparent);
-}
-
-.ai-optimize-btn-absolute:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 35%, transparent);
-  opacity: 0.95;
-}
-
-.ai-optimize-btn-absolute:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-/* 按钮 Loading 和禁用状态：完美融入输入框背景，不显脏 */
-.ai-optimize-btn-absolute:disabled,
-.ai-optimize-btn-absolute.ant-btn-loading {
-  background: var(--border-default) !important;
-  color: var(--text-muted) !important;
-  box-shadow: none !important;
-  transform: none !important;
-  border: none !important;
-  opacity: 1 !important;
 }
 </style>
