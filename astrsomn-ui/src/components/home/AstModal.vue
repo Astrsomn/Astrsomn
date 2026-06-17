@@ -51,6 +51,9 @@
       <div :style="mainAreaStyle" class="fsm-main">
         <slot/>
       </div>
+      <footer v-if="$slots.footer" class="fsm-footer">
+        <slot name="footer"/>
+      </footer>
     </div>
   </a-modal>
 </template>
@@ -263,5 +266,12 @@ function handleClose() {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.fsm-footer {
+  flex-shrink: 0;
+  padding: 16px 32px;
+  background: var(--bg-card, #fff);
+  border-top: 1px solid var(--border-default, #e2e8f0);
 }
 </style>

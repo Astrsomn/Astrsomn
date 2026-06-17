@@ -198,7 +198,7 @@ const changeColorKeys = ['blue', 'violet', 'green', 'amber'] as const
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-card);
+
   padding: 14px 16px;
   flex-shrink: 0;
 }

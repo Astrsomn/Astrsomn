@@ -1,21 +1,41 @@
 <template>
-  <a-modal
+  <AstModal
     :destroy-on-close="true"
-    :footer="null"
     :open="open"
-    :title="t.dialog.title"
-    :width="800"
+    :width="960"
+    body-height="720px"
+    main-padding="20px"
+    max-body-height="85vh"
     wrap-class-name="msg-center-modal"
     @update:open="onOpenChange"
   >
+    <template #header-title>{{ t.dialog.title }}</template>
+
+    <template v-if="page.total > 0" #footer>
+      <AstPagination
+        :current="page.pageNum"
+        :page-size="page.pageSize"
+        :show-size-changer="true"
+        :total="page.total"
+        @change="onPageChange"
+      />
+    </template>
+
     <div class="msg-dialog">
-      <div class="msg-toolbar">
-        <a-segmented
-          v-model:value="filter.readStatus"
-          :options="readStatusOptions"
-          size="middle"
-          @change="onFilterChange"
+      <a-tabs
+        v-model:activeKey="activeTab"
+        class="msg-tabs"
+        size="small"
+        @change="onTabChange"
+      >
+        <a-tab-pane
+          v-for="opt in readStatusTabOptions"
+          :key="opt.value"
+          :tab="opt.label"
         />
+      </a-tabs>
+
+      <div class="msg-toolbar">
         <a-select
           v-model:value="filter.messageLevel"
           :options="levelOptions"
@@ -26,7 +46,7 @@
           @change="onFilterChange"
         />
         <span class="msg-toolbar-spacer"/>
-        
+
         <div class="msg-toolbar-actions">
           <a-tooltip :title="t.dialog.btnRefresh">
             <a-button :loading="loading" shape="circle" type="text" @click="fetchList">
@@ -47,7 +67,7 @@
         </div>
       </div>
 
-      <a-spin :spinning="loading">
+      <a-spin :spinning="loading" class="msg-spin">
         <div v-if="list.length === 0" class="msg-empty-wrapper">
           <a-empty :description="unreadOnly && unreadCount > 0 ? t.dialog.emptyText : t.dialog.emptyUnread" />
         </div>
@@ -67,9 +87,9 @@
               <span class="msg-title">{{ item.title || '—' }}</span>
               <span v-if="item.readStatus !== 'READ'" class="msg-unread-dot"/>
             </div>
-            
+
             <div v-if="item.content" class="msg-content">{{ item.content }}</div>
-            
+
             <div class="msg-meta">
               <div class="msg-meta-info">
                 <span v-if="item.source" class="msg-meta-badge">
@@ -82,7 +102,7 @@
                 </span>
                 <span class="msg-time">{{ item.createTime || '' }}</span>
               </div>
-              
+
               <div class="msg-actions" @click.stop>
                 <a-button
                   v-if="item.readStatus !== 'READ'"
@@ -107,18 +127,6 @@
           </li>
         </ul>
       </a-spin>
-
-      <div v-if="page.total > 0" class="msg-pagination">
-        <a-pagination
-          v-model:current="page.pageNum"
-          v-model:page-size="page.pageSize"
-          :show-size-changer="true"
-          :show-total="(total: number) => t.dialog.unreadCount.replace('{count}', String(total))"
-          :total="page.total"
-          size="small"
-          @change="fetchList"
-        />
-      </div>
     </div>
 
     <a-modal
@@ -160,7 +168,7 @@
         </a-descriptions-item>
       </a-descriptions>
     </a-modal>
-  </a-modal>
+  </AstModal>
 </template>
 
 <script lang="ts" setup>
@@ -172,6 +180,8 @@ import { type SystemMessage, systemMessageApi } from '@/api/systemMessage'
 import { getDictionary } from '@/locales/dictionary/registry'
 import { usePageTranslation } from '@/locales/pages'
 import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv'
+import AstModal from '@/components/home/AstModal.vue'
+import AstPagination from '@/components/home/AstPagination.vue'
 
 interface Props {
   open: boolean
@@ -203,13 +213,26 @@ const levelColor = (v?: string) => {
 
 const loading = ref(false)
 const list = ref<SystemMessage[]>([])
-const page = reactive({ pageNum: 1, pageSize: 6, total: 0 }) // 调整单页容量使视觉比例更优
-const filter = reactive<{ readStatus?: string; messageLevel?: string; unreadOnly?: boolean }>({})
+const page = reactive({ pageNum: 1, pageSize: 8, total: 0 })
+const filter = reactive<{ readStatus?: string; messageLevel?: string }>({
+  readStatus: 'UNREAD'
+})
 
-const readStatusOptions = computed(() => readStatusDict.order.map(key => ({
-  label: readStatusDict.getLabel(key) ?? key,
-  value: key
-})))
+// ---- tab options ----
+const readStatusTabOptions = computed(() => [
+  ...readStatusDict.order.map((key: string) => ({
+    label: readStatusDict.getLabel(key) ?? key,
+    value: key,
+  })),
+  { label: tCommon.value.statusSwitch.all, value: '' },
+])
+
+const activeTab = computed({
+  get: () => filter.readStatus ?? '',
+  set: (val: string) => {
+    filter.readStatus = val || undefined
+  },
+})
 
 const levelOptions = computed(() => levelDict.order.map(key => ({
   label: levelDict.getLabel(key) ?? key,
@@ -234,6 +257,17 @@ const onOpenChange = (val: boolean) => emit('update:open', val)
 
 const onFilterChange = () => {
   page.pageNum = 1
+  void fetchList()
+}
+
+const onTabChange = () => {
+  page.pageNum = 1
+  void fetchList()
+}
+
+const onPageChange = (pageNum: number, pageSize: number) => {
+  page.pageNum = pageNum
+  page.pageSize = pageSize
   void fetchList()
 }
 
@@ -312,7 +346,7 @@ const openFullList = () => {
   void router.push({ name: 'AdminSystemMessage' })
 }
 
-// ========== SSE 实时同步 ==========
+// ========== SSE ==========
 let source: EventSource | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 let reconnectAttempt = 0
@@ -386,21 +420,32 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* 弹窗容器整体间距优化 */
+/* ---- root: fills AstModal's .fsm-main ---- */
 .msg-dialog {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding-top: 8px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
-/* 工具栏样式平滑调正 */
+/* ---- tabs ---- */
+.msg-tabs {
+  flex-shrink: 0;
+}
+
+.msg-tabs :deep(.ant-tabs-nav) {
+  margin-bottom: 0;
+}
+
+/* ---- toolbar ---- */
 .msg-toolbar {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-bottom: 4px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--ant-color-border-split, #f0f0f0);
+  flex-shrink: 0;
 }
 
 .msg-toolbar-select {
@@ -417,19 +462,42 @@ onBeforeUnmount(() => {
   gap: 4px;
 }
 
-/* 列表滚动容器 */
+/* ---- spinner & list area ---- */
+.msg-spin {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.msg-spin :deep(.ant-spin-container) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* empty */
+.msg-empty-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* list */
 .msg-list {
   list-style: none;
   margin: 0;
   padding: 4px 2px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 460px;
+  gap: 10px;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
-/* 消息卡片高级样式 */
+/* ---- card ---- */
 .msg-item {
   position: relative;
   border: 1px solid var(--ant-color-border-secondary, #f0f0f0);
@@ -439,16 +507,15 @@ onBeforeUnmount(() => {
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
-/* 卡片悬浮状态 */
 .msg-item:hover {
   border-color: var(--ant-color-primary-hover, #40a9ff);
   box-shadow: 0 4px 12px var(--ant-color-box-shadow-secondary, rgba(0, 0, 0, 0.05));
   transform: translateY(-1px);
 }
 
-/* 未读消息左侧高亮条设计 */
 .msg-item::before {
   content: '';
   position: absolute;
@@ -472,13 +539,11 @@ onBeforeUnmount(() => {
   background: var(--ant-color-success, #52c41a);
 }
 
-/* 未读状态背景微调 */
 .msg-item-unread {
   background: var(--ant-color-primary-bg, #e6f7ff);
   border-color: var(--ant-color-primary-border, #91d5ff);
 }
 
-/* 头部元素对其调整 */
 .msg-item-head {
   display: flex;
   align-items: center;
@@ -502,7 +567,6 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-/* 未读小圆点 */
 .msg-unread-dot {
   width: 6px;
   height: 6px;
@@ -512,7 +576,6 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 0 2px var(--ant-color-primary-bg-hover, rgba(24, 144, 255, 0.2));
 }
 
-/* 消息内容区样式 */
 .msg-content {
   font-size: 13px;
   color: var(--ant-color-text-secondary, rgba(0, 0, 0, 0.45));
@@ -522,10 +585,10 @@ onBeforeUnmount(() => {
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
-/* 元数据底栏布局 */
 .msg-meta {
   display: flex;
   align-items: center;
@@ -541,7 +604,6 @@ onBeforeUnmount(() => {
   color: var(--ant-color-text-description, rgba(0, 0, 0, 0.45));
 }
 
-/* 胶囊样式的元数据标签 */
 .msg-meta-badge {
   display: inline-flex;
   align-items: center;
@@ -567,7 +629,6 @@ onBeforeUnmount(() => {
   color: var(--ant-color-text-placeholder, rgba(0, 0, 0, 0.25));
 }
 
-/* 操作栏平滑移入效果 */
 .msg-actions {
   display: flex;
   gap: 4px;
@@ -581,22 +642,7 @@ onBeforeUnmount(() => {
   transform: translateX(0);
 }
 
-/* 空状态样式 */
-.msg-empty-wrapper {
-  padding: 60px 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* 分页右对齐 */
-.msg-pagination {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 4px;
-}
-
-/* 详情弹窗微调 */
+/* ---- detail modal ---- */
 .msg-detail-desc {
   margin-top: 16px;
 }

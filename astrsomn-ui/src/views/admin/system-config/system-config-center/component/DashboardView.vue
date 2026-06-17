@@ -19,27 +19,8 @@
       </button>
     </section>
 
-    <!-- Quick Nav Cards -->
-    <section class="quick-nav">
-      <button
-        v-for="card in quickNavCards"
-        :key="card.routeName"
-        class="quick-nav-card"
-        type="button"
-        @click="emit('goTo', card.routeName)"
-      >
-        <div :class="`quick-nav-icon quick-nav-icon--${card.color}`">
-          <component :is="card.icon" />
-        </div>
-        <div class="quick-nav-text">
-          <span class="quick-nav-title">{{ card.title }}</span>
-          <span class="quick-nav-desc">{{ card.desc }}</span>
-        </div>
-      </button>
-    </section>
-
-    <!-- Main Grid: Table + Right Panel -->
-    <div class="main-grid">
+    <!-- Main Grid: Table + Right Panel（与 stats 行同宽，右侧面板对齐第四列） -->
+    <div class="main-grid" :style="mainGridStyle">
       <section class="table-panel">
         <BusinessTable
           :current-page="currentPage"
@@ -52,7 +33,6 @@
           @export="emit('export')"
           @refresh="emit('refresh')"
           @update:page="emit('update:page', $event)"
-          @update:page-size="emit('update:pageSize', $event)"
           @update:status-filter="emit('update:statusFilter', $event)"
         />
       </section>
@@ -72,15 +52,10 @@
 <script lang="ts" setup>
 import {computed} from 'vue'
 import {
-  AlertOutlined,
-  ApiOutlined,
   AppstoreOutlined,
   CheckCircleOutlined,
-  ClusterOutlined,
   ExclamationCircleOutlined,
   PauseCircleOutlined,
-  SettingOutlined,
-  UserOutlined,
 } from '@ant-design/icons-vue'
 import {usePageTranslation} from '@/locales/pages'
 import BusinessTable from './BusinessTable.vue'
@@ -97,9 +72,9 @@ const props = defineProps<{
   pagedOnlineSystems: OnlineSystem[]
   currentPage: number
   filteredTotal: number
+  pageSize: number
   statusFilter: 'all' | 'online' | 'offline' | 'maintenance'
   statusCounts: { all: number; online: number; offline: number; maintenance: number }
-  pageSize: number
   envDistribution: EnvDistribution
   resourceUsage: ResourceUsagePanel
   recentChanges: RecentChanges
@@ -108,10 +83,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:statusFilter', value: 'all' | 'online' | 'offline' | 'maintenance'): void
   (e: 'update:page', value: number): void
-  (e: 'update:pageSize', value: number): void
   (e: 'export'): void
   (e: 'refresh'): void
-  (e: 'goTo', routeName: string): void
   (e: 'view-all-changes'): void
 }>()
 
@@ -152,24 +125,17 @@ const statCards = computed(() => [
   },
 ])
 
-const QUICK_NAV_DATA = [
-  { routeName: 'AdminUsers', icon: UserOutlined, color: 'blue' as const },
-  { routeName: 'AdminEnv', icon: ClusterOutlined, color: 'green' as const },
-  { routeName: 'AdminSystemConfig', icon: SettingOutlined, color: 'cyan' as const },
-  { routeName: 'AdminSystemMessage', icon: AlertOutlined, color: 'violet' as const },
-  { routeName: 'AdminSystemExtension', icon: ApiOutlined, color: 'amber' as const },
-]
-
-const QUICK_NAV_TITLE_KEYS = ['users', 'env', 'config', 'messages', 'extensions'] as const
-const QUICK_NAV_DESC_KEYS = ['usersDesc', 'envDesc', 'configDesc', 'messagesDesc', 'extensionsDesc'] as const
-
-const quickNavCards = computed(() =>
-  QUICK_NAV_DATA.map((item, i) => ({
-    ...item,
-    title: (t.value.dashboard.quickNav as Record<string, string>)[QUICK_NAV_TITLE_KEYS[i]] ?? '',
-    desc: (t.value.dashboard.quickNav as Record<string, string>)[QUICK_NAV_DESC_KEYS[i]] ?? '',
-  }))
-)
+/**
+ * 铺满页面：Header(60px) + stats行(≈76px含间距) + dashboard上下padding(48px) + gap(16px)
+ * = 60 + 76 + 48 + 16 = 200px
+ */
+const HEADER_H = 60
+const TOP_AREA_H = 76
+const PADDING_H = 48
+const GAP_H = 16
+const mainGridStyle = computed(() => ({
+  height: `calc(100vh - ${HEADER_H + TOP_AREA_H + PADDING_H + GAP_H}px)`,
+}))
 </script>
 
 <style scoped>
@@ -177,7 +143,7 @@ const quickNavCards = computed(() =>
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 24px 24px 80px 24px;
+  padding: 24px 24px 24px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -190,6 +156,7 @@ const quickNavCards = computed(() =>
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .stat-card {
@@ -214,7 +181,6 @@ const quickNavCards = computed(() =>
 
 .stat-card--active {
   border-color: var(--primary);
-  box-shadow: var(--shadow-overview);
 }
 
 .stat-icon {
@@ -268,104 +234,19 @@ const quickNavCards = computed(() =>
   font-variant-numeric: tabular-nums;
 }
 
-/* ---- Quick Nav ---- */
-.quick-nav {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-}
-
-.quick-nav-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  text-align: left;
-  outline: none;
-}
-
-.quick-nav-card:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-overview);
-}
-
-.quick-nav-icon {
-  flex-shrink: 0;
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-}
-
-.quick-nav-icon--blue {
-  background: rgba(59, 130, 246, 0.12);
-  color: var(--primary);
-}
-
-.quick-nav-icon--green {
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--success);
-}
-
-.quick-nav-icon--cyan {
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
-}
-
-.quick-nav-icon--violet {
-  background: rgba(139, 92, 246, 0.12);
-  color: #a78bfa;
-}
-
-.quick-nav-icon--amber {
-  background: rgba(245, 158, 11, 0.12);
-  color: #fb923c;
-}
-
-.quick-nav-text {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.quick-nav-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-heading);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.quick-nav-desc {
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.3;
-}
-
-/* ---- Main Grid ---- */
+/* ---- Main Grid（4 列，与 stats 行对齐，右侧面板占第 4 列） ---- */
 .main-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  flex: 1;
   min-height: 0;
+  flex-shrink: 0;
 }
 
 .table-panel {
+  grid-column: 1 / 4;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -373,6 +254,7 @@ const quickNavCards = computed(() =>
 }
 
 .right-panel {
+  grid-column: 4 / 5;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -380,18 +262,17 @@ const quickNavCards = computed(() =>
 }
 
 /* ---- Responsive ---- */
-@media (max-width: 1200px) {
-  .quick-nav {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
 @media (max-width: 1100px) {
   .main-grid {
     grid-template-columns: 1fr;
   }
 
+  .table-panel {
+    grid-column: 1;
+  }
+
   .right-panel {
+    grid-column: 1;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -403,25 +284,17 @@ const quickNavCards = computed(() =>
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .quick-nav {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .right-panel {
     grid-template-columns: 1fr;
   }
 
   .dashboard-view {
-    padding: 16px 12px 80px 12px;
+    padding: 16px 12px 16px 12px;
   }
 }
 
 @media (max-width: 480px) {
   .stats-row {
-    grid-template-columns: 1fr;
-  }
-
-  .quick-nav {
     grid-template-columns: 1fr;
   }
 }

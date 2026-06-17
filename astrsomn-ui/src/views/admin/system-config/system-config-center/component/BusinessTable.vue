@@ -118,23 +118,26 @@
       </AstDataView>
     </div>
 
-    <!-- Footer Pagination -->
+    <!-- Footer: 仅上下页切换 -->
     <div class="biz-footer">
-      <span class="footer-total">{{ t.dashboard.totalCount.replace('{n}', String(filteredTotal)) }}</span>
-      <a-select
-        :options="pageSizeOptions"
-        :value="pageSize"
-        class="page-size-select"
-        size="small"
-        @update:value="emit('update:pageSize', $event)"
-      />
-      <AstPagination
-        :current="currentPage"
-        :page-size="pageSize"
-        :show-size-changer="false"
-        :total="filteredTotal"
-        @change="(p: number) => emit('update:page', p)"
-      />
+      <button
+        :disabled="currentPage <= 1"
+        class="page-btn"
+        type="button"
+        @click="emit('update:page', currentPage - 1)"
+      >
+        <LeftOutlined />
+        <span>上一页</span>
+      </button>
+      <button
+        :disabled="currentPage >= totalPages"
+        class="page-btn"
+        type="button"
+        @click="emit('update:page', currentPage + 1)"
+      >
+        <span>下一页</span>
+        <RightOutlined />
+      </button>
     </div>
   </div>
 </template>
@@ -144,12 +147,13 @@ import {
   DownloadOutlined,
   EditOutlined,
   EllipsisOutlined,
+  LeftOutlined,
   MonitorOutlined,
   ReloadOutlined,
+  RightOutlined,
 } from '@ant-design/icons-vue'
 import {computed} from 'vue'
 import AstDataView from '@/components/home/AstDataView.vue'
-import AstPagination from '@/components/home/AstPagination.vue'
 import {usePageTranslation} from '@/locales/pages'
 import {useDictionary} from '@/locales/dictionary/registry'
 import type {OnlineSystem, SystemEnvUi, SystemStatusUi} from '../useSystemConfigCenter'
@@ -160,9 +164,9 @@ const props = withDefaults(
     pagedOnlineSystems: OnlineSystem[]
     currentPage: number
     filteredTotal: number
+    pageSize: number
     statusFilter: 'all' | 'online' | 'offline' | 'maintenance'
     statusCounts: { all: number; online: number; offline: number; maintenance: number }
-    pageSize: number
   }>(),
   { loading: false }
 )
@@ -170,10 +174,11 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'update:statusFilter', value: 'all' | 'online' | 'offline' | 'maintenance'): void
   (e: 'update:page', value: number): void
-  (e: 'update:pageSize', value: number): void
   (e: 'export'): void
   (e: 'refresh'): void
 }>()
+
+const totalPages = computed(() => Math.max(1, Math.ceil(props.filteredTotal / props.pageSize)))
 
 const t = usePageTranslation('system-config-center')
 const envDict = useDictionary('system.config-center.env')
@@ -195,12 +200,6 @@ const filterTabs = computed(() => [
   { key: 'offline' as const, label: t.value.filter.offline, count: props.statusCounts.offline },
   { key: 'maintenance' as const, label: t.value.filter.maintenance, count: props.statusCounts.maintenance },
 ])
-
-const pageSizeOptions = [
-  { value: 10, label: '10 条/页' },
-  { value: 20, label: '20 条/页' },
-  { value: 50, label: '50 条/页' },
-]
 
 const columns = [
   { title: '系统名称', dataIndex: 'name', key: 'name', width: 180 },
@@ -475,24 +474,39 @@ const columns = [
   font-size: 14px;
 }
 
-/* ---- Footer ---- */
+/* ---- Footer: 仅上下页 ---- */
 .biz-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   flex-shrink: 0;
   padding: 10px 16px;
   border-top: 1px solid var(--border-default);
 }
 
-.footer-total {
-  font-size: 13px;
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  font-size: 12px;
   color: var(--text-secondary);
-  margin-right: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
-.page-size-select {
-  width: 108px;
+.page-btn:hover:not(:disabled) {
+  background: var(--bg-input);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 </style>

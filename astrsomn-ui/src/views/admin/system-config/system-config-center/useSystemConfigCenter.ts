@@ -401,22 +401,6 @@ export function useSystemConfigCenter() {
         })()
     }
 
-    const setPageSize = (n: number) => {
-        state.pageSize = n
-        state.currentPage = 1
-        void (async () => {
-            state.loading = true
-            try {
-                await fetchSystemUserPage()
-            } catch (err) {
-                console.error(err)
-                message.error('加载失败')
-            } finally {
-                state.loading = false
-            }
-        })()
-    }
-
     const exportBusinessSystemsCsv = () => {
         const rows = state.pagedOnlineSystems
         if (rows.length === 0) {
@@ -468,7 +452,6 @@ export function useSystemConfigCenter() {
         totalPages,
         setStatusFilter,
         setPage,
-        setPageSize,
         refresh,
         exportBusinessSystemsCsv
     }

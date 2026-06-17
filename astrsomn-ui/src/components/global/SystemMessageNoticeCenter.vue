@@ -1,13 +1,16 @@
 <template>
-  <span style="display: none"></span>
+  <button class="notice-test-btn" title="测试系统通知" @click="fireTestNotice">
+    <BellOutlined />
+  </button>
 </template>
 
 <script lang="ts" setup>
-import {onBeforeUnmount, onMounted, watch} from 'vue'
-import {useRoute} from 'vue-router'
-import {notification} from 'ant-design-vue'
-import {WORKSPACE_ENV_STORAGE_KEY} from '@/constants/workspaceEnv.ts'
-import {usePageTranslation} from '@/locales/pages.ts'
+import { onBeforeUnmount, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { notification } from 'ant-design-vue'
+import { BellOutlined } from '@ant-design/icons-vue'
+import { WORKSPACE_ENV_STORAGE_KEY } from '@/constants/workspaceEnv.ts'
+import { usePageTranslation } from '@/locales/pages.ts'
 
 type SystemMessagePushPayload = {
   id?: number | string
@@ -70,6 +73,30 @@ const openNotice = (payload: SystemMessagePushPayload) => {
   })
 }
 
+// ---- test notice ----
+const fireTestNotice = () => {
+  const levels = ['SUCCESS', 'INFO', 'WARN', 'ERROR'] as const
+  const randomLevel = levels[Math.floor(Math.random() * levels.length)]
+  openNotice({
+    id: `test-${Date.now()}`,
+    messageType: 'SYSTEM_NOTICE',
+    messageLevel: randomLevel,
+    title: `[测试] ${levelLabel(randomLevel)}通知`,
+    content: `这是一条 ${levelLabel(randomLevel)} 级别的测试通知，用于验证系统通知样式。`,
+    source: 'TEST',
+    createTime: new Date().toISOString(),
+    envCode: localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY) || undefined
+  })
+}
+
+const levelLabel = (level: string) => {
+  if (level === 'SUCCESS') return '成功'
+  if (level === 'WARN') return '警告'
+  if (level === 'ERROR') return '错误'
+  return '普通'
+}
+
+// ---- SSE ----
 const cleanupSource = () => {
   if (source) {
     source.close()
@@ -98,7 +125,7 @@ const connect = () => {
   if (!token) return
 
   const envCode = localStorage.getItem(WORKSPACE_ENV_STORAGE_KEY)
-  const query = new URLSearchParams({token})
+  const query = new URLSearchParams({ token })
   if (envCode) query.set('envCode', envCode)
 
   source = new EventSource(`/v1/astro/sse/system-message?${query.toString()}`)
@@ -148,3 +175,32 @@ onBeforeUnmount(() => {
   cleanupSource()
 })
 </script>
+
+<style scoped>
+.notice-test-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default, #e2e8f0);
+  background: var(--bg-card, #fff);
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--shadow-card, 0 4px 12px rgba(0, 0, 0, 0.1));
+  transition: all 0.25s ease;
+}
+
+.notice-test-btn:hover {
+  color: var(--primary, #3b82f6);
+  border-color: var(--primary, #3b82f6);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--primary) 30%, transparent);
+  transform: translateY(-2px);
+}
+</style>

@@ -59,7 +59,7 @@
 
     <!-- 固定区域：全局管理（在底） -->
     <div class="global-section">
- 
+
 
       <a-tooltip
           v-for="item in globalItems"
@@ -87,9 +87,16 @@
     <template #footer>
       <SidebarFooter
           :enabled-extensions="enabledExtensions"
+          @open-marketplace="goPluginMarketplace"
       />
     </template>
   </SidebarShell>
+
+  <ExtensionMarketplaceDialog
+      :open="marketplaceOpen"
+      @cancel="marketplaceOpen = false"
+      @update:open="marketplaceOpen = $event"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -111,6 +118,8 @@ import {type SystemExtension, systemExtensionApi} from '@/api/systemExtension.ts
 import {aiConfigCenterApi} from '@/api/aiConfigCenter'
 import {useDictionary} from '@/locales/dictionary'
 import {usePageTranslation} from '@/locales/pages.ts'
+import ExtensionMarketplaceDialog
+  from '@/views/admin/system-config/system-extension/component/ExtensionMarketplaceDialog.vue'
 
 const emit = defineEmits<{
   select: [key: string]
@@ -123,6 +132,7 @@ const t = usePageTranslation('ai-config-center')
 
 const searchText = ref('')
 const activeItem = ref('')
+const marketplaceOpen = ref(false)
 const enabledExtensions = ref<Array<{ key: string; name: string; avatar: string; initial: string }>>([])
 const providers = ref<Array<{
   id: string | number;
@@ -165,6 +175,10 @@ const handleSelect = (key: string) => {
 }
 
 const handleSearch = () => {
+}
+
+const goPluginMarketplace = () => {
+  marketplaceOpen.value = true
 }
 
 const fetchEnabledExtensions = async () => {

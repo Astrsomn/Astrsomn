@@ -20,39 +20,33 @@
             :status-counts="statusCounts"
             :status-filter="statusFilter"
             @export="onExport"
-            @go-to="handleModuleGoTo"
             @refresh="onRefresh"
             @update:page="setPage"
-            @update:page-size="setPageSize"
             @update:status-filter="setStatusFilter"
             @view-all-changes="onViewAllChanges"
           />
         </a-spin>
       </div>
     </transition>
+
+    <!-- 消息中心弹窗 -->
+    <SystemMessageDialog
+      :open="messageDialogOpen"
+      @update:open="messageDialogOpen = $event"
+    />
   </a-layout-content>
 </template>
 
 <script lang="ts" setup>
-import {computed, defineAsyncComponent} from 'vue'
-import {useRouter} from 'vue-router'
-import type {Component} from 'vue'
-import {
-  AlertOutlined,
-  ApiOutlined,
-  ClusterOutlined,
-  SettingOutlined,
-  UserOutlined,
-} from '@ant-design/icons-vue'
+import {computed, defineAsyncComponent, ref} from 'vue'
 import {message} from 'ant-design-vue'
 import DashboardView from './DashboardView.vue'
+import SystemMessageDialog from '@/views/admin/system-config/system-message/component/SystemMessageDialog.vue'
 import {useSystemConfigCenter} from '../useSystemConfigCenter'
 
 const props = defineProps<{
   currentViewKey: string
 }>()
-
-const router = useRouter()
 
 const globalComponents: Record<string, any> = {
   users: defineAsyncComponent(() => import('@/views/admin/system-config/system-user/SystemUserList.vue')),
@@ -63,23 +57,6 @@ const globalComponents: Record<string, any> = {
 }
 
 const currentGlobalComponent = computed(() => globalComponents[props.currentViewKey] || null)
-
-const routeNameToViewKey: Record<string, string> = {
-  AdminUsers: 'users',
-  AdminEnv: 'env',
-  AdminSystemConfig: 'config',
-  AdminSystemMessage: 'messages',
-  AdminSystemExtension: 'extensions',
-}
-
-const handleModuleGoTo = (routeName: string) => {
-  const viewKey = routeNameToViewKey[routeName]
-  if (viewKey) {
-    router.push({ path: '/admin/system', query: { view: viewKey } })
-  } else {
-    router.push({ name: routeName })
-  }
-}
 
 const {
   loading,
@@ -94,10 +71,11 @@ const {
   recentChanges,
   setStatusFilter,
   setPage,
-  setPageSize,
   refresh,
   exportBusinessSystemsCsv,
 } = useSystemConfigCenter()
+
+const messageDialogOpen = ref(false)
 
 const onExport = () => {
   exportBusinessSystemsCsv()
@@ -109,7 +87,7 @@ const onRefresh = async () => {
 }
 
 const onViewAllChanges = () => {
-  router.push({ path: '/admin/system', query: { view: 'messages' } })
+  messageDialogOpen.value = true
 }
 </script>
 
@@ -133,20 +111,5 @@ const onViewAllChanges = () => {
 
 .center-spin :deep(.ant-spin-container) {
   height: 100%;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.fade-enter-from {
-  opacity: 0;
-  transform: translateY(8px);
-}
-
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
 }
 </style>

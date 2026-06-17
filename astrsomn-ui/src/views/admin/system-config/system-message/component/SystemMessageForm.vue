@@ -1,28 +1,41 @@
 <template>
-  <AstPageShell
-      :title="isEdit ? t.form.editTitle : t.form.createTitle"
-      :description="t.form.description"
-      empty-text=""
+  <AstModal
+    :destroy-on-close="true"
+    :open="open"
+    :width="760"
+    body-height="auto"
+    main-padding="24px"
+    max-body-height="85vh"
+    @update:open="onClose"
   >
-    <div class="form-page">
-      <div class="form-toolbar">
-        <a-button class="ghost-btn" @click="goBack">
-          <template #icon>
-            <arrow-left-outlined/>
-          </template>
-          {{ t.form.btnBack }}
-        </a-button>
-      </div>
+    <template #header-title>
+      {{ mode === 'create' ? t.form.createTitle : t.form.editTitle }}
+    </template>
 
-      <a-form :model="form" class="message-form" layout="vertical" @finish="onSubmit">
+    <div class="form-page">
+      <a-form
+        ref="formRef"
+        :model="form"
+        class="message-form"
+        layout="vertical"
+        @finish="handleOk"
+      >
         <a-row :gutter="16">
           <a-col :md="12" :xs="24">
-            <a-form-item :rules="[{ required: true, message: t.form.validationMessageType }]" :label="t.form.labelMessageType" name="messageType">
+            <a-form-item
+              :rules="[{ required: true, message: t.form.validationMessageType }]"
+              :label="t.form.labelMessageType"
+              name="messageType"
+            >
               <a-select v-model:value="form.messageType" :options="messageTypeOptions" allow-clear/>
             </a-form-item>
           </a-col>
           <a-col :md="12" :xs="24">
-            <a-form-item :rules="[{ required: true, message: t.form.validationMessageLevel }]" :label="t.form.labelMessageLevel" name="messageLevel">
+            <a-form-item
+              :rules="[{ required: true, message: t.form.validationMessageLevel }]"
+              :label="t.form.labelMessageLevel"
+              name="messageLevel"
+            >
               <a-select v-model:value="form.messageLevel" :options="messageLevelOptions" allow-clear/>
             </a-form-item>
           </a-col>
@@ -39,7 +52,11 @@
           </a-col>
 
           <a-col :xs="24">
-            <a-form-item :rules="[{ required: true, message: t.form.validationTitle }]" :label="t.form.labelTitle" name="title">
+            <a-form-item
+              :rules="[{ required: true, message: t.form.validationTitle }]"
+              :label="t.form.labelTitle"
+              name="title"
+            >
               <a-input v-model:value="form.title" allow-clear :placeholder="t.form.placeholderTitle"/>
             </a-form-item>
           </a-col>
@@ -78,38 +95,46 @@
         </a-row>
 
         <div class="form-actions">
-          <a-button class="ghost-btn" @click="goBack">{{ t.form.btnCancel }}</a-button>
-          <a-button :loading="submitting" class="primary-btn" html-type="submit" type="primary">
-            {{ isEdit ? t.form.btnSave : t.form.btnCreate }}
+          <a-button class="ghost-btn" @click="onClose">{{ t.form.btnCancel }}</a-button>
+          <a-button :loading="confirmLoading" class="primary-btn" html-type="submit" type="primary">
+            {{ mode === 'create' ? t.form.btnCreate : t.form.btnSave }}
           </a-button>
         </div>
       </a-form>
     </div>
-  </AstPageShell>
+  </AstModal>
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, ref, watch} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
-import {message} from 'ant-design-vue'
-import {ArrowLeftOutlined} from '@ant-design/icons-vue'
-import AstPageShell from '@/components/home/AstPageShell.vue'
-import {type SystemMessage, systemMessageApi} from '@/api/systemMessage.ts'
-import {usePageTranslation} from '@/locales/pages.ts'
-import {getDictionary} from '@/locales/dictionary/registry.ts'
+import { computed, reactive, ref, watch } from 'vue'
+import { message } from 'ant-design-vue'
+import type { FormInstance } from 'ant-design-vue'
+import AstModal from '@/components/home/AstModal.vue'
+import { type SystemMessage } from '@/api/systemMessage.ts'
+import { usePageTranslation } from '@/locales/pages.ts'
+import { getDictionary } from '@/locales/dictionary/registry.ts'
 
-const route = useRoute()
-const router = useRouter()
 const t = usePageTranslation('system-message')
 const messageTypeDict = getDictionary('system.message.type')
 const messageLevelDict = getDictionary('system.message.level')
 const readStatusDict = getDictionary('system.message.readStatus')
 const refTypeDict = getDictionary('system.message.refType')
 
-const submitting = ref(false)
-const loading = ref(false)
+// ---- props & emits ----
+const props = defineProps<{
+  mode: 'create' | 'edit'
+  confirmLoading: boolean
+  initial: SystemMessage | null
+}>()
 
-const isEdit = computed(() => route.name === 'AdminSystemMessageEdit')
+const emit = defineEmits<{
+  submit: [payload: SystemMessage]
+}>()
+
+const open = defineModel<boolean>('open', { required: true })
+
+// ---- form ----
+const formRef = ref<FormInstance | null>(null)
 
 const messageTypeOptions = computed(() => messageTypeDict.order.map(key => ({
   label: messageTypeDict.getLabel(key) ?? key,
@@ -128,49 +153,27 @@ const refTypeOptions = computed(() => refTypeDict.order.map(key => ({
   value: key
 })))
 
-const form = reactive<SystemMessage>({
-  messageType: 'SYSTEM_NOTICE',
-  messageLevel: 'INFO',
-  readStatus: 'UNREAD',
-  title: '',
-  content: '',
-  source: 'SYSTEM'
-})
-
-const refIdText = ref('')
-
-const applyForm = (data: SystemMessage) => {
-  Object.keys(form).forEach((k) => delete (form as Record<string, unknown>)[k])
-  Object.assign(form, {
+function emptyForm(): SystemMessage {
+  return {
     messageType: 'SYSTEM_NOTICE',
     messageLevel: 'INFO',
     readStatus: 'UNREAD',
     title: '',
     content: '',
     source: 'SYSTEM'
-  }, data)
-  refIdText.value = form.refId == null ? '' : String(form.refId)
-}
-
-const loadDetail = async (id: string) => {
-  loading.value = true
-  try {
-    const detail = await systemMessageApi.detail(id)
-    applyForm(detail)
-  } catch (e: unknown) {
-    const err = e as { message?: string }
-    message.error(err?.message || t.value.form.loadFailed)
-    goBack()
-  } finally {
-    loading.value = false
   }
 }
 
-const goBack = () => {
-  void router.push({name: 'AdminSystemMessage'})
+const form = reactive<SystemMessage>(emptyForm())
+const refIdText = ref('')
+
+function applyForm(data: SystemMessage) {
+  Object.keys(form).forEach((k) => delete (form as Record<string, unknown>)[k])
+  Object.assign(form, emptyForm(), data)
+  refIdText.value = form.refId == null ? '' : String(form.refId)
 }
 
-const parseRefId = () => {
+function parseRefId(): boolean {
   const val = refIdText.value.trim()
   if (!val) {
     form.refId = undefined
@@ -184,54 +187,42 @@ const parseRefId = () => {
   return true
 }
 
-const onSubmit = async () => {
-  if (!parseRefId()) return
-  submitting.value = true
-  try {
-    const payload: SystemMessage = {...form}
-    let msg: string
-    if (isEdit.value) {
-      msg = await systemMessageApi.update(payload)
-    } else {
-      delete (payload as { id?: unknown }).id
-      msg = await systemMessageApi.create(payload)
-    }
-    message.success(msg)
-    goBack()
-  } catch (e: unknown) {
-    const err = e as { message?: string }
-    message.error(err?.message || t.value.form.saveFailed)
-  } finally {
-    submitting.value = false
-  }
+function onClose() {
+  open.value = false
 }
 
+async function handleOk() {
+  if (!parseRefId()) return
+  if (!formRef.value) return
+  try {
+    await formRef.value.validate()
+  } catch {
+    return
+  }
+  emit('submit', { ...form })
+}
+
+// ---- watch: reset form on open ----
 watch(
-    [() => route.name, () => route.params.id],
-    ([name, id]) => {
-      if (name === 'AdminSystemMessageNew') {
+    () => [open.value, props.initial] as const,
+    ([isOpen, initial]) => {
+      if (!isOpen) return
+      if (initial && Object.keys(initial).length > 0) {
+        applyForm(initial)
+      } else {
         applyForm({})
-        return
       }
-      if (name === 'AdminSystemMessageEdit' && id != null && String(id)) {
-        void loadDetail(String(id))
-      }
-    },
-    {immediate: true}
+    }
 )
 </script>
 
 <style scoped>
 .form-page {
-  padding: 0 4px;
-}
-
-.form-toolbar {
-  margin-bottom: 16px;
+  min-height: 0;
 }
 
 .message-form {
-  max-width: 860px;
+  max-width: 100%;
 }
 
 .form-actions {

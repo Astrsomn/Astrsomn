@@ -78,8 +78,6 @@ function onPanelSync(tab: ExtensionPanel) {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  color: var(--primary);
-  background: rgba(59, 130, 246, 0.10);
   border: 1px solid rgba(59, 130, 246, 0.18);
   flex-shrink: 0;
 }

@@ -80,7 +80,7 @@
               <span>{{ record.source || 'SYSTEM' }}</span>
             </template>
             <template v-else-if="column.key === 'actions'">
-              <a-button type="link" @click="goEdit(record)">{{ t.list.btnEdit }}</a-button>
+              <a-button type="link" @click="openEdit(record)">{{ t.list.btnEdit }}</a-button>
               <a-divider type="vertical"/>
               <a-popconfirm :title="t.list.confirmDelete" @confirm="() => handleDeleteOne(record.id)">
                 <a-button danger type="link">{{ t.list.btnDelete }}</a-button>
@@ -98,13 +98,20 @@
           />
         </template>
       </AstDataSection>
+
+      <SystemMessageForm
+          v-model:open="modal.open"
+          :confirm-loading="modal.submitting"
+          :initial="modal.initial"
+          :mode="modal.mode"
+          @submit="handleFormSubmit"
+      />
     </div>
   </AstPageShell>
 </template>
 
 <script lang="ts" setup>
 import {computed, reactive, ref} from 'vue'
-import {useRouter} from 'vue-router'
 import {message, Modal} from 'ant-design-vue'
 import {DeleteOutlined, PlusOutlined, ReloadOutlined} from '@ant-design/icons-vue'
 import AstPageShell from '@/components/home/AstPageShell.vue'
@@ -113,11 +120,10 @@ import AstDataView from '@/components/home/AstDataView.vue'
 import AstPagination from '@/components/home/AstPagination.vue'
 import AstSearchInput from '@/components/home/AstSearchInput.vue'
 import AstegmentedButton, {type SegmentedButton} from '@/components/home/AstegmentedButton.vue'
+import SystemMessageForm from './component/SystemMessageForm.vue'
 import {type PageResponse, type SystemMessage, systemMessageApi} from '@/api/systemMessage'
 import {usePageTranslation} from '@/locales/pages.ts'
 import {getDictionary} from '@/locales/dictionary/registry.ts'
-
-const router = useRouter()
 const t = usePageTranslation('system-message')
 const messageTypeDict = getDictionary('system.message.type')
 const messageLevelDict = getDictionary('system.message.level')
@@ -191,9 +197,17 @@ const actionButtons = computed<SegmentedButton[]>(() => [
     label: t.value.list.btnCreate,
     type: 'primary',
     icon: PlusOutlined,
-    onClick: goCreate
+    onClick: openCreate
   }
 ])
+
+// ---- modal state ----
+const modal = reactive({
+  open: false,
+  mode: 'create' as 'create' | 'edit',
+  submitting: false,
+  initial: null as SystemMessage | null
+})
 
 const currentPageIds = computed(() => list.value.map((item) => item.id).filter((id): id is number | string => !!id))
 const allCurrentSelected = computed(() => currentPageIds.value.length > 0 && currentPageIds.value.every((id) => selectedRowKeys.value.includes(id)))
@@ -260,13 +274,37 @@ const onPageChange = (p: number, size: number) => {
   void fetchList()
 }
 
-const goCreate = () => {
-  void router.push({name: 'AdminSystemMessageNew'})
+const openCreate = () => {
+  modal.mode = 'create'
+  modal.initial = null
+  modal.open = true
 }
 
-const goEdit = (row: SystemMessage) => {
-  if (row.id == null) return
-  void router.push({name: 'AdminSystemMessageEdit', params: {id: String(row.id)}})
+const openEdit = (row: SystemMessage) => {
+  modal.mode = 'edit'
+  modal.initial = row
+  modal.open = true
+}
+
+const handleFormSubmit = async (payload: SystemMessage) => {
+  modal.submitting = true
+  try {
+    let msg: string
+    if (modal.mode === 'create') {
+      delete (payload as { id?: unknown }).id
+      msg = await systemMessageApi.create(payload)
+    } else {
+      msg = await systemMessageApi.update(payload)
+    }
+    message.success(msg)
+    modal.open = false
+    void fetchList()
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err?.message || t.value.form.saveFailed)
+  } finally {
+    modal.submitting = false
+  }
 }
 
 const handleDeleteOne = async (id: number | string | undefined) => {
