@@ -1,12 +1,13 @@
 package com.astrsomn.starter.runtime.config.datasource;
 
 import com.astrsomn.api.runtime.common.mybatis.AstrsomnMybatisContributor;
+import com.astrsomn.starter.runtime.config.AstrsomnAuditInterceptor;
 import com.astrsomn.starter.runtime.config.AstrsomnProperties;
 import com.astrsomn.starter.runtime.config.AstrsomnRuntimeBeans;
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
-import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
@@ -17,7 +18,6 @@ import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
@@ -94,7 +94,7 @@ public class MybatisPlusConfig {
             AstrsomnProperties properties,
             @Qualifier(AstrsomnRuntimeBeans.MYBATIS_PLUS_INTERCEPTOR) MybatisPlusInterceptor mybatisPlusInterceptor,
             List<AstrsomnMybatisContributor> contributors,
-            ObjectProvider<MetaObjectHandler> metaObjectHandlerProvider) throws Exception {
+            AstrsomnAuditInterceptor auditInterceptor) throws Exception {
 
         MybatisSqlSessionFactoryBean factoryBean = new MybatisSqlSessionFactoryBean();
         factoryBean.setDataSource(dataSource);
@@ -139,17 +139,17 @@ public class MybatisPlusConfig {
         factoryBean.setTypeAliasesPackage(String.join(",", typeAliasesPackages));
 
 
-        factoryBean.setPlugins(mybatisPlusInterceptor);
+        factoryBean.setPlugins(mybatisPlusInterceptor, auditInterceptor);
 
 
         MybatisConfiguration mybatisConfiguration = new MybatisConfiguration();
         GlobalConfig globalConfig = GlobalConfigUtils.defaults()
                 .setSqlInjector(new DefaultSqlInjector());
         globalConfig.getDbConfig().setCapitalMode(true);
+        globalConfig.getDbConfig().setInsertStrategy(FieldStrategy.IGNORED);
         if (globalConfig.getIdentifierGenerator() == null) {
             globalConfig.setIdentifierGenerator(new DefaultIdentifierGenerator());
         }
-        metaObjectHandlerProvider.ifAvailable(globalConfig::setMetaObjectHandler);
         GlobalConfigUtils.setGlobalConfig(mybatisConfiguration, globalConfig);
         mybatisConfiguration.setMapUnderscoreToCamelCase(true);
         factoryBean.setConfiguration(mybatisConfiguration);

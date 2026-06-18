@@ -57,17 +57,23 @@ defineEmits<{
   border: none;
   border-left: 3px solid transparent;
   cursor: pointer;
-  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
     background: var(--bg-elevated);
     border-left-color: var(--border-default);
-    transform: translateX(2px);
+    transform: translateX(3px);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--shadow-color, #000) 8%, transparent);
   }
 
   &.active {
     background: var(--bg-elevated);
     border-left-color: var(--primary);
+  }
+
+  &:active {
+    transform: translateX(1px);
+    transition-duration: 0.05s;
   }
 
   .source-icon-box {
@@ -128,6 +134,7 @@ defineEmits<{
       .status-dot {
         width: 7px;
         height: 7px;
+        border-radius: 5px;
         flex-shrink: 0;
         transition: background 0.3s ease, box-shadow 0.3s ease;
 

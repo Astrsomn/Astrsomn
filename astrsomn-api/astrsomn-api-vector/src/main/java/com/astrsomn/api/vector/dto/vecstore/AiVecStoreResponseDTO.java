@@ -15,4 +15,10 @@ public class AiVecStoreResponseDTO extends AiVecStoreEntity {
 
     @TableField(exist = false)
     private String instanceName;
+
+    @TableField(exist = false)
+    private String accountKey;
+
+    @TableField(exist = false)
+    private String accountName;
 }

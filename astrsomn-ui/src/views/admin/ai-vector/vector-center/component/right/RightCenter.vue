@@ -465,6 +465,14 @@ watch(() => props.currentFolderId, (id) => {
   void fetchFolders()
 }, { immediate: true })
 
+// 切换 store 时重置文件夹导航并重新加载文件夹列表
+watch(() => props.storeId, (newStoreId, oldStoreId) => {
+  if (newStoreId === oldStoreId) return
+  currentFolderId.value = null
+  folderPath.value = []
+  void fetchFolders()
+})
+
 // Sync external folderPath changes (from RightTop via Main)
 watch(() => props.folderPath, (newPath) => {
   if (isInternalFolderNavigation) return
@@ -1279,6 +1287,70 @@ const handlePaste = async (targetFolderId: number | string | null) => {
       text-decoration: underline;
     }
   }
+}
+
+/* ── Staggered card entry for grid view ── */
+.file-grid > * {
+  animation: card-enter 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.file-grid > *:nth-child(2)  { animation-delay: 0s; }
+.file-grid > *:nth-child(3)  { animation-delay: 0.04s; }
+.file-grid > *:nth-child(4)  { animation-delay: 0.08s; }
+.file-grid > *:nth-child(5)  { animation-delay: 0.12s; }
+.file-grid > *:nth-child(6)  { animation-delay: 0.16s; }
+.file-grid > *:nth-child(7)  { animation-delay: 0.20s; }
+.file-grid > *:nth-child(8)  { animation-delay: 0.24s; }
+.file-grid > *:nth-child(9)  { animation-delay: 0.28s; }
+.file-grid > *:nth-child(10) { animation-delay: 0.32s; }
+.file-grid > *:nth-child(11) { animation-delay: 0.36s; }
+.file-grid > *:nth-child(12) { animation-delay: 0.40s; }
+.file-grid > *:nth-child(13) { animation-delay: 0.44s; }
+.file-grid > *:nth-child(14) { animation-delay: 0.48s; }
+.file-grid > *:nth-child(15) { animation-delay: 0.52s; }
+.file-grid > *:nth-child(16) { animation-delay: 0.56s; }
+.file-grid > *:nth-child(17) { animation-delay: 0.60s; }
+.file-grid > *:nth-child(18) { animation-delay: 0.64s; }
+.file-grid > *:nth-child(19) { animation-delay: 0.68s; }
+.file-grid > *:nth-child(20) { animation-delay: 0.72s; }
+
+/* ── Staggered row entry for list view ── */
+.file-list > a-dropdown {
+  animation: row-enter 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.file-list > a-dropdown:nth-child(1)  { animation-delay: 0s; }
+.file-list > a-dropdown:nth-child(2)  { animation-delay: 0.03s; }
+.file-list > a-dropdown:nth-child(3)  { animation-delay: 0.06s; }
+.file-list > a-dropdown:nth-child(4)  { animation-delay: 0.09s; }
+.file-list > a-dropdown:nth-child(5)  { animation-delay: 0.12s; }
+.file-list > a-dropdown:nth-child(6)  { animation-delay: 0.15s; }
+.file-list > a-dropdown:nth-child(7)  { animation-delay: 0.18s; }
+.file-list > a-dropdown:nth-child(8)  { animation-delay: 0.21s; }
+.file-list > a-dropdown:nth-child(9)  { animation-delay: 0.24s; }
+.file-list > a-dropdown:nth-child(10) { animation-delay: 0.27s; }
+.file-list > a-dropdown:nth-child(11) { animation-delay: 0.30s; }
+.file-list > a-dropdown:nth-child(12) { animation-delay: 0.33s; }
+.file-list > a-dropdown:nth-child(13) { animation-delay: 0.36s; }
+.file-list > a-dropdown:nth-child(14) { animation-delay: 0.39s; }
+.file-list > a-dropdown:nth-child(15) { animation-delay: 0.42s; }
+
+/* ── Upload drop zone entrance ── */
+.upload-drop-zone {
+  animation: zone-enter 0.4s 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes row-enter {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes zone-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
 

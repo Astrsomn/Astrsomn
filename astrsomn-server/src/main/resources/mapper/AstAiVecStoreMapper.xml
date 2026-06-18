@@ -24,11 +24,14 @@
         s.ENV_CODE,
         src.NAME AS SOURCE_NAME,
         src.EXTENSION_CODE AS SOURCE_PROVIDER,
-        inst.INSTANCE_NAME
+        inst.INSTANCE_NAME,
+        inst.ACCOUNT_KEY,
+        acc.ACCOUNT_NAME
         FROM
         `AI_VEC_STORE` s
         LEFT JOIN `AI_VEC_SOURCE` src ON s.SOURCE_ID = src.ID AND src.DELETED = 0
         LEFT JOIN `AI_INSTANCE` inst ON s.INSTANCE_KEY = inst.INSTANCE_KEY AND inst.DELETED = 0
+        LEFT JOIN `AI_ACCOUNT` acc ON inst.ACCOUNT_KEY = acc.ACCOUNT_KEY AND acc.DELETED = 0
         WHERE
         s.DELETED = 0
         <if test="req != null and req.sourceId != null">
@@ -68,10 +71,13 @@
                s.ENV_CODE,
                src.NAME           AS SOURCE_NAME,
                src.EXTENSION_CODE AS SOURCE_PROVIDER,
-               inst.INSTANCE_NAME
+               inst.INSTANCE_NAME,
+               inst.ACCOUNT_KEY,
+               acc.ACCOUNT_NAME
         FROM AI_VEC_STORE s
                  LEFT JOIN AI_VEC_SOURCE src ON s.SOURCE_ID = src.ID AND src.DELETED = 0
                  LEFT JOIN AI_INSTANCE inst ON s.INSTANCE_KEY = inst.INSTANCE_KEY AND inst.DELETED = 0
+                 LEFT JOIN AI_ACCOUNT acc ON inst.ACCOUNT_KEY = acc.ACCOUNT_KEY AND acc.DELETED = 0
         WHERE s.ID = #{id}
           AND s.DELETED = 0
     </select>

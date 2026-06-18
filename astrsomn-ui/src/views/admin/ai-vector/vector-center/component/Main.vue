@@ -146,5 +146,11 @@ watch(() => props.selectedStoreId, () => {
   justify-content: center;
   color: var(--text-secondary);
   font-size: 15px;
+  animation: vc-fade-in 0.4s 0.15s ease both, float-pulse 3s 0.6s ease-in-out infinite;
+}
+
+@keyframes float-pulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 </style>

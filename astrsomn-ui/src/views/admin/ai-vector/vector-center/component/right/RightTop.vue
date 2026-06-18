@@ -532,4 +532,28 @@ const handleUpload: UploadProps['customRequest'] = async (options) => {
     display: none;
   }
 }
+
+/* ── Header staggered entrance ── */
+.dashboard-header-mini {
+  animation: header-fade-in 0.3s ease both;
+
+  .nav-buttons { animation: header-el-in 0.35s 0.05s ease both; }
+  .v-sep:nth-of-type(1) { animation: header-el-in 0.35s 0.10s ease both; }
+  .source-capsule { animation: header-el-in 0.35s 0.15s ease both; }
+  .v-sep:nth-of-type(2) { animation: header-el-in 0.35s 0.20s ease both; }
+  .breadcrumb-section { animation: header-el-in 0.35s 0.25s ease both; }
+  .subtle-search { animation: header-el-in 0.35s 0.30s ease both; }
+  .view-size-switcher { animation: header-el-in 0.35s 0.35s ease both; }
+  .action-btns { animation: header-el-in 0.35s 0.40s ease both; }
+}
+
+@keyframes header-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes header-el-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>

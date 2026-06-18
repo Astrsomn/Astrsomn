@@ -129,15 +129,15 @@
       </a-spin>
     </div>
 
-    <a-modal
-      :footer="null"
+    <AstModal
       :open="detailVisible"
-      :title="t.dialog.detailTitle"
-      :width="600"
-      centered
+      :width="800"
+      body-height="auto"
+      main-padding="24px"
       @cancel="detailVisible = false"
       @update:open="(v: boolean) => (detailVisible = v)"
     >
+      <template #header-title>{{ t.dialog.detailTitle }}</template>
       <a-descriptions v-if="currentItem" :column="1" bordered class="msg-detail-desc" size="middle">
         <a-descriptions-item :label="t.dialog.detailFieldTitle">
           <span class="detail-title-text">{{ currentItem.title || '—' }}</span>
@@ -167,7 +167,7 @@
           {{ currentItem.createTime || '—' }}
         </a-descriptions-item>
       </a-descriptions>
-    </a-modal>
+    </AstModal>
   </AstModal>
 </template>
 

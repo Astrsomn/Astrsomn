@@ -627,6 +627,26 @@ watch(
   margin: 0 2px;
 }
 
+/* Staggered entrance for source cards */
+.source-section {
+  animation: source-slide-in 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.source-section:nth-child(1) { animation-delay: 0s; }
+.source-section:nth-child(2) { animation-delay: 0.06s; }
+.source-section:nth-child(3) { animation-delay: 0.12s; }
+.source-section:nth-child(4) { animation-delay: 0.18s; }
+.source-section:nth-child(5) { animation-delay: 0.24s; }
+.source-section:nth-child(6) { animation-delay: 0.30s; }
+.source-section:nth-child(7) { animation-delay: 0.36s; }
+.source-section:nth-child(8) { animation-delay: 0.42s; }
+.source-section:nth-child(9) { animation-delay: 0.48s; }
+.source-section:nth-child(10) { animation-delay: 0.54s; }
+
+@keyframes source-slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 .db-container {
   margin: 0 4px 6px 14px;
   padding-left: 10px;
@@ -644,11 +664,12 @@ watch(
   transition: color 0.2s ease, background 0.2s ease;
 }
 
-/* 展开动画 — 限制 max-height 避免动画期间出现滚动条 */
+/* 展开动画 — smoother cubic-bezier + staggered db-node entrance */
 .expand-enter-active,
 .expand-leave-active {
-  transition: max-height 0.25s ease, opacity 0.2s ease;
-  max-height: 300px;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease;
+  max-height: 600px;
   overflow: hidden;
 }
 
@@ -657,6 +678,27 @@ watch(
   max-height: 0;
   opacity: 0;
   margin-bottom: 0;
+}
+
+/* Staggered entrance for db nodes when source expands */
+.db-container > * {
+  animation: db-slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.db-container > *:nth-child(1) { animation-delay: 0s; }
+.db-container > *:nth-child(2) { animation-delay: 0.04s; }
+.db-container > *:nth-child(3) { animation-delay: 0.08s; }
+.db-container > *:nth-child(4) { animation-delay: 0.12s; }
+.db-container > *:nth-child(5) { animation-delay: 0.16s; }
+.db-container > *:nth-child(6) { animation-delay: 0.20s; }
+.db-container > *:nth-child(7) { animation-delay: 0.24s; }
+.db-container > *:nth-child(8) { animation-delay: 0.28s; }
+.db-container > *:nth-child(9) { animation-delay: 0.32s; }
+.db-container > *:nth-child(10) { animation-delay: 0.36s; }
+
+@keyframes db-slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 :deep(.danger-item) {
@@ -686,7 +728,7 @@ watch(
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
-  border-radius: 0;
+  border-radius: 50px;
   background: transparent;
 }
 

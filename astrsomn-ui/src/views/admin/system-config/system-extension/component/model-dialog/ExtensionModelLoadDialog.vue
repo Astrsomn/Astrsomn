@@ -1,42 +1,33 @@
 <template>
-  <a-modal
-    :closable="false"
-    :footer="null"
+  <AstModal
     :open="open"
-    :width="modalWidth"
-    centered
+    :width="800"
+    body-height="auto"
+    max-body-height="80vh"
     destroy-on-close
     wrap-class-name="extension-model-sync-wrap"
     @update:open="onUpdateOpen"
   >
-    <div class="ems-shell">
-      <header class="ems-modal-header">
-        <div class="ems-header-left">
-          <div class="ems-logo-box">
-            <CloudUploadOutlined />
-          </div>
-          <div class="ems-title-group">
-            <span class="ems-main-title">{{ t.loadDialog.title }}</span>
-            <span class="ems-sub-title">{{ extensionLabel || t.loadDialog.extension }}</span>
-          </div>
-        </div>
-        <div class="ems-header-actions">
-          <div class="ems-header-action-pair">
-            <a-button class="ems-header-action-btn ems-header-btn-cancel" @click="emit('cancel')">{{ t.loadDialog.cancel }}</a-button>
-            <a-button
-              :disabled="okDisabled"
-              :loading="confirming"
-              class="ems-header-action-btn ems-header-btn-ok"
-              type="primary"
-              @click="handleOk"
-            >
-              {{ t.loadDialog.confirm }}
-            </a-button>
-          </div>
-        </div>
-      </header>
+    <template #header-logo>
+      <div class="ems-logo-box">
+        <CloudUploadOutlined />
+      </div>
+    </template>
+    <template #header-title>{{ t.loadDialog.title }}</template>
+    <template #header-subtitle>{{ extensionLabel || t.loadDialog.extension }}</template>
+    <template #header-actions>
+      <a-button @click="emit('cancel')">{{ t.loadDialog.cancel }}</a-button>
+      <a-button
+        :disabled="okDisabled"
+        :loading="confirming"
+        type="primary"
+        @click="handleOk"
+      >
+        {{ t.loadDialog.confirm }}
+      </a-button>
+    </template>
 
-      <div class="ems-body-scroll">
+    <div class="ems-body-scroll">
         <div v-if="previewError" class="ems-modal-alert">
           <a-alert :message="previewError" show-icon type="error" />
         </div>
@@ -110,13 +101,13 @@
           </template>
         </a-spin>
       </div>
-    </div>
-  </a-modal>
+  </AstModal>
 </template>
 
 <script lang="ts" setup>
 import {computed, ref, watch} from 'vue'
 import {CloudUploadOutlined} from '@ant-design/icons-vue'
+import AstModal from '@/components/home/AstModal.vue'
 import type {ExtensionModelLoadPreview} from '@/api/systemExtension.ts'
 import {modelTypeColor, modelTypeLabel} from '../../utils/extensionDisplay.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
@@ -137,7 +128,6 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const modalWidth = 'min(92vw, 820px)'
 const confirming = ref(false)
 
 const selectedRowKeys = ref<string[]>([])

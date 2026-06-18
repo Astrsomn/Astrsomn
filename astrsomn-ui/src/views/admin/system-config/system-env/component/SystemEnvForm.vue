@@ -1,12 +1,17 @@
 <template>
-  <a-modal
-      v-model:open="open"
+  <AstModal
+      :open="open"
       :confirm-loading="confirmLoading"
-      :title="mode === 'create' ? t.form.createTitle : t.form.editTitle"
-      width="560px"
+      :confirm-text="mode === 'create' ? t.form.btnCreate : t.form.btnSave"
+      :width="800"
+      body-height="auto"
+      main-padding="24px"
+      max-body-height="85vh"
       @cancel="onCancel"
-      @ok="handleOk"
+      @confirm="handleOk"
+      @update:open="onCancel"
   >
+    <template #header-title>{{ mode === 'create' ? t.form.createTitle : t.form.editTitle }}</template>
     <a-form
         ref="formRef"
         :model="form"
@@ -30,12 +35,13 @@
         <a-textarea v-model:value="form.description" :auto-size="{ minRows: 2, maxRows: 6 }" :placeholder="t.form.placeholderDescription"/>
       </a-form-item>
     </a-form>
-  </a-modal>
+  </AstModal>
 </template>
 
 <script lang="ts" setup>
 import {reactive, ref, watch} from 'vue'
 import type {FormInstance} from 'ant-design-vue'
+import AstModal from '@/components/home/AstModal.vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 import type {SystemEnv} from '@/api/systemEnv.ts'
 
@@ -103,6 +109,6 @@ function onCancel() {
 
 <style scoped>
 .env-form {
-  margin-top: 4px;
+  max-width: 560px;
 }
 </style>

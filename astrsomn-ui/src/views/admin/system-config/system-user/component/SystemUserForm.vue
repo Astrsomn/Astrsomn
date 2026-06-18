@@ -1,12 +1,17 @@
 <template>
-  <a-modal
-      v-model:open="open"
+  <AstModal
+      :open="open"
       :confirm-loading="confirmLoading"
-      :title="mode === 'create' ? t.form.createTitle : t.form.editTitle"
-      width="560px"
+      :confirm-text="mode === 'create' ? t.form.btnCreate : t.form.btnSave"
+      :width="800"
+      body-height="auto"
+      main-padding="24px"
+      max-body-height="85vh"
       @cancel="onCancel"
-      @ok="handleOk"
+      @confirm="handleOk"
+      @update:open="onCancel"
   >
+    <template #header-title>{{ mode === 'create' ? t.form.createTitle : t.form.editTitle }}</template>
     <a-form
         ref="formRef"
         :model="form"
@@ -58,12 +63,13 @@
           type="warning"
       />
     </a-form>
-  </a-modal>
+  </AstModal>
 </template>
 
 <script lang="ts" setup>
 import {computed, reactive, ref, watch} from 'vue'
 import type {FormInstance} from 'ant-design-vue'
+import AstModal from '@/components/home/AstModal.vue'
 import type {SystemUser} from '@/api/systemUser.ts'
 import {type SystemEnv, systemEnvApi} from '@/api/systemEnv.ts'
 import {usePageTranslation} from '@/locales/pages.ts'
@@ -203,7 +209,7 @@ function onCancel() {
 
 <style scoped>
 .user-form {
-  margin-top: 4px;
+  max-width: 560px;
 }
 
 .form-tip {

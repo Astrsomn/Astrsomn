@@ -169,16 +169,22 @@ const getFileExtension = (name: string) => {
   border-radius: var(--radius-lg);
   background: var(--bg-card);
   border: 1px solid var(--border-default) !important;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 
   &:hover {
     background: var(--bg-elevated);
     border-color: var(--primary) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--shadow-color, #000) 12%, transparent);
 
     .action-group {
       opacity: 1;
       transform: translateY(0);
+    }
+
+    .icon-box {
+      transform: scale(1.08);
     }
   }
 
