@@ -48,7 +48,7 @@ public final class ChromaVecStoreHandler extends AbstractVecStore {
 
     @Override
     public long count() {
-        return 1L;
+        return ChromaCollectionAdmin.collectionCount(chromaSource.getEntity(), collectionNameRequired());
     }
 
     @Override

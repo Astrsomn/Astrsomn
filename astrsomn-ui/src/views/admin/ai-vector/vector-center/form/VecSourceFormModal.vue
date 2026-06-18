@@ -262,8 +262,9 @@ const formRow = form as Record<string, string | undefined>
 
 const providerParamMap: Record<string, string[]> = {
   qdrant: ['host', 'port', 'token'],
-  chroma: ['host', 'port'],
-  milvus: ['host', 'port', 'username', 'password', 'databaseName']
+  chroma: ['host', 'port', 'token'],
+  milvus: ['host', 'port', 'username', 'password', 'databaseName'],
+  redis: ['host', 'port', 'username', 'password', 'token']
 }
 
 const paramCodes = computed(() => {
