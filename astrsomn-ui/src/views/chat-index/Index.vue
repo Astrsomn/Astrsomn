@@ -515,31 +515,35 @@ const readStreamText = async (response: Response, messageId: string) => {
   await readAstroStream(response, (event) => applyStreamEvent(messageId, event))
 }
 
+const loadInstances = async (agentKey?: string) => {
+  const param: Record<string, string> = {status: 'enabled', modelType: 'chat'}
+  if (agentKey) {
+    param.bizKey = agentKey
+  }
+  const instanceResp = await aiInstanceApi.queryPage({
+    pageNo: 1,
+    pageSize: 200,
+    param
+  })
+  chatInstanceOptions.value = instanceResp.list || []
+}
+
 const loadOptions = async () => {
   optionsLoading.value = true
   try {
-    const [instanceResp, agentResp] = await Promise.all([
-      aiInstanceApi.queryPage({
-        pageNo: 1,
-        pageSize: 200,
-        param: {status: 'enabled', modelType: 'chat'}
-      }),
-      aiAgentApi.queryPage({
-        pageNo: 1,
-        pageSize: 100,
-        param: {status: 'enabled'}
-      })
-    ])
-
-    chatInstanceOptions.value = instanceResp.list || []
+    const agentResp = await aiAgentApi.queryPage({
+      pageNo: 1,
+      pageSize: 100,
+      param: {status: 'enabled'}
+    })
     agentOptions.value = agentResp.list || []
-
-    console.log('Agent options loaded:', agentOptions.value)
-    console.log('Chat instance options loaded:', chatInstanceOptions.value)
 
     if (!selectedAgent.value || !agentOptions.value.some((item) => item.agentKey === selectedAgent.value)) {
       selectedAgent.value = agentOptions.value[0]?.agentKey || undefined
     }
+
+    await loadInstances(selectedAgent.value)
+
     if (
         !selectedChatInstanceKey.value ||
         !chatInstanceOptions.value.some((item) => item.instanceKey === selectedChatInstanceKey.value)
@@ -554,9 +558,15 @@ const loadOptions = async () => {
   }
 }
 
-watch(selectedAgent, (agentKey, previousBizKey) => {
+watch(selectedAgent, async (agentKey, previousBizKey) => {
   if (agentKey && agentKey !== previousBizKey) {
-    syncChatInstanceWithAgent(agentKey)
+    optionsLoading.value = true
+    try {
+      await loadInstances(agentKey)
+      syncChatInstanceWithAgent(agentKey)
+    } finally {
+      optionsLoading.value = false
+    }
   }
 })
 

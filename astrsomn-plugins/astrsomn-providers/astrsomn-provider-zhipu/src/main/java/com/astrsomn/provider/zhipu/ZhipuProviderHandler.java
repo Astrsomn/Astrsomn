@@ -23,8 +23,26 @@ import java.util.List;
 import com.astrsomn.api.runtime.common.dto.model.ProviderModelDTO;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class ZhipuProviderHandler extends AbstractModelProviderHandler {
-    private static final String DEFAULT_BASE_URL = "https://open.bigmodel.cn/api/paas/v4";
+    private static final Logger log = LoggerFactory.getLogger(ZhipuProviderHandler.class);
+    private static final String DEFAULT_BASE_URL = "https://open.bigmodel.cn";
+
+    static {
+        // Eagerly trigger AuthorizationUtils class init to surface any JJWT version conflicts early
+        try {
+            Class<?> authUtilsClass = Class.forName("dev.langchain4j.community.model.zhipu.AuthorizationUtils");
+            log.info("AuthorizationUtils preloaded successfully: {}", authUtilsClass.getName());
+        } catch (Throwable t) {
+            log.error("Failed to preload AuthorizationUtils — root cause chain:", t);
+            Throwable root = t;
+            while (root.getCause() != null) {
+                root = root.getCause();
+                log.error("  Caused by: {}: {}", root.getClass().getName(), root.getMessage());
+            }
+        }
+    }
 
     private static void applyChatSetting(ZhipuAiChatModel.ZhipuAiChatModelBuilder builder, AstroChatParam<?> param) {
         ChatSetting chatSetting = param.getChatSetting();
@@ -136,9 +154,9 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
                 .baseUrl(DEFAULT_BASE_URL)
                 .apiKey(param.getModelSetting().getApiKey())
                 .model(modelId(param));
-        if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
-            builder.baseUrl(param.getModelSetting().getApiUrl());
-        }
+//        if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
+//            builder.baseUrl(param.getModelSetting().getApiUrl());
+//        }
         if (CollectionUtils.isNotEmpty(param.getChatModelListeners())) {
             builder.listeners(param.getChatModelListeners());
         }
@@ -151,9 +169,9 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
                 .baseUrl(DEFAULT_BASE_URL)
                 .apiKey(param.getModelSetting().getApiKey())
                 .model(modelId(param));
-        if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
-            builder.baseUrl(param.getModelSetting().getApiUrl());
-        }
+//        if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
+//            builder.baseUrl(param.getModelSetting().getApiUrl());
+//        }
         if (CollectionUtils.isNotEmpty(param.getChatModelListeners())) {
             builder.listeners(param.getChatModelListeners());
         }
@@ -166,9 +184,9 @@ public class ZhipuProviderHandler extends AbstractModelProviderHandler {
                 .baseUrl(DEFAULT_BASE_URL)
                 .apiKey(param.getModelSetting().getApiKey())
                 .model(modelId(param));
-        if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
-            builder.baseUrl(param.getModelSetting().getApiUrl());
-        }
+//        if (StringUtils.isNotBlank(param.getModelSetting().getApiUrl())) {
+//            builder.baseUrl(param.getModelSetting().getApiUrl());
+//        }
         applyEmbeddingSetting(builder, param);
         return builder.build();
     }

@@ -48,6 +48,18 @@
         <if test="req != null and req.status != null and req.status != ''">
             AND AA.STATUS = #{req.status}
         </if>
+        <if test="req != null and req.extensionCode != null and req.extensionCode != ''">
+            AND EXISTS (
+                SELECT 1 FROM AI_INSTANCE AI3
+                JOIN AI_MODEL M ON M.MODEL_KEY = AI3.MODEL_KEY
+                    AND M.ENV_CODE = AI3.ENV_CODE
+                    AND (M.DELETED = 0 OR M.DELETED IS NULL)
+                WHERE AI3.BIZ_KEY = AA.AGENT_KEY
+                  AND AI3.IS_DEFAULT = 'Y'
+                  AND (AI3.DELETED = 0 OR AI3.DELETED IS NULL)
+                  AND M.EXTENSION_CODE = #{req.extensionCode}
+            )
+        </if>
         ORDER BY
         AA.CREATE_TIME DESC
     </select>

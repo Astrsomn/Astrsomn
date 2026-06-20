@@ -51,6 +51,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>dev.langchain4j:*</include>
+                                    <include>com.google.guava:guava</include>
                                 </includes>
                             </artifactSet>
                             <filters>

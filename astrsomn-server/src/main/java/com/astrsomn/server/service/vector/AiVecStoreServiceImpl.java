@@ -62,6 +62,11 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         }
         if (Objects.nonNull(req.getModelKey())) {
             target.setModelKey(req.getModelKey());
+            // When modelKey is updated but instanceKey is not provided,
+            // clear the old instanceKey so a new instance can be auto-created
+            if (Objects.isNull(req.getInstanceKey())) {
+                target.setInstanceKey(null);
+            }
         }
         if (Objects.nonNull(req.getChunkStrategy())) {
             target.setChunkStrategy(req.getChunkStrategy());
@@ -198,6 +203,34 @@ public class AiVecStoreServiceImpl extends ServiceImpl<AiVecStoreMapper, AiVecSt
         AiVecStoreEntity after = new AiVecStoreEntity();
         BeanUtils.copyProperties(before, after);
         mergeVecStoreUpdate(after, request);
+
+        // Auto-create embedding instance when modelKey is changed and instanceKey was cleared
+        if (StringUtils.isBlank(after.getInstanceKey()) && StringUtils.isNotBlank(after.getModelKey())) {
+            String autoInstanceKey = "vec-" + after.getModelKey() + "-" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+            AiInstanceCreateRequestDTO instReq = new AiInstanceCreateRequestDTO();
+            instReq.setInstanceKey(autoInstanceKey);
+            instReq.setModelKey(after.getModelKey());
+            instReq.setInstanceName("vec-auto-" + after.getModelKey());
+            instReq.setStatus(AiInstanceEnum.StatusEnum.ENABLED.getCode());
+            if (StringUtils.isNotBlank(request.getAccountKey())) {
+                instReq.setAccountKey(request.getAccountKey());
+            }
+            aiInstanceService.create(instReq);
+            after.setInstanceKey(autoInstanceKey);
+
+            // Set bizKey on the new instance to point back to this store
+            AiInstanceEntity inst = aiInstanceService.getOne(
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<AiInstanceEntity>()
+                            .eq(AiInstanceEntity::getInstanceKey, autoInstanceKey)
+                            .last("LIMIT 1"));
+            if (Objects.nonNull(inst)) {
+                String bizKeyVal = String.valueOf(after.getId());
+                if (!bizKeyVal.equals(StringUtils.trimToNull(inst.getBizKey()))) {
+                    inst.setBizKey(bizKeyVal);
+                    aiInstanceService.updateById(inst);
+                }
+            }
+        }
 
         AiVecSourceEntity afterSrc = aiVecSourceService.getById(after.getSourceId());
         if (Objects.isNull(afterSrc)) {

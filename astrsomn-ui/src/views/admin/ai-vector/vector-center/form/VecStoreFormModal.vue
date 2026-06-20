@@ -293,6 +293,7 @@ function emptyForm(): AiVecStore {
     dimension: undefined as unknown as number,
     distanceMetric: 'cosine',
     metadataSchema: '',
+    instanceKey: undefined,
     modelKey: '',
     accountKey: '',
     chunkStrategy: 'RECURSIVE',
@@ -345,6 +346,7 @@ watch(() => [open.value, props.initial, props.defaultSourceId] as const, ([isOpe
 
 function handleModelSelect(model: AiModel) {
   form.modelKey = model.modelKey || ''
+  form.instanceKey = undefined
   selectedModelName.value = model.modelName || ''
   if (model.responseLimit && model.responseLimit > 0) {
     form.dimension = model.responseLimit
@@ -370,6 +372,7 @@ function handleAccountSelect(account: AiAccount) {
   // 若已选模型与当前账号提供方不一致，则清空模型
   if (selectedProviderCode.value && account.extensionCode && selectedProviderCode.value !== account.extensionCode) {
     form.modelKey = ''
+    form.instanceKey = undefined
     selectedModelName.value = ''
     selectedProviderCode.value = account.extensionCode
   }

@@ -273,7 +273,7 @@ const PROVIDER_DEFAULT_URLS: Record<string, string> = {
   minimax: 'https://api.minimax.chat/v1',
   moonshot: 'https://api.moonshot.cn/v1',
   tencent: 'https://api.lkeap.cloud.tencent.com/v1',
-  volcengine: 'https://ark.cn-beijing.volces.com',
+  volcengine: 'https://ark.cn-beijing.volces.com/api/v3',
   ollama: 'http://localhost:11434',
 }
 

@@ -81,27 +81,35 @@ public class AiAccountServiceImpl extends ServiceImpl<AiAccountMapper, AiAccount
         if (Objects.isNull(request.getId())) {
             throw new BusinessException(AiAccountErrorEnum.ACCOUNT_PARAM_ERROR);
         }
-        AiAccountEntity existing = getById(request.getId());
-        if (Objects.isNull(existing)) {
+        AiAccountEntity entity = getById(request.getId());
+        if (Objects.isNull(entity)) {
             throw new BusinessException(AiAccountErrorEnum.ACCOUNT_NOT_FOUND);
         }
-        AiAccountEntity entity = new AiAccountEntity();
-        BeanUtils.copyProperties(request, entity);
 
-        if (Objects.nonNull(request.getApiKey())) {
+        if (StringUtils.isNotBlank(request.getAccountName())) {
+            entity.setAccountName(request.getAccountName());
+        }
+        if (StringUtils.isNotBlank(request.getApiKey())) {
             entity.setApiKey(CryptoUtil.encrypt(request.getApiKey()));
         }
-        if (Objects.nonNull(request.getApiSecret())) {
+        if (StringUtils.isNotBlank(request.getApiSecret())) {
             entity.setApiSecret(CryptoUtil.encrypt(request.getApiSecret()));
         }
-        if (isAccountKeyReferencedByInstance(existing.getAccountKey(), existing.getEnvCode())) {
-            entity.setAccountKey(existing.getAccountKey());
+        if (Objects.nonNull(request.getApiUrl())) {
+            entity.setApiUrl(request.getApiUrl());
+        }
+        if (Objects.nonNull(request.getAccountTokens())) {
+            entity.setAccountTokens(request.getAccountTokens());
         }
         if (Objects.nonNull(request.getStatus())) {
             entity.setStatus(request.getStatus());
         }
         if (StringUtils.isNotBlank(request.getExtensionCode())) {
             entity.setExtensionCode(request.getExtensionCode());
+        }
+        if (StringUtils.isNotBlank(request.getAccountKey())
+                && !isAccountKeyReferencedByInstance(entity.getAccountKey(), entity.getEnvCode())) {
+            entity.setAccountKey(request.getAccountKey());
         }
 
         boolean result = updateById(entity);

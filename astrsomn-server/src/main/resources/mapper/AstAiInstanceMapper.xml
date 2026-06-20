@@ -73,6 +73,9 @@
             AND (M.DELETED = 0 OR M.DELETED IS NULL)
             )
         </if>
+        <if test="req != null and req.bizKey != null and req.bizKey != ''">
+            AND AI.BIZ_KEY = #{req.bizKey}
+        </if>
         ORDER BY
         AI.CREATE_TIME DESC
     </select>

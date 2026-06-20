@@ -74,7 +74,7 @@ for %%m in (astrsomn-provider-openai astrsomn-provider-qianfan astrsomn-provider
 set "VECTOR_DIR=%PROJECT_ROOT%\astrsomn-plugins\astrsomn-vector"
 
 echo --- Packaging Vector Stores ---
-for %%m in (astrsomn-vector-chroma astrsomn-vector-milvus astrsomn-vector-qdrant astrsomn-vector-redis) do (
+for %%m in (astrsomn-vector-chroma astrsomn-vector-milvus astrsomn-vector-qdrant ) do (
     echo ----------------------------------------
     echo Packaging: %%m
     echo ----------------------------------------

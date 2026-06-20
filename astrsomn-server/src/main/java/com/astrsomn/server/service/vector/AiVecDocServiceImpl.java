@@ -202,7 +202,8 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         String statusRaw = StringUtils.trimToNull(doc.getSyncStatus());
         if (Objects.isNull(statusRaw)
                 || (!AiVecDocEnum.SyncStatus.PENDING.getCode().equalsIgnoreCase(statusRaw)
-                    && !AiVecDocEnum.SyncStatus.CHUNKED.getCode().equalsIgnoreCase(statusRaw))) {
+                    && !AiVecDocEnum.SyncStatus.CHUNKED.getCode().equalsIgnoreCase(statusRaw)
+                    && !AiVecDocEnum.SyncStatus.FAILED.getCode().equalsIgnoreCase(statusRaw))) {
             throw new BusinessException(AstVecDocErrorEnum.DOC_VECTORIZE_STATUS_INVALID);
         }
         if (Objects.isNull(doc.getCollectionId())) {
@@ -221,6 +222,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         }
 
         String taskId = UUID.randomUUID().toString().replace("-", "");
+        boolean fromChunks = AiVecDocEnum.SyncStatus.CHUNKED.getCode().equalsIgnoreCase(statusRaw);
         doc.setSyncStatus(AiVecDocEnum.SyncStatus.VECTORING.getCode());
         doc.setVectorizeTaskId(taskId);
         doc.setVectorizeProgress(0);
@@ -229,7 +231,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         doc.setDoneSegments(0);
         updateById(doc);
 
-        doVectorizeAsync(id, taskId);
+        doVectorizeAsync(id, taskId, fromChunks);
 
         return BaseResponse.success(taskId);
     }
@@ -251,10 +253,9 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
     }
 
     @org.springframework.scheduling.annotation.Async("vectorizeExecutor")
-    public void doVectorizeAsync(Long docId, String taskId) {
+    public void doVectorizeAsync(Long docId, String taskId, boolean fromChunks) {
         try {
-            AiVecDocEntity doc = getById(docId);
-            if (Objects.nonNull(doc) && AiVecDocEnum.SyncStatus.CHUNKED.getCode().equalsIgnoreCase(doc.getSyncStatus())) {
+            if (fromChunks) {
                 doVectorizeFromChunks(docId);
             } else {
                 doVectorizeSync(docId);
@@ -794,6 +795,8 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
             }
         }
 
+        boolean fromChunks = AiVecDocEnum.SyncStatus.CHUNKED.getCode().equalsIgnoreCase(status);
+
         String taskId = UUID.randomUUID().toString().replace("-", "");
         doc.setSyncStatus(AiVecDocEnum.SyncStatus.VECTORING.getCode());
         doc.setDocIdInStore(null);
@@ -804,7 +807,7 @@ public class AiVecDocServiceImpl extends ServiceImpl<AiVecDocMapper, AiVecDocEnt
         doc.setDoneSegments(0);
         updateById(doc);
 
-        doVectorizeAsync(id, taskId);
+        doVectorizeAsync(id, taskId, fromChunks);
 
         return BaseResponse.success(taskId);
     }
