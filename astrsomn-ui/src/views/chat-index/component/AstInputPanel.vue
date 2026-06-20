@@ -156,7 +156,7 @@ import type {AiAgent} from '@/api/aiAgent.ts'
 import type {AiInstance} from '@/api/aiInstance.ts'
 import type {UploadProps} from 'ant-design-vue'
 import {message} from 'ant-design-vue'
-import {computed, onBeforeUnmount, ref, watch} from 'vue'
+import {computed, nextTick, onBeforeUnmount, ref, watch} from 'vue'
 import {usePageTranslation} from '@/locales/pages.ts'
 
 const props = withDefaults(defineProps<{
@@ -479,9 +479,19 @@ const handleSend = () => {
   }
   const text = draft.value.trim()
   if (!text && uploadedFiles.value.length === 0) return
+  // Clear synchronously for normal flow
   draft.value = ''
   emit('update:userInput', '')
   emit('submit', text)
+  // Double-clear after nextTick as a safety net: late input events (blur on
+  // send-button click, IME compositionend after keydown) can emit update:value
+  // that restores the old text after our synchronous clear.
+  nextTick(() => {
+    if (draft.value !== '') {
+      draft.value = ''
+      emit('update:userInput', '')
+    }
+  })
 }
 
 onBeforeUnmount(() => {
