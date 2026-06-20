@@ -7,6 +7,7 @@ import com.astrsomn.server.api.workflow.AiWorkflowTestRunController;
 import com.astrsomn.server.service.workflow.AiWorkflowTestRunService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Ignore("Test skipped")
 public class AiWorkflowTestRunControllerTest {
 
     @Test

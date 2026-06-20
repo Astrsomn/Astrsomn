@@ -173,10 +173,7 @@ const getDefaultChatInstanceKey = (agentKey?: string) => {
 }
 
 const syncChatInstanceWithAgent = (agentKey?: string) => {
-  const preferred = getAgentPreferredChatInstanceKey(agentKey)
-  if (preferred) {
-    selectedChatInstanceKey.value = preferred
-  }
+  selectedChatInstanceKey.value = getDefaultChatInstanceKey(agentKey)
 }
 
 const getDraftStorageKey = (memoryKey: string) => `${CHAT_DRAFT_KEY_PREFIX}${memoryKey}`

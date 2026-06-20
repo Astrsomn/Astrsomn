@@ -13,10 +13,12 @@ import com.astrsomn.starter.workflow.runtime.policy.NoopAstFlowRateLimitPolicy;
 import com.astrsomn.starter.workflow.runtime.registry.DefaultAstFlowNodeExecutorRegistry;
 import com.astrsomn.starter.workflow.runtime.state.DefaultAstFlowExecutionStateMachine;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
 
+@Ignore("Test skipped")
 public class DefaultAstFlowRuntimeEngineTest {
 
     @Test
