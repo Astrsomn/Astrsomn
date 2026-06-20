@@ -49,6 +49,9 @@ export const systemUserTranslation = {
     validationUsername: 'Please enter username',
     validationPassword: 'Please set a password',
     validationRole: 'Please select a role',
+    btnCreate: 'Create',
+    btnSave: 'Save',
+    btnCancel: 'Cancel',
     tipMessage: 'Login uses BCrypt verification. Roles: Super Admin can manage users/environments and all configurations; Environment Admin can only manage AI configurations for their environment; User cannot access admin panel.',
   },
 }

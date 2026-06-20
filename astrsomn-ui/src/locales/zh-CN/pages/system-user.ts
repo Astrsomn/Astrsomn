@@ -49,6 +49,9 @@ export const systemUserTranslation = {
     validationUsername: '请输入用户名',
     validationPassword: '请设置密码',
     validationRole: '请选择角色',
+    btnCreate: '创建',
+    btnSave: '保存',
+    btnCancel: '取消',
     tipMessage: '登录校验使用 BCrypt。角色：超级管理员可管用户/环境与全部配置；环境管理员仅能管本环境相关 AI 配置；普通用户不能进后台配置。',
   },
 }

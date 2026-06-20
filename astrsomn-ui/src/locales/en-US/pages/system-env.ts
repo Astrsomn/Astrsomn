@@ -35,6 +35,9 @@ export const systemEnvTranslation = {
     placeholderEnvKey: 'e.g. DEV, SIT, UAT, PRO',
     placeholderDescription: 'Optional',
     validationEnvName: 'Please enter environment name',
+    btnCreate: 'Create',
+    btnSave: 'Save',
+    btnCancel: 'Cancel',
     validationEnvKey: 'Please enter environment key',
   },
 }

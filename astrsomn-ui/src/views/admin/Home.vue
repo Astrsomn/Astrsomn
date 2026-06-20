@@ -29,13 +29,19 @@
 </template>
 
 <script lang="ts" setup>
-import {computed} from 'vue';
+import {computed, onMounted} from 'vue';
 import {useRoute} from 'vue-router';
 import AppHeader from '@/components/top/AppHeader.vue';
 import ActivityBar from '@/components/global/ActivityBar.vue';
 import AdminSidebar from '@/components/global/AdminSidebar.vue';
+import {useGuide} from '@/composables/useGuide.ts';
 
 const route = useRoute();
+const {initGuideAfterLogin} = useGuide();
+
+onMounted(() => {
+  initGuideAfterLogin(800);
+});
 
 const isAdminRoute = computed(() => route.path.startsWith('/admin'));
 const isChatRoute = computed(

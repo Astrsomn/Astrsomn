@@ -209,7 +209,7 @@ function onCancel() {
 
 <style scoped>
 .user-form {
-  max-width: 560px;
+  width: 100%;
 }
 
 .form-tip {

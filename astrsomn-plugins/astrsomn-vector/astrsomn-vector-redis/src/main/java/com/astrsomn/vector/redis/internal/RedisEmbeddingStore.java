@@ -22,6 +22,8 @@ import dev.langchain4j.store.embedding.filter.logical.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.commands.ProtocolCommand;
+import redis.clients.jedis.params.ScanParams;
+import redis.clients.jedis.resps.ScanResult;
 import redis.clients.jedis.util.SafeEncoder;
 
 import java.nio.ByteBuffer;
@@ -49,7 +51,6 @@ public class RedisEmbeddingStore implements EmbeddingStore<TextSegment> {
     private static final String TEXT_FIELD = "text_segment";
 
     private static final ProtocolCommand FT_SEARCH_CMD = () -> SafeEncoder.encode("FT.SEARCH");
-    private static final ProtocolCommand FT_INFO_CMD = () -> SafeEncoder.encode("FT.INFO");
 
     private final RedisVecSourceHandler source;
 
@@ -73,11 +74,21 @@ public class RedisEmbeddingStore implements EmbeddingStore<TextSegment> {
 
     @Override
     public void add(String id, Embedding embedding) {
-        add(id, embedding, null);
+        addInternal(id, embedding, null);
     }
 
     @Override
-    public void add(String id, Embedding embedding, TextSegment segment) {
+    public String add(Embedding embedding, TextSegment segment) {
+        String id = UUID.randomUUID().toString();
+        addInternal(id, embedding, segment);
+        return id;
+    }
+
+    /**
+     * Internal add with explicit ID. Not part of the public EmbeddingStore interface
+     * (the interface only exposes {@code add(Embedding, Embedded)} with auto-generated ID).
+     */
+    public void addInternal(String id, Embedding embedding, TextSegment segment) {
         byte[] key = SafeEncoder.encode(prefix + id);
 
         source.withJedis(jedis -> {
@@ -86,10 +97,11 @@ public class RedisEmbeddingStore implements EmbeddingStore<TextSegment> {
             fields.put(SafeEncoder.encode(TEXT_FIELD), SafeEncoder.encode(
                     segment != null && segment.text() != null ? segment.text() : ""));
             if (segment != null && segment.metadata() != null) {
-                for (Map.Entry<String, String> e : segment.metadata().toMap().entrySet()) {
-                    String v = e.getValue();
+                for (Map.Entry<String, Object> e : segment.metadata().toMap().entrySet()) {
+                    Object rawV = e.getValue();
+                    String v = rawV != null ? String.valueOf(rawV) : "";
                     fields.put(SafeEncoder.encode(e.getKey()),
-                            SafeEncoder.encode(v != null ? v : ""));
+                            SafeEncoder.encode(v));
                 }
             }
             jedis.hset(key, fields);
@@ -111,7 +123,7 @@ public class RedisEmbeddingStore implements EmbeddingStore<TextSegment> {
         int n = Math.min(embeddings.size(), segments.size());
         for (int i = 0; i < n; i++) {
             String id = i < ids.size() ? ids.get(i) : UUID.randomUUID().toString();
-            add(id, embeddings.get(i), segments.get(i));
+            addInternal(id, embeddings.get(i), segments.get(i));
         }
     }
 
@@ -165,18 +177,14 @@ public class RedisEmbeddingStore implements EmbeddingStore<TextSegment> {
     @Override
     public void removeAll() {
         source.withJedis(jedis -> {
-            // Drop and recreate the index to remove all data
-            // Use SCAN to find all keys with prefix and DEL them
             List<String> keys = new ArrayList<>();
-            String cursor = "0";
+            String cursor = ScanParams.SCAN_POINTER_START;
+            ScanParams scanParams = new ScanParams().match(prefix + "*").count(100);
             do {
-                List<?> scanResult = jedis.scan(cursor, SafeEncoder.encode(prefix + "*"));
-                cursor = SafeEncoder.encode((byte[]) ((List<?>) scanResult.get(0)));
-                List<byte[]> scannedKeys = (List<byte[]>) scanResult.get(1);
-                for (byte[] k : scannedKeys) {
-                    keys.add(SafeEncoder.encode(k));
-                }
-            } while (!cursor.equals("0"));
+                ScanResult<String> scanResult = jedis.scan(cursor, scanParams);
+                keys.addAll(scanResult.getResult());
+                cursor = scanResult.getCursor();
+            } while (!cursor.equals(ScanParams.SCAN_POINTER_START));
             if (!keys.isEmpty()) {
                 jedis.del(keys.toArray(new String[0]));
             }
@@ -221,7 +229,7 @@ public class RedisEmbeddingStore implements EmbeddingStore<TextSegment> {
             return parseFtSearchResults(jedis.getClient().getOne(), queryVector, minScore);
         });
 
-        return () -> matches;
+        return new EmbeddingSearchResult<>(matches);
     }
 
     // ========== helpers ==========

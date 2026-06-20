@@ -35,6 +35,9 @@ export const systemEnvTranslation = {
     placeholderEnvKey: '如 DEV、SIT、UAT、PRO',
     placeholderDescription: '可选',
     validationEnvName: '请输入环境名称',
+    btnCreate: '创建',
+    btnSave: '保存',
+    btnCancel: '取消',
     validationEnvKey: '请输入环境 Key',
   },
 }

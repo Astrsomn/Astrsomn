@@ -38,6 +38,7 @@ export const systemConfigTranslation = {
     editSubtitle: 'Modify system configuration item',
     btnCreate: 'Create',
     btnSave: 'Save',
+    btnCancel: 'Cancel',
     labelConfigKey: 'Config Key',
     labelConfigGroup: 'Config Group',
     labelConfigValue: 'Config Value',

@@ -88,7 +88,7 @@ public final class RedisVecSourceHandler extends AbstractVecSource {
     /**
      * Obtain a Jedis resource from the pool, execute the callback, and return the resource.
      */
-    <T> T withJedis(JedisCallback<T> callback) {
+    public <T> T withJedis(JedisCallback<T> callback) {
         try (Jedis jedis = jedisPool.getResource()) {
             return callback.execute(jedis);
         }
@@ -122,7 +122,7 @@ public final class RedisVecSourceHandler extends AbstractVecSource {
     }
 
     @FunctionalInterface
-    interface JedisCallback<T> {
+    public interface JedisCallback<T> {
         T execute(Jedis jedis);
     }
 }

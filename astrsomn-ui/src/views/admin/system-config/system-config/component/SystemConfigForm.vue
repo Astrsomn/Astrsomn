@@ -118,7 +118,7 @@ const handleSubmit = () => {
 
 <style scoped>
 .config-form {
+  width: 100%;
   padding: 20px 0;
 }
-
 </style>

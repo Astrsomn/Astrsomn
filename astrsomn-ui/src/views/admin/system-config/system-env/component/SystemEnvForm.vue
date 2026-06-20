@@ -109,6 +109,6 @@ function onCancel() {
 
 <style scoped>
 .env-form {
-  max-width: 560px;
+  width: 100%;
 }
 </style>

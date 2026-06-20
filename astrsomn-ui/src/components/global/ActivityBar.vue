@@ -1,7 +1,7 @@
 <template>
   <div class="activity-bar">
     <div class="activity-bar-top">
-      <div class="activity-logo" @click="goHome">
+      <div class="activity-logo" data-guide="activity-logo" @click="goHome">
         <div class="logo-glow"></div>
         <div class="logo-inner">
           <img
@@ -18,6 +18,7 @@
         <template #title>{{ item.label }}</template>
         <div
             :class="{ 'is-active': isActive(item.route) }"
+            :data-guide="`activity-${item.key}`"
             class="activity-item"
             @click="navigateTo(item.route)"
         >
@@ -37,6 +38,7 @@
         <div
             :class="{ 'is-active': isActive('/admin/system') }"
             class="activity-item"
+            data-guide="activity-settings"
             @click="navigateTo('/admin/system')"
         >
           <component

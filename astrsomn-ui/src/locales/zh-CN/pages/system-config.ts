@@ -38,6 +38,7 @@ export const systemConfigTranslation = {
     editSubtitle: '修改系统配置项',
     btnCreate: '创建',
     btnSave: '保存',
+    btnCancel: '取消',
     labelConfigKey: '配置 Key',
     labelConfigGroup: '配置分组',
     labelConfigValue: '配置值',

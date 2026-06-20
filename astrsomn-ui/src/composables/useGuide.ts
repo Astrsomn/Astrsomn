@@ -84,12 +84,35 @@ function completeGuide() {
     setGuideCompleted()
 }
 
+function isLoggedIn(): boolean {
+    return !!localStorage.getItem('token')
+}
+
 function initAutoGuide() {
+    if (!isLoggedIn()) return
     if (guideConfig.autoStart && !isGuideCompleted()) {
         setTimeout(() => {
             startGuide()
         }, 500)
     }
+}
+
+/** 登录后初始化引导 — 仅在已登录且引导未完成时启动 */
+function initGuideAfterLogin(delay = 800) {
+    if (!isLoggedIn()) {
+        console.warn('Guide: user not logged in, skipping')
+        return
+    }
+    if (!guideConfig.enabled) {
+        console.warn('Guide: disabled by config')
+        return
+    }
+    if (isGuideCompleted()) {
+        return
+    }
+    setTimeout(() => {
+        startGuide()
+    }, delay)
 }
 
 export function useGuide() {
@@ -99,6 +122,8 @@ export function useGuide() {
         startGuideForElement,
         stopGuide,
         completeGuide,
-        initAutoGuide
+        initAutoGuide,
+        initGuideAfterLogin,
+        isLoggedIn
     }
 }
